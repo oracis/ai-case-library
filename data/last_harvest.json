@@ -1,77 +1,28 @@
 {
-  "ran_at": "2026-09-11 17:35:47",
-  "added": 8,
+  "ran_at": "2026-09-11 09:57:03",
+  "added": 2,
   "by_source": {
-    "hn": 7,
-    "trustmrr": 1
+    "hn": 2
   },
-  "inbox_total": 135,
+  "inbox_total": 137,
   "archived_this_run": 0,
   "archive_total": 0,
   "top": [
     {
-      "name": "Beautiful Markdown rendering in your terminal",
-      "headline": "未获取",
-      "heat": 2,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://github.com/spencerldixon/lime"
-    },
-    {
-      "name": "Bootstrapping Mechanical Correctness",
-      "headline": "未获取",
-      "heat": 2,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://artagnon.com/art/regress"
-    },
-    {
-      "name": "Seeking Userfeedback",
-      "headline": "未获取",
-      "heat": 2,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://news.ycombinator.com/item?id=49195227"
-    },
-    {
-      "name": "Jscpd start support type2/type3 clones",
+      "name": "What happened to 14,229 launches from Show HN, YC and Product Hunt",
       "headline": "未获取",
       "heat": 1,
       "category": "未分类",
       "source": "hn",
-      "url": "https://github.com/kucherenko/jscpd"
+      "url": "https://www.buildorskip.com"
     },
     {
-      "name": "FOSS browser-based visual Kegel trainer for men",
+      "name": "Browse PC Parts on Amazon.com without distractions",
       "headline": "未获取",
       "heat": 1,
       "category": "未分类",
       "source": "hn",
-      "url": "https://kegeltrainer.net/"
-    },
-    {
-      "name": "Reversing a ClickFix malware with a blockchain-based C2",
-      "headline": "未获取",
-      "heat": 1,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://github.com/v-pun215/Tourmaline"
-    },
-    {
-      "name": "Bootstrapping enables human-level concept learning in self-supervised models",
-      "headline": "未获取",
-      "heat": 1,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://www.science.org/doi/10.1126/sciadv.aea7202"
-    },
-    {
-      "name": "Svetlana Chess School",
-      "headline": "TrustMRR 验证收入榜条目（具体数字待补）",
-      "heat": 0,
-      "category": "未分类",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/svetlana"
+      "url": "https://findpcpart.com/products?category_key=cpu"
     }
   ]
 }

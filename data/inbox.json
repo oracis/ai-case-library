@@ -1,5 +1,41 @@
 [
   {
+    "id": "browse-pc-parts-on-amazon-com-without-distractions",
+    "name": "Browse PC Parts on Amazon.com without distractions",
+    "name_en": "Browse PC Parts on Amazon.com without distractions",
+    "origin": "",
+    "one_liner": "I've built a website where you can browse PC parts from Amazon without distractions and clutter. Most people, like myself, value more information and a clear way to find products than being bombarded with irrelevant stuff like \"hey buy this",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（来源 hn，发布于 2026-09-11，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://findpcpart.com/products?category_key=cpu",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11"
+  },
+  {
+    "id": "what-happened-to-14-229-launches-from-show-hn-yc-and-product-hunt",
+    "name": "What happened to 14,229 launches from Show HN, YC and Product Hunt",
+    "name_en": "What happened to 14,229 launches from Show HN, YC and Product Hunt",
+    "origin": "",
+    "one_liner": "Show HN: What happened to 14,229 launches from Show HN, YC and Product Hunt",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（来源 hn，发布于 2026-09-11，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://www.buildorskip.com",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11"
+  },
+  {
     "id": "svetlana-chess-school",
     "name": "Svetlana Chess School",
     "name_en": "Svetlana Chess School",
