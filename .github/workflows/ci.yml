@@ -1,0 +1,91 @@
+name: CI
+
+# 每次 push / PR 都跑一遍：后端接口自测 + 前端渲染自测。
+# 这个库的价值全在数据是否可靠，所以额外加了两条数据断言：
+#   - data/*.json 必须是合法 JSON（手改 JSON 打错逗号能立刻发现）
+#   - 自测跑完后数据必须与提交时一字不差（验证备份/还原真的有效）
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: 后端自测 · Python ${{ matrix.python }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.9', '3.11', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: 校验 data/*.json 是不是合法 JSON
+        run: |
+          python - <<'PY'
+          import json, pathlib, sys
+          bad = 0
+          for p in sorted(pathlib.Path("data").glob("*.json")):
+              try:
+                  obj = json.loads(p.read_text(encoding="utf-8"))
+              except Exception as e:
+                  print("  [FAIL] %s -> %s" % (p, e))
+                  bad += 1
+                  continue
+              n = len(obj) if isinstance(obj, list) else len(obj.get("sources", obj))
+              print("  [ok] %-28s %s 项" % (p.name, n))
+          sys.exit(1 if bad else 0)
+          PY
+
+      - name: 后端接口自测（起临时服务，跑完自动还原 data/）
+        run: python selftest.py
+
+      - name: 断言数据未被自测污染
+        run: |
+          if [ -n "$(git status --porcelain data/)" ]; then
+            echo "::error::自测改动了 data/，备份/还原机制失效："
+            git status --porcelain data/
+            git diff --stat data/
+            exit 1
+          fi
+          echo "data/ 与提交时一致，备份/还原正常。"
+
+  frontend:
+    name: 前端自测 · Node ${{ matrix.node }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['18', '20', '22']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: app.js 语法检查
+        run: node --check static/app.js
+
+      - name: uitest.js 语法检查
+        run: node --check uitest.js
+
+      - name: 渲染冒烟测试（DOM 桩，无需浏览器）
+        run: node uitest.js
+
+      - name: 断言测试没有写脏 data/
+        run: |
+          if [ -n "$(git status --porcelain data/)" ]; then
+            echo "::error::前端测试改动了 data/"
+            git status --porcelain data/
+            exit 1
+          fi
+          echo "data/ 未被改动。"

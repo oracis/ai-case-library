@@ -1,5 +1,13 @@
 # 赚钱案例库 · AI Case Library
 
+[![CI](https://github.com/oracis/ai-case-library/actions/workflows/ci.yml/badge.svg)](https://github.com/oracis/ai-case-library/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-3fb950.svg)](LICENSE)
+[![Python 3 · stdlib only](https://img.shields.io/badge/Python%203-stdlib%20only-3776ab.svg)](#启动)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-8b949e.svg)](#贡献)
+
+**仓库**：<https://github.com/oracis/ai-case-library> · **协议**：MIT（可商用、可改、可分发）
+· **克隆**：`git clone https://github.com/oracis/ai-case-library.git`
+
 一个本地跑的**已核实案例库**：把国外已经跑通的小项目扒下来、核过数字、写成人话，
 按「模式」而不是「行业」组织，用来长判断力。
 
@@ -277,6 +285,42 @@ python scripts/harvest.py --source all --limit 40
 （MRR / paying customers）> HN 热度。否则「This up votes itself」这类高赞娱乐帖
 会盖过真在收钱的项目。
 
+### 跑完自动提交推送
+
+`scripts/daily_harvest.py` 把上面这步和 git 串起来，让 GitHub 上的库跟着长：
+
+```bash
+python scripts/daily_harvest.py                # 采集 → 提交 → 推送
+python scripts/daily_harvest.py --dry-run      # 只采集，不提交（改动留在工作区）
+python scripts/daily_harvest.py --no-push      # 提交到本地，不推送
+python scripts/daily_harvest.py --limit 30     # 参数透传给 harvest.py
+```
+
+它的行为边界写得很死，这几条是刻意的：
+
+| 情况 | 行为 |
+|---|---|
+| `data/` 无变化（没捞到新素材） | **直接退出，不制造空提交** |
+| 有变化 | `git add -- data/` → 提交 → 推送 |
+| `data/` 之外的文件 | **一律不动**，不会被卷进提交 |
+| `cases.json` | **绝不被自动修改**，只在人工核实后手动提交 |
+| 采集失败 | 不提交，退出码 1 |
+| 推送失败 | 本地提交保留，提示手动 `git push` |
+
+提交信息按简报自动生成，长这样：
+
+```
+采集：新增 4 条素材（2026-09-11）
+
+来源分布：hn 4
+采集队列 131 条
+只写采集队列；精写案例仍需人工核实。
+```
+
+无人值守会遇到的坑也处理了：没有提交身份就明确报错并给出配置命令；
+`.git/index.lock` 残留时，超过 10 分钟的陈旧锁自动清理、太新的锁则跳过本次（说明真有
+一次 git 在跑）；推送后顺手补齐本地 `origin/<branch>` 引用。
+
 ---
 
 ## 核实
@@ -302,9 +346,13 @@ python scripts/verify.py --checklist                         # 只看通用清�
 ## 自测
 
 ```bash
-python selftest.py        # 后端：起临时服务，34 项接口测试，自动备份+还原数据
-node uitest.js            # 前端：用 DOM 桩跑一遍所有渲染函数，52 项检查
+python selftest.py                    # 后端：起临时服务，34 项接口测试，自动备份+还原数据
+node uitest.js                        # 前端：用 DOM 桩跑一遍所有渲染函数，52 项检查
+python scripts/test_daily_harvest.py  # 自动提交脚本：git 机制与失败路径，25 项（不联网）
+python scripts/check_ci.py            # 校验 workflow 的 YAML 结构与其中 shell 脚本语法
 ```
+
+前两个是主测试，每次 push 都由 CI 自动跑（见下）；后两个是本地工具。
 
 **`selftest.py`** 起一个临时服务（默认 5087 端口，不影响正在跑的 5052），
 **在开始前备份 data/、结束后无论成败都还原**。
@@ -327,6 +375,29 @@ node uitest.js            # 前端：用 DOM 桩跑一遍所有渲染函数，52
 
 也可以对着真实接口跑：`node uitest.js http://127.0.0.1:5052`
 
+### 持续集成
+
+`.github/workflows/ci.yml` 在每次 push / PR 时自动跑，两个 job：
+
+| job | 矩阵 | 内容 |
+|---|---|---|
+| 后端 | Python 3.9 / 3.11 / 3.13 | 校验 `data/*.json` 是合法 JSON → 跑 `selftest.py` → 断言数据没被测试改脏 |
+| 前端 | Node 18 / 20 / 22 | `node --check` 两个 JS → 跑 `uitest.js` → 断言数据没被写脏 |
+
+两个 job 都是 `fail-fast: false`，所以某个版本挂掉时能看到全貌，而不是只看到第一个。
+
+**「数据没被改脏」这条断言是这个库特有的**：`selftest.py` 会在开始时备份 `data/`、
+结束时还原，那条断言就是验证这个备份/还原真的有效——如果哪天还原逻辑坏了，
+CI 会先于你发现。手改 JSON 少个逗号也会在这一步被拦住。
+
+`scripts/check_ci.py` 是本地版的 workflow 校验（YAML 结构 + 其中每段 shell 脚本的
+`bash -n`），需要 `pip install pyyaml`；它属于本地工具，不在 CI 里跑。
+
+> Windows 上有个坑：PATH 里的 `bash` 往往解析到 `C:\WINDOWS\system32\bash.EXE`，
+> 那是 WSL 的启动桩——它不解析脚本，对任何输入都返回 1。`check_ci.py` 因此
+> 硬编码优先用 `C:\Program Files\Git\bin\bash.exe`，并且在正式校验前先拿一个
+> 故意写错的脚本自检一次，确认这个 bash 真的会报语法错。
+
 ---
 
 ## 目录结构
@@ -337,6 +408,9 @@ ai-case-library/
 ├─ selftest.py             后端自测（备份 → 测试 → 还原）
 ├─ uitest.js               前端渲染冒烟测试（DOM 桩，无需浏览器）
 ├─ start.bat               Windows 一键启动
+├─ LICENSE                 MIT
+├─ .github/workflows/
+│  └─ ci.yml               push / PR 自动跑后端 + 前端自测
 ├─ data/
 │  ├─ sources.json         5 个信息源的配置、可信度分级、坑，以及采集过滤规则
 │  ├─ cases.json           精写案例（24 条）
@@ -346,9 +420,12 @@ ai-case-library/
 │  └─ last_harvest.json    最近一次采集的简报
 ├─ scripts/
 │  ├─ harvest.py           采集：HN / TrustMRR / Product Hunt
+│  ├─ daily_harvest.py     采集 + 自动提交推送（定时任务用的就是它）
 │  ├─ verify.py            核实助手
 │  ├─ score_china_fit.py   国内移植可行性评分（六维加权 + 金银铜）
-│  └─ score_solo_fit.py    个人可做性评分 + 双轴综合分 + 四象限
+│  ├─ score_solo_fit.py    个人可做性评分 + 双轴综合分 + 四象限
+│  ├─ test_daily_harvest.py 上面那个自动提交脚本的测试（不联网）
+│  └─ check_ci.py          校验 workflow 的 YAML 与 shell 语法（本地工具）
 └─ static/
    ├─ index.html
    ├─ style.css            深色主题
@@ -389,6 +466,27 @@ ai-case-library/
 | ARR Club | B- | 查某个时间点的 ARR 方便，但大量二手转述 |
 
 详细的接入方式、能拿到的字段、以及每个源的坑，见应用里的「信息源」页。
+
+---
+
+## 贡献
+
+欢迎 PR。两类东西最有用：
+
+- **新案例**：按 `data/cases.json` 现有字段加。`verification` 必须标真实等级——
+  找不到公开来源就老老实实标 `unverified`，别为了好看往上写。
+  带 `corrections`（记录「别人抄错了什么」）的尤其欢迎，那是这个库最有价值的部分。
+- **改正数字**：发现库里某条数字有问题，开 issue 附上来源链接即可，不用改代码。
+
+改完跑一遍自测再提：
+
+```bash
+python selftest.py && node uitest.js
+```
+
+## 协议
+
+[MIT](LICENSE)，版权归 oracis。可商用、可修改、可分发，保留版权声明即可。
 
 ---
 
