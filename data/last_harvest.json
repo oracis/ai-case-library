@@ -1,76 +1,77 @@
 {
-  "ran_at": "2026-09-11 16:24:33",
-  "added": 20,
+  "ran_at": "2026-09-11 17:35:47",
+  "added": 8,
   "by_source": {
-    "hn": 20
+    "hn": 7,
+    "trustmrr": 1
   },
-  "inbox_total": 127,
+  "inbox_total": 135,
   "archived_this_run": 0,
   "archive_total": 0,
   "top": [
     {
-      "name": "This up votes itself",
+      "name": "Beautiful Markdown rendering in your terminal",
       "headline": "未获取",
-      "heat": 3531,
+      "heat": 2,
       "category": "未分类",
       "source": "hn",
-      "url": "http://news.ycombinator.com/vote?for=3742902&dir=up&whence=%6e%65%77%65%73%74"
+      "url": "https://github.com/spencerldixon/lime"
     },
     {
-      "name": "Gemini Pro 3 imagines the HN front page 10 years from now",
+      "name": "Bootstrapping Mechanical Correctness",
       "headline": "未获取",
-      "heat": 3346,
+      "heat": 2,
       "category": "未分类",
       "source": "hn",
-      "url": "https://dosaygo-studio.github.io/hn-front-page-2035/news"
+      "url": "https://artagnon.com/art/regress"
     },
     {
-      "name": "I made an open-source laptop from scratch",
+      "name": "Seeking Userfeedback",
       "headline": "未获取",
-      "heat": 3237,
+      "heat": 2,
       "category": "未分类",
       "source": "hn",
-      "url": "https://www.byran.ee/posts/creation/"
+      "url": "https://news.ycombinator.com/item?id=49195227"
     },
     {
-      "name": "I replaced a $120k bowling center system with $1,600 in ESP32s",
-      "headline": "疑似金额 $120k",
-      "heat": 2935,
+      "name": "Jscpd start support type2/type3 clones",
+      "headline": "未获取",
+      "heat": 1,
       "category": "未分类",
       "source": "hn",
-      "url": "https://news.ycombinator.com/item?id=48968606"
+      "url": "https://github.com/kucherenko/jscpd"
     },
     {
-      "name": "If YouTube had actual channels",
+      "name": "FOSS browser-based visual Kegel trainer for men",
       "headline": "未获取",
-      "heat": 2741,
+      "heat": 1,
       "category": "未分类",
       "source": "hn",
-      "url": "https://ytch.xyz"
+      "url": "https://kegeltrainer.net/"
     },
     {
-      "name": "A retro video game console I've been working on in my free time",
+      "name": "Reversing a ClickFix malware with a blockchain-based C2",
       "headline": "未获取",
-      "heat": 2690,
+      "heat": 1,
       "category": "未分类",
       "source": "hn",
-      "url": "https://internalregister.github.io/2019/03/14/Homebrew-Console.html"
+      "url": "https://github.com/v-pun215/Tourmaline"
     },
     {
-      "name": "Redbean",
+      "name": "Bootstrapping enables human-level concept learning in self-supervised models",
       "headline": "未获取",
-      "heat": 1998,
+      "heat": 1,
       "category": "未分类",
       "source": "hn",
-      "url": "https://justine.lol/redbean/index.html"
+      "url": "https://www.science.org/doi/10.1126/sciadv.aea7202"
     },
     {
-      "name": "Non.io, a Reddit-like platform Ive been working on for the last 4 years",
-      "headline": "未获取",
-      "heat": 1943,
+      "name": "Svetlana Chess School",
+      "headline": "TrustMRR 验证收入榜条目（具体数字待补）",
+      "heat": 0,
       "category": "未分类",
-      "source": "hn",
-      "url": "https://non.io"
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/svetlana"
     }
   ]
 }

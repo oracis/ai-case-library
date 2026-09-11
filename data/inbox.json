@@ -1,5 +1,149 @@
 [
   {
+    "id": "svetlana-chess-school",
+    "name": "Svetlana Chess School",
+    "name_en": "Svetlana Chess School",
+    "origin": "",
+    "one_liner": "Svetlana Chess School is a character-driven iOS chess training app where a sharp-tongued virtual coach roasts your mistakes while helping you improve. It includes 50,000 rated chess puzzles, structured lessons and drills",
+    "category": "未分类",
+    "verification": "partial",
+    "metrics": {
+      "headline": "TrustMRR 验证收入榜条目（具体数字待补）"
+    },
+    "models": [],
+    "note": "来自 TrustMRR 首页的「Top startups by verified revenue」结构化数据。收入本身由支付网关验证，但榜单未直接给出金额，需打开公司页取数。注意区分 MRR 与 all-time 两个口径。",
+    "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
+    "source_url": "https://trustmrr.com/startup/svetlana",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-09-11"
+  },
+  {
+    "id": "seeking-userfeedback",
+    "name": "Seeking Userfeedback",
+    "name_en": "Seeking Userfeedback",
+    "origin": "",
+    "one_liner": "Arakis is a prediction market with automated liquidity bootstrapping. Crankless atomic settlements and the first fully non-custodial on-chain protocol. Try out! https://arakis .fun/",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（来源 hn，发布于 2026-08-06，2 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://news.ycombinator.com/item?id=49195227",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11"
+  },
+  {
+    "id": "bootstrapping-enables-human-level-concept-learning-in-self-supervised-models",
+    "name": "Bootstrapping enables human-level concept learning in self-supervised models",
+    "name_en": "Bootstrapping enables human-level concept learning in self-supervised models",
+    "origin": "",
+    "one_liner": "Bootstrapping enables human-level concept learning in self-supervised models",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（来源 hn，发布于 2026-08-30，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://www.science.org/doi/10.1126/sciadv.aea7202",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11"
+  },
+  {
+    "id": "bootstrapping-mechanical-correctness",
+    "name": "Bootstrapping Mechanical Correctness",
+    "name_en": "Bootstrapping Mechanical Correctness",
+    "origin": "",
+    "one_liner": "Bootstrapping Mechanical Correctness",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（来源 hn，发布于 2026-09-05，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://artagnon.com/art/regress",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11"
+  },
+  {
+    "id": "reversing-a-clickfix-malware-with-a-blockchain-based-c2",
+    "name": "Reversing a ClickFix malware with a blockchain-based C2",
+    "name_en": "Reversing a ClickFix malware with a blockchain-based C2",
+    "origin": "",
+    "one_liner": "Show HN: Reversing a ClickFix malware with a blockchain-based C2",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（来源 hn，发布于 2026-09-11，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/v-pun215/Tourmaline",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11"
+  },
+  {
+    "id": "foss-browser-based-visual-kegel-trainer-for-men",
+    "name": "FOSS browser-based visual Kegel trainer for men",
+    "name_en": "FOSS browser-based visual Kegel trainer for men",
+    "origin": "",
+    "one_liner": "Hey, HN. Long time reader; first submission. I read HN daily and greatly enjoy looking at the projects that people are working on. I find the single-page websites particularly fun and decided to make one of my own. KegelTrainer.net is a vis",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（来源 hn，发布于 2026-09-11，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://kegeltrainer.net/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11"
+  },
+  {
+    "id": "jscpd-start-support-type2-type3-clones",
+    "name": "Jscpd start support type2/type3 clones",
+    "name_en": "Jscpd start support type2/type3 clones",
+    "origin": "",
+    "one_liner": "jspcd - copy/paste detector that detect clones in programming source code, starts from v5.2 jscpd supports detection for renamed variables, edited clones with few lines inserted and detect code clones fro similar structure.",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（来源 hn，发布于 2026-09-11，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/kucherenko/jscpd",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11"
+  },
+  {
+    "id": "beautiful-markdown-rendering-in-your-terminal",
+    "name": "Beautiful Markdown rendering in your terminal",
+    "name_en": "Beautiful Markdown rendering in your terminal",
+    "origin": "",
+    "one_liner": "Hey HN, I’ve been cobbling together a tool to read beautifully formatted markdown without leaving my terminal. Lime renders markdown in the terminal with actual formatting - big headers, syntax highlighted code, mermaid diagrams, all drawn ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（来源 hn，发布于 2026-09-11，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/spencerldixon/lime",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11"
+  },
+  {
     "id": "can-t-afford-bloomberg-terminal-no-prob-i-built-the-next-best-thing",
     "name": "Can’t afford Bloomberg Terminal? No prob, I built the next best thing",
     "name_en": "Can’t afford Bloomberg Terminal? No prob, I built the next best thing",
