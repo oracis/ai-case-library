@@ -186,6 +186,11 @@ html, body {
   font-family: var(--mono); line-height: 1.9; padding: 0 4px;
 }
 .side-meta b { color: var(--text-2); font-weight: 500; }
+/* 静态部署标记：线上是只读快照，没有后端 */
+.ro-mode {
+  margin-top: 5px; display: inline-block; padding: 2px 7px;
+  border: 1px dashed var(--border-2); border-radius: 5px; color: var(--text-3);
+}
 
 /* ============================ 主区 ============================ */
 .main { display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
@@ -597,6 +602,14 @@ html, body {
   transition: all .13s;
 }
 .src-link:hover { background: #2a3542; color: var(--text); border-color: var(--border-2); }
+
+/* 静态部署下的写操作占位：不放按钮，改成一个说明性标签，
+   避免点了没反应，也免得访客以为这是个能操作的站 */
+.ro-tag {
+  font-size: 11px; padding: 3px 9px; border-radius: 6px;
+  background: rgba(255, 255, 255, .03); border: 1px dashed var(--border);
+  color: var(--text-3); cursor: help; user-select: none;
+}
 
 /* ============================ 方法论 ============================ */
 .method { max-width: 860px; }

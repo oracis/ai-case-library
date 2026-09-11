@@ -1,0 +1,163 @@
+name: 每日采集
+
+# 在 GitHub 上直接更新数据，不需要开本地电脑。
+# 流程：采集 → 校验 → 提交 → 推送 →（配了 OSS 密钥的话）构建静态站并部署上线。
+#
+# 为什么放 GitHub 跑而不是本地：
+#   - 不依赖你本机开着、网络通、代理不捣乱
+#   - Runner 在境外，访问 Hacker News / TrustMRR 更顺
+#   - 结果直接落在远程仓库，本地随时 git pull
+#
+# 两个容易踩的点，这里都处理了：
+#   1) GITHUB_TOKEN 推的提交**不会**再触发 ci.yml（GitHub 防递归的设计），
+#      所以数据校验必须内联在这个 workflow 里，不能指望 ci.yml 兜底。
+#   2) schedule 触发时 inputs 上下文是空的，所以输入一律走 github.event.inputs
+#      并在 shell 里做默认值，不依赖表达式对 undefined 的处理。
+
+on:
+  schedule:
+    # 每天 01:00 UTC = 北京时间 09:00。
+    # GitHub 的定时任务不精确：高峰期可能延迟几十分钟，极端情况跳过某天。
+    # 采集场景无所谓，漏一天下次补上就是。
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+    inputs:
+      source:
+        description: 采集源
+        required: false
+        default: all
+        type: choice
+        options: [all, hn, trustmrr, ph]
+      limit:
+        description: 单源条数上限
+        required: false
+        default: '40'
+      dry_run:
+        description: 只采集不提交（调试采集规则用）
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write          # 需要推送提交
+
+# 同一时间只跑一个采集，避免两次采集同时 push 互相打架
+concurrency:
+  group: harvest
+  cancel-in-progress: false
+
+jobs:
+  harvest:
+    name: 采集 → 校验 → 提交
+    runs-on: ubuntu-latest
+
+    # 放在 job 级，这样下面 step 的 if 才读得到；密钥没配时为空串，自动跳过部署
+    env:
+      OSS_ACCESS_KEY_ID: ${{ secrets.OSS_ACCESS_KEY_ID }}
+      OSS_ACCESS_KEY_SECRET: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
+      OSS_BUCKET: ${{ vars.OSS_BUCKET }}
+      OSS_REGION: ${{ vars.OSS_REGION || 'cn-hongkong' }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: 配置提交身份
+        # 用 bot 身份，不冒充作者，这样一眼能看出哪些提交是机器干的
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: 采集并提交（先不推送）
+        # 复用本地同一套脚本，行为完全一致：没变化不产生空提交，只动 data/，
+        # 绝不自动改 cases.json（精写案例必须人工核实）。
+        env:
+          SRC: ${{ github.event.inputs.source }}
+          LIM: ${{ github.event.inputs.limit }}
+          DRY: ${{ github.event.inputs.dry_run }}
+        run: |
+          SRC="${SRC:-all}"
+          LIM="${LIM:-40}"
+          echo "采集源=$SRC  单源上限=$LIM  只采集不提交=$DRY"
+          if [ "$DRY" = "true" ]; then
+            python scripts/daily_harvest.py --source "$SRC" --limit "$LIM" --dry-run --no-push
+          else
+            python scripts/daily_harvest.py --source "$SRC" --limit "$LIM" --no-push
+          fi
+
+      - name: 校验数据没被写坏
+        # 这是本次自动化的安全阀：机器采回来的东西必须先过校验才允许推上去。
+        # 数据坏了 job 直接失败，远程保持原样。
+        run: |
+          echo "== 1) data/*.json 必须是合法 JSON =="
+          python - <<'PY'
+          import json, pathlib, sys
+          bad = 0
+          for p in sorted(pathlib.Path("data").glob("*.json")):
+              try:
+                  obj = json.loads(p.read_text(encoding="utf-8"))
+              except Exception as e:
+                  print("  [FAIL] %s -> %s" % (p, e))
+                  bad += 1
+                  continue
+              n = len(obj) if isinstance(obj, list) else len(obj.get("sources", obj))
+              print("  [ok] %-28s %s 项" % (p.name, n))
+          sys.exit(1 if bad else 0)
+          PY
+
+          echo
+          echo "== 2) 接口自测（备份 → 测试 → 还原 data/）=="
+          python selftest.py
+
+          echo
+          echo "== 3) 自测不许留下额外改动（验证备份/还原真的有效）=="
+          if [ -n "$(git status --porcelain -- data/)" ]; then
+            echo "::error::自测跑完后 data/ 是脏的，说明备份/还原失效："
+            git status --porcelain -- data/
+            git diff --stat -- data/
+            exit 1
+          fi
+          echo "data/ 干净，备份/还原正常。"
+
+      - name: 推送
+        run: |
+          BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+          if [ -z "$(git log "origin/$BRANCH..HEAD" --oneline)" ]; then
+            echo "没有待推送的提交（本次无新增）。"
+            exit 0
+          fi
+          git push origin "HEAD:$BRANCH"
+
+      - name: 构建静态站
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: python scripts/build_static.py
+
+      - name: 部署到阿里云 OSS
+        if: ${{ github.event.inputs.dry_run != 'true' && env.OSS_ACCESS_KEY_ID != '' && env.OSS_BUCKET != '' }}
+        run: |
+          python scripts/deploy_oss.py \
+            --bucket "$OSS_BUCKET" \
+            --region "$OSS_REGION" \
+            --setup-website
+
+      - name: 未配置 OSS 就跳过部署（给出配置说明）
+        if: ${{ github.event.inputs.dry_run != 'true' && (env.OSS_ACCESS_KEY_ID == '' || env.OSS_BUCKET == '') }}
+        run: |
+          echo "未配置 OSS_ACCESS_KEY_ID / OSS_BUCKET，跳过部署。"
+          echo "要让它自动上线，去仓库 Settings → Secrets and variables → Actions 配："
+          echo "  Secrets : OSS_ACCESS_KEY_ID、OSS_ACCESS_KEY_SECRET"
+          echo "  Variables: OSS_BUCKET（Bucket 名）、OSS_REGION（可选，默认 cn-hongkong）"
+
+      - name: 写运行摘要
+        if: always()
+        run: |
+          {
+            echo "### 每日采集"
+            echo ""
+            python -c "import json,os;p='data/last_harvest.json';d=json.load(open(p,encoding='utf-8')) if os.path.exists(p) else {};print('- 新增：**%s** 条' % d.get('added','?'));print('- 来源分布：%s' % (d.get('by_source') or {}));print('- 采集队列：**%s** 条' % d.get('inbox_total','?'));print();print('值得先看的几条：');[print('- %s（%s，热度 %s）%s' % (t.get('name'),t.get('source'),t.get('heat'),t.get('url') or '')) for t in (d.get('top') or [])[:5]]"
+          } >> "$GITHUB_STEP_SUMMARY"

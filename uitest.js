@@ -1,14 +1,35 @@
 /* 前端渲染冒烟测试：用最小 DOM 桩跑一遍 app.js 的所有渲染函数。
    目的：在没有浏览器的情况下，确认渲染逻辑不抛异常、且真的产出了 HTML。
-   用法：node uitest.js                       （文件系统读 data/）
-        node uitest.js http://127.0.0.1:5052 （走真实接口） */
+   用法：node uitest.js                        （文件系统读 data/，服务端模式）
+        node uitest.js http://127.0.0.1:5052  （走真实接口）
+        node uitest.js --static               （测 scripts/build_static.py 的产物）
+        node uitest.js --static=public        （测别的输出目录） */
 
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 
 const ROOT = __dirname;
-const API = process.argv[2] || '';
+
+const ARGS = process.argv.slice(2);
+const STATIC = ARGS.some((a) => a === '--static' || a.startsWith('--static='));
+const STATIC_DIR = ((ARGS.find((a) => a.startsWith('--static=')) || '').split('=')[1]) || 'dist';
+const API = ARGS.find((a) => /^https?:\/\//.test(a)) || '';
+
+/* 静态产物里，数据在 dist/data.js（window.__CASE_LIB_DATA__ = {...}）。
+   这里用 vm 执行它，既拿到了数据，也顺便验证了那个文件本身是可执行的。 */
+function readStaticData() {
+  const p = path.join(ROOT, STATIC_DIR, 'data.js');
+  if (!fs.existsSync(p)) {
+    throw new Error('找不到 ' + STATIC_DIR + '/data.js —— 先跑 python scripts/build_static.py');
+  }
+  const box = { window: {} };
+  vm.createContext(box);
+  vm.runInContext(fs.readFileSync(p, 'utf8'), box, { filename: 'data.js' });
+  const d = box.window.__CASE_LIB_DATA__;
+  if (!d) throw new Error(STATIC_DIR + '/data.js 里没有 window.__CASE_LIB_DATA__');
+  return d;
+}
 
 /* ---------------- 最小 DOM 桩 ---------------- */
 const nodes = new Map();
@@ -49,6 +70,8 @@ const document = {
   addEventListener: () => {},
   activeElement: null,
   createElement: mkEl,
+  head: { appendChild: () => {} },
+  body: { appendChild: () => {} },
 };
 
 const store = {};
@@ -59,6 +82,7 @@ const localStorage = {
 };
 
 function loadData() {
+  if (STATIC) return Promise.resolve(readStaticData());
   if (!API) {
     const rd = (n) => JSON.parse(fs.readFileSync(path.join(ROOT, 'data', n + '.json'), 'utf8'));
     const cases = rd('cases'), candidates = rd('candidates');
@@ -94,15 +118,35 @@ function loadData() {
 const errors = [];
 const sandbox = {
   document, localStorage, console,
-  fetch: (u) => loadData().then((d) => ({ ok: true, json: () => Promise.resolve(d) })),
+  // 静态模式下把 fetch 做成「一调就炸」：万一 app.js 在静态模式里还去请 /api，
+  // 测试会立刻暴露，而不是静默拿到 undefined
+  fetch: STATIC
+    ? () => { throw new Error('静态模式不该调用 fetch(/api)'); }
+    : (u) => loadData().then((d) => ({ ok: true, json: () => Promise.resolve(d) })),
   CSS: { escape: (s) => String(s).replace(/[^a-zA-Z0-9_-]/g, '\\$&') },
   setTimeout, clearTimeout, confirm: () => false, alert: () => {},
   window: {},
 };
 sandbox.globalThis = sandbox;
 
+/* app.js 靠 window.__STATIC__ 判断运行模式；静态模式下再把数据预置进 window，
+   这样 loadStaticData() 走「已存在」那条快路径（真实浏览器里是先 script 加载 data.js）。 */
+if (STATIC) {
+  sandbox.window.__STATIC__ = true;
+  try {
+    sandbox.window.__CASE_LIB_DATA__ = readStaticData();
+  } catch (e) {
+    console.log('[FAIL] 读取静态产物失败: ' + e.message);
+    process.exit(1);
+  }
+}
+
 /* ---------------- 跑起来 ---------------- */
-const src = fs.readFileSync(path.join(ROOT, 'static', 'app.js'), 'utf8');
+// 静态模式直接测构建出来的那份 app.js，而不是源文件——否则测的不是要部署的东西
+const APP_SRC = STATIC
+  ? path.join(ROOT, STATIC_DIR, 'app.js')
+  : path.join(ROOT, 'static', 'app.js');
+const src = fs.readFileSync(APP_SRC, 'utf8');
 vm.createContext(sandbox);
 
 // 捕获未处理异常
@@ -110,7 +154,9 @@ process.on('unhandledRejection', (e) => errors.push('unhandledRejection: ' + e))
 
 (async () => {
   console.log('='.repeat(60));
-  console.log('  前端渲染冒烟测试' + (API ? '（走真实接口 ' + API + '）' : '（读本地 data/）'));
+  console.log('  前端渲染冒烟测试' + (STATIC
+    ? '（静态产物 ' + STATIC_DIR + '/，只读模式）'
+    : API ? '（走真实接口 ' + API + '）' : '（读本地 data/）'));
   console.log('='.repeat(60));
 
   try {
@@ -399,6 +445,37 @@ process.on('unhandledRejection', (e) => errors.push('unhandledRejection: ' + e))
   } catch (e) {
     console.log('  [FAIL] 缺字段渲染抛异常: ' + e.message);
     fail++;
+  }
+
+  /* ---------------- 运行模式 ----------------
+     本地服务要有写按钮（提升候选 / 转入候选池）；
+     静态部署要把它们换成只读标签，否则访客点了没反应，或者以为线上能改数据。 */
+  console.log('\n[I] 运行模式（' + (STATIC ? '静态部署' : '本地服务') + '）');
+  {
+    const candHTML = get('grid-cands')._html || '';
+    const inboxHTML = get('grid-inbox')._html || '';
+    const metaHTML = get('side-meta')._html || '';
+    const hasWrButtons = candHTML.includes('data-promote="') && inboxHTML.includes('data-tocand="');
+    const hasRoTags = candHTML.includes('ro-tag') && inboxHTML.includes('ro-tag');
+    const metaRo = metaHTML.includes('只读快照');
+
+    const ck = (label, ok, extra) => {
+      console.log('  [' + (ok ? 'PASS' : 'FAIL') + '] ' + label + (extra ? '  ' + extra : ''));
+      ok ? pass++ : fail++;
+    };
+
+    if (STATIC) {
+      ck('静态模式不渲染写按钮', !candHTML.includes('data-promote="')
+        && !inboxHTML.includes('data-tocand="'));
+      ck('写按钮位置换成「只读快照」标签', hasRoTags);
+      ck('侧栏标注只读快照', metaRo);
+      ck('数据来自 data.js（没有走 /api）', !!sandbox.window.__CASE_LIB_DATA__);
+      ck('静态标记已生效', vm.runInContext('IS_STATIC === true', sandbox));
+    } else {
+      ck('本地服务渲染写按钮（候选池 + 采集队列）', hasWrButtons && !hasRoTags);
+      ck('本地服务不显示只读标记', !metaRo);
+      ck('本地模式 IS_STATIC 为假', vm.runInContext('IS_STATIC === false', sandbox));
+    }
   }
 
   if (errors.length) {

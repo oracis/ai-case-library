@@ -89,3 +89,41 @@ jobs:
             exit 1
           fi
           echo "data/ 未被改动。"
+
+  static:
+    name: 静态产物 · 构建 + 只读模式测试
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: 构建静态站
+        # 这个 job 守的是「能部署出去的那份东西确实可用」。
+        # 本地产物和 CI 产物理应一致，所以这里也真跑一遍构建。
+        run: python scripts/build_static.py
+
+      - name: 测静态产物（应切到只读模式、从 data.js 取数）
+        run: node uitest.js --static
+
+      - name: 断言构建只产出 dist/，没碰别的地方
+        run: |
+          # dist/ 已在 .gitignore 里，所以构建完仓库应当完全干净
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "::error::构建过程改动了被跟踪的文件："
+            git status --porcelain
+            exit 1
+          fi
+          echo "仓库干净，构建只产出 dist/。"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: static-site
+          path: dist/
+          retention-days: 7

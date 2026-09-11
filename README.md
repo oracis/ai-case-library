@@ -29,6 +29,15 @@ start.bat
 
 换端口：`set CASE_LIB_PORT=5099 && python server.py`
 
+也可以不起服务，直接看静态版本（部署到线上的就是这份，只读）：
+
+```bash
+python scripts/build_static.py     # 构建到 dist/
+# 然后双击 dist/index.html
+```
+
+详见下面的「部署到阿里云 OSS」。
+
 ---
 
 ## 这个库和「案例合集」有什么不一样
@@ -70,7 +79,7 @@ start.bat
 ## 三级漏斗
 
 ```
-data/inbox.json        采集队列     127 条   机器捞的，全没看过
+data/inbox.json        采集队列     135 条   机器捞的，全没看过
 data/candidates.json   候选池       37 条   人工挑的，还没核数字
 data/cases.json        精写案例     24 条   核过数字，能拿出去说
 ```
@@ -285,9 +294,35 @@ python scripts/harvest.py --source all --limit 40
 （MRR / paying customers）> HN 热度。否则「This up votes itself」这类高赞娱乐帖
 会盖过真在收钱的项目。
 
-### 跑完自动提交推送
+### 在 GitHub 上更新（主力方式）
 
-`scripts/daily_harvest.py` 把上面这步和 git 串起来，让 GitHub 上的库跟着长：
+`.github/workflows/harvest.yml` 每天 09:00（北京时间）在 GitHub 的机器上跑一遍，
+全流程无人值守：
+
+```
+采集 → 校验 → 提交 → 推送 →（配了 OSS 密钥的话）构建静态站 → 部署上线
+```
+
+**不用开着本机**，也不依赖你本地的网络和代理；Runner 在境外，访问
+Hacker News / TrustMRR 反而更顺。也可以去仓库 Actions 页面点「Run workflow」
+手动触发，能选采集源和条数。
+
+两个刻意的设计：
+
+1. **先校验，再推送。** 采集完先验 `data/*.json` 是不是合法 JSON → 跑一遍
+   `selftest.py` → 断言自测没留下额外改动，全过才允许 push。
+   任何一步挂掉，远程保持原样。
+2. **校验必须内联在这个 workflow 里。** GitHub 有个设计：用 `GITHUB_TOKEN`
+   推出去的提交**不会**再触发 `ci.yml`（防止递归）。所以不能指望 CI 兜底，
+   数据校验得自己带着。
+
+> 定时任务在 GitHub 上不精确：高峰期可能延迟几十分钟，极端情况会跳过某天——
+> 采集场景无所谓，漏一天下次补上就是。另外仓库连续 60 天没有任何提交活动时，
+> GitHub 会自动暂停定时任务；这个库每天都有提交，碰不到这个问题。
+
+### 本地也能跑（同一套脚本）
+
+云端工作流调的就是 `scripts/daily_harvest.py`，本地手动跑也用它：
 
 ```bash
 python scripts/daily_harvest.py                # 采集 → 提交 → 推送
@@ -347,12 +382,15 @@ python scripts/verify.py --checklist                         # 只看通用清�
 
 ```bash
 python selftest.py                    # 后端：起临时服务，34 项接口测试，自动备份+还原数据
-node uitest.js                        # 前端：用 DOM 桩跑一遍所有渲染函数，52 项检查
+node uitest.js                        # 前端：用 DOM 桩跑一遍所有渲染函数，55 项检查
+node uitest.js --static               # 前端静态产物：只读模式与控件降级，57 项检查
 python scripts/test_daily_harvest.py  # 自动提交脚本：git 机制与失败路径，25 项（不联网）
+python scripts/test_build_static.py   # 静态构建：防误删护栏 + 构建自检，38 项（不联网）
 python scripts/check_ci.py            # 校验 workflow 的 YAML 结构与其中 shell 脚本语法
 ```
 
-前两个是主测试，每次 push 都由 CI 自动跑（见下）；后两个是本地工具。
+`selftest.py`、`uitest.js`、`build_static.py` 都会被 CI 在每次 push 时自动跑（见下）；
+`test_daily_harvest.py`、`test_build_static.py`、`check_ci.py` 是本地工具。
 
 **`selftest.py`** 起一个临时服务（默认 5087 端口，不影响正在跑的 5052），
 **在开始前备份 data/、结束后无论成败都还原**。
@@ -375,16 +413,30 @@ python scripts/check_ci.py            # 校验 workflow 的 YAML 结构与其中
 
 也可以对着真实接口跑：`node uitest.js http://127.0.0.1:5052`
 
+### 静态产物也要测
+
+`node uitest.js --static` 测的是 `scripts/build_static.py` 的产物，不是源文件——
+否则测的就不是要部署的那份东西了。它会自己切到只读模式、从 `dist/data.js` 取数，
+并把 `fetch` 换成「一调就炸」的桩：万一哪天静态模式里误用了 `/api`，测试会直接暴露，
+而不是静默拿到 `undefined`。
+
+多验四件事：不渲染写按钮、写按钮位置换成「只读快照」标签、侧栏标注只读快照、
+数据确实来自 `data.js`。
+
 ### 持续集成
 
-`.github/workflows/ci.yml` 在每次 push / PR 时自动跑，两个 job：
+`.github/workflows/ci.yml` 在每次 push / PR 时自动跑，三个 job：
 
 | job | 矩阵 | 内容 |
 |---|---|---|
 | 后端 | Python 3.9 / 3.11 / 3.13 | 校验 `data/*.json` 是合法 JSON → 跑 `selftest.py` → 断言数据没被测试改脏 |
 | 前端 | Node 18 / 20 / 22 | `node --check` 两个 JS → 跑 `uitest.js` → 断言数据没被写脏 |
+| 静态产物 | — | 真跑一遍 `build_static.py` → `uitest.js --static` 测只读模式 → 断言构建只产出 `dist/` |
 
-两个 job 都是 `fail-fast: false`，所以某个版本挂掉时能看到全貌，而不是只看到第一个。
+前后端两个 job 都是 `fail-fast: false`，某个版本挂掉时能看到全貌，而不是只看到第一个。
+
+第三个 job 守的是「能部署出去的那份东西确实可用」——它挂掉意味着线上会白屏或
+按钮失灵，在推上去之前就知道，而不是等你打开浏览器才发现。
 
 **「数据没被改脏」这条断言是这个库特有的**：`selftest.py` 会在开始时备份 `data/`、
 结束时还原，那条断言就是验证这个备份/还原真的有效——如果哪天还原逻辑坏了，
@@ -400,31 +452,118 @@ CI 会先于你发现。手改 JSON 少个逗号也会在这一步被拦住。
 
 ---
 
+## 部署到阿里云 OSS
+
+`scripts/build_static.py` 把整个库打成纯静态站点（`dist/`，6 个文件、约 580 KB）——
+不需要服务器、不需要 Python 运行环境，扔到任何静态托管都能跑。
+
+```bash
+python scripts/build_static.py              # 构建到 dist/
+python scripts/build_static.py --no-inbox   # 精简版：不含采集队列
+python scripts/build_static.py --out public # 换输出目录
+```
+
+| 产物 | 说明 |
+|---|---|
+| `index.html` | 注入了 `window.__STATIC__ = true`，前端据此切只读模式 |
+| `data.js` | `window.__CASE_LIB_DATA__ = {...}`，页面实际加载这个 |
+| `data.json` | 同一份数据，给第三方程序抓取 |
+| `style.css`、`app.js` | 前端本体 |
+| `404.html` | 可以在 OSS 里配成错误页 |
+
+**为什么有 `data.js` 还要 `data.json`：** 直接双击 `index.html` 打开时协议是
+`file://`，`fetch` 本地文件会被浏览器 CORS 拦掉，而 `<script>` 不受这个限制。
+所以页面走 `data.js`，这样整个 `dist/` 拷到哪儿都能双击打开；`data.json` 给程序消费。
+构建脚本会自检这两件事：静态标记注进去了没有、有没有退回根路径引用
+（根路径在子目录部署时会 404）。
+
+### 线上是只读快照
+
+静态站点没有后端，所以「提升为精写案例」「转入候选池」这类写操作在线上不出现——
+前端会把按钮位置换成「只读快照」标签，而不是让你点了没反应，侧栏也会标出来。
+要做核实和写操作，克隆仓库跑 `python server.py`。
+
+已读进度走 `localStorage`，线上照常工作——它记的是「你这个人读过哪些案例」，与后端无关。
+
+### 上传（零依赖）
+
+`scripts/deploy_oss.py` 自己实现了 OSS 的 V1 签名（HMAC-SHA1），
+**不需要 `pip install oss2`，也不要求本机装 ossutil**。
+
+```bash
+# 1 验证凭证（只读：列一下 Bucket，不写任何东西）
+python scripts/deploy_oss.py --check --env-file <你的.env>
+
+# 2 看会传哪些文件
+python scripts/deploy_oss.py --bucket my-bucket --dry-run --env-file <你的.env>
+
+# 3 真传
+python scripts/deploy_oss.py --bucket my-bucket --setup-website --env-file <你的.env>
+```
+
+凭证按优先级取：`--env-file` → `OSS_ACCESS_KEY_ID`/`OSS_ACCESS_KEY_SECRET` →
+`ALIYUN_AK_ID`/`ALIYUN_AK_SECRET`。**脚本里不存任何密钥**，`.env` 已在 `.gitignore`。
+
+上传时按扩展名给正确的 `Content-Type`（OSS 不会自己猜，猜错浏览器行为会很怪），
+并按文件设缓存策略：
+
+| 文件 | Cache-Control | 理由 |
+|---|---|---|
+| `index.html`、`404.html`、`data.js`、`data.json` | `no-cache` | 内容会变，改完立刻生效 |
+| `app.js`、`style.css` | `public, max-age=300` | 基本不变，省点回源 |
+
+`--setup-website` 会配好静态网站托管（首页 `index.html`、错误页 `404.html`）。
+不配这个，访问域名根路径会返回一个 XML 文件列表而不是首页。
+
+### 让 Actions 自动部署
+
+去仓库 `Settings → Secrets and variables → Actions` 配好这几项，之后每次采集跑完
+就会自动构建并上线（没配就跳过部署，只更新 GitHub 上的数据）：
+
+| 类型 | 名称 | 值 |
+|---|---|---|
+| Secret | `OSS_ACCESS_KEY_ID` | AccessKey ID |
+| Secret | `OSS_ACCESS_KEY_SECRET` | AccessKey Secret |
+| Variable | `OSS_BUCKET` | Bucket 名 |
+| Variable | `OSS_REGION` | 可选，默认 `cn-hongkong` |
+
+两条和阿里云有关的实际经验：
+
+- **用香港地域的 Bucket 不需要大陆备案。** 大陆地域绑自定义域名要备案，香港不用。
+- **绑了 CDN 自定义域名的话，传完记得刷缓存**，否则可能还是旧的：
+  控制台 → CDN → 域名管理 → 刷新预热 → 刷新缓存 → 类型选「目录」填 `/`
+
+---
+
 ## 目录结构
 
 ```
 ai-case-library/
 ├─ server.py               零依赖 HTTP 服务 + JSON API（标准库）
 ├─ selftest.py             后端自测（备份 → 测试 → 还原）
-├─ uitest.js               前端渲染冒烟测试（DOM 桩，无需浏览器）
+├─ uitest.js               前端渲染冒烟测试（DOM 桩，支持 --static）
 ├─ start.bat               Windows 一键启动
 ├─ LICENSE                 MIT
 ├─ .github/workflows/
-│  └─ ci.yml               push / PR 自动跑后端 + 前端自测
+│  ├─ ci.yml               push / PR 跑后端 + 前端 + 静态产物
+│  └─ harvest.yml          每天 09:00 云端采集 → 校验 → 提交 → 部署
 ├─ data/
 │  ├─ sources.json         5 个信息源的配置、可信度分级、坑，以及采集过滤规则
 │  ├─ cases.json           精写案例（24 条）
 │  ├─ candidates.json      候选池（37 条）
-│  ├─ inbox.json           采集队列（脚本产出，127 条）
+│  ├─ inbox.json           采集队列（脚本产出，135 条）
 │  ├─ inbox_archive.json   队列超额后的归档（留底，不删除）
 │  └─ last_harvest.json    最近一次采集的简报
 ├─ scripts/
 │  ├─ harvest.py           采集：HN / TrustMRR / Product Hunt
-│  ├─ daily_harvest.py     采集 + 自动提交推送（定时任务用的就是它）
+│  ├─ daily_harvest.py     采集 + 自动提交推送（本地与云端共用同一套）
+│  ├─ build_static.py      构建静态站点到 dist/（部署用）
+│  ├─ deploy_oss.py        上传 dist/ 到阿里云 OSS（零依赖，自己实现 OSS 签名）
 │  ├─ verify.py            核实助手
 │  ├─ score_china_fit.py   国内移植可行性评分（六维加权 + 金银铜）
 │  ├─ score_solo_fit.py    个人可做性评分 + 双轴综合分 + 四象限
-│  ├─ test_daily_harvest.py 上面那个自动提交脚本的测试（不联网）
+│  ├─ test_daily_harvest.py 自动提交脚本的测试（25 项，不联网）
+│  ├─ test_build_static.py 静态构建的测试（38 项，含防误删护栏，不联网）
 │  └─ check_ci.py          校验 workflow 的 YAML 与 shell 语法（本地工具）
 └─ static/
    ├─ index.html

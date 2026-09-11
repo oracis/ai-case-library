@@ -3,6 +3,13 @@
    ============================================================ */
 'use strict';
 
+/* ---------------- 运行模式 ----------------
+   本地服务（server.py）：有 /api 接口，候选池/队列的写操作可用。
+   静态部署（scripts/build_static.py 产出，扔 OSS / Pages）：只有一个 data.json，
+   没有后端，所以写操作必须降级为提示，而不是让按钮点了没反应。
+   build_static.py 会在 index.html 里注入 window.__STATIC__ = true。 */
+const IS_STATIC = !!window.__STATIC__;
+
 /* ---------------- 常量 ---------------- */
 const V_LABEL = {
   stripe:     '支付网关验证',
@@ -272,7 +279,8 @@ function renderStats() {
   $('side-meta').innerHTML =
     `<div>案例 <b>${s.curated || 0}</b> · 候选 <b>${s.candidates || 0}</b></div>` +
     `<div>已核实 <b>${s.verified || 0}</b> · 修正 <b>${s.flagged || 0}</b></div>` +
-    `<div style="margin-top:6px">生成 <b>${esc(DATA.generated_at || '')}</b></div>`;
+    `<div style="margin-top:6px">生成 <b>${esc(DATA.generated_at || '')}</b></div>` +
+    (IS_STATIC ? '<div class="ro-mode">只读快照 · 静态部署</div>' : '');
 
   renderFunnel();
 }
@@ -474,7 +482,9 @@ function renderCandidates() {
         ${c.blocking ? `<div class="cand-block"><b>卡在哪：</b><span>${esc(c.blocking)}</span></div>` : ''}
         <div class="card-foot">
           <span>${esc(c.added_at || '')}</span>
-          <button class="src-link" data-promote="${esc(c.id)}">提升为精写案例</button>
+          ${IS_STATIC
+            ? '<span class="ro-tag" title="线上是只读快照，没有后端；写操作请在本地跑 server.py">只读快照</span>'
+            : `<button class="src-link" data-promote="${esc(c.id)}">提升为精写案例</button>`}
         </div>
       </article>`;
   }).join('');
@@ -490,6 +500,10 @@ function renderCandidates() {
 async function promote(id) {
   const c = DATA.candidates.find((x) => x.id === id);
   if (!c) return;
+  if (IS_STATIC) {
+    toast('线上是静态站，改不了数据。这一步请在本地跑 server.py');
+    return;
+  }
   if (!confirm(
     '把「' + c.name + '」提升为精写案例？\n\n' +
     '它会带一个 needs_review 标记进精写库，提醒你还没逐条核实。\n' +
@@ -554,7 +568,9 @@ function renderInbox() {
           <a href="${esc(c.source_url)}" target="_blank" rel="noopener" style="color:var(--text-3);text-decoration:none">${esc(c.source_url).slice(0, 88)} ↗</a></div>` : ''}
         <div class="card-foot">
           <span>${esc(srcLabel[c.harvest_source] || c.harvest_source || '')} · ${esc(c.added_at || '')}</span>
-          <button class="src-link" data-tocand="${esc(c.id)}">转入候选池</button>
+          ${IS_STATIC
+            ? '<span class="ro-tag" title="线上是只读快照，没有后端；写操作请在本地跑 server.py">只读快照</span>'
+            : `<button class="src-link" data-tocand="${esc(c.id)}">转入候选池</button>`}
         </div>
       </article>`;
   }).join('') + (list.length > limit
@@ -576,6 +592,10 @@ function renderInbox() {
 async function toCandidate(id) {
   const c = (DATA.inbox || []).find((x) => x.id === id);
   if (!c) return;
+  if (IS_STATIC) {
+    toast('线上是静态站，改不了数据。这一步请在本地跑 server.py');
+    return;
+  }
   try {
     const r = await fetch('/api/inbox/' + encodeURIComponent(id) + '/to-candidates', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}'
@@ -960,10 +980,13 @@ function renderMethod() {
       Object.keys(REP_LABEL).map((k) => `<strong>${REP_LABEL[k]}</strong>`).join(' / ') +
       '。' + esc(REP_NOTE) + '</p>' +
     '<div class="d-h">数据与命令</div>' +
-    '<p class="d-p">三级漏斗对应三个文件：<code style="font-family:var(--mono);color:var(--money)">data/inbox.json</code>（采集队列）、<code style="font-family:var(--mono);color:var(--money)">data/candidates.json</code>（候选池）、<code style="font-family:var(--mono);color:var(--money)">data/cases.json</code>（精写案例）。信息源配置在 <code style="font-family:var(--mono);color:var(--money)">data/sources.json</code>。直接改 JSON 刷新页面即可生效，不需要重启服务。</p>' +
-    '<p class="d-p"><b>采集</b>：<code style="font-family:var(--mono);color:var(--money)">python scripts/harvest.py --source hn</code>（Hacker News，免 key）／<code style="font-family:var(--mono);color:var(--money)">--source trustmrr</code>／<code style="font-family:var(--mono);color:var(--money)">--source all</code>。加 <code style="font-family:var(--mono);color:var(--money)">--dry-run</code> 可先看结果不写入。</p>' +
-    '<p class="d-p"><b>核实</b>：<code style="font-family:var(--mono);color:var(--money)">python scripts/verify.py "Nitra" --domain nitra.com</code> 会把六个口径和搜索入口摊在你面前；加 <code style="font-family:var(--mono);color:var(--money)">--open</code> 直接开浏览器，加 <code style="font-family:var(--mono);color:var(--money)">--log</code> 记一条核实日志。</p>' +
-    '<p class="d-p"><b>自测</b>：<code style="font-family:var(--mono);color:var(--money)">python selftest.py</code> 会起一个临时服务跑完接口测试（用 5087 端口，不影响正在跑的 5052）。</p>';
+    (IS_STATIC
+      ? '<p class="d-p">线上这份是<b>只读快照</b>——只有一个 <code style="font-family:var(--mono);color:var(--money)">data.json</code>，没有后端，所以候选池和采集队列里不出现写按钮。数据由 GitHub Actions 每天定时采集、自校验、提交，再构建成静态文件发布到这里。</p>' +
+        '<p class="d-p">要做核实和写操作（提升候选、转入候选池），克隆仓库后在本地跑 <code style="font-family:var(--mono);color:var(--money)">python server.py</code>。源码与数据：<a href="https://github.com/oracis/ai-case-library" target="_blank" rel="noopener" style="color:var(--money)">github.com/oracis/ai-case-library</a></p>'
+      : '<p class="d-p">三级漏斗对应三个文件：<code style="font-family:var(--mono);color:var(--money)">data/inbox.json</code>（采集队列）、<code style="font-family:var(--mono);color:var(--money)">data/candidates.json</code>（候选池）、<code style="font-family:var(--mono);color:var(--money)">data/cases.json</code>（精写案例）。信息源配置在 <code style="font-family:var(--mono);color:var(--money)">data/sources.json</code>。直接改 JSON 刷新页面即可生效，不需要重启服务。</p>' +
+        '<p class="d-p"><b>采集</b>：<code style="font-family:var(--mono);color:var(--money)">python scripts/harvest.py --source hn</code>（Hacker News，免 key）／<code style="font-family:var(--mono);color:var(--money)">--source trustmrr</code>／<code style="font-family:var(--mono);color:var(--money)">--source all</code>。加 <code style="font-family:var(--mono);color:var(--money)">--dry-run</code> 可先看结果不写入。</p>' +
+        '<p class="d-p"><b>核实</b>：<code style="font-family:var(--mono);color:var(--money)">python scripts/verify.py "Nitra" --domain nitra.com</code> 会把六个口径和搜索入口摊在你面前；加 <code style="font-family:var(--mono);color:var(--money)">--open</code> 直接开浏览器，加 <code style="font-family:var(--mono);color:var(--money)">--log</code> 记一条核实日志。</p>' +
+        '<p class="d-p"><b>自测</b>：<code style="font-family:var(--mono);color:var(--money)">python selftest.py</code> 会起一个临时服务跑完接口测试（用 5087 端口，不影响正在跑的 5052）。</p>');
 }
 
 /* ---------------- 渲染：抽屉详情 ---------------- */
@@ -1216,10 +1239,30 @@ function switchView(v) {
 }
 
 /* ---------------- 数据加载 ---------------- */
+/* 静态部署用 <script> 加载 data.js，而不是 fetch('data.json')。
+   原因：直接双击 index.html 时是 file:// 协议，fetch 本地文件会被 CORS 拦掉，
+   而 <script> 不受这个限制。这样 dist/ 整个目录拷到哪儿都能双击打开。 */
+function loadStaticData() {
+  return new Promise((resolve, reject) => {
+    if (window.__CASE_LIB_DATA__) return resolve(window.__CASE_LIB_DATA__);
+    const el = document.createElement('script');
+    el.src = 'data.js';
+    el.onload = () => window.__CASE_LIB_DATA__
+      ? resolve(window.__CASE_LIB_DATA__)
+      : reject(new Error('data.js 存在，但里面没有 window.__CASE_LIB_DATA__'));
+    el.onerror = () => reject(new Error('读不到 data.js —— 先跑 python scripts/build_static.py'));
+    document.head.appendChild(el);
+  });
+}
+
 async function load() {
-  const r = await fetch('/api/data');
-  if (!r.ok) throw new Error('接口返回 ' + r.status);
-  DATA = await r.json();
+  if (IS_STATIC) {
+    DATA = await loadStaticData();
+  } else {
+    const r = await fetch('/api/data');
+    if (!r.ok) throw new Error('接口返回 ' + r.status);
+    DATA = await r.json();
+  }
 
   renderStats();
   renderVigilance();
