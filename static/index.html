@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>赚钱案例库 · AI Case Library</title>
+<link rel="stylesheet" href="/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📇</text></svg>">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ================= 侧栏 ================= -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">案</div>
+      <div class="brand-txt">
+        <div class="brand-title">赚钱案例库</div>
+        <div class="brand-sub">verified case library</div>
+      </div>
+    </div>
+
+    <nav class="nav" id="nav">
+      <button class="nav-item active" data-view="cases">
+        <span class="nav-ico">▦</span><span class="nav-label">精写案例</span>
+        <span class="nav-count" id="nav-count-cases">–</span>
+      </button>
+      <button class="nav-item" data-view="dual">
+        <span class="nav-ico">⬥</span><span class="nav-label">综合排行</span>
+        <span class="nav-count" id="nav-count-dual">–</span>
+      </button>
+      <button class="nav-item" data-view="china">
+        <span class="nav-ico">⇈</span><span class="nav-label">移植排行</span>
+        <span class="nav-count" id="nav-count-china">–</span>
+      </button>
+      <button class="nav-item" data-view="candidates">
+        <span class="nav-ico">◫</span><span class="nav-label">候选池</span>
+        <span class="nav-count" id="nav-count-cands">–</span>
+      </button>
+      <button class="nav-item" data-view="inbox">
+        <span class="nav-ico">▤</span><span class="nav-label">采集队列</span>
+        <span class="nav-count" id="nav-count-inbox">–</span>
+      </button>
+      <button class="nav-item" data-view="sources">
+        <span class="nav-ico">◈</span><span class="nav-label">信息源</span>
+      </button>
+      <button class="nav-item" data-view="method">
+        <span class="nav-ico">◎</span><span class="nav-label">方法论</span>
+      </button>
+    </nav>
+
+    <!-- 三级漏斗：原始素材 → 候选池 → 精写案例 -->
+    <div class="funnel" id="funnel"></div>
+
+    <!-- 已读进度：把「先看 50 个案例」这条建议做成可执行的目标 -->
+    <div class="readtrack" id="readtrack">
+      <div class="readtrack-head">
+        <span>已读案例</span>
+        <b><span id="read-n">0</span> / <span id="read-goal">50</span></b>
+      </div>
+      <div class="readbar"><i id="read-bar" style="width:0%"></i></div>
+      <div class="readtrack-sub" id="read-hint">点开卡片就算读过一个</div>
+    </div>
+
+    <div class="side-meta" id="side-meta"></div>
+  </aside>
+
+  <!-- ================= 主区 ================= -->
+  <main class="main">
+
+    <!-- 数据健康度横幅：本库的招牌，说的是「哪些数字还没核干净」 -->
+    <div class="vigilance" id="vigilance"></div>
+
+    <header class="topbar">
+      <div class="stat-strip" id="stat-strip"></div>
+      <div class="controls">
+        <div class="search-wrap">
+          <span class="search-ico">⌕</span>
+          <input id="search" type="search" placeholder="搜公司名 / 一句话 / 标签 / 行业…" autocomplete="off">
+        </div>
+        <select id="sort" class="select">
+          <option value="default">默认排序</option>
+          <option value="composite">综合分优先（木桶）</option>
+          <option value="solo">个人可做性优先</option>
+          <option value="china">国内移植可行性优先</option>
+          <option value="revenue">收入从高到低</option>
+          <option value="corrections">修正最多优先</option>
+          <option value="replicable">最好复刻优先</option>
+          <option value="recent">最近核实优先</option>
+        </select>
+        <select id="verif" class="select">
+          <option value="">全部核实等级</option>
+          <option value="stripe">支付网关验证</option>
+          <option value="official">官方披露</option>
+          <option value="partial">口径待核</option>
+          <option value="founder">创始人自报</option>
+          <option value="disputed">数字有出入</option>
+          <option value="unverified">未核实</option>
+        </select>
+      </div>
+      <!-- 按分筛选：维度 × 分数下限 × 四象限，三个条件可叠加 -->
+      <div class="filterbar" id="filterbar">
+        <span class="fb-label">按分筛</span>
+        <select id="fitdim" class="select sm" title="按哪个分数筛">
+          <option value="">不限维度</option>
+          <option value="composite">综合分（木桶）</option>
+          <option value="solo">个人可做性</option>
+          <option value="china">国内移植性</option>
+        </select>
+        <select id="fitlevel" class="select sm" title="分数下限">
+          <option value="0">不限分数</option>
+          <option value="80">≥ 80</option>
+          <option value="70">≥ 70</option>
+          <option value="60">≥ 60</option>
+          <option value="55">≥ 55</option>
+        </select>
+        <span class="fb-sep"></span>
+        <span class="fb-label">象限</span>
+        <select id="quad" class="select sm" title="四象限">
+          <option value="">全部象限</option>
+          <option value="go">可以开干</option>
+          <option value="partner">有市场，但一个人啃不动</option>
+          <option value="export">能做，但别在国内卖</option>
+          <option value="skip">别碰</option>
+        </select>
+        <button class="fb-reset" id="fb-reset" hidden>清空筛选</button>
+        <span class="fb-count" id="fb-count"></span>
+      </div>
+      <div class="chips" id="chips"></div>
+    </header>
+
+    <div class="scroll" id="scroll">
+      <section id="view-cases" class="view">
+        <div class="china-podium" id="china-podium"></div>
+        <div class="grid" id="grid-cases"></div>
+        <div class="empty" id="empty-cases" hidden>没有匹配的案例。试试换个关键词，或点「全部」清空筛选。</div>
+      </section>
+
+      <section id="view-dual" class="view" hidden>
+        <div class="sec-head">
+          <h2>综合排行 · 个人可做性 × 国内移植性</h2>
+          <p>只排一个维度会误导人。<code>Rezi</code> 一个人做起来最容易（80.3），但在国内收不到钱（59.7）；
+             <code>AEO Engine</code> 国内机会最大（86.4），但它靠大客户销售，一个人啃不动（66.6）。
+             这里把两件事放一起算：<b>短板占 6 成权重</b>——「能做但没市场」和「有市场但做不了」，分数都得塌。</p>
+        </div>
+        <div class="dual-formula" id="dual-formula"></div>
+        <div class="quad-grid" id="dual-quads"></div>
+        <div class="dual-cols">
+          <div class="dual-col">
+            <div class="dual-col-h">综合榜 · 木桶分</div>
+            <div class="dual-board" id="dual-board"></div>
+          </div>
+          <div class="dual-col">
+            <div class="dual-col-h">个人可做性榜 · solo_fit</div>
+            <div class="dual-board" id="solo-board"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-china" class="view" hidden>
+        <div class="sec-head">
+          <h2>国内移植可行性排行</h2>
+          <p>这套分打的不是「一个人能不能做」，而是<b>「能不能搬回国内做」</b>——两件事经常结论相反：
+             <code>CheckVibe</code> 一个人完全能做，但在国内卖不动；<code>Nitra</code> 产品不难做，但医疗牌照拿不到。
+             六个维度各 1–5 分，按国内实际情况加权。</p>
+        </div>
+        <div class="china-key" id="china-key"></div>
+        <div class="china-board" id="china-board"></div>
+      </section>
+
+      <section id="view-candidates" class="view" hidden>
+        <div class="sec-head">
+          <h2>候选池 · 人工筛过，但还没核数字</h2>
+          <p>从采集队列里挑出来、看起来值得写的项目。<b>它们不进精写库</b> —— 因为收入还没核实。逐条搜一遍，再点「提升为精写案例」。</p>
+        </div>
+        <div class="grid grid-cand" id="grid-cands"></div>
+      </section>
+
+      <section id="view-inbox" class="view" hidden>
+        <div class="sec-head">
+          <h2>采集队列 · 机器捞的原始素材</h2>
+          <p>脚本每天自动从 Hacker News / TrustMRR / Product Hunt 捞回来的东西，已按规则去掉广告与新闻稿。<b>这里全都没经过人眼，只作线索用。</b>扫一眼，值得看的点「转入候选池」。</p>
+        </div>
+        <div class="inbox-bar" id="inbox-bar"></div>
+        <div class="grid grid-cand" id="grid-inbox"></div>
+      </section>
+
+      <section id="view-sources" class="view" hidden>
+        <div class="sec-head">
+          <h2>信息源配置</h2>
+          <p>案例从哪来，以及每个源可信到什么程度、坑在哪。</p>
+        </div>
+        <div class="filterbox" id="filterbox"></div>
+        <div class="src-list" id="src-list"></div>
+      </section>
+
+      <section id="view-method" class="view" hidden>
+        <div class="sec-head">
+          <h2>方法论 · 怎么用这个库</h2>
+          <p>这套流程的重点不是「存了多少案例」，而是「每条数字都被核过一遍」。</p>
+        </div>
+        <div class="method" id="method"></div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<!-- ================= 详情抽屉 ================= -->
+<div class="drawer-mask" id="drawer-mask" hidden></div>
+<aside class="drawer" id="drawer" hidden>
+  <button class="drawer-close" id="drawer-close" title="关闭">×</button>
+  <div class="drawer-body" id="drawer-body"></div>
+</aside>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="/app.js"></script>
+</body>
+</html>

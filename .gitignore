@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# 自测产生的备份与临时文件
+.selftest_backup/
+data/.selftest_backup_cases
+data/__test_*.json
+data/verification_log.json
+
+# 本地服务日志
+*.log
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

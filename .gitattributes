@@ -1,0 +1,16 @@
+# 统一换行符，避免 Windows/Linux 双环境下 diff 满屏
+* text=auto eol=lf
+
+# Windows 批处理必须用 CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# 二进制
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.zip binary

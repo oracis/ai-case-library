@@ -1,0 +1,107 @@
+{
+  "updated_at": "2026-09-11",
+  "principle": "一手证据 > 二手转述。凡是能在支付网关或公司官方口径里核到的数字，才允许进精写库；只有创始人自述的，降级标注。",
+  "sources": [
+    {
+      "id": "trustmrr",
+      "name": "TrustMRR",
+      "url": "https://trustmrr.com/",
+      "kind": "revenue_db",
+      "tier": "A",
+      "enabled": true,
+      "auth": "公开页面，无需 key",
+      "how": "创始人用只读 API key 连 Stripe / LemonSqueezy / Polar / Paddle / DodoPayment / RevenueCat / Superwall / Creem，收入由支付数据自动验证，不接受截图自报。",
+      "fields": ["all_time_revenue", "mrr", "active_subscriptions", "last_30d_revenue", "pricing", "tech_stack", "domain_rating", "founder_x_handle"],
+      "why": "目前可信度最高的独立项目收入来源——数字来自支付网关，不是来自创始人的嘴。它还带一个买卖市场，能直接看到真实成交价和倍数。",
+      "caveat": "只覆盖接了支付商的业务；MRR 与 all_time_revenue 极易被混淆（Chatbase、ShipFast 都栽在这上面）。榜单免费，但看明细要自己逐条核。",
+      "endpoints": [
+        { "label": "总榜（按收入排序）", "url": "https://trustmrr.com/" },
+        { "label": "买卖市场", "url": "https://trustmrr.com/marketplace" },
+        { "label": "FAQ / 验证口径", "url": "https://trustmrr.com/faq" }
+      ]
+    },
+    {
+      "id": "indiehackers",
+      "name": "Indie Hackers",
+      "url": "https://www.indiehackers.com/",
+      "kind": "community",
+      "tier": "B",
+      "enabled": true,
+      "auth": "公开页面；无官方开放 API，需抓取或走 RSS",
+      "how": "创始人自己发帖公布里程碑与增长过程，含大量「上线 60 天做到 $10K/月」这类过程性细节。",
+      "fields": ["milestone", "launch_date", "growth_narrative", "channel_notes", "what_didnt_work"],
+      "why": "唯一能拿到「他们怎么做到的」而不只是「他们赚了多少」的地方。过程信息比数字更有复用价值。",
+      "caveat": "全部为自报数字，经常与后续支付验证数据对不上（Meerkats.ai 是典型：自报 $3K MRR，官网定位后来还换了）。进精写库前必须交叉验证。",
+      "endpoints": [
+        { "label": "产品库", "url": "https://www.indiehackers.com/products" },
+        { "label": "里程碑讨论", "url": "https://www.indiehackers.com/group/milestones" }
+      ]
+    },
+    {
+      "id": "producthunt",
+      "name": "Product Hunt",
+      "url": "https://www.producthunt.com/",
+      "kind": "launch_board",
+      "tier": "B",
+      "enabled": true,
+      "auth": "GraphQL API 需 developer token（PH_TOKEN 环境变量）",
+      "how": "抓每日/每周榜单，取新冒出来的 AI / SaaS 产品，作为「值得关注」的候选来源。",
+      "fields": ["name", "tagline", "topics", "votes", "launch_date", "maker", "website"],
+      "why": "发现新项目的雷达。能最早看到还没被报道、但已经有人在用的东西。",
+      "caveat": "榜单热度 ≠ 有人在付钱。看当日热闹不代表能长期收钱，必须回到 TrustMRR 或官网定价页核实。",
+      "endpoints": [
+        { "label": "今日榜", "url": "https://www.producthunt.com/" },
+        { "label": "GraphQL 入口", "url": "https://api.producthunt.com/v2/api/graphql" }
+      ]
+    },
+    {
+      "id": "hackernews",
+      "name": "Hacker News (Show HN / Ask HN)",
+      "url": "https://news.ycombinator.com/",
+      "kind": "community",
+      "tier": "B",
+      "enabled": true,
+      "auth": "Algolia 公开 API，无需 key（当前唯一零门槛可直接跑通的源）",
+      "how": "用 Algolia Search API 搜 Show HN 与收入关键词，捞自建产品、自曝 MRR 的帖子。",
+      "fields": ["title", "url", "points", "num_comments", "created_at", "story_text"],
+      "why": "技术圈里最诚实的自曝渠道，且 API 免费无鉴权，适合做每日自动采集的第一站。",
+      "caveat": "噪音大，混有大量新闻稿、融资公告、招聘帖；必须过一层过滤器（见 scripts/harvest.py 的 drop 规则）。",
+      "endpoints": [
+        { "label": "Show HN 搜索", "url": "https://hn.algolia.com/api/v1/search?query=Show%20HN&tags=show_hn" },
+        { "label": "营收关键词", "url": "https://hn.algolia.com/api/v1/search?query=MRR%20OR%20ARR&tags=story" }
+      ]
+    },
+    {
+      "id": "arrclub",
+      "name": "ARR Club / GetLatka 类收入库",
+      "url": "https://www.arr.club/",
+      "kind": "revenue_db",
+      "tier": "B-",
+      "enabled": true,
+      "auth": "公开页面",
+      "how": "聚合公开报道过的 ARR 里程碑，按公司与行业归档，标注来源。",
+      "fields": ["arr", "milestone_date", "industry", "growth_rate", "source_note"],
+      "why": "查一家公司某个时间点的 ARR 很方便，能快速判断数字是否与报道时间自洽。",
+      "caveat": "大量条目为二手转述，且写明了「Growth Rate: TBD」这类占位。只能当线索，不能当证据。",
+      "endpoints": [
+        { "label": "首页", "url": "https://www.arr.club/" }
+      ]
+    }
+  ],
+  "filter_rules": {
+    "drop_keywords": [
+      "press release", "新闻稿", "sponsored", "advertorial", "推广",
+      "raises $", "series a", "series b", "series c", "series d", "series e",
+      "ipo", "acquired by", "acquisition of", "merger",
+      "hiring", "we're hiring", "job opening", "recruiting",
+      "webinar", "ebook", "whitepaper", "free trial", "limited time"
+    ],
+    "keep_signals": [
+      "show hn", "i built", "i made", "my side project", "solo founder",
+      "bootstrapped startup", "bootstrapping", "mrr", "arr", "indie hacker",
+      "launched", "we hit", "paying customer"
+    ],
+    "match_mode": "word_boundary",
+    "note": "这条过滤规则的作用是去掉广告与新闻稿，只留「有人在为自己做的东西说话」的素材。大额融资轮也一并丢掉——那是资本故事，不是可复刻的赚钱案例。keep_signals 按词边界匹配，且刻意不收裸的 bootstrapped ——「source-bootstrapped OpenJDK」这类编译器术语会被误判成创业项目。"
+  }
+}

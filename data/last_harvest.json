@@ -1,0 +1,76 @@
+{
+  "ran_at": "2026-09-11 16:24:33",
+  "added": 20,
+  "by_source": {
+    "hn": 20
+  },
+  "inbox_total": 127,
+  "archived_this_run": 0,
+  "archive_total": 0,
+  "top": [
+    {
+      "name": "This up votes itself",
+      "headline": "未获取",
+      "heat": 3531,
+      "category": "未分类",
+      "source": "hn",
+      "url": "http://news.ycombinator.com/vote?for=3742902&dir=up&whence=%6e%65%77%65%73%74"
+    },
+    {
+      "name": "Gemini Pro 3 imagines the HN front page 10 years from now",
+      "headline": "未获取",
+      "heat": 3346,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://dosaygo-studio.github.io/hn-front-page-2035/news"
+    },
+    {
+      "name": "I made an open-source laptop from scratch",
+      "headline": "未获取",
+      "heat": 3237,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://www.byran.ee/posts/creation/"
+    },
+    {
+      "name": "I replaced a $120k bowling center system with $1,600 in ESP32s",
+      "headline": "疑似金额 $120k",
+      "heat": 2935,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://news.ycombinator.com/item?id=48968606"
+    },
+    {
+      "name": "If YouTube had actual channels",
+      "headline": "未获取",
+      "heat": 2741,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://ytch.xyz"
+    },
+    {
+      "name": "A retro video game console I've been working on in my free time",
+      "headline": "未获取",
+      "heat": 2690,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://internalregister.github.io/2019/03/14/Homebrew-Console.html"
+    },
+    {
+      "name": "Redbean",
+      "headline": "未获取",
+      "heat": 1998,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://justine.lol/redbean/index.html"
+    },
+    {
+      "name": "Non.io, a Reddit-like platform Ive been working on for the last 4 years",
+      "headline": "未获取",
+      "heat": 1943,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://non.io"
+    }
+  ]
+}

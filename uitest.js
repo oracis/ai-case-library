@@ -1,0 +1,414 @@
+/* 前端渲染冒烟测试：用最小 DOM 桩跑一遍 app.js 的所有渲染函数。
+   目的：在没有浏览器的情况下，确认渲染逻辑不抛异常、且真的产出了 HTML。
+   用法：node uitest.js                       （文件系统读 data/）
+        node uitest.js http://127.0.0.1:5052 （走真实接口） */
+
+const fs = require('fs');
+const path = require('path');
+const vm = require('vm');
+
+const ROOT = __dirname;
+const API = process.argv[2] || '';
+
+/* ---------------- 最小 DOM 桩 ---------------- */
+const nodes = new Map();
+
+function mkEl(id) {
+  const el = {
+    id,
+    _html: '',
+    textContent: '',
+    value: '',
+    hidden: false,
+    dataset: {},
+    style: {},
+    scrollTop: 0,
+    classList: { add() {}, remove() {}, toggle() {}, contains() { return false; } },
+    get innerHTML() { return this._html; },
+    set innerHTML(v) { this._html = String(v); },
+    querySelectorAll() { return []; },
+    insertAdjacentHTML(_pos, html) { this._html += html; },
+    appendChild() {},
+    focus() {},
+    onclick: null,
+    oninput: null,
+    onchange: null,
+  };
+  return el;
+}
+
+function get(id) {
+  if (!nodes.has(id)) nodes.set(id, mkEl(id));
+  return nodes.get(id);
+}
+
+const document = {
+  getElementById: get,
+  querySelector: () => null,
+  querySelectorAll: () => [],
+  addEventListener: () => {},
+  activeElement: null,
+  createElement: mkEl,
+};
+
+const store = {};
+const localStorage = {
+  getItem: (k) => (k in store ? store[k] : null),
+  setItem: (k, v) => { store[k] = String(v); },
+  removeItem: (k) => { delete store[k]; },
+};
+
+function loadData() {
+  if (!API) {
+    const rd = (n) => JSON.parse(fs.readFileSync(path.join(ROOT, 'data', n + '.json'), 'utf8'));
+    const cases = rd('cases'), candidates = rd('candidates');
+    let inbox = [];
+    try { inbox = rd('inbox'); } catch (e) { inbox = []; }
+    const sources = rd('sources');
+    const byV = {}, byM = {}, byC = {};
+    cases.forEach((c) => {
+      byV[c.verification] = (byV[c.verification] || 0) + 1;
+      byC[c.category || '未分类'] = (byC[c.category || '未分类'] || 0) + 1;
+      (c.models || []).forEach((m) => { byM[m] = (byM[m] || 0) + 1; });
+    });
+    const verified = (byV.stripe || 0) + (byV.official || 0);
+    return Promise.resolve({
+      cases, candidates, inbox, sources,
+      stats: {
+        curated: cases.length, candidates: candidates.length, inbox: inbox.length,
+        verified, flagged: cases.reduce((a, c) => a + (c.corrections || []).length, 0)
+          + cases.filter((c) => c.verification === 'disputed').length,
+        categories: Object.keys(byC).length,
+        by_verification: byV, by_category: byC, by_model: byM,
+        // 三套评分的存在数量（真实接口由 server.py 计算，这里对齐一下）
+        china_scored: cases.filter((c) => c.china_fit).length,
+        solo_scored: cases.filter((c) => c.solo_fit).length,
+        dual_scored: cases.filter((c) => c.composite).length,
+      },
+      generated_at: new Date().toISOString(),
+    });
+  }
+  return fetch(API + '/api/data').then((r) => r.json());
+}
+
+const errors = [];
+const sandbox = {
+  document, localStorage, console,
+  fetch: (u) => loadData().then((d) => ({ ok: true, json: () => Promise.resolve(d) })),
+  CSS: { escape: (s) => String(s).replace(/[^a-zA-Z0-9_-]/g, '\\$&') },
+  setTimeout, clearTimeout, confirm: () => false, alert: () => {},
+  window: {},
+};
+sandbox.globalThis = sandbox;
+
+/* ---------------- 跑起来 ---------------- */
+const src = fs.readFileSync(path.join(ROOT, 'static', 'app.js'), 'utf8');
+vm.createContext(sandbox);
+
+// 捕获未处理异常
+process.on('unhandledRejection', (e) => errors.push('unhandledRejection: ' + e));
+
+(async () => {
+  console.log('='.repeat(60));
+  console.log('  前端渲染冒烟测试' + (API ? '（走真实接口 ' + API + '）' : '（读本地 data/）'));
+  console.log('='.repeat(60));
+
+  try {
+    vm.runInContext(src, sandbox, { filename: 'app.js' });
+  } catch (e) {
+    console.log('[FAIL] app.js 求值抛异常: ' + e.message);
+    process.exit(1);
+  }
+
+  // 等 main() 里的 await load() 完成
+  await new Promise((r) => setTimeout(r, 600));
+
+  const checks = [
+    ['stat-strip', '统计条', '精写案例'],
+    ['funnel', '三级漏斗', '原始素材'],
+    ['chips', '模式芯片', 'chip'],
+    ['grid-cases', '案例卡片网格', 'class="card"'],
+    ['grid-cands', '候选池网格', 'class="cand"'],
+    ['grid-inbox', '采集队列网格', 'class="cand"'],
+    ['src-list', '信息源卡片', 'src-card'],
+    ['filterbox', '采集过滤规则', 'rule-tag'],
+    ['method', '方法论', 'm-step'],
+    ['side-meta', '侧栏元信息', '案例'],
+    ['vigilance', '数据健康度横幅', '核实'],
+    ['china-key', '移植评分维度说明', 'ck-item'],
+    ['china-board', '移植排行榜', 'cboard-row'],
+    ['china-podium', '金银铜领奖台', 'pod-medal'],
+  ];
+
+  let pass = 0, fail = 0;
+  console.log('\n[A] 各区块是否产出 HTML');
+  for (const [id, label, kw] of checks) {
+    const html = get(id)._html || '';
+    const ok = html.length > 40 && html.includes(kw);
+    console.log('  [' + (ok ? 'PASS' : 'FAIL') + '] ' + label.padEnd(14) +
+      ' ' + String(html.length).padStart(6) + ' 字符');
+    ok ? pass++ : fail++;
+  }
+
+  // 已读进度不是 innerHTML，而是几个元素的文本/宽度
+  const readN = get('read-n').textContent;
+  const readBarW = get('read-bar').style.width;
+  const rTrackOk = /^\d+$/.test(String(readN)) && /%$/.test(String(readBarW));
+  console.log('  [' + (rTrackOk ? 'PASS' : 'FAIL') + '] 已读进度          已读=' +
+    readN + ' 目标=' + get('read-goal').textContent + ' 进度条=' + readBarW);
+  rTrackOk ? pass++ : fail++;
+
+  console.log('\n[B] 卡片数量是否与数据一致');
+  // 注意：card 元素的 class 是 "card" 或 "card read"，不能匹配 .card-top 这类
+  const countCards = (html) => (html.match(/class="card(?:\s+read)?"/g) || []).length;
+  const caseCards = countCards(get('grid-cases')._html || '');
+  const candCards = (get('grid-cands')._html.match(/class="cand"/g) || []).length;
+  const inboxCards = (get('grid-inbox')._html.match(/class="cand"/g) || []).length;
+  const expect = API ? null : {
+    cases: JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'cases.json'), 'utf8')).length,
+    cands: JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'candidates.json'), 'utf8')).length,
+  };
+  const nC = (get('nav-count-cases').textContent);
+  const nK = (get('nav-count-cands').textContent);
+  console.log('  案例卡片 ' + caseCards + ' 张，导航计数 ' + nC + (expect ? '（数据 ' + expect.cases + '）' : ''));
+  console.log('  候选卡片 ' + candCards + ' 张，导航计数 ' + nK + (expect ? '（数据 ' + expect.cands + '）' : ''));
+  console.log('  队列卡片 ' + inboxCards + ' 张（上限 200）');
+  const cntOk = expect ? (caseCards === expect.cases && candCards === expect.cands) : true;
+  console.log('  [' + (cntOk ? 'PASS' : 'FAIL') + '] 数量与数据源一致');
+  cntOk ? pass++ : fail++;
+
+  console.log('\n[C] 详情抽屉能否渲染每条案例');
+  let drawerFails = [];
+  const cases = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'cases.json'), 'utf8'));
+  // 通过 openCase 走一遍（它调用了 detailHTML）
+  for (const c of cases) {
+    try {
+      sandbox.openCase(c.id);
+      const html = get('drawer-body')._html || '';
+      if (html.length < 300) drawerFails.push(c.id + ' (仅 ' + html.length + ' 字符)');
+    } catch (e) {
+      drawerFails.push(c.id + ' -> ' + e.message);
+    }
+  }
+  const dOk = drawerFails.length === 0;
+  console.log('  [' + (dOk ? 'PASS' : 'FAIL') + '] ' + cases.length + ' 条案例详情全部渲染成功');
+  if (!dOk) drawerFails.forEach((f) => console.log('      ✗ ' + f));
+  dOk ? pass++ : fail++;
+
+  console.log('\n[D] 已读进度是否写入 localStorage');
+  const readRaw = localStorage.getItem('acl_read_v1');
+  let readArr = [];
+  try { readArr = JSON.parse(readRaw || '[]'); } catch (e) {}
+  const rOk = readArr.length === cases.length;
+  console.log('  [' + (rOk ? 'PASS' : 'FAIL') + '] 已读 ' + readArr.length + ' / ' + cases.length);
+  rOk ? pass++ : fail++;
+
+  console.log('\n[E] 特殊字符与空值健壮性');
+  // vm 里的 let 绑定不会挂到 sandbox 上，所以要在 context 内部执行
+  try {
+    vm.runInContext(`
+      DATA.cases.push({
+        id: 'dirty-test', name: '<script>alert(1)</script>', name_en: 'X & "Y"',
+        one_liner: '引号 " 和 & 和 <b>标签</b>', category: "O'Brien",
+        verification: 'stripe', metrics: {}, models: [], tags: [],
+        why_it_works: ['<img onerror=x>'], playbook: [], signals: [],
+        corrections: [{ claim: '<b>c</b>', truth: 'a & b', source: 'https://x/?a=1&b=2' }],
+        sources: [{ label: 'L & M', url: 'https://y/?q=1&r=2', kind: 'press' }],
+        replicability: {}, verdict: '<em>v</em>'
+      });
+      openCase('dirty-test');
+    `, sandbox);
+    vm.runInContext('var __H__ = document.getElementById("drawer-body").innerHTML;', sandbox);
+    const h = sandbox.__H__ || '';
+    const noRawScript = !h.includes('<script>alert');
+    const noRawImg = !h.includes('<img onerror');
+    const escapedAmp = h.includes('&amp;');
+    const ok = noRawScript && noRawImg && escapedAmp;
+    console.log('  [' + (ok ? 'PASS' : 'FAIL') + '] HTML 转义正确' +
+      '（裸 <script> ' + (noRawScript ? '无' : '有') +
+      ' / 裸 <img onerror> ' + (noRawImg ? '无' : '有') +
+      ' / & 已转义 ' + (escapedAmp ? '是' : '否') + '）');
+    ok ? pass++ : fail++;
+  } catch (e) {
+    console.log('  [FAIL] 脏数据渲染抛异常: ' + e.message);
+    fail++;
+  }
+
+  console.log('\n[F] 国内移植排行');
+  try {
+    const ranked = JSON.parse(vm.runInContext(
+      'JSON.stringify(chinaRanked().map((c) => ({ id: c.id, score: c.china_fit.score, medal: c.china_fit.medal })))',
+      sandbox));
+    if (!ranked.length) {
+      console.log('  [SKIP] 数据里没有 china_fit，跳过（先跑 score_china_fit.py）');
+    } else {
+      const medals = ranked.slice(0, 3).map((r) => r.medal).join(',');
+      const okMedal = medals === 'gold,silver,bronze';
+      console.log('  [' + (okMedal ? 'PASS' : 'FAIL') + '] 前三名奖牌 = ' + medals);
+      okMedal ? pass++ : fail++;
+
+      const desc = ranked.every((r, i) => i === 0 || ranked[i - 1].score >= r.score);
+      console.log('  [' + (desc ? 'PASS' : 'FAIL') + '] 分数降序排列（' + ranked.length + ' 条已评分）');
+      desc ? pass++ : fail++;
+
+      const dimsOk = vm.runInContext(
+        'DATA.cases.filter((c) => c.china_fit).every((c) => Object.keys(c.china_fit.dims || {}).length === 6)',
+        sandbox);
+      console.log('  [' + (dimsOk ? 'PASS' : 'FAIL') + '] 每条都有完整 6 个维度');
+      dimsOk ? pass++ : fail++;
+
+      const rows = (get('china-board')._html.match(/class="cboard-row/g) || []).length;
+      const okRows = rows === ranked.length;
+      console.log('  [' + (okRows ? 'PASS' : 'FAIL') + '] 排行榜渲染 ' + rows + ' 行 / 应 ' + ranked.length + ' 行');
+      okRows ? pass++ : fail++;
+
+      vm.runInContext('sortBy = "china"; renderCases();', sandbox);
+      const firstId = (get('grid-cases')._html.match(/data-id="([^"]+)"/) || [])[1];
+      const okSort = firstId === ranked[0].id;
+      console.log('  [' + (okSort ? 'PASS' : 'FAIL') + '] 按移植分排序首位 = ' + firstId + '（应 ' + ranked[0].id + '）');
+      okSort ? pass++ : fail++;
+      vm.runInContext('sortBy = "default"; renderCases();', sandbox);
+
+      const okBadge = (get('grid-cases')._html.match(/class="cf-china/g) || []).length === ranked.length;
+      console.log('  [' + (okBadge ? 'PASS' : 'FAIL') + '] 每张卡片都带移植分徽章');
+      okBadge ? pass++ : fail++;
+    }
+  } catch (e) {
+    console.log('  [FAIL] 排行渲染抛异常: ' + e.message);
+    fail++;
+  }
+
+  console.log('\n[G] 综合排行（solo_fit / composite）与按分筛选');
+  const ck = (ok, label) => {
+    console.log('  [' + (ok ? 'PASS' : 'FAIL') + '] ' + label);
+    ok ? pass++ : fail++;
+  };
+  try {
+    const dualN = vm.runInContext('dualRanked().length', sandbox);
+    const soloN = vm.runInContext('soloRanked().length', sandbox);
+    ck(dualN > 0 && soloN > 0, '已评分：综合 ' + dualN + ' 条 / 个人可做性 ' + soloN + ' 条');
+
+    // 四象限
+    const quadCount = (get('dual-quads')._html.match(/class="quad q-/g) || []).length;
+    ck(quadCount === 4, '四象限渲染出 4 个格子（实际 ' + quadCount + '）');
+    const qSum = vm.runInContext('QUAD_ORDER.reduce((a,k)=>a+quadCases(k).length,0)', sandbox);
+    ck(qSum === dualN, '四象限分组不重不漏：合计 ' + qSum + ' / 应 ' + dualN);
+
+    // 榜单行数
+    const dbRows = (get('dual-board')._html.match(/class="dboard-row/g) || []).length;
+    const sbRows = (get('solo-board')._html.match(/class="dboard-row/g) || []).length;
+    ck(dbRows === dualN, '综合榜渲染 ' + dbRows + ' 行 / 应 ' + dualN);
+    ck(sbRows === soloN, '个人可做性榜渲染 ' + sbRows + ' 行 / 应 ' + soloN);
+
+    // 综合分公式：0.6 × 短板 + 0.4 × 均值
+    const formulaOk = vm.runInContext(`DATA.cases.filter(c=>c.composite).every(c=>{
+      const f = c.composite;
+      const lo = Math.min(f.solo, f.china), mean = (f.solo + f.china) / 2;
+      const want = Math.round((0.6 * lo + 0.4 * mean) * 10) / 10;
+      return Math.abs(f.score - want) < 0.051;
+    })`, sandbox);
+    ck(formulaOk, '综合分 = 0.6×短板 ＋ 0.4×均值');
+
+    // 奖牌与降序
+    const dMedal = vm.runInContext('dualRanked().slice(0,3).map(c=>c.composite.medal).join(",")', sandbox);
+    ck(dMedal === 'gold,silver,bronze', '综合前三奖牌 = ' + dMedal);
+    const sMedal = vm.runInContext('soloRanked().slice(0,3).map(c=>c.solo_fit.medal).join(",")', sandbox);
+    ck(sMedal === 'gold,silver,bronze', '个人可做性前三奖牌 = ' + sMedal);
+    ck(vm.runInContext('dualRanked().every((c,i,a)=>i===0||a[i-1].composite.score>=c.composite.score)', sandbox),
+      '综合分降序排列');
+    ck(vm.runInContext('soloRanked().every((c,i,a)=>i===0||a[i-1].solo_fit.score>=c.solo_fit.score)', sandbox),
+      '个人可做性降序排列');
+
+    // 五维完整性（原来的 replicability 只有四维）
+    ck(vm.runInContext('DATA.cases.filter(c=>c.solo_fit).every(c=>Object.keys(c.solo_fit.dims||{}).length===5)', sandbox),
+      '每条个人可做性都有完整 5 维（含「单人交付」）');
+
+    // 排序下拉新增的两个分支
+    const soloTopId = vm.runInContext('soloRanked()[0].id', sandbox);
+    vm.runInContext('sortBy="solo"; renderCases();', sandbox);
+    let firstId = (get('grid-cases')._html.match(/data-id="([^"]+)"/) || [])[1];
+    ck(firstId === soloTopId, '按个人可做性排序首位 = ' + firstId);
+    const dualTopId = vm.runInContext('dualRanked()[0].id', sandbox);
+    vm.runInContext('sortBy="composite"; renderCases();', sandbox);
+    firstId = (get('grid-cases')._html.match(/data-id="([^"]+)"/) || [])[1];
+    ck(firstId === dualTopId, '按综合分排序首位 = ' + firstId);
+    vm.runInContext('sortBy="default"; renderCases();', sandbox);
+
+    // 卡片徽章
+    const sBadge = (get('grid-cases')._html.match(/class="cf-solo/g) || []).length;
+    const dBadge = (get('grid-cases')._html.match(/class="cf-dual/g) || []).length;
+    ck(sBadge === soloN, '卡片带「个」徽章 ' + sBadge + ' 张 / 应 ' + soloN);
+    ck(dBadge === dualN, '卡片带「综」徽章 ' + dBadge + ' 张 / 应 ' + dualN);
+
+    // 筛选：象限
+    const goN = vm.runInContext('quadCases("go").length', sandbox);
+    vm.runInContext('quadFilter="go"; renderCases();', sandbox);
+    const afterQuad = vm.runInContext('filtered().length', sandbox);
+    ck(afterQuad === goN, '象限筛选「可以开干」→ ' + afterQuad + ' 条');
+    ck(((get('grid-cases')._html.match(/class="card(?:\s+read)?"/g) || []).length) === goN,
+      '筛选后卡片数与命中数一致');
+
+    // 筛选：维度 × 下限
+    vm.runInContext('quadFilter=""; fitDim="solo"; fitLevel=70; renderCases();', sandbox);
+    const n70 = vm.runInContext('filtered().length', sandbox);
+    const allHigh = vm.runInContext('filtered().every(c=>c.solo_fit && c.solo_fit.score>=70)', sandbox);
+    ck(allHigh && n70 > 0, '个人可做性 ≥70 → ' + n70 + ' 条且全部达标');
+
+    // 筛选叠加：象限 × 分数
+    vm.runInContext('quadFilter="go"; fitDim="solo"; fitLevel=70; renderCases();', sandbox);
+    const stacked = vm.runInContext('filtered().length', sandbox);
+    ck(stacked <= n70 && stacked <= goN, '叠加筛选（象限 ＋ 分数）命中 ' + stacked + ' 条');
+
+    // 命中提示
+    vm.runInContext('renderFilterBar();', sandbox);
+    const tip = get('fb-count').textContent || '';
+    ck(tip.indexOf('筛选中') === 0, '筛选栏提示：' + tip);
+
+    // 重置
+    const totalCases = vm.runInContext('DATA.cases.length', sandbox);
+    vm.runInContext('resetFitFilter();', sandbox);
+    const backN = vm.runInContext('filtered().length', sandbox);
+    ck(backN === totalCases, '清空筛选恢复全量 ' + backN + ' / 应 ' + totalCases);
+
+    // 抽屉里的新区块
+    vm.runInContext('openCase("' + dualTopId + '")', sandbox);
+    const dh = get('drawer-body')._html || '';
+    ck(dh.indexOf('个人可做性') !== -1, '抽屉含「个人可做性」区块');
+    ck(dh.indexOf('综合分') !== -1, '抽屉含「综合分」区块');
+    ck(dh.indexOf('quad-badge') !== -1, '抽屉含象限徽章');
+    ck(dh.indexOf('axis-row') !== -1, '抽屉含双轴对比条');
+    ck(dh.indexOf('rep-5') !== -1, '抽屉里个人可做性用五列网格');
+  } catch (e) {
+    console.log('  [FAIL] 综合排行 / 筛选测试抛异常: ' + e.message);
+    fail++;
+  }
+
+  console.log('\n[H] 空数据 / 缺字段健壮性');
+  try {
+    vm.runInContext(`
+      DATA.cases.push({ id: 'empty-test', name: '空字段测试', verification: 'unverified' });
+      openCase('empty-test');
+      DATA.cases.pop();
+      DATA.cases.push({ id: 'null-metrics', name: '空指标', verification: 'stripe',
+                        metrics: { headline: '', arr: null } });
+      openCase('null-metrics');
+      DATA.cases.length = DATA.cases.length - 1;
+    `, sandbox);
+    console.log('  [PASS] 缺 metrics / 全空字段不抛异常');
+    pass++;
+  } catch (e) {
+    console.log('  [FAIL] 缺字段渲染抛异常: ' + e.message);
+    fail++;
+  }
+
+  if (errors.length) {
+    console.log('\n[!] 捕获到未处理异常：');
+    errors.forEach((e) => console.log('    ' + e));
+    fail += errors.length;
+  }
+
+  console.log('\n' + '='.repeat(60));
+  console.log('  结果：' + pass + ' 通过 / ' + fail + ' 失败');
+  console.log('='.repeat(60));
+  process.exit(fail ? 1 : 0);
+})();
