@@ -58,6 +58,9 @@ jobs:
           fi
           echo "data/ 与提交时一致，备份/还原正常。"
 
+      - name: 测试 deploy_oss.py（参数解析与分支，不联网）
+        run: python scripts/test_deploy_oss.py
+
   frontend:
     name: 前端自测 · Node ${{ matrix.node }}
     runs-on: ubuntu-latest

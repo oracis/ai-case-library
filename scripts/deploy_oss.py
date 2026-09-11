@@ -136,11 +136,21 @@ def sign(ak, sk, method, bucket, key, headers, subresource=""):
 
 class OSS(object):
     def __init__(self, ak, sk, region, verbose=False):
-        self.ak, self.sk, self.region = ak, sk, region
+        self.ak = ak
+        self.sk = sk
+        self.region = region
         self.endpoint = "https://oss-%s.aliyuncs.com" % region
         self.verbose = verbose
         # 本机代理会炸 TLS，显式绕开（和 harvest.py 一个处理）
         self.opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+
+    def _host_for(self, bucket):
+        """选 host：列账号下的所有 Bucket 走二级域名；任何带 Bucket 的请求
+        必须走三级域名 <bucket>.oss-<region>.aliyuncs.com，否则 OSS 会回
+        SecondLevelDomainForbidden。这是 OSS 的强制约束，不是什么优化。"""
+        if not bucket:
+            return self.endpoint
+        return "https://%s.oss-%s.aliyuncs.com" % (bucket, self.region)
 
     def request(self, method, bucket="", key="", body=None, headers=None,
                 subresource="", query=""):
@@ -149,13 +159,15 @@ class OSS(object):
         hdrs["Authorization"] = sign(self.ak, self.sk, method, bucket, key,
                                      hdrs, subresource)
 
-        url = self.endpoint + "/"
-        if bucket:
-            url += bucket + "/"
+        # /bucket/key[?subresource]；列 Bucket 时是 "/"
+        # host 二级 / 三级域名由 _host_for 决定，路径不再含 bucket
+        url = self._host_for(bucket) + "/"
         if key:
             url += urllib.parse.quote(key)
+        if subresource:
+            url += "?" + subresource
         if query:
-            url += "?" + query
+            url += ("?" if not subresource else "&") + query
 
         req = urllib.request.Request(url, data=body, headers=hdrs, method=method)
         try:
@@ -189,6 +201,95 @@ def ensure_website(oss, bucket):
         "Content-Length": str(len(xml)),
     }, subresource="website", body=xml)
     return st, body.decode("utf-8", "replace")[:300]
+
+
+def create_bucket(oss, bucket, acl="public-read"):
+    """PUT /<bucket> —— 新建 Bucket。
+
+    Bucket 名全局唯一，被别人占了会返回 409，那种情况只能换名字。
+    acl 用 public-read：静态站点的文件要能被匿名读到，否则访问会 403。
+    """
+    st, body, _ = oss.request("PUT", bucket, headers={
+        "x-oss-acl": acl,
+        "Content-Length": "0",
+    })
+    return st, body.decode("utf-8", "replace")[:400]
+
+
+def set_bucket_acl(oss, bucket, acl="public-read"):
+    """占位：阿里云不允许通过 API 把 Bucket ACL 设为 public。
+    公共访问必须改用 Bucket Policy（见 set_bucket_policy）。
+    保留这个函数只是为了让旧代码不报错。"""
+    return 403, ("Put public bucket acl is not allowed by Aliyun policy; "
+                 "use Bucket Policy instead")
+
+
+def get_bucket_acl(oss, bucket):
+    """读一次当前 ACL，做诊断用。阿里云对公共访问做了策略收紧，
+    主账号经常看不到 ACL 返回值，需要看 get_bucket_policy 才能确认状态。"""
+    st, body, _ = oss.request("GET", bucket, subresource="acl")
+    if st != 200:
+        return None, body.decode("utf-8", "replace")[:200]
+    import re
+    m = re.search(r"<Grant>(.*?)</Grant>", body.decode("utf-8", "replace"), re.S)
+    return (m.group(1) if m else "<no Grant>"), ""
+
+
+# 允许匿名 GET 所有对象的最小策略。阿里云 OSS 公共访问的推荐方式。
+PUBLIC_READ_POLICY = """{
+  "Version": "1",
+  "Statement": [{
+    "Effect": "Allow",
+    "Action": ["oss:GetObject"],
+    "Principal": ["*"],
+    "Resource": ["acs:oss:*:%s/*"]
+  }]
+}"""
+
+
+def set_bucket_policy(oss, bucket, policy=None):
+    """PUT /?policy —— 设置 Bucket Policy。
+
+    阿里云 OSS 不允许通过 API 设 ACL=public-read，但允许设 Bucket Policy。
+    这条策略允许匿名 GET 所有对象，覆盖静态站点的全部需求（PUT/DELETE
+    仍受 AccessKey 保护，所以安全上和「公共读 ACL」等价，但策略更灵活）。
+    """
+    if policy is None:
+        policy = PUBLIC_READ_POLICY % bucket
+    body = policy.encode("utf-8")
+    st, resp, _ = oss.request("PUT", bucket, subresource="policy", body=body,
+                              headers={
+                                  "Content-Type": "application/json",
+                                  "Content-Length": str(len(body)),
+                              })
+    return st, resp.decode("utf-8", "replace")[:300]
+
+
+def get_bucket_policy(oss, bucket):
+    """读回当前策略，做诊断用（OSS 会在 PUT 成功但读回时报错时回 404）。"""
+    st, body, _ = oss.request("GET", bucket, subresource="policy")
+    return st, body.decode("utf-8", "replace")[:400]
+
+
+def verify_public(bucket, region, prefix=""):
+    """匿名 GET 一次首页，确认「真能从公网打开」。
+
+    这一步不能省：Bucket 建成 private 时上传照样成功，
+    但访问会 403 —— 只有真的匿名请求过才知道站是活的。
+    """
+    key = (prefix.strip("/") + "/" if prefix else "") + "index.html"
+    url = "https://%s.oss-%s.aliyuncs.com/%s" % (bucket, region, urllib.parse.quote(key))
+    # 关键：不带任何签名头，模拟一个陌生访客
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (verify)"})
+    try:
+        with opener.open(req, timeout=30) as r:
+            body = r.read(400)
+        return r.status, len(body), url, ""
+    except urllib.error.HTTPError as e:
+        return e.code, 0, url, e.read().decode("utf-8", "replace")[:220]
+    except Exception as e:                                     # noqa: BLE001
+        return -1, 0, url, str(e)[:220]
 
 
 def upload(oss, bucket, src_dir, prefix="", dry_run=False):
@@ -230,6 +331,9 @@ def upload(oss, bucket, src_dir, prefix="", dry_run=False):
             "Content-Type": ctype,
             "Cache-Control": cache,
             "Content-Length": str(len(data)),
+            # 对象本身也要 public-read。Bucket 是 public-read 不代表对象自动继承，
+            # 必须显式带 x-oss-acl，否则 OSS 给的 ACL 是 "default"，匿名 GET 会 403。
+            "x-oss-acl": "public-read",
         })
         if st == 200:
             print("  %-22s %10s  %-10s %s" % (key, human(len(data)), cache.split(",")[0], ctype))
@@ -263,6 +367,10 @@ def main():
     ap.add_argument("--dry-run", action="store_true", help="只列出会传的文件，不真传")
     ap.add_argument("--setup-website", action="store_true",
                     help="顺便设置静态网站托管（首页 index.html / 404 页 404.html）")
+    ap.add_argument("--create", action="store_true",
+                    help="当 Bucket 不存在时新建（public-read ACL）。Bucket 名全局唯一，已被占用会返回 409")
+    ap.add_argument("--verify-public", action="store_true",
+                    help="部署后匿名 GET 一次首页，确认「真能从公网打开」。Bucket 是私有时这一步会 403")
     args = ap.parse_args()
 
     if args.env_file:
@@ -317,7 +425,33 @@ def main():
     if args.bucket not in names:
         print()
         print("[!] 账号里没有名为 %s 的 Bucket" % args.bucket)
-        return 1
+        if args.create:
+            print("    （开了 --create，下面会尝试新建）")
+        else:
+            print("    想自动新建就加 --create；Bucket 名是全局唯一的，长度 3-63、小写字母数字短横线")
+            return 1
+        st, msg = create_bucket(oss, args.bucket)
+        if st != 200:
+            print("[FAIL] 建桶 HTTP %s：%s" % (st, msg))
+            print("    多半是名字已被别人占了（409）或格式不合法。换一个名字重试。")
+            return 1
+        print("[OK] Bucket 已创建：%s（ACL=public-read）" % args.bucket)
+        names.append(args.bucket)
+
+    # 不论新建的还是既有的，都显式确认/纠正一次 ACL 与 Bucket Policy。
+    # 阿里云不允许通过 API 设 ACL=public，但允许设 Bucket Policy——
+    # Policy 是阿里云推荐的方式，效用上等价于「公共读 ACL」，
+    # 但策略更精细（可以限定前缀、动作、IP 等）。
+    print()
+    print("设置 Bucket Policy（允许匿名 GetObject）…")
+    st, msg = set_bucket_policy(oss, args.bucket)
+    if st == 200:
+        print("[OK] 已设置匿名 GET 策略")
+    else:
+        print("[!] 设置失败 HTTP %s：%s" % (st, msg))
+        print("    后续匿名访问几乎肯定 403，但文件仍然会上传。")
+        print("    解决：去阿里云控制台 → OSS → 这个 Bucket → 权限管理 → Bucket 策略，")
+        print("          加一条允许 Principal=* GetObject 的策略。")
 
     src = os.path.join(ROOT, args.dir)
     if not os.path.isdir(src):
@@ -341,6 +475,16 @@ def main():
         else:
             print("[!] 设置失败 HTTP %s：%s" % (st, msg))
             print("    不影响已上传的文件，也可以去控制台手动设置。")
+
+    if args.verify_public:
+        print()
+        print("匿名 GET 首页确认可访问…")
+        st, size, url, err = verify_public(args.bucket, args.region, prefix=args.prefix)
+        if st == 200:
+            print("[OK] HTTP %s  %d 字节  %s" % (st, size, url))
+        else:
+            print("[FAIL] HTTP %s  %s" % (st, err or url))
+            print("    多半是 Bucket 不是 public-read，或刚上传完 CDN 缓存还没刷新。")
 
     print()
     print("=" * 66)
