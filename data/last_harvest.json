@@ -1,28 +1,77 @@
 {
-  "ran_at": "2026-09-11 09:57:03",
-  "added": 2,
+  "ran_at": "2026-09-12 10:55:29",
+  "added": 51,
   "by_source": {
-    "hn": 2
+    "hn": 46,
+    "trustmrr": 5
   },
-  "inbox_total": 137,
+  "inbox_total": 188,
   "archived_this_run": 0,
   "archive_total": 0,
   "top": [
     {
-      "name": "What happened to 14,229 launches from Show HN, YC and Product Hunt",
+      "name": "TERMy",
       "headline": "未获取",
-      "heat": 1,
+      "heat": 225,
       "category": "未分类",
       "source": "hn",
-      "url": "https://www.buildorskip.com"
+      "url": "https://github.com/gioblu/NPC-Forge/blob/main/docs/development.md"
     },
     {
-      "name": "Browse PC Parts on Amazon.com without distractions",
+      "name": "Godot and Rust based multiplexer (terminal panes and more)",
       "headline": "未获取",
-      "heat": 1,
+      "heat": 83,
       "category": "未分类",
       "source": "hn",
-      "url": "https://findpcpart.com/products?category_key=cpu"
+      "url": "https://github.com/godot-pty/gpty"
+    },
+    {
+      "name": "Toast, a beautiful by default in terminal IDE",
+      "headline": "未获取",
+      "heat": 73,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://github.com/paradise-runner/toast"
+    },
+    {
+      "name": "ResolveHQ",
+      "headline": "未获取",
+      "heat": 34,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://github.com/mirza-rizvi/ResolveHQ"
+    },
+    {
+      "name": "Extension to filter LLM written articles",
+      "headline": "未获取",
+      "heat": 15,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://hnslop.nilsherzig.com/"
+    },
+    {
+      "name": "Spanda",
+      "headline": "未获取",
+      "heat": 12,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://github.com/Adarshent/Spnda"
+    },
+    {
+      "name": "I built a hand-modeled 3D Windows 98 portfolio with Three.js",
+      "headline": "未获取",
+      "heat": 11,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://wesselsdesktop.com/"
+    },
+    {
+      "name": "Graphify C#",
+      "headline": "未获取",
+      "heat": 9,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://github.com/zachsaw/graphify-csharp"
     }
   ]
 }
