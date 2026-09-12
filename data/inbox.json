@@ -1,5 +1,77 @@
 [
   {
+    "id": "mental-bootstrapping-enables-human-level-learning-in-self-supervised-deep-models",
+    "name": "Mental bootstrapping enables human-level learning in self-supervised deep models",
+    "name_en": "Mental bootstrapping enables human-level learning in self-supervised deep models",
+    "origin": "",
+    "one_liner": "Mental bootstrapping enables human-level learning in self-supervised deep models",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-12（来源 hn，发布于 2026-08-28，3 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://www.science.org/doi/10.1126/sciadv.aea7202",
+    "harvest_source": "hn",
+    "added_at": "2026-09-12"
+  },
+  {
+    "id": "nodehistj",
+    "name": "NodehistJ",
+    "name_en": "NodehistJ",
+    "origin": "",
+    "one_liner": "Show HN: NodehistJ – FTN Nodelist Server",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-12（来源 hn，发布于 2026-09-12，1 分 / 2 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/oldzoomer-ru/nodehistj",
+    "harvest_source": "hn",
+    "added_at": "2026-09-12"
+  },
+  {
+    "id": "menu-hub",
+    "name": "Menu Hub",
+    "name_en": "Menu Hub",
+    "origin": "",
+    "one_liner": "Show HN: Menu Hub – a native macOS menu bar manager in SwiftUI/AppKit",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-12（来源 hn，发布于 2026-09-12，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/Talljack/menu-hub/releases/tag/v0.1.5",
+    "harvest_source": "hn",
+    "added_at": "2026-09-12"
+  },
+  {
+    "id": "don-t-hit-send",
+    "name": "Don't Hit Send",
+    "name_en": "Don't Hit Send",
+    "origin": "",
+    "one_liner": "Type. The model is already answering. There is no send button. Left pane is one long draft. Right pane is a stack of replies. Pause for ~350ms and it fires a normal streaming chat completion with the whole draft. Type again and it aborts th",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-12（来源 hn，发布于 2026-09-12，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/scalattice/dont-hit-send",
+    "harvest_source": "hn",
+    "added_at": "2026-09-12"
+  },
+  {
     "id": "myreader-inc",
     "name": "Myreader, Inc.",
     "name_en": "Myreader, Inc.",

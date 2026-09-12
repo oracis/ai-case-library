@@ -1,77 +1,44 @@
 {
-  "ran_at": "2026-09-12 10:55:29",
-  "added": 51,
+  "ran_at": "2026-09-12 05:17:46",
+  "added": 4,
   "by_source": {
-    "hn": 46,
-    "trustmrr": 5
+    "hn": 4
   },
-  "inbox_total": 188,
+  "inbox_total": 192,
   "archived_this_run": 0,
   "archive_total": 0,
   "top": [
     {
-      "name": "TERMy",
+      "name": "Mental bootstrapping enables human-level learning in self-supervised deep models",
       "headline": "未获取",
-      "heat": 225,
+      "heat": 3,
       "category": "未分类",
       "source": "hn",
-      "url": "https://github.com/gioblu/NPC-Forge/blob/main/docs/development.md"
+      "url": "https://www.science.org/doi/10.1126/sciadv.aea7202"
     },
     {
-      "name": "Godot and Rust based multiplexer (terminal panes and more)",
+      "name": "Don't Hit Send",
       "headline": "未获取",
-      "heat": 83,
+      "heat": 1,
       "category": "未分类",
       "source": "hn",
-      "url": "https://github.com/godot-pty/gpty"
+      "url": "https://github.com/scalattice/dont-hit-send"
     },
     {
-      "name": "Toast, a beautiful by default in terminal IDE",
+      "name": "Menu Hub",
       "headline": "未获取",
-      "heat": 73,
+      "heat": 1,
       "category": "未分类",
       "source": "hn",
-      "url": "https://github.com/paradise-runner/toast"
+      "url": "https://github.com/Talljack/menu-hub/releases/tag/v0.1.5"
     },
     {
-      "name": "ResolveHQ",
+      "name": "NodehistJ",
       "headline": "未获取",
-      "heat": 34,
+      "heat": 1,
       "category": "未分类",
       "source": "hn",
-      "url": "https://github.com/mirza-rizvi/ResolveHQ"
-    },
-    {
-      "name": "Extension to filter LLM written articles",
-      "headline": "未获取",
-      "heat": 15,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://hnslop.nilsherzig.com/"
-    },
-    {
-      "name": "Spanda",
-      "headline": "未获取",
-      "heat": 12,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://github.com/Adarshent/Spnda"
-    },
-    {
-      "name": "I built a hand-modeled 3D Windows 98 portfolio with Three.js",
-      "headline": "未获取",
-      "heat": 11,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://wesselsdesktop.com/"
-    },
-    {
-      "name": "Graphify C#",
-      "headline": "未获取",
-      "heat": 9,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://github.com/zachsaw/graphify-csharp"
+      "url": "https://github.com/oldzoomer-ru/nodehistj"
     }
   ]
 }
