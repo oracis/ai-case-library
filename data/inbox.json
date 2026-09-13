@@ -1,5 +1,275 @@
 [
   {
+    "id": "objo-studio-a-modern-visual-rad-ide-for-desktop-and-web",
+    "name": "Objo Studio. A modern visual RAD IDE for desktop and web",
+    "name_en": "Objo Studio. A modern visual RAD IDE for desktop and web",
+    "origin": "",
+    "one_liner": "I posted Objo Studio here some months ago when it was much earlier in development and it didn’t get much attention. Since then it has changed quite a bit, so I thought it was worth showing again. Objo Studio is my attempt to build a modern ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-12，2 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://objo.dev",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "rust-split",
+    "name": "Rust-split",
+    "name_en": "Rust-split",
+    "origin": "",
+    "one_liner": "A common failure mode for AI SW development is that agents tend to build large \"God\" files. This is bad on your token burn. A) because the larger your source file the more churn the LLM takes to find and emit edits, which are more likely to",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-12，5 分 / 2 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://news.ycombinator.com/item?id=49671509",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "chess960v2-com",
+    "name": "Chess960v2.com",
+    "name_en": "Chess960v2.com",
+    "origin": "",
+    "one_liner": "Hi HN, I just hit a major milestone on my side project. I work a demanding day job, so I built a platform where Stockfish plays continuous self-play (2s/move to keep server load manageable) to analyze asymmetrical chess variants. In Chess96",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-12，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://chess960v2.com/en",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "earthtopixels",
+    "name": "EarthToPixels",
+    "name_en": "EarthToPixels",
+    "origin": "",
+    "one_liner": "Hi HN! A few friends and I built EarthToPixels, a project that turns real-world cities into explorable pixel-art maps. We fine-tuned an open-source Qwen image model and built a pipeline that takes aerial imagery, generates pixel-art tiles, ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-12，3 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://www.earthtopixels.com",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "practice-english-grammar-and-pronunciation-uses-azure-speech",
+    "name": "Practice English Grammar and Pronunciation (Uses Azure Speech)",
+    "name_en": "Practice English Grammar and Pronunciation (Uses Azure Speech)",
+    "origin": "",
+    "one_liner": "Show HN: Practice English Grammar and Pronunciation (Uses Azure Speech)",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-12，2 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://marksdailyenglish.com/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "fleecevest",
+    "name": "Fleecevest",
+    "name_en": "Fleecevest",
+    "origin": "",
+    "one_liner": "Show HN: Fleecevest – The Product Counterpart to Ponytail",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-13，4 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/Websites-On-Computers/fleecevest",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "open-sourced-chrome-extension-to-save-organize-and-switch-bookmarks",
+    "name": "Open-Sourced Chrome Extension to Save, Organize and Switch Bookmarks",
+    "name_en": "Open-Sourced Chrome Extension to Save, Organize and Switch Bookmarks",
+    "origin": "",
+    "one_liner": "Show HN: Open-Sourced Chrome Extension to Save, Organize and Switch Bookmarks",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-13，6 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/ringlochid/leotabs",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "astah-pro-mcp",
+    "name": "Astah Pro MCP",
+    "name_en": "Astah Pro MCP",
+    "origin": "",
+    "one_liner": "This MCP plugin implements a \"Programmatic Tool Calling\" mode, inspired by the idea described in this Anthropic article ( https://www.anthropic.com/engineering/advanced-tool-use ).",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-13，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/takaakit/astah-pro-mcp",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "aqqai",
+    "name": "Aqqai",
+    "name_en": "Aqqai",
+    "origin": "",
+    "one_liner": "Show HN: Aqqai – Every answer, checked before you see it",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-13，2 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://demo.aqqai.in",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "i-made-an-alternative-to-the-archived-filebrowser",
+    "name": "I made an alternative to the archived filebrowser",
+    "name_en": "I made an alternative to the archived filebrowser",
+    "origin": "",
+    "one_liner": "Show HN: I made an alternative to the archived filebrowser",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-13，2 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/skidoodle/filebrowser",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "the-iphone-duo-fold-effect-on-any-windows-laptop",
+    "name": "The iPhone Duo fold effect on any Windows laptop",
+    "name_en": "The iPhone Duo fold effect on any Windows laptop",
+    "origin": "",
+    "one_liner": "Show HN: The iPhone Duo fold effect on any Windows laptop",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-13，1 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://winduo.baselashraf.com/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "sf-title-alert",
+    "name": "SF Title Alert",
+    "name_en": "SF Title Alert",
+    "origin": "",
+    "one_liner": "Show HN: SF Title Alert",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-13，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://sftitlealert.com/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "ai-rendering-in-realtime-at-3dbae",
+    "name": "AI Rendering in Realtime at 3dbae",
+    "name_en": "AI Rendering in Realtime at 3dbae",
+    "origin": "",
+    "one_liner": "Show HN: AI Rendering in Realtime at 3dbae",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-13，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://www.youtube.com/watch?v=Q9EZkVx-pws",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "words-of-hanoi",
+    "name": "Words of Hanoi",
+    "name_en": "Words of Hanoi",
+    "origin": "",
+    "one_liner": "Show HN: Words of Hanoi",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-13，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://crux.quest/hanoi",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "the-hacker-who-took-3-998-btc-is-texting-blockstream-on-chain-live",
+    "name": "The hacker who took 3,998 BTC is texting Blockstream on-chain, live",
+    "name_en": "The hacker who took 3,998 BTC is texting Blockstream on-chain, live",
+    "origin": "",
+    "one_liner": "Show HN: The hacker who took 3,998 BTC is texting Blockstream on-chain, live",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-13，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://liquidsaga.miguelmedeiros.dev",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
     "id": "mental-bootstrapping-enables-human-level-learning-in-self-supervised-deep-models",
     "name": "Mental bootstrapping enables human-level learning in self-supervised deep models",
     "name_en": "Mental bootstrapping enables human-level learning in self-supervised deep models",
