@@ -1,5 +1,221 @@
 [
   {
+    "id": "myplots",
+    "name": "MyPlots",
+    "name_en": "MyPlots",
+    "origin": "",
+    "one_liner": "Discover the events worth showing up for, grab your tickets in seconds, and host your own — all on the platform built for real-life moments.",
+    "category": "未分类",
+    "verification": "partial",
+    "metrics": {
+      "headline": "TrustMRR 验证收入榜条目（具体数字待补）"
+    },
+    "models": [],
+    "note": "来自 TrustMRR 首页的「Top startups by verified revenue」结构化数据。收入本身由支付网关验证，但榜单未直接给出金额，需打开公司页取数。注意区分 MRR 与 all-time 两个口径。",
+    "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
+    "source_url": "https://trustmrr.com/startup/myplots",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "subsweep",
+    "name": "SubSweep",
+    "name_en": "SubSweep",
+    "origin": "",
+    "one_liner": "Show HN: SubSweep – find recurring charges in an Australian bank statement CSV",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-13，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://www.subsweep.com.au",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "forma-onnx-graph-viewer-and-editor",
+    "name": "Forma ONNX Graph Viewer and Editor",
+    "name_en": "Forma ONNX Graph Viewer and Editor",
+    "origin": "",
+    "one_liner": "Hey all! Most ONNX tooling stops at just \"looking\". For those of you who know about Netron, it allows you to read the graph but the moment you want to change something you're back in Python either using onnx-modifier or onnx.helper scripts.",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-13，2 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/Hussain004/forma",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "weftgate-a-local-verification-gate-for-coding-agents",
+    "name": "Weftgate, a local verification gate for coding agents",
+    "name_en": "Weftgate, a local verification gate for coding agents",
+    "origin": "",
+    "one_liner": "Show HN: Weftgate, a local verification gate for coding agents",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-13，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/Avinash-Amudala/weftgate",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "fly-or-tesla",
+    "name": "Fly or Tesla",
+    "name_en": "Fly or Tesla",
+    "origin": "",
+    "one_liner": "Show HN: Fly or Tesla – Compare the cost, time, and stress of flights vs. FSD",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-13，3 分 / 3 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://flyortesla.com/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "how-llms-work-explained-through-music-football-or-cricket-analogies",
+    "name": "How LLMs work, explained through music, football or cricket analogies",
+    "name_en": "How LLMs work, explained through music, football or cricket analogies",
+    "origin": "",
+    "one_liner": "Show HN: How LLMs work, explained through music, football or cricket analogies",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-13，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://understand-ai.dev/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "run-coding-agents-on-your-own-machine-steer-them-from-anywhere",
+    "name": "Run coding agents on your own machine, steer them from anywhere",
+    "name_en": "Run coding agents on your own machine, steer them from anywhere",
+    "origin": "",
+    "one_liner": "Show HN: Run coding agents on your own machine, steer them from anywhere",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-13，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/phyra-research/roamux",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "pdf-pocket-tools",
+    "name": "PDF Pocket Tools",
+    "name_en": "PDF Pocket Tools",
+    "origin": "",
+    "one_liner": "Show HN: PDF Pocket Tools – offline PDF toolkit as a single 200KB HTML file",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-13，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://pdfpockettools.itch.io/pdf-pocket-tools",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "proofofdonation-replace-captchas-with-charity-donations",
+    "name": "ProofOfDonation, replace CAPTCHAs with charity donations",
+    "name_en": "ProofOfDonation, replace CAPTCHAs with charity donations",
+    "origin": "",
+    "one_liner": "Hey, I made this self-hosted server called proof-of-donation, as an experimental alternative to CAPTCHA. It verifies email donation receipts using DKIM. Instead having users solve puzzles, you can gate signups on charity donations. Let me k",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-13，1 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/mgriley/proof-of-donation/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "nearby-places-ranked-by-quality-score-not-ads",
+    "name": "Nearby places ranked by quality score, not ads",
+    "name_en": "Nearby places ranked by quality score, not ads",
+    "origin": "",
+    "one_liner": "Show HN: Nearby places ranked by quality score, not ads",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-13，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://realnear.app/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "stxt-indentation-based-format-with-schemas-and-no-escape-characters",
+    "name": "STXT, indentation-based format with schemas and no escape characters",
+    "name_en": "STXT, indentation-based format with schemas and no escape characters",
+    "origin": "",
+    "one_liner": "STXT is a human-first text format for documents: indentation-based, with namespaces and schemas written in the same language. It has very few rules, no escape characters, and is designed around simplicity and readability. The goal is a lang",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-13，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://stxt.dev/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "a-museum-of-source-code-in-rooms-you-can-walk-through",
+    "name": "A museum of source code, in rooms you can walk through",
+    "name_en": "A museum of source code, in rooms you can walk through",
+    "origin": "",
+    "one_liner": "Show HN: A museum of source code, in rooms you can walk through",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-13，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://www.programmingmuseum.com",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
     "id": "ai-music-generator-ios-macos-musicx",
     "name": "AI Music Generator(iOS+macOS)— MusicX",
     "name_en": "AI Music Generator(iOS+macOS)— MusicX",

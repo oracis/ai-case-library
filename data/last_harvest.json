@@ -1,77 +1,77 @@
 {
-  "ran_at": "2026-09-13 05:31:58",
-  "added": 35,
+  "ran_at": "2026-09-13 09:58:31",
+  "added": 12,
   "by_source": {
-    "hn": 29,
-    "trustmrr": 6
+    "hn": 11,
+    "trustmrr": 1
   },
-  "inbox_total": 242,
+  "inbox_total": 254,
   "archived_this_run": 0,
   "archive_total": 0,
   "top": [
     {
-      "name": "Most Penalized HN Stories",
+      "name": "Fly or Tesla",
       "headline": "未获取",
-      "heat": 15,
+      "heat": 3,
       "category": "未分类",
       "source": "hn",
-      "url": "https://news.social-protocols.org/penalties"
+      "url": "https://flyortesla.com/"
     },
     {
-      "name": "What If Donut.c but with Any ASCII Art",
+      "name": "Run coding agents on your own machine, steer them from anywhere",
       "headline": "未获取",
-      "heat": 7,
+      "heat": 2,
       "category": "未分类",
       "source": "hn",
-      "url": "https://asdesai.com/blog/how-fetch-works/"
+      "url": "https://github.com/phyra-research/roamux"
     },
     {
-      "name": "DiskTriage",
+      "name": "Forma ONNX Graph Viewer and Editor",
       "headline": "未获取",
-      "heat": 5,
+      "heat": 2,
       "category": "未分类",
       "source": "hn",
-      "url": "https://github.com/ricardoborges/DiskTriage"
+      "url": "https://github.com/Hussain004/forma"
     },
     {
-      "name": "Everything a web page can learn about you, in plain English",
+      "name": "A museum of source code, in rooms you can walk through",
       "headline": "未获取",
-      "heat": 5,
+      "heat": 1,
       "category": "未分类",
       "source": "hn",
-      "url": "https://sessioncontext.org"
+      "url": "https://www.programmingmuseum.com"
     },
     {
-      "name": "YazSes",
+      "name": "STXT, indentation-based format with schemas and no escape characters",
       "headline": "未获取",
-      "heat": 5,
+      "heat": 1,
       "category": "未分类",
       "source": "hn",
-      "url": "https://github.com/MSKazemi/yazses"
+      "url": "https://stxt.dev/"
     },
     {
-      "name": "Come prove the Berge Fulkerson conjecture with a swarm of agents",
+      "name": "Nearby places ranked by quality score, not ads",
       "headline": "未获取",
-      "heat": 5,
+      "heat": 1,
       "category": "未分类",
       "source": "hn",
-      "url": "https://provetogether.ai/problems/15"
+      "url": "https://realnear.app/"
     },
     {
-      "name": "A Technical Book for the Age of AI",
+      "name": "ProofOfDonation, replace CAPTCHAs with charity donations",
       "headline": "未获取",
-      "heat": 4,
+      "heat": 1,
       "category": "未分类",
       "source": "hn",
-      "url": "https://codeberg.org/juurej/p4cu"
+      "url": "https://github.com/mgriley/proof-of-donation/"
     },
     {
-      "name": "Stackray",
+      "name": "PDF Pocket Tools",
       "headline": "未获取",
-      "heat": 4,
+      "heat": 1,
       "category": "未分类",
       "source": "hn",
-      "url": "https://stackray.app"
+      "url": "https://pdfpockettools.itch.io/pdf-pocket-tools"
     }
   ]
 }
