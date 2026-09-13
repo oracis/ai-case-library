@@ -1,0 +1,354 @@
+# `data.json` schema
+
+Field reference for the machine-readable snapshot published by **AI Case Library**
+([github.com/oracis/ai-case-library](https://github.com/oracis/ai-case-library)).
+
+This document is the English-language interface contract. It describes **keys, types,
+enums and formulas** — not the prose. You can build a client, a chart or a filter on top
+of this file without reading a single Chinese sentence.
+
+- **Produced by**: `scripts/build_static.py` (build artifact) and `GET /api/data` (local server)
+- **Consumed by**: the static site itself (`data.js`), and any third-party program
+- **Source of truth**: the repository `data/*.json` files, hand-curated and committed
+- **License**: MIT — free to use, modify and redistribute, including commercially
+
+## Where to get it
+
+```bash
+# from a local clone (recommended: this is the up-to-date machine copy)
+python scripts/build_static.py          # writes dist/data.json + dist/data.js
+
+# or from a running local server
+python server.py && curl -s http://127.0.0.1:5052/api/data
+```
+
+When the project is deployed to object storage, the same document is served as
+`data.json` next to `index.html`. `data.js` is byte-identical content wrapped in
+`window.__CASE_LIB_DATA__ = {...}` — the page uses that one because `file://` blocks `fetch`.
+
+## Stability and versioning
+
+| Field | Meaning |
+|---|---|
+| `schema_version` | Semantic version of **this document**. Bumps when a key is renamed, removed or retyped. |
+| `generated_at` | When the snapshot was rendered, `YYYY-MM-DD HH:MM:SS`, **Asia/Shanghai**, no timezone suffix. |
+| `lang` | BCP-47 tag of the **prose** fields. Currently always `zh-CN`. |
+
+Additive changes (new keys, new enum members) do **not** bump `schema_version`.
+Renames do. Consumers should ignore unknown keys rather than fail on them.
+
+### Language boundary
+
+Everything that is *prose* is Chinese: `one_liner`, `verdict`, `what_it_does`,
+`why_it_works[]`, `note`, `metric_note`, `corrections[].claim/truth`, and so on.
+
+Everything that is *data* is language-neutral or English: key names, enum values
+(`verification`, `quadrant`, `medal`, `sources[].kind`), numeric `metrics`,
+all scores, ranks and weights, ISO dates, URLs, and `name_en`.
+
+That split is deliberate. The interpretation layer of this library — what the numbers
+*mean* for a builder — is written for a Chinese reader and is not machine-translated.
+Scores, enums and metrics are safe to aggregate, sort and chart anywhere.
+
+---
+
+## Top level
+
+```jsonc
+{
+  "schema_version": "1.0",
+  "lang": "zh-CN",
+  "generated_at": "2026-09-13 12:27:04",
+  "cases":      [ /* Case, 24 items, curated & verified   */ ],
+  "candidates": [ /* Candidate, 37 items, human-picked     */ ],
+  "inbox":      [ /* InboxItem, ~188 items, machine-mined  */ ],
+  "sources":    { /* SourcesDoc, see below                  */ },
+  "stats":      { /* Stats, see below                       */ }
+}
+```
+
+The three arrays are the **three-tier funnel**, and the distinction is the point of the
+project:
+
+| Array | Meaning | Who fills it | Numbers verified? |
+|---|---|---|---|
+| `cases` | Curated cases. Each was searched and checked by hand. | human | yes — see `verification` |
+| `candidates` | Looks worth writing; revenue not checked yet. | human, from `inbox` | no |
+| `inbox` | Raw harvested links, never reviewed by a human. | script, daily | no |
+
+**Do not treat `inbox` or `candidates` as verified data.** Use them as leads only.
+
+---
+
+## `cases[]`
+
+A curated case. Only `id`, `name`, `status`, `verification` and `one_liner` are
+guaranteed present; everything else may be `null`, `""` or `[]`.
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | string | Stable slug, lowercase. Primary key, safe to join on. |
+| `name` | string | Display name (may be Chinese-influenced for some entries). |
+| `name_en` | string | Latin-script name. Same as `name` for the non-Chinese names. |
+| `origin` | string | Free-text HQ, e.g. `美国 · 旧金山`, `新加坡（法国人）`. Not an enum. |
+| `one_liner` | string | One-sentence description. |
+| `category` | string | Coarse bucket. 7 values in use, free text in principle. |
+| `industry` | string | Fine-grained vertical. Free text, ~23 values in use. |
+| `status` | string | `curated` for everything in this array. |
+| `verification` | enum | Evidence grade. **Read this before quoting a number.** |
+| `metrics` | object \| null | Reported financials. See below. |
+| `models` | string[] | Business-model tags, e.g. `结果定价`, `订阅制`, `卖给同行`. |
+| `replicability` | object \| null | Original 4-dimension difficulty. **1 = easiest, 5 = hardest.** |
+| `verdict` | string | The one-line takeaway for a builder. |
+| `what_it_does` | string | Product description. |
+| `how_it_makes_money` | string | Revenue mechanics. |
+| `why_it_works` | string[] | Mechanism, 3–5 bullets. The most reusable part. |
+| `playbook` | string[] | Transferable moves, 2–3 bullets. |
+| `signals` | string[] | Supporting evidence points. |
+| `corrections` | object[] | Corrections to widely-cited wrong figures. See below. |
+| `sources` | object[] | Cited evidence. See below. |
+| `verified_at` | string | `YYYY-MM-DD` — when the numbers were last checked. |
+| `updated_at` | string | `YYYY-MM-DD` — last edit of any kind. |
+| `tags` | string[] | Free-text tags. |
+| `needs_review` | bool | Optional. Present and `true` when promoted without verification. |
+| `china_fit` | object \| null | China-portability score. See below. |
+| `solo_fit` | object \| null | Solo-founder score. See below. |
+| `composite` | object \| null | Two-axis aggregate + quadrant. See below. |
+
+### `verification` enum — highest to lowest evidence grade
+
+| Value | Verdict | Meaning |
+|---|---|---|
+| `stripe` | strongest | Directly verified through a payment gateway (TrustMRR, Stripe case studies). |
+| `official` | strong | Company press release or financial disclosure. |
+| `partial` | caution | Figures are real, but the definition is unclear (MRR vs. all-time?). |
+| `founder` | weak | Self-reported by the founder, no third-party check. |
+| `disputed` | conflict | Sources contradict each other. |
+| `unverified` | none | Not checked yet. |
+
+`stats.verified` counts only `stripe` + `official`.
+
+### `metrics` object
+
+All keys optional; monetary values are **plain numbers** in USD, no currency symbol.
+
+| Field | Type | Notes |
+|---|---|---|
+| `headline` | string | Human-readable headline, e.g. `$200M ARR`. Display only. |
+| `arr` | number | Annual recurring revenue, USD. |
+| `mrr` | number | Monthly recurring revenue, USD. |
+| `all_time` | number | Cumulative revenue, USD. **Not** ARR — this is the most common conflation in secondary coverage. |
+| `customers` | string | Free text — deliberately, because the units differ wildly (`42,000 users` vs `700+ clinics`). |
+| `team` | string | Headcount, free text. |
+| `funding` | string | Total raised, free text. |
+| `valuation` | string | Free text. |
+| `growth` | string | Growth trajectory, free text. |
+| `price_point` | string | Pricing, free text. |
+| `metric_note` | string | Caveats on the figures above, incl. uncertainty ranges. **Read before quoting.** |
+
+### `replicability` object — 1 = easiest, 5 = hardest
+
+| Field | Meaning |
+|---|---|
+| `tech` | Technical difficulty. |
+| `distribution` | Customer-acquisition difficulty. |
+| `capital` | Up-front capital required. |
+| `timing` | Dependence on a market window. |
+
+A score of `5` in any dimension means a single person essentially cannot do it.
+Note the **inverted direction** relative to `solo_fit.dims` and `china_fit.dims`
+(both `5` = most favourable). `solo_fit` derives three of its five dimensions from
+this object, so the two can never disagree.
+
+### `corrections[]`
+
+The highest-value part of the dataset: figures that circulate widely in secondary
+coverage and are wrong.
+
+| Field | Type | Notes |
+|---|---|---|
+| `claim` | string | The claim as commonly repeated. |
+| `truth` | string | What the primary evidence actually says. |
+| `source` | string | URL of the evidence, or an attribution note. |
+
+### `sources[]`
+
+| Field | Type | Notes |
+|---|---|---|
+| `label` | string | Human-readable citation. |
+| `url` | string | Link. |
+| `kind` | enum | `stripe` \| `official` \| `press` \| `review` — evidence class. |
+
+---
+
+## Scoring objects
+
+Three independent score objects can appear on a case. All two-axis consumers only
+need `composite`; the other two are the inputs.
+
+Every scoring object carries the same envelope: `score` (0–100, 1 decimal),
+`raw` (weighted points), `max_raw` (weighted maximum), `rank` (1 = best, across all
+scored cases), `medal` (`gold` \| `silver` \| `bronze` \| `null`), `dims`, `weights`,
+`scored_at`. `score` is always `raw / max_raw × 100`.
+
+### `china_fit` — can this be ported to China?
+
+Dimensions are 1–5, **5 = easiest to port**. `max_raw = 34.5`.
+
+| Dim | Weight | Question |
+|---|---|---|
+| `demand` | 1.5 | Will the Chinese target customer actually pay? |
+| `payment` | 1.2 | Can revenue be collected smoothly in China? (Stripe is unavailable there.) |
+| `compliance` | 1.2 | Distance from regulatory red lines — higher is safer. |
+| `acquisition` | 1.0 | Does each overseas acquisition channel have a Chinese equivalent? |
+| `localization` | 1.0 | How much has to be rebuilt to fit the market? |
+| `competition` | 1.0 | Is there already a dominant free substitute in China? |
+
+Extra fields: `note` (the reasoning, always present), `blocker` (short reason when a
+regulatory or structural hard stop applies, else `null`).
+
+```bash
+python scripts/score_china_fit.py --dry-run
+```
+
+### `solo_fit` — can one person build and run this?
+
+Dimensions are 1–5, **5 = easiest for a solo founder**. `max_raw = 29.0`.
+
+| Dim | Weight | Question |
+|---|---|---|
+| `delivery` | 1.4 | No team, no licences, no 24/7 on-call? |
+| `reach` | 1.3 | Reachable without a sales team? |
+| `capital` | 1.1 | Can it open without burning cash first? |
+| `build` | 1.0 | Is the stack within one person's range? |
+| `window` | 1.0 | Is there still room to enter? |
+
+`build`, `reach`, `capital` and `window` are derived from `replicability` as
+`6 − value`; only `delivery` is a separate human judgement. Extra fields:
+`delivery_note` (why the `delivery` score is what it is) and `derived_from`
+(a string documenting the inversion, for auditability).
+
+```bash
+python scripts/score_solo_fit.py --dry-run
+```
+
+### `composite` — the two axes combined
+
+`solo_fit` and `china_fit` are **multiplicative in practice**: buildable but unsellable
+in China = 0; demand exists but one person can't deliver = 0. So the aggregate is
+bucket-shaped rather than a mean, with the weak axis weighted up:
+
+```
+composite = 0.6 × min(solo, china) + 0.4 × mean(solo, china)
+```
+
+`90 / 40 → 50` while `60 / 60 → 60`. **Two-passing beats one-spike.**
+
+| Field | Notes |
+|---|---|
+| `score` | The composite value. |
+| `solo` | Copy of `solo_fit.score`, for convenience. |
+| `china` | Copy of `china_fit.score`, for convenience. |
+| `rank` | 1 = best composite. |
+| `quadrant` | enum — see below. |
+| `quadrant_label` | Chinese display label for the quadrant. |
+| `formula` | The formula string, embedded in the data. |
+| `threshold` | The pass mark used (default `70.0`; configurable via `--threshold`). |
+
+`quadrant` values:
+
+| Value | Meaning |
+|---|---|
+| `go` | Both axes pass — a single person can do it and China wants it. |
+| `partner` | Real demand, but the barrier is licensing, enterprise sales or team delivery. |
+| `export` | Perfectly buildable, but don't sell it in China — demand or payment soil is missing. |
+| `skip` | Fails both axes. |
+
+Quadrants are evaluated on **each axis separately** against `threshold`, and the
+projection onto two axes gives the four cells. Changing `--threshold` re-derives them.
+
+---
+
+## `candidates[]` and `inbox[]`
+
+Candidate fields: `id`, `name`, `name_en`, `origin`, `one_liner`, `category`,
+`verification`, `metrics`, `models`, `note`, `blocking`, `added_at`.
+(`verification` is usually `unverified`; `blocking` is a free-text reason it might not
+be worth writing.)
+
+Inbox adds `source_url` and `harvest_source` (`hn` \| `trustmrr` \| `producthunt` \|
+`indiehackers` \| `arrclub` — depends on which collectors ran with credentials).
+
+Neither array contains scores.
+
+---
+
+## `sources` object
+
+Reproduces `data/sources.json`, the harvesting configuration.
+
+| Field | Type | Notes |
+|---|---|---|
+| `updated_at` | string | `YYYY-MM-DD`. |
+| `principle` | string | The editorial rule in one line: primary evidence beats secondary retelling. |
+| `sources[]` | object[] | Configured collectors: `id`, `name`, `url`, `kind`, `tier` (`A`/`B`/`B-`), `enabled`, `auth`, `how`, `fields[]`, `why`, `caveat`, `endpoints[]`. |
+| `filter_rules` | object | `drop_keywords[]`, `keep_signals[]`, `match_mode` (`word_boundary`), `note`. |
+
+`sources[].kind`: `revenue_db` \| `community` \| `launch_board`.
+
+---
+
+## `stats`
+
+Precomputed aggregates, so a client does not have to recompute them.
+
+| Field | Notes |
+|---|---|
+| `curated`, `candidates`, `inbox` | Funnel sizes. |
+| `verified` | Count of `stripe` + `official`. |
+| `flagged` | Total correction entries + count of `disputed` cases. |
+| `china_scored`, `solo_scored`, `dual_scored` | How many cases carry each score object. |
+| `china_blocked` | Cases with a non-null `china_fit.blocker`. |
+| `china_top3`, `solo_top3`, `dual_top3` | Trimmed leaderboard rows: `rank`, `medal`, `id`, `name`, `category`, `score`, plus `note` / `blocker` / `dims` (`dual_top3` also carries `solo`, `china`, `quadrant`, `quadrant_label`). |
+| `quadrants[]` | One entry per quadrant: `key`, `label`, `desc`, `count`, `cases[]` (trimmed cards, same shape as `dual_top3` minus `solo`/`china`). |
+| `categories` | Number of distinct categories. |
+| `by_verification` | `{enum: count}`. |
+| `by_category` | `{category: count}`. |
+| `by_model` | `{model: count}`, sorted descending. |
+| `inbox_included` | `false` only for builds produced with `--no-inbox`. |
+
+---
+
+## Worked example
+
+Which cases can a solo developer actually ship for the Chinese market?
+
+```bash
+curl -s http://127.0.0.1:5052/api/data \
+  | jq -r '.cases[]
+           | select(.composite.quadrant == "go")
+           | "\(.name)  composite=\(.composite.score)  solo=\(.solo_fit.score)  cn=\(.china_fit.score)"'
+```
+
+Find revenue figures that are not backed by a payment gateway, i.e. the ones to
+double-check before citing:
+
+```bash
+jq -r '[.cases[] | select(.verification != "stripe" and .metrics.arr != null)]
+       | .[] | "\(.name)\t\(.metrics.headline)\t\(.verification)"' dist/data.json
+```
+
+Every correction entry in the dataset — the part that is genuinely hard to find
+anywhere else:
+
+```bash
+jq -r '.cases[] | .corrections[] | "\(.claim)\n  → \(.truth)\n  src: \(.source)\n"' dist/data.json
+```
+
+---
+
+## Changelog
+
+| `schema_version` | Change |
+|---|---|
+| 1.0 | First published contract. Adds `schema_version` and `lang` to the payload. |

@@ -8,6 +8,14 @@
 **仓库**：<https://github.com/oracis/ai-case-library> · **协议**：MIT（可商用、可改、可分发）
 · **克隆**：`git clone https://github.com/oracis/ai-case-library.git`
 
+**English**：[README.en.md](README.en.md) · **数据结构**（给第三方程序消费的字段字典）：
+[docs/DATA_SCHEMA.md](docs/DATA_SCHEMA.md)
+
+> 界面文案与案例正文不做英译，这是刻意的：正文字段的语言是 `zh-CN`，
+> 而分数、枚举、数值、日期这些**结构化字段与语言无关**，第三方程序可以直接用。
+> 面向海外只需要英文接口，不需要英文界面——理由见
+> [DATA_SCHEMA.md 的 Language boundary 一节](docs/DATA_SCHEMA.md#language-boundary)。
+
 一个本地跑的**已核实案例库**：把国外已经跑通的小项目扒下来、核过数字、写成人话，
 按「模式」而不是「行业」组织，用来长判断力。
 
@@ -467,7 +475,7 @@ python scripts/build_static.py --out public # 换输出目录
 |---|---|
 | `index.html` | 注入了 `window.__STATIC__ = true`，前端据此切只读模式 |
 | `data.js` | `window.__CASE_LIB_DATA__ = {...}`，页面实际加载这个 |
-| `data.json` | 同一份数据，给第三方程序抓取 |
+| `data.json` | 同一份数据，给第三方程序抓取。字段字典：[docs/DATA_SCHEMA.md](docs/DATA_SCHEMA.md) |
 | `style.css`、`app.js` | 前端本体 |
 | `404.html` | 可以在 OSS 里配成错误页 |
 

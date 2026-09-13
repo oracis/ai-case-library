@@ -23,6 +23,12 @@ STATIC_DIR = os.path.join(ROOT, "static")
 DATA_DIR = os.path.join(ROOT, "data")
 PORT = int(os.environ.get("CASE_LIB_PORT", "5052"))
 
+# 对外数据契约（/api/data 与 dist/data.json）。字段说明见 docs/DATA_SCHEMA.md。
+# 改字段名 / 类型 / 枚举值时要同步改这里和那份文档；只加新字段不用动。
+SCHEMA_VERSION = "1.0"
+# 正文字段的语言（BCP-47）。结构化字段与语言无关，第三方程序可直接消费。
+CONTENT_LANG = "zh-CN"
+
 MIME = {
     ".html": "text/html; charset=utf-8",
     ".js": "application/javascript; charset=utf-8",
@@ -190,6 +196,12 @@ def build_payload():
     }
 
     return {
+        # 对外数据契约的版本号。改字段名/类型/枚举要在这里 +1，并同步 docs/DATA_SCHEMA.md；
+        # 只是加新字段不用动。见 docs/DATA_SCHEMA.md「Stability and versioning」。
+        "schema_version": SCHEMA_VERSION,
+        # 正文字段（one_liner / verdict / note …）的语言。结构化字段（分数、枚举、
+        # 数值、日期、URL）与语言无关，第三方程序可以直接消费。
+        "lang": CONTENT_LANG,
         "cases": cases,
         "candidates": candidates,
         "inbox": inbox,
