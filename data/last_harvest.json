@@ -1,76 +1,77 @@
 {
-  "ran_at": "2026-09-13 05:06:36",
-  "added": 15,
+  "ran_at": "2026-09-13 05:31:58",
+  "added": 35,
   "by_source": {
-    "hn": 15
+    "hn": 29,
+    "trustmrr": 6
   },
-  "inbox_total": 207,
+  "inbox_total": 242,
   "archived_this_run": 0,
   "archive_total": 0,
   "top": [
     {
-      "name": "Open-Sourced Chrome Extension to Save, Organize and Switch Bookmarks",
+      "name": "Most Penalized HN Stories",
       "headline": "未获取",
-      "heat": 6,
+      "heat": 15,
       "category": "未分类",
       "source": "hn",
-      "url": "https://github.com/ringlochid/leotabs"
+      "url": "https://news.social-protocols.org/penalties"
     },
     {
-      "name": "Rust-split",
+      "name": "What If Donut.c but with Any ASCII Art",
+      "headline": "未获取",
+      "heat": 7,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://asdesai.com/blog/how-fetch-works/"
+    },
+    {
+      "name": "DiskTriage",
       "headline": "未获取",
       "heat": 5,
       "category": "未分类",
       "source": "hn",
-      "url": "https://news.ycombinator.com/item?id=49671509"
+      "url": "https://github.com/ricardoborges/DiskTriage"
     },
     {
-      "name": "Fleecevest",
+      "name": "Everything a web page can learn about you, in plain English",
+      "headline": "未获取",
+      "heat": 5,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://sessioncontext.org"
+    },
+    {
+      "name": "YazSes",
+      "headline": "未获取",
+      "heat": 5,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://github.com/MSKazemi/yazses"
+    },
+    {
+      "name": "Come prove the Berge Fulkerson conjecture with a swarm of agents",
+      "headline": "未获取",
+      "heat": 5,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://provetogether.ai/problems/15"
+    },
+    {
+      "name": "A Technical Book for the Age of AI",
       "headline": "未获取",
       "heat": 4,
       "category": "未分类",
       "source": "hn",
-      "url": "https://github.com/Websites-On-Computers/fleecevest"
+      "url": "https://codeberg.org/juurej/p4cu"
     },
     {
-      "name": "EarthToPixels",
+      "name": "Stackray",
       "headline": "未获取",
-      "heat": 3,
+      "heat": 4,
       "category": "未分类",
       "source": "hn",
-      "url": "https://www.earthtopixels.com"
-    },
-    {
-      "name": "I made an alternative to the archived filebrowser",
-      "headline": "未获取",
-      "heat": 2,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://github.com/skidoodle/filebrowser"
-    },
-    {
-      "name": "Aqqai",
-      "headline": "未获取",
-      "heat": 2,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://demo.aqqai.in"
-    },
-    {
-      "name": "Astah Pro MCP",
-      "headline": "未获取",
-      "heat": 2,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://github.com/takaakit/astah-pro-mcp"
-    },
-    {
-      "name": "Practice English Grammar and Pronunciation (Uses Azure Speech)",
-      "headline": "未获取",
-      "heat": 2,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://marksdailyenglish.com/"
+      "url": "https://stackray.app"
     }
   ]
 }

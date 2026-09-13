@@ -1,5 +1,635 @@
 [
   {
+    "id": "ai-music-generator-ios-macos-musicx",
+    "name": "AI Music Generator(iOS+macOS)— MusicX",
+    "name_en": "AI Music Generator(iOS+macOS)— MusicX",
+    "origin": "",
+    "one_liner": "Transform your ideas into high-fidelity audio with the most advanced AI models on the market.",
+    "category": "未分类",
+    "verification": "partial",
+    "metrics": {
+      "headline": "TrustMRR 验证收入榜条目（具体数字待补）"
+    },
+    "models": [],
+    "note": "来自 TrustMRR 首页的「Top startups by verified revenue」结构化数据。收入本身由支付网关验证，但榜单未直接给出金额，需打开公司页取数。注意区分 MRR 与 all-time 两个口径。",
+    "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
+    "source_url": "https://trustmrr.com/startup/musicx",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "gitskins",
+    "name": "GitSkins",
+    "name_en": "GitSkins",
+    "origin": "",
+    "one_liner": "Turn your public GitHub work into a polished README and a portfolio that gives your work a place to land.",
+    "category": "未分类",
+    "verification": "partial",
+    "metrics": {
+      "headline": "TrustMRR 验证收入榜条目（具体数字待补）"
+    },
+    "models": [],
+    "note": "来自 TrustMRR 首页的「Top startups by verified revenue」结构化数据。收入本身由支付网关验证，但榜单未直接给出金额，需打开公司页取数。注意区分 MRR 与 all-time 两个口径。",
+    "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
+    "source_url": "https://trustmrr.com/startup/gitskins",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "getastrothemes",
+    "name": "Getastrothemes",
+    "name_en": "Getastrothemes",
+    "origin": "",
+    "one_liner": "Production-ready multilingual Astro themes for SaaS teams, agencies, consultants, and founders. Built for speed, SEO, and straightforward customization.",
+    "category": "未分类",
+    "verification": "partial",
+    "metrics": {
+      "headline": "TrustMRR 验证收入榜条目（具体数字待补）"
+    },
+    "models": [],
+    "note": "来自 TrustMRR 首页的「Top startups by verified revenue」结构化数据。收入本身由支付网关验证，但榜单未直接给出金额，需打开公司页取数。注意区分 MRR 与 all-time 两个口径。",
+    "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
+    "source_url": "https://trustmrr.com/startup/getastrothemes",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "lima",
+    "name": "Lima",
+    "name_en": "Lima",
+    "origin": "",
+    "one_liner": "Lima makes it easy to see when your brand and competitor brands are mentioned by AI to help you grow your search traffic. Monitor ChatGPT, Perplexity, Google AI and Claude to understand when, how and why you and your com",
+    "category": "未分类",
+    "verification": "partial",
+    "metrics": {
+      "headline": "TrustMRR 验证收入榜条目（具体数字待补）"
+    },
+    "models": [],
+    "note": "来自 TrustMRR 首页的「Top startups by verified revenue」结构化数据。收入本身由支付网关验证，但榜单未直接给出金额，需打开公司页取数。注意区分 MRR 与 all-time 两个口径。",
+    "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
+    "source_url": "https://trustmrr.com/startup/lima",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "orion-ai-solutions-inc",
+    "name": "Orion AI Solutions Inc.",
+    "name_en": "Orion AI Solutions Inc.",
+    "origin": "",
+    "one_liner": "CRM technology powered by AI technology to automate sales processes for insurance agencies with voice AI, SMS AI, and email AI.",
+    "category": "未分类",
+    "verification": "partial",
+    "metrics": {
+      "headline": "TrustMRR 验证收入榜条目（具体数字待补）"
+    },
+    "models": [],
+    "note": "来自 TrustMRR 首页的「Top startups by verified revenue」结构化数据。收入本身由支付网关验证，但榜单未直接给出金额，需打开公司页取数。注意区分 MRR 与 all-time 两个口径。",
+    "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
+    "source_url": "https://trustmrr.com/startup/orion-ai-solutions-inc",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "sharp-face-scan-skincare",
+    "name": "Sharp - Face Scan Skincare",
+    "name_en": "Sharp - Face Scan Skincare",
+    "origin": "",
+    "one_liner": "Sharp is a skin analysis and routine app for men who would rather measure than guess.",
+    "category": "未分类",
+    "verification": "partial",
+    "metrics": {
+      "headline": "TrustMRR 验证收入榜条目（具体数字待补）"
+    },
+    "models": [],
+    "note": "来自 TrustMRR 首页的「Top startups by verified revenue」结构化数据。收入本身由支付网关验证，但榜单未直接给出金额，需打开公司页取数。注意区分 MRR 与 all-time 两个口径。",
+    "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
+    "source_url": "https://trustmrr.com/startup/sharp",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "i-built-a-harness-and-now-it-is-my-daily-driver-for-local-agents",
+    "name": "I built a harness and now it is my daily driver for local agents",
+    "name_en": "I built a harness and now it is my daily driver for local agents",
+    "origin": "",
+    "one_liner": "I built a harness and now it is my daily driver for local agents",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-12，1 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/mrsirg97-rgb/rig",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "wlmoves",
+    "name": "Wlmoves",
+    "name_en": "Wlmoves",
+    "origin": "",
+    "one_liner": "Show HN: Wlmoves - Move nested Wayland windows between TTYs automatically",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-12，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/skorotkiewicz/wlmoves",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "ember",
+    "name": "Ember",
+    "name_en": "Ember",
+    "origin": "",
+    "one_liner": "Hey y’all! Back in 2019, inspired by my love of board games and what’s possible with digital games, I created a little strategy game built around simultaneous moves and shifting pressure across a grid. I thought there was a really interesti",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-12，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://playember.gg/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "stackray",
+    "name": "Stackray",
+    "name_en": "Stackray",
+    "origin": "",
+    "one_liner": "Stackray is an open source builtwith alternative that also provides OSINT details. Scan a domain or URL and view detected frameworks, business tools, subdomains, DNS records, etc. You can deploy your own instance to schedule recurring scans",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-12，4 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://stackray.app",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "i-use-airpods-as-wireless-imus-to-track-discs-bowling-balls-and-runs",
+    "name": "I use AirPods as wireless IMUs to track discs, bowling balls and runs",
+    "name_en": "I use AirPods as wireless IMUs to track discs, bowling balls and runs",
+    "origin": "",
+    "one_liner": "Show HN: I use AirPods as wireless IMUs to track discs, bowling balls and runs",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-12，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://kinapod.com/technology",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "ai-powered-word-guessing-game",
+    "name": "AI-Powered Word Guessing Game",
+    "name_en": "AI-Powered Word Guessing Game",
+    "origin": "",
+    "one_liner": "Made a word game, inspired by other popular games but with a guesser powered by Gemini 3.5 Flash Lite. Feedback welcome!",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-12，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://synapse.akshayr.xyz/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "termique-an-ssh-client-where-the-server-can-t-read-your-credentials",
+    "name": "Termique, an SSH client where the server can't read your credentials",
+    "name_en": "Termique, an SSH client where the server can't read your credentials",
+    "origin": "",
+    "one_liner": "Show HN: Termique, an SSH client where the server can't read your credentials",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-12，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://termique.app/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "lab",
+    "name": "Lab",
+    "name_en": "Lab",
+    "origin": "",
+    "one_liner": "Show HN: Lab – Local-first, serverless browser client for LLMs",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-12，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://labstudio.tech",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "statehunter-and-auditguard",
+    "name": "StateHunter and AuditGuard",
+    "name_en": "StateHunter and AuditGuard",
+    "origin": "",
+    "one_liner": "Show HN: StateHunter and AuditGuard – Client-Side SPA Recon and Safe Harbor CLI",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-12，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://codeandcypher.com/posts/client-side-spa-recon-and-safe-harbor-verification/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "come-prove-the-berge-fulkerson-conjecture-with-a-swarm-of-agents",
+    "name": "Come prove the Berge Fulkerson conjecture with a swarm of agents",
+    "name_en": "Come prove the Berge Fulkerson conjecture with a swarm of agents",
+    "origin": "",
+    "one_liner": "Show HN: Come prove the Berge Fulkerson conjecture with a swarm of agents",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-12，5 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://provetogether.ai/problems/15",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "simtower-decompiled-rewritten-and-in-the-browser",
+    "name": "SimTower, Decompiled, Rewritten, and in the Browser",
+    "name_en": "SimTower, Decompiled, Rewritten, and in the Browser",
+    "origin": "",
+    "one_liner": "I wanted to re-play SimTower but found it too difficult to get running through emulation. Instead, I worked for 6 months with Claude Code on a complete rewrite, replicating all the functionality from a Ghidra decompilation of the binary, an",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-12，1 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://kvetch.io/conciliatower/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "redis-city",
+    "name": "Redis City",
+    "name_en": "Redis City",
+    "origin": "",
+    "one_liner": "Show HN: Redis City – Explore how Redis works in an interactive 3D model",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-12，2 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://poltora.dev/redis",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "picobble",
+    "name": "Picobble",
+    "name_en": "Picobble",
+    "origin": "",
+    "one_liner": "I've been designing and running daily puzzle games for my puzzle enthusiast friends for a while now. Finally decided to polish one for public release. It's a bit more demanding of time/effort compared to things like Wordle, but I hope there",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-12，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://picobble.com/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "an-independent-directory-of-ai-misalignment-reports",
+    "name": "An independent directory of AI misalignment reports",
+    "name_en": "An independent directory of AI misalignment reports",
+    "origin": "",
+    "one_liner": "Hey HN, In light of the concerns regarding AI safety, I created a website to track all known cases of misalignment. I will keep this up to date as more cases emerge. Anyone is encouraged to submit a report (anonymous or otherwise). Frontier",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-12，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://misalignment.xyz/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "opentracker-an-open-source-pivotal-tracker",
+    "name": "Opentracker, an open source Pivotal Tracker",
+    "name_en": "Opentracker, an open source Pivotal Tracker",
+    "origin": "",
+    "one_liner": "Show HN: Opentracker, an open source Pivotal Tracker",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-12，1 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/usero-feedback/opentracker",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "vibe-logic-programming-language",
+    "name": "Vibe Logic Programming Language",
+    "name_en": "Vibe Logic Programming Language",
+    "origin": "",
+    "one_liner": "Show HN: Vibe Logic Programming Language",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-12，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://cosmos-language-lab-0819.asd-user56.chatgpt.site/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "sill",
+    "name": "Sill",
+    "name_en": "Sill",
+    "origin": "",
+    "one_liner": "Show HN: Sill – a macOS system monitor that lives on your wallpaper",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-12，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://ptthe13.github.io/sill/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "what-if-donut-c-but-with-any-ascii-art",
+    "name": "What If Donut.c but with Any ASCII Art",
+    "name_en": "What If Donut.c but with Any ASCII Art",
+    "origin": "",
+    "one_liner": "Show HN: What If Donut.c but with Any ASCII Art",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-12，7 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://asdesai.com/blog/how-fetch-works/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "no-human",
+    "name": "No_human",
+    "name_en": "No_human",
+    "origin": "",
+    "one_liner": "Show HN: No_human – The AI coding factory that you can TRUST",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-12，2 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/no-human-ai/no_human",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "give-claude-code-cursor-a-real-eng-team-tiers-roles-escalation",
+    "name": "Give Claude Code / Cursor a real eng team (tiers, roles, escalation)",
+    "name_en": "Give Claude Code / Cursor a real eng team (tiers, roles, escalation)",
+    "origin": "",
+    "one_liner": "Show HN: Give Claude Code / Cursor a real eng team (tiers, roles, escalation)",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-12，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/khuynh22/agent-dev-team",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "open-sourced-solution-to-ai-manage-playwright-automations",
+    "name": "Open-sourced solution to AI manage Playwright automations",
+    "name_en": "Open-sourced solution to AI manage Playwright automations",
+    "origin": "",
+    "one_liner": "We built a comprehensive system that connects directly to the AI agents through MCP for writing, managing most type of browser automations. Purpose is for automated testing or automating browser based workflows. It provides notifications, s",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-12，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/rakutentech/sorify",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "pdfidelity",
+    "name": "PDFidelity",
+    "name_en": "PDFidelity",
+    "origin": "",
+    "one_liner": "Show HN: PDFidelity – Translate PDFs while preserving the original layout",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-12，3 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://www.pdfidelity.com/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "yazses",
+    "name": "YazSes",
+    "name_en": "YazSes",
+    "origin": "",
+    "one_liner": "Show HN: YazSes – offline hold-to-talk voice dictation for Linux, macOS, Windows",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-12，5 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/MSKazemi/yazses",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "everything-a-web-page-can-learn-about-you-in-plain-english",
+    "name": "Everything a web page can learn about you, in plain English",
+    "name_en": "Everything a web page can learn about you, in plain English",
+    "origin": "",
+    "one_liner": "Show HN: Everything a web page can learn about you, in plain English",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-12，5 分 / 2 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://sessioncontext.org",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "lumae-native-macos-screen-demo-recorder-that-agents-can-edit-over-mcp",
+    "name": "Lumae Native macOS screen-demo recorder that agents can edit over MCP",
+    "name_en": "Lumae Native macOS screen-demo recorder that agents can edit over MCP",
+    "origin": "",
+    "one_liner": "Show HN: Lumae Native macOS screen-demo recorder that agents can edit over MCP",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-12，3 分 / 2 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://lumae.app",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "a-technical-book-for-the-age-of-ai",
+    "name": "A Technical Book for the Age of AI",
+    "name_en": "A Technical Book for the Age of AI",
+    "origin": "",
+    "one_liner": "As AI increasingly answers \"how,\" this book focuses on \"why.\" Rather than focusing on how to build software, it asks why programming matters.",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-12，4 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://codeberg.org/juurej/p4cu",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "disktriage",
+    "name": "DiskTriage",
+    "name_en": "DiskTriage",
+    "origin": "",
+    "one_liner": "Show HN: DiskTriage – A simple CLI tool to reclaim space on your Win C drive",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-12，5 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/ricardoborges/DiskTriage",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "most-penalized-hn-stories",
+    "name": "Most Penalized HN Stories",
+    "name_en": "Most Penalized HN Stories",
+    "origin": "",
+    "one_liner": "This page shows which stories have the heaviest penalty applied to their Hacker News rank -- stories that rank lower than they should given their raw HN ranking formula.",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-13，15 分 / 2 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://news.social-protocols.org/penalties",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
+    "id": "hindsight",
+    "name": "Hindsight",
+    "name_en": "Hindsight",
+    "origin": "",
+    "one_liner": "Show HN: Hindsight – Explore how YouTube channels discuss issues over time",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-13（来源 hn，发布于 2026-09-13，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/brishtiteveja/hindsight",
+    "harvest_source": "hn",
+    "added_at": "2026-09-13"
+  },
+  {
     "id": "objo-studio-a-modern-visual-rad-ide-for-desktop-and-web",
     "name": "Objo Studio. A modern visual RAD IDE for desktop and web",
     "name_en": "Objo Studio. A modern visual RAD IDE for desktop and web",
