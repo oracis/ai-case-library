@@ -1,77 +1,77 @@
 {
-  "ran_at": "2026-09-13 09:58:31",
-  "added": 12,
+  "ran_at": "2026-09-14 05:36:05",
+  "added": 48,
   "by_source": {
-    "hn": 11,
-    "trustmrr": 1
+    "hn": 39,
+    "trustmrr": 9
   },
-  "inbox_total": 254,
+  "inbox_total": 302,
   "archived_this_run": 0,
   "archive_total": 0,
   "top": [
     {
-      "name": "Fly or Tesla",
+      "name": "Makefaster.dev",
+      "headline": "疑似金额 $10k",
+      "heat": 14,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://makefaster.dev"
+    },
+    {
+      "name": "Looking for co founder in the consumer app space",
+      "headline": "未获取",
+      "heat": 2,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://news.ycombinator.com/item?id=49692009"
+    },
+    {
+      "name": "Exploring the intersection of prediction markets and social media",
+      "headline": "未获取",
+      "heat": 9,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://www.thevidmarket.com/"
+    },
+    {
+      "name": "I made an automated day-by-day itinerary organizer for my trip to Spain",
+      "headline": "未获取",
+      "heat": 7,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://petrelvoyage.com/app"
+    },
+    {
+      "name": "Kibble",
+      "headline": "未获取",
+      "heat": 6,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://www.kibblebites.com/app/"
+    },
+    {
+      "name": "VibeWorld",
+      "headline": "未获取",
+      "heat": 5,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://github.com/SorBalda/vibeworld"
+    },
+    {
+      "name": "Dep-radius, know which dependency updates touch your code",
+      "headline": "未获取",
+      "heat": 4,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://www.npmjs.com/package/dep-radius"
+    },
+    {
+      "name": "Kairo",
       "headline": "未获取",
       "heat": 3,
       "category": "未分类",
       "source": "hn",
-      "url": "https://flyortesla.com/"
-    },
-    {
-      "name": "Run coding agents on your own machine, steer them from anywhere",
-      "headline": "未获取",
-      "heat": 2,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://github.com/phyra-research/roamux"
-    },
-    {
-      "name": "Forma ONNX Graph Viewer and Editor",
-      "headline": "未获取",
-      "heat": 2,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://github.com/Hussain004/forma"
-    },
-    {
-      "name": "A museum of source code, in rooms you can walk through",
-      "headline": "未获取",
-      "heat": 1,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://www.programmingmuseum.com"
-    },
-    {
-      "name": "STXT, indentation-based format with schemas and no escape characters",
-      "headline": "未获取",
-      "heat": 1,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://stxt.dev/"
-    },
-    {
-      "name": "Nearby places ranked by quality score, not ads",
-      "headline": "未获取",
-      "heat": 1,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://realnear.app/"
-    },
-    {
-      "name": "ProofOfDonation, replace CAPTCHAs with charity donations",
-      "headline": "未获取",
-      "heat": 1,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://github.com/mgriley/proof-of-donation/"
-    },
-    {
-      "name": "PDF Pocket Tools",
-      "headline": "未获取",
-      "heat": 1,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://pdfpockettools.itch.io/pdf-pocket-tools"
+      "url": "https://github.com/peter941221/Kairo"
     }
   ]
 }
