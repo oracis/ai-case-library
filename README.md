@@ -517,11 +517,40 @@ python scripts/deploy_oss.py --bucket my-bucket --setup-website --env-file <你�
 
 | 文件 | Cache-Control | 理由 |
 |---|---|---|
-| `index.html`、`404.html`、`data.js`、`data.json` | `no-cache` | 内容会变，改完立刻生效 |
+| `index.html`、`404.html`、`case/*.html`、`data.js`、`data.json` | `no-cache` | 内容会变，改完立刻生效 |
 | `app.js`、`style.css` | `public, max-age=300` | 基本不变，省点回源 |
 
 `--setup-website` 会配好静态网站托管（首页 `index.html`、错误页 `404.html`）。
 不配这个，访问域名根路径会返回一个 XML 文件列表而不是首页。
+
+### 对外发布要传「--no-inbox」的那一份
+
+`dist/` 是完整版，带着还没核实的采集队列，别直接传出去。
+对外发布的流程是先建一份干净的，再传它：
+
+```bash
+# 1 构建不含采集队列的版本
+python scripts/build_static.py --site-url https://case.ydtgo.top --no-inbox --out public
+
+# 2 传这份
+python scripts/deploy_oss.py --bucket ai-case-library --region cn-hongkong \
+  --dir public --setup-website --verify-public
+```
+
+### 部署完怎么验
+
+```bash
+python scripts/verify_deploy.py                    # 默认验 https://case.ydtgo.top
+python scripts/verify_deploy.py --expect-cases 30  # 案例数变了就改期望值
+```
+
+它会挨个访问首页、24 个案例页、404 页、`data.json`、sitemap、静态资源，
+一共三十来项断言。**验的是语义标记，不是字节数**——数据每天都在涨，
+`wc -c` 对不上根本分不清是「没部署」还是「部署了但数据变了」。
+所以验的是 `site.title`、`generated_at`、cases 条数、`inbox` 是否为 0 这类东西。
+
+一个容易误判为失效的点：`case/index.html` 里的链接是相对路径（`./nitra.html`），
+这样根目录部署和子目录部署都能直接用，校验时别按绝对路径去匹配。
 
 ### 让 Actions 自动部署
 
