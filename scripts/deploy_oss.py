@@ -299,7 +299,9 @@ def verify_public(bucket, region, prefix=""):
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (verify)"})
     try:
         with opener.open(req, timeout=30) as r:
-            body = r.read(400)
+            # 读全量，而不是 read(400) 探一小段——只探一小段的话日志里的字节数
+            # 会被误读成「首页只有这么大」，实际那只是探针长度。
+            body = r.read()
         return r.status, len(body), url, ""
     except urllib.error.HTTPError as e:
         return e.code, 0, url, e.read().decode("utf-8", "replace")[:220]
@@ -511,6 +513,10 @@ def main():
     print()
     print("  如果绑了 CDN 自定义域名，记得刷一次 CDN 缓存，否则可能还是旧的。")
     print("  控制台路径：CDN → 域名管理 → 选域名 → 刷新预热 → 刷新缓存 → 选「目录」填 /")
+    print()
+    print("  这只是「能打开」的确认。要确认内容真的对了，再跑一遍语义校验：")
+    print("    python scripts/verify_deploy.py --base <你的域名>")
+    print("  （别用字节数验收：数据每天都在涨，对不上分不清是没部署还是数据变了。）")
     return 0
 
 
