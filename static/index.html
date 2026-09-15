@@ -3,12 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>赚钱案例库 · AI Case Library</title>
+<title>拆解海外 · Overseas Teardowns</title>
 <!-- 相对路径：这样既是本地服务（根路径）也能直接部署到 OSS / Pages 的子目录 -->
 <link rel="stylesheet" href="./style.css">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📇</text></svg>">
 </head>
 <body>
+
+<!-- 顶部引导条：内容由 app.js 从 data/site.json 渲染（没配就整体隐藏） -->
+<div class="promo-bar" id="promo-bar" hidden></div>
 
 <div class="app">
 
@@ -17,8 +20,8 @@
     <div class="brand">
       <div class="brand-mark">案</div>
       <div class="brand-txt">
-        <div class="brand-title">赚钱案例库</div>
-        <div class="brand-sub">verified case library</div>
+        <div class="brand-title">拆解海外</div>
+        <div class="brand-sub">overseas teardowns</div>
       </div>
     </div>
 
@@ -203,6 +206,9 @@
         </div>
         <div class="method" id="method"></div>
       </section>
+
+      <!-- 页脚引流位：放在滚动区末尾，所有视图共用；内容同样来自 data/site.json -->
+      <footer class="site-foot" id="site-foot" hidden></footer>
     </div>
   </main>
 </div>

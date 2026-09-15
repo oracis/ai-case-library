@@ -71,6 +71,21 @@ CACHE_RULES = {
     "app.js": CACHE_SHORT,
     "style.css": CACHE_SHORT,
 }
+# 按 basename 认不出来的那些：预渲染的案例页和搜索引擎要读的两个文件。
+# case/ 下的页面正文随数据更新（改了数字就得立刻生效），所以不缓存。
+CACHE_BY_PREFIX = (("case/", CACHE_NO),)
+CACHE_BY_NAME = ("sitemap.xml", "robots.txt")
+
+
+def cache_for(key):
+    """给一个 OSS 对象 key 选缓存策略。"""
+    for prefix, rule in CACHE_BY_PREFIX:
+        if key.startswith(prefix):
+            return rule
+    name = key.split("/")[-1]
+    if name in CACHE_BY_NAME:
+        return CACHE_NO
+    return CACHE_RULES.get(name, CACHE_SHORT)
 
 
 def load_env_file(path):
@@ -319,7 +334,7 @@ def upload(oss, bucket, src_dir, prefix="", dry_run=False):
             data = f.read()
         ext = os.path.splitext(full)[1].lower()
         ctype = MIME.get(ext, "application/octet-stream")
-        cache = CACHE_RULES.get(key.split("/")[-1], CACHE_SHORT)
+        cache = cache_for(key)
         total_bytes += len(data)
 
         if dry_run:

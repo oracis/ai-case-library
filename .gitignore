@@ -24,8 +24,18 @@ desktop.ini
 # 静态构建产物（scripts/build_static.py 生成，不入库）
 dist/
 
+# 公众号草稿（scripts/make_article.py 生成，属个人内容，不入库）
+out/
+
 # 部署凭证：绝不入库（AccessKey 只从环境变量或 --env-file 读）
 .env
 *.env
 !.env.example
 .ossutilconfig
+
+# WorkBuddy 工作区数据（项目元信息 + 记忆 + 自动化），不入库
+.workbuddy/
+
+# 本地调试临时文件（_ 开头，git status --short 一眼能找到的那种）
+_*.txt
+_*.html

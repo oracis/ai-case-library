@@ -61,6 +61,17 @@ jobs:
       - name: 测试 deploy_oss.py（参数解析与分支，不联网）
         run: python scripts/test_deploy_oss.py
 
+      - name: 测试 make_article.py（草稿生成与发布红线）
+        # 守两条线：① 人工表（EDITORIAL_WEIGHT/TITLE_OVERRIDES）里的 id 不能写错，
+        # 错一个会静默失效、排名悄悄跑偏；② 正文里绝不能出现裸 URL。
+        run: python scripts/test_make_article.py
+
+      - name: 测试 prerender.py（常量对齐、脱离 JS、转义）
+        # 守三条线：① prerender.py 里的文案常量与 app.js 不能漂移（漂了不报错，
+        # 只是同一条案例在两个地方显示成两个词）；② 案例页不跑 JS 也得读得到正文；
+        # ③ 来源文本里的 < > & 必须转义干净。
+        run: python scripts/test_prerender.py
+
   frontend:
     name: 前端自测 · Node ${{ matrix.node }}
     runs-on: ubuntu-latest
@@ -114,6 +125,11 @@ jobs:
 
       - name: 测静态产物（应切到只读模式、从 data.js 取数）
         run: node uitest.js --static
+
+      - name: 校验预渲染产物（案例页不跑 JS 也要读得到正文）
+        # build_static.py 构建时已经自检过一遍，这里是独立复检：
+        # 万一以后有人绕过 build_static.py 直接调 prerender，也不会漏掉。
+        run: python scripts/prerender.py --check --out dist
 
       - name: 断言构建只产出 dist/，没碰别的地方
         run: |

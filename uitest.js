@@ -89,6 +89,10 @@ function loadData() {
     let inbox = [];
     try { inbox = rd('inbox'); } catch (e) { inbox = []; }
     const sources = rd('sources');
+    // 站点元信息（公众号/社群/仓库）也读进来：app.js 的引流位靠它渲染，
+    // 少了这一项，测试就永远看不到引流位，等于没测。
+    let site = {};
+    try { site = rd('site'); } catch (e) { site = {}; }
     const byV = {}, byM = {}, byC = {};
     cases.forEach((c) => {
       byV[c.verification] = (byV[c.verification] || 0) + 1;
@@ -97,7 +101,7 @@ function loadData() {
     });
     const verified = (byV.stripe || 0) + (byV.official || 0);
     return Promise.resolve({
-      cases, candidates, inbox, sources,
+      cases, candidates, inbox, sources, site,
       stats: {
         curated: cases.length, candidates: candidates.length, inbox: inbox.length,
         verified, flagged: cases.reduce((a, c) => a + (c.corrections || []).length, 0)
@@ -477,6 +481,43 @@ process.on('unhandledRejection', (e) => errors.push('unhandledRejection: ' + e))
       ck('本地模式 IS_STATIC 为假', vm.runInContext('IS_STATIC === false', sandbox));
     }
   }
+
+  console.log('\n[J] 引流位（顶部条 / 页脚 / 详情抽屉底）');
+  (function checkPromo() {
+    const ck = (label, ok, extra) => {
+      console.log('  [' + (ok ? 'PASS' : 'FAIL') + '] ' + label + (extra ? '  ' + extra : ''));
+      ok ? pass++ : fail++;
+    };
+    let site = {};
+    try { site = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'site.json'), 'utf8')); }
+    catch (e) { site = {}; }
+    const wx = site.wechat || {};
+    const cm = site.community || {};
+    if (!wx.name) {
+      console.log('  [SKIP] data/site.json 里没配公众号，跳过');
+      return;
+    }
+    const bar = get('promo-bar')._html || '';
+    const foot = get('site-foot')._html || '';
+    ck('顶部条渲染出公众号名', bar.includes(wx.name));
+    ck('顶部条给出可执行动作（微信搜索）', bar.includes('微信搜索关注'));
+    ck('页脚渲染出公众号与仓库',
+      foot.includes('sf-in') && foot.includes(wx.name)
+      && (!site.repo || foot.includes(site.repo)));
+
+    // 社群还没开通时绝不能做成能点的链接——点了没反应比不放更伤信任
+    if (cm.name && !cm.url) {
+      ck('社群未开通时不渲染成链接', foot.includes('sf-a ghost'));
+    } else if (cm.name && cm.url) {
+      ck('社群已配 url 时渲染成外链', foot.includes('href="' + cm.url + '"'));
+    }
+
+    // 抽屉底部：读者刚读完一条，转化意愿最高的位置
+    sandbox.openCase(cases[0].id);
+    const dh = get('drawer-body')._html || '';
+    ck('详情抽屉底部有引流块', dh.includes('class="d-promo"'));
+    ck('抽屉引流块文案来自配置', dh.includes(wx.name));
+  })();
 
   if (errors.length) {
     console.log('\n[!] 捕获到未处理异常：');

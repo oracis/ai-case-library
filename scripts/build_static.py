@@ -9,14 +9,24 @@
     python scripts/build_static.py --no-inbox       # 精简版：不含采集队列（对外发布更合适）
     python scripts/build_static.py --out public     # 换输出目录
     python scripts/build_static.py --pretty         # data.json 排版展开（便于人肉 diff，体积翻倍）
+    python scripts/build_static.py --site-url https://你的域名    # 生成 sitemap / canonical
 
 产物：
-    dist/index.html   注入了 window.__STATIC__ = true，前端据此切换成只读模式
+    dist/index.html        注入了 window.__STATIC__ = true，前端据此切换成只读模式；
+                           末尾另注了一段 <noscript> 案例清单（无 JS 时的降级导航）
     dist/style.css
     dist/app.js
-    dist/data.js      window.__CASE_LIB_DATA__ = {...}   ← 页面实际加载这个
-    dist/data.json    同一份数据，给第三方程序抓取
-    dist/404.html     OSS 静态网站托管可以把它配成「默认 404 页」
+    dist/data.js           window.__CASE_LIB_DATA__ = {...}   ← 页面实际加载这个
+    dist/data.json         同一份数据，给第三方程序抓取
+    dist/404.html          OSS 静态网站托管可以把它配成「默认 404 页」
+    dist/case/<id>.html    每条案例一个独立页面，正文写死在 HTML 里（给搜索引擎用）
+    dist/case/index.html   静态总目录
+    dist/sitemap.xml       需要 --site-url 或 data/site.json 里配了 url 才生成
+    dist/robots.txt
+
+为什么要预渲染出 case/<id>.html（见 scripts/prerender.py 的详细说明）：
+    index.html 是纯客户端渲染的 SPA，爬虫拿到的只是个空壳；案例正文只有预渲染成
+    静态页面才能被收录、被分享预览，也才能当公众号「阅读原文」的落地页。
 
 为什么要生成 data.js 而不是只放 data.json：
 直接双击 dist/index.html 打开时协议是 file://，fetch 本地文件会被浏览器 CORS 拦掉；
@@ -39,19 +49,27 @@ except Exception as e:                                        # noqa: BLE001
     print("[!] 无法导入 server.py：%s" % e)
     sys.exit(1)
 
+sys.path.insert(0, os.path.join(ROOT, "scripts"))
+try:
+    import prerender                                          # noqa: E402
+except Exception as e:                                        # noqa: BLE001
+    print("[!] 无法导入 scripts/prerender.py：%s" % e)
+    sys.exit(1)
+
 STATIC_DIR = os.path.join(ROOT, "static")
 
 # 前端里 app.js 的引入点 —— 静态标记就注在它前面
 ANCHOR = '<script src="./app.js"></script>'
-# 这些文件由本脚本生成，清理输出目录时只认它们（避免误删别人的东西）
-OUR_FILES = ("index.html", "style.css", "app.js", "data.js", "data.json", "404.html")
+# 由本脚本（含 prerender.py）生成的东西。清理输出目录时只认这些，避免误删别人的文件。
+OUR_FILES = ("index.html", "style.css", "app.js", "data.js", "data.json",
+             "404.html", "sitemap.xml", "robots.txt", "case")
 
 NOT_FOUND_HTML = """<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>404 · 赚钱案例库</title>
+<title>404 · 拆解海外</title>
 <style>
   body { margin: 0; min-height: 100vh; display: grid; place-items: center;
          background: #0e1116; color: #e6edf3;
@@ -104,13 +122,13 @@ def prepare_out(out_dir):
     return abs_out
 
 
-def build(out_dir, include_inbox=True, pretty=False):
+def build(out_dir, include_inbox=True, pretty=False, site_url=""):
     abs_out = prepare_out(out_dir)
     if not abs_out:
         return 1
 
     # ---- 1. 取数据（复用服务端那套聚合逻辑，保证线上线下结构完全一致）
-    print("[1/4] 聚合数据…")
+    print("[1/5] 聚合数据…")
     payload = server.build_payload()
     if not include_inbox:
         payload["inbox"] = []
@@ -123,7 +141,7 @@ def build(out_dir, include_inbox=True, pretty=False):
         print("    [!] cases.json 是空的，构建出来会是个空站")
 
     # ---- 2. 写数据文件
-    print("[2/4] 写数据文件…")
+    print("[2/5] 写数据文件…")
     if pretty:
         body = json.dumps(payload, ensure_ascii=False, indent=2)
     else:
@@ -139,7 +157,7 @@ def build(out_dir, include_inbox=True, pretty=False):
         f.write(body)
 
     # ---- 3. 拷静态资源并注入静态标记
-    print("[3/4] 拷资源 + 注入静态标记…")
+    print("[3/5] 拷资源 + 注入静态标记…")
     for name in ("style.css", "app.js"):
         src = os.path.join(STATIC_DIR, name)
         if not os.path.isfile(src):
@@ -156,11 +174,11 @@ def build(out_dir, include_inbox=True, pretty=False):
         return 1
 
     stats = payload.get("stats") or {}
-    desc = ("%d 个已核实的 AI 赚钱案例，每个都标了数字可信到什么程度；"
+    desc = ("%d 个已拆解的海外软件生意，每个都标了数字可信到什么程度；"
             "外加国内移植可行性与个人可做性双轴评分。" % stats.get("curated", len(cases)))
     meta = (
         '<meta name="description" content="%s">\n'
-        '<meta property="og:title" content="赚钱案例库 · %d 个已核实的 AI 赚钱案例">\n'
+        '<meta property="og:title" content="拆解海外 · %d 个已拆解的海外软件生意">\n'
         '<meta property="og:description" content="%s">\n'
         '<meta property="og:type" content="website">\n'
     ) % (desc, stats.get("curated", len(cases)), desc)
@@ -170,14 +188,28 @@ def build(out_dir, include_inbox=True, pretty=False):
     html = html.replace("</head>", meta + "</head>", 1)
     html = html.replace(ANCHOR, inject + ANCHOR, 1)
 
+    # 给没有 JS 的访客和爬虫留一条进得去每条案例的路（SPA 首页对它们是空壳）
+    site = prerender.load_site(ROOT)
+    if site_url:
+        site["url"] = site_url.rstrip("/")
+    noscript = prerender.noscript_block(cases, site)
+    if "</body>" in html:
+        html = html.replace("</body>", noscript + "</body>", 1)
+    else:
+        print("    [!] index.html 里没有 </body>，降级清单注不进去")
+
     with open(os.path.join(abs_out, "index.html"), "w", encoding="utf-8", newline="\n") as f:
         f.write(html)
 
     with open(os.path.join(abs_out, "404.html"), "w", encoding="utf-8", newline="\n") as f:
         f.write(NOT_FOUND_HTML)
 
-    # ---- 4. 自检
-    print("[4/4] 自检…")
+    # ---- 4. 预渲染每条案例的独立页面
+    print("[4/5] 预渲染案例独立页…")
+    pr = prerender.build_all(cases, abs_out, site)
+
+    # ---- 5. 自检
+    print("[5/5] 自检…")
     problems = []
 
     built = open(os.path.join(abs_out, "index.html"), encoding="utf-8").read()
@@ -204,6 +236,14 @@ def build(out_dir, include_inbox=True, pretty=False):
     except Exception as e:                                    # noqa: BLE001
         problems.append("data.json 不是合法 JSON：%s" % e)
 
+    # 预渲染产物：独立案例页是 SEO / 分享 / 「阅读原文」的落地页，坏了要当场发现
+    if "<noscript" not in built:
+        problems.append("index.html 里没有 noscript 降级清单")
+    page_problems = prerender.check_pages(abs_out, cases, verbose=False)
+    problems += page_problems
+    if pr and pr.get("pages") != len(cases):
+        problems.append("预渲染页面数 %s 与案例数 %d 不一致" % (pr.get("pages"), len(cases)))
+
     if problems:
         for p in problems:
             print("    [FAIL] %s" % p)
@@ -221,12 +261,24 @@ def build(out_dir, include_inbox=True, pretty=False):
             sz = os.path.getsize(p)
             total += sz
             print("  %-16s %10s" % (name, human(sz)))
+        elif os.path.isdir(p) and name == prerender.CASE_DIR:
+            n = len([f for f in os.listdir(p) if f.endswith(".html")])
+            sz = sum(os.path.getsize(os.path.join(p, f)) for f in os.listdir(p))
+            total += sz
+            print("  %-16s %10s   （%d 个静态页面）" % (name + "/", human(sz), n))
     print("-" * 54)
     print("  %-16s %10s" % ("合计", human(total)))
     print()
     print("数据：案例 %s · 候选 %s · 采集队列 %s%s" % (
         stats.get("curated", len(cases)), stats.get("candidates", "?"),
         stats.get("inbox", "?"), "" if include_inbox else "（本次未包含）"))
+    print("静态页：case/<id>.html × %d · case/index.html · %s · %s" % (
+        pr.get("pages", 0) if pr else 0,
+        "sitemap.xml" if (pr or {}).get("sitemap") else "无 sitemap（没配站点域名）",
+        "robots.txt" if (pr or {}).get("robots") else "无 robots.txt"))
+    if not site.get("url"):
+        print("        ↳ 想生成 sitemap 和 canonical：加 --site-url https://你的域名，")
+        print("          或把域名写进 data/site.json 的 url 字段")
     print("生成时间：%s" % payload.get("generated_at"))
     print()
     print("本地预览：")
@@ -245,12 +297,16 @@ def main():
     ap.add_argument("--no-inbox", action="store_true",
                     help="不含采集队列（未核实的原始素材，对外发布建议带上这个参数）")
     ap.add_argument("--pretty", action="store_true", help="data.json 展开排版")
+    ap.add_argument("--site-url", default="", metavar="URL",
+                    help="站点域名（如 https://abc.com），用来生成 sitemap 和 canonical；"
+                         "也可以写进 data/site.json 的 url 字段，命令行优先")
     args = ap.parse_args()
 
     print("=" * 54)
     print("  构建静态站点%s" % ("（精简版，不含采集队列）" if args.no_inbox else ""))
     print("=" * 54)
-    return build(args.out, include_inbox=not args.no_inbox, pretty=args.pretty)
+    return build(args.out, include_inbox=not args.no_inbox, pretty=args.pretty,
+                 site_url=args.site_url)
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 /* ============================================================
-   赚钱案例库 · 前端逻辑（无依赖）
+   拆解海外 · 前端逻辑（无依赖）
    ============================================================ */
 'use strict';
 
@@ -1214,7 +1214,138 @@ function detailHTML(c) {
     <div class="k">标签</div><div class="v">${esc((c.tags || []).join(' · ')) || '—'}</div>
   </div>`);
 
+  /* 引流位放最底部：读完一条才有转化意愿，塞在前面只会打断阅读 */
+  out.push(drawerPromoHTML());
+
   return out.join('');
+}
+
+/* ---------------- 引流位 ----------------
+   这个站是获客入口，收入在公众号和社群里，所以引流位是正经组件，不是装饰：
+   只出现在「顶部条 / 详情抽屉底 / 页脚」三处，不插进卡片流、不打断阅读。
+   文案与链接全部来自 data/site.json（经 /api/data 或 data.js 带下来），
+   改公众号名、以后接入知识星球，都只改那一个文件，页面代码不用动。
+
+   一个刻意的取舍：社群没有 url 时不渲染成可点的按钮，而是标注「即将开通」。
+   放一个点了没反应的名字，比不放更伤信任。 */
+const SITE_DEFAULT = { title: '案例库', repo: '', wechat: {}, community: {} };
+
+function siteMeta() {
+  const s = (DATA && DATA.site) || {};
+  return {
+    title: s.title || SITE_DEFAULT.title,
+    repo: s.repo || SITE_DEFAULT.repo,
+    wechat: s.wechat || {},
+    community: s.community || {},
+  };
+}
+
+/* 可引导的渠道列表。顺序就是优先级：公众号 → 社群。 */
+function promoChannels(m) {
+  const out = [];
+  if (m.wechat.name) {
+    out.push({
+      kind: 'wechat',
+      label: m.wechat.name,
+      text: m.wechat.hint || '同步更新拆解长文',
+      action: '微信搜索关注',
+      url: '',
+    });
+  }
+  if (m.community.name) {
+    // 说明文字用 hint（讲清将来给什么），没开通时右侧标「即将开通」而不是做成链接
+    out.push({
+      kind: 'community',
+      label: m.community.name,
+      text: m.community.hint || '',
+      action: m.community.url ? '进入社群' : '即将开通',
+      url: m.community.url || '',
+    });
+  }
+  return out;
+}
+
+/* 没有可引导的东西就整体不渲染——别留一个空框。 */
+function promoInfo() {
+  const m = siteMeta();
+  const chans = promoChannels(m);
+  if (!chans.length && !m.repo) return null;
+  return { m, chans };
+}
+
+function promoAction(c, cls) {
+  return c.url
+    ? `<a class="${cls}" href="${esc(c.url)}" target="_blank" rel="noopener">${esc(c.action)}</a>`
+    : `<span class="${cls} ghost">${esc(c.action)}</span>`;
+}
+
+/* 顶部条：全站一条，放在最顶。优先推公众号——那是唯一「说得出就能到位」的入口。 */
+function renderPromoBar() {
+  const el = $('promo-bar');
+  if (!el) return;
+  const info = promoInfo();
+  if (!info) {
+    el.hidden = true;
+    el.innerHTML = '';
+    return;
+  }
+  const c = info.chans[0];
+  const body = c
+    ? `<span class="pb-txt">深度拆解发在公众号 <b>${esc(c.label)}</b>` +
+      (c.text ? `<em>${esc(c.text)}</em>` : '') + '</span>' +
+      `<span class="pb-act">${esc(c.action)}</span>`
+    : `<span class="pb-txt">全部案例与数据 <b>开源在 GitHub</b></span>`;
+  el.className = 'promo-bar' + (c ? ' k-' + c.kind : ' k-repo');
+  el.innerHTML = `<div class="pb-in"><span class="pb-dot"></span>${body}</div>`;
+  el.hidden = false;
+}
+
+/* 页脚：放在 .scroll 内容末尾，所有视图共用。 */
+function renderSiteFoot() {
+  const el = $('site-foot');
+  if (!el) return;
+  const info = promoInfo();
+  if (!info) {
+    el.hidden = true;
+    el.innerHTML = '';
+    return;
+  }
+  const { m, chans } = info;
+  const rows = chans.map((c) => `<div class="sf-row">
+      <span class="sf-k">${esc(c.label)}</span>
+      <span class="sf-t">${esc(c.text)}</span>
+      ${promoAction(c, 'sf-a')}
+    </div>`).join('');
+  el.innerHTML = `<div class="sf-in">
+    <div class="sf-head">
+      <h4>这个库会一直更新</h4>
+      <p>案例都来自海外公开渠道，每个数字核过才进库。新的拆解先发在公众号；
+        每日线索、本周最值得看的 3 条、以及<b>我为什么把其余的都否掉了</b>，放在社群里。</p>
+    </div>
+    <div class="sf-rows">${rows}</div>
+    <div class="sf-tail">
+      ${m.repo ? `<a href="${esc(m.repo)}" target="_blank" rel="noopener">源码与数据（GitHub）</a>` : ''}
+      <span>内容仅作商业研究参考，不构成投资或创业建议</span>
+    </div>
+  </div>`;
+  el.hidden = false;
+}
+
+/* 详情抽屉底部：读者刚读完一条，是转化意愿最高的位置。 */
+function drawerPromoHTML() {
+  const info = promoInfo();
+  if (!info) return '';
+  const { chans } = info;
+  const rows = chans.map((c) => `<div class="dp-row">
+      <span class="dp-k">${esc(c.label)}</span>
+      <span class="dp-t">${esc(c.text)}</span>
+      ${promoAction(c, 'dp-a')}
+    </div>`).join('');
+  return `<div class="d-promo">
+    <div class="dp-head">看完这条，想看更多</div>
+    <div class="dp-sub">海外每天都有新跑通的小项目。我每天筛一批：哪些值得看、哪些直接否掉了、为什么。</div>
+    ${rows}
+  </div>`;
 }
 
 /* ---------------- 视图切换 ---------------- */
@@ -1277,6 +1408,9 @@ async function load() {
   renderSources();
   renderMethod();
   renderRead();
+  // 引流位：顶部条与页脚都从同一份 site 配置渲染；配置为空则整体不出现
+  renderPromoBar();
+  renderSiteFoot();
 }
 
 /* ---------------- 事件绑定 ---------------- */

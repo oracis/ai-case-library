@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-AI 赚钱案例库 (AI Case Library) · 本地服务
+拆解海外 (Overseas Teardowns) · 本地服务
 
 零依赖：只用 Python 标准库，不需要 pip install 任何东西。
 启动：  python server.py        (默认 http://127.0.0.1:5052)
@@ -63,6 +63,24 @@ def save_json(name, payload):
     with open(tmp, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
     os.replace(tmp, path)
+
+
+def load_site():
+    """站点元信息（站名、公众号、社群、仓库地址）。
+
+    它不是对外数据契约的一部分，只是给前端和预渲染脚本读的展示配置，
+    所以读不到就返回空字典，由调用方兜底——缺一个文件不该让整个接口 500。
+    """
+    path = data_path("site")
+    if not os.path.exists(path):
+        return {}
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return data if isinstance(data, dict) else {}
+    except Exception as e:                                    # noqa: BLE001
+        sys.stderr.write("[case-lib] data/site.json 读不了：%s\n" % e)
+        return {}
 
 
 def slugify(text, taken=None):
@@ -206,6 +224,8 @@ def build_payload():
         "candidates": candidates,
         "inbox": inbox,
         "sources": sources,
+        # 展示配置（公众号 / 社群 / 仓库）。前端用它渲染引流位，别在页面里写死。
+        "site": load_site(),
         "stats": stats,
         "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     }
@@ -423,7 +443,7 @@ def main():
     url = "http://127.0.0.1:%d/" % PORT
     httpd = ThreadingHTTPServer(("127.0.0.1", PORT), Handler)
     print("=" * 56)
-    print("  AI 赚钱案例库 · 已启动")
+    print("  拆解海外 · 已启动")
     print("  地址：%s" % url)
     print("  数据：%s" % DATA_DIR)
     print("  Ctrl+C 停止")

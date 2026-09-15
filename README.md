@@ -1,4 +1,4 @@
-# 赚钱案例库 · AI Case Library
+# 拆解海外 · Overseas Teardowns
 
 [![CI](https://github.com/oracis/ai-case-library/actions/workflows/ci.yml/badge.svg)](https://github.com/oracis/ai-case-library/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-3fb950.svg)](LICENSE)
