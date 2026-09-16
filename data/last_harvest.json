@@ -1,77 +1,77 @@
 {
-  "ran_at": "2026-09-15 05:37:27",
-  "added": 42,
+  "ran_at": "2026-09-16 05:32:24",
+  "added": 45,
   "by_source": {
-    "hn": 40,
+    "hn": 43,
     "trustmrr": 2
   },
-  "inbox_total": 344,
+  "inbox_total": 389,
   "archived_this_run": 0,
   "archive_total": 0,
   "top": [
     {
-      "name": "Macros with a Behringer FCB1010 MIDI Pedalboard in macOS",
+      "name": "Paying for frontier AI models buys 4-month head start at 5x the cost",
       "headline": "未获取",
-      "heat": 53,
+      "heat": 2,
       "category": "未分类",
       "source": "hn",
-      "url": "https://github.com/JamesRyanATX/fcbnerd"
+      "url": "https://arstechnica.com/ai/2026/09/exclusive-open-chinese-models-close-gap-with-silicon-valleys-frontier-ai-models/"
     },
     {
-      "name": "Hazzel",
+      "name": "An e-ink frame that hears birds and draws them as 1800s illustrations",
       "headline": "未获取",
-      "heat": 6,
+      "heat": 1458,
       "category": "未分类",
       "source": "hn",
-      "url": "https://github.com/mukundzha/hazzel"
+      "url": "https://github.com/arnegiacomo/fugleramme"
     },
     {
-      "name": "The web is dead. Keep this app alive",
+      "name": "Pizza Bot",
+      "headline": "未获取",
+      "heat": 38,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://github.com/pizza-bot-app/pizza-bot"
+    },
+    {
+      "name": "farseer.space",
+      "headline": "未获取",
+      "heat": 7,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://farseer.space/"
+    },
+    {
+      "name": "I solved a 12yr math problem using AI (formalized; awaiting review) [pdf]",
+      "headline": "未获取",
+      "heat": 5,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://raw.githubusercontent.com/kbr-/math-research/3979e0cc0a75dde9b845df7ec8869d033dfcd8d4/publications/bit-php-resolution-over-parities/whitepaper.pdf"
+    },
+    {
+      "name": "Thurbox",
       "headline": "未获取",
       "heat": 4,
       "category": "未分类",
       "source": "hn",
-      "url": "https://longlivethis.site"
+      "url": "https://github.com/Thurbeen/thurbox"
     },
     {
-      "name": "Direct SQL Access to Your QuickBooks Data",
+      "name": "Biom",
       "headline": "未获取",
       "heat": 4,
       "category": "未分类",
       "source": "hn",
-      "url": "https://instabooks.io/docs/db"
+      "url": "https://www.biom.dev/"
     },
     {
-      "name": "I built a browser-native agent for automating job application forms",
+      "name": "Agenttik",
       "headline": "未获取",
       "heat": 4,
       "category": "未分类",
       "source": "hn",
-      "url": "https://github.com/maazkhanxo/jobeasyapply-linkedin-auto-apply"
-    },
-    {
-      "name": "Kario",
-      "headline": "未获取",
-      "heat": 4,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://www.karioai.com/"
-    },
-    {
-      "name": "Analyzed 400 routes and driving a Tesla beats flying 65% of the time",
-      "headline": "未获取",
-      "heat": 3,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://flyortesla.com/insights"
-    },
-    {
-      "name": "Oversold.com",
-      "headline": "未获取",
-      "heat": 3,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://oversold.com/"
+      "url": "https://github.com/pausan/agenttik"
     }
   ]
 }
