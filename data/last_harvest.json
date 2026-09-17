@@ -1,77 +1,77 @@
 {
-  "ran_at": "2026-09-16 05:32:24",
-  "added": 45,
+  "ran_at": "2026-09-17 05:38:06",
+  "added": 49,
   "by_source": {
     "hn": 43,
-    "trustmrr": 2
+    "trustmrr": 6
   },
-  "inbox_total": 389,
-  "archived_this_run": 0,
-  "archive_total": 0,
+  "inbox_total": 400,
+  "archived_this_run": 38,
+  "archive_total": 38,
   "top": [
     {
-      "name": "Paying for frontier AI models buys 4-month head start at 5x the cost",
-      "headline": "未获取",
+      "name": "White Glove Content",
+      "headline": "月收入 $58k · 要价 $2.5 · 倍数 3.6x",
+      "heat": 0,
+      "category": "Revenue",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/marketplace"
+    },
+    {
+      "name": "Plexus",
+      "headline": "疑似金额 $500 ",
       "heat": 2,
       "category": "未分类",
       "source": "hn",
-      "url": "https://arstechnica.com/ai/2026/09/exclusive-open-chinese-models-close-gap-with-silicon-valleys-frontier-ai-models/"
+      "url": "https://plexus.company"
     },
     {
-      "name": "An e-ink frame that hears birds and draws them as 1800s illustrations",
-      "headline": "未获取",
-      "heat": 1458,
+      "name": "Deiko",
+      "headline": "疑似金额 $99",
+      "heat": 1,
       "category": "未分类",
       "source": "hn",
-      "url": "https://github.com/arnegiacomo/fugleramme"
+      "url": "https://deiko.app/"
     },
     {
-      "name": "Pizza Bot",
+      "name": "Halo 3's Guardian, playable in the browser, as my personal website",
       "headline": "未获取",
-      "heat": 38,
+      "heat": 19,
       "category": "未分类",
       "source": "hn",
-      "url": "https://github.com/pizza-bot-app/pizza-bot"
+      "url": "https://runboli.com"
     },
     {
-      "name": "farseer.space",
+      "name": "Friday",
       "headline": "未获取",
-      "heat": 7,
+      "heat": 9,
       "category": "未分类",
       "source": "hn",
-      "url": "https://farseer.space/"
+      "url": "https://github.com/itskie/friday"
     },
     {
-      "name": "I solved a 12yr math problem using AI (formalized; awaiting review) [pdf]",
+      "name": "Fail2zig. A single-binary fail2ban replacement written in Zig",
+      "headline": "未获取",
+      "heat": 6,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://fail2zig.com/"
+    },
+    {
+      "name": "Nullsec",
       "headline": "未获取",
       "heat": 5,
       "category": "未分类",
       "source": "hn",
-      "url": "https://raw.githubusercontent.com/kbr-/math-research/3979e0cc0a75dde9b845df7ec8869d033dfcd8d4/publications/bit-php-resolution-over-parities/whitepaper.pdf"
+      "url": "https://nullsec.pntr.dev"
     },
     {
-      "name": "Thurbox",
+      "name": "OpenCode Mentor",
       "headline": "未获取",
       "heat": 4,
       "category": "未分类",
       "source": "hn",
-      "url": "https://github.com/Thurbeen/thurbox"
-    },
-    {
-      "name": "Biom",
-      "headline": "未获取",
-      "heat": 4,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://www.biom.dev/"
-    },
-    {
-      "name": "Agenttik",
-      "headline": "未获取",
-      "heat": 4,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://github.com/pausan/agenttik"
+      "url": "https://github.com/davejpeters/opencode-mentor"
     }
   ]
 }
