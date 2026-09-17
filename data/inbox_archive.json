@@ -720,5 +720,1743 @@
     "harvest_source": "hn",
     "added_at": "2026-09-11",
     "archived_at": "2026-09-17"
+  },
+  {
+    "id": "octoloops",
+    "name": "OctoLoops",
+    "name_en": "OctoLoops",
+    "origin": "",
+    "one_liner": "Hi HN! This is my latest side hustle, OctoLoops: an app to help indie devs and SMEs find paying customers for their business. I first started building OctoLoops around 2 months ago because so many of my own projects, big and small, had fail",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-02，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://octoloops.com",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "cleanmymedia",
+    "name": "CleanMyMedia",
+    "name_en": "CleanMyMedia",
+    "origin": "",
+    "one_liner": "I have a collection of over 20 years of photos and videos scattered over different devices. Over the years, I've been upgrading cell phones, and I've been saving copies on external hard drives. I've also tried Google Photos to later realize",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-02，3 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://cleanmymedia.com",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "blognami",
+    "name": "Blognami",
+    "name_en": "Blognami",
+    "origin": "",
+    "one_liner": "I have been working on this in the cracks of my (very limited) free time for about 4 years. It runs on node, and you can install and run it locally with SQLite. There is also a SaaS version if you don't want to install anything. Let me know",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-02，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://blognami.com/docs",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "revliu",
+    "name": "Revliu",
+    "name_en": "Revliu",
+    "origin": "",
+    "one_liner": "I’m a founder and I just built RevliI’m a founder and I just built Revliu. After building several products, I always wanted to understand how my customers were actually finding me. Which campaign brought them in, which source they came from",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-09，4 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://www.revliu.com/demo",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "give-your-ai-agent-on-screen-guides-that-show-users-where-to-click",
+    "name": "Give your AI agent on-screen guides that show users where to click",
+    "name_en": "Give your AI agent on-screen guides that show users where to click",
+    "origin": "",
+    "one_liner": "Hey HN. I'm Christian, one of the founders of Frigade (YC W23). I've noticed that a lot of in-app AI agents struggle to actually understand the products they exist in. For instance, let's say a user asks an agent how to do something in a gi",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-09，19 分 / 8 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://news.ycombinator.com/item?id=49627872",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "rayrun",
+    "name": "Rayrun",
+    "name_en": "Rayrun",
+    "origin": "",
+    "one_liner": "Hey HN, First time building SaaS. Don't be too harsh, but I would appreciate your feedback. I have a strong technical background, but never had an opportunity to design as much as a landing page or think about product positioning. If you se",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://ray.run/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "listpro",
+    "name": "Listpro",
+    "name_en": "Listpro",
+    "origin": "",
+    "one_liner": "I am a true believer in \"throwing things at the wall and seeing what sticks\" ideology so I've built products for multiple marketplaces- Shopify, Notion, mondaydotcom & also SaaS. While AI coding made building faster, launching was my big pr",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，1 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://listpro.app",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "i-built-an-ai-agent-that-sell-itself",
+    "name": "I built an AI Agent that sell itself",
+    "name_en": "I built an AI Agent that sell itself",
+    "origin": "",
+    "one_liner": "Quick bit of context: SendRoq is a LinkedIn automation tool. Before the AI era (pre-2021), I ran a marketing agency. Back then, client acquisition on LinkedIn was all manual. Once AI agents started becoming a thing, I built one for my agenc",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，2 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://www.sendroq.com/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "fashionguessr",
+    "name": "Fashionguessr",
+    "name_en": "Fashionguessr",
+    "origin": "",
+    "one_liner": "Hello! I created Fashionguessr, a daily fashion trivia game. Inspired by other daily trivia games like Timeguessr, Connections, and Wordle, Fashionguessr is my attempt at the same thing for people curious about fashion. The game is broken u",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，3 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://www.fashionguessr.com/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "aurabid-pay-more-to-get-ranked-1-and-beat-others",
+    "name": "Aurabid, pay more to get ranked #1 and beat others",
+    "name_en": "Aurabid, pay more to get ranked #1 and beat others",
+    "origin": "",
+    "one_liner": "Indie hacker help needed! My aim was to make aurabid for humans i.e. me bidding $10 Feedback is showing that I didn't make it clear enough that it's for humans, not companies Also built a leaderboard per country/city, so that you can claim ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-08-22，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://aurabid.now/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "i-built-a-free-printable-habit-tracker-because-most-habit-tracking-tools",
+    "name": "I Built a Free Printable Habit Tracker Because Most Habit Tracking Tools",
+    "name_en": "I Built a Free Printable Habit Tracker Because Most Habit Tracking Tools",
+    "origin": "",
+    "one_liner": "I Built a Free Printable Habit Tracker Because Most Habit Tracking Tools",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-08-30，10 分 / 2 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://www.indiehackers.com/post/i-built-a-free-printable-habit-tracker-because-most-habit-tracking-tools-felt-too-complicated-PjKUoF61gDZRQQ7MH6bG",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "i-built-a-bullet-journal-habit-tracker-tool-after-realizing-how-much-time-spend",
+    "name": "I Built a Bullet Journal Habit Tracker Tool After Realizing How Much Time Spend",
+    "name_en": "I Built a Bullet Journal Habit Tracker Tool After Realizing How Much Time Spend",
+    "origin": "",
+    "one_liner": "I Built a Bullet Journal Habit Tracker Tool After Realizing How Much Time Spend",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-01，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://www.indiehackers.com/post/i-built-a-bullet-journal-habit-tracker-tool-after-realizing-how-much-time-people-spend-drawing-the-same-grids-jn3tzB98DHUvKAlRICFo",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "vice-city-style-fm-radio-for-indie-hackers-house-lofi-techno",
+    "name": "Vice City style FM radio for indie hackers: house, lofi, techno",
+    "name_en": "Vice City style FM radio for indie hackers: house, lofi, techno",
+    "origin": "",
+    "one_liner": "Vice City style FM radio for indie hackers: house, lofi, techno",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-01，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://shipfm.online/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "vertumnus",
+    "name": "Vertumnus",
+    "name_en": "Vertumnus",
+    "origin": "",
+    "one_liner": "The origin of this project was me, as a casual farmers' market attendee, grossly misremembering the start date of early girl tomatoes. Ironically, I still haven't achieved that goal, because I couldn't find a suitable source with varietal l",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-08，40 分 / 15 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://vertumnus.fyi",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "a-browser-ide-for-m68000-z80-assembly-and-more-with-graphics",
+    "name": "A browser IDE for m68000, Z80 assembly (and more), with graphics",
+    "name_en": "A browser IDE for m68000, Z80 assembly (and more), with graphics",
+    "origin": "",
+    "one_liner": "Asm Editor is an open-source browser IDE for writing, running, and debugging assembly. It currently supports M68K, Z80, MIPS, RISC-V (32- and 64-bit), and x86-64. The debugger includes breakpoints, backward stepping, execution history, regi",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-08，21 分 / 2 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://asm-editor.specy.app/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "malinois",
+    "name": "Malinois",
+    "name_en": "Malinois",
+    "origin": "",
+    "one_liner": "Built for evil-maid/insider-access scenarios where your device passcode may be known. Malinois’ singular objective is to guarantee, to the greatest extent possible, that you either return to an unattended device in the same state you left i",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-08，3 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/john-comptonemail-com/malinois",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "remarc",
+    "name": "Remarc",
+    "name_en": "Remarc",
+    "origin": "",
+    "one_liner": "Like any side project, Remarc started with my own problem: there was no good way to give AI coding agents contextual feedback on their own output. There are plenty of tools for collaborating with humans, but surprisingly few for collaborati",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-08，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/metedata/Remarc",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "volanti",
+    "name": "VolAnti",
+    "name_en": "VolAnti",
+    "origin": "",
+    "one_liner": "This project has been a month in the making, and 9 fully functional units will be sent tomorrow to an undisclosed civilian site across the Israel - Lebanon border. All of my findings are shared online to anyone on the globe who could benefi",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-09，16 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/agamrossen/VolAnti",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "i-m-going-back-to-coding-by-hand",
+    "name": "I'm going back to coding by hand",
+    "name_en": "I'm going back to coding by hand",
+    "origin": "",
+    "one_liner": "I have a successful app I built myself with a solid user base. I had been working on a new version via Claude on and off for about six months In work we use LLMs exclusively. Nobody writes code anymore. It's all hands off and we have a high",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-09，62 分 / 52 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://news.ycombinator.com/item?id=49622554",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "maxxwell",
+    "name": "Maxxwell",
+    "name_en": "Maxxwell",
+    "origin": "",
+    "one_liner": "Hi HN! I’m Michael, one of the founders of Rindler (YC S26). We built Maxxwell, which helps you manage a dozen coding-agent sessions’ progress, context, and blockers. This lets you spend more time with the actual high-leverage decisions (an",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-09，10 分 / 8 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://maxxwell.dev/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "i-graded-200-ai-tools-apps-and-track-any-changes-in-their-policies",
+    "name": "I graded 200 AI tools/apps and track any changes in their policies",
+    "name_en": "I graded 200 AI tools/apps and track any changes in their policies",
+    "origin": "",
+    "one_liner": "Hi all, Given the recent OpenAI saga with the Navier–Stokes problem, I thought it would be a good time to show my latest project. The site pulls policies from 200+ websites, keeps track of them and compares them to any changes. I then grade",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，4 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://isittrainingonme.com/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "blindlock",
+    "name": "BlindLock",
+    "name_en": "BlindLock",
+    "origin": "",
+    "one_liner": "Hi everyone, I'm David, the solo developer and owner of BlindLock. This is my second post here. BlindLock is more than a year of work. Not a weekend hobby project I threw together. I've put a hell of a lot of time, heart, and nerves into it",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，3 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://blindlock.app/en/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "marucheck",
+    "name": "MaruCheck",
+    "name_en": "MaruCheck",
+    "origin": "",
+    "one_liner": "Hi HN, I've been building MaruCheck, an independent, open-source QA verification tool aimed to solve the issues that arise when coding agents like codex, claude, cursor make semantic issues that has heavy ramifications. Take the example whe",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，3 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/Kidus-M/MaruCheck",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "open-source-simulation-testing-infra-for-voice-agents",
+    "name": "Open-source simulation testing infra for voice agents",
+    "name_en": "Open-source simulation testing infra for voice agents",
+    "origin": "",
+    "one_liner": "Hey HN, we’re Nischal & Naman. We’re brothers, and together we’re building an open-source platform for simulation based testing of voice agents (try it out in 5 mins - https://docs.egma.ai/docs/get-started/quickstart , 2 min demo video - ht",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，14 分 / 5 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/egma-ai/egma",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "salestrics",
+    "name": "Salestrics",
+    "name_en": "Salestrics",
+    "origin": "",
+    "one_liner": "Hey HN, I’m Austin, founder of Salestrics (salestrics.com). The Problem: > Most AI agents today are trapped in chat windows. While models are smart enough to run complex multi-step workflows, giving them production access to business contex",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-08-08，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://www.salestrics.com/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "solo-founder-non-technical-100m-raised",
+    "name": "Solo founder, non-technical, $100M raised",
+    "name_en": "Solo founder, non-technical, $100M raised",
+    "origin": "",
+    "one_liner": "Solo founder, non-technical, $100M raised",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "疑似金额 $100M"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-08-12，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://solofounders.beehiiv.com/p/solo-founder-non-technical-100m-raised",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "launch-hn",
+    "name": "Launch HN",
+    "name_en": "Launch HN",
+    "origin": "",
+    "one_liner": "Hi HN! We’re Adi and Alex, founders of Bullet, a faster coding agent. Bullet started in a senior year dorm. We were fresh out of working at AppLovin and Citadel, and naturally thought we were on a sure path to startup success. We were going",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-08-13，121 分 / 89 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://www.codewithbullet.com",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "taurus-agents-my-take-on-multi-agent-hierarchies",
+    "name": "Taurus Agents, my take on multi-agent hierarchies",
+    "name_en": "Taurus Agents, my take on multi-agent hierarchies",
+    "origin": "",
+    "one_liner": "Hi HN! Serge here, solo founder. I built my own multi-agent orchestrator and it became so useful that for several months I've never had to touch codex or claude code anymore, just using Taurus now. The website explains what it is, but here ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-08-13，3 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://taurusagents.com/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "continuum",
+    "name": "Continuum",
+    "name_en": "Continuum",
+    "origin": "",
+    "one_liner": "Hey HN, I'm Charles, the solo founder of Continuum ( https://continuum-app.xyz/ ). Continuum is a financial planning web app for people with 1-15M. It helps you create simulations of job offers, house purchases, and life events. Its goal is",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-08-17，7 分 / 12 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://continuum-app.xyz/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "postlore-changed-my-product-stages-distribution-as-a-solo-founder",
+    "name": "PostLore changed my product stages distribution as a solo founder",
+    "name_en": "PostLore changed my product stages distribution as a solo founder",
+    "origin": "",
+    "one_liner": "PostLore changed my product stages distribution as a solo founder",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-08-18，2 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://postlore.com",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "active-source-of-truth-for-your-coding-agents",
+    "name": "Active Source of Truth for Your Coding Agents",
+    "name_en": "Active Source of Truth for Your Coding Agents",
+    "origin": "",
+    "one_liner": "Howdy! Happy Saturday everyone! As a solo founder, I have always tried to maximize my speed by letting coding agents build as much as possible in parallel. However, as an engineer, I don't trust that AI will always make the right decisions ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-08-23，4 分 / 2 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://meetless.ai",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "self-hosted-social-media-agents-with-raspberry-pi",
+    "name": "Self-Hosted Social Media Agents with Raspberry Pi",
+    "name_en": "Self-Hosted Social Media Agents with Raspberry Pi",
+    "origin": "",
+    "one_liner": "A while back I posted about a project I was working on for a real-time voice agent that runs ads on Meta to build conviction and prioritize side gig/business ideas ( https://news.ycombinator.com/item?id=48900788 ); you yammer away and it au",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-08-23，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://www.microphone.computer/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "hierarchical-to-do-calendar-for-solo-founders",
+    "name": "Hierarchical to-do calendar for solo founders",
+    "name_en": "Hierarchical to-do calendar for solo founders",
+    "origin": "",
+    "one_liner": "I built a to-do list and calendar for tracking EVERYTHING we must worry about on one page. I've been a solo founder since 2020, and I found that it's too stressful to \"focus\" on product when, in my subconscious, I know there are many tax is",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-08-25，2 分 / 2 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://news.ycombinator.com/item?id=49428450",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "i-made-a-manga-critique-site-with-professional-japanese-manga-editors",
+    "name": "I made a manga critique site with professional Japanese manga editors",
+    "name_en": "I made a manga critique site with professional Japanese manga editors",
+    "origin": "",
+    "one_liner": "Hey guys, I’m Sean founder & CEO of M2W. We made an AI editor for manga creators worldwide. Manga creators work solo or duo and can’t get critical feedback from public, but editors are too busy and expensive to hire. So we made this AI edit",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-08-28，4 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://m2w.ai/en",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "my-startup-idea-scanner-scored-500-ideas-the-best-got-6-3-10",
+    "name": "My startup-idea scanner scored 500 ideas; the best got 6.3/10",
+    "name_en": "My startup-idea scanner scored 500 ideas; the best got 6.3/10",
+    "origin": "",
+    "one_liner": "I built a tool ( https://1mil.app/hn ) to help me test my intuition about various weird business ideas that were on my mind. Initially, I wanted to create a database with 1 million business ideas (hence the name - \"1 million opportunities\")",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-08-30，8 分 / 4 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://1mil.app/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "concorde-one-ai-agent-shared-by-an-organization",
+    "name": "Concorde, one AI agent shared by an organization",
+    "name_en": "Concorde, one AI agent shared by an organization",
+    "origin": "",
+    "one_liner": "We built Concorde, an open-source framework giving an organization one shared agent that's controlled by a group, rather than just one person. This is pretty cool because shared agents can bring us closer to single entities doing what took ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-03，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/shutter-network/concorde",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "one-person-startup",
+    "name": "One-person startup",
+    "name_en": "One-person startup",
+    "origin": "",
+    "one_liner": "I run my own AI startup, and I've built three AI products over the past eight months, from writing the code to landing the first paying users. I did it as a solo founder. I came to AI from an unusual direction. I studied clinical medicine, ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-03，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://news.ycombinator.com/item?id=49557020",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "buymydeadstartup-com",
+    "name": "Buymydeadstartup.com",
+    "name_en": "Buymydeadstartup.com",
+    "origin": "",
+    "one_liner": "I have had my fair share of failed startups, but none so recent that I could have sold our IP (code, Slack messages -- you name it) to Anthropic, OpenAI or any other AI lab or data buyer. I know some companies are actively approached by som",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-09，3 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://www.buymydeadstartup.com/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "keepup",
+    "name": "KeepUp",
+    "name_en": "KeepUp",
+    "origin": "",
+    "one_liner": "Solo founder here. I built this because of a question I couldn't answer anywhere: Forbes tells me exactly what the ~3000 richest people are worth, but there's no ranking for the rest of us. Not way to compare myself with normal people. Ever",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，2 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://keepup.finance/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "overlay",
+    "name": "Overlay",
+    "name_en": "Overlay",
+    "origin": "",
+    "one_liner": "Hey HN, I'm Francesco. I've spent the last year building Overlay, a UI editor that runs inside your IDE and renders your actual React components (not a redraw of them), using your real CSS tokens. I'm a design engineer and, especially with ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-08-11，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://www.overlay.studio/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "flow",
+    "name": "Flow",
+    "name_en": "Flow",
+    "origin": "",
+    "one_liner": "Flow is my claude code supervisor for designing epics and shipping features really quickly. It was bootstrapped with itself so you can look at recent PRs to see what it produces. Usage: > flow feature create 'implement csv exports' --model ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-08-19，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/gavingolden/flow/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "requirements-are-intentions-qa-is-the-proof",
+    "name": "Requirements are intentions QA is the proof",
+    "name_en": "Requirements are intentions QA is the proof",
+    "origin": "",
+    "one_liner": "Requirements are intentions, QA is the proof. I see massive gaps in QA out there. How did this come to be? I am not sure. I have been heads down on my own startups and didn't realize how QA was changing - at least in certain communities. It",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-03，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://news.ycombinator.com/item?id=49548737",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "autark",
+    "name": "Autark",
+    "name_en": "Autark",
+    "origin": "",
+    "one_liner": "Show HN: Autark – a self bootstrapping build system",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://autark.dev/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "stardust-store",
+    "name": "Stardust Store",
+    "name_en": "Stardust Store",
+    "origin": "",
+    "one_liner": "Hi HN, I built Stardust Store, an independent Android app marketplace as part of my ZISHU TRON ecosystem. Website: https://stardustapkstore.zishuai.cloud The main idea is to focus on app discovery, rather than simply providing a large list ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，6 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://news.ycombinator.com/item?id=49651777",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "lol-bench",
+    "name": "LOL Bench",
+    "name_en": "LOL Bench",
+    "origin": "",
+    "one_liner": "Show HN: LOL Bench – a benchmark for whether LLMs get jokes",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，1 分 / 2 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://www.lolbench.lol/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "remoteworkhub",
+    "name": "RemoteWorkHub",
+    "name_en": "RemoteWorkHub",
+    "origin": "",
+    "one_liner": "🌟 Helping businesses grow through SEO, guest posting, and expert link building. Let your content speak on the right platforms.",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "自报收入 $100 / mo（Indie Hackers）",
+      "mrr": 100,
+      "self_reported": true,
+      "posts": "39+",
+      "metric_note": "收入为创始人在 Indie Hackers 上自报，未经支付网关验证。口径是平台自己标注的「mo」。本条的复用价值在过程描述（story_excerpt），不在数字。"
+    },
+    "models": [],
+    "note": "来自 Indie Hackers 产品页。收入为创始人自报，未经支付网关验证，进精写库前必须与 TrustMRR 或官方口径交叉核对。本条的复用价值在过程描述（story_excerpt），不在数字。 39+ 条里程碑帖；数字为创始人自报，未经支付网关验证。",
+    "blocking": "自报数字，需与 TrustMRR 或公司官方口径交叉核对后才可进精写库",
+    "source_url": "https://www.indiehackers.com/product/remoteworkhub",
+    "website": "https://appdevtools.com/",
+    "harvest_source": "indiehackers",
+    "added_at": "2026-09-17",
+    "indiehackers_slug": "remoteworkhub",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "joiya-brand",
+    "name": "joiya brand",
+    "name_en": "joiya brand",
+    "origin": "",
+    "one_liner": "we provide high quality backlinks",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "自报收入 $25 / mo（Indie Hackers）",
+      "mrr": 25,
+      "self_reported": true,
+      "posts": "3",
+      "metric_note": "收入为创始人在 Indie Hackers 上自报，未经支付网关验证。口径是平台自己标注的「mo」。本条的复用价值在过程描述（story_excerpt），不在数字。"
+    },
+    "models": [],
+    "note": "来自 Indie Hackers 产品页。收入为创始人自报，未经支付网关验证，进精写库前必须与 TrustMRR 或官方口径交叉核对。本条的复用价值在过程描述（story_excerpt），不在数字。 3 条里程碑帖；数字为创始人自报，未经支付网关验证。",
+    "blocking": "自报数字，需与 TrustMRR 或公司官方口径交叉核对后才可进精写库",
+    "source_url": "https://www.indiehackers.com/product/joiya-brand",
+    "website": "https://www.jpost.com/",
+    "harvest_source": "indiehackers",
+    "added_at": "2026-09-17",
+    "indiehackers_slug": "joiya-brand",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "excelmatic",
+    "name": "Excelmatic",
+    "name_en": "Excelmatic",
+    "origin": "",
+    "one_liner": "We built Excelmatic to simplify complex Excel tasks. It exists to save users time by turning data processing, analysis, and chart creation into simple comm",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "自报收入 $300 / mo（Indie Hackers）",
+      "mrr": 300,
+      "self_reported": true,
+      "posts": "2",
+      "metric_note": "收入为创始人在 Indie Hackers 上自报，未经支付网关验证。口径是平台自己标注的「mo」。本条的复用价值在过程描述（story_excerpt），不在数字。"
+    },
+    "models": [],
+    "note": "来自 Indie Hackers 产品页。收入为创始人自报，未经支付网关验证，进精写库前必须与 TrustMRR 或官方口径交叉核对。本条的复用价值在过程描述（story_excerpt），不在数字。 2 条里程碑帖；数字为创始人自报，未经支付网关验证。",
+    "blocking": "自报数字，需与 TrustMRR 或公司官方口径交叉核对后才可进精写库",
+    "source_url": "https://www.indiehackers.com/product/excelmatic",
+    "website": "https://excelmatic.ai",
+    "harvest_source": "indiehackers",
+    "added_at": "2026-09-17",
+    "indiehackers_slug": "excelmatic",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "shine",
+    "name": "Shine",
+    "name_en": "Shine",
+    "origin": "",
+    "one_liner": "Show HN: Shine – a terminal Markdown previewer and docs linter",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，1 分 / 2 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/Nithish-Yenaganti/shine",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "natively",
+    "name": "Natively",
+    "name_en": "Natively",
+    "origin": "",
+    "one_liner": "i have more agents than i have real humans who report to me now. as a serial founder/builder/domain hoarder, i have 5+ projects ongoing at all times and in the AI era, i can spin up a team of agents to work on them simultaneously. so at thi",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://natively.io",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "i-created-a-list-of-projects-with-embeds",
+    "name": "I created a list of projects with embeds",
+    "name_en": "I created a list of projects with embeds",
+    "origin": "",
+    "one_liner": "Hi HN! I created a pet project that I’d like to share with you. It’s a project catalog, but it has a cool feature. It generates badges for each project that you can add to your website or readme, and they will work. Right now, there aren’t ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://embedcatalog.com",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "wordpress-security-skills-for-coding-agents",
+    "name": "WordPress security skills for coding agents",
+    "name_en": "WordPress security skills for coding agents",
+    "origin": "",
+    "one_liner": "Show HN: WordPress security skills for coding agents",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/wpultimatesecurity/WordPress-Security-Skills",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "charter",
+    "name": "Charter",
+    "name_en": "Charter",
+    "origin": "",
+    "one_liner": "Even though everyone is talking about AI agents doing everything for them at work, many companies still aren't using autonomous agents to automate real operational work internally. Usually it's because of the complexity of bootstrapping an ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，3 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/boundflow/charter",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "codepress",
+    "name": "CodePress",
+    "name_en": "CodePress",
+    "origin": "",
+    "one_liner": "Since agents have taken companies + enterprise by storm, we've been working on workflows to get the most out of agents that get work done. Along the way, we built our own agent cloud where we ping these agents from any surface we work in, l",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "疑似金额 $50k"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，4 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://codepress.dev/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "stitchwink",
+    "name": "Stitchwink",
+    "name_en": "Stitchwink",
+    "origin": "",
+    "one_liner": "My wife has been cross stitching since she was a child and I wanted to make a tool where she could generate her own custom patterns: https://stitchwink.com/ You can try chatgpt or other AI tools but the problem is that they don't create rea",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，1 分 / 4 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://stitchwink.com",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "an-interactive-3d-pattern-language-made-with-astra",
+    "name": "An interactive 3D Pattern Language made with Astra",
+    "name_en": "An interactive 3D Pattern Language made with Astra",
+    "origin": "",
+    "one_liner": "Show HN: An interactive 3D Pattern Language made with Astra",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，2 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://livedin.co.uk/design-patterns/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "zestssh-my-capstone-ssh-client-that-people-started-paying-for",
+    "name": "ZestSSH, my capstone SSH client that people started paying for",
+    "name_en": "ZestSSH, my capstone SSH client that people started paying for",
+    "origin": "",
+    "one_liner": "Show HN: ZestSSH, my capstone SSH client that people started paying for",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://zestssh.com/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "vector-transfer-project-replicate-vectors-metadata-across-databases",
+    "name": "Vector transfer project, replicate vectors/metadata across databases",
+    "name_en": "Vector transfer project, replicate vectors/metadata across databases",
+    "origin": "",
+    "one_liner": "Show HN: Vector transfer project, replicate vectors/metadata across databases",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，3 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/Polign/vector-transfer",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "cadenya",
+    "name": "Cadenya",
+    "name_en": "Cadenya",
+    "origin": "",
+    "one_liner": "My name is Robert, and I'm the founder of Cadenya, an agent runtime. Cadenya is not like other managed solutions. Instead, it uses your API or MCP servers as the tools in your agentic loop, which also is managed. Cadenya is also agnostic to",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://www.cadenya.com/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "papiers-ai-a-new-workspace-for-reading-and-research",
+    "name": "Papiers.ai, a new workspace for reading and research",
+    "name_en": "Papiers.ai, a new workspace for reading and research",
+    "origin": "",
+    "one_liner": "Hey HN, I built http://papiers.ai , a new workspace for everything you read. As AI gets better at writing, there will be far more worth reading, even in technical domains like scientific research. Our time and attention won’t grow at the sa",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://papiers.ai/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "prbar-see-your-open-github-pr-count-in-macos-menu-bar",
+    "name": "PRBar see your open GitHub PR count in macOS menu bar",
+    "name_en": "PRBar see your open GitHub PR count in macOS menu bar",
+    "origin": "",
+    "one_liner": "Show HN: PRBar see your open GitHub PR count in macOS menu bar",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，1 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/sburl/prBar",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "socks-proxy-for-ai-agents",
+    "name": "Socks Proxy for AI Agents",
+    "name_en": "Socks Proxy for AI Agents",
+    "origin": "",
+    "one_liner": "I've built a socks5 proxy especially for AI agents, currently there are exit points in east and west US, central EU and east Asia. The payment for the service is settled by the X402 protocol, with USDC on circle/base. You can also purchase ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，2 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://x402socks.com/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "reviving-my-15-000-browser-arcade-with-astra",
+    "name": "Reviving my $15,000 browser arcade with Astra",
+    "name_en": "Reviving my $15,000 browser arcade with Astra",
+    "origin": "",
+    "one_liner": "Back in 2021, I put roughly $15,000 into a project called Anbu. The original idea was a decentralized cloud gaming platform, but I scaled it down to what I could afford with no cofounders... a browser arcade where people could play games wi",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "疑似金额 $15,000 b"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，3 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://eggverse.co/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "temporal-parser",
+    "name": "Temporal Parser",
+    "name_en": "Temporal Parser",
+    "origin": "",
+    "one_liner": "Show HN: Temporal Parser – A compiler-style parser for date/time strings",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，3 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://lxcid.com/tools/temporal-playground/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "learn-programming-by-building-something-you-want",
+    "name": "Learn programming by building something you want",
+    "name_en": "Learn programming by building something you want",
+    "origin": "",
+    "one_liner": "Show HN: Learn programming by building something you want",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://codeset.ai/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "obra-per-project-margin-tracking-for-small-construction-firms",
+    "name": "Obra, per-project margin tracking for small construction firms",
+    "name_en": "Obra, per-project margin tracking for small construction firms",
+    "origin": "",
+    "one_liner": "Show HN: Obra, per-project margin tracking for small construction firms",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://tryobra.com/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "botbin-io",
+    "name": "Botbin.io",
+    "name_en": "Botbin.io",
+    "origin": "",
+    "one_liner": "Show HN: Botbin.io – Pastebin for AI agent artifacts with MCP",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://botbin.io/?mcp=true",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "til-in-ai",
+    "name": "TIL in AI",
+    "name_en": "TIL in AI",
+    "origin": "",
+    "one_liner": "Show HN: TIL in AI",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://buildyard.ai/til",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "benzi",
+    "name": "Benzi",
+    "name_en": "Benzi",
+    "origin": "",
+    "one_liner": "Show HN: Benzi – A Code Intillegence/Harness Beating Claude Code and CodeGraph",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，9 分 / 2 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://benzi.fly.dev/benchmark",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "kern-agent",
+    "name": "Kern Agent",
+    "name_en": "Kern Agent",
+    "origin": "",
+    "one_liner": "Show HN: Kern Agent – See inside your agent's brain",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/oguzbilgic/kern-ai",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "openmuse",
+    "name": "OpenMuse",
+    "name_en": "OpenMuse",
+    "origin": "",
+    "one_liner": "Show HN: OpenMuse – an Open Source alternative to Meta's personal agent",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/diggerhq/openmuse/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "algo-trading-skills",
+    "name": "Algo-Trading-Skills",
+    "name_en": "Algo-Trading-Skills",
+    "origin": "",
+    "one_liner": "Show HN: Algo-Trading-Skills - 501 agent skills for trading infrastructure",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，8 分 / 5 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/HimanshuJ16/Algo-Trading-Skills",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "family-greenhouse",
+    "name": "Family Greenhouse",
+    "name_en": "Family Greenhouse",
+    "origin": "",
+    "one_liner": "Show HN: Family Greenhouse – shared plant care for a household",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://familygreenhouse.net/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "self-host-your-own-minecraft-java-server-with-ease",
+    "name": "Self Host Your Own Minecraft Java Server with Ease",
+    "name_en": "Self Host Your Own Minecraft Java Server with Ease",
+    "origin": "",
+    "one_liner": "Show HN: Self Host Your Own Minecraft Java Server with Ease",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，2 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/5TN1rcZRS79VAEFuUCRB/MCPersist",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "certarena",
+    "name": "CertArena",
+    "name_en": "CertArena",
+    "origin": "",
+    "one_liner": "Show HN: CertArena – Free AI certification simulator (zero deps, native Node 24)",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://aicertarena.com/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "hekla-an-event-sourcing-runtime-with-its-own-language",
+    "name": "Hekla, an event sourcing runtime with its own language",
+    "name_en": "Hekla, an event sourcing runtime with its own language",
+    "origin": "",
+    "one_liner": "Show HN: Hekla, an event sourcing runtime with its own language",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://hekla.tqwewe.com/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "swiftime",
+    "name": "Swiftime",
+    "name_en": "Swiftime",
+    "origin": "",
+    "one_liner": "Show HN: Swiftime - time tracking you can talk to, with an API for AI agents",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://swiftime.ai/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "interactive-history-of-earth-and-human-civilization",
+    "name": "Interactive history of Earth and human civilization",
+    "name_en": "Interactive history of Earth and human civilization",
+    "origin": "",
+    "one_liner": "Original: https://www.reddit.com/r/vibecoding/comments/1w99r2z/gpt6_as...",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://earth.ethanplus.ai/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "vericordon",
+    "name": "VeriCordon",
+    "name_en": "VeriCordon",
+    "origin": "",
+    "one_liner": "Show HN: VeriCordon – CI evidence for agent/tool authorization decisions",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，1 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/dgenio/agentfence",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "i-pointed-11-cold-ai-agents-at-my-own-product-3-finished",
+    "name": "I pointed 11 cold AI agents at my own product. 3 finished",
+    "name_en": "I pointed 11 cold AI agents at my own product. 3 finished",
+    "origin": "",
+    "one_liner": "Show HN: I pointed 11 cold AI agents at my own product. 3 finished",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，3 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://pact0.com/notes/agents-vs-our-own-product",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "sidenote-pro",
+    "name": "SideNote Pro",
+    "name_en": "SideNote Pro",
+    "origin": "",
+    "one_liner": "I have been using ChatGPT (mainly) as my main AI tool, but sometimes also DeepSeek and other AI providers. But with repetitive tasks, it became annoying for me to switch tabs and navigate to the ChatGPT tab in the web browser, leaving the E",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://sidenotepro.com",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "automatically-keep-track-of-all-features-implemented-in-a-project",
+    "name": "Automatically keep track of all features implemented in a project",
+    "name_en": "Automatically keep track of all features implemented in a project",
+    "origin": "",
+    "one_liner": "I built this because I wanted to automate my least favourite part of documentation writing - expressing at a high level what was implemented. There are a couple of situations where you could need that: - to show to the client what changed s",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，1 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/netizer/feature-ledger",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "oxlint-plugin-to-auto-fix-non-canonical-tailwind-classes",
+    "name": "Oxlint plugin to auto-fix non-canonical Tailwind classes",
+    "name_en": "Oxlint plugin to auto-fix non-canonical Tailwind classes",
+    "origin": "",
+    "one_liner": "I made a oxlint plugin to autofix the tailwind classes that LLMs slop write so that they match the canonical versions that tailwind suggests. Let me know what you think. If its helpful pls star my Github.",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/maharshi365/oxlint-plugin-tailwind-canonical",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "blender-agent-a-live-multi-turn-agent-that-any-can-use-for-blender",
+    "name": "Blender Agent:A live, multi-turn agent that any can use for Blender",
+    "name_en": "Blender Agent:A live, multi-turn agent that any can use for Blender",
+    "origin": "",
+    "one_liner": "Show HN: Blender Agent:A live, multi-turn agent that any can use for Blender",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/zavora-ai/adk-rust/tree/main/examples/blender_console",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "a-local-open-source-version-of-claude-code",
+    "name": "A local, open-source version of Claude Code",
+    "name_en": "A local, open-source version of Claude Code",
+    "origin": "",
+    "one_liner": "Show HN: A local, open-source version of Claude Code",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/just-not-google/BiNeuron",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
+  },
+  {
+    "id": "choicer-voicer-put-your-own-voice-into-movie-and-game-scenes",
+    "name": "Choicer Voicer, put your own voice into movie and game scenes",
+    "name_en": "Choicer Voicer, put your own voice into movie and game scenes",
+    "origin": "",
+    "one_liner": "Show HN: Choicer Voicer, put your own voice into movie and game scenes",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，1 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://playchoicervoicer.com/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-17"
   }
 ]

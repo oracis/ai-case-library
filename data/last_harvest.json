@@ -1,77 +1,78 @@
 {
-  "ran_at": "2026-09-17 05:38:06",
-  "added": 49,
+  "ran_at": "2026-09-17 09:23:46",
+  "added": 45,
   "by_source": {
-    "hn": 43,
-    "trustmrr": 6
+    "hn": 12,
+    "indiehackers": 23,
+    "trustmrr": 10
   },
   "inbox_total": 400,
-  "archived_this_run": 38,
-  "archive_total": 38,
+  "archived_this_run": 86,
+  "archive_total": 124,
   "top": [
     {
-      "name": "White Glove Content",
-      "headline": "月收入 $58k · 要价 $2.5 · 倍数 3.6x",
+      "name": "Teleprompter - Video Recording",
+      "headline": "MRR $137，TrustMRR 第 3317 名",
       "heat": 0,
-      "category": "Revenue",
+      "category": "未分类",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/marketplace"
+      "url": "https://trustmrr.com/startup/private-enterprise-53"
     },
     {
-      "name": "Plexus",
-      "headline": "疑似金额 $500 ",
-      "heat": 2,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://plexus.company"
+      "name": "LeadsRover",
+      "headline": "MRR $523，TrustMRR 第 2504 名",
+      "heat": 0,
+      "category": "Marketing",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/leadsrover"
     },
     {
-      "name": "Deiko",
-      "headline": "疑似金额 $99",
-      "heat": 1,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://deiko.app/"
+      "name": "Propal",
+      "headline": "MRR $1,252，TrustMRR 第 1028 名",
+      "heat": 0,
+      "category": "Artificial Intelligence",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/propal"
     },
     {
-      "name": "Halo 3's Guardian, playable in the browser, as my personal website",
-      "headline": "未获取",
-      "heat": 19,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://runboli.com"
+      "name": "GEHIRN.md",
+      "headline": "MRR $908，TrustMRR 第 2514 名",
+      "heat": 0,
+      "category": "Marketing",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/gehirn-md"
     },
     {
-      "name": "Friday",
-      "headline": "未获取",
-      "heat": 9,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://github.com/itskie/friday"
+      "name": "Lurq By PeopleFinder",
+      "headline": "MRR $4,072，TrustMRR 第 1046 名",
+      "heat": 0,
+      "category": "Utilities",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/peoplefinder"
     },
     {
-      "name": "Fail2zig. A single-binary fail2ban replacement written in Zig",
-      "headline": "未获取",
-      "heat": 6,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://fail2zig.com/"
+      "name": "Animalo",
+      "headline": "MRR $1,280，TrustMRR 第 2099 名",
+      "heat": 0,
+      "category": "Productivity",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/animalo"
     },
     {
-      "name": "Nullsec",
-      "headline": "未获取",
-      "heat": 5,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://nullsec.pntr.dev"
+      "name": "Sopravo",
+      "headline": "MRR $14，TrustMRR 第 4876 名",
+      "heat": 0,
+      "category": "Mobile Apps",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/sopravo"
     },
     {
-      "name": "OpenCode Mentor",
-      "headline": "未获取",
-      "heat": 4,
+      "name": "Groupon",
+      "headline": "自报收入 $498,400,000 / mo（Indie Hackers）",
+      "heat": 0,
       "category": "未分类",
-      "source": "hn",
-      "url": "https://github.com/davejpeters/opencode-mentor"
+      "source": "indiehackers",
+      "url": "https://www.indiehackers.com/product/groupon"
     }
   ]
 }
