@@ -1,5 +1,167 @@
 [
   {
+    "id": "gojiberryai",
+    "name": "GojiberryAI",
+    "name_en": "GojiberryAI",
+    "origin": "未披露",
+    "one_liner": "面向 B2B 团队的 AI GTM 平台：找高意向线索，把购买信号变成对话",
+    "category": "营销工具",
+    "industry": "B2B 销售线索与 GTM 自动化",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "headline": "$424,368 MRR · Stripe 验证 · 2026-08-14 最后快照",
+      "mrr": 424368,
+      "all_time": 1801629,
+      "customers": "活跃订阅 3,944",
+      "team": "3 名创始人 + 外包虚拟助理",
+      "funding": "Y Combinator 2026 春季班",
+      "growth": "2025-07 成立 → 2025-12 $27K MRR → 2026-08 $424K MRR",
+      "price_point": "$99/月起（Pro，含 2 个 agent / 2 个 LinkedIn 发送号）",
+      "metric_note": "MRR $424,368 是 2026-08-14 最后一次成功同步的 Stripe 快照——凭证次日过期，之后首页明确提示不再更新，所以它不是实时数字。累计收入 $1,801,629 是 TrustMRR 上另一个分列字段，别和 MRR 混用。"
+    },
+    "models": [
+      "订阅制",
+      "自助增长"
+    ],
+    "replicability": {
+      "tech": 3,
+      "distribution": 4,
+      "capital": 2,
+      "timing": 4
+    },
+    "verdict": "先把服务手动卖出去，再把被验证的流程写成软件——它证明的不是 AI 多聪明，而是「先收钱、再写代码」这条路在 B2B 里依然走得通。",
+    "what_it_does": "面向 B2B 团队的 AI GTM 平台：定义理想客户画像（ICP）→ 监控职业信号（谁在换工作、融资、招人）→ 给线索打分并补全资料 → 自动跑 LinkedIn / 邮件触达。它卖的不是联系方式，是「时机」。",
+    "how_it_makes_money": "月度订阅。Pro 套餐 $99/月（含 2 个 signal / outreach agent、2 个 LinkedIn 发送号），每多一个 agent / ICP / 发送号 $59/月；再往上是定制团队计划和年付。agent、席位、ICP、联系量四个维度都能随客户变大加钱——收入不靠涨价，靠客户自己变重。",
+    "why_it_works": [
+      "产品还没写就已经有人付钱：一份 PPT 加人工交付，把「帮你在对手之前找到最热的线索」卖到逼近 $10K MRR，每天能约 5–6 个 demo。他们工程化的是被验证过的工作流，不是假想的功能清单",
+      "卖的是决策时机而不是名单：换工作、融资、招人都是可观察的采购信号，转化远好于泛名单，而且可每天刷新，天然适合订阅",
+      "用自己的产品给自己拉客户：每天从真实回复里回收信号质量的反馈，反过来优化模型，形成数据—增长飞轮；Reddit 一条帖子带来约 1100–1200 万次浏览、4 万网站访客",
+      "渠道是分层叠加而不是单点爆发：outbound → Reddit → LinkedIn 内容 → SEO / YouTube → newsletter / 联盟 → 付费广告 / 招销售，一层比一层贵，一层一层往上加"
+    ],
+    "playbook": [
+      "在写第一行产品代码前，先用人工服务证明「有人愿意为这个结果付钱」——卖 outcome，不卖 feature",
+      "选窄 ICP + 一组可观察事件；把「信号」当成带衰减的假设来建模，别当成事实直接群发",
+      "渠道分层、由便宜到贵依次加码；最好让自己的产品成为自己的获客工具"
+    ],
+    "signals": [
+      "2025-07 成立 → 2025-12 $27K MRR（当月销售 $35K）→ 2026-07 月度收款 $407,786 → 2026-08-14 MRR $424,368 / 活跃订阅 3,944 / 累计收入 $1,801,629",
+      "三个核心人：CMO Romàn Czerny、CEO Pierre-Eliott Lallemant、CTO Dylan Teixeira（此前把 Edusign 做到数百万 ARR 后卖出）；多次申请后进了 Y Combinator 2026 春季班",
+      "同一时期试过 AI UGC 工具（约 $1K MRR）和 AI 会议笔记（技术够但赛道挤、分发弱），都早早砍掉——创始人自己也公开讲过 bug、留存和低质客户带来的运营过载"
+    ],
+    "corrections": [
+      {
+        "claim": "$424,368 是 GojiberryAI 的累计收入",
+        "truth": "$424,368 是 MRR（月度经常性收入）；累计收入是 $1,801,629，TrustMRR 上是两个分列字段",
+        "source": "https://trustmrr.com/startup/superfruits"
+      },
+      {
+        "claim": "GojiberryAI 现在实时 MRR 是 $424K",
+        "truth": "$424,368 是 2026-08-14 最后一次成功 Stripe 同步的快照，之后其 API key 过期未再更新，不是实时数字",
+        "source": "https://trustmrr.com/startup/superfruits"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR · GojiberryAI（Stripe 验证页）",
+        "url": "https://trustmrr.com/startup/superfruits",
+        "kind": "stripe"
+      },
+      {
+        "label": "Gojiberry AI 官网（定价页可见 $99/月）",
+        "url": "https://gojiberry.ai/",
+        "kind": "official"
+      },
+      {
+        "label": "SoFarBot 深度故事（时间线与口径核对）",
+        "url": "https://www.sofarbot.com/stories/gojiberry-ai-roman-czerny-27000-mrr",
+        "kind": "press"
+      },
+      {
+        "label": "Steal What Works 独立交叉分析",
+        "url": "https://stealwhatworks.com/blogs/news/indie-saas-gained-most-revenue",
+        "kind": "press"
+      }
+    ],
+    "published_from": "gojiberry-ai",
+    "verified_at": "2026-09-16",
+    "updated_at": "2026-09-17",
+    "tags": [
+      "B2B获客",
+      "信号挖掘",
+      "先服务后产品",
+      "YC",
+      "Stripe验证"
+    ],
+    "tier": "premium",
+    "quality_score": 70,
+    "needs_review": false,
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "china_fit": {
+      "score": 38.6,
+      "raw": 13.3,
+      "max_raw": 34.5,
+      "rank": 25,
+      "medal": null,
+      "dims": {
+        "demand": 3,
+        "payment": 3,
+        "compliance": 1,
+        "acquisition": 1,
+        "localization": 2,
+        "competition": 1
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "整套动作长在 LinkedIn / Reddit 的开放数据和自动外发上。国内两边都缺：既没有等价的职业信号源（LinkedIn 职场版 2023 年就关停了），《个人信息保护法》又把「抓取 + 群发」直接定性为红线——与 meerkats-ai 撞的是同一堵墙。真要落地得把信号源换成企查查 / 脉脉，触达换成企业微信，等于重做一遍产品；而那一格还站着探迹、销售易、纷享销客。唯一不看国界的是它的方法论：先用人工交付证明有人为结果付钱，再把它写成软件。",
+      "blocker": "自动化触达合规",
+      "scored_at": "2026-09-17"
+    },
+    "solo_fit": {
+      "score": 55.9,
+      "raw": 16.2,
+      "max_raw": 29.0,
+      "rank": 19,
+      "medal": null,
+      "dims": {
+        "build": 3,
+        "reach": 2,
+        "capital": 4,
+        "window": 2,
+        "delivery": 3
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "自动触达要天天盯：发送限频、封号申诉、话术迭代，客户还会追着问线索质量——售后省不掉。它自己就经历过「支持过载、几乎不睡」那一阵。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-09-17"
+    },
+    "composite": {
+      "score": 42.1,
+      "solo": 55.9,
+      "china": 38.6,
+      "rank": 22,
+      "medal": null,
+      "quadrant": "skip",
+      "quadrant_label": "别碰",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-09-17"
+    }
+  },
+  {
     "id": "sierra",
     "name": "Sierra",
     "name_en": "Sierra",
@@ -8,7 +170,7 @@
     "category": "企业服务",
     "industry": "客服 / 呼叫中心替代",
     "status": "curated",
-    "verification": "official",
+    "verification": "partial",
     "metrics": {
       "headline": "$200M ARR",
       "arr": 200000000,
@@ -79,7 +241,7 @@
       }
     ],
     "verified_at": "2026-09-11",
-    "updated_at": "2026-09-11",
+    "updated_at": "2026-09-17",
     "tags": [
       "企业AI",
       "结果定价",
@@ -110,13 +272,13 @@
       },
       "note": "按「问题被真正解决」收费的结果定价值得学，但客户是美国财富 500 强——靠的是创始人 Bret Taylor 的顶级人脉。国内对应的大客户被阿里云、火山引擎把着，一个人连门都进不去。学模式可以，抄生意不行。",
       "blocker": null,
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "solo_fit": {
       "score": 30.3,
       "raw": 8.8,
       "max_raw": 29.0,
-      "rank": 24,
+      "rank": 25,
       "medal": null,
       "dims": {
         "build": 1,
@@ -134,19 +296,28 @@
       },
       "delivery_note": "交付对象是美国财富 500 强：要 SLA、要合规审计、要 7×24 待命。这不是「忙一点」，是要养一个交付团队。",
       "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "composite": {
       "score": 34.9,
       "solo": 30.3,
       "china": 53.3,
-      "rank": 23,
+      "rank": 24,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
+    },
+    "tier": "backup",
+    "tier_reason": "没有一手来源，且质量分未达 60",
+    "verification_downgraded": {
+      "from": "official",
+      "to": "partial",
+      "reason": "声称「官方披露」，但登记的来源只有 press，够不到这个等级。按证据把它降到「口径待核」。",
+      "at": "2026-09-17",
+      "tool": "scripts/audit_evidence.py"
     }
   },
   {
@@ -250,13 +421,13 @@
       },
       "note": "国内同类客户（美发店、美甲店）被美团收银、客如云、有赞占着，且预约流程必须接微信小程序和美团，等于把产品重做一遍。",
       "blocker": null,
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "solo_fit": {
       "score": 48.3,
       "raw": 14.0,
       "max_raw": 29.0,
-      "rank": 19,
+      "rank": 20,
       "medal": null,
       "dims": {
         "build": 3,
@@ -274,7 +445,7 @@
       },
       "delivery_note": "多租户 SaaS 单人能维护，但门店客户会打电话、要上门教，客服人力省不掉。",
       "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "composite": {
       "score": 51.7,
@@ -286,8 +457,10 @@
       "quadrant_label": "别碰",
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
-      "scored_at": "2026-09-11"
-    }
+      "scored_at": "2026-09-17"
+    },
+    "tier": "premium",
+    "tier_reason": "有一手来源（official），按默认政策进精品池"
   },
   {
     "id": "nitra",
@@ -401,13 +574,13 @@
       },
       "note": "医疗数据在国内是强监管（等保、HIS 资质、数据不出院），且卫宁健康这类厂商已深耕二十年。移植的难度不在产品，在牌照。",
       "blocker": "医疗合规",
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "solo_fit": {
       "score": 30.3,
       "raw": 8.8,
       "max_raw": 29.0,
-      "rank": 23,
+      "rank": 24,
       "medal": null,
       "dims": {
         "build": 2,
@@ -425,20 +598,22 @@
       },
       "delivery_note": "医疗软件要过资质、数据不出院、HIS 对接，合规和技术支持都必须有团队和法人主体。",
       "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "composite": {
       "score": 34.1,
       "solo": 30.3,
       "china": 49.3,
-      "rank": 24,
+      "rank": 25,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
-      "scored_at": "2026-09-11"
-    }
+      "scored_at": "2026-09-17"
+    },
+    "tier": "premium",
+    "tier_reason": "有一手来源（official），按默认政策进精品池"
   },
   {
     "id": "viktor",
@@ -449,7 +624,7 @@
     "category": "企业服务",
     "industry": "工作流自动化",
     "status": "curated",
-    "verification": "official",
+    "verification": "partial",
     "metrics": {
       "headline": "$15M ARR（10 周达成）",
       "arr": 15000000,
@@ -514,7 +689,7 @@
       }
     ],
     "verified_at": "2026-09-11",
-    "updated_at": "2026-09-11",
+    "updated_at": "2026-09-17",
     "tags": [
       "极速增长",
       "零摩擦分发",
@@ -545,13 +720,13 @@
       },
       "note": "它的生态位是 Slack App Directory；国内对应的飞书 / 钉钉应用市场规模小得多，而且飞书、钉钉自己就把 AI 助手做进了免费版。",
       "blocker": null,
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "solo_fit": {
       "score": 44.8,
       "raw": 13.0,
       "max_raw": 29.0,
-      "rank": 21,
+      "rank": 22,
       "medal": null,
       "dims": {
         "build": 2,
@@ -569,7 +744,7 @@
       },
       "delivery_note": "产品本身一个人写得出来，但企业客户要采购流程、要约演示、要有人在群里响应。",
       "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "composite": {
       "score": 45.5,
@@ -581,7 +756,16 @@
       "quadrant_label": "别碰",
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
+    },
+    "tier": "backup",
+    "tier_reason": "没有一手来源，且质量分未达 60",
+    "verification_downgraded": {
+      "from": "official",
+      "to": "partial",
+      "reason": "声称「官方披露」，但登记的来源只有 press，够不到这个等级。按证据把它降到「口径待核」。",
+      "at": "2026-09-17",
+      "tool": "scripts/audit_evidence.py"
     }
   },
   {
@@ -593,7 +777,7 @@
     "category": "AI 工具",
     "industry": "客户服务自动化",
     "status": "curated",
-    "verification": "stripe",
+    "verification": "partial",
     "metrics": {
       "headline": "约 $10M ARR",
       "arr": 10000000,
@@ -660,7 +844,7 @@
       }
     ],
     "verified_at": "2026-09-11",
-    "updated_at": "2026-09-11",
+    "updated_at": "2026-09-17",
     "tags": [
       "零融资",
       "时机窗口",
@@ -691,7 +875,7 @@
       },
       "note": "国内这条赛道已经挤满——Dify、FastGPT、Coze 都能做，还有开源自部署。想切入只能打垂直行业（比如只做教培或医美的客服机器人）。",
       "blocker": null,
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "solo_fit": {
       "score": 65.5,
@@ -715,7 +899,7 @@
       },
       "delivery_note": "自助式 SaaS，用户自己注册自己配。人工交付几乎为零。",
       "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "composite": {
       "score": 64.4,
@@ -727,7 +911,16 @@
       "quadrant_label": "别碰",
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
+    },
+    "tier": "backup",
+    "tier_reason": "没有一手来源，且质量分未达 60",
+    "verification_downgraded": {
+      "from": "stripe",
+      "to": "partial",
+      "reason": "声称「支付网关验证」，但登记的来源只有 press、review，够不到这个等级。按证据把它降到「口径待核」。",
+      "at": "2026-09-17",
+      "tool": "scripts/audit_evidence.py"
     }
   },
   {
@@ -739,7 +932,7 @@
     "category": "AI 工具",
     "industry": "求职 / 招聘",
     "status": "curated",
-    "verification": "stripe",
+    "verification": "partial",
     "metrics": {
       "headline": "$293K MRR",
       "mrr": 293000,
@@ -789,7 +982,7 @@
       }
     ],
     "verified_at": "2026-09-11",
-    "updated_at": "2026-09-11",
+    "updated_at": "2026-09-17",
     "tags": [
       "土需求",
       "高频刚需",
@@ -820,7 +1013,7 @@
       },
       "note": "简历工具在国内是「一次性、低客单、用完即走」，超级简历这类已经做到免费。收入来自订阅，但国内用户不习惯为简历订阅付费。",
       "blocker": "C 端付费弱",
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "solo_fit": {
       "score": 80.3,
@@ -844,7 +1037,7 @@
       },
       "delivery_note": "纯自助工具，付钱就能用，没有交付环节。",
       "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "composite": {
       "score": 63.8,
@@ -856,7 +1049,16 @@
       "quadrant_label": "能做，但别在国内卖",
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
+    },
+    "tier": "backup",
+    "tier_reason": "没有一手来源，且质量分未达 60",
+    "verification_downgraded": {
+      "from": "stripe",
+      "to": "partial",
+      "reason": "声称「支付网关验证」，但登记的来源只有 review，够不到这个等级。按证据把它降到「口径待核」。",
+      "at": "2026-09-17",
+      "tool": "scripts/audit_evidence.py"
     }
   },
   {
@@ -868,7 +1070,7 @@
     "category": "营销工具",
     "industry": "社交媒体运营",
     "status": "curated",
-    "verification": "stripe",
+    "verification": "partial",
     "metrics": {
       "headline": "$202K MRR",
       "mrr": 202000,
@@ -924,7 +1126,7 @@
       }
     ],
     "verified_at": "2026-09-11",
-    "updated_at": "2026-09-11",
+    "updated_at": "2026-09-17",
     "tags": [
       "开源起家",
       "渠道红利",
@@ -955,7 +1157,7 @@
       },
       "note": "开源 + 口碑的获客模式很好复制，但国内平台（小红书、抖音、公众号）的发布接口基本不对外开放，拿授权要资质——这是最大的坑，也是护城河。",
       "blocker": "平台 API 授权",
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "solo_fit": {
       "score": 68.6,
@@ -979,7 +1181,7 @@
       },
       "delivery_note": "开源自部署，社区和文档替你承担了大量售后。",
       "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "composite": {
       "score": 68.0,
@@ -991,7 +1193,16 @@
       "quadrant_label": "别碰",
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
+    },
+    "tier": "backup",
+    "tier_reason": "没有一手来源，且质量分未达 60",
+    "verification_downgraded": {
+      "from": "stripe",
+      "to": "partial",
+      "reason": "声称「支付网关验证」，但登记的来源只有 review，够不到这个等级。按证据把它降到「口径待核」。",
+      "at": "2026-09-17",
+      "tool": "scripts/audit_evidence.py"
     }
   },
   {
@@ -1096,7 +1307,7 @@
       },
       "note": "「把脚手架卖给同行」在国内成立，但国内开发者习惯用若依这类免费模板，一次性 ¥1400 的定价很难维持。技术栈也得换成 uni-app / SpringBoot 主流款。",
       "blocker": null,
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "solo_fit": {
       "score": 72.8,
@@ -1120,7 +1331,7 @@
       },
       "delivery_note": "数字商品，买完就走。零交付、零运维。",
       "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "composite": {
       "score": 66.2,
@@ -1132,8 +1343,10 @@
       "quadrant_label": "能做，但别在国内卖",
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
-      "scored_at": "2026-09-11"
-    }
+      "scored_at": "2026-09-17"
+    },
+    "tier": "premium",
+    "tier_reason": "有一手来源（stripe），按默认政策进精品池"
   },
   {
     "id": "trustmrr",
@@ -1235,7 +1448,7 @@
       },
       "note": "它的整个价值前提是「创始人愿意连 Stripe 只读 key 上榜」。国内既没有等价的支付网关生态，也没有大量做透明收入的独立开发者。国内确实没竞品，但那是因为没需求，不是没人想到。",
       "blocker": "核心机制无土壤",
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "solo_fit": {
       "score": 76.2,
@@ -1259,7 +1472,7 @@
       },
       "delivery_note": "纯信息展示站，没有交付。",
       "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "composite": {
       "score": 55.8,
@@ -1271,8 +1484,10 @@
       "quadrant_label": "能做，但别在国内卖",
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
-      "scored_at": "2026-09-11"
-    }
+      "scored_at": "2026-09-17"
+    },
+    "tier": "premium",
+    "tier_reason": "有一手来源（official），按默认政策进精品池"
   },
   {
     "id": "comp-ai",
@@ -1283,7 +1498,7 @@
     "category": "企业服务",
     "industry": "安全合规",
     "status": "curated",
-    "verification": "stripe",
+    "verification": "partial",
     "metrics": {
       "headline": "近 30 天 $540K（该数据集中最高）",
       "mrr": 12000,
@@ -1338,7 +1553,7 @@
       }
     ],
     "verified_at": "2026-09-11",
-    "updated_at": "2026-09-11",
+    "updated_at": "2026-09-17",
     "tags": [
       "合规刚需",
       "服务化软件",
@@ -1369,7 +1584,7 @@
       },
       "note": "检查项要整个换掉：国内客户要的是等保 2.0、密评，不是 SOC 2 / ISO 27001。产品逻辑（把六个月流程压到几周）可以平移，但知识库要重写，而且这门生意本身需要资质背书。",
       "blocker": null,
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "solo_fit": {
       "score": 58.3,
@@ -1393,7 +1608,7 @@
       },
       "delivery_note": "合规审计结论要有资质背书，客户买的是「谁来签字」，不是工具。",
       "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "composite": {
       "score": 53.9,
@@ -1405,7 +1620,16 @@
       "quadrant_label": "别碰",
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
+    },
+    "tier": "backup",
+    "tier_reason": "没有一手来源，且质量分未达 60",
+    "verification_downgraded": {
+      "from": "stripe",
+      "to": "partial",
+      "reason": "声称「支付网关验证」，但登记的来源只有 review，够不到这个等级。按证据把它降到「口径待核」。",
+      "at": "2026-09-17",
+      "tool": "scripts/audit_evidence.py"
     }
   },
   {
@@ -1417,7 +1641,7 @@
     "category": "营销工具",
     "industry": "内容与可见性优化",
     "status": "curated",
-    "verification": "stripe",
+    "verification": "partial",
     "metrics": {
       "headline": "$53K MRR",
       "mrr": 53000,
@@ -1466,7 +1690,7 @@
       }
     ],
     "verified_at": "2026-09-11",
-    "updated_at": "2026-09-11",
+    "updated_at": "2026-09-17",
     "tags": [
       "新渠道套利",
       "品类命名",
@@ -1497,7 +1721,7 @@
       },
       "note": "国内最接近真空的一条。把监测对象从 ChatGPT / Perplexity 换成豆包、DeepSeek、文心、夸克即可，产品骨架不用动。营销预算本来就存在——销售不用教育预算，只要教育方向。风险是这个品类寄生在第三方 AI 产品的黑盒上，规则随时会变。",
       "blocker": null,
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "solo_fit": {
       "score": 66.6,
@@ -1521,7 +1745,7 @@
       },
       "delivery_note": "纯 SaaS 自助，客户自己看报表。",
       "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "composite": {
       "score": 70.6,
@@ -1533,7 +1757,16 @@
       "quadrant_label": "有市场，但一个人啃不动",
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
+    },
+    "tier": "backup",
+    "tier_reason": "没有一手来源，且质量分未达 60",
+    "verification_downgraded": {
+      "from": "stripe",
+      "to": "partial",
+      "reason": "声称「支付网关验证」，但登记的来源只有 review，够不到这个等级。按证据把它降到「口径待核」。",
+      "at": "2026-09-17",
+      "tool": "scripts/audit_evidence.py"
     }
   },
   {
@@ -1545,7 +1778,7 @@
     "category": "AI 工具",
     "industry": "自由职业 / 外包平台",
     "status": "curated",
-    "verification": "stripe",
+    "verification": "partial",
     "metrics": {
       "headline": "$20,086 MRR",
       "mrr": 20086,
@@ -1595,7 +1828,7 @@
       }
     ],
     "verified_at": "2026-09-11",
-    "updated_at": "2026-09-11",
+    "updated_at": "2026-09-17",
     "tags": [
       "两人团队",
       "高客单",
@@ -1627,7 +1860,7 @@
       },
       "note": "它寄生在 Upwork / Fiverr 的招标数据上。国内没有对等平台（猪八戒的体量和数据结构差太远），等于要重找数据源 + 重教用户，而自由职业者在国内的付费能力本来就薄。",
       "blocker": null,
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "solo_fit": {
       "score": 76.9,
@@ -1651,7 +1884,7 @@
       },
       "delivery_note": "数据订阅，只需定期维护采集管道。",
       "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "composite": {
       "score": 60.8,
@@ -1663,7 +1896,16 @@
       "quadrant_label": "能做，但别在国内卖",
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
+    },
+    "tier": "backup",
+    "tier_reason": "没有一手来源，且质量分未达 60",
+    "verification_downgraded": {
+      "from": "stripe",
+      "to": "partial",
+      "reason": "声称「支付网关验证」，但登记的来源只有 review，够不到这个等级。按证据把它降到「口径待核」。",
+      "at": "2026-09-17",
+      "tool": "scripts/audit_evidence.py"
     }
   },
   {
@@ -1675,7 +1917,7 @@
     "category": "AI 工具",
     "industry": "广告创意 / UGC 视频",
     "status": "curated",
-    "verification": "stripe",
+    "verification": "partial",
     "metrics": {
       "headline": "$65,843 MRR",
       "mrr": 65843,
@@ -1729,7 +1971,7 @@
       }
     ],
     "verified_at": "2026-09-11",
-    "updated_at": "2026-09-11",
+    "updated_at": "2026-09-17",
     "tags": [
       "一人公司",
       "广告素材",
@@ -1760,7 +2002,7 @@
       },
       "note": "需求端最硬的一条：电商卖家的素材消耗是每天的、能算 ROI 的，国内盘子全球最大。代价是正面红海——剪映、即梦这类免费工具就在旁边。而且原产品 MoM 增长已经掉到 0%，说明光靠「能生成」没有壁垒，得往「投后数据反馈」那一步走。",
       "blocker": null,
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "solo_fit": {
       "score": 56.2,
@@ -1784,7 +2026,7 @@
       },
       "delivery_note": "SaaS 自助，但生成质量偶尔要人工兜底，留一点人力。",
       "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "composite": {
       "score": 60.1,
@@ -1796,7 +2038,16 @@
       "quadrant_label": "有市场，但一个人啃不动",
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
+    },
+    "tier": "backup",
+    "tier_reason": "没有一手来源，且质量分未达 60",
+    "verification_downgraded": {
+      "from": "stripe",
+      "to": "partial",
+      "reason": "声称「支付网关验证」，但登记的来源只有 review，够不到这个等级。按证据把它降到「口径待核」。",
+      "at": "2026-09-17",
+      "tool": "scripts/audit_evidence.py"
     }
   },
   {
@@ -1886,7 +2137,7 @@
       },
       "note": "付费方很明确（装修公司、设计院、软装工作室），这类客户习惯为「出图效率」掏钱；小红书就是天然的获客池，获客话术也现成。压力来自酷家乐、三维家，但它们主打全屋定制，渲染这个细分仍有余地（D5 Render 就是国内团队做起来的）。",
       "blocker": null,
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "solo_fit": {
       "score": 80.3,
@@ -1910,7 +2161,7 @@
       },
       "delivery_note": "渲染服务自助化，出图不满意客户会来找，但不算重人力。",
       "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "composite": {
       "score": 79.3,
@@ -1922,8 +2173,10 @@
       "quadrant_label": "可以开干",
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
-      "scored_at": "2026-09-11"
-    }
+      "scored_at": "2026-09-17"
+    },
+    "tier": "backup",
+    "tier_reason": "没有一手来源，且质量分未达 60"
   },
   {
     "id": "checkvibe",
@@ -2012,7 +2265,7 @@
       },
       "note": "本地化成本几乎为零——安全工具本身不看国界，代码一改就能跑。但卡点全在需求端：国内开发者对安全工具几乎不付费，企业采购又走传统安全厂商渠道。赛道是空的，钱包也是空的。",
       "blocker": "需求端薄",
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "solo_fit": {
       "score": 65.9,
@@ -2036,7 +2289,7 @@
       },
       "delivery_note": "工具型产品，跑完出报告，没有交付环节。",
       "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "composite": {
       "score": 67.0,
@@ -2048,8 +2301,10 @@
       "quadrant_label": "有市场，但一个人啃不动",
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
-      "scored_at": "2026-09-11"
-    }
+      "scored_at": "2026-09-17"
+    },
+    "tier": "backup",
+    "tier_reason": "没有一手来源，且质量分未达 60"
   },
   {
     "id": "storyshort-ai",
@@ -2144,7 +2399,7 @@
       },
       "note": "国内这条赛道已经打成一锅粥（剪映、腾讯智影、一帧秒创……），大厂产品还免费。除非切一个极窄的场景（比如只做跨境电商的 TikTok 素材），否则没有生存空间。",
       "blocker": null,
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "solo_fit": {
       "score": 73.1,
@@ -2168,7 +2423,7 @@
       },
       "delivery_note": "自助生成，人工介入很少。",
       "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "composite": {
       "score": 65.9,
@@ -2180,8 +2435,10 @@
       "quadrant_label": "能做，但别在国内卖",
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
-      "scored_at": "2026-09-11"
-    }
+      "scored_at": "2026-09-17"
+    },
+    "tier": "backup",
+    "tier_reason": "没有一手来源，且质量分未达 60"
   },
   {
     "id": "meerkats-ai",
@@ -2278,13 +2535,13 @@
       },
       "note": "它的核心动作是「找线索 → 自动外呼 → 个性化触达」，在国内直接撞《个人信息保护法》和骚扰电话治理。改成「只做存量客户的私域跟进」是能合法做，但那就不是这个产品了。",
       "blocker": "自动化触达合规",
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "solo_fit": {
       "score": 47.2,
       "raw": 13.7,
       "max_raw": 29.0,
-      "rank": 20,
+      "rank": 21,
       "medal": null,
       "dims": {
         "build": 2,
@@ -2302,7 +2559,7 @@
       },
       "delivery_note": "自动外呼要呼叫基础设施 + 合规审核 + 话术迭代，而且出问题要有人兜。",
       "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "composite": {
       "score": 47.9,
@@ -2314,8 +2571,10 @@
       "quadrant_label": "别碰",
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
-      "scored_at": "2026-09-11"
-    }
+      "scored_at": "2026-09-17"
+    },
+    "tier": "backup",
+    "tier_reason": "没有一手来源，且质量分未达 60"
   },
   {
     "id": "coral",
@@ -2326,7 +2585,7 @@
     "category": "开发者工具",
     "industry": "AI agent 部署",
     "status": "curated",
-    "verification": "stripe",
+    "verification": "partial",
     "metrics": {
       "headline": "$3,150 MRR",
       "mrr": 3150,
@@ -2375,7 +2634,7 @@
       }
     ],
     "verified_at": "2026-09-11",
-    "updated_at": "2026-09-11",
+    "updated_at": "2026-09-17",
     "tags": [
       "配置即产品",
       "开发者工具",
@@ -2406,7 +2665,7 @@
       },
       "note": "技术通用，改造成本不高。但国内已有 Dify、BISHENG、FastGPT 等开源方案，云厂商也在做托管，而且这类工具在国内很难直接收订阅费——用户会选自部署。",
       "blocker": null,
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "solo_fit": {
       "score": 72.4,
@@ -2430,7 +2689,7 @@
       },
       "delivery_note": "开源可自部署，售后被社区分担。",
       "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "composite": {
       "score": 68.1,
@@ -2442,7 +2701,16 @@
       "quadrant_label": "能做，但别在国内卖",
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
+    },
+    "tier": "backup",
+    "tier_reason": "没有一手来源，且质量分未达 60",
+    "verification_downgraded": {
+      "from": "stripe",
+      "to": "partial",
+      "reason": "声称「支付网关验证」，但登记的来源只有 review，够不到这个等级。按证据把它降到「口径待核」。",
+      "at": "2026-09-17",
+      "tool": "scripts/audit_evidence.py"
     }
   },
   {
@@ -2454,7 +2722,7 @@
     "category": "开发者工具",
     "industry": "AI agent 托管",
     "status": "curated",
-    "verification": "stripe",
+    "verification": "partial",
     "metrics": {
       "headline": "$1,619 MRR",
       "mrr": 1619,
@@ -2502,7 +2770,7 @@
       }
     ],
     "verified_at": "2026-09-11",
-    "updated_at": "2026-09-11",
+    "updated_at": "2026-09-17",
     "tags": [
       "onboarding即护城河",
       "开发者工具",
@@ -2533,7 +2801,7 @@
       },
       "note": "卖点是「省掉配 API key 这一步」，但国内用户可以直接用 Coze、百炼，连注册都省了。这个差异点在国内不成立。",
       "blocker": null,
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "solo_fit": {
       "score": 72.4,
@@ -2557,7 +2825,7 @@
       },
       "delivery_note": "托管平台，自助开通。",
       "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "composite": {
       "score": 60.2,
@@ -2569,7 +2837,16 @@
       "quadrant_label": "能做，但别在国内卖",
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
+    },
+    "tier": "backup",
+    "tier_reason": "没有一手来源，且质量分未达 60",
+    "verification_downgraded": {
+      "from": "stripe",
+      "to": "partial",
+      "reason": "声称「支付网关验证」，但登记的来源只有 review，够不到这个等级。按证据把它降到「口径待核」。",
+      "at": "2026-09-17",
+      "tool": "scripts/audit_evidence.py"
     }
   },
   {
@@ -2666,7 +2943,7 @@
       },
       "note": "需求永续（获客是刚需），而且这类工具能自举获客——自己就是 SEO 工具。但整套逻辑围绕 Google 转，搬到国内要重做百度 / 搜狗 / 抖音搜索的规则，而且国内 SEO 服务已经很卷。",
       "blocker": null,
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "solo_fit": {
       "score": 69.0,
@@ -2690,7 +2967,7 @@
       },
       "delivery_note": "SaaS 自助。",
       "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "composite": {
       "score": 69.5,
@@ -2702,8 +2979,10 @@
       "quadrant_label": "有市场，但一个人啃不动",
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
-      "scored_at": "2026-09-11"
-    }
+      "scored_at": "2026-09-17"
+    },
+    "tier": "backup",
+    "tier_reason": "没有一手来源，且质量分未达 60"
   },
   {
     "id": "marc-lou-portfolio",
@@ -2808,7 +3087,7 @@
       },
       "note": "策略本身通用（多下注、快淘汰），但前提是「5 分钟接好 Stripe 就能开始收钱」。国内接支付要营业执照、要审核、要对接微信支付宝，试错成本高一个量级。「三年发 25 个产品」的打法在国内非常吃力。",
       "blocker": "支付基础设施",
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "solo_fit": {
       "score": 76.2,
@@ -2832,7 +3111,7 @@
       },
       "delivery_note": "全是数字产品和轻 SaaS，天然无交付。",
       "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "composite": {
       "score": 66.0,
@@ -2844,8 +3123,10 @@
       "quadrant_label": "能做，但别在国内卖",
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
-      "scored_at": "2026-09-11"
-    }
+      "scored_at": "2026-09-17"
+    },
+    "tier": "premium",
+    "tier_reason": "有一手来源（stripe），按默认政策进精品池"
   },
   {
     "id": "bustem",
@@ -2940,7 +3221,7 @@
       },
       "note": "国内售假治理的需求真实存在（品牌方每年花大钱），而且这个领域的时机门槛最低（原案例 timing = 1）。要懂的是淘宝 / 拼多多的投诉规则和平台关系——这是能攒的经验，不是拿不到的牌照。",
       "blocker": null,
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "solo_fit": {
       "score": 71.0,
@@ -2964,7 +3245,7 @@
       },
       "delivery_note": "投诉流程可以自动化，但平台申诉要按规则人工调整策略。",
       "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "composite": {
       "score": 71.1,
@@ -2976,8 +3257,10 @@
       "quadrant_label": "可以开干",
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
-      "scored_at": "2026-09-11"
-    }
+      "scored_at": "2026-09-17"
+    },
+    "tier": "premium",
+    "tier_reason": "有一手来源（stripe），按默认政策进精品池"
   },
   {
     "id": "kibu",
@@ -3073,13 +3356,13 @@
       },
       "note": "整套系统长在美国 Medicaid 的报销体系上，国内对应的残联 / 托养机构监管和结算逻辑完全不同，等于从头做一遍，而且这类客户要极深的行业关系。",
       "blocker": null,
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "solo_fit": {
       "score": 41.4,
       "raw": 12.0,
       "max_raw": 29.0,
-      "rank": 22,
+      "rank": 23,
       "medal": null,
       "dims": {
         "build": 2,
@@ -3097,20 +3380,22 @@
       },
       "delivery_note": "客户是机构，采购要走关系、走评审，还要有人驻场培训。",
       "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "composite": {
       "score": 42.1,
       "solo": 41.4,
       "china": 44.9,
-      "rank": 22,
+      "rank": 23,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
-      "scored_at": "2026-09-11"
-    }
+      "scored_at": "2026-09-17"
+    },
+    "tier": "premium",
+    "tier_reason": "有一手来源（stripe），按默认政策进精品池"
   },
   {
     "id": "pieter-levels",
@@ -3202,7 +3487,7 @@
       },
       "note": "Photo AI 这类可以平移，但 Nomad List / Remote OK 建立在「全球数字游民」这个概念上，国内市场很小。同样受制于支付基础设施。",
       "blocker": "支付基础设施",
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "solo_fit": {
       "score": 72.8,
@@ -3226,7 +3511,7 @@
       },
       "delivery_note": "Photo AI 这类纯自助，付钱即用。",
       "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
-      "scored_at": "2026-09-11"
+      "scored_at": "2026-09-17"
     },
     "composite": {
       "score": 63.0,
@@ -3238,7 +3523,9 @@
       "quadrant_label": "能做，但别在国内卖",
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
-      "scored_at": "2026-09-11"
-    }
+      "scored_at": "2026-09-17"
+    },
+    "tier": "backup",
+    "tier_reason": "没有一手来源，且质量分未达 60"
   }
 ]

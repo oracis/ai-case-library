@@ -23,7 +23,8 @@
       "price": "$2.5",
       "multiple": "3.6x",
       "category": "Revenue"
-    }
+    },
+    "source_kind": "verified"
   },
   {
     "id": "cliptude",
@@ -41,7 +42,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/cliptude",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "verified"
   },
   {
     "id": "glowy",
@@ -59,7 +61,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/glowy",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "verified"
   },
   {
     "id": "one-aminos-llc",
@@ -77,7 +80,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/one-aminos-llc",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "verified"
   },
   {
     "id": "claudekit",
@@ -95,7 +99,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/claudekit-1",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "verified"
   },
   {
     "id": "ux-magic-inc",
@@ -113,7 +118,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/ux-magic-inc",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "verified"
   },
   {
     "id": "i-built-indieroadmaps-a-simple-roadmap-builder-for-indie-hackers",
@@ -131,7 +137,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://indieroadmaps.com",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "remind-cards",
@@ -149,7 +156,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://news.ycombinator.com/item?id=49725821",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "agentbox",
@@ -167,7 +175,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/madarco/agentbox",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "tabmail-open-source-ai-email-for-thunderbird-and-iphone",
@@ -185,7 +194,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://tabmail.ai/",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "deiko",
@@ -203,7 +213,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://deiko.app/",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "blast-arena",
@@ -221,7 +232,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://kosmi.io/blast-arena/",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "fufu",
@@ -239,7 +251,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://tyler-johnson.github.io/fufu/",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "friday",
@@ -257,7 +270,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/itskie/friday",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "in-browser-sanskrit-asr-model",
@@ -275,7 +289,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://huggingface.co/gnumanth/sushrota-sanskrit-asr-onnx",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "trail-a-new-logic-game",
@@ -293,7 +308,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://trail.franzai.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "padwan-llm-a-lightweight-llm-python-client",
@@ -311,7 +327,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/polarsen-io/padwan-llm",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "a-game-where-the-level-is-whatever-web-page-you-re-on",
@@ -329,7 +346,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://page-rage.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "fail2zig-a-single-binary-fail2ban-replacement-written-in-zig",
@@ -347,7 +365,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://fail2zig.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "halo-3-s-guardian-playable-in-the-browser-as-my-personal-website",
@@ -365,7 +384,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://runboli.com",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "plexus",
@@ -383,7 +403,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://plexus.company",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "a-simple-mac-extension-for-recent-screenshots",
@@ -401,7 +422,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/KanishkVashisht/screenshot-shelf",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "interakt",
@@ -419,7 +441,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/alphasolutionsrepo/interakt",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "vending-machine-lab",
@@ -437,7 +460,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://vending-machine-lab.pages.dev/",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "unsnag",
@@ -455,7 +479,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://unsnag.app",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "hometowns",
@@ -473,7 +498,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://benaduggan.github.io/hometowns/",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "opencode-mentor",
@@ -491,7 +517,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/davejpeters/opencode-mentor",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "make-art-not-apps",
@@ -509,7 +536,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.makeartnotapps.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "kosmic-kart",
@@ -527,7 +555,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://kosmi.io/kosmic-kart/",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "fivetran-cli-is-released-to-beta",
@@ -545,7 +574,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://pypi.org/project/fivetran-cli/",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "collected-every-single-what-are-you-working-on-project-into-a-website",
@@ -563,7 +593,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://what-are-you-working-on-62u6b.reachpad.app/",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "learn-claude-code",
@@ -581,7 +612,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://mikenikles.com/blog/learn-claude-code",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "droidputter",
@@ -599,7 +631,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/fcavalcantirj/droidputter",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "helping-agents-break-out-of-their-sandboxes-in-a-monitorable-way",
@@ -617,7 +650,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://sparrowsystems.co/",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "mockfreeli",
@@ -635,7 +669,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://mockfreeli.org/",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "nullsec",
@@ -653,7 +688,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://nullsec.pntr.dev",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "hacker-news-a-little-more-focused",
@@ -671,7 +707,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://hn-tags.beehivesoftware.xyz/?tags=programming",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "fastrecall-ultra-cheap-memory-across-ai-models",
@@ -689,7 +726,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://fastrecall.ai/",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "spendalyst",
@@ -707,7 +745,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://app.spendalyst.com/demo",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "pqp-an-open-source-discord-alternative-with-watch-parties",
@@ -725,7 +764,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/rafaelcg/pqp",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "bineuron",
@@ -743,7 +783,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/just-not-google/BiNeuron/tree/main",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "echodot",
@@ -761,7 +802,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/ohkariku-boop/Echodot",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "quiet-field",
@@ -779,7 +821,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/Gary06868/QuietField",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "mealmacroai",
@@ -797,7 +840,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.mealmacroai.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "rossino",
@@ -815,7 +859,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://apps.apple.com/us/app/rossino-a-pomodoro-timer/id6797546201",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "agora",
@@ -833,7 +878,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/MerariJafet/agora",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "one-billion-checkboxes",
@@ -851,7 +897,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.kanishksachdev.com/blog/billion-checkboxes",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "custom-slash-commands-variables-and-snippets",
@@ -869,7 +916,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://chromewebstore.google.com/detail/text-expander-autofill-sl/jjeibagdcmgahjglbglpjcjilpaheeco",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "texio-reliable-markdown-operations-for-shell-scripts-and-ai-agents",
@@ -887,7 +935,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/Allra-Fintech/texio",
     "harvest_source": "hn",
-    "added_at": "2026-09-17"
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported"
   },
   {
     "id": "agenkit",
@@ -905,7 +954,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/agenkit",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "verified"
   },
   {
     "id": "vid-ai",
@@ -923,7 +973,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/vidai-llc",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "verified"
   },
   {
     "id": "indieroadmaps",
@@ -941,7 +992,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://indieroadmaps.com",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "pizza-bot",
@@ -959,7 +1011,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/pizza-bot-app/pizza-bot",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "paying-for-frontier-ai-models-buys-4-month-head-start-at-5x-the-cost",
@@ -977,7 +1030,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://arstechnica.com/ai/2026/09/exclusive-open-chinese-models-close-gap-with-silicon-valleys-frontier-ai-models/",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "an-e-ink-frame-that-hears-birds-and-draws-them-as-1800s-illustrations",
@@ -995,7 +1049,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/arnegiacomo/fugleramme",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "deadspeaker-inc",
@@ -1013,7 +1068,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://run.world/lthrjckrjckr/deadspeaker-inc",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "i-solved-a-12yr-math-problem-using-ai-formalized-awaiting-review-pdf",
@@ -1031,7 +1087,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://raw.githubusercontent.com/kbr-/math-research/3979e0cc0a75dde9b845df7ec8869d033dfcd8d4/publications/bit-php-resolution-over-parities/whitepaper.pdf",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "uplink",
@@ -1049,7 +1106,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://uplink.spot/",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "sass",
@@ -1067,7 +1125,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/zoosky/accent-sass",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "bitaxe-luck",
@@ -1085,7 +1144,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/ulrischa/bitaxe-luck",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "choreographed-algebra",
@@ -1103,7 +1163,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://0xb00.com",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "farseer-space",
@@ -1121,7 +1182,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://farseer.space/",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "seamless-pane-navigation-across-nested-tmux-sessions-over-ssh",
@@ -1139,7 +1201,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/klntsky/tmux-seamless-remote",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "inkling",
@@ -1157,7 +1220,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/MeetVys/inkling",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "clarveo",
@@ -1175,7 +1239,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://clarveo.app",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "honestsky-a-free-ios-weather-app-without-ads-or-subscriptions",
@@ -1193,7 +1258,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://apps.apple.com/us/app/honestsky-forecast-radar/id6760163384",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "deadlock-os",
@@ -1211,7 +1277,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.crazygames.com/game/deadlock-os-cvg",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "poems",
@@ -1229,7 +1296,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://35poems.wasmer.app/",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "filelever",
@@ -1247,7 +1315,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://filelever.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "open-source-tool-to-sell-your-claude-code-and-codex-sessions",
@@ -1265,7 +1334,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/cookiy-ai/sell-sessions-skill",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "agenttik",
@@ -1283,7 +1353,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/pausan/agenttik",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "plurnk-yet-another-ai-harness",
@@ -1301,7 +1372,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/plurnk/plurnk",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "biom",
@@ -1319,7 +1391,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.biom.dev/",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "a-chess-analyzer-that-runs-in-the-browser",
@@ -1337,7 +1410,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/huytd/whyblunder/",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "leo",
@@ -1355,7 +1429,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/alex-zaporozhan/leo",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "now-you-can-use",
@@ -1373,7 +1448,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://nowyoucanuse.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "thurbox",
@@ -1391,7 +1467,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/Thurbeen/thurbox",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "in-browser-wasm-engine",
@@ -1409,7 +1486,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://mlegal-pwa-app.web.app",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "review-agent-changes-locally-before-pushing",
@@ -1427,7 +1505,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/marcparadise/reviewer",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "whop-video-downloader",
@@ -1445,7 +1524,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://chromewebstore.google.com/detail/whop-video-downloader/aijaloilljdgamclcoababimlnahoemm",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "breakdown",
@@ -1463,7 +1543,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://breakdown.today",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "alter-native-linux-builder-for-nix-on-darwin",
@@ -1481,7 +1562,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/quinneden/alternative-linux-builder",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "writeably-cuts-the-waffle-without-losing-your-meaning-or-voice",
@@ -1499,7 +1581,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://writeably.com/write",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "graft",
@@ -1517,7 +1600,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/AEndrix03/Graft",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "seasearch",
@@ -1535,7 +1619,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/seacloud-lab/seasearch",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "circle-crop-image",
@@ -1553,7 +1638,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://circlecropimage.dev",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "ukodus",
@@ -1571,7 +1657,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://ukodus.now/",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "respawn",
@@ -1589,7 +1676,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/savageAZfck/respawn",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "zentabtimer-an-html-timer-where-browser-favicon-is-the-timer",
@@ -1607,7 +1695,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/kevinpondmind/ZenTabTimer",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "context-freshness-ledger",
@@ -1625,7 +1714,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/chengyixu/context-freshness-ledger",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "2049",
@@ -1643,7 +1733,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/skorotkiewicz/2049",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "forcepush",
@@ -1661,7 +1752,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://forcepush.fit/",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "open-source-tab-and-bookmark-organizer-for-chrome-and-edge",
@@ -1679,7 +1771,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/ringlochid/leotabs",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "glu",
@@ -1697,7 +1790,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://glu.run/",
     "harvest_source": "hn",
-    "added_at": "2026-09-16"
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported"
   },
   {
     "id": "murmur-private-unlimited-text-to-speech-for-apple-silicon",
@@ -1715,7 +1809,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/private-enterprise-14",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "verified"
   },
   {
     "id": "clearwell",
@@ -1733,7 +1828,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/clearwell",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "verified"
   },
   {
     "id": "fluidify",
@@ -1751,7 +1847,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.fluidify.org/map",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "100-player-online-smash-bros",
@@ -1769,7 +1866,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://meleeroyale.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "typed-agent-memory-with-corrections-and-history",
@@ -1787,7 +1885,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/Polign/recall",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "cliparr-2-0",
@@ -1805,7 +1904,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://cliparr.dev/blog/cliparr-2-0-release/",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "rent-vs-buy-calculator-that-shows-two-different-break-even-years",
@@ -1823,7 +1923,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://smart-calculators.net/en-US/tools/rent-vs-buy",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "kario",
@@ -1841,7 +1942,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.karioai.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "serverside-chat",
@@ -1859,7 +1961,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/bwasti/serverside.chat",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "i-built-a-browser-native-agent-for-automating-job-application-forms",
@@ -1877,7 +1980,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/maazkhanxo/jobeasyapply-linkedin-auto-apply",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "clevercrow-get-paid-to-work-your-backlog",
@@ -1895,7 +1999,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://clevercrow.io",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "zksm83-a-zk-proof-system-for-gameboy-cpu-execution",
@@ -1913,7 +2018,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/RyanKung/zksm83",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "mcuhex",
@@ -1931,7 +2037,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://mcuhex.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "slowave",
@@ -1949,7 +2056,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/slowave-ai/slowave",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "build2me",
@@ -1967,7 +2075,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/shitianfang/build2me",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "pull-every-comment-out-of-a-google-sheet-in-the-browser",
@@ -1985,7 +2094,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://bensunter.com/commentpulse.html",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "local-historical-wind-and-gust-visualizer",
@@ -2003,7 +2113,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://tamtamhero.github.io/localwind/",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "free-tool-to-check-how-chatgpt-and-perplexity-rank-your-brand",
@@ -2021,7 +2132,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://ukaiseoconsultant.co.uk/ai-driven-seo-audits/",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "closebytes",
@@ -2039,7 +2151,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://closebytes.com",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "direct-sql-access-to-your-quickbooks-data",
@@ -2057,7 +2170,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://instabooks.io/docs/db",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "trackd",
@@ -2075,7 +2189,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://trackd.deanware.com",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "deslop-your-ts-codebases",
@@ -2093,7 +2208,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/maharshi365/deslop",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "do-not-build-measure-a-software-market-before-you-build-in-it",
@@ -2111,7 +2227,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://donotbuild.com/verdicts",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "devrecap",
@@ -2129,7 +2246,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/jquinteiroo/devrecap",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "videohighlighter",
@@ -2147,7 +2265,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/Aseiel/VideoHighlighter",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "reqlan",
@@ -2165,7 +2284,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://reqlan.com",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "learn-crispr-in-3d-in-any-language",
@@ -2183,7 +2303,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://viewer.10k.science/",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "nowdex",
@@ -2201,7 +2322,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://nowdex.app/",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "macros-with-a-behringer-fcb1010-midi-pedalboard-in-macos",
@@ -2219,7 +2341,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/JamesRyanATX/fcbnerd",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "an-open-source-control-plane-for-your-company-s-ai-agents",
@@ -2237,7 +2360,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/vstorm-co/agenticos",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "chess-cheater-detector",
@@ -2255,7 +2379,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://chesscheaterdetector.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "hazzel",
@@ -2273,7 +2398,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/mukundzha/hazzel",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "pi-box",
@@ -2291,7 +2417,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/deepclause/pi-box",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "superopt",
@@ -2309,7 +2436,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://logonoff.co/superopt/",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "oversold-com",
@@ -2327,7 +2455,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://oversold.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "day-week-calendar-app-inspired-by-the-french-revolutionary-calendar",
@@ -2345,7 +2474,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/OlegIGalkin/tendayweekcalendar",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "daemon-os",
@@ -2363,7 +2493,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://daemon-os.lebarionellison.workers.dev",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "karmit",
@@ -2381,7 +2512,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://karmit.co/",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "analyzed-400-routes-and-driving-a-tesla-beats-flying-65-of-the-time",
@@ -2399,7 +2531,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://flyortesla.com/insights",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "the-web-is-dead-keep-this-app-alive",
@@ -2417,7 +2550,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://longlivethis.site",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "white-label-ai-voice-and-chat-agent-platform-for-resellers",
@@ -2435,7 +2569,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.famulor.io/whitelabel",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "chronicle",
@@ -2453,7 +2588,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://pazvanti.github.io/Chronicle/",
     "harvest_source": "hn",
-    "added_at": "2026-09-15"
+    "added_at": "2026-09-15",
+    "source_kind": "self_reported"
   },
   {
     "id": "krilup",
@@ -2471,7 +2607,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/krilup",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "verified"
   },
   {
     "id": "zerano-club",
@@ -2489,7 +2626,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/zerano-club",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "verified"
   },
   {
     "id": "magnetic",
@@ -2507,7 +2645,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/magnetic-1",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "verified"
   },
   {
     "id": "glimora",
@@ -2525,7 +2664,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/glimora",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "verified"
   },
   {
     "id": "halo",
@@ -2543,7 +2683,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/halo-1",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "verified"
   },
   {
     "id": "reclaim",
@@ -2561,7 +2702,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/reclaim",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "verified"
   },
   {
     "id": "myhair-ai",
@@ -2579,7 +2721,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/hair-ai",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "verified"
   },
   {
     "id": "neume",
@@ -2597,7 +2740,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/neume",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "verified"
   },
   {
     "id": "trade-hunterr",
@@ -2615,7 +2759,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/trade-hunterr",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "verified"
   },
   {
     "id": "plainoldanalytics",
@@ -2633,7 +2778,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/poundifdef/plainoldanalytics",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "below-the-root-1984-game-ported-to-javascript",
@@ -2651,7 +2797,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://below-the-root.saul.pw",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "free-domain-monitoring-through-echelongraph-io",
@@ -2669,7 +2816,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://news.ycombinator.com/item?id=49690102",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "looking-for-co-founder-in-the-consumer-app-space",
@@ -2687,7 +2835,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://news.ycombinator.com/item?id=49692009",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "agentspork-agents-help-agents-humans-touch-grass",
@@ -2705,7 +2854,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://agentspork.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "makefaster-dev",
@@ -2723,7 +2873,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://makefaster.dev",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "an-agent-that-calculates-how-energy-levels-affect-your-goal-progression",
@@ -2741,7 +2892,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.youtube.com/watch?v=FVUH2mna41g",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "sengi-ai",
@@ -2759,7 +2911,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://sengi.ai/",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "pinocchio",
@@ -2777,7 +2930,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://pinocchio.goedelmachines.com",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "kibble",
@@ -2795,7 +2949,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.kibblebites.com/app/",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "exende",
@@ -2813,7 +2968,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.exende.dev",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "railo",
@@ -2831,7 +2987,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.railo.dev",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "one-year-in-making-private-colleberative-html5-canvas-based-editor",
@@ -2849,7 +3006,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.tasfer.app/en/",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "vibeworld",
@@ -2867,7 +3025,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/SorBalda/vibeworld",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "credit-against-tokenised-stocks-for-agents-punish-us-please",
@@ -2885,7 +3044,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://vaaya.ai/credit-against-securities-for-agents",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "clientcoded",
@@ -2903,7 +3063,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://clientcoded.com/environments",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "vehla",
@@ -2921,7 +3082,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://vehla.app/",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "opine-a-public-polling-website-with-maps",
@@ -2939,7 +3101,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://opinepolls.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "i-made-an-automated-day-by-day-itinerary-organizer-for-my-trip-to-spain",
@@ -2957,7 +3120,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://petrelvoyage.com/app",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "swobu",
@@ -2975,7 +3139,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/swobuforge/swobu",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "switcheroo",
@@ -2993,7 +3158,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://news.ycombinator.com/item?id=49689491",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "dep-radius-know-which-dependency-updates-touch-your-code",
@@ -3011,7 +3177,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.npmjs.com/package/dep-radius",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "demorta",
@@ -3029,7 +3196,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://demorta.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "spikeforge",
@@ -3047,7 +3215,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://spikeforge.net/",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "exploring-the-intersection-of-prediction-markets-and-social-media",
@@ -3065,7 +3234,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.thevidmarket.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "dllog",
@@ -3083,7 +3253,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/arhuman/dllog",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "bipluk-open-source-browser-web-midi-librarian-for-vintage-synthesizers",
@@ -3101,7 +3272,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/maxcomperatore/bipluk.com",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "paperflip",
@@ -3119,7 +3291,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://apps.apple.com/us/app/paperflip/id6807705987",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "kairo",
@@ -3137,7 +3310,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/peter941221/Kairo",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "imageaicraft",
@@ -3155,7 +3329,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://imageaicraft.com",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "sanehosts",
@@ -3173,7 +3348,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://sanehosts.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "replay",
@@ -3191,7 +3367,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://replay.doctor/",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "roled",
@@ -3209,7 +3386,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/roledio/roled",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "agent-avatar-generator",
@@ -3227,7 +3405,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://botbin.io/2fu56d",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "sutradb-v2-1",
@@ -3245,7 +3424,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://pypi.org/project/sutradb-core/",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "found-a-platform-which-is-changing-how-games-are-sold",
@@ -3263,7 +3443,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://support.3dimli.com/games-license-integration",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "3dbae-is-changing-the-game-of-real-time-ai-renddering",
@@ -3281,7 +3462,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://3dbae.com",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "i-was-frustrated-with-ai-giving-confident-answer-even-when-it-was-wrong",
@@ -3299,7 +3481,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://demo.aqqai.in",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "kepil",
@@ -3317,7 +3500,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/oleg-vdv/kepil",
     "harvest_source": "hn",
-    "added_at": "2026-09-14"
+    "added_at": "2026-09-14",
+    "source_kind": "self_reported"
   },
   {
     "id": "myplots",
@@ -3335,7 +3519,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/myplots",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "verified"
   },
   {
     "id": "subsweep",
@@ -3353,7 +3538,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.subsweep.com.au",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "forma-onnx-graph-viewer-and-editor",
@@ -3371,7 +3557,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/Hussain004/forma",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "weftgate-a-local-verification-gate-for-coding-agents",
@@ -3389,7 +3576,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/Avinash-Amudala/weftgate",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "fly-or-tesla",
@@ -3407,7 +3595,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://flyortesla.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "how-llms-work-explained-through-music-football-or-cricket-analogies",
@@ -3425,7 +3614,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://understand-ai.dev/",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "run-coding-agents-on-your-own-machine-steer-them-from-anywhere",
@@ -3443,7 +3633,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/phyra-research/roamux",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "pdf-pocket-tools",
@@ -3461,7 +3652,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://pdfpockettools.itch.io/pdf-pocket-tools",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "proofofdonation-replace-captchas-with-charity-donations",
@@ -3479,7 +3671,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/mgriley/proof-of-donation/",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "nearby-places-ranked-by-quality-score-not-ads",
@@ -3497,7 +3690,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://realnear.app/",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "stxt-indentation-based-format-with-schemas-and-no-escape-characters",
@@ -3515,7 +3709,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://stxt.dev/",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "a-museum-of-source-code-in-rooms-you-can-walk-through",
@@ -3533,7 +3728,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.programmingmuseum.com",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "ai-music-generator-ios-macos-musicx",
@@ -3551,7 +3747,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/musicx",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "verified"
   },
   {
     "id": "gitskins",
@@ -3569,7 +3766,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/gitskins",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "verified"
   },
   {
     "id": "getastrothemes",
@@ -3587,7 +3785,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/getastrothemes",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "verified"
   },
   {
     "id": "lima",
@@ -3605,7 +3804,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/lima",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "verified"
   },
   {
     "id": "orion-ai-solutions-inc",
@@ -3623,7 +3823,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/orion-ai-solutions-inc",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "verified"
   },
   {
     "id": "sharp-face-scan-skincare",
@@ -3641,7 +3842,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/sharp",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "verified"
   },
   {
     "id": "i-built-a-harness-and-now-it-is-my-daily-driver-for-local-agents",
@@ -3659,7 +3861,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/mrsirg97-rgb/rig",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "wlmoves",
@@ -3677,7 +3880,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/skorotkiewicz/wlmoves",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "ember",
@@ -3695,7 +3899,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://playember.gg/",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "stackray",
@@ -3713,7 +3918,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://stackray.app",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "i-use-airpods-as-wireless-imus-to-track-discs-bowling-balls-and-runs",
@@ -3731,7 +3937,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://kinapod.com/technology",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "ai-powered-word-guessing-game",
@@ -3749,7 +3956,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://synapse.akshayr.xyz/",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "termique-an-ssh-client-where-the-server-can-t-read-your-credentials",
@@ -3767,7 +3975,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://termique.app/",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "lab",
@@ -3785,7 +3994,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://labstudio.tech",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "statehunter-and-auditguard",
@@ -3803,7 +4013,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://codeandcypher.com/posts/client-side-spa-recon-and-safe-harbor-verification/",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "come-prove-the-berge-fulkerson-conjecture-with-a-swarm-of-agents",
@@ -3821,7 +4032,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://provetogether.ai/problems/15",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "simtower-decompiled-rewritten-and-in-the-browser",
@@ -3839,7 +4051,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://kvetch.io/conciliatower/",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "redis-city",
@@ -3857,7 +4070,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://poltora.dev/redis",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "picobble",
@@ -3875,7 +4089,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://picobble.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "an-independent-directory-of-ai-misalignment-reports",
@@ -3893,7 +4108,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://misalignment.xyz/",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "opentracker-an-open-source-pivotal-tracker",
@@ -3911,7 +4127,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/usero-feedback/opentracker",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "vibe-logic-programming-language",
@@ -3929,7 +4146,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://cosmos-language-lab-0819.asd-user56.chatgpt.site/",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "sill",
@@ -3947,7 +4165,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://ptthe13.github.io/sill/",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "what-if-donut-c-but-with-any-ascii-art",
@@ -3965,7 +4184,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://asdesai.com/blog/how-fetch-works/",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "no-human",
@@ -3983,7 +4203,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/no-human-ai/no_human",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "give-claude-code-cursor-a-real-eng-team-tiers-roles-escalation",
@@ -4001,7 +4222,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/khuynh22/agent-dev-team",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "open-sourced-solution-to-ai-manage-playwright-automations",
@@ -4019,7 +4241,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/rakutentech/sorify",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "pdfidelity",
@@ -4037,7 +4260,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.pdfidelity.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "yazses",
@@ -4055,7 +4279,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/MSKazemi/yazses",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "everything-a-web-page-can-learn-about-you-in-plain-english",
@@ -4073,7 +4298,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://sessioncontext.org",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "lumae-native-macos-screen-demo-recorder-that-agents-can-edit-over-mcp",
@@ -4091,7 +4317,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://lumae.app",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "a-technical-book-for-the-age-of-ai",
@@ -4109,7 +4336,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://codeberg.org/juurej/p4cu",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "disktriage",
@@ -4127,7 +4355,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/ricardoborges/DiskTriage",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "most-penalized-hn-stories",
@@ -4145,7 +4374,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://news.social-protocols.org/penalties",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "hindsight",
@@ -4163,7 +4393,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/brishtiteveja/hindsight",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "objo-studio-a-modern-visual-rad-ide-for-desktop-and-web",
@@ -4181,7 +4412,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://objo.dev",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "rust-split",
@@ -4199,7 +4431,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://news.ycombinator.com/item?id=49671509",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "chess960v2-com",
@@ -4217,7 +4450,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://chess960v2.com/en",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "earthtopixels",
@@ -4235,7 +4469,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.earthtopixels.com",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "practice-english-grammar-and-pronunciation-uses-azure-speech",
@@ -4253,7 +4488,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://marksdailyenglish.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "fleecevest",
@@ -4271,7 +4507,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/Websites-On-Computers/fleecevest",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "open-sourced-chrome-extension-to-save-organize-and-switch-bookmarks",
@@ -4289,7 +4526,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/ringlochid/leotabs",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "astah-pro-mcp",
@@ -4307,7 +4545,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/takaakit/astah-pro-mcp",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "aqqai",
@@ -4325,7 +4564,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://demo.aqqai.in",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "i-made-an-alternative-to-the-archived-filebrowser",
@@ -4343,7 +4583,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/skidoodle/filebrowser",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "the-iphone-duo-fold-effect-on-any-windows-laptop",
@@ -4361,7 +4602,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://winduo.baselashraf.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "sf-title-alert",
@@ -4379,7 +4621,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://sftitlealert.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "ai-rendering-in-realtime-at-3dbae",
@@ -4397,7 +4640,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.youtube.com/watch?v=Q9EZkVx-pws",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "words-of-hanoi",
@@ -4415,7 +4659,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://crux.quest/hanoi",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "the-hacker-who-took-3-998-btc-is-texting-blockstream-on-chain-live",
@@ -4433,7 +4678,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://liquidsaga.miguelmedeiros.dev",
     "harvest_source": "hn",
-    "added_at": "2026-09-13"
+    "added_at": "2026-09-13",
+    "source_kind": "self_reported"
   },
   {
     "id": "mental-bootstrapping-enables-human-level-learning-in-self-supervised-deep-models",
@@ -4451,7 +4697,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.science.org/doi/10.1126/sciadv.aea7202",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "nodehistj",
@@ -4469,7 +4716,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/oldzoomer-ru/nodehistj",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "menu-hub",
@@ -4487,7 +4735,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/Talljack/menu-hub/releases/tag/v0.1.5",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "don-t-hit-send",
@@ -4505,7 +4754,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/scalattice/dont-hit-send",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "myreader-inc",
@@ -4523,7 +4773,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/myreader-inc",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "verified"
   },
   {
     "id": "appalchemy",
@@ -4541,7 +4792,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/appalchemy",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "verified"
   },
   {
     "id": "dissectmac",
@@ -4559,7 +4811,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/dissectmac",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "verified"
   },
   {
     "id": "goodie-ai",
@@ -4577,7 +4830,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/goodie-ai",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "verified"
   },
   {
     "id": "soarly",
@@ -4595,7 +4849,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/soarly",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "verified"
   },
   {
     "id": "vanity-domain-generator",
@@ -4613,7 +4868,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://vanitydomain.net",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "1994-fm",
@@ -4631,7 +4887,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://1994.fm",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "quatchat-a-3d-imageboard-where-being-there-is-the-write-permission",
@@ -4649,7 +4906,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://quat.chat/",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "vm-1-a-raspberry-pi-5-based-videomixer-and-videoplayer",
@@ -4667,7 +4925,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://vm-1.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "termy",
@@ -4685,7 +4944,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/gioblu/NPC-Forge/blob/main/docs/development.md",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "ip-to-company-api",
@@ -4703,7 +4963,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://elioplus.com/ip-to-company-api",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "godot-and-rust-based-multiplexer-terminal-panes-and-more",
@@ -4721,7 +4982,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/godot-pty/gpty",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "subrust-a-no-std-no-alloc-subset-of-rust-interpreter",
@@ -4739,7 +5001,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/orbitalhigh/subrust",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "extension-to-filter-llm-written-articles",
@@ -4757,7 +5020,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://hnslop.nilsherzig.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "codenaturally-net-a-website-for-building-manual-programming-fluency",
@@ -4775,7 +5039,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://codenaturally.net",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "syntheticaidata",
@@ -4793,7 +5058,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://app.syntheticaidata.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "mcp-server-manager",
@@ -4811,7 +5077,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://kytto.jakubhecht.sk/",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "make-better-humans-and-race-them",
@@ -4829,7 +5096,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://race.darebuild.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "viaduct",
@@ -4847,7 +5115,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://c4.quietgridlabs.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "toast-a-beautiful-by-default-in-terminal-ide",
@@ -4865,7 +5134,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/paradise-runner/toast",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "minimal-static-website-hosting-tool",
@@ -4883,7 +5153,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/VictorioBerra/mistatic",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "research-ready-datasets-from-public-data-in-mins",
@@ -4901,7 +5172,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://mostlyright.md/datasets/kalshi-settlement-rules-and-sources-2026",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "keychron-macos-battery-life-and-controls",
@@ -4919,7 +5191,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/bkovacev/keychron-macos",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "mercator-vs-un-s-new-equal-earth-map-synced-side-by-side",
@@ -4937,7 +5210,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://newworldsize.com/old-vs-new-world-map/",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "sheet-insights-bi",
@@ -4955,7 +5229,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://sheet-insights.netlify.app/",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "systemfaardenge",
@@ -4973,7 +5248,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://systemfaardenge.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "i-built-a-hand-modeled-3d-windows-98-portfolio-with-three-js",
@@ -4991,7 +5267,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://wesselsdesktop.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "hacker-news-but-only-ai-news",
@@ -5009,7 +5286,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://allslop.news/",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "caffenol-a-darkroom-simulation-photo-editing-toy",
@@ -5027,7 +5305,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://caffenol.app/",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "jira-project-health-auditor-mcp-server",
@@ -5045,7 +5324,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/Avtandil-abu/jira-ai-auditor",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "pi-sync-syncs-your-pi-agent-configuration-across-hosts",
@@ -5063,7 +5343,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/say4n/pi-sync",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "package-your-compose-app-for-airgap-k8s",
@@ -5081,7 +5362,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/defenseunicorns/compose-bridge-uds",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "hungrygpu",
@@ -5099,7 +5381,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://hungrygpu.com",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "stroq",
@@ -5117,7 +5400,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://stroq.dev/",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "leagueoflegends-voice-assistant-and-context",
@@ -5135,7 +5419,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/sorena-ai/LeagueAiCoach",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "provetogether-moltbook-but-for-math",
@@ -5153,7 +5438,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://provetogether.ai/",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "revera",
@@ -5171,7 +5457,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/rv-crypto/revera-api/releases",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "a-new-safe-programming-language-for-llms-and-humans-to-collaborate",
@@ -5189,7 +5476,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://ulanguage.org/",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "resolvehq",
@@ -5207,7 +5495,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/mirza-rizvi/ResolveHQ",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "spanda",
@@ -5225,7 +5514,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/Adarshent/Spnda",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "loop-pedal-for-video",
@@ -5243,7 +5533,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/haxybaxy/video-pedal",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "claude-read-aloud",
@@ -5261,7 +5552,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/MichaelPGifford/claude-read-aloud",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "bypassing-transformer-softmax-via-static-contraction",
@@ -5279,7 +5571,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/PJHkorea/jax-softmax-bypass",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "clone-any-voice-from-a-short-audio-clip-and-generate-speech",
@@ -5297,7 +5590,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "http://npm.im/clone-voice",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "a-fruit-fly-connectome-playing-super-mario-bros-at-60-fps",
@@ -5315,7 +5609,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://kaarelkaarelson.github.io/fly-super-mario/",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "omagem",
@@ -5333,7 +5628,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/azzenabidi/OmaGem",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "graphify-c",
@@ -5351,7 +5647,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/zachsaw/graphify-csharp",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "fog-2-0",
@@ -5369,7 +5666,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://apps.apple.com/us/app/smart-notes-folders-fog/id6760272134",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "tui-markdown-reader-with-beeline-support",
@@ -5387,7 +5685,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/seymores/mdr",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "next-notes",
@@ -5405,7 +5704,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/spyhack225/next-notes",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "single-file-invoice-generator-that-works-in-the-browser",
@@ -5423,7 +5723,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://merlin-invoice-tool.surge.sh",
     "harvest_source": "hn",
-    "added_at": "2026-09-12"
+    "added_at": "2026-09-12",
+    "source_kind": "self_reported"
   },
   {
     "id": "browse-pc-parts-on-amazon-com-without-distractions",
@@ -5441,7 +5742,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://findpcpart.com/products?category_key=cpu",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "what-happened-to-14-229-launches-from-show-hn-yc-and-product-hunt",
@@ -5459,7 +5761,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.buildorskip.com",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "svetlana-chess-school",
@@ -5477,7 +5780,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/svetlana",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "verified"
   },
   {
     "id": "seeking-userfeedback",
@@ -5495,7 +5799,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://news.ycombinator.com/item?id=49195227",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "bootstrapping-enables-human-level-concept-learning-in-self-supervised-models",
@@ -5513,7 +5818,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.science.org/doi/10.1126/sciadv.aea7202",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "bootstrapping-mechanical-correctness",
@@ -5531,7 +5837,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://artagnon.com/art/regress",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "reversing-a-clickfix-malware-with-a-blockchain-based-c2",
@@ -5549,7 +5856,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/v-pun215/Tourmaline",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "foss-browser-based-visual-kegel-trainer-for-men",
@@ -5567,7 +5875,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://kegeltrainer.net/",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "jscpd-start-support-type2-type3-clones",
@@ -5585,7 +5894,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/kucherenko/jscpd",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "beautiful-markdown-rendering-in-your-terminal",
@@ -5603,7 +5913,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/spencerldixon/lime",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "can-t-afford-bloomberg-terminal-no-prob-i-built-the-next-best-thing",
@@ -5621,7 +5932,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/DidierRLopes/GamestonkTerminal",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "homebrew-6-0-0",
@@ -5639,7 +5951,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://brew.sh/2026/06/11/homebrew-6.0.0/",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "beeper-mini",
@@ -5657,7 +5970,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.beeper.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "airmash",
@@ -5675,7 +5989,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://airma.sh/",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "i-m-an-airline-pilot",
@@ -5693,7 +6008,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://jameshard.ing/pilot",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "jmail",
@@ -5711,7 +6027,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.jmail.world",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "i-got-laid-off-from-meta-and-created-a-minor-hit-on-steam",
@@ -5729,7 +6046,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://news.ycombinator.com/item?id=43186406",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "i-made-a-site-where-you-practice-typing-by-retyping-entire-novels",
@@ -5747,7 +6065,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "http://typelit.io",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "web-design-in-4-minutes",
@@ -5765,7 +6084,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "http://jgthms.com/web-design-in-4-minutes/",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "elevators",
@@ -5783,7 +6103,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://john.fun/elevators",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "i-3d-scanned-the-interior-of-the-great-pyramid-at-giza",
@@ -5801,7 +6122,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://giza.mused.org/en/guided/266/inside-the-great-pyramid",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "i-may-have-created-a-new-type-of-puzzle",
@@ -5819,7 +6141,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "http://www.dogbunnypuzzle.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "non-io-a-reddit-like-platform-ive-been-working-on-for-the-last-4-years",
@@ -5837,7 +6160,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://non.io",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "redbean",
@@ -5855,7 +6179,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://justine.lol/redbean/index.html",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "a-retro-video-game-console-i-ve-been-working-on-in-my-free-time",
@@ -5873,7 +6198,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://internalregister.github.io/2019/03/14/Homebrew-Console.html",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "if-youtube-had-actual-channels",
@@ -5891,7 +6217,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://ytch.xyz",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "i-replaced-a-120k-bowling-center-system-with-1-600-in-esp32s",
@@ -5909,7 +6236,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://news.ycombinator.com/item?id=48968606",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "i-made-an-open-source-laptop-from-scratch",
@@ -5927,7 +6255,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.byran.ee/posts/creation/",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "gemini-pro-3-imagines-the-hn-front-page-10-years-from-now",
@@ -5945,7 +6274,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://dosaygo-studio.github.io/hn-front-page-2035/news",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "this-up-votes-itself",
@@ -5963,7 +6293,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "http://news.ycombinator.com/vote?for=3742902&dir=up&whence=%6e%65%77%65%73%74",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "i-spent-3-years-building-the-crm-i-wanted-to-use",
@@ -5981,7 +6312,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://ninjapipe.com",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "college-application-essay-inspiration-and-brainstorm",
@@ -5999,7 +6331,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://essaycompass.net/",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "nix-has-a-source-bootstrapped-openjdk",
@@ -6017,7 +6350,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://fzakaria.com/2026/07/30/nix-finally-has-a-source-bootstrapped-openjdk",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "gitseq",
@@ -6035,7 +6369,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/generalbusiness-ai/gitseq",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "updog-link",
@@ -6053,7 +6388,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://whats.updog.link",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "aila",
@@ -6071,7 +6407,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/aila-1",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "verified"
   },
   {
     "id": "reality-rivals-online",
@@ -6089,7 +6426,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/reality-rivals",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "verified"
   },
   {
     "id": "fiveml-ltd",
@@ -6107,7 +6445,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/fiveml-ltd",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "verified"
   },
   {
     "id": "notix",
@@ -6125,7 +6464,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/usenotix",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "verified"
   },
   {
     "id": "voicebrief",
@@ -6143,7 +6483,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/voicebrief",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "verified"
   },
   {
     "id": "vectosolve",
@@ -6161,7 +6502,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/vectosolve",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "verified"
   },
   {
     "id": "publbee",
@@ -6179,7 +6521,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/publbee",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "verified"
   },
   {
     "id": "brevik",
@@ -6197,7 +6540,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/brevik",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "verified"
   },
   {
     "id": "nuria",
@@ -6215,7 +6559,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/nuria",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "verified"
   },
   {
     "id": "our-family-habits-garden",
@@ -6233,7 +6578,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/our-family-habits",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "verified"
   },
   {
     "id": "pawz-ai-pet-dance-video-maker",
@@ -6251,7 +6597,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/pawz",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "verified"
   },
   {
     "id": "composer-ai",
@@ -6269,7 +6616,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/muxa-ai",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "verified"
   },
   {
     "id": "housegpts",
@@ -6287,7 +6635,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/housegpts",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "verified"
   },
   {
     "id": "ai-rewrite",
@@ -6305,7 +6654,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/ai-rewrite",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "verified"
   },
   {
     "id": "stack-influence",
@@ -6323,7 +6673,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/stack-influence",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "verified"
   },
   {
     "id": "brand-on-demand-inc",
@@ -6341,7 +6692,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/brand-on-demand-inc",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "verified"
   },
   {
     "id": "easytools",
@@ -6359,7 +6711,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/easytools-sp-z-o-o",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "verified"
   },
   {
     "id": "gumroad",
@@ -6377,7 +6730,8 @@
     "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
     "source_url": "https://trustmrr.com/startup/gumroad",
     "harvest_source": "trustmrr",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "verified"
   },
   {
     "id": "rails-baseline",
@@ -6395,7 +6749,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://railsbaseline.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "octoloops",
@@ -6413,7 +6768,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://octoloops.com",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "cleanmymedia",
@@ -6431,7 +6787,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://cleanmymedia.com",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "blognami",
@@ -6449,7 +6806,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://blognami.com/docs",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "revliu",
@@ -6467,7 +6825,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.revliu.com/demo",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "give-your-ai-agent-on-screen-guides-that-show-users-where-to-click",
@@ -6485,7 +6844,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://news.ycombinator.com/item?id=49627872",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "rayrun",
@@ -6503,7 +6863,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://ray.run/",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "listpro",
@@ -6521,7 +6882,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://listpro.app",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "i-built-an-ai-agent-that-sell-itself",
@@ -6539,7 +6901,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.sendroq.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "fashionguessr",
@@ -6557,7 +6920,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.fashionguessr.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "aurabid-pay-more-to-get-ranked-1-and-beat-others",
@@ -6575,7 +6939,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://aurabid.now/",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "i-built-a-free-printable-habit-tracker-because-most-habit-tracking-tools",
@@ -6593,7 +6958,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.indiehackers.com/post/i-built-a-free-printable-habit-tracker-because-most-habit-tracking-tools-felt-too-complicated-PjKUoF61gDZRQQ7MH6bG",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "i-built-a-bullet-journal-habit-tracker-tool-after-realizing-how-much-time-spend",
@@ -6611,7 +6977,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.indiehackers.com/post/i-built-a-bullet-journal-habit-tracker-tool-after-realizing-how-much-time-people-spend-drawing-the-same-grids-jn3tzB98DHUvKAlRICFo",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "vice-city-style-fm-radio-for-indie-hackers-house-lofi-techno",
@@ -6629,7 +6996,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://shipfm.online/",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "vertumnus",
@@ -6647,7 +7015,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://vertumnus.fyi",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "a-browser-ide-for-m68000-z80-assembly-and-more-with-graphics",
@@ -6665,7 +7034,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://asm-editor.specy.app/",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "malinois",
@@ -6683,7 +7053,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/john-comptonemail-com/malinois",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "remarc",
@@ -6701,7 +7072,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/metedata/Remarc",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "volanti",
@@ -6719,7 +7091,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/agamrossen/VolAnti",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "i-m-going-back-to-coding-by-hand",
@@ -6737,7 +7110,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://news.ycombinator.com/item?id=49622554",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "maxxwell",
@@ -6755,7 +7129,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://maxxwell.dev/",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "i-graded-200-ai-tools-apps-and-track-any-changes-in-their-policies",
@@ -6773,7 +7148,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://isittrainingonme.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "blindlock",
@@ -6791,7 +7167,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://blindlock.app/en/",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "marucheck",
@@ -6809,7 +7186,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/Kidus-M/MaruCheck",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "open-source-simulation-testing-infra-for-voice-agents",
@@ -6827,7 +7205,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/egma-ai/egma",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "salestrics",
@@ -6845,7 +7224,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.salestrics.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "solo-founder-non-technical-100m-raised",
@@ -6863,7 +7243,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://solofounders.beehiiv.com/p/solo-founder-non-technical-100m-raised",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "launch-hn",
@@ -6881,7 +7262,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.codewithbullet.com",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "taurus-agents-my-take-on-multi-agent-hierarchies",
@@ -6899,7 +7281,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://taurusagents.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "continuum",
@@ -6917,7 +7300,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://continuum-app.xyz/",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "postlore-changed-my-product-stages-distribution-as-a-solo-founder",
@@ -6935,7 +7319,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://postlore.com",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "active-source-of-truth-for-your-coding-agents",
@@ -6953,7 +7338,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://meetless.ai",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "self-hosted-social-media-agents-with-raspberry-pi",
@@ -6971,7 +7357,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.microphone.computer/",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "hierarchical-to-do-calendar-for-solo-founders",
@@ -6989,7 +7376,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://news.ycombinator.com/item?id=49428450",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "i-made-a-manga-critique-site-with-professional-japanese-manga-editors",
@@ -7007,7 +7395,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://m2w.ai/en",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "my-startup-idea-scanner-scored-500-ideas-the-best-got-6-3-10",
@@ -7025,7 +7414,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://1mil.app/",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "concorde-one-ai-agent-shared-by-an-organization",
@@ -7043,7 +7433,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/shutter-network/concorde",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "one-person-startup",
@@ -7061,7 +7452,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://news.ycombinator.com/item?id=49557020",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "buymydeadstartup-com",
@@ -7079,7 +7471,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.buymydeadstartup.com/",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "keepup",
@@ -7097,7 +7490,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://keepup.finance/",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "overlay",
@@ -7115,7 +7509,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.overlay.studio/",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "flow",
@@ -7133,7 +7528,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://github.com/gavingolden/flow/",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "requirements-are-intentions-qa-is-the-proof",
@@ -7151,7 +7547,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://news.ycombinator.com/item?id=49548737",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "autark",
@@ -7169,7 +7566,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://autark.dev/",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "stardust-store",
@@ -7187,7 +7585,8 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://news.ycombinator.com/item?id=49651777",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   },
   {
     "id": "lol-bench",
@@ -7205,6 +7604,804 @@
     "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
     "source_url": "https://www.lolbench.lol/",
     "harvest_source": "hn",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "remoteworkhub",
+    "name": "RemoteWorkHub",
+    "name_en": "RemoteWorkHub",
+    "origin": "",
+    "one_liner": "🌟 Helping businesses grow through SEO, guest posting, and expert link building. Let your content speak on the right platforms.",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "自报收入 $100 / mo（Indie Hackers）",
+      "mrr": 100,
+      "self_reported": true,
+      "posts": "39+",
+      "metric_note": "收入为创始人在 Indie Hackers 上自报，未经支付网关验证。口径是平台自己标注的「mo」。本条的复用价值在过程描述（story_excerpt），不在数字。"
+    },
+    "models": [],
+    "note": "来自 Indie Hackers 产品页。收入为创始人自报，未经支付网关验证，进精写库前必须与 TrustMRR 或官方口径交叉核对。本条的复用价值在过程描述（story_excerpt），不在数字。 39+ 条里程碑帖；数字为创始人自报，未经支付网关验证。",
+    "blocking": "自报数字，需与 TrustMRR 或公司官方口径交叉核对后才可进精写库",
+    "source_url": "https://www.indiehackers.com/product/remoteworkhub",
+    "website": "https://appdevtools.com/",
+    "harvest_source": "indiehackers",
+    "added_at": "2026-09-17",
+    "indiehackers_slug": "remoteworkhub",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "joiya-brand",
+    "name": "joiya brand",
+    "name_en": "joiya brand",
+    "origin": "",
+    "one_liner": "we provide high quality backlinks",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "自报收入 $25 / mo（Indie Hackers）",
+      "mrr": 25,
+      "self_reported": true,
+      "posts": "3",
+      "metric_note": "收入为创始人在 Indie Hackers 上自报，未经支付网关验证。口径是平台自己标注的「mo」。本条的复用价值在过程描述（story_excerpt），不在数字。"
+    },
+    "models": [],
+    "note": "来自 Indie Hackers 产品页。收入为创始人自报，未经支付网关验证，进精写库前必须与 TrustMRR 或官方口径交叉核对。本条的复用价值在过程描述（story_excerpt），不在数字。 3 条里程碑帖；数字为创始人自报，未经支付网关验证。",
+    "blocking": "自报数字，需与 TrustMRR 或公司官方口径交叉核对后才可进精写库",
+    "source_url": "https://www.indiehackers.com/product/joiya-brand",
+    "website": "https://www.jpost.com/",
+    "harvest_source": "indiehackers",
+    "added_at": "2026-09-17",
+    "indiehackers_slug": "joiya-brand",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "excelmatic",
+    "name": "Excelmatic",
+    "name_en": "Excelmatic",
+    "origin": "",
+    "one_liner": "We built Excelmatic to simplify complex Excel tasks. It exists to save users time by turning data processing, analysis, and chart creation into simple comm",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "自报收入 $300 / mo（Indie Hackers）",
+      "mrr": 300,
+      "self_reported": true,
+      "posts": "2",
+      "metric_note": "收入为创始人在 Indie Hackers 上自报，未经支付网关验证。口径是平台自己标注的「mo」。本条的复用价值在过程描述（story_excerpt），不在数字。"
+    },
+    "models": [],
+    "note": "来自 Indie Hackers 产品页。收入为创始人自报，未经支付网关验证，进精写库前必须与 TrustMRR 或官方口径交叉核对。本条的复用价值在过程描述（story_excerpt），不在数字。 2 条里程碑帖；数字为创始人自报，未经支付网关验证。",
+    "blocking": "自报数字，需与 TrustMRR 或公司官方口径交叉核对后才可进精写库",
+    "source_url": "https://www.indiehackers.com/product/excelmatic",
+    "website": "https://excelmatic.ai",
+    "harvest_source": "indiehackers",
+    "added_at": "2026-09-17",
+    "indiehackers_slug": "excelmatic",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "shine",
+    "name": "Shine",
+    "name_en": "Shine",
+    "origin": "",
+    "one_liner": "Show HN: Shine – a terminal Markdown previewer and docs linter",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，1 分 / 2 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/Nithish-Yenaganti/shine",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "natively",
+    "name": "Natively",
+    "name_en": "Natively",
+    "origin": "",
+    "one_liner": "i have more agents than i have real humans who report to me now. as a serial founder/builder/domain hoarder, i have 5+ projects ongoing at all times and in the AI era, i can spin up a team of agents to work on them simultaneously. so at thi",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://natively.io",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "i-created-a-list-of-projects-with-embeds",
+    "name": "I created a list of projects with embeds",
+    "name_en": "I created a list of projects with embeds",
+    "origin": "",
+    "one_liner": "Hi HN! I created a pet project that I’d like to share with you. It’s a project catalog, but it has a cool feature. It generates badges for each project that you can add to your website or readme, and they will work. Right now, there aren’t ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://embedcatalog.com",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "wordpress-security-skills-for-coding-agents",
+    "name": "WordPress security skills for coding agents",
+    "name_en": "WordPress security skills for coding agents",
+    "origin": "",
+    "one_liner": "Show HN: WordPress security skills for coding agents",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/wpultimatesecurity/WordPress-Security-Skills",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "charter",
+    "name": "Charter",
+    "name_en": "Charter",
+    "origin": "",
+    "one_liner": "Even though everyone is talking about AI agents doing everything for them at work, many companies still aren't using autonomous agents to automate real operational work internally. Usually it's because of the complexity of bootstrapping an ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，3 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/boundflow/charter",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "codepress",
+    "name": "CodePress",
+    "name_en": "CodePress",
+    "origin": "",
+    "one_liner": "Since agents have taken companies + enterprise by storm, we've been working on workflows to get the most out of agents that get work done. Along the way, we built our own agent cloud where we ping these agents from any surface we work in, l",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "疑似金额 $50k"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，4 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://codepress.dev/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "stitchwink",
+    "name": "Stitchwink",
+    "name_en": "Stitchwink",
+    "origin": "",
+    "one_liner": "My wife has been cross stitching since she was a child and I wanted to make a tool where she could generate her own custom patterns: https://stitchwink.com/ You can try chatgpt or other AI tools but the problem is that they don't create rea",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，1 分 / 4 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://stitchwink.com",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "an-interactive-3d-pattern-language-made-with-astra",
+    "name": "An interactive 3D Pattern Language made with Astra",
+    "name_en": "An interactive 3D Pattern Language made with Astra",
+    "origin": "",
+    "one_liner": "Show HN: An interactive 3D Pattern Language made with Astra",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，2 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://livedin.co.uk/design-patterns/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "zestssh-my-capstone-ssh-client-that-people-started-paying-for",
+    "name": "ZestSSH, my capstone SSH client that people started paying for",
+    "name_en": "ZestSSH, my capstone SSH client that people started paying for",
+    "origin": "",
+    "one_liner": "Show HN: ZestSSH, my capstone SSH client that people started paying for",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://zestssh.com/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "vector-transfer-project-replicate-vectors-metadata-across-databases",
+    "name": "Vector transfer project, replicate vectors/metadata across databases",
+    "name_en": "Vector transfer project, replicate vectors/metadata across databases",
+    "origin": "",
+    "one_liner": "Show HN: Vector transfer project, replicate vectors/metadata across databases",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，3 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/Polign/vector-transfer",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "cadenya",
+    "name": "Cadenya",
+    "name_en": "Cadenya",
+    "origin": "",
+    "one_liner": "My name is Robert, and I'm the founder of Cadenya, an agent runtime. Cadenya is not like other managed solutions. Instead, it uses your API or MCP servers as the tools in your agentic loop, which also is managed. Cadenya is also agnostic to",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://www.cadenya.com/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "papiers-ai-a-new-workspace-for-reading-and-research",
+    "name": "Papiers.ai, a new workspace for reading and research",
+    "name_en": "Papiers.ai, a new workspace for reading and research",
+    "origin": "",
+    "one_liner": "Hey HN, I built http://papiers.ai , a new workspace for everything you read. As AI gets better at writing, there will be far more worth reading, even in technical domains like scientific research. Our time and attention won’t grow at the sa",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://papiers.ai/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "prbar-see-your-open-github-pr-count-in-macos-menu-bar",
+    "name": "PRBar see your open GitHub PR count in macOS menu bar",
+    "name_en": "PRBar see your open GitHub PR count in macOS menu bar",
+    "origin": "",
+    "one_liner": "Show HN: PRBar see your open GitHub PR count in macOS menu bar",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，1 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/sburl/prBar",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "socks-proxy-for-ai-agents",
+    "name": "Socks Proxy for AI Agents",
+    "name_en": "Socks Proxy for AI Agents",
+    "origin": "",
+    "one_liner": "I've built a socks5 proxy especially for AI agents, currently there are exit points in east and west US, central EU and east Asia. The payment for the service is settled by the X402 protocol, with USDC on circle/base. You can also purchase ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，2 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://x402socks.com/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "reviving-my-15-000-browser-arcade-with-astra",
+    "name": "Reviving my $15,000 browser arcade with Astra",
+    "name_en": "Reviving my $15,000 browser arcade with Astra",
+    "origin": "",
+    "one_liner": "Back in 2021, I put roughly $15,000 into a project called Anbu. The original idea was a decentralized cloud gaming platform, but I scaled it down to what I could afford with no cofounders... a browser arcade where people could play games wi",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "疑似金额 $15,000 b"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，3 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://eggverse.co/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "temporal-parser",
+    "name": "Temporal Parser",
+    "name_en": "Temporal Parser",
+    "origin": "",
+    "one_liner": "Show HN: Temporal Parser – A compiler-style parser for date/time strings",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-10，3 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://lxcid.com/tools/temporal-playground/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "learn-programming-by-building-something-you-want",
+    "name": "Learn programming by building something you want",
+    "name_en": "Learn programming by building something you want",
+    "origin": "",
+    "one_liner": "Show HN: Learn programming by building something you want",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://codeset.ai/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "obra-per-project-margin-tracking-for-small-construction-firms",
+    "name": "Obra, per-project margin tracking for small construction firms",
+    "name_en": "Obra, per-project margin tracking for small construction firms",
+    "origin": "",
+    "one_liner": "Show HN: Obra, per-project margin tracking for small construction firms",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://tryobra.com/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "botbin-io",
+    "name": "Botbin.io",
+    "name_en": "Botbin.io",
+    "origin": "",
+    "one_liner": "Show HN: Botbin.io – Pastebin for AI agent artifacts with MCP",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://botbin.io/?mcp=true",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "til-in-ai",
+    "name": "TIL in AI",
+    "name_en": "TIL in AI",
+    "origin": "",
+    "one_liner": "Show HN: TIL in AI",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://buildyard.ai/til",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "benzi",
+    "name": "Benzi",
+    "name_en": "Benzi",
+    "origin": "",
+    "one_liner": "Show HN: Benzi – A Code Intillegence/Harness Beating Claude Code and CodeGraph",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，9 分 / 2 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://benzi.fly.dev/benchmark",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "kern-agent",
+    "name": "Kern Agent",
+    "name_en": "Kern Agent",
+    "origin": "",
+    "one_liner": "Show HN: Kern Agent – See inside your agent's brain",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/oguzbilgic/kern-ai",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "openmuse",
+    "name": "OpenMuse",
+    "name_en": "OpenMuse",
+    "origin": "",
+    "one_liner": "Show HN: OpenMuse – an Open Source alternative to Meta's personal agent",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/diggerhq/openmuse/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "algo-trading-skills",
+    "name": "Algo-Trading-Skills",
+    "name_en": "Algo-Trading-Skills",
+    "origin": "",
+    "one_liner": "Show HN: Algo-Trading-Skills - 501 agent skills for trading infrastructure",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，8 分 / 5 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/HimanshuJ16/Algo-Trading-Skills",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "family-greenhouse",
+    "name": "Family Greenhouse",
+    "name_en": "Family Greenhouse",
+    "origin": "",
+    "one_liner": "Show HN: Family Greenhouse – shared plant care for a household",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://familygreenhouse.net/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "self-host-your-own-minecraft-java-server-with-ease",
+    "name": "Self Host Your Own Minecraft Java Server with Ease",
+    "name_en": "Self Host Your Own Minecraft Java Server with Ease",
+    "origin": "",
+    "one_liner": "Show HN: Self Host Your Own Minecraft Java Server with Ease",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，2 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/5TN1rcZRS79VAEFuUCRB/MCPersist",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "certarena",
+    "name": "CertArena",
+    "name_en": "CertArena",
+    "origin": "",
+    "one_liner": "Show HN: CertArena – Free AI certification simulator (zero deps, native Node 24)",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://aicertarena.com/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "hekla-an-event-sourcing-runtime-with-its-own-language",
+    "name": "Hekla, an event sourcing runtime with its own language",
+    "name_en": "Hekla, an event sourcing runtime with its own language",
+    "origin": "",
+    "one_liner": "Show HN: Hekla, an event sourcing runtime with its own language",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://hekla.tqwewe.com/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "swiftime",
+    "name": "Swiftime",
+    "name_en": "Swiftime",
+    "origin": "",
+    "one_liner": "Show HN: Swiftime - time tracking you can talk to, with an API for AI agents",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://swiftime.ai/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "interactive-history-of-earth-and-human-civilization",
+    "name": "Interactive history of Earth and human civilization",
+    "name_en": "Interactive history of Earth and human civilization",
+    "origin": "",
+    "one_liner": "Original: https://www.reddit.com/r/vibecoding/comments/1w99r2z/gpt6_as...",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://earth.ethanplus.ai/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "vericordon",
+    "name": "VeriCordon",
+    "name_en": "VeriCordon",
+    "origin": "",
+    "one_liner": "Show HN: VeriCordon – CI evidence for agent/tool authorization decisions",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，1 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/dgenio/agentfence",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "i-pointed-11-cold-ai-agents-at-my-own-product-3-finished",
+    "name": "I pointed 11 cold AI agents at my own product. 3 finished",
+    "name_en": "I pointed 11 cold AI agents at my own product. 3 finished",
+    "origin": "",
+    "one_liner": "Show HN: I pointed 11 cold AI agents at my own product. 3 finished",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，3 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://pact0.com/notes/agents-vs-our-own-product",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "sidenote-pro",
+    "name": "SideNote Pro",
+    "name_en": "SideNote Pro",
+    "origin": "",
+    "one_liner": "I have been using ChatGPT (mainly) as my main AI tool, but sometimes also DeepSeek and other AI providers. But with repetitive tasks, it became annoying for me to switch tabs and navigate to the ChatGPT tab in the web browser, leaving the E",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://sidenotepro.com",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "automatically-keep-track-of-all-features-implemented-in-a-project",
+    "name": "Automatically keep track of all features implemented in a project",
+    "name_en": "Automatically keep track of all features implemented in a project",
+    "origin": "",
+    "one_liner": "I built this because I wanted to automate my least favourite part of documentation writing - expressing at a high level what was implemented. There are a couple of situations where you could need that: - to show to the client what changed s",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，1 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/netizer/feature-ledger",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "oxlint-plugin-to-auto-fix-non-canonical-tailwind-classes",
+    "name": "Oxlint plugin to auto-fix non-canonical Tailwind classes",
+    "name_en": "Oxlint plugin to auto-fix non-canonical Tailwind classes",
+    "origin": "",
+    "one_liner": "I made a oxlint plugin to autofix the tailwind classes that LLMs slop write so that they match the canonical versions that tailwind suggests. Let me know what you think. If its helpful pls star my Github.",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/maharshi365/oxlint-plugin-tailwind-canonical",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "blender-agent-a-live-multi-turn-agent-that-any-can-use-for-blender",
+    "name": "Blender Agent:A live, multi-turn agent that any can use for Blender",
+    "name_en": "Blender Agent:A live, multi-turn agent that any can use for Blender",
+    "origin": "",
+    "one_liner": "Show HN: Blender Agent:A live, multi-turn agent that any can use for Blender",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/zavora-ai/adk-rust/tree/main/examples/blender_console",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "a-local-open-source-version-of-claude-code",
+    "name": "A local, open-source version of Claude Code",
+    "name_en": "A local, open-source version of Claude Code",
+    "origin": "",
+    "one_liner": "Show HN: A local, open-source version of Claude Code",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/just-not-google/BiNeuron",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
+  },
+  {
+    "id": "choicer-voicer-put-your-own-voice-into-movie-and-game-scenes",
+    "name": "Choicer Voicer, put your own voice into movie and game scenes",
+    "name_en": "Choicer Voicer, put your own voice into movie and game scenes",
+    "origin": "",
+    "one_liner": "Show HN: Choicer Voicer, put your own voice into movie and game scenes",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-11（Hacker News，发布于 2026-09-11，1 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://playchoicervoicer.com/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-11",
+    "source_kind": "self_reported"
   }
 ]

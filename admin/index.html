@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>后台 · 拆解海外</title>
+<!-- 后台独立站点：和公开阅读站完全分开，样式只复用公开站的 CSS 变量与组件类。
+     noindex 是双保险 —— 它跑在本机，本来就不该被任何搜索引擎碰到。 -->
+<link rel="stylesheet" href="./style.css?v=8">
+</head>
+<body>
+
+<div id="toast" class="toast" hidden></div>
+
+<!-- ================= 登录 ================= -->
+<section id="login" class="login-wrap">
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="login-mark">案</div>
+      <div>
+        <div class="login-title">拆解海外 · 后台</div>
+        <div class="login-sub">核实与入库 · 仅管理员</div>
+      </div>
+    </div>
+
+    <div class="login-note">
+      密码在启动 <code>server.py</code> 时打印在控制台。忘了就跑
+      <code>python scripts/auth.py --reset</code> 重设。
+    </div>
+
+    <input id="login-pw" type="password" class="login-input"
+           placeholder="管理员密码" autocomplete="current-password">
+    <div id="login-err" class="login-err" hidden></div>
+    <button id="login-go" class="login-btn">登录</button>
+    <div class="login-tip">
+      登录状态保存在本机浏览器，12 小时后需重新登录。<br>
+      密码连续输错 5 次会锁定 5 分钟。
+    </div>
+    <a class="login-back" href="/">← 回到公开站</a>
+  </div>
+</section>
+
+<!-- ================= 后台主体（登录后显示） ================= -->
+<div id="app" hidden>
+  <header class="adm-top">
+    <div class="adm-top-l">
+      <span class="adm-mark">案</span>
+      <span class="adm-name">拆解海外 · 后台</span>
+      <span class="adm-tag">核实与入库</span>
+    </div>
+    <div class="adm-top-r">
+      <span id="adm-stat" class="adm-stat"></span>
+      <a class="adm-link" href="/" target="_blank" rel="noopener">公开站 ↗</a>
+      <button id="adm-logout" class="adm-out">退出</button>
+    </div>
+  </header>
+
+  <div class="adm-body">
+    <aside class="adm-side">
+      <div class="adm-sec-title">待办</div>
+      <button class="adm-nav active" data-view="candidates">
+        <span>候选池</span><span class="adm-n" id="n-cands">–</span>
+      </button>
+      <button class="adm-nav" data-view="inbox">
+        <span>采集队列</span><span class="adm-n" id="n-inbox">–</span>
+      </button>
+      <button class="adm-nav" data-view="published">
+        <span>已发布</span><span class="adm-n" id="n-cases">–</span>
+      </button>
+      <button class="adm-nav" data-view="ai">
+        <span>AI 核实</span><span class="adm-n" id="n-ai"></span>
+      </button>
+
+      <div class="adm-sec-title" style="margin-top:18px">说明</div>
+      <div class="adm-help">
+        核实分三层：<b>门槛</b>只要有一道成立就进库，AI 找到的反证降级为提醒，
+        只有「一道都没成立 + 有明确反证」才判死；三道全成立自动给质量分 +10。
+        <b>必填</b>没齐发布键不亮；
+        <b>质量分</b>够 60 进精品池，否则进备选池。
+        没有一手来源不再一票否决，只在<b>提醒</b>里标出来。<br>
+        备选不是废品，条件补齐后可以随时拔档。
+      </div>
+    </aside>
+
+    <main class="adm-main">
+      <section id="view-candidates">
+        <div class="adm-h">候选池</div>
+        <div class="adm-desc">
+          点「核实 →」逐条过条件。填一半可以关掉，草稿会自动存着。
+        </div>
+        <div id="grid-cands" class="adm-grid"></div>
+      </section>
+
+      <section id="view-inbox" hidden>
+        <div class="adm-h">采集队列</div>
+        <div class="adm-desc">
+          自动采集来的原始素材。觉得值得深挖就转入候选池，转过去之后才能核实。
+        </div>
+        <div id="grid-inbox" class="adm-grid"></div>
+      </section>
+
+      <section id="view-published" hidden>
+        <div class="adm-h">已发布</div>
+        <div class="adm-desc">
+          已经进精写库的案例。备选池的可以在这里补齐条件后拔到精品池。
+        </div>
+        <div id="grid-cases" class="adm-grid"></div>
+      </section>
+
+      <section id="view-ai" hidden>
+        <div class="adm-h">AI 自动核实</div>
+        <div class="adm-desc">
+          机器找卡点、搜原文、按规则填草稿；<b>「我亲自看过原文」留给人工，但它不再拦发布</b> ——
+          AI 干完后到候选池扫一眼来源再点发布。不勾也能入库，区别是案例上会留下
+          「未经人工核读」的状态与时间戳，勾了则记下核读时刻。
+          发布走的是同一道规则引擎闸门，AI 没有任何绕过路径。任务在服务端后台跑，关掉页面不影响。
+        </div>
+
+        <div class="ai-card">
+          <div class="ai-title">LLM 接口配置</div>
+          <div class="ai-row">
+            <label>API Key</label>
+            <input id="ai-key" type="password" autocomplete="off"
+                   placeholder="sk-…（DeepSeek / Kimi / GLM 等 OpenAI 兼容接口）">
+            <button id="ai-save" class="src-link">保存</button>
+          </div>
+          <div class="ai-row">
+            <label>接口地址</label>
+            <input id="ai-base" placeholder="https://api.deepseek.com（留空用默认）">
+          </div>
+          <div class="ai-row">
+            <label>模型</label>
+            <input id="ai-model" placeholder="deepseek-flash 或 deepseek-v4-pro（留空用默认）">
+          </div>
+          <div id="ai-set-state" class="ai-state"></div>
+        </div>
+
+        <div class="ai-card">
+          <div class="ai-title">跑一批</div>
+          <div class="ai-run-row">
+            <label>数量 <input id="ai-limit" type="number" min="1" max="50" value="5"></label>
+            <label>发布阈值 <input id="ai-minscore" type="number" min="0" max="100" value="60" title="质量分达到才发布，60 = 只发精品档"></label>
+            <label class="ai-ck"><input id="ai-publish" type="checkbox"> 够格直接发布</label>
+            <label class="ai-ck"><input id="ai-small" type="checkbox"> 含「体量太小」</label>
+            <button id="ai-plan" class="src-link">先看卡点</button>
+            <button id="ai-go" class="src-link">开始跑</button>
+          </div>
+          <div id="ai-plan-out"></div>
+        </div>
+
+        <!-- 这一轮审了哪些 —— 结果表才是主视图。
+             原来只有下面那坨原始日志，人看完不知道审的是哪条、该点哪儿，
+             等于审了个寂寞。每条一行：是谁 → 审成什么样 → 还差什么 → 去哪操作。 -->
+        <div class="ai-card" id="ai-result-card" hidden>
+          <div class="ai-title">
+            这一轮审了哪些
+            <span class="ai-res-note" id="ai-res-note"></span>
+          </div>
+          <div id="ai-result"></div>
+        </div>
+
+        <div class="ai-card">
+          <div class="ai-title">
+            <button class="ai-fold" id="ai-log-toggle" aria-expanded="false">
+              原始输出<span class="ai-fold-caret">▾</span>
+            </button>
+          </div>
+          <pre id="ai-log" class="ai-log" hidden></pre>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- 核实工作台抽屉。标题由 verify.js 渲染在 drawer-body 里（.v-title），
+     所以这里只有一个关闭按钮，不再单独留标题位。 -->
+<div id="drawer-mask" class="drawer-mask" hidden></div>
+<div id="drawer" class="drawer" hidden>
+  <button id="drawer-close" class="drawer-close" aria-label="关闭">×</button>
+  <div id="drawer-body" class="drawer-body"></div>
+</div>
+
+<!-- 顺序不能反：verify.js 里的工作台要用 app.js 提供的 $ / esc / toast，
+     而 app.js 一启动就可能调 renderCandidates() → draftProgress() 去 verify.js 取值。
+     两个文件共用同一份全局词法环境，谁先谁后在「调用」时已经无所谓，
+     但先加载 verify.js 能保证函数声明先就位。 -->
+<script src="./verify.js?v=8"></script>
+<script src="./app.js?v=6"></script>
+</body>
+</html>

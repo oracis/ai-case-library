@@ -94,7 +94,9 @@ DEFAULT_SITE = {
     "tagline": "拆解海外已跑通的软件生意，核实每一个数字，判断一个人能不能做、能不能搬回国内。",
     "url": "",                    # 有自定义域名后填这里，sitemap / canonical 才会是绝对地址
     "repo": "https://github.com/oracis/ai-case-library",
-    "wechat": {"name": "技术人的商业观察", "hint": "公众号同步更新拆解长文"},
+    # hint 不要以「公众号」开头：模板（app.js 的顶部条与本文件的 505/535 行）
+    # 已经在名字前面写了「公众号」，hint 再带一遍就会读成「公众号 X 公众号同步更新…」。
+    "wechat": {"name": "万物解释者", "hint": "同步更新拆解长文"},
     "community": {"name": "社群", "url": "", "hint": "每日线索 · 每周深度"},
     "icp": "",                    # 备案号，备案下来后填这里
 }

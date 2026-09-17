@@ -435,9 +435,19 @@ def load_cases(path):
     return cases
 
 
+def rank_key(case):
+    """排序键：分数降序，并列时按 id 兜底。
+
+    为什么要有第二条：Python 的 sort 是**稳定**的，所以两条同分的案例会保持
+    cases.json 里的先后。那等于把「录入顺序」当成了隐藏的排序依据 ——
+    同一个库换个顺序输出，公众号排期就跟着变。加 id 兜底后，排期只由内容决定。
+    """
+    return (-virality_score(case), case.get("id") or "")
+
+
 def pick(cases, args):
     scored = sorted(((virality_score(c), c) for c in cases),
-                    key=lambda t: -t[0])
+                    key=lambda t: rank_key(t[1]))
     if args.id:
         hit = [(s, c) for s, c in scored if c.get("id") == args.id]
         if not hit:

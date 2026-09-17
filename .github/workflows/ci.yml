@@ -66,6 +66,28 @@ jobs:
         # 错一个会静默失效、排名悄悄跑偏；② 正文里绝不能出现裸 URL。
         run: python scripts/test_make_article.py
 
+      - name: 测试 verify_rules.py（规则引擎 + 等级与证据）
+        # 这是整站的判定真源：能不能发布、标什么等级、进哪个池，都由它算。
+        # 守的线：① 门槛「一道成立就进库」不被改回一票否决；
+        # ② 必填缺项永远不可发布；③ **声称的核实等级必须有来源撑住**
+        # （曾经 11 条案例标着 stripe 却只有一个第三方拆解站来源）；
+        # ④ human_read / caliber_consistent 保持不拦发布。
+        run: python scripts/test_verify_rules.py
+
+      - name: 测试 ai_verify.py（卡点挑选与草稿映射，离线）
+        # AI 自动核实的纯函数部分：候选挑选、AI 回答 → 草稿的映射。
+        # 守的线：没有一手来源不勾 primary_source、human_read 不许自动勾、
+        # bonus 必须与来源构成对得上 —— AI 的布尔回答不许裸信。
+        run: python scripts/test_ai_verify.py
+
+      - name: 测试 harvest.py 五源解析（离线，用真抓下来的 fixture）
+        # 采集是无人值守的：解析器一旦因对方改版而静默失灵，表现是
+        # 「今天没采到东西」而不是报错，属于最难发现的一类故障。
+        # 守的线：① 每条采集结果都必须带 source_kind（可信度不能丢）；
+        # ② IndieHackers 的自报数字必须标 self_reported；
+        # ③ Product Hunt 不许带任何收入字段；④ sitemap 里的里程碑 URL 要丢掉。
+        run: python scripts/test_harvest_sources.py
+
       - name: 测试 prerender.py（常量对齐、脱离 JS、转义）
         # 守三条线：① prerender.py 里的文案常量与 app.js 不能漂移（漂了不报错，
         # 只是同一条案例在两个地方显示成两个词）；② 案例页不跑 JS 也得读得到正文；
@@ -89,11 +111,23 @@ jobs:
       - name: app.js 语法检查
         run: node --check static/app.js
 
-      - name: uitest.js 语法检查
-        run: node --check uitest.js
+      # 后台是独立站点，脚本也要单独过一遍语法 ——
+      # 它不被 static/index.html 引用，公开站那步检查覆盖不到它。
+      - name: 后台脚本语法检查
+        run: |
+          node --check admin/app.js
+          node --check admin/verify.js
+
+      - name: 测试脚本语法检查
+        run: |
+          node --check uitest.js
+          node --check uitest-admin.js
 
       - name: 渲染冒烟测试（DOM 桩，无需浏览器）
         run: node uitest.js
+
+      - name: 后台冒烟测试（登录 / 核实 / 入库）
+        run: node uitest-admin.js
 
       - name: 断言测试没有写脏 data/
         run: |

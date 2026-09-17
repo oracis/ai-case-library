@@ -58,6 +58,16 @@ MAX_RAW = 5 * sum(WEIGHTS.values())          # 34.5
 # ------------------------------------------------------------------ 评分表
 # 分数是主观判断，但每一条都写明了依据。要调整就改这里，然后重跑。
 SCORES = {
+    "gojiberryai": dict(
+        demand=3, payment=3, compliance=1, acquisition=1, localization=2, competition=1,
+        blocker="自动化触达合规",
+        note="整套动作长在 LinkedIn / Reddit 的开放数据和自动外发上。国内两边都缺："
+             "既没有等价的职业信号源（LinkedIn 职场版 2023 年就关停了），《个人信息保护法》"
+             "又把「抓取 + 群发」直接定性为红线——与 meerkats-ai 撞的是同一堵墙。"
+             "真要落地得把信号源换成企查查 / 脉脉，触达换成企业微信，等于重做一遍产品；"
+             "而那一格还站着探迹、销售易、纷享销客。唯一不看国界的是它的方法论："
+             "先用人工交付证明有人为结果付钱，再把它写成软件。",
+    ),
     "sierra": dict(
         demand=4, payment=4, compliance=3, acquisition=1, localization=2, competition=1,
         note="按「问题被真正解决」收费的结果定价值得学，但客户是美国财富 500 强——"

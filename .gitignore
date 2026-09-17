@@ -11,8 +11,21 @@ data/.selftest_backup_cases
 data/__test_*.json
 data/verification_log.json
 
+# 管理员凭据（后台登录密码摘要 + token 签名密钥）：绝不入库
+# 用通配而不是精确名：auth.py --reset / --set 之前人可能会先备份一份，
+# 那个 .bak 里带着**同一个签名密钥**，漏掉它等于凭据照样进了库。
+data/admin.json
+data/admin.json.*
+data/verifications.json
+# LLM API Key（后台「AI 核实」面板保存的那份）：绝不入库
+data/secrets.json
+
 # 本地服务日志
 *.log
+
+# IndieHackers sitemap slug 缓存（scripts/harvest.py 生成）
+# 属派生数据：默认通道走列表页，不需要它；提交进来只会变成会长期增长的噪音。
+data/ih_slugs.json
 
 # 编辑器 / 系统
 .vscode/
@@ -41,3 +54,10 @@ out/
 # 本地调试临时文件（_ 开头，git status --short 一眼能找到的那种）
 _*.txt
 _*.html
+_*.py
+# 本地备份与探针目录：含 data/ 快照和 admin.json 备份（后者带签名密钥），
+# 也含抓下来的原始响应（大文件、随时可重抓）。都不入库。
+_backfill_backup/
+_rollback_backup/
+_probe/
+_shots/

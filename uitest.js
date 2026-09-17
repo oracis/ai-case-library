@@ -93,6 +93,9 @@ function loadData() {
     // 少了这一项，测试就永远看不到引流位，等于没测。
     let site = {};
     try { site = rd('site'); } catch (e) { site = {}; }
+    // 核实草稿：候选卡上的「草稿 xx%」和工作台回填都靠它
+    let verifications = {};
+    try { verifications = rd('verifications'); } catch (e) { verifications = {}; }
     const byV = {}, byM = {}, byC = {};
     cases.forEach((c) => {
       byV[c.verification] = (byV[c.verification] || 0) + 1;
@@ -101,7 +104,7 @@ function loadData() {
     });
     const verified = (byV.stripe || 0) + (byV.official || 0);
     return Promise.resolve({
-      cases, candidates, inbox, sources, site,
+      cases, candidates, inbox, sources, site, verifications,
       stats: {
         curated: cases.length, candidates: candidates.length, inbox: inbox.length,
         verified, flagged: cases.reduce((a, c) => a + (c.corrections || []).length, 0)
@@ -119,14 +122,33 @@ function loadData() {
   return fetch(API + '/api/data').then((r) => r.json());
 }
 
-const errors = [];
-const sandbox = {
+/* 核实规则表：跑 python 拿真规则，而不是在测试里抄一份。
+   抄一份的话，规则改了测试还是绿的，等于没测。 */
+let _schemaCache = null;
+function readVerifySchema() {
+  if (_schemaCache) return _schemaCache;
+  const { execFileSync } = require('child_process');
+  const out = execFileSync('python', ['scripts/verify_rules.py', '--schema'],
+    { cwd: ROOT, encoding: 'utf8' });
+  _schemaCache = JSON.parse(out);
+  return _schemaCache;
+}
+
+const errors = [];const sandbox = {
   document, localStorage, console,
   // 静态模式下把 fetch 做成「一调就炸」：万一 app.js 在静态模式里还去请 /api，
   // 测试会立刻暴露，而不是静默拿到 undefined
   fetch: STATIC
     ? () => { throw new Error('静态模式不该调用 fetch(/api)'); }
-    : (u) => loadData().then((d) => ({ ok: true, json: () => Promise.resolve(d) })),
+    : (u, opt) => {
+      // 核实规则表：真实实现里由 server.py 从 scripts/verify_rules.py 取。
+      // 测试里跑一次那个模块拿真规则，保证界面测的是真规则而不是抄来的副本。
+      if (String(u).includes('/api/verify-schema')) {
+        const schema = readVerifySchema();
+        return Promise.resolve({ ok: true, json: () => Promise.resolve(schema) });
+      }
+      return loadData().then((d) => ({ ok: true, json: () => Promise.resolve(d) }));
+    },
   CSS: { escape: (s) => String(s).replace(/[^a-zA-Z0-9_-]/g, '\\$&') },
   setTimeout, clearTimeout, confirm: () => false, alert: () => {},
   window: {},
@@ -153,8 +175,31 @@ const APP_SRC = STATIC
 const src = fs.readFileSync(APP_SRC, 'utf8');
 vm.createContext(sandbox);
 
-// 捕获未处理异常
-process.on('unhandledRejection', (e) => errors.push('unhandledRejection: ' + e));
+// 捕获未处理异常。
+// 关键：异步段里抛的同步异常会被 unhandledRejection 吞掉，而进程退出码仍是 0 ——
+// 表现是「测试跑一半没输出了，却算通过」。所以两种都要接，且都要计入 fail。
+process.on('unhandledRejection', (e) => {
+  console.log('\n  [FAIL] 未处理的 Promise 异常：' + (e && e.message ? e.message : e));
+  if (e && e.stack) console.log('        ' + String(e.stack).split('\n')[1]);
+  fail += 1;
+});
+process.on('uncaughtException', (e) => {
+  console.log('\n  [FAIL] 未捕获异常：' + (e && e.message ? e.message : e));
+  if (e && e.stack) console.log('        ' + String(e.stack).split('\n')[1]);
+  fail += 1;
+});
+
+/** 每个检查段落都包一层，任何一段炸了也要把结果打出来、别静默中止 */
+function section(title, fn) {
+  console.log(title);
+  try {
+    fn();
+  } catch (e) {
+    console.log('  [FAIL] 这一段抛异常中止了：' + (e && e.message ? e.message : e));
+    if (e && e.stack) console.log('        ' + String(e.stack).split('\n')[1]);
+    fail += 1;
+  }
+}
 
 (async () => {
   console.log('='.repeat(60));
@@ -179,7 +224,9 @@ process.on('unhandledRejection', (e) => errors.push('unhandledRejection: ' + e))
     ['chips', '模式芯片', 'chip'],
     ['grid-cases', '案例卡片网格', 'class="card"'],
     ['grid-cands', '候选池网格', 'class="cand"'],
-    ['grid-inbox', '采集队列网格', 'class="cand"'],
+    // 精简构建（--no-inbox）里队列是故意不带的，此时应显示「不含采集队列」的说明，
+    // 而不是一排卡片 —— 两种都算通过
+    ['grid-inbox', '采集队列网格', /class="cand"|不含采集队列/],
     ['src-list', '信息源卡片', 'src-card'],
     ['filterbox', '采集过滤规则', 'rule-tag'],
     ['method', '方法论', 'm-step'],
@@ -194,7 +241,8 @@ process.on('unhandledRejection', (e) => errors.push('unhandledRejection: ' + e))
   console.log('\n[A] 各区块是否产出 HTML');
   for (const [id, label, kw] of checks) {
     const html = get(id)._html || '';
-    const ok = html.length > 40 && html.includes(kw);
+    // kw 可以是字符串，也可以是正则（同一个区块在不同构建里有不同正当形态时用正则）
+    const ok = html.length > 40 && (kw instanceof RegExp ? kw.test(html) : html.includes(kw));
     console.log('  [' + (ok ? 'PASS' : 'FAIL') + '] ' + label.padEnd(14) +
       ' ' + String(html.length).padStart(6) + ' 字符');
     ok ? pass++ : fail++;
@@ -452,15 +500,14 @@ process.on('unhandledRejection', (e) => errors.push('unhandledRejection: ' + e))
   }
 
   /* ---------------- 运行模式 ----------------
-     本地服务要有写按钮（提升候选 / 转入候选池）；
-     静态部署要把它们换成只读标签，否则访客点了没反应，或者以为线上能改数据。 */
+     这个站是纯只读的阅读站 —— 不管有没有后端，界面上都不该有任何写按钮。
+     核实与入库搬到了另一个站点（admin/，另一个端口），所以这里连
+     「未登录」这种提示都不需要：读者根本不知道有后台存在。 */
   console.log('\n[I] 运行模式（' + (STATIC ? '静态部署' : '本地服务') + '）');
   {
     const candHTML = get('grid-cands')._html || '';
     const inboxHTML = get('grid-inbox')._html || '';
     const metaHTML = get('side-meta')._html || '';
-    const hasWrButtons = candHTML.includes('data-promote="') && inboxHTML.includes('data-tocand="');
-    const hasRoTags = candHTML.includes('ro-tag') && inboxHTML.includes('ro-tag');
     const metaRo = metaHTML.includes('只读快照');
 
     const ck = (label, ok, extra) => {
@@ -468,19 +515,60 @@ process.on('unhandledRejection', (e) => errors.push('unhandledRejection: ' + e))
       ok ? pass++ : fail++;
     };
 
+    ck('不渲染「核实」按钮', !candHTML.includes('data-verify="'));
+    ck('不渲染「转入候选池」按钮', !inboxHTML.includes('data-tocand="'));
+    ck('不出现「未登录」字样（这里没有登录这回事）',
+      !candHTML.includes('未登录') && !inboxHTML.includes('未登录'));
+
     if (STATIC) {
-      ck('静态模式不渲染写按钮', !candHTML.includes('data-promote="')
-        && !inboxHTML.includes('data-tocand="'));
-      ck('写按钮位置换成「只读快照」标签', hasRoTags);
       ck('侧栏标注只读快照', metaRo);
       ck('数据来自 data.js（没有走 /api）', !!sandbox.window.__CASE_LIB_DATA__);
       ck('静态标记已生效', vm.runInContext('IS_STATIC === true', sandbox));
     } else {
-      ck('本地服务渲染写按钮（候选池 + 采集队列）', hasWrButtons && !hasRoTags);
       ck('本地服务不显示只读标记', !metaRo);
       ck('本地模式 IS_STATIC 为假', vm.runInContext('IS_STATIC === false', sandbox));
     }
   }
+
+  section('\n[I2] 卡片来源链接（官网 / 来源 / 缺省提示）', () => {
+    const ck = (label, ok, extra) => {
+      console.log('  [' + (ok ? 'PASS' : 'FAIL') + '] ' + label + (extra ? '  ' + extra : ''));
+      ok ? pass++ : fail++;
+    };
+
+    /* cardLinks 是纯函数，直接在沙箱里喂各种形状的记录，验证四种输出。
+       之前这段逻辑是「有 source_url 才渲染，否则整段消失」，
+       导致字段为空时页面上看着像「这个产品没有官网」。 */
+    const hasFn = vm.runInContext('typeof cardLinks === "function"', sandbox);
+    ck('app.js 导出 cardLinks', hasFn);
+    if (!hasFn) return;                  // 构建产物没重新生成时，别把后面的断言带崩
+
+    const run = (obj) => vm.runInContext(
+      'cardLinks(' + JSON.stringify(obj) + ')', sandbox);
+
+    const both = run({ website: 'https://stan.store/', source_url: 'https://trustmrr.com/startup/stan' });
+    ck('两条都有时渲染两个链接', both.includes('官网') && both.includes('来源'));
+    ck('官网链接指向 website', both.includes('href="https://stan.store/"'));
+    ck('来源链接指向 source_url', both.includes('href="https://trustmrr.com/startup/stan"'));
+    ck('链接文字用域名缩写', both.includes('stan.store') && both.includes('trustmrr.com/startup/stan'));
+    ck('外链都带 noopener', (both.match(/rel="noopener"/g) || []).length === 2);
+
+    const onlyWeb = run({ website: 'https://a.io/' });
+    ck('只有官网时只渲染官网', onlyWeb.includes('官网') && !onlyWeb.includes('来源'));
+
+    const onlySrc = run({ source_url: 'https://x.com/a' });
+    ck('只有来源时只渲染来源', onlySrc.includes('来源') && !onlySrc.includes('官网'));
+
+    const none = run({});
+    ck('两个都没有时给灰字说明（不是整段消失）', none.includes('来源未记录'));
+    ck('缺省提示不带链接', !none.includes('<a '));
+
+    /* 反向：卡片 HTML 里不该再出现旧的「字段空就整段不渲染」写法 */
+    const inboxHTML = get('grid-inbox')._html || '';
+    const candHTML = get('grid-cands')._html || '';
+    ck('卡片底部渲染了来源行', inboxHTML.includes('cand-link') || candHTML.includes('cand-link')
+      || inboxHTML.includes('来源未记录') || candHTML.includes('来源未记录'));
+  });
 
   console.log('\n[J] 引流位（顶部条 / 页脚 / 详情抽屉底）');
   (function checkPromo() {
@@ -517,6 +605,39 @@ process.on('unhandledRejection', (e) => errors.push('unhandledRejection: ' + e))
     const dh = get('drawer-body')._html || '';
     ck('详情抽屉底部有引流块', dh.includes('class="d-promo"'));
     ck('抽屉引流块文案来自配置', dh.includes(wx.name));
+  })();
+
+  /* ---------------- 公开站上不该有后台的痕迹 ----------------
+     核实与入库现在是另一个站点（admin/，另一个端口）。
+     所以这里要验的是「搬干净了」：公开站的代码里一个后台函数都不剩，
+     界面上也没有任何点了没反应的按钮。
+
+     这不是洁癖 —— 留着 openVerify / verifyHTML 在公开站的 app.js 里，
+     等于把后台的 DOM 结构、字段名、接口路径白送给任何「查看源代码」的人；
+     留着一颗点不动的按钮，则是在告诉读者这个站本来是能编辑的。
+
+     工作台本身（门槛 / 必填 / 加分那套断言）在 uitest-admin.js 里测，
+     那里加载的是 admin/verify.js。 */
+  console.log('\n[K] 公开站没有后台代码');
+  (function checkNoAdminCode() {
+    const ck = (label, ok, extra) => {
+      console.log('  [' + (ok ? 'PASS' : 'FAIL') + '] ' + label + (extra ? '  ' + extra : ''));
+      ok ? pass++ : fail++;
+    };
+
+    // src 是这份测试实际求值的那一份（静态模式下是构建产物）
+    for (const name of ['openVerify', 'verifyHTML', 'draftProgress', 'publishVerified',
+                        'ensureSchema', 'VSCHEMA', 'VDRAFT', 'VRESULT',
+                        'loadSession', 'renderAdminChip', 'openLogin', 'doLogin',
+                        'doLogout', 'IS_ADMIN', '/api/login', '/api/logout',
+                        'verify-schema']) {
+      ck('app.js 里没有 ' + name, !src.includes(name));
+    }
+    ck('app.js 里没有 toCandidate（写操作已搬走）', !src.includes('async function toCandidate'));
+    ck('页面里没有后台入口按钮', !get('admin-btn')._html);
+    ck('抽屉里没被塞过登录框', !(get('drawer-body')._html || '').includes('login-pw'));
+    ck('统计条正常渲染（说明页面本身是好的）',
+      (get('stat-strip')._html || '').includes('精写案例'));
   })();
 
   if (errors.length) {

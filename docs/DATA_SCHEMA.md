@@ -59,9 +59,9 @@ Scores, enums and metrics are safe to aggregate, sort and chart anywhere.
   "schema_version": "1.0",
   "lang": "zh-CN",
   "generated_at": "2026-09-13 12:27:04",
-  "cases":      [ /* Case, 24 items, curated & verified   */ ],
-  "candidates": [ /* Candidate, 37 items, human-picked     */ ],
-  "inbox":      [ /* InboxItem, ~188 items, machine-mined  */ ],
+  "cases":      [ /* Case, 25 items, curated & verified   */ ],
+  "candidates": [ /* Candidate, 33 items, human-picked     */ ],
+  "inbox":      [ /* InboxItem, ~347 items, machine-mined  */ ],
   "sources":    { /* SourcesDoc, see below                  */ },
   "stats":      { /* Stats, see below                       */ }
 }
@@ -111,7 +111,40 @@ guaranteed present; everything else may be `null`, `""` or `[]`.
 | `updated_at` | string | `YYYY-MM-DD` — last edit of any kind. |
 | `tags` | string[] | Free-text tags. |
 | `needs_review` | bool | Optional. Present and `true` when promoted without verification. |
+| `caliber` | enum \| "" | Which revenue definition the headline figure uses: `arr` \| `mrr` \| `run_rate` \| `lifetime` \| `gmv` \| `gross`. |
+| `quality_score` | number \| null | Bonus score (0–100) at publish time. 60 is the publish threshold. |
+| `tier` | enum | `premium` \| `backup` — where the case sits in the library. See below. |
+| `tier_reason` | string | Why it got that tier. Always present when `tier` is. |
+| `published_from` | string \| null | The candidate `id` this case was promoted from. |
+| `human_read` | bool \| null | Whether someone ticked "I read the source myself". **Absent ≠ false** — see below. |
+| `human_read_at` | string | Server-stamped `YYYY-MM-DD HH:MM` of the tick. `""` when unticked. Never taken from a request body. |
+| `verification_downgraded` | object \| null | Present only when `audit_evidence.py` lowered `verification`. See below. |
 | `china_fit` | object \| null | China-portability score. See below. |
+
+#### `tier`, `tier_reason`
+
+Two shelves only. The policy lives in `verify_rules.default_case_tier()` and is
+applied by all three tier-setting paths in the server: a first-hand source
+(`stripe`/`official`) makes the case `premium` regardless of score; otherwise a
+`quality_score` ≥ 60 does. `tier_reason` always records which one decided it.
+
+#### `human_read` / `human_read_at`
+
+A marker, not a gate — it never blocks publishing. Cases promoted **before** the
+marker existed simply carry no `human_read` field: absence means *this case predates
+the marker*, not *nobody read it*. `false` means the box was left unticked. Only the
+server may stamp `human_read_at`, and it takes that moment from the stored draft, so
+a forged timestamp in the request body is ignored.
+
+#### `verification_downgraded`
+
+| Field | Notes |
+|---|---|
+| `from` | The grade the case used to claim. Restoring it is a one-line edit. |
+| `to` | What `verification` is now. |
+| `reason` | Why — including which source kinds were actually registered. |
+| `at` | `YYYY-MM-DD` of the downgrade. |
+| `tool` | Always `scripts/audit_evidence.py`. |
 | `solo_fit` | object \| null | Solo-founder score. See below. |
 | `composite` | object \| null | Two-axis aggregate + quadrant. See below. |
 
@@ -127,6 +160,30 @@ guaranteed present; everything else may be `null`, `""` or `[]`.
 | `unverified` | none | Not checked yet. |
 
 `stats.verified` counts only `stripe` + `official`.
+
+#### The claimed grade must be supported by the sources
+
+A grade is a promise to the reader. Marking a case `stripe` says *we have seen payment
+data* — so `stripe`/`official` require an `A`-tier source to be registered on the case.
+Everything else steps down the ladder (`partial` needs `B`, `founder` needs `C`):
+
+```
+A) stripe/official → stripe    B) press/review → partial
+   official → official            C) founder → founder
+                                  D) secondary → nothing (needs a human)
+```
+
+The rule lives once, as `verify_rules.best_supported_level()` / `evidence_gap()`;
+`scripts/audit_evidence.py` walks `cases.json` through it and fixes claims that
+evidence does not carry:
+
+```bash
+python scripts/audit_evidence.py            # report only
+python scripts/audit_evidence.py --apply    # downgrade, with a backup and a record
+```
+
+An applied downgrade never deletes the old value — it moves into
+`verification_downgraded` (see below), so restoring it is removing one field.
 
 ### `metrics` object
 
@@ -177,7 +234,20 @@ coverage and are wrong.
 |---|---|---|
 | `label` | string | Human-readable citation. |
 | `url` | string | Link. |
-| `kind` | enum | `stripe` \| `official` \| `press` \| `review` — evidence class. |
+| `kind` | enum | Evidence class. The tier column decides what the case may claim — see below. |
+
+| `kind` | Tier | Meaning |
+|---|---|---|
+| `stripe` | A | Payment-gateway data (TrustMRR, Stripe case studies). |
+| `official` | A | Company press release or financial disclosure. |
+| `press` | B | Reporting by an independent outlet. |
+| `review` | B | Third-party teardown / fact-check site (SaaSXtra, Steal What Works, NeoDrop). |
+| `founder` | C | The founder's own posts. |
+| `secondary` | D | Chinese second-hand retellings (WeChat accounts, paid communities). |
+
+`A` (stripe, official) is the only tier that counts as first-hand (`primary: true`
+in `verify_rules.SOURCE_TIERS`). A `D`-only case cannot support **any** evidence
+grade — it needs a human re-check, not a different label.
 
 ---
 

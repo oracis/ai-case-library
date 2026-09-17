@@ -339,6 +339,20 @@ body { display: flex; flex-direction: column; }
 }
 .card-foot .cf-r { display: flex; align-items: center; gap: 9px; font-family: var(--mono); }
 
+/* 卡片来源行：官网 / 来源两条链接 */
+.cand-links { display: flex; flex-wrap: wrap; gap: 6px; }
+.cand-link {
+  font-size: 11px; font-family: var(--mono); text-decoration: none;
+  color: var(--text-3); padding: 2px 7px; border-radius: 5px;
+  border: 1px solid var(--border); background: var(--surface-3);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+}
+.cand-link:hover { color: var(--accent); border-color: var(--accent); }
+.cand-link[data-k="web"] { color: var(--text-2); }
+.cand-link.is-none {
+  font-size: 11px; color: var(--text-3); opacity: .55; font-style: italic;
+}
+
 /* 核实徽章 */
 .badge {
   font-size: 10px; font-weight: 600; letter-spacing: .3px;
@@ -608,14 +622,6 @@ body { display: flex; flex-direction: column; }
   transition: all .13s;
 }
 .src-link:hover { background: #2a3542; color: var(--text); border-color: var(--border-2); }
-
-/* 静态部署下的写操作占位：不放按钮，改成一个说明性标签，
-   避免点了没反应，也免得访客以为这是个能操作的站 */
-.ro-tag {
-  font-size: 11px; padding: 3px 9px; border-radius: 6px;
-  background: rgba(255, 255, 255, .03); border: 1px dashed var(--border);
-  color: var(--text-3); cursor: help; user-select: none;
-}
 
 /* ============================ 方法论 ============================ */
 .method { max-width: 860px; }

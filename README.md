@@ -35,7 +35,15 @@ start.bat
 
 浏览器会自动打开 <http://127.0.0.1:5052/>。
 
-换端口：`set CASE_LIB_PORT=5099 && python server.py`
+**一次启动会开两个站**，它们是两个端口、两套界面：
+
+| 端口 | 目录 | 是什么 |
+|---|---|---|
+| <http://127.0.0.1:5052/> | `static/` | **公开站**：只读的阅读站，谁都能看。要部署到 OSS 的就是这份。 |
+| <http://127.0.0.1:5053/> | `admin/` | **管理后台**：要登录，核实与入库只在这里。 |
+
+换端口：`set CASE_LIB_PORT=5099 && python server.py`（后台默认跟着 +1，
+也可以单独设 `CASE_LIB_ADMIN_PORT`）。
 
 也可以不起服务，直接看静态版本（部署到线上的就是这份，只读）：
 
@@ -244,26 +252,106 @@ python scripts/score_solo_fit.py --dry-run --top 10
 ## 采集
 
 ```bash
-python scripts/harvest.py --source hn          # Hacker News，免 key，可直接跑
-python scripts/harvest.py --source trustmrr    # 抓 TrustMRR 榜单 + 市场挂牌
-python scripts/harvest.py --source all         # 能跑的都跑
-python scripts/harvest.py --source hn --dry-run   # 只看结果，不写入
+python scripts/harvest.py --source hn             # Hacker News，免 key，可直接跑
+python scripts/harvest.py --source trustmrr       # 走 TrustMRR 官方公开数据端点
+python scripts/harvest.py --source indiehackers   # Indie Hackers（自报数字 + 过程自述）
+python scripts/harvest.py --source arrclub        # ARR Club（只做校对，不进候选池）
+python scripts/harvest.py --source all            # 能跑的都跑
+python scripts/harvest.py --source hn --dry-run       # 只看结果，不写入
+python scripts/harvest.py --source hn --hn-comments 5 # 给新增条目补 HN 评论正文
 python scripts/harvest.py --max-inbox 400         # 队列上限，超额自动归档（不删）
 python scripts/harvest.py --max-inbox 0           # 0 = 不限，队列无限增长
 ```
 
 `--source ph`（Product Hunt）需要 token：`--token <PH_TOKEN>` 或设环境变量 `PH_TOKEN`。
 
-采集脚本会按 `data/sources.json` 里的 `filter_rules` **去掉广告与新闻稿**，
-只留「有人在为自己的东西说话」的素材。实测：
+### 每条素材都带 source_kind（可信度钉在数据层）
+
+五个信息源的可信度差别很大，混在一起看会出事。所以每条采集结果都带一个
+`source_kind`，前端据此显示徽章：
+
+| source_kind | 含义 | 对应源 |
+|---|---|---|
+| `verified` | 收入由支付网关 API 直读，不接受截图自报 | TrustMRR（A） |
+| `self_reported` | 创始人自述，未经第三方验证 | Indie Hackers、Hacker News（B） |
+| `secondary` | 二手转述，只能当线索或校对参照 | ARR Club（B-） |
+| `discovery` | 只用于发现新项目，本身不含收入数据 | Product Hunt（B） |
+
+这条规则是硬的：**Indie Hackers 的收入一律标 `self_reported` 并在 note 里写明
+「进精写库前必须交叉核对」；Product Hunt 的条目不许写任何收入字段**（它根本
+没有收入数据，只有榜单热度）；ARR Club 的结果只写 `data/arrclub.json` 当校对
+参照，**不进候选池**。`scripts/test_harvest_sources.py` 把这些都钉成了断言。
+
+### 各源的真实通道与限制（都实测过）
+
+| 源 | API | 详情页 | 实测结论 |
+|---|---|---|---|
+| TrustMRR | ✅ `/api/ai` 免鉴权，单条 40 字段 | ✅ HTML + `.md` | 通道全通 |
+| Hacker News | ✅ Algolia 免 key，连打 6 次无限流 | ✅ `items/<id>` 拿完整评论树 | 「怎么做到的」在评论里 |
+| Indie Hackers | ❌ 无 API（`.json`/`/api/product/` 均 404） | ✅ 服务端渲染可解析 | 只能靠 sitemap 枚举 |
+| ARR Club | ❌ 仅企业版 | ✅ 但**只能解 FAQPage JSON-LD** | 二手转述，只做校对 |
+| Product Hunt | ⚠️ 只有 Atom feed | ❌ **全站 403（Cloudflare）** | 只能当雷达 |
+
+几个必须知道的坑：
+
+- **Product Hunt 的详情页抓不到。** `/products/<slug>`、`/products`、`/leaderboard/*`、
+  `/rss`、`/topics/*`、`/frontend/graphql` 实测**全部 403**。唯一可达的是
+  `https://www.producthunt.com/feed`（Atom，50 条/页，支持 `?category=` 过滤），
+  而且**feed 里没有 upvote 数**。所以 PH 在本库只能当发现雷达，想要投票数只能
+  申请官方 API token。
+- **Indie Hackers 的分页是假分页。** `?page=2` 与 `?page=1` 返回**完全相同字节**
+  （排序翻页都在前端 JS 里），所以不能靠翻页枚举，只能走 sitemap。sitemap 里
+  `/product/<slug>` 是干净产品页（133KB，metrics 齐全），
+  `/product/<slug>/<milestoneId>` 是单条里程碑（42KB，没有 metrics）——后者要丢掉。
+- **Indie Hackers 的 sitemap 分片很大。** 每个分片约 **10.6MB**（5 片合计 ~53MB），
+  而且干净产品 slug 均匀散在分片里（前 2MB 一个都没有），所以「下一半就停」省不了
+  时间。对策是**一次只抓一个分片**并用游标轮换，结果存进 `data/ih_slugs.json`
+  缓存；日常采集直接读缓存，零下载。想看它慢慢覆盖全部产品，跑几天就行；
+  想立刻重抓一片加 `--refresh-ih-slugs`。
+- **ARR Club 的 `arr` 字段不可靠。** 实测 `/notion` 上取不到（`/linear` 才有），
+  所以只解 `FAQPage` JSON-LD——那里是**带年份**的权威值。年份必须和数字成对存储：
+  `<title>` 写 2026 而 FAQ 写 2025，只存数字会串年份。另外它覆盖不全（`/stripe`
+  实测 404），而且页面自贴「Certificate」徽章、FAQ 里自引
+  「according to ARR Club's verified data」——自己说自己是 verified，这正是
+  二手转述的典型特征。
+
+### TrustMRR 走官方 AI 端点
+
+TrustMRR 提供了面向 AI 的公开数据端点，**一次请求拿到 40 字段**，包括官网、
+排名、MRR、累计收入、客户数、增速、分类、国家、创始人 X 账号：
 
 ```
-Hacker News   168 条原始
-TrustMRR       44 条原始
-───────────────────────
-过滤后        162 条  （丢弃 50：无保留信号 46、ipo 2、ebook 1、acquired by 1）
-去重后        127 条入队（已采过的自动跳过）
+https://trustmrr.com/api/ai              公开 JSON（recentlyListedStartups + bestDeals）
+https://trustmrr.com/startup/<slug>.md   官方 AI 读本（出处分层、刷新时间戳、X 粉丝数）
+https://trustmrr.com/startup/<slug>      详情页（JSON-LD 里是官网明文）
+https://trustmrr.com/llms.txt            站点抓取说明
 ```
+
+抓取顺序：**先走 `/api/ai`**，拿不到才回落解析首页 HTML。
+
+早先只读首页 JSON-LD 的 `ItemList`，而那里 `url` 恰好是榜单自身页，于是
+「官网」这个概念根本没进采集器——候选池一度 36 条**没有一条**带官网。
+现在主通道换成官方端点，这部分字段直接落盘。
+
+`.md` 读本比 JSON 多两样东西，所以采集时会给新增条目顺手补上（`--trustmrr-md`）：
+**出处分层**（哪些字段由外部 provider 验证、哪些是用户生成内容）和
+**refresh 时间戳**（用来判断这份数据到底有多新，落进 `data_freshness`）。
+
+已采过的旧数据可以回填：
+
+```bash
+python scripts/backfill_trustmrr.py --dry-run      # 先看会改什么
+python scripts/backfill_trustmrr.py                # 实际写入（幂等，可重复跑）
+python scripts/backfill_trustmrr.py --no-detail    # 只用批量端点，不逐个查详情页
+```
+
+回填只补空字段、不覆盖人工写过的内容；只处理能确认来自 TrustMRR 的记录
+（候选池里混着的公众号二手转述不会被误改）。
+
+采集脚本会按 `data/sources.json` 里的 `filter_rules` **去掉广告与新闻稿**，
+只留「有人在为自己的东西说话」的素材。TrustMRR 侧另外跳过两类噪音：
+**隐身公司**（名字是「Anonymous startup」假名、域名不公开）和
+**月收入低于 $100 的条目**（刚上线或已停摆，没有案例价值）。
 
 采集脚本一律只写 **采集队列**，绝不直接写精写库。
 
@@ -272,6 +360,18 @@ TrustMRR       44 条原始
 `keep_signals` 最初是裸子串匹配，结果 `bootstrapped` 命中了 `source-bootstrapped`——
 「Nix has a source-bootstrapped OpenJDK」这种编译器帖子被当成了创业项目，还排在简报第一位。
 现在改成**词边界匹配**，并且刻意不收裸的 `bootstrapped`（只收 `bootstrapped startup`）。
+
+### AI 核实时会剔除无关来源
+
+产品名恰好是常见英文词时会出问题：`Eloquent` 那次，AI 去检索找回来的全是
+**剑桥词典、金山词霸的单词释义**；中文二手转述里还会夹带 `music.163.com`、
+`y.qq.com` 这类音乐平台。这些来源一旦进了 `sources`，会虚增「来源条数」、
+干扰一手来源判定，让一条本该被否的条目看起来「有多个来源互相印证」。
+
+现在 `scripts/ai_verify.py` 有一份域名黑名单（词典 / 音乐影视 / 电商下载站），
+**先过滤再取前 6 条**（顺序很重要：先截断的话垃圾会白占名额），被剔除的条数
+记进草稿的 `irrelevant_sources_dropped` 并在 note 里透明标注。
+
 
 ---
 
@@ -384,26 +484,227 @@ python scripts/verify.py --checklist                         # 只看通用清�
 
 **这一步不能交给工具。** 工具不会因为「数字看起来合理」而警觉，但你会。
 
+### AI 自动核实（找卡点 → 补材料 → 判定 → 发布）
+
+「人工一个一个对」里的大部分活是确定性劳动：检索原文、抓页面、对口径、
+判断「够了没有」。这些交给 `scripts/ai_verify.py`，人只保留最后背书。
+
+**推荐用法：后台「AI 核实」面板**。登录管理后台（默认 5053），
+侧栏最后一项就是它：
+
+1. **LLM 接口配置**：填 API Key（DeepSeek / Kimi / GLM 等 OpenAI 兼容接口都行）
+   点「保存」。Key 存在 `data/secrets.json`（.gitignore 已排除，绝不入库），
+   保存后立刻生效、重启也在；也可以用下面的环境变量，环境变量优先。
+2. **先看卡点**：离线列出每条候选卡在哪（门槛几项 / 必填缺几项），不联网不动数据。
+3. **开始跑**：设数量（默认 5）和发布阈值（60 = 只发精品档），勾不勾
+   「够格直接发布」。任务在**服务端后台线程**跑，关掉页面不影响，
+   回来接着看实时日志；跑完候选池的草稿进度自动刷新。
+
+命令行等价用法（CI / 定时批量时更顺手）：
+
+```bash
+python scripts/ai_verify.py --plan                # 离线：列出每条候选的卡点，不动任何数据
+python scripts/ai_verify.py --limit 5             # AI 预核 5 条：检索→抓原文→填草稿（不发布）
+python scripts/ai_verify.py --id gojiberry-ai     # 单条
+python scripts/ai_verify.py --limit 5 --publish   # 够格的直接发布成案例（精品/备选由规则定）
+python scripts/ai_verify.py --all --publish --min-score 60   # 全部处理，只发精品档
+```
+
+它怎么工作：
+
+1. 用规则引擎算出每条候选**当前卡在哪**（占位条目、「未获取」、「体量太小」自动跳过）
+2. 生成检索词 → Bing（国内可达）+ DuckDuckGo 兜底 → 抓正文
+3. 把候选资料 + 卡点 + 原文摘录交给 LLM（OpenAI 兼容接口），**只许依据原文判断，禁止编造 URL**
+4. AI 回答映射成核实草稿——**每个勾都要求结构性证据**：AI 的布尔值不许裸信，
+   bonus 必须与来源构成对得上。**门槛是三态**（`yes`/`no`/`unknown`），判定口径是
+   **一道成立就进库**：三道里只要有一道被确认成立就放行，AI 找到的反证降级为
+   「待人工复核」提醒；只有**一道都没成立、且 AI 拿到了明确反证**才判不进库。
+   **没有一手来源也不再一票否决**，降级为「待人工复核」提醒——AI 找不到官网不代表
+   数字是假的，那是人该判的事；但提醒必须留着，本库所有错误都出在中转述这一层。
+   **三道门槛全部成立时质量分自动 +10**（由 `gates` 推导，不是第七个勾选项）——
+   核得越实诚离精品线越近；差一道就不给，这是它唯一的触发条件
+5. 草稿写回后台（工作台里能看到），规则引擎判定；`--publish` 时把够格的走
+   `/promote` 发布——服务端会**再过一遍规则引擎**，这是第二道闸门
+
+环境变量（也可以在后台「AI 核实」面板里保存，文件优先级低于环境变量）：
+
+```bash
+export CASE_LIB_AI_KEY=sk-...                  # 必填（--plan 除外）；或存进 data/secrets.json
+export CASE_LIB_AI_BASE=https://api.deepseek.com   # 默认，DeepSeek/Kimi/GLM 均可
+export CASE_LIB_AI_MODEL=deepseek-chat         # 默认
+export CASE_LIB_ADMIN_PASSWORD=...             # 后台密码（写草稿/发布要登录 5053）
+```
+
+**人保留什么**：`human_read`（我亲自看过原文）**任何模式都不自动勾**，包括
+`--publish`。它**不拦发布**（2026-09-17 起）—— 不勾照样能入库，区别在于：
+
+- 不勾 → 草稿挂一条 `pending_human_read` 提醒，案例上落 `human_read: false`
+- 勾了 → 案例上落 `human_read: true` + `human_read_at`（核读时刻），
+  后台案例卡片显示「已核读 2026-09-17」
+
+这个时间戳由服务端在第一次勾上时铸，**请求体里带什么都会被忽略** —— 否则前端
+能自己伪造一个背书时间；通用 `PATCH /api/cases/<id>` 也显式挡掉了这两个字段。
+
+改成不拦发布的原因：原来它一拦，每条候选都卡在「还差 1 项必填」，而勾完之后案例
+上什么都不留（案例字段里既没有 `human_read` 也没有 `musts`）—— 每次提升都要求人
+点一下，换来的却是一份阅后即焚的承诺。现在承诺变成一条可查的记录。
+
+没抓到原文的条目会被明确拒绝而不是硬编（实测 getdavid 一条：检索不到一手
+披露，脚本直接跳过、维持卡点）。
+
+### 核实等级不能被虚标
+
+核实等级不是装饰，是给读者的信任凭证：标「支付网关验证」，读者就以为我们
+看过 Stripe 后台。所以 **`stripe` / `official` 必须有 A 档来源撑着**，
+否则一路降级：`partial`（只有第三方报道）、`founder`（只有创始人自述）；
+只有中文二手转述的，任何等级都不成立 —— 那需要的是人工重核，不是换个标签。
+
+```bash
+python scripts/audit_evidence.py            # 只报告，不改数据
+python scripts/audit_evidence.py --apply    # 降级写回（先备份，并留降级记录）
+```
+
+规则只写一遍，在 `scripts/verify_rules.py` 的 `best_supported_level()` /
+`evidence_gap()`；上面那个脚本只是遍历 `cases.json` 而已。
+
+第一次跑 `--apply` 时，库里有 **11 条**案例标着 stripe / official，登记的来源
+却只有第三方拆解站（SaaSXtra、Steal What Works、NeoDrop），全部降成了
+「口径待核」。降级不留哑账：原等级和理由写进每条案例的
+`verification_downgraded` 字段，想改回去删掉它就行。
+
+### 核实工作台（在独立的管理后台里）
+
+核实与入库**不在公开站上**。`python server.py` 会同时开第二个端口跑
+`admin/`，那是一个独立的站点：有自己的登录页、自己的侧栏（候选池 /
+采集队列 / 已发布）、自己的样式和脚本。
+
+```bash
+python server.py
+# 公开站  http://127.0.0.1:5052/
+# 后台    http://127.0.0.1:5053/   ← 核实在这里
+```
+
+- 第一次启动会在控制台打印一个**随机管理员密码**，只显示这一次，
+  之后沿用。想改随时重设：
+
+  ```bash
+  python scripts/auth.py --reset      # 重新生成随机密码并打印
+  python scripts/auth.py --set 你的密码
+  ```
+
+- 打开 5053 → 输密码 → 候选池卡片上就有「核实 →」，点开是完整的工作台。
+- 登录状态存 HttpOnly cookie，**12 小时**有效；点「退出」立刻失效。
+- 登出后再拿旧 cookie 也进不去（服务端会吊销，不只是清浏览器 cookie）。
+
+凭据存在 `data/admin.json`（已 gitignore）：里面是密码的 PBKDF2 摘要和
+一个随机签名密钥，**没有明文密码**，也绝不能提交。
+
+#### 为什么不放在同一个站的 `/admin` 路径下
+
+因为「同一个站上的 `/admin`」永远挡不住好奇的人去试：它会响应、会返回
+401，等于明晃晃告诉别人这儿有个后台，还顺手给了个撞库的入口。
+
+分成两个端口之后，**公开站上根本没有这些接口** —— 请求过来就是 404，
+和请求一张不存在的图片没有任何区别：
+
+| 请求 | 公开站 5052 | 后台 5053 |
+|---|---|---|
+| `GET /api/verify-schema` | 404 | 401（未登录）/ 200 |
+| `POST /api/login` | **404（连门都没有）** | 401 / 200 |
+| `POST /api/cases`（入库） | 404 | 401 / 201 |
+| `GET /verify.js`（工作台脚本） | 404 | 200 |
+| `GET /api/data` | 只有公开数据 | 管理员还能拿到核实草稿 |
+
+注意这个隔离是**结构性**的，不是靠鉴权撑着的：就算把鉴权整个关掉
+（`CASE_LIB_NO_AUTH=1`），公开站照样一个字都改不了。`selftest.py` 的
+第 9 节就是拿关掉鉴权的服务来验这件事的。
+
+### 仓库是公开的，这样安全吗
+
+安全，前提是**服务只在本机跑**。把边界说清楚：
+
+| 会被公开 | 不会公开 |
+|---|---|
+| `scripts/auth.py` 的全部算法 | `data/admin.json`（密码摘要 + secret）|
+| `server.py` 的接口与鉴权逻辑 | 你实例的真实密码 |
+| 迭代次数、token 格式、cookie 名 | `data/verifications.json`（核实草稿）|
+| 生成密码的字母表和长度 | |
+
+代码全公开没关系——**密码学不靠算法保密**。别人 clone 之后启动，会在他
+自己机器上生成**另一个**密码和**另一套** secret，那是他本地实例的管理员；
+你的 secret 只在你 `data/admin.json` 里，他拿不到，所以：
+
+- 他生成的密码，在你这里**校验不通过**；
+- 他用自己 secret 签的 token，你的服务**拒绝**（HMAC 对不上）。
+
+反过来也一样：你的密码不能用来登他的。两边是两台互不相干的机器。
+
+**但有一个前提不能破：两个端口都绑在 `127.0.0.1`。** 代码里是这么写的，
+别改成 `0.0.0.0` 或做端口转发——那等于把这个登录框直接挂到互联网上，那时
+「密码会不会被猜出来」就变成真问题了。同理，**别把 `data/` 提交上去**。
+
+登录做了两道减速：PBKDF2 本身每次约 0.8 秒，加上**连续错 5 次锁 5 分钟**
+（锁定期内正确密码也进不来）。公开仓库意味着攻击者知道怎么比对密码，
+唯一挡着他的就是「试不快」和「试不多」，这两条正好守住了。
+
+线上静态站（`case.ydtgo.top`）**没有后台**——它只有一个 `data.json`，
+没有后端，所以是只读快照。构建产物里也不会带上后台的任何一行代码
+（`scripts/build_static.py` 只吃 `static/`，`admin/` 根本不在输入里）。
+核实请在本地跑 `server.py`，然后开 5053。
+
 ---
 
 ## 自测
 
 ```bash
-python selftest.py                    # 后端：起临时服务，34 项接口测试，自动备份+还原数据
-node uitest.js                        # 前端：用 DOM 桩跑一遍所有渲染函数，55 项检查
-node uitest.js --static               # 前端静态产物：只读模式与控件降级，57 项检查
+python selftest.py                    # 后端：起临时服务，121 项接口测试，自动备份+还原数据
+node uitest.js                        # 公开站：DOM 桩跑一遍所有渲染函数，95 项检查
+node uitest.js --static               # 公开站静态产物：只读模式，96 项检查
+node uitest-admin.js                  # 管理后台：登录 / 三块视图 / 工作台 / AI 面板，118 项检查
+python scripts/test_verify_rules.py   # 核实规则引擎，57 项
+python scripts/test_ai_verify.py      # AI 自动核实的纯函数：挑选/映射/JSON 提取，40 项（不联网）
+python scripts/test_harvest_sources.py # 五源解析 + source_kind 可信度，188 项（不联网）
+python scripts/test_prerender.py      # 预渲染与 noscript 兜底，54 项（不联网）
 python scripts/test_daily_harvest.py  # 自动提交脚本：git 机制与失败路径，25 项（不联网）
 python scripts/test_build_static.py   # 静态构建：防误删护栏 + 构建自检，38 项（不联网）
-python scripts/check_ci.py            # 校验 workflow 的 YAML 结构与其中 shell 脚本语法
+python scripts/check_ci.py            # 校验 workflow 的 YAML 结构与其中 shell 脚本语法，44 项
+python scripts/e2e_verify_write.py    # 手动跑：核实写入端到端（需先起 server.py），27 项
 ```
 
-`selftest.py`、`uitest.js`、`build_static.py` 都会被 CI 在每次 push 时自动跑（见下）；
+`test_harvest_sources.py` 用的是**真抓下来的响应**（`scripts/fixtures/`，含
+IndieHackers 产品页、ARR Club 公司页与 sitemap、HN 搜索、PH Atom feed、
+TrustMRR 的 `.md`），全部离线跑，不联网。它守的几条线：
+
+- 每条采集结果**必须带 `source_kind`**，且值在四枚举内；
+- IndieHackers 的自报数字必须标 `self_reported`，Product Hunt **不许带任何收入字段**；
+- ARR Club 的 ARR **必须与年份成对存储**（防止 `<title>` 2026 与 FAQ 2025 串年份）；
+- sitemap 里 `/product/<slug>/<milestoneId>` 这种里程碑 URL 要丢掉；
+- `sources.json` 与 `harvest.py` 的 `source_kind` **不能漂移**
+  （一个是给人看的说明，一个是真跑的逻辑，对不上不会报错，只会静默不一致）；
+- 抓取要有**总耗时上限**（`urlopen` 的 timeout 只管 socket 空闲，慢速滴数据时不会触发）。
+
+`selftest.py`、`uitest.js`、`uitest-admin.js`、`build_static.py` 都会被 CI
+在每次 push 时自动跑（见下）；
 `test_daily_harvest.py`、`test_build_static.py`、`check_ci.py` 是本地工具。
 
-**`selftest.py`** 起一个临时服务（默认 5087 端口，不影响正在跑的 5052），
+**`scripts/e2e_verify_write.py`** 是手动跑的工具，验证「核实写入路径」是否真的落盘：
+`PUT /verification` → `promote` → 案例字段。给核实草稿加字段时**必须先起服务再跑它** ——
+单测绕过 HTTP 层，字段漏进 `server.py` 的白名单时存盘即丢、而所有单测仍是绿的
+（这个坑踩过一次，那次丢的是 `gates_denied`）。它用合成候选跑、跑完从备份还原。
+
+```bash
+python server.py                              # 另开一个终端
+python scripts/e2e_verify_write.py            # 27 项断言
+```
+
+**`selftest.py`** 起一个临时服务（默认 5087 公开 / 5088 后台，不影响正在跑的 5052），
 **在开始前备份 data/、结束后无论成败都还原**。
 
-覆盖：静态资源、4 个接口、数据结构、三级漏斗推进、新增/修改/异常处理、目录穿越防护。
+覆盖：公开站静态资源、后台静态资源、接口、数据结构、三级漏斗推进、
+新增/修改/异常处理、目录穿越防护、后台鉴权（[8]）、**双站点隔离（[9]）**。
+
+第 [9] 节值得单独说一句：它故意在**关掉鉴权**的服务上验证「公开站仍然只读」。
+如果公开站上还能写，就说明「两个站分开」只是靠鉴权撑着，而不是结构上真分开。
 
 **`uitest.js`** 不需要浏览器——用最小 DOM 桩加载 `static/app.js`，跑完全部渲染函数，检查：
 
@@ -428,8 +729,18 @@ python scripts/check_ci.py            # 校验 workflow 的 YAML 结构与其中
 并把 `fetch` 换成「一调就炸」的桩：万一哪天静态模式里误用了 `/api`，测试会直接暴露，
 而不是静默拿到 `undefined`。
 
-多验四件事：不渲染写按钮、写按钮位置换成「只读快照」标签、侧栏标注只读快照、
-数据确实来自 `data.js`。
+多验四件事：不渲染写按钮、侧栏标注只读快照、数据确实来自 `data.js`、
+**app.js 里一个后台函数都不剩**（`openVerify` / `verifyHTML` / `IS_ADMIN` /
+`/api/login` …全都不存在 —— 这是「两个站真的分开了」的前端侧证据）。
+
+**`uitest-admin.js`** 是后台站自己的那套，加载 `admin/verify.js` + `admin/app.js`：
+
+- 默认停在登录框、错密码给出提示、对密码进入后台
+- 三块视图（候选池 / 采集队列 / 已发布）与视图切换
+- 核实工作台六段齐全、发布按钮默认禁用、判定条区分过与不过
+- 点「核实 →」能打开抽屉并渲染出工作台
+- 登出后清掉内存里的数据、退回登录框
+- 反过来确认两个站没串：`static/app.js` 里没有 `loadAdmin`，`admin/app.js` 里没有公开站的阅读视图
 
 ### 持续集成
 
@@ -438,7 +749,7 @@ python scripts/check_ci.py            # 校验 workflow 的 YAML 结构与其中
 | job | 矩阵 | 内容 |
 |---|---|---|
 | 后端 | Python 3.9 / 3.11 / 3.13 | 校验 `data/*.json` 是合法 JSON → 跑 `selftest.py` → 断言数据没被测试改脏 |
-| 前端 | Node 18 / 20 / 22 | `node --check` 两个 JS → 跑 `uitest.js` → 断言数据没被写脏 |
+| 前端 | Node 18 / 20 / 22 | `node --check` 四个 JS（公开站 + 后台 + 两个测试）→ 跑 `uitest.js` 与 `uitest-admin.js` → 断言数据没被写脏 |
 | 静态产物 | — | 真跑一遍 `build_static.py` → `uitest.js --static` 测只读模式 → 断言构建只产出 `dist/` |
 
 前后端两个 job 都是 `fail-fast: false`，某个版本挂掉时能看到全貌，而不是只看到第一个。
@@ -586,9 +897,9 @@ ai-case-library/
 │  └─ harvest.yml          每天 09:00 云端采集 → 校验 → 提交 → 部署
 ├─ data/
 │  ├─ sources.json         5 个信息源的配置、可信度分级、坑，以及采集过滤规则
-│  ├─ cases.json           精写案例（24 条）
-│  ├─ candidates.json      候选池（37 条）
-│  ├─ inbox.json           采集队列（脚本产出，135 条）
+│  ├─ cases.json           精写案例（25 条）
+│  ├─ candidates.json      候选池（33 条）
+│  ├─ inbox.json           采集队列（脚本产出，347 条）
 │  ├─ inbox_archive.json   队列超额后的归档（留底，不删除）
 │  └─ last_harvest.json    最近一次采集的简报
 ├─ scripts/
@@ -597,12 +908,26 @@ ai-case-library/
 │  ├─ build_static.py      构建静态站点到 dist/（部署用）
 │  ├─ deploy_oss.py        上传 dist/ 到阿里云 OSS（零依赖，自己实现 OSS 签名）
 │  ├─ verify.py            核实助手
+│  ├─ verify_rules.py      核实规则引擎（门槛 / 必填 / 质量分 / 定档 / 等级与证据）
+│  ├─ ai_verify.py         AI 自动核实流水线（找卡点→检索→填草稿→判定→可选发布）
+│  ├─ verify_case.py       对**已发布案例**重跑一次 AI 自核（候选池外也能核）
+│  ├─ audit_evidence.py    审计并修正「等级高于来源证据」的案例
+│  ├─ peek_ai.py           只读探针：打印发给 AI 的提示词与它的原始回答
+│  ├─ backfill_tier.py     给存量案例补 tier + tier_reason
+│  ├─ prerender.py         把案例预渲染成 case/<id>.html（给爬虫与分享用）
+│  ├─ make_article.py      生成公众号拆解稿（排序口径 + 发布红线检查）
 │  ├─ score_china_fit.py   国内移植可行性评分（六维加权 + 金银铜）
 │  ├─ score_solo_fit.py    个人可做性评分 + 双轴综合分 + 四象限
 │  ├─ test_daily_harvest.py 自动提交脚本的测试（25 项，不联网）
 │  ├─ test_build_static.py 静态构建的测试（38 项，含防误删护栏，不联网）
 │  └─ check_ci.py          校验 workflow 的 YAML 与 shell 语法（本地工具）
-└─ static/
+├─ admin/                  管理后台（独立站点，5053 端口，要登录）
+│  ├─ index.html           登录页 + 后台主体（侧栏三视图 + 工作台抽屉）
+│  ├─ style.css            复用公开站的设计变量 + 后台自己的布局
+│  ├─ app.js               登录态、三块视图、转入候选池
+│  └─ verify.js            核实工作台（只在这里，公开站一行都没有）
+├─ uitest-admin.js         后台渲染冒烟测试（DOM 桩，118 项）
+└─ static/                 公开阅读站（5052 端口，纯只读）
    ├─ index.html
    ├─ style.css            深色主题
    └─ app.js               无框架前端
@@ -610,15 +935,26 @@ ai-case-library/
 
 ## 数据接口
 
-| 方法 | 路径 | 说明 |
-|---|---|---|
-| GET | `/api/data` | 全部数据（cases / candidates / inbox / sources / stats） |
-| GET | `/api/stats` | 只要统计 |
-| PATCH | `/api/cases/<id>` | 改一条案例 |
-| POST | `/api/cases` | 新增案例（需 `name`） |
-| POST | `/api/candidates` | 新增候选 |
-| POST | `/api/inbox/<id>/to-candidates` | 采集队列 → 候选池 |
-| POST | `/api/candidates/<id>/promote` | 候选池 → 精写案例（带 `needs_review`） |
+公开站（5052）只提供读接口；下面标了「后台」的只在 5053 上存在，
+在公开站上请求一律 404。
+
+| 方法 | 路径 | 谁有 | 说明 |
+|---|---|---|---|
+| GET | `/api/data` | 两边 | 全部数据（cases / candidates / inbox / sources / stats）。后台登录后会多带 `verifications`（核实草稿） |
+| GET | `/api/stats` | 两边 | 只要统计 |
+| GET | `/api/session` | 两边 | 登录状态；公开站恒为 `admin: false` |
+| GET | `/api/ping` | 两边 | 探活，回 `site` 表明自己是哪个站 |
+| POST | `/api/login` | **后台** | 登录，下发 HttpOnly cookie |
+| POST | `/api/logout` | **后台** | 登出，服务端吊销 token |
+| GET | `/api/verify-schema` | **后台** | 核实规则表（门槛 / 必填 / 加分） |
+| GET | `/api/candidates/<id>/verification` | **后台** | 读某条候选的核实草稿 |
+| PUT | `/api/candidates/<id>/verification` | **后台** | 存草稿（可中断，下次接着填） |
+| PATCH | `/api/cases/<id>` | **后台** | 改一条案例 |
+| PATCH | `/api/cases/<id>/tier` | **后台** | 备选池 → 精品池拔档 |
+| POST | `/api/cases` | **后台** | 新增案例（需 `name`） |
+| POST | `/api/candidates` | **后台** | 新增候选 |
+| POST | `/api/inbox/<id>/to-candidates` | **后台** | 采集队列 → 候选池 |
+| POST | `/api/candidates/<id>/promote` | **后台** | 候选池 → 精写案例（过不了核实闸门会 409） |
 
 直接改 `data/*.json` 刷新页面即可生效，不需要重启服务。
 

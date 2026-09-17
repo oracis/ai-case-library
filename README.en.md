@@ -150,6 +150,16 @@ python server.py        # Windows: double-click start.bat
 The browser opens <http://127.0.0.1:5052/>. Change the port with
 `CASE_LIB_PORT=5099 python server.py`.
 
+One start, **two sites** — separate ports, separate code:
+
+| Port | Directory | What it is |
+|---|---|---|
+| <http://127.0.0.1:5052/> | `static/` | **Public site**: read-only reading site, this is what gets deployed |
+| <http://127.0.0.1:5053/> | `admin/` | **Admin backend**: login required, verification and publishing live here |
+
+The admin port defaults to the public port + 1; override it with
+`CASE_LIB_ADMIN_PORT`.
+
 A static, read-only build also works with no server at all:
 
 ```bash
@@ -187,7 +197,7 @@ Collectors run daily and write **only** to the harvest queue — never to the cu
 
 ```bash
 python scripts/harvest.py --source hn          # Hacker News, no key needed
-python scripts/harvest.py --source trustmrr    # TrustMRR leaderboard + marketplace
+python scripts/harvest.py --source trustmrr    # TrustMRR official public data endpoint
 python scripts/harvest.py --source all
 python scripts/harvest.py --source hn --dry-run
 python scripts/harvest.py --max-inbox 400      # excess is archived, never deleted
@@ -195,8 +205,40 @@ python scripts/harvest.py --max-inbox 400      # excess is archived, never delet
 
 `--source ph` (Product Hunt) needs a token: `--token <PH_TOKEN>` or `$PH_TOKEN`.
 
+### TrustMRR goes through its official AI endpoint
+
+TrustMRR publishes an AI-facing data endpoint that returns **30+ fields in one request**:
+website, rank, MRR, all-time revenue, customers, growth, category, country, founder X handle.
+
+```
+https://trustmrr.com/api/ai              public JSON (recentlyListedStartups + bestDeals)
+https://trustmrr.com/startup/<slug>.md   official AI-readable profile (revenue timeline, sources)
+https://trustmrr.com/llms.txt            crawl guidance
+```
+
+Harvest order: **try `/api/ai` first**, fall back to parsing the homepage HTML only if it fails.
+
+The original collector read only the homepage JSON-LD `ItemList`, whose `url` happens to be the
+leaderboard's own page — so the concept of a *website* never entered the collector at all, and the
+candidate pool once had **zero** records carrying one. The official endpoint now supplies it directly.
+
+Existing records can be backfilled:
+
+```bash
+python scripts/backfill_trustmrr.py --dry-run      # preview
+python scripts/backfill_trustmrr.py                # write (idempotent)
+python scripts/backfill_trustmrr.py --no-detail    # batch endpoint only, skip per-slug pages
+```
+
+Backfill only fills empty fields (never overwrites human-written content) and only touches
+records confirmed to come from TrustMRR — second-hand WeChat-article entries in the same file
+are left alone.
+
 Raw items are filtered against `data/sources.json` `filter_rules` to strip advertising and
-press releases, keeping only "someone speaking for something they built". Funding rounds
+press releases, keeping only "someone speaking for something they built". On the TrustMRR side
+two more kinds of noise are skipped: **stealth companies** (listed under the placeholder name
+"Anonymous startup" with no public domain) and **entries below $100/month** (just launched or
+already dormant, no case value). Funding rounds
 are dropped too — that is a capital story, not a replicable business.
 
 **Only the harvest tier is automated.** Curation stays manual, always: the whole value is
@@ -248,12 +290,20 @@ number "looks reasonable". You will.
 ## Tests
 
 ```bash
-python selftest.py                    # backend: 34 API tests, auto backup + restore of data/
-node uitest.js                        # frontend: 55 render checks using a DOM stub
-node uitest.js --static               # static build: read-only mode + control degradation
+python selftest.py                    # backend: 121 API tests, auto backup + restore of data/
+node uitest.js                        # frontend: 95 render checks using a DOM stub
+node uitest.js --static               # static build: read-only mode + control degradation, 96
+node uitest-admin.js                  # admin site: login / views / workbench / AI panel, 118
+python scripts/test_verify_rules.py   # verification rule engine, 57
+python scripts/test_ai_verify.py      # AI verify pure functions: 40 (offline)
+python scripts/test_harvest_sources.py # five-source parsers + source_kind, 188 (offline)
+python scripts/test_prerender.py      # prerender + noscript fallbacks, 54 (offline)
 python scripts/test_build_static.py   # static build: anti-deletion guards + build self-check
 python scripts/test_daily_harvest.py  # auto-commit script: git mechanics + failure paths
 python scripts/check_ci.py            # validates workflow YAML and its embedded shell
+
+python scripts/e2e_verify_write.py    # manual: end-to-end verification writes, 27
+                                      # (needs `python server.py` running; restores data/ after)
 ```
 
 `selftest.py`, `uitest.js` and `build_static.py` run in CI on every push. One assertion is
@@ -272,9 +322,10 @@ python scripts/deploy_oss.py --bucket <bucket> --dry-run --env-file .env
 ```
 
 `deploy_oss.py` implements OSS V1 request signing (HMAC-SHA1) itself — no `oss2`, no
-`ossutil`. The online build is a **read-only snapshot**: write operations (promoting
-candidates, promoting to curated) are replaced with a "read-only snapshot" label rather
-than buttons that do nothing. Clone the repo and run `python server.py` to verify or edit.
+`ossutil`. The online build is a **read-only snapshot**: it has no backend at all, and
+`scripts/build_static.py` only reads `static/` — not a single line of the admin site ends
+up in it. To verify or edit, clone the repo, run `python server.py` and open the admin
+site on port 5053 (login required).
 Reading progress uses `localStorage` and works fine online.
 
 ---

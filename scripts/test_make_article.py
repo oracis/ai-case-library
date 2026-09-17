@@ -91,12 +91,21 @@ def main():
         all(m.virality_score(c) > -10 for c in cases))
 
     print("\n[4] 分数排序稳定（不随原顺序变化）")
-    a = [c["id"] for _, c in sorted(((m.virality_score(c), c) for c in cases),
-                                    key=lambda t: -t[0])]
-    b = [c["id"] for _, c in sorted(((m.virality_score(c), c) for c in reversed(cases)),
-                                    key=lambda t: -t[0])]
-    chk("同一批案例排序一致", a == b)
+    # 走真的 pick()，而不是在测试里另写一遍 sorted —— 否则排序 bug 修在
+    # make_article 里、测试却还在用自己的那套，等于没测到。
+    # 关键在 jar dict：pick 读 args.id/min_score/top，用 Namespace 喂进去即可。
+    import argparse
+    args = argparse.Namespace(id=None, min_score=None, top=None)
+    a = [c["id"] for _, c in m.pick(cases, args)]
+    b = [c["id"] for _, c in m.pick(list(reversed(cases)), args)]
+    chk("同一批案例排序一致", a == b, "%s vs %s" % (a[:3], b[:3]))
     chk("nitra 排第一", a[0] == "nitra", "实际 %s" % a[0])
+    # 同分两条的先后必须稳定：gojiberryai 与 aeo-engine 都是 4.0
+    ties = [(round(m.virality_score(c), 2), c["id"]) for c in cases]
+    tie_ids = [i for s, i in ties if s == round(m.virality_score(
+        next(x for x in cases if x["id"] == "aeo-engine")), 2)]
+    if len(tie_ids) > 1:
+        chk("并列的两条按 id 定先后", tie_ids == sorted(tie_ids), "、".join(tie_ids))
 
     print("\n[5] 正文分段")
     counts = {c["id"]: len(m.build_sections(c)) for c in cases}

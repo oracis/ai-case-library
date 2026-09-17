@@ -120,6 +120,33 @@ function num(n) {
   return Number(n).toLocaleString('en-US');
 }
 
+/** 从 URL 里取出好读的域名，用作链接文字 */
+function prettyHost(u) {
+  try {
+    return String(u).replace(/^https?:\/\//, '').replace(/\/$/, '').replace(/^www\./, '').slice(0, 60);
+  } catch (e) { return String(u || '').slice(0, 60); }
+}
+
+/**
+ * 卡片底部的两条链接：官网 + 来源页。
+ * 官网（website）与来源（source_url）是两回事——官网是产品自己的站，
+ * 来源是我们从哪儿看到的它。两者都缺时给一行灰字说明，不要整段不渲染，
+ * 否则页面上看着像「这个产品没有官网」。
+ */
+function cardLinks(c) {
+  const out = [];
+  if (c.website) {
+    out.push(`<a href="${esc(c.website)}" target="_blank" rel="noopener" class="cand-link" data-k="web">官网 ${esc(prettyHost(c.website))} ↗</a>`);
+  }
+  if (c.source_url) {
+    out.push(`<a href="${esc(c.source_url)}" target="_blank" rel="noopener" class="cand-link" data-k="src">来源 ${esc(prettyHost(c.source_url))} ↗</a>`);
+  }
+  if (!out.length) {
+    return '<div class="cand-link is-none">来源未记录</div>';
+  }
+  return '<div class="cand-links">' + out.join('') + '</div>';
+}
+
 /** 把收入数字压缩成好读的形式 */
 function money(n) {
   if (n == null || !isFinite(n) || n <= 0) return null;
@@ -480,47 +507,12 @@ function renderCandidates() {
         ${hl ? `<div class="card-metric is-null">${esc(hl)}</div>` : ''}
         ${c.note ? `<div class="cand-note">${esc(c.note)}</div>` : ''}
         ${c.blocking ? `<div class="cand-block"><b>卡在哪：</b><span>${esc(c.blocking)}</span></div>` : ''}
+        ${cardLinks(c)}
         <div class="card-foot">
           <span>${esc(c.added_at || '')}</span>
-          ${IS_STATIC
-            ? '<span class="ro-tag" title="线上是只读快照，没有后端；写操作请在本地跑 server.py">只读快照</span>'
-            : `<button class="src-link" data-promote="${esc(c.id)}">提升为精写案例</button>`}
         </div>
       </article>`;
   }).join('');
-
-  $('grid-cands').querySelectorAll('[data-promote]').forEach((btn) => {
-    btn.onclick = (e) => {
-      e.stopPropagation();
-      promote(btn.dataset.promote);
-    };
-  });
-}
-
-async function promote(id) {
-  const c = DATA.candidates.find((x) => x.id === id);
-  if (!c) return;
-  if (IS_STATIC) {
-    toast('线上是静态站，改不了数据。这一步请在本地跑 server.py');
-    return;
-  }
-  if (!confirm(
-    '把「' + c.name + '」提升为精写案例？\n\n' +
-    '它会带一个 needs_review 标记进精写库，提醒你还没逐条核实。\n' +
-    '建议先搜一遍数字再摘掉这个标记。'
-  )) return;
-
-  try {
-    const r = await fetch('/api/candidates/' + encodeURIComponent(id) + '/promote', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}'
-    });
-    const j = await r.json();
-    if (!r.ok) throw new Error(j.error || '操作失败');
-    toast('已提升：' + c.name);
-    await load();
-  } catch (err) {
-    toast('失败：' + err.message);
-  }
 }
 
 /* ---------------- 渲染：采集队列 ---------------- */
@@ -564,13 +556,9 @@ function renderInbox() {
         </div>
         ${c.one_liner ? `<div class="card-liner">${esc(c.one_liner).slice(0, 200)}</div>` : ''}
         ${hl ? `<div class="card-metric is-null">${esc(hl)}</div>` : ''}
-        ${c.source_url ? `<div style="font-size:11px;font-family:var(--mono);word-break:break-all">
-          <a href="${esc(c.source_url)}" target="_blank" rel="noopener" style="color:var(--text-3);text-decoration:none">${esc(c.source_url).slice(0, 88)} ↗</a></div>` : ''}
+        ${cardLinks(c)}
         <div class="card-foot">
           <span>${esc(srcLabel[c.harvest_source] || c.harvest_source || '')} · ${esc(c.added_at || '')}</span>
-          ${IS_STATIC
-            ? '<span class="ro-tag" title="线上是只读快照，没有后端；写操作请在本地跑 server.py">只读快照</span>'
-            : `<button class="src-link" data-tocand="${esc(c.id)}">转入候选池</button>`}
         </div>
       </article>`;
   }).join('') + (list.length > limit
@@ -578,35 +566,20 @@ function renderInbox() {
     : '');
 
   if (!shown.length) {
-    $('grid-inbox').innerHTML =
-      '<div class="empty" style="grid-column:1/-1">采集队列是空的。<br><br>' +
-      '跑一次采集：<code style="font-family:var(--mono);color:var(--money)">python scripts/harvest.py --source all</code><br>' +
-      '（Hacker News 免 key 可直接跑；Product Hunt 需要 token）</div>';
+    /* 队列为空有两种完全不同的原因，文案不能说同一句：
+       ① 精简构建（--no-inbox）—— 队列是**故意不带**的，它只对本地有用；
+       ② 真没采到 —— 那才是需要跑一次 harvest.py 的情况。
+       混在一起说，读者会以为这个站的采集坏了。 */
+    const excluded = (DATA.stats || {}).inbox_included === false;
+    $('grid-inbox').innerHTML = excluded
+      ? '<div class="empty" style="grid-column:1/-1">这一版是<b>精简构建</b>，不含采集队列' +
+        '—— 队列只在本机跑采集时有用，案例与候选池都在上面。<br><br>' +
+        '想看队列，在本机构建时去掉 <code style="font-family:var(--mono);color:var(--money)">--no-inbox</code>。</div>'
+      : '<div class="empty" style="grid-column:1/-1">采集队列是空的。<br><br>' +
+        '跑一次采集：<code style="font-family:var(--mono);color:var(--money)">python scripts/harvest.py --source all</code><br>' +
+        '（Hacker News 免 key 可直接跑；Product Hunt 需要 token）</div>';
   }
 
-  $('grid-inbox').querySelectorAll('[data-tocand]').forEach((b) => {
-    b.onclick = (e) => { e.stopPropagation(); toCandidate(b.dataset.tocand); };
-  });
-}
-
-async function toCandidate(id) {
-  const c = (DATA.inbox || []).find((x) => x.id === id);
-  if (!c) return;
-  if (IS_STATIC) {
-    toast('线上是静态站，改不了数据。这一步请在本地跑 server.py');
-    return;
-  }
-  try {
-    const r = await fetch('/api/inbox/' + encodeURIComponent(id) + '/to-candidates', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}'
-    });
-    const j = await r.json();
-    if (!r.ok) throw new Error(j.error || '操作失败');
-    toast('已转入候选池：' + c.name);
-    await load();
-  } catch (err) {
-    toast('失败：' + err.message);
-  }
 }
 
 /* ---------------- 渲染：国内移植排行 ---------------- */
@@ -951,7 +924,7 @@ function renderMethod() {
     {
       h: '候选池不是垃圾堆，是待办清单',
       p: '候选池里有些项目数字更亮，但还没核。别因为好看就去看——核准了再进精写库。点「提升为精写案例」会带一个待核实标记进去。',
-      extra: '当前候选池里最值得先动手的三个：<code>Stan</code>（TrustMRR 榜单第一，量级异常需复核）、<code>PROSP</code>（MRR $128K 但产品信息缺失）、<code>getdavid</code>（明信片扫码率 20% 需要核对口径）。'
+      extra: '当前候选池里最值得先动手的三个：<code>Stan</code>（TrustMRR 榜单第一，量级异常需复核）、<code>PROSP</code>（MRR $128K 但产品信息缺失）、<code>Voklit</code>（月入 $1.6K 挂 $60K，小体量定价样本）。'
     },
     {
       h: '最后问一句：这东西能搬回国内吗',

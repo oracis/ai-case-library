@@ -1,90 +1,16 @@
 [
   {
-    "id": "eloquent",
-    "name": "Eloquent AI",
-    "name_en": "Eloquent AI",
-    "origin": "美国",
-    "one_liner": "给银行做 AI 客服，按处理掉的结果收费，不按账号收费",
-    "category": "企业服务",
-    "verification": "unverified",
-    "metrics": {
-      "headline": "自称 4 周做到 $500K ARR"
-    },
-    "models": [
-      "结果定价",
-      "企业销售"
-    ],
-    "note": "来源为二手转述（微信公众号文章），未检索到公开可验证的融资披露、ARR 数据或官方营收公告。结果定价这个模式点值得进精写库，但数字必须先核。",
-    "blocking": "缺一手来源：需找到公司官网定价页 / 融资公告 / 支付验证页面",
-    "added_at": "2026-09-11"
-  },
-  {
-    "id": "doomers",
-    "name": "Doomers",
-    "name_en": "Doomers",
-    "origin": "未披露",
-    "one_liner": "帮 AI 公司做传播，6 个月做到 $10M ARR，一分钱融资没拿",
-    "category": "营销服务",
-    "verification": "unverified",
-    "metrics": {
-      "headline": "自称 6 个月 $10M ARR、零融资"
-    },
-    "models": [
-      "服务化软件",
-      "订阅制"
-    ],
-    "note": "来源为二手转述。6 个月 $10M ARR 且零融资是极端异常值，需要至少两条独立来源交叉验证才可采信。",
-    "blocking": "极端异常值，需要独立信源；建议先搜公司官网与创始人公开账号",
-    "added_at": "2026-09-11"
-  },
-  {
-    "id": "getdavid",
-    "name": "getdavid",
-    "name_en": "getdavid",
-    "origin": "未披露",
-    "one_liner": "用 AI 批量造 350 个网站获客，然后给潜在客户寄纸质明信片",
-    "category": "营销服务",
-    "verification": "unverified",
-    "metrics": {
-      "headline": "自称 30 天 $8,000/月；明信片成本约 $1 出头，扫码率 20%"
-    },
-    "models": [
-      "服务化软件",
-      "订阅制"
-    ],
-    "note": "来源为二手转述。明信片成本与扫码率这两个数字在印刷直邮行业里都属于极好水平（行业常见扫码率 1–5%），20% 需要核实口径（是扫码率还是有人到店/来电）。但「最笨的渠道反而最有效」这个模式点非常值得成稿。",
-    "blocking": "20% 扫码率的统计口径不明；需找到创始人原始披露",
-    "added_at": "2026-09-11"
-  },
-  {
-    "id": "gojiberry-ai",
-    "name": "GojiberryAI",
-    "name_en": "GojiberryAI",
-    "origin": "未披露",
-    "one_liner": "面向 B2B 团队的 AI GTM 平台：找高意向线索，把购买信号变成对话",
-    "category": "营销工具",
-    "verification": "partial",
-    "metrics": {
-      "headline": "$424,368（TrustMRR 榜单快照）"
-    },
-    "models": [
-      "订阅制",
-      "自助增长"
-    ],
-    "note": "创始人 Romàn。数字来自 TrustMRR 公开榜单，但需复核「MRR 还是累计」的口径问题。",
-    "blocking": "口径待核：需打开 TrustMRR 公司页确认是 MRR 还是 all-time",
-    "added_at": "2026-09-11"
-  },
-  {
     "id": "1lookup",
     "name": "1Lookup",
     "name_en": "1Lookup",
     "origin": "未披露",
     "one_liner": "一个 API 做电话、邮箱、IP 的实时数据校验",
     "category": "开发者工具",
-    "verification": "partial",
+    "verification": "stripe",
     "metrics": {
-      "headline": "$236,401；月环比 +5%（TrustMRR 榜单快照）"
+      "headline": "$236,401；月环比 +5%（TrustMRR 榜单快照）",
+      "mrr": 245026.11,
+      "all_time": 4976653.91
     },
     "models": [
       "订阅制",
@@ -92,7 +18,32 @@
     ],
     "note": "创始人 Robby Frank。榜单显示同时处于 FOR SALE 状态。数据校验 API 是非常「不性感但刚需」的品类，值得精写。",
     "blocking": "口径待核 + 需确认是否仍在运营（榜单标注为待售）",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "caliber": "mrr",
+    "quality_score": 110,
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "sources": [
+      {
+        "label": "TrustMRR 1Lookup 收入页（Stripe API 验证）",
+        "url": "https://trustmrr.com/startup/1lookup",
+        "kind": "stripe"
+      },
+      {
+        "label": "1Lookup 官网首页/定价",
+        "url": "https://www.1lookup.io/",
+        "kind": "official"
+      }
+    ],
+    "source_kinds": [
+      "official",
+      "stripe"
+    ],
+    "unpublished_at": "2026-09-17 17:12",
+    "unpublish_reason": "AI 自动发布时内容为空壳（无 why_it_works/playbook/verdict），先退回候选池待补写",
+    "source_url": "https://trustmrr.com/startup/1lookup",
+    "harvest_source": "trustmrr",
+    "source_kind": "verified"
   },
   {
     "id": "stan",
@@ -101,9 +52,11 @@
     "origin": "未披露",
     "one_liner": "帮创作者「靠自己活着和工作」的平台",
     "category": "创作者经济",
-    "verification": "partial",
+    "verification": "stripe",
     "metrics": {
-      "headline": "$3,569,654，TrustMRR 榜单第 1 名"
+      "headline": "$3,569,654，TrustMRR 榜单第 1 名",
+      "mrr": 3569654.22,
+      "all_time": 76627685.07479446
     },
     "models": [
       "订阅制",
@@ -111,7 +64,32 @@
     ],
     "note": "创始人 Vitalii Dodonov。榜单第一名，数字量级明显高于其他条目，更需要确认口径（$3.5M 若是单月 MRR 意味着年化 $42M，需与公开信息交叉）。",
     "blocking": "高优先级复核：榜单第一名，口径错误代价最大",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "caliber": "mrr",
+    "quality_score": 45,
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "sources": [
+      {
+        "label": "TrustMRR – Stan 收入页（Stripe 直连，含 all-time $76,627,685 / MRR $3,569,654 / 101,590 ",
+        "url": "https://trustmrr.com/startup/stan",
+        "kind": "stripe"
+      },
+      {
+        "label": "stan.store 官网（仅抓到 meta 摘要，正文 JS 渲染未取到）",
+        "url": "https://stan.store/",
+        "kind": "official"
+      }
+    ],
+    "source_kinds": [
+      "official",
+      "stripe"
+    ],
+    "unpublished_at": "2026-09-17 17:12",
+    "unpublish_reason": "AI 自动发布时内容为空壳（无 why_it_works/playbook/verdict），先退回候选池待补写",
+    "source_url": "https://trustmrr.com/startup/stan",
+    "harvest_source": "trustmrr",
+    "source_kind": "verified"
   },
   {
     "id": "cometly",
@@ -130,7 +108,8 @@
     ],
     "note": "仅从榜单列表看到公司描述，未拿到收入数字。营销归因是 SaaS 的刚需支出，值得补数据。",
     "blocking": "缺收入数据",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "discovery"
   },
   {
     "id": "prosp",
@@ -146,7 +125,8 @@
     "models": [],
     "note": "在一份 30+ 家 AI 创业公司的 Stripe 验证数据集中，PROSP 的当前 MRR 是最高的（$128K）。但原报告未展开介绍产品。属于「数字亮眼、信息缺失」的典型候选。",
     "blocking": "几乎无产品信息，需先去官网补齐定位与商业模式",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "discovery"
   },
   {
     "id": "stripe-report",
@@ -164,7 +144,8 @@
     ],
     "note": "极小的信号，但方向清晰：切的是创始人对「下个月会不会没钱」的焦虑。7 个订阅说明还没找到分发。可作「最小可验证信号」样本保留。",
     "blocking": "体量太小，暂不精写",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "discovery"
   },
   {
     "id": "livecrew-ai",
@@ -182,7 +163,8 @@
     ],
     "note": "分析方给的判断很准：原型好做，「让分歧变得有用」很难。$58 MRR 是本库看到的最小信号之一，保留作为「最小样本」。",
     "blocking": "体量太小，暂不精写",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "discovery"
   },
   {
     "id": "magicslides-app",
@@ -201,7 +183,8 @@
     ],
     "note": "在 TrustMRR 市场上挂牌出售，4.6x 倍数是榜单里较高的。可反推市场对「AI PPT 工具」这类产品的估值逻辑。",
     "blocking": "口径待核（$9.1K 是月收入还是 30 天收入）",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "discovery"
   },
   {
     "id": "autoreels-ai",
@@ -220,7 +203,8 @@
     ],
     "note": "月入 $1.2K 却挂 $50K，3.5x 倍数。小体量 AI 内容的估值样本。",
     "blocking": "口径待核",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "discovery"
   },
   {
     "id": "insect-bite-id",
@@ -239,7 +223,8 @@
     ],
     "note": "极窄的单点 AI 识别工具。1.6x 倍数偏低，说明买家认为这类需求不稳定（季节性？）。",
     "blocking": "口径待核",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "discovery"
   },
   {
     "id": "mort",
@@ -257,7 +242,8 @@
     ],
     "note": "6.4x 是本库见到的最高倍数，但月收入仅 $84——高倍数通常意味着买家在为「潜力」付费而非现金流。这个现象本身值得研究。",
     "blocking": "口径与产品定位均待补",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "discovery"
   },
   {
     "id": "divine-widgets",
@@ -275,7 +261,8 @@
     ],
     "note": "0.2x 是极低倍数——卖家几乎在「清仓」。出现在榜单最前面，可能是新挂牌或定价失误。低价倍数样本值得留档。",
     "blocking": "口径待核",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "discovery"
   },
   {
     "id": "localkdock",
@@ -293,7 +280,8 @@
     ],
     "note": "微体量样本：月入 $272。记录它是为了看清「生态底部」长什么样，避免只看到头部案例造成幸存者偏差。",
     "blocking": "体量太小，暂不精写",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "discovery"
   },
   {
     "id": "search1api",
@@ -312,7 +300,8 @@
     ],
     "note": "API 中间层生意。3.2x 倍数，售价 $50K。API 转售类产品的估值样本。",
     "blocking": "口径待核",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "discovery"
   },
   {
     "id": "uplinked",
@@ -331,7 +320,8 @@
     ],
     "note": "1.0x 倍数，说明市场认为这是一个「没有增长、但能稳定产出现金」的小生意。这类资产在某些买家眼里反而有吸引力。",
     "blocking": "口径待核 + 公司全称与产品定位需补",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "discovery"
   },
   {
     "id": "voklit",
@@ -350,7 +340,8 @@
     ],
     "note": "月入 $1.6K 挂 $60K（3.1x）。与 LiveCrew / Stripe Report 同属「极小体量但被合理定价」的样本。",
     "blocking": "口径待核 + 产品定位需补",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "discovery"
   },
   {
     "id": "affililist",
@@ -368,7 +359,8 @@
     ],
     "note": "月入 $156。极微体量。保留作为生态底部样本。",
     "blocking": "体量太小，暂不精写",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "discovery"
   },
   {
     "id": "dolar-app",
@@ -386,7 +378,8 @@
     ],
     "note": "金融科技小体量标的。2.2x 倍数接近平台平均 1.9x。",
     "blocking": "口径待核 + 产品定位需补",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "discovery"
   },
   {
     "id": "layzr-ai",
@@ -404,7 +397,8 @@
     ],
     "note": "1.0x 倍数。微体量 AI 产品的退出样本。",
     "blocking": "体量太小，暂不精写",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "discovery"
   },
   {
     "id": "sociano",
@@ -422,7 +416,8 @@
     ],
     "note": "0.7x 低倍数。生态底部样本。",
     "blocking": "体量太小，暂不精写",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "discovery"
   },
   {
     "id": "quran-unlock",
@@ -440,7 +435,8 @@
     ],
     "note": "移动 app 类标的，0.6x 倍数偏低。可用来比较「app 类资产」与「SaaS 类资产」的市场定价差异。",
     "blocking": "口径待核",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "discovery"
   },
   {
     "id": "le19emetrou",
@@ -458,7 +454,8 @@
     ],
     "note": "电商类标的样本。与 SaaS 类对比可看出市场对「有库存/物流」的生意给更低倍数。",
     "blocking": "口径待核 + 产品定位需补",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "discovery"
   },
   {
     "id": "thehundred",
@@ -476,7 +473,8 @@
     ],
     "note": "月入 $35。本库见到的最小标的。记录它是为了标定「独立项目收入分布」的真实底部。",
     "blocking": "体量太小，暂不精写",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "discovery"
   },
   {
     "id": "private-venture-1",
@@ -494,7 +492,8 @@
     ],
     "note": "挂牌价 $1M，是市场上较大的标的之一。收入 $34K / 2.5x。卖家创始人署名 david（榜单另一处显示 $249,498）。需要先确认这两个「Private Venture」是否同一实体。",
     "blocking": "需先确认榜单中两条 Private Venture 是否重复",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "discovery"
   },
   {
     "id": "promptmonitor",
@@ -513,7 +512,8 @@
     ],
     "note": "创始人亲自公开的退出案例，也是 TrustMRR 平台的标杆成交之一。与 AEO Engine 同赛道（AI 可见性），可对比「做引擎」和「做监测」两条路的不同结局：一个卖引擎、一个卖监测然后退出。",
     "blocking": "需要补充成交前的收入与倍数，才能写完整「退出」案例",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "discovery"
   },
   {
     "id": "stealth-company",
@@ -529,7 +529,8 @@
     "models": [],
     "note": "匿名上榜，说明 TrustMRR 的验证机制允许「验证收入但隐藏身份」——这本身反映了「公开收入」在独立开发者圈里的复杂性：想证明自己，又不想被抄。",
     "blocking": "刻意匿名，无法精写；作为生态现象样本保留",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "discovery"
   },
   {
     "id": "sixtyfive",
@@ -547,7 +548,8 @@
     ],
     "note": "Speel.co 的 MoM 增长为 0%，提示赛道可能已饱和。采集脚本应把「同一赛道内的其他玩家收入」也抓回来，用于判断到底是公司问题还是赛道问题。这是一个待补的分析视角。",
     "blocking": "尚未开始采集",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "discovery"
   },
   {
     "id": "trustmrr-marketplace-avg",
@@ -565,7 +567,8 @@
     ],
     "note": "这不是一个案例，而是一个重要的参照系：任何自己做的产品，退出时的心理价位应该对标 1.9x 年化收入。很多人对自己的产品估值高出市场价 5 倍。建议在 UI 里做成「估值参照器」。",
     "blocking": "需要做成工具而非案例",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "discovery"
   },
   {
     "id": "photo-ai",
@@ -584,7 +587,8 @@
     ],
     "note": "目前被并进 Pieter Levels 组合案例里。单独拆出来更有价值——它证明「一个人 + 一个 AI 图片产品」能到月入十几万，值得一篇独立分析。",
     "blocking": "需要补获客渠道细节后才能独立成篇",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "discovery"
   },
   {
     "id": "photo-ai-competitors",
@@ -602,7 +606,8 @@
     ],
     "note": "用于判定 Photo AI 的 $138K/月是可复制的赛道容量，还是先发者独占。",
     "blocking": "尚未开始采集",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "discovery"
   },
   {
     "id": "chatbase-competitors",
@@ -620,7 +625,8 @@
     ],
     "note": "Chatbase 的 $10M ARR 有多少来自「时机窗口」而不是产品力？最好的检验方式是看同赛道后来者的收入分布。NeoDrop 分析里已提到 Botpress 与 Voiceflow 的比较，可延伸成一篇「赛道容量分析」。",
     "blocking": "需要单独做赛道对比研究",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "discovery"
   },
   {
     "id": "solo-2person-benchmark",
@@ -636,7 +642,8 @@
     "models": [],
     "note": "不是案例，是基准线。把多个同规模样本横向排开，能得到「一个人/两个人到底能做到多少」的现实区间——这比看单个爆款案例有用得多，因为爆款是小概率事件。",
     "blocking": "需要更多同规模样本才能形成可信分布",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "discovery"
   },
   {
     "id": "trustmrr-caliber-audit",
@@ -652,7 +659,8 @@
     "models": [],
     "note": "这是本库自己对自己的审计条目。已确认的对照点：ShipFast 的 $1.27M 是 all-time（TrustMRR 公司页明写 All-time revenue），Chatbase 的 $863,632 是 MRR（另一独立文章引用其「MRR」）。同一个榜单两种口径并存，说明依赖榜单快照做判断是有风险的。建议下一步自己抓公司详情页而不是榜单页。",
     "blocking": "需要写一个抓公司详情页的脚本，替代榜单页采集",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "discovery"
   },
   {
     "id": "revenue-metric-hygiene",
@@ -668,6 +676,7 @@
     "models": [],
     "note": "把这六组口径固定下来，作为每篇案例的必填校验项：(1) ARR＝年化经常性收入，不等于现金；(2) run-rate＝按某月/某季乘出来的估计值，不等于已发生；(3) 累计收入 lifetime ≠ 年收入（Chatbase / ShipFast 都栽在这）；(4) 平台流水 GMV 不是收入（Nitra / Genius AI 的数十亿是流水）；(5) 毛利率与净利差别极大；(6) 「年化处理量」是业务量，不是收入。建议直接做成详情页的常驻提示。",
     "blocking": "需要落成 UI 组件",
-    "added_at": "2026-09-11"
+    "added_at": "2026-09-11",
+    "source_kind": "discovery"
   }
 ]
