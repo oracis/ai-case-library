@@ -1,78 +1,78 @@
 {
-  "ran_at": "2026-09-17 09:23:46",
-  "added": 45,
+  "ran_at": "2026-09-18 05:27:46",
+  "added": 80,
   "by_source": {
-    "hn": 12,
-    "indiehackers": 23,
-    "trustmrr": 10
+    "hn": 66,
+    "indiehackers": 7,
+    "trustmrr": 7
   },
   "inbox_total": 400,
-  "archived_this_run": 86,
-  "archive_total": 124,
+  "archived_this_run": 80,
+  "archive_total": 204,
   "top": [
     {
-      "name": "Teleprompter - Video Recording",
-      "headline": "MRR $137，TrustMRR 第 3317 名",
+      "name": "Krato",
+      "headline": "MRR $359，TrustMRR 第 2832 名",
       "heat": 0,
-      "category": "未分类",
+      "category": "Health & Fitness",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/private-enterprise-53"
+      "url": "https://trustmrr.com/startup/krato"
     },
     {
-      "name": "LeadsRover",
-      "headline": "MRR $523，TrustMRR 第 2504 名",
-      "heat": 0,
-      "category": "Marketing",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/leadsrover"
-    },
-    {
-      "name": "Propal",
-      "headline": "MRR $1,252，TrustMRR 第 1028 名",
+      "name": "AppGen",
+      "headline": "MRR $5,478，TrustMRR 第 544 名",
       "heat": 0,
       "category": "Artificial Intelligence",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/propal"
+      "url": "https://trustmrr.com/startup/appgen"
     },
     {
-      "name": "GEHIRN.md",
-      "headline": "MRR $908，TrustMRR 第 2514 名",
+      "name": "WPConvert.ai - Convert AI sites to WordPress",
+      "headline": "MRR $3,796，TrustMRR 第 863 名",
       "heat": 0,
-      "category": "Marketing",
+      "category": "SaaS",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/gehirn-md"
+      "url": "https://trustmrr.com/startup/wpconvert-ai"
     },
     {
-      "name": "Lurq By PeopleFinder",
-      "headline": "MRR $4,072，TrustMRR 第 1046 名",
+      "name": "Sonora AI",
+      "headline": "MRR $3,971，TrustMRR 第 723 名",
       "heat": 0,
-      "category": "Utilities",
+      "category": "Artificial Intelligence",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/peoplefinder"
+      "url": "https://trustmrr.com/startup/sonora-ai"
     },
     {
-      "name": "Animalo",
-      "headline": "MRR $1,280，TrustMRR 第 2099 名",
+      "name": "CogniGuide",
+      "headline": "MRR $836，TrustMRR 第 1812 名",
       "heat": 0,
-      "category": "Productivity",
+      "category": "Education",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/animalo"
+      "url": "https://trustmrr.com/startup/cogniguide"
     },
     {
-      "name": "Sopravo",
-      "headline": "MRR $14，TrustMRR 第 4876 名",
-      "heat": 0,
-      "category": "Mobile Apps",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/sopravo"
-    },
-    {
-      "name": "Groupon",
-      "headline": "自报收入 $498,400,000 / mo（Indie Hackers）",
-      "heat": 0,
+      "name": "Reviving my $15,000 browser arcade with Astra",
+      "headline": "疑似金额 $15,000 b",
+      "heat": 3,
       "category": "未分类",
-      "source": "indiehackers",
-      "url": "https://www.indiehackers.com/product/groupon"
+      "source": "hn",
+      "url": "https://eggverse.co/"
+    },
+    {
+      "name": "Aurabid, pay more to get ranked #1 and beat others",
+      "headline": "未获取",
+      "heat": 2,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://aurabid.now/"
+    },
+    {
+      "name": "LinkBunny, a service where coding agents exchange backlinks autonomousy",
+      "headline": "未获取",
+      "heat": 1,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://getlinkbunny.com/"
     }
   ]
 }
