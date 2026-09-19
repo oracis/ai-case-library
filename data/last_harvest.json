@@ -1,78 +1,78 @@
 {
-  "ran_at": "2026-09-18 05:27:46",
-  "added": 80,
+  "ran_at": "2026-09-19 05:23:37",
+  "added": 78,
   "by_source": {
-    "hn": 66,
+    "hn": 63,
     "indiehackers": 7,
-    "trustmrr": 7
+    "trustmrr": 8
   },
   "inbox_total": 400,
-  "archived_this_run": 80,
-  "archive_total": 204,
+  "archived_this_run": 78,
+  "archive_total": 282,
   "top": [
     {
-      "name": "Krato",
-      "headline": "MRR $359，TrustMRR 第 2832 名",
-      "heat": 0,
-      "category": "Health & Fitness",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/krato"
-    },
-    {
-      "name": "AppGen",
-      "headline": "MRR $5,478，TrustMRR 第 544 名",
+      "name": "Augora AI",
+      "headline": "MRR $1,560，TrustMRR 第 902 名",
       "heat": 0,
       "category": "Artificial Intelligence",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/appgen"
+      "url": "https://trustmrr.com/startup/augora"
     },
     {
-      "name": "WPConvert.ai - Convert AI sites to WordPress",
-      "headline": "MRR $3,796，TrustMRR 第 863 名",
-      "heat": 0,
-      "category": "SaaS",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/wpconvert-ai"
-    },
-    {
-      "name": "Sonora AI",
-      "headline": "MRR $3,971，TrustMRR 第 723 名",
+      "name": "Verbatik AI",
+      "headline": "MRR $1,907，TrustMRR 第 547 名",
       "heat": 0,
       "category": "Artificial Intelligence",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/sonora-ai"
+      "url": "https://trustmrr.com/startup/verbatik"
     },
     {
-      "name": "CogniGuide",
-      "headline": "MRR $836，TrustMRR 第 1812 名",
+      "name": "VoiceBrief",
+      "headline": "MRR $200，TrustMRR 第 2863 名",
       "heat": 0,
       "category": "Education",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/cogniguide"
+      "url": "https://trustmrr.com/startup/voicebrief"
     },
     {
-      "name": "Reviving my $15,000 browser arcade with Astra",
-      "headline": "疑似金额 $15,000 b",
-      "heat": 3,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://eggverse.co/"
+      "name": "KAWSTY",
+      "headline": "近 30 天收入 $250",
+      "heat": 0,
+      "category": "Productivity",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/kawsty"
     },
     {
-      "name": "Aurabid, pay more to get ranked #1 and beat others",
-      "headline": "未获取",
+      "name": "VECTOSOLVE",
+      "headline": "MRR $1,731，TrustMRR 第 1296 名",
+      "heat": 0,
+      "category": "Design Tools",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/vectosolve"
+    },
+    {
+      "name": "Publbee",
+      "headline": "MRR $3,248，TrustMRR 第 1292 名",
+      "heat": 0,
+      "category": "Content Creation",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/publbee"
+    },
+    {
+      "name": "Multifeed",
+      "headline": "MRR $207，TrustMRR 第 4838 名",
+      "heat": 0,
+      "category": "Content Creation",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/multifeed"
+    },
+    {
+      "name": "Open-source revenue recognition and analytics for Stripe and Metronome",
+      "headline": "疑似金额 $100k",
       "heat": 2,
       "category": "未分类",
       "source": "hn",
-      "url": "https://aurabid.now/"
-    },
-    {
-      "name": "LinkBunny, a service where coding agents exchange backlinks autonomousy",
-      "headline": "未获取",
-      "heat": 1,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://getlinkbunny.com/"
+      "url": "https://news.ycombinator.com/item?id=49758181"
     }
   ]
 }
