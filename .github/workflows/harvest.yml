@@ -56,6 +56,10 @@ jobs:
       OSS_ACCESS_KEY_ID: ${{ secrets.OSS_ACCESS_KEY_ID }}
       OSS_ACCESS_KEY_SECRET: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
       OSS_BUCKET: ${{ vars.OSS_BUCKET }}
+      # 地域必须显式给：deploy_oss.py 不再兜底（兜底 cn-hangzhou 会让
+      # 「没配」变成「必然 403」）。本项目的 Bucket 都在 cn-hongkong。
+      # CI 里保留这个 `|| 'cn-hongkong'` 是因为 Actions 环境无从交互，
+      # 必须有个确定值；本地跑脚本则要求显式传 --region 或 OSS_REGION。
       OSS_REGION: ${{ vars.OSS_REGION || 'cn-hongkong' }}
 
     steps:
@@ -151,7 +155,9 @@ jobs:
           echo "未配置 OSS_ACCESS_KEY_ID / OSS_BUCKET，跳过部署。"
           echo "要让它自动上线，去仓库 Settings → Secrets and variables → Actions 配："
           echo "  Secrets : OSS_ACCESS_KEY_ID、OSS_ACCESS_KEY_SECRET"
-          echo "  Variables: OSS_BUCKET（Bucket 名）、OSS_REGION（可选，默认 cn-hongkong）"
+          echo "  Variables: OSS_BUCKET（Bucket 名）、OSS_REGION（地域，默认 cn-hongkong）"
+          echo ""
+          echo "地域用香港是因为国内地域绑自定义域名要求域名备案；本项目未备案。"
 
       - name: 写运行摘要
         if: always()

@@ -6,10 +6,14 @@
 还是「部署了但数据变了」。所以要断言语义标记，比如品牌名、
 cases 条数、generated_at、site.title。
 
+案例数的期望值默认**读本地 data/cases.json**，不再写死一个数字：写死的话
+每发布一批案例就要记得回来改，忘了就会把「数据变多了」误报成「部署挂了」——
+而部署校验最不该做的就是制造假警报。要断别的值仍可用 --expect-cases 覆盖。
+
 用法：
     python scripts/verify_deploy.py                       # 校验正式域名
     python scripts/verify_deploy.py --base https://xxx    # 校验别的域名
-    python scripts/verify_deploy.py --expect-cases 24     # 指定案例数期望值
+    python scripts/verify_deploy.py --expect-cases 30     # 覆盖案例数期望值
     python scripts/verify_deploy.py --expect-inbox 0      # 公开版应为 0
 
 退出码：0 全部通过，1 有失败项。
@@ -17,12 +21,24 @@ cases 条数、generated_at、site.title。
 
 import argparse
 import json
+import os
 import re
 import sys
 import urllib.error
 import urllib.request
 
 DEFAULT_BASE = "https://case.ydtgo.top"
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def local_case_count():
+    """本地 curated 案例数 —— 发布的是它，线上就该等于它。读不到返回 None。"""
+    path = os.path.join(ROOT, "data", "cases.json")
+    try:
+        with open(path, encoding="utf-8") as f:
+            return len(json.load(f))
+    except Exception:                                   # noqa: BLE001
+        return None
 
 
 def build_opener():
@@ -33,7 +49,8 @@ def build_opener():
 def main():
     ap = argparse.ArgumentParser(description="部署后线上语义校验")
     ap.add_argument("--base", default=DEFAULT_BASE, help="站点根地址，默认 " + DEFAULT_BASE)
-    ap.add_argument("--expect-cases", type=int, default=24, help="期望的 curated 案例数")
+    ap.add_argument("--expect-cases", type=int, default=local_case_count(),
+                    help="期望的 curated 案例数（默认读本地 data/cases.json）")
     ap.add_argument("--expect-inbox", type=int, default=0, help="期望的采集队列数，公开版为 0")
     ap.add_argument("--brand", default="拆解海外", help="期望出现的品牌名")
     ap.add_argument("--dead-brand", default="赚钱案例", help="不该再出现的旧名")

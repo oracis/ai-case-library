@@ -6,13 +6,26 @@
 
 用法：
     # 先验证凭证对不对（只读，不写任何东西）
-    python scripts/deploy_oss.py --check --env-file <你的.env>
+    python scripts/deploy_oss.py --check --region cn-hongkong --env-file <你的.env>
 
     # 看看会传哪些文件（不真传）
-    python scripts/deploy_oss.py --bucket my-bucket --dry-run --env-file <你的.env>
+    python scripts/deploy_oss.py --bucket my-bucket --region cn-hongkong --dry-run
 
-    # 真正上传
-    python scripts/deploy_oss.py --bucket my-bucket --env-file <你的.env>
+    # 真正上传（对外发布务必用 --dir public，不要用带 inbox 的 dist）
+    python scripts/deploy_oss.py --bucket my-bucket --region cn-hongkong --dir public
+
+本项目实际用的（Bucket 在 cn-hongkong，港澳台及海外，无需国内域名备案）：
+    python scripts/deploy_oss.py --bucket ai-case-library --region cn-hongkong \
+           --dir public --verify-public
+
+地域是必填的，没有兜底值：
+    曾经兜底 cn-hangzhou，但本项目所有 Bucket 都在 cn-hongkong，
+    「什么都不填」等于必然指向错的 endpoint，而 OSS 的回话是
+    「must be addressed using the specified endpoint」—— 看不出是地域问题。
+    所以改成不填就停下来说清楚。可用 --region 或环境变量 OSS_REGION 给。
+
+    为什么用香港而不是国内：国内地域绑自定义域名需要域名备案，
+    这个项目没有备案，改走香港地域直绑 OSS（代价是没 CDN 加速）。
 
 凭证来源（按优先级）：
     1. --env-file 指定的文件（KEY=VALUE 格式，支持 # 注释和引号）
@@ -32,6 +45,7 @@ import argparse
 import base64
 import hashlib
 import hmac
+import json
 import os
 import sys
 import urllib.error
@@ -372,12 +386,37 @@ def human(n):
     return ("%d B" % n) if n < 1024 else ("%.1f KB" % (n / 1024.0))
 
 
+def inbox_count(data_json_path):
+    """产物里未核实队列的条数。返回 None 表示**读不出来**（与「确实是 0」区分开）。
+
+    dist 是本地预览版（带 inbox），public 是对外版（inbox 恒 0）。
+    两者的区别只在这一个数字上，所以拿它当对外发布的闸门。
+
+    为什么区分 None 和 0：第一版把「读不到」也返回 0，于是漏了 `import json`
+    这个真 bug —— 抛异常被吞成「看起来一切正常」，闸门永远是开的。
+    调用方现在必须同时处理三种状态：0（干净）/ 正数（脏）/ None（读不出来）。
+    """
+    try:
+        with open(data_json_path, encoding="utf-8") as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        return None
+    except Exception:                                   # noqa: BLE001
+        return None
+    if not isinstance(data, dict) or "inbox" not in data:
+        return None
+    return len(data.get("inbox") or [])
+
+
 def main():
     ap = argparse.ArgumentParser(description="上传静态产物到阿里云 OSS")
     ap.add_argument("--bucket", help="目标 Bucket 名")
     ap.add_argument("--region", default=None,
-                    help="Bucket 地域，如 cn-hongkong（默认取环境变量 OSS_REGION，兜底 cn-hangzhou）")
+                    help="Bucket 地域，如 cn-hongkong（必填：或给环境变量 OSS_REGION。"
+                         "不设兜底 —— 猜错只会 403）")
     ap.add_argument("--dir", default="dist", help="要上传的本地目录（默认 dist）")
+    ap.add_argument("--allow-inbox", action="store_true",
+                    help="允许上传带未核实队列的预览版（dist）。对外发布不要加这个")
     ap.add_argument("--prefix", default="", help="传到 Bucket 下的子路径，如 ai-cases")
     ap.add_argument("--env-file", help="从指定的 .env 读凭证")
     ap.add_argument("--check", action="store_true", help="只验证凭证并列出 Bucket，不写任何东西")
@@ -397,10 +436,28 @@ def main():
             print("[!] 读不到 --env-file 指定的文件：%s" % args.env_file)
             return 1
 
-    # 地域：命令行优先，其次环境变量（--env-file 载入的也算），最后兜底杭州。
+    # 地域：命令行优先，其次环境变量（--env-file 载入的也算）。
+    #
+    # **不设兜底地域。** 这里原本兜底 cn-hangzhou —— 那是个有害的默认值：
+    # 本项目所有 Bucket 都在 cn-hongkong（港澳台及海外，不需要国内域名备案），
+    # 兜底杭州意味着「你什么都不填」就必然指向错的 endpoint。
+    # 而猜错的失败方式不是清晰报错，是 OSS 回一句
+    # 「The bucket you are attempting to access must be addressed using the
+    # specified endpoint」403 —— 看不出是地域错了，只看到一堆上传失败。
+    #
+    # 宁可在这里停下来说清楚要什么，也不猜一个大概率错的值。
     # 注意必须在 load_env_file 之后再取，否则读不到 .env 里的 OSS_REGION。
     if not args.region:
-        args.region = os.environ.get("OSS_REGION", "cn-hangzhou")
+        args.region = os.environ.get("OSS_REGION")
+    if not args.region:
+        print("[!] 没指定地域。Bucket 的地域必须显式给出 —— 猜错会 403 且看不出原因。")
+        print("    （不设兜底是有意的：本项目 Bucket 在 cn-hongkong，兜底杭州必错）")
+        print("    三种给法，任选一种：")
+        print("      1. 命令行 --region cn-hongkong")
+        print("      2. 环境变量 OSS_REGION=cn-hongkong")
+        print("      3. --env-file <你的.env> 里写 OSS_REGION=cn-hongkong")
+        print("    查地域：阿里云控制台 → OSS → Bucket 概览 → 访问端口/地域")
+        return 1
 
     ak, sk = resolve_credentials()
     if not ak or not sk:
@@ -474,6 +531,30 @@ def main():
     if not os.path.isdir(src):
         print()
         print("[!] 找不到 %s，先跑 python scripts/build_static.py" % args.dir)
+        return 1
+
+    # ---- 闸门：对外产物不许带未核实队列
+    #
+    # `--dir` 默认是 dist，而 dist 是**本地预览版**（带 inbox 441 条未核实素材）；
+    # 对外发布必须用 `build_static.py --no-inbox --out public`。
+    # 2026-09-20 实际踩过：默认参数直接把 441 条未核实素材推上了公网，
+    # 语义校验报 `inbox = 0` 才发现的 —— 那之前它已经在线上了。
+    #
+    # 这类错误的代价不对称：多传几百条未核实数据不会报错，只会静静被搜索引擎收录。
+    # 所以做成硬闸门而不是提示 —— 真要传预览版得显式说 --allow-inbox。
+    inbox_n = inbox_count(os.path.join(src, "data.json"))
+    if inbox_n is None:
+        print()
+        print("[!] 拒绝上传：读不出 %s/data.json 的 inbox 字段，无法确认产物是否干净。" % args.dir)
+        print("    先确认跑过 python scripts/build_static.py 生成了完整产物。")
+        return 1
+    if inbox_n and not args.allow_inbox:
+        print()
+        print("[!] 拒绝上传：%s/data.json 里带着 %d 条未核实队列。" % (args.dir, inbox_n))
+        print("    对外发布请用公开版产物：")
+        print("      python scripts/build_static.py --no-inbox --out public")
+        print("      python scripts/deploy_oss.py --bucket %s --dir public" % (args.bucket or "…"))
+        print("    确实要传预览版（一般只在测试环境）再加 --allow-inbox。")
         return 1
 
     # ---- 上传
