@@ -964,17 +964,47 @@ python scripts/verify_deploy.py --expect-cases 30  # 案例数变了就改期望
 一个容易误判为失效的点：`case/index.html` 里的链接是相对路径（`./nitra.html`），
 这样根目录部署和子目录部署都能直接用，校验时别按绝对路径去匹配。
 
-### 让 Actions 自动部署
+### 部署只有一个入口：本地（Actions 不部署）
 
-去仓库 `Settings → Secrets and variables → Actions` 配好这几项，之后每次采集跑完
-就会自动构建并上线（没配就跳过部署，只更新 GitHub 上的数据）：
+**`harvest.yml` 只采集，不部署。** 它以前会构建 + 部署到 OSS，那是错的：
 
-| 类型 | 名称 | 值 |
+- 采集只写 `data/inbox.json`（采集队列），而对外产物是
+  `build_static.py --no-inbox --out public` —— **产物里根本不含 inbox**。
+  部署 public 等于把同样的站点重传一遍，白跑。
+  更糟的是它当时连 `--no-inbox` 都没加，用的是默认 `dist`，
+  于是**每天把 400+ 条未核实素材的全文推上公网**，跑了至少 4 天没人发现
+  （`dist/data.json` 525 KB vs `public/data.json` 174 KB）。
+- 案例内容（`data/cases.json`）只会由人工核实后改动，而那条路走的是
+  `scripts/release.py`，它自己就包含 build + deploy。
+
+所以「什么时候上线」只有一个入口：
+
+```bash
+python scripts/release.py --bucket ai-case-library --region cn-hongkong
+```
+
+构建能力仍受 CI 保护 —— `ci.yml` 的 static job 每次 push 都会真跑一遍构建，
+并断言"只产出 `dist/`、没碰别的地方"。所以 workflow 改动不会悄悄弄坏构建。
+
+`ci.yml` 与 `harvest.yml` 的分工：
+
+| | `ci.yml` | `harvest.yml` |
 |---|---|---|
-| Secret | `OSS_ACCESS_KEY_ID` | AccessKey ID |
-| Secret | `OSS_ACCESS_KEY_SECRET` | AccessKey Secret |
-| Variable | `OSS_BUCKET` | Bucket 名 |
-| Variable | `OSS_REGION` | 可选，默认 `cn-hongkong`（**仅 Actions 里有默认值**；本地跑 `deploy_oss.py` 必须显式给，见下） |
+| 触发 | push / PR | 每天 09:00 + 手动 |
+| 做什么 | 跑测试 + 构建验证 | 采集 → 校验 → 提交 → 推送 |
+| 权限 | `contents: read` | `contents: write` |
+| 部署 | 不部署 | 不部署 |
+
+### OSS 部署的配置
+
+凭证只从环境变量或 `--env-file` 读，**不进仓库**。本地跑之前：
+
+```bash
+export OSS_ACCESS_KEY_ID=...
+export OSS_ACCESS_KEY_SECRET=...
+export OSS_BUCKET=ai-case-library
+export OSS_REGION=cn-hongkong
+```
 
 两条和阿里云有关的实际经验：
 
@@ -984,7 +1014,7 @@ python scripts/verify_deploy.py --expect-cases 30  # 案例数变了就改期望
   香港，于是「什么都不填」必然指向错 endpoint，OSS 只回一句
   `must be addressed using the specified endpoint` 403 —— 看不出是地域错了。
   现在不给地域就当场停下：`--region cn-hongkong` / `OSS_REGION=cn-hongkong` /
-  `--env-file`（三种任选）。Actions 里保留确定值是为了无人值守时不会卡住。
+  `--env-file`（三种任选）。
 - **绑了 CDN 自定义域名的话，传完记得刷缓存**，否则可能还是旧的：
   控制台 → CDN → 域名管理 → 刷新预热 → 刷新缓存 → 类型选「目录」填 `/`
 

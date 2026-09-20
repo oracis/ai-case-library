@@ -1,12 +1,23 @@
 name: 每日采集
 
 # 在 GitHub 上直接更新数据，不需要开本地电脑。
-# 流程：采集 → 校验 → 提交 → 推送 →（配了 OSS 密钥的话）构建静态站并部署上线。
+# 流程：采集 → 校验 → 提交 → 推送。
 #
 # 为什么放 GitHub 跑而不是本地：
 #   - 不依赖你本机开着、网络通、代理不捣乱
 #   - Runner 在境外，访问 Hacker News / TrustMRR 更顺
 #   - 结果直接落在远程仓库，本地随时 git pull
+#
+# **这个 workflow 不部署。** 它以前会构建 + 部署到 OSS，但那是错的：
+#   1. 采集只写 data/inbox.json（采集队列），而对外产物是
+#      `build_static.py --no-inbox --out public` —— **产物里根本不含 inbox**。
+#      也就是说部署 public 等于把同样的站点重传一遍，白跑。
+#      （曾经它连 `--no-inbox` 都没加，用默认的 dist，于是每天把 400+ 条
+#      未核实素材的**全文**推上公网，跑了至少 4 天。）
+#   2. 案例内容（data/cases.json）只会由人工核实后改动，而那条路走的是
+#      `scripts/release.py`，它自己就包含 build + deploy。
+# 所以「什么时候上线」只有一个入口：本地发布。CI 的职责到推送为止。
+# 构建能力仍受 CI 保护 —— ci.yml 的 static job 每次都会真跑一遍构建。
 #
 # 两个容易踩的点，这里都处理了：
 #   1) GITHUB_TOKEN 推的提交**不会**再触发 ci.yml（GitHub 防递归的设计），
@@ -50,17 +61,6 @@ jobs:
   harvest:
     name: 采集 → 校验 → 提交
     runs-on: ubuntu-latest
-
-    # 放在 job 级，这样下面 step 的 if 才读得到；密钥没配时为空串，自动跳过部署
-    env:
-      OSS_ACCESS_KEY_ID: ${{ secrets.OSS_ACCESS_KEY_ID }}
-      OSS_ACCESS_KEY_SECRET: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
-      OSS_BUCKET: ${{ vars.OSS_BUCKET }}
-      # 地域必须显式给：deploy_oss.py 不再兜底（兜底 cn-hangzhou 会让
-      # 「没配」变成「必然 403」）。本项目的 Bucket 都在 cn-hongkong。
-      # CI 里保留这个 `|| 'cn-hongkong'` 是因为 Actions 环境无从交互，
-      # 必须有个确定值；本地跑脚本则要求显式传 --region 或 OSS_REGION。
-      OSS_REGION: ${{ vars.OSS_REGION || 'cn-hongkong' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -137,28 +137,6 @@ jobs:
           fi
           git push origin "HEAD:$BRANCH"
 
-      - name: 构建静态站
-        if: ${{ github.event.inputs.dry_run != 'true' }}
-        run: python scripts/build_static.py
-
-      - name: 部署到阿里云 OSS
-        if: ${{ github.event.inputs.dry_run != 'true' && env.OSS_ACCESS_KEY_ID != '' && env.OSS_BUCKET != '' }}
-        run: |
-          python scripts/deploy_oss.py \
-            --bucket "$OSS_BUCKET" \
-            --region "$OSS_REGION" \
-            --setup-website
-
-      - name: 未配置 OSS 就跳过部署（给出配置说明）
-        if: ${{ github.event.inputs.dry_run != 'true' && (env.OSS_ACCESS_KEY_ID == '' || env.OSS_BUCKET == '') }}
-        run: |
-          echo "未配置 OSS_ACCESS_KEY_ID / OSS_BUCKET，跳过部署。"
-          echo "要让它自动上线，去仓库 Settings → Secrets and variables → Actions 配："
-          echo "  Secrets : OSS_ACCESS_KEY_ID、OSS_ACCESS_KEY_SECRET"
-          echo "  Variables: OSS_BUCKET（Bucket 名）、OSS_REGION（地域，默认 cn-hongkong）"
-          echo ""
-          echo "地域用香港是因为国内地域绑自定义域名要求域名备案；本项目未备案。"
-
       - name: 写运行摘要
         if: always()
         run: |
@@ -166,4 +144,8 @@ jobs:
             echo "### 每日采集"
             echo ""
             python -c "import json,os;p='data/last_harvest.json';d=json.load(open(p,encoding='utf-8')) if os.path.exists(p) else {};print('- 新增：**%s** 条' % d.get('added','?'));print('- 来源分布：%s' % (d.get('by_source') or {}));print('- 采集队列：**%s** 条' % d.get('inbox_total','?'));print();print('值得先看的几条：');[print('- %s（%s，热度 %s）%s' % (t.get('name'),t.get('source'),t.get('heat'),t.get('url') or '')) for t in (d.get('top') or [])[:5]]"
+            echo ""
+            echo "本次只更新采集队列，**没有部署**。"
+            echo "采集队列是给人挑素材用的，对外产物不含它（build_static --no-inbox）。"
+            echo "要上线新案例：本地跑 \`python scripts/release.py --bucket ai-case-library --region cn-hongkong\`"
           } >> "$GITHUB_STEP_SUMMARY"
