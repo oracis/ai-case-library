@@ -9,6 +9,7 @@ import argparse
 import json
 import os
 import sys
+import tempfile
 import unittest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -220,6 +221,98 @@ class CLIArgs(unittest.TestCase):
             self._FakeOSS(["some-other"]),
         )
         self.assertNotEqual(rc, 0)
+
+
+class DryRunIsReadOnly(unittest.TestCase):
+    """`--dry-run` 承诺「不写任何东西」，这条必须能被验证。
+
+    2026-09-20 实测发现它是假的：Bucket Policy 的设置（PUT）跑在
+    dry_run 判断**之前**，只有 upload 那一段受保护。于是
+    「只列出会传的文件，不真传」实际是「不传文件，但照样重设权限策略」。
+    而 release.py 的 `--dry-run` 对外说的是「全链路预演，不写盘不上传」——
+    会跟着一起骗人。所以这里直接数写请求，而不是看它打印了什么。
+    """
+
+    class _RecordingOSS:
+        """把收到的每个请求记下来，好断言「一次写操作都没发」。"""
+
+        def __init__(self, buckets):
+            self.buckets = list(buckets)
+            self.calls = []
+
+        def request(self, method, bucket="", key="", body=None, headers=None,
+                    subresource=""):
+            self.calls.append((method, bucket, key, subresource))
+            if method == "GET" and not bucket:
+                names = "".join("<Name>%s</Name>" % b for b in self.buckets)
+                xml = (b"<?xml version='1.0'?>"
+                       b"<ListAllMyBucketsResult><Buckets>"
+                       + names.encode() + b"</Buckets></ListAllMyBucketsResult>")
+                return 200, xml, {}
+            return 200, b"<ok/>", {}
+
+        @property
+        def writes(self):
+            return [c for c in self.calls if c[0] != "GET"]
+
+    def _make_dir(self, inbox=0):
+        d = tempfile.mkdtemp()
+        with open(os.path.join(d, "data.json"), "w", encoding="utf-8") as f:
+            json.dump({"inbox": [{"id": "x"}] * inbox}, f)
+        return d
+
+    def _run(self, argv, fake, region_env="cn-hongkong"):
+        saved_argv = sys.argv
+        sys.argv = ["deploy_oss.py"] + argv
+        saved_oss = D.OSS
+        D.OSS = lambda *a, **k: fake
+        saved_resolve = D.resolve_credentials
+        D.resolve_credentials = lambda: ("fake_ak_" + "x" * 24, "fake_sk_" + "y" * 30)
+        saved_env = os.environ.get("OSS_REGION")
+        os.environ["OSS_REGION"] = region_env
+        try:
+            return D.main()
+        finally:
+            sys.argv = saved_argv
+            D.OSS = saved_oss
+            D.resolve_credentials = saved_resolve
+            if saved_env is None:
+                os.environ.pop("OSS_REGION", None)
+            else:
+                os.environ["OSS_REGION"] = saved_env
+
+    def test_dry_run_sends_no_write_requests(self):
+        fake = self._RecordingOSS(["ok-bucket"])
+        rc = self._run(["--bucket", "ok-bucket", "--dir", self._make_dir(),
+                        "--dry-run"], fake)
+        self.assertEqual(rc, 0)
+        self.assertEqual(fake.writes, [],
+                         "dry-run 发了写请求（method, bucket, key, subresource）：%s"
+                         % fake.writes)
+
+    def test_dry_run_skips_bucket_policy(self):
+        """单独盯住 policy 那条 —— 它正是漏掉的那个。"""
+        fake = self._RecordingOSS(["ok-bucket"])
+        self._run(["--bucket", "ok-bucket", "--dir", self._make_dir(), "--dry-run"],
+                  fake)
+        policy_puts = [c for c in fake.calls if c[0] == "PUT" and c[3] == "policy"]
+        self.assertEqual(policy_puts, [], "dry-run 仍然重设了 Bucket Policy")
+
+    def test_dry_run_does_not_create_bucket(self):
+        """桶不存在 + --create + --dry-run：不该真建。"""
+        fake = self._RecordingOSS(["some-other"])
+        rc = self._run(["--bucket", "brand-new", "--create", "--dir", self._make_dir(),
+                        "--dry-run"], fake)
+        self.assertEqual(rc, 0)
+        self.assertEqual(fake.writes, [], "dry-run 真的建了桶：%s" % fake.writes)
+
+    def test_real_run_still_sets_policy(self):
+        """反向：真跑的时候策略必须照设 ——
+        别为了「dry-run 干净」把正常路径也一起废掉。"""
+        fake = self._RecordingOSS(["ok-bucket"])
+        self._run(["--bucket", "ok-bucket", "--dir", self._make_dir()], fake)
+        policy_puts = [c for c in fake.calls if c[0] == "PUT" and c[3] == "policy"]
+        self.assertTrue(policy_puts, "真跑却没设置 Bucket Policy")
 
 
 class HostSelection(unittest.TestCase):

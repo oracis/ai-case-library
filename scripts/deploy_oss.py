@@ -408,7 +408,12 @@ def inbox_count(data_json_path):
     return len(data.get("inbox") or [])
 
 
-def main():
+def main(argv=None):
+    """argv=None 时读 sys.argv（命令行）；传列表则可被别的脚本直接调用。
+
+    别的地方（release.py / auto_deploy.py）要复用这套参数解析，
+    给个 argv 入口比让它们各自替换 sys.argv 干净。
+    """
     ap = argparse.ArgumentParser(description="上传静态产物到阿里云 OSS")
     ap.add_argument("--bucket", help="目标 Bucket 名")
     ap.add_argument("--region", default=None,
@@ -427,7 +432,7 @@ def main():
                     help="当 Bucket 不存在时新建（public-read ACL）。Bucket 名全局唯一，已被占用会返回 409")
     ap.add_argument("--verify-public", action="store_true",
                     help="部署后匿名 GET 一次首页，确认「真能从公网打开」。Bucket 是私有时这一步会 403")
-    args = ap.parse_args()
+    args = ap.parse_args(argv)
 
     if args.env_file:
         if load_env_file(args.env_file):
@@ -504,6 +509,10 @@ def main():
         else:
             print("    想自动新建就加 --create；Bucket 名是全局唯一的，长度 3-63、小写字母数字短横线")
             return 1
+        # --dry-run 到此为止：桶都不存在，后面的策略设置和上传都没有意义。
+        if args.dry_run:
+            print("    （--dry-run：跳过建桶 —— 建桶是写操作）")
+            return 0
         st, msg = create_bucket(oss, args.bucket)
         if st != 200:
             print("[FAIL] 建桶 HTTP %s：%s" % (st, msg))
@@ -516,16 +525,24 @@ def main():
     # 阿里云不允许通过 API 设 ACL=public，但允许设 Bucket Policy——
     # Policy 是阿里云推荐的方式，效用上等价于「公共读 ACL」，
     # 但策略更精细（可以限定前缀、动作、IP 等）。
+    #
+    # **这一步是 PUT，--dry-run 必须跳过。** 它曾经被无条件执行：
+    # dry_run 只保护了 upload 那一段，于是「只列出会传的文件，不真传」
+    # 的承诺是假的 —— 权限策略照样真的被重设。而 release.py 的 --dry-run
+    # 对外说的是「全链路预演，不写盘不上传」，会跟着一起骗人。
     print()
-    print("设置 Bucket Policy（允许匿名 GetObject）…")
-    st, msg = set_bucket_policy(oss, args.bucket)
-    if st == 200:
-        print("[OK] 已设置匿名 GET 策略")
+    if args.dry_run:
+        print("（--dry-run：跳过 Bucket Policy 设置 —— 那是写操作，不是只读检查）")
     else:
-        print("[!] 设置失败 HTTP %s：%s" % (st, msg))
-        print("    后续匿名访问几乎肯定 403，但文件仍然会上传。")
-        print("    解决：去阿里云控制台 → OSS → 这个 Bucket → 权限管理 → Bucket 策略，")
-        print("          加一条允许 Principal=* GetObject 的策略。")
+        print("设置 Bucket Policy（允许匿名 GetObject）…")
+        st, msg = set_bucket_policy(oss, args.bucket)
+        if st == 200:
+            print("[OK] 已设置匿名 GET 策略")
+        else:
+            print("[!] 设置失败 HTTP %s：%s" % (st, msg))
+            print("    后续匿名访问几乎肯定 403，但文件仍然会上传。")
+            print("    解决：去阿里云控制台 → OSS → 这个 Bucket → 权限管理 → Bucket 策略，")
+            print("          加一条允许 Principal=* GetObject 的策略。")
 
     src = os.path.join(ROOT, args.dir)
     if not os.path.isdir(src):
