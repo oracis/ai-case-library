@@ -20,6 +20,7 @@ import io
 import contextlib
 import os
 import sys
+import tempfile
 import unittest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -46,6 +47,84 @@ def parse(argv):
     ap.add_argument("--skip-deploy", action="store_true")
     ap.add_argument("--yes", action="store_true")
     return ap.parse_args(argv)
+
+
+class TestResolveDeployTarget(unittest.TestCase):
+    """bucket / region 的取值来源：命令行 > 环境变量 > --env-file。
+
+    `--env-file` 必须在 preflight 之前就生效。曾经 release.py 只把它转给
+    deploy_oss，自己不读 —— 于是 preflight 阶段这两个值仍是空的，deploy
+    整步被判「没给地域」跳过。**同一个 .env，两个模块给出不同结论**，
+    而第 6 步的 deploy_oss 明明能读到它。
+    """
+
+    KEYS = ("OSS_BUCKET", "OSS_REGION")
+
+    def setUp(self):
+        self._saved = {k: os.environ.pop(k, None) for k in self.KEYS}
+        self._tmp = tempfile.mkdtemp()
+
+    def tearDown(self):
+        for k, v in self._saved.items():
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
+
+    def _env_file(self, body):
+        path = os.path.join(self._tmp, ".env")
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(body)
+        return path
+
+    def test_env_file_supplies_both(self):
+        path = self._env_file("OSS_BUCKET=from-file\nOSS_REGION=cn-test-1\n")
+        a = parse(["--env-file", path])
+        with contextlib.redirect_stdout(io.StringIO()):
+            rc = R.resolve_deploy_target(a)
+        self.assertEqual(rc, 0)
+        self.assertEqual(a.bucket, "from-file")
+        self.assertEqual(a.region, "cn-test-1")
+
+    def test_missing_env_file_fails_loudly(self):
+        a = parse(["--env-file", os.path.join(self._tmp, "nope.env")])
+        with contextlib.redirect_stdout(io.StringIO()):
+            rc = R.resolve_deploy_target(a)
+        self.assertEqual(rc, 2, "读不到 .env 应当明确失败，而不是静默继续")
+
+    def test_env_var_wins_over_env_file(self):
+        """load_env_file 不覆盖已有变量 —— 优先级靠这个成立。"""
+        path = self._env_file("OSS_BUCKET=from-file\nOSS_REGION=cn-test-1\n")
+        os.environ["OSS_BUCKET"] = "from-env-var"
+        a = parse(["--env-file", path])
+        with contextlib.redirect_stdout(io.StringIO()):
+            R.resolve_deploy_target(a)
+        self.assertEqual(a.bucket, "from-env-var")
+
+    def test_cli_wins_over_env_file(self):
+        path = self._env_file("OSS_BUCKET=from-file\nOSS_REGION=cn-test-1\n")
+        a = parse(["--env-file", path, "--bucket", "from-cli", "--region", "from-cli-r"])
+        with contextlib.redirect_stdout(io.StringIO()):
+            R.resolve_deploy_target(a)
+        self.assertEqual(a.bucket, "from-cli")
+        self.assertEqual(a.region, "from-cli-r")
+
+    def test_env_file_fills_only_what_cli_omitted(self):
+        """混合：命令行给了 bucket，.env 补 region。"""
+        path = self._env_file("OSS_BUCKET=from-file\nOSS_REGION=cn-test-1\n")
+        a = parse(["--env-file", path, "--bucket", "from-cli"])
+        with contextlib.redirect_stdout(io.StringIO()):
+            R.resolve_deploy_target(a)
+        self.assertEqual(a.bucket, "from-cli")
+        self.assertEqual(a.region, "cn-test-1")
+
+    def test_real_project_env_file_is_ignored_by_git(self):
+        """项目里那个 .env 绝不能入库（它可能被写上凭证）。"""
+        self.assertTrue(os.path.exists(os.path.join(ROOT, ".env")),
+                        "项目 .env 不存在（本该有 bucket/region）")
+        import subprocess
+        p = subprocess.run(["git", "check-ignore", "-q", ".env"], cwd=ROOT)
+        self.assertEqual(p.returncode, 0, ".env 没被 .gitignore 忽略，可能被提交")
 
 
 class TestStepOrder(unittest.TestCase):

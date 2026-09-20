@@ -492,6 +492,30 @@ def skip_set(args):
     return skip
 
 
+def resolve_deploy_target(args):
+    """把部署目标（bucket / region）定下来。优先级：命令行 > 环境变量 > --env-file。
+
+    `--env-file` 必须**在这里**就读，不能留给 deploy_oss 去做：
+    那边要到第六步才载入，而 preflight 在第一步之前就要拿这两个值判断
+    「这趟会不会部署」。两个模块对同一个文件给出不同结论的话，
+    表现是 deploy 明明能跑，却被判成「没给地域」整步跳过。
+
+    load_env_file 写进 os.environ 且**不覆盖已有值**，所以命令行与环境变量
+    的优先级天然成立，不需要额外处理。
+
+    返回退出码语义：0 = 可以继续，非 0 = 该停下。
+    """
+    if args.env_file:
+        if not deploy_oss.load_env_file(args.env_file):
+            print("[!] 读不到 --env-file 指定的文件：%s" % args.env_file)
+            return 2
+    if args.region is None:
+        args.region = os.environ.get("OSS_REGION")
+    if not args.bucket:
+        args.bucket = os.environ.get("OSS_BUCKET")
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser(
         description="发布链路编排器：contentpack → publish → fit → score → build → deploy",
@@ -531,10 +555,9 @@ def main():
                     help="不交互确认（默认就是非交互，这个参数只为脚本里显式表意）")
     args = ap.parse_args()
 
-    if args.region is None:
-        args.region = os.environ.get("OSS_REGION")
-    if not args.bucket:
-        args.bucket = os.environ.get("OSS_BUCKET")
+    rc = resolve_deploy_target(args)
+    if rc:
+        return rc
 
     # --only 的取值要校验：打错一个字就静默什么都不跑，最难查。
     if args.only:

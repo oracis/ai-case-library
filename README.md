@@ -995,6 +995,61 @@ python scripts/release.py --bucket ai-case-library --region cn-hongkong
 | 权限 | `contents: read` | `contents: write` |
 | 部署 | 不部署 | 不部署 |
 
+### 本地参数固化：`.env`
+
+项目根目录有个 `.env`（已在 `.gitignore` 里，不会入库）：
+
+```
+OSS_BUCKET=ai-case-library
+OSS_REGION=cn-hongkong
+```
+
+有了它就不必每次带那两个参数：
+
+```bash
+python scripts/release.py --env-file .env                       # 完整发布
+python scripts/release.py --only build,deploy --env-file .env    # 只重建上线
+python scripts/auto_deploy.py --env-file .env                    # 兜底检查
+```
+
+优先级：**命令行 > 环境变量 > `--env-file`**。实现上靠 `load_env_file`
+「不覆盖已存在的变量」这条性质，所以不需要额外的优先级代码。
+
+注意 `--env-file` 必须在 preflight **之前**就被 release.py 自己读掉 ——
+不能只转给 `deploy_oss`。那边要到第六步才载入，而 preflight 在第一步之前
+就要用这两个值判断「这趟会不会部署」，否则 deploy 会被误判成「没给地域」跳过。
+（这个坑踩过：同一个 `.env`，两个模块给出不同结论。）
+
+凭证不放这里 —— 用 `ALIBABA_CLOUD_ACCESS_KEY_ID` / `ALIBABA_CLOUD_ACCESS_KEY_SECRET`
+环境变量（或 `--env-file` 里写，但别提交）。
+
+### 忘了部署怎么办：兜底检查
+
+发布案例不会忘 —— 部署是 `release.py` 的第六步，而且失败即停。
+但**只改文案 / 前端 / 站点配置**时没有那条链路兜着：改完忘了跑部署，
+线上就一直停在旧版本，而且没有任何提示。
+
+所以有一个幂等的兜底检查：
+
+```bash
+python scripts/auto_deploy.py --env-file .env             # 检查，需要就部署
+python scripts/auto_deploy.py --env-file .env --dry-run    # 只报告差异
+```
+
+它构建一份对外产物，和线上**逐文件比内容**，一致就什么都不做。
+两处细节值得知道：
+
+- **时间戳不算差异**：`generated_at` 与 `stats.inbox` 会被归一化掉。
+  不这么做的话每次构建都「有差异」，这脚本就退化成每天空转部署一次。
+  实测依据：同一份数据连续构建两次，39 个产物里只有 `data.json` / `data.js`
+  的哈希会变 —— 这两条都写成了测试断言，改动一旦破坏它就会红。
+- **线上多出来的文件不触发部署**，只报告。因为部署本来就不会删它们，
+  拿它触发等于白跑；要清得去 OSS 控制台手动删。
+
+已注册一个本地定时任务（每天 21:00）跑它兜底，所以忘了也不至于长期不更新。
+但它**不能替代人工判断上线时机** —— 唯一的依据是「本地和线上不一样」，
+它不知道你是不是还在改。所以只当兜底，不当发布主路径。
+
 ### OSS 部署的配置
 
 凭证只从环境变量或 `--env-file` 读，**不进仓库**。本地跑之前：

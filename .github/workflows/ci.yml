@@ -76,6 +76,12 @@ jobs:
         # ③ 对外产物目录默认 public，不接受 dist（那是带 inbox 的预览版）。
         run: python scripts/release.py --selfcheck && python -m unittest scripts.test_release
 
+      - name: 测试 auto_deploy.py（兜底部署的判断准确性）
+        # 判断判错的两种方式都不报错：把没变的说成变了 → 每天空转部署；
+        # 把变了的说成没变 → 改了永远不上线且无提示。
+        # 所以既测归一化（时间戳不算差异），也用**真实构建的两份产物**验证。
+        run: python -m unittest scripts.test_auto_deploy
+
       - name: 测试 make_article.py（草稿生成与发布红线）
         # 守两条线：① 人工表（EDITORIAL_WEIGHT/TITLE_OVERRIDES）里的 id 不能写错，
         # 错一个会静默失效、排名悄悄跑偏；② 正文里绝不能出现裸 URL。
