@@ -1,78 +1,78 @@
 {
-  "ran_at": "2026-09-19 05:23:37",
-  "added": 78,
+  "ran_at": "2026-09-20 05:36:26",
+  "added": 59,
   "by_source": {
-    "hn": 63,
-    "indiehackers": 7,
+    "hn": 46,
+    "indiehackers": 5,
     "trustmrr": 8
   },
   "inbox_total": 400,
-  "archived_this_run": 78,
-  "archive_total": 282,
+  "archived_this_run": 59,
+  "archive_total": 341,
   "top": [
     {
-      "name": "Augora AI",
-      "headline": "MRR $1,560，TrustMRR 第 902 名",
+      "name": "TrendStory",
+      "headline": "MRR $67,600，TrustMRR 第 274 名",
+      "heat": 0,
+      "category": "SaaS",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/trendstory"
+    },
+    {
+      "name": "Closer Edge",
+      "headline": "MRR $484，TrustMRR 第 3026 名",
+      "heat": 0,
+      "category": "SaaS",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/closer-edge"
+    },
+    {
+      "name": "UltraWideo",
+      "headline": "MRR $333，TrustMRR 第 1911 名",
+      "heat": 0,
+      "category": "SaaS",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/ultrawideo"
+    },
+    {
+      "name": "Draftly",
+      "headline": "MRR $25,000，TrustMRR 第 449 名",
       "heat": 0,
       "category": "Artificial Intelligence",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/augora"
+      "url": "https://trustmrr.com/startup/draftly-1"
     },
     {
-      "name": "Verbatik AI",
-      "headline": "MRR $1,907，TrustMRR 第 547 名",
+      "name": "VidFarm.cc",
+      "headline": "MRR $2,962，TrustMRR 第 1177 名",
+      "heat": 0,
+      "category": "Content Creation",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/vidfarm"
+    },
+    {
+      "name": "AppAlchemy",
+      "headline": "MRR $6,476，TrustMRR 第 308 名",
       "heat": 0,
       "category": "Artificial Intelligence",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/verbatik"
+      "url": "https://trustmrr.com/startup/appalchemy"
     },
     {
-      "name": "VoiceBrief",
-      "headline": "MRR $200，TrustMRR 第 2863 名",
+      "name": "EventSend",
+      "headline": "自报收入 $1,100 / mo（Indie Hackers）",
       "heat": 0,
-      "category": "Education",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/voicebrief"
-    },
-    {
-      "name": "KAWSTY",
-      "headline": "近 30 天收入 $250",
-      "heat": 0,
-      "category": "Productivity",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/kawsty"
-    },
-    {
-      "name": "VECTOSOLVE",
-      "headline": "MRR $1,731，TrustMRR 第 1296 名",
-      "heat": 0,
-      "category": "Design Tools",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/vectosolve"
-    },
-    {
-      "name": "Publbee",
-      "headline": "MRR $3,248，TrustMRR 第 1292 名",
-      "heat": 0,
-      "category": "Content Creation",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/publbee"
-    },
-    {
-      "name": "Multifeed",
-      "headline": "MRR $207，TrustMRR 第 4838 名",
-      "heat": 0,
-      "category": "Content Creation",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/multifeed"
-    },
-    {
-      "name": "Open-source revenue recognition and analytics for Stripe and Metronome",
-      "headline": "疑似金额 $100k",
-      "heat": 2,
       "category": "未分类",
-      "source": "hn",
-      "url": "https://news.ycombinator.com/item?id=49758181"
+      "source": "indiehackers",
+      "url": "https://www.indiehackers.com/product/eventsend"
+    },
+    {
+      "name": "xpaiming",
+      "headline": "自报收入 $10 / mo（Indie Hackers）",
+      "heat": 0,
+      "category": "未分类",
+      "source": "indiehackers",
+      "url": "https://www.indiehackers.com/product/xpaiming"
     }
   ]
 }
