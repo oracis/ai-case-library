@@ -101,6 +101,51 @@ class Basics(unittest.TestCase):
         self.assertTrue(T.has_numbers(rec(metrics={"mrr": 1200})))
         self.assertTrue(T.has_numbers(rec(trade={"price": "$10K"})))
 
+    def test_文本旁证不算数字(self):
+        """**「关于数据的事」不是数据本身。**
+
+        2026-09-20 真实数据里踩到的：hn_discussion 装的是 HN 评论原文，
+        评论里写 "v1 API"、"3 years" 都会被当成数字，于是 5 条 headline
+        全是「未获取」的帖子凭空多了 16 分（WEIGHTS["has_numbers"]），
+        还可能被送进花钱的深核 —— 真正该走的 backfill 反而没人管。
+
+        这条一旦放宽，损失不是分数虚高，是**把钱花在错的地方**。
+        """
+        # 评论原文里的数字不算
+        self.assertFalse(T.has_numbers(rec(metrics={
+            "headline": "未获取",
+            "hn_discussion": "Java client for TypeSafe AI's System One API (POST /v1/systemone)."})),
+            "评论里的 v1 被当成了项目的数字")
+        self.assertFalse(T.has_numbers(rec(metrics={
+            "headline": "未获取",
+            "hn_discussion": "I ran it for 3 years on Wine 8."})),
+            "评论里的 3 years 被当成了项目的数字")
+
+        # 来源说明 / 口径说明里的数字不算（日期最容易误命中）
+        self.assertFalse(T.has_numbers(rec(metrics={
+            "headline": "未获取",
+            "provenance": "verified through connected external providers and APIs"})))
+        self.assertFalse(T.has_numbers(rec(metrics={
+            "headline": "未获取",
+            "metric_note": "口径：MRR = 当前月经常性收入；截至 2026-09。"})),
+            "口径说明里的日期被当成了数字")
+
+        # 帖子摘录也不算 —— 数字该由数值字段承载，只在摘录里出现说明
+        # 采集器没提取到，那正是 backfill 的活
+        self.assertFalse(T.has_numbers(rec(metrics={
+            "headline": "未获取",
+            "story_excerpt": "Post 1 Revenue $200 / mo and $150 MRR"})),
+            "摘录里的收入被当成了已提取的数字")
+
+        # 但它们不影响真数字字段 —— 跳过的是旁证，不是整条记录
+        self.assertTrue(T.has_numbers(rec(metrics={
+            "headline": "未获取", "hn_discussion": "no digits here", "mrr": 1200})))
+
+    def test_文本旁证字段清单别被误删(self):
+        """清单本身是规则的一部分，删一个就等于放宽一类误判。"""
+        self.assertEqual(set(T.TEXT_ONLY_KEYS),
+                         {"hn_discussion", "story_excerpt", "provenance", "metric_note"})
+
     def test_收入抽取(self):
         self.assertEqual(T.revenue_of(rec(metrics={"headline": "收入 $6.2K / 售价 $15K"})), 6200)
         self.assertEqual(T.revenue_of(rec(metrics={"headline": "$70 MRR / 7 个订阅"})), 70)

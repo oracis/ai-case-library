@@ -4,7 +4,8 @@
 
 为什么要有这个文件
 ------------------
-候选池 33 条 + 采集队列 441 条。深核一条要联网检索、抓多页原文、再调一次 LLM，
+候选池几十条 + 采集队列几百条（写这个文件时是 33 + 441，队列会天天变）。
+深核一条要联网检索、抓多页原文、再调一次 LLM，
 是这条流水线上唯一真正花钱的环节。而 `ai_verify.py --limit 5` 以前是
 **按录入顺序**取前 5 条 —— 采到什么就先核什么，于是队列里最值得核的那条
 可能永远排在第 400 位，排在前面的则可能是早就核完、只差人点发布的那种。
@@ -165,6 +166,26 @@ AGG_HOSTS = (
 # 直接挤进深核队列 —— 这正是初筛最该拦下的那类误判。
 NUM_PLACEHOLDERS = ("未获取", "待补", "暂无", "未知", "尚未", "疑似")
 
+# metrics 里这些 key 装的是**文本旁证**，不是这个项目的数字。扫数字时必须跳过。
+#
+# 「有数字」在这条流水线上值 16 分（WEIGHTS["has_numbers"]），还参与
+# _can_deep 的准入 —— 所以一个误判不只是分数虚高，它会改变送去花钱深核的名单。
+#
+# hn_discussion 是 HN 评论原文。里面写 "v1 API"、"3 years"、"beta 2"
+# 都会被当成数字，于是一条毫无收入线索的帖子凭空多了 16 分。
+# 2026-09-20 实测：队列里 5 条帖子就是这样被误判成「有数字」的，
+# 它们的 headline 全是「未获取」—— 真正该表达的是 backfill，不是 deep。
+#
+# story_excerpt 是帖子摘录，边界稍模糊（作者可能在原文里自报收入），
+# 但同样的道理：数字该由数值字段承载。只在摘录里出现说明采集器没提取到，
+# 那正是 backfill 要干的事，不该冒充「已有数字」。
+TEXT_ONLY_KEYS = (
+    "hn_discussion",     # HN 评论原文（别人说的话）
+    "story_excerpt",     # 帖子摘录
+    "provenance",        # 来源说明（TrustMRR 的通用文案）
+    "metric_note",       # 口径说明（"截至 2026-09" 这类日期会误命中）
+)
+
 # 只从标题抽到的疑似金额。它是个线索，不是数据，也不足以支撑深核 ——
 # 但比什么都没有强：至少知道官网在哪、值不值得点开看。
 SUSPECT_AMOUNT = "疑似金额"
@@ -272,8 +293,13 @@ def has_numbers(rec):
 
     headline 与各数值字段都看；带「待补 / 未获取」的字段不算 ——
     字段在但数字没拿到，正是 backfill 要处理的，不能当成已有数字。
+
+    **文本旁证字段要跳过**（TEXT_ONLY_KEYS）。它们说的是「关于数据的事」，
+    不是数据本身；扫它们的数字等于把别人的话当成这个项目的收入。
     """
-    for v in (rec.get("metrics") or {}).values():
+    for k, v in (rec.get("metrics") or {}).items():
+        if k in TEXT_ONLY_KEYS:
+            continue
         if not isinstance(v, (str, int, float)):
             continue
         s = str(v)
@@ -615,8 +641,11 @@ def _can_deep(scope, got_numbers, rev, flag_keys, hit_keys, host):
 
     候选池放宽一档：那些条目是人工一条条挑进来的，手上还有数字 ——
     数字在手就说明有东西可核，缺的只是来源等级，而那正是深核要做的事。
-    队列不放宽：队列里数字稀少（441 条里只有 4 条带真数字），
-    放宽等于让 AI 去核一堆连数字都没有的帖子。
+    队列不放宽：队列里带真数字的只占少数，放宽等于让 AI 去核一堆
+    连数字都没有的帖子。
+    （「少数」是多少随采集源变化，别在这里写死 —— 想复核就数一遍
+    has_numbers() 为真的条数。曾经这里写着「441 条里只有 4 条」，
+    等 TrustMRR 成了主要来源之后那个数字就完全不成立了。）
     """
     if not got_numbers or "small" in flag_keys or "tiny_revenue" in flag_keys:
         return False
@@ -653,9 +682,8 @@ def _grade(rec, scope, score, flags, hit_keys, got, rev, att, ready, bf, host):
     if score >= LATER_LINE:
         return "later"
     # 两道兜底，都只拦「归档」，不抬成深核：
-    #   有真实数字 —— 数字是这个数据集里最稀缺的东西（441 条队列里只有 4 条有），
-    #     哪怕 $25/月 也不该和「零分的开源仓库」一起被扫进归档。量级会变，
-    #     数字本身是可核的。
+    #   有真实数字 —— 数字是这个数据集里最稀缺的东西之一，哪怕 $25/月
+    #     也不该和「零分的开源仓库」一起被扫进归档。量级会变，数字本身可核。
     #   高关注度 —— 300 分的 Show HN 至少值得人扫一眼标题。
     if rev is not None or att == "high":
         return "later"

@@ -937,7 +937,7 @@ def print_triage(limit=None, ids=None, include_small=False):
     print("\n  全池分级：%s"
           % " · ".join("%s %d" % (TR.GRADE_LABEL[g], by_grade.get(g, 0))
                        for g in TR.GRADE_ORDER))
-    print("  完整分级（含采集队列 441 条）见 scripts/triage.py")
+    print("  完整分级（含采集队列，跑 scripts/triage.py 看）")
     return 0
 
 
