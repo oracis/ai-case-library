@@ -94,38 +94,61 @@ def no_proxy_opener():
     return urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
 
-def fetch_remote(base, rel, opener, timeout=45):
-    """取线上一个文件，返回归一化后的哈希；取不到返回 None。"""
+def fetch_remote(base, rel, opener, timeout=45, retries=2):
+    """取线上一个文件。返回三态，**必须区分 404 与网络失败**：
+
+        ("ok",      sha)   取到了
+        ("missing", None)  明确 404 —— 线上确实没这个文件
+        ("error",   None)  网络/超时/其他错误（重试后仍失败）
+
+    2026-09-20 实测的坑：一开始把「取不到」一律当成「缺失」，
+    于是一次瞬时失败就被判成「线上少了个文件」并触发部署 ——
+    而那个 URL 手工一取就是 HTTP 200。**把网络抖动误报成内容差异**，
+    会让这个脚本在不该部署的时候部署。
+    """
     url = base.rstrip("/") + "/" + rel
-    req = urllib.request.Request(url, headers={"User-Agent": "auto-deploy/1.0"})
-    try:
-        with opener.open(req, timeout=timeout) as r:
-            if r.status != 200:
-                return None
-            return digest(rel, r.read())
-    except Exception:                                          # noqa: BLE001
-        return None
+    last = None
+    for attempt in range(retries + 1):
+        req = urllib.request.Request(url, headers={"User-Agent": "auto-deploy/1.0"})
+        try:
+            with opener.open(req, timeout=timeout) as r:
+                if r.status != 200:
+                    return "error", None
+                return "ok", digest(rel, r.read())
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                return "missing", None
+            last = e
+        except Exception as e:                                  # noqa: BLE001
+            last = e
+    return "error", None
 
 
 def diff_manifest(local, remote):
-    """比两份清单。返回 (changed, missing, extra)。
+    """比两份清单。返回 (changed, missing, unreadable, extra)。
 
-    changed 线上内容与本地不同 —— 需要部署
-    missing 线上没有这个文件 —— 需要部署（首次上线会全落这里）
-    extra   线上多出来的、本地没有 —— **不触发部署**，部署也不会删它，
-            所以单独报出来给人判断（多半是历史残留）
+    changed    线上内容与本地不同 —— 需要部署
+    missing    线上明确 404 —— 需要部署（首次上线会全落这里）
+    unreadable 取不到（网络/超时），**不当作差异** —— 判不了就别猜
+    extra      线上多出来的、本地没有 —— **不触发部署**，部署也不会删它，
+               所以单独报出来给人判断（多半是历史残留）
+
+    `remote` 的值是 ("ok", sha) / ("missing", None) / ("error", None)。
     """
-    changed, missing, extra = [], [], []
+    changed, missing, unreadable, extra = [], [], [], []
     for rel in sorted(local):
-        r = remote.get(rel)
-        if r is None:
+        status, got = remote.get(rel, ("error", None))
+        if status == "ok":
+            if got != local[rel]:
+                changed.append(rel)
+        elif status == "missing":
             missing.append(rel)
-        elif r != local[rel]:
-            changed.append(rel)
+        else:
+            unreadable.append(rel)
     for rel in sorted(remote):
         if rel not in local:
             extra.append(rel)
-    return changed, missing, extra
+    return changed, missing, unreadable, extra
 
 
 def site_base():
@@ -176,18 +199,24 @@ def main():
     print("  比对线上（逐文件 GET，约 %d 个请求）…" % len(local))
     remote = {rel: fetch_remote(base, rel, opener) for rel in local}
 
-    unreachable = [r for r, h in remote.items() if h is None]
-    if len(unreachable) >= len(local):
+    changed, missing, unreadable, extra = diff_manifest(local, remote)
+
+    # 取不到的比例过高时，先怀疑网络/域名，别拿它当「有差异」去部署。
+    if unreadable and len(unreadable) >= max(3, len(local) // 3):
         print()
-        print("[!] 线上一个文件都取不到 —— 大概率不是「内容不同」，而是网络或域名不对。")
+        print("[!] %d / %d 个文件取不到 —— 大概率不是「内容不同」，而是网络或域名不对。"
+              % (len(unreadable), len(local)))
         print("    先手工确认一次：curl -I %s/index.html" % base)
-        print("    （把它当成「有差异」去部署是危险的判断，所以这里直接停下。）")
+        print("    把它当成「有差异」去部署是危险判断（内容根本没比出来），所以停下。")
         return 1
 
-    changed, missing, extra = diff_manifest(local, remote)
-
     print()
-    if not changed and not missing and not extra and not args.force:
+    has_diff = bool(changed or missing)
+    if not has_diff and not extra and not args.force:
+        if unreadable:
+            print("  %d 个文件取不到，其余与线上一致 —— 无法完整比对，不部署。" % len(unreadable))
+            print("    取不到的：%s" % "、".join(unreadable[:6]))
+            return 1
         print("  线上与本地一致 —— 不需要部署。")
         return 0
 
@@ -203,6 +232,14 @@ def main():
             print("    + %s" % rel)
         if len(missing) > 12:
             print("    … 另有 %d 个" % (len(missing) - 12))
+    if unreadable:
+        # 网络问题的文件不参与判断，但要报出来：部署会把它们一并覆盖，
+        # 万一它们本地是旧的，就会覆盖掉线上还算新的版本。
+        print("  取不到、未参与判断（%d 个，部署会一并覆盖）：" % len(unreadable))
+        for rel in unreadable[:12]:
+            print("    ! %s" % rel)
+        if len(unreadable) > 12:
+            print("    … 另有 %d 个" % (len(unreadable) - 12))
     if extra:
         # 部署不会删这些文件，所以单独说清楚，别让人以为「重新部署就干净了」。
         print("  线上多出、本地没有（%d 个，**部署不会删它们**）：" % len(extra))
@@ -211,9 +248,6 @@ def main():
         if len(extra) > 12:
             print("    … 另有 %d 个" % (len(extra) - 12))
         print("    要清掉得去 OSS 控制台手动删（或跑一次带删除的同步，本脚本不做）。")
-    if unreachable:
-        print("  取不到（按「有差异」处理，共 %d 个）：%s"
-              % (len(unreachable), "、".join(unreachable[:6])))
 
     if args.dry_run:
         print()
@@ -230,8 +264,10 @@ def main():
     print("=" * 66)
     print("  开始部署")
     print("=" * 66)
+    # 注意：这里传给 deploy_oss.main 的是**参数列表，不含程序名** ——
+    # argparse 的 parse_args(args) 就是这个约定，多一个 "deploy_oss.py"
+    # 会被判成 unrecognized arguments 并以退出码 2 直接 SystemExit。
     rc = deploy_oss.main([
-        "deploy_oss.py",
         "--bucket", args.bucket,
         "--region", args.region,
         "--dir", "public",

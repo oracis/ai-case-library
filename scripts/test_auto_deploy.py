@@ -20,6 +20,7 @@ import shutil
 import sys
 import tempfile
 import unittest
+import urllib.error
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
@@ -71,32 +72,103 @@ class TestNormalize(unittest.TestCase):
 
 
 class TestDiffManifest(unittest.TestCase):
+    """四类结果，语义必须分清 —— 尤其「取不到」不能当成「缺失」。"""
+
+    OK = lambda self, sha: ("ok", sha)                          # noqa: E731
+
     def test_identical(self):
-        c, m, e = AD.diff_manifest({"a": "1"}, {"a": "1"})
-        self.assertEqual((c, m, e), ([], [], []))
+        c, m, u, e = AD.diff_manifest({"a": "1"}, {"a": self.OK("1")})
+        self.assertEqual((c, m, u, e), ([], [], [], []))
 
     def test_changed(self):
-        c, m, e = AD.diff_manifest({"a": "1"}, {"a": "2"})
+        c, m, u, e = AD.diff_manifest({"a": "1"}, {"a": self.OK("2")})
         self.assertEqual(c, ["a"])
-        self.assertEqual((m, e), ([], []))
+        self.assertEqual((m, u, e), ([], [], []))
 
-    def test_missing_on_remote(self):
-        """线上取不到（首次上线 / 新增页）也算需要部署。"""
-        c, m, e = AD.diff_manifest({"a": "1"}, {"a": None})
+    def test_missing_is_404_only(self):
+        """只有明确 404 才算「线上缺失」。"""
+        c, m, u, e = AD.diff_manifest({"a": "1"}, {"a": ("missing", None)})
         self.assertEqual(m, ["a"])
-        self.assertEqual((c, e), ([], []))
+        self.assertEqual((c, u, e), ([], [], []))
+
+    def test_unreadable_is_not_missing(self):
+        """**这条是本轮踩坑的核心。**
+
+        一次瞬时网络失败曾被当成「线上少了个文件」，触发了一次不必要的部署
+        （该 URL 手工一取就是 HTTP 200）。把网络抖动误报成内容差异，
+        会让这个脚本在不该部署的时候部署 —— 而且它不报错，只是默默传一遍。
+        """
+        c, m, u, e = AD.diff_manifest({"a": "1"}, {"a": ("error", None)})
+        self.assertEqual(u, ["a"], "取不到应归入 unreadable")
+        self.assertEqual((c, m), ([], []), "取不到不能算差异")
+
+    def test_unknown_remote_file_is_unreadable_not_missing(self):
+        """清单里压根没有这个 key（调用方漏取）也不能当成缺失。"""
+        c, m, u, e = AD.diff_manifest({"a": "1"}, {})
+        self.assertEqual(u, ["a"])
+        self.assertEqual((c, m), ([], []))
 
     def test_extra_remote_files_reported_but_do_not_trigger(self):
         """线上多出来的文件**不触发部署** —— 部署也不会删它们，
         拿它去触发等于每天白跑。所以只报告，让人自己判断。"""
-        c, m, e = AD.diff_manifest({"a": "1"}, {"a": "1", "old.html": "9"})
+        c, m, u, e = AD.diff_manifest({"a": "1"}, {"a": self.OK("1"), "old.html": self.OK("9")})
         self.assertEqual(e, ["old.html"])
-        self.assertEqual((c, m), ([], []))
+        self.assertEqual((c, m, u), ([], [], []))
 
     def test_deterministic_order(self):
         """输出顺序要稳定，便于人读和断言。"""
-        c, _, _ = AD.diff_manifest({"b": "1", "a": "1"}, {"a": "2", "b": "2"})
+        c, _, _, _ = AD.diff_manifest({"b": "1", "a": "1"},
+                                      {"a": self.OK("2"), "b": self.OK("2")})
         self.assertEqual(c, ["a", "b"])
+
+
+class TestFetchRemoteThreeStates(unittest.TestCase):
+    """fetch_remote 的三态：ok / missing / error。
+
+    对着真实域名测不了「失败」这一路（真会 200），所以这里伪造 opener。
+    """
+
+    class _Opener:
+        def __init__(self, behavior):
+            self.behavior = behavior
+            self.calls = 0
+
+        def open(self, req, timeout=None):
+            self.calls += 1
+            b = self.behavior
+            if b == "ok":
+                class R:
+                    status = 200
+                    def read(self): return b'{"n": 1}'
+                    def __enter__(self): return self
+                    def __exit__(self, *a): return False
+                return R()
+            if b == "404":
+                raise urllib.error.HTTPError(req.full_url, 404, "Not Found", {}, None)
+            raise TimeoutError("模拟超时")
+
+    def test_ok(self):
+        st, sha = AD.fetch_remote("https://x.test", "a.json", self._Opener("ok"))
+        self.assertEqual(st, "ok")
+        self.assertTrue(sha)
+
+    def test_404_is_missing(self):
+        st, sha = AD.fetch_remote("https://x.test", "a.json", self._Opener("404"))
+        self.assertEqual(st, "missing")
+        self.assertIsNone(sha)
+
+    def test_timeout_is_error_and_retries(self):
+        op = self._Opener("timeout")
+        st, sha = AD.fetch_remote("https://x.test", "a.json", op, retries=2)
+        self.assertEqual(st, "error")
+        self.assertIsNone(sha)
+        self.assertEqual(op.calls, 3, "超时应重试（retries+1 次）")
+
+    def test_404_does_not_retry(self):
+        """明确的 404 重试没意义，只会拖慢。"""
+        op = self._Opener("404")
+        AD.fetch_remote("https://x.test", "a.json", op, retries=2)
+        self.assertEqual(op.calls, 1)
 
 
 class TestRealBuildsNormalizeEqual(unittest.TestCase):

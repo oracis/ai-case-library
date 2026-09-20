@@ -411,8 +411,13 @@ def inbox_count(data_json_path):
 def main(argv=None):
     """argv=None 时读 sys.argv（命令行）；传列表则可被别的脚本直接调用。
 
-    别的地方（release.py / auto_deploy.py）要复用这套参数解析，
-    给个 argv 入口比让它们各自替换 sys.argv 干净。
+    注意 `argv` 是**参数列表，不含程序名** —— 这是 argparse `parse_args(args)`
+    的约定（它内部会拿 args 去匹配可选/位置参数，多一个 `"deploy_oss.py"`
+    就会被判成 unrecognized arguments，退出码 2）。
+
+    调用方两种写法都对，但别混：
+        deploy_oss.main()                                   # 走 sys.argv[0:]（含程序名）
+        deploy_oss.main(["--bucket", "x", "--region", "y"])  # 参数列表（不含程序名）
     """
     ap = argparse.ArgumentParser(description="上传静态产物到阿里云 OSS")
     ap.add_argument("--bucket", help="目标 Bucket 名")
