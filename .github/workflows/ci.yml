@@ -59,7 +59,22 @@ jobs:
           echo "data/ 与提交时一致，备份/还原正常。"
 
       - name: 测试 deploy_oss.py（参数解析与分支，不联网）
-        run: python scripts/test_deploy_oss.py
+        # 守的线：① 地域必填且**不兜底**（兜底 cn-hangzhou 与香港 Bucket 冲突，
+        # 表现是 403「must be addressed using the specified endpoint」，看不出原因）；
+        # ② 带未核实队列的产物不许上传（曾把 441 条素材推上公网）；
+        # ③ 参数闸门要在真的碰阿里云之前生效。
+        run: python -m unittest scripts.test_deploy_oss
+      - name: 测试 publish_ready.py（内容包闸门）
+        run: python -m unittest scripts.test_publish_ready
+      - name: 测试 fit_ready.py（三套人工判断的补齐与方向一致）
+        run: python -m unittest scripts.test_fit_ready
+      - name: 测试 release.py（六步顺序 + 失败即停 + 退出码语义）
+        # 顺序错了不会报错，只会静默产出错的东西（fit 跑在 publish 前 /
+        # build 跑在 score 前）。这里守三条线：
+        # ① 步骤表声明的依赖与实际顺序一致（不是逐对手写断言，是声明式校验）；
+        # ② 任何一步非 0 退出都不继续往下跑；
+        # ③ 对外产物目录默认 public，不接受 dist（那是带 inbox 的预览版）。
+        run: python scripts/release.py --selfcheck && python -m unittest scripts.test_release
 
       - name: 测试 make_article.py（草稿生成与发布红线）
         # 守两条线：① 人工表（EDITORIAL_WEIGHT/TITLE_OVERRIDES）里的 id 不能写错，
@@ -79,6 +94,14 @@ jobs:
         # 守的线：没有一手来源不勾 primary_source、human_read 不许自动勾、
         # bonus 必须与来源构成对得上 —— AI 的布尔回答不许裸信。
         run: python scripts/test_ai_verify.py
+
+      - name: 测试 triage.py（零成本初筛：打分 / 判级 / 去重 / 排序契约）
+        # 初筛决定「哪条值得花 AI 核」，判错就是把钱花在错的地方 ——
+        # 而且它判错时**不会报错**，只会安静地把一批噪音排到前面。
+        # 守的线：① 疑似金额（从标题正则抽的数）不算数字；
+        # ② 没有数字的不许进深核；③ 候选池不由分数判死（人工挑的不能被机器归档）；
+        # ④ 材料已齐的跳过；⑤ 人工标的「高优先级」压过机器分。
+        run: python scripts/test_triage.py
 
       - name: 测试 harvest.py 五源解析（离线，用真抓下来的 fixture）
         # 采集是无人值守的：解析器一旦因对方改版而静默失灵，表现是
@@ -127,6 +150,9 @@ jobs:
         run: node uitest.js
 
       - name: 后台冒烟测试（登录 / 核实 / 入库）
+        # 这步需要能起 python 子进程（读 verify_rules.py 的规则表）——
+        # 后台的「门槛/必填/加分」三个数字必须来自真实现，不能写死。
+        # 找不到解释器时会明确报出来（以前是吞掉异常只说「读不到」）。
         run: node uitest-admin.js
 
       - name: 断言测试没有写脏 data/

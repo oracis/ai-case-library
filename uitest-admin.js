@@ -134,10 +134,40 @@ const PAYLOAD = {
 };
 
 let _schema = null;
+
+/* 找 Python 解释器。
+   原来这里直接 execFileSync('python', ...)，在 Windows 上会翻车：
+   Node 的 execFileSync 不走 shell，PATH 里那个 `python` 可能是
+   Microsoft Store 的 App Execution Alias 或 WSL stub，
+   结果是一个 EBUSY（不是「找不到」，所以错误信息看不出怎么回事）。
+
+   所以按优先级试探，并把最后一个失败原因带进报错里。
+   可用 CASE_LIB_PYTHON 环境变量直接指定，CI 与本地都能救急。 */
+function findPython() {
+  if (process.env.CASE_LIB_PYTHON) return process.env.CASE_LIB_PYTHON;
+  const { execFileSync } = require('child_process');
+  const candidates = process.platform === 'win32'
+    ? ['python', 'python3', 'py']
+    : ['python3', 'python'];
+  const errors = [];
+  for (const exe of candidates) {
+    try {
+      execFileSync(exe, ['-c', 'print(1)'], { encoding: 'utf8', stdio: 'pipe' });
+      return exe;
+    } catch (e) {
+      errors.push(exe + ' → ' + (e.code || String(e.message).slice(0, 60)));
+    }
+  }
+  throw new Error(
+    '找不到可用的 Python 解释器（试过 ' + candidates.join(' / ') + '）。\n'
+    + '  失败详情：' + errors.join('；') + '\n'
+    + '  指定一个：set CASE_LIB_PYTHON=C:\\path\\to\\python.exe');
+}
+
 function readVerifySchema() {
   if (_schema) return _schema;
   const { execFileSync } = require('child_process');
-  const out = execFileSync('python', ['scripts/verify_rules.py', '--schema'],
+  const out = execFileSync(findPython(), ['scripts/verify_rules.py', '--schema'],
     { cwd: ROOT, encoding: 'utf8' });
   _schema = JSON.parse(out);
   return _schema;
@@ -341,9 +371,14 @@ process.on('unhandledRejection', (e) => {
       ck('候选池非空（工作台需要素材）', false);
     } else {
       let sch = null;
-      try { sch = readVerifySchema(); } catch (e) { /* 下面会报 */ }
+      let schErr = '';
+      try { sch = readVerifySchema(); } catch (e) { schErr = e.message; }
+      /* 失败时把真实原因带出来。以前这里吞掉异常只说「读不到」，
+         于是在 Windows 上看到的是一个没有线索的红叉 —— 真正的原因是
+         Node 起不了子进程（EBUSY / 找不到解释器），跟规则表本身无关。 */
       ck('规则表可读取（跑 verify_rules.py 真实现）', !!sch,
-        sch ? ('gates=' + sch.gates.length + ' musts=' + sch.musts.length) : '');
+        sch ? ('gates=' + sch.gates.length + ' musts=' + sch.musts.length)
+            : ('原因：' + String(schErr).split('\n')[0]));
 
       if (sch) {
         ck('门槛 3 项', sch.gates.length === 3, String(sch.gates.length));
@@ -550,6 +585,10 @@ process.on('unhandledRejection', (e) => {
     ck('样式表里有「不拦发布」标记样式', css.includes('.v-tag'));
     ck('样式表里有 AI 面板样式',
       css.includes('.ai-card') && css.includes('.ai-log') && css.includes('.ai-plan-item'));
+    // 2026-09-20：核实顺序改由初筛分决定（scripts/triage.py）。后台要看得到
+    // 「这条为什么排在前面」，否则顺序一变就成了黑箱。
+    ck('plan 条目显示初筛档位', appJs.includes('ai-plan-g') && appJs.includes('grade_label'));
+    ck('样式表里有初筛档位徽章样式', css.includes('.ai-plan-g'));
     ck('switchView 覆盖 ai 视图', appJs.includes("'candidates', 'inbox', 'published', 'ai'"));
 
     // 回归：/api/ai/status 返回 {job:{log,summary,...}}，showAILog 曾只读
