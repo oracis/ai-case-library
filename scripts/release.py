@@ -308,7 +308,12 @@ def preflight(args):
     print()
 
     # ---- 硬条件：要跑 publish 却没 server，现在就说，别等第三步 ----
-    if not args.skip_publish and chosen and not ok:
+    #
+    # 判定用 skip_set(args) 而不是 args.skip_publish —— 「这一步会不会跑」
+    # 有两个来源：--skip-xxx 和 --only。只看前者的话，`--only build,deploy`
+    # 会被这里误拦（它明明不打算发布），而等价的 `--skip-publish` 却放行。
+    # 下面 deploy 那处一直用的是 skip_set，两处必须同源。
+    if "publish" not in skip_set(args) and chosen and not ok:
         print("[!] 有 %d 条要发布，但后台 server 没在跑。" % len(chosen))
         print("    发布只走 POST /api/candidates/:id/promote，规则引擎是唯一闸门，")
         print("    绕不过去（也不该绕）。先起服务：")

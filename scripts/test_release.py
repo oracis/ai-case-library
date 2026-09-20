@@ -313,6 +313,42 @@ class TestPublishGate(unittest.TestCase):
             R.pending_publish = real_pending
         self.assertTrue(ok)
 
+    def test_only_build_deploy_is_not_blocked_by_server_check(self):
+        """`--only build,deploy` 不打算发布，不该被 server 闸门拦。
+
+        「这一步会不会跑」有两个来源：`--skip-xxx` 和 `--only`。
+        这处闸门一度只看 `args.skip_publish`，于是 `--only build,deploy`
+        被误拦，而等价的 `--skip-publish` 却放行 —— 两个入口语义不一致，
+        而且 CI 正是靠 `--only build,deploy` 只跑最后两步，误拦会直接把
+        自动部署卡死。判定必须和 deploy 那处一样走 skip_set()。
+        """
+        real_alive = R.admin_alive
+        real_pending = R.pending_publish
+        R.admin_alive = lambda *a, **k: (False, "refused")
+        R.pending_publish = lambda: ([{"id": "x"}], [])
+        try:
+            with contextlib.redirect_stdout(io.StringIO()):
+                ok = R.preflight(parse(["--only", "build,deploy"]))
+        finally:
+            R.admin_alive = real_alive
+            R.pending_publish = real_pending
+        self.assertTrue(ok, "--only build,deploy 不该被 server 闸门拦")
+
+    def test_only_publish_is_still_blocked(self):
+        """反向：`--only publish` 确实要发布，就该被拦 ——
+        放宽不能放宽到把真该拦的也放过去。"""
+        real_alive = R.admin_alive
+        real_pending = R.pending_publish
+        R.admin_alive = lambda *a, **k: (False, "refused")
+        R.pending_publish = lambda: ([{"id": "x"}], [])
+        try:
+            with contextlib.redirect_stdout(io.StringIO()):
+                ok = R.preflight(parse(["--only", "publish"]))
+        finally:
+            R.admin_alive = real_alive
+            R.pending_publish = real_pending
+        self.assertFalse(ok, "--only publish 要发布，必须拦")
+
 
 class TestRunFunctions(unittest.TestCase):
     """各步的执行函数在缺配置时的行为。**dry-run 与真跑要区别对待**：
