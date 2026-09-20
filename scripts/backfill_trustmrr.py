@@ -208,6 +208,11 @@ def merge_record(rec, rich):
 
     返回 (是否改动, 改动说明列表)。
     """
+    # rich 为空说明这条没对上 API/详情页。调用方虽然会先挡一次，但这个函数是
+    # 纯函数、会被单独测试和复用，不该因为一个空输入就抛 AttributeError。
+    if not isinstance(rich, dict):
+        return False, []
+
     changes = []
     api = H._unwrap_api_item(rich) if isinstance(rich, dict) else None
     a = (api or {}).get("_api") or {}
@@ -255,20 +260,39 @@ def merge_record(rec, rich):
     if total and not m.get("all_time"):
         m["all_time"] = total
         changes.append("累计 %s" % H._money_cell(total))
+    # 近 30 天收入：键名必须与 data/sources.json 的字段契约一致（last_30d_revenue）。
+    # 别改回 harvest.py 内部暂存用的 revenue_last30d —— triage.revenue_of() 按契约名
+    # 取数，取不到就会把「月流水几万」的条目当成「没有数字」直接埋掉。
+    if last30 and not m.get("last_30d_revenue"):
+        m["last_30d_revenue"] = last30
+        changes.append("近30天 %s" % H._money_cell(last30))
     subs = a.get("subscriptions") or rich.get("activeSubscriptions")
     if subs and not m.get("customers"):
         m["customers"] = subs
         changes.append("订阅 %s" % subs)
 
-    # 金额待补的旧 headline 换成真实数字
+    # 金额待补的旧 headline 换成真实数字。
+    #
+    # 兜底顺序很关键：TrustMRR 详情页的「Current MRR」对非订阅制项目恒为 0，
+    # 这时只有 last30 有值。老实现要求 mrr 为真才替换 headline，于是这些条目
+    # 永远停在「具体数字待补」——数字其实就在同一个响应里。
+    # 口径照实写：MRR 就写 MRR，只有近 30 天流水就写「近 30 天收入」。
     old_hl = m.get("headline") or ""
-    if mrr and ("待补" in old_hl or "未获取" in old_hl or "仅见于榜单" in old_hl or not old_hl):
-        rank = a.get("rank")
-        head = "MRR %s" % H._money_cell(mrr)
-        if rank:
-            head += "，TrustMRR 第 %s 名" % rank
-        m["headline"] = head
-        changes.append("主指标→%s" % head)
+    stale = ("待补" in old_hl or "未获取" in old_hl or "仅见于榜单" in old_hl
+             or "未公开" in old_hl or not old_hl)
+    if stale:
+        if mrr:
+            head = "MRR %s" % H._money_cell(mrr)
+        elif last30:
+            head = "近 30 天收入 %s" % H._money_cell(last30)
+        else:
+            head = ""
+        if head:
+            rank = a.get("rank")
+            if rank:
+                head += "，TrustMRR 第 %s 名" % rank
+            m["headline"] = head
+            changes.append("主指标→%s" % head)
 
     if a.get("founded") and not rec.get("founded_at"):
         rec["founded_at"] = a["founded"]

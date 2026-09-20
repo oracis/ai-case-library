@@ -54,6 +54,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
 import verify_rules as VR                                        # noqa: E402
+import triage as TR                                              # noqa: E402
 
 ADMIN_BASE = os.environ.get("CASE_LIB_ADMIN_BASE", "http://127.0.0.1:5053")
 AI_BASE = (os.environ.get("CASE_LIB_AI_BASE") or "https://api.deepseek.com").rstrip("/")
@@ -88,16 +89,47 @@ class AdminError(Exception):
 # ---------------------------------------------------------------------------
 # 纯函数：挑候选、算卡点、组搜索词（可离线单测）
 # ---------------------------------------------------------------------------
-def pick_candidates(cands, limit=None, ids=None, include_small=False):
+def triage_index():
+    """建一份初筛用的索引（已发布案例 / 候选池 / 草稿）。
+
+    两处用它：排序（哪条先核）、跳过（草稿已判定可发布的别再核）。
+    读不到某份数据不致命 —— 索引缺一份顶多少一条去重线索，不该让流水线起不来。
+    """
+    out = {}
+    for name in ("cases", "candidates", "inbox", "verifications"):
+        try:
+            out[name] = load_json(name)
+        except Exception:
+            out[name] = {} if name == "verifications" else []
+    return TR.build_index(out)
+
+
+def _priority(c):
+    """人工显式标的优先级。0 = 人已经写了「这条最重要」。"""
+    b = c.get("blocking") or ""
+    return 0 if ("第一" in b or "高优先级" in b) else 1
+
+
+def pick_candidates(cands, limit=None, ids=None, include_small=False,
+                    index=None, skip_ready=True):
     """从候选池挑出值得核实的条目。
 
     自动跳过：占位条目（名字带（ 的观察/待发现）、headline 还是「未获取」的、
-    标了「体量太小」的（除非 include_small）。排序：高优先级复核在前。
+    标了「体量太小」的（除非 include_small）、以及**初筛判定材料已齐的**
+    （那种条目缺的是人点发布，不是 AI 核实 —— 核它等于重复花钱）。
+
+    排序（2026-09-20 改）：
+      1. 人显式标的「高优先级复核」置顶 —— 机器分不许覆盖人的判断；
+      2. 其余按初筛分（triage）降序 —— 分数高的先核。
+
+    改之前是「按 blocking 文本粗分三档 + 原始顺序」，等于按录入顺序核：
+    采到什么就先核什么，队列里最值得核的那条可能永远排在最后。
     """
     if ids:
         want = [i.strip() for i in ids if i.strip()]
         return [c for c in cands if c.get("id") in want]
 
+    index = index if index is not None else TR.Index()
     pool = []
     for c in cands:
         name = c.get("name") or ""
@@ -109,18 +141,15 @@ def pick_candidates(cands, limit=None, ids=None, include_small=False):
             continue
         if not include_small and "体量太小" in blocking:
             continue
-        pool.append(c)
+        r = TR.score_record(c, "candidate", index)
+        if skip_ready and r["grade"] == "ready":
+            continue
+        pool.append((c, r))
 
-    def rank(c):
-        b = c.get("blocking") or ""
-        if "第一" in b or "高优先级" in b:
-            return 0
-        if "缺一手来源" in b or "口径待核" in b:
-            return 1
-        return 2
-
-    pool.sort(key=rank)
-    return pool[:limit] if limit else pool
+    pool.sort(key=lambda pair: (_priority(pair[0]), -pair[1]["score"],
+                                pair[0].get("id") or ""))
+    out = [c for c, _ in pool]
+    return out[:limit] if limit else out
 
 
 def current_blockers(draft):
@@ -848,10 +877,16 @@ def load_json(name):
         return json.load(f)
 
 
-def plan_data(include_small=False, limit=None):
-    """给后台 GUI 的结构化 plan：每条可选候选的卡点与判定（离线，只读）。"""
+def plan_data(include_small=False, limit=None, index=None):
+    """给后台 GUI 的结构化 plan：每条可选候选的卡点与判定（离线，只读）。
+
+    带上前端要显示的初筛结论（档位 / 分数 / 下一步）—— 后台因此能直接告诉人
+    「这条为什么排在前面」，而不是只给一个没有排序依据的清单。
+    """
     cands = load_json("candidates")
-    selected = pick_candidates(cands, limit=limit, include_small=include_small)
+    index = index if index is not None else triage_index()
+    selected = pick_candidates(cands, limit=limit, include_small=include_small,
+                               index=index)
     try:
         drafts = load_json("verifications")
     except Exception:
@@ -859,6 +894,7 @@ def plan_data(include_small=False, limit=None):
     items = []
     for c in selected:
         blockers, r = current_blockers(drafts.get(c["id"]))
+        t = TR.score_record(c, "candidate", index)
         items.append({
             "id": c.get("id"),
             "name": c.get("name") or "",
@@ -867,8 +903,42 @@ def plan_data(include_small=False, limit=None):
             "must_keys": [k for kind, k, _ in blockers if kind == "must"],
             "verdict": r.get("verdict"),
             "publishable": r.get("publishable"),
+            "grade": t["grade"],
+            "grade_label": t["grade_label"],
+            "score": t["score"],
+            "action": t["action"],
         })
     return {"total": len(cands), "selectable": len(selected), "items": items}
+
+
+def print_triage(limit=None, ids=None, include_small=False):
+    """离线打印「本次会按什么顺序核、为什么」—— 零成本、不联网、不改动。"""
+    index = triage_index()
+    cands = load_json("candidates")
+    selected = pick_candidates(cands, limit=limit, ids=ids or None,
+                               include_small=include_small, index=index)
+    scored = [(c, TR.score_record(c, "candidate", index)) for c in cands]
+    by_grade = {}
+    for _, r in scored:
+        by_grade.setdefault(r["grade"], 0)
+        by_grade[r["grade"]] += 1
+
+    print("候选池 %d 条 → 本次可选 %d 条（按初筛分排序，零成本、不联网）\n"
+          % (len(cands), len(selected)))
+    if not selected:
+        print("  没有可处理的候选：占位 / 未获取 / 体量太小 / 材料已齐 都已跳过。")
+    for c in selected:
+        r = TR.score_record(c, "candidate", index)
+        print("  %-9s %3d  %-24s %s"
+              % (r["grade_label"], r["score"], (c.get("id") or "")[:24],
+                 (r["hint"] or r["action"])[:52]))
+        for h in r["hits"][:2]:
+            print("              · %s" % h["why"])
+    print("\n  全池分级：%s"
+          % " · ".join("%s %d" % (TR.GRADE_LABEL[g], by_grade.get(g, 0))
+                       for g in TR.GRADE_ORDER))
+    print("  完整分级（含采集队列 441 条）见 scripts/triage.py")
+    return 0
 
 
 def main():
@@ -878,6 +948,8 @@ def main():
     ap = argparse.ArgumentParser(description="AI 自动核实流水线（找卡点→补材料→核实→发布）")
     g = ap.add_mutually_exclusive_group()
     g.add_argument("--plan", action="store_true", help="离线列出每条候选的卡点，不联网不改动")
+    g.add_argument("--triage", action="store_true",
+                   help="离线列出本次的核实顺序与理由（零成本初筛排序）")
     g.add_argument("--all", action="store_true", help="全部可选候选（跳过占位/太小）")
     g.add_argument("--id", action="append", default=[], help="指定候选 id，可多次")
     ap.add_argument("--limit", type=int, default=None, help="最多处理几条（默认 5）")
@@ -892,11 +964,15 @@ def main():
     args = ap.parse_args()
 
     cands = load_json("candidates")
+    index = triage_index()
     selected = pick_candidates(cands, limit=args.limit, ids=args.id or None,
-                               include_small=args.include_small)
+                               include_small=args.include_small, index=index)
     if args.all:
         selected = pick_candidates(cands, limit=None, ids=None,
-                                   include_small=args.include_small)
+                                   include_small=args.include_small, index=index)
+    if args.triage:
+        return print_triage(limit=args.limit, ids=args.id or None,
+                            include_small=args.include_small)
     if not selected:
         print("没有可处理的候选（占位条目与「未获取」已跳过；--all --include-small 可放宽）")
         return 0

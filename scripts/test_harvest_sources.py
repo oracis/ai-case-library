@@ -745,12 +745,23 @@ def test_infer_source():
             data = json.load(f)
         missing = [x.get("id") for x in data if not x.get("source_kind")]
         chk("data/%s.json 每条都有 source_kind" % name, not missing, missing[:5])
+    # 候选池里的 TrustMRR 条目必须是 verified。注意这是**全称命题**：
+    # 「凡是带 TrustMRR 来源的，source_kind 都为 verified」——池子被发布空了
+    # （2026-09-20 把最后 5 条发走之后就是空的）时它依然成立，
+    # 写成 `tr and all(...)` 会让空池子判失败，那是把「没数据」误报成「数据错了」。
     with open(os.path.join(REPO, "data", "candidates.json"), encoding="utf-8") as f:
         cands = json.load(f)
     tr = [c for c in cands if "trustmrr.com" in (c.get("source_url") or "")]
+    bad_tr = [c.get("id") for c in tr if c.get("source_kind") != "verified"]
     chk("候选池里带 TrustMRR 来源的都是 verified",
-        tr and all(c.get("source_kind") == "verified" for c in tr),
-        "%d 条" % len(tr))
+        not bad_tr,
+        "共 %d 条，异常 %s" % (len(tr), bad_tr[:5]))
+
+    # 案例侧不加同款断言：source_kind（verified/discovery）是**候选池专有**字段，
+    # 描述「这条是从哪条采集流水线来的」。案例用的是另一套 ——
+    # verification（stripe/official/partial…）+ source_kinds（来源种类集合）。
+    # 30 条已发布案例的 source_kind 历史上全是 None，本就如此，不是缺陷。
+    # 曾经在这里加过一条「案例也要有 source_kind」的断言，是照抄候选侧口径的误判。
     print()
 
 

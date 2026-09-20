@@ -1632,6 +1632,13 @@ def main():
                 metrics["mrr"] = api["mrr"]
             if api.get("revenue_total"):
                 metrics["all_time"] = api["revenue_total"]
+            # 近 30 天收入落盘用契约名 last_30d_revenue（见 data/sources.json 的
+            # fields 清单）。内部暂存 _api 里叫 revenue_last30d，那只是原样转发；
+            # 对外一律用契约名，否则 triage.revenue_of() 取不到数。
+            # 漏写这一格的代价：TrustMRR 的 Current MRR 对非订阅制项目恒为 0，
+            # 于是「月流水几万、MRR 为零」的条目全被当成没有收入数据。
+            if api.get("revenue_last30d"):
+                metrics["last_30d_revenue"] = api["revenue_last30d"]
             if api.get("customers"):
                 metrics["customers"] = api["customers"]
             if api.get("subscriptions"):
@@ -1657,7 +1664,10 @@ def main():
             metrics["headline"] = headline
             metrics["metric_note"] = (
                 "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。"
-                "口径：MRR = 当前月经常性收入；累计 = all-time。"
+                "口径：MRR = 当前月经常性收入；"
+                "近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——"
+                "实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；"
+                "累计 = all-time。"
                 "注意页面标注的同步时间可能已过期。"
                 + ("排名来自 TrustMRR 榜单，随榜单实时变动。" if api.get("rank") else "")
             )

@@ -245,8 +245,28 @@ class SourceTiers(unittest.TestCase):
 
 
 class Tiers(unittest.TestCase):
-    def test_no_bonus_goes_backup(self):
+    """档位政策（2026-09-20 放宽为三档之后）。
+
+    顺序是「先看来源，再看质量分」：一手来源进精品，只有第三方来源且口径待核
+    进实核，其余进备选。质量分只在没有来源线索可用时兜底 —— 所以下面每个
+    用例都要同时说清来源构成和核实等级，单看 bonus 已经测不出档位了。
+    """
+
+    def test_no_bonus_with_first_hand_goes_premium(self):
+        # full() 默认带 official（一手来源）→ 精品，与质量分无关
         r = R.evaluate(full())
+        self.assertTrue(r["publishable"])
+        self.assertEqual(r["tier"], R.TIER_PREMIUM)
+
+    def test_third_party_only_goes_standard(self):
+        # 只有第三方来源、口径待核 → 实核池（上一版会被打成备选，这正是放宽点）
+        r = R.evaluate(full(source_kinds=["press"], verification="partial"))
+        self.assertTrue(r["publishable"])
+        self.assertEqual(r["tier"], R.TIER_STANDARD)
+
+    def test_self_reported_goes_backup(self):
+        # 只有创始人自报 → 备选池（这才是真正意义上的「待核」）
+        r = R.evaluate(full(source_kinds=["founder"], verification="founder"))
         self.assertTrue(r["publishable"])
         self.assertEqual(r["tier"], R.TIER_BACKUP)
 
@@ -265,9 +285,11 @@ class Tiers(unittest.TestCase):
         self.assertEqual(r["tier"], R.TIER_PREMIUM)
 
     def test_below_threshold_is_backup(self):
-        # 20+20+15 = 55 < 60；把门槛加成排除掉（gates=[]）才测得准
+        # 没有一手来源时，质量分是档位的兜底：55 < 60 → 备选。
+        # 20+20+15 = 55；把门槛加成排除掉（gates=[]）才测得准。
         fifty_five = ["founder_disclosure", "pricing_confirmed", "replicable_low"]
-        r = R.evaluate(full(gates=[], bonus=fifty_five))
+        r = R.evaluate(full(source_kinds=["founder"], verification="founder",
+                            gates=[], bonus=fifty_five))
         self.assertEqual(r["bonus_score"], 55)
         self.assertLess(r["bonus_score"], R.TIER_THRESHOLD)
         self.assertEqual(r["tier"], R.TIER_BACKUP)
@@ -277,8 +299,12 @@ class Tiers(unittest.TestCase):
         self.assertEqual(r["bonus_score"], 0)
 
     def test_verdict_contains_tier_hint(self):
+        # 三档各自的判定文案都要出现对应的档位名
         self.assertIn("精品", R.evaluate(full(bonus=list(ALL_BONUS)))["verdict"])
-        self.assertIn("备选", R.evaluate(full())["verdict"])
+        self.assertIn("实核", R.evaluate(
+            full(source_kinds=["press"], verification="partial"))["verdict"])
+        self.assertIn("备选", R.evaluate(
+            full(source_kinds=["founder"], verification="founder"))["verdict"])
 
 
 class GateBonus(unittest.TestCase):
@@ -305,9 +331,13 @@ class GateBonus(unittest.TestCase):
         self.assertEqual(r["gate_bonus"], 0)
 
     def test_加成能把差十分的顶进精品(self):
+        # 用「只有创始人自报」的输入：档位此时完全由质量分决定，
+        # 才测得出 +10 加成是不是真把 50 顶过了 60 线。
+        # （若用默认的一手来源输入，档位早被来源定死，加成有没有生效就看不出。）
         fifty = ["founder_disclosure", "corrections_found", "replicable_low"]
-        without = R.evaluate(full(gates=[], bonus=fifty))
-        withgates = R.evaluate(full(gates=list(ALL_GATES), bonus=fifty))
+        base = dict(source_kinds=["founder"], verification="founder")
+        without = R.evaluate(full(gates=[], bonus=fifty, **base))
+        withgates = R.evaluate(full(gates=list(ALL_GATES), bonus=fifty, **base))
         self.assertEqual(without["bonus_score"], 50)
         self.assertEqual(without["tier"], R.TIER_BACKUP)
         self.assertEqual(withgates["bonus_score"], 60)
@@ -364,15 +394,15 @@ class Schema(unittest.TestCase):
 
 
 class CaseTierPolicy(unittest.TestCase):
-    """案例的默认定档政策（2026-09-17 用户定）。
+    """案例的默认定档政策（2026-09-20 放宽为三档）。
 
-    背景：精品池长期只剩一两条。根因不是规则太严，而是**案例的 tier 字段
-    大多是空的** —— 后台把「没有 tier」显示成「备选」（admin/app.js），
-    于是「没被评过档」看起来像「被判过档且没通过」。
+    背景：上一版只有两档，政策是「有一手来源 → 精品，否则 → 备选」。跑下来
+    17 条备选里**全部都有第三方来源**（press / review），只是拿不到一手证据 ——
+    它们和「只有创始人自报」的案例被塞进同一个备选，抹掉了「有出处」和
+    「没人核过」的区别。
 
-    政策：来源里有一手证据（stripe / official）的案例默认进精品池，
-    哪怕质量分不到 60。理由：精品池要回答「先看哪条」，
-    而「数字有多可信」和「核实多完整」都该影响这个答案。
+    政策（顺序）：一手来源 → 精品；verification 为 partial（有第三方来源、
+    口径待核）→ 实核；质量分够线 → 精品；其余 → 备选。
     """
 
     def test_有一手来源_即使零分也进精品(self):
@@ -390,21 +420,30 @@ class CaseTierPolicy(unittest.TestCase):
         })
         self.assertEqual(t, R.TIER_PREMIUM)
 
-    def test_没有一手来源_进备选(self):
+    def test_只有第三方来源_口径待核进实核(self):
+        """放宽点就在这一条：有独立第三方来源、标了 partial 的，进实核而非备选。"""
         t, why = R.default_case_tier({
             "sources": [{"url": "https://saasxtra.com/?p=1", "kind": "review"}],
+            "verification": "partial",
             "quality_score": 0,
         })
-        self.assertEqual(t, R.TIER_BACKUP)
-        self.assertIn("没有一手来源", why)
+        self.assertEqual(t, R.TIER_STANDARD)
+        self.assertIn("第三方来源", why)
 
-    def test_press不算一手(self):
-        """媒体报道是转述，正是这个库要防的那一层。"""
+    def test_press不算一手_但够得着实核(self):
+        """媒体报道是转述，正是这个库要防的那一层 —— 但它仍算「有第三方来源」，
+        标 partial 时归实核；没标 partial 时够不到实核，落回备选。"""
         t, _ = R.default_case_tier({
+            "sources": [{"url": "https://techcrunch.com/x", "kind": "press"}],
+            "verification": "partial",
+            "quality_score": 0,
+        })
+        self.assertEqual(t, R.TIER_STANDARD)
+        t2, _ = R.default_case_tier({
             "sources": [{"url": "https://techcrunch.com/x", "kind": "press"}],
             "quality_score": 0,
         })
-        self.assertEqual(t, R.TIER_BACKUP)
+        self.assertEqual(t2, R.TIER_BACKUP)
 
     def test_质量分够_没有一手来源也进精品(self):
         """政策是「或」不是「只」：核得够实诚照样能进精品。"""
@@ -437,17 +476,18 @@ class CaseTierPolicy(unittest.TestCase):
             self.assertEqual(t, R.TIER_BACKUP)
         self.assertEqual(R.first_hand_kinds({}), set())
 
-    def test_不动evaluate的评分档位(self):
-        """边界：政策只管「已发布案例摆哪儿」，不改 60 分线的判定。
+    def test_evaluate与案例政策口径一致(self):
+        """边界（2026-09-20 改）：后台预览的档位必须和实际发布的一致。
 
-        否则 evaluate() 的档位语义会被悄悄改掉，而它同时是「能不能发布」的依据。
+        上一版两者分家 —— evaluate 按 60 分线、案例按来源 —— 结果是后台提示
+        「发布到备选池」、真发布却进了精品池。现在两条路共用 default_case_tier，
+        这条测试守住「不许再分叉」。
         """
         r = R.evaluate(full(source_kinds=["stripe"], bonus=[]))
-        self.assertEqual(r["tier"], R.TIER_BACKUP)   # 评分仍按 60 分线
         self.assertTrue(r["publishable"])
-        # 但按案例政策，它进精品
         t, _ = R.default_case_tier({"source_kinds": ["stripe"], "quality_score": 0})
-        self.assertEqual(t, R.TIER_PREMIUM)
+        self.assertEqual(r["tier"], t)              # 预览 = 实际
+        self.assertEqual(r["tier"], R.TIER_PREMIUM)
 
     def test_真实案例数据每条都有档位和理由(self):
         import json as _json
@@ -460,10 +500,15 @@ class CaseTierPolicy(unittest.TestCase):
         no_why = [c.get("id") for c in cases if not c.get("tier_reason")]
         self.assertEqual(no_why, [], "案例缺定档理由：%s" % no_why)
         for c in cases:
-            self.assertIn(c["tier"], (R.TIER_PREMIUM, R.TIER_BACKUP), c.get("id"))
+            self.assertIn(c["tier"],
+                          (R.TIER_PREMIUM, R.TIER_STANDARD, R.TIER_BACKUP),
+                          c.get("id"))
             # 有一手来源的必须都在精品池 —— 这正是这条政策要保证的事
             if R.first_hand_kinds(c):
                 self.assertEqual(c["tier"], R.TIER_PREMIUM, c.get("id"))
+            # 没有一手来源、只标了 partial 的必须都在实核池 —— 放宽点的落点
+            elif c.get("verification") == "partial":
+                self.assertEqual(c["tier"], R.TIER_STANDARD, c.get("id"))
 
 
 class EvidenceLevel(unittest.TestCase):

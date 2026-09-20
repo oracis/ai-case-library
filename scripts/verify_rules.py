@@ -258,22 +258,57 @@ GATE_ALL_BONUS = {
 }
 
 TIER_PREMIUM = "premium"
+TIER_STANDARD = "standard"
 TIER_BACKUP = "backup"
-TIER_LABEL = {TIER_PREMIUM: "精品池", TIER_BACKUP: "备选池"}
+TIER_LABEL = {
+    TIER_PREMIUM: "精品池",
+    TIER_STANDARD: "实核池",
+    TIER_BACKUP: "备选池",
+}
+
+# 三个架位，从可信到待核。前端按它分档渲染区块，后台按它出筛选项 ——
+# 顺序写在这里，两边就不会各排各的。
+TIER_ORDER = [TIER_PREMIUM, TIER_STANDARD, TIER_BACKUP]
+
+# 每一档的展示文案。desc 是给读者看的一句话：这一档的数字能信到什么程度。
+TIER_META = {
+    TIER_PREMIUM: {
+        "label": "精品池",
+        "short": "精品",
+        "desc": "有一手来源（支付网关直连 / 公司官方披露）撑住，数字可以直接引用。",
+    },
+    TIER_STANDARD: {
+        "label": "实核池",
+        "short": "实核",
+        "desc": "有独立第三方来源（可信媒体 / 评测核查站）撑住了口径，但还没拿到一手证据 ——"
+                "引用前建议点回原文自己再看一眼。",
+    },
+    TIER_BACKUP: {
+        "label": "备选池",
+        "short": "备选",
+        "desc": "只有创始人自报，或来源互相矛盾 —— 只能作方向参考，不能当成已核实的数字用。",
+    },
+}
 
 # ---------------------------------------------------------------------------
-# 案例的默认定档政策（2026-09-17 用户定）
+# 案例的默认定档政策（2026-09-20 放宽为三档）
 #
-# 精品池表达的是「这个库里最值得先看的那一批」。有两件事都该影响这个判断：
-#   1. 数字有多可信 —— 来源里有没有支付网关验证 / 公司官方披露
-#   2. 核实做得多完整 —— 就是那 110 分
+# 档位表达的是「这条案例的数字能信到什么程度」。有两个信号都该影响它：
+#   1. 来源有多硬 —— 一手（支付网关 / 官方）> 第三方（媒体 / 评测）
+#   2. 核实做得多完整 —— 质量分
 #
-# 原实现只看第 2 条，于是「来源极硬、但还没补 playbook」的案例全被压进备选池，
-# 精品池只剩一两条。用户反馈「精品池数据太少」，根因就在这里。
+# 上一版只有两个架位，政策是「有一手来源 → 精品，否则 → 备选」。跑下来发现
+# 17 条备选里**全部都有第三方来源**（press / review），只是拿不到一手证据。
+# 把它们和「只有创始人自报」的案例塞进同一个「备选」，等于抹掉了
+# 「有独立来源」和「没人核过」的区别 —— 读者看不出哪些其实已经有出处。
 #
-# 所以政策：**来源里有一手证据（stripe / official）的案例默认进精品池**，
-# 哪怕质量分没到 60。质量分照旧算、照旧显示（后台会写「精品 · 35 分」），
-# 只是不再由它单独决定档位。
+# 所以放宽成三档：
+#   精品池 premium  —— 有一手来源（stripe / official），或质量分够线
+#   实核池 standard —— verification 为 partial：有第三方来源撑住了口径
+#   备选池 backup   —— 其余：只有创始人自报 / 来源矛盾 / 无来源
+#
+# 放宽的是「哪些算有出处」，不是「把什么都算精品」：一手证据仍然是进精品池的
+# 唯一硬通道，第三方来源只够进实核池。质量分照旧算、照旧显示。
 #
 # 边界要说清楚：这**不改变** evaluate() 的评分逻辑 —— 那个 60 分线仍然管
 # 「这次核实够不够格发布」。两者是不同的问题：一个判「能不能收」，
@@ -301,15 +336,22 @@ def first_hand_kinds(rec):
 def default_case_tier(rec):
     """给一个已发布案例定默认档位。返回 (tier, 理由)。
 
-    顺序：一手来源优先，其次才是质量分。理由写在上面那段注释里。
+    顺序：一手来源 > 第三方来源（口径待核）> 质量分。理由写在上面那段注释里。
     """
     fh = first_hand_kinds(rec)
     if fh:
         return TIER_PREMIUM, "有一手来源（%s），按默认政策进精品池" % "/".join(sorted(fh))
+    v = str(rec.get("verification") or "")
+    if v == "partial":
+        return TIER_STANDARD, "有独立第三方来源、口径待核，进实核池"
     score = rec.get("quality_score")
     if isinstance(score, int) and score >= TIER_THRESHOLD:
         return TIER_PREMIUM, "质量分 %d ≥ %d" % (score, TIER_THRESHOLD)
-    return TIER_BACKUP, "没有一手来源，且质量分未达 %d" % TIER_THRESHOLD
+    if v == "founder":
+        return TIER_BACKUP, "只有创始人自报，且没有一手来源"
+    if v == "disputed":
+        return TIER_BACKUP, "来源互相矛盾，且没有一手来源"
+    return TIER_BACKUP, "没有一手来源，质量分也未达 %d" % TIER_THRESHOLD
 
 
 def _as_set(seq):
@@ -428,10 +470,14 @@ def evaluate(v, metric_value=None):
     if gate_bonus:
         got += gate_bonus
         hit_labels = hit_labels + [GATE_ALL_BONUS["label"]]
-    if got >= TIER_THRESHOLD:
-        tier = TIER_PREMIUM
-    else:
-        tier = TIER_BACKUP
+    # 档位走和「案例摆哪儿」同一套政策（default_case_tier），否则后台预览说
+    # 「备选」、实际发布却进了实核池，两边打架。质量分是本轮核实算出来的，
+    # 充当政策的最后一条兜底。
+    tier, _tier_why = default_case_tier({
+        "source_kinds": sorted(sources),
+        "verification": v.get("verification"),
+        "quality_score": got,
+    })
 
     # 待复核（warnings）不参与判定：它只是提醒，不是否决
     publishable = not failed_gates and not missing_musts
@@ -481,17 +527,14 @@ def _verdict(publishable, failed_gates, missing_musts, unverified_gates, warning
         return "门槛未过，不进库（%d 项被否决，且无一成立）" % len(failed_gates)
     if missing_musts:
         return "还差 %d 项必填" % len(missing_musts)
+    # 档位名统一从 TIER_META 取 —— 三档都不会漏，加档也不必回来改这里
+    short = (TIER_META.get(tier) or {}).get("short") or TIER_LABEL.get(tier) or "未定档"
     # 够发布了但有项目 AI 核不动 / AI 明确反证过 —— 写进判定，别让人以为已核实
     if unverified_gates or warnings:
         n = len(unverified_gates) + len(warnings)
         bad = "，含 %d 项 AI 反证" % len(flagged_denied) if flagged_denied else ""
-        if tier == TIER_PREMIUM:
-            return "可发布 · 精品（质量分 %d，%d 项待人工复核%s）" % (got, n, bad)
-        return "可发布 · 备选（质量分 %d，差 %d 到精品，%d 项待人工复核%s）" % (
-            got, TIER_THRESHOLD - got, n, bad)
-    if tier == TIER_PREMIUM:
-        return "可发布 · 精品（质量分 %d）" % got
-    return "可发布 · 备选（质量分 %d，差 %d 到精品）" % (got, TIER_THRESHOLD - got)
+        return "可发布 · %s（质量分 %d，%d 项待人工复核%s）" % (short, got, n, bad)
+    return "可发布 · %s（质量分 %d）" % (short, got)
 
 
 def blank():
@@ -521,6 +564,9 @@ def schema():
         ],
         "threshold": TIER_THRESHOLD,
         "tier_labels": TIER_LABEL,
+        # 三档的顺序与展示文案：前端分档渲染、后台出筛选项都按它来
+        "tier_order": TIER_ORDER,
+        "tier_meta": TIER_META,
         # 不是可勾项，只是告诉界面「还有这么一笔自动加成分存在」
         "gate_bonus": dict(GATE_ALL_BONUS),
     }
@@ -548,19 +594,26 @@ if __name__ == "__main__":
          {"gates": [], "gates_denied": ["still_alive"], "musts": [],
           "verification": "official", "caliber": "arr", "source_kinds": ["official"]},
          {"ok": False, "tier": None}),
-        ("一道成立抵消反证 → 放行",
+        # 有一手来源（official）→ 直接进精品池，不再看质量分
+        ("一道成立抵消反证 → 放行，且一手来源直接进精品",
          {"gates": ["solo_possible"], "gates_denied": ["still_alive"],
           "musts": [m["key"] for m in MUSTS], "verification": "official",
           "caliber": "arr", "source_kinds": ["official"]},
-         {"ok": True, "tier": TIER_BACKUP}),
+         {"ok": True, "tier": TIER_PREMIUM}),
         # 只有二手来源：已放开 —— 不再拦发布，只在 warnings 里提醒要亲自复核
         ("只有二手来源",
          {"gates": [g["key"] for g in GATES], "musts": [m["key"] for m in MUSTS],
           "verification": "partial", "caliber": "arr", "source_kinds": ["secondary"]},
          {"ok": True}),
-        ("齐全但没加分 → 备选",
+        # 放宽后的中间档：有第三方来源、口径待核 → 实核池（上一版会被打成备选）
+        ("只有第三方来源、口径待核 → 实核",
          {"gates": [g["key"] for g in GATES], "musts": [m["key"] for m in MUSTS],
-          "verification": "official", "caliber": "arr", "source_kinds": ["official"]},
+          "verification": "partial", "caliber": "arr", "source_kinds": ["review"]},
+         {"ok": True, "tier": TIER_STANDARD}),
+        # 没有来源、只有创始人自报 → 备选（这才是真正意义上的「待核」）
+        ("只有创始人自报 → 备选",
+         {"gates": [g["key"] for g in GATES], "musts": [m["key"] for m in MUSTS],
+          "verification": "founder", "caliber": "arr", "source_kinds": ["founder"]},
          {"ok": True, "tier": TIER_BACKUP}),
         ("齐全且高分 → 精品",
          {"gates": [g["key"] for g in GATES], "musts": [m["key"] for m in MUSTS],
@@ -568,10 +621,10 @@ if __name__ == "__main__":
           "source_kinds": ["stripe", "official"],
           "bonus": [b["key"] for b in BONUS]},
          {"ok": True, "tier": TIER_PREMIUM}),
-        # 三道全成立的加成能实打实改档次：50 分差 10 分到精品，加上它正好过线
+        # 三道全成立的加成能实打实改档次：没有一手来源时，靠质量分顶进精品
         ("三道全成立把 50 分顶过线",
          {"gates": [g["key"] for g in GATES], "musts": [m["key"] for m in MUSTS],
-          "verification": "official", "caliber": "arr", "source_kinds": ["official"],
+          "verification": "founder", "caliber": "arr", "source_kinds": ["founder"],
           "bonus": ["founder_disclosure", "corrections_found", "replicable_low"]},
          {"ok": True, "tier": TIER_PREMIUM}),
     ]

@@ -76,8 +76,8 @@ def main():
 
     print()
     print("  %d 条中：改动 %d 条，跳过（已有档位）%d 条" % (len(cases), changed, skipped))
-    print("  定档结果：精品池 %d 条 · 备选池 %d 条"
-          % (counts.get(VR.TIER_PREMIUM, 0), counts.get(VR.TIER_BACKUP, 0)))
+    print("  定档结果：" + " · ".join(
+        "%s %d 条" % (VR.TIER_LABEL.get(t, t), counts.get(t, 0)) for t in VR.TIER_ORDER))
 
     if args.dry_run:
         print("\n--dry-run：未写入。")
