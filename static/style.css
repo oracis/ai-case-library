@@ -285,6 +285,45 @@ body { display: flex; flex-direction: column; }
   gap: 14px;
 }
 
+/* ---- 分档展示：默认视图把精写案例按可信度分成三块 ----
+   背景：档位原先只活在后台，读者完全看不到「哪几条数字更硬」。现在三档各自
+   成块，块头写清这一档的证据强度和引用前该有的谨慎程度。 */
+.tiered { display: flex; flex-direction: column; gap: 30px; }
+
+.tsec { --tier-c: var(--text-3); }
+.tsec.t-premium  { --tier-c: var(--v-stripe); }
+.tsec.t-standard { --tier-c: var(--v-official); }
+.tsec.t-backup   { --tier-c: var(--v-partial); }
+
+.tsec-h {
+  display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px;
+  padding: 0 2px 9px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 15px;
+}
+.tsec-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--tier-c); align-self: center;
+  box-shadow: 0 0 8px var(--tier-c);
+}
+.tsec-name { font-size: 15px; font-weight: 600; color: var(--text); letter-spacing: .3px; }
+.tsec-n {
+  font-family: var(--mono); font-size: 11.5px; color: var(--text-2);
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 20px; padding: 1px 9px;
+}
+.tsec-desc {
+  flex: 1 1 100%; font-size: 12px; line-height: 1.65;
+  color: var(--text-3); margin-top: 1px;
+}
+.tiered .grid { grid-template-columns: repeat(auto-fill, minmax(296px, 1fr)); }
+
+/* 统计条「精写案例」下面那行分档明细 */
+.stat-sub {
+  font-family: var(--mono); font-size: 10.5px;
+  color: var(--text-3); margin-top: 4px; letter-spacing: .2px;
+}
+
 .card {
   position: relative;
   background: var(--surface);

@@ -199,12 +199,18 @@ def _ai_run_job(opts):
         admin = AIV.Admin("http://127.0.0.1:%d" % ADMIN_PORT, cookie=cookie)
 
         cands = AIV.load_json("candidates")
+        # 传初筛索引：一是让选取按 triage 分排序（不是按录入顺序），
+        # 二是跳过草稿已判定可发布的条目 —— 它们缺的是人点发布，不是 AI 核实。
+        ai_index = AIV.triage_index()
         selected = AIV.pick_candidates(
             cands, limit=opts.get("limit"),
             ids=opts.get("ids") or None,
-            include_small=opts.get("include_small"))
+            include_small=opts.get("include_small"),
+            index=ai_index)
         if opts.get("all"):
-            selected = AIV.pick_candidates(cands, limit=None, include_small=opts.get("include_small"))
+            selected = AIV.pick_candidates(cands, limit=None,
+                                           include_small=opts.get("include_small"),
+                                           index=ai_index)
         _ai_log("AI：%s @ %s｜本次 %d 条｜%s" % (
             AIV.AI_MODEL, AIV.AI_BASE or "（默认）", len(selected),
             "核完直接发布" if opts.get("publish") else "只存草稿"))
@@ -430,7 +436,14 @@ def build_payload(include_private=False):
 
     stats = {
         "curated": len(cases),
+        # 三档计数：tiers 供前端分档渲染；premium/standard/backup 三个扁平
+        # 字段保留，老消费者照旧能读。
+        "tiers": dict(
+            (t, sum(1 for c in cases if c.get("tier") == t))
+            for t in VRULES.TIER_ORDER
+        ),
         "premium": sum(1 for c in cases if c.get("tier") == VRULES.TIER_PREMIUM),
+        "standard": sum(1 for c in cases if c.get("tier") == VRULES.TIER_STANDARD),
         "backup": sum(1 for c in cases if c.get("tier") == VRULES.TIER_BACKUP),
         "candidates": len(candidates),
         "inbox": len(inbox),
@@ -809,7 +822,7 @@ class Handler(BaseHTTPRequestHandler):
             result = VRULES.evaluate(cfg)
             if not result["publishable"]:
                 return self._json({
-                    "error": "条件不齐，不能拔档到精品池",
+                    "error": "条件不齐，不能拔档",
                     "result": result,
                 }, 409)
             with _LOCK:
@@ -817,10 +830,13 @@ class Handler(BaseHTTPRequestHandler):
                 for c in cases:
                     if c.get("id") == cid:
                         # 同一套定档政策（见 verify_rules.default_case_tier）：
-                        # 有一手来源就默认精品，质量分只是其次。
+                        # 有一手来源进精品池，只有第三方来源进实核池，
+                        # 质量分只是最后的兜底。
                         tier, tier_reason = VRULES.default_case_tier({
                             "source_kinds": cfg.get("source_kinds") or [],
                             "sources": cfg.get("sources") or [],
+                            "verification": (cfg.get("verification")
+                                             or c.get("verification")),
                             "quality_score": result["bonus_score"],
                         })
                         c["tier"] = tier
@@ -966,15 +982,15 @@ class Handler(BaseHTTPRequestHandler):
                     claim_kinds = draft.get("source_kinds") or []
                 dn_to, dn_why = VRULES.evidence_gap(claim_ver, claim_kinds)
 
-                # 档位不走 result["tier"]，而走 default_case_tier：
-                # 来源里有一手证据（stripe/official）就默认进精品池，其次才看质量分。
-                # 质量分照旧存下来 —— 后台会显示成「精品 · 35 分」，
-                # 让「数字可信」和「核实做得多全」两件事都看得见。
-                # 老实现只按质量分定档，于是「来源极硬、还没补 playbook」的案例
-                # 全被压进备选池，精品池长期只剩一两条。
+                # 档位不走 result["tier"]，而走 default_case_tier（三档）：
+                # 有一手证据（stripe/official）进精品池；只有第三方来源、口径待核
+                # 进实核池；其余进备选池。质量分照旧存下来 —— 后台会显示成
+                # 「实核 · 35 分」，让「数字可信」和「核实做得多全」两件事都看得见。
                 new_tier, tier_reason = VRULES.default_case_tier({
                     "source_kinds": draft.get("source_kinds") or [],
                     "sources": draft.get("sources") or [],
+                    "verification": (draft.get("verification")
+                                     or hit.get("verification")),
                     "quality_score": result["bonus_score"],
                 })
 
@@ -1010,9 +1026,9 @@ class Handler(BaseHTTPRequestHandler):
                     "verified_at": now,
                     "updated_at": now,
                     "tags": hit.get("tags", []),
-                    # 两档：有一手来源默认精品，否则看质量分（政策见
-                    # verify_rules.default_case_tier）。备选不是废品，
-                    # 是「先入库留着，条件补齐了随时拔档」。
+                    # 三档（政策见 verify_rules.default_case_tier）：一手来源进精品，
+                    # 第三方来源进实核，其余进备选。实核和备选都不是废品 ——
+                    # 它们是「先入库留着，条件补齐了随时拔档」。
                     "tier": new_tier,
                     "tier_reason": tier_reason,
                     "quality_score": result["bonus_score"],
@@ -1130,6 +1146,7 @@ class Handler(BaseHTTPRequestHandler):
                     tier, tier_reason = VRULES.default_case_tier({
                         "source_kinds": cfg.get("source_kinds") or [],
                         "sources": cfg.get("sources") or [],
+                        "verification": cfg.get("verification"),
                         "quality_score": result["bonus_score"],
                     })
                     body["tier"] = tier

@@ -546,8 +546,9 @@ html, body {
   font-family: var(--mono); font-size: 11.5px;
   border-radius: 5px; padding: 1px 7px;
 }
-.adm-tier.t-premium { background: var(--money-dim); color: var(--money); }
-.adm-tier.t-backup  { background: rgba(229,181,103,.12); color: var(--v-partial); }
+.adm-tier.t-premium  { background: var(--money-dim); color: var(--money); }
+.adm-tier.t-standard { background: rgba(90,169,255,.13); color: var(--v-official); }
+.adm-tier.t-backup   { background: rgba(229,181,103,.12); color: var(--v-partial); }
 
 /* 人工核读记录。已核读用中性的灰（它不是荣誉，只是一个事实记录），
    未核读才用琥珀 —— 那才是需要你留意的那一种。 */
@@ -697,3 +698,9 @@ html, body {
 .ai-plan-m { flex: 1; min-width: 0; color: var(--text-3); font-family: var(--mono);
   font-size: 11.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ai-plan-b { flex: none; color: var(--v-partial); }
+
+/* 初筛档位徽章：这一条是按什么理由排在前面的（结论来自 scripts/triage.py） */
+.ai-plan-g { flex: none; padding: 1px 6px; border-radius: 4px; font-size: 11px;
+  white-space: nowrap; background: var(--bg-2); color: var(--text-3); }
+.ai-plan-g[data-g="deep"]     { background: var(--money-dim); color: var(--money); }
+.ai-plan-g[data-g="backfill"] { background: rgba(229,181,103,.12); color: var(--v-partial); }

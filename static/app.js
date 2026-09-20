@@ -29,6 +29,21 @@ const V_COLOR = {
 };
 const V_ORDER = ['stripe', 'official', 'partial', 'founder', 'disputed', 'unverified'];
 
+/* 三档档位 —— 与 scripts/verify_rules.py 的 TIER_ORDER / TIER_META 对齐。
+   premium  一手来源（支付网关 / 官方）撑住，数字可直接引用
+   standard 只有独立第三方来源（媒体 / 评测站），口径待核
+   backup   只有创始人自报，或来源互相矛盾
+   默认视图按它把精写案例分成三块渲染；搜索/筛选/排序时退回平铺。 */
+const TIER_ORDER = ['premium', 'standard', 'backup'];
+const TIER_LABEL = { premium: '精品池', standard: '实核池', backup: '备选池' };
+const TIER_DESC = {
+  premium: '有一手来源（支付网关直连 / 官方披露）撑住，数字可以直接引用。',
+  standard: '有独立第三方来源（媒体 / 评测核查站）撑住口径，但还没拿到一手证据 ——' +
+            '引用前建议点回原文自己再看一眼。',
+  backup: '只有创始人自报，或来源互相矛盾 —— 只作方向参考，不能当成已核实的数字用。'
+};
+const tierKey = (c) => (c && c.tier) || 'backup';
+
 const KIND_LABEL = {
   stripe: '支付验证', official: '官方', press: '报道', review: '核查', founder: '自述'
 };
@@ -285,8 +300,12 @@ function renderRead() {
 /* ---------------- 渲染：顶部统计 ---------------- */
 function renderStats() {
   const s = DATA.stats || {};
+  // 「精写案例」下面挂一行分档明细：一眼看出这批案例里哪些是一手来源撑住的
+  const t = s.tiers || {};
+  const tierSub = '精品 ' + (t.premium || 0) + ' · 实核 ' + (t.standard || 0) +
+                  ' · 备选 ' + (t.backup || 0);
   const items = [
-    { n: s.curated || 0, k: '精写案例', cls: '' },
+    { n: s.curated || 0, k: '精写案例', cls: '', sub: tierSub },
     { n: s.candidates || 0, k: '候选池', cls: '' },
     { n: s.inbox || 0, k: '采集队列', cls: '' },
     { n: s.verified || 0, k: '已核实（支付/官方）', cls: 'g' },
@@ -294,7 +313,10 @@ function renderStats() {
     { n: s.categories || 0, k: '覆盖分类', cls: 'b' }
   ];
   $('stat-strip').innerHTML = items.map((it) =>
-    `<div class="stat"><div class="stat-n ${it.cls}">${esc(it.n)}</div><div class="stat-k">${esc(it.k)}</div></div>`
+    `<div class="stat"><div class="stat-n ${it.cls}">${esc(it.n)}</div>` +
+    `<div class="stat-k">${esc(it.k)}</div>` +
+    (it.sub ? `<div class="stat-sub">${esc(it.sub)}</div>` : '') +
+    `</div>`
   ).join('');
 
   $('nav-count-cases').textContent = s.curated || 0;
@@ -336,17 +358,14 @@ function renderFunnel() {
 
 function renderVigilance() {
   const s = DATA.stats || {};
-  const partial = (s.by_verification || {}).partial || 0;
-  const founder = (s.by_verification || {}).founder || 0;
-  const disputed = (s.by_verification || {}).disputed || 0;
-  const unver = (s.by_verification || {}).unverified || 0;
-  const unresolved = partial + founder + disputed + unver;
+  const t = s.tiers || {};
 
   $('vigilance').innerHTML =
     '<span class="v-ico">▲</span><div>' +
-    `本库共 <b>${s.curated || 0}</b> 条案例，其中 <b>${s.verified || 0}</b> 条的收入已被支付网关或官方口径核实；` +
-    `另有 <em>${unresolved}</em> 条只到「创始人自报 / 口径待核」，` +
-    `以及 <em>${s.flagged || 0}</em> 处已发现的数字出入。` +
+    `本库共 <b>${s.curated || 0}</b> 条案例：<b>${t.premium || 0}</b> 条的收入已被支付网关或官方口径核实（精品池）；` +
+    `另有 <em>${t.standard || 0}</em> 条有独立第三方来源、口径待核（实核池），` +
+    `<em>${t.backup || 0}</em> 条只有创始人自报或来源矛盾（备选池）；` +
+    `并记录 <em>${s.flagged || 0}</em> 处已发现的数字出入。` +
     '<b>凡标注待核的数字，引用前请自己再搜一遍。</b>' +
     '</div>';
 }
@@ -432,12 +451,44 @@ function filtered() {
 }
 
 /* ---------------- 渲染：案例卡片 ---------------- */
+/* 默认视图（没搜索、没筛选、默认排序）按档位分三块渲染；一旦用户在找特定的
+   东西，就退回平铺 —— 那时他要的是排序结果，不是档位结构。
+   uitest 里的排序/筛选断言都跑在有筛选或有非默认排序的条件下，所以分档
+   不会改变它们看到的卡片顺序。 */
+function isLayeredView() {
+  return !q && !verifFilter && !tagFilter && !quadFilter
+    && !(fitDim && fitLevel > 0) && sortBy === 'default';
+}
+
 function renderCases() {
   const list = filtered();
   const grid = $('grid-cases');
-  grid.innerHTML = list.map(cardHTML).join('');
-  $('empty-cases').hidden = list.length > 0;
 
+  if (isLayeredView()) {
+    const blocks = [];
+    for (const t of TIER_ORDER) {
+      const group = list.filter((c) => tierKey(c) === t);
+      if (!group.length) continue;
+      blocks.push(
+        `<section class="tsec t-${esc(t)}">` +
+          `<div class="tsec-h">` +
+            `<span class="tsec-dot"></span>` +
+            `<span class="tsec-name">${esc(TIER_LABEL[t] || t)}</span>` +
+            `<span class="tsec-n">${group.length} 条</span>` +
+            `<span class="tsec-desc">${esc(TIER_DESC[t] || '')}</span>` +
+          `</div>` +
+          `<div class="grid">${group.map(cardHTML).join('')}</div>` +
+        `</section>`
+      );
+    }
+    grid.className = 'tiered';
+    grid.innerHTML = blocks.join('');
+  } else {
+    grid.className = 'grid';
+    grid.innerHTML = list.map(cardHTML).join('');
+  }
+
+  $('empty-cases').hidden = list.length > 0;
   grid.querySelectorAll('.card').forEach((el) => {
     el.onclick = () => openCase(el.dataset.id);
   });
@@ -1017,6 +1068,7 @@ function detailHTML(c) {
   push('主指标', m.headline, true);
   if (m.arr) push('ARR', '$' + num(m.arr), true);
   if (m.mrr) push('MRR', '$' + num(m.mrr), true);
+  if (m.last_30d_revenue) push('近 30 天收入', '$' + num(m.last_30d_revenue), true);
   if (m.all_time) push('累计收入', '$' + num(m.all_time), true);
   push('客户/规模', m.customers);
   push('团队', m.team);

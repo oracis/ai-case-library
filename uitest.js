@@ -640,6 +640,54 @@ function section(title, fn) {
       (get('stat-strip')._html || '').includes('精写案例'));
   })();
 
+  console.log('\n[L] 分档展示（默认视图按档位分三块，筛选后退回平铺）');
+  (function checkTierLayers() {
+    const ck = (label, ok, extra) => {
+      console.log('  [' + (ok ? 'PASS' : 'FAIL') + '] ' + label + (extra ? '  ' + extra : ''));
+      ok ? pass++ : fail++;
+    };
+    try {
+      // 归零所有筛选条件，回到默认视图
+      vm.runInContext(
+        'q=""; verifFilter=""; tagFilter=""; quadFilter=""; fitDim=""; fitLevel=0;' +
+        'sortBy="default"; renderCases();', sandbox);
+      const html = get('grid-cases')._html || '';
+      const nSec = (html.match(/class="tsec t-/g) || []).length;
+      // 基准取 sandbox 里的 DATA，不取磁盘上的 cases.json —— 前面的用例
+      // 往 DATA.cases 塞过几条测试数据（空字段 / 空指标那种），比磁盘多。
+      const nData = vm.runInContext('DATA.cases.length', sandbox);
+      const nTiers = vm.runInContext(
+        'new Set(DATA.cases.map(c=>c.tier||"backup")).size', sandbox);
+      ck('默认视图渲染出档位区块', nSec > 0, nSec + ' 个');
+      ck('区块数 = 数据里出现的档位数', nSec === nTiers, nSec + ' / ' + nTiers);
+      ck('区块带档位名（精品池 / 实核池 / 备选池）',
+        /tsec-name">(精品池|实核池|备选池)</.test(html));
+      ck('区块标题带条数', /tsec-n">\d+ 条/.test(html));
+      ck('每个区块内都有卡片网格',
+        (html.match(/<div class="grid">/g) || []).length === nSec);
+      // 分档只是换排法，不该多出或少掉卡片
+      const nPlain = (html.match(/class="card"/g) || []).length;
+      const nRead = (html.match(/class="card read"/g) || []).length;
+      const total = nPlain + nRead;
+      ck('分档后卡片总数不变', total === nData,
+        'card=' + nPlain + ' read=' + nRead + ' total=' + total + ' / ' + nData);
+
+      // 一旦开始筛选，就退回平铺 —— 那时用户要的是筛选结果，不是档位结构
+      vm.runInContext('verifFilter="stripe"; renderCases();', sandbox);
+      const h2 = get('grid-cases')._html || '';
+      ck('筛选后退回平铺（没有档位区块）', !h2.includes('class="tsec'));
+      ck('平铺时卡片仍在', (h2.match(/class="card(?:\s+read)?"/g) || []).length > 0);
+
+      // 非默认排序也退回平铺
+      vm.runInContext('verifFilter=""; sortBy="china"; renderCases();', sandbox);
+      ck('非默认排序时退回平铺',
+        !(get('grid-cases')._html || '').includes('class="tsec'));
+      vm.runInContext('sortBy="default"; renderCases();', sandbox);
+    } catch (e) {
+      ck('分档渲染抛异常: ' + e.message, false);
+    }
+  })();
+
   if (errors.length) {
     console.log('\n[!] 捕获到未处理异常：');
     errors.forEach((e) => console.log('    ' + e));

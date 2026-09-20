@@ -35,6 +35,12 @@ const V_LABEL = {
   founder: '创始人自报', disputed: '数字有出入', unverified: '未核实'
 };
 
+/* 三档档位。与 scripts/verify_rules.py 的 TIER_ORDER / TIER_META 对齐 ——
+   standard 是 2026-09-20 放宽后新增的中间档：有独立第三方来源、口径待核。 */
+const TIER_LABEL = { premium: '精品', standard: '实核', backup: '备选' };
+const TIER_POOL = { premium: '精品池', standard: '实核池', backup: '备选池' };
+const tierOf = (c) => (c && c.tier) || 'backup';
+
 /* ---------------- 状态 ---------------- */
 let DATA = null;            // /api/data 的完整响应（含核实草稿）
 let VSCHEMA = null;         // 核实规则表
@@ -121,6 +127,7 @@ function renderStats() {
   $('adm-stat').textContent =
     '候选 ' + (s.candidates || 0) +
     ' · 精品 ' + (s.premium || 0) +
+    ' · 实核 ' + (s.standard || 0) +
     ' · 备选 ' + (s.backup || 0);
 }
 
@@ -451,6 +458,11 @@ async function showAIPlan() {
       else b = '草稿已齐，可直接发布';
       return '<div class="ai-plan-item">' +
         '<b>' + esc(it.name || it.id) + '</b>' +
+        // 初筛结论：这条为什么排在前面。顺序不再是黑箱 —— 后台点「AI 核实」时
+        // 按的就是这个分数，分数本身就是解释。
+        '<span class="ai-plan-g" data-g="' + esc(it.grade || '') + '"' +
+        ' title="' + esc(it.action || '') + '">' +
+        esc((it.grade_label || '') + ' · ' + (it.score || 0)) + '</span>' +
         '<span class="ai-plan-m">' + esc(it.headline || '未获取') + '</span>' +
         '<span class="ai-plan-b">' + esc(b) + '</span></div>';
     }).join('') || '<div class="adm-empty">没有可选候选（占位条目已跳过）。</div>';
@@ -467,8 +479,8 @@ function renderCases() {
     return;
   }
   $('grid-cases').innerHTML = list.map((c) => {
-    const tier = c.tier || 'backup';
-    const tierLabel = tier === 'premium' ? '精品' : '备选';
+    const tier = tierOf(c);
+    const tierLabel = TIER_LABEL[tier] || '备选';
     const qs = c.quality_score == null ? '–' : c.quality_score;
     // 人工核读记录：只有明确的 true/false 才画。undefined 是本次改动之前的老案例
     // —— 它们压根没这条记录，标成「未核读」等于替它们认了一个没做过的判断。
@@ -487,7 +499,7 @@ function renderCases() {
         </div>
         <div class="card-liner">${esc(c.one_liner || '')}</div>
         <div class="card-foot">
-          <span class="adm-tier ${tier === 'premium' ? 't-premium' : 't-backup'}">${tierLabel} · ${qs} 分</span>
+          <span class="adm-tier t-${esc(tier)}">${esc(tierLabel)} · ${qs} 分</span>
           ${hr}
           <span>${esc(c.verified_at || c.updated_at || '')}</span>
         </div>

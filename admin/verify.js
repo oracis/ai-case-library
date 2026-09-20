@@ -126,7 +126,7 @@ async function refreshVerdict(c) {
     if (btn) {
       btn.disabled = !VRESULT.publishable;
       btn.textContent = VRESULT.publishable
-        ? (VRESULT.tier === 'premium' ? '发布到精品池' : '发布到备选池')
+        ? ('发布到' + (TIER_POOL[VRESULT.tier] || '备选池'))
         : '还差条件，不能发布';
     }
   } catch (err) {
@@ -372,7 +372,7 @@ function wireRowDeletes(again) {
 async function publishVerified(c) {
   const draft = collectDraft();
   const tierHint = VRESULT && VRESULT.publishable
-    ? (VRESULT.tier === 'premium' ? '精品池' : '备选池') : '';
+    ? (TIER_POOL[VRESULT.tier] || '备选池') : '';
   if (!confirm(
     '把「' + c.name + '」发布到' + tierHint + '？\n\n' +
     '发布后它会从候选池移到精写案例，并带上你填的核实等级与来源。'
@@ -388,7 +388,7 @@ async function publishVerified(c) {
     });
     const j = await r.json();
     if (!r.ok) throw new Error(j.error || '发布失败');
-    toast('已发布到' + (j.case.tier === 'premium' ? '精品池' : '备选池') +
+    toast('已发布到' + (TIER_POOL[j.case.tier] || '备选池') +
           '：' + j.case.name);
     closeDrawer();
     await loadAdmin();
