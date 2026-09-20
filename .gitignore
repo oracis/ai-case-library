@@ -34,6 +34,11 @@ data/ih_slugs.json
 Thumbs.db
 desktop.ini
 
+# 初筛结果快照（scripts/triage.py --write 生成）
+# 属派生数据：随时可由 scripts/triage.py 重算，且**每天都不一样** ——
+# 提交进来只会变成一份很快过期的噪音。
+data/triage.json
+
 # 静态构建产物（scripts/build_static.py 生成，不入库）
 dist/
 # 对外发布用的构建产物（--no-inbox，正是上传 OSS 的那一份）
@@ -41,6 +46,12 @@ public/
 
 # 公众号草稿（scripts/make_article.py 生成，属个人内容，不入库）
 out/
+
+# 公众号成品（根目录的「公众号-XXX拆解.html」与发布计划）
+# 与 out/ 同理：是给公众号后台粘贴的内容产物，不是这个库的代码或数据。
+# 用前缀通配而不是逐个列名 —— 每写一篇就多一个文件，逐个加会一直漏。
+公众号-*.html
+公众号-*.md
 
 # 部署凭证：绝不入库（AccessKey 只从环境变量或 --env-file 读）
 .env

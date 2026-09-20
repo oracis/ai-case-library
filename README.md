@@ -95,9 +95,9 @@ python scripts/build_static.py     # 构建到 dist/
 ## 三级漏斗
 
 ```
-data/inbox.json        采集队列     135 条   机器捞的，全没看过
-data/candidates.json   候选池       37 条   人工挑的，还没核数字
-data/cases.json        精写案例     24 条   核过数字，能拿出去说
+data/inbox.json        采集队列     441 条   机器捞的，全没看过
+data/candidates.json   候选池        33 条   人工挑的，还没核数字
+data/cases.json        精写案例      25 条   核过数字，能拿出去说
 ```
 
 侧栏会把这三层画成漏斗。**素材多、精写少是正常的**——一天能精写 2–3 条，一周十几条。
@@ -105,6 +105,10 @@ data/cases.json        精写案例     24 条   核过数字，能拿出去说
 
 界面上每一层都能往上推：采集队列 →「转入候选池」，候选池 →「提升为精写案例」。
 推进精写库时会带一个 `needs_review` 标记，提醒你还没核实。
+
+漏斗还有个横切的口径：`scripts/triage.py` 给每层的每一条打一个「值得核」分，
+把 474 条收敛成 11 条真正该花 AI 的（见「核实之前先做零成本初筛」）。
+它不改变这三层的归属，只决定**先看哪一条**。
 
 ---
 
@@ -484,6 +488,56 @@ python scripts/verify.py --checklist                         # 只看通用清�
 
 **这一步不能交给工具。** 工具不会因为「数字看起来合理」而警觉，但你会。
 
+### 核实之前先做零成本初筛
+
+深核一条要联网检索、抓多页原文、再调一次 LLM —— 这是整条流水线上唯一真正花钱的环节。
+所以花钱之前先跑 `scripts/triage.py`：**不联网、不调 LLM、纯确定性**地给每条打一个
+「值得核」分，并给出下一步该干什么。
+
+```bash
+python scripts/triage.py                     # 候选池 + 采集队列一起看，按级汇总
+python scripts/triage.py --grade deep --top 20   # 只看值得深核的前 20 条
+python scripts/triage.py --scope inbox       # 只看采集队列
+python scripts/triage.py --json              # 结构化输出（给工具消费）
+python scripts/ai_verify.py --triage         # 看「本次会按什么顺序核、为什么」
+```
+
+五级，每级对应一个动作，而不是一个形容词：
+
+| 级 | 含义 | 下一步 |
+|---|---|---|
+| `ready` | 草稿已判定可发布 | 去后台点发布 —— **别再花 AI** |
+| `deep` | 有数字 + 有能追的来源 | 送 `ai_verify` 深核 |
+| `backfill` | 有现成的零成本脚本能补 | 跑 `backfill_trustmrr.py` |
+| `later` | 缺关键材料 | 等下一轮采集，或人工扫一眼 |
+| `drop` | 没有数字、没有关注度、没有来源 | 归档（后台操作，不删文件） |
+
+打分只用记录里已有的字段：证据起点（一手 / 第三方 / 自报）、数字可得性与口径、
+公开关注度（HN 的分与评论数）、可核性（有没有自家官网）、以及收入量级
+（门槛 $1,000/月 —— 已发布案例里最小的月收入是 $1,619，再低撑不起一篇拆解）。
+
+**`ready` 这一级是被真实数据教出来的**：写这个脚本时，6 份草稿**全部**已被规则引擎
+判成「可发布」，其中 5 条还挂在候选池里。它们缺的不是 AI，是人点一下发布 ——
+不拦掉，`--limit 5` 就会把预算正好花在这 5 条上。
+
+两条刻意写死的判断：
+
+- **候选池不由分数判死**。候选池的条目是人工从队列里一条条挑出来的，机器只能排前后，
+  不能推翻人的决定 —— 唯一能判 `drop` 的理由是硬标记（已发布重复）。
+- **高分不等于深核**。深核的条件是「有数字 **且** 有能追的来源」：没有数字就没有
+  可核的东西。`疑似金额 $99` 这种从标题正则抽出来的数**不算数字** —— 采集器自己
+  在 note 里写着「不是收入」，把它当数字就会让一批论坛帖冒充「有数据的项目」。
+  同理，300 分的 Show HN 帖也不等于有人在付钱：高关注度只够让它免于被当噪音丢掉。
+
+首次跑的真实分布（候选 33 + 队列 441）：
+
+```
+ready 5 条 · deep 11 条 · backfill 49 条 · later 47 条 · drop 362 条
+```
+
+也就是说 **474 条里真正需要花 AI 的只有 11 条**，另有 49 条一条命令零成本补齐、
+5 条只差人点发布。这个脚本只读不写 —— 归档动作仍然要人在后台点。
+
 ### AI 自动核实（找卡点 → 补材料 → 判定 → 发布）
 
 「人工一个一个对」里的大部分活是确定性劳动：检索原文、抓页面、对口径、
@@ -504,15 +558,19 @@ python scripts/verify.py --checklist                         # 只看通用清�
 
 ```bash
 python scripts/ai_verify.py --plan                # 离线：列出每条候选的卡点，不动任何数据
+python scripts/ai_verify.py --triage              # 离线：本次的核实顺序与理由（初筛排序）
 python scripts/ai_verify.py --limit 5             # AI 预核 5 条：检索→抓原文→填草稿（不发布）
 python scripts/ai_verify.py --id gojiberry-ai     # 单条
-python scripts/ai_verify.py --limit 5 --publish   # 够格的直接发布成案例（精品/备选由规则定）
+python scripts/ai_verify.py --limit 5 --publish   # 够格的直接发布成案例（精品/实核/备选由规则定）
 python scripts/ai_verify.py --all --publish --min-score 60   # 全部处理，只发精品档
 ```
 
 它怎么工作：
 
-1. 用规则引擎算出每条候选**当前卡在哪**（占位条目、「未获取」、「体量太小」自动跳过）
+1. 用规则引擎算出每条候选**当前卡在哪**（占位条目、「未获取」、「体量太小」自动跳过，
+   **材料已齐的也跳过**——那种缺的是人点发布）；**核实顺序由初筛分决定**，不再按录入顺序：
+   人工显式标了「高优先级复核」的仍置顶（人的判断不被机器分覆盖），其余按
+   `scripts/triage.py` 的分数从高到低
 2. 生成检索词 → Bing（国内可达）+ DuckDuckGo 兜底 → 抓正文
 3. 把候选资料 + 卡点 + 原文摘录交给 LLM（OpenAI 兼容接口），**只许依据原文判断，禁止编造 URL**
 4. AI 回答映射成核实草稿——**每个勾都要求结构性证据**：AI 的布尔值不许裸信，
@@ -551,6 +609,48 @@ export CASE_LIB_ADMIN_PASSWORD=...             # 后台密码（写草稿/发布
 
 没抓到原文的条目会被明确拒绝而不是硬编（实测 getdavid 一条：检索不到一手
 披露，脚本直接跳过、维持卡点）。
+
+### 发布是一条六步链路，用 release.py 串起来
+
+发布**不是**一个原子动作。它由六步组成，而**少一步不报错，会静默出问题**：
+
+| # | 步 | 漏了会怎样 |
+|---|---|---|
+| 1 | `contentpack` 补内容包 | 发布出「有数字没内容」的空壳卡片 |
+| 2 | `publish` 走 `/promote` | 数据还在候选池，站上什么都没有 |
+| 3 | `fit` 补三套人工判断 | 公众号草稿从 5 段掉到 3 段；首页适配度空白 |
+| 4 | `score` 算派生分 | `solo_fit` / `china_fit` 是空的，四象限图缺这条 |
+| 5 | `build` 建静态站 | 部署的还是上一版 |
+| 6 | `deploy` 上传 OSS | 本地对了，线上还是旧的 |
+
+每一步单独看都有脚本，也各自有测试。但它们之间的**顺序和依赖只存在于人的记忆里**，
+而顺序错了同样不报错：`fit` 跑在 `publish` 前补的是上一批案例，`build` 跑在 `score` 前
+打进去的是空的派生分。所以有一条命令把它们串起来：
+
+```bash
+python scripts/release.py --dry-run                        # 全链路预演，不写盘不上传
+python scripts/release.py --bucket ai-case-library \
+       --region cn-hongkong                                # 完整发布
+python scripts/release.py --skip-publish --skip-deploy     # 只重算分并重建本地产物
+python scripts/release.py --only fit,score,build           # 只跑某几步（调试用）
+python scripts/release.py --selfcheck                      # 只校验步骤顺序，不碰数据
+```
+
+几条设计上的取舍：
+
+- **失败即停**。任何一步非 0 退出，后面都不跑 —— 后面的步骤依赖前面的产物，
+  `fit` 挂了还继续 `score`，等于把破坏再固化一层。退出码就是停下的步骤序号，
+  便于在 CI 里区分（`6` = 停在第 6 步；`2` = 参数错；`3` = 步骤表自相矛盾）。
+- **顺序是声明式的，不是注释**。步骤表里每步声明 `after`，自检和测试拿它校验
+  实际顺序，并做拓扑排序比对 + 环检测。所以「改了顺序忘了改声明」和
+  「改了声明忘了改顺序」都会红 —— 手写断言只能抓后者。
+- **产物目录写死 `public`，不暴露 `dist`**。`dist` 是带 `inbox` 未核实素材的
+  本地预览版，2026-09-20 曾用默认参数把 441 条推上公网。想发预览版得自己去跑
+  `deploy_oss.py` 并显式 `--allow-inbox`，`release.py` 不给你这个口子。
+- **有候选要发但 server 没起时，在第一步之前就停**。以前是等到 `publish`
+  那步连不上才报错，那时 `contentpack` 已经写盘了，等于白改一遍数据。
+- **`--dry-run` 里配置缺失只警告不失败**，真跑才失败 —— 预演的目的就是来看
+  「会怎样」的，报出缺什么比直接退出有用。
 
 ### 核实等级不能被虚标
 
@@ -658,11 +758,12 @@ python server.py
 
 ```bash
 python selftest.py                    # 后端：起临时服务，121 项接口测试，自动备份+还原数据
-node uitest.js                        # 公开站：DOM 桩跑一遍所有渲染函数，95 项检查
-node uitest.js --static               # 公开站静态产物：只读模式，96 项检查
-node uitest-admin.js                  # 管理后台：登录 / 三块视图 / 工作台 / AI 面板，118 项检查
-python scripts/test_verify_rules.py   # 核实规则引擎，57 项
-python scripts/test_ai_verify.py      # AI 自动核实的纯函数：挑选/映射/JSON 提取，40 项（不联网）
+node uitest.js                        # 公开站：DOM 桩跑一遍所有渲染函数，104 项检查
+node uitest.js --static               # 公开站静态产物：只读模式，105 项检查
+node uitest-admin.js                  # 管理后台：登录 / 三块视图 / 工作台 / AI 面板，120 项检查
+python scripts/test_verify_rules.py   # 核实规则引擎，70 项
+python scripts/test_ai_verify.py      # AI 自动核实的纯函数：挑选/映射/JSON 提取，47 项（不联网）
+python scripts/test_triage.py         # 零成本初筛：打分/判级/去重/与 ai_verify 的排序契约，52 项（不联网）
 python scripts/test_harvest_sources.py # 五源解析 + source_kind 可信度，188 项（不联网）
 python scripts/test_prerender.py      # 预渲染与 noscript 兜底，54 项（不联网）
 python scripts/test_daily_harvest.py  # 自动提交脚本：git 机制与失败路径，25 项（不联网）
@@ -873,11 +974,17 @@ python scripts/verify_deploy.py --expect-cases 30  # 案例数变了就改期望
 | Secret | `OSS_ACCESS_KEY_ID` | AccessKey ID |
 | Secret | `OSS_ACCESS_KEY_SECRET` | AccessKey Secret |
 | Variable | `OSS_BUCKET` | Bucket 名 |
-| Variable | `OSS_REGION` | 可选，默认 `cn-hongkong` |
+| Variable | `OSS_REGION` | 可选，默认 `cn-hongkong`（**仅 Actions 里有默认值**；本地跑 `deploy_oss.py` 必须显式给，见下） |
 
 两条和阿里云有关的实际经验：
 
 - **用香港地域的 Bucket 不需要大陆备案。** 大陆地域绑自定义域名要备案，香港不用。
+  本项目没备案，所以 Bucket 全在 `cn-hongkong`，直绑 OSS（代价是没有 CDN 加速）。
+- **地域必须显式给，脚本不猜。** `deploy_oss.py` 曾经兜底 `cn-hangzhou`，但 Bucket 在
+  香港，于是「什么都不填」必然指向错 endpoint，OSS 只回一句
+  `must be addressed using the specified endpoint` 403 —— 看不出是地域错了。
+  现在不给地域就当场停下：`--region cn-hongkong` / `OSS_REGION=cn-hongkong` /
+  `--env-file`（三种任选）。Actions 里保留确定值是为了无人值守时不会卡住。
 - **绑了 CDN 自定义域名的话，传完记得刷缓存**，否则可能还是旧的：
   控制台 → CDN → 域名管理 → 刷新预热 → 刷新缓存 → 类型选「目录」填 `/`
 
@@ -909,7 +1016,9 @@ ai-case-library/
 │  ├─ deploy_oss.py        上传 dist/ 到阿里云 OSS（零依赖，自己实现 OSS 签名）
 │  ├─ verify.py            核实助手
 │  ├─ verify_rules.py      核实规则引擎（门槛 / 必填 / 质量分 / 定档 / 等级与证据）
+│  ├─ triage.py            零成本初筛（给候选与队列打「值得核」分，定核实顺序；不联网不写数据）
 │  ├─ ai_verify.py         AI 自动核实流水线（找卡点→检索→填草稿→判定→可选发布）
+│  ├─ test_triage.py       初筛的单测（打分 / 判级 / 去重 / 排序契约，52 项）
 │  ├─ verify_case.py       对**已发布案例**重跑一次 AI 自核（候选池外也能核）
 │  ├─ audit_evidence.py    审计并修正「等级高于来源证据」的案例
 │  ├─ peek_ai.py           只读探针：打印发给 AI 的提示词与它的原始回答
@@ -926,7 +1035,7 @@ ai-case-library/
 │  ├─ style.css            复用公开站的设计变量 + 后台自己的布局
 │  ├─ app.js               登录态、三块视图、转入候选池
 │  └─ verify.js            核实工作台（只在这里，公开站一行都没有）
-├─ uitest-admin.js         后台渲染冒烟测试（DOM 桩，118 项）
+├─ uitest-admin.js         后台渲染冒烟测试（DOM 桩，120 项）
 └─ static/                 公开阅读站（5052 端口，纯只读）
    ├─ index.html
    ├─ style.css            深色主题
@@ -950,7 +1059,7 @@ ai-case-library/
 | GET | `/api/candidates/<id>/verification` | **后台** | 读某条候选的核实草稿 |
 | PUT | `/api/candidates/<id>/verification` | **后台** | 存草稿（可中断，下次接着填） |
 | PATCH | `/api/cases/<id>` | **后台** | 改一条案例 |
-| PATCH | `/api/cases/<id>/tier` | **后台** | 备选池 → 精品池拔档 |
+| PATCH | `/api/cases/<id>/tier` | **后台** | 重定档位（备选 → 实核 → 精品，见 verify_rules.default_case_tier） |
 | POST | `/api/cases` | **后台** | 新增案例（需 `name`） |
 | POST | `/api/candidates` | **后台** | 新增候选 |
 | POST | `/api/inbox/<id>/to-candidates` | **后台** | 采集队列 → 候选池 |

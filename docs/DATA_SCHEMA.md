@@ -113,7 +113,7 @@ guaranteed present; everything else may be `null`, `""` or `[]`.
 | `needs_review` | bool | Optional. Present and `true` when promoted without verification. |
 | `caliber` | enum \| "" | Which revenue definition the headline figure uses: `arr` \| `mrr` \| `run_rate` \| `lifetime` \| `gmv` \| `gross`. |
 | `quality_score` | number \| null | Bonus score (0–100) at publish time. 60 is the publish threshold. |
-| `tier` | enum | `premium` \| `backup` — where the case sits in the library. See below. |
+| `tier` | enum | `premium` \| `standard` \| `backup` — where the case sits in the library. See below. |
 | `tier_reason` | string | Why it got that tier. Always present when `tier` is. |
 | `published_from` | string \| null | The candidate `id` this case was promoted from. |
 | `human_read` | bool \| null | Whether someone ticked "I read the source myself". **Absent ≠ false** — see below. |
@@ -123,10 +123,23 @@ guaranteed present; everything else may be `null`, `""` or `[]`.
 
 #### `tier`, `tier_reason`
 
-Two shelves only. The policy lives in `verify_rules.default_case_tier()` and is
-applied by all three tier-setting paths in the server: a first-hand source
-(`stripe`/`official`) makes the case `premium` regardless of score; otherwise a
-`quality_score` ≥ 60 does. `tier_reason` always records which one decided it.
+Three shelves, from strongest to weakest evidence:
+
+| `tier` | Meaning | Decided by |
+|---|---|---|
+| `premium` | 精品池 — first-hand evidence, safe to quote | a source of kind `stripe`/`official`, or `quality_score` ≥ 60 |
+| `standard` | 实核池 — independent third-party source, caliber still under review | `verification` is `partial` |
+| `backup` | 备选池 — self-reported or contradictory only | everything else |
+
+The policy lives in `verify_rules.default_case_tier()` and is applied by all three
+tier-setting paths in the server (promote, tier-patch, manual create) **and** by
+`evaluate()` — so the admin's "publish to …" hint can never disagree with where the
+case actually lands. `tier_reason` always records which rule decided it.
+
+`standard` was added on 2026-09-20. Before that there were two shelves and every
+case holding a third-party source but no first-hand one was lumped into `backup`
+together with the self-reported ones, erasing the difference between "has a source"
+and "nobody checked".
 
 #### `human_read` / `human_read_at`
 
@@ -194,6 +207,7 @@ All keys optional; monetary values are **plain numbers** in USD, no currency sym
 | `headline` | string | Human-readable headline, e.g. `$200M ARR`. Display only. |
 | `arr` | number | Annual recurring revenue, USD. |
 | `mrr` | number | Monthly recurring revenue, USD. |
+| `last_30d_revenue` | number | Trailing 30-day revenue, USD. **Not** MRR — a rolling window, not a recurring commitment. Keep this exact key name: it is the one listed in `data/sources.json`, and `triage.revenue_of()` reads nothing else. TrustMRR reports `Current MRR: 0` for every non-subscription business, so for those entries this is the only revenue figure that exists. |
 | `all_time` | number | Cumulative revenue, USD. **Not** ARR — this is the most common conflation in secondary coverage. |
 | `customers` | string | Free text — deliberately, because the units differ wildly (`42,000 users` vs `700+ clinics`). |
 | `team` | string | Headcount, free text. |
@@ -375,6 +389,8 @@ Precomputed aggregates, so a client does not have to recompute them.
 | Field | Notes |
 |---|---|
 | `curated`, `candidates`, `inbox` | Funnel sizes. |
+| `tiers` | `{premium, standard, backup: count}` — the three shelves. |
+| `premium`, `standard`, `backup` | Flat copies of the same counts, for older consumers. |
 | `verified` | Count of `stripe` + `official`. |
 | `flagged` | Total correction entries + count of `disputed` cases. |
 | `china_scored`, `solo_scored`, `dual_scored` | How many cases carry each score object. |

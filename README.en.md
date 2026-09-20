@@ -285,17 +285,41 @@ most common comparison errors.
 **This step cannot be delegated to a tool.** A tool will not become suspicious because a
 number "looks reasonable". You will.
 
+What *can* be delegated is deciding **which entries are worth verifying at all**. Deep
+verification (search, fetch pages, one LLM call) is the only step in the pipeline that
+actually costs money, so `scripts/triage.py` scores every candidate and inbox item first —
+offline, deterministic, no LLM:
+
+```bash
+python scripts/triage.py                  # both pools, grouped by grade
+python scripts/triage.py --grade deep     # only what is worth deep verification
+python scripts/ai_verify.py --triage      # the order this run will use, and why
+```
+
+Five grades, each naming the next action: `ready` (draft already passes the rule engine —
+publish it, don't spend AI), `deep` (has numbers *and* a traceable source), `backfill`
+(a zero-cost script can fill it in), `later` (missing material), `drop` (no numbers, no
+traction, no source). On the current data: **474 items collapse to 11 worth spending AI on**,
+plus 49 that one command fills in. It is read-only — archiving still takes a click in the
+admin.
+
+Two judgements are deliberate. **A high score is not a licence to deep-verify** — with no
+numbers there is nothing to verify, and a "suspected amount" regexed out of a forum title
+is not a number. And **the human-curated candidate pool is never dropped by score alone**;
+only a hard marker (a duplicate of something already published) can do that.
+
 ---
 
 ## Tests
 
 ```bash
 python selftest.py                    # backend: 121 API tests, auto backup + restore of data/
-node uitest.js                        # frontend: 95 render checks using a DOM stub
-node uitest.js --static               # static build: read-only mode + control degradation, 96
-node uitest-admin.js                  # admin site: login / views / workbench / AI panel, 118
-python scripts/test_verify_rules.py   # verification rule engine, 57
-python scripts/test_ai_verify.py      # AI verify pure functions: 40 (offline)
+node uitest.js                        # frontend: 104 render checks using a DOM stub
+node uitest.js --static               # static build: read-only mode + control degradation, 105
+node uitest-admin.js                  # admin site: login / views / workbench / AI panel, 120
+python scripts/test_verify_rules.py   # verification rule engine, 70
+python scripts/test_ai_verify.py      # AI verify pure functions: 47 (offline)
+python scripts/test_triage.py         # zero-cost triage: scoring / grading / dedupe / ordering, 52
 python scripts/test_harvest_sources.py # five-source parsers + source_kind, 188 (offline)
 python scripts/test_prerender.py      # prerender + noscript fallbacks, 54 (offline)
 python scripts/test_build_static.py   # static build: anti-deletion guards + build self-check
