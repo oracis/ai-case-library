@@ -189,5 +189,78 @@ class TestResumeTodo(unittest.TestCase):
         self.assertEqual([(t[0]["id"], t[2]) for t in todo], [("a", None)])
 
 
+class TestFinishStatus(unittest.TestCase):
+    """收尾结论：封面与原创都到位才 ok。
+
+    回归点（2026-09-21 实测）：`publish_one` 曾**无条件** return ok，
+    于是「封面没设上 / 原创声明失败」也被记成 status=draft，
+    续完逻辑（build_todo 只挑 partial）再也碰不到它们 —— 15 篇里有
+    comp-ai/outrank/bustem/kibu 四篇就这么漏了一轮，得手工改状态才补上。
+    """
+
+    def test_都到位才ok(self):
+        self.assertEqual(W._finish_status(True, True), "ok")
+
+    def test_封面缺算partial(self):
+        self.assertEqual(W._finish_status(False, True), "partial")
+
+    def test_原创缺算partial(self):
+        self.assertEqual(W._finish_status(True, False), "partial")
+
+    def test_都缺算partial(self):
+        self.assertEqual(W._finish_status(False, False), "partial")
+
+
+class TestPickDialogButton(unittest.TestCase):
+    """弹窗按钮选择：不能被正文里的同名字文字骗走。
+
+    回归点（2026-09-21 实测）：批量发布里有三篇（outrank/bustem/kibu）封面没设上
+    且原创声明失败，根因是点封面「确认」时用 `_click_visible(...,"确认")`
+    **全文档**按「包含」搜、按 DOM 顺序取第一个 —— 那三篇正文里恰好出现
+    「外部无法确认哪个是当前值」这类句子（另外 27 篇一次都没出现「确认」），
+    于是先命中正文段落：封面没设上、弹窗残留、连原创也被残留弹窗挡住。
+    """
+
+    def _el(self, t, leaf=True, left=100, top=100, w=60, h=30,
+            disp="block", vis="visible"):
+        return {"t": t, "leaf": leaf, "left": left, "top": top,
+                "w": w, "h": h, "disp": disp, "vis": vis}
+
+    def test_正文段落不会被当成确认按钮(self):
+        """正文段落「包含」确认、但不是叶子、且在视口外 —— 必须被跳过。"""
+        cands = [
+            # 正文段落：文字很长、是容器、在视口外（y=-1345 那种）
+            self._el("Tibo Louis-Lucas 报告 $274，外部无法确认哪个是当前值",
+                     leaf=False, left=999, top=-1345, w=400, h=200),
+            self._el("确认", leaf=True, left=600, top=400),
+        ]
+        pick = W._pick_dialog_button(cands, "确认")
+        self.assertIsNotNone(pick)
+        self.assertEqual(pick["t"], "确认")
+
+    def test_文本不等只是包含时排在精确匹配之后(self):
+        cands = [
+            self._el("请确认封面设置", leaf=True, left=10, top=10),   # 只包含
+            self._el("确认", leaf=True, left=600, top=400),          # 精确
+        ]
+        pick = W._pick_dialog_button(cands, "确认")
+        self.assertEqual(pick["t"], "确认")
+
+    def test_视口外的候选不选(self):
+        cands = [self._el("确认", leaf=True, left=999, top=-1345)]
+        self.assertIsNone(W._pick_dialog_button(cands, "确认"))
+
+    def test_隐藏或过小的候选不选(self):
+        cands = [
+            self._el("确认", disp="none"),
+            self._el("确认", vis="hidden"),
+            self._el("确认", w=2, h=2),
+        ]
+        self.assertIsNone(W._pick_dialog_button(cands, "确认"))
+
+    def test_没有候选返回None(self):
+        self.assertIsNone(W._pick_dialog_button([], "确认"))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
