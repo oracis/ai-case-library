@@ -131,7 +131,13 @@ def main():
     chk("含传播力分注释", "传播力分 9.5" in md)
     chk("无待补占位符（已废止）", "【待补：" not in md)
     chk("含核对用来源注释", "核对用来源" in md)
-    chk("带 ## 小标题", "\n## 一、" in md)
+    chk("带 ## 小标题", "\n## 它是干什么的" in md)
+    # 2026-09-21「去 AI 味」改造的回归防线：这几条一旦回退，正文立刻变回填表
+    chk("章节不再带「一、二、三」编号", "\n## 一、" not in md)
+    chk("无「一句话：」表单前缀", "一句话：" not in md)
+    chk("无「收入模式：」重复行", "收入模式：" not in md)
+    chk("评分表只输出一次（曾因 rows 未清空连打 3 遍）",
+        md.count("| 付费意愿 |") == 1)
 
     print("\n[7] 正文里不能有裸 URL（发布红线）")
     leaked = []
@@ -219,6 +225,11 @@ def main():
             chk("标签钉死不换行（长值不会挤扁左侧）", "white-space:nowrap" in hs)
             chk("md 侧仍是真表格",
                 "| 维度 | 内容 |" in sample)
+            # 2026-09-21 修复：_flush_html_rows 输出后没清空 rows，
+            # 同一个 6 行评分表在正文里被连打 3 遍。这条钉死只输出一次。
+            chk("html 评分表只输出一次（rows 已消费）", hs.count("付费意愿") == 1)
+            chk("html 章节不带「一、二、三」编号",
+                ">一、它是干什么的</h2>" not in hs)
     finally:
         sys.argv = old_argv
 

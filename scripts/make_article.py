@@ -26,6 +26,7 @@
 import argparse
 import json
 import os
+import re
 import sys
 from datetime import datetime
 
@@ -61,10 +62,14 @@ except Exception:                                          # noqa: BLE001
         "partner": ("有市场，但一个人啃不动", ""), "skip": ("别碰", ""),
     }
 
+# 注：这里**故意不放 price_point**。价格属于「钱从哪来」那一节，正文那句
+# 通常已经写了；表格里再来一行「定价」，加上原来单独一行的「定价：」，
+# 同一件事会在正文里出现三遍（2026-09-21 实测命中 25/30 篇）。
+# 价格改由 build_sections 的 money 段兜底：只有正文没提过的数字才补一行。
 METRIC_LABELS = [
     ("headline", "官方口径"), ("arr", "年化收入"), ("customers", "客户"),
     ("team", "团队"), ("funding", "融资"), ("growth", "增长"),
-    ("price_point", "定价"), ("metric_note", "备注"),
+    ("metric_note", "备注"),
 ]
 
 # ------------------------------------------------------------------ 人工覆盖表
@@ -251,7 +256,16 @@ def _is_row(p):
 
 
 def build_sections(case):
-    """返回 [(小标题 or None, [段落])]，顺序即发布顺序。"""
+    """返回 [(小标题 or None, [段落])]，顺序即发布顺序。
+
+    2026-09-21 改版（用户反馈「正文 AI 味太重」）。诊断结论是问题不在用词、
+    在**骨架**，所以这里集中处理三件事：
+      · 去掉「一句话：」这类表单式前缀 —— 读起来像填表，不像人说话；
+      · 「钱从哪来」只保留正文那一句，structured 字段降级为兜底
+        （原来正文 + 「收入模式：」+「定价：」+ 表格「定价」行 = 同一件事四遍）；
+      · 开头的引导句加「我」——原本整篇是介绍体，没有作者的在场感。
+    编号（一、二、三…）在 render_markdown / render_html 里一并去掉。
+    """
     m = case.get("metrics") or {}
     corr = case.get("corrections") or []
     cf = case.get("china_fit") or {}
@@ -259,32 +273,44 @@ def build_sections(case):
     comp = case.get("composite") or {}
     secs = []
 
-    # 钩子（不编号）
+    # 钩子（不编号）。有纠错就用纠错开场 —— 这是全库转化率最高的钩子。
     if corr:
         secs.append((None, [
             "%s" % strip_quotes(corr[0].get("claim", "")),
-            "这句话在中文互联网上被反复引用。核实下来是：%s" % corr[0].get("truth", ""),
+            "这句在中文网上被反复引用。我查了一下：%s" % corr[0].get("truth", ""),
         ]))
     else:
         secs.append((None, [case.get("verdict", "")]))
 
     # 它是干什么的
     what = []
-    if case.get("one_liner"):
-        what.append("一句话：%s。" % case["one_liner"])
     if case.get("what_it_does"):
         what.append(case["what_it_does"])
+    elif case.get("one_liner"):
+        # one_liner 正常情况下已用于标题；只在缺正文描述时兜底，避免同一句话写两遍
+        what.append(case["one_liner"])
     if what:
         secs.append(("它是干什么的", what))
 
-    # 钱从哪来
+    # 钱从哪来：正文那句为主，结构化字段只补它没说的
     money = []
     if case.get("how_it_makes_money"):
         money.append(case["how_it_makes_money"])
-    if case.get("models"):
+    elif case.get("models"):
         money.append("收入模式：%s。" % " · ".join(case["models"]))
-    if m.get("price_point"):
-        money.append("定价：%s。" % m["price_point"])
+    pp = m.get("price_point")
+    if pp:
+        nums = re.findall(r"\d[\d,.]*", str(pp))
+        spoke = "".join(money)
+        if not money:
+            # 「钱从哪来」整节没有正文描述，价格就是唯一线索
+            money.append("定价：%s。" % pp)
+        elif nums and not any(n in spoke for n in nums):
+            # 正文没提过这个价格数字 —— 那是真信息，补一行；
+            # 提过就不补（原来不分情况一律补，25/30 篇都在说第二遍）。
+            # 没有数字的 price_point（如「B 端年合同 + 支付/采购流水收入」）
+            # 基本是 how_it_makes_money 的摘要，一律不补。
+            money.append("定价：%s。" % pp)
     if money:
         secs.append(("钱从哪来", money))
 
@@ -321,9 +347,9 @@ def build_sections(case):
             if dims.get(key) is not None:
                 lines.append(_row(label, "%d/5" % dims[key]))
         if cf.get("note"):
-            lines.append("判断：%s" % cf["note"])
+            lines.append(cf["note"])          # 本身就是完整句子，不必套「判断：」
         if cf.get("blocker"):
-            lines.append("**卡点**：%s" % cf["blocker"])
+            lines.append("**卡点**：%s" % cf["blocker"])   # 短标签，好抓，保留
         secs.append(("能不能搬回国内", lines))
 
     # 一个人能不能做
@@ -334,12 +360,13 @@ def build_sections(case):
             if dims.get(key) is not None:
                 lines.append(_row(label, "%d/5" % dims[key]))
         if sf.get("delivery_note"):
-            lines.append("交付说明：%s" % sf["delivery_note"])
+            lines.append(sf["delivery_note"])   # 同上，去「交付说明：」前缀
         secs.append(("一个人能不能做", lines))
 
     # 结论
     concl = []
-    if case.get("verdict"):
+    # 无纠错的案例，verdict 已经在开头的钩子里出现过一次，这里不再重复
+    if case.get("verdict") and corr:
         concl.append(case["verdict"])
     if comp:
         qlabel = comp.get("quadrant_label") or QUADRANTS.get(
@@ -351,11 +378,17 @@ def build_sections(case):
 
 
 # ------------------------------------------------------------------ 渲染
-CN_NUM = "一二三四五六七八九十"
+# 注：这里原有 CN_NUM = "一二三四五六七八九十"，给章节加「一、二、三…」编号。
+# 2026-09-21 去掉了 —— 九节等长的编号骨架是正文里最强的「AI 味」来源。
 
 
 def _flush_md_rows(L, rows):
-    """把连续的键值行渲成 markdown 真表格（核对稿用）。"""
+    """把连续的键值行渲成 markdown 真表格（核对稿用）。
+
+    ⚠ 会**清空 rows**（消费掉）。必须的：调用点的逻辑是「遇到非键值行就 flush」，
+    如果 flush 完不清空，同一批 rows 会被后面每个普通段落再 flush 一遍 ——
+    实测一个 6 行的评分表在正文里连着打印 3 遍（2026-09-21 修）。
+    """
     if not rows:
         return
     L.append("| 维度 | 内容 |")
@@ -363,6 +396,7 @@ def _flush_md_rows(L, rows):
     for lab, val in rows:
         L.append("| %s | %s |" % (lab, val.replace("|", "\\|")))
     L.append("")
+    rows.clear()
 
 
 def render_markdown(case, titles, manual, secs, score):
@@ -378,11 +412,12 @@ def render_markdown(case, titles, manual, secs, score):
              % (score, comp.get("quadrant", "-"), datetime.now().strftime("%Y-%m-%d %H:%M")))
     L.append("")
 
-    n = 0
     for head, paras in secs:
         if head:
-            n += 1
-            L.append("## %s、%s" % (CN_NUM[n - 1] if n <= 10 else str(n), head))
+            # 不加「一、二、三…」编号：九节等长的编号骨架是最强的「AI 味」来源，
+            # 读起来像报告目录，不像有人在这儿跟你说话（2026-09-21 改）。
+            L.append("")
+            L.append("## %s" % head)
             L.append("")
         rows = []
         for p in paras:
@@ -462,6 +497,7 @@ def _flush_html_rows(P, rows):
                  '<span style="color:#8a5a00;font-weight:bold;text-align:right;'
                  'margin-left:12px;">%s</span></p>'
                  % (";".join(st), _esc(lab), _esc(val).replace("&amp;**", "**")))
+    rows.clear()   # 同 _flush_md_rows：不清空的话同一张表会被反复输出
 
 
 def render_html(case, titles, manual, secs, score):
@@ -474,13 +510,12 @@ def render_html(case, titles, manual, secs, score):
     P.append('<h1 style="font-size:22px;font-weight:700;line-height:1.4;margin:0 0 18px;">'
              '%s</h1>' % _esc(titles[0]))
 
-    n = 0
     for head, paras in secs:
         if head:
-            n += 1
+            # 同 render_markdown：去掉「一、二、三…」编号
             P.append('<h2 style="font-size:17px;font-weight:700;margin:26px 0 12px;'
-                     'padding-left:10px;border-left:3px solid #e5b567;">%s、%s</h2>'
-                     % (CN_NUM[n - 1] if n <= 10 else str(n), _esc(head)))
+                     'padding-left:10px;border-left:3px solid #e5b567;">%s</h2>'
+                     % _esc(head))
         rows = []
         for p in paras:
             if not p:
