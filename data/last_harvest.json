@@ -1,78 +1,78 @@
 {
-  "ran_at": "2026-09-20 05:36:26",
-  "added": 59,
+  "ran_at": "2026-09-21 05:45:45",
+  "added": 66,
   "by_source": {
-    "hn": 46,
-    "indiehackers": 5,
+    "hn": 50,
+    "indiehackers": 8,
     "trustmrr": 8
   },
   "inbox_total": 400,
-  "archived_this_run": 59,
-  "archive_total": 341,
+  "archived_this_run": 66,
+  "archive_total": 407,
   "top": [
     {
-      "name": "TrendStory",
-      "headline": "MRR $67,600，TrustMRR 第 274 名",
+      "name": "HarperAI",
+      "headline": "MRR $6,232，TrustMRR 第 945 名",
       "heat": 0,
-      "category": "SaaS",
+      "category": "Real Estate",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/trendstory"
+      "url": "https://trustmrr.com/startup/harper"
     },
     {
-      "name": "Closer Edge",
-      "headline": "MRR $484，TrustMRR 第 3026 名",
+      "name": "MapsLead Extractor",
+      "headline": "MRR $275，TrustMRR 第 3417 名",
       "heat": 0,
-      "category": "SaaS",
+      "category": "Sales",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/closer-edge"
+      "url": "https://trustmrr.com/startup/mapslead-extractor"
     },
     {
-      "name": "UltraWideo",
-      "headline": "MRR $333，TrustMRR 第 1911 名",
+      "name": "easymix",
+      "headline": "MRR $7,446，TrustMRR 第 976 名",
       "heat": 0,
-      "category": "SaaS",
+      "category": "Entertainment",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/ultrawideo"
+      "url": "https://trustmrr.com/startup/easymix"
     },
     {
-      "name": "Draftly",
-      "headline": "MRR $25,000，TrustMRR 第 449 名",
+      "name": "scantoexcel",
+      "headline": "MRR $464，TrustMRR 第 2928 名",
       "heat": 0,
       "category": "Artificial Intelligence",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/draftly-1"
+      "url": "https://trustmrr.com/startup/scantoexcel"
     },
     {
-      "name": "VidFarm.cc",
-      "headline": "MRR $2,962，TrustMRR 第 1177 名",
+      "name": "CodeHype",
+      "headline": "MRR $65，TrustMRR 第 3760 名",
       "heat": 0,
-      "category": "Content Creation",
+      "category": "SaaS",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/vidfarm"
+      "url": "https://trustmrr.com/startup/codehype"
     },
     {
-      "name": "AppAlchemy",
-      "headline": "MRR $6,476，TrustMRR 第 308 名",
+      "name": "Neume",
+      "headline": "MRR $969，TrustMRR 第 787 名",
       "heat": 0,
       "category": "Artificial Intelligence",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/appalchemy"
+      "url": "https://trustmrr.com/startup/neume"
     },
     {
-      "name": "EventSend",
-      "headline": "自报收入 $1,100 / mo（Indie Hackers）",
+      "name": "Trade Hunterr",
+      "headline": "MRR $923，TrustMRR 第 2289 名",
       "heat": 0,
-      "category": "未分类",
-      "source": "indiehackers",
-      "url": "https://www.indiehackers.com/product/eventsend"
+      "category": "Artificial Intelligence",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/trade-hunterr"
     },
     {
-      "name": "xpaiming",
-      "headline": "自报收入 $10 / mo（Indie Hackers）",
+      "name": "DissectMac",
+      "headline": "近 30 天收入 $222",
       "heat": 0,
-      "category": "未分类",
-      "source": "indiehackers",
-      "url": "https://www.indiehackers.com/product/xpaiming"
+      "category": "Utilities",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/dissectmac"
     }
   ]
 }
