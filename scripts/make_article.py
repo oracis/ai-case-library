@@ -39,8 +39,10 @@ DEFAULT_OUT = os.path.join(ROOT, "out", "articles")
 
 # ------------------------------------------------------------------ 维度标签
 # 与 score_china_fit.py / score_solo_fit.py 保持一致；导入失败则用这里的副本兜底
+sys.path.insert(0, os.path.join(ROOT, "scripts"))
+from text_clean import clean_snapshot_marks               # noqa: E402
+
 try:
-    sys.path.insert(0, os.path.join(ROOT, "scripts"))
     from score_china_fit import DIMS as CHINA_DIMS       # noqa: E402
     from score_solo_fit import SOLO_DIMS, QUADRANTS      # noqa: E402
 except Exception:                                          # noqa: BLE001
@@ -230,6 +232,24 @@ def build_titles(case):
 
 
 # ------------------------------------------------------------------ 正文分段
+ROW_MARK = "@@ROW@@"
+# 注：早先键值行靠「······」点线凑对齐，2026-09-21 换成真两端对齐后已删除 DOTS。
+
+
+def _row(label, value):
+    """键值行标记：两个渲染器都会把它渲成两列表格（md 真表格 / html 拼装表格）。"""
+    return "%s%s%s%s" % (ROW_MARK, label, ROW_MARK, value)
+
+
+def _split_row(p):
+    parts = p.split(ROW_MARK)
+    return parts[1], parts[2]
+
+
+def _is_row(p):
+    return p.startswith(ROW_MARK) and p.count(ROW_MARK) >= 2
+
+
 def build_sections(case):
     """返回 [(小标题 or None, [段落])]，顺序即发布顺序。"""
     m = case.get("metrics") or {}
@@ -274,7 +294,7 @@ def build_sections(case):
         val = m.get(key)
         if val in (None, "", [], {}):
             continue
-        size.append("- **%s**：%s" % (label, fmt_metric(key, val)))
+        size.append(_row(label, fmt_metric(key, val)))
     if size:
         secs.append(("它到底做到多大", size))
 
@@ -299,7 +319,7 @@ def build_sections(case):
         dims = cf.get("dims") or {}
         for key, label, _ in CHINA_DIMS:
             if dims.get(key) is not None:
-                lines.append("- %s：%d/5" % (label, dims[key]))
+                lines.append(_row(label, "%d/5" % dims[key]))
         if cf.get("note"):
             lines.append("判断：%s" % cf["note"])
         if cf.get("blocker"):
@@ -312,12 +332,12 @@ def build_sections(case):
         dims = sf.get("dims") or {}
         for key, label, _ in SOLO_DIMS:
             if dims.get(key) is not None:
-                lines.append("- %s：%d/5" % (label, dims[key]))
+                lines.append(_row(label, "%d/5" % dims[key]))
         if sf.get("delivery_note"):
             lines.append("交付说明：%s" % sf["delivery_note"])
         secs.append(("一个人能不能做", lines))
 
-    # 结论 + 留给你写的判断
+    # 结论
     concl = []
     if case.get("verdict"):
         concl.append(case["verdict"])
@@ -325,7 +345,6 @@ def build_sections(case):
         qlabel = comp.get("quadrant_label") or QUADRANTS.get(
             comp.get("quadrant"), ("", ""))[0]
         concl.append("**结论**：%s（综合 %.1f 分）" % (qlabel, comp.get("score", 0)))
-    concl.append("【待补：这条我想额外强调的一件事】")
     secs.append(("我的判断", concl))
 
     return secs
@@ -333,6 +352,17 @@ def build_sections(case):
 
 # ------------------------------------------------------------------ 渲染
 CN_NUM = "一二三四五六七八九十"
+
+
+def _flush_md_rows(L, rows):
+    """把连续的键值行渲成 markdown 真表格（核对稿用）。"""
+    if not rows:
+        return
+    L.append("| 维度 | 内容 |")
+    L.append("| --- | --- |")
+    for lab, val in rows:
+        L.append("| %s | %s |" % (lab, val.replace("|", "\\|")))
+    L.append("")
 
 
 def render_markdown(case, titles, manual, secs, score):
@@ -354,9 +384,14 @@ def render_markdown(case, titles, manual, secs, score):
             n += 1
             L.append("## %s、%s" % (CN_NUM[n - 1] if n <= 10 else str(n), head))
             L.append("")
+        rows = []
         for p in paras:
             if not p:
                 continue
+            if _is_row(p):
+                rows.append(_split_row(p))
+                continue
+            _flush_md_rows(L, rows)
             if head is None:
                 L.append("> %s" % p)
                 L.append("")
@@ -364,6 +399,7 @@ def render_markdown(case, titles, manual, secs, score):
             L.append(p)
             if not p.startswith("- "):        # 列表项之间不留空行，紧凑一些
                 L.append("")
+        _flush_md_rows(L, rows)
 
     L.append("---")
     L.append("")
@@ -386,6 +422,48 @@ def _esc(s):
     return (str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
 
 
+def _flush_html_rows(P, rows):
+    """把连续的键值行渲成「一体化评分表」。
+
+    为什么不直接用 <table>：公众号编辑器（ProseMirror）不认 table 标签，
+    pm_safe_body 会把它塌成段落。所以表格是「拼」出来的——
+    每行一个 p（浅灰底 + 左侧橙条 + display:flex 两端对齐），
+    行间用 border-top 画细线、首末行各自加圆角，合起来才像一整张表。
+
+    2026-09-21 在真实编辑器里实测（tmp/probe_wxstyle*.py，保存草稿后重载读回）：
+      · display:flex / justify-content / width / float / border-radius 微信**全保留**
+        ——以前 WX_STYLE_DROP 把它们拉黑是猜的，白白让「值」只能靠「······」凑位；
+      · 里面没有文字的空 span 会被整块剔除 → 进度条那类空盒子方案不可行，
+        要画刻度只能用字符（●●●○○）。
+    末行用 margin-bottom 收尾：不再补一个空段落，否则行距会被撑开（实测过）。
+    """
+    if not rows:
+        return
+    last = len(rows) - 1
+    for i, (lab, val) in enumerate(rows):
+        st = ["margin:%s" % ("0 0 16px" if i == last else "0"),
+              "background:#f6f8fa",
+              "border-left:3px solid #e5b567",
+              "padding:8px 12px",
+              "font-size:15px",
+              "line-height:1.7",
+              "display:flex",
+              "justify-content:space-between"]
+        if i == 0:
+            st += ["border-top-left-radius:8px", "border-top-right-radius:8px"]
+        else:
+            st.append("border-top:1px solid #eaeef2")
+        if i == last:
+            st += ["border-bottom-left-radius:8px", "border-bottom-right-radius:8px"]
+        # 标签 nowrap + 值可换行右对齐：像「官方口径」这种值很长的行，
+        # 两端对齐会把标签挤成竖排（flex 默认会压 flex-shrink），必须钉住左侧。
+        P.append('<p style="%s;">'
+                 '<span style="color:#57606a;white-space:nowrap;">%s</span>'
+                 '<span style="color:#8a5a00;font-weight:bold;text-align:right;'
+                 'margin-left:12px;">%s</span></p>'
+                 % (";".join(st), _esc(lab), _esc(val).replace("&amp;**", "**")))
+
+
 def render_html(case, titles, manual, secs, score):
     P = []
     P.append('<section style="font-size:16px;line-height:1.8;color:#24292f;'
@@ -403,9 +481,14 @@ def render_html(case, titles, manual, secs, score):
             P.append('<h2 style="font-size:17px;font-weight:700;margin:26px 0 12px;'
                      'padding-left:10px;border-left:3px solid #e5b567;">%s、%s</h2>'
                      % (CN_NUM[n - 1] if n <= 10 else str(n), _esc(head)))
+        rows = []
         for p in paras:
             if not p:
                 continue
+            if _is_row(p):
+                rows.append(_split_row(p))
+                continue
+            _flush_html_rows(P, rows)
             if p.startswith("- "):
                 P.append('<p style="margin:0 0 8px;padding-left:14px;text-indent:-14px;">'
                          '%s</p>' % _esc(p[2:]).replace("&amp;**", "**"))
@@ -415,6 +498,7 @@ def render_html(case, titles, manual, secs, score):
                          '</blockquote>' % _esc(p))
             else:
                 P.append('<p style="margin:0 0 14px;">%s</p>' % _esc(p).replace("&amp;**", "**"))
+        _flush_html_rows(P, rows)
 
     P.append('<hr style="border:none;border-top:1px solid #e1e4e8;margin:28px 0 18px;">')
     for p in OUTRO:
@@ -432,6 +516,9 @@ def load_cases(path):
     if not isinstance(cases, list):
         print("[!] cases.json 结构异常：拿不到 cases 列表")
         sys.exit(1)
+    # 读者不该看到「（Stripe 验证，2026-09-17 快照）」这类**给作者自己看的**元数据标注。
+    # 数据里已经清过一遍，这里是第二道闸门：以后往 cases.json 补字段时漏了也不进正文。
+    clean_snapshot_marks(cases)
     return cases
 
 
@@ -534,7 +621,6 @@ def main():
         print("  [!] 以下词语只在正文里保留、没动，但放进标题有风险，自己看一眼：")
         for item in all_warns:
             print("        %s" % item)
-    print("  提醒：正文里的【待补：…】必须手写，那是你唯一不可替代的部分。")
     return 0
 
 

@@ -40,6 +40,9 @@ from datetime import date
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+sys.path.insert(0, os.path.join(ROOT, "scripts"))
+from text_clean import clean_snapshot_marks          # noqa: E402
+
 CASE_DIR = "case"                 # 案例页所在的子目录
 INDEX_FILE = "index.html"         # 静态总目录的落点
 
@@ -868,6 +871,10 @@ def main():
 
     with open(args.data, encoding="utf-8") as f:
         cases = json.load(f)
+
+    # 「（Stripe 验证，2026-09-17 快照）」这类标注只给作者看，不该进案例页。
+    # 数据里已清过，这里是第二道闸门（make_article.py 里有同样的调用）。
+    clean_snapshot_marks(cases)
 
     if args.check:
         out = os.path.join(ROOT, args.out)

@@ -45,7 +45,7 @@
     "category": "金融工具",
     "verification": "stripe",
     "metrics": {
-      "headline": "$70 MRR / 7 个活跃订阅（2026-08-31 快照）"
+      "headline": "$70 MRR / 7 个活跃订阅"
     },
     "models": [
       "订阅制"
@@ -64,7 +64,7 @@
     "category": "AI 工具",
     "verification": "stripe",
     "metrics": {
-      "headline": "$58 MRR / 2 个活跃订阅（2026-08-31 快照）"
+      "headline": "$58 MRR / 2 个活跃订阅"
     },
     "models": [
       "订阅制"

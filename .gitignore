@@ -72,3 +72,10 @@ _backfill_backup/
 _rollback_backup/
 _probe/
 _shots/
+
+# 公众号发布队列（scripts/wechat_publish.py plan 实时生成，文件头就写着「勿手改」）
+# 与 out/ 同理：随时可由 cases.json 重算，提交进来只会天天变。
+发布队列-*.md
+
+# 本地探针目录（CDP 截图 + 一次性调试脚本）：产物随时可重生成，不入库
+tmp/

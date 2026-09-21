@@ -51,6 +51,8 @@ import verify_rules as VRULES                                     # noqa: E402
 import auth as AUTH                                               # noqa: E402
 # AI 自动核实流水线（scripts/ai_verify.py）：plan 离线可用，run 要 LLM key
 import ai_verify as AIV                                           # noqa: E402
+# 读者不该看到的元数据标注（「（Stripe 验证，2026-09-17 快照）」这类）的清理规则
+from text_clean import clean_snapshot_marks                       # noqa: E402
 
 # 对外数据契约（/api/data 与 dist/data.json）。字段说明见 docs/DATA_SCHEMA.md。
 # 改字段名 / 类型 / 枚举值时要同步改这里和那份文档；只加新字段不用动。
@@ -377,6 +379,13 @@ def build_payload(include_private=False):
     candidates = load_json("candidates")
     inbox = load_json("inbox")
     sources = load_json("sources")
+
+    # 精写案例和候选池都要进前端（站点/后台），所以在这里统一过一遍文本清理：
+    # 写稿时顺手记的核对备注（「（Stripe 直连验证，2026-09-17 快照）」）对读者没用、
+    # 还会过期，不该出现在任何对外字段里。规则见 scripts/text_clean.py。
+    # 采集队列（inbox）保留原样 —— 那是原始素材，日期正是分诊时要看的东西。
+    clean_snapshot_marks(cases)
+    clean_snapshot_marks(candidates)
 
     # 统计
     by_verification = {}

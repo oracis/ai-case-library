@@ -129,7 +129,7 @@ def main():
     md, hits = m.render_markdown(c, titles, manual, m.build_sections(c), 9.5)
     chk("含三条备选标题注释", md.count("备选标题") == 2)
     chk("含传播力分注释", "传播力分 9.5" in md)
-    chk("含待补占位符", "【待补：" in md)
+    chk("无待补占位符（已废止）", "【待补：" not in md)
     chk("含核对用来源注释", "核对用来源" in md)
     chk("带 ## 小标题", "\n## 一、" in md)
 
@@ -200,10 +200,25 @@ def main():
                 all("/" not in f and "\\" not in f for f in files))
             sample = open(os.path.join(outdir, "nitra.md"), encoding="utf-8").read()
             chk("产物是 UTF-8 中文", "中文媒体" in sample)
-            chk("产物里保留待补占位", "【待补：" in sample)
+            chk("产物里无待补占位（已废止）", "【待补：" not in sample)
             chk("产物里无裸 URL",
                 "http" not in strip_comments(sample))
             chk("传播力高的先写（nitra 存在）", "nitra.md" in files)
+
+            print("\n[10b] 公众号 HTML 的键值行（一体化评分表）")
+            # 2026-09-21：键值行从「······」点线凑对齐换成真两端对齐的卡片行。
+            # 这条守的是「不要退回点线」——微信实测认 display:flex / 圆角，
+            # 自建清洗脚本曾把它们砍掉，导致只能用点线填充。
+            hs = open(os.path.join(outdir, "nitra.html"), encoding="utf-8").read()
+            chk("键值行渲成两端对齐卡片行",
+                "justify-content:space-between" in hs)
+            chk("不再用点线凑对齐", "······" not in hs)
+            chk("首行圆角上、末行圆角下（拼成一整张表）",
+                "border-top-left-radius" in hs and "border-bottom-right-radius" in hs)
+            chk("行间用细线分隔", "border-top:1px solid #eaeef2" in hs)
+            chk("标签钉死不换行（长值不会挤扁左侧）", "white-space:nowrap" in hs)
+            chk("md 侧仍是真表格",
+                "| 维度 | 内容 |" in sample)
     finally:
         sys.argv = old_argv
 
