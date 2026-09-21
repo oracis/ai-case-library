@@ -28,6 +28,7 @@ import json
 import os
 import re
 import sys
+import unicodedata
 from datetime import datetime
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -457,54 +458,97 @@ def _esc(s):
     return (str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
 
 
+# 正文统一基线：偷自微信「一键排版」的参数，但不引入它的重排器。
+# 三级 <section>/<div> 容器在发布链路会被 pm_safe_body 整块 unwrap（div/section
+# 会被 ProseMirror 吞掉），所以基线必须落到每个 <p> 上，不能只挂外层——
+# 否则正文会退回微信默认字号（之前就是这么丢的：外层 container 设了
+# font-size:16px，粘贴后整段回到微信默认 15px/1.6 灰黑，只有标题和评分表有样式）。
+# color 用 rgba(0,0,0,0.9) 而非纯黑，是它给出的原值；font-size/line-height 同理。
+BODY_BASE = "font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9)"
+
+
+def _disp_em(s):
+    """估算一段文字占多宽（单位 em，按正文 15px 量）。
+
+    全角/半角宽度比约 1 : 0.55。只用来判断「这一行还放不放得下」，
+    不做精确排版，所以不需要很准。
+    """
+    w = 0.0
+    for ch in s:
+        w += 1.0 if unicodedata.east_asian_width(ch) in ("W", "F") else 0.55
+    return w
+
+
+# 「标签 + 值」整行超过这个宽度（em）就换版式。手机正文区约 343px、15px 字，
+# 去掉左右内边距后一行约 21em；标签再占 2~4em，留给值的余量约 16~18em。
+# 取 19 作整行阈值并**宁可提前分流**：不踩「刚好被挤扁」的边界（见下面长值说明）。
+LONG_ROW_EM = 19.0
+
+
 def _flush_html_rows(P, rows):
     """把连续的键值行渲成「一体化评分表」。
 
     为什么不直接用 <table>：公众号编辑器（ProseMirror）不认 table 标签，
     pm_safe_body 会把它塌成段落。所以表格是「拼」出来的——
-    每行一个 p（浅灰底 + 左侧橙条 + display:flex 两端对齐），
-    行间用 border-top 画细线、首末行各自加圆角，合起来才像一整张表。
+    每行一个 p（浅灰底 + 左侧橙条），行间用 border-top 画细线、
+    首末行各自加圆角，合起来才像一整张表。末行用 margin-bottom 收尾，
+    不再补空段落（空段落会把行距撑开，实测过）。
 
     2026-09-21 在真实编辑器里实测（tmp/probe_wxstyle*.py，保存草稿后重载读回）：
       · display:flex / justify-content / width / float / border-radius 微信**全保留**
         ——以前 WX_STYLE_DROP 把它们拉黑是猜的，白白让「值」只能靠「······」凑位；
       · 里面没有文字的空 span 会被整块剔除 → 进度条那类空盒子方案不可行，
         要画刻度只能用字符（●●●○○）。
-    末行用 margin-bottom 收尾：不再补一个空段落，否则行距会被撑开（实测过）。
+
+    ⚠ 两个版式按「行宽」分流（2026-09-21 新增）：
+      · 短值行 → 标签左 / 值右，display:flex 两端对齐（一体化表的主体）；
+      · 长值行 → 「标签：正文」整段左对齐，**不套 flex**。
+    为什么要分流：flex 两端对齐排长文本会两败俱伤。微信编辑器会把我们写的
+    white-space 覆盖成 break-spaces（实测草稿 100000117），所以「标签
+    white-space:nowrap 防挤压」在公众号里**根本无效** —— 一旦值很长，
+    flex-shrink 就会把标签压到一列一个字（「备注」竖排），值还右对齐折行，
+    非常难看。短值不会触发挤压，所以照旧用两端对齐好看。
     """
     if not rows:
         return
     last = len(rows) - 1
     for i, (lab, val) in enumerate(rows):
-        st = ["margin:%s" % ("0 0 16px" if i == last else "0"),
-              "background:#f6f8fa",
-              "border-left:3px solid #e5b567",
-              "padding:8px 12px",
-              "font-size:15px",
-              "line-height:1.7",
-              "display:flex",
-              "justify-content:space-between"]
+        vhtml = _esc(val).replace("&amp;**", "**")
+        # 卡片外壳（底色 + 左橙条 + 行间细线 + 首末圆角）：两种版式共用
+        card = ["margin:%s" % ("0 0 16px" if i == last else "0"),
+                "background:#f6f8fa",
+                "border-left:3px solid #e5b567",
+                "padding:8px 12px",
+                "font-size:15px",
+                "line-height:1.7"]
         if i == 0:
-            st += ["border-top-left-radius:8px", "border-top-right-radius:8px"]
+            card += ["border-top-left-radius:8px", "border-top-right-radius:8px"]
         else:
-            st.append("border-top:1px solid #eaeef2")
+            card.append("border-top:1px solid #eaeef2")
         if i == last:
-            st += ["border-bottom-left-radius:8px", "border-bottom-right-radius:8px"]
-        # 标签 nowrap + 值可换行右对齐：像「官方口径」这种值很长的行，
-        # 两端对齐会把标签挤成竖排（flex 默认会压 flex-shrink），必须钉住左侧。
-        P.append('<p style="%s;">'
-                 '<span style="color:#57606a;white-space:nowrap;">%s</span>'
-                 '<span style="color:#8a5a00;font-weight:bold;text-align:right;'
-                 'margin-left:12px;">%s</span></p>'
-                 % (";".join(st), _esc(lab), _esc(val).replace("&amp;**", "**")))
+            card += ["border-bottom-left-radius:8px",
+                     "border-bottom-right-radius:8px"]
+        if _disp_em(lab) + _disp_em(val) > LONG_ROW_EM:
+            # 长值行：不套两端对齐，标签与正文同行左对齐自然换行
+            P.append('<p style="%s;">'
+                     '<span style="color:#57606a;">%s</span>：'
+                     '<span style="color:#24292f;">%s</span></p>'
+                     % (";".join(card), _esc(lab), vhtml))
+        else:
+            # 短值行：标签左、值右，两端对齐
+            P.append('<p style="%s;display:flex;justify-content:space-between;">'
+                     '<span style="color:#57606a;white-space:nowrap;">%s</span>'
+                     '<span style="color:#8a5a00;font-weight:bold;text-align:right;'
+                     'margin-left:12px;">%s</span></p>'
+                     % (";".join(card), _esc(lab), vhtml))
     rows.clear()   # 同 _flush_md_rows：不清空的话同一张表会被反复输出
 
 
 def render_html(case, titles, manual, secs, score):
     P = []
-    P.append('<section style="font-size:16px;line-height:1.8;color:#24292f;'
+    P.append('<section style="%s;'
              'font-family:-apple-system,BlinkMacSystemFont,\'PingFang SC\','
-             '\'Microsoft YaHei\',sans-serif;">')
+             '\'Microsoft YaHei\',sans-serif;">' % BODY_BASE)
     if not manual:
         P.append('<!-- [!] 标题由模板生成，发布前请手改 -->')
     P.append('<h1 style="font-size:22px;font-weight:700;line-height:1.4;margin:0 0 18px;">'
@@ -525,14 +569,17 @@ def render_html(case, titles, manual, secs, score):
                 continue
             _flush_html_rows(P, rows)
             if p.startswith("- "):
-                P.append('<p style="margin:0 0 8px;padding-left:14px;text-indent:-14px;">'
-                         '%s</p>' % _esc(p[2:]).replace("&amp;**", "**"))
+                P.append('<p style="%s;margin:0 0 8px;padding-left:14px;text-indent:-14px;">'
+                         '%s</p>' % (BODY_BASE, _esc(p[2:]).replace("&amp;**", "**")))
             elif head is None:
-                P.append('<blockquote style="margin:0 0 18px;padding:12px 14px;'
+                # 钩子/导语段：保留灰底灰字的设计，只补字号与行高跟正文对齐
+                P.append('<blockquote style="font-size:17px;line-height:1.8;'
+                         'margin:0 0 18px;padding:12px 14px;'
                          'background:#f6f8fa;border-left:3px solid #d0d7de;color:#57606a;">%s'
                          '</blockquote>' % _esc(p))
             else:
-                P.append('<p style="margin:0 0 14px;">%s</p>' % _esc(p).replace("&amp;**", "**"))
+                P.append('<p style="%s;margin:0 0 14px;">%s</p>'
+                         % (BODY_BASE, _esc(p).replace("&amp;**", "**")))
         _flush_html_rows(P, rows)
 
     P.append('<hr style="border:none;border-top:1px solid #e1e4e8;margin:28px 0 18px;">')

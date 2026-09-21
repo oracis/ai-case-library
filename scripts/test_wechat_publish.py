@@ -15,12 +15,14 @@ display / float / width / border-radius，理由是「微信一定会吃」—�
 用法：python -m unittest scripts.test_wechat_publish
 """
 import os
+import re
 import sys
 import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-import wechat_publish as W                                      # noqa: E402
+import make_article as MA                                      # noqa: E402
+import wechat_publish as W                                     # noqa: E402
 
 
 def style_of(html):
@@ -122,6 +124,36 @@ class TestPmSafeBody(unittest.TestCase):
         out = W.pm_safe_body('<p style="position:absolute">x</p>')
         self.assertNotIn("style=", out)
         self.assertIn("x", out)
+
+
+class TestBodyBaseline(unittest.TestCase):
+    def test_baseline_on_paragraph_after_publish(self):
+        """正文统一基线（font-size:17px / line-height:1.8 / rgba(0,0,0,0.9)）
+        必须落到每个 <p>，不能只挂外层 <section>。
+
+        原因（2026-09-21）：pm_safe_body 会把 div/section 整块 unwrap，
+        挂外层的话基线随标签一起消失，正文退回微信默认字号；只有评分表
+        和标题有显式样式。所以基线要内联到每个段落。这条测试用真实的
+        make_article.render_html 产物跑完整链路，防止基线被挪回外层。
+        """
+        case = {}
+        titles = ["测试标题"]
+        secs = [
+            ("它是干什么的", ["这是正文第一段。", "这是第二段。"]),
+            ("钱从哪来", ["- 收入模式：订阅。"]),
+            (None, ["钩子导语段。"]),
+        ]
+        html, _ = MA.render_html(case, titles, True, secs, 1.0)
+        out = W.pm_safe_body(html)
+        self.assertNotIn("<section", out)            # 外层已被剥
+        body_ps = re.findall(r'<p style="([^"]*)"', out)
+        self.assertTrue(body_ps, "没生成任何正文 <p>")
+        for st in body_ps:
+            if "font-size:14px" in st:      # 结尾注脚，设计上就更小更灰，跳过
+                continue
+            self.assertIn("font-size:17px", st, "正文段缺字号基线: %s" % st)
+            self.assertIn("line-height:1.8", st, "正文段缺行高基线: %s" % st)
+            self.assertIn("rgba(0,0,0,0.9)", st, "正文段缺颜色基线: %s" % st)
 
 
 if __name__ == "__main__":

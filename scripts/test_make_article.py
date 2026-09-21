@@ -222,7 +222,10 @@ def main():
             chk("首行圆角上、末行圆角下（拼成一整张表）",
                 "border-top-left-radius" in hs and "border-bottom-right-radius" in hs)
             chk("行间用细线分隔", "border-top:1px solid #eaeef2" in hs)
-            chk("标签钉死不换行（长值不会挤扁左侧）", "white-space:nowrap" in hs)
+            # ⚠ nowrap 只在本地预览/非微信环境有效。公众号编辑器会把 white-space
+            # 覆盖成 break-spaces（实测草稿 100000117），所以它**不是**防挤压护栏，
+            # 真正的护栏是下面的「按行宽分流」。
+            chk("短值行保留 nowrap（本地预览用）", "white-space:nowrap" in hs)
             chk("md 侧仍是真表格",
                 "| 维度 | 内容 |" in sample)
             # 2026-09-21 修复：_flush_html_rows 输出后没清空 rows，
@@ -230,6 +233,32 @@ def main():
             chk("html 评分表只输出一次（rows 已消费）", hs.count("付费意愿") == 1)
             chk("html 章节不带「一、二、三」编号",
                 ">一、它是干什么的</h2>" not in hs)
+
+            print("\n[10c] 键值行按行宽分流（长值不再挤扁标签）")
+            # 2026-09-21 修复：微信把 white-space 覆盖成 break-spaces，值一长
+            # flex 收缩就把标签压成一列一个字（「备注」竖排，草稿 100000117
+            # 实测）。所以按整行宽度分流：长行 →「标签：正文」左对齐；
+            # 短行 → 保持两端对齐。
+            chk("短值判定：付费意愿 3/5",
+                m._disp_em("付费意愿") + m._disp_em("3/5") <= m.LONG_ROW_EM)
+            chk("长值判定：一串说明文字 > 阈值",
+                m._disp_em("备注") + m._disp_em(
+                    "TrustMRR 页面由 RevenueCat 支付侧 API 验证，115 个活跃订阅"
+                    "，App Store 评分 3.6/5") > m.LONG_ROW_EM)
+            P = []
+            m._flush_html_rows(P, [("备注", "这是一段很长的说明文字，" * 8)])
+            long_html = "".join(P)
+            chk("长值行不套 flex", "display:flex" not in long_html)
+            chk("长值行渲成「标签：正文」左对齐",
+                '：<span style="color:#24292f;">' in long_html)
+            P2 = []
+            m._flush_html_rows(P2, [("客户", "115")])
+            short_html = "".join(P2)
+            chk("短值行仍两端对齐", "justify-content:space-between" in short_html)
+            chk("短值行值仍用金色强调", "color:#8a5a00" in short_html)
+            _rows = [("客户", "115")]
+            m._flush_html_rows([], _rows)
+            chk("_flush_html_rows 消费 rows（防同一张表连打多遍）", _rows == [])
     finally:
         sys.argv = old_argv
 
