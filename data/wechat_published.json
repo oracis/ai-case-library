@@ -40,5 +40,53 @@
     "published_at": "2026-09-21 16:07",
     "status": "draft",
     "file": "公众号-sierra拆解.html"
+  },
+  "genius-ai": {
+    "title": "Genius AI（原 GlossGenius）：给美发店、美甲店、理疗诊所做的一体化后台：预约、收银、发短信",
+    "published_at": "2026-09-21 16:12",
+    "status": "draft",
+    "file": "公众号-genius-ai拆解.html"
+  },
+  "nitra": {
+    "title": "Nitra：给独立小诊所做后台：管钱、管合规、管药品库存",
+    "published_at": "2026-09-21 16:18",
+    "status": "draft",
+    "file": "公众号-nitra拆解.html"
+  },
+  "viktor": {
+    "title": "Viktor：住进 Slack / Teams 的 AI 同事，你 @ 它，它把活干完再贴回来",
+    "published_at": "2026-09-21 16:23",
+    "status": "draft",
+    "file": "公众号-viktor拆解.html"
+  },
+  "chatbase": {
+    "title": "Chatbase：上传文档就能得到一个客服机器人；从推文发出去到第一个付费客户只用 30 分钟",
+    "published_at": "2026-09-21 16:30",
+    "status": "draft",
+    "file": "公众号-chatbase拆解.html"
+  },
+  "rezi": {
+    "title": "Rezi：AI 简历生成器——最不酷的需求，却是验证收入最高的 AI 产品",
+    "published_at": "2026-09-21 16:36",
+    "status": "draft",
+    "file": "公众号-rezi拆解.html"
+  },
+  "postiz": {
+    "title": "Postiz：社媒一键多平台排期发布，靠 agent 营销把 MRR 从 1.7 万推到 20 万",
+    "published_at": "2026-09-21 16:41",
+    "status": "draft",
+    "file": "公众号-postiz拆解.html"
+  },
+  "shipfast": {
+    "title": "ShipFast：Next.js SaaS 脚手架：把登录、支付、邮件全打包，卖一次性 $199",
+    "published_at": "2026-09-21 16:47",
+    "status": "draft",
+    "file": "公众号-shipfast拆解.html"
+  },
+  "trustmrr": {
+    "title": "TrustMRR：把「验证收入」本身做成了产品：连 Stripe 才能上榜的创业公司收入数据库 + 交易市场",
+    "published_at": "2026-09-21 16:52",
+    "status": "draft",
+    "file": "公众号-trustmrr拆解.html"
   }
 }

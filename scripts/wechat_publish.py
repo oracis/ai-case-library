@@ -415,14 +415,18 @@ def _gen_cover(cdp, c, index, out_path):
 
 
 def _upload_cover(cdp, path):
-    """上传封面图。
+    """把封面图插进正文最前面，送进微信图床（= 同时进了素材库）。
 
-    实测（2026-09-20）关键结论：公众号封面菜单**没有「本地上传」**
+    实测（2026-09-20）：公众号封面菜单**没有「本地上传」**
     （只有 从正文选择 / 从图片库选择 / 微信扫码上传 / AI 配图），
-    Page.setInterceptFileChooserDialog 也拦不到（它走自定义弹层）。
-    但页面里有一个正文插图用的 input[type=file][name=file]，
-    而编辑器的默认策略是「**默认首图为封面**」——所以把图插进正文最前面，
-    封面就自动有了。这也是唯一不需要人工点选的可靠路径。
+    Page.setInterceptFileChooserDialog 也拦不到（它走自定义弹层）；
+    而页面里有一个正文插图用的 input[type=file][name=file]。
+
+    ⚠ 2026-09-21 重要更正：本函数**只负责把图送进素材库**，它**不设封面**。
+    旧注释写的「编辑器的默认策略是默认首图为封面，插进正文就自动有了」
+    是**错的** ——「默认首图为封面」只是封面菜单里的一句可选文案，不点它
+    系统不会自动设。草稿箱列表项缩略图读的是服务端 `cover` 字段，不设就
+    永远是灰块（用户就是这么发现的）。真正设封面见 _set_cover_from_body()。
     """
     path = os.path.abspath(path)
     if not os.path.isfile(path):
@@ -473,24 +477,177 @@ def _upload_cover(cdp, path):
                 "if(src.indexOf('mmbiz')>=0)return 'IMG:'+src.slice(0,50);}"
                 "return 'NO_IMG';})()")
             if isinstance(got, str) and got.startswith("IMG:"):
-                # 封面预览区出图是异步的：轮询等它出现（最多 10 秒），
-                # 只查一次就报 COVER_PENDING 会在慢网络下误报。
-                cp = "COVER_PENDING"
-                for _ in range(10):
-                    time.sleep(1)
-                    cp = cdp.eval(
-                        "(function(){var e=document.querySelector("
-                        "'.js_cover_preview_new img,.select-cover__preview img,"
-                        ".js_cover_btn_area img');"
-                        "if(!e)return 'COVER_PENDING';"
-                        "var s=e.getAttribute('src')||'';"
-                        "return s.indexOf('mmbiz')>=0?'COVER_OK':'COVER_PENDING';})()")
-                    if cp == "COVER_OK":
-                        break
-                return "OK:%s (%s)" % (got[4:], cp)
+                # 这里只管「图进没进图床」，不再顺带判断封面有没有设上 ——
+                # 旧代码用 .js_cover_preview_new img 轮询封面，那个节点在没设
+                # 封面时是 display:none 且里面没有 <img>（是 background-image），
+                # 所以轮询永远拿不到 COVER_OK，等于白等 10 秒。
+                return "OK:%s" % got[4:]
         return "SET_BUT_NO_IMG"
     except Exception as e:
         return "ERR:%s" % e
+
+
+# ---- 封面设置：步骤文案（2026-09-21 实测）-------------------------------
+# 提成常量是为了防手滑：最后一步是「确认」**不是**「确定」，写错就点不到
+# 按钮，而弹窗照样会关掉 —— 封面静默失败，极难发现。
+COVER_MENU_FROM_BODY = "从正文选择"
+COVER_STEP_NEXT = "下一步"
+COVER_STEP_CONFIRM = "确认"
+
+
+def _mouse_click(cdp, x, y):
+    """真实鼠标点击。Vue 组件（弹窗/下拉/开关）对 JS .click() 经常无响应，
+    必须走 Input.dispatchMouseEvent 才能进状态；先 mouseMoved 再按下，
+    因为部分组件只认「hover 过」的元素。"""
+    cdp.send("Input.dispatchMouseEvent",
+             {"type": "mouseMoved", "x": x, "y": y, "buttons": 0})
+    time.sleep(0.05)
+    cdp.send("Input.dispatchMouseEvent",
+             {"type": "mousePressed", "x": x, "y": y,
+              "button": "left", "clickCount": 1, "buttons": 1})
+    cdp.send("Input.dispatchMouseEvent",
+             {"type": "mouseReleased", "x": x, "y": y,
+              "button": "left", "clickCount": 1, "buttons": 0})
+
+
+def _center_of(cdp, sel, text=None, scroll=False):
+    """取第一个可见匹配元素的中心坐标，找不到返回 None。
+
+    优先「最内层」（children.length===0）：同一段文案常常外层容器和里面
+    按钮都能匹配，点容器中心偶尔落在视觉空隙上。
+
+    scroll=True 时**必须分两次 eval** —— 同一次里 scrollIntoView() 之后
+    立刻 getBoundingClientRect() 拿到的还是滚动前的旧值，表现为坐标停在
+    y=3391 这种视口外位置；dispatchMouseEvent 用的是视口坐标，等于点空。
+    今天在这个坑上栽了两次，第二次才发现原因。
+    """
+    def _mk(leaf_only, with_scroll):
+        return (
+            "(function(){"
+            "var els=[].slice.call(document.querySelectorAll(%s));"
+            "for(var i=0;i<els.length;i++){"
+            "var e=els[i],cs=getComputedStyle(e);"
+            "if(cs.display==='none'||cs.visibility==='hidden')continue;"
+            "%s"
+            "var t=(e.innerText||e.textContent||'').replace(/\\s+/g,' ').trim();"
+            "if(%s&&t.indexOf(%s)<0)continue;"
+            "var r=e.getBoundingClientRect();"
+            "if(r.width<5||r.height<5)continue;"
+            "%s"
+            "return JSON.stringify({x:Math.round(r.left+r.width/2),"
+            "y:Math.round(r.top+r.height/2),txt:t.slice(0,24)});}"
+            "return '';})()" % (
+                json.dumps(sel),
+                "if(e.children.length>0)continue;" if leaf_only else "",
+                ("true" if text else "false"), json.dumps(text or ""),
+                "e.scrollIntoView({block:'center'});" if with_scroll else ""))
+    if scroll:
+        if not cdp.eval(_mk(True, True)) and not cdp.eval(_mk(False, True)):
+            return None
+        time.sleep(0.7)
+    raw = cdp.eval(_mk(True, False)) or cdp.eval(_mk(False, False))
+    if not raw:
+        return None
+    try:
+        return json.loads(raw)
+    except Exception:
+        return None
+
+
+def _click_visible(cdp, sel, text=None, scroll=False):
+    """真实鼠标点击第一个可见匹配元素。"""
+    d = _center_of(cdp, sel, text, scroll)
+    if not d:
+        return "NO_VISIBLE:%s" % sel
+    _mouse_click(cdp, d["x"], d["y"])
+    return "CLICKED:%s@(%d,%d)" % (d.get("txt", ""), d["x"], d["y"])
+
+
+def _cover_state(cdp):
+    """读封面预览节点的真实状态 -> (是否已设, 背景图 url)。
+
+    `.js_cover_preview_new` 用的是 background-image（不是 <img>）；
+    没设封面时它是 display:none 且 bg 为空 url("")。
+    """
+    raw = cdp.eval(
+        "(function(){"
+        "var p=document.querySelector('.js_cover_preview_new');"
+        "if(!p)return '';"
+        "var cs=getComputedStyle(p);"
+        "return cs.display+'|'+(cs.backgroundImage||'');})()")
+    if not isinstance(raw, str) or "|" not in raw:
+        return False, ""
+    disp, bg = raw.split("|", 1)
+    return (disp != "none" and "mmbiz" in bg), bg
+
+
+def _set_cover_from_body(cdp, tries=3):
+    """把正文首图真正设为封面（服务端 cover 字段会落值）。
+
+    2026-09-21 实测的完整路径，每一步都验证过：
+      ① 点 `.js_cover_btn_area` 展开封面菜单（Vue 弹层，偶发不展开 → 重试）
+      ② 菜单项「从正文选择」（用 JS click：弹层对鼠标移出很敏感，坐标点易扑空）
+      ③ 弹窗「选择图片」里点 `li.appmsg_content_img_item` 选中正文首图
+         —— 它是 background-image 的 span，不是 <img>，别按 img 找
+      ④ 「下一步」→ 进「编辑封面」裁剪页
+      ⑤ 「确认」  ← 是「确认」不是「确定」
+    最后用 _cover_state 做**结果导向**校验：不看弹窗有没有关（微信弹窗提交
+    成功后不会自动关闭，拿它当判据必然误判）。
+    """
+    ok, _bg = _cover_state(cdp)
+    if ok:
+        return "SKIP:已有封面"
+    # ① 展开封面菜单（重试，弹层偶发不展开）
+    opened = False
+    for _ in range(tries):
+        d = _center_of(cdp, ".js_cover_btn_area", scroll=True)
+        if not d:
+            return "NO_COVER_BTN"
+        _mouse_click(cdp, d["x"], d["y"])
+        time.sleep(1.3)
+        n = cdp.eval(
+            "(function(){var n=0;"
+            "[].forEach.call(document.querySelectorAll('.pop-opr__item'),"
+            "function(e){var cs=getComputedStyle(e);"
+            "if(cs.display!=='none'&&cs.visibility!=='hidden'){"
+            "var r=e.getBoundingClientRect();if(r.width>5)n++;}});"
+            "return ''+n;})()")
+        if str(n).strip() not in ("0", "", "None"):
+            opened = True
+            break
+    if not opened:
+        return "NO_MENU"
+    # ② 菜单项「从正文选择」
+    r = cdp.eval(
+        "(function(){"
+        "var its=[].slice.call(document.querySelectorAll('.pop-opr__item'));"
+        "for(var i=0;i<its.length;i++){"
+        "var t=(its[i].innerText||'').replace(/\\s+/g,' ').trim();"
+        "if(t!==%s)continue;"
+        "if(getComputedStyle(its[i]).display==='none')continue;"
+        "var a=its[i].querySelector('a')||its[i];a.click();"
+        "return 'OK';}"
+        "return 'NO_ITEM';})()" % json.dumps(COVER_MENU_FROM_BODY))
+    if not (isinstance(r, str) and r == "OK"):
+        return "MENU_ITEM_ERR:%s" % r
+    time.sleep(2.5)
+    # ③ 选中正文首图
+    d = _center_of(cdp, "li.appmsg_content_img_item")
+    if not d:
+        return "NO_THUMB"
+    _mouse_click(cdp, d["x"], d["y"])
+    time.sleep(1.3)
+    # ④⑤ 下一步 → 确认
+    r1 = _click_visible(cdp, "a,button,span,div", COVER_STEP_NEXT)
+    if "CLICKED" not in r1:
+        return "NEXT_ERR:%s" % r1
+    time.sleep(2.8)
+    r2 = _click_visible(cdp, "a,button,span,div", COVER_STEP_CONFIRM)
+    if "CLICKED" not in r2:
+        return "CONFIRM_ERR:%s" % r2
+    time.sleep(2.5)
+    ok, bg = _cover_state(cdp)
+    return ("OK:%s" % bg[:70]) if ok else "NOT_SET"
 
 
 def load_cases():
@@ -2153,8 +2310,14 @@ def publish_one(cdp, c, art, dry=False, index=0):
     try:
         gen = _gen_cover(cdp, c, index, cover_path)
         if isinstance(gen, str) and gen.endswith(".png") and os.path.isfile(gen):
+            # 两步走：① 把图插进正文（进微信图床/素材库）；② 再从正文选它当封面。
+            # 少了 ② 草稿箱列表项就是灰块 —— 服务端 cover 字段为空。
             up = _upload_cover(cdp, gen)
-            print("  封面上传: %s" % up)
+            print("  封面入素材库: %s" % up)
+            sc = _set_cover_from_body(cdp)
+            print("  设封面: %s" % sc)
+            if not str(sc).startswith(("OK", "SKIP")):
+                print("  [warn] 封面没设上（草稿箱列表会显示灰块）: %s" % sc)
         else:
             print("  [warn] 封面生成失败: %s" % gen)
     except Exception as e:
@@ -2278,6 +2441,117 @@ def cmd_publish(args):
 
 
 # ======================================================================
+# 补封面（历史草稿）
+# ======================================================================
+def _connect_mp(cdp, debug=False):
+    """连到一个已登录的 mp 页面，返回 (tid, token)。优先复用已开着的 tab。"""
+    for t in cdp.list_targets():
+        u = t.get("url") or ""
+        if t.get("type") == "page" and "mp.weixin.qq.com" in u:
+            if cdp.connect_target(t["id"]):
+                tok = _get_token(cdp, debug=debug)
+                if tok and tok != "NO_TOKEN":
+                    return t["id"], tok
+    tid = cdp.new_target(MP_HOME)["id"]
+    cdp.connect_target(tid)
+    for _ in range(25):
+        time.sleep(1)
+        tok = _get_token(cdp, debug=debug)
+        if tok and tok != "NO_TOKEN":
+            return tid, tok
+    return tid, None
+
+
+def _draft_list(cdp, tok, count=50):
+    """拉服务端草稿列表 -> [{appmsgid,title,cover,...}]。
+
+    在 mp 页面上下文里发同步 XHR，走浏览器自己的 cookie，不需要额外鉴权。
+    注意 **type=77 才是图文草稿**（type=10 返回空列表，实测）。
+    """
+    url = ("https://mp.weixin.qq.com/cgi-bin/appmsg?action=list_ex&type=77"
+           "&sub=all&begin=0&count=%d&token=%s&lang=zh_CN&f=json&ajax=1"
+           "&random=0.7" % (count, tok))
+    js = ("(function(){var x=new XMLHttpRequest();"
+          "x.open('GET',%s,false);x.send(null);"
+          "return x.responseText;})()" % json.dumps(url))
+    raw = cdp.eval(js, refresh_context=True)
+    if not isinstance(raw, str):
+        return []
+    try:
+        return json.loads(raw).get("app_msg_list") or []
+    except Exception:
+        return []
+
+
+def _open_draft_editor(cdp, appmsgid, tok, timeout=30):
+    """新开 tab 打开**已存在**的草稿编辑页，返回 tid。"""
+    url = ("https://mp.weixin.qq.com/cgi-bin/appmsg?t=media/appmsg_edit"
+           "&action=edit&reprint_confirm=0&type=77&appmsgid=%s&token=%s"
+           "&lang=zh_CN" % (appmsgid, tok))
+    tid = cdp.new_target(url)["id"]
+    cdp.connect_target(tid)
+    for _ in range(timeout):
+        time.sleep(1)
+        try:
+            if cdp.eval("!!document.querySelector('#title')",
+                        refresh_context=True):
+                return tid
+        except Exception:
+            pass
+    return tid
+
+
+def cmd_fix_cover(args):
+    """给已有草稿补封面。
+
+    缘由（2026-09-21）：早期 publish_one 只把封面图插进正文，误以为
+    「默认首图会自动成为封面」—— 服务端 `cover` 字段其实一直是空的，
+    于是草稿箱列表项全是灰块。本命令按**服务端状态**逐个补齐。
+    """
+    cdp = CDP(args.port)
+    _tid0, tok = _connect_mp(cdp)
+    if not tok:
+        raise SystemExit("✗ 拿不到 token：确认调试窗口里 mp.weixin.qq.com 已登录")
+    drafts = _draft_list(cdp, tok)
+    if not drafts:
+        raise SystemExit("✗ 拉不到草稿列表（登录态失效或接口变了）")
+    only = getattr(args, "appmsgid", None)
+    todo = [d for d in drafts
+            if (not only or str(d.get("appmsgid")) == str(only))
+            and not str(d.get("cover") or "").strip()]
+    print("草稿共 %d 篇%s，缺封面 %d 篇"
+          % (len(drafts), "（已按 appmsgid 过滤）" if only else "", len(todo)))
+    if args.limit:
+        todo = todo[:args.limit]
+    fixed = skipped = 0
+    for d in todo:
+        aid = d.get("appmsgid")
+        print("\n→ %s — %s" % (aid, (d.get("title") or "")[:34]))
+        tid = _open_draft_editor(cdp, aid, tok)
+        try:
+            r = _set_cover_from_body(cdp)
+            print("  设封面: %s" % r)
+            if not str(r).startswith(("OK", "SKIP")):
+                skipped += 1
+                continue
+            _click_by_text(cdp, "保存为草稿")
+            ok = False
+            for _ in range(20):
+                time.sleep(1)
+                if "appmsgid=" in (_tab_url(cdp, tid) or ""):
+                    ok = True
+                    break
+            print("  保存: %s" % ("OK" if ok else "超时"))
+            if ok:
+                fixed += 1
+            else:
+                skipped += 1
+        finally:
+            cdp.close_target(tid)
+    print("\n完成：补齐 %d 篇，跳过/失败 %d 篇" % (fixed, skipped))
+
+
+# ======================================================================
 # CLI
 # ======================================================================
 def main():
@@ -2296,6 +2570,10 @@ def main():
     pp.add_argument("--limit", type=int, default=0, help="只发前 N 条")
     pp.add_argument("--case", help="只发指定 case id（可覆盖已发记录重发）")
     pp.add_argument("--dry", action="store_true", help="只打印计划不打开浏览器")
+    pf = sub.add_parser("fix-cover", help="给已有草稿补封面（服务端 cover 为空的）")
+    pf.add_argument("--port", type=int, default=CDP_PORT)
+    pf.add_argument("--limit", type=int, default=0, help="只处理前 N 篇")
+    pf.add_argument("--appmsgid", help="只处理指定草稿 id")
     args = ap.parse_args()
 
     # 127.0.0.1 必须绕开系统代理，否则 websocket 连 Chrome 调试端口会被掐（WinError 10053）
@@ -2318,6 +2596,8 @@ def main():
         cmd_discover(args)
     elif args.cmd == "publish":
         cmd_publish(args)
+    elif args.cmd == "fix-cover":
+        cmd_fix_cover(args)
 
 
 if __name__ == "__main__":
