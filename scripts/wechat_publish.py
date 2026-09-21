@@ -555,10 +555,95 @@ def _center_of(cdp, sel, text=None, scroll=False):
 
 
 def _click_visible(cdp, sel, text=None, scroll=False):
-    """真实鼠标点击第一个可见匹配元素。"""
+    """真实鼠标点击第一个可见匹配元素。
+
+    ⚠ 点**弹窗按钮**别用这个：它按文本「包含」在**全文档**搜，正文里出现同名
+    文字就会先命中（见 _center_in_dialog 的实测记录）。弹窗按钮用 _click_in_dialog。
+    """
     d = _center_of(cdp, sel, text, scroll)
     if not d:
         return "NO_VISIBLE:%s" % sel
+    _mouse_click(cdp, d["x"], d["y"])
+    return "CLICKED:%s@(%d,%d)" % (d.get("txt", ""), d["x"], d["y"])
+
+
+_DLG_CANDS_JS = (
+    "(function(){"
+    "var ds=document.querySelectorAll('.weui-desktop-dialog');var dlg=null;"
+    "for(var i=0;i<ds.length;i++){var r=ds[i].getBoundingClientRect();"
+    "if(r.width>300&&r.height>100){dlg=ds[i];break;}}"
+    "if(!dlg)return '';"
+    "var out=[];"
+    "var all=[].slice.call(dlg.querySelectorAll('button,a,span,div'));"
+    "for(var j=0;j<all.length;j++){var e=all[j],cs=getComputedStyle(e);"
+    "var r=e.getBoundingClientRect();"
+    "out.push({t:(e.innerText||e.textContent||'').replace(/\\s+/g,' ').trim().slice(0,40),"
+    "left:Math.round(r.left),top:Math.round(r.top),"
+    "w:Math.round(r.width),h:Math.round(r.height),"
+    "disp:cs.display,vis:cs.visibility,leaf:e.children.length===0});}"
+    "return JSON.stringify(out);})()")
+
+
+def _pick_dialog_button(cands, text):
+    """从弹窗候选元素里挑点击目标（纯函数，便于回归测试）。
+
+    优先级：① 文本**完全相等**的叶子 → ② 完全相等 → ③ 包含的叶子 → ④ 包含。
+    并且要求可见、够大（≥5px）、坐标落在视口内（left/top ≥ 0）。
+
+    为什么不直接「包含就选」：正文段落也「包含」按钮文字，且在 DOM 里更靠前，
+    会先被选中（点击落在正文上、弹窗按钮没点到）。所以先要「完全相等」，
+    再要求是叶子节点；正文段落是容器、且文字长，两道都过不了。
+    """
+    def usable(c):
+        return (c.get("disp") != "none" and c.get("vis") != "hidden"
+                and c.get("w", 0) >= 5 and c.get("h", 0) >= 5
+                and c.get("left", -1) >= 0 and c.get("top", -1) >= 0)
+
+    def has(c, exact):
+        return (c.get("t", "") == text) if exact else (text in c.get("t", ""))
+
+    for exact, leaf_only in ((True, True), (True, False),
+                             (False, True), (False, False)):
+        for c in cands:
+            if usable(c) and has(c, exact) and (not leaf_only or c.get("leaf")):
+                return c
+    return None
+
+
+def _center_in_dialog(cdp, text):
+    """在**当前可见弹窗内部**找按钮并返回中心坐标，找不到返回 None。
+
+    为什么要单独一个函数（2026-09-21 实测，代价是一次批量发布里 3 篇残废）：
+    用 `_click_visible(cdp, "a,button,span,div", "确认")` 点封面的「确认」时，
+    它是**全文档**按文本「包含」搜、按 DOM 顺序取第一个 —— 正文里只要出现
+    「确认」二字（案例里写"外部无法确认哪个是当前值"这种句子太常见了），
+    先命中的就是**正文段落**，于是：
+      ① 弹窗的「确认」根本没点到 → 封面设不上（服务端 cover 为空 → 草稿箱灰块）；
+      ② 「编辑封面」弹窗一直留着 → 紧接着的原创声明找到的可见弹窗是它，
+         里面没有作者输入框 → 报「作者框没找到(NO)」。
+    一个错点同时造出两个"故障"。修法：把搜索范围钉死在可见弹窗里，
+    并优先**文本完全相等**的叶子节点，再要求坐标落在视口内。
+    """
+    raw = cdp.eval(_DLG_CANDS_JS)
+    if not raw:
+        return None                      # 没有可见弹窗
+    try:
+        cands = json.loads(raw)
+    except Exception:
+        return None
+    c = _pick_dialog_button(cands, text)
+    if not c:
+        return None
+    return {"x": c["left"] + c["w"] // 2,
+            "y": c["top"] + c["h"] // 2,
+            "txt": c["t"][:24]}
+
+
+def _click_in_dialog(cdp, text):
+    """真实鼠标点击弹窗内的按钮（搜索范围限于可见弹窗）。"""
+    d = _center_in_dialog(cdp, text)
+    if not d:
+        return "NO_IN_DIALOG:%s" % text
     _mouse_click(cdp, d["x"], d["y"])
     return "CLICKED:%s@(%d,%d)" % (d.get("txt", ""), d["x"], d["y"])
 
@@ -637,16 +722,23 @@ def _set_cover_from_body(cdp, tries=3):
         return "NO_THUMB"
     _mouse_click(cdp, d["x"], d["y"])
     time.sleep(1.3)
-    # ④⑤ 下一步 → 确认
-    r1 = _click_visible(cdp, "a,button,span,div", COVER_STEP_NEXT)
+    # ④⑤ 下一步 → 确认（**弹窗内**找按钮，别搜全文档：正文里出现「确认」
+    #     二字就会先命中正文段落，实测害惨了 outrank/bustem/kibu 三篇）
+    r1 = _click_in_dialog(cdp, COVER_STEP_NEXT)
     if "CLICKED" not in r1:
         return "NEXT_ERR:%s" % r1
     time.sleep(2.8)
-    r2 = _click_visible(cdp, "a,button,span,div", COVER_STEP_CONFIRM)
+    r2 = _click_in_dialog(cdp, COVER_STEP_CONFIRM)
     if "CLICKED" not in r2:
         return "CONFIRM_ERR:%s" % r2
     time.sleep(2.5)
     ok, bg = _cover_state(cdp)
+    if not ok:
+        # 没设上就把残留弹窗收掉：留着会挡住后面的原创声明
+        # （_declare_original 找可见弹窗时会把「编辑封面」当原创弹窗，
+        #   然后报"作者框没找到"）。
+        _close_dialog(cdp)
+        time.sleep(0.6)
     return ("OK:%s" % bg[:70]) if ok else "NOT_SET"
 
 
@@ -1670,18 +1762,14 @@ def _declare_original(cdp, author="万物解释者"):
         except Exception:
             pass
         # 1) 打开弹窗
-        r = cdp.eval(
+        JS_OPEN_ORIG = (
             "(function(){"
             "var all=[].slice.call(document.querySelectorAll('*'));"
             "for(var i=0;i<all.length;i++){var e=all[i];"
             "if(e.children.length===0&&(e.textContent||'').trim()==='未声明'){"
             "var tgt=e.closest('[class*=item],[class*=row],[class*=cell]')||e.parentElement;"
             "tgt.click();return 'OK';}}return 'NO_ROW';})()")
-        if r != "OK":
-            return "FAIL:找不到未声明入口(%s)" % r
-        time.sleep(1.5)
-        # 2) 作者：真实鼠标点击聚焦 + 逐键输入（唯一能进框架状态的方式）
-        info = cdp.eval(
+        JS_AUTHOR = (
             "(function(){" + JS_VIS_DLG +
             "if(!dlg)return 'NO';"
             "var e=dlg.querySelector('input[placeholder=\"请输入作者\"]');"
@@ -1689,6 +1777,21 @@ def _declare_original(cdp, author="万物解释者"):
             "var r=e.getBoundingClientRect();"
             "return JSON.stringify({x:Math.round(r.x+r.width/2),"
             "y:Math.round(r.y+r.height/2)});})()")
+        r = cdp.eval(JS_OPEN_ORIG)
+        if r != "OK":
+            return "FAIL:找不到未声明入口(%s)" % r
+        time.sleep(1.5)
+        # 2) 作者：真实鼠标点击聚焦 + 逐键输入（唯一能进框架状态的方式）
+        info = cdp.eval(JS_AUTHOR)
+        if info == "NO" or not info.startswith("{"):
+            # 可见弹窗不是原创弹窗 —— 多半是别的残留弹窗挡着。
+            # 收掉残留后重开一次（2026-09-21 实测：封面「确认」点错导致
+            # 「编辑封面」弹窗残留，这里就误报"作者框没找到(NO)"）。
+            _close_dialog(cdp)
+            time.sleep(1.0)
+            if cdp.eval(JS_OPEN_ORIG) == "OK":
+                time.sleep(1.5)
+                info = cdp.eval(JS_AUTHOR)
         if info == "NO" or not info.startswith("{"):
             return "FAIL:作者框没找到(%s)" % info
         d = json.loads(info)
@@ -2291,6 +2394,17 @@ def _reward_after_reload(cdp, tid, appmsgid):
         return False
 
 
+def _finish_status(cover_ok, declared):
+    """收尾结论：封面与原创**都**到位才算 ok，否则 partial。
+
+    2026-09-21 实测：这里曾无条件返回 ok，导致「封面没设上 / 原创声明失败」
+    也被记成 draft —— 续完逻辑（build_todo 只挑 status=partial）于是永远碰不到
+    它们，草稿箱里就一直躺着灰块和未声明的稿子（comp-ai/outrank/bustem/kibu
+    四篇就这么漏了一轮）。判定抽成纯函数，便于回归测试。
+    """
+    return "ok" if (cover_ok and declared) else "partial"
+
+
 def publish_one(cdp, c, art, dry=False, index=0):
     ex = extract_article(art)
     title = make_wechat_title(c)
@@ -2329,6 +2443,7 @@ def publish_one(cdp, c, art, dry=False, index=0):
           % (len(title), len(summary), n, r.split("(")[0]))
     time.sleep(1)
     # 封面图：公众号后台要求必填，自动生成并上传
+    cover_ok = True      # 封面是否真的落库（服务端 cover 字段），失败记 partial 待补
     cover_path = os.path.join(ROOT, "tmp", "covers", "%s.png" % c["id"])
     try:
         gen = _gen_cover(cdp, c, index, cover_path)
@@ -2340,10 +2455,13 @@ def publish_one(cdp, c, art, dry=False, index=0):
             sc = _set_cover_from_body(cdp)
             print("  设封面: %s" % sc)
             if not str(sc).startswith(("OK", "SKIP")):
+                cover_ok = False
                 print("  [warn] 封面没设上（草稿箱列表会显示灰块）: %s" % sc)
         else:
+            cover_ok = False
             print("  [warn] 封面生成失败: %s" % gen)
     except Exception as e:
+        cover_ok = False
         print("  [warn] 封面处理异常: %s" % e)
     # 保存草稿：按钮无稳定 id，按文本点（"保存为草稿"）
     r = _click_by_text(cdp, "保存为草稿")
@@ -2381,11 +2499,16 @@ def publish_one(cdp, c, art, dry=False, index=0):
         # 原创声明必须在首次保存之后做（草稿有 appmsgid 才能提交成功），
         # 声明完再补一次保存把状态固化。失败不挡发布主链路。
         r2 = None
+        declared = False
         r = _declare_original(cdp)
         if r == "OK":
+            declared = True
             print("  原创声明: ✓ 文字原创")
             # 原创声明成功后顺手开启赞赏（依赖原创声明，失败不挡发布）
             r2 = _enable_reward(cdp)
+        elif str(r).startswith("SKIP"):
+            declared = True
+            print("  原创声明: %s" % r)
         else:
             print("  原创声明: [warn] %s" % r)
         # 补一次保存把原创/赞赏状态固化
@@ -2406,7 +2529,12 @@ def publish_one(cdp, c, art, dry=False, index=0):
         print("  [warn] 收尾中断（草稿已存好，仅原创/赞赏未完成）: %s" % e)
         return {"status": "partial", "appmsgid": appmsgid}
     cdp.close_target(tid)   # 这篇存完即关 tab，不堆积
-    return {"status": "ok", "appmsgid": appmsgid}
+    st = _finish_status(cover_ok, declared)
+    if st != "ok":
+        print("  [warn] 收尾不完整（封面%s / 原创%s）→ 记 partial，"
+              "下次运行按 appmsgid 就地补完"
+              % ("OK" if cover_ok else "缺", "OK" if declared else "缺"))
+    return {"status": st, "appmsgid": appmsgid}
 
 
 def finish_one(cdp, c, appmsgid, tok):
@@ -2432,11 +2560,15 @@ def finish_one(cdp, c, appmsgid, tok):
             pass
         # 封面：中断也可能发生在「设封面」之前（实测 trustmrr 赶上「设封面 NO_MENU」）。
         # 只信服务端 cover 字段——正文里有图不代表草稿封面已设。
+        cover_ok = True
         try:
             for d in _draft_list(cdp, tok):
                 if str(d.get("appmsgid")) == str(appmsgid):
                     if not str(d.get("cover") or "").strip():
-                        print("  补封面: %s" % _set_cover_from_body(cdp))
+                        sc = _set_cover_from_body(cdp)
+                        print("  补封面: %s" % sc)
+                        if not str(sc).startswith(("OK", "SKIP")):
+                            cover_ok = False
                     break
         except Exception as e:
             print("  [warn] 封面检查跳过: %s" % e)
@@ -2459,7 +2591,7 @@ def finish_one(cdp, c, appmsgid, tok):
                 print("  赞赏开启: ✓ 赞赏作者（重载确认）")
             else:
                 print("  赞赏开启: [warn] %s" % r2)
-        return "ok" if declared else "partial"
+        return _finish_status(cover_ok, declared)
     except Exception as e:
         print("  [warn] 补完失败: %s" % e)
         return "partial"
@@ -2703,6 +2835,98 @@ def cmd_fix_cover(args):
     print("\n完成：补齐 %d 篇，跳过/失败 %d 篇" % (fixed, skipped))
 
 
+def cmd_refresh(args):
+    """把本地重新生成过的正文，就地灌回**已存在**的草稿（不新建草稿）。
+
+    为什么需要它（2026-09-22）：改了正文模板后，草稿箱里那些已经建好的草稿
+    不会自动跟着变 —— 它们存的是发布当时的 HTML。要让改动生效，只能按
+    appmsgid 打开原草稿、整篇替换正文、再保存。
+
+    两个要点：
+      · `_set_body` 是**整篇替换**语义，配合「草稿已存在」，不会新建重复稿；
+      · 封面 / 原创 / 赞赏是与正文分开的字段，重灌正文不动它们
+        （但它们如果本来就没设上，刷新也补不了 —— 那种走 `finish_one`）。
+
+    appmsgid 的取法：优先用记录里存的；13 条老记录没存（加固前的批次），
+    退回按标题在服务端草稿列表里反查。
+    """
+    cases = load_cases()
+    published = load_published()
+    only = set(x.strip() for x in (args.case or "").split(",") if x.strip())
+
+    todo = []
+    for c in cases:
+        cid = c["id"]
+        if only and cid not in only:
+            continue
+        rec = published.get(cid)
+        if not rec:
+            continue                      # 没发过，无需刷新
+        art = find_article(cid, c.get("name"))
+        if not art:
+            print("  [skip] %s 缺发布就绪 HTML" % cid)
+            continue
+        todo.append((cid, art, rec))
+    if args.limit:
+        todo = todo[:args.limit]
+    if not todo:
+        print("没有可刷新的草稿（--case 没匹配到、或都没发过）。")
+        return
+    print("待刷新 %d 篇：%s" % (len(todo), "、".join(c for c, _, _ in todo[:8])
+                             + ("…" if len(todo) > 8 else "")))
+    if args.dry:
+        return
+
+    cdp = CDP(args.port)
+    _tid0, tok = _connect_mp(cdp)
+    if not tok:
+        raise SystemExit("✗ 拿不到 token：确认调试窗口里 mp.weixin.qq.com 已登录")
+    drafts = _draft_list(cdp, tok, count=60)
+    by_title = {}
+    for d in drafts:
+        t = (d.get("title") or "").strip()
+        if t:
+            by_title[t] = d.get("appmsgid")
+
+    ok_n = fail_n = skip_n = 0
+    for cid, art, rec in todo:
+        aid = rec.get("appmsgid") or by_title.get((rec.get("title") or "").strip())
+        if not aid:
+            print("\n→ %-18s [skip] 查不到 appmsgid（标题没在草稿列表里匹配上）" % cid)
+            skip_n += 1
+            continue
+        ex = extract_article(art)
+        body = pm_safe_body(ex["body_html"])
+        print("\n→ %-18s appmsgid=%s 正文 %d 字" % (cid, aid, len(strip_tags(body))))
+        tid = _open_draft_editor(cdp, aid, tok)
+        try:
+            r = _set_body(cdp, body)
+            print("  set_body: %s" % r)
+            time.sleep(2)
+            rc = _click_by_text(cdp, "保存为草稿")
+            saved = False
+            for _ in range(20):
+                time.sleep(1)
+                if "appmsgid=" in (_tab_url(cdp, tid) or ""):
+                    saved = True
+                    break
+            print("  保存: %s (%s)" % ("OK" if saved else "超时", rc))
+            if saved:
+                ok_n += 1
+                # 顺手把 appmsgid 补进记录：以后不必再靠标题反查
+                rec["appmsgid"] = str(aid)
+                rec["refreshed_at"] = time.strftime("%Y-%m-%d %H:%M")
+                save_published(published)
+            else:
+                fail_n += 1
+        except Exception as e:
+            print("  [error] %s" % e)
+            fail_n += 1
+        finally:
+            cdp.close_target(tid)
+    print("\n完成：刷新 %d 篇，失败 %d 篇，跳过 %d 篇" % (ok_n, fail_n, skip_n))
+
+
 # ======================================================================
 # CLI
 # ======================================================================
@@ -2726,6 +2950,11 @@ def main():
     pf.add_argument("--port", type=int, default=CDP_PORT)
     pf.add_argument("--limit", type=int, default=0, help="只处理前 N 篇")
     pf.add_argument("--appmsgid", help="只处理指定草稿 id")
+    pr = sub.add_parser("refresh", help="把本地重生成过的正文就地灌回已有草稿")
+    pr.add_argument("--port", type=int, default=CDP_PORT)
+    pr.add_argument("--case", help="只刷指定 case id（逗号分隔）")
+    pr.add_argument("--limit", type=int, default=0, help="只刷前 N 篇")
+    pr.add_argument("--dry", action="store_true", help="只打印计划不打开浏览器")
     args = ap.parse_args()
 
     # 127.0.0.1 必须绕开系统代理，否则 websocket 连 Chrome 调试端口会被掐（WinError 10053）
@@ -2750,6 +2979,8 @@ def main():
         cmd_publish(args)
     elif args.cmd == "fix-cover":
         cmd_fix_cover(args)
+    elif args.cmd == "refresh":
+        cmd_refresh(args)
 
 
 if __name__ == "__main__":
