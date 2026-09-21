@@ -378,7 +378,7 @@
     ],
     "corrections": [
       {
-        "claim": "本次核实抓取原文中不存在 $9.1K 收入、$500K 要价、4.6x 倍数（候选 headline 与 note 的表述）",
+        "claim": "「MagicSlides 收入 $9.1K、要价 $500K、倍数 4.6x」",
         "truth": "TrustMRR 的 MagicSlides.app 页显示 MRR $11,332、825 个活跃订阅、All-time revenue $714,537；页面 'FOR SALE' 区块列的是 Cliptude、Vid.AI、White Glove Content 等其它项目，并未显示 MagicSlides 自身的要价与倍数。",
         "source": "https://trustmrr.com/startup/magicslides-app"
       },
@@ -531,13 +531,13 @@
     ],
     "corrections": [
       {
-        "claim": "候选资料称 Stan 是 \"TrustMRR 榜单第 1 名\"",
+        "claim": "「Stan 是 TrustMRR 榜单第 1 名」",
         "truth": "TrustMRR 的 Stan 页面写的是 \"Ranked #3 on TrustMRR\"，不是第 1 名",
         "source": "https://trustmrr.com/startup/stan"
       },
       {
         "claim": "把 Stan 当成澳大利亚流媒体服务 Stan（stan.com.au）",
-        "truth": "候选条目对应的是创作者变现平台 stan.store（创始人 Vitalii Dodonov），与澳大利亚流媒体 stan.com.au 是两家无关公司，后者的 meta 摘要为 \"unlimited access to thousands of hours of entertainment\"，与本条目无关",
+        "truth": "它对应的是创作者变现平台 stan.store（创始人 Vitalii Dodonov），与澳大利亚流媒体 stan.com.au 是两家无关公司，后者的 meta 摘要为 \"unlimited access to thousands of hours of entertainment\"。",
         "source": "https://www.stan.com.au/"
       }
     ],
@@ -679,13 +679,13 @@
     ],
     "corrections": [
       {
-        "claim": "候选 note 称榜单显示 1Lookup「同时处于 FOR SALE 状态」",
+        "claim": "「1Lookup 同时处于 FOR SALE 状态」",
         "truth": "抓取到的 TrustMRR 页面里，FOR SALE 标签挂在 Vid.AI、White Glove Content、Confidential Startup、AppAlchemy、Cliptude、Stealth Venture 等「More startups for sale」列表项上，这些是其他待售项目；1Lookup 自身页面的状态与价格均未在原文中标注为待售。因此不能据此判定 1Look",
         "source": "https://trustmrr.com/startup/1lookup"
       },
       {
-        "claim": "候选 metrics 记 MRR 245,026.11、headline $236,401（+5% MoM）",
-        "truth": "本次抓到的 TrustMRR 页面写的是 MRR $244,029、All-time revenue $4,985,134。两个数字可能是不同时间快照，原文不足以证明哪个更新，入库时应以页面明示的 $244,029 MRR 为准",
+        "claim": "1Lookup MRR 245,026.11、headline $236,401（+5% MoM）",
+        "truth": "本次抓到的 TrustMRR 页面写的是 MRR $244,029、All-time revenue $4,985,134。两个数字可能是不同时间快照，原文不足以证明哪个更新，应以页面明示的 $244,029 MRR 为准",
         "source": "https://trustmrr.com/startup/1lookup"
       }
     ],

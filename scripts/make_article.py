@@ -171,6 +171,25 @@ def strip_quotes(s):
     return s.strip()
 
 
+def _as_quote(s):
+    """把一句别人的说法包成引号句；本来就带引号的**原样保留**。
+
+    为什么改用它（2026-09-22）：钩子第一段原来走 strip_quotes()，把数据里
+    本来就有的「」剥掉了，于是那句变成一个没有引号、没有来源的光秃陈述，
+    读起来像我们自己的结论；为了给它找落点，第二段才加了
+    「这句在中文网上被反复引用」——而这句恰恰是全文唯一没有依据的一句
+    （corrections 的 source 是我们去核实的页面，不是这句说法的出处）。
+    保住引号，指代问题自然消失，那句假话也就不用了。
+    """
+    s = (s or "").strip()
+    if not s:
+        return s
+    for a, b in (("「", "」"), ("《", "》"), ("“", "”"), ('"', '"')):
+        if s.startswith(a) and s.endswith(b) and len(s) > len(a) + len(b):
+            return s          # 已带同款引号，不动
+    return "「%s」" % s      # 没有就补上
+
+
 def sanitize(text):
     """宣传性词汇替换。返回 (新文本, 命中列表)。"""
     hits = []
@@ -275,10 +294,14 @@ def build_sections(case):
     secs = []
 
     # 钩子（不编号）。有纠错就用纠错开场 —— 这是全库转化率最高的钩子。
+    # 第一段是「别人说的那句」（保住引号，别剥），第二段是「我核出来的」：
+    # 引号就是这句的落点，所以不需要「这句在中文网上被反复引用」这类指代句
+    # ——而且那句是全文唯一没有依据的一句（corrections.source 是我们去核实的
+    # 页面，不是这句说法的出处），写在一个主打核实的开头最伤可信度。
     if corr:
         secs.append((None, [
-            "%s" % strip_quotes(corr[0].get("claim", "")),
-            "这句在中文网上被反复引用。我查了一下：%s" % corr[0].get("truth", ""),
+            _as_quote(corr[0].get("claim", "")),
+            "我去核了一遍：%s" % corr[0].get("truth", ""),
         ]))
     else:
         secs.append((None, [case.get("verdict", "")]))

@@ -262,6 +262,61 @@ def main():
     finally:
         sys.argv = old_argv
 
+    print("\n[10d] 钩子：引号句 + 我去核了一遍（2026-09-22）")
+    try:
+        old_argv = sys.argv
+        m = load_mod()
+        # _as_quote：已有引号的**原样保留**，没有的补上——不剥、不嵌套
+        chk("_as_quote 保留已有「」",
+            m._as_quote("「Nitra 有 7000 家诊所在用」")
+            == "「Nitra 有 7000 家诊所在用」")
+        chk("_as_quote 给裸断言补引号",
+            m._as_quote("该 App 售价 $75K") == "「该 App 售价 $75K」")
+        # 半截引号属数据异常，只要求不抛异常、且不会剥掉已有引号
+        half = m._as_quote("1Lookup「处于 FOR SALE」")
+        chk("_as_quote 对半截引号不抛异常", isinstance(half, str) and half)
+        chk("_as_quote 不剥掉已有引号内容", "「处于 FOR SALE」" in half)
+        chk("_as_quote 对空串安全", m._as_quote("") == "")
+        chk("_as_quote 对 None 安全", m._as_quote(None) == "")
+
+        # 钩子两段：第一段带引号，第二段以「我去核了一遍」起头
+        cases = m.load_cases(m.CASES_PATH)
+        with_corr = [c for c in cases if c.get("corrections")]
+        chk("库里有带 corrections 的案例可测", len(with_corr) >= 10)
+        bad_quote, bad_prefix, has_old = [], [], []
+        for c in with_corr:
+            secs = m.build_sections(c)
+            head, hook = secs[0]
+            chk_head = (head is None)
+            if not (chk_head and len(hook) == 2):
+                bad_quote.append(c["id"] + "(结构)"); continue
+            if not (hook[0].startswith("「") and hook[0].endswith("」")):
+                bad_quote.append(c["id"])
+            if not hook[1].startswith("我去核了一遍："):
+                bad_prefix.append(c["id"])
+            if "反复引用" in hook[1] or "反复引用" in hook[0]:
+                has_old.append(c["id"])
+        chk("钩子第 1 段都是引号句", not bad_quote, "、".join(bad_quote[:5]))
+        chk("钩子第 2 段以「我去核了一遍」起头",
+            not bad_prefix, "、".join(bad_prefix[:5]))
+        chk("旧指代句「这句在中文网上被反复引用」已清除",
+            not has_old, "、".join(has_old[:5]))
+
+        # 内部黑话不得泄漏进发布正文
+        jargon = ("候选", "本次核实", "抓取原文", "入库时")
+        leaks = []
+        for c in cases:
+            for corr in (c.get("corrections") or []):
+                for f in ("claim", "truth"):
+                    t = corr.get(f) or ""
+                    if any(j in t for j in jargon):
+                        leaks.append("%s.%s" % (c["id"], f))
+        chk("corrections 里无内部黑话泄漏", not leaks, "、".join(leaks[:5]))
+    except Exception as e:
+        chk("[10d] 钩子口径", False, "%s" % e)
+    finally:
+        sys.argv = old_argv
+
     print("\n[11] 不污染工作区")
     dirty = [p for p in ("data", "static", "dist")
              if os.path.isdir(os.path.join(ROOT, p))
