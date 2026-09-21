@@ -156,5 +156,38 @@ class TestBodyBaseline(unittest.TestCase):
             self.assertIn("rgba(0,0,0,0.9)", st, "正文段缺颜色基线: %s" % st)
 
 
+class TestResumeTodo(unittest.TestCase):
+    """待办构造必须把「半成品」捞回来。
+
+    回归点（2026-09-21 实测）：第 13 篇 shipfast 在「原创声明」那步被
+    瞬时断连打断 —— 草稿建好了、没收尾、没记账。补记账后重跑 publish，
+    它却**没被处理**：因为 `compute_queue()` 会把 published 里的条目整条
+    剔掉，半成品就这样被永远当成「已发」跳过。
+    """
+
+    def setUp(self):
+        self._orig = W.find_article
+        W.find_article = lambda cid, name=None: "art-%s.html" % cid
+        self.addCleanup(lambda: setattr(W, "find_article", self._orig))
+
+    def test_半成品不被当已发跳过(self):
+        cases = [{"id": "a"}, {"id": "b"}, {"id": "c"}]
+        published = {
+            "a": {"status": "draft"},                    # 真发完了 → 跳过
+            "b": {"status": "partial", "appmsgid": "170"},   # 半成品 → 就地补完
+        }
+        ready = [(cases[2], "art-c.html")]               # compute_queue 只剩 c
+        todo = W.build_todo(cases, published, ready)
+        self.assertEqual([(t[0]["id"], t[2]) for t in todo],
+                         [("b", "170"), ("c", None)])
+
+    def test_partial但缺appmsgid时不当成补完(self):
+        """没记 appmsgid 就没法就地补完，只能当新发（宁可重发也别卡住）。"""
+        cases = [{"id": "a"}]
+        published = {"a": {"status": "partial"}}
+        todo = W.build_todo(cases, published, [])
+        self.assertEqual([(t[0]["id"], t[2]) for t in todo], [("a", None)])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

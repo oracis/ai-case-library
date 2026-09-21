@@ -964,6 +964,7 @@ class CDP:
             )
         self.bws = WS(ver["webSocketDebuggerUrl"])
         self.ws = None
+        self.tid = None          # 当前页面 target id，断线重连时要用
         self._id = 0
         self.debug = False
 
@@ -998,6 +999,7 @@ class CDP:
             for t in self.list_targets():
                 if t.get("id") == target_id and t.get("webSocketDebuggerUrl"):
                     self.ws = WS(t["webSocketDebuggerUrl"])
+                    self.tid = target_id
                     self._main_context = self._enable_and_grab_context()
                     return True
             time.sleep(0.5)
@@ -1110,18 +1112,31 @@ class CDP:
             raise RuntimeError("未连接页面 target，先 new_target + connect_target")
         self._id += 1
         msg = {"id": self._id, "method": method, "params": params or {}}
-        self.bws  # browser ws 仅用于 Browser.close
-        self.ws.send_text(json.dumps(msg))
-        if getattr(self, "debug", False):
-            print("[debug send] → %s" % json.dumps(msg, ensure_ascii=False)[:300])
-        while True:
-            raw = self.ws.recv_text()
+
+        def _roundtrip():
+            self.ws.send_text(json.dumps(msg))
             if getattr(self, "debug", False):
-                print("[debug send] ← %s" % raw[:600])
-            resp = json.loads(raw)
-            if resp.get("id") == self._id:
-                return resp
-            # 其余是事件，忽略
+                print("[debug send] → %s" % json.dumps(msg, ensure_ascii=False)[:300])
+            while True:
+                raw = self.ws.recv_text()
+                if getattr(self, "debug", False):
+                    print("[debug send] ← %s" % raw[:600])
+                resp = json.loads(raw)
+                if resp.get("id") == self._id:
+                    return resp
+                # 其余是事件，忽略
+
+        try:
+            return _roundtrip()
+        except ConnectionError:
+            # 页面 WebSocket 会**偶发**被对端断开。实测（2026-09-21）：长批次跑到
+            # 第 13 篇时突然 "ws closed"，异常一路冒到 publish_one，整个 publish
+            # 进程死掉，后面 16 篇全没发。重连同一 target 再试一次即可恢复。
+            tid = getattr(self, "tid", None)
+            if not tid or not self.connect_target(tid):
+                raise
+            print("  [warn] CDP 页面连接断开，已重连同一标签页")
+            return _roundtrip()
 
     def eval(self, expr, refresh_context=False, debug=False, context_id=None):
         if refresh_context or (context_id is None
@@ -2286,7 +2301,7 @@ def publish_one(cdp, c, art, dry=False, index=0):
     if dry:
         print("  [dry] 标题=%s 摘要=%d字 正文=%d字（不打开浏览器）" %
               (title, len(summary), len(strip_tags(body_html))))
-        return "dry"
+        return {"status": "dry", "appmsgid": None}
     # 微信公众号标题上限 64 字，make_wechat_title 已保证；兜底再截一次。
     title = title.strip()
     if len(title) > 64:
@@ -2356,32 +2371,127 @@ def publish_one(cdp, c, art, dry=False, index=0):
         raise RuntimeError(
             "点保存后 10 秒内 URL 未出现 appmsgid，草稿可能没存成功。"
             "URL=%s 页面报错=%s" % (url, diag.get("errs")))
-    # 原创声明必须在首次保存之后做（草稿有 appmsgid 才能提交成功），
-    # 声明完再补一次保存把状态固化。失败不挡发布主链路。
-    r2 = None
-    r = _declare_original(cdp)
-    if r == "OK":
-        print("  原创声明: ✓ 文字原创")
-        # 原创声明成功后顺手开启赞赏（依赖原创声明，失败不挡发布）
-        r2 = _enable_reward(cdp)
-    else:
-        print("  原创声明: [warn] %s" % r)
-    # 补一次保存把原创/赞赏状态固化
-    r = _click_by_text(cdp, "保存为草稿")
-    time.sleep(4)
-    print("  补保存: %s" % r)
-    # 赞赏最终校验：只信落库状态（重新加载草稿页读行文本）。
-    # 不看弹窗是否关闭、也不看当前页面行文本——那两样都是滞后的过程量，
-    # 会把成功误报成失败（2026-09-21 实测踩过）。
-    if r2 is not None:
+    # ---- 收尾阶段：原创声明 / 赞赏 / 补保存 ----
+    # 草稿此刻已经建好了（appmsgid 已拿到），所以这一段**任何异常都不能让整批死掉**。
+    # 实测（2026-09-21）：跑到第 13 篇时页面 WebSocket 突然断开（ws closed），
+    # 异常从 _click_by_text 冒出，publish 进程当场退出，后面 16 篇全没发。
+    # 这里降级成 "partial" 返回，由 cmd_publish 记账；下次运行按 appmsgid
+    # **就地补完**（见 finish_one），不会新建重复稿。
+    try:
+        # 原创声明必须在首次保存之后做（草稿有 appmsgid 才能提交成功），
+        # 声明完再补一次保存把状态固化。失败不挡发布主链路。
+        r2 = None
+        r = _declare_original(cdp)
+        if r == "OK":
+            print("  原创声明: ✓ 文字原创")
+            # 原创声明成功后顺手开启赞赏（依赖原创声明，失败不挡发布）
+            r2 = _enable_reward(cdp)
+        else:
+            print("  原创声明: [warn] %s" % r)
+        # 补一次保存把原创/赞赏状态固化
+        r = _click_by_text(cdp, "保存为草稿")
+        time.sleep(4)
+        print("  补保存: %s" % r)
+        # 赞赏最终校验：只信落库状态（重新加载草稿页读行文本）。
+        # 不看弹窗是否关闭、也不看当前页面行文本——那两样都是滞后的过程量，
+        # 会把成功误报成失败（2026-09-21 实测踩过）。
+        if r2 is not None:
+            if r2 == "OK":
+                print("  赞赏开启: ✓ 赞赏作者")
+            elif _reward_after_reload(cdp, tid, appmsgid):
+                print("  赞赏开启: ✓ 赞赏作者（重载确认）")
+            else:
+                print("  赞赏开启: [warn] %s" % r2)
+    except Exception as e:
+        print("  [warn] 收尾中断（草稿已存好，仅原创/赞赏未完成）: %s" % e)
+        return {"status": "partial", "appmsgid": appmsgid}
+    cdp.close_target(tid)   # 这篇存完即关 tab，不堆积
+    return {"status": "ok", "appmsgid": appmsgid}
+
+
+def finish_one(cdp, c, appmsgid, tok):
+    """把「草稿已建、收尾未完成」的条目**就地补完**。
+
+    为什么不重跑 publish_one：那会再建一篇新草稿，草稿箱里立刻多一份重复稿
+    （2026-09-21 实测踩过）。这里按 appmsgid 打开**已有**草稿补原创/赞赏。
+    `_declare_original` / `_enable_reward` 都是幂等的：已声明过返回 SKIP。
+    返回 "ok"（原创已落） / "partial"（仍没搞定）。
+    """
+    print("\n→ %s — %s（补完已有草稿 appmsgid=%s）"
+          % (c["id"], make_wechat_title(c), appmsgid))
+    # 上次中断往往在页面上留着一个开着的弹窗，顺手把那个残留标签页关掉，
+    # 免得用户看着一堆僵住的窗口。
+    for t in cdp.list_targets():
+        if t.get("type") == "page" and ("appmsgid=%s" % appmsgid) in (t.get("url") or ""):
+            cdp.close_target(t["id"])
+    tid = _open_draft_editor(cdp, appmsgid, tok)
+    try:
+        try:
+            _close_dialog(cdp)
+        except Exception:
+            pass
+        # 封面：中断也可能发生在「设封面」之前（实测 trustmrr 赶上「设封面 NO_MENU」）。
+        # 只信服务端 cover 字段——正文里有图不代表草稿封面已设。
+        try:
+            for d in _draft_list(cdp, tok):
+                if str(d.get("appmsgid")) == str(appmsgid):
+                    if not str(d.get("cover") or "").strip():
+                        print("  补封面: %s" % _set_cover_from_body(cdp))
+                    break
+        except Exception as e:
+            print("  [warn] 封面检查跳过: %s" % e)
+        r = _declare_original(cdp)
+        declared = r == "OK" or str(r).startswith("SKIP")
+        if r == "OK":
+            print("  原创声明: ✓ 文字原创")
+        elif declared:
+            print("  原创声明: %s" % r)
+        else:
+            print("  原创声明: [warn] %s" % r)
+        r2 = _enable_reward(cdp) if declared else None
+        _click_by_text(cdp, "保存为草稿")
+        time.sleep(4)
+        print("  补保存: OK")
         if r2 == "OK":
             print("  赞赏开启: ✓ 赞赏作者")
-        elif _reward_after_reload(cdp, tid, appmsgid):
-            print("  赞赏开启: ✓ 赞赏作者（重载确认）")
-        else:
-            print("  赞赏开启: [warn] %s" % r2)
-    cdp.close_target(tid)   # 这篇存完即关 tab，不堆积
-    return "ok"
+        elif r2 is not None:
+            if _reward_after_reload(cdp, tid, appmsgid):
+                print("  赞赏开启: ✓ 赞赏作者（重载确认）")
+            else:
+                print("  赞赏开启: [warn] %s" % r2)
+        return "ok" if declared else "partial"
+    except Exception as e:
+        print("  [warn] 补完失败: %s" % e)
+        return "partial"
+    finally:
+        cdp.close_target(tid)
+
+
+def build_todo(all_cases, published, ready):
+    """构造待办列表 [(case, art, resume_appmsgid)]，按 cases.json 顺序。
+
+    = 未发的（新发，resume 为 None） + 「草稿已建、收尾没做完」的（就地补完）。
+
+    ⚠ 不能直接拿 `ready` 当待办：`compute_queue()` 会把 published 里的条目
+    **整条剔掉**，包括 status=partial 的半成品 —— 那样半成品就被永远当成
+    「已发」跳过了（2026-09-21 实测：shipfast 断连后漏了一整轮）。
+    """
+    ready_ids = set(c["id"] for c, _ in ready)
+    todo = []
+    for c in all_cases:
+        cid = c["id"]
+        if cid in ready_ids:
+            todo.append((c, find_article(cid, c.get("name")), None))
+            continue
+        rec = published.get(cid) or {}
+        if rec.get("status") == "partial":
+            art = find_article(cid, c.get("name"))
+            if not art:
+                continue
+            # 有 appmsgid → 就地补完那篇旧草稿；没记 appmsgid（老记录）就没法定位，
+            # 只能当新发（宁可重发一篇，也别把它永久卡在「跳过」里）。
+            todo.append((c, art, rec.get("appmsgid") or None))
+    return todo
 
 
 def cmd_publish(args):
@@ -2398,45 +2508,75 @@ def cmd_publish(args):
         if not art:
             print("未找到 %s 的公众号-*.html，先跑 build。" % args.case)
             return
-        ready = [(c, art)]
+        todo = [(c, art, None)]
         print("指定单篇重发：%s" % args.case)
     else:
         ready, missing = compute_queue()
         if missing:
             print("注意：%d 条缺发布就绪 HTML，先跑 `build`。以下只发已有的 %d 条。" %
                   (len(missing), len(ready)))
-        # 跳过已成功存草稿的，避免重复发导致草稿箱堆积重复稿
-        before = len(ready)
-        ready = [(c, art) for (c, art) in ready if c["id"] not in published]
-        if before != len(ready):
-            print("已跳过 %d 条已发过的，剩 %d 条待发。" % (before - len(ready), len(ready)))
-        ready = ready[:args.limit] if args.limit else ready
-        if not ready:
+        todo = build_todo(all_cases, published, ready)
+        n_fix = sum(1 for t in todo if t[2])
+        if args.limit:
+            todo = todo[:args.limit]
+            n_fix = sum(1 for t in todo if t[2])
+        print("跳过已发完 %d 条；本次处理 %d 条（新发 %d、就地补完 %d）。"
+              % (len(published) - n_fix, len(todo), len(todo) - n_fix, n_fix))
+        if not todo:
             print("队列为空（都已发过或全缺源），没有可发的。")
             return
     if not args.dry:
         _need("title")
         _need("editor")
     cdp = None
+    tok = None
+    done = 0
     try:
         if not args.dry:
             cdp = CDP(args.port)
-        for c, art in ready:
+        for c, art, resume_id in todo:
             idx = case_index.get(c["id"], 0)
-            st = publish_one(cdp, c, art, dry=args.dry, index=idx)
-            if st in ("ok",) and not args.dry:
-                published[c["id"]] = {
-                    "title": make_wechat_title(c),
-                    "published_at": time.strftime("%Y-%m-%d %H:%M"),
-                    "status": "draft",
-                    "file": os.path.basename(art),
-                }
-                # 逐篇落库：全量要跑几个小时，中途被 kill / 断电时如果只在结尾写，
-                # 已建好的草稿就成了「未登记」——下次全量会重发一遍，草稿箱里
-                # 一堆重复稿（2026-09-21 实测踩过）。
-                save_published(published)
+            try:
+                if resume_id:
+                    if tok is None:
+                        _tid0, tok = _connect_mp(cdp)
+                        if not tok:
+                            raise RuntimeError("拿不到 token，确认调试窗口里已登录")
+                    status = finish_one(cdp, c, resume_id, tok)
+                    appmsgid = resume_id
+                else:
+                    st = publish_one(cdp, c, art, dry=args.dry, index=idx)
+                    status = st.get("status")
+                    appmsgid = st.get("appmsgid")
+            except Exception as e:
+                # 单篇失败不能拖垮整批（2026-09-21：一次瞬时断连让后面 16 篇全没发）。
+                # 记录/落库都在下面按篇进行，所以直接继续下一篇即可。
+                print("  [error] %s 处理失败，跳过继续：%s" % (c["id"], e))
+                # 连接可能已经坏了，丢掉它让下次重新连（send 里也有自动重连兜底）
+                if cdp is not None:
+                    cdp.ws = None
+                continue
+            if args.dry or status not in ("ok", "partial"):
+                continue
+            if resume_id and status == "ok":
+                print("  ✓ 已就地补完 appmsgid=%s" % appmsgid)
+            published[c["id"]] = {
+                "title": make_wechat_title(c),
+                "published_at": time.strftime("%Y-%m-%d %H:%M"),
+                "status": "draft" if status == "ok" else "partial",
+                "appmsgid": appmsgid,
+                "file": os.path.basename(art),
+            }
+            # 逐篇落库：全量要跑几个小时，中途被 kill / 断电时如果只在结尾写，
+            # 已建好的草稿就成了「未登记」——下次全量会重发一遍，草稿箱里
+            # 一堆重复稿（2026-09-21 实测踩过）。
+            save_published(published)
+            done += 1
+            if status == "partial":
+                print("  ⚠ 草稿已建（appmsgid=%s）但收尾没做完；"
+                      "重跑 publish 会就地补完，不会新建重复稿。" % appmsgid)
     finally:
-        # 每篇 tab 已在 publish_one 里各自关闭；这里不再关整个浏览器，
+        # 每篇 tab 已在 publish_one / finish_one 里各自关闭；这里不再关整个浏览器，
         # 保留你的登录窗口，方便直接去后台点「群发」。
         if cdp and cdp.bws is not None:
             try:
@@ -2445,7 +2585,11 @@ def cmd_publish(args):
                 pass
     if not args.dry:
         save_published(published)
-        print("\n已记录 %d 条到 %s" % (len(ready), os.path.relpath(PUBLISHED_PATH, ROOT)))
+        print("\n已记录 %d 条到 %s" % (done, os.path.relpath(PUBLISHED_PATH, ROOT)))
+        left = [c["id"] for (c, _a, _r) in todo
+                if published.get(c["id"], {}).get("status") != "draft"]
+        if left:
+            print("⚠ 这些没发完，重跑 `publish` 会接着处理：%s" % ", ".join(left))
 
 
 # ======================================================================
