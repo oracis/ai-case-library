@@ -4,5 +4,224 @@
     "published_at": "2026-09-21 20:41",
     "status": "draft",
     "file": "公众号-insect-bite-id拆解.html"
+  },
+  "autoreels-ai": {
+    "title": "AutoReels.AI：AI 自动生成短视频",
+    "published_at": "2026-09-21 21:09",
+    "status": "draft",
+    "file": "公众号-autoreels-ai拆解.html",
+    "appmsgid": "100000121",
+    "refreshed_at": "2026-09-22 01:02"
+  },
+  "magicslides-app": {
+    "title": "MagicSlides.app：AI 一键生成演示文稿",
+    "published_at": "2026-09-21 21:14",
+    "status": "draft",
+    "file": "公众号-magicslides-app拆解.html",
+    "appmsgid": "100000125",
+    "refreshed_at": "2026-09-22 01:02"
+  },
+  "stan": {
+    "title": "Stan：帮创作者「靠自己活着和工作」的平台",
+    "published_at": "2026-09-21 21:20",
+    "status": "draft",
+    "file": "公众号-stan拆解.html",
+    "appmsgid": "100000130",
+    "refreshed_at": "2026-09-22 00:51"
+  },
+  "1lookup": {
+    "title": "1Lookup：一个 API 做电话、邮箱、IP 的实时数据校验",
+    "published_at": "2026-09-21 21:25",
+    "status": "draft",
+    "file": "公众号-1lookup拆解.html",
+    "appmsgid": "100000134",
+    "refreshed_at": "2026-09-22 01:03"
+  },
+  "gojiberryai": {
+    "title": "GojiberryAI：面向 B2B 团队的 AI GTM 平台：找高意向线索，把购买信号变成对话",
+    "published_at": "2026-09-21 21:31",
+    "status": "draft",
+    "file": "公众号-gojiberryai拆解.html",
+    "appmsgid": "100000138",
+    "refreshed_at": "2026-09-22 01:03"
+  },
+  "sierra": {
+    "title": "Sierra：企业级 AI 客服代理，只在问题被真正解决时才收钱",
+    "published_at": "2026-09-21 21:37",
+    "status": "draft",
+    "file": "公众号-sierra拆解.html",
+    "appmsgid": "100000142",
+    "refreshed_at": "2026-09-22 01:04"
+  },
+  "genius-ai": {
+    "title": "Genius AI（原 GlossGenius）：给美发店、美甲店、理疗诊所做的一体化后台：预约、收银、发短信",
+    "published_at": "2026-09-21 21:42",
+    "status": "draft",
+    "file": "公众号-genius-ai拆解.html"
+  },
+  "nitra": {
+    "title": "Nitra：给独立小诊所做后台：管钱、管合规、管药品库存",
+    "published_at": "2026-09-21 21:48",
+    "status": "draft",
+    "file": "公众号-nitra拆解.html",
+    "appmsgid": "100000150",
+    "refreshed_at": "2026-09-22 01:05"
+  },
+  "viktor": {
+    "title": "Viktor：住进 Slack / Teams 的 AI 同事，你 @ 它，它把活干完再贴回来",
+    "published_at": "2026-09-21 21:53",
+    "status": "draft",
+    "file": "公众号-viktor拆解.html",
+    "appmsgid": "100000154",
+    "refreshed_at": "2026-09-22 01:05"
+  },
+  "chatbase": {
+    "title": "Chatbase：上传文档就能得到一个客服机器人；从推文发出去到第一个付费客户只用 30 分钟",
+    "published_at": "2026-09-21 21:59",
+    "status": "draft",
+    "file": "公众号-chatbase拆解.html",
+    "appmsgid": "100000158",
+    "refreshed_at": "2026-09-22 01:06"
+  },
+  "rezi": {
+    "title": "Rezi：AI 简历生成器——最不酷的需求，却是验证收入最高的 AI 产品",
+    "published_at": "2026-09-21 22:04",
+    "status": "draft",
+    "file": "公众号-rezi拆解.html"
+  },
+  "postiz": {
+    "title": "Postiz：社媒一键多平台排期发布，靠 agent 营销把 MRR 从 1.7 万推到 20 万",
+    "published_at": "2026-09-21 22:10",
+    "status": "draft",
+    "file": "公众号-postiz拆解.html",
+    "appmsgid": "100000166",
+    "refreshed_at": "2026-09-22 01:07"
+  },
+  "shipfast": {
+    "title": "ShipFast：Next.js SaaS 脚手架：把登录、支付、邮件全打包，卖一次性 $199",
+    "published_at": "2026-09-21 22:39",
+    "status": "draft",
+    "appmsgid": "100000170",
+    "file": "公众号-shipfast拆解.html",
+    "refreshed_at": "2026-09-22 01:07"
+  },
+  "trustmrr": {
+    "title": "TrustMRR：把「验证收入」本身做成了产品：连 Stripe 才能上榜的创业公司收入数据库 + 交易市场",
+    "published_at": "2026-09-21 22:43",
+    "status": "draft",
+    "appmsgid": "100000172",
+    "file": "公众号-trustmrr拆解.html"
+  },
+  "comp-ai": {
+    "title": "Comp AI：帮公司过 SOC 2 / ISO 27001 合规审计，把六个月的流程压到几周",
+    "published_at": "2026-09-22 00:10",
+    "status": "draft",
+    "appmsgid": "100000176",
+    "file": "公众号-comp-ai拆解.html",
+    "refreshed_at": "2026-09-22 01:08"
+  },
+  "aeo-engine": {
+    "title": "AEO Engine",
+    "published_at": "2026-09-21 22:57",
+    "status": "draft",
+    "appmsgid": "100000180",
+    "file": "公众号-aeo-engine拆解.html"
+  },
+  "lancer-app": {
+    "title": "Lancer.app：AI 替自由职业者干完接单最烦的那一段：找活、筛活、写提案、投出去",
+    "published_at": "2026-09-21 23:03",
+    "status": "draft",
+    "appmsgid": "100000184",
+    "file": "公众号-lancer-app拆解.html"
+  },
+  "speel-co": {
+    "title": "Speel.co：上传商品图、选个 AI 形象，3 分钟出一条能直接投 Meta / TikTok 的广告素材",
+    "published_at": "2026-09-21 23:08",
+    "status": "draft",
+    "appmsgid": "100000188",
+    "file": "公众号-speel-co拆解.html",
+    "refreshed_at": "2026-09-22 01:08"
+  },
+  "visualizee-ai": {
+    "title": "Visualizee.ai：给建筑师和室内设计师做效果图渲染，两年卡在 $150/月，一次转型跳到 $8.6K",
+    "published_at": "2026-09-21 23:14",
+    "status": "draft",
+    "appmsgid": "100000192",
+    "file": "公众号-visualizee-ai拆解.html"
+  },
+  "checkvibe": {
+    "title": "CheckVibe：扫描 vibe-coded 应用的安全漏洞——转换率翻三倍靠的不是产品，是付费墙的写法",
+    "published_at": "2026-09-21 23:19",
+    "status": "draft",
+    "appmsgid": "100000196",
+    "file": "公众号-checkvibe拆解.html"
+  },
+  "storyshort-ai": {
+    "title": "StoryShort.ai：自动生成无露脸短视频，靠 TikTok 图文轮播拿到 100+ 付费用户",
+    "published_at": "2026-09-21 23:25",
+    "status": "draft",
+    "appmsgid": "100000200",
+    "file": "公众号-storyshort-ai拆解.html",
+    "refreshed_at": "2026-09-22 01:09"
+  },
+  "meerkats-ai": {
+    "title": "Meerkats.ai：替营销机构自动跑「找线索 → 补数据 → 个性化触达 → 跟进」的 AI agent",
+    "published_at": "2026-09-21 23:30",
+    "status": "draft",
+    "appmsgid": "100000204",
+    "file": "公众号-meerkats-ai拆解.html",
+    "refreshed_at": "2026-09-22 01:10"
+  },
+  "coral": {
+    "title": "Coral：帮你把开源 AI agent 部署、托管、接上各种业务系统——卖的是「配置」，不是模型",
+    "published_at": "2026-09-21 23:36",
+    "status": "draft",
+    "appmsgid": "100000208",
+    "file": "公众号-coral拆解.html"
+  },
+  "startclaw": {
+    "title": "StartClaw：不用买服务器、不用配 API key，就能跑起一个托管 agent",
+    "published_at": "2026-09-21 23:42",
+    "status": "draft",
+    "appmsgid": "100000212",
+    "file": "公众号-startclaw拆解.html"
+  },
+  "outrank": {
+    "title": "Outrank：从月入 $300 的 AI 博客生成器，15 个月变成月入 30 万的自动化 SEO 引擎",
+    "published_at": "2026-09-22 00:29",
+    "status": "draft",
+    "appmsgid": "100000214",
+    "file": "公众号-outrank拆解.html",
+    "refreshed_at": "2026-09-22 01:11"
+  },
+  "marc-lou-portfolio": {
+    "title": "Marc Lou 的产品矩阵：三年发 25 个产品、12 个赚钱、1 个大成——靠「组合」而不是「单品」活着",
+    "published_at": "2026-09-21 23:52",
+    "status": "draft",
+    "appmsgid": "100000218",
+    "file": "公众号-marc-lou-portfolio拆解.html"
+  },
+  "bustem": {
+    "title": "Bustem：帮电商品牌全网打假：找仿品、找窜货、下架链接，软件 + 人工一起上",
+    "published_at": "2026-09-22 00:44",
+    "status": "draft",
+    "appmsgid": "100000220",
+    "file": "公众号-bustem拆解.html",
+    "refreshed_at": "2026-09-22 01:11"
+  },
+  "kibu": {
+    "title": "Kibu：专给智障与发育障碍（I/DD）服务机构做的内容、合规与电子病历系统",
+    "published_at": "2026-09-22 00:48",
+    "status": "draft",
+    "appmsgid": "100000222",
+    "file": "公众号-kibu拆解.html",
+    "refreshed_at": "2026-09-22 01:12"
+  },
+  "pieter-levels": {
+    "title": "Pieter Levels 的产品矩阵",
+    "published_at": "2026-09-22 00:05",
+    "status": "draft",
+    "appmsgid": "100000226",
+    "file": "公众号-pieter-levels拆解.html"
   }
 }
