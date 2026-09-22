@@ -1,78 +1,78 @@
 {
-  "ran_at": "2026-09-21 05:45:45",
-  "added": 66,
+  "ran_at": "2026-09-22 05:42:51",
+  "added": 55,
   "by_source": {
-    "hn": 50,
-    "indiehackers": 8,
-    "trustmrr": 8
+    "hn": 47,
+    "indiehackers": 4,
+    "trustmrr": 4
   },
   "inbox_total": 400,
-  "archived_this_run": 66,
-  "archive_total": 407,
+  "archived_this_run": 55,
+  "archive_total": 462,
   "top": [
     {
-      "name": "HarperAI",
-      "headline": "MRR $6,232，TrustMRR 第 945 名",
+      "name": "AitThemes",
+      "headline": "MRR $45，TrustMRR 第 1123 名",
       "heat": 0,
-      "category": "Real Estate",
+      "category": "Developer Tools",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/harper"
+      "url": "https://trustmrr.com/startup/ait"
     },
     {
-      "name": "MapsLead Extractor",
-      "headline": "MRR $275，TrustMRR 第 3417 名",
+      "name": "Podawaa",
+      "headline": "MRR $60,014，TrustMRR 第 90 名",
       "heat": 0,
-      "category": "Sales",
+      "category": "Social Media",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/mapslead-extractor"
+      "url": "https://trustmrr.com/startup/podawaa"
     },
     {
-      "name": "easymix",
-      "headline": "MRR $7,446，TrustMRR 第 976 名",
+      "name": "Caloria",
+      "headline": "MRR $257，TrustMRR 第 2426 名",
       "heat": 0,
-      "category": "Entertainment",
+      "category": "Health & Fitness",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/easymix"
+      "url": "https://trustmrr.com/startup/caloria-1"
     },
     {
-      "name": "scantoexcel",
-      "headline": "MRR $464，TrustMRR 第 2928 名",
+      "name": "SnapMyRecord",
+      "headline": "MRR $200，TrustMRR 第 3338 名",
       "heat": 0,
       "category": "Artificial Intelligence",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/scantoexcel"
+      "url": "https://trustmrr.com/startup/snapmyrecord"
     },
     {
-      "name": "CodeHype",
-      "headline": "MRR $65，TrustMRR 第 3760 名",
+      "name": "Peitho",
+      "headline": "自报收入 $25 / mo（Indie Hackers）",
       "heat": 0,
-      "category": "SaaS",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/codehype"
+      "category": "未分类",
+      "source": "indiehackers",
+      "url": "https://www.indiehackers.com/product/peitho-2"
     },
     {
-      "name": "Neume",
-      "headline": "MRR $969，TrustMRR 第 787 名",
-      "heat": 0,
-      "category": "Artificial Intelligence",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/neume"
+      "name": "WebGCM",
+      "headline": "疑似金额 $200 ",
+      "heat": 3,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://gcm.echorelay.net/"
     },
     {
-      "name": "Trade Hunterr",
-      "headline": "MRR $923，TrustMRR 第 2289 名",
+      "name": "VitaSnap",
+      "headline": "自报收入 $8 / mo（Indie Hackers）",
       "heat": 0,
-      "category": "Artificial Intelligence",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/trade-hunterr"
+      "category": "未分类",
+      "source": "indiehackers",
+      "url": "https://www.indiehackers.com/product/vitasnap"
     },
     {
-      "name": "DissectMac",
-      "headline": "近 30 天收入 $222",
+      "name": "Contributors",
+      "headline": "自报收入 $1,000 / mo（Indie Hackers）",
       "heat": 0,
-      "category": "Utilities",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/dissectmac"
+      "category": "未分类",
+      "source": "indiehackers",
+      "url": "https://www.indiehackers.com/product/contributors-2"
     }
   ]
 }

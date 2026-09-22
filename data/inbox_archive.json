@@ -8118,5 +8118,1105 @@
     "added_at": "2026-09-14",
     "source_kind": "verified",
     "archived_at": "2026-09-21"
+  },
+  {
+    "id": "a-game-where-the-level-is-whatever-web-page-you-re-on",
+    "name": "A game where the level is whatever web page you're on",
+    "name_en": "A game where the level is whatever web page you're on",
+    "origin": "",
+    "one_liner": "Show HN: A game where the level is whatever web page you're on",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-17（来源 hn，发布于 2026-09-16，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://page-rage.com/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "fail2zig-a-single-binary-fail2ban-replacement-written-in-zig",
+    "name": "Fail2zig. A single-binary fail2ban replacement written in Zig",
+    "name_en": "Fail2zig. A single-binary fail2ban replacement written in Zig",
+    "origin": "",
+    "one_liner": "Built fail2zig because I like fail2ban's log-to-ban model but wanted a smaller runtime with explicit limits on the work attacker controlled input can cause. fail2zig is a single static binary with bounded parsers instead of a regex engine, ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-17（来源 hn，发布于 2026-09-16，6 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://fail2zig.com/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "halo-3-s-guardian-playable-in-the-browser-as-my-personal-website",
+    "name": "Halo 3's Guardian, playable in the browser, as my personal website",
+    "name_en": "Halo 3's Guardian, playable in the browser, as my personal website",
+    "origin": "",
+    "one_liner": "I've never had a personal website, and I didn't want to make a resume/portfolio site, so I rebuilt Guardian and hid a treasure hunt through my life inside it. You start in the Halo 3 main menu, go through the lobby, spawn in the map, and ex",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-17（来源 hn，发布于 2026-09-16，19 分 / 5 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://runboli.com",
+    "harvest_source": "hn",
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "plexus",
+    "name": "Plexus",
+    "name_en": "Plexus",
+    "origin": "",
+    "one_liner": "Hi, I'm Ann, building Plexus. We gives hardware teams live dashboards and stored history for your sensor data, so you don't have to build and maintain that setup yourself. You can try it without signing up on our site. I built it because sm",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "疑似金额 $500 "
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-17（来源 hn，发布于 2026-09-16，2 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://plexus.company",
+    "harvest_source": "hn",
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "a-simple-mac-extension-for-recent-screenshots",
+    "name": "A simple Mac extension for recent screenshots",
+    "name_en": "A simple Mac extension for recent screenshots",
+    "origin": "",
+    "one_liner": "Had my very own \"personal software\" moment recently. Apple's screenshot experience is god awful, you take a screenshot and then race to the destination where you need to drag and drop it (messages, etc.) Asked codex to solve this and it did",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-17（来源 hn，发布于 2026-09-16，1 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/KanishkVashisht/screenshot-shelf",
+    "harvest_source": "hn",
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "interakt",
+    "name": "Interakt",
+    "name_en": "Interakt",
+    "origin": "",
+    "one_liner": "Show HN: Interakt – open-source self-hosted search and AI chat for your website",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-17（来源 hn，发布于 2026-09-16，2 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/alphasolutionsrepo/interakt",
+    "harvest_source": "hn",
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "vending-machine-lab",
+    "name": "Vending Machine Lab",
+    "name_en": "Vending Machine Lab",
+    "origin": "",
+    "one_liner": "I spent a while exploring whether AI could help build businesses that operate with little ongoing owner involvement. This was inspired in part by Andon Labs’ Vending-Bench work on AI agents running simulated businesses. Their Project Vend c",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-17（来源 hn，发布于 2026-09-16，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://vending-machine-lab.pages.dev/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "unsnag",
+    "name": "unSnag",
+    "name_en": "unSnag",
+    "origin": "",
+    "one_liner": "My garage has needed clearing out for quite a while, and to most people it looks like I've just been putting it off. But I'm not procrastinating; the truth is that I'm blocked from doing most of the work. There are two different people that",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-17（来源 hn，发布于 2026-09-16，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://unsnag.app",
+    "harvest_source": "hn",
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "hometowns",
+    "name": "Hometowns",
+    "name_en": "Hometowns",
+    "origin": "",
+    "one_liner": "I've always been interested in area codes because we all tend to keep our first phone number and it tells a little bit of your life story. I probably only know 5 area codes that really excite me because I'm familiar with the area, but I've ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-17（来源 hn，发布于 2026-09-16，4 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://benaduggan.github.io/hometowns/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "opencode-mentor",
+    "name": "OpenCode Mentor",
+    "name_en": "OpenCode Mentor",
+    "origin": "",
+    "one_liner": "Show HN: OpenCode Mentor - An anti-vibecoding, programming mentor configuration",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-17（来源 hn，发布于 2026-09-16，4 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/davejpeters/opencode-mentor",
+    "harvest_source": "hn",
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "make-art-not-apps",
+    "name": "Make Art Not Apps",
+    "name_en": "Make Art Not Apps",
+    "origin": "",
+    "one_liner": "Make Art Not Apps. Runs completely in your browser.",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-17（来源 hn，发布于 2026-09-16，3 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://www.makeartnotapps.com/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "kosmic-kart",
+    "name": "Kosmic Kart",
+    "name_en": "Kosmic Kart",
+    "origin": "",
+    "one_liner": "Show HN: Kosmic Kart – Mario Kart-style racing with friends in the browser",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-17（来源 hn，发布于 2026-09-16，3 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://kosmi.io/kosmic-kart/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "fivetran-cli-is-released-to-beta",
+    "name": "Fivetran CLI is released to Beta",
+    "name_en": "Fivetran CLI is released to Beta",
+    "origin": "",
+    "one_liner": "At long last, Fivetran has a CLI app that humans and AI can use to easily orchestrate the platform with a quick install and an api key. It can do (most) everything possible on the platform without ever touching the web UI!",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-17（来源 hn，发布于 2026-09-16，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://pypi.org/project/fivetran-cli/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "collected-every-single-what-are-you-working-on-project-into-a-website",
+    "name": "Collected every single \"What are you working on\" project into a website",
+    "name_en": "Collected every single \"What are you working on\" project into a website",
+    "origin": "",
+    "one_liner": "Show HN: Collected every single \"What are you working on\" project into a website",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-17（来源 hn，发布于 2026-09-16，3 分 / 3 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://what-are-you-working-on-62u6b.reachpad.app/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "learn-claude-code",
+    "name": "Learn Claude Code",
+    "name_en": "Learn Claude Code",
+    "origin": "",
+    "one_liner": "Show HN: Learn Claude Code – Interactive Mindmap",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-17（来源 hn，发布于 2026-09-16，2 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://mikenikles.com/blog/learn-claude-code",
+    "harvest_source": "hn",
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "droidputter",
+    "name": "DroidPutter",
+    "name_en": "DroidPutter",
+    "origin": "",
+    "one_liner": "Show HN: DroidPutter – Run Cardputer Apps on Android via USB OTG",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-17（来源 hn，发布于 2026-09-16，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/fcavalcantirj/droidputter",
+    "harvest_source": "hn",
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "helping-agents-break-out-of-their-sandboxes-in-a-monitorable-way",
+    "name": "Helping agents break out of their sandboxes in a monitorable way",
+    "name_en": "Helping agents break out of their sandboxes in a monitorable way",
+    "origin": "",
+    "one_liner": "Show HN: Helping agents break out of their sandboxes in a monitorable way",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-17（来源 hn，发布于 2026-09-16，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://sparrowsystems.co/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "mockfreeli",
+    "name": "Mockfreeli",
+    "name_en": "Mockfreeli",
+    "origin": "",
+    "one_liner": "Show HN: Mockfreeli – paste a YouTube link, get songs that sound like it",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-17（来源 hn，发布于 2026-09-16，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://mockfreeli.org/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "nullsec",
+    "name": "Nullsec",
+    "name_en": "Nullsec",
+    "origin": "",
+    "one_liner": "Show HN: Nullsec – server-blind encrypted paste",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-17（来源 hn，发布于 2026-09-17，5 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://nullsec.pntr.dev",
+    "harvest_source": "hn",
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "hacker-news-a-little-more-focused",
+    "name": "Hacker News, a little more focused",
+    "name_en": "Hacker News, a little more focused",
+    "origin": "",
+    "one_liner": "I love AI and LLMs as much as the next person, but sometimes I just want to browse stories about, say programming. So I built this for myself and figured I will share it here as well. Each story gets up to three tags, and I can use them to ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-17（来源 hn，发布于 2026-09-17，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://hn-tags.beehivesoftware.xyz/?tags=programming",
+    "harvest_source": "hn",
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "fastrecall-ultra-cheap-memory-across-ai-models",
+    "name": "FastRecall, ultra-cheap memory across AI models",
+    "name_en": "FastRecall, ultra-cheap memory across AI models",
+    "origin": "",
+    "one_liner": "Hi everyone! After working on memory at OpenAI, I built FastRecall to solve one problem: using different AI models results in clunky ad-hoc context management systems or lost context entirely. With the model layer becoming commoditized, you",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-17（来源 hn，发布于 2026-09-17，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://fastrecall.ai/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "spendalyst",
+    "name": "Spendalyst",
+    "name_en": "Spendalyst",
+    "origin": "",
+    "one_liner": "Show HN: Spendalyst – tells you when a recurring charge changes price",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-17（来源 hn，发布于 2026-09-17，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://app.spendalyst.com/demo",
+    "harvest_source": "hn",
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "pqp-an-open-source-discord-alternative-with-watch-parties",
+    "name": "Pqp, an open-source Discord alternative with watch parties",
+    "name_en": "Pqp, an open-source Discord alternative with watch parties",
+    "origin": "",
+    "one_liner": "Show HN: Pqp, an open-source Discord alternative with watch parties",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-17（来源 hn，发布于 2026-09-17，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/rafaelcg/pqp",
+    "harvest_source": "hn",
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "bineuron",
+    "name": "BiNeuron",
+    "name_en": "BiNeuron",
+    "origin": "",
+    "one_liner": "Show HN: BiNeuron – Local, open-source alternative to ChatGPT Codex",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-17（来源 hn，发布于 2026-09-17，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/just-not-google/BiNeuron/tree/main",
+    "harvest_source": "hn",
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "echodot",
+    "name": "Echodot",
+    "name_en": "Echodot",
+    "origin": "",
+    "one_liner": "I built echodot – a free, open-source desktop app that drafts replies in your personal writing style. Problem: Most AI writing tools either force you into their voice or require constant copy-pasting between apps. Tools like Cotype are usef",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-17（来源 hn，发布于 2026-09-17，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/ohkariku-boop/Echodot",
+    "harvest_source": "hn",
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "quiet-field",
+    "name": "Quiet Field",
+    "name_en": "Quiet Field",
+    "origin": "",
+    "one_liner": "Show HN: Quiet Field – Offline ambient sound mixing for Windows",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-17（来源 hn，发布于 2026-09-17，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/Gary06868/QuietField",
+    "harvest_source": "hn",
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "mealmacroai",
+    "name": "MealMacroAI",
+    "name_en": "MealMacroAI",
+    "origin": "",
+    "one_liner": "Show HN: MealMacroAI – Reverse food portion calculator for meal prep macros",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-17（来源 hn，发布于 2026-09-17，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://www.mealmacroai.com/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "rossino",
+    "name": "Rossino",
+    "name_en": "Rossino",
+    "origin": "",
+    "one_liner": "Show HN: Rossino – Pomodoro timer for Mac/iPhone/iPad/Watch, exact-second sync",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-17（来源 hn，发布于 2026-09-17，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://apps.apple.com/us/app/rossino-a-pomodoro-timer/id6797546201",
+    "harvest_source": "hn",
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "agora",
+    "name": "Agora",
+    "name_en": "Agora",
+    "origin": "",
+    "one_liner": "Show HN: Agora – bring your AI agent; talk earns nothing, only traceable work",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-17（来源 hn，发布于 2026-09-17，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/MerariJafet/agora",
+    "harvest_source": "hn",
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "one-billion-checkboxes",
+    "name": "One Billion Checkboxes",
+    "name_en": "One Billion Checkboxes",
+    "origin": "",
+    "one_liner": "Show HN: One Billion Checkboxes: A Bigger Take on One Million Checkboxes",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-17（来源 hn，发布于 2026-09-17，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://www.kanishksachdev.com/blog/billion-checkboxes",
+    "harvest_source": "hn",
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "custom-slash-commands-variables-and-snippets",
+    "name": "Custom slash commands, variables and snippets",
+    "name_en": "Custom slash commands, variables and snippets",
+    "origin": "",
+    "one_liner": "Create custom slash commands to instantly insert text, snippets, variables, and more on any website.",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-17（来源 hn，发布于 2026-09-17，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://chromewebstore.google.com/detail/text-expander-autofill-sl/jjeibagdcmgahjglbglpjcjilpaheeco",
+    "harvest_source": "hn",
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "texio-reliable-markdown-operations-for-shell-scripts-and-ai-agents",
+    "name": "Texio, reliable Markdown operations for shell scripts and AI agents",
+    "name_en": "Texio, reliable Markdown operations for shell scripts and AI agents",
+    "origin": "",
+    "one_liner": "Hi I asked claude code to make a markdown tool for AI agents(not for human), and promote it by yourself, except this post lol. This tool is designed to easily manipulate markdown files without messy regex which is very useful for AI agents ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-17（来源 hn，发布于 2026-09-17，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/Allra-Fintech/texio",
+    "harvest_source": "hn",
+    "added_at": "2026-09-17",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "agenkit",
+    "name": "AgenKit",
+    "name_en": "AgenKit",
+    "origin": "",
+    "one_liner": "One command. One SHORT prompt. Production-ready software.",
+    "category": "未分类",
+    "verification": "partial",
+    "metrics": {
+      "headline": "TrustMRR 验证收入榜条目（具体数字待补）"
+    },
+    "models": [],
+    "note": "来自 TrustMRR 首页的「Top startups by verified revenue」结构化数据。收入本身由支付网关验证，但榜单未直接给出金额，需打开公司页取数。注意区分 MRR 与 all-time 两个口径。",
+    "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
+    "source_url": "https://trustmrr.com/startup/agenkit",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-09-16",
+    "source_kind": "verified",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "vid-ai",
+    "name": "Vid.AI",
+    "name_en": "Vid.AI",
+    "origin": "",
+    "one_liner": "Turn any idea or script into ready-to-post videos that get views. AI generates voiceovers, visuals, and edits – all in minutes, no skills needed.",
+    "category": "未分类",
+    "verification": "partial",
+    "metrics": {
+      "headline": "TrustMRR 验证收入榜条目（具体数字待补）"
+    },
+    "models": [],
+    "note": "来自 TrustMRR 首页的「Top startups by verified revenue」结构化数据。收入本身由支付网关验证，但榜单未直接给出金额，需打开公司页取数。注意区分 MRR 与 all-time 两个口径。",
+    "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
+    "source_url": "https://trustmrr.com/startup/vidai-llc",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-09-16",
+    "source_kind": "verified",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "indieroadmaps",
+    "name": "IndieRoadmaps",
+    "name_en": "IndieRoadmaps",
+    "origin": "",
+    "one_liner": "IndieRoadmaps – a simple roadmap builder for indie hacker",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-16（来源 hn，发布于 2026-09-15，1 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://indieroadmaps.com",
+    "harvest_source": "hn",
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "pizza-bot",
+    "name": "Pizza Bot",
+    "name_en": "Pizza Bot",
+    "origin": "",
+    "one_liner": "Hi HN - long-time lurker (since 2012!), first time poster. Pizza Bot is a self-hosted desktop app for Mac, Windows, and Linux that runs AI agents in the background and exposes them through an email-like UI. Finished work shows up in Unread,",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-16（来源 hn，发布于 2026-09-15，38 分 / 25 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/pizza-bot-app/pizza-bot",
+    "harvest_source": "hn",
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "paying-for-frontier-ai-models-buys-4-month-head-start-at-5x-the-cost",
+    "name": "Paying for frontier AI models buys 4-month head start at 5x the cost",
+    "name_en": "Paying for frontier AI models buys 4-month head start at 5x the cost",
+    "origin": "",
+    "one_liner": "Paying for frontier AI models buys 4-month head start at 5x the cost",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-16（来源 hn，发布于 2026-09-16，2 分 / 2 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://arstechnica.com/ai/2026/09/exclusive-open-chinese-models-close-gap-with-silicon-valleys-frontier-ai-models/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "an-e-ink-frame-that-hears-birds-and-draws-them-as-1800s-illustrations",
+    "name": "An e-ink frame that hears birds and draws them as 1800s illustrations",
+    "name_en": "An e-ink frame that hears birds and draws them as 1800s illustrations",
+    "origin": "",
+    "one_liner": "See also: Avian Visitors - https://news.ycombinator.com/item?id=48343424 - May 2026 (20 comments)",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-16（来源 hn，发布于 2026-09-15，1458 分 / 190 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/arnegiacomo/fugleramme",
+    "harvest_source": "hn",
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "deadspeaker-inc",
+    "name": "deadSPEAKER, inc.",
+    "name_en": "deadSPEAKER, inc.",
+    "origin": "",
+    "one_liner": "hi, HN this is a horror-puzzle-comedy game i made for the run.world 'back to work' game jam. it's based on a worldbuilding project i developed based on a dream my brother had where he was working a call center job, & keenly aware the caller",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-16（来源 hn，发布于 2026-09-15，3 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://run.world/lthrjckrjckr/deadspeaker-inc",
+    "harvest_source": "hn",
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "i-solved-a-12yr-math-problem-using-ai-formalized-awaiting-review-pdf",
+    "name": "I solved a 12yr math problem using AI (formalized; awaiting review) [pdf]",
+    "name_en": "I solved a 12yr math problem using AI (formalized; awaiting review) [pdf]",
+    "origin": "",
+    "one_liner": "Show HN: I solved a 12yr math problem using AI (formalized; awaiting review) [pdf]",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-16（来源 hn，发布于 2026-09-15，5 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://raw.githubusercontent.com/kbr-/math-research/3979e0cc0a75dde9b845df7ec8869d033dfcd8d4/publications/bit-php-resolution-over-parities/whitepaper.pdf",
+    "harvest_source": "hn",
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "uplink",
+    "name": "Uplink",
+    "name_en": "Uplink",
+    "origin": "",
+    "one_liner": "Show HN: Uplink – Software for Agents",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-16（来源 hn，发布于 2026-09-15，2 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://uplink.spot/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "sass",
+    "name": "Sass",
+    "name_en": "Sass",
+    "origin": "",
+    "one_liner": "Show HN: Sass – Rust and WASM",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-16（来源 hn，发布于 2026-09-15，3 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/zoosky/accent-sass",
+    "harvest_source": "hn",
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "bitaxe-luck",
+    "name": "Bitaxe Luck",
+    "name_en": "Bitaxe Luck",
+    "origin": "",
+    "one_liner": "Show HN: Bitaxe Luck – A Homeassistant Integration",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-16（来源 hn，发布于 2026-09-15，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/ulrischa/bitaxe-luck",
+    "harvest_source": "hn",
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "choreographed-algebra",
+    "name": "Choreographed Algebra",
+    "name_en": "Choreographed Algebra",
+    "origin": "",
+    "one_liner": "Show HN: Choreographed Algebra",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-16（来源 hn，发布于 2026-09-15，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://0xb00.com",
+    "harvest_source": "hn",
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "farseer-space",
+    "name": "farseer.space",
+    "name_en": "farseer.space",
+    "origin": "",
+    "one_liner": "I've been hacking on a universe simulator, modeled on the path that the amazing SpaceEngine worked out over a decade ago, but without its Windows platform restriction. It takes real scientific data where we have it and augments it with proc",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-16（来源 hn，发布于 2026-09-15，7 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://farseer.space/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "seamless-pane-navigation-across-nested-tmux-sessions-over-ssh",
+    "name": "Seamless pane navigation across nested tmux sessions over SSH",
+    "name_en": "Seamless pane navigation across nested tmux sessions over SSH",
+    "origin": "",
+    "one_liner": "Hey, I've got tired of dealing with tmux prefixes so I made a plugin that makes pane switching seamless across SSH/nested tmux boundaries. Now you can just use Alt+↑/↓/←/→ instead of doing mental math calculating the right combination of pr",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-16（来源 hn，发布于 2026-09-15，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/klntsky/tmux-seamless-remote",
+    "harvest_source": "hn",
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "inkling",
+    "name": "Inkling",
+    "name_en": "Inkling",
+    "origin": "",
+    "one_liner": "Show HN: Inkling – ask Claude Code for a doc, get HTML instead of Markdown",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-16（来源 hn，发布于 2026-09-15，1 分 / 2 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/MeetVys/inkling",
+    "harvest_source": "hn",
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "clarveo",
+    "name": "Clarveo",
+    "name_en": "Clarveo",
+    "origin": "",
+    "one_liner": "Started with the simple idea to have my own trading journal and vibe code something..turned out to a full fledged SaaS coach for daytraders.",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-16（来源 hn，发布于 2026-09-15，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://clarveo.app",
+    "harvest_source": "hn",
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "honestsky-a-free-ios-weather-app-without-ads-or-subscriptions",
+    "name": "HonestSky, a free iOS weather app without ads or subscriptions",
+    "name_en": "HonestSky, a free iOS weather app without ads or subscriptions",
+    "origin": "",
+    "one_liner": "Hi HN, I’m Sean. I built HonestSky because I was tired of weather apps that were slow to load, covered in ads some to the point of being unusable and then putting longer forecasts behind paywalls. I’ve been using it myself for over a year, ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-16（来源 hn，发布于 2026-09-15，3 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://apps.apple.com/us/app/honestsky-forecast-radar/id6760163384",
+    "harvest_source": "hn",
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "deadlock-os",
+    "name": "DeadLock OS",
+    "name_en": "DeadLock OS",
+    "origin": "",
+    "one_liner": "Show HN: DeadLock OS – A Linux terminal puzzle game",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-16（来源 hn，发布于 2026-09-15，3 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://www.crazygames.com/game/deadlock-os-cvg",
+    "harvest_source": "hn",
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "poems",
+    "name": "Poems",
+    "name_en": "Poems",
+    "origin": "",
+    "one_liner": "Show HN: Poems – A programmer's collection on code, faith, and life",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-16（来源 hn，发布于 2026-09-15，3 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://35poems.wasmer.app/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "filelever",
+    "name": "FileLever",
+    "name_en": "FileLever",
+    "origin": "",
+    "one_liner": "Hi HN — Checkout FileLever, to sync or backup your photos, videos and more. I built FileLever as a preview-first tool to review all the changes before a sync or backup runs. FileLever works with local drives, external HDD, NAS, USB drives, ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-16（来源 hn，发布于 2026-09-15，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://filelever.com/",
+    "harvest_source": "hn",
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "open-source-tool-to-sell-your-claude-code-and-codex-sessions",
+    "name": "Open-source tool to sell your Claude Code and Codex sessions",
+    "name_en": "Open-source tool to sell your Claude Code and Codex sessions",
+    "origin": "",
+    "one_liner": "Show HN: Open-source tool to sell your Claude Code and Codex sessions",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-16（来源 hn，发布于 2026-09-15，1 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/cookiy-ai/sell-sessions-skill",
+    "harvest_source": "hn",
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "agenttik",
+    "name": "Agenttik",
+    "name_en": "Agenttik",
+    "origin": "",
+    "one_liner": "Hi! I've been reading HN daily for almost 16 years. Really glad this community exist. This is my first Show HN, so I hope you find this tool useful/interesting. During my summer holidays I started playing with latest AI models on personal p",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-16（来源 hn，发布于 2026-09-15，4 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/pausan/agenttik",
+    "harvest_source": "hn",
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
+  },
+  {
+    "id": "plurnk-yet-another-ai-harness",
+    "name": "Plurnk (Yet *Another* AI Harness)",
+    "name_en": "Plurnk (Yet *Another* AI Harness)",
+    "origin": "",
+    "one_liner": "I am desperate for feedback on my homebrewed harness, \"Plurnk.\" I've been dogfooding it on my RTX5070Ti with only 16GB VRAM as my daily driver for weeks now and it's genuinely better than everything else available (I'm biased). 1. Curation,",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-09-16（来源 hn，发布于 2026-09-15，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/plurnk/plurnk",
+    "harvest_source": "hn",
+    "added_at": "2026-09-16",
+    "source_kind": "self_reported",
+    "archived_at": "2026-09-22"
   }
 ]
