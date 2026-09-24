@@ -22,6 +22,7 @@ AI 没找到官网不代表这条数字是假的 —— 那是人该判的事，
 
 import os
 import sys
+import json
 import unittest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -288,11 +289,26 @@ class KnownUrlTest(unittest.TestCase):
     所以顺序很关键：已知地址在前，否则搜索返回的垃圾会把 5 个名额占满。
     """
 
+    def setUp(self):
+        """本类所有用例都靠 stub 网络栈，浏览器兜底层也一并 stub 掉。
+
+        否则 collect_pages 里新增的「常规抓取失败 → 无头 Chrome 再试」会真的
+        拉起本机 Chrome 去访问 bad.example / spa.example，测试就不再封闭了。
+        """
+        self._render = A.render_page
+        A.render_page = lambda *a, **kw: None
+
+    def tearDown(self):
+        A.render_page = self._render
+
     def test_已知地址_来源详情页在前官网在后(self):
         cand = {"source_url": "https://trustmrr.com/startup/superfruits",
                 "website": "https://gojiberry.ai/"}
+        # 2026-09-24：TrustMRR 挂牌页一律换成官方 .md（干净且含挂牌价/倍数），
+        # 原 HTML 留在后面当 .md 拿不到时的兜底。
         self.assertEqual(A.known_urls(cand),
-                         ["https://trustmrr.com/startup/superfruits",
+                         ["https://trustmrr.com/startup/superfruits.md",
+                          "https://trustmrr.com/startup/superfruits",
                           "https://gojiberry.ai/"])
 
     def test_已知地址_带上sources里的url(self):
@@ -332,7 +348,8 @@ class KnownUrlTest(unittest.TestCase):
             pages, used = A.collect_pages(cand, max_pages=5)
             kinds = [k for k, _ in order]
             self.assertEqual(kinds[0], "fetch", order)
-            self.assertEqual(order[0][1], "https://trustmrr.com/startup/superfruits")
+            self.assertEqual(order[0][1],
+                             "https://trustmrr.com/startup/superfruits.md")
             self.assertIn("search", kinds, "已知地址不够时应当回落搜索")
         finally:
             (A.fetch_text, A.search, A.build_queries) = orig
@@ -378,6 +395,26 @@ class KnownUrlTest(unittest.TestCase):
             self.assertEqual(len(pages), 1)
         finally:
             (A.fetch_text, A.search) = orig
+
+    def test_中文二手转载站一律拦掉(self):
+        """2026-09-24 第二轮：mort / stealth-company 那轮混进来的这几个。
+
+        项目原则是「一手证据 > 二手转述」，这类站的出现基本等于 cn.bing 没搜到
+        真来源时的兜底噪声。宁可让 AI 说「无法核实」，也不能拿中文转载冒充证据。
+        """
+        junk = ("https://www.zhihu.com/explore",
+                "https://blog.gitcode.com/24fb56a9f104535e87f55ef2f3f89699.html",
+                "https://uuyc.163.com/features/work/",
+                "https://www.ai-bot.cn/union-alpha/",
+                "https://www.mcpworld.com/zh/detail/7dffd9dccaa084a06a66cdec269be03d",
+                "https://blog.csdn.net/x", "https://www.jianshu.com/p/x",
+                "https://juejin.cn/post/x", "https://www.cnblogs.com/a/p/x.html")
+        for u in junk:
+            self.assertTrue(A.is_irrelevant_source(u), "%s 没被拦住" % u)
+        # 别误伤英文名串糖葫芦的正常域名
+        for u in ("https://www.stripe.com/", "https://trustmrr.com/startup/x",
+                  "https://example.com/"):
+            self.assertFalse(A.is_irrelevant_source(u), "%s 被误伤" % u)
 
     def test_搜索命中里的垃圾不占名额(self):
         """黑名单必须在这里就生效。
@@ -446,16 +483,20 @@ class MetaFallbackTest(unittest.TestCase):
         finally:
             A.http_get = orig
 
-    def test_有正文就不走meta兜底(self):
+    def test_有正文仍追加meta与JSONLD_但不走SPA兜底(self):
+        # 2026-09-24 改行为：正文长时不再丢弃 meta——TrustMRR 挂牌价只写在
+        # meta/JSON-LD 里（见 FetchTextStructuredTest）。这里守住的是：
+        # SPA 兜底那段「JS 渲染」话术不能出现（正文明明抓到了）。
         orig = A.http_get
         try:
-            body = ('<html><head><meta property="og:title" content="不该出现"/></head>'
-                    '<body>' + ("真正的正文。" * 40) + "</body></html>")
+            body = ('<html><head>'
+                    '<meta property="og:title" content="结构化标题"/>'
+                    '</head><body>' + ("真正的正文。" * 40) + "</body></html>")
             A.http_get = lambda u, **kw: body
             t = A.fetch_text("https://x.example/")
             self.assertIn("真正的正文", t)
-            self.assertNotIn("meta 摘要", t)
-            self.assertNotIn("不该出现", t)
+            self.assertNotIn("JS 渲染", t)
+            self.assertIn("结构化标题", t, "meta 内容要追加进正文")
         finally:
             A.http_get = orig
 
@@ -493,7 +534,8 @@ class ResultShapeTest(unittest.TestCase):
         """把 verify_one 的四个外部依赖全部替换掉，只看它怎么拼返回值。"""
         calls = []
         orig = (A.search, A.fetch_text, A.llm, A.extract_json,
-                A.map_ai_to_draft, A.current_blockers, A.build_queries)
+                A.map_ai_to_draft, A.current_blockers, A.build_queries,
+                A.render_page)
         A.search = lambda q: ["https://example.com/a"]
         A.fetch_text = lambda u: "x" * 300 if pages is None else pages
         A.llm = lambda msgs: "{}"
@@ -504,12 +546,16 @@ class ResultShapeTest(unittest.TestCase):
             "caliber": "mrr", "verification": "official",
             "sources": [{"label": "s", "url": "https://example.com/a", "kind": "official"}],
         }
+        # 2026-09-24：抓取失败后还有一层无头浏览器兜底，这条用例要模拟
+        # 「一处都抓不到」，必须连它也 stub 掉，否则会真的拉起本机 Chrome。
+        A.render_page = lambda u, **kw: None
         try:
             return A.verify_one(dict(CAND), self._fake_admin(rule_result),
                                 publish=publish)
         finally:
             (A.search, A.fetch_text, A.llm, A.extract_json,
-             A.map_ai_to_draft, A.current_blockers, A.build_queries) = orig
+             A.map_ai_to_draft, A.current_blockers, A.build_queries,
+             A.render_page) = orig
 
     def test_结果里带案例名和id(self):
         out = self._run({}, {"verdict": "可发布", "bonus_score": 60,
@@ -596,5 +642,276 @@ class ResultShapeTest(unittest.TestCase):
         self.assertEqual(promoted2, [CAND["id"]])
 
 
-if __name__ == "__main__":
-    unittest.main(verbosity=2)
+class FetchTextStructuredTest(unittest.TestCase):
+    """fetch_text 必须把 meta 摘要 / JSON-LD 一并喂给 AI。
+
+    2026-09-24 search1api 实测：TrustMRR 的挂牌横幅由客户端渲染，
+    "listed for sale at $50,000" 只存在于 meta description 与 JSON-LD Offer，
+    可见正文里没有。只看可见文本会让 AI 把真挂牌价当成「误读」纠错掉。
+    """
+
+    PAGE = (
+        "<html><head>"
+        '<meta name="description" content="listed for sale at $50,000. $1,408 MRR.">'
+        "</head><body><p>" + "正文内容。" * 300 + "</p>"
+        '<script type="application/ld+json">'
+        '{"@type":"Product","name":"Search1API","offers":'
+        '{"@type":"Offer","price":50000,"priceCurrency":"USD"}}</script>'
+        "</body></html>"
+    )
+
+    def setUp(self):
+        self.orig = A.http_get
+        A.http_get = lambda url, **kw: self.PAGE
+
+    def tearDown(self):
+        A.http_get = self.orig
+
+    def test_长正文也带meta与JSONLD(self):
+        txt = A.fetch_text("https://trustmrr.com/startup/x")
+        self.assertIn("listed for sale at $50,000", txt, "meta 摘要得带上")
+        self.assertIn('"price":50000', txt.replace(" ", ""), "JSON-LD 报价得带上")
+        self.assertIn("JSON-LD", txt, "结构化段要有标记，让 AI 知道证据性质")
+
+    def test_正文短时回落meta_原行为不变(self):
+        A.http_get = lambda url, **kw: (
+            '<html><head><meta name="description" content="SPA 页摘要"></head>'
+            "<body><p>短</p></body></html>")
+        txt = A.fetch_text("https://x.example/")
+        self.assertIn("SPA 页摘要", txt)
+        self.assertIn("JS 渲染", txt)
+
+
+class FetchLayerTest(unittest.TestCase):
+    """2026-09-24 新增的抓取层：TrustMRR 官方 .md / discovery + 无头浏览器兜底。
+
+    背景：抓取层以前只有 cn.bing 一条路（小众外文站基本搜不到），本轮改用
+    TrustMRR 官方给 AI 的通道，并为 Cloudflare 站补一条本机渲染的退路。
+    """
+
+    def setUp(self):
+        self._render = A.render_page
+        # 本类默认不开浏览器；只有专门测渲染兜底的用例才替换成 want=True 的版本
+        A.render_page = lambda *a, **kw: None
+
+    def tearDown(self):
+        A.render_page = self._render
+
+    def test_官方md优先于原html(self):
+        """llms.txt 把 /startup/{slug}.md 定为 AI 入口，必须排在 HTML 前面。"""
+        cand = {"id": "superfruits",
+                "source_url": "https://trustmrr.com/startup/superfruits",
+                "website": "https://gojiberry.ai/"}
+        urls = A.known_urls(cand)
+        self.assertEqual(urls[0], "https://trustmrr.com/startup/superfruits.md")
+        self.assertIn("https://trustmrr.com/startup/superfruits", urls,
+                      "原 HTML 要留着当 .md 拿不到时的兜底")
+
+    def test_已经是md就不再加后缀(self):
+        cand = {"source_url": "https://trustmrr.com/startup/x.md"}
+        urls = A.known_urls(cand)
+        self.assertEqual([u for u in urls if u.endswith(".md")],
+                         ["https://trustmrr.com/startup/x.md"], "%r 重复了" % urls)
+
+    def test_discovery挂了不影响取URL(self):
+        """discovery 是锦上添花，挂了绝不能让流程中断。"""
+        orig, A.http_get = A.http_get, lambda url, **kw: (_ for _ in ()).throw(
+            OSError("boom"))
+        try:
+            self.assertEqual(A.trustmrr_discovery(force=True), {})
+        finally:
+            A.http_get = orig
+            A._DISCOVERY_CACHE["data"] = None
+        self.assertEqual(A.known_urls({"source_url": "https://a.example/"}),
+                         ["https://a.example/"])
+
+    def test_discovery给候选补官网(self):
+        """候选池本来 0/28 带 URL；discovery 命中时该把官网补进去。"""
+        A._DISCOVERY_CACHE["data"] = {
+            "superfruits": {"slug": "superfruits", "website": "https://sf.example/"}}
+        try:
+            self.assertIn("https://sf.example/", A.known_urls({"id": "superfruits"}))
+        finally:
+            A._DISCOVERY_CACHE["data"] = None
+
+    def test_常规抓取失败才动用无头浏览器(self):
+        calls = []
+        orig = (A.known_urls, A.build_queries, A.search, A.fetch_text)
+        try:
+            A.known_urls = lambda c: ["https://cf.example/"]
+            A.build_queries = lambda c: []
+            A.search = lambda q, per_query=6: []
+            A.fetch_text = lambda u, cap=6000: calls.append(("fetch", u)) or None
+            A.render_page = lambda u, **kw: calls.append(("render", u)) or "渲染出来的正文。" * 60
+            pages, used = A.collect_pages({}, max_pages=3)
+        finally:
+            (A.known_urls, A.build_queries, A.search, A.fetch_text) = orig
+
+        self.assertEqual(used, ["https://cf.example/"], "渲染兜底成功也要算这一页")
+        self.assertEqual(calls, [("fetch", "https://cf.example/"),
+                                 ("render", "https://cf.example/")],
+                         "顺序必须是先常规抓取、失败才渲染：%r" % (calls,))
+        self.assertIn("渲染出来的正文", pages[0])
+
+    def test_常规抓取成功就不开浏览器(self):
+        calls = []
+        orig = (A.known_urls, A.build_queries, A.search, A.fetch_text)
+        try:
+            A.known_urls = lambda c: ["https://ok.example/"]
+            A.build_queries = lambda c: []
+            A.search = lambda q, per_query=6: []
+            A.fetch_text = lambda u, cap=6000: "正经正文。" * 80
+            A.render_page = lambda u, **kw: calls.append(u)
+            A.collect_pages({}, max_pages=3)
+        finally:
+            (A.known_urls, A.build_queries, A.search, A.fetch_text) = orig
+        self.assertEqual(calls, [], "有正文就别付 5–8 秒/页的渲染代价")
+
+    def test_render_page对非法输入返回None(self):
+        """不是 http 开头的（比如空串）别拿去喂浏览器。"""
+        self.assertIsNone(A.render_page(""))
+        self.assertIsNone(A.render_page("not-a-url"))
+
+
+class FetchLayerTest(unittest.TestCase):
+    """2026-09-24 加的抓取层：官方 .md 优先 + discovery 补 URL + 无头浏览器兜底。
+
+    起因是 le19emetrou 那轮：候选池一条 URL 都没有 → 退化成 cn.bing 搜索 →
+    抓回百度知道/作业帮。这三条是新通道各自的回归断言，**全部 stub 掉网络**，
+    只验接线不验外网。
+    """
+
+    def test_TrustMRR详情页_官方md排在最前(self):
+        """llms.txt 把 /startup/{slug}.md 定为 AI 入口，且 .md 比渲染 HTML 更全。
+
+        原 HTML 保留在后面，作为 .md 拿不到时的兜底。
+        """
+        urls = A.known_urls({"id": "abc",
+                             "source_url": "https://trustmrr.com/startup/abc"})
+        self.assertEqual(urls[0], "https://trustmrr.com/startup/abc.md")
+        self.assertIn("https://trustmrr.com/startup/abc", urls)
+
+    def test_md去重_不会写成md_dot_md(self):
+        urls = A.known_urls({"id": "abc",
+                             "source_url": "https://trustmrr.com/startup/abc.md"})
+        self.assertEqual(len([u for u in urls if u.endswith(".md")]), 1)
+
+    def test_非TrustMRR网址不动(self):
+        urls = A.known_urls({"id": "abc", "website": "https://example.com/"})
+        self.assertEqual(urls, ["https://example.com/"])
+
+    def test_discovery能补上候选缺的官网(self):
+        """候选池 0/28 带 URL；discovery 命中时应当自动补上。"""
+        A._DISCOVERY_CACHE["data"] = {
+            "abc": {"slug": "abc", "website": "https://abc.example/"}}
+        try:
+            urls = A.known_urls({"id": "abc"})
+        finally:
+            A._DISCOVERY_CACHE["data"] = None
+        self.assertIn("https://abc.example/", urls)
+
+    def test_discovery挂了不影响后续流程(self):
+        """discovery 是锦上添花，绝不能因为它挂了就让整个核实失败。"""
+        orig = A.http_get
+        A.http_get = lambda *a, **kw: (_ for _ in ()).throw(OSError("boom"))
+        try:
+            A._DISCOVERY_CACHE["data"] = None
+            self.assertEqual(A.trustmrr_discovery(), {})
+            urls = A.known_urls({"id": "abc"})
+        finally:
+            A.http_get = orig
+            A._DISCOVERY_CACHE["data"] = None
+        self.assertEqual(urls, ["%s/startup/abc.md" % A.TRUSTMRR_SITE,
+                                "%s/startup/abc" % A.TRUSTMRR_SITE])
+
+    def test_常规抓取失败才用无头浏览器(self):
+        """Cloudflare 挡住的站（实测 Indie Hackers 403）走这条退路。"""
+        seen = []
+        orig_f, orig_r = A.fetch_text, A.render_page
+        A.fetch_text = lambda u, cap=6000: seen.append(("fetch", u)) or None
+        A.render_page = lambda u, timeout=40, budget_ms=8000: (
+            seen.append(("render", u)) or "x" * 400)
+        try:
+            pages, used = A.collect_pages({"id": "abc"}, max_pages=5)
+        finally:
+            A.fetch_text, A.render_page = orig_f, orig_r
+        self.assertEqual(seen[0], ("fetch", "%s/startup/abc.md" % A.TRUSTMRR_SITE))
+        self.assertEqual(seen[1], ("render", "%s/startup/abc.md" % A.TRUSTMRR_SITE))
+        self.assertEqual(used, ["%s/startup/abc.md" % A.TRUSTMRR_SITE])
+
+    def test_常规抓取成功就不开浏览器(self):
+        """每页 5–8 秒，能省就省。"""
+        orig_f, orig_r = A.fetch_text, A.render_page
+        A.fetch_text = lambda u, cap=6000: "x" * 400
+        A.render_page = lambda u, timeout=40, budget_ms=8000: self.fail("不该调用")
+        try:
+            A.collect_pages({"id": "abc"}, max_pages=5)
+        finally:
+            A.fetch_text, A.render_page = orig_f, orig_r
+
+    def test_没装浏览器时render_page返回None(self):
+        orig = A._find_browser
+        A._find_browser = lambda: None
+        try:
+            self.assertIsNone(A.render_page("https://example.com/"))
+        finally:
+            A._find_browser = orig
+
+
+class HNAlgoliaSearchTest(unittest.TestCase):
+    """2026-09-24 加的 HN Algolia 检索：免 key 的 HN 讨论证据源，排在所有通用搜索前。
+
+    边界：Algolia 只索引 HN 内容，查不到官网，所以替代不了 cn.bing，只能当补充
+    证据源（讨论页 = 评论里的真话）。全部 stub 掉网络，只验接线。
+    """
+
+    HN_JSON = json.dumps({
+        "hits": [
+            {"objectID": "111", "url": "https://real-product.example/"},
+            {"objectID": "222", "url": "https://real-product.example/"},   # 重复外链
+            {"objectID": "333", "url": ""},                                # 无外链，只给讨论页
+        ],
+    })
+
+    def test_返回讨论页与外链且去重(self):
+        orig = A.http_get
+        A.http_get = lambda u, **kw: self.HN_JSON
+        try:
+            out = A.search_hn_algolia("some product")
+        finally:
+            A.http_get = orig
+        # 两条指向同一外链的只留一条；三个 objectID 各一条讨论页
+        self.assertIn("https://news.ycombinator.com/item?id=111", out)
+        self.assertIn("https://news.ycombinator.com/item?id=222", out)
+        self.assertIn("https://news.ycombinator.com/item?id=333", out)
+        self.assertIn("https://real-product.example/", out)
+        self.assertEqual(out.count("https://real-product.example/"), 1,
+                         "重复外链要收敛成一条")
+
+    def test_解析失败返回空不抛(self):
+        orig = A.http_get
+        A.http_get = lambda u, **kw: (_ for _ in ()).throw(RuntimeError("net down"))
+        try:
+            self.assertEqual(A.search_hn_algolia("x"), [])
+        finally:
+            A.http_get = orig
+
+    def test_search把HN排最前且不挤掉bing(self):
+        """HN 最多贡献 3 条，给 cn.bing 留名额（HN 查不到官网）。"""
+        orig = (A.search_hn_algolia, A.search_bing, A.search_ddg)
+        A.search_hn_algolia = lambda q, n=5: [
+            "https://news.ycombinator.com/item?id=%d" % i for i in range(1, 6)]
+        A.search_bing = lambda q: ["https://bing-hit.example/report"]
+        A.search_ddg = lambda q: []
+        try:
+            out = A.search("some product", per_query=6)
+        finally:
+            (A.search_hn_algolia, A.search_bing, A.search_ddg) = orig
+        # HN 在前且不超过 3 条
+        self.assertEqual(out[:3],
+                         ["https://news.ycombinator.com/item?id=1",
+                          "https://news.ycombinator.com/item?id=2",
+                          "https://news.ycombinator.com/item?id=3"])
+        # bing 仍被纳入 —— HN 没有把通用搜索挤掉
+        self.assertIn("https://bing-hit.example/report", out)
+        self.assertLessEqual(len(out), 6)

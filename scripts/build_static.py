@@ -52,6 +52,7 @@ except Exception as e:                                        # noqa: BLE001
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 try:
     import prerender                                          # noqa: E402
+    from text_clean import end_sentences                      # noqa: E402
 except Exception as e:                                        # noqa: BLE001
     print("[!] 无法导入 scripts/prerender.py：%s" % e)
     sys.exit(1)
@@ -139,6 +140,10 @@ def build(out_dir, include_inbox=True, pretty=False, site_url=""):
     cases = payload.get("cases") or []
     if not cases:
         print("    [!] cases.json 是空的，构建出来会是个空站")
+    # 列表项补结尾句号：站点和公众号共用同一份数据，不给「卖的是…而不是服务」这类
+    # 半截句补句号，两个渲染面都会读着很涩（2026-09-24）。就地改，data.json / data.js
+    # 与预渲染页一起生效。
+    end_sentences(cases)
 
     # ---- 2. 写数据文件
     print("[2/5] 写数据文件…")

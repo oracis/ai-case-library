@@ -294,7 +294,7 @@ python scripts/harvest.py --max-inbox 0           # 0 = 不限，队列无限增
 | Hacker News | ✅ Algolia 免 key，连打 6 次无限流 | ✅ `items/<id>` 拿完整评论树 | 「怎么做到的」在评论里 |
 | Indie Hackers | ❌ 无 API（`.json`/`/api/product/` 均 404） | ✅ 服务端渲染可解析 | 只能靠 sitemap 枚举 |
 | ARR Club | ❌ 仅企业版 | ✅ 但**只能解 FAQPage JSON-LD** | 二手转述，只做校对 |
-| Product Hunt | ⚠️ 只有 Atom feed | ❌ **全站 403（Cloudflare）** | 只能当雷达 |
+| Product Hunt | ⚠️ 只有 Atom feed（官方 GraphQL 需 token） | ❌ **www 全站 403（Cloudflare）** | 只能当雷达；`api.` 子域不挡，见下 |
 
 几个必须知道的坑：
 
@@ -303,6 +303,15 @@ python scripts/harvest.py --max-inbox 0           # 0 = 不限，队列无限增
   `https://www.producthunt.com/feed`（Atom，50 条/页，支持 `?category=` 过滤），
   而且**feed 里没有 upvote 数**。所以 PH 在本库只能当发现雷达，想要投票数只能
   申请官方 API token。
+- **但 API 子域没有被 Cloudflare 挡，token 一到就能跑。** 2026-09-24 实测：
+  `api.producthunt.com/v2/api/graphql` 的 **GET 返回 404**（只是不认 GET），
+  带假 token 的 POST 返回 **401 `invalid_oauth_token`**（应用层鉴权，不是风控拦截）。
+  也就是说：网络通、域名通，**唯一缺的只是一个真 token**。token 从
+  `https://www.producthunt.com/v2/oauth/applications` 建应用拿（  该页面在 www 上，
+  脚本抓是 403，必须用真人浏览器登录）。
+  **决策（2026-09-24）：不申请 token。** PH 没有收入数据，官方 API 对本项目
+  只多出「upvote 数 + 按名反查」，性价比不如把力气放在 TrustMRR 两个端点上
+  （后者带支付网关验过的收入）。PH 维持「仅 Atom feed 雷达」定位，以后别再提。
 - **Indie Hackers 的分页是假分页。** `?page=2` 与 `?page=1` 返回**完全相同字节**
   （排序翻页都在前端 JS 里），所以不能靠翻页枚举，只能走 sitemap。sitemap 里
   `/product/<slug>` 是干净产品页（133KB，metrics 齐全），

@@ -765,6 +765,61 @@ def test_infer_source():
     print()
 
 
+def test_trustmrr_discovery():
+    print("[18] TrustMRR discovery 通道：增量补充 + 去重（离线 stub）")
+    API = H.TRUSTMRR_API
+    DISC = H.TRUSTMRR_DISCOVERY_API
+    api_payload = {
+        "recentlyListedStartups": [{"slug": "a", "name": "A",
+                                   "url": "https://trustmrr.com/startup/a",
+                                   "website": "https://a.com",
+                                   "revenue": {"mrr": 200, "last30Days": 200, "total": 200}}],
+        "bestDeals": [{"slug": "b", "name": "B",
+                       "url": "https://trustmrr.com/startup/b",
+                       "website": "https://b.com",
+                       "revenue": {"mrr": 200, "last30Days": 200, "total": 200}}]}
+    disc_payload = {
+        "recentlyAddedStartups": [
+            {"slug": "b", "name": "B2", "url": "https://trustmrr.com/startup/b",
+             "website": "https://b.com", "revenue": {"mrr": 200}},
+            {"slug": "c", "name": "C", "website": "https://c.com",
+             "revenue": {"mrr": 200}, "growth30d": 20},
+            {"slug": "d", "name": "D", "website": "",
+             "revenue": {"mrr": 0}, "stealthMode": True}],
+        "fastestGrowingStartups": [{"slug": "e", "name": "E",
+                                   "website": "https://e.com",
+                                   "revenue": {"mrr": 50}}]}
+    orig = H.http_json
+
+    def fake(url, **kw):
+        if url == API:
+            return api_payload
+        if url == DISC:
+            return disc_payload
+        raise AssertionError("unexpected url " + url)
+
+    try:
+        H.http_json = fake
+        disc = H.harvest_trustmrr_discovery(50)
+        disc_slugs = {i["_api"]["slug"] for i in disc}
+        chk("discovery 产出 b、c（d 隐身 / e 低于门槛已丢）",
+            disc_slugs == {"b", "c"}, disc_slugs)
+        c = [i for i in disc if i["_api"]["slug"] == "c"][0]
+        chk("discovery 条目带 website", c.get("website") == "https://c.com")
+        chk("discovery 条目带 growth（增长榜信号）",
+            c["_api"].get("growth") == 20, c["_api"].get("growth"))
+
+        merged = H.harvest_trustmrr(50)
+        merged_slugs = [i["_api"]["slug"] for i in merged]
+        chk("合并后无重复 slug", len(merged_slugs) == len(set(merged_slugs)), merged_slugs)
+        chk("合并 = api(a,b) + discovery 新增(c)",
+            set(merged_slugs) == {"a", "b", "c"}, merged_slugs)
+        chk("合并结果全部带 website", all(i.get("website") for i in merged))
+    finally:
+        H.http_json = orig
+    print()
+
+
 def main():
     print("=" * 62)
     print("  harvest 五源解析 + source_kind 测试（离线）")
@@ -781,6 +836,7 @@ def main():
     section("ai_verify 来源黑名单", test_ai_verify_denylist)
     section("sources.json 配置一致性", test_sources_config)
     section("来源推断与存量回填", test_infer_source)
+    section("TrustMRR discovery 通道", test_trustmrr_discovery)
 
     print("=" * 62)
     if fails:

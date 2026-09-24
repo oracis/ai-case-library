@@ -43,6 +43,7 @@ import html as html_mod
 import json
 import os
 import re
+import subprocess
 import sys
 import urllib.error
 import urllib.parse
@@ -207,6 +208,20 @@ SOURCE_DENY = (
     # 电商 / 软件下载站
     "amazon.com", "ebay.com", "taobao.com", "tmall.com", "jd.com",
     "softonic.com", "download.com", "cnet.com",
+    # 中文问答 / 题库 / 作业帮 —— 2026-09-24 le19emetrou 那轮实测：cn.bing.com
+    # 查不到小众外文站时会吐「无结果兜底模块」，一次塞进 5 个这类页，
+    # 且 irrelevant_sources_dropped 仍为 0（当时没进名单）。
+    "baidu.com", "sogou.com", "so.com", "zybang.com", "koolearn.com",
+    "jyeoo.com", "21cnjy.com", "xuexi.la", "360doc.com", "doc88.com",
+    "docin.com", "iteslj.org",
+    # 中文二手 / 转载站（2026-09-24 第二轮）：同上，cn.bing 查不到时会吐聚合页。
+    # 实测 mort 那轮 5 个名额有 3 个给了 uuyc.163.com 与 blog.gitcode.com，
+    # stealth-company 那轮混进 zhihu.com/explore。
+    # 项目原则是「一手证据 > 二手转述」——拿不到一手宁可让 AI 说「无法核实」，
+    # 也不能用中文转载站的转述冒充证据。
+    "zhihu.com", "csdn.net", "gitcode.com", "jianshu.com", "juejin.cn",
+    "cnblogs.com", "oschina.net", "51cto.com", "163.com", "sina.com.cn",
+    "ai-bot.cn", "mcpworld.com",
 )
 
 
@@ -441,6 +456,39 @@ def strip_html(page):
     return re.sub(r"\n{2,}", "\n", text).strip()
 
 
+HN_ALGOLIA_SEARCH = "https://hn.algolia.com/api/v1/search"
+
+
+def search_hn_algolia(q, n=5):
+    """HN Algolia 讨论检索（免 key、无 Cloudflare）。
+
+    返回该产品的 HN 讨论页（news.ycombinator.com/item?id=<objectID>），
+    外加帖子指向的外部链接（多半是产品官网）。评论区是「真话」来源，
+    比标题可信得多；外部链接则能更快定位官网。
+
+    边界：Algolia 只索引 HN 内容，**查不到产品官网以外的通用页面**，
+    所以它替代不了 cn.bing —— 这里只当补充证据源，排在所有通用搜索之前；
+    无讨论时返回空，不阻塞 bing/ddg 兜底。
+    """
+    try:
+        raw = http_get("%s?query=%s&tags=story&hitsPerPage=%d"
+                       % (HN_ALGOLIA_SEARCH, urllib.parse.quote(q), n), timeout=12)
+        data = json.loads(raw)
+    except Exception:                                     # noqa: BLE001
+        return []
+    out = []
+    for h in (data.get("hits") or []):
+        oid = h.get("objectID")
+        if oid:
+            item = "https://news.ycombinator.com/item?id=%s" % oid
+            if item not in out:
+                out.append(item)
+        ext = (h.get("url") or "").strip()
+        if ext.startswith("http") and ext not in out:
+            out.append(ext)
+    return out
+
+
 def search_bing(q):
     page = http_get("https://cn.bing.com/search?q=%s&count=15" % urllib.parse.quote(q),
                     timeout=12)
@@ -465,12 +513,18 @@ def search_ddg(q):
 
 
 def search(q, per_query=6):
-    """返回去重后的 URL 列表。两个引擎都挂就空着走（不阻塞流程）。"""
+    """返回去重后的 URL 列表。HN Algolia 当补充证据源排最前，两个通用引擎挂了就空着走。
+
+    顺序：HN Algolia（讨论页 + 外链）→ cn.bing → DuckDuckGo。
+    HN 最多贡献 3 条，给后面的通用搜索留名额 —— 它查不到官网，
+    不能把 bing 挤掉（否则小众产品会完全搜不到）。
+    """
     urls = []
-    for fn in (search_bing, search_ddg):
+    for fn, cap in ((search_hn_algolia, 3), (search_bing, per_query),
+                   (search_ddg, per_query)):
         try:
-            urls += fn(q)
-        except Exception:
+            urls += fn(q)[:cap]
+        except Exception:                                     # noqa: BLE001
             pass
         if len(urls) >= per_query:
             break
@@ -516,6 +570,35 @@ def page_meta(html_text):
     return out[:6]
 
 
+def _jsonld_blocks(html_text, per_block=1200, max_blocks=3):
+    """抠出页面里的 JSON-LD 结构化数据（<script type="application/ld+json">）。
+
+    TrustMRR 的挂牌价就只写在这里（schema.org/Offer 的 price 字段）——
+    挂牌横幅本身由客户端渲染，可见正文里没有。超出 per_block 的大块
+    （@graph 整谱）只摘报价相关字段，防止截断把 price 挤掉。
+    """
+    out = []
+    for m in re.finditer(
+            r'<script[^>]+type=["\']application/ld\+json["\'][^>]*>(.*?)</script>',
+            html_text or "", re.S | re.I):
+        raw = html_mod.unescape(m.group(1)).strip()
+        try:
+            data = json.loads(raw)
+        except Exception:
+            continue
+        s = json.dumps(data, ensure_ascii=False)
+        if len(s) > per_block and '"price"' in s:
+            pairs = re.findall(
+                r'"(price|priceCurrency|availability|name|description|@type)"'
+                r'\s*:\s*("(?:[^"\\]|\\.)*"|[\d.]+)', s)
+            if pairs:
+                s = "{" + ",".join('"%s":%s' % p for p in pairs[:40]) + "}"
+        out.append(s[:per_block])
+        if len(out) >= max_blocks:
+            break
+    return out
+
+
 def fetch_text(url, cap=6000):
     """抓一个页面转纯文本；真的没东西可给时返回 None（流程继续）。
 
@@ -533,6 +616,18 @@ def fetch_text(url, cap=6000):
             return None
         text = ("（本页正文由 JS 渲染，抓不到；以下为页面的 meta 摘要）\n"
                 + "\n".join(metas))
+    else:
+        # 正文很长时也要带上 meta 摘要 + JSON-LD：有些关键数字**只**写在这两处，
+        # 可见正文里反而没有。2026-09-24 search1api 实测：TrustMRR 的挂牌横幅
+        # 由客户端渲染，"listed for sale at $50,000" 只存在于 meta description
+        # 与 JSON-LD Offer 里；只看可见文本会把真挂牌价当成「误读」纠错掉。
+        extra = page_meta(raw) + _jsonld_blocks(raw)
+        if extra:
+            body_cap = max(MIN_TEXT, cap - 1400)
+            text = (text[:body_cap]
+                    + "\n（以下为本页 meta 摘要 / JSON-LD 结构化数据，"
+                      "可能含正文没有的挂牌价、报价等字段）\n"
+                    + "\n".join(extra))
     return text[:cap]
 
 
@@ -699,6 +794,101 @@ class Admin(object):
 # ---------------------------------------------------------------------------
 # 单条流水线
 # ---------------------------------------------------------------------------
+# 采集站挂牌页根地址（与 harvest.py 的 TRUSTMRR_SITE 同源，此处单独定义以免
+# 为了一个常量去 import 整个采集脚本）。候选 id 即挂牌 slug。
+TRUSTMRR_SITE = "https://trustmrr.com"
+
+# TrustMRR 官方给 AI 用的**免 key** 端点（见 https://trustmrr.com/llms.txt）：
+#   GET  /startup/{slug}.md     单个挂牌页的干净 Markdown（含挂牌价/倍数/逐日收入）
+#   GET  /api/ai/discovery      25 条新入库 + 25 条增长最快，**每条带 website**
+#   POST /api/mcp/discovery     MCP；其中 get_startup(slug) 要 OAuth，用不了
+# llms.txt 明确要求「别爬渲染后的 HTML 拿全量市场数据」，所以 TrustMRR 侧一律
+# 走上面这两个官方通道，不套无头浏览器。
+TRUSTMRR_DISCOVERY_API = TRUSTMRR_SITE + "/api/ai/discovery"
+
+_DISCOVERY_CACHE = {"data": None}
+
+
+def trustmrr_discovery(force=False):
+    """拉 TrustMRR discovery 快照，返回 {slug: {name, website, ...}}。
+
+    2026-09-24 实测：200 / 33KB，两个固定分组各 25 条，含 revenue(last30Days/
+    mrr/total)、category、paymentProvider、website。**免 key、限次不分页**。
+
+    两个用途：
+      1. 给候选补网址 —— 候选池本来 0/28 带 URL，导致 known_urls 恒为空、
+         每次退化成 cn.bing 搜索（小众外文站基本搜不到）；
+      2. 当新案例发现源用。
+
+    失败一律返回 {}（不抛），抓取流程照常继续。
+    """
+    if _DISCOVERY_CACHE["data"] is not None and not force:
+        return _DISCOVERY_CACHE["data"]
+
+    out = {}
+    try:
+        raw = http_get(TRUSTMRR_DISCOVERY_API, timeout=20, max_bytes=400000)
+        data = json.loads(raw)
+    except Exception:
+        _DISCOVERY_CACHE["data"] = out
+        return out
+
+    for group in ("recentlyAddedStartups", "fastestGrowingStartups"):
+        for it in (data.get(group) or []):
+            slug = (it.get("slug") or "").strip()
+            if slug:
+                out[slug] = it
+    _DISCOVERY_CACHE["data"] = out
+    return out
+
+
+# ---------------------------------------------------------------- 无头浏览器
+#
+# 只用来对付 Cloudflare 挡住的站（Indie Hackers / Product Hunt 实测 403）
+# 和纯 SPA。TrustMRR 侧不要用它 —— 官方 llms.txt 写了别爬渲染后的 HTML，
+# 而且 .md 端点本来就比渲染结果全。
+def _find_browser():
+    for p in (os.environ.get("CASE_LIB_CHROME"),
+              r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+              r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+              r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+              r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
+              "/usr/bin/google-chrome", "/usr/bin/chromium"):
+        if p and os.path.exists(p):
+            return p
+    return None
+
+
+def render_page(url, timeout=40, budget_ms=8000):
+    """用本机无头 Chrome 渲染后返回纯文本；不可用/失败返回 None。
+
+    2026-09-24 实测 `--headless --dump-dom` 能把客户端渲染的挂牌横幅渲出来
+    （静态 HTML 里抓不到），代价是每页 5–8 秒，所以只在常规抓取拿不到东西时兜底。
+    """
+    exe = _find_browser()
+    if not exe or not (url or "").startswith("http"):
+        return None
+    try:
+        proc = subprocess.run(
+            [exe, "--headless", "--disable-gpu", "--no-sandbox",
+             "--disable-extensions", "--no-first-run",
+             "--virtual-time-budget=%d" % budget_ms, "--dump-dom", url],
+            capture_output=True, timeout=timeout)
+    except Exception:
+        return None
+    html = (proc.stdout or b"").decode("utf-8", "replace")
+    if len(html) < 500:
+        return None
+    text = strip_html(html)
+    if len(text) < MIN_TEXT:
+        metas = page_meta(html)
+        if not metas:
+            return None
+        text = ("（本页由无头浏览器渲染后仍几乎无正文；以下为 meta 摘要）\n"
+                + "\n".join(metas))
+    return text[:6000]
+
+
 def known_urls(cand):
     """候选自带的已知地址：官网、来源详情页。
 
@@ -715,12 +905,42 @@ def known_urls(cand):
         if u.startswith("http") and u not in out:
             out.append(u)
 
+    cid = (cand.get("id") or "").strip()
+
+    # 候选 id 若在 TrustMRR discovery 快照里（免 key，25 新入库 + 25 增长最快各一次请求），
+    # 直接拿它自带的官网 —— 候选池本来 0/28 带 URL，这条用来补空。
+    info = trustmrr_discovery().get(cid)
+    if info:
+        add(info.get("website"))
+
     add(cand.get("source_url"))
     add(cand.get("website"))
     for s in (cand.get("sources") or []):
         if isinstance(s, dict):
             add(s.get("url"))
-    return out
+
+    # 兜底：候选池 28 条**没有任何一条**带 URL（2026-09-24 实测），
+    # 于是 known_urls 恒为空、每次都退化成「纯搜索」——而搜索走 cn.bing.com，
+    # 查小众外文站基本查不到（le19emetrou 那轮抓回 5 个百度知道/作业帮页）。
+    # 候选 id 本身就来自采集站 slug，挂牌页可以直拼；实测 28 条里大部分有。
+    if cid and not out:
+        add("%s/startup/%s" % (TRUSTMRR_SITE, cid))
+
+    # TrustMRR 挂牌页一律改成官方 .md：2026-09-24 实测它返回 13KB 干净 Markdown，
+    # 比渲染后的 HTML 更全（挂牌价、倍数、逐日收入表都在），且 llms.txt 明确把
+    # .md 定为 AI 入口、要求别爬渲染后的 HTML。.md 排在前，先占抓取名额。
+    md, rest = [], []
+    for u in out:
+        m = re.match(r"^(https://trustmrr\.com/startup/[^?#\s]+?)(?:\.md)?/?$", u)
+        if m:
+            md.append(m.group(1) + ".md")
+        rest.append(u)
+    seen, merged = set(), []
+    for u in md + rest:
+        if u not in seen:
+            seen.add(u)
+            merged.append(u)
+    return merged
 
 
 def collect_pages(cand, max_pages=5, log=None):
@@ -740,16 +960,28 @@ def collect_pages(cand, max_pages=5, log=None):
     pages, used_urls = [], []
     skipped = 0
 
+    rendered = 0
     for u in known_urls(cand):
         if len(used_urls) >= max_pages:
             break
+        # 官方 .md 已经抓到了，就别再去抓它的 HTML 孪生页 —— 内容重复、
+        # 白占一个名额（13KB Markdown 本来就是那页 HTML 的干净版）。
+        if u + ".md" in used_urls:
+            continue
         text = fetch_text(u)
+        if text is None or len(text) < MIN_TEXT:
+            # 常规抓取拿不到东西（Cloudflare 403 / 纯 SPA）→ 无头 Chrome 再试一次。
+            # 只在这里兜底：TrustMRR 侧有官方 .md，不会走到这步。
+            text = render_page(u)
+            if text:
+                rendered += 1
         if text:
             used_urls.append(u)
             pages.append("----- 来源URL: %s -----\n%s" % (u, text))
 
     if pages:
-        say("   已知地址：抓到 %d 页" % len(pages))
+        say("   已知地址：抓到 %d 页%s"
+            % (len(pages), "（其中 %d 页靠无头浏览器渲染）" % rendered if rendered else ""))
 
     for q in build_queries(cand):
         if len(used_urls) >= max_pages:

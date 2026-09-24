@@ -2862,6 +2862,11 @@ def cmd_refresh(args):
         rec = published.get(cid)
         if not rec:
             continue                      # 没发过，无需刷新
+        if rec.get("status") == "published":
+            # 2026-09-24：已群发的文章不在草稿箱里，refresh 刷不到（会白等几分钟
+            # 然后报找不到）。发表后把 status 改成 published 就不会再排进来。
+            print("  [skip] %s 已发表，不在草稿箱" % cid)
+            continue
         art = find_article(cid, c.get("name"))
         if not art:
             print("  [skip] %s 缺发布就绪 HTML" % cid)

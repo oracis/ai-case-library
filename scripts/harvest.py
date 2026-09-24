@@ -352,6 +352,7 @@ def _walk_jsonld(node, out):
 
 TRUSTMRR_API = "https://trustmrr.com/api/ai"
 TRUSTMRR_SITE = "https://trustmrr.com"
+TRUSTMRR_DISCOVERY_API = TRUSTMRR_SITE + "/api/ai/discovery"
 
 # TrustMRR 上低于这个月收入的条目没有案例价值（多为刚上线或已停摆）。
 # 0 表示「要求有收入数据」，但确实拿不到收入的仍放行（宁可留线索也不漏）。
@@ -571,17 +572,82 @@ def harvest_trustmrr_api(limit):
     return out
 
 
+def harvest_trustmrr_discovery(limit):
+    """TrustMRR discovery 端点：recentlyAdded + fastestGrowing 两组各 25 条。
+
+    与 /api/ai 的关系：
+      - /api/ai 字段全（40 个，含 markdownUrl/askingPrice/customers/foundedDate…），
+        discovery 只有 16 个字段、没有 markdownUrl，但有 growth30d/growthMRR30d；
+      - 两组端点按 slug 只重叠 4 条，discovery 能多带来约 41 个新 slug；
+      - 两边都带 website（46/50）。
+    所以把它当成 /api/ai 的**增量补充** —— 主通道仍是 /api/ai，discovery
+    只补那些还没在 /api/ai 里出现的 slug，避免重复录入。
+
+    复用 _unwrap_api_item 转内部格式；markdownUrl 缺失时 page_url 回落到
+    /startup/<slug>（collect_pages 会再转成官方 .md）。
+    """
+    try:
+        data = http_json(TRUSTMRR_DISCOVERY_API, timeout=30)
+    except Exception as e:                                     # noqa: BLE001
+        print("    [!] /api/ai/discovery 请求失败: %s" % e)
+        return []
+
+    if not isinstance(data, dict):
+        print("    [!] /api/ai/discovery 返回结构异常")
+        return []
+
+    out, seen = [], set()
+    for key in ("recentlyAddedStartups", "fastestGrowingStartups"):
+        for it in (data.get(key) or []):
+            if not isinstance(it, dict):
+                continue
+            if it.get("stealthMode"):
+                continue
+            mrr = ((it.get("revenue") or {}).get("mrr") or 0)
+            last30 = ((it.get("revenue") or {}).get("last30Days") or 0)
+            if 0 < max(mrr, last30) < TRUSTMRR_MRR_FLOOR:
+                continue
+            rec = _unwrap_api_item(it)
+            if not rec:
+                continue
+            slug = rec["_api"]["slug"]
+            if slug in seen:
+                continue
+            seen.add(slug)
+            out.append(rec)
+            if len(out) >= limit:
+                break
+        if len(out) >= limit:
+            break
+    return out
+
+
 def harvest_trustmrr(limit):
-    """抓 TrustMRR：优先官方 /api/ai，失败才回落解析首页 HTML。
+    """抓 TrustMRR：官方 /api/ai 主通道 + /api/ai/discovery 增量补充，最后才回落 HTML。
 
     历史教训：早先只读首页 JSON-LD 的 ItemList，那里 url 恰好是榜单自身页，
     于是「官网」这个概念根本没进采集器，候选池里全是「未分类 / 数字待补」。
     现在主通道换成官方给 AI 用的 JSON 端点，官网与收入都直接带回来。
+
+    2026-09-24 新增：/api/ai 与 /api/ai/discovery 按 slug 只重叠 4 条，
+    discovery 能给主通道补约 41 个新 slug，并带 growth30d（增长榜信号），
+    所以把它当增量而非替代 —— 主通道优先，discovery 只补未覆盖的 slug。
     """
-    got = harvest_trustmrr_api(limit)
-    if got:
-        return got
-    print("    [i] /api/ai 无数据，回落解析首页 HTML")
+    api_items = harvest_trustmrr_api(limit)
+    api_slugs = {i["_api"]["slug"] for i in api_items}
+    extra = []
+    for d in harvest_trustmrr_discovery(limit):
+        if d["_api"]["slug"] not in api_slugs:
+            extra.append(d)
+            if len(api_items) + len(extra) >= limit:
+                break
+    merged = api_items + extra
+    if merged:
+        if extra:
+            print("    [i] /api/ai 主通道 %d 条 + discovery 补 %d 条（共 %d）"
+                  % (len(api_items), len(extra), len(merged)))
+        return merged[:limit]
+    print("    [i] /api/ai 与 discovery 均无数据，回落解析首页 HTML")
     return harvest_trustmrr_html(limit)
 
 

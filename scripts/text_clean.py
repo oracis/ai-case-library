@@ -30,6 +30,10 @@ Squeezy）抓的，写稿时顺手记一句核对备注，比如
     strip_snapshot_marks("MRR $2,869（RevenueCat API 验证，2026-09-17 快照）")
     # => "MRR $2,869（RevenueCat API 验证）"
     clean_snapshot_marks(case)      # 就地清理嵌套 dict/list 里的所有字符串
+
+    from text_clean import end_sentences
+    end_sentences(cases)            # 给正文级列表项补结尾句号
+                                    # 「卖的是…而不是服务」→「卖的是…而不是服务。」
 """
 
 import re
@@ -81,6 +85,7 @@ def strip_snapshot_marks(text):
 
 def clean_snapshot_marks(obj):
     """就地清理嵌套 dict / list 里所有字符串，返回同一个对象。"""
+
     if isinstance(obj, dict):
         for k, v in obj.items():
             if isinstance(v, str):
@@ -93,6 +98,43 @@ def clean_snapshot_marks(obj):
                 obj[i] = strip_snapshot_marks(v)
             elif isinstance(v, (dict, list)):
                 clean_snapshot_marks(v)
+    return obj
+
+
+# ---------------------------------------------------------------- 结尾句号
+# 2026-09-24：正文里「它为什么能成 / 能搬走的部分」两条列表，每一条都是没有
+# 句号的半截句。四条并排放一起，既没有收尾、也看不出彼此关系，读起来很涩
+# （用户原话：「每句都没有结束的句号…每句都不关联，读起来很不流畅」）。
+# 补一个句号，每条才像一句说完了的话；这一层是渲染前的最后一道，data/ 里
+# 以后新入库的条目漏写句号也能兜住。
+_END_PUNCT = ("。", "！", "？", "…", "；")
+
+# 只补**正文级句子列表**。models / tags 是标签词（「订阅制。」是怪东西），
+# signals 是数据行，都不是句子，一律不碰。
+SENTENCE_LISTS = ("why_it_works", "playbook")
+
+
+def end_sentence(text):
+    """一句列表项：缺结尾标点的补一个「。」，已经有的原样返回。"""
+    if not isinstance(text, str):
+        return text
+    s = text.rstrip()
+    if not s or s.endswith(_END_PUNCT):
+        return s
+    return s + "。"
+
+
+def end_sentences(obj, fields=SENTENCE_LISTS):
+    """就地给正文级列表项补结尾句号，返回同一个对象（dict 或 list 都认）。"""
+    if isinstance(obj, dict):
+        obj = [obj]
+    for c in obj or []:
+        if not isinstance(c, dict):
+            continue
+        for f in fields:
+            v = c.get(f)
+            if isinstance(v, list):
+                c[f] = [end_sentence(x) if isinstance(x, str) else x for x in v]
     return obj
 
 
@@ -132,4 +174,41 @@ if __name__ == "__main__":
         if got != want:
             print("    期望 %r" % want)
     print("\n%d/%d 通过" % (len(CASES) - bad, len(CASES)))
-    raise SystemExit(1 if bad else 0)
+
+    # ---- 结尾句号 ----
+    E = end_sentence
+    ECASES = [
+        ("卖的是「产量」而不是「创意」：天然适合做成工具而不是服务",
+         "卖的是「产量」而不是「创意」：天然适合做成工具而不是服务。"),
+        ("已经收尾的。", "已经收尾的。"),          # 已有的不重复补
+        ("感叹句收尾！", "感叹句收尾！"),
+        ("带括号收尾（Lemon Squeezy 侧验证）", "带括号收尾（Lemon Squeezy 侧验证）。"),
+        ("末尾有空格、句子 ", "末尾有空格、句子。"),  # 尾部空白先去掉再补
+        ("", ""),
+    ]
+    ebad = 0
+    for src, want in ECASES:
+        got = E(src)
+        flag = "ok " if got == want else "BAD"
+        if got != want:
+            ebad += 1
+        print("%s %r\n    -> %r" % (flag, src, got))
+        if got != want:
+            print("    期望 %r" % want)
+    print("\n%d/%d 通过（结尾句号）" % (len(ECASES) - ebad, len(ECASES)))
+
+    # 只动句子列表，标签/数据行不碰
+    one = {"why_it_works": ["卖的是产量"], "models": ["订阅制"],
+           "tags": ["批量内容"], "signals": ["MRR 约 $1,358"],
+           "playbook": ["把创意型需求包装成产量型交付"]}
+    end_sentences(one)
+    scope_ok = (one["why_it_works"] == ["卖的是产量。"]
+                and one["playbook"] == ["把创意型需求包装成产量型交付。"]
+                and one["models"] == ["订阅制"]
+                and one["tags"] == ["批量内容"]
+                and one["signals"] == ["MRR 约 $1,358"])
+    if not scope_ok:
+        ebad += 1
+    print("%s 只补 why_it_works / playbook，models / tags / signals 不动\n    -> %r"
+          % ("ok " if scope_ok else "BAD", one))
+    raise SystemExit(1 if (bad or ebad) else 0)

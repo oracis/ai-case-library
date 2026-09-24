@@ -317,6 +317,53 @@ def main():
     finally:
         sys.argv = old_argv
 
+    print("\n[10e] 第二条纠错：不立小标题、不断行（2026-09-23）")
+    try:
+        m = load_mod()
+        # 用户反馈：「还有一条被抄错的」这个小标题和下面那行「流传的说法：…」
+        # 被排版断成两行后，读起来是半句话。现在整句并进同一个段落，
+        # 该节的 head 用 m.NO_HEAD（空串：不出 h2，也不会被当成钩子引文块）。
+        cases = m.load_cases(m.CASES_PATH)
+        second = [c for c in cases if len(c.get("corrections") or []) > 1]
+        chk("库里有带两条以上纠错的案例可测", len(second) >= 5)
+        bad_head, bad_join, bad_html, bad_md = [], [], [], []
+        for c in second:
+            secs = m.build_sections(c)
+            hits = [s for s in secs if "还有一条被抄错的" in "".join(s[1] or [])]
+            if len(hits) != 1:
+                bad_head.append("%s(段落数%d)" % (c["id"], len(hits)))
+                continue
+            head, paras = hits[0]
+            if head != m.NO_HEAD:
+                bad_head.append(c["id"])
+            if not paras[0].startswith("**还有一条被抄错的流传的说法**："):
+                bad_join.append(c["id"])
+            titles, manual = m.build_titles(c)
+            if "还有一条被抄错的</h2>" in m.render_html(c, titles, manual, secs, 0.0):
+                bad_html.append(c["id"])
+            if "## 还有一条被抄错的" in m.render_markdown(c, titles, manual, secs, 0.0)[0]:
+                bad_md.append(c["id"])
+        chk("该节 head 为 NO_HEAD（不立小标题）", not bad_head, "、".join(bad_head[:5]))
+        chk("「还有一条被抄错的」已并进本句", not bad_join, "、".join(bad_join[:5]))
+        chk("HTML 里不再出现该小标题", not bad_html, "、".join(bad_html[:5]))
+        chk("Markdown 里不再出现该小标题", not bad_md, "、".join(bad_md[:5]))
+    except Exception as e:
+        chk("[10e] 第二条纠错不断行", False, "%s" % e)
+
+    print("\n[10f] 列表项不再用悬挂缩进（2026-09-24 用户反馈）")
+    try:
+        bad_hang = []
+        for c in m.load_cases(m.CASES_PATH):
+            titles, manual = m.build_titles(c)
+            secs = m.build_sections(c)
+            html = m.render_html(c, titles, manual, secs, 0.0)
+            # 症状：无项目符号时单行顶格、多行首行顶格续行缩进，视觉错乱
+            if "text-indent:-14px" in html or "padding-left:14px;text-indent" in html:
+                bad_hang.append(c["id"])
+        chk("HTML 里不再出现 text-indent 悬挂缩进", not bad_hang, "、".join(bad_hang[:5]))
+    except Exception as e:
+        chk("[10f] 列表项悬挂缩进", False, "%s" % e)
+
     print("\n[11] 不污染工作区")
     dirty = [p for p in ("data", "static", "dist")
              if os.path.isdir(os.path.join(ROOT, p))

@@ -72,7 +72,14 @@
     "note": "分析方给的判断很准：原型好做，「让分歧变得有用」很难。$58 MRR 是本库看到的最小信号之一，保留作为「最小样本」。",
     "blocking": "体量太小，暂不精写",
     "added_at": "2026-09-11",
-    "source_kind": "discovery"
+    "source_kind": "verified",
+    "website": "https://www.livecrew.tech",
+    "source_url": "https://trustmrr.com/startup/livecrew",
+    "trustmrr_slug": "livecrew",
+    "cross_source_check": {
+      "at": "2026-09-24 跨源查证",
+      "note": "TrustMRR 挂牌页在 /startup/livecrew（候选 id 多了 -ai）；官网域名是 .tech 不是 .ai，HN 有 Show HN 帖"
+    }
   },
   {
     "id": "mort",
@@ -129,7 +136,14 @@
     "note": "微体量样本：月入 $272。记录它是为了看清「生态底部」长什么样，避免只看到头部案例造成幸存者偏差。",
     "blocking": "体量太小，暂不精写",
     "added_at": "2026-09-11",
-    "source_kind": "discovery"
+    "source_kind": "verified",
+    "website": "https://localdock.com",
+    "source_url": "https://trustmrr.com/startup/localdock",
+    "trustmrr_slug": "localdock",
+    "cross_source_check": {
+      "at": "2026-09-24 跨源查证",
+      "note": "TrustMRR 挂牌页在 /startup/localdock（候选 id 多了一个 k）"
+    }
   },
   {
     "id": "search1api",
@@ -169,7 +183,15 @@
     "note": "1.0x 倍数，说明市场认为这是一个「没有增长、但能稳定产出现金」的小生意。这类资产在某些买家眼里反而有吸引力。",
     "blocking": "口径待核 + 公司全称与产品定位需补",
     "added_at": "2026-09-11",
-    "source_kind": "discovery"
+    "source_kind": "verified",
+    "cross_source_check": {
+      "at": "2026-09-24 跨源查证",
+      "note": "uplinked.com 已跳到 domainhero 域名停放页且正文为空，产品疑似已停止"
+    },
+    "website": "https://www.uplinked.app",
+    "trustmrr_slug": "uplinked-b-v",
+    "source_url": "https://trustmrr.com/startup/uplinked-b-v",
+    "harvest_source": "trustmrr"
   },
   {
     "id": "voklit",
@@ -189,7 +211,13 @@
     "note": "月入 $1.6K 挂 $60K（3.1x）。与 LiveCrew / Stripe Report 同属「极小体量但被合理定价」的样本。",
     "blocking": "口径待核 + 产品定位需补",
     "added_at": "2026-09-11",
-    "source_kind": "discovery"
+    "source_kind": "discovery",
+    "website": "https://voklit.com",
+    "source_url": "https://voklit.com",
+    "cross_source_check": {
+      "at": "2026-09-24 跨源查证",
+      "note": "TrustMRR 已无挂牌页；官网明示 freeze mode / new signups closed / platform is for sale（含 /acquire 页）"
+    }
   },
   {
     "id": "affililist",
@@ -208,7 +236,11 @@
     "note": "月入 $156。极微体量。保留作为生态底部样本。",
     "blocking": "体量太小，暂不精写",
     "added_at": "2026-09-11",
-    "source_kind": "discovery"
+    "source_kind": "verified",
+    "website": "https://www.affililist.com",
+    "trustmrr_slug": "affililist",
+    "source_url": "https://trustmrr.com/startup/affililist",
+    "harvest_source": "trustmrr"
   },
   {
     "id": "dolar-app",
@@ -227,7 +259,13 @@
     "note": "金融科技小体量标的。2.2x 倍数接近平台平均 1.9x。",
     "blocking": "口径待核 + 产品定位需补",
     "added_at": "2026-09-11",
-    "source_kind": "discovery"
+    "source_kind": "discovery",
+    "website": "https://dolar-app.com",
+    "source_url": "https://dolar-app.com",
+    "cross_source_check": {
+      "at": "2026-09-24 跨源查证",
+      "note": "西语区汇率 app（委内瑞拉/阿根廷等），真实产品；TrustMRR 上未找到挂牌页"
+    }
   },
   {
     "id": "layzr-ai",
@@ -303,7 +341,9 @@
     "note": "电商类标的样本。与 SaaS 类对比可看出市场对「有库存/物流」的生意给更低倍数。",
     "blocking": "口径待核 + 产品定位需补",
     "added_at": "2026-09-11",
-    "source_kind": "discovery"
+    "source_kind": "verified",
+    "website": "https://le19emetrou.fr",
+    "source_url": "https://trustmrr.com/startup/le19emetrou"
   },
   {
     "id": "thehundred",
@@ -361,7 +401,13 @@
     "note": "创始人亲自公开的退出案例，也是 TrustMRR 平台的标杆成交之一。与 AEO Engine 同赛道（AI 可见性），可对比「做引擎」和「做监测」两条路的不同结局：一个卖引擎、一个卖监测然后退出。",
     "blocking": "需要补充成交前的收入与倍数，才能写完整「退出」案例",
     "added_at": "2026-09-11",
-    "source_kind": "discovery"
+    "source_kind": "discovery",
+    "website": "https://promptmonitor.io",
+    "source_url": "https://promptmonitor.io",
+    "cross_source_check": {
+      "at": "2026-09-24 跨源查证",
+      "note": "据称已成交退出，TrustMRR 挂牌页已撤；官网仍在运营，定价 $29/$39/$129"
+    }
   },
   {
     "id": "stealth-company",
@@ -436,7 +482,13 @@
     "note": "目前被并进 Pieter Levels 组合案例里。单独拆出来更有价值——它证明「一个人 + 一个 AI 图片产品」能到月入十几万，值得一篇独立分析。",
     "blocking": "需要补获客渠道细节后才能独立成篇",
     "added_at": "2026-09-11",
-    "source_kind": "discovery"
+    "source_kind": "discovery",
+    "website": "https://photoai.com",
+    "source_url": "https://photoai.com",
+    "cross_source_check": {
+      "at": "2026-09-24 跨源查证",
+      "note": "来源是创始人自述，从未在 TrustMRR 挂牌（所以没有挂牌页属正常）；官网仍在运营"
+    }
   },
   {
     "id": "photo-ai-competitors",

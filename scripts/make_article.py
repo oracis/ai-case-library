@@ -42,7 +42,7 @@ DEFAULT_OUT = os.path.join(ROOT, "out", "articles")
 # ------------------------------------------------------------------ 维度标签
 # 与 score_china_fit.py / score_solo_fit.py 保持一致；导入失败则用这里的副本兜底
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
-from text_clean import clean_snapshot_marks               # noqa: E402
+from text_clean import clean_snapshot_marks, end_sentences  # noqa: E402
 
 try:
     from score_china_fit import DIMS as CHINA_DIMS       # noqa: E402
@@ -260,6 +260,13 @@ def build_titles(case):
 ROW_MARK = "@@ROW@@"
 # 注：早先键值行靠「······」点线凑对齐，2026-09-21 换成真两端对齐后已删除 DOTS。
 
+# 「不立小标题的段落节」：head 传这个空串。
+# 两个渲染器里 `if head:` 不成立 → 不输出 h2；同时它**不是 None**，
+# 所以也不会掉进「钩子引文块（blockquote）」那条分支，出的是普通段落。
+# 2026-09-23 新增：单句的过渡段落不该立小标题——立了之后标题和它下半句
+# 会被排版断成两行，读起来是半句话。
+NO_HEAD = ""
+
 
 def _row(label, value):
     """键值行标记：两个渲染器都会把它渲成两列表格（md 真表格 / html 拼装表格）。"""
@@ -349,9 +356,13 @@ def build_sections(case):
         secs.append(("它到底做到多大", size))
 
     # 第二条被抄错的（可选）
+    # 2026-09-23：原来这里挂一个「还有一条被抄错的」小标题，下面再另起一段
+    # 「流传的说法：…」。用户反馈这样一断行就成了半句话（「一句话不连贯」）——
+    # 「还有一条被抄错的」本来只是下半句的定语，不该单独占一行。
+    # 现在不立小标题，把这个短语并进本句，和「流传的说法」连成一行。
     if len(corr) > 1:
-        secs.append(("还有一条被抄错的", [
-            "**流传的说法**：%s" % corr[1].get("claim", ""),
+        secs.append((NO_HEAD, [
+            "**还有一条被抄错的流传的说法**：%s" % corr[1].get("claim", ""),
             "**实际情况**：%s" % corr[1].get("truth", ""),
         ]))
 
@@ -592,7 +603,10 @@ def render_html(case, titles, manual, secs, score):
                 continue
             _flush_html_rows(P, rows)
             if p.startswith("- "):
-                P.append('<p style="%s;margin:0 0 8px;padding-left:14px;text-indent:-14px;">'
+                # 2026-09-24：去掉 padding-left+text-indent 的悬挂缩进 —— 正文没有
+                # 项目符号，单行时看不出效果，多行时「首行顶格、续行缩进」反而
+                # 显得错乱。列表项与普通段落同款，全部左缘对齐。
+                P.append('<p style="%s;margin:0 0 8px;">'
                          '%s</p>' % (BODY_BASE, _esc(p[2:]).replace("&amp;**", "**")))
             elif head is None:
                 # 钩子/导语段：保留灰底灰字的设计，只补字号与行高跟正文对齐
@@ -624,6 +638,8 @@ def load_cases(path):
     # 读者不该看到「（Stripe 验证，2026-09-17 快照）」这类**给作者自己看的**元数据标注。
     # 数据里已经清过一遍，这里是第二道闸门：以后往 cases.json 补字段时漏了也不进正文。
     clean_snapshot_marks(cases)
+    # 同理，列表项必须收尾：没有句号的半截句并排摆在一起读起来很涩（2026-09-24）。
+    end_sentences(cases)
     return cases
 
 
