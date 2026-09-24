@@ -39,6 +39,7 @@
 """
 
 import argparse
+import gzip
 import html as html_mod
 import json
 import os
@@ -804,9 +805,18 @@ TRUSTMRR_SITE = "https://trustmrr.com"
 #   POST /api/mcp/discovery     MCP；其中 get_startup(slug) 要 OAuth，用不了
 # llms.txt 明确要求「别爬渲染后的 HTML 拿全量市场数据」，所以 TrustMRR 侧一律
 # 走上面这两个官方通道，不套无头浏览器。
+TRUSTMRR_API = TRUSTMRR_SITE + "/api/ai"
 TRUSTMRR_DISCOVERY_API = TRUSTMRR_SITE + "/api/ai/discovery"
 
+# robots.txt 里公布的全站 sitemap（2026-09-24 实测 10,691 条 startup slug）。
+# 这是「缺 trustmrr_slug 也能复核」的关键一环：/api/ai 两个端点只有 90 条且
+# 轮换，旧候选一旦不在当轮就再也对不上号；sitemap 覆盖全站，能直接确认
+# 「id / 名称归一后的 slug 到底存不存在」，不用一个个 404 试探。
+TRUSTMRR_SITEMAP = TRUSTMRR_SITE + "/startup-sitemap.xml"
+
 _DISCOVERY_CACHE = {"data": None}
+_INDEX_CACHE = {"data": None}
+_SITEMAP_CACHE = {"data": None}
 
 
 def trustmrr_discovery(force=False):
@@ -840,6 +850,190 @@ def trustmrr_discovery(force=False):
                 out[slug] = it
     _DISCOVERY_CACHE["data"] = out
     return out
+
+
+# ---------------------------------------------------------------- slug 反查
+#
+# 「缺 trustmrr_slug 就不能复核了吗」——不是。slug 只是**TrustMRR 这一条通道**的
+# 钥匙，而入库闸门要的是 source_kinds 非空（官网 official / 创始人 founder /
+# 评测 review 都算数）。2026-09-24 voklit 实测：挂牌页已撤、slug 试了 4 个变体
+# 全 404，只靠官网照样过闸入库（等级 official）。所以缺 slug 时有两条路：
+#   ① 用官方公开索引反查 slug（下面这套），把 TrustMRR 一手证据找回来；
+#   ② 反查不到就换其它一手来源复核，别因为「没有 slug」就整条放弃。
+# 这里实现 ①；返回空则由调用方走 ②。
+
+
+def trustmrr_sitemap_slugs(force=False):
+    """官方 startup-sitemap.xml 里的**全量 slug 集合**（robots.txt 公布）。
+
+    2026-09-24 实测：gzip 160KB / 6 秒，解压后 1.7MB、10,691 条。
+    必须显式要 gzip —— http_get 发的是 `Accept-Encoding: identity`，同一个文件
+    下发 1.7MB 时 120 秒都拉不完（实测截断），而压缩后 6 秒就完。
+
+    失败一律返回空集合（不抛），反查流程照常退到下一层。
+    """
+    if _SITEMAP_CACHE["data"] is not None and not force:
+        return _SITEMAP_CACHE["data"]
+
+    slugs = set()
+    try:
+        req = urllib.request.Request(TRUSTMRR_SITEMAP, headers={
+            "User-Agent": UA,
+            "Accept": "application/xml,text/xml,*/*;q=0.8",
+            "Accept-Encoding": "gzip",
+        })
+        with urllib.request.urlopen(req, timeout=60) as r:
+            raw = r.read(4 * 1024 * 1024)
+        if raw[:2] == b"\x1f\x8b":                       # gzip 魔数
+            raw = gzip.decompress(raw)
+        text = raw.decode("utf-8", "replace")
+        for loc in re.findall(r"<loc>([^<]+)</loc>", text):
+            m = re.search(r"/startup/([^/<]+)", loc)
+            if m:
+                slugs.add(m.group(1).strip().lower())
+    except Exception:
+        slugs = set()
+    _SITEMAP_CACHE["data"] = slugs
+    return slugs
+
+
+def trustmrr_index(force=False):
+    """汇总两个公开端点，返回 {slug: {name, website, ...}}（含 askingPrice/multiple）。
+
+    /api/ai           → recentlyListedStartups(25) + bestDeals(25)
+    /api/ai/discovery → recentlyAddedStartups(25) + fastestGrowingStartups(25)
+    合起来约 90 个唯一 slug（重叠个位数），是「名称/官网 → slug」的匹配表。
+    失败一律返回 {}（不抛）。
+    """
+    if _INDEX_CACHE["data"] is not None and not force:
+        return _INDEX_CACHE["data"]
+
+    out = dict(trustmrr_discovery(force=force))
+    try:
+        data = json.loads(http_get(TRUSTMRR_API, timeout=30, max_bytes=400000))
+        for key in ("recentlyListedStartups", "bestDeals"):
+            for it in (data.get(key) or []):
+                slug = (it.get("slug") or "").strip()
+                if slug:
+                    out.setdefault(slug, it)
+    except Exception:
+        pass
+    _INDEX_CACHE["data"] = out
+    return out
+
+
+def _norm_key(s):
+    """归一化名称用于比对：只留小写字母数字。"""
+    return re.sub(r"[^a-z0-9]+", "", (s or "").lower())
+
+
+def _host_of(url):
+    """取 URL 主机名（去 www.），非 http 开头返回空。"""
+    u = (url or "").strip().lower()
+    if not u.startswith("http"):
+        return ""
+    m = re.match(r"https?://([^/\s]+)", u)
+    if not m:
+        return ""
+    host = m.group(1).split(":")[0]
+    return host[4:] if host.startswith("www.") else host
+
+
+def slug_guesses(cand):
+    """从候选的 id / 名称推出可能的 slug，按可信度排序。"""
+    out = []
+
+    def add(s):
+        s = re.sub(r"[^a-z0-9\-]+", "-", (s or "").lower())
+        s = re.sub(r"-{2,}", "-", s).strip("-")
+        if s and s not in out:
+            out.append(s)
+
+    cid = (cand.get("id") or "").strip()
+    name = (cand.get("name_en") or cand.get("name") or "").strip()
+    for base in (cid, name):
+        add(base)
+    for base in (cid, name):
+        b = re.sub(r"[^a-z0-9\-]+", "-", (base or "").lower()).strip("-")
+        # 「Private Venture（榜单条目 1）」这类榜单后缀：去掉尾部数字
+        b2 = re.sub(r"-\d+$", "", b)
+        if b2 and b2 != b:
+            add(b2)
+        # 产品名常见的域名后缀词，去掉再试一次（layzr-ai → layzr）
+        for suf in ("-ai", "-app", "-io", "-com", "-hq", "-inc", "-llc"):
+            if b2.endswith(suf):
+                add(b2[: -len(suf)])
+    return out
+
+
+def trustmrr_md_title(slug, timeout=20):
+    """抓挂牌页 .md 的 `# 标题`（买不到/抓不到返回空）。"""
+    try:
+        md = fetch_text("%s/startup/%s.md" % (TRUSTMRR_SITE, slug), cap=400)
+    except Exception:
+        return ""
+    m = re.search(r"^#\s*(.+)$", md or "", re.M)
+    return m.group(1).strip() if m else ""
+
+
+def resolve_trustmrr_slug(cand, index=None, slugs=None, confirm=False):
+    """反查候选对应的 TrustMRR slug。返回 (slug, how)；查不到返回 ("", "")。
+
+    how 就是证据强度，从强到弱：
+      "已登记"   —— 候选自己带 trustmrr_slug（最可靠）
+      "来源页"   —— source_url 本身就是挂牌页
+      "官网匹配" —— /api/ai 索引里同官网域名的条目（机器可判的强匹配）
+      "官网子域" —— 索引里官网域名互为子域（www./app. 之类）
+      "名称匹配" —— 索引里名称归一后完全相同
+      "站点索引" —— sitemap（全站 1.07 万条）里存在同名 / 同 id 的 slug
+
+    confirm=True 时**只对最弱的「站点索引」层做身份确认**（抓 .md 比对标题）：
+    sitemap 只能证明「这个 slug 存在」，不能证明「就是同一个产品」。2026-09-24
+    实测踩到过 —— 候选 `private-venture-1`（榜单条目，$1M 挂牌 / 卖家 david）
+    按 id 命中同名 slug，抓回来却是另一个隐身挂牌（Stealth Company /
+    Kostadin Ristovski / MRR $44.92 / 未挂牌），数字全对不上。喂错证据比没有
+    证据更危险（AI 会「基于不完整证据做错误否定」），所以默认就确认一次。
+    隐身挂牌的标题是占位符（Stealth Company），也会被确认挡掉 —— 这是对的，
+    宁可退回「无果」让深核走官网，也不要塞一个身份不明的一手来源进去。
+    """
+    s = (cand.get("trustmrr_slug") or "").strip()
+    if s:
+        return s, "已登记"
+
+    m = re.search(r"trustmrr\.com/startup/([\w.\-]+)", cand.get("source_url") or "")
+    if m:
+        return m.group(1), "来源页"
+
+    if not (cand.get("id") or cand.get("name") or cand.get("name_en")):
+        return "", ""
+
+    idx = trustmrr_index() if index is None else index
+    host = _host_of(cand.get("website"))
+    if host and idx:
+        for slug, it in idx.items():
+            if _host_of(it.get("website")) == host:
+                return slug, "官网匹配"
+        for slug, it in idx.items():
+            oh = _host_of(it.get("website"))
+            if oh and (oh.endswith("." + host) or host.endswith("." + oh)):
+                return slug, "官网子域"
+
+    key = _norm_key(cand.get("name_en") or cand.get("name"))
+    if key and idx:
+        for slug, it in idx.items():
+            if _norm_key(it.get("name")) == key:
+                return slug, "名称匹配"
+
+    known = trustmrr_sitemap_slugs() if slugs is None else slugs
+    for g in slug_guesses(cand):
+        if g not in known:
+            continue
+        if confirm:
+            title = trustmrr_md_title(g)
+            if not title or (_norm_key(title) != key and _norm_key(title) != _norm_key(cand.get("name"))):
+                continue
+        return g, "站点索引"
+    return "", ""
 
 
 # ---------------------------------------------------------------- 无头浏览器
@@ -919,10 +1113,18 @@ def known_urls(cand):
         if isinstance(s, dict):
             add(s.get("url"))
 
-    # 兜底：候选池 28 条**没有任何一条**带 URL（2026-09-24 实测），
-    # 于是 known_urls 恒为空、每次都退化成「纯搜索」——而搜索走 cn.bing.com，
-    # 查小众外文站基本查不到（le19emetrou 那轮抓回 5 个百度知道/作业帮页）。
-    # 候选 id 本身就来自采集站 slug，挂牌页可以直拼；实测 28 条里大部分有。
+    # 兜底 1：缺 slug 时**反查**（2026-09-24 新增）。官方 sitemap 覆盖全站
+    # 1.07 万条 slug，比「id 直拼了事」强：直拼在 livecrew-ai 那种 id≠slug
+    # 的情况下必然 404，反查则能对上 layzr-ai → layzr 这类变形。
+    # confirm=True：站点索引层只证明 slug 存在，不证明是同一产品（踩过
+    # private-venture-1 的坑），所以抓一次 .md 核对标题才用。
+    # 已有的 TrustMRR 链接不动，只在完全没有时才补 —— 不干扰人工登记的选择。
+    if not any("trustmrr.com/startup/" in u for u in out):
+        slug, _how = resolve_trustmrr_slug(cand, confirm=True)
+        if slug:
+            add("%s/startup/%s" % (TRUSTMRR_SITE, slug))
+
+    # 兜底 2：反查不出来，就按候选 id 直拼一次（可能 404，404 时抓取层自然跳过）。
     if cid and not out:
         add("%s/startup/%s" % (TRUSTMRR_SITE, cid))
 

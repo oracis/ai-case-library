@@ -17,7 +17,9 @@
     "note": "仅从榜单列表看到公司描述，未拿到收入数字。营销归因是 SaaS 的刚需支出，值得补数据。",
     "blocking": "缺收入数据",
     "added_at": "2026-09-11",
-    "source_kind": "discovery"
+    "source_kind": "verified",
+    "trustmrr_slug": "cometly",
+    "source_url": "https://trustmrr.com/startup/cometly"
   },
   {
     "id": "stripe-report",
@@ -36,7 +38,9 @@
     "note": "极小的信号，但方向清晰：切的是创始人对「下个月会不会没钱」的焦虑。7 个订阅说明还没找到分发。可作「最小可验证信号」样本保留。",
     "blocking": "体量太小，暂不精写",
     "added_at": "2026-09-11",
-    "source_kind": "discovery"
+    "source_kind": "verified",
+    "trustmrr_slug": "stripe-report",
+    "source_url": "https://trustmrr.com/startup/stripe-report"
   },
   {
     "id": "livecrew-ai",
@@ -81,7 +85,9 @@
     "note": "6.4x 是本库见到的最高倍数，但月收入仅 $84——高倍数通常意味着买家在为「潜力」付费而非现金流。这个现象本身值得研究。",
     "blocking": "口径与产品定位均待补",
     "added_at": "2026-09-11",
-    "source_kind": "discovery"
+    "source_kind": "verified",
+    "trustmrr_slug": "mort",
+    "source_url": "https://trustmrr.com/startup/mort"
   },
   {
     "id": "localkdock",
@@ -149,7 +155,9 @@
     "note": "1.0x 倍数。微体量 AI 产品的退出样本。",
     "blocking": "体量太小，暂不精写",
     "added_at": "2026-09-11",
-    "source_kind": "discovery"
+    "source_kind": "verified",
+    "trustmrr_slug": "layzr-ai",
+    "source_url": "https://trustmrr.com/startup/layzr-ai"
   },
   {
     "id": "sociano",
@@ -168,7 +176,9 @@
     "note": "0.7x 低倍数。生态底部样本。",
     "blocking": "体量太小，暂不精写",
     "added_at": "2026-09-11",
-    "source_kind": "discovery"
+    "source_kind": "verified",
+    "trustmrr_slug": "sociano",
+    "source_url": "https://trustmrr.com/startup/sociano"
   },
   {
     "id": "quran-unlock",
@@ -187,7 +197,9 @@
     "note": "移动 app 类标的，0.6x 倍数偏低。可用来比较「app 类资产」与「SaaS 类资产」的市场定价差异。",
     "blocking": "口径待核",
     "added_at": "2026-09-11",
-    "source_kind": "discovery"
+    "source_kind": "verified",
+    "trustmrr_slug": "quran-unlock",
+    "source_url": "https://trustmrr.com/startup/quran-unlock"
   },
   {
     "id": "thehundred",
@@ -206,7 +218,9 @@
     "note": "月入 $35。本库见到的最小标的。记录它是为了标定「独立项目收入分布」的真实底部。",
     "blocking": "体量太小，暂不精写",
     "added_at": "2026-09-11",
-    "source_kind": "discovery"
+    "source_kind": "verified",
+    "trustmrr_slug": "thehundred",
+    "source_url": "https://trustmrr.com/startup/thehundred"
   },
   {
     "id": "private-venture-1",
