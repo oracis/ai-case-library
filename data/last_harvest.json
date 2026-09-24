@@ -1,0 +1,78 @@
+{
+  "ran_at": "2026-09-24 05:44:16",
+  "added": 82,
+  "by_source": {
+    "hn": 48,
+    "indiehackers": 18,
+    "trustmrr": 16
+  },
+  "inbox_total": 400,
+  "archived_this_run": 82,
+  "archive_total": 600,
+  "top": [
+    {
+      "name": "Car Catcher",
+      "headline": "MRR $336",
+      "heat": 0,
+      "category": "Mobile Apps",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/car-catcher"
+    },
+    {
+      "name": "Wheel of Life",
+      "headline": "MRR $186，TrustMRR 第 1819 名",
+      "heat": 0,
+      "category": "Mobile Apps",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/wheel-of-life"
+    },
+    {
+      "name": "CheckForm Gymnastics",
+      "headline": "MRR $1,184，TrustMRR 第 1782 名",
+      "heat": 0,
+      "category": "Artificial Intelligence",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/checkform-gymnastics"
+    },
+    {
+      "name": "Boothie: AI Photo Editor",
+      "headline": "MRR $37,554，TrustMRR 第 521 名",
+      "heat": 0,
+      "category": "Mobile Apps",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/boothie"
+    },
+    {
+      "name": "CalBox AI Calorie Tracker",
+      "headline": "MRR $538，TrustMRR 第 2149 名",
+      "heat": 0,
+      "category": "Artificial Intelligence",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/sr-apps"
+    },
+    {
+      "name": "KOTrol",
+      "headline": "MRR $54，TrustMRR 第 3804 名",
+      "heat": 0,
+      "category": "Health & Fitness",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/kotrol"
+    },
+    {
+      "name": "gtm.help",
+      "headline": "MRR $329，TrustMRR 第 4578 名",
+      "heat": 0,
+      "category": "Artificial Intelligence",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/gtm-help"
+    },
+    {
+      "name": "RePho: Restore Old Photos",
+      "headline": "MRR $274，TrustMRR 第 2547 名",
+      "heat": 0,
+      "category": "Mobile Apps",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/repho"
+    }
+  ]
+}
