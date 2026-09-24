@@ -20,23 +20,6 @@
     "source_kind": "discovery"
   },
   {
-    "id": "prosp",
-    "name": "PROSP",
-    "name_en": "PROSP",
-    "origin": "未披露",
-    "one_liner": "（待补充：产品定位未明）",
-    "category": "未分类",
-    "verification": "partial",
-    "metrics": {
-      "headline": "$128,000 MRR（该 Stripe 验证数据集内最高当前 MRR）"
-    },
-    "models": [],
-    "note": "在一份 30+ 家 AI 创业公司的 Stripe 验证数据集中，PROSP 的当前 MRR 是最高的（$128K）。但原报告未展开介绍产品。属于「数字亮眼、信息缺失」的典型候选。",
-    "blocking": "几乎无产品信息，需先去官网补齐定位与商业模式",
-    "added_at": "2026-09-11",
-    "source_kind": "discovery"
-  },
-  {
     "id": "stripe-report",
     "name": "Stripe Report",
     "name_en": "Stripe Report",
@@ -101,25 +84,6 @@
     "source_kind": "discovery"
   },
   {
-    "id": "divine-widgets",
-    "name": "Divine Widgets",
-    "name_en": "Divine Widgets",
-    "origin": "未披露",
-    "one_liner": "网页小组件（具体定位未获取）",
-    "category": "开发者工具",
-    "verification": "partial",
-    "metrics": {
-      "headline": "收入 $6.2K / 售价 $15K / 倍数 0.2x（TrustMRR 市场挂牌）"
-    },
-    "models": [
-      "交易市场"
-    ],
-    "note": "0.2x 是极低倍数——卖家几乎在「清仓」。出现在榜单最前面，可能是新挂牌或定价失误。低价倍数样本值得留档。",
-    "blocking": "口径待核",
-    "added_at": "2026-09-11",
-    "source_kind": "discovery"
-  },
-  {
     "id": "localkdock",
     "name": "Localdock",
     "name_en": "Localdock",
@@ -143,32 +107,6 @@
     "cross_source_check": {
       "at": "2026-09-24 跨源查证",
       "note": "TrustMRR 挂牌页在 /startup/localdock（候选 id 多了一个 k）"
-    }
-  },
-  {
-    "id": "voklit",
-    "name": "Voklit",
-    "name_en": "Voklit",
-    "origin": "未披露",
-    "one_liner": "客服类产品（具体定位未获取）",
-    "category": "客户服务",
-    "verification": "partial",
-    "metrics": {
-      "headline": "收入 $1.6K / 售价 $60K / 倍数 3.1x（TrustMRR 市场挂牌）"
-    },
-    "models": [
-      "订阅制",
-      "交易市场"
-    ],
-    "note": "月入 $1.6K 挂 $60K（3.1x）。与 LiveCrew / Stripe Report 同属「极小体量但被合理定价」的样本。",
-    "blocking": "口径待核 + 产品定位需补",
-    "added_at": "2026-09-11",
-    "source_kind": "discovery",
-    "website": "https://voklit.com",
-    "source_url": "https://voklit.com",
-    "cross_source_check": {
-      "at": "2026-09-24 跨源查证",
-      "note": "TrustMRR 已无挂牌页；官网明示 freeze mode / new signups closed / platform is for sale（含 /acquire 页）"
     }
   },
   {

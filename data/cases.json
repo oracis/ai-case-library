@@ -1,5 +1,181 @@
 [
   {
+    "id": "voklit",
+    "name": "Voklit",
+    "name_en": "Voklit",
+    "origin": "未披露",
+    "one_liner": "客服类产品（具体定位未获取）",
+    "category": "客户服务",
+    "industry": "",
+    "status": "curated",
+    "verification": "official",
+    "caliber": "mrr",
+    "metrics": {
+      "headline": "收入 $1.6K / 售价 $60K / 倍数 3.1x（TrustMRR 市场挂牌）"
+    },
+    "models": [
+      "订阅制",
+      "交易市场"
+    ],
+    "replicability": {},
+    "verdict": "",
+    "what_it_does": "客服类产品（具体定位未获取）",
+    "how_it_makes_money": "",
+    "why_it_works": [],
+    "playbook": [],
+    "signals": [],
+    "corrections": [
+      {
+        "claim": "Voklit 属「客户服务」类产品（客服类产品，具体定位未获取）",
+        "truth": "Voklit 是虚拟电话号码 / 云通信（VoIP + SMS）服务，面向数字游民、小商户与销售团队，用于跨境接打电话、收发短信、接收 2FA/OTP 验证码，与客服软件无关。",
+        "source": "https://voklit.com"
+      },
+      {
+        "claim": "Voklit 为正常运营中的在售订阅产品",
+        "truth": "官网声明处于 freeze mode：新注册已关闭，平台（源码、品牌、域名）正在挂牌出售，仅继续服务现有客户。",
+        "source": "https://voklit.com"
+      }
+    ],
+    "sources": [
+      {
+        "label": "Voklit 官网（含产品介绍与出售公告）",
+        "url": "https://voklit.com",
+        "kind": "official"
+      }
+    ],
+    "published_from": "voklit",
+    "verified_at": "2026-09-24",
+    "updated_at": "2026-09-24",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official），按默认政策进精品池",
+    "quality_score": 15,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "prosp",
+    "name": "PROSP",
+    "name_en": "PROSP",
+    "origin": "未披露",
+    "one_liner": "（待补充：产品定位未明）",
+    "category": "未分类",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "headline": "$128,000 MRR（该 Stripe 验证数据集内最高当前 MRR）"
+    },
+    "models": [],
+    "replicability": {},
+    "verdict": "",
+    "what_it_does": "（待补充：产品定位未明）",
+    "how_it_makes_money": "",
+    "why_it_works": [],
+    "playbook": [],
+    "signals": [],
+    "corrections": [
+      {
+        "claim": "TrustMRR 的「Last 12 months: $440,718」= 过去 12 个月的滚动收入",
+        "truth": "该站资料显示 Founded date 2025-08-21，公司成立不足 12 个月；月度时间线 2025-09 $19,815 + 2025-10 $109,669 + 2025-11 $99,077 + 2025-12 $96,277 + 2026-01 $98,046 + 2026-02 $17,833 合计正好 $440,717，即该数字是开业以来累计收入，不是「近 12 个月」口径。",
+        "source": "https://trustmrr.com/startup/prosp.md"
+      },
+      {
+        "claim": "$128,005 是 PROSP 当前（active）的 MRR",
+        "truth": "该值是 TrustMRR 资料页存的 MRR 快照，页面同时显示 Stripe API key 已过期、收入最后同步时间为 2026-02-05，2026-08-26~2026-09-24 每日验证收入均为 $0.00，且 1,108 个有效订阅按最高档 $79/月仅约 $87.5K；不能当作当前实时 run-rate 使用。",
+        "source": "https://trustmrr.com/startup/prosp.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR — PROSP 收入与指标页（Stripe API 直读）",
+        "url": "https://trustmrr.com/startup/prosp.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "PROSP 官网（产品、客户与定价入口）",
+        "url": "https://www.prosp.ai",
+        "kind": "official"
+      }
+    ],
+    "published_from": "prosp",
+    "verified_at": "2026-09-24",
+    "updated_at": "2026-09-24",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 70,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "divine-widgets",
+    "name": "Divine Widgets",
+    "name_en": "Divine Widgets",
+    "origin": "未披露",
+    "one_liner": "网页小组件（具体定位未获取）",
+    "category": "开发者工具",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "headline": "收入 $6.2K / 售价 $15K / 倍数 0.2x（TrustMRR 市场挂牌）"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {},
+    "verdict": "",
+    "what_it_does": "网页小组件（具体定位未获取）",
+    "how_it_makes_money": "",
+    "why_it_works": [],
+    "playbook": [],
+    "signals": [],
+    "corrections": [
+      {
+        "claim": "收入 $6.2K（候选卡 headline），并据此与 $15K 售价配出 0.2x 倍数",
+        "truth": "页面经支付商 Superwall API 验证的口径是：Current MRR $1,254、近 30 天收入 $4,382、近 7 天 $1,535、累计（=近12个月）$16,591。$6.2K 既不等于 MRR 也不等于近30天或累计收入；用 $15K÷0.2x÷12 可反推为月均约 $6.25K，说明它是「倍数反推的年化/月均数」被写成收入。另外，抓到的摘录中并未出现 Divine Wid",
+        "source": "https://trustmrr.com/startup/divine-widgets.md"
+      },
+      {
+        "claim": "关于 divine 的应用商店上线报道可作为本案例的佐证来源",
+        "truth": "about.divine.video 讲的是 Rabble（Twitter 早期团队成员）做的、由 Jack Dorsey 通过 And Other Stuff 资助的六秒循环短视频社交 app「Divine」（Nostr 协议、恢复 50 万条 Vine 经典视频），与「圣经小组件 App Divine Widgets（com.divinewidgets.app）」是同名不同公司，不能作为本案例",
+        "source": "https://about.divine.video/blog/divine-launches-in-app-stores/"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR — Divine Widgets 收入/档案页（Superwall 支付商 API 直连验证）",
+        "url": "https://trustmrr.com/startup/divine-widgets.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "Divine Widgets 官网",
+        "url": "https://www.divinewidgets.com",
+        "kind": "official"
+      },
+      {
+        "label": "TrustMRR 市场首页（挂牌列表与倍数口径：Price ÷ (Revenue×12)）",
+        "url": "https://trustmrr.com/",
+        "kind": "secondary"
+      }
+    ],
+    "published_from": "divine-widgets",
+    "verified_at": "2026-09-24",
+    "updated_at": "2026-09-24",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 60,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
     "id": "promptmonitor-io",
     "name": "Promptmonitor.io",
     "name_en": "Promptmonitor.io",
