@@ -162,7 +162,10 @@ jobs:
           git commit -m "采集：新增 $N 条素材（$DATE）"
           git push origin HEAD:refs/heads/data
           echo "已推送到 data 分支（main 不受影响）。"
-          git reset --soft origin/main
+          # 用 --mixed（默认）把本地 main 重置回 origin/main：分支指针移回，
+          # 暂存区也清掉（inbox 退回工作区、被 .gitignore 忽略），既保证采集提交
+          # 不会泄漏到 main，又让后面的「校验」步骤 git status 不会误报 data/ 脏。
+          git reset origin/main
           echo "本地 main 已重置回 origin/main，采集提交不会泄漏到 main。"
 
       - name: 写运行摘要
