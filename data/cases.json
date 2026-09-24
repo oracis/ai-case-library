@@ -1,5 +1,300 @@
 [
   {
+    "id": "stealth-company",
+    "name": "Stealth Company",
+    "name_en": "Stealth Company",
+    "origin": "未披露",
+    "one_liner": "（主动匿名，无公开信息）",
+    "category": "未分类",
+    "industry": "",
+    "status": "curated",
+    "verification": "partial",
+    "caliber": "mrr",
+    "metrics": {
+      "headline": "$747,069，TrustMRR 榜单第 3 名（无 MoM 增长数据）"
+    },
+    "models": [],
+    "replicability": {},
+    "verdict": "",
+    "what_it_does": "（主动匿名，无公开信息）",
+    "how_it_makes_money": "",
+    "why_it_works": [],
+    "playbook": [],
+    "signals": [],
+    "corrections": [
+      {
+        "claim": "匿名模型「不用于训练」就等于「零数据留存（ZDR）」",
+        "truth": "「不用于训练」只是承诺不拿数据去训模型，匿名 provider 仍会留存 prompt 和 completion；这和企业客户真正在意的零数据留存（ZDR）是两个不同的法律承诺。",
+        "source": "https://www.ic.work/article/ox-alpha-stealth-model-openrouter-identity-mystery"
+      }
+    ],
+    "sources": [
+      {
+        "label": "【与本候选无关，误抓】Ox Alpha 匿名模型报道，ic.work",
+        "url": "https://www.ic.work/article/ox-alpha-stealth-model-openrouter-identity-mystery",
+        "kind": "press"
+      },
+      {
+        "label": "【与本候选无关，误抓】Union Alpha 匿名模型收录页，AI工具集",
+        "url": "https://ai-bot.cn/union-alpha/",
+        "kind": "secondary"
+      },
+      {
+        "label": "【与本候选无关，误抓】Facebook 功能被暂时封锁提示页",
+        "url": "https://m.me/r.php?locale=zh_HK",
+        "kind": "secondary"
+      }
+    ],
+    "published_from": "stealth-company",
+    "verified_at": "2026-09-24",
+    "updated_at": "2026-09-24",
+    "tags": [],
+    "tier": "standard",
+    "tier_reason": "有独立第三方来源、口径待核，进实核池",
+    "quality_score": 15,
+    "needs_review": false,
+    "human_read": true,
+    "human_read_at": "2026-09-24 01:40"
+  },
+  {
+    "id": "uplinked-b-v",
+    "name": "UpLinked B.V.",
+    "name_en": "UpLinked B.V.",
+    "origin": "荷兰",
+    "one_liner": "营销类产品（具体定位未获取）",
+    "category": "营销工具",
+    "industry": "",
+    "status": "curated",
+    "verification": "partial",
+    "caliber": "mrr",
+    "metrics": {
+      "headline": "收入 $2.4K / 售价 $28K / 倍数 1.0x（TrustMRR 市场挂牌）"
+    },
+    "models": [
+      "订阅制",
+      "交易市场"
+    ],
+    "replicability": {},
+    "verdict": "",
+    "what_it_does": "营销类产品（具体定位未获取）",
+    "how_it_makes_money": "",
+    "why_it_works": [],
+    "playbook": [],
+    "signals": [],
+    "corrections": [
+      {
+        "claim": "「收入 $2.4K / 售价 $28K / 倍数 1.0x」",
+        "truth": "$28K ÷ $2.4K ≈ 11.7x，与所称 1.0x 不符；要么倍数错，要么其中某个数字不是同口径（例如售价对应年化利润而非月收入）。在没有 TrustMRR 原页的情况下，这组数字不能自洽使用。",
+        "source": "候选资料内部数字自相矛盾，无外部来源可引"
+      }
+    ],
+    "sources": [
+      {
+        "label": "微博客户端下载/版本页（与候选案例无关，仅登记本次实际抓回的 URL）",
+        "url": "https://m.weibo.cn/client/version",
+        "kind": "secondary"
+      }
+    ],
+    "published_from": "uplinked",
+    "verified_at": "2026-09-24",
+    "updated_at": "2026-09-24",
+    "tags": [],
+    "tier": "standard",
+    "tier_reason": "有独立第三方来源、口径待核，进实核池",
+    "quality_score": 15,
+    "needs_review": false,
+    "human_read": true,
+    "human_read_at": "2026-09-24 01:40"
+  },
+  {
+    "id": "dolar-app",
+    "name": "Dolar App",
+    "name_en": "Dolar App",
+    "origin": "未披露",
+    "one_liner": "金融科技类产品（具体定位未获取）",
+    "category": "金融科技",
+    "industry": "",
+    "status": "curated",
+    "verification": "partial",
+    "caliber": "mrr",
+    "metrics": {
+      "headline": "收入 $1.1K / 售价 $30K / 倍数 2.2x（TrustMRR 市场挂牌）"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {},
+    "verdict": "",
+    "what_it_does": "金融科技类产品（具体定位未获取）",
+    "how_it_makes_money": "",
+    "why_it_works": [],
+    "playbook": [],
+    "signals": [],
+    "corrections": [
+      {
+        "claim": "候选资料把「收入 $1.1K / 售价 $30K / 倍数 2.2x」并列，容易被读成「$1.1K 年收入、2.2x × $1.1K 不成立」，或被直接当成一笔可核实的挂牌交易。",
+        "truth": "$1.1K 若与 2.2x 倍数自洽，只能是月收入（$30K ÷ 2.2 ≈ $13.6K 年化 ≈ $1.1K×12），即 MRR 而非 ARR/累计收入；但本次抓回的原文里没有 TrustMRR 页面、没有任何收入数字，该口径目前只有算术推理、无来源支撑。",
+        "source": "（无来源可用：三段原文均未提及该标的）"
+      }
+    ],
+    "sources": [
+      {
+        "label": "阿根廷美元汇率行情首页（内容与 Dolar App 案例无关，仅证明该 URL 被抓取）",
+        "url": "https://dolarhoy.com/",
+        "kind": "secondary"
+      },
+      {
+        "label": "El Cronista 美元行情页（内容与 Dolar App 案例无关，仅证明该 URL 被抓取）",
+        "url": "https://www.cronista.com/MercadosOnline/dolar.html",
+        "kind": "secondary"
+      },
+      {
+        "label": "CNBC 美元页 meta 摘要（JS 渲染抓不到正文，内容与 Dolar App 案例无关）",
+        "url": "https://www.cnbc.com/us-dollar/",
+        "kind": "secondary"
+      }
+    ],
+    "published_from": "dolar-app",
+    "verified_at": "2026-09-24",
+    "updated_at": "2026-09-24",
+    "tags": [],
+    "tier": "standard",
+    "tier_reason": "有独立第三方来源、口径待核，进实核池",
+    "quality_score": 15,
+    "needs_review": false,
+    "human_read": true,
+    "human_read_at": "2026-09-24 01:40"
+  },
+  {
+    "id": "le19emetrou",
+    "name": "le19emetrou",
+    "name_en": "le19emetrou",
+    "origin": "未披露",
+    "one_liner": "电商类产品（具体定位未获取）",
+    "category": "电商",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "run_rate",
+    "metrics": {
+      "headline": "收入 $842 / 售价 $15K / 倍数 1.5x（TrustMRR 市场挂牌）"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {},
+    "verdict": "",
+    "what_it_does": "电商类产品（具体定位未获取）",
+    "how_it_makes_money": "",
+    "why_it_works": [],
+    "playbook": [],
+    "signals": [],
+    "corrections": [
+      {
+        "claim": "售价 €29.99（TrustMRR 页描述）",
+        "truth": "官网当前实际售价为 €34,99（划线价 €49,99，含法国境内运费；多件装另有 2 件 €60、3 件 €87 的阶梯价）",
+        "source": "https://le19emetrou.fr"
+      },
+      {
+        "claim": "候选资料把该标的归为泛『电商』且未给产品定位",
+        "truth": "具体是法国单站单品的 DTC 店铺：高尔夫主题开瓶器（开瓶后可用小高尔夫球杆把瓶盖推入洞），面向高尔夫爱好者/送礼场景，法国市场为主",
+        "source": "https://trustmrr.com/startup/le19emetrou"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 挂牌页（含 Stripe 验证收入、团队人数、创始人留言）",
+        "url": "https://trustmrr.com/startup/le19emetrou",
+        "kind": "stripe"
+      },
+      {
+        "label": "le19emetrou.fr 官网（定价 €34,99、商品说明、结账方式、售后条款）",
+        "url": "https://le19emetrou.fr",
+        "kind": "official"
+      }
+    ],
+    "published_from": "le19emetrou",
+    "verified_at": "2026-09-24",
+    "updated_at": "2026-09-24",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 80,
+    "needs_review": false,
+    "human_read": true,
+    "human_read_at": "2026-09-24 01:47"
+  },
+  {
+    "id": "search1api",
+    "name": "Search1API",
+    "name_en": "Search1API",
+    "origin": "未披露",
+    "one_liner": "搜索类 API 服务",
+    "category": "开发者工具",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "headline": "收入 $1.3K / 售价 $50K / 倍数 3.2x（TrustMRR 市场挂牌）"
+    },
+    "models": [
+      "订阅制",
+      "交易市场"
+    ],
+    "replicability": {},
+    "verdict": "",
+    "what_it_does": "搜索类 API 服务",
+    "how_it_makes_money": "",
+    "why_it_works": [],
+    "playbook": [],
+    "signals": [],
+    "corrections": [
+      {
+        "claim": "把 TrustMRR 上的 $49,299 当作年营收/ARR 使用（并据此得出约 1x 的挂牌倍数）",
+        "truth": "$49,299 是 All-time 累计收入（lifetime），当前 MRR 为 $1,408、最近 30 天验证收入 $1,308",
+        "source": "https://trustmrr.com/startup/search1api"
+      },
+      {
+        "claim": "用「收入 $1.3K」与售价 $50K 直接相除来解释 3.2x 倍数",
+        "truth": "3.2x 来自年化口径 $50,000 ÷（$1,308×12≈$15,700）；若用单月 $1.3K 直接相除约为 38x，两者不是一回事",
+        "source": "https://trustmrr.com/startup/search1api"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR Search1API 收入/挂牌页",
+        "url": "https://trustmrr.com/startup/search1api",
+        "kind": "stripe"
+      },
+      {
+        "label": "Search1API 官网中文站（功能/定价/FAQ）",
+        "url": "https://s1.dev/zh",
+        "kind": "official"
+      },
+      {
+        "label": "Search1API 官网英文站",
+        "url": "https://s1.dev/",
+        "kind": "official"
+      },
+      {
+        "label": "官方 Search1API MCP server 仓库（superagents-lab）",
+        "url": "https://github.com/superagents-lab/search1api-mcp",
+        "kind": "official"
+      }
+    ],
+    "published_from": "search1api",
+    "verified_at": "2026-09-24",
+    "updated_at": "2026-09-24",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 80,
+    "needs_review": false,
+    "human_read": true,
+    "human_read_at": "2026-09-24 01:40"
+  },
+  {
     "id": "insect-bite-id",
     "name": "Insect Bite ID",
     "name_en": "Insect Bite ID",

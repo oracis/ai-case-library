@@ -146,54 +146,6 @@
     }
   },
   {
-    "id": "search1api",
-    "name": "Search1API",
-    "name_en": "Search1API",
-    "origin": "未披露",
-    "one_liner": "搜索类 API 服务",
-    "category": "开发者工具",
-    "verification": "partial",
-    "metrics": {
-      "headline": "收入 $1.3K / 售价 $50K / 倍数 3.2x（TrustMRR 市场挂牌）"
-    },
-    "models": [
-      "订阅制",
-      "交易市场"
-    ],
-    "note": "API 中间层生意。3.2x 倍数，售价 $50K。API 转售类产品的估值样本。",
-    "blocking": "口径待核",
-    "added_at": "2026-09-11",
-    "source_kind": "discovery"
-  },
-  {
-    "id": "uplinked",
-    "name": "UpLinked B.V.",
-    "name_en": "UpLinked B.V.",
-    "origin": "荷兰",
-    "one_liner": "营销类产品（具体定位未获取）",
-    "category": "营销工具",
-    "verification": "partial",
-    "metrics": {
-      "headline": "收入 $2.4K / 售价 $28K / 倍数 1.0x（TrustMRR 市场挂牌）"
-    },
-    "models": [
-      "订阅制",
-      "交易市场"
-    ],
-    "note": "1.0x 倍数，说明市场认为这是一个「没有增长、但能稳定产出现金」的小生意。这类资产在某些买家眼里反而有吸引力。",
-    "blocking": "口径待核 + 公司全称与产品定位需补",
-    "added_at": "2026-09-11",
-    "source_kind": "verified",
-    "cross_source_check": {
-      "at": "2026-09-24 跨源查证",
-      "note": "uplinked.com 已跳到 domainhero 域名停放页且正文为空，产品疑似已停止"
-    },
-    "website": "https://www.uplinked.app",
-    "trustmrr_slug": "uplinked-b-v",
-    "source_url": "https://trustmrr.com/startup/uplinked-b-v",
-    "harvest_source": "trustmrr"
-  },
-  {
     "id": "voklit",
     "name": "Voklit",
     "name_en": "Voklit",
@@ -241,31 +193,6 @@
     "trustmrr_slug": "affililist",
     "source_url": "https://trustmrr.com/startup/affililist",
     "harvest_source": "trustmrr"
-  },
-  {
-    "id": "dolar-app",
-    "name": "Dolar App",
-    "name_en": "Dolar App",
-    "origin": "未披露",
-    "one_liner": "金融科技类产品（具体定位未获取）",
-    "category": "金融科技",
-    "verification": "partial",
-    "metrics": {
-      "headline": "收入 $1.1K / 售价 $30K / 倍数 2.2x（TrustMRR 市场挂牌）"
-    },
-    "models": [
-      "交易市场"
-    ],
-    "note": "金融科技小体量标的。2.2x 倍数接近平台平均 1.9x。",
-    "blocking": "口径待核 + 产品定位需补",
-    "added_at": "2026-09-11",
-    "source_kind": "discovery",
-    "website": "https://dolar-app.com",
-    "source_url": "https://dolar-app.com",
-    "cross_source_check": {
-      "at": "2026-09-24 跨源查证",
-      "note": "西语区汇率 app（委内瑞拉/阿根廷等），真实产品；TrustMRR 上未找到挂牌页"
-    }
   },
   {
     "id": "layzr-ai",
@@ -323,27 +250,6 @@
     "blocking": "口径待核",
     "added_at": "2026-09-11",
     "source_kind": "discovery"
-  },
-  {
-    "id": "le19emetrou",
-    "name": "le19emetrou",
-    "name_en": "le19emetrou",
-    "origin": "未披露",
-    "one_liner": "电商类产品（具体定位未获取）",
-    "category": "电商",
-    "verification": "partial",
-    "metrics": {
-      "headline": "收入 $842 / 售价 $15K / 倍数 1.5x（TrustMRR 市场挂牌）"
-    },
-    "models": [
-      "交易市场"
-    ],
-    "note": "电商类标的样本。与 SaaS 类对比可看出市场对「有库存/物流」的生意给更低倍数。",
-    "blocking": "口径待核 + 产品定位需补",
-    "added_at": "2026-09-11",
-    "source_kind": "verified",
-    "website": "https://le19emetrou.fr",
-    "source_url": "https://trustmrr.com/startup/le19emetrou"
   },
   {
     "id": "thehundred",
@@ -408,23 +314,6 @@
       "at": "2026-09-24 跨源查证",
       "note": "据称已成交退出，TrustMRR 挂牌页已撤；官网仍在运营，定价 $29/$39/$129"
     }
-  },
-  {
-    "id": "stealth-company",
-    "name": "Stealth Company",
-    "name_en": "Stealth Company",
-    "origin": "未披露",
-    "one_liner": "（主动匿名，无公开信息）",
-    "category": "未分类",
-    "verification": "partial",
-    "metrics": {
-      "headline": "$747,069，TrustMRR 榜单第 3 名（无 MoM 增长数据）"
-    },
-    "models": [],
-    "note": "匿名上榜，说明 TrustMRR 的验证机制允许「验证收入但隐藏身份」——这本身反映了「公开收入」在独立开发者圈里的复杂性：想证明自己，又不想被抄。",
-    "blocking": "刻意匿名，无法精写；作为生态现象样本保留",
-    "added_at": "2026-09-11",
-    "source_kind": "discovery"
   },
   {
     "id": "sixtyfive",
