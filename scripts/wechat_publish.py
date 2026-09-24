@@ -39,9 +39,14 @@ import urllib.parse
 import urllib.request
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from text_clean import clean_placeholders, strip_placeholders  # noqa: E402
+
 CASES_PATH = os.path.join(ROOT, "data", "cases.json")
 ARTICLES_DIR = os.path.join(ROOT, "out", "articles")
 PUBLISHED_PATH = os.path.join(ROOT, "data", "wechat_published.json")
+# 篇号注册表 {case_id: 第几篇}。**一经分配永不改变**（见 assign_issue_numbers）。
+ISSUE_PATH = os.path.join(ROOT, "data", "issue_numbers.json")
 PLAN_PATH = os.path.join(ROOT, "发布队列-自动生成.md")
 
 CDP_PORT = int(os.environ.get("CDP_PORT", 9222))
@@ -285,8 +290,10 @@ def _fit_font_size(text, max_w, sizes):
 _COVER_TEXT_W = 664
 
 
-def cover_html(c, index, w=1080, h=460):
+def cover_html(c, no, w=1080, h=460):
     """生成 1080x460 公众号封面图的完整 HTML 文档（2.35:1）。
+
+    `no` 是**篇号**（历史编号，见 issue_registry），不是排序位置。
 
     设计要点（每一条都是踩坑换来的）：
     1. 必须带 <!doctype html> + <meta charset="utf-8">：data URL 不声明编码时
@@ -299,7 +306,7 @@ def cover_html(c, index, w=1080, h=460):
     """
     name = (c.get("name") or c.get("id") or "").strip()
     line = (c.get("one_liner") or "").strip()
-    tag = "拆解海外 · 第 %d 篇" % (index + 1)
+    tag = "拆解海外 · 第 %d 篇" % no
     theme = COVER_THEMES[sum(ord(x) for x in c.get("id", "")) % len(COVER_THEMES)]
     base, band, ac = theme
 
@@ -349,14 +356,14 @@ def cover_html(c, index, w=1080, h=460):
 COVER_W, COVER_H = 1080, 460
 
 
-def _gen_cover(cdp, c, index, out_path):
+def _gen_cover(cdp, c, no, out_path):
     """用 Chrome CDP 把封面 HTML 截成 PNG。
 
     按 1080x460 画布设计、scale=2 截图（约 2160x920 起，实际再乘浏览器
     deviceScaleFactor），微信最终会归一化到 1080x460 —— 走它自己的高质量
     降采样，比自己先缩好更锐。
     """
-    html = cover_html(c, index, COVER_W, COVER_H)
+    html = cover_html(c, no, COVER_W, COVER_H)
     data_url = "data:text/html;charset=utf-8;base64," + base64.b64encode(
         html.encode("utf-8")).decode("ascii")
     cover_tid = cdp.new_target(data_url)["id"]
@@ -666,7 +673,7 @@ def _cover_state(cdp):
     return (disp != "none" and "mmbiz" in bg), bg
 
 
-def _set_cover_from_body(cdp, tries=3):
+def _set_cover_from_body(cdp, tries=3, force=False):
     """把正文首图真正设为封面（服务端 cover 字段会落值）。
 
     2026-09-21 实测的完整路径，每一步都验证过：
@@ -678,10 +685,14 @@ def _set_cover_from_body(cdp, tries=3):
       ⑤ 「确认」  ← 是「确认」不是「确定」
     最后用 _cover_state 做**结果导向**校验：不看弹窗有没有关（微信弹窗提交
     成功后不会自动关闭，拿它当判据必然误判）。
+
+    `force=True` 时跳过「已有封面就 SKIP」的短路，用来**换封面**
+    （2026-09-24：篇号错版草稿的封面要重画，而 cover 字段非空）。
     """
-    ok, _bg = _cover_state(cdp)
-    if ok:
-        return "SKIP:已有封面"
+    if not force:
+        ok, _bg = _cover_state(cdp)
+        if ok:
+            return "SKIP:已有封面"
     # ① 展开封面菜单（重试，弹层偶发不展开）
     opened = False
     for _ in range(tries):
@@ -700,9 +711,14 @@ def _set_cover_from_body(cdp, tries=3):
         if str(n).strip() not in ("0", "", "None"):
             opened = True
             break
-    if not opened:
-        return "NO_MENU"
-    # ② 菜单项「从正文选择」
+        # 2026-09-24：**已经有封面**的草稿走的是另一套 Vue 组件，弹层里没有
+        # `.pop-opr__item`（实测点完 popopr=0），照上面的判据必然 NO_MENU，
+        # 换封面就卡死。所以补一个「菜单文本出现即算打开」的判据。
+        if _text_visible(cdp, COVER_MENU_FROM_BODY):
+            opened = True
+            break
+    # ② 菜单项「从正文选择」：先按类名找（新草稿路径），找不到就按文本点
+    #    （已有封面路径 —— 不依赖类名，弹层结构变了也能点）。
     r = cdp.eval(
         "(function(){"
         "var its=[].slice.call(document.querySelectorAll('.pop-opr__item'));"
@@ -714,10 +730,17 @@ def _set_cover_from_body(cdp, tries=3):
         "return 'OK';}"
         "return 'NO_ITEM';})()" % json.dumps(COVER_MENU_FROM_BODY))
     if not (isinstance(r, str) and r == "OK"):
-        return "MENU_ITEM_ERR:%s" % r
+        rt = _click_text_anywhere(cdp, COVER_MENU_FROM_BODY)
+        if "CLICKED" not in str(rt):
+            return "MENU_ITEM_ERR:%s/%s(menu_opened=%s)" % (r, rt, opened)
     time.sleep(2.5)
     # ③ 选中正文首图
     d = _center_of(cdp, "li.appmsg_content_img_item")
+    if not d:
+        # 已有封面的草稿里，正文图列表可能不是这个类名 —— 退一步：直接点
+        # 弹窗里第一张可见缩略图（img 或带背景图的格子）。
+        d = _center_of(cdp, ".weui-desktop-dialog img, .dialog_wrp img",
+                       scroll=True)
     if not d:
         return "NO_THUMB"
     _mouse_click(cdp, d["x"], d["y"])
@@ -747,7 +770,11 @@ def load_cases():
         return []
     with open(CASES_PATH, encoding="utf-8") as f:
         d = json.load(f)
-    return d if isinstance(d, list) else d.get("cases", [])
+    cases = d if isinstance(d, list) else d.get("cases", [])
+    # 定位占位（「（具体定位未获取）」）不能进标题/摘要/封面文案 —— 与 make_article
+    # 用的是同一个清理函数，保证「本地 HTML」与「草稿标题」不会一个清一个没清。
+    clean_placeholders(cases)
+    return cases
 
 
 def load_published():
@@ -760,6 +787,113 @@ def load_published():
 def save_published(pub):
     with open(PUBLISHED_PATH, "w", encoding="utf-8") as f:
         json.dump(pub, f, ensure_ascii=False, indent=2)
+
+
+# ======================================================================
+# 篇号注册表：正文与封面上「拆解海外 · 第 N 篇」的 N
+# ======================================================================
+# 为什么必须单独存一张表（2026-09-24 事故）：
+# 原来 N 是 `enumerate(cases)` 的**位置**。而新案例入库是**从数组头部插入**的
+# （5 条入库那次如此，后来 9 条也如此），于是「插入 9 条 → 老 30 篇全体后移 9」：
+# 本地重生成的 公众号-*.html 里，insect-bite-id 从第 1 篇变成第 10 篇，
+# 而草稿箱里已经存在的 30 篇还是老编号 —— 本地与服务端从此对不上，
+# 新发的 9 篇更被编成第 1–9 篇，与老的第 1–9 篇撞号。
+#
+# 正确语义：篇号是**历史编号**（这篇是创刊以来第几篇），不是当前排序位置。
+# 所以只在「第一次见到这个案例」时分配一次，之后任何重排、增删都不动它。
+def load_issue_numbers():
+    """读篇号注册表；文件缺失/损坏时返回空表（由 initial_issue_numbers 补种）。"""
+    if not os.path.exists(ISSUE_PATH):
+        return {}
+    try:
+        with open(ISSUE_PATH, encoding="utf-8") as f:
+            raw = json.load(f)
+    except (OSError, ValueError):
+        return {}
+    if not isinstance(raw, dict):
+        return {}
+    out = {}
+    for k, v in raw.items():
+        try:
+            out[str(k)] = int(v)
+        except (TypeError, ValueError):
+            continue
+    return out
+
+
+def save_issue_numbers(reg):
+    """原子写；按篇号升序落盘，便于人工 diff 与审阅。"""
+    ordered = dict(sorted(reg.items(), key=lambda kv: (kv[1], kv[0])))
+    tmp = ISSUE_PATH + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(ordered, f, ensure_ascii=False, indent=2)
+    os.replace(tmp, ISSUE_PATH)
+
+
+def initial_issue_numbers(cases, published=None):
+    """注册表不存在时的补种：老案例按**历史发布顺序**编号，其余按 cases.json 顺序续号。
+
+    为什么用发布顺序：`wechat_published.json` 是**只追加**的，插入顺序就是
+    「第几个进发布管线」，正是篇号的原意；而 cases.json 会被头部插入改写，
+    拿它当顺序源就是这次事故的根因。补出的结果与历史一致（1–30 老案例），
+    新案例续在 31 起。
+    """
+    pub = load_published() if published is None else published
+    ids = {c.get("id") for c in cases}
+    reg, n = {}, 1
+    for cid in pub:
+        if cid in ids and cid not in reg:
+            reg[cid] = n
+            n += 1
+    for c in cases:
+        cid = c.get("id")
+        if cid and cid not in reg:
+            reg[cid] = n
+            n += 1
+    return reg
+
+
+def assign_issue_numbers(cases, reg=None, save=False):
+    """给还没编号的案例续号（按 cases.json 顺序），已编号的原样保留。
+
+    返回 (reg, new)；new 是本次新分配的 [(id, 篇号)]，供调用方打日志。
+    """
+    reg = dict(load_issue_numbers() if reg is None else reg)
+    used = set(reg.values())
+    nxt = (max(used) + 1) if used else 1
+    new = []
+    for c in cases:
+        cid = c.get("id")
+        if not cid or cid in reg:
+            continue
+        while nxt in used:              # 手工删过条目时可能出现空洞，跳过已占号
+            nxt += 1
+        reg[cid] = nxt
+        used.add(nxt)
+        new.append((cid, nxt))
+        nxt += 1
+    if save and new:
+        save_issue_numbers(reg)
+    return reg, new
+
+
+def issue_registry(cases, save=True):
+    """cmd_* 的统一入口：拿到（必要时补种）篇号注册表，顺带把新号打出来。"""
+    reg = load_issue_numbers()
+    seeded = False
+    if not reg and cases:
+        reg = initial_issue_numbers(cases)
+        seeded = True
+        print("（篇号注册表不存在，按历史发布顺序补种 1–%d）"
+              % max(reg.values()))
+    reg, new = assign_issue_numbers(cases, reg=reg, save=False)
+    for cid, no in new:
+        print("  [篇号] %-22s → 第 %d 篇" % (cid, no))
+    # 注意补种后 new 是空的（initial 已经全部分完），所以不能只看 new ——
+    # 否则注册表永远落不了盘，下次运行又从头补种（2026-09-24 踩过）。
+    if save and (seeded or new):
+        save_issue_numbers(reg)
+    return reg
 
 
 def find_article(cid, name=None):
@@ -787,8 +921,8 @@ def extract_article(path):
             if m:
                 title = m.group(1).strip()
             m = re.search(
-                r"摘要[^：:]*[:：]?\s*\n(.*?)(?=\n\s*(封面图|原文链接|同步|={4,}|-->))",
-                c, re.S)
+                r"摘要[^：:]*[:：]?[ \t]*\n(.*?)(?=\n[ \t]*(封面图|原文链接|同步|={4,}|-->))",
+                c)
             if m:
                 summary = m.group(1).strip()
             m = re.search(r"封面图[:：]\s*(.+)", c)
@@ -816,7 +950,7 @@ def fix_markdown(html):
     return html
 
 
-def build_one(c, index):
+def build_one(c, no):
     cid = c["id"]
     src = os.path.join(ARTICLES_DIR, cid + ".html")
     if not os.path.exists(src):
@@ -826,7 +960,7 @@ def build_one(c, index):
     m = re.search(r"<h1[^>]*>(.*?)</h1>", out, re.S)
     title = strip_tags(m.group(1)).strip() if m else c.get("name", "")
     subtitle = c.get("one_liner", "")
-    tag = "拆解海外 · 第 %d 篇" % (index + 1)
+    tag = "拆解海外 · 第 %d 篇" % no
     block = []
     block.append("<!--\n万物解释者 · 公众号图文（自动生成，可直接粘贴版）\n"
                  "使用方法：浏览器打开 → 全选复制 → 粘进公众号后台「新建图文」正文区。\n"
@@ -870,9 +1004,10 @@ def build_one(c, index):
 
 def cmd_build():
     cases = load_cases()
+    reg = issue_registry(cases)
     built = updated = same = nosrc = 0
-    for i, c in enumerate(cases):
-        r = build_one(c, i)
+    for c in cases:
+        r = build_one(c, reg.get(c["id"], 0))
         if r == "built":
             built += 1
             print("  [新建]    %-22s %s" % (c["id"], c.get("name", "")))
@@ -1650,6 +1785,54 @@ def _click_by_text(cdp, text):
     return cdp.eval(expr)
 
 
+def _click_text_anywhere(cdp, text, selector="li,div,span,a,button,p"):
+    """按**精确文本**在页面任意可见元素里找一个来点（不限 button/a）。
+
+    为什么需要它（2026-09-24）：封面菜单在「草稿还没有封面」和「已经有封面」
+    两种状态下的 DOM 不一样 —— 有封面时弹层不是 `.pop-opr__item`，原来的
+    按类名找法直接 NO_MENU，换封面就卡住了。文本点法不依赖类名。
+
+    命中多个时取**最深**的那个（文本所在的节点），再爬到最近的 li/a/button
+    上点 —— 点内层 span 常常不触发父级 handler。
+    """
+    expr = (
+        "(function(){var want=%s;"
+        "var els=[].slice.call(document.querySelectorAll(%s));"
+        "var best=null;"
+        "for(var i=0;i<els.length;i++){var e=els[i];"
+        "var cs=getComputedStyle(e);"
+        "if(cs.display==='none'||cs.visibility==='hidden')continue;"
+        "var rc=e.getBoundingClientRect();"
+        "if(rc.width<5||rc.height<5)continue;"
+        "if(rc.top<0||rc.top>window.innerHeight)continue;"
+        "var t=(e.innerText||e.textContent||'').replace(/\\s+/g,' ').trim();"
+        "if(t!==want)continue;"
+        "if(!best||best.contains(e))best=e;}"
+        "if(!best)return 'NO_EL';"
+        "var tg=best.closest('li,a,button')||best;"
+        "tg.click();return 'CLICKED:'+want;})()"
+        % (json.dumps(text), selector)
+    )
+    return cdp.eval(expr)
+
+
+def _text_visible(cdp, text):
+    """页面上有没有「文本完全等于 text 且可见」的元素（不点，只探测）。"""
+    expr = (
+        "(function(){var want=%s;"
+        "var els=[].slice.call(document.querySelectorAll('li,div,span,a,button,p'));"
+        "for(var i=0;i<els.length;i++){var e=els[i];"
+        "var cs=getComputedStyle(e);"
+        "if(cs.display==='none'||cs.visibility==='hidden')continue;"
+        "var rc=e.getBoundingClientRect();"
+        "if(rc.width<5||rc.height<5)continue;"
+        "var t=(e.innerText||e.textContent||'').replace(/\\s+/g,' ').trim();"
+        "if(t===want)return 'YES';}"
+        "return 'NO';})()" % json.dumps(text)
+    )
+    return cdp.eval(expr) == "YES"
+
+
 def _editor_text_len(cdp, sel):
     expr = (
         "(function(){var el=document.querySelector(%s);"
@@ -2405,7 +2588,7 @@ def _finish_status(cover_ok, declared):
     return "ok" if (cover_ok and declared) else "partial"
 
 
-def publish_one(cdp, c, art, dry=False, index=0):
+def publish_one(cdp, c, art, dry=False, no=0):
     ex = extract_article(art)
     title = make_wechat_title(c)
     author = "万物解释者"
@@ -2446,7 +2629,7 @@ def publish_one(cdp, c, art, dry=False, index=0):
     cover_ok = True      # 封面是否真的落库（服务端 cover 字段），失败记 partial 待补
     cover_path = os.path.join(ROOT, "tmp", "covers", "%s.png" % c["id"])
     try:
-        gen = _gen_cover(cdp, c, index, cover_path)
+        gen = _gen_cover(cdp, c, no, cover_path)
         if isinstance(gen, str) and gen.endswith(".png") and os.path.isfile(gen):
             # 两步走：① 把图插进正文（进微信图床/素材库）；② 再从正文选它当封面。
             # 少了 ② 草稿箱列表项就是灰块 —— 服务端 cover 字段为空。
@@ -2628,7 +2811,7 @@ def build_todo(all_cases, published, ready):
 
 def cmd_publish(args):
     all_cases = load_cases()
-    case_index = {c["id"]: i for i, c in enumerate(all_cases)}
+    issues = issue_registry(all_cases)
     published = load_published() if not args.dry else {}
     # --case 模式：只发指定 id，不跳过已发记录（允许重发修正）
     if args.case:
@@ -2667,7 +2850,7 @@ def cmd_publish(args):
         if not args.dry:
             cdp = CDP(args.port)
         for c, art, resume_id in todo:
-            idx = case_index.get(c["id"], 0)
+            no = issues.get(c["id"], 0)
             try:
                 if resume_id:
                     if tok is None:
@@ -2677,7 +2860,7 @@ def cmd_publish(args):
                     status = finish_one(cdp, c, resume_id, tok)
                     appmsgid = resume_id
                 else:
-                    st = publish_one(cdp, c, art, dry=args.dry, index=idx)
+                    st = publish_one(cdp, c, art, dry=args.dry, no=no)
                     status = st.get("status")
                     appmsgid = st.get("appmsgid")
             except Exception as e:
@@ -2786,11 +2969,16 @@ def _open_draft_editor(cdp, appmsgid, tok, timeout=30):
 
 
 def cmd_fix_cover(args):
-    """给已有草稿补封面。
+    """给已有草稿补封面；`--force` 时**重设**（封面已有也换掉）。
 
     缘由（2026-09-21）：早期 publish_one 只把封面图插进正文，误以为
     「默认首图会自动成为封面」—— 服务端 `cover` 字段其实一直是空的，
     于是草稿箱列表项全是灰块。本命令按**服务端状态**逐个补齐。
+
+    `--force` 的场景（2026-09-24）：篇号算错那批草稿的封面画的是「第 1 篇」，
+    正文改对了但封面字段还指着旧图。默认模式（只看空的）挑不到它，所以要能
+    显式重设 —— 前提是正文首图已经是想要的那张（`refresh --cover` 会把新
+    封面图插到正文最前，正是为了给这一步备料）。
     """
     cdp = CDP(args.port)
     _tid0, tok = _connect_mp(cdp)
@@ -2800,11 +2988,13 @@ def cmd_fix_cover(args):
     if not drafts:
         raise SystemExit("✗ 拉不到草稿列表（登录态失效或接口变了）")
     only = getattr(args, "appmsgid", None)
+    force = bool(getattr(args, "force", False))
     todo = [d for d in drafts
             if (not only or str(d.get("appmsgid")) == str(only))
-            and not str(d.get("cover") or "").strip()]
-    print("草稿共 %d 篇%s，缺封面 %d 篇"
-          % (len(drafts), "（已按 appmsgid 过滤）" if only else "", len(todo)))
+            and (force or not str(d.get("cover") or "").strip())]
+    print("草稿共 %d 篇%s，%s %d 篇"
+          % (len(drafts), "（已按 appmsgid 过滤）" if only else "",
+             "重设封面" if force else "缺封面", len(todo)))
     if args.limit:
         todo = todo[:args.limit]
     fixed = skipped = 0
@@ -2813,7 +3003,7 @@ def cmd_fix_cover(args):
         print("\n→ %s — %s" % (aid, (d.get("title") or "")[:34]))
         tid = _open_draft_editor(cdp, aid, tok)
         try:
-            r = _set_cover_from_body(cdp)
+            r = _set_cover_from_body(cdp, force=force)
             print("  设封面: %s" % r)
             if not str(r).startswith(("OK", "SKIP")):
                 skipped += 1
@@ -2852,6 +3042,7 @@ def cmd_refresh(args):
     """
     cases = load_cases()
     published = load_published()
+    issues = issue_registry(cases)
     only = set(x.strip() for x in (args.case or "").split(",") if x.strip())
 
     todo = []
@@ -2902,12 +3093,43 @@ def cmd_refresh(args):
             continue
         ex = extract_article(art)
         body = pm_safe_body(ex["body_html"])
+        c = next((x for x in cases if x["id"] == cid), None)
         print("\n→ %-18s appmsgid=%s 正文 %d 字" % (cid, aid, len(strip_tags(body))))
         tid = _open_draft_editor(cdp, aid, tok)
         try:
+            # 标题/摘要/作者一起同步：草稿箱列表上显示的是**标题字段**，只刷正文
+            # 不刷标题，列表里就还挂着旧文案（2026-09-24 用户截图里那条正是：
+            # 正文改了，标题还写着「客服类产品（具体定位未获取）」）。
+            if c is not None:
+                t = make_wechat_title(c)
+                rt = _set_editor(cdp, 0, t, mode="text") or ""
+                print("  标题: %s [%s]" % (t[:34], rt.split("(")[0]))
+                _fill_input(cdp, "#author", "万物解释者")
+                summ = ex["summary"] or c.get("one_liner", "")
+                if summ:
+                    _fill_input(cdp, "#js_description", summ[:120])
+                time.sleep(1)
             r = _set_body(cdp, body)
             print("  set_body: %s" % r)
             time.sleep(2)
+            # --cover：正文替换会把正文里那张封面图一并抹掉，封面字段却还指着
+            # 旧图。所以要重画一张、重新上传（同时进素材库），再强制换封面。
+            # 顺序不能反：必须先把图插进正文，`_set_cover_from_body` 才有首图可选。
+            if getattr(args, "cover", False) and c is not None:
+                cover_path = os.path.join(ROOT, "tmp", "covers", "%s.png" % cid)
+                try:
+                    gen = _gen_cover(cdp, c, issues.get(cid, 0), cover_path)
+                    if isinstance(gen, str) and gen.endswith(".png"):
+                        print("  封面重画: %s" % gen)
+                        up = _upload_cover(cdp, gen)
+                        print("  封面入素材库: %s" % up)
+                        time.sleep(2)
+                        sc = _set_cover_from_body(cdp, force=True)
+                        print("  换封面: %s" % sc)
+                    else:
+                        print("  [warn] 封面重画失败: %s" % gen)
+                except Exception as e:                              # noqa: BLE001
+                    print("  [warn] 封面处理异常: %s" % e)
             rc = _click_by_text(cdp, "保存为草稿")
             saved = False
             for _ in range(20):
@@ -2920,6 +3142,12 @@ def cmd_refresh(args):
                 ok_n += 1
                 # 顺手把 appmsgid 补进记录：以后不必再靠标题反查
                 rec["appmsgid"] = str(aid)
+                # 标题也一起写回 —— 记录里存的是**服务端现在是什么**。
+                # 只刷正文不刷标题字段的话，这份记录会一直挂着旧文案
+                # （2026-09-24：voklit 记录里还写着「客服类产品（具体定位未获取）」，
+                #   而线上草稿早就改成云通信了，对账时以为没刷成功）。
+                if c is not None:
+                    rec["title"] = make_wechat_title(c)
                 rec["refreshed_at"] = time.strftime("%Y-%m-%d %H:%M")
                 save_published(published)
             else:
@@ -2955,11 +3183,15 @@ def main():
     pf.add_argument("--port", type=int, default=CDP_PORT)
     pf.add_argument("--limit", type=int, default=0, help="只处理前 N 篇")
     pf.add_argument("--appmsgid", help="只处理指定草稿 id")
+    pf.add_argument("--force", action="store_true",
+                    help="封面已有也重设（用于换封面，如篇号画错的那批）")
     pr = sub.add_parser("refresh", help="把本地重生成过的正文就地灌回已有草稿")
     pr.add_argument("--port", type=int, default=CDP_PORT)
     pr.add_argument("--case", help="只刷指定 case id（逗号分隔）")
     pr.add_argument("--limit", type=int, default=0, help="只刷前 N 篇")
     pr.add_argument("--dry", action="store_true", help="只打印计划不打开浏览器")
+    pr.add_argument("--cover", action="store_true",
+                    help="连封面一起重画（篇号/主题变了必须带这个）")
     args = ap.parse_args()
 
     # 127.0.0.1 必须绕开系统代理，否则 websocket 连 Chrome 调试端口会被掐（WinError 10053）

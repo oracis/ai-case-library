@@ -17,6 +17,9 @@ display / float / width / border-radius，理由是「微信一定会吃」—�
 import os
 import re
 import sys
+import json
+import shutil
+import tempfile
 import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -260,6 +263,75 @@ class TestPickDialogButton(unittest.TestCase):
 
     def test_没有候选返回None(self):
         self.assertIsNone(W._pick_dialog_button([], "确认"))
+
+
+class TestIssueNumbers(unittest.TestCase):
+    """篇号注册表：篇号是**历史编号**，不是当前排序位置。
+
+    守的线（2026-09-24 事故）：新案例入库是往 cases.json 头部插入的，
+    按位置编号会让老文章整体挪号 —— 已发草稿（第 1–30 篇）与本地重生成的
+    HTML 对不上，新发的 9 篇还被编成第 1–9 篇与老的撞号。
+    """
+
+    def setUp(self):
+        self._d = tempfile.mkdtemp(prefix="issueno_")
+        self._old = W.ISSUE_PATH
+        W.ISSUE_PATH = os.path.join(self._d, "issue_numbers.json")
+
+    def tearDown(self):
+        W.ISSUE_PATH = self._old
+        shutil.rmtree(self._d, ignore_errors=True)
+
+    def test_老案例不动_新案例续号(self):
+        reg = {"a": 1, "b": 2, "c": 3}
+        # 新案例被插到最前面：c 是老三篇，绝不能因为位置变了就改号
+        cases = [{"id": "new1"}, {"id": "new2"}, {"id": "a"},
+                 {"id": "b"}, {"id": "c"}]
+        reg, new = W.assign_issue_numbers(cases, reg=reg)
+        self.assertEqual(reg["a"], 1)
+        self.assertEqual(reg["c"], 3)
+        self.assertEqual(new, [("new1", 4), ("new2", 5)])
+
+    def test_重复调用幂等(self):
+        cases = [{"id": "x"}, {"id": "y"}]
+        reg, new = W.assign_issue_numbers(cases)
+        self.assertEqual(reg, {"x": 1, "y": 2})
+        reg2, new2 = W.assign_issue_numbers(cases, reg=reg)
+        self.assertEqual(reg2, reg)
+        self.assertEqual(new2, [])
+
+    def test_跳过已占号_容忍空洞(self):
+        # 手工删过条目留下空洞（1、3 被占），新号应从 4 起，别撞 2
+        reg = {"a": 1, "c": 3}
+        reg, new = W.assign_issue_numbers([{"id": "d"}], reg=reg)
+        self.assertEqual(reg["d"], 4)
+
+    def test_补种按历史发布顺序_不是cases顺序(self):
+        cases = [{"id": "new1"}, {"id": "old1"}, {"id": "old2"}]
+        published = {"old1": {}, "old2": {}}          # 只追加，插入顺序=发布顺序
+        reg = W.initial_issue_numbers(cases, published=published)
+        self.assertEqual((reg["old1"], reg["old2"]), (1, 2))
+        self.assertEqual(reg["new1"], 3)              # 新案例排在老案例之后
+
+    def test_落盘再读回一致(self):
+        reg, _ = W.assign_issue_numbers([{"id": "b"}, {"id": "a"}])
+        W.save_issue_numbers(reg)
+        self.assertEqual(W.load_issue_numbers(), reg)
+        # 文件里按篇号升序，便于人工 diff
+        with open(W.ISSUE_PATH, encoding="utf-8") as f:
+            raw = json.load(f)
+        self.assertEqual(list(raw.keys()), ["b", "a"])
+
+    def test_文件缺失或损坏不炸(self):
+        self.assertEqual(W.load_issue_numbers(), {})
+        with open(W.ISSUE_PATH, "w", encoding="utf-8") as f:
+            f.write("{ 不是 json")
+        self.assertEqual(W.load_issue_numbers(), {})
+
+    def test_篇号真的写进正文与封面(self):
+        c = {"id": "kibu", "name": "Kibu", "one_liner": "一句话"}
+        self.assertIn("拆解海外 · 第 29 篇", W.cover_html(c, 29))
+        self.assertNotIn("拆解海外 · 第 0 篇", W.cover_html(c, 29))
 
 
 if __name__ == "__main__":

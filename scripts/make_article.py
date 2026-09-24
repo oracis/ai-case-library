@@ -42,7 +42,7 @@ DEFAULT_OUT = os.path.join(ROOT, "out", "articles")
 # ------------------------------------------------------------------ 维度标签
 # 与 score_china_fit.py / score_solo_fit.py 保持一致；导入失败则用这里的副本兜底
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
-from text_clean import clean_snapshot_marks, end_sentences  # noqa: E402
+from text_clean import clean_snapshot_marks, end_sentences, clean_placeholders  # noqa: E402
 
 try:
     from score_china_fit import DIMS as CHINA_DIMS       # noqa: E402
@@ -248,11 +248,17 @@ def build_titles(case):
     if case["id"] in TITLE_OVERRIDES:
         return TITLE_OVERRIDES[case["id"]], True
     m = case.get("metrics") or {}
+    name = case.get("name", case["id"])
     hook = m.get("headline") or case.get("one_liner") or ""
+    # 定位被占位清理清空（或本来就没料）时，别拼出「PROSP：」这种带尾巴冒号的标题
+    # ——冒号后面什么都没有，比只写产品名更刺眼。
+    def _t(prefix, tail):
+        tail = (tail or "").strip()
+        return ("%s：%s" % (prefix, strip_quotes(tail))) if tail else prefix
     return [
-        "%s：%s" % (case.get("name", case["id"]), strip_quotes(hook)),
-        "%s 这条生意，国内能做吗" % case.get("name", case["id"]),
-        "拆解 %s：%s" % (case.get("name", case["id"]), case.get("one_liner", "")),
+        _t(name, strip_quotes(hook)),
+        "%s 这条生意，国内能做吗" % name,
+        _t("拆解 %s" % name, case.get("one_liner", "")),
     ], False
 
 
@@ -640,6 +646,9 @@ def load_cases(path):
     clean_snapshot_marks(cases)
     # 同理，列表项必须收尾：没有句号的半截句并排摆在一起读起来很涩（2026-09-24）。
     end_sentences(cases)
+    # 「（具体定位未获取）」这类采集侧兜底占位不能给读者看 —— 它挂在 one_liner 上，
+    # 会一路串进标题、摘要、封面和正文首段（2026-09-24 用户反馈）。见 text_clean。
+    clean_placeholders(cases)
     return cases
 
 
