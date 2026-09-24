@@ -39,6 +39,15 @@ desktop.ini
 # 提交进来只会变成一份很快过期的噪音。
 data/triage.json
 
+# 采集队列（data/inbox.json 等）—— 机器数据，每天高频变动
+# 注意：这些文件**只在独立的 `data` 分支**里被 GitHub Actions 的 harvest.yml
+# 提交/累积，main 分支永不追踪它们。这样 main 只承载人工的代码/案例改动，
+# 你本地 push 永远是快进、不再需要 rebase。
+# 要本地构建 dist（含 inbox）时，从 data 分支取回：bash scripts/sync_inbox.sh
+data/inbox.json
+data/inbox_archive.json
+data/last_harvest.json
+
 # 静态构建产物（scripts/build_static.py 生成，不入库）
 dist/
 # 对外发布用的构建产物（--no-inbox，正是上传 OSS 的那一份）
