@@ -1,5 +1,55 @@
 [
   {
+    "id": "promptmonitor-io",
+    "name": "Promptmonitor.io",
+    "name_en": "Promptmonitor.io",
+    "origin": "未披露",
+    "one_liner": "监测品牌在各类 AI 模型回答中的曝光情况",
+    "category": "营销工具",
+    "industry": "",
+    "status": "curated",
+    "verification": "official",
+    "caliber": "lifetime",
+    "metrics": {
+      "headline": "以 $85,000 成交（TrustMRR 平台公开案例）"
+    },
+    "models": [
+      "订阅制",
+      "交易市场"
+    ],
+    "replicability": {},
+    "verdict": "",
+    "what_it_does": "监测品牌在各类 AI 模型回答中的曝光情况",
+    "how_it_makes_money": "",
+    "why_it_works": [],
+    "playbook": [],
+    "signals": [],
+    "corrections": [
+      {
+        "claim": "以 $85,000 成交（TrustMRR 平台公开案例）",
+        "truth": "所给原文中不存在任何 TrustMRR 成交记录、$85,000 数字或退出信息；promptmonitor.io 官网只能证实它是一个在运营的订阅制 AI 可见性监测产品，公开定价 $29–$129/月，7 天免费试用。该成交价与倍数目前无任何来源",
+        "source": "https://promptmonitor.io"
+      }
+    ],
+    "sources": [
+      {
+        "label": "Promptmonitor 官网首页与定价页（产品在运营、订阅价格 $29/$39/$129 每月）",
+        "url": "https://promptmonitor.io",
+        "kind": "official"
+      }
+    ],
+    "published_from": "promptmonitor",
+    "verified_at": "2026-09-24",
+    "updated_at": "2026-09-24",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official），按默认政策进精品池",
+    "quality_score": 35,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
     "id": "stealth-company",
     "name": "Stealth Company",
     "name_en": "Stealth Company",

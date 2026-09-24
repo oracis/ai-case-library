@@ -290,32 +290,6 @@
     "source_kind": "discovery"
   },
   {
-    "id": "promptmonitor",
-    "name": "Promptmonitor.io",
-    "name_en": "Promptmonitor.io",
-    "origin": "未披露",
-    "one_liner": "监测品牌在各类 AI 模型回答中的曝光情况",
-    "category": "营销工具",
-    "verification": "official",
-    "metrics": {
-      "headline": "以 $85,000 成交（TrustMRR 平台公开案例）"
-    },
-    "models": [
-      "订阅制",
-      "交易市场"
-    ],
-    "note": "创始人亲自公开的退出案例，也是 TrustMRR 平台的标杆成交之一。与 AEO Engine 同赛道（AI 可见性），可对比「做引擎」和「做监测」两条路的不同结局：一个卖引擎、一个卖监测然后退出。",
-    "blocking": "需要补充成交前的收入与倍数，才能写完整「退出」案例",
-    "added_at": "2026-09-11",
-    "source_kind": "discovery",
-    "website": "https://promptmonitor.io",
-    "source_url": "https://promptmonitor.io",
-    "cross_source_check": {
-      "at": "2026-09-24 跨源查证",
-      "note": "据称已成交退出，TrustMRR 挂牌页已撤；官网仍在运营，定价 $29/$39/$129"
-    }
-  },
-  {
     "id": "sixtyfive",
     "name": "（待发现）AI 视频 UGC 竞品",
     "name_en": "TBD",
