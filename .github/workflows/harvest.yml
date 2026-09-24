@@ -1,7 +1,13 @@
 name: 每日采集
 
 # 在 GitHub 上直接更新数据，不需要开本地电脑。
-# 流程：采集 → 校验 → 提交 → 推送。
+# 流程：取回最新队列 → 采集 → 校验 → 提交到 data 分支 → 推送 data 分支。
+#
+# **重要约定（2026-09-24 起）**：采集队列（data/inbox.json 等）现在**只提交到
+# 独立的 `data` 分支**，不再碰 `main`。原因：此前采集直接提交到 main，导致本地
+# 每次 push 都要 rebase。把机器数据从 main 剥离后，main 只承载人工的代码/案例
+# 改动，本地 push 永远是快进。
+#   本地要构建含 inbox 的 dist 时，从 data 分支取回：bash scripts/sync_inbox.sh
 #
 # 为什么放 GitHub 跑而不是本地：
 #   - 不依赖你本机开着、网络通、代理不捣乱
@@ -77,9 +83,21 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: 采集并提交（先不推送）
+      - name: 取回最新采集队列（从 data 分支）
+        # 采集队列（inbox 等）只在独立的 data 分支累积，main 不追踪它。
+        # 每次采集前先从 data 分支把最新队列拉回工作区，才能在旧队列上追加、
+        # 而不是从空开始（否则每天互相覆盖、无法累积）。
+        # 首次运行 data 分支还不存在，忽略错误从空开始即可。
+        run: |
+          git fetch origin data || true
+          git checkout origin/data -- \
+            data/inbox.json data/inbox_archive.json data/last_harvest.json \
+            2>/dev/null || echo "data 分支尚无采集数据，本次从空开始。"
+
+      - name: 采集（写 data/，不提交）
         # 复用本地同一套脚本，行为完全一致：没变化不产生空提交，只动 data/，
         # 绝不自动改 cases.json（精写案例必须人工核实）。
+        # 注意：本步不提交——提交与推送统一在后面的「提交采集数据到 data 分支」做。
         env:
           SRC: ${{ github.event.inputs.source }}
           LIM: ${{ github.event.inputs.limit }}
@@ -128,14 +146,24 @@ jobs:
           fi
           echo "data/ 干净，备份/还原正常。"
 
-      - name: 推送
+      - name: 提交采集数据到 data 分支
+        # 采集队列只推到独立的 data 分支，绝不碰 main（main 是人工的代码/案例，
+        # 只有它干净，你本地 push 才永远是快进、不需要 rebase）。
+        # 因为这一步的提交是建在当前 main 之上的，推完 data 后要把本地 main
+        # 软重置回 origin/main，避免后续任何步骤误把采集提交推到 main。
         run: |
-          BRANCH="$(git rev-parse --abbrev-ref HEAD)"
-          if [ -z "$(git log "origin/$BRANCH..HEAD" --oneline)" ]; then
-            echo "没有待推送的提交（本次无新增）。"
+          git add -f data/inbox.json data/inbox_archive.json data/last_harvest.json
+          if [ -z "$(git diff --cached --name-only)" ]; then
+            echo "没有待提交的采集数据（本次无新增）。"
             exit 0
           fi
-          git push origin "HEAD:$BRANCH"
+          N=$(python -c "import json;d=json.load(open('data/last_harvest.json',encoding='utf-8'));print(d.get('added',0))" 2>/dev/null || echo '?')
+          DATE=$(date +%F)
+          git commit -m "采集：新增 $N 条素材（$DATE）"
+          git push origin HEAD:refs/heads/data
+          echo "已推送到 data 分支（main 不受影响）。"
+          git reset --soft origin/main
+          echo "本地 main 已重置回 origin/main，采集提交不会泄漏到 main。"
 
       - name: 写运行摘要
         if: always()

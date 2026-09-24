@@ -217,6 +217,15 @@ def main():
         print("[!] git add 失败：%s" % out)
         return 1
 
+    # 只有被追踪且未忽略的文件才会进暂存区。采集队列（inbox / archive /
+    # last_harvest）已移出 main、改由 harvest.yml 在 data 分支用 `git add -f`
+    # 强制提交，所以在本机或 main 上跑这个脚本时 data/ 通常没有可提交内容——
+    # 这不算错误，直接跳过（不要去碰 main）。
+    rc, out = git("diff", "--cached", "--name-only")
+    if not out.strip():
+        print("      没有可提交的改动（采集队列由 CI 的 data 分支承载，本机/主线不提交）。")
+        return 0
+
     report = read_report()
     if args.message:
         subject, body = args.message, ""
