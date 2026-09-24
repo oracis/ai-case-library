@@ -85,14 +85,20 @@ jobs:
 
       - name: 取回最新采集队列（从 data 分支）
         # 采集队列（inbox 等）只在独立的 data 分支累积，main 不追踪它。
-        # 每次采集前先从 data 分支把最新队列拉回工作区，才能在旧队列上追加、
+        # 每次采集前先把 data 分支的最新队列写回工作区，才能在旧队列上追加、
         # 而不是从空开始（否则每天互相覆盖、无法累积）。
+        # 用 `git show > file` 而非 `git checkout`：只写工作区、不碰索引，
+        # 避免 inbox 被暂存后让后面「校验」步骤的 git status 误报 data/ 脏。
         # 首次运行 data 分支还不存在，忽略错误从空开始即可。
         run: |
           git fetch origin data || true
-          git checkout origin/data -- \
-            data/inbox.json data/inbox_archive.json data/last_harvest.json \
-            2>/dev/null || echo "data 分支尚无采集数据，本次从空开始。"
+          for f in data/inbox.json data/inbox_archive.json data/last_harvest.json; do
+            if git cat-file -e "origin/data:$f" 2>/dev/null; then
+              git show "origin/data:$f" > "$f"
+            else
+              echo "data 分支尚无 $f，本次从空开始。"
+            fi
+          done
 
       - name: 采集（写 data/，不提交）
         # 复用本地同一套脚本，行为完全一致：没变化不产生空提交，只动 data/，
