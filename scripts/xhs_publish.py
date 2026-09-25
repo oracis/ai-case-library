@@ -1,0 +1,741 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""小红书发布链路（试点版）。
+
+公众号长文搬不动小红书（那边是 图文卡片 + <=1000 字正文），这里把
+cases.json 的结构化字段改写成两种产物：
+
+  1) note.md / note.json —— 笔记文案（标题<=20字、正文<=1000字、话题标签）
+  2) 5 张 3:4 卡片图（1080x1440）—— 封面 / 是什么·怎么赚钱 / 为什么成立 /
+     方法论 / 三张评分
+
+卡片图复用 wechat_publish.py 的 CDP 渲染方案（data URL 打开 HTML ->
+Page.captureScreenshot），字号超长自动缩，零第三方依赖。
+
+用法：
+  python scripts/xhs_publish.py build --all            # 全量生成（起临时无头 Chrome 渲染）
+  python scripts/xhs_publish.py build --case voklit    # 单条
+  python scripts/xhs_publish.py preview                # 生成 out/xhs/index.html 本地预览
+  python scripts/xhs_publish.py publish --case voklit --dry
+      # 走 9222 Chrome（要先人工登录小红书创作平台）预填笔记；--dry 只填不发
+      # 不加 --yes 时填完点「存草稿」；--yes 才点「发布」
+      # ⚠ 发布选择器按 2026-09 网页版创作平台写，属实验性，变了就人工补
+
+风控注意（2026-09 定稿）：
+  - 批量发帖易限流，建议人工节奏每天 <=2 条；
+  - 收入表述保留原文口径（MRR 就写 MRR，成交就写成交），不夸大、不写「躺赚」类词。
+"""
+
+import argparse
+import base64
+import json
+import os
+import re
+import subprocess
+import sys
+import time
+import urllib.request
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import wechat_publish as wp  # noqa: E402  复用 CDP / 色板 / 案例加载
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUT = os.path.join(ROOT, "out", "xhs")
+CHROME = "C:/Program Files/Google/Chrome/Application/chrome.exe"
+
+TITLE_MAX = 20          # 小红书标题硬上限
+BODY_MAX = 1000         # 小红书正文硬上限
+CARD_W, CARD_H = 1080, 1440   # 3:4
+BUILD_PORT = 9333       # 临时无头 Chrome（只渲染卡片，不碰 9222 登录态）
+PUB_PORT = 9222         # 发布用，与公众号同一调试 Chrome
+
+# ---- 文案：话题标签 --------------------------------------------------------
+
+BASE_TAGS = ["出海创业", "独立开发", "商业拆解", "一人公司"]
+
+TAGS_BY_CATEGORY = {
+    "AI 工具": ["AI工具", "AI创业"],
+    "开发者工具": ["开发者工具", "API"],
+    "营销工具": ["营销自动化", "增长黑客"],
+    "垂直行业 SaaS": ["SaaS"],
+    "企业服务": ["B端产品", "SaaS"],
+    "交易市场": ["交易平台"],
+    "创作者经济": ["创作者经济"],
+    "电商": ["跨境电商"],
+    "客户服务": ["SaaS"],
+    "组合策略": ["创业思路"],
+    "未分类": [],
+}
+
+
+def load_cases():
+    return wp.load_cases()
+
+
+def find_case(cid):
+    for c in load_cases():
+        if c.get("id") == cid:
+            return c
+    raise SystemExit("case not found: %s" % cid)
+
+
+# ---- 纯函数：文案改写 ------------------------------------------------------
+
+def esc(s):
+    return (s or "").replace("&", "&amp;").replace("<", "&lt;").replace(
+        ">", "&gt;").replace('"', "&quot;")
+
+
+def compact_amount(m):
+    """$128,000 -> $128K；$1.6K/$842 原样。"""
+    m = m.replace(" ", "")
+    g = re.match(r"^\$([\d,]+(?:\.\d+)?)([KM]?)$", m)
+    if not g:
+        return m
+    num, suf = g.group(1), g.group(2)
+    if suf:
+        return "$" + num + suf
+    try:
+        v = int(num.replace(",", ""))
+    except ValueError:
+        return m
+    if v >= 1000000:
+        return "$%gM" % round(v / 1000000.0, 2)
+    if v >= 1000:
+        k = v / 1000.0
+        return "$%.0fK" % k if k >= 10 else "$%gK" % k
+    return "$%d" % v
+
+
+def first_amount(headline):
+    m = re.search(r"\$\s?[\d,]+(?:\.\d+)?\s?[KM]?(?![\dA-Za-z])",
+                  headline or "")
+    return compact_amount(m.group(0)) if m else ""
+
+
+def short_desc(c):
+    """给标题/正文用的一句话业务描述：one_liner 可用就用它，否则按品类兜底。"""
+    d = (c.get("one_liner") or "").strip()
+    if (not d) or d.startswith("（待补充") or "定位未明" in d or "定位未获取" in d:
+        cat = (c.get("category") or "").strip()
+        d = ("%s小生意" % cat) if cat and cat != "未分类" else "海外小生意"
+    d = re.sub(r"（[^）]*）", "", d).strip(" ，,。")
+    d = re.sub(r"(服务|工具|产品)$", "", d) or d
+    return d
+
+
+def _hard_clip(s, n):
+    """无省略号截断：优先在句读处断，切不出就在词边界硬切。"""
+    s = re.sub(r"\s+", " ", (s or "").strip())
+    if len(s) <= n:
+        return s
+    cut = s[:n]
+    best = -1
+    for p in (cut.rfind(x) for x in "。！？；.!?;，, "):
+        if p >= n * 0.6 and p > best:
+            best = p
+    return cut[:best + 1].rstrip() if best >= 0 else cut.rstrip()
+
+
+def make_xhs_title(c, used=None):
+    """<=20 字、不带省略号的标题。
+
+    金额前置，口径跟原文走：原文写「成交」就写成交，写 MRR 就归到月收；
+    desc 塞不下就退到「海外小生意」这类通用尾缀，绝不出现「…」。
+    `used` 是批量生成时已用标题集合，撞车就依次退到下一候选。
+    """
+    h = (c.get("metrics") or {}).get("headline") or ""
+    amt = first_amount(h)
+    desc = short_desc(c)
+    name = (c.get("name") or c.get("id") or "").strip()
+    generic = ["海外小生意", "一人公司生意", "海外小项目"]
+    lead = ("%s成交" % amt) if (amt and "成交" in h) else (
+        ("月收%s" % amt) if amt else "")
+    cands = []
+    if lead:
+        cands.append("%s：%s" % (lead, desc))
+        cands += ["%s：%s" % (lead, g) for g in generic]
+    if name:
+        cands.append("%s：%s" % (name, desc))
+        cands += ["%s：%s" % (name, g) for g in generic]
+    cands.append("拆解一个海外小生意")
+    for t in cands:
+        t = t.strip()
+        if 4 <= len(t) <= TITLE_MAX and (not used or t not in used):
+            return t
+    # 兜底：截 desc 而不是加省略号
+    pre = ("%s：" % lead) if lead else (("%s：" % name) if name else "")
+    budget = TITLE_MAX - len(pre)
+    if budget >= 6:
+        return pre + _hard_clip(desc, budget)
+    return "拆解一个海外小生意"
+
+
+def _clip(s, n):
+    """正文用：带省略号的软截断（先在句读处断）。"""
+    s = re.sub(r"\s+", " ", (s or "").strip())
+    if len(s) <= n:
+        return s
+    cut = s[:n]
+    for p in sorted(cut.rfind(x) for x in "。！？；.!?;，, "):
+        if p >= n * 0.6:
+            return cut[:p + 1]
+    return cut.rstrip() + "…"
+
+
+def build_tags(c):
+    cat = (c.get("category") or "").strip()
+    tags = list(BASE_TAGS) + TAGS_BY_CATEGORY.get(cat, [])
+    out, seen = [], set()
+    for t in tags:
+        if t and t not in seen:
+            seen.add(t)
+            out.append("#" + t)
+    return out
+
+
+def build_body(c):
+    h = (c.get("metrics") or {}).get("headline") or ""
+    hook_pool = [
+        "花 3 分钟，看一个被明码标价挂出来卖的海外小生意。",
+        "又一个海外一人公司：收入是真的，挂牌价也是真的。",
+        "拆一个海外小生意——它赚多少、为什么成立、值不值得抄。",
+    ]
+    hook = hook_pool[sum(ord(x) for x in c.get("id", "")) % len(hook_pool)]
+    why = [x.strip() for x in (c.get("why_it_works") or []) if x.strip()]
+    pb = [x.strip() for x in (c.get("playbook") or []) if x.strip()]
+    name = c.get("name_en") or c.get("name") or c.get("id")
+
+    def assemble(n_why, how_n, what_n):
+        parts = [
+            hook,
+            "",
+            "📌 %s：%s" % (name, short_desc(c)),
+            _clip(c.get("what_it_does"), what_n),
+            "",
+            "💰 它怎么赚钱",
+            _clip(c.get("how_it_makes_money"), how_n),
+            "",
+            "🔍 为什么能成立",
+        ]
+        parts += ["· " + _clip(x, 52) for x in why[:n_why]]
+        if pb:
+            parts += ["", "🧠 最值得抄的一点", _clip(pb[0], 60)]
+        cal = _clip(h, 56)
+        if cal:
+            parts += ["", "📊 口径照实说：" + cal + "（来源：TrustMRR 公开挂牌页）"]
+        parts += ["", "完整拆解在公众号「万物解释者」，每周更新。"]
+        return "\n".join(parts)
+
+    tail = "\n" + " ".join(build_tags(c))
+    # 逐级收紧字段预算，直到塞进 1000 字
+    text = None
+    for n_why, how_n, what_n in ((3, 150, 120), (2, 110, 90), (2, 80, 70)):
+        text = assemble(n_why, how_n, what_n)
+        if len(text) + len(tail) <= BODY_MAX:
+            return text + tail
+    return (text or "") + tail
+
+
+def cover_headline(headline, budget=24):
+    """封面数字行：按「/」整段拼装，放不下完整段就丢弃（不出半截文案）。"""
+    segs = [s.strip() for s in re.split(r"（", headline or "")[0].split("/")]
+    out = ""
+    for s in segs:
+        if not s:
+            continue
+        cand = (out + " / " + s) if out else s
+        if len(cand) <= budget:
+            out = cand
+    return out
+
+
+def build_note(c, used=None):
+    return {
+        "title": make_xhs_title(c, used),
+        "body": build_body(c),
+        "tags": build_tags(c),
+    }
+
+
+# ---- 卡片 HTML -------------------------------------------------------------
+# 自适应原理：.fit 容器在 flex 列里被压缩（overflow:hidden + min-height:0），
+# 内容真高 scrollHeight > 视口高 clientHeight 时逐轮缩小容器字号；
+# 容器内的文字一律用 1em 相对字号，缩容器=缩全部。固定元素（标题条/评分块）
+# 不参与压缩。
+
+PAGE_TITLES = ["封面", "是什么·怎么赚钱", "为什么成立", "方法论", "三张评分"]
+
+
+def _bullets(items):
+    return "".join(
+        '<div class="row"><div class="dot"></div>'
+        '<div class="rt">%s</div></div>' % esc(x) for x in items)
+
+
+def _bar(label, v, mx):
+    pct = max(0, min(100, 100.0 * (v or 0) / mx))
+    return ('<div class="brow"><div class="bl">%s</div>'
+            '<div class="btrack"><div class="bfill" style="width:%.0f%%">'
+            '</div><div class="bv">%s</div></div></div>'
+            % (esc(label), pct,
+               esc("%s/%s" % (v if v is not None else "—", mx))))
+
+
+def card_html(c, page, total):
+    """第 page(1-based) 张卡片，3:4 全 HTML 文档。"""
+    i = sum(ord(x) for x in c.get("id", "")) % len(wp.COVER_THEMES)
+    _base, _band, ac = wp.COVER_THEMES[i]
+    name = c.get("name") or c.get("id") or ""
+    one = re.sub(r"（[^）]*）", "", (c.get("one_liner") or "")).strip() or \
+        (c.get("category") or "")
+    headline = (c.get("metrics") or {}).get("headline") or ""
+    brand = "万物解释者 · 拆解海外"
+    page_no = "%02d / %02d" % (page, total)
+
+    head = (
+        '<div class="hd"><div class="brand"><span class="sq"></span>%s</div>'
+        '<div class="pg">%s</div></div>' % (esc(brand), esc(page_no)))
+
+    if page == 1:      # 封面
+        body = (
+            '<div class="kicker" style="color:%s">CASE STUDY · 海外小生意</div>'
+            '<div class="name fit">%s</div>'
+            '<div class="one fit">%s</div>'
+            '<div class="numbox"><div class="num fit">%s</div>'
+            '<div class="numsub">数据来自公开挂牌页 · 口径见末页</div></div>'
+            '<div class="swipe">👉 右滑看完整拆解</div>'
+            % (ac, esc(name), esc(one),
+               esc(cover_headline(headline) or _clip(headline, 30))))
+    elif page == 2:    # 是什么 · 怎么赚钱
+        body = (
+            '<div class="h2" style="color:%s">它是什么</div>'
+            '<div class="blk fit"><div class="para">%s</div></div>'
+            '<div class="h2" style="color:%s">它怎么赚钱</div>'
+            '<div class="blk fit"><div class="para">%s</div></div>'
+            % (ac, esc(c.get("what_it_does") or "—"),
+               ac, esc(c.get("how_it_makes_money") or "—")))
+    elif page == 3:    # 为什么成立
+        body = ('<div class="h2" style="color:%s">它为什么能成立</div>'
+                '<div class="blk fit grow"><div class="inner">%s</div></div>'
+                % (ac, _bullets(c.get("why_it_works") or [])))
+    elif page == 4:    # 方法论
+        body = ('<div class="h2" style="color:%s">能抄走的方法论</div>'
+                '<div class="blk fit grow"><div class="inner">%s</div></div>'
+                % (ac, _bullets(c.get("playbook") or [])))
+    else:              # 三张评分
+        rep = c.get("replicability") or {}
+        sf = c.get("solo_fit") or {}
+        cf = c.get("china_fit") or {}
+        rows = "".join([
+            _bar("技术", rep.get("tech"), 6),
+            _bar("获客", rep.get("distribution"), 6),
+            _bar("资金", rep.get("capital"), 6),
+            _bar("时机", rep.get("timing"), 6)])
+        blocker = cf.get("blocker")
+        sv = ("%.1f" % sf["score"]) if sf.get("score") is not None else "—"
+        cv = ("%.1f" % cf["score"]) if cf.get("score") is not None else "—"
+        body = (
+            '<div class="h2" style="color:%s">三张评分</div>'
+            '<div class="h3">可复制性（1–6）</div>'
+            '<div class="blk fit bars">%s</div>'
+            '<div class="scards"><div class="scard">'
+            '<div class="sv" style="color:%s">%s</div>'
+            '<div class="sl">一人上手分 · 第%s名</div></div>'
+            '<div class="scard"><div class="sv">%s</div>'
+            '<div class="sl">中国适配分 · 第%s名%s</div></div></div>'
+            % (ac, rows, ac, esc(sv), esc(str(sf.get("rank") or "—")),
+               esc(cv), esc(str(cf.get("rank") or "—")),
+               (" · 阻碍：" + esc(str(blocker))) if blocker else ""))
+    tail = ""
+    if page == total:
+        tail = ('<div class="foot">完整拆解 → 公众号「万物解释者」 · '
+                '数据核验截至 %s</div>'
+                % esc((c.get("verified_at") or c.get("updated_at") or "")[:10]))
+
+    return (
+        '<!doctype html><html><head><meta charset="utf-8"><style>'
+        "html,body{margin:0;padding:0;}"
+        "*{box-sizing:border-box;}"
+        "body{width:%(W)dpx;height:%(H)dpx;background:#f6f3ee;"
+        "font-family:'PingFang SC','Microsoft YaHei','Noto Sans CJK SC',sans-serif;"
+        "color:#26221c;overflow:hidden;}"
+        ".wrap{width:100%%;height:100%%;padding:52px 60px 44px;}"
+        ".card{position:relative;width:100%%;height:100%%;background:#fffdf9;"
+        "border-radius:32px;border:1px solid #e8e1d5;padding:46px 48px 40px;"
+        "overflow:hidden;display:flex;flex-direction:column;}"
+        ".hd{display:flex;justify-content:space-between;align-items:center;"
+        "margin-bottom:30px;flex:0 0 auto;}"
+        ".brand{font-size:24px;font-weight:700;color:#8a8072;"
+        "display:flex;align-items:center;letter-spacing:2px;}"
+        ".sq{display:inline-block;width:18px;height:18px;border-radius:5px;"
+        "margin-right:14px;background:%(AC)s;}"
+        ".pg{font-size:22px;color:#b3a88f;}"
+        ".kicker{font-size:26px;font-weight:800;letter-spacing:6px;flex:0 0 auto;}"
+        ".name{font-size:84px;font-weight:900;line-height:1.15;margin-top:26px;}"
+        ".one{font-size:40px;font-weight:600;line-height:1.5;color:#5c554a;"
+        "margin-top:20px;}"
+        ".numbox{margin-top:auto;background:#f6f3ee;border-radius:24px;"
+        "padding:34px 34px;flex:0 0 auto;}"
+        ".num{font-size:44px;font-weight:800;line-height:1.4;}"
+        ".numsub{font-size:22px;color:#8a8072;margin-top:12px;}"
+        ".swipe{margin-top:24px;font-size:26px;color:#8a8072;flex:0 0 auto;}"
+        ".h2{font-size:44px;font-weight:900;margin-bottom:26px;flex:0 0 auto;}"
+        ".h3{font-size:27px;font-weight:700;color:#8a8072;margin:2px 0 16px;"
+        "flex:0 0 auto;}"
+        ".blk{flex:1 1 0;min-height:0;overflow:hidden;font-size:30px;}"
+        ".blk .inner{display:flow-root;}"
+        ".blk.bars{flex:0 1 auto;min-height:0;font-size:28px;}"
+        ".para{font-size:1em;line-height:1.75;color:#3d382f;}"
+        ".row{display:flex;margin-bottom:0.9em;}"
+        ".dot{flex:0 0 14px;height:14px;border-radius:50%%;background:%(AC)s;"
+        "margin-top:0.6em;margin-right:24px;}"
+        ".rt{font-size:1em;line-height:1.65;color:#3d382f;}"
+        ".brow{display:flex;align-items:center;margin-bottom:20px;}"
+        ".bl{flex:0 0 96px;font-size:1em;font-weight:700;}"
+        ".btrack{flex:1;height:20px;border-radius:10px;background:#efe9dd;"
+        "margin:0 20px;overflow:hidden;}"
+        ".bfill{height:100%%;border-radius:10px;background:%(AC)s;}"
+        ".bv{flex:0 0 76px;font-size:0.9em;color:#8a8072;text-align:right;}"
+        ".scards{display:flex;gap:22px;margin-top:34px;flex:0 0 auto;}"
+        ".scard{flex:1;background:#f6f3ee;border-radius:22px;padding:28px;}"
+        ".sv{font-size:60px;font-weight:900;line-height:1.1;}"
+        ".sl{font-size:22px;color:#8a8072;margin-top:10px;line-height:1.4;}"
+        ".foot{margin-top:auto;font-size:22px;color:#8a8072;line-height:1.5;"
+        "border-top:1px solid #e8e1d5;padding-top:22px;flex:0 0 auto;}"
+        ".fit{overflow:hidden;min-height:0;}"
+        "</style></head><body><div class=\"wrap\"><div class=\"card\">"
+        "%(HEAD)s%(BODY)s%(TAIL)s</div></div></body></html>"
+        % {"W": CARD_W, "H": CARD_H, "AC": ac,
+           "HEAD": head, "BODY": body, "TAIL": tail})
+
+
+# ---- Chrome / 渲染 ---------------------------------------------------------
+
+def _port_up(port):
+    try:
+        op = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+        op.open("http://127.0.0.1:%d/json/version" % port, timeout=2).read()
+        return True
+    except Exception:
+        return False
+
+
+def ensure_chrome(port=BUILD_PORT):
+    """起一个一次性无头 Chrome 专门渲染卡片（临时 profile，不碰 9222 登录态）。"""
+    if _port_up(port):
+        return None
+    profile = os.path.join(OUT, ".chrome-profile")
+    os.makedirs(profile, exist_ok=True)
+    proc = subprocess.Popen(
+        [CHROME, "--headless=new", "--remote-debugging-port=%d" % port,
+         "--user-data-dir=" + profile, "--no-first-run",
+         "--no-default-browser-check", "--disable-gpu", "about:blank"],
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    for _ in range(30):
+        time.sleep(0.5)
+        if _port_up(port):
+            return proc
+    raise SystemExit("Chrome 调试端口起不来: %d" % port)
+
+
+GROW_JS = (
+    "(function(){var chg=0;"
+    "[].slice.call(document.querySelectorAll('.blk.grow')).forEach(function(e){"
+    "var inner=e.querySelector('.inner');if(!inner)return;"
+    "var guard=0;"
+    "while(inner.offsetHeight*1.12<e.clientHeight&&guard<8){"
+    "var fs=parseFloat(getComputedStyle(e).fontSize);"
+    "e.style.fontSize=fs*1.1+'px';guard++;chg++;}"
+    "while(inner.offsetHeight>e.clientHeight+1&&guard<14){"
+    "var fs=parseFloat(getComputedStyle(e).fontSize);"
+    "var nf=Math.max(24,fs*0.94);"
+    "if(nf>=fs-0.01)break;"
+    "e.style.fontSize=nf+'px';guard++;chg++;}});"
+    "return JSON.stringify({n:chg});})()")
+
+AUTOFIT_JS = (
+    "(function(){var chg=0;"
+    "[].slice.call(document.querySelectorAll('.fit')).forEach(function(e){"
+    "var guard=0;"
+    "while((e.scrollHeight>e.clientHeight+1||e.scrollWidth>e.clientWidth+1)"
+    "&&guard<14){var fs=parseFloat(getComputedStyle(e).fontSize);"
+    "var nf=Math.max(15,fs*0.94);"
+    "if(nf>=fs-0.01)break;"
+    "e.style.fontSize=nf+'px';guard++;chg++;}});"
+    "return JSON.stringify({n:chg});})()")
+
+
+def case_page_html(c, cards=5):
+    """一条案例的全部卡片拼进一个页面（每张占一个 1080x1440 slot）。
+
+    一次 new_target/连接/收敛，5 次 clip 截图 —— 比每卡开一个 tab 快一个
+    数量级（单 tab 路线实测 5 卡要 1m46s，大头在连接与上下文收集）。
+    """
+    docs = [card_html(c, p, cards) for p in range(1, cards + 1)]
+    css = docs[0].split("<style>")[1].split("</style>")[0]
+    slots = "".join(
+        '<div class="slot">%s</div>'
+        % d.split("<body>")[1].split("</body>")[0] for d in docs)
+    return (
+        '<!doctype html><html><head><meta charset="utf-8"><style>'
+        + css +
+        "body{width:%(W)dpx;height:%(H)dpx;}"
+        ".slot{width:%(W)dpx;height:%(Hh)dpx;position:relative;overflow:hidden;}"
+        "</style></head><body>%(SLOT)s</body></html>"
+        % {"W": CARD_W, "H": CARD_H * cards, "Hh": CARD_H, "SLOT": slots})
+
+
+def render_case_pngs(port, c, out_dir, cards=5):
+    """渲染一条案例的全部卡片 PNG，返回成功文件名列表。"""
+    html = case_page_html(c, cards)
+    data_url = "data:text/html;charset=utf-8;base64," + base64.b64encode(
+        html.encode("utf-8")).decode("ascii")
+    tid = None
+    sub = None
+    done = []
+    try:
+        browser = wp.CDP(port)
+        tid = browser.new_target(data_url)["id"]
+        sub = wp.CDP(port)
+        sub.connect_target(tid)
+        # 关键：把视口钉死成画布尺寸。headless 默认视口 ~764x485，
+        # Page.captureScreenshot 的 clip 不会按 clip 尺寸重排布局，
+        # 不 override 的话卡片会按小视口塌陷（实测 2026-09-25）。
+        # dsf 固定 1，放大倍数交给 clip.scale（两个会叠乘）。
+        sub.send("Emulation.setDeviceMetricsOverride",
+                 {"width": CARD_W, "height": CARD_H, "deviceScaleFactor": 1,
+                  "mobile": False})
+        time.sleep(1.0)
+        # 收敛循环全部放进一次 JS 同步执行（样式改动后读 getComputedStyle
+        # 会强制同步重排，纯 JS 内循环即可收敛）。每轮 eval 都带
+        # refresh_context 会触发 wp 的上下文收集（实测单卡要 30 秒+），
+        # 这里只在第一次拿上下文，后续复用。
+        sub.eval(GROW_JS, refresh_context=True)
+        sub.eval(AUTOFIT_JS)
+        for p in range(1, cards + 1):
+            r = sub.send("Page.captureScreenshot", {
+                "format": "png",
+                "captureBeyondViewport": True,
+                "clip": {"x": 0, "y": (p - 1) * CARD_H, "width": CARD_W,
+                         "height": CARD_H, "scale": 2}})
+            data = (r.get("result") or {}).get("data", "")
+            if not data:
+                print("  [warn] %s 卡片 %d 截图失败" % (c["id"], p))
+                continue
+            fn = "card-%d.png" % p
+            with open(os.path.join(out_dir, fn), "wb") as f:
+                f.write(base64.b64decode(data))
+            done.append(fn)
+        return done
+    finally:
+        if tid and browser is not None:
+            try:
+                browser.close_target(tid)
+            except Exception:
+                pass
+        for conn in (sub, browser):
+            if conn is not None and getattr(conn, "bws", None) is not None:
+                try:
+                    conn.bws.close()
+                except Exception:
+                    pass
+
+
+def build_case(port, c, cards=5, used=None):
+    cid = c["id"]
+    d = os.path.join(OUT, cid)
+    os.makedirs(d, exist_ok=True)
+    note = build_note(c, used)
+    if used is not None:
+        used.add(note["title"])
+    note["images"] = render_case_pngs(port, c, d, cards)
+    with open(os.path.join(d, "note.md"), "w", encoding="utf-8") as f:
+        f.write(note["title"] + "\n\n" + note["body"] + "\n")
+    with open(os.path.join(d, "note.json"), "w", encoding="utf-8") as f:
+        json.dump(note, f, ensure_ascii=False, indent=2)
+    return note
+
+
+# ---- preview ---------------------------------------------------------------
+
+def cmd_preview(_args):
+    cases = load_cases()
+    rows = []
+    for c in cases:
+        d = os.path.join(OUT, c["id"])
+        nj = os.path.join(d, "note.json")
+        if not os.path.isfile(nj):
+            continue
+        note = json.load(open(nj, encoding="utf-8"))
+        imgs = "".join(
+            '<figure><img loading="lazy" src="%s/%s">'
+            '<figcaption>%s · %02d/%02d</figcaption></figure>'
+            % (c["id"], fn, esc(c["name"]), i + 1, len(note["images"]))
+            for i, fn in enumerate(note["images"]))
+        rows.append(
+            '<section><h2>%s <small>%s</small></h2>'
+            '<div class="meta">标题（%d 字）：%s</div>'
+            '<pre>%s</pre><div class="row">%s</div></section>'
+            % (esc(c["name"]), esc(c["id"]), len(note["title"]),
+               esc(note["title"]), esc(note["body"]), imgs))
+    html = (
+        '<!doctype html><html lang="zh"><head><meta charset="utf-8">'
+        "<title>小红书笔记预览 · 万物解释者</title><style>"
+        "body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;"
+        "background:#f2efe9;margin:0;padding:32px;color:#26221c;}"
+        "h1{font-size:26px;}h2{font-size:20px;margin:0 0 12px;}"
+        "section{background:#fffdf9;border-radius:16px;padding:24px;"
+        "margin-bottom:28px;border:1px solid #e8e1d5;}"
+        "small{color:#8a8072;font-weight:400;}"
+        ".meta{font-size:14px;color:#5c554a;margin-bottom:8px;}"
+        "pre{white-space:pre-wrap;font:14px/1.7 inherit;background:#f6f3ee;"
+        "padding:16px;border-radius:12px;max-width:640px;}"
+        ".row{display:flex;gap:16px;flex-wrap:wrap;}"
+        "figure{margin:12px 0 0;}"
+        "img{width:216px;border-radius:12px;border:1px solid #e8e1d5;"
+        "display:block;}"
+        "figcaption{font-size:12px;color:#8a8072;margin-top:4px;}"
+        "</style></head><body><h1>小红书笔记预览（%d 条）</h1>%s</body></html>"
+        % (len(rows), "".join(rows)))
+    path = os.path.join(OUT, "index.html")
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(html)
+    print("preview ->", path)
+
+
+# ---- publish（实验性）-------------------------------------------------------
+
+PUB_URL = "https://creator.xiaohongshu.com/publish/publish?source=official"
+
+
+def _pub_js_fill(title, body):
+    return (
+        "(function(){var out=[];"
+        "var ti=document.querySelector('input[placeholder*=\"标题\"],"
+        "#title-textarea, .titleInput input, textarea[placeholder*=\"标题\"]');"
+        "if(ti){if(ti.tagName==='TEXTAREA'){var s=Object.getOwnPropertyDescriptor("
+        "window.HTMLTextAreaElement.prototype,'value');s.set.call(ti,%s);}"
+        "else{var s=Object.getOwnPropertyDescriptor("
+        "window.HTMLInputElement.prototype,'value');s.set.call(ti,%s);}"
+        "ti.dispatchEvent(new Event('input',{bubbles:true}));out.push('title');}"
+        "var ed=document.querySelector('.ql-editor[contenteditable=\"true\"],"
+        "#post-textarea, [contenteditable=\"true\"][data-placeholder],"
+        "textarea[placeholder*=\"正文\"]');"
+        "if(ed){if(ed.tagName==='TEXTAREA'){var s2=Object.getOwnPropertyDescriptor("
+        "window.HTMLTextAreaElement.prototype,'value');"
+        "s2.set.call(ed,%s);}"
+        "else{ed.focus();document.execCommand('insertText',false,%s);}"
+        "ed.dispatchEvent(new Event('input',{bubbles:true}));out.push('body');}"
+        "return JSON.stringify(out);})()"
+        % (json.dumps(title, ensure_ascii=False),
+           json.dumps(title, ensure_ascii=False),
+           json.dumps(body, ensure_ascii=False),
+           json.dumps(body, ensure_ascii=False)))
+
+
+def cmd_publish(args):
+    c = find_case(args.case)
+    d = os.path.join(OUT, args.case)
+    nj = os.path.join(d, "note.json")
+    if not os.path.isfile(nj):
+        raise SystemExit("先 build：out/xhs/%s/note.json 不存在" % args.case)
+    note = json.load(open(nj, encoding="utf-8"))
+    if not _port_up(PUB_PORT):
+        raise SystemExit(
+            "没找到 %d 调试 Chrome。先起：\n"
+            '  "C:/Program Files/Google/Chrome/Application/chrome.exe" '
+            "--remote-debugging-port=9222 "
+            '--user-data-dir="C:\\Users\\DELL\\chrome-debug-profile" '
+            "--no-first-run --no-default-browser-check --remote-allow-origins=* "
+            "\n然后人工登录 creator.xiaohongshu.com 一次。" % PUB_PORT)
+    cdp = wp.CDP(PUB_PORT)
+    tid = None
+    for t in cdp.list_targets():
+        if "creator.xiaohongshu.com" in (t.get("url") or ""):
+            tid = t["id"]
+            break
+    if not tid:
+        tid = cdp.new_target(PUB_URL)["id"]
+        time.sleep(4)
+    sub = wp.CDP(PUB_PORT)
+    sub.connect_target(tid)
+    url = sub.eval("location.href")
+    if "publish" not in url:
+        sub.send("Page.navigate", {"url": PUB_URL})
+        time.sleep(4)
+        url = sub.eval("location.href")
+    if "login" in url or "passport" in url:
+        raise SystemExit("该 Chrome 还没登录小红书，请先人工登录后再跑 publish。")
+    time.sleep(2)
+    r = json.loads(sub.eval(_pub_js_fill(note["title"], note["body"]),
+                            refresh_context=True))
+    if "title" not in r or "body" not in r:
+        print("[warn] 标题/正文没有全部填上（%s）——网页版选择器可能变了，"
+              "请到浏览器里人工确认。" % r)
+    for fn in note["images"]:
+        p = os.path.abspath(os.path.join(d, fn))
+        q = sub.send("DOM.getDocument", {"depth": 0})
+        root = (q.get("result") or {}).get("root", {}).get("nodeId")
+        n = sub.send("DOM.querySelector", {
+            "nodeId": root, "selector": "input[type=file]"})
+        nid = (n.get("result") or {}).get("nodeId")
+        if nid:
+            sub.send("DOM.setFileInputFiles", {"nodeId": nid, "files": [p]})
+            time.sleep(2)
+        else:
+            print("[warn] 没找到 input[type=file]，图片需手动传：", fn)
+    if args.dry:
+        print("DRY：已预填标题/正文/图片，未点任何按钮。去浏览器里检查。")
+        return
+    btn = "存草稿" if not args.yes else "发布"
+    ok = wp._click_text_anywhere(sub, btn)
+    print(("已点「%s」（%s）。请回浏览器确认成稿。" % (btn, ok)) if ok else
+          ("[warn] 没找到「%s」按钮，请人工操作。" % btn))
+
+
+# ---- build -----------------------------------------------------------------
+
+def cmd_build(args):
+    cases = load_cases()
+    if args.case:
+        todo = [find_case(args.case)]
+    else:
+        todo = list(cases)
+    proc = ensure_chrome(BUILD_PORT)
+    used = set()
+    try:
+        for i, c in enumerate(todo, 1):
+            note = build_case(BUILD_PORT, c, used=used)
+            print("[%d/%d] %-22s 标题《%s》 正文 %d 字 · %d 张卡片"
+                  % (i, len(todo), c["id"], note["title"],
+                     len(note["body"]), len(note["images"])))
+    finally:
+        if proc is not None:
+            try:
+                proc.terminate()
+            except Exception:
+                pass
+    cmd_preview(args)
+
+
+def main():
+    ap = argparse.ArgumentParser(description="小红书笔记生成/发布")
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    b = sub.add_parser("build")
+    b.add_argument("--case")
+    b.add_argument("--all", action="store_true")
+    b.set_defaults(fn=cmd_build)
+    p = sub.add_parser("preview")
+    p.set_defaults(fn=cmd_preview)
+    q = sub.add_parser("publish")
+    q.add_argument("--case", required=True)
+    q.add_argument("--dry", action="store_true")
+    q.add_argument("--yes", action="store_true")
+    q.set_defaults(fn=cmd_publish)
+    args = ap.parse_args()
+    args.fn(args)
+
+
+if __name__ == "__main__":
+    main()
