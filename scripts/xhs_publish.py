@@ -99,11 +99,14 @@ def compact_amount(m):
         v = int(num.replace(",", ""))
     except ValueError:
         return m
+    # 别用 %g：1358 会出「$1.358K」这种三位小数，卡片上很难看（2026-09-25）。
+    # K 级：≥10K 取整，否则 1 位小数；M 级：≥100M 取整，否则 2 位。
     if v >= 1000000:
-        return "$%gM" % round(v / 1000000.0, 2)
+        m = v / 1000000.0
+        return ("$%.0fM" % m) if m >= 100 else ("$%.2fM" % m)
     if v >= 1000:
         k = v / 1000.0
-        return "$%.0fK" % k if k >= 10 else "$%gK" % k
+        return ("$%.0fK" % k) if k >= 10 else ("$%.1fK" % k)
     return "$%d" % v
 
 
