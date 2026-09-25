@@ -83,12 +83,35 @@ def strip_tags(s):
     return re.sub(r"<[^>]+>", "", s or "")
 
 
+def _manual_title(cid):
+    """手工标题（与正文 h1 同源）。没有手改过就返回 None。
+
+    2026-09-25：草稿箱列表显示的是**标题字段**，它原来只由 name + one_liner
+    拼出，与正文里的 h1 是两套逻辑。结果是：正文换成了手改的标题，列表里
+    还挂着「UpLinked B.V.：营销类产品」这种占位清理后剩下的残句。
+    手改过的案例一律以 TITLE_OVERRIDES 为准，两边才不会分叉。
+    """
+    try:
+        here = os.path.dirname(os.path.abspath(__file__))
+        if here not in sys.path:
+            sys.path.insert(0, here)
+        import make_article
+        ov = (make_article.TITLE_OVERRIDES or {}).get(cid) or []
+        t = (ov[0] or "").strip() if ov else ""
+        return t if 0 < len(t) <= 64 else None
+    except Exception:
+        return None
+
+
 def make_wechat_title(c):
     """从 cases.json 生成适合公众号的简洁标题（≤64 字，优先 ≤30 字）。
 
-    规则：名字 + one_liner 最简；能放下再加月收入/累计收入。
+    规则：手改过的优先；否则名字 + one_liner 最简；能放下再加月收入/累计收入。
     例：Insect Bite ID → "Insect Bite ID：用 AI 识别虫咬类型"
     """
+    manual = _manual_title(c.get("id"))
+    if manual:
+        return manual
     name = (c.get("name") or "").strip()
     one = (c.get("one_liner") or "").strip()
     metrics = c.get("metrics") or {}
@@ -3025,6 +3048,106 @@ def cmd_fix_cover(args):
     print("\n完成：补齐 %d 篇，跳过/失败 %d 篇" % (fixed, skipped))
 
 
+def _delete_draft_ui(cdp, tok, appmsgid):
+    """在 mp 草稿箱列表页，按 appmsgid 精确点掉一篇草稿（触发器→确认框→确认）。
+
+    2026-09-25：微信后台 `cgi-bin/appmsg?action=del` 的 XHR 对草稿返回
+    `200009 not found`（参数对不上），个人订阅号也没有草稿删除 API 权限，
+    所以只能走 UI 点击。卡片结构是 `data-appid="<appmsgid>"` 容器里，删除触发器
+    在 tooltip 文本为「删除」的 `.weui-desktop-popover__wrp` 内的 `<a>` 图标；
+    点开后弹确认框，确认按钮是卡片内 `button.weui-desktop-btn_primary` 文本「删除」。
+    逐个精确匹配，不会波及别的草稿。
+    """
+    LIST = ("https://mp.weixin.qq.com/cgi-bin/appmsg?t=media/appmsg_list"
+            "&action=list&type=77&lang=zh_CN&token=%s" % tok)
+    cdp.send("Page.enable")
+    cdp.send("Page.navigate", {"url": LIST})
+    for _ in range(15):
+        time.sleep(1)
+        try:
+            if cdp.eval("!!document.querySelector('[data-appid]')",
+                        refresh_context=True):
+                break
+        except Exception:
+            pass
+    trig = cdp.eval("""(function(){
+      var card=document.querySelector('[data-appid="%s"]');
+      if(!card) return 'NO_CARD';
+      var wrps=[].slice.call(card.querySelectorAll('.weui-desktop-popover__wrp'));
+      var w=null;
+      for(var i=0;i<wrps.length;i++){
+        var tip=wrps[i].querySelector('.weui-desktop-tooltip__down-center');
+        if(tip && (tip.textContent||'').trim()==='删除'){w=wrps[i];break;}
+      }
+      if(!w) return 'NO_TRIGGER';
+      var a=w.querySelector('a')||w.querySelector('button');
+      if(!a) return 'NO_TRIGGER_EL';
+      a.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true}));
+      return 'TRIGGERED';
+    })()""" % appmsgid, refresh_context=True)
+    if trig != "TRIGGERED":
+        return trig
+    time.sleep(2)
+    conf = cdp.eval("""(function(){
+      var card=document.querySelector('[data-appid="%s"]');
+      if(!card) return 'CARD_GONE';
+      var btns=[].slice.call(card.querySelectorAll('button.weui-desktop-btn_primary'));
+      for(var i=0;i<btns.length;i++){
+        if((btns[i].textContent||'').trim()==='删除' && btns[i].offsetParent!==null){
+          btns[i].dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true}));
+          return 'CONFIRMED';
+        }
+      }
+      return 'NO_CONFIRM';
+    })()""" % appmsgid, refresh_context=True)
+    if conf != "CONFIRMED":
+        return conf
+    time.sleep(3)
+    gone = cdp.eval(
+        "(function(){return !document.querySelector('[data-appid=\"%s\"]');})()"
+        % appmsgid, refresh_context=True)
+    return "GONE" if gone else "STILL_THERE"
+
+
+def cmd_delete(args):
+    """把指定草稿从公众号草稿箱删除（按 appmsgid，--dry 先确认再真删）。
+
+    用法：python wechat_publish.py delete --appmsgid 100000263,100000271
+    安全：先拉草稿列表按 appmsgid 反查标题打印确认，再逐个用 UI 点删；
+    删完再拉一次列表核对是否真的消失。误传的 id 不会波及别的草稿
+    （逐个精确匹配 data-appid）。
+    """
+    cdp = CDP(args.port)
+    _tid0, tok = _connect_mp(cdp)
+    if not tok:
+        raise SystemExit("✗ 拿不到 token：确认调试窗口里 mp.weixin.qq.com 已登录")
+    drafts = _draft_list(cdp, tok, count=200)
+    by_id = {str(d.get("appmsgid")): d for d in drafts}
+    targets = [x.strip() for x in (args.appmsgid or "").split(",") if x.strip()]
+    if not targets:
+        raise SystemExit("✗ 用 --appmsgid 指定要删的草稿 id（逗号分隔）")
+    if args.dry:
+        print("草稿列表共 %d 篇；命中待删：" % len(drafts))
+        for aid in targets:
+            d = by_id.get(aid)
+            print("  %s -> %s" % (aid, (d or {}).get("title", "(列表里没找到，可能已删)")))
+        return
+    print("草稿列表共 %d 篇" % len(drafts))
+    for aid in targets:
+        d = by_id.get(aid)
+        title = (d or {}).get("title", "(列表里没找到)")
+        print("\n→ 准备删除 appmsgid=%s  标题=%s" % (aid, title))
+        if not d:
+            print("  [skip] 列表里没有这个 id，跳过（可能已删或 id 写错）")
+            continue
+        st = _delete_draft_ui(cdp, tok, aid)
+        print("  结果: %s" % st)
+    after = {str(d.get("appmsgid")) for d in _draft_list(cdp, tok, count=200)}
+    gone = [aid for aid in targets if aid not in after]
+    print("\n核对：%d/%d 已确认从草稿箱消失：%s"
+          % (len(gone), len(targets), "、".join(gone) or "无"))
+
+
 def cmd_refresh(args):
     """把本地重新生成过的正文，就地灌回**已存在**的草稿（不新建草稿）。
 
@@ -3192,6 +3315,10 @@ def main():
     pr.add_argument("--dry", action="store_true", help="只打印计划不打开浏览器")
     pr.add_argument("--cover", action="store_true",
                     help="连封面一起重画（篇号/主题变了必须带这个）")
+    pdel = sub.add_parser("delete", help="按 appmsgid 删除草稿箱里的草稿")
+    pdel.add_argument("--port", type=int, default=CDP_PORT)
+    pdel.add_argument("--appmsgid", help="要删的草稿 id（逗号分隔）")
+    pdel.add_argument("--dry", action="store_true", help="只打印待删标题不真删")
     args = ap.parse_args()
 
     # 127.0.0.1 必须绕开系统代理，否则 websocket 连 Chrome 调试端口会被掐（WinError 10053）
@@ -3218,6 +3345,8 @@ def main():
         cmd_fix_cover(args)
     elif args.cmd == "refresh":
         cmd_refresh(args)
+    elif args.cmd == "delete":
+        cmd_delete(args)
 
 
 if __name__ == "__main__":

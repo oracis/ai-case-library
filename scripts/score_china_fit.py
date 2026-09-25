@@ -260,6 +260,72 @@ SCORES = {
              "（腾讯医典、支付宝医疗健康）。它验证的是「长尾单点 + App Store"
              "自然流量」这条路，这条路在国内换成微信小程序后付费率会掉一个量级。",
     ),
+
+    # ---- 2026-09-25 补的一批（TrustMRR 挂牌标的为主）----
+    "voklit": dict(
+        demand=3, payment=3, compliance=1, acquisition=2, localization=2, competition=1,
+        blocker="增值电信牌照",
+        note="「收不到验证码」这个痛点在国内同样存在（跨境卖家、出海团队），"
+             "但虚拟号码与 VoIP 属增值电信业务，个人与小微公司拿不到牌照，"
+             "而这条赛道上站着阿里云、腾讯云的号码认证与隐私号服务。"
+             "它真正值得学的不是这门生意，是它选需求的方式："
+             "找一个「不做就完全进行不下去」的前置条件来卖。",
+    ),
+    "prosp": dict(
+        demand=3, payment=4, compliance=1, acquisition=1, localization=2, competition=1,
+        blocker="自动化触达合规 + LinkedIn 已退出中国",
+        note="与 gojiberryai、meerkats-ai 撞的是同一堵墙，而且更厚："
+             "LinkedIn 职场版 2023 年就已退出中国，国内根本没有等价的"
+             "「人 + 职位 + 公司」公开数据源；把信号源换成脉脉 / 企查查，"
+             "《个人信息保护法》又把自动抓取与群发直接定性为红线。"
+             "等于数据源、触达渠道、合规三处同时失效，只能重做一遍产品。"
+             "能搬走的只有它的卖法：按「会议数」而不是功能点收费。",
+    ),
+    "divine-widgets": dict(
+        demand=2, payment=3, compliance=1, acquisition=2, localization=3, competition=2,
+        blocker="宗教内容合规",
+        note="产品形态（小组件 + 每日一句）在国内技术上完全可做，"
+             "但宗教内容在应用商店与内容审核里是明确的敏感区，"
+             "而国内用户对「每日一句」类情绪产品的付费习惯也弱得多。"
+             "能学的是它的结构：用 widget 把低频 App 变成高频曝光，"
+             "再垂直到一个人群格子躲开竞争 —— 换一个非宗教的垂直主题即可复用。",
+    ),
+    "promptmonitor-io": dict(
+        demand=3, payment=4, compliance=4, acquisition=3, localization=2, competition=2,
+        note="这批里最可移植的一条。国内品牌同样开始问「豆包 / DeepSeek / 元宝 "
+             "里提不提我」，需求正在起来；收款走微信/支付宝无障碍，"
+             "合规上不涉及抓取个人信息，风险低。要改的是把监测对象换成"
+             "国内主流模型，而这恰恰是壁垒 —— 谁先把国内模型的回答采样做扎实，"
+             "谁就占住位置。竞争已经出现，但还没到免费的阶段。",
+    ),
+    "uplinked-b-v": dict(
+        demand=3, payment=4, compliance=3, acquisition=1, localization=1, competition=1,
+        blocker="LinkedIn 在国内无等价平台",
+        note="它整套动作长在 LinkedIn 上：读账号、写帖子、排期、发布。"
+             "国内没有等价的开放职业内容平台，公众号与小红书的发布接口"
+             "基本不对外开放，朋友圈更是完全封闭 —— 产品等于要重做。"
+             "而「帮顾问做内容代写」这个需求国内是真的，"
+             "只是落地形态会变成代运营而不是 SaaS。",
+    ),
+    "le19emetrou": dict(
+        demand=3, payment=5, compliance=4, acquisition=3, localization=2, competition=1,
+        blocker="价格战与仿品",
+        note="最微妙的一条：收款、投放、物流在国内都是强项，"
+             "抖音/小红书也有等价的投放渠道，单品 DTC 的打法可以直接平移。"
+             "真正的问题是值不值——义乌同款开瓶器几块钱，"
+             "创意被抄的速度快过建站的速度，而国内礼品电商的价格战"
+             "会把 €34,99 的定价直接打穿。它的模型能跑，"
+             "但盈利空间不在国内。想做只能走「海外市场的中国供应链」这条路。",
+    ),
+    "search1api": dict(
+        demand=4, payment=4, compliance=3, acquisition=3, localization=2, competition=2,
+        note="国内 agent 生态同样缺一层「联网」，需求真实且正在增长；"
+             "收款无障碍，获客靠开发者社区这条路在国内也成立。"
+             "两个要改的地方：搜索源要换成国内可用的（或合规抓取），"
+             "而「抓取什么、能不能抓取」的合规边界比美国更模糊 —— 这是唯一需要谨慎的维度。"
+             "竞争已经存在（各家大模型的搜索 API、博查一类），"
+             "但 MCP 这一层还没人占死。",
+    ),
 }
 
 

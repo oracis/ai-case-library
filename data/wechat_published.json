@@ -240,68 +240,59 @@
     "refreshed_at": "2026-09-24 01:08"
   },
   "voklit": {
-    "title": "Voklit：跨境云通信（VoIP + SMS）服务",
+    "title": "卖海外虚拟号码这门生意，最后为什么停机挂牌",
     "published_at": "2026-09-24 23:27",
     "status": "draft",
     "appmsgid": "100000242",
     "file": "公众号-voklit拆解.html",
-    "refreshed_at": "2026-09-24 23:48"
+    "refreshed_at": "2026-09-25 17:27"
   },
   "prosp": {
-    "title": "PROSP",
+    "title": "PROSP：把 B2B 销售的一整天，压成一个按钮",
     "published_at": "2026-09-24 23:53",
     "status": "draft",
     "appmsgid": "100000251",
-    "file": "公众号-prosp拆解.html"
+    "file": "公众号-prosp拆解.html",
+    "refreshed_at": "2026-09-25 17:27"
   },
   "divine-widgets": {
-    "title": "Divine Widgets：网页小组件",
+    "title": "Divine Widgets：一个人做的圣经小组件，锁屏上每天一句",
     "published_at": "2026-09-24 23:59",
     "status": "draft",
     "appmsgid": "100000255",
-    "file": "公众号-divine-widgets拆解.html"
+    "file": "公众号-divine-widgets拆解.html",
+    "refreshed_at": "2026-09-25 17:28"
   },
   "promptmonitor-io": {
-    "title": "Promptmonitor.io：监测品牌在各类 AI 模型回答中的曝光情况",
+    "title": "品牌开始问「AI 回答里提不提我」，于是有了这门生意",
     "published_at": "2026-09-25 00:04",
     "status": "draft",
     "appmsgid": "100000259",
-    "file": "公众号-promptmonitor-io拆解.html"
-  },
-  "stealth-company": {
-    "title": "Stealth Company",
-    "published_at": "2026-09-25 00:10",
-    "status": "draft",
-    "appmsgid": "100000263",
-    "file": "公众号-stealth-company拆解.html",
-    "refreshed_at": "2026-09-25 00:41"
+    "file": "公众号-promptmonitor-io拆解.html",
+    "refreshed_at": "2026-09-25 17:29"
   },
   "uplinked-b-v": {
-    "title": "UpLinked B.V.：营销类产品",
+    "title": "把「我知道要发内容，但没时间写」做成订阅",
     "published_at": "2026-09-25 00:15",
     "status": "draft",
     "appmsgid": "100000267",
-    "file": "公众号-uplinked-b-v拆解.html"
-  },
-  "dolar-app": {
-    "title": "Dolar App：金融科技类产品",
-    "published_at": "2026-09-25 00:21",
-    "status": "draft",
-    "appmsgid": "100000271",
-    "file": "公众号-dolar-app拆解.html"
+    "file": "公众号-uplinked-b-v拆解.html",
+    "refreshed_at": "2026-09-25 17:31"
   },
   "le19emetrou": {
-    "title": "le19emetrou：高尔夫主题开瓶器（法国 DTC 单站单品）",
+    "title": "€337 的广告费，卖 €34,99 的高尔夫开瓶器",
     "published_at": "2026-09-25 00:27",
     "status": "draft",
     "appmsgid": "100000275",
-    "file": "公众号-le19emetrou拆解.html"
+    "file": "公众号-le19emetrou拆解.html",
+    "refreshed_at": "2026-09-25 17:33"
   },
   "search1api": {
-    "title": "Search1API：搜索类 API 服务",
+    "title": "Search1API：不赌哪个 AI 会赢，只卖它们都需要的那次联网",
     "published_at": "2026-09-25 00:33",
     "status": "draft",
     "appmsgid": "100000279",
-    "file": "公众号-search1api拆解.html"
+    "file": "公众号-search1api拆解.html",
+    "refreshed_at": "2026-09-25 17:34"
   }
 }

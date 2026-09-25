@@ -78,6 +78,42 @@ REPLICABILITY = {
     # iOS 单点识别：Core ML / 视觉 API 够用，一个人能做完；获客完全靠 App Store
     # 自然搜索，不用投广告；启动只有开发者账号和模型调用费 —— 四维里最轻的一档。
     "insect-bite-id": {"tech": 2, "distribution": 2, "capital": 1, "timing": 2},
+
+    # ---- 2026-09-25 补的一批（TrustMRR 挂牌标的为主）----
+
+    # 跨境云通信：难点不在写客户端，在接上游运营商、拿号码资源与过合规；
+    # 获客靠「收不到验证码」这类被动搜索，不投广告；启动要先备号码与预付费；
+    # 需求长期存在，不存在窗口问题。
+    "voklit": {"tech": 4, "distribution": 3, "capital": 3, "timing": 2},
+
+    # LinkedIn AI 外呼：技术难度在反封禁与拟人化节奏，不在 AI 话术；
+    # 获客靠创始人 X 上的垂直影响力与产品口碑；启动轻；
+    # 但 LinkedIn 自动化赛道已经很挤，晚进者要付更多封号成本。
+    "prosp": {"tech": 3, "distribution": 3, "capital": 2, "timing": 4},
+
+    # 圣经小组件 App：widget 开发门槛低，内容是现成经文；获客靠 ASO 自然量；
+    # 启动成本只有一个开发者账号；时机不早不晚（信仰类小组件已有一批，
+    # 但垂直到「女性」这一格仍有位置）。
+    "divine-widgets": {"tech": 2, "distribution": 2, "capital": 1, "timing": 3},
+
+    # AI 可见性监测：要对接多模型、做提示词跑批与报告，工程量中等；
+    # 获客靠 SEO 与新话题红利；启动轻；时机正好——品牌刚意识到这个问题。
+    "promptmonitor-io": {"tech": 3, "distribution": 3, "capital": 2, "timing": 2},
+
+    # LinkedIn 内容代写 + 自动发布：web + iOS + Android 三端，工程量不小；
+    # 获客要打进「教练/顾问」这个分散人群，是最重的一维；
+    # 启动养了 2–5 人的团队；赛道已晚。
+    "uplinked-b-v": {"tech": 4, "distribution": 4, "capital": 3, "timing": 4},
+
+    # 单品 DTC：建站与支付都是现成能力，技术不是门槛；
+    # 获客完全靠 Meta 投放，可复制但要天天调；
+    # 启动要备货与广告金；礼品有季节性，进场时机中等。
+    "le19emetrou": {"tech": 2, "distribution": 3, "capital": 2, "timing": 3},
+
+    # AI agent 的搜索/爬取 API：聚合上游搜索源 + MCP 接入，工程量中等；
+    # 获客靠开发者社区与 SEO；启动只有服务器与上游调用费；
+    # 窗口正开着——agent 联网需求刚起量。
+    "search1api": {"tech": 3, "distribution": 3, "capital": 2, "timing": 2},
 }
 
 
