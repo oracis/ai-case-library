@@ -196,10 +196,13 @@ def build_tags(c):
 
 def build_body(c):
     h = (c.get("metrics") or {}).get("headline") or ""
+    # 小红书种草口径（薛红笙路数）：第一屏就要有钩子——
+    # 反差 / 具体数字 / 一句话痛点，别上来就"拆一个案例"这种叙述腔。
     hook_pool = [
-        "花 3 分钟，看一个被明码标价挂出来卖的海外小生意。",
-        "又一个海外一人公司：收入是真的，挂牌价也是真的。",
-        "拆一个海外小生意——它赚多少、为什么成立、值不值得抄。",
+        "一个人 + 现成的上游，就能开这门生意，收入是真的👇",
+        "明码标价挂牌出售的海外小生意，我把它的账算给你看👇",
+        "不写代码也能做：这门生意靠的是转售，不是技术👇",
+        "又一个一人公司：收入是真的，成本结构比你想的薄👇",
     ]
     hook = hook_pool[sum(ord(x) for x in c.get("id", "")) % len(hook_pool)]
     why = [x.strip() for x in (c.get("why_it_works") or []) if x.strip()]
@@ -224,7 +227,10 @@ def build_body(c):
         cal = _clip(h, 56)
         if cal:
             parts += ["", "📊 口径照实说：" + cal + "（来源：TrustMRR 公开挂牌页）"]
-        parts += ["", "完整拆解在公众号「万物解释者」，每周更新。"]
+        # 结尾要互动（评论区是小红书推荐权重的一部分）；
+        # 且**不能带站外导流**——小红书对"引流公众号/站外"判得比微信严，
+        # 早期版本那句"完整拆解在公众号…"必须删掉。
+        parts += ["", "你觉得这门生意值不值得抄？评论区聊聊👇"]
         return "\n".join(parts)
 
     tail = "\n" + " ".join(build_tags(c))
@@ -608,30 +614,119 @@ def cmd_preview(_args):
 
 PUB_URL = "https://creator.xiaohongshu.com/publish/publish?source=official"
 
+# 2026-09-25 实测 DOM（小红书 creator 网页版，图文流程）：
+#   默认停在「上传视频」tab，必须先切到「上传图文」才会出现编辑表单；
+#   表单 = 标题 input.d-text[placeholder*="标题"] + 正文 .tiptap.ProseMirror
+#   图文的 file input 在 .img-list 里（别抓到视频区的那个）。
+# 注意：这三个字符串会被插进 JS，里面的引号必须用单引号，
+# 否则和外层双引号撞车 → querySelector 抛错 → eval 返回 None（2026-09-25 实测）。
+SEL_TITLE = "input.d-text[placeholder*='标题']"
+SEL_BODY = ".tiptap.ProseMirror[contenteditable='true']"
+SEL_FILE = '.img-list input[type=file]'
+SEL_FILE_ANY = 'input[type=file]'   # 图文页刚切开时还没有 .img-list
+SEL_IMG = '.img-list img'
 
-def _pub_js_fill(title, body):
-    return (
-        "(function(){var out=[];"
-        "var ti=document.querySelector('input[placeholder*=\"标题\"],"
-        "#title-textarea, .titleInput input, textarea[placeholder*=\"标题\"]');"
-        "if(ti){if(ti.tagName==='TEXTAREA'){var s=Object.getOwnPropertyDescriptor("
-        "window.HTMLTextAreaElement.prototype,'value');s.set.call(ti,%s);}"
-        "else{var s=Object.getOwnPropertyDescriptor("
-        "window.HTMLInputElement.prototype,'value');s.set.call(ti,%s);}"
-        "ti.dispatchEvent(new Event('input',{bubbles:true}));out.push('title');}"
-        "var ed=document.querySelector('.ql-editor[contenteditable=\"true\"],"
-        "#post-textarea, [contenteditable=\"true\"][data-placeholder],"
-        "textarea[placeholder*=\"正文\"]');"
-        "if(ed){if(ed.tagName==='TEXTAREA'){var s2=Object.getOwnPropertyDescriptor("
-        "window.HTMLTextAreaElement.prototype,'value');"
-        "s2.set.call(ed,%s);}"
-        "else{ed.focus();document.execCommand('insertText',false,%s);}"
-        "ed.dispatchEvent(new Event('input',{bubbles:true}));out.push('body');}"
-        "return JSON.stringify(out);})()"
-        % (json.dumps(title, ensure_ascii=False),
-           json.dumps(title, ensure_ascii=False),
-           json.dumps(body, ensure_ascii=False),
-           json.dumps(body, ensure_ascii=False)))
+
+def _js_switch_photo_tab():
+    """点「上传图文」tab；已经图文就什么都不做。"""
+    # 进了编辑器视图后 .creator-tab 会整个消失，所以先看有没有编辑区。
+    return """(function(){
+  if ((document.querySelector('.edit-container') ||
+       document.querySelector('.tiptap')) &&
+      location.href.indexOf('target=image') >= 0) {
+    return JSON.stringify({ok:true, active:true, editor:true, url:location.href});
+  }
+  var act = document.querySelector('.creator-tab.active');
+  if (act && (act.innerText||'').trim() === '上传图文') {
+    return JSON.stringify({ok:true, active:true, url:location.href});
+  }
+  var el = [].slice.call(document.querySelectorAll('.creator-tab'))
+    .filter(function(e){ return (e.innerText||'').trim() === '上传图文'; })[0];
+  if (!el) return JSON.stringify({ok:false, why:'no_tab'});
+  el.click();
+  return JSON.stringify({ok:true, active:false, url:location.href});
+})()"""
+
+
+def _js_fill_title(title):
+    """标题：input 走原生 value setter + input 事件（Vue 能收到）。"""
+    return ("""(function(){
+  var ti = document.querySelector("%s");
+  if (!ti) return JSON.stringify({ok:false, why:'no_title_el'});
+  var s = Object.getOwnPropertyDescriptor(
+    window.HTMLInputElement.prototype, 'value');
+  s.set.call(ti, %s);
+  ti.dispatchEvent(new Event('input', {bubbles:true}));
+  return JSON.stringify({ok:true, len:ti.value.length});
+})()""" % (SEL_TITLE, json.dumps(title, ensure_ascii=False)))
+
+
+def _js_fill_body(body):
+    """正文：tiptap/ProseMirror 不吃原生 value setter，按段 insertText。"""
+    lines = [l for l in body.split("\n")]
+    return ("""(function(){
+  var ed = document.querySelector("%s");
+  if (!ed) return JSON.stringify({ok:false, why:'no_editor'});
+  ed.focus();
+  var lines = %s, ok = 0;
+  for (var i = 0; i < lines.length; i++) {
+    try {
+      document.execCommand('insertText', false,
+        lines[i] + (i < lines.length - 1 ? '\\n' : ''));
+      ok++;
+    } catch (e) {}
+  }
+  ed.dispatchEvent(new Event('input', {bubbles:true}));
+  return JSON.stringify({ok:true, lines:lines.length, inserted:ok,
+                         len:(ed.innerText||'').length});
+})()""" % (SEL_BODY, json.dumps(lines, ensure_ascii=False)))
+
+
+def _js_open_topic():
+    """点编辑区「话题」按钮，打开话题选择浮层。"""
+    return """(function(){
+  var btns = [].slice.call(
+    document.querySelectorAll('.contentBtn, .edit-btn'));
+  var b = btns.filter(function(e){
+    return (e.innerText||'').trim() === '话题'; })[0];
+  if (!b) return JSON.stringify({ok:false, why:'no_topic_btn'});
+  b.click();
+  return JSON.stringify({ok:true});
+})()"""
+
+
+def _js_topic_type(tag):
+    """在话题浮层输入框里敲 #标签（焦点已在浮层里时应直接生效）。"""
+    return ("""(function(){
+  var sel = document.querySelector('.d-select-input-filter input, .d-select-input-filter textarea');
+  if (!sel) return JSON.stringify({ok:false, why:'no_topic_input'});
+  sel.focus();
+  try { document.execCommand('insertText', false, %s); } catch (e) {}
+  sel.dispatchEvent(new Event('input', {bubbles:true}));
+  return JSON.stringify({ok:true, len:(sel.value||'').length});
+})()""" % json.dumps("#" + tag.lstrip("#"), ensure_ascii=False))
+
+
+def _js_topic_pick():
+    """回车后选第一个候选话题，然后关掉浮层。"""
+    return """(function(){
+  var item = document.querySelector('.d-select-item, .d-select-option, '
+    + 'li[class*=d-select]');
+  if (item) { item.click(); return JSON.stringify({ok:true, picked:true}); }
+  return JSON.stringify({ok:false, why:'no_candidate'});
+})()"""
+
+
+def _wait(sub, js, want, tries=30, gap=1.0, label=""):
+    for _ in range(tries):
+        try:
+            r = sub.eval(js)
+            if want(r):
+                return r
+        except Exception:
+            pass
+        time.sleep(gap)
+    return None
 
 
 def cmd_publish(args):
@@ -667,28 +762,109 @@ def cmd_publish(args):
         url = sub.eval("location.href")
     if "login" in url or "passport" in url:
         raise SystemExit("该 Chrome 还没登录小红书，请先人工登录后再跑 publish。")
-    time.sleep(2)
-    r = json.loads(sub.eval(_pub_js_fill(note["title"], note["body"]),
-                            refresh_context=True))
-    if "title" not in r or "body" not in r:
-        print("[warn] 标题/正文没有全部填上（%s）——网页版选择器可能变了，"
-              "请到浏览器里人工确认。" % r)
+
+    # 默认重新导航到发布页：编辑区的图/字都只是本地状态，留着只会越叠越多。
+    # 想接着上一次的编辑继续，加 --keep。
+    if not getattr(args, "keep", False):
+        sub.send("Page.navigate", {"url": PUB_URL})
+        time.sleep(6)
+
+    # ---- 1) 切到「上传图文」tab（默认停在视频 tab，没有编辑表单）----
+    r = json.loads(sub.eval(_js_switch_photo_tab(), refresh_context=True))
+    if not r.get("ok"):
+        raise SystemExit("[err] 找不到「上传图文」tab：%s" % r)
+    # 切 tab 后 DOM 是异步替换的；注意 .img-list 是「传了图之后」才出现的，
+    # 所以这里只能等裸的 input[type=file]（2026-09-25 实测）。
+    if _wait(sub, "document.querySelectorAll('%s').length" % SEL_FILE_ANY,
+             lambda v: int(v or 0) > 0, tries=20, gap=1.0) is None:
+        raise SystemExit(
+            "[err] 切到图文 tab 后 20 秒仍没有 file input，页面结构可能又变了。")
+
+    # ---- 2) 逐张传图（图文的 file input 在 .img-list 下）----
     for fn in note["images"]:
         p = os.path.abspath(os.path.join(d, fn))
         q = sub.send("DOM.getDocument", {"depth": 0})
         root = (q.get("result") or {}).get("root", {}).get("nodeId")
-        n = sub.send("DOM.querySelector", {
-            "nodeId": root, "selector": "input[type=file]"})
+        n = sub.send("DOM.querySelector",
+                     {"nodeId": root, "selector": SEL_FILE})
         nid = (n.get("result") or {}).get("nodeId")
-        if nid:
-            sub.send("DOM.setFileInputFiles", {"nodeId": nid, "files": [p]})
-            time.sleep(2)
+        if not nid:      # 还没传过图 → 用裸 input
+            n = sub.send("DOM.querySelector",
+                         {"nodeId": root, "selector": SEL_FILE_ANY})
+            nid = (n.get("result") or {}).get("nodeId")
+        if not nid:
+            print("[warn] 没找到图文 file input，跳过 %s（请手动传）" % fn)
+            continue
+        before = int(sub.eval("document.querySelectorAll('%s').length" % SEL_IMG)
+                     or 0)
+        sub.send("DOM.setFileInputFiles", {"nodeId": nid, "files": [p]})
+        got = _wait(
+            sub, "document.querySelectorAll('%s').length" % SEL_IMG,
+            lambda v, b=before: (int(v or 0) > b), tries=45, gap=1.0)
+        if got is None:
+            print("[warn] %s 上传没被识别（列表没增加），可能要手动传" % fn)
         else:
-            print("[warn] 没找到 input[type=file]，图片需手动传：", fn)
+            print("  图片已加：%s（第 %s/%s 张）"
+                  % (fn, int(got or 0), len(note["images"])))
+
+    # ---- 3) 等编辑表单出现 ----
+    if _wait(sub, "!!document.querySelector('.edit-container')",
+             lambda v: v and v != "false") is None:
+        raise SystemExit(
+            "[err] 等了 30 秒编辑表单还没出来。图传完没？去浏览器里看一眼。")
+
+    # ---- 4) 标题 / 正文 ----
+    r = json.loads(sub.eval(_js_fill_title(note["title"])))
+    if not r.get("ok"):
+        print("[warn] 标题没填上：%s。请到浏览器里手动填。" % r)
+    r = json.loads(sub.eval(_js_fill_body(note["body"])))
+    if not r.get("ok"):
+        print("[warn] 正文没填上：%s。请到浏览器里手动填。" % r)
+    else:
+        print("  正文已填：%s 行，编辑器内 %s 字" % (r.get("inserted"),
+                                                    r.get("len")))
+
+    # ---- 5) 话题（默认尝试自动加，失败只提示，不阻断）----
+    tags = note.get("tags") or []
+    if tags and not getattr(args, "no_tags", False):
+        sub.eval(_js_open_topic())
+        time.sleep(1.5)
+        for tag in tags:
+            if "#" not in tag:
+                tag = "#" + tag.lstrip("#")
+            r = json.loads(sub.eval(_js_topic_type(tag.lstrip("#"))))
+            if not r.get("ok"):
+                print("[warn] 话题框没打开，%s 请手加（正文里已带同名 #）" % tag)
+                break
+            time.sleep(1.2)
+            # 发真实回车（ProseMirror 只认 keydown，合成 KeyboardEvent 不稳）
+            for typ, extra in (("keyDown", {"text": "\r", "nativeVirtualKeyCode": 13}),
+                               ("keyUp", {})):
+                sub.send("Input.dispatchKeyEvent",
+                         dict({"type": typ, "key": "Enter", "code": "Enter",
+                               "windowsVirtualKeyCode": 13}, **extra))
+            time.sleep(1.2)
+            p = json.loads(sub.eval(_js_topic_pick()))
+            if not p.get("ok"):
+                print("[warn] %s 没有候选，跳过" % tag)
+            time.sleep(0.8)
+        try:
+            sub.send("Input.dispatchKeyEvent",
+                     {"type": "keyDown", "key": "Escape",
+                      "code": "Escape", "windowsVirtualKeyCode": 27})
+            sub.send("Input.dispatchKeyEvent", {"type": "keyUp",
+                                                "key": "Escape",
+                                                "code": "Escape",
+                                                "windowsVirtualKeyCode": 27})
+        except Exception:
+            pass
+
+    # ---- 6) 提交 ----
     if args.dry:
-        print("DRY：已预填标题/正文/图片，未点任何按钮。去浏览器里检查。")
+        print("DRY：标题/正文/图片/话题都已就位，未点任何按钮。"
+              "请到浏览器里检查（标签页已给你留在最前）。")
         return
-    btn = "存草稿" if not args.yes else "发布"
+    btn = "发布" if args.yes else "存草稿"
     ok = wp._click_text_anywhere(sub, btn)
     print(("已点「%s」（%s）。请回浏览器确认成稿。" % (btn, ok)) if ok else
           ("[warn] 没找到「%s」按钮，请人工操作。" % btn))
@@ -732,6 +908,10 @@ def main():
     q.add_argument("--case", required=True)
     q.add_argument("--dry", action="store_true")
     q.add_argument("--yes", action="store_true")
+    q.add_argument("--no-tags", action="store_true",
+                   help="不自动加话题（正文末尾已带 #标签，可省）")
+    q.add_argument("--keep", action="store_true",
+                   help="沿用当前编辑页状态（默认重新导航，避免图/字叠加）")
     q.set_defaults(fn=cmd_publish)
     args = ap.parse_args()
     args.fn(args)
