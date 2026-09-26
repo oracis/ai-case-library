@@ -160,13 +160,53 @@ def _hard_clip(s, n):
     return cut[:best + 1].rstrip() if best >= 0 else cut.rstrip()
 
 
+OVERRIDES_PATH = os.path.join(ROOT, "data", "xhs_title_overrides.json")
+_OVERRIDES_CACHE = None
+
+
+def _title_overrides():
+    """标题覆盖表（xhs_ai_titles.py 产出）；文件缺失/损坏时当空表。"""
+    global _OVERRIDES_CACHE
+    if _OVERRIDES_CACHE is None:
+        try:
+            _OVERRIDES_CACHE = json.load(open(OVERRIDES_PATH, encoding="utf-8"))
+        except Exception:                                  # noqa: BLE001
+            _OVERRIDES_CACHE = {}
+    return _OVERRIDES_CACHE
+
+
+def _title_desc(desc, budget):
+    """把一句话业务描述压到 budget 字内：取主干 → 去引号补充 → 硬切。
+
+    之前 one_liner 一超预算就整体退到「海外小生意」，36 条标题全是同一个
+    兜底词。实际各案例的 one_liner 都有现成主干（冒号/破折号前那段），
+    压一压几乎都能进标题。
+    """
+    s = re.sub(r"（[^）]*）", "", desc or "").strip(" ，,。")
+    if len(s) > budget:
+        for sep in ("——", "—", "：", "；", "。", "，", ","):
+            parts = s.split(sep)
+            head = parts[0].strip(" ，,。")
+            if len(parts) > 1 and 4 <= len(head) <= budget:
+                s = head
+                break
+    if len(s) > budget:
+        s2 = re.sub(r"「[^」]*」", "", s).strip(" ，,。")
+        if len(s2) >= 4:
+            s = s2
+    return _hard_clip(s, budget)
+
+
 def make_xhs_title(c, used=None):
     """<=20 字、不带省略号的标题。
 
-    金额前置，口径跟原文走：原文写「成交」就写成交，写 MRR 就归到月收；
-    desc 塞不下就退到「海外小生意」这类通用尾缀，绝不出现「…」。
-    `used` 是批量生成时已用标题集合，撞车就依次退到下一候选。
+    优先级：data/xhs_title_overrides.json（AI/人工覆盖）→ 规则生成
+    （desc 先压缩主干再进标题；压缩后仍放不下才依次退到产品名、通用尾缀），
+    绝不出现「…」。`used` 是批量生成时已用标题集合，撞车就依次退到下一候选。
     """
+    ov = _title_overrides().get(c.get("id") or "")
+    if ov and 4 <= len(ov) <= TITLE_MAX:
+        return ov
     h = (c.get("metrics") or {}).get("headline") or ""
     amt = first_amount(h)
     desc = short_desc(c)
@@ -176,7 +216,10 @@ def make_xhs_title(c, used=None):
         ("月收%s" % amt) if amt else "")
     cands = []
     if lead:
-        cands.append("%s：%s" % (lead, desc))
+        budget = TITLE_MAX - len(lead) - 1
+        cands.append("%s：%s" % (lead, _title_desc(desc, budget)))
+        if name:
+            cands.append("%s：%s" % (lead, name))
         cands += ["%s：%s" % (lead, g) for g in generic]
     if name:
         cands.append("%s：%s" % (name, desc))
