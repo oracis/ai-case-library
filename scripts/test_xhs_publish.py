@@ -2,6 +2,8 @@
 """xhs_publish 纯函数测试（文案改写 / 标题预算 / 金额压缩 / HTML 转义）。"""
 import sys
 import os
+import json
+import tempfile
 import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -179,6 +181,83 @@ class TestDraft(unittest.TestCase):
             def eval(self, expr, refresh_context=False):
                 raise RuntimeError("ctx gone")
         self.assertIsNone(x._draft_signal(S()))
+
+
+class TestPickNext(unittest.TestCase):
+    """「发最近的 n 条没发过的」：待发队列与模糊找案例。"""
+
+    def _with_cards(self, tmp, ids):
+        """在 tmp 下造 note.json，让 pending_cases 认它们是「已建卡片」。"""
+        for i in ids:
+            d = os.path.join(tmp, i)
+            os.makedirs(d, exist_ok=True)
+            with open(os.path.join(d, "note.json"), "w", encoding="utf-8") as f:
+                json.dump({"id": i}, f)
+
+    def test_pending_excludes_marked(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            old = x.OUT
+            x.OUT = tmp
+            try:
+                self._with_cards(tmp, ["a", "b", "c"])
+                cases = [{"id": "a"}, {"id": "b"}, {"id": "c"}]
+                x.load_cases = lambda: cases
+                x._published_ids = lambda: ["b"]
+                x._drafted_ids = lambda: []
+                # 默认只要已建卡片的，且排除已发布/已进草稿的
+                self.assertEqual([c["id"] for c in x.pending_cases()], ["c", "a"])
+            finally:
+                x.OUT = old
+
+    def test_pending_skips_drafted_and_voklit(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            old = x.OUT
+            x.OUT = tmp
+            try:
+                self._with_cards(tmp, ["a"])
+                cases = [{"id": "a"}, {"id": "voklit"}]
+                x.load_cases = lambda: cases
+                x._published_ids = lambda: []
+                x._drafted_ids = lambda: ["a"]
+                self.assertEqual(x.pending_cases(), [])
+            finally:
+                x.OUT = old
+
+    def test_pending_fresh_ignores_missing_cards(self):
+        cases = [{"id": "a"}, {"id": "b"}]
+        x.load_cases = lambda: cases
+        x._published_ids = lambda: []
+        x._drafted_ids = lambda: []
+        # need_cards=False：没 note.json 也算，交给出发前现造
+        self.assertEqual([c["id"] for c in x.pending_cases(need_cards=False)],
+                         ["b", "a"])
+
+    def test_fuzzy_by_exact_id(self):
+        cases = [{"id": "bustem", "name": "Bustem"}]
+        x.load_cases = lambda: cases
+        self.assertEqual(x.find_case_fuzzy("bustem")["id"], "bustem")
+
+    def test_fuzzy_by_name_fragment(self):
+        cases = [{"id": "kibu", "name": "Kibu"},
+                 {"id": "bustem", "name": "Bustem"}]
+        x.load_cases = lambda: cases
+        self.assertEqual(x.find_case_fuzzy("buste")["id"], "bustem")
+
+    def test_fuzzy_case_insensitive(self):
+        cases = [{"id": "kibu", "name": "Kibu"}]
+        x.load_cases = lambda: cases
+        self.assertEqual(x.find_case_fuzzy("KIBU")["id"], "kibu")
+
+    def test_fuzzy_ambiguous_raises(self):
+        cases = [{"id": "aa-x", "name": "A x"}, {"id": "aa-y", "name": "A y"}]
+        x.load_cases = lambda: cases
+        with self.assertRaises(SystemExit):
+            x.find_case_fuzzy("aa")
+
+    def test_fuzzy_no_match_raises(self):
+        x.load_cases = lambda: [{"id": "kibu", "name": "Kibu"}]
+        with self.assertRaises(SystemExit):
+            x.find_case_fuzzy("不存在的东西")
 
 
 if __name__ == "__main__":

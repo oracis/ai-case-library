@@ -79,6 +79,26 @@ def find_case(cid):
     raise SystemExit("case not found: %s" % cid)
 
 
+def find_case_fuzzy(q):
+    """认名字/标题片段，不用背 id。「bustem」「网页小组件」「Pieter」都行。"""
+    cs = load_cases()
+    for c in cs:                                   # 精确 id 优先
+        if c.get("id") == q:
+            return c
+    low = q.lower()
+    hit = [c for c in cs
+           if low in (c.get("id") or "").lower()
+           or low in (c.get("name") or "").lower()
+           or low in (c.get("title") or "" if isinstance(c.get("title"), str) else "").lower()]
+    if not hit:
+        raise SystemExit("没匹配到案例：%s" % q)
+    if len(hit) > 1:
+        raise SystemExit("「%s」匹配到多个案例，请写全一点：\n  %s"
+                         % (q, "\n  ".join("%s —— %s" % (c["id"], c.get("name", ""))
+                                           for c in hit)))
+    return hit[0]
+
+
 # ---- 纯函数：文案改写 ------------------------------------------------------
 
 def esc(s):
@@ -863,13 +883,16 @@ def _save_draft(sub, note):
 
 
 def cmd_publish(args):
-    if getattr(args, "all", False):
-        return _publish_all(args)
-    c = find_case(args.case)
-    d = os.path.join(OUT, args.case)
+    # 没写 --case 就走「发最近的没发过的」：默认 1 条（--near 3 = 3 条）
+    if not getattr(args, "case", None):
+        return _publish_batch(args)
+    c = find_case_fuzzy(args.case)
+    d = os.path.join(OUT, c["id"])
     nj = os.path.join(d, "note.json")
     if not os.path.isfile(nj):
         raise SystemExit("先 build：out/xhs/%s/note.json 不存在" % args.case)
+    if not os.path.isfile(nj):
+        build_case(BUILD_PORT, c)          # 没生成过卡片就现造一张
     note = json.load(open(nj, encoding="utf-8"))
     if not _port_up(PUB_PORT):
         raise SystemExit(
@@ -1043,6 +1066,7 @@ def cmd_publish(args):
     if not args.yes:
         # 页面没有「存草稿」按钮：离开编辑页小红书会自动暂存（2026-09-26 实测）。
         ok, _ = _save_draft(sub, note)
+        mark_drafted(c["id"])
         print(("已存为草稿，去创作中心「草稿箱」里审核后再发"
                "（草稿是浏览器本地的，换设备/清缓存就没了）。") if ok else
               ("[warn] 没确认到草稿。可手动关掉发布页暂存，或加 --yes 直接发。"))
@@ -1084,17 +1108,22 @@ def cmd_publish(args):
     print("[warn] 点击后 30 秒没跳 success 页，请回浏览器确认是否成稿。")
 
 
-def _publish_all(args):
-    """把全部案例依次推进发布页（默认存草稿，--yes 才真发）。"""
-    published = _published_ids()
-    skip = {"voklit"}                      # 已真发过的小红书笔记
-    skip |= {s.strip() for s in (args.skip or "").split(",") if s.strip()}
-    skip |= set(published)
-    todo = [c for c in load_cases() if c["id"] not in skip]
+def _publish_batch(args):
+    """「发最近的 n 条没发过的」：默认 1 条；--all 全发；--case 已在 cmd_publish 分流。
+
+    默认只存草稿，--yes 才真发。缺卡片的案例会在发之前现造（build_case）。
+    """
+    if args.all:
+        todo = [c for c in pending_cases(need_cards=True)]
+    else:
+        todo = pending_cases(need_cards=False)[: max(1, args.near)]
     if not todo:
-        print("没有待处理的案例。")
+        print("没有待发的案例了（库里 %d 条都已进过小红书）。" % len(load_cases()))
         return
-    print("待处理 %d 条（跳过已发布：%s）" % (len(todo), ", ".join(sorted(skip)) or "无"))
+    print("待发 %d 条，按库里最新在最前：" % len(todo))
+    for c in todo:
+        has = os.path.isfile(os.path.join(OUT, c["id"], "note.json"))
+        print("  · %-24s %s" % (c["id"], "（现造卡片）" if not has else ""))
     fail = []
     for i, c in enumerate(todo, 1):
         print("\n[%d/%d] %s —— %s" % (i, len(todo), c["id"], c.get("name", "")))
@@ -1114,7 +1143,22 @@ def _publish_all(args):
             fail.append(c["id"])
     print("\n完成：%d 条，失败 %d 条" % (len(todo) - len(fail), len(fail)))
     if fail:
-        print("失败清单：%s" % ", ".join(fail))
+        print("失败清单（重跑即可，会跳过已成的）：%s" % ", ".join(fail))
+
+
+def cmd_queue(args):
+    """看看接下来会发哪几条（不连浏览器、不花钱）。"""
+    todo = pending_cases(need_cards=not args.fresh)
+    n = max(1, args.near)
+    if not todo:
+        print("待发队列是空的。")
+        return
+    print("待发 %d 条（最新的在最上），当前取前 %d 条：\n" % (len(todo), n))
+    for c in todo[:n]:
+        has = os.path.isfile(os.path.join(OUT, c["id"], "note.json"))
+        print("  %-24s %-28s %s" % (c["id"], c.get("name", ""),
+                                    "" if has else "（没卡片，会现造）"))
+    print("\n要发就跑：python scripts/xhs_publish.py publish --near %d" % n)
 
 
 def _pub_file():
@@ -1135,7 +1179,19 @@ def _published_ids():
 
 
 def mark_published(cid):
-    p = _pub_file()
+    _mark(_pub_file(), cid)
+
+
+def _draft_file():
+    return os.path.join(ROOT, "data", "xhs_drafts.json")
+
+
+def mark_drafted(cid):
+    """进过草稿箱也算「发过了」，避免重复生成草稿（2026-09-26 清重复踩过）。"""
+    _mark(_draft_file(), cid)
+
+
+def _mark(p, cid):
     try:
         d = json.load(open(p, encoding="utf-8")) if os.path.isfile(p) else []
     except Exception:
@@ -1148,6 +1204,37 @@ def mark_published(cid):
     with open(p, "w", encoding="utf-8") as f:
         json.dump([{"id": i, "at": time.strftime("%Y-%m-%d %H:%M")} for i in ids],
                   f, ensure_ascii=False, indent=2)
+
+
+def _drafted_ids():
+    p = _draft_file()
+    if not os.path.isfile(p):
+        return []
+    try:
+        d = json.load(open(p, encoding="utf-8"))
+    except Exception:
+        return []
+    if isinstance(d, dict):
+        return list(d.keys())
+    return [x.get("id") for x in d if isinstance(x, dict) and x.get("id")]
+
+
+def pending_cases(need_cards=True):
+    """待发队列：还没进过小红书的案例，库里最新的排最前。
+
+    need_cards=True 时只算已 build 过（有 note.json）的；
+    False 则连没生成卡片的也算，交给出发前自动 build。
+    """
+    skip = set(_published_ids()) | set(_drafted_ids()) | {"voklit"}
+    built = set()
+    if os.path.isdir(OUT):
+        for d in os.listdir(OUT):
+            if os.path.isfile(os.path.join(OUT, d, "note.json")):
+                built.add(d)
+    todo = [c for c in load_cases() if c["id"] not in skip]
+    if need_cards:
+        todo = [c for c in todo if c["id"] in built]
+    return todo[::-1]          # 倒序：最近录入的案例排最前
 
 
 # ---- build -----------------------------------------------------------------
@@ -1184,12 +1271,19 @@ def main():
     b.set_defaults(fn=cmd_build)
     p = sub.add_parser("preview")
     p.set_defaults(fn=cmd_preview)
-    q = sub.add_parser("publish")
-    q.add_argument("--case", help="案例 id")
+    qq = sub.add_parser("queue", help="看看接下来会发哪几条（不动浏览器）")
+    qq.add_argument("--near", type=int, default=5, help="预览条数，默认 5")
+    qq.add_argument("--fresh", action="store_true",
+                    help="把还没生成卡片的案例也算进来")
+    qq.set_defaults(fn=cmd_queue)
+    q = sub.add_parser("publish",
+                       help="不带参数 = 发最近 1 条没发过的（--near 3 = 3 条）")
+    q.add_argument("--case", help="案例 id，也认名字/标题片段（不用背 id）")
+    q.add_argument("--near", type=int, default=1,
+                   help="发最近几条没发过的，默认 1")
     q.add_argument("--all", action="store_true",
-                   help="publish --all：把全部案例依次存成草稿（默认跳过 "
-                        "想在 --case 里指定的；--skip 可再排除）")
-    q.add_argument("--skip", help="--all 时额外跳过的 id，逗号分隔")
+                   help="publish --all：把其余全部依次存成草稿")
+    q.add_argument("--skip", help="额外跳过的 id，逗号分隔")
     q.add_argument("--dry", action="store_true")
     q.add_argument("--yes", action="store_true",
                    help="真发布（默认只存草稿）")
