@@ -1025,8 +1025,14 @@ def build_one(c, no):
     return "updated" if old is not None else "built"
 
 
-def cmd_build():
+def cmd_build(args=None):
     cases = load_cases()
+    single = getattr(args, "case", None) if args is not None else None
+    if single:
+        hit = [c for c in cases if c["id"] == single]
+        if not hit:
+            raise SystemExit("没有 case id=%s（不回退全量，避免误改已发稿）" % single)
+        cases = hit
     reg = issue_registry(cases)
     built = updated = same = nosrc = 0
     for c in cases:
@@ -3289,7 +3295,8 @@ def cmd_refresh(args):
 def main():
     ap = argparse.ArgumentParser(description="公众号拆解自动发布管线")
     sub = ap.add_subparsers(dest="cmd", required=True)
-    sub.add_parser("build", help="生成缺的发布就绪 HTML")
+    sub.add_parser("build", help="生成缺的发布就绪 HTML").add_argument(
+        "--case", help="只重建这一条（避免全量重写，用于刚发过稿的场景）")
     sub.add_parser("queue", help="打印实时待发队列")
     sub.add_parser("plan", help="生成动态发布队列 md")
     pi = sub.add_parser("inspect", help="校验单文件抽取")
