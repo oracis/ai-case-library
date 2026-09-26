@@ -260,5 +260,68 @@ class TestPickNext(unittest.TestCase):
             x.find_case_fuzzy("不存在的东西")
 
 
+class TestDraftMatching(unittest.TestCase):
+    """草稿箱 ←→ 案例的对账（标题被改写过，靠 note.json 的 title 认亲）。"""
+
+    def test_norm_title_strips_punct(self):
+        a = x.norm_title("月收$398K：海外小生意")
+        self.assertEqual(a, x.norm_title("月收 $398K : 海外小生意"))
+        self.assertEqual(a, x.norm_title("月收$398K：海外小生意 #话题#"))
+
+    def test_norm_title_lowercases(self):
+        self.assertEqual(x.norm_title("AI 一键生成演示文稿"),
+                         x.norm_title("ai一键生成演示文稿"))
+
+    def test_match_exact(self):
+        drafts = [{"title": "月收$6.2K：网页小组件", "saved": "21:54:44"}]
+        cases = [{"id": "divine-widgets", "name": "网页小组件"}]
+        with tempfile.TemporaryDirectory() as tmp:
+            old = x.OUT
+            x.OUT = tmp
+            try:
+                d = os.path.join(tmp, "divine-widgets")
+                os.makedirs(d)
+                json.dump({"id": "divine-widgets",
+                           "title": "月收$6.2K：网页小组件"},
+                          open(os.path.join(d, "note.json"), "w",
+                               encoding="utf-8"))
+                m, o = x.match_drafts(drafts, cases)
+            finally:
+                x.OUT = old
+        self.assertEqual([d2["id"] for d2 in m], ["divine-widgets"])
+        self.assertEqual(o, [])
+
+    def test_match_orphan(self):
+        drafts = [{"title": "一条认不出来的稿子", "saved": "21:54:44"}]
+        matched, orphans = x.match_drafts(drafts, [])
+        self.assertEqual(matched, [])
+        self.assertEqual(len(orphans), 1)
+
+    def test_match_fuzzy_contains(self):
+        drafts = [{"title": "月收$1.03M：海外小生意", "saved": "21:39:20"}]
+        cases = [{"id": "marc-lou-portfolio", "name": "Marc Lou 的产品矩阵"}]
+        with tempfile.TemporaryDirectory() as tmp:
+            old = x.OUT
+            x.OUT = tmp
+            try:
+                d = os.path.join(tmp, "marc-lou-portfolio")
+                os.makedirs(d)
+                json.dump({"id": "marc-lou-portfolio",
+                           "title": "月收$1.03M 海外小生意"},
+                          open(os.path.join(d, "note.json"), "w",
+                               encoding="utf-8"))
+                m, _ = x.match_drafts(drafts, cases)
+            finally:
+                x.OUT = old
+        self.assertEqual([d2["id"] for d2 in m], ["marc-lou-portfolio"])
+
+    def test_norm_title_saved_time(self):
+        # 卡片里「保存于2026-09-26 21:54:44」要能抠出时间
+        import re
+        m = re.search(r"保存于\s*([0-9:\-\s]+)", "保存于2026-09-26 21:54:44")
+        self.assertTrue(m)
+        self.assertEqual(m.group(1).strip(), "2026-09-26 21:54:44")
+
+
 if __name__ == "__main__":
     unittest.main()

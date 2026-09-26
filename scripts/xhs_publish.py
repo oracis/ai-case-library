@@ -636,6 +636,7 @@ def cmd_preview(_args):
 # ---- publish（实验性）-------------------------------------------------------
 
 PUB_URL = "https://creator.xiaohongshu.com/publish/publish?source=official"
+DRAFT_URL = "https://creator.xiaohongshu.com/publish/publish?target=draft"
 
 # 2026-09-25 实测 DOM（小红书 creator 网页版，图文流程）：
 #   默认停在「上传视频」tab，必须先切到「上传图文」才会出现编辑表单；
@@ -1146,6 +1147,196 @@ def _publish_batch(args):
         print("失败清单（重跑即可，会跳过已成的）：%s" % ", ".join(fail))
 
 
+JS_CLICK_CHAIN = """
+function jclick(el){
+  var chain=[el];
+  for(var p=el.parentElement; p && chain.length<5; p=p.parentElement) chain.push(p);
+  chain.forEach(function(x){
+    x.dispatchEvent(new MouseEvent('mousedown',{bubbles:true}));
+    x.dispatchEvent(new MouseEvent('mouseup',{bubbles:true}));
+    x.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true}));
+    if(x.click) x.click();
+  });
+}
+"""
+
+JS_CARDS = "(function(){%s\n" % JS_CLICK_CHAIN + """
+  var cards=[].slice.call(document.querySelectorAll('*')).filter(function(x){
+    var t=(x.innerText||'');
+    return t.indexOf('保存于')>=0 && t.indexOf('编辑')>=0 && t.indexOf('删除')>=0;
+  });
+  cards = cards.filter(function(c){
+    return !cards.some(function(o){ return o!==c && c.contains(o); });
+  });
+  return JSON.stringify(cards.map(function(c){
+    var lines=(c.innerText||'').trim().split('\\n').map(function(s){return s.trim();})
+                 .filter(Boolean);
+    var saved='';
+    for(var i=0;i<lines.length;i++){
+      var m=lines[i].match(/保存于\\s*([0-9:\\-\\s]+)/);
+      if(m){ saved=lines[i].replace(/保存于/,'').trim(); break; }
+    }
+    return {title:(lines[0]||'').replace(/^保存于\\s*/,''), saved:saved,
+            raw:lines.slice(0,3).join(' | ')};
+  }));
+})()"""
+
+
+def _draft_cdp():
+    """连上 9222 里已登录的小红书创作中心，停在草稿箱页。"""
+    cdp = wp.CDP(PUB_PORT)
+    tid = None
+    for t in cdp.list_targets():
+        if t.get("type") == "page" and "creator.xiaohongshu.com" in (t.get("url") or ""):
+            tid = t["id"]
+            break
+    if not tid:
+        tid = cdp.new_target(PUB_URL)["id"]
+        time.sleep(4)
+    sub = wp.CDP(PUB_PORT)
+    sub.connect_target(tid)
+    sub.send("Page.navigate", {"url": DRAFT_URL})
+    time.sleep(8)
+    sub.eval("1", refresh_context=True)
+    return sub
+
+
+def _js(sub, expr):
+    r = sub.eval(expr, refresh_context=True)
+    if isinstance(r, str):
+        try:
+            r = json.loads(r)
+        except (ValueError, TypeError):
+            pass
+    return r
+
+
+def fetch_drafts(sub=None):
+    """拉草稿箱里的图文草稿，最近在前：[{title, saved, raw}]。
+
+    传 sub 就用现成的连接（比如你已经开好新标签页，避开了卡死的旧 tab）。
+    """
+    if sub is None:
+        sub = _draft_cdp()
+
+    def js(e):
+        return _js(sub, e)
+
+    if js("""(function(){
+      return [].slice.call(document.querySelectorAll('*')).filter(function(x){
+        return (x.innerText||'').indexOf('保存于')>=0;}).length>0 ? 'open' : 'closed';
+    })()""") != "open":                       # 抽屉可能开着，省一次点击
+        if js("(function(){%s\n" % JS_CLICK_CHAIN + """
+          var es=[].slice.call(document.querySelectorAll('*')).filter(function(x){
+            return /^草稿箱\\(\\d+\\)$/.test((x.innerText||'').trim()) &&
+                   x.getBoundingClientRect().width>0; });
+          if(!es.length) return 'notfound';
+          jclick(es[es.length-1]);
+          return 'clicked';
+        })()""") != "clicked":
+            raise SystemExit("打不开草稿箱抽屉")
+        time.sleep(3)
+    if js("(function(){%s\n" % JS_CLICK_CHAIN + """
+      var es=[].slice.call(document.querySelectorAll('*')).filter(function(x){
+        return /图文笔记\\(\\d+\\)/.test((x.innerText||'').trim()) &&
+               (x.innerText||'').trim().length<12 &&
+               x.getBoundingClientRect().width>0; });
+      if(!es.length) return 'notfound';
+      jclick(es[es.length-1]);
+      return 'clicked';
+    })()""") != "clicked":
+        raise SystemExit("没找到「图文笔记」tab")
+    for _ in range(6):
+        time.sleep(2.5)
+        if js("[].slice.call(document.querySelectorAll('*')).filter(function(x){\n"
+              "return (x.innerText||'').indexOf('保存于')>=0;}).length"):
+            break
+    return js(JS_CARDS) or []
+
+
+def norm_title(t):
+    """标题归一：去空白/标点/话题井号，越大越好对。"""
+    t = re.sub(r"[\s\u3000]+", "", t or "")
+    t = re.sub(r"[#＃]", "", t)
+    t = re.sub(r"(话题|收藏|点赞)\s*$", "", t)   # 结尾残留的话题标签词
+    t = re.sub(r"[，,。.；;：:！!？?（）()「」“”\"'’‘·、\-—_/\\|]", "", t)
+    return t.lower()
+
+
+def match_drafts(drafts, cases=None):
+    """草稿箱条目 ←→ 案例。返回 (已对上 case_id 的, 没对上的孤儿草稿)。
+
+    小红书标题是改写过的，所以拿 out/xhs/<id>/note.json 里的 title 去比。
+    """
+    need = {}
+    if cases is None:
+        cases = load_cases()
+    for c in cases:
+        nj = os.path.join(OUT, c["id"], "note.json")
+        if not os.path.isfile(nj):
+            continue
+        with open(nj, encoding="utf-8") as f:
+            need[norm_title(json.load(f)["title"])] = c["id"]
+    matched, orphans = [], []
+    for d in drafts:
+        key = norm_title(d.get("title"))
+        cid = need.get(key)
+        if cid is None:                       # 退一步：包含匹配
+            for k, v in need.items():
+                if k and len(k) >= 6 and (k in key or key in k):
+                    cid = v
+                    break
+        (matched if cid else orphans).append(
+            {"id": cid or "", "title": d.get("title", ""),
+             "saved": d.get("saved", ""), "raw": d.get("raw", "")})
+    return matched, orphans
+
+
+def cmd_drafts(args):
+    """把草稿箱里真实的稿子拉回来对账，重建「已发记录」。"""
+    drafts = fetch_drafts()
+    if not drafts:
+        print("草稿箱里没读到任何草稿。")
+        return
+    for i, d in enumerate(drafts, 1):
+        d["seq"] = i
+    print("草稿箱里 %d 条（最近在前）：" % len(drafts))
+    for d in drafts:
+        print("  %2d. %-26s %s" % (d["seq"], d["saved"], d["title"]))
+    if args.json:
+        with open(args.json, "w", encoding="utf-8") as f:
+            json.dump(drafts, f, ensure_ascii=False, indent=2)
+        print("\n原始清单已写：%s" % args.json)
+    matched, orphans = match_drafts(drafts)
+    print("\n对上案例 %d 条，孤儿草稿（认不出案例）%d 条"
+          % (len(matched), len(orphans)))
+    if orphans:
+        for d in orphans:
+            print("  ? %s %s" % (d["saved"], d["title"]))
+    # 同一个案例可能有多份草稿，drafts 已是最近在前，这里只留最新那份
+    latest, dup = {}, []
+    for d in matched:
+        if not d["id"]:
+            continue
+        if d["id"] in latest:
+            dup.append(d)
+        else:
+            latest[d["id"]] = d
+    if dup:
+        print("\n重复草稿（同一案例多份，保留时间最新的那份）：")
+        for d in dup:
+            print("  旧 · %s  %s  → %s" % (d["saved"], d["title"], d["id"]))
+        print("  想清掉就把上面几条的时间填进 out/xhs/del_dup_drafts.py 的 TARGETS，"
+              "跑 python out/xhs/del_dup_drafts.py --go")
+    if args.write:
+        for cid in latest:
+            _mark(_draft_file(), cid)
+        print("\n已把 %d 个案例写进 data/xhs_drafts.json（待发队列会跳过它们）"
+              % len(latest))
+    else:
+        print("（dry-run。加 --write 把对上的 %d 条写进已发记录）" % len(matched))
+
+
 def cmd_queue(args):
     """看看接下来会发哪几条（不连浏览器、不花钱）。"""
     todo = pending_cases(need_cards=not args.fresh)
@@ -1271,6 +1462,12 @@ def main():
     b.set_defaults(fn=cmd_build)
     p = sub.add_parser("preview")
     p.set_defaults(fn=cmd_preview)
+    dd = sub.add_parser("drafts",
+                        help="把草稿箱里真实的稿子拉回来对账（重建已发记录）")
+    dd.add_argument("--json", help="额外把原始清单写到这个路径")
+    dd.add_argument("--write", action="store_true",
+                    help="把对上案例的写进 data/xhs_drafts.json")
+    dd.set_defaults(fn=cmd_drafts)
     qq = sub.add_parser("queue", help="看看接下来会发哪几条（不动浏览器）")
     qq.add_argument("--near", type=int, default=5, help="预览条数，默认 5")
     qq.add_argument("--fresh", action="store_true",
