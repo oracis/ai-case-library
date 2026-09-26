@@ -628,6 +628,70 @@ SEL_BODY = ".tiptap.ProseMirror[contenteditable='true']"
 SEL_FILE = '.img-list input[type=file]'
 SEL_FILE_ANY = 'input[type=file]'   # 图文页刚切开时还没有 .img-list
 SEL_IMG = '.img-list img'
+# 原创声明：内容设置面板里的开关（2026-09-26 实测）
+SEL_ORIGINAL = '.original-wrapper .d-switch, .original-wrapper input[type=checkbox]'
+
+
+def _js_original(state=True):
+    """勾/取消「原创声明」。返回当前是否勾选、是否点了一下。"""
+    return """(function(){
+  var want = %s;
+  var box = document.querySelector('.original-wrapper');
+  if (!box) return JSON.stringify({ok:false, why:'no_original_block'});
+  var sw = box.querySelector('.d-switch');
+  var cb = box.querySelector('input[type=checkbox]');
+  var on = !!(sw && sw.classList.contains('d-checked')) ||
+           (sw && /checked/.test(String(sw.className))) ||
+           !!(cb && cb.checked);
+  if (on === want) return JSON.stringify({ok:true, on:on, clicked:false});
+  (sw || cb).click();
+  return JSON.stringify({ok:true, on:on, clicked:true});
+})()""" % ("true" if state else "false")
+
+
+def _js_original_agree():
+    """原创声明须知弹窗：勾「我已阅读并同意」，并回报确认按钮是否可点。"""
+    return """(function(){
+  var wrap = [].slice.call(document.querySelectorAll('.d-checkbox'))
+    .filter(function(e){
+      return (e.innerText||'').indexOf('我已阅读并同意') >= 0; })[0];
+  if (!wrap) return JSON.stringify({ok:false, why:'no_dialog'});
+  var box = wrap.querySelector('input[type=checkbox]');
+  if (box && !box.checked) { wrap.click(); }
+  return JSON.stringify({ok:true, checked: !!(box && box.checked)});
+})()"""
+
+
+def _js_original_confirm():
+    """点须知弹窗里的「声明原创」（勾了同意才会 enabled）。"""
+    return """(function(){
+  var btn = [].slice.call(document.querySelectorAll('button'))
+    .filter(function(b){ return (b.innerText||'').trim() === '声明原创'; })[0];
+  if (!btn) return JSON.stringify({ok:false, why:'no_btn'});
+  if (btn.classList.contains('disabled') || btn.disabled) {
+    return JSON.stringify({ok:false, why:'disabled'});
+  }
+  btn.click();
+  return JSON.stringify({ok:true, clicked:true});
+})()"""
+
+
+def _js_trim_tail_jing():
+    """删掉正文末尾多余的裸 #（自动加话题失败时会在正文留下尾巴）。"""
+    return """(function(){
+  var ed = document.querySelector('.tiptap.ProseMirror[contenteditable='true']');
+  if (!ed) return JSON.stringify({ok:false, why:'no_editor'});
+  var t = ed.innerText || '';
+  if (!/[#＃]\\s*$/.test(t)) return JSON.stringify({ok:true, trimmed:0});
+  ed.focus();
+  var n = 0;
+  // 退格把尾巴清干净（ProseMirror 认真实键盘事件）
+  while (n < 30 && /[#＃]\\s*$/.test(ed.innerText || '')) {
+    document.execCommand('delete');
+    n++;
+  }
+  return JSON.stringify({ok:true, trimmed:n, tail:(ed.innerText||'').slice(-20)});
+})()"""
 
 
 def _js_switch_photo_tab():
@@ -773,7 +837,18 @@ def cmd_publish(args):
         time.sleep(6)
 
     # ---- 1) 切到「上传图文」tab（默认停在视频 tab，没有编辑表单）----
-    r = json.loads(sub.eval(_js_switch_photo_tab(), refresh_context=True))
+    # 页面是异步挂载的：navigate 完直接找 tab 会偶发失败，
+    # 这里先等 .creator-tab 出现再切，并允许点完再复查几轮。
+    if _wait(sub, "document.querySelectorAll('.creator-tab').length",
+             lambda v: int(v or 0) > 0, tries=25, gap=1.0) is None:
+        raise SystemExit(
+            "[err] 发布页 25 秒都没渲染出 tab，检查网络或登录态。")
+    r = {}
+    for _ in range(6):
+        r = json.loads(sub.eval(_js_switch_photo_tab(), refresh_context=True))
+        if r.get("ok"):
+            break
+        time.sleep(2)
     if not r.get("ok"):
         raise SystemExit("[err] 找不到「上传图文」tab：%s" % r)
     # 切 tab 后 DOM 是异步替换的；注意 .img-list 是「传了图之后」才出现的，
@@ -828,8 +903,10 @@ def cmd_publish(args):
                                                     r.get("len")))
 
     # ---- 5) 话题（默认尝试自动加，失败只提示，不阻断）----
+    # 话题保持默认关闭：话题浮层的候选选择器目前对不上，硬试会在正文末尾
+    # 留下孤立 #（实测出现过「#SaaS#」）。正文末尾本来就带同名 #标签，够了。
     tags = note.get("tags") or []
-    if tags and not getattr(args, "no_tags", False):
+    if tags and getattr(args, "tags", False):
         sub.eval(_js_open_topic())
         time.sleep(1.5)
         for tag in tags:
@@ -862,15 +939,77 @@ def cmd_publish(args):
         except Exception:
             pass
 
+    # ---- 5.5) 清尾巴 + 勾选「原创声明」（默认开，--no-original 才不勾）----
+    sub.eval(_js_trim_tail_jing(), refresh_context=True)
+    _wait(sub, "document.querySelectorAll('.original-wrapper').length",
+          lambda v: int(v or 0) > 0, tries=15, gap=1.0)
+    want = not getattr(args, "no_original", False)
+    o = {}
+    for _ in range(5):
+        o = json.loads(sub.eval(_js_original(want)))
+        if o.get("on") is want:
+            break
+        # 勾开会弹出《原创声明须知》：要勾同意再点「声明原创」才算数
+        a = json.loads(sub.eval(_js_original_agree(), refresh_context=True))
+        if a.get("ok"):
+            time.sleep(1.0)
+            c2 = json.loads(sub.eval(_js_original_confirm()))
+            if c2.get("ok"):
+                print("  原创声明：已签署须知")
+            else:
+                print("[warn] 原创须知没确认：%s" % c2)
+        time.sleep(1.5)
+    if o.get("on") is want:
+        print("  原创声明：%s%s" % ("已勾选" if want else "未勾选（按参数要求）",
+                                    "" if not o.get("clicked") else "（本次点开的）"))
+    else:
+        print("[warn] 「原创声明」没勾上：%s —— 请在浏览器里手动处理。" % o)
+
     # ---- 6) 提交 ----
     if args.dry:
         print("DRY：标题/正文/图片/话题都已就位，未点任何按钮。"
               "请到浏览器里检查（标签页已给你留在最前）。")
         return
-    btn = "发布" if args.yes else "存草稿"
-    ok = wp._click_text_anywhere(sub, btn)
-    print(("已点「%s」（%s）。请回浏览器确认成稿。" % (btn, ok)) if ok else
-          ("[warn] 没找到「%s」按钮，请人工操作。" % btn))
+    if not args.yes:
+        # 页面没有「存草稿」按钮；导航离开时小红书会自动暂存到本地草稿箱
+        # （草稿箱计数 +1 的就是这种自动暂存，见 2026-09-26 实测）。
+        print("页面没有「存草稿」按钮。直接关掉/导航走，小红书会自动暂存到"
+              "本地草稿箱；要真发布加 --yes。")
+        return
+    # 真发布：底部红色「发布」按钮查不到常规 DOM（探针 2026-09-26：
+    # 全元素搜文本「发布」只有左上角导航按钮），按 viewport 比例坐标
+    # 真实点击（截图实测 556/1080, 644/676），点击后跳 /publish/success。
+    sub.eval("""(function(){
+      [].slice.call(document.querySelectorAll('*')).forEach(function(e){
+        if (e.scrollHeight > e.clientHeight + 50 &&
+            /auto|scroll/.test(getComputedStyle(e).overflowY)) {
+          e.scrollTop = e.scrollHeight;
+        }
+      });
+      return 'ok';
+    })()""")
+    time.sleep(1)
+    iw = int(sub.eval("window.innerWidth") or 1080)
+    ih = int(sub.eval("window.innerHeight") or 676)
+    x = round(iw * 556.0 / 1080.0)
+    y = round(ih * 644.0 / 676.0)
+    print("点击底部「发布」：(%d, %d)" % (x, y))
+    sub.send("Input.dispatchMouseEvent",
+             {"type": "mouseMoved", "x": x, "y": y})
+    time.sleep(0.2)
+    sub.send("Input.dispatchMouseEvent",
+             {"type": "mousePressed", "x": x, "y": y, "button": "left",
+              "clickCount": 1})
+    time.sleep(0.12)
+    sub.send("Input.dispatchMouseEvent",
+             {"type": "mouseReleased", "x": x, "y": y, "button": "left",
+              "clickCount": 1})
+    for _ in range(20):
+        time.sleep(1.5)
+        if "success" in (sub.eval("location.href") or ""):
+            print("✅ 发布成功（页面已跳 /publish/success）")
+            return
+    print("[warn] 点击后 30 秒没跳 success 页，请回浏览器确认是否成稿。")
 
 
 # ---- build -----------------------------------------------------------------
@@ -911,8 +1050,11 @@ def main():
     q.add_argument("--case", required=True)
     q.add_argument("--dry", action="store_true")
     q.add_argument("--yes", action="store_true")
-    q.add_argument("--no-tags", action="store_true",
-                   help="不自动加话题（正文末尾已带 #标签，可省）")
+    q.add_argument("--tags", action="store_true",
+                   help="尝试走话题浮层加标签（默认关闭：候选选择器对不上，"
+                        "硬试会在正文末尾留下孤立 #）")
+    q.add_argument("--no-original", action="store_true",
+                   help="不勾选「原创声明」（默认会勾上）")
     q.add_argument("--keep", action="store_true",
                    help="沿用当前编辑页状态（默认重新导航，避免图/字叠加）")
     q.set_defaults(fn=cmd_publish)
