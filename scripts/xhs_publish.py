@@ -796,7 +796,75 @@ def _wait(sub, js, want, tries=30, gap=1.0, label=""):
     return None
 
 
+HOME_URL = "https://creator.xiaohongshu.com/new/home"
+
+# 创作者中心首页的暂存提示（2026-09-26 实测版式）：
+# 侧边栏改版后顶部「草稿箱(N)」没了，首页会显示「草稿箱中有未发布的作品」。
+_JS_DRAFT_SIGNAL = (
+    "(function(){var t=document.body.innerText||'';"
+    "var m=t.match(/草稿箱\\((\\d+)\\)/);"
+    "return {hint:t.indexOf('草稿箱中有未发布的作品')>=0,"
+    "n:m?parseInt(m[1],10):-1};})()"
+)
+
+
+def _draft_signal(sub):
+    """返回 {'hint':bool,'n':int}；eval 有时给对象有时给 JSON 字符串，都兜住。"""
+    try:
+        v = sub.eval(_JS_DRAFT_SIGNAL, refresh_context=True)
+    except Exception:
+        return None
+    if isinstance(v, dict):
+        return v
+    if isinstance(v, str):
+        try:
+            return json.loads(v)
+        except Exception:
+            return None
+    return None
+
+
+def _save_draft(sub, note):
+    """把当前编辑内容存成草稿。
+
+    实测（2026-09-26）：小红书图文发布页**没有「存草稿」按钮**，底部只有
+    红色「发布」；唯一办法是**离开编辑页**，小红书会自动把当前内容暂存到
+    本地草稿箱（顶部「草稿箱(N)」计数 +1 即暂存成功）。
+
+    所以这里主动 navigate 到创作中心首页，再回读计数验证。
+    返回 (是否成功, 计数)。
+    """
+    before = _draft_signal(sub) or {}
+    try:
+        sub.send("Page.navigate", {"url": HOME_URL})
+    except Exception as e:
+        print("[warn] 导航离开失败：%s" % e)
+        return False, before
+    left = False
+    for _ in range(10):          # 等 URL 真的离开发布页
+        time.sleep(1.2)
+        try:
+            if "publish/publish" not in (sub.eval("location.href") or ""):
+                left = True
+                break
+        except Exception:
+            pass
+    # 导航换了 JS context，这里每次都要带 refresh_context（否则拿的是
+    # 已销毁的旧 context，会一直重试）。自动暂存有几秒延迟，轮询几轮。
+    for _ in range(8):
+        time.sleep(1.5)
+        s = _draft_signal(sub)
+        if s and (s.get("hint") or (isinstance(s.get("n"), int) and s["n"] > 0)):
+            print("  ✅ 已存草稿（首页显示「草稿箱中有未发布的作品」）")
+            return True, s
+    print("[warn] 离开编辑页后没读到草稿信号%s，请去草稿箱核对：《%s》"
+          % ("" if left else "（页面没真的离开）", note["title"]))
+    return False, before
+
+
 def cmd_publish(args):
+    if getattr(args, "all", False):
+        return _publish_all(args)
     c = find_case(args.case)
     d = os.path.join(OUT, args.case)
     nj = os.path.join(d, "note.json")
@@ -835,6 +903,8 @@ def cmd_publish(args):
     if not getattr(args, "keep", False):
         sub.send("Page.navigate", {"url": PUB_URL})
         time.sleep(6)
+    _T0 = time.time()
+    print("  [%.0fs] 页面已就绪" % (time.time() - _T0))
 
     # ---- 1) 切到「上传图文」tab（默认停在视频 tab，没有编辑表单）----
     # 页面是异步挂载的：navigate 完直接找 tab 会偶发失败，
@@ -971,10 +1041,11 @@ def cmd_publish(args):
               "请到浏览器里检查（标签页已给你留在最前）。")
         return
     if not args.yes:
-        # 页面没有「存草稿」按钮；导航离开时小红书会自动暂存到本地草稿箱
-        # （草稿箱计数 +1 的就是这种自动暂存，见 2026-09-26 实测）。
-        print("页面没有「存草稿」按钮。直接关掉/导航走，小红书会自动暂存到"
-              "本地草稿箱；要真发布加 --yes。")
+        # 页面没有「存草稿」按钮：离开编辑页小红书会自动暂存（2026-09-26 实测）。
+        ok, _ = _save_draft(sub, note)
+        print(("已存为草稿，去创作中心「草稿箱」里审核后再发"
+               "（草稿是浏览器本地的，换设备/清缓存就没了）。") if ok else
+              ("[warn] 没确认到草稿。可手动关掉发布页暂存，或加 --yes 直接发。"))
         return
     # 真发布：底部红色「发布」按钮查不到常规 DOM（探针 2026-09-26：
     # 全元素搜文本「发布」只有左上角导航按钮），按 viewport 比例坐标
@@ -1008,8 +1079,75 @@ def cmd_publish(args):
         time.sleep(1.5)
         if "success" in (sub.eval("location.href") or ""):
             print("✅ 发布成功（页面已跳 /publish/success）")
+            mark_published(c["id"])
             return
     print("[warn] 点击后 30 秒没跳 success 页，请回浏览器确认是否成稿。")
+
+
+def _publish_all(args):
+    """把全部案例依次推进发布页（默认存草稿，--yes 才真发）。"""
+    published = _published_ids()
+    skip = {"voklit"}                      # 已真发过的小红书笔记
+    skip |= {s.strip() for s in (args.skip or "").split(",") if s.strip()}
+    skip |= set(published)
+    todo = [c for c in load_cases() if c["id"] not in skip]
+    if not todo:
+        print("没有待处理的案例。")
+        return
+    print("待处理 %d 条（跳过已发布：%s）" % (len(todo), ", ".join(sorted(skip)) or "无"))
+    fail = []
+    for i, c in enumerate(todo, 1):
+        print("\n[%d/%d] %s —— %s" % (i, len(todo), c["id"], c.get("name", "")))
+        # keep 必须 False：沿用当前编辑页会往已有列表里**再叠 5 张图**。
+        # 每条都重新导航，图/字才是干净的（2026-09-26 实测）。
+        a = argparse.Namespace(
+            case=c["id"], dry=args.dry, yes=args.yes, tags=args.tags,
+            no_original=args.no_original, keep=False,
+        )
+        try:
+            cmd_publish(a)
+        except SystemExit as e:
+            print("[err] 跳过：%s" % e)
+            fail.append(c["id"])
+        except Exception as e:               # 单条炸了不连坐，继续下一条
+            print("[err] 异常：%s：%s" % (type(e).__name__, e))
+            fail.append(c["id"])
+    print("\n完成：%d 条，失败 %d 条" % (len(todo) - len(fail), len(fail)))
+    if fail:
+        print("失败清单：%s" % ", ".join(fail))
+
+
+def _pub_file():
+    return os.path.join(ROOT, "data", "xhs_published.json")
+
+
+def _published_ids():
+    p = _pub_file()
+    if not os.path.isfile(p):
+        return []
+    try:
+        d = json.load(open(p, encoding="utf-8"))
+    except Exception:
+        return []
+    if isinstance(d, dict):
+        return list(d.keys())
+    return [x.get("id") for x in d if isinstance(x, dict) and x.get("id")]
+
+
+def mark_published(cid):
+    p = _pub_file()
+    try:
+        d = json.load(open(p, encoding="utf-8")) if os.path.isfile(p) else []
+    except Exception:
+        d = []
+    ids = list(d.keys()) if isinstance(d, dict) else \
+        [x.get("id") for x in d if isinstance(x, dict) and x.get("id")]
+    if cid in ids:
+        return
+    ids.append(cid)
+    with open(p, "w", encoding="utf-8") as f:
+        json.dump([{"id": i, "at": time.strftime("%Y-%m-%d %H:%M")} for i in ids],
+                  f, ensure_ascii=False, indent=2)
 
 
 # ---- build -----------------------------------------------------------------
@@ -1047,9 +1185,14 @@ def main():
     p = sub.add_parser("preview")
     p.set_defaults(fn=cmd_preview)
     q = sub.add_parser("publish")
-    q.add_argument("--case", required=True)
+    q.add_argument("--case", help="案例 id")
+    q.add_argument("--all", action="store_true",
+                   help="publish --all：把全部案例依次存成草稿（默认跳过 "
+                        "想在 --case 里指定的；--skip 可再排除）")
+    q.add_argument("--skip", help="--all 时额外跳过的 id，逗号分隔")
     q.add_argument("--dry", action="store_true")
-    q.add_argument("--yes", action="store_true")
+    q.add_argument("--yes", action="store_true",
+                   help="真发布（默认只存草稿）")
     q.add_argument("--tags", action="store_true",
                    help="尝试走话题浮层加标签（默认关闭：候选选择器对不上，"
                         "硬试会在正文末尾留下孤立 #）")

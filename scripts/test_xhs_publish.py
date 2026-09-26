@@ -153,5 +153,33 @@ class TestHtml(unittest.TestCase):
             self.assertNotIn("archaic", html)   # 防再混入乱码
 
 
+class TestDraft(unittest.TestCase):
+    """草稿（离开编辑页自动暂存）相关的纯逻辑。"""
+
+    def test_signal_js_returns_object(self):
+        js = x._JS_DRAFT_SIGNAL
+        self.assertIn("草稿箱中有未发布的作品", js)
+        self.assertTrue(js.startswith("(function(){"))
+        self.assertIn("return {hint:", js)
+
+    def test_draft_signal_dict(self):
+        class S:
+            def eval(self, expr, refresh_context=False):
+                return {"hint": True, "n": -1}
+        self.assertEqual(x._draft_signal(S()), {"hint": True, "n": -1})
+
+    def test_draft_signal_json_str(self):
+        class S:
+            def eval(self, expr, refresh_context=False):
+                return '{"hint": false, "n": 3}'
+        self.assertEqual(x._draft_signal(S()), {"hint": False, "n": 3})
+
+    def test_draft_signal_none(self):
+        class S:
+            def eval(self, expr, refresh_context=False):
+                raise RuntimeError("ctx gone")
+        self.assertIsNone(x._draft_signal(S()))
+
+
 if __name__ == "__main__":
     unittest.main()
