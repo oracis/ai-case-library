@@ -436,6 +436,36 @@ def _file_input_node(cdp):
         return 0
 
 
+def _set_files_via_js(cdp, path):
+    """把本地图片转 base64 → 塞进 file input → 派发 change。
+
+    CDP 的 DOM.setFileInputFiles 在头条（Byte 系上传组件）上被忽略，
+    img 不会进封面区；改成在页面里自己造 File + DataTransfer，实测能上。
+    """
+    import base64
+    ext = os.path.splitext(path)[1].lstrip(".").lower() or "png"
+    mime = "image/%s" % ("jpeg" if ext in ("jpg", "jpeg") else ext)
+    with open(path, "rb") as f:
+        b64 = base64.b64encode(f.read()).decode()
+    name = os.path.basename(path)
+    js = ("""(function(){
+      var b64 = '%s';
+      var bin = atob(b64);
+      var arr = new Uint8Array(bin.length);
+      for(var i=0;i<bin.length;i++) arr[i] = bin.charCodeAt(i);
+      var file = new File([arr], '%s', {type: '%s'});
+      var dt = new DataTransfer();
+      dt.items.add(file);
+      var inputs = [].slice.call(document.querySelectorAll('input[type=file]'));
+      if(!inputs.length) return 'no-input';
+      var input = inputs[0];
+      try{ input.files = dt.files; }catch(e){ return 'set-failed:'+e.message; }
+      input.dispatchEvent(new Event('change', {bubbles: true}));
+      return 'ok:' + inputs.length;
+    })()""" % (b64, name, mime))
+    return cdp.eval(js)
+
+
 def _click_pos(cdp, pos, pause=0.3):
     for kind in ("mousePressed", "mouseReleased"):
         cdp.send("Input.dispatchMouseEvent",
@@ -444,8 +474,13 @@ def _click_pos(cdp, pos, pause=0.3):
     time.sleep(pause)
 
 
-def upload_cover(cdp, paths):
-    """给发文页传封面（点 .article-cover-add 出 file input，再 setFileInputFiles）。"""
+def upload_cover(cdp, paths, timeout=30):
+    """给发文页传封面：点 .article-cover-add 出 file input，再塞图。
+
+    注意 CDP 的 DOM.setFileInputFiles 在这里会被 Byte 上传组件忽略，
+    得用 _set_files_via_js（base64 → File → input.files → change）。
+    传完轮询封面区，直到出现真图（占位块 .article-cover-add 被替换掉）。
+    """
     r = cdp.eval("""(function(){
       var el = document.querySelector('.article-cover-add');
       if(!el) return 'notfound';
@@ -456,14 +491,66 @@ def upload_cover(cdp, paths):
     })()""")
     if not r or r == "notfound":
         return "no-cover-slot"
-    _click_pos(cdp, json.loads(r), 3)
-    node = _file_input_node(cdp)
-    if not node:
-        return "no-file-input"
-    cdp.send("DOM.setFileInputFiles",
-             {"files": [os.path.abspath(p) for p in paths], "nodeId": node})
-    time.sleep(8)
-    return "ok"
+    try:
+        cdp.send("Page.enable")
+        cdp.send("Page.setInterceptFileChooserDialog", {"enabled": True})
+    except Exception:                                 # noqa: BLE001
+        pass
+    _click_pos(cdp, json.loads(r), 2)
+    # 封面块只负责造出 file input，不会自己弹框 → 用**真实鼠标点它**，
+    # Chrome 弹文件选择框，CDP 拦截后喂文件（DOM.setFileInputFiles / 塞 File 都不灵）。
+    fp = cdp.eval("""(function(){
+      var ins = [].slice.call(document.querySelectorAll('input[type=file]'))
+                 .filter(function(e){return e.getBoundingClientRect().width > 0;});
+      if(!ins.length) return 'no-input';
+      var el = ins[0]; el.scrollIntoView({block:'center'});
+      var b = el.getBoundingClientRect();
+      return JSON.stringify({x: b.x+b.width/2, y: b.y+b.height/2});
+    })()""")
+    got = False
+    if fp and fp != "no-input":
+        _click_pos(cdp, json.loads(fp), 1.5)
+        end = time.time() + 8
+        while time.time() < end:
+            if not cdp._ws_readable(0.4):
+                continue
+            try:
+                raw = cdp.ws.recv_text()
+            except Exception:                         # noqa: BLE001
+                break
+            if "fileChooserOpened" in (raw or ""):
+                got = True
+                break
+    if got:
+        try:
+            cdp.send("Page.handleFileChooser",
+                     {"mode": "open",
+                      "files": [os.path.abspath(p) for p in paths]})
+        except Exception as e:                        # noqa: BLE001
+            print("      handleFileChooser 失败：%s" % e)
+    res = _set_files_via_js(cdp, paths[0])
+    if not str(res).startswith("ok"):
+        return str(res)[:40]
+    js = """(function(){
+      var box = document.querySelector('.article-cover-images');
+      if(!box) return 'no-box';
+      var add = !!document.querySelector('.article-cover-add');
+      var srcs = [].slice.call(box.querySelectorAll('img')).map(function(e){
+        return e.getAttribute('src')||'';});
+      return JSON.stringify({add: add, srcs: srcs.slice(0,2)});
+    })()"""
+    end = time.time() + timeout
+    last = ""
+    while time.time() < end:
+        time.sleep(2.5)
+        last = cdp.eval(js) or ""
+        try:
+            d = json.loads(last)
+        except Exception:                             # noqa: BLE001
+            d = {}
+        if not d.get("add") and d.get("srcs"):
+            return "ok"
+    return "uploaded-but-not-confirmed:" + last[:60]
 
 
 def _clear_editor(cdp):
@@ -635,6 +722,22 @@ def publish_one(c, dry=False, yes=False, cover=True):
     cdp, t = _open(TT_EDITOR, wait=10)
     try:
         _check_login(cdp)
+        if dry:
+            # 头条是**边填边自动存草稿**的：只要往编辑器打了字（哪怕随后清空），
+            # 草稿箱里就会留下一条带标题的草稿（实测：两次 dry 试封面 = 两条重复）。
+            # 所以 dry 一律不打字，只做只读校验。
+            has_t = cdp.eval("(function(){return document.querySelector(%s)?1:0;})()"
+                             % json.dumps(SEL["title"]))
+            has_b = cdp.eval("(function(){return document.querySelector(%s)?1:0;})()"
+                             % json.dumps(SEL["body"]))
+            cp = cover_path(c["id"]) if cover else None
+            print("    [dry] 不填内容（头条边填边存，试填会留草稿，去重用 dedup 子命令）")
+            print("    [dry] 标题框：%s / 正文区：%s（《%s》）"
+                  % ("✓" if has_t else "✗ 没找到", "✓" if has_b else "✗ 没找到",
+                     meta["title"]))
+            print("    [dry] 封面图：%s"
+                  % (os.path.basename(cp) if cp else "没找到卡片图"))
+            return bool(has_t and has_b)
         ok_t = _focus_and_type(cdp, SEL["title"], meta["title"])
         print("    标题框：%s（《%s》%d 字）"
               % ("已填" if ok_t else "没找到", meta["title"], len(meta["title"])))
@@ -664,12 +767,6 @@ def publish_one(c, dry=False, yes=False, cover=True):
                 print("    封面：%s（%s）" % (r, os.path.basename(cp)))
             else:
                 print("    封面：没找到卡片图（跳过，草稿会显示「没封面」）")
-        if dry:
-            # 头条是**边填边存**的，--dry 关页照样留草稿（实测留下一条，和真发那条
-            # 在草稿箱里成对出现，看上去就是「重复」）。所以 dry 填完必须把内容清掉。
-            _clear_editor(cdp)
-            print("    [dry] 已填好内容并清空再关页（头条边填边存，不清会留草稿）")
-            return True
         if not yes:
             # 头条发文页**没有「存草稿」按钮**（底部只有 预览 / 定时发布 / 预览并发布），
             # 草稿是填完自动保存的（页面上有「草稿将自动保存」提示）。
@@ -690,8 +787,7 @@ def publish_one(c, dry=False, yes=False, cover=True):
             mark_drafted(c["id"])
         return True
     finally:
-        if not dry:
-            cdp.close_target(t["id"])
+        cdp.close_target(t["id"])
 
 
 def cmd_build(args):
@@ -821,14 +917,98 @@ def cmd_drafts(args):
                     mark_drafted(c["id"])
                     hit += 1
             print("\n已写 %d 条进 data/toutiao_drafts.json" % hit)
-        if args.write:
-            hit = 0
-            for c in load_cases():
-                title = make_toutiao_title(c)
-                if any(title and title[:12] in s for s in arr):
-                    mark_drafted(c["id"])
-                    hit += 1
-            print("\n已写 %d 条进 data/toutiao_drafts.json" % hit)
+    finally:
+        cdp.close_target(t["id"])
+
+
+# 草稿删除确认弹窗（byte-modal）底部按钮文案
+_CONFIRM_JS = """(function(){
+  var f = document.querySelector('.byte-modal-footer');
+  if(!f) return 'nomodal';
+  var btns = [].slice.call(f.querySelectorAll('*')).filter(function(e){
+    var r = e.getBoundingClientRect();
+    if(r.width <= 0) return false;
+    var direct = [].slice.call(e.childNodes).filter(function(n){
+      return n.nodeType === 3;}).map(function(n){return n.textContent.trim();}).join('');
+    return direct === '确定';
+  });
+  if(!btns.length) return 'nobtn';
+  var b = btns[btns.length-1].getBoundingClientRect();
+  return JSON.stringify({x: Math.round(b.x+b.width/2), y: Math.round(b.y+b.height/2)});
+})()"""
+
+
+def _count_dup_and_delbtn(cdp, title):
+    """草稿箱里 title 的条数 + 第一条的「删除」按钮坐标（没有则 None）。"""
+    r = cdp.eval("""(function(){
+      var want = %s;
+      var es = [].slice.call(document.querySelectorAll('div,li,tr,section'));
+      var cards = [];
+      for(var i=0;i<es.length;i++){
+        var s = (es[i].innerText||'');
+        if(s.indexOf(want)>=0 && s.indexOf('编辑删除')>=0 && s.length < 400) cards.push(es[i]);
+      }
+      var inner = cards.filter(function(c){
+        return !cards.some(function(o){ return o !== c && c.contains(o); });
+      });
+      var del = null;
+      if(inner.length){
+        [].slice.call(inner[0].querySelectorAll('span,button,a,div')).forEach(function(e2){
+          var t2 = (e2.innerText||'').trim();
+          if(t2 === '删除' && e2.getBoundingClientRect().width > 0) del = e2;
+        });
+      }
+      if(del){
+        del.scrollIntoView({block:'center'});
+        var b = del.getBoundingClientRect();
+        return JSON.stringify({n: inner.length,
+          x: b.x+b.width/2, y: b.y+b.height/2});
+      }
+      return JSON.stringify({n: inner.length, x: null, y: null});
+    })()""" % json.dumps(title, ensure_ascii=False))
+    d = json.loads(r or "{}")
+    pos = (d["x"], d["y"]) if d.get("x") is not None else None
+    return d.get("n", 0), pos
+
+
+def cmd_dedup(args):
+    """把草稿箱里同标题的重复草稿删到只剩 1 条（试填/重发留下的）。"""
+    cdp, t = _open(TT_DRAFT, wait=8)
+    try:
+        _check_login(cdp)
+        n, _ = _count_dup_and_delbtn(cdp, args.title)
+        print("同标题草稿 %d 条" % n)
+        if n <= 1:
+            print("无重复，不动")
+            return 0
+        if args.dry:
+            print("[dry] 会删 %d 条，保留 1 条" % (n - 1))
+            return 0
+        for i in range(min(n - 1, args.max_del)):
+            n, pos = _count_dup_and_delbtn(cdp, args.title)
+            if n <= 1 or not pos:
+                break
+            for kind in ("mousePressed", "mouseReleased"):
+                cdp.send("Input.dispatchMouseEvent",
+                         {"type": kind, "x": pos[0], "y": pos[1],
+                          "button": "left", "clickCount": 1})
+            time.sleep(2.2)
+            conf = cdp.eval(_CONFIRM_JS)
+            if conf in ("nomodal", "nobtn"):
+                print("  第 %d 条：没等到确认弹窗（%s），停" % (i + 1, conf))
+                return 2
+            d = json.loads(conf)
+            for kind in ("mousePressed", "mouseReleased"):
+                cdp.send("Input.dispatchMouseEvent",
+                         {"type": kind, "x": d["x"], "y": d["y"],
+                          "button": "left", "clickCount": 1})
+            time.sleep(4)
+            print("  第 %d 条：删除 → 确定" % (i + 1))
+        cdp.eval("location.reload()")
+        time.sleep(9)
+        n, _ = _count_dup_and_delbtn(cdp, args.title)
+        print("现剩同标题 %d 条" % n)
+        return 0 if n == 1 else 2
     finally:
         cdp.close_target(t["id"])
 
@@ -862,6 +1042,12 @@ def main():
     d = sub.add_parser("drafts")
     d.add_argument("--write", action="store_true")
     d.set_defaults(fn=cmd_drafts)
+    dd = sub.add_parser("dedup",
+                        help="把草稿箱里同标题的重复草稿删到只剩 1 条")
+    dd.add_argument("title", help="草稿标题（精确包含匹配）")
+    dd.add_argument("--dry", action="store_true")
+    dd.add_argument("--max-del", type=int, default=10)
+    dd.set_defaults(fn=cmd_dedup)
     lg = sub.add_parser("login", help="检查登录态（退出码 0 = 已登录）")
     lg.add_argument("--open", action="store_true",
                     help="开一个登录页并留着，你自己扫码，脚本自动检测结果")
