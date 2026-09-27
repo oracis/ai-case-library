@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-一个通过的 case，同时发公众号 + 小红书。
+一个通过的 case，同时发公众号 + 小红书（可选再加今日头条）。
 
 用法：
     python scripts/publish_both.py nitra       # 指定案例（认 id / 名字 / 标题片段）
@@ -11,8 +11,9 @@
     python scripts/publish_both.py --queue      # 只看会发哪几条（不连浏览器）
     python scripts/publish_both.py nitra --dry  # 只打印计划，不碰浏览器
     python scripts/publish_both.py nitra --yes  # 小红书真发布（公众号只能存草稿）
+    python scripts/publish_both.py --near 3 --toutiao   # 再多加一条今日头条
 
-默认两边都**只存草稿**，不群发 / 不上公开。
+默认各平台都**只存草稿**，不群发 / 不上公开。
 
 一边的步骤（失败不影响另一边，最后汇总）：
     公众号：make_article.py --id <id> --format html
@@ -20,6 +21,12 @@
             → wechat_publish.py publish --case <id>（存草稿 + 原创声明 + 赞赏）
     小红书：xhs_publish.py build --case <id> （缺卡片才现造，已存在则跳过）
             → xhs_publish.py publish --case <id> [--yes]
+    今日头条：toutiao_publish.py build --case <id>（长文改写，缺稿才造）
+            → toutiao_publish.py publish --case <id> [--yes]
+              ⚠️ 头条没有个人号发布 API，走 CDP；**必须先登录头条号**
+              （调试 Chrome 9222 打开 mp.toutiao.com 扫码一次），否则会报登录态缺失。
+              ⚠️ 头条侧的 --dry 语义是「照常连浏览器填表、不点按钮」，所以本脚本
+              的 --dry 一律拦掉不传给头条侧（与小红书同处理）。
 """
 
 import argparse
@@ -32,6 +39,7 @@ sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
 import xhs_publish as x          # noqa: E402  只用它读 cases / 模糊匹配 / 草稿记录
 import wechat_publish as wp      # noqa: E402
+import toutiao_publish as tp     # noqa: E402  头条侧（可选，--toutiao 才跑）
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -100,6 +108,26 @@ def xhs_side(c, dry, yes):
     return rc == 0
 
 
+def toutiao_side(c, dry, yes):
+    """今日头条：缺稿才 build → 填发文页（默认存草稿，--yes 才点发布）。
+
+    ⚠️ 不能把 --dry 透传给 toutiao_publish（它的 --dry 会照常连浏览器填表），
+    所以 --dry 由这里拦掉，只打印计划。
+    """
+    cid = c["id"]
+    print("  [今日头条] %s —— %s" % (cid, c.get("name", "")))
+    meta = os.path.join(ROOT, "out", "toutiao", cid, "meta.json")
+    if not dry and not os.path.isfile(meta):
+        rc, _ = run(["scripts/toutiao_publish.py", "build", "--case", cid], not dry)
+        if rc != 0:
+            print("    [warn] toutiao build 退出码 %s（仍然继续发）" % rc)
+    cmd = ["scripts/toutiao_publish.py", "publish", "--case", cid]
+    if yes:
+        cmd.append("--yes")
+    rc, _ = run(cmd, not dry)
+    return rc == 0
+
+
 def _wechat_done_ids():
     """公众号已记录发过的 id（load_published 是 {id: {...}} 或 [{id:...}] 都可能）。"""
     d = wp.load_published() or {}
@@ -154,6 +182,8 @@ def main(argv=None):
     ap.add_argument("--dry", action="store_true", help="只打印要跑的子命令")
     ap.add_argument("--yes", action="store_true",
                     help="小红书真发布（默认只存草稿；公众号侧只能存草稿）")
+    ap.add_argument("--toutiao", action="store_true",
+                    help="再加一条今日头条（需先在调试 Chrome 登录头条号）")
     args = ap.parse_args(argv)
 
     if args.queue:
@@ -176,7 +206,7 @@ def main(argv=None):
     bad = []
     for i, c in enumerate(cases, 1):
         print("\n[%d/%d] %s —— %s" % (i, len(cases), c["id"], c.get("name", "")))
-        w = xhs_ok = False
+        w = xhs_ok = tt_ok = False
         try:
             w = wechat_side(c, args.dry)
         except Exception as e:
@@ -185,7 +215,13 @@ def main(argv=None):
             xhs_ok = xhs_side(c, args.dry, args.yes)
         except Exception as e:
             print("    [小红书] 异常：%s：%s" % (type(e).__name__, e))
-        (ok if w and xhs_ok else bad).append(c["id"])
+        if args.toutiao:
+            try:
+                tt_ok = toutiao_side(c, args.dry, args.yes)
+            except Exception as e:
+                print("    [今日头条] 异常：%s：%s" % (type(e).__name__, e))
+        done = w and xhs_ok and (tt_ok if args.toutiao else True)
+        (ok if done else bad).append(c["id"])
 
     print("\n" + "=" * 62)
     print("完成 %d 条，两边都成功 %d 条" % (len(cases), len(ok)))
