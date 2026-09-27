@@ -29,6 +29,7 @@ publish。首次建议 `publish --case <id> --dry`（只在编辑页填好，不
 """
 
 import argparse
+import base64
 import json
 import os
 import re
@@ -43,6 +44,9 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "out", "toutiao")
 ARTICLES_DIR = os.path.join(ROOT, "out", "articles")
 XHS_DIR = os.path.join(ROOT, "out", "xhs")       # 卡片图在这儿，封面直接复用
+# 头条封面位是横版裁切（列表缩略图 ≈16:9），小红书竖版 card-1（3:4）会被
+# 裁到只剩中间一条留白 → 必须用专门的横版封面（2026-09-27 实测）。
+TT_COVER_W, TT_COVER_H = 1920, 1080              # 16:9，截图时 scale=2 → 3840x2160
 TITLE_OVERRIDES_PATH = os.path.join(ROOT, "data", "xhs_title_overrides.json")
 DRAFT_FILE = os.path.join(ROOT, "data", "toutiao_drafts.json")
 PUB_FILE = os.path.join(ROOT, "data", "toutiao_published.json")
@@ -413,8 +417,118 @@ def _focus_and_type(cdp, sel, text):
     return True
 
 
+def tt_cover_html(c):
+    """头条专用横版封面（16:9），设计语言沿用小红书卡片封面页。"""
+    i = sum(ord(ch) for ch in c.get("id", "")) % len(wp.COVER_THEMES)
+    _base, _band, ac = wp.COVER_THEMES[i]
+    name = c.get("name") or c.get("id") or ""
+    one = re.sub(r"（[^）]*）", "", (c.get("one_liner") or "")).strip() or \
+        (c.get("category") or "")
+    headline = (c.get("metrics") or {}).get("headline") or ""
+    num = x.cover_headline(headline) or x._clip(headline, 30)
+    return (
+        '<!doctype html><html><head><meta charset="utf-8"><style>'
+        "*{margin:0;padding:0;box-sizing:border-box;}"
+        "html,body{width:%(W)dpx;height:%(H)dpx;}"
+        'body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;'
+        "background:#fffdf9;display:flex;flex-direction:column;"
+        "padding:76px 96px 64px;position:relative;overflow:hidden;}"
+        ".band{position:absolute;left:0;top:0;bottom:0;width:24px;"
+        "background:%(AC)s;}"
+        ".hd{display:flex;justify-content:space-between;align-items:center;"
+        "margin-bottom:64px;padding-left:26px;}"
+        ".brand{font-size:34px;letter-spacing:2px;color:#666;font-weight:600;"
+        "display:flex;align-items:center;gap:16px;}"
+        ".sq{width:22px;height:22px;background:%(AC)s;}"
+        ".pg{font-size:30px;color:#999;letter-spacing:4px;}"
+        ".main{flex:1;display:flex;align-items:center;gap:72px;"
+        "padding-left:26px;min-height:0;}"
+        ".left{flex:1.2;min-width:0;}"
+        ".kicker{font-size:32px;letter-spacing:6px;color:%(AC)s;"
+        "font-weight:700;margin-bottom:36px;}"
+        ".name{font-size:104px;font-weight:900;color:#1c1a17;"
+        "line-height:1.16;margin-bottom:32px;max-height:2.35em;overflow:hidden;}"
+        ".one{font-size:42px;color:#555;line-height:1.55;"
+        "max-height:3.1em;overflow:hidden;}"
+        ".right{flex:0.8;min-width:0;}"
+        ".numbox{background:#f6f3ee;border-radius:28px;padding:60px 52px;"
+        "text-align:center;}"
+        ".num{font-size:104px;font-weight:900;color:%(AC)s;line-height:1.15;}"
+        ".numsub{font-size:30px;color:#777;margin-top:24px;}"
+        ".ft{margin-top:52px;padding-left:26px;display:flex;"
+        "justify-content:space-between;font-size:28px;color:#999;}"
+        "</style></head><body>"
+        '<div class="band"></div>'
+        '<div class="hd"><div class="brand"><span class="sq"></span>'
+        "万物解释者 · 拆解海外</div>"
+        '<div class="pg">CASE STUDY</div></div>'
+        '<div class="main">'
+        '<div class="left">'
+        '<div class="kicker">海外小生意 · 拆解</div>'
+        '<div class="name fit">%(NAME)s</div>'
+        '<div class="one fit">%(ONE)s</div>'
+        "</div>"
+        '<div class="right"><div class="numbox">'
+        '<div class="num fit">%(NUM)s</div>'
+        '<div class="numsub">数据来自公开挂牌页</div>'
+        "</div></div>"
+        "</div>"
+        '<div class="ft"><span>一文看懂它怎么赚钱</span>'
+        "<span>公众号 · 万物解释者</span></div>"
+        "</body></html>"
+        % {"W": TT_COVER_W, "H": TT_COVER_H, "AC": ac,
+           "NAME": esc(name), "ONE": esc(one), "NUM": esc(num)})
+
+
+def render_tt_cover(port, c):
+    """渲染一条案例的横版封面到 out/toutiao/<id>/cover.png，返回路径或空串。"""
+    html = tt_cover_html(c)
+    data_url = "data:text/html;charset=utf-8;base64," + base64.b64encode(
+        html.encode("utf-8")).decode("ascii")
+    browser = sub = tid = None
+    try:
+        browser = wp.CDP(port)
+        tid = browser.new_target(data_url)["id"]
+        sub = wp.CDP(port)
+        sub.connect_target(tid)
+        # 视口钉死成画布尺寸（同 xhs 卡片实测教训：不钉会按小视口塌陷）。
+        sub.send("Emulation.setDeviceMetricsOverride",
+                 {"width": TT_COVER_W, "height": TT_COVER_H,
+                  "deviceScaleFactor": 1, "mobile": False})
+        time.sleep(1.0)
+        sub.eval(x.AUTOFIT_JS, refresh_context=True)   # 长名/长句自动缩字号
+        r = sub.send("Page.captureScreenshot", {
+            "format": "png", "captureBeyondViewport": True,
+            "clip": {"x": 0, "y": 0, "width": TT_COVER_W,
+                     "height": TT_COVER_H, "scale": 2}})
+        data = (r.get("result") or {}).get("data", "")
+        if not data:
+            return ""
+        out_dir = os.path.join(OUT, c["id"])
+        os.makedirs(out_dir, exist_ok=True)
+        p = os.path.join(out_dir, "cover.png")
+        with open(p, "wb") as f:
+            f.write(base64.b64decode(data))
+        return p
+    finally:
+        if tid and browser is not None:
+            try:
+                browser.close_target(tid)
+            except Exception:                         # noqa: BLE001
+                pass
+        for conn in (sub, browser):
+            if conn is not None and getattr(conn, "bws", None) is not None:
+                try:
+                    conn.bws.close()
+                except Exception:                     # noqa: BLE001
+                    pass
+
+
 def cover_path(cid):
-    """这篇头条稿的封面图（直接复用小红书那 5 张卡片图的第 1 张）。"""
+    """这篇头条稿的封面图：优先横版专用封面，退回小红书 card-1。"""
+    p = os.path.join(OUT, cid, "cover.png")
+    if os.path.isfile(p):
+        return p
     for name in ("card-1.png", "card-1.jpg", "card-1.jpeg"):
         p = os.path.join(XHS_DIR, cid, name)
         if os.path.isfile(p):
@@ -474,83 +588,147 @@ def _click_pos(cdp, pos, pause=0.3):
     time.sleep(pause)
 
 
-def upload_cover(cdp, paths, timeout=30):
-    """给发文页传封面：点 .article-cover-add 出 file input，再塞图。
+def _click_selector(cdp, sel, pause=0.8, timeout=8):
+    """按 CSS 选择器点元素中心；点不到就一直重试（元素往往是点开后才出现）。"""
+    end = time.time() + timeout
+    while time.time() < end:
+        r = cdp.eval("""(function(sel){
+          var el = document.querySelector(sel);
+          if(!el) return 'none';
+          el.scrollIntoView({block:'center'});
+          var b = el.getBoundingClientRect();
+          if(b.width <= 0 || b.height <= 0) return 'none';
+          return JSON.stringify({x: b.x+b.width/2, y: b.y+b.height/2});
+        })(%s)""" % json.dumps(sel))
+        if r and r != "none":
+            try:
+                _click_pos(cdp, json.loads(r), pause)
+                return True
+            except Exception:                         # noqa: BLE001
+                pass
+        time.sleep(0.5)
+    return False
 
-    注意 CDP 的 DOM.setFileInputFiles 在这里会被 Byte 上传组件忽略，
-    得用 _set_files_via_js（base64 → File → input.files → change）。
-    传完轮询封面区，直到出现真图（占位块 .article-cover-add 被替换掉）。
+
+_COVER_STATE = """(function(){
+  var panel = document.querySelector('.upload-image-panel');
+  var add = document.querySelector('.article-cover-add');
+  var list = document.querySelector('.upload-image-panel .image-list');
+  return JSON.stringify({
+    panel: !!panel,
+    panelVisible: panel ? (getComputedStyle(panel).display !== 'none') : false,
+    add: !!add,
+    imgs: list ? list.children.length : -1
+  });
+})()"""
+
+
+def upload_cover(cdp, paths, timeout=60):
+    """给发文页传封面 —— 走「图库面板」这条链路（2026-09-27 实测跑通）。
+
+    为什么之前一直失败
+    ----------------
+    封面块 `.article-cover-add` **不是**上传入口，点了它只会造出一个隐藏的
+    file input（组件卡在 .byte-spin 里，图传到 CDN 了却没人把它设成封面）。
+    真正的流程是：点封面块会弹出一个图库面板 `.upload-image-panel`，里面才有
+      · 本地上传按钮 button.upload-btn（file input 藏在其 .btn-upload-handle 里）
+      · 已上传图片列表 ul.image-list > li.pic-select-image-item-wrap
+      · 底部「取消 / 确定」
+    所以必须：上传 → 在列表里**点选**那张图 → 点**确定**，封面才成立。
+
+    实测结论（省得再踩）：CDP 的 DOM.setFileInputFiles 在这条链路上**是有效的**，
+    不用 base64/DataTransfer 那套（_set_files_via_js 保留但不再走）。
     """
-    r = cdp.eval("""(function(){
-      var el = document.querySelector('.article-cover-add');
-      if(!el) return 'notfound';
-      el.scrollIntoView({block:'center'});
-      var b = el.getBoundingClientRect();
-      if(b.width <= 0) return 'notfound';
-      return JSON.stringify({x: b.x+b.width/2, y: b.y+b.height/2});
-    })()""")
-    if not r or r == "notfound":
-        return "no-cover-slot"
     try:
         cdp.send("Page.enable")
         cdp.send("Page.setInterceptFileChooserDialog", {"enabled": True})
     except Exception:                                 # noqa: BLE001
         pass
-    _click_pos(cdp, json.loads(r), 2)
-    # 封面块只负责造出 file input，不会自己弹框 → 用**真实鼠标点它**，
-    # Chrome 弹文件选择框，CDP 拦截后喂文件（DOM.setFileInputFiles / 塞 File 都不灵）。
-    fp = cdp.eval("""(function(){
-      var ins = [].slice.call(document.querySelectorAll('input[type=file]'))
-                 .filter(function(e){return e.getBoundingClientRect().width > 0;});
-      if(!ins.length) return 'no-input';
-      var el = ins[0]; el.scrollIntoView({block:'center'});
-      var b = el.getBoundingClientRect();
-      return JSON.stringify({x: b.x+b.width/2, y: b.y+b.height/2});
-    })()""")
-    got = False
-    if fp and fp != "no-input":
-        _click_pos(cdp, json.loads(fp), 1.5)
-        end = time.time() + 8
-        while time.time() < end:
-            if not cdp._ws_readable(0.4):
-                continue
-            try:
-                raw = cdp.ws.recv_text()
-            except Exception:                         # noqa: BLE001
-                break
-            if "fileChooserOpened" in (raw or ""):
-                got = True
-                break
-    if got:
-        try:
-            cdp.send("Page.handleFileChooser",
-                     {"mode": "open",
-                      "files": [os.path.abspath(p) for p in paths]})
-        except Exception as e:                        # noqa: BLE001
-            print("      handleFileChooser 失败：%s" % e)
-    res = _set_files_via_js(cdp, paths[0])
-    if not str(res).startswith("ok"):
-        return str(res)[:40]
-    js = """(function(){
-      var box = document.querySelector('.article-cover-images');
-      if(!box) return 'no-box';
-      var add = !!document.querySelector('.article-cover-add');
-      var srcs = [].slice.call(box.querySelectorAll('img')).map(function(e){
-        return e.getAttribute('src')||'';});
-      return JSON.stringify({add: add, srcs: srcs.slice(0,2)});
-    })()"""
+
+    st = json.loads(cdp.eval(_COVER_STATE) or "{}")
+    if not st.get("panel"):
+        if not _click_selector(cdp, ".article-cover-add", 2.0, 6):
+            return "no-cover-slot"
+    # 等面板真的可见（点一下封面块可能要过一会儿才渲染）
+    end = time.time() + 10
+    while time.time() < end:
+        st = json.loads(cdp.eval(_COVER_STATE) or "{}")
+        if st.get("panelVisible"):
+            break
+        time.sleep(0.5)
+    if not st.get("panelVisible"):
+        return "panel-not-open"
+
+    before = st.get("imgs", -1)
+    # 1) 面板里的 file input（藏在「本地上传」按钮里）
+    node = _panel_file_input(cdp)
+    if not node:
+        return "no-upload-input"
+    # 顺便点一下「本地上传」按钮，让组件进入待上传态
+    _click_selector(cdp, ".upload-image-panel button.upload-btn", 1.0, 4)
+    node = _panel_file_input(cdp) or node
+    cdp.send("DOM.setFileInputFiles",
+             {"files": [os.path.abspath(p) for p in paths], "nodeId": node})
+
+    # 2) 等 image-list 多出一张
     end = time.time() + timeout
     last = ""
     while time.time() < end:
-        time.sleep(2.5)
-        last = cdp.eval(js) or ""
+        time.sleep(2)
+        st = json.loads(cdp.eval(_COVER_STATE) or "{}")
+        last = str(st.get("imgs"))
+        if st.get("imgs", -1) > before:
+            break
+
+    # 3) 点选刚上传那张（列表最后一项）
+    if not _click_selector(cdp,
+                           ".upload-image-panel .image-list li.pic-select-image-item-wrap",
+                           1.5, 8):
+        return "pick-failed:" + last
+
+    # 4) 确定
+    if not _click_selector(cdp, ".upload-image-panel .confirm-btns button"
+                                 ".byte-btn-primary", 2.0, 8):
+        return "confirm-failed:" + last
+
+    # 5) 验证封面区真的出图
+    js = """(function(){
+      var box = document.querySelector('.article-cover-images');
+      if(!box) return 'no-box';
+      var srcs = [].slice.call(box.querySelectorAll('img')).map(function(e){
+        return e.getAttribute('src')||'';});
+      return JSON.stringify({add: !!document.querySelector('.article-cover-add'),
+                             srcs: srcs.slice(0,2)});
+    })()"""
+    end = time.time() + 20
+    while time.time() < end:
+        time.sleep(2)
+        s = cdp.eval(js) or ""
         try:
-            d = json.loads(last)
+            d = json.loads(s)
         except Exception:                             # noqa: BLE001
-            d = {}
+            continue
         if not d.get("add") and d.get("srcs"):
             return "ok"
-    return "uploaded-but-not-confirmed:" + last[:60]
+    return "uploaded-but-not-confirmed:" + s[:60]
+
+
+def _panel_file_input(cdp):
+    """取图库面板里「本地上传」按钮内那个 file input 的 nodeId。"""
+    try:
+        r = cdp.send("DOM.getDocument", {"depth": 0})
+        root = r.get("result", {}).get("root", {}).get("nodeId")
+        if not root:
+            return 0
+        for sel in (".upload-image-panel .btn-upload-handle input[type=file]",
+                    ".upload-image-panel input[type=file]"):
+            r2 = cdp.send("DOM.querySelector", {"nodeId": root, "selector": sel})
+            nid = r2.get("result", {}).get("nodeId", 0)
+            if nid:
+                return nid
+    except Exception:                                 # noqa: BLE001
+        pass
+    return 0
 
 
 def _clear_editor(cdp):
@@ -790,6 +968,187 @@ def publish_one(c, dry=False, yes=False, cover=True):
         cdp.close_target(t["id"])
 
 
+# 草稿箱列表会长，靠下的卡片「编辑」按钮在视口外 —— 点不到。
+# 所以分两步：先把卡片滚进视口，等一拍，再量坐标（并校验确实在可视区内）。
+_DRAFT_SCROLL_TO = """(function(t){
+  var links = [].slice.call(document.querySelectorAll('.op-button, [class*=operation] a'));
+  for(var i=0;i<links.length;i++){
+    var e = links[i];
+    if((e.innerText||'').trim() !== '编辑') continue;
+    var card = e.closest('[class*=draft-item]') || e.parentElement;
+    if(card && (card.textContent||'').indexOf(t) >= 0){
+      try{ card.scrollIntoView({block:'center', inline:'center'}); }catch(err){}
+      return 'scrolled';
+    }
+  }
+  return 'none';
+})(%s)"""
+
+
+_DRAFT_EDIT_POS = """(function(t){
+  var links = [].slice.call(document.querySelectorAll('.op-button, [class*=operation] a'));
+  for(var i=0;i<links.length;i++){
+    var e = links[i];
+    if((e.innerText||'').trim() !== '编辑') continue;
+    var card = e.closest('[class*=draft-item]') || e.parentElement;
+    if(card && (card.textContent||'').indexOf(t) >= 0){
+      var b = e.getBoundingClientRect();
+      if(b.width <= 0 || b.height <= 0) return 'zero';
+      var vh = window.innerHeight || 1000;
+      if(b.y < 0 || b.y > vh) return 'offscreen';
+      return JSON.stringify({x: b.x+b.width/2, y: b.y+b.height/2});
+    }
+  }
+  return 'none';
+})(%s)"""
+
+
+def _page_target_ids():
+    out = set()
+    try:
+        for t in wp.CDP(CDP_PORT).list_targets():
+            if t.get("type") == "page":
+                out.add(t["id"])
+    except Exception:                                 # noqa: BLE001
+        pass
+    return out
+
+
+def open_draft_editor(title, wait=25):
+    """在草稿箱里按标题点「编辑」，返回 (cdp, target)。
+
+    点编辑不会在当前页跳转，而是**新开一个 tab**，URL 带 ?pgc_id=<草稿ID>，
+    原文内容已经在里面了。所以这里要盯着列表找出这个新 tab 再连上去。
+    """
+    cdp = wp.CDP(CDP_PORT)
+    box = None
+    for t in cdp.list_targets():
+        if "/manage/draft" in t.get("url", "") and t.get("webSocketDebuggerUrl"):
+            box = t
+            break
+    if not box:
+        cdp.new_target(TT_DRAFT)
+        time.sleep(6)
+        cdp.connect_target(cdp.list_targets()[-1]["id"])
+        box = cdp
+        cdp = wp.CDP(CDP_PORT)
+        for t in cdp.list_targets():
+            if "/manage/draft" in t.get("url", "") and t.get("webSocketDebuggerUrl"):
+                cdp.connect_target(t["id"])
+                box = t
+                break
+    else:
+        cdp.connect_target(box["id"])
+    time.sleep(2)
+
+    before = _page_target_ids()
+    pos = ""
+    for attempt in range(6):
+        r = cdp.eval(_DRAFT_SCROLL_TO % json.dumps(title))
+        if r == "none":
+            time.sleep(1.5)
+            continue                                   # 列表还没渲染出这张卡
+        time.sleep(1.2)                                # 等scroll稳定
+        pos = cdp.eval(_DRAFT_EDIT_POS % json.dumps(title))
+        if pos and pos not in ("none", "zero", "offscreen"):
+            break
+        time.sleep(1.5)
+        pos = ""
+    if not pos:
+        return None, None, "《%s》的编辑按钮点不到（%s，草稿箱可能还没渲染完）" % (
+            title, pos or "列表里没这张卡")
+    _click_pos(cdp, json.loads(pos), 2.5)
+    time.sleep(4)
+
+    end = time.time() + wait
+    newt = None
+    while time.time() < end:
+        for t in wp.CDP(CDP_PORT).list_targets():
+            if t.get("id") in before or t.get("type") != "page":
+                continue
+            if "/graphic/publish" in t.get("url", ""):
+                newt = t
+                break
+        if newt:
+            break
+        time.sleep(1)
+    if not newt:
+        return None, None, "点了编辑但没等到新开编辑页 tab"
+    c = wp.CDP(CDP_PORT)
+    if not c.connect_target(newt["id"]):
+        return None, None, "连不上新编辑页 tab"
+    # 等编辑器（标题框）出现
+    end = time.time() + 25
+    while time.time() < end:
+        if cdp.eval("!!document.querySelector(%s)" % json.dumps(SEL["title"])):
+            break
+        time.sleep(1)
+    return c, newt, ""
+
+
+def cover_one(c, dry=False):
+    """给**已存在的草稿**原地补封面（不重发、不产生重复草稿）。
+
+    做法：草稿箱 → 点该草稿的「编辑」（新开 tab，原文已加载）→ 走图库面板上传。
+    """
+    if dry:
+        return "dry"
+    meta_path = os.path.join(OUT, c["id"], "meta.json")
+    if not os.path.isfile(meta_path):
+        return "没有 meta.json，先跑 build"
+    with open(meta_path, encoding="utf-8") as f:
+        meta = json.load(f)
+    cp = cover_path(c["id"])
+    if not cp:
+        return "没找到卡片图"
+    cdp, t, err = open_draft_editor(meta["title"])
+    if not cdp:
+        return err
+    try:
+        has_cover = cdp.eval("!!document.querySelector('.article-cover-add')")
+        if not has_cover:
+            return "这张草稿本来就有封面（没有占位块）"
+        r = upload_cover(cdp, [cp])
+        if r != "ok":
+            return "封面失败：%s" % r
+        ok = _wait_autosave(cdp)
+        return "ok" + ("" if ok else "（封面已传，但没等到保存提示）")
+    finally:
+        cdp.close_target(t["id"])
+
+
+def cmd_cover(args):
+    """给已有的头条草稿补封面（原地改，不重发）。"""
+    cases = []
+    if args.case:
+        c = find_case_fuzzy(args.case)
+        if not c:
+            raise SystemExit("找不到案例：%s" % args.case)
+        cases.append(c)
+    else:
+        cases = list(load_cases())
+    if not args.all:
+        cases = cases[:1]
+    print("将为 %d 篇草稿补封面%s" % (len(cases), "（dry-run）" if args.dry else ""))
+    ok = 0
+    for i, c in enumerate(cases, 1):
+        print("[%d/%d] %-22s 《%s》" % (i, len(cases), c["id"],
+                                        find_title(c)))
+        r = cover_one(c, dry=args.dry)
+        print("    → %s" % r)
+        if r.startswith("ok"):
+            ok += 1
+    print("\n完成：%d/%d" % (ok, len(cases)))
+
+
+def find_title(c):
+    mp = os.path.join(OUT, c["id"], "meta.json")
+    if os.path.isfile(mp):
+        with open(mp, encoding="utf-8") as f:
+            return json.load(f).get("title", c["id"])
+    return c["id"]
+
+
 def cmd_build(args):
     cases = [find_case_fuzzy(args.case)] if args.case else list(load_cases())
     for i, c in enumerate(cases, 1):
@@ -859,7 +1218,7 @@ def cmd_publish(args):
     if args.case:
         todo = [find_case_fuzzy(args.case)]
     else:
-        pool = pending_cases(need_built=False)
+        pool = list(load_cases()) if args.force else pending_cases(need_built=False)
         if args.skip:
             pool = [c for c in pool
                     if c["id"] not in {s.strip() for s in args.skip.split(",")}]
@@ -938,8 +1297,13 @@ _CONFIRM_JS = """(function(){
 })()"""
 
 
-def _count_dup_and_delbtn(cdp, title):
-    """草稿箱里 title 的条数 + 第一条的「删除」按钮坐标（没有则 None）。"""
+def _count_dup_and_delbtn(cdp, title, keep_newest=True):
+    """草稿箱里 title 的条数 + 待删那条的「删除」按钮坐标（没有则 None）。
+
+    keep_newest：草稿箱按「最新在前」排，dedup 反复删会让**最后一条**活下来。
+    旧行为删第一条 = 保留最旧那张（重发后会把没封面的旧稿留下）。
+    所以这里默认返回**最后一张**的删除按钮，活下来的就是最新那条。
+    """
     r = cdp.eval("""(function(){
       var want = %s;
       var es = [].slice.call(document.querySelectorAll('div,li,tr,section'));
@@ -952,8 +1316,9 @@ def _count_dup_and_delbtn(cdp, title):
         return !cards.some(function(o){ return o !== c && c.contains(o); });
       });
       var del = null;
-      if(inner.length){
-        [].slice.call(inner[0].querySelectorAll('span,button,a,div')).forEach(function(e2){
+      var target = (%s) ? inner : inner.slice().reverse();
+      if(target.length){
+        [].slice.call(target[0].querySelectorAll('span,button,a,div')).forEach(function(e2){
           var t2 = (e2.innerText||'').trim();
           if(t2 === '删除' && e2.getBoundingClientRect().width > 0) del = e2;
         });
@@ -965,14 +1330,64 @@ def _count_dup_and_delbtn(cdp, title):
           x: b.x+b.width/2, y: b.y+b.height/2});
       }
       return JSON.stringify({n: inner.length, x: null, y: null});
-    })()""" % json.dumps(title, ensure_ascii=False))
+    })()""" % (json.dumps(title, ensure_ascii=False), "true" if keep_newest else "false"))
     d = json.loads(r or "{}")
     pos = (d["x"], d["y"]) if d.get("x") is not None else None
     return d.get("n", 0), pos
 
 
+def cmd_covers(args):
+    """批量生成头条横版封面 out/toutiao/<id>/cover.png。"""
+    cases = [find_case_fuzzy(args.case)] if args.case else list(load_cases())
+    if not cases:
+        print("没有可处理的案例。")
+        return 1
+    ok = 0
+    for i, c in enumerate(cases, 1):
+        try:
+            p = render_tt_cover(args.port, c)
+        except Exception as e:                        # noqa: BLE001
+            p, err = "", "%s: %s" % (type(e).__name__, e)
+        else:
+            err = ""
+        print("[%d/%d] %s → %s%s" % (i, len(cases), c["id"],
+                                     "ok" if p else "失败", (" " + err) if err else ""))
+        ok += 1 if p else 0
+    print("完成 %d/%d" % (ok, len(cases)))
+    return 0 if ok == len(cases) else 2
+
+
+def _copy_args(args, **kw):
+    d = vars(args).copy()
+    d.update(kw)
+    return argparse.Namespace(**d)
+
+
 def cmd_dedup(args):
-    """把草稿箱里同标题的重复草稿删到只剩 1 条（试填/重发留下的）。"""
+    """把草稿箱里同标题的重复草稿删到只剩 1 条（试填/重发留下的）。
+
+    --all：遍历 data/toutiao_drafts.json 里登记过的每条标题逐个去重。
+    """
+    if args.all and not args.title:
+        byid = {c["id"]: c for c in load_cases()}
+        try:
+            with open(DRAFT_FILE, encoding="utf-8") as f:
+                recs = json.load(f)
+        except Exception:                             # noqa: BLE001
+            recs = []
+        bad = 0
+        for i, r in enumerate(recs, 1):
+            c = byid.get(r.get("id"))
+            if not c:
+                continue
+            print("--- [%d/%d] %s" % (i, len(recs), r.get("id")))
+            args.title = make_toutiao_title(c)
+            bad += cmd_dedup(_copy_args(args, title=args.title)) or 0
+            args.title = None
+        return 0 if bad == 0 else 2
+    if not args.title:
+        print("需要指定标题或使用 --all")
+        return 1
     cdp, t = _open(TT_DRAFT, wait=8)
     try:
         _check_login(cdp)
@@ -1032,9 +1447,17 @@ def main():
     p.add_argument("--skip")
     p.add_argument("--dry", action="store_true")
     p.add_argument("--yes", action="store_true")
+    p.add_argument("--force", action="store_true",
+                   help="忽略已发记录，全部重发（用于补封面等重做场景）")
     p.add_argument("--no-cover", action="store_true",
                    help="不传封面卡片图（默认会传小红书 card-1 当封面）")
     p.set_defaults(fn=cmd_publish)
+    cv = sub.add_parser("covers",
+                        help="批量生成头条横版封面 out/toutiao/<id>/cover.png")
+    cv.add_argument("--case")
+    cv.add_argument("--all", action="store_true")
+    cv.add_argument("--port", type=int, default=9222)
+    cv.set_defaults(fn=cmd_covers)
     pr = sub.add_parser("probe", help="登录后导出发文页 DOM，校准选择器")
     pr.add_argument("--url")
     pr.add_argument("--keep", action="store_true")
@@ -1044,10 +1467,20 @@ def main():
     d.set_defaults(fn=cmd_drafts)
     dd = sub.add_parser("dedup",
                         help="把草稿箱里同标题的重复草稿删到只剩 1 条")
-    dd.add_argument("title", help="草稿标题（精确包含匹配）")
+    dd.add_argument("title", nargs="?", default=None,
+                    help="草稿标题（精确包含匹配）；--all 时可省略")
+    dd.add_argument("--all", action="store_true",
+                    help="遍历 data/toutiao_drafts.json 登记过的全部标题")
     dd.add_argument("--dry", action="store_true")
     dd.add_argument("--max-del", type=int, default=10)
     dd.set_defaults(fn=cmd_dedup)
+    cv = sub.add_parser("cover",
+                        help="给【已有的】草稿原地补封面（草稿箱 → 编辑 → 图库上传），"
+                             "不重发、不会产生重复草稿。不写 --all 时只处理一条。")
+    cv.add_argument("--case")
+    cv.add_argument("--all", action="store_true")
+    cv.add_argument("--dry", action="store_true")
+    cv.set_defaults(fn=cmd_cover)
     lg = sub.add_parser("login", help="检查登录态（退出码 0 = 已登录）")
     lg.add_argument("--open", action="store_true",
                     help="开一个登录页并留着，你自己扫码，脚本自动检测结果")
