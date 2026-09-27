@@ -1003,6 +1003,43 @@ _DRAFT_EDIT_POS = """(function(t){
 })(%s)"""
 
 
+# 草稿箱是**分页渲染**：首屏只出 20 条 `article-draft-item`，其余藏在
+# 「加载更多」按钮后面（页头会写「共 N 条内容」）。不点开它，同标题重复
+# 一律统计不到（dedup 曾因此全部报「0 条」假阴性）。
+_DRAFT_LOADMORE_JS = """(function(){
+  var ws = document.querySelectorAll('.common-load-more-wrap, .common-load-more-footer');
+  for(var i=0;i<ws.length;i++){
+    var w = ws[i];
+    if((w.innerText||'').indexOf('加载更多') < 0) continue;
+    var r = w.getBoundingClientRect();
+    if(r.width <= 0 || r.height <= 0) return 'hidden';
+    w.scrollIntoView({block:'center'});
+    return JSON.stringify({x: r.x + r.width/2, y: r.y + r.height/2});
+  }
+  return 'none';
+})()"""
+
+_DRAFT_ITEM_COUNT_JS = ("document.querySelectorAll('.article-draft-item, "
+                        ".draft-item').length")
+
+
+def _load_all_drafts(cdp, max_rounds=40, pause=2.0):
+    """点「加载更多」把草稿箱整页展开，返回渲染出的条目数。"""
+    for _ in range(max_rounds):
+        pos = cdp.eval(_DRAFT_LOADMORE_JS) or "none"
+        if pos == "none":
+            break
+        if pos == "hidden":
+            time.sleep(pause)
+            continue
+        _click_pos(cdp, json.loads(pos), 3)
+        time.sleep(pause)
+    try:
+        return int(cdp.eval(_DRAFT_ITEM_COUNT_JS) or 0)
+    except Exception:                                 # noqa: BLE001
+        return 0
+
+
 def _page_target_ids():
     out = set()
     try:
@@ -1297,42 +1334,57 @@ _CONFIRM_JS = """(function(){
 })()"""
 
 
-def _count_dup_and_delbtn(cdp, title, keep_newest=True):
+def _count_dup_and_delbtn(cdp, title, keep_newest=True, expand=True):
     """草稿箱里 title 的条数 + 待删那条的「删除」按钮坐标（没有则 None）。
 
     keep_newest：草稿箱按「最新在前」排，dedup 反复删会让**最后一条**活下来。
     旧行为删第一条 = 保留最旧那张（重发后会把没封面的旧稿留下）。
     所以这里默认返回**最后一张**的删除按钮，活下来的就是最新那条。
+
+    调用前必须先把列表点「加载更多」展全，否则首屏 20 条之外的重复全漏。
+    expand=False 用于批量模式（列表已展开，别重复点）。
     """
-    r = cdp.eval("""(function(){
+    if expand:
+        _load_all_drafts(cdp)
+    js = """(function(){
       var want = %s;
-      var es = [].slice.call(document.querySelectorAll('div,li,tr,section'));
-      var cards = [];
-      for(var i=0;i<es.length;i++){
-        var s = (es[i].innerText||'');
-        if(s.indexOf(want)>=0 && s.indexOf('编辑删除')>=0 && s.length < 400) cards.push(es[i]);
-      }
-      var inner = cards.filter(function(c){
-        return !cards.some(function(o){ return o !== c && c.contains(o); });
+      var es = [].slice.call(document.querySelectorAll(
+          '.article-draft-item, .draft-item'));
+      var inner = es.filter(function(e){
+        return ((e.innerText||'').indexOf(want) >= 0);
       });
+      if(!inner.length) return JSON.stringify({n: 0, x: null, y: null});
       var del = null;
-      var target = (%s) ? inner : inner.slice().reverse();
-      if(target.length){
-        [].slice.call(target[0].querySelectorAll('span,button,a,div')).forEach(function(e2){
-          var t2 = (e2.innerText||'').trim();
-          if(t2 === '删除' && e2.getBoundingClientRect().width > 0) del = e2;
-        });
-      }
+      // 草稿箱 **最新在前**（实测：首条 22:32，末条 15:22）。
+      // keep_newest=true 时要删的是**最旧那条** = inner 的最后一个 → 反转后取 [0]。
+      var target = (%s) ? inner.slice().reverse() : inner;
+      target[0].scrollIntoView({block: 'center'});
+      [].slice.call(target[0].querySelectorAll('span,button,a,div')).forEach(function(e2){
+        var t2 = (e2.innerText||'').trim();
+        var r2 = e2.getBoundingClientRect();
+        if(t2 === '删除' && r2.width > 0 && r2.height > 0) del = e2;
+      });
       if(del){
-        del.scrollIntoView({block:'center'});
         var b = del.getBoundingClientRect();
-        return JSON.stringify({n: inner.length,
-          x: b.x+b.width/2, y: b.y+b.height/2});
+        var vh = window.innerHeight || 1000;
+        if(b.y >= 0 && b.y <= vh){
+          return JSON.stringify({n: inner.length, ok: 1,
+            x: Math.round(b.x+b.width/2), y: Math.round(b.y+b.height/2)});
+        }
+        return JSON.stringify({n: inner.length, ok: 0,
+          reason: 'offscreen', x: null, y: null});
       }
-      return JSON.stringify({n: inner.length, x: null, y: null});
-    })()""" % (json.dumps(title, ensure_ascii=False), "true" if keep_newest else "false"))
+      return JSON.stringify({n: inner.length, ok: 0, reason: 'nodel',
+                             x: null, y: null});
+    })()""" % (json.dumps(title, ensure_ascii=False),
+               "true" if keep_newest else "false")
+    # 第一趟只负责把目标卡片滚进视口（列表展开后多数卡片在视口外，
+    # 直接点坐标会落空），隔一拍再量坐标。
+    cdp.eval(js)
+    time.sleep(0.9)
+    r = cdp.eval(js)
     d = json.loads(r or "{}")
-    pos = (d["x"], d["y"]) if d.get("x") is not None else None
+    pos = (d["x"], d["y"]) if d.get("x") is not None and d.get("ok") else None
     return d.get("n", 0), pos
 
 
@@ -1363,11 +1415,106 @@ def _copy_args(args, **kw):
     return argparse.Namespace(**d)
 
 
+# 「标题 + 时间 + 编辑删除」一条草稿卡片的文本，用来从整体文本里切出纯标题。
+_DRAFT_TITLE_RE = re.compile(
+    r"^(?P<t>.*?)\s(?:昨日|前天|刚刚|\d+分钟前|\d+小时前|\d{2}-\d{2})"
+    r"\s*(?:\d{2}:\d{2})?\s+编辑删除$")
+
+_DRAFT_ALL_TEXT_JS = """(function(){
+  // 必须直接用卡片节点：通用 [div,li,tr,section] 会选中卡片内部的
+  // .operations（文本只有「编辑删除」），导致取不到标题。
+  var es = [].slice.call(document.querySelectorAll(
+      '.article-draft-item, .draft-item'));
+  return JSON.stringify(es.map(function(e){
+    return (e.innerText||'').replace(/\\s+/g, ' ').trim();
+  }));
+})()"""
+
+
+def _draft_all_titles(cdp, expand=True):
+    """草稿箱（展开后）所有卡片的纯标题，按 DOM 顺序（**最新在前**）。"""
+    if expand:
+        _load_all_drafts(cdp)
+    try:
+        items = json.loads(cdp.eval(_DRAFT_ALL_TEXT_JS) or "[]")
+    except Exception:                                 # noqa: BLE001
+        items = []
+    out = []
+    for s in items:
+        m = _DRAFT_TITLE_RE.match((s or "").strip())
+        if m:
+            out.append(m.group("t").strip())
+    return out
+
+
+def _confirm_delete(cdp, pos):
+    """点删除 → 等 byte-modal → 点它的「确定」。成功返回 True。"""
+    for kind in ("mousePressed", "mouseReleased"):
+        cdp.send("Input.dispatchMouseEvent",
+                 {"type": kind, "x": pos[0], "y": pos[1],
+                  "button": "left", "clickCount": 1})
+    time.sleep(2.2)
+    conf = cdp.eval(_CONFIRM_JS)
+    if conf in ("nomodal", "nobtn"):
+        return False
+    try:
+        d = json.loads(conf)
+    except Exception:                                 # noqa: BLE001
+        return False
+    for kind in ("mousePressed", "mouseReleased"):
+        cdp.send("Input.dispatchMouseEvent",
+                 {"type": kind, "x": d["x"], "y": d["y"],
+                  "button": "left", "clickCount": 1})
+    time.sleep(3.5)
+    return True
+
+
+def _dedup_batch(max_del=12, dry=False):
+    """一次开页、一次展开，把所有重复标题逐个删到只剩最新一条。"""
+    cdp, t = _open(TT_DRAFT, wait=10)
+    try:
+        _check_login(cdp)
+        time.sleep(4)
+        titles = _draft_all_titles(cdp)
+        print("展开后 %d 条，唯一标题 %d 个" % (len(titles), len(set(titles))))
+        from collections import Counter
+        cnt = Counter(titles)
+        dups = sorted([(t2, c) for t2, c in cnt.items() if c > 1],
+                      key=lambda kv: -kv[1])
+        print("重复标题 %d 个，共需删 %d 条"
+              % (len(dups), sum(c - 1 for _, c in dups)))
+        if dry:
+            for t2, c in dups:
+                print("  [dry] x%d  %s" % (c, t2))
+            return 0
+        done = 0
+        bad = 0
+        for t2, c in dups:
+            for i in range(min(c - 1, max_del)):
+                n, pos = _count_dup_and_delbtn(cdp, t2, expand=False)
+                if n <= 1 or not pos:
+                    break
+                if not _confirm_delete(cdp, pos):
+                    print("  [warn] 《%s》第 %d 条没点到确认框，停" % (t2, i + 1))
+                    bad += 1
+                    break
+                done += 1
+            n, _ = _count_dup_and_delbtn(cdp, t2, expand=False)
+            print("  《%s》→ 剩 %d 条" % (t2, n))
+        print("共删除 %d 条%s" % (done, ("，失败 %d 个标题" % bad) if bad else ""))
+        return 0 if bad == 0 else 2
+    finally:
+        cdp.close_target(t["id"])
+
+
 def cmd_dedup(args):
     """把草稿箱里同标题的重复草稿删到只剩 1 条（试填/重发留下的）。
-
     --all：遍历 data/toutiao_drafts.json 里登记过的每条标题逐个去重。
+    --batch：只**开一次**草稿箱、把列表展开到底，然后一次性扫出所有重复标题
+            再逐条删（比 --all 快得多，也更不容易中途被浏览器掉线打断）。
     """
+    if getattr(args, "batch", False):
+        return _dedup_batch(max_del=args.max_del, dry=args.dry)
     if args.all and not args.title:
         byid = {c["id"]: c for c in load_cases()}
         try:
@@ -1471,6 +1618,8 @@ def main():
                     help="草稿标题（精确包含匹配）；--all 时可省略")
     dd.add_argument("--all", action="store_true",
                     help="遍历 data/toutiao_drafts.json 登记过的全部标题")
+    dd.add_argument("--batch", action="store_true",
+                    help="只开一次草稿箱、展开全部列表后一次性扫+删（推荐）")
     dd.add_argument("--dry", action="store_true")
     dd.add_argument("--max-del", type=int, default=10)
     dd.set_defaults(fn=cmd_dedup)
