@@ -403,6 +403,20 @@ def _click_text(cdp, texts):
     return cdp.eval(js)
 
 
+def cmd_login(args):
+    """登录态自检：已登录返回 0，被踢到登录页返回 1（供 publish_both 预检）。"""
+    cdp, t = _open(TT_HOME, wait=6)
+    try:
+        href = cdp.eval("location.href") or ""
+        if "/auth/page/login" in href:
+            print(LOGIN_HINT)
+            return 1
+        print("头条号已登录：%s（%s）" % (href, cdp.eval("document.title")))
+        return 0
+    finally:
+        cdp.close_target(t["id"])
+
+
 def cmd_probe(args):
     """登录后在发文页跑这个，把可选元素导出来校准 SEL。"""
     cdp, t = _open(args.url or TT_EDITOR)
@@ -639,8 +653,12 @@ def main():
     d = sub.add_parser("drafts")
     d.add_argument("--write", action="store_true")
     d.set_defaults(fn=cmd_drafts)
+    lg = sub.add_parser("login", help="只检查登录态（退出码 0 = 已登录）")
+    lg.set_defaults(fn=cmd_login)
     args = ap.parse_args()
-    args.fn(args)
+    rc = args.fn(args)
+    if isinstance(rc, int) and rc != 0:
+        sys.exit(rc)
 
 
 if __name__ == "__main__":

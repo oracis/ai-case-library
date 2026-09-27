@@ -115,5 +115,39 @@ class TestPick(_PendingCase):
         self.assertEqual(cases[0]["id"], "bus")
 
 
+class TestPlatforms(_PendingCase):
+    """三平台队列：按每个平台各自的记录判断，发过的平台要跳过。"""
+
+    def setUp(self):
+        super().setUp()
+        self.patch(pb.tp, "_ids", lambda path: [])      # 头条侧默认没有记录
+
+    def test_all_platforms_pending(self):
+        self.assertEqual([c["id"] for c in pb.pending_cases(pb.PLATFORMS)],
+                         ["c", "b", "a"])
+
+    def test_only_toutiao_left(self):
+        """公众号 + 小红书都发过、只剩头条没发 → 仍然出队（补发头条）。"""
+        pb.wp.load_published = lambda: {"a": {}}
+        pb.x._drafted_ids = lambda: ["a"]
+        self.assertEqual([c["id"] for c in pb.pending_cases(("toutiao",))],
+                         ["c", "b", "a"])
+        self.assertEqual(pb.pending_platforms(fake_case("a")), ["toutiao"])
+
+    def test_nothing_left(self):
+        pb.tp._ids = lambda path: ["a", "b", "c"]
+        pb.wp.load_published = lambda: {"a": {}, "b": {}, "c": {}}
+        pb.x._drafted_ids = lambda: ["a", "b", "c"]
+        self.assertEqual(pb.pending_cases(pb.PLATFORMS), [])
+
+    def test_parse_platforms(self):
+        self.assertEqual(pb._parse_platforms(""), list(pb.PLATFORMS))
+        self.assertEqual(pb._parse_platforms("wechat,toutiao"),
+                         ["wechat", "toutiao"])
+        self.assertEqual(pb._parse_platforms(" wechat ， xhs "), ["wechat", "xhs"])
+        with self.assertRaises(SystemExit):
+            pb._parse_platforms("douyin")
+
+
 if __name__ == "__main__":
     unittest.main()
