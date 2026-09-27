@@ -197,7 +197,45 @@ def _title_desc(desc, budget):
     return _hard_clip(s, budget)
 
 
-def make_xhs_title(c, used=None):
+MONTH_LEDGER_RE = re.compile(r"月(收|入)\s*\$([\d.,]+)([KM]?)")
+
+
+def correct_title_metric(title, c):
+    """标题里写着「月收 $X」，但那个数字其实是**年化（ARR）**时，改写成「年收」。
+
+    踩过的坑（2026-09-27）：`xhs_title_overrides.json` 是照「月收 $X」批量改写
+    的，于 sierra / genius-ai / nitra / viktor 这类**只有 arr 字段**的案例上，
+    把年化收入直接贴了「月收」标签 —— 数字没错、量词错，口径整整差 12 倍
+    （「月收 $200M」实际是年收 $200M）。chatbase 同型：MRR $863K、ARR $10M，
+    标题里的 $10M 也是年化。
+
+    只换量词不动数字；标题数字跟 mrr / last_30d_revenue 撞上了也别改（那种
+    情况数字本来就是月度）。返回修正后的标题。
+    """
+    m = (c or {}).get("metrics") or {}
+    arr = m.get("arr")
+    if not isinstance(arr, (int, float)) or not title:
+        return title
+    _unit = {"": 1.0, "K": 1e3, "M": 1e6}
+
+    def _repl(mm):
+        try:
+            v = float(mm.group(2).replace(",", "")) * _unit[mm.group(3).upper()]
+        except (ValueError, KeyError):
+            return mm.group(0)
+        # 数字跟月度口径对得上 → 量词没错，别动
+        for k in ("mrr", "last_30d_revenue"):
+            x = m.get(k)
+            if isinstance(x, (int, float)) and abs(v - x) <= max(1.0, abs(x) * 0.02):
+                return mm.group(0)
+        if abs(v - arr) > max(1.0, abs(arr) * 0.02):
+            return mm.group(0)
+        return "年%s$%s%s" % (mm.group(1), mm.group(2), mm.group(3))
+
+    return MONTH_LEDGER_RE.sub(_repl, title)
+
+
+def _raw_make_xhs_title(c, used=None):
     """<=20 字、不带省略号的标题。
 
     优先级：data/xhs_title_overrides.json（AI/人工覆盖）→ 规则生成
@@ -235,6 +273,15 @@ def make_xhs_title(c, used=None):
     if budget >= 6:
         return pre + _hard_clip(desc, budget)
     return "拆解一个海外小生意"
+
+
+def make_xhs_title(c, used=None):
+    """对外入口：规则/覆写生成完，再走一遍口径兜底。
+
+    correct_title_metric 会把把 ARR 值误标成「月收」的标题改成「年收」，
+    这样哪怕 overrides 还是旧写法，发出来的标题也不会错。
+    """
+    return correct_title_metric(_raw_make_xhs_title(c, used), c)
 
 
 def _clip(s, n):

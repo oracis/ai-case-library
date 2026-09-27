@@ -33,16 +33,26 @@ _CLEANUP = None
 
 
 def _done_ids():
+    """完成名单 = {case_id: 改成后的标题}。
+
+    记标题是为了「标题改过之后还能重跑」：2026-09-27 那批 36 条改完就进了名单，
+    后来发现其中几条口径错了（ARR 写成月收）要再改一次，名单却把它们挡住了。
+    现在只要 `名单里的标题 != 当前应改成的新标题`，这条就重新出队。
+    老文件是纯 id 列表，读进来当 `{id: None}`。
+    """
     try:
-        return set(json.load(open(DONE_FILE, encoding="utf-8")))
+        d = json.load(open(DONE_FILE, encoding="utf-8"))
     except Exception:
-        return set()
+        return {}
+    if isinstance(d, list):
+        return {i: None for i in d}
+    return d if isinstance(d, dict) else {}
 
 
-def _save_done(ids):
+def _save_done(done):
     os.makedirs(os.path.dirname(DONE_FILE), exist_ok=True)
     with open(DONE_FILE, "w", encoding="utf-8") as f:
-        json.dump(sorted(ids), f, ensure_ascii=False, indent=2)
+        json.dump(sorted(done.items()), f, ensure_ascii=False, indent=2)
 
 
 def title_map():
@@ -323,17 +333,19 @@ def main():
                 continue
             plan.append((d, cid, x.make_xhs_title(cases[cid])))
         done0 = _done_ids()
-        todo0 = [(d, cid, nt) for d, cid, nt in plan if cid not in done0]
+        todo0 = [(d, cid, nt) for d, cid, nt in plan if done0.get(cid) != nt]
         print("待改 %d 条，已标记完成 %d 条" % (len(todo0), len(plan) - len(todo0)))
         for d, cid, nt in todo0[:60]:
             flag = "  " if d.get("title") != nt else "✓ "
             print("  %s%-18s %-26s → %s" % (flag, cid, d.get("title"), nt))
         if args.verify:
             bad = [(cid, d.get("title"))
-                   for d, cid, nt in plan if cid in done0 and d.get("title") != nt]
+                   for d, cid, nt in plan
+                   if done0.get(cid) == nt and d.get("title") != nt]
             print("\n验收：标题还没换过来的 %d 条 %s" % (len(bad), bad or ""))
             if bad and args.unmark_bad:
-                keep = set(done0) - {cid for cid, _ in bad}
+                keep = {k: v for k, v in done0.items()
+                        if k not in {cid for cid, _ in bad}}
                 _save_done(keep)
                 print("已把这几条从完成名单里摘掉（%d → %d），下次 --go 会重跑它们"
                       % (len(done0), len(keep)))
@@ -346,7 +358,8 @@ def main():
     # 不重开就找不到「编辑」按钮；而且改过的那条会排到最前，旧的 saved
     # 快照会失效。所以不能一次性排计划（2026-09-27 实测踩过）。
     done = _done_ids()
-    cases_left = {cid for cid in mapping.values() if cid not in done}
+    cases_left = {cid for cid in mapping.values()
+                  if done.get(cid) != x.make_xhs_title(cases[cid])}
     n_max = len(cases_left) * 3 + 5
     if args.limit:
         n_max = min(n_max, args.limit)
@@ -384,7 +397,7 @@ def main():
         ok, why = retitle_one(sub, js, d, nt)
         print("    %s %s" % ("✅" if ok else "❌", why), flush=True)
         if ok:
-            done.add(cid)
+            done[cid] = nt
             cases_left.discard(cid)
             _save_done(done)
             ok_n += 1

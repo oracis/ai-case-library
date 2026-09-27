@@ -42,6 +42,7 @@ import xhs_publish as x      # noqa: E402  复用模糊匹配
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "out", "toutiao")
 ARTICLES_DIR = os.path.join(ROOT, "out", "articles")
+XHS_DIR = os.path.join(ROOT, "out", "xhs")       # 卡片图在这儿，封面直接复用
 TITLE_OVERRIDES_PATH = os.path.join(ROOT, "data", "xhs_title_overrides.json")
 DRAFT_FILE = os.path.join(ROOT, "data", "toutiao_drafts.json")
 PUB_FILE = os.path.join(ROOT, "data", "toutiao_published.json")
@@ -52,17 +53,23 @@ TITLE_MAX = 30          # 头条标题硬上限（实测后台 30 字，超了�
 BODY_MIN = 300          # 头条推荐 1000+ 字，低于这个数建议别发
 
 TT_HOME = "https://mp.toutiao.com/"
-# 发文页（创作端「写文章」）。老版 /profile_v4/graphic/articles，新版创作端可能变，
-# 登录后用 probe 校准：脚本会先打开 TT_EDITOR，若被重定向到首页则退到 TT_HOME。
-TT_EDITOR = "https://mp.toutiao.com/profile_v4/graphic/articles"
-TT_CONTENT = "https://mp.toutiao.com/profile_v4/manage/content"   # 内容管理/草稿
+# 发文页（创作端「写文章」）。2026-09-27 实测：新版创作端的发文页是
+#   /profile_v4/graphic/publish
+# 老写法 /profile_v4/graphic/articles 是**文章列表**（只有搜索框，没有编辑器），
+# 用它会静默「填不进去」。另有 /creator/publish、/publish/article 等候选均无编辑器。
+# 页面上有：标题 = textarea[placeholder*=文章标题]，正文 = .ProseMirror[contenteditable=true]
+TT_EDITOR = "https://mp.toutiao.com/profile_v4/graphic/publish"
+# 草稿箱列表页。2026-09-27 实测只有 /profile_v4/manage/draft 能出列表，
+# manage/content、graphic/draft、draft 等落点都是空壳（只有导航菜单）。
+TT_DRAFT = "https://mp.toutiao.com/profile_v4/manage/draft"
 
 # ---- 选择器（实验性，probe 后可改这里）-------------------------------------
 SEL = {
-    "title": ("input[placeholder*='标题'], textarea[placeholder*='标题'], "
-              ".article-title input, .title-input input, #article-title"),
-    "body": ("[contenteditable='true'], .ProseMirror, "
-             ".article-content [contenteditable]"),
+    "title": ("textarea[placeholder*='文章标题'], "
+              "input[placeholder*='文章标题'], "
+              "textarea[placeholder*='标题'], input[placeholder*='标题']"),
+    "body": (".ProseMirror[contenteditable='true'], "
+             "[contenteditable='true'], .ProseMirror"),
 }
 
 
@@ -90,10 +97,11 @@ def _title_override(cid):
     return (v or "").strip()
 
 
-def make_toutiao_title(c):
+def make_toutiao_title(c, hits_out=None):
     """头条标题：≤30 字，优先 AI 改写过的短标题，否则公众号标题，再兜名字。
 
     头条的推荐逻辑偏好「信息量 + 具体数字」，所以能带上金额就带。
+    `hits_out` 是个可选列表，-neutralize 换掉的敏感词会填进去（给 build 提示用）。
     """
     cid = c.get("id", "")
     cand = _title_override(cid)
@@ -106,23 +114,16 @@ def make_toutiao_title(c):
         cand = "%s：%s" % ((c.get("name") or "").strip(),
                           (c.get("one_liner") or "").strip())
     cand = re.sub(r"\s+", " ", cand).strip(" ：:-—|")
-    cand = fix_arr_wording(cand, c)
+    cand = x.correct_title_metric(cand, c)        # ARR 误标「月收」→「年收」
+    cand, hits = neutralize_risk(cand)
+    if hits_out is not None:
+        hits_out.extend(hits)
     return cand[:TITLE_MAX]
 
 
 def fix_arr_wording(title, c):
-    """只有年化（ARR）数据的案例，标题里的「月收」要改成「年收」。
-
-    xhs_title_overrides.json 是照「月收 $X」批量改写的，但 sierra / genius-ai
-    这类只有 ARR（年化）数据的案例被写成「月收 $200M」，口径整整差 12 倍。
-    头条标题字更少、更显眼，这里必须按 metrics 里实际有的字段纠正。
-    """
-    m = c.get("metrics") or {}
-    has_monthly = any(m.get(k) is not None
-                      for k in ("mrr", "last_30d_revenue"))
-    if has_monthly or m.get("arr") is None:
-        return title
-    return title.replace("月收", "年收").replace("月入", "年入")
+    """兼容旧名：口径纠正委托给 xhs_publish.correct_title_metric。"""
+    return x.correct_title_metric(title, c)
 
 
 def amount_warn(c, title):
@@ -245,13 +246,32 @@ def blocks_to_html(blocks, footer=True):
 
 FOOTER_NOTE = "关于本栏目"
 
-# 头条审核/推荐的敏感词（夸张收益、绝对化用语）。命中只在 build 时提示，不自动改。
-RISK_WORDS = ["躺赚", "躺收", "躺着", "暴利", "稳赚", "稳赚不赔", "月入过万",
-              "第一", "最全", "最强", "震惊", "必看", "零成本", "无脑"]
+# 头条审核/推荐的敏感词 → 中性替身。**标题命中就自动换掉**，不留人工判断：
+# 「躺着收租」这类词看着有味道，但头条推荐会把「躺」系关键词当低质收益噱头压权。
+# 长词排前面，避免「稳赚不赔」被换成「稳赚」后残留。
+RISK_REPLACE = {
+    "躺赚": "被动收入", "躺收": "被动收入", "躺着收租": "收租", "躺着": "自动化",
+    "暴利": "高利润", "稳赚不赔": "长期稳定", "稳赚": "长期稳定",
+    "月入过万": "月收入过万", "零成本": "低成本", "无脑": "轻松",
+    "震惊": "意外", "必看": "值得看", "第一": "领先", "最全": "完整", "最强": "成熟",
+}
+RISK_WORDS = sorted(RISK_REPLACE, key=len, reverse=True)
+# 正文里这些词多半是原文引用（「业界第一」「零成本工具」），只在 build 时提示。
+BODY_RISK_WORDS = [w for w in RISK_WORDS if w not in ("第一", "最全", "最强")]
 
 
-def risk_words(text):
-    return [w for w in RISK_WORDS if w in (text or "")]
+def risk_words(text, words=None):
+    return [w for w in (words or RISK_WORDS) if w in (text or "")]
+
+
+def neutralize_risk(title):
+    """标题敏感词中性化。返回 (新标题, 换掉的词列表)。"""
+    out, hits = title or "", []
+    for w in RISK_WORDS:
+        if w in out:
+            out = out.replace(w, RISK_REPLACE[w])
+            hits.append(w)
+    return out, hits
 
 
 def build_article(c):
@@ -264,12 +284,15 @@ def build_article(c):
             md = f.read()
     blocks = md_to_blocks(md)
     plain = "\n".join(t for _, t in blocks)
-    title = make_toutiao_title(c)
+    hits = []                                     # 被自动中性化的敏感词
+    title = make_toutiao_title(c, hits_out=hits)
     html = blocks_to_html(blocks)
     return {
         "id": cid,
         "name": c.get("name", ""),
         "title": title,
+        "risk_fixed": hits,
+        "body_risk": risk_words(plain, BODY_RISK_WORDS),
         "chars": len(plain),
         "blocks": len(blocks),
         "html": html,
@@ -390,6 +413,106 @@ def _focus_and_type(cdp, sel, text):
     return True
 
 
+def cover_path(cid):
+    """这篇头条稿的封面图（直接复用小红书那 5 张卡片图的第 1 张）。"""
+    for name in ("card-1.png", "card-1.jpg", "card-1.jpeg"):
+        p = os.path.join(XHS_DIR, cid, name)
+        if os.path.isfile(p):
+            return p
+    return ""
+
+
+def _file_input_node(cdp):
+    """DOM 域里查 file input 的 nodeId（封面 file input 是点开才动态创建的）。"""
+    try:
+        r = cdp.send("DOM.getDocument", {"depth": 0})
+        root = r.get("result", {}).get("root", {}).get("nodeId")
+        if not root:
+            return 0
+        r2 = cdp.send("DOM.querySelector", {"nodeId": root,
+                                            "selector": "input[type=file]"})
+        return r2.get("result", {}).get("nodeId", 0)
+    except Exception:                                 # noqa: BLE001
+        return 0
+
+
+def _click_pos(cdp, pos, pause=0.3):
+    for kind in ("mousePressed", "mouseReleased"):
+        cdp.send("Input.dispatchMouseEvent",
+                 {"type": kind, "x": pos["x"], "y": pos["y"],
+                  "button": "left", "clickCount": 1})
+    time.sleep(pause)
+
+
+def upload_cover(cdp, paths):
+    """给发文页传封面（点 .article-cover-add 出 file input，再 setFileInputFiles）。"""
+    r = cdp.eval("""(function(){
+      var el = document.querySelector('.article-cover-add');
+      if(!el) return 'notfound';
+      el.scrollIntoView({block:'center'});
+      var b = el.getBoundingClientRect();
+      if(b.width <= 0) return 'notfound';
+      return JSON.stringify({x: b.x+b.width/2, y: b.y+b.height/2});
+    })()""")
+    if not r or r == "notfound":
+        return "no-cover-slot"
+    _click_pos(cdp, json.loads(r), 3)
+    node = _file_input_node(cdp)
+    if not node:
+        return "no-file-input"
+    cdp.send("DOM.setFileInputFiles",
+             {"files": [os.path.abspath(p) for p in paths], "nodeId": node})
+    time.sleep(8)
+    return "ok"
+
+
+def _clear_editor(cdp):
+    """把发文页的标题和正文清空（--dry 用，避免留下草稿）。"""
+    js = """(function(){
+      var ta = document.querySelector("textarea[placeholder*='文章标题'],"
+                                     "input[placeholder*='文章标题']");
+      if(ta){
+        var proto = ta.tagName === 'TEXTAREA' ? HTMLTextAreaElement : HTMLInputElement;
+        Object.getOwnPropertyDescriptor(proto.prototype,'value').set.call(ta,'');
+        ta.dispatchEvent(new Event('input',{bubbles:true}));
+      }
+      var ed = document.querySelector(".ProseMirror[contenteditable='true']");
+      if(ed){
+        ed.focus();
+        try{ document.execCommand('selectAll'); document.execCommand('delete'); }catch(e){}
+      }
+      return 'ok';
+    })()"""
+    try:
+        cdp.eval(js)
+    except Exception:                                 # noqa: BLE001
+        pass
+    time.sleep(1.5)
+
+
+def _wait_autosave(cdp, timeout=45):
+    """等发文页的草稿自动保存（头条没「存草稿」按钮，靠页面自己存）。
+
+    页面提示语有「草稿将自动保存」「已保存」「保存成功」几种写法，
+    命中任一即算成功；超时返回 False（调用方按草稿箱复核）。
+    """
+    js = ("(function(){return (document.body.innerText||'');})()")
+    end = time.time() + timeout
+    seen = set()
+    while time.time() < end:
+        try:
+            txt = cdp.eval(js) or ""
+        except Exception:                             # noqa: BLE001
+            time.sleep(2)
+            continue
+        for kw in ("保存成功", "已保存", "草稿已保存"):
+            if kw in txt and kw not in seen:
+                seen.add(kw)
+                return True
+        time.sleep(2)
+    return False
+
+
 def _click_text(cdp, texts):
     """按可见文本点按钮（「保存草稿」「存草稿」「发布」）。"""
     js = ("(function(){var want=%s;"
@@ -404,7 +527,14 @@ def _click_text(cdp, texts):
 
 
 def cmd_login(args):
-    """登录态自检：已登录返回 0，被踢到登录页返回 1（供 publish_both 预检）。"""
+    """登录态自检：已登录返回 0，被踢到登录页返回 1（供 publish_both 预检）。
+
+    --open：不检测，而是在调试 Chrome 里**开一个登录页并一直留着**，
+    你自己扫完码按回车（或直接等 --timeout 秒），脚本回报登录结果。
+    登录页容易被覆盖/关掉，需要重新登录时用它。
+    """
+    if args.open:
+        return _open_login_page(args.timeout)
     cdp, t = _open(TT_HOME, wait=6)
     try:
         href = cdp.eval("location.href") or ""
@@ -415,6 +545,35 @@ def cmd_login(args):
         return 0
     finally:
         cdp.close_target(t["id"])
+
+
+def _open_login_page(timeout=600):
+    cdp = wp.CDP(CDP_PORT)
+    t = cdp.new_target(TT_HOME)
+    if not cdp.connect_target(t["id"]):
+        print("连不上调试 Chrome（9222），先起一个：")
+        print(LOGIN_HINT)
+        return 1
+    print("已开一个头条号登录页，请在这个 Chrome 窗口里扫码登录…")
+    print("（登录页会一直开着，扫完不用管它，下面自动检测）")
+    deadline = time.time() + timeout
+    last = ""
+    while time.time() < deadline:
+        time.sleep(6)
+        try:
+            href = cdp.eval("location.href") or ""
+        except Exception:
+            continue
+        if href != last:
+            last = href
+            print("  · 当前：%s" % href[:90])
+        if "/auth/page/login" not in href:
+            print("✓ 登录成功：%s（%s）"
+                  % (href, cdp.eval("document.title")))
+            return 0
+    print("等了 %d 秒还没登录，登录页还开着，你自己扫一下再跑一次本命令的检测"
+          % timeout)
+    return 1
 
 
 def cmd_probe(args):
@@ -456,8 +615,11 @@ def cmd_probe(args):
             cdp.close_target(t["id"])
 
 
-def publish_one(c, dry=False, yes=False):
-    """填一稿进发文页。dry = 只填不点；yes = 点「发布」，否则点「存草稿」。"""
+def publish_one(c, dry=False, yes=False, cover=True):
+    """填一稿进发文页。dry = 只填不点；yes = 点「发布」，否则靠自动存草稿。
+
+    cover = 顺手把小红书卡片图第 1 张传成封面（头条没封面推荐会弱）。
+    """
     meta_path = os.path.join(OUT, c["id"], "meta.json")
     if not os.path.isfile(meta_path):
         meta = build_article(c)
@@ -495,14 +657,32 @@ def publish_one(c, dry=False, yes=False):
                      "return (e&&(e.innerText||'').length)||0;})()"
                      % json.dumps(body_sel))
         print("    正文：%s 字" % n)
+        if cover:
+            cp = cover_path(c["id"])
+            if cp:
+                r = upload_cover(cdp, [cp])
+                print("    封面：%s（%s）" % (r, os.path.basename(cp)))
+            else:
+                print("    封面：没找到卡片图（跳过，草稿会显示「没封面」）")
         if dry:
-            print("    [dry] 不点按钮，编辑页已填好，自己看一眼再手动发布")
+            # 头条是**边填边存**的，--dry 关页照样留草稿（实测留下一条，和真发那条
+            # 在草稿箱里成对出现，看上去就是「重复」）。所以 dry 填完必须把内容清掉。
+            _clear_editor(cdp)
+            print("    [dry] 已填好内容并清空再关页（头条边填边存，不清会留草稿）")
             return True
-        btn = _click_text(cdp, ["发布", "立即发布"] if yes else ["存草稿", "保存草稿", "草稿"])
-        print("    点击：%s" % btn)
-        if btn == "notfound":
-            print("    [warn] 没点到按钮（选择器要校准），记录不写")
-            return False
+        if not yes:
+            # 头条发文页**没有「存草稿」按钮**（底部只有 预览 / 定时发布 / 预览并发布），
+            # 草稿是填完自动保存的（页面上有「草稿将自动保存」提示）。
+            # 所以「存草稿」= 填完等它自己存，别点任何按钮。
+            ok = _wait_autosave(cdp)
+            print("    自动保存：%s" % ("已保存" if ok else "没等到保存提示，稍后去草稿箱确认"))
+            if not ok:
+                return False
+        else:
+            btn = _click_text(cdp, ["预览并发布", "发布文章", "立即发布"])
+            if btn == "notfound":
+                print("    [warn] 没点到发布按钮，记录不写")
+                return False
         time.sleep(4)
         if yes:
             mark_published(c["id"])
@@ -528,6 +708,10 @@ def cmd_build(args):
         rw = risk_words(meta["title"])
         if rw:
             flags.append("标题有头条敏感词：%s" % "/".join(rw))
+        if meta.get("risk_fixed"):
+            flags.append("敏感词已自动中性化：%s" % "/".join(meta["risk_fixed"]))
+        if meta.get("body_risk"):
+            flags.append("正文敏感词（原文引用，自行判断）：%s" % "/".join(meta["body_risk"]))
         print("[%d/%d] %-22s 《%s》 %d 字 · %d 段%s"
               % (i, len(cases), c["id"], meta["title"], meta["chars"],
                  meta["blocks"], ("  [!] " + "；".join(flags)) if flags else ""))
@@ -590,30 +774,53 @@ def cmd_publish(args):
     for i, c in enumerate(todo, 1):
         print("[%d/%d] %s —— %s" % (i, len(todo), c["id"], c.get("name", "")))
         try:
-            publish_one(c, dry=args.dry, yes=args.yes)
+            publish_one(c, dry=args.dry, yes=args.yes,
+                        cover=not args.no_cover)
         except SystemExit:
             raise
         except Exception as e:                        # noqa: BLE001
             print("    [异常] %s：%s" % (type(e).__name__, e))
 
 
+def fetch_draft_titles(cdp, wait=10):
+    """读头条草稿箱页面，返回 [(标题, 另一行信息)]。
+
+    列表行长这样（innerText，按块）：
+        <标题> 刚刚 编辑删除 / <标题> 4 分钟前 编辑删除
+    把整页 innerText 按「编辑删除」切段，每段第一行就是标题。
+    """
+    time.sleep(wait)
+    txt = cdp.eval("(function(){return document.body.innerText||'';})()") or ""
+    out = []
+    for seg in txt.split("编辑删除"):
+        lines = [l.strip() for l in seg.split("\n") if l.strip()]
+        if not lines:
+            continue
+        title = lines[0]
+        if len(title) < 3 or not any(k in title for k in ("拆解", "：", "$")):
+            continue
+        info = " ".join(lines[1:3])
+        out.append((title, info))
+    return out
+
+
 def cmd_drafts(args):
-    """从「内容管理」草稿列表反查，重建已发记录。"""
-    cdp, t = _open(TT_CONTENT, wait=8)
+    """从草稿箱列表反查，重建已发记录。"""
+    cdp, t = _open(TT_DRAFT, wait=8)
     try:
         _check_login(cdp)
-        items = cdp.eval("""(function(){
-          var out=[];
-          [].slice.call(document.querySelectorAll('li,tr,div')).forEach(function(e){
-            var s=(e.innerText||'').trim();
-            if(s && s.length>4 && s.length<120 && /草稿|编辑中|未发布/.test(s)) out.push(s);
-          });
-          return JSON.stringify(out.slice(0,80));
-        })()""")
-        arr = json.loads(items or "[]")
-        print("读到 %d 条候选（含噪声，人工看一眼）：" % len(arr))
-        for s in arr:
-            print("  · " + s.replace("\n", " | ")[:100])
+        arr = fetch_draft_titles(cdp)
+        print("读到 %d 条草稿：" % len(arr))
+        for title, info in arr:
+            print("  · %s   [%s]" % (title[:40], info[:30]))
+        if args.write:
+            hit = 0
+            for c in load_cases():
+                title = make_toutiao_title(c)
+                if any(title and title[:12] in a for a, _ in arr):
+                    mark_drafted(c["id"])
+                    hit += 1
+            print("\n已写 %d 条进 data/toutiao_drafts.json" % hit)
         if args.write:
             hit = 0
             for c in load_cases():
@@ -645,6 +852,8 @@ def main():
     p.add_argument("--skip")
     p.add_argument("--dry", action="store_true")
     p.add_argument("--yes", action="store_true")
+    p.add_argument("--no-cover", action="store_true",
+                   help="不传封面卡片图（默认会传小红书 card-1 当封面）")
     p.set_defaults(fn=cmd_publish)
     pr = sub.add_parser("probe", help="登录后导出发文页 DOM，校准选择器")
     pr.add_argument("--url")
@@ -653,7 +862,11 @@ def main():
     d = sub.add_parser("drafts")
     d.add_argument("--write", action="store_true")
     d.set_defaults(fn=cmd_drafts)
-    lg = sub.add_parser("login", help="只检查登录态（退出码 0 = 已登录）")
+    lg = sub.add_parser("login", help="检查登录态（退出码 0 = 已登录）")
+    lg.add_argument("--open", action="store_true",
+                    help="开一个登录页并留着，你自己扫码，脚本自动检测结果")
+    lg.add_argument("--timeout", type=int, default=600,
+                    help="--open 时最长等多少秒（默认 600）")
     lg.set_defaults(fn=cmd_login)
     args = ap.parse_args()
     rc = args.fn(args)
