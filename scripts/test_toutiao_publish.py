@@ -157,5 +157,48 @@ class TestBuild(unittest.TestCase):
         self.assertTrue(True)
 
 
+class TestTtCoverNum(unittest.TestCase):
+    """封面大数字：超预算分段丢弃，绝不出现半截标点（旧版出过「$4,985,」）。"""
+
+    def test_semicolon_segments_drop_overflow(self):
+        self.assertEqual(
+            tp.tt_cover_num("MRR $244,029；累计收入 $4,985,134（Stripe 直连验证）"),
+            "MRR $244,029")
+
+    def test_slash_segments(self):
+        self.assertEqual(
+            tp.tt_cover_num("收入 $1.6K / 售价 $60K / 倍数 3.1x（TrustMRR 挂牌）"),
+            "收入 $1.6K")
+
+    def test_fullwidth_comma_segments(self):
+        self.assertEqual(
+            tp.tt_cover_num("月收入 $18,000，毛利率 90%"),
+            "月收入 $18,000")
+
+    def test_big_number_strip_thousands_separator(self):
+        # 各段都超预算时，去掉千分位逗号再试（$3,569,654 → $3569654）
+        self.assertEqual(
+            tp.tt_cover_num("MRR $3,569,654；累计收入 $76,627,685"),
+            "MRR $3569654")
+
+    def test_clip_fallback_strips_trailing_punct(self):
+        n = tp.tt_cover_num("$424,368 MRR · Stripe 验证")
+        self.assertFalse(n.endswith((",", "，", "；", ";", " ")), repr(n))
+
+    def test_empty(self):
+        self.assertEqual(tp.tt_cover_num(""), "")
+        self.assertEqual(tp.tt_cover_num(None), "")
+
+    def test_cover_html_dark_theme_and_no_smallprint_footer(self):
+        c = {"id": "1lookup", "name": "1Lookup",
+             "one_liner": "一个 API 做电话、邮箱、IP 的实时数据校验",
+             "metrics": {"headline": "MRR $244,029；累计收入 $4,985,134"}}
+        html = tp.tt_cover_html(c)
+        self.assertIn("#221b3d", html)            # 主题深色底（缩略图对比度）
+        self.assertIn("MRR $244,029", html)       # 无尾逗号的完整数字
+        self.assertNotIn("CASE STUDY", html)      # 小字装饰已去掉
+        self.assertNotIn("numsub", html)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

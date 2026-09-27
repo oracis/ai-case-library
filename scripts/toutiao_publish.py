@@ -506,67 +506,82 @@ def _focus_and_type(cdp, sel, text):
     return True
 
 
+_NUM_BUDGET = 12   # 封面大数字最大长度（字符数），超了逐段丢弃
+
+
+def tt_cover_num(headline):
+    """封面大数字：超预算时分段丢弃（;/，/斜杠都算分段符），不出半截文案。
+
+    修掉旧版 `_clip` 硬截留下的「…$4,985,」尾逗号；大数去千分位逗号再试。
+    """
+    h = (headline or "").split("（")[0].strip()
+    if not h:
+        return ""
+    n = x.cover_headline(h, budget=_NUM_BUDGET)
+    if n:
+        return n
+    segs = [s.strip() for s in re.split(r"[;；，/／]", h) if s.strip()]
+    out = ""
+    for s in segs:
+        cand = (out + " / " + s) if out else s
+        if len(cand) <= _NUM_BUDGET:
+            out = cand
+    if out:
+        return out
+    for s in segs:                     # 大数去掉千分位逗号再试（$3,569,654→$3569654）
+        s2 = s.replace(",", "")
+        if len(s2) <= _NUM_BUDGET:
+            return s2
+    return re.sub(r"[，、；,;/／\s]+$", "", x._clip(h, _NUM_BUDGET))
+
+
 def tt_cover_html(c):
-    """头条专用横版封面（16:9），设计语言沿用小红书卡片封面页。"""
+    """头条专用横版封面（16:9）。
+
+    设计目标「缩略图可读」：草稿箱/信息流缩略图只有 ~120px 宽（源图的
+    1/32），2026-09-28 重做 —— 旧版米白底文档风（大量小灰字）缩到 120px
+    全糊成噪点。新版用主题深色底 + 亮色特大数字 + 白色特大产品名，
+    小字装饰只留左上角品牌行。
+    """
     i = sum(ord(ch) for ch in c.get("id", "")) % len(wp.COVER_THEMES)
-    _base, _band, ac = wp.COVER_THEMES[i]
+    base, band, ac = wp.COVER_THEMES[i]
     name = c.get("name") or c.get("id") or ""
     one = re.sub(r"（[^）]*）", "", (c.get("one_liner") or "")).strip() or \
         (c.get("category") or "")
     headline = (c.get("metrics") or {}).get("headline") or ""
-    num = x.cover_headline(headline) or x._clip(headline, 30)
+    num = tt_cover_num(headline)
     return (
         '<!doctype html><html><head><meta charset="utf-8"><style>'
         "*{margin:0;padding:0;box-sizing:border-box;}"
         "html,body{width:%(W)dpx;height:%(H)dpx;}"
         'body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;'
-        "background:#fffdf9;display:flex;flex-direction:column;"
-        "padding:76px 96px 64px;position:relative;overflow:hidden;}"
-        ".band{position:absolute;left:0;top:0;bottom:0;width:24px;"
-        "background:%(AC)s;}"
-        ".hd{display:flex;justify-content:space-between;align-items:center;"
-        "margin-bottom:64px;padding-left:26px;}"
-        ".brand{font-size:34px;letter-spacing:2px;color:#666;font-weight:600;"
-        "display:flex;align-items:center;gap:16px;}"
-        ".sq{width:22px;height:22px;background:%(AC)s;}"
-        ".pg{font-size:30px;color:#999;letter-spacing:4px;}"
-        ".main{flex:1;display:flex;align-items:center;gap:72px;"
-        "padding-left:26px;min-height:0;}"
-        ".left{flex:1.2;min-width:0;}"
-        ".kicker{font-size:32px;letter-spacing:6px;color:%(AC)s;"
-        "font-weight:700;margin-bottom:36px;}"
-        ".name{font-size:104px;font-weight:900;color:#1c1a17;"
-        "line-height:1.16;margin-bottom:32px;max-height:2.35em;overflow:hidden;}"
-        ".one{font-size:42px;color:#555;line-height:1.55;"
-        "max-height:3.1em;overflow:hidden;}"
-        ".right{flex:0.8;min-width:0;}"
-        ".numbox{background:#f6f3ee;border-radius:28px;padding:60px 52px;"
-        "text-align:center;}"
-        ".num{font-size:104px;font-weight:900;color:%(AC)s;line-height:1.15;}"
-        ".numsub{font-size:30px;color:#777;margin-top:24px;}"
-        ".ft{margin-top:52px;padding-left:26px;display:flex;"
-        "justify-content:space-between;font-size:28px;color:#999;}"
+        "background:%(BASE)s;color:#fff;display:flex;flex-direction:column;"
+        "padding:84px 104px 76px;position:relative;overflow:hidden;}"
+        ".glow{position:absolute;right:-240px;top:-240px;width:680px;"
+        "height:680px;border-radius:50%%;background:%(BAND)s;opacity:.6;}"
+        ".brand{display:flex;align-items:center;gap:18px;font-size:34px;"
+        "font-weight:600;letter-spacing:3px;color:rgba(255,255,255,.72);"
+        "position:relative;}"
+        ".sq{width:24px;height:24px;background:%(AC)s;border-radius:6px;}"
+        ".main{flex:1;display:flex;flex-direction:column;justify-content:center;"
+        "position:relative;min-height:0;}"
+        ".num{font-size:200px;font-weight:900;color:%(AC)s;line-height:1.4;"
+        "max-height:1.45em;overflow:hidden;}"
+        ".name{font-size:136px;font-weight:900;color:#fff;line-height:1.4;"
+        "margin-top:20px;max-height:2.85em;overflow:hidden;}"
+        ".one{font-size:50px;font-weight:600;color:rgba(255,255,255,.80);"
+        "line-height:1.5;margin-top:28px;max-height:3.1em;overflow:hidden;}"
         "</style></head><body>"
-        '<div class="band"></div>'
-        '<div class="hd"><div class="brand"><span class="sq"></span>'
-        "万物解释者 · 拆解海外</div>"
-        '<div class="pg">CASE STUDY</div></div>'
+        '<div class="glow"></div>'
+        '<div class="brand"><span class="sq"></span>万物解释者 · 拆解海外</div>'
         '<div class="main">'
-        '<div class="left">'
-        '<div class="kicker">海外小生意 · 拆解</div>'
+        '<div class="num fit">%(NUM)s</div>'
         '<div class="name fit">%(NAME)s</div>'
         '<div class="one fit">%(ONE)s</div>'
         "</div>"
-        '<div class="right"><div class="numbox">'
-        '<div class="num fit">%(NUM)s</div>'
-        '<div class="numsub">数据来自公开挂牌页</div>'
-        "</div></div>"
-        "</div>"
-        '<div class="ft"><span>一文看懂它怎么赚钱</span>'
-        "<span>公众号 · 万物解释者</span></div>"
         "</body></html>"
-        % {"W": TT_COVER_W, "H": TT_COVER_H, "AC": ac,
-           "NAME": esc(name), "ONE": esc(one), "NUM": esc(num)})
+        % {"W": TT_COVER_W, "H": TT_COVER_H, "BASE": base, "BAND": band,
+           "AC": ac, "NAME": esc(name), "ONE": esc(one), "NUM": esc(num)})
 
 
 def render_tt_cover(port, c):
