@@ -33,6 +33,15 @@ MD = """# 标题行
 
 - 第一点 **加粗**
 - 第二点
+
+---
+
+<!--
+多行注释块：下面这行写着「别进正文」，
+必须整块被吃掉，只跳过 <!-- 单行会让它漏出去。
+-->
+
+**整段加粗**： pinpoint
 """
 
 
@@ -42,11 +51,21 @@ class TestBlocks(unittest.TestCase):
         self.assertFalse(any("标题行" in t for _, t in bs))
         self.assertFalse(any("注释" in t for _, t in bs))
 
+    def test_comment_block_dropped(self):
+        """多行 <!-- --> 注释必须整块吃掉：模板里「核对用来源（别进正文）」
+        就在这种块里，只跳过单行会让它漏进正文。"""
+        bs = tp.md_to_blocks(MD)
+        joined = "\n".join(t for _, t in bs)
+        self.assertNotIn("别进正文", joined)
+        self.assertNotIn("多行注释块", joined)
+        self.assertNotIn("-->", joined)
+
     def test_url_and_md_link_cleaned(self):
         text = "\n".join(t for _, t in tp.md_to_blocks(MD))
         self.assertNotIn("http", text)
         self.assertIn("官网", text)
-        self.assertNotIn("**", text)
+        # `**` 由 blocks_to_html 转成 <strong>，最终 HTML 里不该有裸 markdown 符号
+        self.assertNotIn("**", tp.blocks_to_html(tp.md_to_blocks(MD)))
 
     def test_table_becomes_kv(self):
         bs = tp.md_to_blocks(MD)
@@ -62,14 +81,33 @@ class TestBlocks(unittest.TestCase):
         self.assertIn("h2", kinds)
         self.assertIn("ul", kinds)
         self.assertIn("p", kinds)
+        self.assertIn("hr", kinds)
 
     def test_html_structure(self):
+        """还原真富文本：假标题 / 假列表 / 扁平表格全部升级成真标签。"""
         html = tp.blocks_to_html(tp.md_to_blocks(MD))
-        self.assertIn("<p><strong>它是干什么的</strong></p>", html)
-        self.assertIn("<p>· 第一点 加粗</p>", html)
-        self.assertIn("「一句钩子」", html)
+        self.assertIn("<h2>它是干什么的</h2>", html)
+        # 连续列表项合并成一个 ul，而不是 N 个 <p>· xxx</p>
+        self.assertNotIn("<p>·", html)
+        self.assertIn("<ul><li>第一点 <strong>加粗</strong></li>"
+                      "<li>第二点</li></ul>", html)
+        # 引用有自己的块级样式，不再是普通段落
+        self.assertIn("<blockquote>「一句钩子」</blockquote>", html)
+        self.assertIn("---", html.replace("<hr>", "---"))   # --- → <hr>
+        self.assertIn("<hr>", html)
         self.assertNotIn("<table", html)
         self.assertIn(tp.FOOTER_NOTE, html)
+
+    def test_bold_and_kv_group(self):
+        """**整段加粗** → <strong>；连续表格行 → 一组「加粗标签 + 值」列表。"""
+        html = tp.blocks_to_html(tp.md_to_blocks(MD))
+        self.assertIn("<strong>整段加粗</strong>", html)
+        self.assertIn("<li><strong>官方口径：</strong>月收入 $12K</li>", html)
+        # 一组 kv 只包一个 <ul>，不能每个 pdf 一格
+        self.assertEqual(html.count("<ul>"), html.count("</ul>"))
+        # 头条不认 em / u，别生成这两种标签
+        self.assertNotIn("<em", html)
+        self.assertNotIn("<u>", html)
 
     def test_empty_input(self):
         self.assertEqual(tp.md_to_blocks(""), [])
@@ -99,8 +137,12 @@ class TestBuild(unittest.TestCase):
              "one_liner": "组合月收入 $250K+"}
         m = tp.build_article(c)
         self.assertLessEqual(len(m["title"]), tp.TITLE_MAX)
-        self.assertTrue(m["html"].startswith("<p>"))
+        # 首块要么是引用块要么是普通段，绝不能是扁平假结构
+        self.assertTrue(m["html"].startswith(("<p>", "<blockquote>")),
+                        m["html"][:60])
+        self.assertIn("<h2>", m["html"])          # 小标题必须是真 h2
         self.assertIn("关于本栏目", m["html"])
+        self.assertNotIn("**", m["html"])         # 裸 markdown 符号不许出口
 
     def test_all_cases_have_md_and_reasonable_length(self):
         """全库 build 一遍：正文不该短到不能发（少于 300 字的列出来给人看）。"""

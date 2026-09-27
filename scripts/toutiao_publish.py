@@ -159,13 +159,26 @@ def amount_warn(c, title):
 
 _URL_RE = re.compile(r"https?://\S+")
 _MD_LINK_RE = re.compile(r"\[([^\]]+)\]\([^)]*\)")
+_HR_RE = re.compile(r"^(-{3,}|\*{3,}|_{3,})$")
+_TABLE_SEP_RE = re.compile(r"^\|[\s:\-|]+$")       # |---|---| 表格对齐行
+_STAR_RE = re.compile(r"(?<!\*)\*\*(?=\S)(.+?)(?<=\S)\*\*(?!\*)", re.S)
+_KV_RE = re.compile(r"^([^：:]{1,12}[：:])\s*(.*)$", re.S)
+
+
+def strip_md(s):
+    """去掉 markdown 强调符号，用于纯文本派生（字数统计 / 敏感词扫描）。"""
+    return _STAR_RE.sub(r"\1", (s or "").replace("`", ""))
 
 
 def clean_line(s):
-    """去掉外链 / markdown 链接 / 加粗标记 —— 头条正文里外链会被拦或降权。"""
+    """去掉外链 / markdown 链接 —— 头条正文里外链会被拦或降权。
+
+    注意：**别删 `**` 加粗标记**，它在 blocks_to_html 里要转成 <strong>；
+    需要纯文本时用 strip_md()。
+    """
     s = _MD_LINK_RE.sub(r"\1", s or "")
     s = _URL_RE.sub("", s)
-    s = s.replace("**", "").replace("`", "")
+    s = s.replace("`", "")
     return re.sub(r"\s+", " ", s).strip()
 
 
@@ -176,17 +189,26 @@ def md_to_blocks(md):
     """
     blocks = []
     para = []
+    in_comment = False                            # 多行 <!-- ... --> 注释块
     for raw in (md or "").splitlines():
         line = raw.rstrip()
         s = line.strip()
+        if in_comment:
+            if "-->" in s:
+                in_comment = False
+            continue
         if not s:
             if para:
                 blocks.append(("p", clean_line(" ".join(para))))
                 para = []
             continue
-        if s.startswith("<!--"):                      # 模板注释，全部丢掉
+        if s.startswith("<!--"):                  # 模板注释，整块丢掉
+            # 单行 <!-- x --> 一次跳过；跨行的要一直吃到 --> 为止，
+            # 否则「核对用来源（发布前逐个点开确认，别进正文）：…」会漏进正文。
+            if "-->" not in s:
+                in_comment = True
             continue
-        if s.startswith("# "):                        # h1 = 标题，正文里不要
+        if s.startswith("# "):                    # h1 = 标题，正文里不要
             continue
         if s.startswith("## "):
             if para:
@@ -194,9 +216,15 @@ def md_to_blocks(md):
                 para = []
             blocks.append(("h2", clean_line(s[3:])))
             continue
-        if re.match(r"^\|?[\s:\-|]+$", s) and "-" in s:   # 表格分隔行 |---|
+        if _HR_RE.match(s):                       # --- 分隔线（区别于表格对齐行）
+            if para:
+                blocks.append(("p", clean_line(" ".join(para))))
+                para = []
+            blocks.append(("hr", ""))
             continue
-        if s.startswith("|"):                         # 表格行 → key：value
+        if _TABLE_SEP_RE.match(s) and "-" in s:   # 表格分隔行 |---|
+            continue
+        if s.startswith("|"):                     # 表格行 → key：value
             cells = [c.strip() for c in s.strip("|").split("|")]
             cells = [c for c in cells if c]
             if len(cells) >= 2 and cells[0] != "维度":
@@ -217,7 +245,8 @@ def md_to_blocks(md):
         para.append(s)
     if para:
         blocks.append(("p", clean_line(" ".join(para))))
-    return [b for b in blocks if b[1]]
+    # hr 没有文本内容，不能被下面的「去空文本」过滤器吃掉
+    return [b for b in blocks if b[1] or b[0] == "hr"]
 
 
 def esc(s):
@@ -225,30 +254,90 @@ def esc(s):
         ">", "&gt;")
 
 
-def blocks_to_html(blocks, footer=True):
-    """块 → 头条编辑器能吃的极简 HTML（只有 p / strong，不依赖 class）。"""
+def inline(s):
+    """行内 markdown → 头条认得的 HTML：**加粗** → <strong>。
+
+    头条编辑器实测（2026-09-28）**不支持 em / u**，所以 `*斜体*` 一律
+    降级成纯文字（只去符号，不套标签），免得生成一堆被丢掉的标签。
+    """
+    s = s or ""
     out = []
-    for kind, text in blocks:
-        t = esc(text)
-        if kind == "h2":
-            out.append("<p><strong>%s</strong></p>" % t)
-        elif kind == "ul":
-            out.append("<p>· %s</p>" % t)
-        elif kind == "quote":
-            # 原文自带「」就别套两层
-            out.append("<p>%s</p>" % t if t.startswith("「")
-                       else "<p>「%s」</p>" % t)
-        else:
-            out.append("<p>%s</p>" % t)
-    if footer:
-        out.append("<p><strong>关于本栏目</strong></p>")
-        out.append("<p>「拆解海外」逐个拆海外小生意：它干什么、钱从哪来、做到多大、"
-                   "为什么能成、哪些能搬回国内。数据均来自公开披露，收入口径按原文"
-                   "照实标注（MRR 就写 MRR，只有流水就写近 30 天收入），不做换算夸大。</p>")
-    return "\n".join(out)
+    last = 0
+    for m in _STAR_RE.finditer(s):
+        if m.start() > last:
+            out.append(esc(strip_md(s[last:m.start()])))
+        out.append("<strong>%s</strong>" % esc(strip_md(m.group(1))))
+        last = m.end()
+    tail = esc(strip_md(s[last:]))
+    if tail:
+        out.append(tail)
+    return "".join(out)
+
+
+def split_kv(text):
+    """「付费意愿：3/5」 → ("付费意愿：", "3/5")；没有冒号返回 ("", text)。"""
+    m = _KV_RE.match(text or "")
+    return (m.group(1), m.group(2)) if m else ("", text)
 
 
 FOOTER_NOTE = "关于本栏目"
+FOOTER_TEXT = ("「拆解海外」逐个拆海外小生意：它干什么、钱从哪来、做到多大、"
+               "为什么能成、哪些能搬回国内。数据均来自公开披露，收入口径按原文"
+               "照实标注（MRR 就写 MRR，只有流水就写近 30 天收入），不做换算夸大。")
+
+
+def blocks_to_html(blocks, footer=True):
+    """块 → 头条编辑器的富文本 HTML。
+
+    头条 ProseMirror schema 实测（2026-09-28 探针）：
+      ✔ h1/h2/h3 → 统一渲染成 <h1 class="pgc-h-forward-slash"> 装饰标题
+      ✔ ul+li / ol+li / li 内 <strong> / blockquote / hr
+      ✘ em、u —— 会被静默丢掉，别用
+
+    所以这里**把 markdown 里本来就有、但被之前版本拍平的结构还原回来**：
+      二级标题 → <h2>；列表 → 真 <ul><li>；引用 → <blockquote>；
+      连续的表格行 → 一整组 <ul><li><strong>标签：</strong>值</li>；
+      --- → <hr>。连续的同类块会被合并成一个 <ul>，视觉上是一组而不是 N 段。
+    """
+    out = []
+    i, n = 0, len(blocks)
+    while i < n:
+        kind, text = blocks[i]
+        if kind == "h2":
+            out.append("<h2>%s</h2>" % inline(text))
+            i += 1
+        elif kind == "hr":
+            out.append("<hr>")
+            i += 1
+        elif kind == "ul":
+            items = []
+            while i < n and blocks[i][0] == "ul":
+                items.append("<li>%s</li>" % inline(blocks[i][1]))
+                i += 1
+            out.append("<ul>%s</ul>" % "".join(items))
+        elif kind == "kv":
+            items = []
+            while i < n and blocks[i][0] == "kv":
+                lab, val = split_kv(blocks[i][1])
+                items.append(
+                    "<li><strong>%s</strong>%s</li>" % (esc(lab), inline(val))
+                    if lab else "<li>%s</li>" % inline(blocks[i][1]))
+                i += 1
+            out.append("<ul>%s</ul>" % "".join(items))
+        elif kind == "quote":
+            t = inline(text)
+            # 原文自带「」就别套两层
+            out.append("<blockquote>%s</blockquote>"
+                       % (t if (text or "").startswith("「") else "「%s」" % t))
+            i += 1
+        else:
+            out.append("<p>%s</p>" % inline(text))
+            i += 1
+    if footer:
+        out.append("<hr>")
+        out.append("<h2>%s</h2>" % FOOTER_NOTE)
+        out.append("<p>%s</p>" % inline(FOOTER_TEXT))
+    return "\n".join(out)
 
 # 头条审核/推荐的敏感词 → 中性替身。**标题命中就自动换掉**，不留人工判断：
 # 「躺着收租」这类词看着有味道，但头条推荐会把「躺」系关键词当低质收益噱头压权。
@@ -287,7 +376,7 @@ def build_article(c):
         with open(md_path, encoding="utf-8") as f:
             md = f.read()
     blocks = md_to_blocks(md)
-    plain = "\n".join(t for _, t in blocks)
+    plain = strip_md("\n".join(t for _, t in blocks))
     hits = []                                     # 被自动中性化的敏感词
     title = make_toutiao_title(c, hits_out=hits)
     html = blocks_to_html(blocks)
@@ -1540,17 +1629,18 @@ def cmd_dedup(args):
     cdp, t = _open(TT_DRAFT, wait=8)
     try:
         _check_login(cdp)
+        target = getattr(args, "to", 1)           # --to 0 = 删光（清测试稿）
         n, _ = _count_dup_and_delbtn(cdp, args.title)
-        print("同标题草稿 %d 条" % n)
-        if n <= 1:
+        print("同标题草稿 %d 条（目标剩 %d）" % (n, target))
+        if n <= target:
             print("无重复，不动")
             return 0
         if args.dry:
-            print("[dry] 会删 %d 条，保留 1 条" % (n - 1))
+            print("[dry] 会删 %d 条，保留 %d 条" % (n - target, target))
             return 0
-        for i in range(min(n - 1, args.max_del)):
+        for i in range(min(n - target, args.max_del)):
             n, pos = _count_dup_and_delbtn(cdp, args.title)
-            if n <= 1 or not pos:
+            if n <= target or not pos:
                 break
             for kind in ("mousePressed", "mouseReleased"):
                 cdp.send("Input.dispatchMouseEvent",
@@ -1572,7 +1662,7 @@ def cmd_dedup(args):
         time.sleep(9)
         n, _ = _count_dup_and_delbtn(cdp, args.title)
         print("现剩同标题 %d 条" % n)
-        return 0 if n == 1 else 2
+        return 0 if n <= target else 2
     finally:
         cdp.close_target(t["id"])
 
@@ -1624,6 +1714,8 @@ def main():
                     help="只开一次草稿箱、展开全部列表后一次性扫+删（推荐）")
     dd.add_argument("--dry", action="store_true")
     dd.add_argument("--max-del", type=int, default=10)
+    dd.add_argument("--to", type=int, default=1,
+                    help="删到剩几条为止（默认 1；--to 0 可把测试稿删光）")
     dd.set_defaults(fn=cmd_dedup)
     cv = sub.add_parser("cover",
                         help="给【已有的】草稿原地补封面（草稿箱 → 编辑 → 图库上传），"
