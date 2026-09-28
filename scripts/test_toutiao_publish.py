@@ -199,6 +199,16 @@ class TestTtCoverNum(unittest.TestCase):
         self.assertNotIn("CASE STUDY", html)      # 小字装饰已去掉
         self.assertNotIn("numsub", html)
 
+    def test_cover_html_placeholder_oneliner_never_shows_unclassified(self):
+        """prosp 实测：one_liner 是占位符、category=未分类 → 封面印出「未分类」。"""
+        c = {"id": "prosp", "name": "PROSP", "category": "未分类",
+             "one_liner": "（待补充：产品定位未明）",
+             "metrics": {"headline": "$128,000 MRR"}}
+        html = tp.tt_cover_html(c)
+        self.assertNotIn("未分类", html)
+        self.assertNotIn("待补充", html)
+        self.assertIn("海外小生意", html)         # 兜底文案
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

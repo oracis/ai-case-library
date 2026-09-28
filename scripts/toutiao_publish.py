@@ -546,8 +546,11 @@ def tt_cover_html(c):
     i = sum(ord(ch) for ch in c.get("id", "")) % len(wp.COVER_THEMES)
     base, band, ac = wp.COVER_THEMES[i]
     name = c.get("name") or c.get("id") or ""
-    one = re.sub(r"（[^）]*）", "", (c.get("one_liner") or "")).strip() or \
-        (c.get("category") or "")
+    cat = (c.get("category") or "").strip()
+    one = re.sub(r"（[^）]*）", "", (c.get("one_liner") or "")).strip()
+    if not one:
+        # 占位符 one_liner（如 prosp「（待补充…）」）剥空后，别把「未分类」印上封面
+        one = ("%s小生意" % cat) if cat and cat != "未分类" else "海外小生意"
     headline = (c.get("metrics") or {}).get("headline") or ""
     num = tt_cover_num(headline)
     return (
