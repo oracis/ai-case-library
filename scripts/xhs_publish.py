@@ -414,7 +414,10 @@ def card_html(c, page, total):
     one = re.sub(r"（[^）]*）", "", (c.get("one_liner") or "")).strip() or \
         (c.get("category") or "")
     headline = (c.get("metrics") or {}).get("headline") or ""
-    brand = "万物解释者 · 拆解海外"
+    # 2026-09-28：账号昵称仍是小红书默认 id，印「万物解释者」（公众号名）
+    # 属「展示其他平台信息」，与站外导流同款风险。水印只留无账号名/平台名的
+    # slogan —— 品牌感保留，不指向任何外部平台。
+    brand = "拆解海外"
     page_no = "%02d / %02d" % (page, total)
 
     head = (
@@ -707,7 +710,7 @@ def cmd_preview(_args):
                esc(note["title"]), esc(note["body"]), imgs))
     html = (
         '<!doctype html><html lang="zh"><head><meta charset="utf-8">'
-        "<title>小红书笔记预览 · 万物解释者</title><style>"
+        "<title>小红书笔记预览 · 拆解海外</title><style>"
         "body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;"
         "background:#f2efe9;margin:0;padding:32px;color:#26221c;}"
         "h1{font-size:26px;}h2{font-size:20px;margin:0 0 12px;}"
@@ -1434,6 +1437,125 @@ def cmd_drafts(args):
         print("（dry-run。加 --write 把对上的 %d 条写进已发记录）" % len(matched))
 
 
+# ---- 草稿箱删除（2026-09-28 加：替换全部旧水印草稿用） ----
+# 卡片结构（2026-09-28 探针实测）：
+#   .draft-info > .draft-info-desc(.draft-title-text + .draft-time)
+#              > .draft-actions > .btn(svg+span「编辑」) + .btn(svg+span「删除」)
+# DOM 顺序最新在前，btns[0] 即最新一条。
+
+# 草稿箱删除按钮是 Vue 组件，合成 jclick 无效（2026-09-28 实测返回 null 且
+# 无效果）——只能定位坐标后走 CDP Input.dispatchMouseEvent 真实点击。
+# ⚠️ 必须过滤可见性（width/height>0）：页面上有隐藏副本（display:none），
+# 不滤会拿到布局坐标 x=2566（视口外），真实鼠标点了个寂寞（2026-09-28 踩坑）。
+_JS_PURGE_LOCATE = """(function(){
+  var btns=[].slice.call(document.querySelectorAll('.draft-actions .btn'))
+    .filter(function(b){
+      var t=(b.innerText||'').trim();
+      if(t.indexOf('删除')<0) return false;
+      var r=b.getBoundingClientRect();
+      return r.width>0 && r.height>0;
+    });
+  if(!btns.length) return null;
+  btns[0].scrollIntoView({block:'center', inline:'center'});
+  return 'PENDING';
+})()"""
+
+_JS_PURGE_COORD = """(function(){
+  var btns=[].slice.call(document.querySelectorAll('.draft-actions .btn'))
+    .filter(function(b){
+      if((b.innerText||'').trim().indexOf('删除')<0) return false;
+      var r=b.getBoundingClientRect();
+      return r.width>0 && r.height>0 && r.left>=0 &&
+             r.left<window.innerWidth && r.top>=0 && r.top<window.innerHeight;
+    });
+  if(!btns.length) return null;
+  var r=btns[0].getBoundingClientRect();
+  return JSON.stringify({x:Math.round(r.left+r.width/2),
+                         y:Math.round(r.top+r.height/2)});
+})()"""
+
+_JS_PURGE_CONFIRM_COORD = """(function(){
+  var cands=[].slice.call(document.querySelectorAll(
+        'button, [class*=btn], [class*=confirm] *, [class*=modal] *, [class*=pop] *'))
+    .filter(function(e){
+      var t=(e.innerText||'').trim();
+      var r=e.getBoundingClientRect();
+      return (t==='确定'||t==='确认'||t==='删除') && r.width>0 && r.height>0 &&
+             r.width<400 && e.children.length<4; });
+  if(!cands.length) return null;
+  var r=cands[cands.length-1].getBoundingClientRect();
+  return JSON.stringify({x:Math.round(r.left+r.width/2),
+                         y:Math.round(r.top+r.height/2)});
+})()"""
+
+
+def _real_click(sub, coord):
+    """坐标真实点击（moved → pressed → released）。"""
+    xx, yy = int(coord["x"]), int(coord["y"])
+    sub.send("Input.dispatchMouseEvent", {"type": "mouseMoved", "x": xx, "y": yy})
+    time.sleep(0.18)
+    sub.send("Input.dispatchMouseEvent",
+             {"type": "mousePressed", "x": xx, "y": yy,
+              "button": "left", "clickCount": 1})
+    time.sleep(0.12)
+    sub.send("Input.dispatchMouseEvent",
+             {"type": "mouseReleased", "x": xx, "y": yy,
+              "button": "left", "clickCount": 1})
+
+
+def _purge_one(sub):
+    """删掉草稿箱最上面一条（最新）。返回 'ok' / 'nobtn' / 'stuck'。"""
+    _js(sub, "(function(){%s\n%s})()" % (JS_CLICK_CHAIN, _JS_PURGE_LOCATE))
+    time.sleep(0.6)
+    coord = _js(sub, _JS_PURGE_COORD)
+    if not isinstance(coord, dict) or not coord.get("x"):
+        return "nobtn"
+    _real_click(sub, coord)
+    time.sleep(1.4)
+    cc = _js(sub, _JS_PURGE_CONFIRM_COORD)
+    if isinstance(cc, dict) and cc.get("x"):
+        _real_click(sub, cc)          # 有确认框就点掉
+    time.sleep(2.2)
+    left = _js(sub, JS_CARDS) or []
+    return "ok" if isinstance(left, list) else "stuck"
+
+
+def cmd_purge(args):
+    """删小红书草稿箱里的草稿。默认 dry-run 只列清单；--all 全删。"""
+    sub = _draft_cdp()
+    cards = fetch_drafts(sub)
+    if not cards:
+        print("草稿箱已空，没东西可删。")
+        return
+    print("草稿箱共 %d 条（最新在前）：" % len(cards))
+    for i, d in enumerate(cards, 1):
+        print("  %2d. %-26s %s" % (i, d["saved"], d["title"]))
+    if args.dry or not args.all:
+        print("\n（dry-run。确认清单没问题就加 --all 真删）")
+        return
+    limit = args.limit if args.limit > 0 else len(cards)
+    print("\n开始删除，最多 %d 条…" % limit)
+    n = fail = 0
+    while n < limit:
+        before = fetch_drafts(sub)
+        if not before:
+            break
+        head = before[0]
+        r = _purge_one(sub)
+        after = fetch_drafts(sub)
+        if r == "ok" and len(after) < len(before):
+            n += 1
+            print("  [%d] 已删：%s" % (n, head["title"]))
+        else:
+            fail += 1
+            print("  [warn] 没删掉（%s）：%s" % (r, head["title"]))
+            if fail >= 3:
+                print("连续 3 条失败，停下。可能弹了新样式的确认框，去浏览器看一眼。")
+                break
+    print("\n完成：删了 %d 条，草稿箱剩 %d 条。"
+          % (n, len(fetch_drafts(sub) or [])))
+
+
 def cmd_queue(args):
     """看看接下来会发哪几条（不连浏览器、不花钱）。"""
     todo = pending_cases(need_cards=not args.fresh)
@@ -1565,6 +1687,13 @@ def main():
     dd.add_argument("--write", action="store_true",
                     help="把对上案例的写进 data/xhs_drafts.json")
     dd.set_defaults(fn=cmd_drafts)
+    pg = sub.add_parser("purge",
+                        help="删草稿箱里的草稿（默认 dry-run 列清单，--all 真删）")
+    pg.add_argument("--all", action="store_true", help="真删：从最新开始删到空")
+    pg.add_argument("--limit", type=int, default=0,
+                    help="最多删几条（0=不限，配 --all 先删几条试试）")
+    pg.add_argument("--dry", action="store_true")
+    pg.set_defaults(fn=cmd_purge)
     qq = sub.add_parser("queue", help="看看接下来会发哪几条（不动浏览器）")
     qq.add_argument("--near", type=int, default=5, help="预览条数，默认 5")
     qq.add_argument("--fresh", action="store_true",

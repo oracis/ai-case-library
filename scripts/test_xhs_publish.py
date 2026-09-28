@@ -323,5 +323,37 @@ class TestDraftMatching(unittest.TestCase):
         self.assertEqual(m.group(1).strip(), "2026-09-26 21:54:44")
 
 
+class TestNoExternalBrand(unittest.TestCase):
+    """小红书账号昵称仍是默认 id：卡片/正文不得出现公众号名或其他平台名。
+
+    2026-09-28 判罚复盘：水印印了「万物解释者」（公众号名）＝展示其他平台
+    信息，与「完整拆解 → 公众号」同款站外导流风险。
+    """
+
+    def _card(self, page, total=5):
+        return x.card_html(_mkc(), page, total)
+
+    def test_card_has_no_wechat_name(self):
+        for p in range(1, 6):
+            html = self._card(p)
+            self.assertNotIn("万物解释者", html, "第 %d 张卡片印了公众号名" % p)
+            self.assertNotIn("公众号", html, "第 %d 张卡片有公众号字样" % p)
+
+    def test_card_keeps_platform_free_slogan(self):
+        html = self._card(1)
+        self.assertIn("拆解海外", html)   # 有水印，但不是任何平台名
+
+    def test_last_page_footer_has_no_platform(self):
+        self.assertNotIn("公众号", self._card(5, 5))
+
+    def test_preview_title_clean(self):
+        import re as _re
+        src = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                "xhs_publish.py"), encoding="utf-8").read()
+        m = _re.search(r"<title>([^<]*)</title>", src)
+        self.assertTrue(m)
+        self.assertNotIn("万物解释者", m.group(1))
+
+
 if __name__ == "__main__":
     unittest.main()
