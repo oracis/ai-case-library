@@ -337,9 +337,14 @@ def build_body(c):
         parts += ["· " + _clip(x, 52) for x in why[:n_why]]
         if pb:
             parts += ["", "🧠 最值得抄的一点", _clip(pb[0], 60)]
-        cal = _clip(h, 56)
+        # headline 自带「（RevenueCat API 验证）」这类括号后缀，先剥掉再拼
+        # 统一的核验话术，避免「（…验证）（数据经第三方…核验）」双重括号。
+        cal = _clip(re.sub(r"（[^）]*）", "", h).strip(), 56)
         if cal:
-            parts += ["", "📊 口径照实说：" + cal + "（来源：TrustMRR 公开挂牌页）"]
+            # 2026-09-28 审核实测：「来源：TrustMRR 公开挂牌页」被判站外导流
+            # （处置书第 1/3 条：展示其他平台信息、含义不明可能引导到站外）。
+            # 只说「第三方核验」，不出现站点名和「页/网址」字样。
+            parts += ["", "📊 口径照实说：" + cal + "（数据经第三方收入平台核验）"]
         # 结尾要互动（评论区是小红书推荐权重的一部分）；
         # 且**不能带站外导流**——小红书对"引流公众号/站外"判得比微信严，
         # 早期版本那句"完整拆解在公众号…"必须删掉。
@@ -422,7 +427,7 @@ def card_html(c, page, total):
             '<div class="name fit">%s</div>'
             '<div class="one fit">%s</div>'
             '<div class="numbox"><div class="num fit">%s</div>'
-            '<div class="numsub">数据来自公开挂牌页 · 口径见末页</div></div>'
+            '<div class="numsub">数据来自公开披露 · 口径见末页</div></div>'
             '<div class="swipe">👉 右滑看完整拆解</div>'
             % (ac, esc(name), esc(one),
                esc(cover_headline(headline) or _clip(headline, 30))))
@@ -468,8 +473,10 @@ def card_html(c, page, total):
                (" · 阻碍：" + esc(str(blocker))) if blocker else ""))
     tail = ""
     if page == total:
-        tail = ('<div class="foot">完整拆解 → 公众号「万物解释者」 · '
-                '数据核验截至 %s</div>'
+        # 2026-09-28 审核实测：旧版「完整拆解 → 公众号「万物解释者」」被判
+        # 站外导流（处置书第 1 条），直接限制推荐+搜索。末页只留数据日期
+        # 与站内互动引导，任何「公众号/站外平台」字样不许上卡片。
+        tail = ('<div class="foot">数据核验截至 %s · 关注看更多海外小生意拆解</div>'
                 % esc((c.get("verified_at") or c.get("updated_at") or "")[:10]))
 
     return (
