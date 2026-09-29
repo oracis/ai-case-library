@@ -41,6 +41,8 @@ class Adapter:
     has_state_file = True
     # 需要 build 子命令吗
     can_build = True
+    # 有独立的「补封面」步骤吗（子类覆盖 cover()）
+    supports_cover = False
 
     # ---- 子进程 -----------------------------------------------------------
     def run(self, args, enabled=True, timeout=1800):
@@ -75,6 +77,10 @@ class Adapter:
         if yes:
             args.append("--yes")
         return self.run(args, not dry)
+
+    def cover(self, art, dry=False, force=False):
+        """补封面。不支持的平台返回 pending，runner 会跳过。"""
+        return Result(True, "pending", "%s 无独立封面步骤" % self.label)
 
     def verify(self, art):
         """远端回读校验。默认只看本地状态文件（保守：查不到不算失败）。"""

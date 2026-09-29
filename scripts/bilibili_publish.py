@@ -18,10 +18,13 @@
   python scripts/bilibili_publish.py probe                  # 连 9222 dump 投稿页 DOM，校准 SEL
   python scripts/bilibili_publish.py publish --case prosp [--dry]   # 存草稿（--dry 只探入口）
   python scripts/bilibili_publish.py publish --all          # 批量存草稿箱（草稿不限 5 篇/天）
+  python scripts/bilibili_publish.py cover --case prosp     # 补封面（复用头条 cover.png）
+  python scripts/bilibili_publish.py cover --all            # 批量补封面
+  python scripts/bilibili_publish.py cover-status           # 回读远端 37 条 banner_url 对账
 
 SEL 已按 2026-09-29 实测填定（read-draft → 新的创作 → read-editor 编辑器）。
 投稿页 DOM 随 B站改版会漂，若 publish 连续失败先重跑 `probe` 校准。
-封面/分区草稿阶段不填（B站草稿不强制），人工终审时补。
+封面上传链路见 cover_one()，2026-09-29 实测跑通。
 """
 
 import argparse
@@ -60,9 +63,16 @@ SEL = {
     # 存草稿按钮按文本点（无稳定 id），见 _click_by_text
     "draft_text": "保存为草稿",
     "publish_text": "发布",
+    # 封面（2026-09-29 实测）：「发布设置」区「自定义封面」是**开关**，
+    # 默认关；打开后才渲染 .select-cover .upload-button「添加封面」
+    # （要求 ≥600x336 的 .jpg/.png，本地头条封面 3840x2160 直接够用）。
+    # 点它会动态创建 hidden input[type=file]（父 .select-method，
+    # accept=".jpg,.jpeg,.png"），赋值后弹裁剪框「选择封面的截取位置」。
+    "cover_switch": ".publish-settings input.vui_switch-input",
+    "cover_upload": ".select-cover .upload-button",
 }
 
-# 必须就位的选择器（封面/分区草稿不强制）
+# 必须就位的选择器
 REQUIRED_SEL = ("new_creation", "title", "body", "draft_text")
 
 # ---- 合规：B站对站外导流零容忍 ------------------------------------------
@@ -169,6 +179,10 @@ def clean_body(html):
       style 被剥掉后 span 成了无意义包裹（Tiptap 会原样保留）。实测 37 篇
       共 1162 个，全是裸 span（有 class/style 的一个都没有），剥掉文字不变。
     · 保留 h2/p/blockquote/hr
+    · **合并连续 blockquote**（2026-09-29 补）：公众号模板把「引用原话」和
+      「核实过程」拆成相邻两个 blockquote。B站 Tiptap 给每个 blockquote
+      上下大边距，连着两块看起来就是「每段分得太开」。实测 37 篇里 26 篇
+      有连续 blockquote。合并成一块（中间换行）后视觉上是一段引文。
     """
     m = re.search(r"<section[^>]*>(.*)</section>", html, re.S | re.I)
     body = m.group(1) if m else html
@@ -195,6 +209,9 @@ def clean_body(html):
     # 去空段落/空引用块
     body = re.sub(r"<p[^>]*>\s*</p>", "", body)
     body = re.sub(r"<blockquote[^>]*>\s*</blockquote>", "", body)
+    # 合并连续 blockquote：</blockquote>\s*<blockquote…> → 中间留 <br>
+    body = re.sub(r"</blockquote>\s*<blockquote[^>]*>", "<br>", body,
+                  flags=re.I)
     return body.strip()
 
 
@@ -580,6 +597,526 @@ def publish_all(replace=False):
 
 
 # --------------------------------------------------------------------------
+# cover：给已存草稿补封面（2026-09-29 实测跑通）
+#
+# 为什么不用 Page.fileChooserOpened：在这个**同域 read-editor iframe** 上点
+# 「添加封面」，fileChooserOpened 事件收不到（实测 drain 12s 一个事件都没有），
+# 但 hidden input[type=file] 确实被创建出来了。改用官方支持的 DataTransfer
+# 页面内赋值 + dispatchEvent('change')，稳定触发 Vue 的 change 监听。
+# --------------------------------------------------------------------------
+BILI_DRAFT_LIST_PAGE = "https://member.bilibili.com/opus/management/drafts"
+BILI_DRAFT_API = ("https://api.bilibili.com/x/dynamic/feed/article/draft/list"
+                  "?pn=1&ps=200&keyword=")
+BILI_EDIT_URL = "https://member.bilibili.com/platform/upload/text/new-edit?aid=%s"
+
+
+def _iframe_js(body, kw="read-editor"):
+    """在 src 含 kw 的同域 iframe 文档里执行 body，返回它的返回值。
+
+    body 是**函数体**（可含 return），本函数负责包成 IIFE 并调用。
+    ⚠ 两个坑都踩过：
+      1. 别在 body 里再套一层 `(function(){...})()` 后不 return —— 内层调用
+         结果被丢弃，外层返回 undefined（表现为 `FAIL:None`，极难查）。
+      2. body 必须以 `return ...;` 或裸 return 收尾，让**外层** IIFE 的
+         返回值等于你要的结果；写成 `var t=(function(){})(a)` 会让整个
+         表达式退化成 undefined。
+    """
+    return ("(function(){var f=[].slice.call("
+            "document.querySelectorAll('iframe')).find("
+            "function(x){return (x.src||'').indexOf(%s)>=0;});"
+            "if(!f||!f.contentDocument) return {err:'no-iframe'};"
+            "var d=f.contentDocument;" % json.dumps(kw) + body + "})()")
+
+
+def _close_stale_bili_tabs(cdp):
+    """关掉遗留的 B站 tab —— 堆积 20 个会把页面 WebSocket 拖到超时。"""
+    try:
+        targets = cdp.list_targets()
+    except Exception:
+        return
+    for t in targets:
+        if t.get("type") == "page" and "member.bilibili.com" in (t.get("url") or ""):
+            try:
+                cdp.close_target(t["id"])
+            except Exception:
+                pass
+
+
+def _data_url(path):
+    import base64
+    import mimetypes
+    mt = mimetypes.guess_type(path)[0] or "image/png"
+    with open(path, "rb") as f:
+        return "data:%s;base64,%s" % (mt, base64.b64encode(f.read()).decode())
+
+
+# 往 hidden input 塞文件（dataurl/name 由调用方拼在后面当参数）。
+# 为什么不用 Page.fileChooserOpened：在这个**同域 iframe** 上点「添加封面」，
+# 该事件实测收不到（drain 12s 零事件），但 input 确实被创建了。
+# DataTransfer 是 Chrome 官方支持的写法：input.files = dt.files 合法。
+# ⚠ `_JS_SET_FILES` 必须是**带括号的函数表达式**：`(function(...){...})`。
+#   裸写 `function(...){...}` 落在语句位置会被当函数声明 → SyntaxError:
+#   Function statements require a function name。
+# ⚠ 两个坑都踩过：
+#   1. `dispatchEvent('change')` 是**同步**的 —— Vue 的 change 处理函数会在
+#      派发返回前就把 input 清空（`inp.value=''`）。所以 files 的长度/大小
+#      必须在派发**之前**取，派发后再读 `files[0]` 会是 undefined
+#      （报错 "Cannot read properties of undefined (reading 'size')"）。
+#   2. `_JS_SET_FILES` 是匿名函数**表达式**，且调用点必须写成
+#      `return <fn>(args)`，让外层 IIFE 的 return 等于它的返回值；
+#      写成 `var t=<fn>(a)` 会让整个表达式退化成 undefined。
+_JS_SET_FILES = """(function(dataurl, name){
+    var inp=d.querySelector('input[type=file]');
+    if(!inp) return 'no-file-input';
+    var parts=dataurl.split(',');
+    var mime=parts[0].replace(/^data:/,'').split(';')[0];
+    var bin=atob(parts[1]);
+    var arr=new Uint8Array(bin.length);
+    for(var i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+    var file=new File([arr], name, {type:mime});
+    var dt=new DataTransfer();
+    dt.items.add(file);
+    if(!dt.files.length) return 'dt-empty';
+    inp.files=dt.files;
+    if(!inp.files.length) return 'assign-empty';
+    /* 必须在派发前取值：change 处理函数是同步的，会立刻清空 input */
+    var n=inp.files.length, sz=inp.files[0].size;
+    inp.dispatchEvent(new Event('change', {bubbles:true}));
+    return 'ok:'+n+':'+sz;
+  })"""
+
+
+def _fetch_drafts(cdp, tid):
+    """在登录页上下文里调官方草稿接口，返回 drafts 列表。"""
+    js = """(async () => {
+      const r = await fetch(%s, {credentials: 'include'});
+      const j = await r.json();
+      if (j.code !== 0) return {err: j.code, msg: j.message};
+      return {drafts: (j.data && j.data.drafts) || []};
+    })()""" % json.dumps(BILI_DRAFT_API)
+    return cdp.eval(js, refresh_context=True)
+
+
+def _pick_draft(cdp, tid, title):
+    """在草稿列表里找标题匹配的草稿，返回 article_id。
+
+    标题是**当前**草稿的标题（publish 时填的精修版），不是本地 out/bili 的
+    note.json —— note.json 可能与草稿箱里存的旧版不一致（改过文案没重存）。
+    """
+    r = _fetch_drafts(cdp, tid)
+    if not isinstance(r, dict) or r.get("err") is not None:
+        raise RuntimeError("草稿接口异常: %s" % json.dumps(r, ensure_ascii=False)[:200])
+    drafts = r.get("drafts") or []
+    if not title:
+        return (drafts[0].get("article_id") if drafts else None), drafts
+    norm = lambda s: re.sub(r"\s+", "", (s or "").lower())
+    want = norm(title)
+    for d in drafts:
+        if norm(d.get("title")) == want:
+            return d.get("article_id"), drafts
+    # 退而求其次：前缀匹配（草稿箱截断/改版都可能动标题尾部）
+    for d in drafts:
+        t = norm(d.get("title"))
+        if t and (t.startswith(want[:10]) or want.startswith(t[:10])):
+            return d.get("article_id"), drafts
+    return None, drafts
+
+
+def _cover_present(cdp, tid):
+    """当前草稿是否已有自定义封面（DOM 层面）。
+
+    两种形态（2026-09-29 实测）：
+      · 没有 → .select-cover .upload-button「添加封面」
+      · 已有 → .selected-cover（picture > img[src*=article.biliimg.com]）
+                + 「删除」「重新上传」两个按钮
+    """
+    r = cdp.eval(_iframe_js(
+        "return !!d.querySelector('.selected-cover, .selected-cover img');"),
+        refresh_context=True)
+    return r is True or r == "true"
+
+
+def _cover_img_url(cdp, tid):
+    """从 DOM 里读当前封面图的 CDN 地址（有封面才读得到）。"""
+    return cdp.eval(_iframe_js(
+        "var m=d.querySelector('.selected-cover img, .selected-cover source');"
+        "return m ? (m.getAttribute('src') || m.getAttribute('srcset') || '')"
+        " : '';"),
+        refresh_context=True)
+
+
+def _open_cover_switch(cdp, tid):
+    """确保「自定义封面」开关是开的。返回 'toggled' / 'already' / 'FAIL:...'。"""
+    body = """
+      var items=[].slice.call(d.querySelectorAll('.publish-settings .form-item'));
+      var it=items.find(function(x){
+        return (x.querySelector('.form-item-label')||{}).textContent==='自定义封面';});
+      if(!it) return 'FAIL:找不到自定义封面项';
+      var sw=it.querySelector('input.vui_switch-input');
+      if(!sw) return 'FAIL:封面开关元素缺失';
+      if(sw.checked) return 'already';
+      sw.click();
+      return 'toggled';
+    """
+    end = time.time() + 10
+    r = None
+    while time.time() < end:
+        r = cdp.eval(_iframe_js(body), refresh_context=True)
+        if r in ("toggled", "already"):
+            if r == "toggled":
+                time.sleep(2.5)      # 等 .select-cover 渲染
+            return r
+        time.sleep(1.2)
+    return r if isinstance(r, str) and r else "FAIL:%r" % (r,)
+
+
+def _upload_cover_file(cdp, tid, img_path):
+    """点「添加封面」造出 hidden input，用 DataTransfer 赋值触发上传。
+
+    返回 'uploaded'（已进入裁剪弹窗）/ 'FAIL:...'。
+    """
+    # 点上传按钮把 hidden input 造出来。
+    # 两种形态都要认：没有封面时是「添加封面」(.upload-button)，
+    # 已有封面时是「重新上传」（.selected-action 里的第二个 .selected-btn）。
+    clicked = cdp.eval(_iframe_js(
+        "var b=d.querySelector('.select-cover .upload-button');"
+        "if(!b){"
+        "  var bs=[].slice.call(d.querySelectorAll('.selected-action button'))"
+        "           .filter(function(x){return (x.innerText||'').trim()==='重新上传';});"
+        "  b=bs[0];"
+        "}"
+        "if(!b) return 'no-btn'; b.click(); return 'clicked';"),
+        refresh_context=True)
+    if clicked != "clicked":
+        return "FAIL:上传按钮点不到(%s)" % clicked
+
+    end = time.time() + 10
+    while time.time() < end:
+        n = cdp.eval(_iframe_js(
+            "return d.querySelectorAll('input[type=file]').length;"),
+            refresh_context=True)
+        if n:
+            break
+        time.sleep(1.0)
+    else:
+        return "FAIL:文件输入框没出现"
+
+    url = _data_url(img_path)
+    # 注意：body 里是 `return (function(...){...})(a, b)` —— 返回值是**外层
+    # IIFE 的 return**，不是逗号表达式（写成 `var t=(function(){})(a)` 会
+    # 让整个表达式退化成 undefined，看起来像「赋值失败(None)」）。
+    r = cdp.eval(
+        _iframe_js("return %s(%s,%s);" % (
+            _JS_SET_FILES, json.dumps(url),
+            json.dumps(os.path.basename(img_path)))),
+        refresh_context=True)
+    if not (isinstance(r, str) and r.startswith("ok:")):
+        return "FAIL:赋值失败(%s)" % str(r)[:80]
+
+    # 等裁剪弹窗（.vui_image-crop / 「选择封面的截取位置」）
+    end = time.time() + 40
+    while time.time() < end:
+        has = cdp.eval(_iframe_js(
+            "return !!d.querySelector('.vui_image-crop, .image-dialog');"),
+            refresh_context=True)
+        if has is True or has == "true":
+            return "uploaded"
+        time.sleep(1.5)
+    return "FAIL:裁剪弹窗没出现"
+
+
+def _crop_confirm(cdp, tid, timeout=25):
+    """点裁剪弹窗的「确定」，等 .selected-cover 出现。
+
+    「确定」不是终点 —— 点完还要等 Vue 把裁剪结果提交成封面
+    （.select-cover 消失、.selected-cover 出现才算成）。
+    """
+    end = time.time() + timeout
+    while time.time() < end:
+        r = cdp.eval(_iframe_js(
+            "var b=[].slice.call(d.querySelectorAll('button,[role=button]'))"
+            ".find(function(x){return (x.innerText||'').trim()==='确定';});"
+            "if(!b) return 'none'; b.click(); return 'clicked';"),
+            refresh_context=True)
+        if r == "clicked":
+            # 等 .selected-cover 落地
+            e2 = time.time() + 20
+            while time.time() < e2:
+                if _cover_present(cdp, tid):
+                    return True
+                time.sleep(1.0)
+            return False
+        time.sleep(1.2)
+    return False
+
+
+def _save_draft(cdp, tid, timeout=20):
+    """点「保存为草稿」。返回 True/False。"""
+    end = time.time() + timeout
+    while time.time() < end:
+        r = cdp.eval(_iframe_js(
+            "var b=[].slice.call(d.querySelectorAll('button,[role=button],a'))"
+            ".find(function(x){return (x.innerText||'').trim()==='保存为草稿';});"
+            "if(!b) return 'none'; b.click(); return 'clicked';"),
+            refresh_context=True)
+        if r == "clicked":
+            time.sleep(5)
+            return True
+        time.sleep(1.2)
+    return False
+
+
+def _cover_of(draft):
+    """从草稿接口记录里取封面 URL（2026-09-29 实测定论）。
+
+    ⚠ **不是 `banner_url`** —— 草稿接口的 `banner_url` 恒为 `""`，
+    哪怕封面已经设好也一样。真正的封面落在：
+      · `origin_image_urls` — 原始尺寸（正式封面用这个）
+      · `image_urls`        — 缩略尺寸
+    两者同源，`origin_image_urls` 优先。`banner_url` 另有用途（动态分发封面），
+    拿它当「有没有封面」的判据会永远误判成没有。
+    """
+    for key in ("origin_image_urls", "image_urls"):
+        v = draft.get(key)
+        if isinstance(v, list) and v:
+            return v[0]
+        if isinstance(v, str) and v:
+            return v
+    return ""
+
+
+def _banner_of(cdp, tid, aid):
+    """回读某条草稿的封面 URL（空 = 没封面）。名字沿用旧叫法，实际取 image_urls。"""
+    r = _fetch_drafts(cdp, tid)
+    if not isinstance(r, dict) or r.get("err") is not None:
+        return None
+    for d in r.get("drafts") or []:
+        if d.get("article_id") == aid:
+            return _cover_of(d) or ""
+    return None
+
+
+def cover_one(cid, dry=False, cdp=None, tab_id=None, keep_tab=False):
+    """给单条草稿补封面。返回 True/False。"""
+    html = load_article_html(cid)
+    if not html:
+        print("  ✗ 找不到 out/articles/%s.html" % cid)
+        return False
+    cp = cover_path(cid)
+    if not cp:
+        print("  ✗ 没有封面源图 out/toutiao/%s/cover.png" % cid)
+        return False
+    title = make_title(cid, html)
+
+    own = cdp is None
+    if own:
+        _close_stale_bili_tabs(wp.CDP(PUB_PORT))
+    cdp = cdp or wp.CDP(PUB_PORT)
+
+    tid = None
+    try:
+        # 1) 列表页拿 article_id
+        tid = cdp.new_target(BILI_DRAFT_LIST_PAGE)["id"]
+        cdp.connect_target(tid)
+        time.sleep(5)
+        aid, drafts = _pick_draft(cdp, tid, title)
+        if not aid:
+            print("  ✗ 草稿箱里没找到《%s》（现有 %d 条）" % (title, len(drafts)))
+            return False
+        if not keep_tab and not own:
+            cdp.close_target(tid)
+        if dry:
+            print("  [dry] aid=%d 封面源=%s（未上传）" % (aid, os.path.basename(cp)))
+            return True
+
+        # 2) 编辑器页开封面开关 → 上传 → 裁剪确定 → 存草稿
+        tid2 = cdp.new_target(BILI_EDIT_URL % aid)["id"]
+        cdp.connect_target(tid2)
+        ready = False
+        # B站编辑器偶发加载慢（实测 35 条里约 1 条 iframe 30s 没起来）。
+        # 重试一次：换新 tab 重新导航，而不是干等。
+        for attempt in (1, 2):
+            time.sleep(7 if attempt == 1 else 4)
+            if _wait_iframe_ready(cdp, "read-editor", SEL["body"], 30):
+                ready = True
+                break
+            print("    iframe 未就绪（第 %d 次），重试" % attempt)
+            try:
+                cdp.close_target(tid2)
+            except Exception:
+                pass
+            time.sleep(2)
+            tid2 = cdp.new_target(BILI_EDIT_URL % aid)["id"]
+            cdp.connect_target(tid2)
+        if not ready:
+            cdp.close_target(tid2)
+            print("  ✗ 编辑器 iframe 两次都没就绪")
+            return False
+        sw = _open_cover_switch(cdp, tid2)
+        if sw.startswith("FAIL"):
+            print("  ✗ %s" % sw)
+            return False
+        if _cover_present(cdp, tid2):
+            # 已经传过一次（上次崩在存草稿前）：直接存草稿即可
+            print("    封面已存在，跳过上传")
+        else:
+            up = _upload_cover_file(cdp, tid2, cp)
+            if up.startswith("FAIL"):
+                print("  ✗ %s" % up)
+                return False
+            if not _crop_confirm(cdp, tid2):
+                print("  ✗ 裁剪弹窗没点上「确定」/封面没落地")
+                return False
+        dom_url = _cover_img_url(cdp, tid2) or ""
+        if not _save_draft(cdp, tid2):
+            print("  ✗ 「保存为草稿」点不到")
+            return False
+
+        # 3) 双重复验：DOM 有图 + 官方接口封面字段非空
+        #    光看 DOM 不算 —— 必须确认已随草稿存到服务端。
+        #    ⚠ 判据用 image_urls/origin_image_urls，**不是 banner_url**
+        #    （后者在草稿接口里恒空，见 _cover_of 的说明）。
+        back = _banner_of(cdp, tid2, aid)
+        cdp.close_target(tid2)
+        if back:
+            print("  ✓ 《%s》aid=%d 封面已设 %s" % (title, aid, back[:70]))
+            return True
+        if dom_url:
+            print("  ⚠ aid=%d 页面有封面图（%s）但接口仍无封面，存草稿可能没提交"
+                  % (aid, dom_url[:50]))
+            return False
+        print("  ✗ aid=%d 上传后既无 DOM 封面也无接口封面" % aid)
+        return False
+    finally:
+        if tid and not keep_tab and own:
+            cdp.close_target(tid)
+
+
+def cover_all(only_missing=True, cdp=None):
+    """批量补封面。only_missing=True 时先回读远端，已设过的跳过。"""
+    ids = list_ids()
+    print("cover 全部 %d 篇 → B站草稿%s" % (len(ids), "（只补没封面的）"
+                                              if only_missing else "（全部重设）"))
+    own = cdp is None
+    if own:
+        _close_stale_bili_tabs(wp.CDP(PUB_PORT))
+    cdp = cdp or wp.CDP(PUB_PORT)
+
+    skip = set()
+    tid = None
+    if only_missing:
+        try:
+            tid = cdp.new_target(BILI_DRAFT_LIST_PAGE)["id"]
+            cdp.connect_target(tid)
+            time.sleep(5)
+            r = _fetch_drafts(cdp, tid)
+            if isinstance(r, dict) and r.get("err") is None:
+                for d in r.get("drafts") or []:
+                    if _cover_of(d):
+                        skip.add(re.sub(r"\s+", "",
+                                        (d.get("title") or "").lower()))
+            print("  远端已有封面 %d 条（将跳过）" % len(skip))
+            cdp.close_target(tid)
+            tid = None
+        except Exception as e:
+            print("  ⚠ 读远端封面状态失败（%s），改为全量重设" % e)
+
+    ok = 0
+    failed = []
+    todo = []
+    for cid in ids:
+        html = load_article_html(cid)
+        t = make_title(cid, html) if html else ""
+        if only_missing and re.sub(r"\s+", "", t.lower()) in skip:
+            continue
+        if not cover_path(cid):
+            print("  – %s 跳过（无封面源图）" % cid)
+            continue
+        todo.append(cid)
+
+    def _close_leftovers():
+        """关掉本条开过的 tab —— 堆积 20 个 B站 page 会把 WS 拖到超时。"""
+        try:
+            cur = cdp.tid
+        except Exception:
+            cur = None
+        for t in cdp.list_targets():
+            if (t.get("type") == "page"
+                    and "member.bilibili.com" in (t.get("url") or "")
+                    and t.get("id") != cur):
+                try:
+                    cdp.close_target(t["id"])
+                except Exception:
+                    pass
+
+    for i, cid in enumerate(todo, 1):
+        print("[%d/%d] %s" % (i, len(todo), cid))
+        good = False
+        try:
+            good = cover_one(cid, cdp=cdp, keep_tab=True)
+        except Exception as e:
+            print("  ✗ 异常: %s" % str(e)[:150])
+        if good:
+            ok += 1
+        else:
+            failed.append(cid)
+        _close_leftovers()
+        time.sleep(2)
+
+    # 失败重试一轮：B站编辑器/网络偶发抽风（实测 35 条里约 1 条 iframe 超时）
+    if failed:
+        print("  ↻ 重试 %d 条失败项：%s" % (len(failed), "、".join(failed[:8])))
+        retry = []
+        for cid in failed:
+            print("[重试] %s" % cid)
+            good = False
+            try:
+                good = cover_one(cid, cdp=cdp, keep_tab=True)
+            except Exception as e:
+                print("  ✗ 异常: %s" % str(e)[:150])
+            if good:
+                ok += 1
+            else:
+                retry.append(cid)
+            _close_leftovers()
+            time.sleep(3)
+        failed = retry
+
+    print("完成 %d/%d" % (ok, len(todo)))
+    if failed:
+        print("仍失败 %d 条：%s" % (len(failed), "、".join(failed)))
+    return ok, len(todo)
+
+
+def cover_status():
+    """回读远端 37 条封面状态，标出哪些没封面。"""
+    _close_stale_bili_tabs(wp.CDP(PUB_PORT))
+    cdp = wp.CDP(PUB_PORT)
+    tid = cdp.new_target(BILI_DRAFT_LIST_PAGE)["id"]
+    cdp.connect_target(tid)
+    time.sleep(5)
+    try:
+        r = _fetch_drafts(cdp, tid)
+        if not isinstance(r, dict) or r.get("err") is not None:
+            print("✗ 草稿接口异常: %s" % json.dumps(r, ensure_ascii=False)[:200])
+            return
+        drafts = r.get("drafts") or []
+        rows = [(d, _cover_of(d)) for d in drafts]
+        have = [(d, u) for d, u in rows if u]
+        missing = [(d, u) for d, u in rows if not u]
+        print("远端 %d 条：✓有封面 %d / ✗无封面 %d"
+              % (len(drafts), len(have), len(missing)))
+        for d, u in have:
+            print("  ✓ aid=%d %s" % (d.get("article_id"),
+                                     (d.get("title") or "")[:44]))
+        for d, u in missing:
+            print("  ✗ aid=%d %s" % (d.get("article_id"),
+                                     (d.get("title") or "")[:44]))
+    finally:
+        cdp.close_target(tid)
+
+
+# --------------------------------------------------------------------------
 def main():
     ap = argparse.ArgumentParser(description="B站专栏发布")
     sub = ap.add_subparsers(dest="cmd")
@@ -593,6 +1130,13 @@ def main():
     p.add_argument("--dry", action="store_true")
     p.add_argument("--replace", action="store_true",
                    help="草稿箱点该标题卡片的「编辑」覆盖旧稿（改文案后重存用）")
+    c = sub.add_parser("cover")
+    c.add_argument("--all", action="store_true")
+    c.add_argument("--case", default=None)
+    c.add_argument("--dry", action="store_true")
+    c.add_argument("--force", action="store_true",
+                   help="连远端已有封面的也重设（默认只补没封面的）")
+    sub.add_parser("cover-status")
     args = ap.parse_args()
 
     if args.cmd == "build":
@@ -607,6 +1151,13 @@ def main():
             publish_one(args.case, dry=args.dry, replace=args.replace)
         else:
             publish_all(replace=args.replace)
+    elif args.cmd == "cover":
+        if args.case:
+            cover_one(args.case, dry=args.dry)
+        else:
+            cover_all(only_missing=not args.force)
+    elif args.cmd == "cover-status":
+        cover_status()
     else:
         ap.print_help()
 

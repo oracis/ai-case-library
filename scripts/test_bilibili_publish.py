@@ -131,5 +131,132 @@ class TestStripSpan(unittest.TestCase):
         self.assertEqual(bad, [], "这些篇仍有裸 span：%s" % bad[:5])
 
 
+class TestBlockquoteMerge(unittest.TestCase):
+    """B站 Tiptap 给每个 blockquote 上下大边距，连续两块看起来就是
+    「每段分得太开」（用户 2026-09-29 反馈）。clean_body 要合并它们。"""
+
+    def test_two_adjacent_merged(self):
+        out = bp.clean_body(
+            "<section><blockquote>甲</blockquote><blockquote>乙</blockquote></section>")
+        self.assertEqual(out.count("<blockquote"), 1)
+        self.assertIn("甲", out)
+        self.assertIn("乙", out)
+        self.assertIn("<br>", out)
+
+    def test_merge_ignores_whitespace_and_attrs(self):
+        out = bp.clean_body(
+            "<section><blockquote>甲</blockquote>\n  <blockquote class='x'>乙</blockquote></section>")
+        self.assertEqual(out.count("<blockquote"), 1)
+
+    def test_non_adjacent_kept(self):
+        out = bp.clean_body(
+            "<section><blockquote>甲</blockquote><p>中</p><blockquote>乙</blockquote></section>")
+        self.assertEqual(out.count("<blockquote"), 2)
+
+    def test_real_articles_no_adjacent_blockquote(self):
+        import glob
+        import re as _re
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        files = glob.glob(os.path.join(root, "out", "articles", "*.html"))
+        if not files:
+            self.skipTest("还没生成 out/articles")
+        bad = []
+        for f in files:
+            with open(f, encoding="utf-8") as fh:
+                b = bp.clean_body(fh.read())
+            if _re.search(r"</blockquote>\s*<blockquote", b, _re.I):
+                bad.append(os.path.basename(f))
+        self.assertEqual(bad, [], "这些篇仍有连续 blockquote：%s" % bad[:5])
+
+
+class TestCoverHelpers(unittest.TestCase):
+    """封面链路的纯函数部分（2026-09-29 实测定稿）。"""
+
+    def test_cover_reads_image_urls_not_banner(self):
+        """草稿接口的 banner_url 恒空，真封面在 origin_image_urls /
+        image_urls —— 拿 banner_url 当判据会永远误判成「没封面」。"""
+        d = {"banner_url": "", "origin_image_urls": ["http://a/1.png"],
+             "image_urls": ["http://a/1_thumb.png"]}
+        self.assertEqual(bp._cover_of(d), "http://a/1.png")
+
+    def test_cover_falls_back_to_image_urls(self):
+        d = {"banner_url": "", "origin_image_urls": None,
+             "image_urls": ["http://a/t.png"]}
+        self.assertEqual(bp._cover_of(d), "http://a/t.png")
+
+    def test_cover_accepts_string_form(self):
+        d = {"banner_url": "", "origin_image_urls": "http://a/s.png"}
+        self.assertEqual(bp._cover_of(d), "http://a/s.png")
+
+    def test_cover_empty_when_nothing(self):
+        self.assertEqual(bp._cover_of({"banner_url": ""}), "")
+        self.assertEqual(bp._cover_of({"image_urls": None}), "")
+        self.assertEqual(bp._cover_of({}), "")
+
+    def test_cover_banner_alone_is_not_a_cover(self):
+        """只有 banner_url 时不算有封面（草稿接口恒给空，压根不是这含义）。"""
+        self.assertEqual(bp._cover_of({"banner_url": "http://x/b.jpg"}), "")
+
+    def test_iframe_js_shape_is_valid(self):
+        """外层 IIFE 必须 return body 的结果；body 里再套一层 IIFE 而不
+        return 会让整个表达式退化成 undefined（实测报 FAIL:None）。"""
+        expr = bp._iframe_js("return 42;")
+        self.assertTrue(expr.endswith("})()"))
+        self.assertIn("var d=f.contentDocument;", expr)
+
+    def test_set_files_is_function_expression(self):
+        """必须是匿名函数**表达式**（带括号）；裸写 function(){}
+        会被当函数声明 → SyntaxError: Function statements require a
+        function name。"""
+        s = bp._JS_SET_FILES.strip()
+        self.assertTrue(s.startswith("(function("), s[:40])
+        self.assertIn("DataTransfer", s)
+
+    def test_set_files_reads_size_before_dispatch(self):
+        """change 事件是同步的，Vue 会立刻清空 input —— files 必须在
+        派发前取值，否则 files[0] 是 undefined。"""
+        s = bp._JS_SET_FILES
+        i_sz = s.index("inp.files[0].size")
+        i_disp = s.index("dispatchEvent")
+        self.assertLess(i_sz, i_disp,
+                        "必须在 dispatchEvent 之前读 files[0].size")
+
+    def test_cover_source_exists_for_all_cases(self):
+        """37 篇都要有 cover.png 源图（B站封面直接复用头条的）。"""
+        import glob
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        ids = [os.path.basename(f)[:-5]
+               for f in glob.glob(os.path.join(root, "out", "articles", "*.html"))]
+        if not ids:
+            self.skipTest("还没生成 out/articles")
+        missing = [c for c in ids if not bp.cover_path(c)]
+        self.assertEqual(missing, [], "缺封面源图：%s" % missing[:5])
+
+    def test_cover_source_meets_bili_min_size(self):
+        """B站要求 ≥600x336；本地头条封面是 3840x2160。"""
+        import struct
+        ids = [c for c in bp.list_ids() if bp.cover_path(c)]
+        if not ids:
+            self.skipTest("还没 build 封面")
+        for c in ids[:5]:
+            with open(bp.cover_path(c), "rb") as f:
+                head = f.read(33)
+            w, h = struct.unpack(">II", head[16:24])
+            self.assertGreaterEqual(w, 600, c)
+            self.assertGreaterEqual(h, 336, c)
+
+    def test_draft_api_field_names(self):
+        """踩过的坑：接口在 api.bilibili.com（不是 member.），
+        列表字段是 data.drafts（不是 items/list）。"""
+        self.assertIn("api.bilibili.com", bp.BILI_DRAFT_API)
+        self.assertIn("/x/dynamic/feed/article/draft/list", bp.BILI_DRAFT_API)
+
+    def test_draft_list_page_route(self):
+        """/platform/upload-manager/opus 默认是「图文」tab，
+        草稿真实路由是 /opus/management/drafts。"""
+        self.assertIn("/opus/management/drafts", bp.BILI_DRAFT_LIST_PAGE)
+        self.assertIn("/platform/upload/text/new-edit", bp.BILI_EDIT_URL)
+
+
 if __name__ == "__main__":
     unittest.main()

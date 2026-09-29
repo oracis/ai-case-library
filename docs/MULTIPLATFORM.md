@@ -120,6 +120,48 @@ python scripts/publish_multi.py mark bilibili --case kibu --state published
 公众号与小红书的草稿箱读取还没做（`verify` 会明确说不支持），目前只有
 头条与 B站。
 
+## B站封面（2026-09-29 补）
+
+B站专栏草稿**可以带自定义封面**，草稿阶段就能设，不必等发布。上传链路是
+手工点出来的，脚本照抄：
+
+```
+草稿接口拿 article_id
+  → /platform/upload/text/new-edit?aid=<id>，等 /york/read-editor iframe
+  → 「发布设置」区「自定义封面」是**开关**（input.vui_switch-input），默认关；
+    打开后才渲染 .select-cover .upload-button「添加封面」
+  → 点它动态创建 hidden input[type=file]（父 .select-method，accept .jpg/.png，
+    要求 ≥600x336；本地头条封面 3840x2160 直接够用）
+  → DataTransfer 页面内赋值 + dispatchEvent('change')
+  → 裁剪弹窗「选择封面的截取位置」→ 确定（等 .selected-cover 落地才算成）
+  → 「保存为草稿」
+```
+
+```bash
+python scripts/bilibili_publish.py cover --case prosp   # 单条（幂等）
+python scripts/bilibili_publish.py cover                # 批量，只补没封面的
+python scripts/bilibili_publish.py cover --force        # 连已有封面的也重设
+python scripts/bilibili_publish.py cover-status         # 回读远端对账
+```
+
+四个坑，都写进代码注释了：
+
+1. **远端判据是 `image_urls` / `origin_image_urls`，不是 `banner_url`。**
+   草稿接口的 `banner_url` **恒为 `""`**，哪怕封面已设好也一样。拿它判
+   「有没有封面」会永远误判成没有（`cover-status` 一开始就报 0/37，
+   改成读 `image_urls` 后正确识别出 2 条）。
+2. **`Page.fileChooserOpened` 在这个同域 iframe 上收不到。** 点「添加封面」
+   后 hidden input 确实出现了，但事件 drain 12 秒一个都没有。改用
+   `DataTransfer` 页面内赋值，稳定。
+3. **`change` 事件是同步的。** Vue 的处理函数在 `dispatchEvent` 返回前就把
+   input 清空了，`files[0].size` 必须在派发**之前**取。
+4. **已有封面时按钮变了。** 没封面是「添加封面」`.upload-button`，
+   已有封面是「重新上传」`.selected-action` 里的第二个按钮 ——
+   探测只认前者会误报「上传按钮点不到」。
+
+跑批量前先 `_close_stale_bili_tabs()`：探查时堆积的 20 个 B站 tab 会把
+页面 WebSocket 拖到 `TimeoutError`（实测 22 个 page 时必超时）。
+
 ## 与旧编排的关系
 
 `publish_both.py` / `publish_all.py` 仍在用（三平台 + 老参数），**新活一律
@@ -129,5 +171,8 @@ python scripts/publish_multi.py mark bilibili --case kibu --state published
 
 - 公众号与小红书的草稿箱读取（`verify` 目前只支持头条与 B站）。
 - 图片上传：微信正文里的图在小红书/B站侧没处理（`article.py` 只给 HTML，
-  平台适配器自己剥图）。B站草稿目前不设封面与分区，人工终审时补。
+  平台适配器自己剥图）。B站**封面**已自动（见上），正文内嵌图仍未处理。
+- B站草稿的**分区/话题/文集**没填（`category` 停在默认「生活」），人工终审。
+- 头图 `kibu` / `pieter-levels` 不在草稿箱（已发布），改封面要走
+  作品管理 → 修改，人工。
 - 「一个平台一个 Chrome 实例」的并发方案。
