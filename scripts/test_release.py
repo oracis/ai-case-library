@@ -119,9 +119,15 @@ class TestResolveDeployTarget(unittest.TestCase):
         self.assertEqual(a.region, "cn-test-1")
 
     def test_real_project_env_file_is_ignored_by_git(self):
-        """项目里那个 .env 绝不能入库（它可能被写上凭证）。"""
-        self.assertTrue(os.path.exists(os.path.join(ROOT, ".env")),
-                        "项目 .env 不存在（本该有 bucket/region）")
+        """项目里那个 .env 绝不能入库（它可能被写上凭证）。
+
+        ⚠️ `.env` 按设计**不入库**（`.gitignore` 有 `.env`），所以在没配过
+        凭证的机器上它压根不存在。此时本测试只校验 ignore 规则仍然生效 ——
+        「文件存在」不是它的目的，「存在时也不会被提交」才是。
+        """
+        env = os.path.join(ROOT, ".env")
+        if os.path.exists(env):
+            self.assertTrue(os.path.isfile(env), "%s 不是普通文件" % env)
         import subprocess
         p = subprocess.run(["git", "check-ignore", "-q", ".env"], cwd=ROOT)
         self.assertEqual(p.returncode, 0, ".env 没被 .gitignore 忽略，可能被提交")

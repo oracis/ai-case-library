@@ -66,6 +66,8 @@ TT_EDITOR = "https://mp.toutiao.com/profile_v4/graphic/publish"
 # 草稿箱列表页。2026-09-27 实测只有 /profile_v4/manage/draft 能出列表，
 # manage/content、graphic/draft、draft 等落点都是空壳（只有导航菜单）。
 TT_DRAFT = "https://mp.toutiao.com/profile_v4/manage/draft"
+# 作品管理（已发布/已发内容都在这）——草稿箱里没有的稿走这里改
+TT_WORKS = "https://mp.toutiao.com/profile_v4/manage/content/all?enter_from=left_menu"
 
 # ---- 选择器（实验性，probe 后可改这里）-------------------------------------
 SEL = {
@@ -538,19 +540,17 @@ def tt_cover_num(headline):
 def tt_cover_html(c):
     """头条专用横版封面（16:9）。
 
-    设计目标「缩略图可读」：草稿箱/信息流缩略图只有 ~120px 宽（源图的
-    1/32），2026-09-28 重做 —— 旧版米白底文档风（大量小灰字）缩到 120px
-    全糊成噪点。新版用主题深色底 + 亮色特大数字 + 白色特大产品名，
-    小字装饰只留左上角品牌行。
+    设计目标「缩略图可读」：草稿箱/推荐频道缩略图只有 ~100px 宽（源图的
+    1/20），2026-09-29 二次重做 —— 旧版用主题深色底 + 亮色特大数字 + 白色
+    特大产品名 + 顶部「万物解释者·拆解海外」品牌行 + 一句话介绍，但头条推
+    荐卡片是横版缩略图，会按一定比例裁切：左边距、左对齐的文字会被切掉。
+    新版把 MRR+产品名**水平居中**，缩字号，砍掉在缩略图下不可见的小字装
+    饰（顶部品牌行/一句话介绍）——只剩两个色块、两个大字，无论怎么裁都
+    可读。
     """
     i = sum(ord(ch) for ch in c.get("id", "")) % len(wp.COVER_THEMES)
     base, band, ac = wp.COVER_THEMES[i]
     name = c.get("name") or c.get("id") or ""
-    cat = (c.get("category") or "").strip()
-    one = re.sub(r"（[^）]*）", "", (c.get("one_liner") or "")).strip()
-    if not one:
-        # 占位符 one_liner（如 prosp「（待补充…）」）剥空后，别把「未分类」印上封面
-        one = ("%s小生意" % cat) if cat and cat != "未分类" else "海外小生意"
     headline = (c.get("metrics") or {}).get("headline") or ""
     num = tt_cover_num(headline)
     return (
@@ -559,32 +559,24 @@ def tt_cover_html(c):
         "html,body{width:%(W)dpx;height:%(H)dpx;}"
         'body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;'
         "background:%(BASE)s;color:#fff;display:flex;flex-direction:column;"
-        "padding:84px 104px 76px;position:relative;overflow:hidden;}"
-        ".glow{position:absolute;right:-240px;top:-240px;width:680px;"
-        "height:680px;border-radius:50%%;background:%(BAND)s;opacity:.6;}"
-        ".brand{display:flex;align-items:center;gap:18px;font-size:34px;"
-        "font-weight:600;letter-spacing:3px;color:rgba(255,255,255,.72);"
-        "position:relative;}"
-        ".sq{width:24px;height:24px;background:%(AC)s;border-radius:6px;}"
+        "padding:60px 90px;position:relative;overflow:hidden;}"
+        ".glow{position:absolute;right:-260px;top:-260px;width:720px;"
+        "height:720px;border-radius:50%%;background:%(BAND)s;opacity:.55;}"
         ".main{flex:1;display:flex;flex-direction:column;justify-content:center;"
-        "position:relative;min-height:0;}"
-        ".num{font-size:200px;font-weight:900;color:%(AC)s;line-height:1.4;"
-        "max-height:1.45em;overflow:hidden;}"
-        ".name{font-size:136px;font-weight:900;color:#fff;line-height:1.4;"
-        "margin-top:20px;max-height:2.85em;overflow:hidden;}"
-        ".one{font-size:50px;font-weight:600;color:rgba(255,255,255,.80);"
-        "line-height:1.5;margin-top:28px;max-height:3.1em;overflow:hidden;}"
+        "align-items:center;text-align:center;position:relative;min-height:0;}"
+        ".num{font-size:150px;font-weight:900;color:%(AC)s;line-height:1.3;"
+        "max-height:1.55em;overflow:hidden;letter-spacing:-2px;}"
+        ".name{font-size:108px;font-weight:900;color:#fff;line-height:1.3;"
+        "margin-top:18px;max-height:2.85em;overflow:hidden;}"
         "</style></head><body>"
         '<div class="glow"></div>'
-        '<div class="brand"><span class="sq"></span>万物解释者 · 拆解海外</div>'
         '<div class="main">'
         '<div class="num fit">%(NUM)s</div>'
         '<div class="name fit">%(NAME)s</div>'
-        '<div class="one fit">%(ONE)s</div>'
         "</div>"
         "</body></html>"
         % {"W": TT_COVER_W, "H": TT_COVER_H, "BASE": base, "BAND": band,
-           "AC": ac, "NAME": esc(name), "ONE": esc(one), "NUM": esc(num)})
+           "AC": ac, "NAME": esc(name), "NUM": esc(num)})
 
 
 def render_tt_cover(port, c):
@@ -755,7 +747,10 @@ def upload_cover(cdp, paths, timeout=60):
     st = json.loads(cdp.eval(_COVER_STATE) or "{}")
     if not st.get("panel"):
         if not _click_selector(cdp, ".article-cover-add", 2.0, 6):
-            return "no-cover-slot"
+            # 已有封面的草稿没有 add 占位块 —— 走封面图 hover 菜单里的「替换」
+            # （.article-cover-img-menu 在 DOM 里常驻，无需真 hover 即可点）
+            if not _click_selector(cdp, ".article-cover-img-replace", 2.0, 6):
+                return "no-cover-slot"
     # 等面板真的可见（点一下封面块可能要过一会儿才渲染）
     end = time.time() + 10
     while time.time() < end:
@@ -1158,6 +1153,98 @@ def _page_target_ids():
     return out
 
 
+def _open_published_editor(title, wait=25):
+    """草稿箱里没有这篇时，去「作品管理」点它的「修改」。
+
+    头条已发布文章可编辑（能补封面），路径：作品管理 /profile_v4/manage/content/all
+    → 找到标题卡 → 点「修改」→ 新开 tab /graphic/publish?pgc_id=...
+    返回 (cdp, target, err)；找不到返回 (None, None, 原因)。
+    """
+    cdp = wp.CDP(CDP_PORT)
+    tid = None
+    for t in cdp.list_targets():
+        if "/manage/content/all" in t.get("url", ""):
+            tid = t["id"]
+            break
+    if not tid:
+        tid = cdp.new_target(TT_WORKS)["id"]
+    box = wp.CDP(CDP_PORT)
+    box.connect_target(tid)
+    time.sleep(6)
+    box.send("Page.navigate", {"url": TT_WORKS})
+    time.sleep(8)
+
+    before = _page_target_ids()
+    # 作品管理也是懒加载，滚几轮把列表拉出来
+    scroll_js = """(function(){
+      var cands=[].slice.call(document.querySelectorAll('div,main,section'))
+        .filter(function(e){
+          return e.scrollHeight>e.clientHeight+80 && e.clientHeight>300;});
+      var el=cands.sort(function(a,b){return b.clientHeight-a.clientHeight;})[0];
+      if(!el) return 'none';
+      el.scrollTop=el.scrollHeight;
+      return String(el.scrollTop);
+    })()"""
+    pos = ""
+    # 作品管理有 495 条（2026-09-29 实测），目标可能排在几十页之后，
+    # 每轮滚一屏 → 120 轮足够到底；先按标题扫，扫到就停。
+    for _ in range(120):
+        box.eval(scroll_js)
+        time.sleep(1.0)
+        # 只认**已发布**那条卡（作品管理里同名可能有「由文章生成」的衍生条目，
+        # 2026-09-29 实测 kibu 就有两条同名），优先带「已发布」标记的卡。
+        r = box.eval("""(function(t){
+          var cards=[].slice.call(document.querySelectorAll('li,tr,div'))
+            .filter(function(e){
+              var x=(e.innerText||'');
+              return x.indexOf(t)>=0 && x.length<400 &&
+                     x.indexOf('修改')>=0;});
+          if(!cards.length) return 'no-card';
+          // 最短包含者 = 卡片本身
+          cards.sort(function(a,b){
+            return a.innerText.length-b.innerText.length;});
+          var card=cards[0];
+          for(var i=0;i<cards.length;i++){
+            if((cards[i].innerText||'').indexOf('已发布')>=0){card=cards[i];break;}
+          }
+          card.scrollIntoView({block:'center'});
+          var btn=[].slice.call(card.querySelectorAll('a,button,span'))
+            .find(function(b){return (b.innerText||'').trim()==='修改';});
+          if(!btn) return 'no-btn';
+          var b=btn.getBoundingClientRect();
+          if(b.width<=0) return 'zero';
+          return JSON.stringify({x:Math.round(b.x+b.width/2),
+                                 y:Math.round(b.y+b.height/2)});
+        })(""" + json.dumps(title))
+        if r and r not in ("none", "no-btn", "zero"):
+            pos = r
+            break
+        time.sleep(1.2)
+    if not pos:
+        return None, None, "作品管理里也没找到《%s》" % title
+
+    _click_pos(box, json.loads(pos), 2.5)
+    time.sleep(4)
+    newt = None
+    end = time.time() + wait
+    while time.time() < end:
+        for t in wp.CDP(CDP_PORT).list_targets():
+            if t.get("id") in before or t.get("type") != "page":
+                continue
+            if "/graphic/publish" in t.get("url", ""):
+                newt = t
+                break
+        if newt:
+            break
+        time.sleep(1.0)
+    if not newt:
+        return None, None, "点了修改但没等到编辑页"
+    sub = wp.CDP(CDP_PORT)
+    sub.connect_target(newt["id"])
+    time.sleep(3)
+    return sub, newt, ""
+
+
 def open_draft_editor(title, wait=25):
     """在草稿箱里按标题点「编辑」，返回 (cdp, target)。
 
@@ -1186,6 +1273,9 @@ def open_draft_editor(title, wait=25):
     time.sleep(2)
 
     before = _page_target_ids()
+    # 草稿箱初次只渲染前几条，目标卡在第 10 条开外时 _DRAFT_SCROLL_TO
+    # 会一直 'none' 空转超时（2026-09-29 实测）。先把整页展开。
+    _load_all_drafts(cdp, max_rounds=20, pause=1.5)
     pos = ""
     for attempt in range(6):
         r = cdp.eval(_DRAFT_SCROLL_TO % json.dumps(title))
@@ -1199,8 +1289,15 @@ def open_draft_editor(title, wait=25):
         time.sleep(1.5)
         pos = ""
     if not pos:
-        return None, None, "《%s》的编辑按钮点不到（%s，草稿箱可能还没渲染完）" % (
-            title, pos or "列表里没这张卡")
+        # 草稿箱里没有这张卡 → 可能已经发布/被删。头条已发布文章也能编辑，
+        # 转「内容管理」列表页找（2026-09-29 实测：kibu / pieter-levels
+        # 已不在草稿箱，37 条发布记录 vs 草稿箱只剩 35 条）。
+        alt = _open_published_editor(title)
+        if alt and alt[0]:
+            return alt
+        why = (alt[2] if alt else "作品管理页没打开")
+        return None, None, "《%s》的编辑按钮点不到（草稿箱：%s；作品管理：%s）" % (
+            title, pos or "列表里没这张卡", why)
     _click_pos(cdp, json.loads(pos), 2.5)
     time.sleep(4)
 
@@ -1230,10 +1327,11 @@ def open_draft_editor(title, wait=25):
     return c, newt, ""
 
 
-def cover_one(c, dry=False):
-    """给**已存在的草稿**原地补封面（不重发、不产生重复草稿）。
+def cover_one(c, dry=False, force=False):
+    """给**已存在的草稿**原地补/换封面（不重发、不产生重复草稿）。
 
     做法：草稿箱 → 点该草稿的「编辑」（新开 tab，原文已加载）→ 走图库面板上传。
+    force=True 时草稿已有封面也强制换图（走封面 hover 菜单的「替换」入口）。
     """
     if dry:
         return "dry"
@@ -1250,12 +1348,23 @@ def cover_one(c, dry=False):
         return err
     try:
         has_cover = cdp.eval("!!document.querySelector('.article-cover-add')")
-        if not has_cover:
-            return "这张草稿本来就有封面（没有占位块）"
+        if not has_cover and not force:
+            return "这张草稿本来就有封面（没有占位块）；要换新图加 --force"
+        old_src = cdp.eval(
+            "(function(){var i=document.querySelector("
+            "'.article-cover-images img');return i?i.src:'';})()") or ""
         r = upload_cover(cdp, [cp])
         if r != "ok":
             return "封面失败：%s" % r
         ok = _wait_autosave(cdp)
+        # 换图场景：确认编辑器里的封面 src 真的变了（add 块始终不存在，
+        # upload_cover 的内置验证在替换模式下会立刻误判 ok）
+        if old_src:
+            new_src = cdp.eval(
+                "(function(){var i=document.querySelector("
+                "'.article-cover-images img');return i?i.src:'';})()") or ""
+            if new_src == old_src:
+                return "封面已传，但编辑器里的图没变（替换可能没生效）"
         return "ok" + ("" if ok else "（封面已传，但没等到保存提示）")
     finally:
         cdp.close_target(t["id"])
@@ -1278,7 +1387,14 @@ def cmd_cover(args):
     for i, c in enumerate(cases, 1):
         print("[%d/%d] %-22s 《%s》" % (i, len(cases), c["id"],
                                         find_title(c)))
-        r = cover_one(c, dry=args.dry)
+        r = None
+        for attempt in (1, 2):                    # CDP 偶发断连，单条重试一次
+            try:
+                r = cover_one(c, dry=args.dry, force=getattr(args, "force", False))
+                break
+            except Exception as e:                # noqa: BLE001
+                r = "%s: %s（attempt %d）" % (type(e).__name__, e, attempt)
+                time.sleep(3)
         print("    → %s" % r)
         if r.startswith("ok"):
             ok += 1
@@ -1741,6 +1857,8 @@ def main():
     cv.add_argument("--case")
     cv.add_argument("--all", action="store_true")
     cv.add_argument("--dry", action="store_true")
+    cv.add_argument("--force", action="store_true",
+                    help="草稿已有封面也强制换图（重做封面后同步到草稿用）")
     cv.set_defaults(fn=cmd_cover)
     lg = sub.add_parser("login", help="检查登录态（退出码 0 = 已登录）")
     lg.add_argument("--open", action="store_true",

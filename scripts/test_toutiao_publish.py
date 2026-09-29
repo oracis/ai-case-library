@@ -200,14 +200,22 @@ class TestTtCoverNum(unittest.TestCase):
         self.assertNotIn("numsub", html)
 
     def test_cover_html_placeholder_oneliner_never_shows_unclassified(self):
-        """prosp 实测：one_liner 是占位符、category=未分类 → 封面印出「未分类」。"""
+        """prosp 实测：one_liner 是占位符、category=未分类 → 封面印出「未分类」。
+
+        2026-09-29 改方案 A 后封面只有两行（数字 + 产品名），本来就不印
+        one_liner，所以「兜底文案」不再是必需 —— 但**占位符绝不能上封面**
+        这条硬约束还得钉死（将来谁加回第三行就会踩）。
+        """
         c = {"id": "prosp", "name": "PROSP", "category": "未分类",
              "one_liner": "（待补充：产品定位未明）",
              "metrics": {"headline": "$128,000 MRR"}}
         html = tp.tt_cover_html(c)
         self.assertNotIn("未分类", html)
         self.assertNotIn("待补充", html)
-        self.assertIn("海外小生意", html)         # 兜底文案
+        # 方案 A：只有数字 + 产品名，不带任何小字介绍
+        self.assertIn("$128,000 MRR", html)
+        self.assertIn("PROSP", html)
+        self.assertNotIn("one_liner", html)
 
 
 if __name__ == "__main__":

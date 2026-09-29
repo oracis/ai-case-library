@@ -3,6 +3,12 @@
 """
 一个通过的 case，一次发到公众号 + 小红书 + 今日头条（可只选其中几个）。
 
+⚠️ **遗留入口（2026-09-29 起）。新活请走 `scripts/publish_multi.py`。**
+新入口多了 B站专栏适配器、落盘清单状态机（`data/publish_manifest.json`）、
+单条重试与断点续传。本脚本仍在用（三平台 + 老参数 + 头条登录态自检），
+但**幂等只认各平台的 records.json，批量发版中途断了说不清发到哪** ——
+这正是这轮要解决的问题。
+
 用法：
     python scripts/publish_both.py nitra       # 指定案例（认 id / 名字 / 标题片段）
     python scripts/publish_both.py              # 默认发最近 1 条「还有平台没发过」的
@@ -19,9 +25,9 @@
 
 「新 case 发布」的正确姿势
 --------------------------
-新 case 入库 → 跑 `python scripts/publish_both.py <id>`（或 --near 3），
-会按每个平台**各自的记录**判断：发过的平台跳过，没发过的补发。
-所以一条 case 可以先只发了公众号、后来再补小红书和头条，不会重复发。
+新 case 入库 → 跑 `python scripts/publish_multi.py run --case <id>`，
+会按每个平台**各自的记录 + 清单状态**判断：发过的平台跳过，没发过的补发。
+所以一条 case 可以先只发了公众号、后来再补小红书、头条、B站，不会重复发。
 
 一边的步骤（失败不影响另一边，最后汇总）：
     公众号：make_article.py --id <id> --format html
