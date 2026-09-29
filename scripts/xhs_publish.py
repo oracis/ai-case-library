@@ -1515,11 +1515,14 @@ _JS_PURGE_FIND = """(function(WANT){
       .filter(function(b){
         if((b.innerText||'').trim().indexOf('删除')<0) return false;
         var r=b.getBoundingClientRect();
-        return r.width>0 && r.height>0 && r.left>=0 &&
-               r.left<window.innerWidth && r.top>=0 && r.top<window.innerHeight;
+        return r.width>0 && r.height>0;   // 只滤隐藏副本，不要求已在视口
       });
-    if(bs.length){ bs[0].scrollIntoView({block:'center'}); return JSON.stringify(
-        {title:t, n:1}); }
+    if(bs.length){
+      // 先把整张卡滚进视口，再把删除按钮滚到正中——深位草稿的按钮原本在视口外
+      items[i].scrollIntoView({block:'center'});
+      bs[0].scrollIntoView({block:'center'});
+      return JSON.stringify({title:t, n:1});
+    }
   }
   return null;
 })(%s)"""
