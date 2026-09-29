@@ -1503,11 +1503,72 @@ def _real_click(sub, coord):
               "button": "left", "clickCount": 1})
 
 
-def _purge_one(sub):
-    """删掉草稿箱最上面一条（最新）。返回 'ok' / 'nobtn' / 'stuck'。"""
-    _js(sub, "(function(){%s\n%s})()" % (JS_CLICK_CHAIN, _JS_PURGE_LOCATE))
-    time.sleep(0.6)
-    coord = _js(sub, _JS_PURGE_COORD)
+_JS_PURGE_FIND = """(function(WANT){
+  // 找一张草稿卡片（.draft-item），取它的「删除」按钮；WANT 为空取最新一张
+  var items=[].slice.call(document.querySelectorAll('.draft-item'));
+  if(!items.length) return null;
+  for(var i=0;i<items.length;i++){
+    var tt=items[i].querySelector('.draft-title-text');
+    var t=(tt&&tt.innerText||'').trim();
+    if(WANT && t.indexOf(WANT)<0) continue;
+    var bs=[].slice.call(items[i].querySelectorAll('.draft-actions .btn'))
+      .filter(function(b){
+        if((b.innerText||'').trim().indexOf('删除')<0) return false;
+        var r=b.getBoundingClientRect();
+        return r.width>0 && r.height>0 && r.left>=0 &&
+               r.left<window.innerWidth && r.top>=0 && r.top<window.innerHeight;
+      });
+    if(bs.length){ bs[0].scrollIntoView({block:'center'}); return JSON.stringify(
+        {title:t, n:1}); }
+  }
+  return null;
+})(%s)"""
+
+_JS_PURGE_FIND_COORD = """(function(WANT){
+  var items=[].slice.call(document.querySelectorAll('.draft-item'));
+  if(!items.length) return null;
+  for(var i=0;i<items.length;i++){
+    var tt=items[i].querySelector('.draft-title-text');
+    var t=(tt&&tt.innerText||'').trim();
+    if(WANT && t.indexOf(WANT)<0) continue;
+    var bs=[].slice.call(items[i].querySelectorAll('.draft-actions .btn'))
+      .filter(function(b){
+        if((b.innerText||'').trim().indexOf('删除')<0) return false;
+        var r=b.getBoundingClientRect();
+        return r.width>0 && r.height>0 && r.left>=0 &&
+               r.left<window.innerWidth && r.top>=0 && r.top<window.innerHeight;
+      });
+    if(bs.length){
+      var r=bs[0].getBoundingClientRect();
+      return JSON.stringify({title:t,
+        x:Math.round(r.left+r.width/2), y:Math.round(r.top+r.height/2)});
+    }
+  }
+  return null;
+})(%s)"""
+
+
+def _WIN_H(sub):
+    try:
+        return int(sub.eval("window.innerHeight") or 0)
+    except Exception:
+        return 1035
+
+
+def _purge_one(sub, want=None):
+    """删掉一张草稿。want 是标题片段时删第一张命中的，否则删最新一张。"""
+    w = json.dumps(want or "", ensure_ascii=False)
+    coord = None
+    for _ in range(4):        # 深处的卡片按钮在视口外，滚动后要再量
+        found = _js(sub, _JS_PURGE_FIND % w)
+        if not found:
+            return "nobtn"
+        time.sleep(0.9)
+        coord = _js(sub, _JS_PURGE_FIND_COORD % w)
+        if isinstance(coord, dict) and coord.get("x") and coord.get("y") \
+                and 0 <= coord["y"] < _WIN_H(sub):
+            break
+        coord = None
     if not isinstance(coord, dict) or not coord.get("x"):
         return "nobtn"
     _real_click(sub, coord)
@@ -1534,14 +1595,25 @@ def cmd_purge(args):
         print("\n（dry-run。确认清单没问题就加 --all 真删）")
         return
     limit = args.limit if args.limit > 0 else len(cards)
-    print("\n开始删除，最多 %d 条…" % limit)
+    want = getattr(args, "match", None) or None
+    if want:
+        cards = [c for c in cards if want in c["title"]]
+        if not cards:
+            print("\n标题含「%s」的草稿一条都没有，不删。" % want)
+            return
+        limit = min(limit, len(cards))
+    print("\n开始删除，最多 %d 条%s…"
+          % (limit, ("（标题含「%s」）" % want) if want else ""))
     n = fail = 0
     while n < limit:
         before = fetch_drafts(sub)
         if not before:
             break
-        head = before[0]
-        r = _purge_one(sub)
+        head = before[0] if not want else next(
+            (c for c in before if want in c["title"]), None)
+        if head is None:
+            break
+        r = _purge_one(sub, want)
         after = fetch_drafts(sub)
         if r == "ok" and len(after) < len(before):
             n += 1
@@ -1692,6 +1764,7 @@ def main():
     pg.add_argument("--all", action="store_true", help="真删：从最新开始删到空")
     pg.add_argument("--limit", type=int, default=0,
                     help="最多删几条（0=不限，配 --all 先删几条试试）")
+    pg.add_argument("--match", help="只删标题含这段的（比如清理空壳草稿）")
     pg.add_argument("--dry", action="store_true")
     pg.set_defaults(fn=cmd_purge)
     qq = sub.add_parser("queue", help="看看接下来会发哪几条（不动浏览器）")
