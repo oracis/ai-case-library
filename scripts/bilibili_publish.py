@@ -165,6 +165,44 @@ def make_title(cid, html):
     return t
 
 
+def _heading_to_bold(body):
+    """把 <h2>/<h3> 小标题转成加粗段落。
+
+    为什么不用 h2（2026-09-29 实测，37 篇全量核对）：
+      · B站编辑器**没有小标题功能**，工具栏无任何标题按钮；
+      · 它的 CSS 把 h2 的浏览器默认样式清空
+        （`.ProseMirror :where(p,h1..h6,…) { margin:0; padding:0;
+        font-size:inherit; line-height:inherit }`）；
+      · 唯一生效的 h2 规则是 `font-weight:500; margin-top:36px;
+        font-size:18px` → 视觉上「18px 不加粗 + 上方空 36px + 下方 0」，
+        正是用户说的「小标题没有样式，和下面内容隔了太多行」；
+      · `style` 属性活不下来：insertHTML 时被 Tiptap 剥掉，灌完用 JS
+        补上也会在存草稿时被序列化洗掉。
+    加粗段落是 B站作者圈的实际做法：`strong` 能存活（存草稿重开后仍是
+    `<strong>`），字号随正文 17px，间距由 B站统一的 24px 段落 margin 管。
+
+    为什么要加 `▶ ` 前缀：正文里本来就有大量**句中** `**加粗**`
+    （如「**实际情况**：该值是…」），它们和标题都是加粗段落，不加区分
+    的话读者分不清哪个是章节。`▶` 是 B站作者圈约定的小标题标记
+    （B站编辑器不支持多级标题，大家就用符号模拟层级）。
+    已有序号的（`一、` `1.` `①`）保持原样 —— 序号本身就是区分。
+    """
+    def _one(m):
+        inner = m.group(2).strip()
+        if not inner:
+            return ""
+        if "<strong" in inner.lower():
+            return "<p>%s</p>" % inner
+        # 去掉内层标签后判断是否已有序号前缀
+        plain = re.sub(r"<[^>]+>", "", inner).strip()
+        if re.match(r"^[0-9①-⑩一二三四五六七八九十（(【]", plain):
+            return "<p><strong>%s</strong></p>" % inner
+        return "<p><strong>▶ %s</strong></p>" % inner
+
+    body = re.sub(r"<h([23])[^>]*>(.*?)</h\1>", _one, body, flags=re.S | re.I)
+    return body
+
+
 def clean_body(html):
     """清洗成 B站专栏富文本片段（直接 insertHTML 进编辑器）。
 
@@ -183,6 +221,25 @@ def clean_body(html):
       「核实过程」拆成相邻两个 blockquote。B站 Tiptap 给每个 blockquote
       上下大边距，连着两块看起来就是「每段分得太开」。实测 37 篇里 26 篇
       有连续 blockquote。合并成一块（中间换行）后视觉上是一段引文。
+    · **h2 小标题降级成加粗段落**（2026-09-29 补，用户反馈「小标题没有样式，
+      和下面内容隔了太多行」）。实测 B站编辑器**没有小标题功能**：
+        - 工具栏里没有任何「标题」按钮（2026-09-29 全 DOM 扫描 title/
+          aria-label 找「标题/heading」零命中）；
+        - CSS 里 `.ProseMirror :where(p, h1..h6, blockquote…) { margin:0;
+          padding:0; font-size:inherit; line-height:inherit }` 把 h2 的
+          浏览器默认样式全清掉；
+        - 唯一给 h2 设样式的规则是 `.ProseMirror h2[data-eva3-scoped]
+          { font-weight:500; margin-top:36px; font-size:18px }` ——
+          结果就是「18px 不加粗 + 上方 36px + 下方 0」，看起来既不像标题
+          又把正文推得很远；
+        - `insertHTML` 灌进去的 `style` 属性会被 Tiptap 剥掉（实测
+          h2 的 style 被丢，文字被包进 `<span style="color:var(--Ga10)">`）；
+          灌完再用 JS 加 style，**存草稿后也会被洗掉**（重开是干净的
+          `<h2 data-eva3-scoped>`）。所以样式这条路走不通。
+      → 只能用 B站作者圈的实际做法：`<p><strong>标题</strong></p>`。
+      `strong` 能存活（实测存草稿重开后仍是 `<strong>`），字号跟着正文
+      17px 走，段落间距由 B站统一的 24px margin 管，比 h2 的 36px/0 协调。
+      `## 一、xxx` 这种带序号前缀会保留 —— 序号本来就该有。
     """
     m = re.search(r"<section[^>]*>(.*)</section>", html, re.S | re.I)
     body = m.group(1) if m else html
@@ -201,6 +258,8 @@ def clean_body(html):
                   body, flags=re.S)
     # **加粗** → strong
     body = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", body)
+    # h2/h3 小标题 → 加粗段落（B站没有标题功能，见 docstring）
+    body = _heading_to_bold(body)
     # 去所有 style 属性
     body = re.sub(r"\s+style=\"[^\"]*\"", "", body)
     # 剥裸 span（带属性的一律保留 —— 那些可能承载语义）
@@ -212,6 +271,14 @@ def clean_body(html):
     # 合并连续 blockquote：</blockquote>\s*<blockquote…> → 中间留 <br>
     body = re.sub(r"</blockquote>\s*<blockquote[^>]*>", "<br>", body,
                   flags=re.I)
+    # **压掉标签间换行**（2026-09-30 补，用户反馈「每段分得太开」的真凶）。
+    # B站 Tiptap 的 insertHTML 把 `>` 与下一个 `<` 之间的**空白文本节点**
+    # 当成一个额外的空段落：`<p>A</p>\n<p>B</p>` 灌进去会变成 A、空段、B。
+    # 实测 coral 灌入后全文高 5785px、39 个正常段之间夹了 20+ 个 58px 的
+    # 空段（正常段只有 29px）；把标签间空白全压掉后同样的内容只剩
+    # 2514px、段落间距回到 B站 统一的 24px。⚠ 只压标签**之间**的空白，
+    # 段内文字之间的空白要留着（<p>a b</p> 中间那个空格是正文内容）。
+    body = re.sub(r">[ \t\r\n]+<", "><", body)
     return body.strip()
 
 
@@ -398,6 +465,23 @@ def _open_editor_tab(cdp):
     return sub, tid
 
 
+def _key(cdp, key, code, vk, mods=0, text=None):
+    """发一对 CDP 键盘事件（keyDown + keyUp）。
+
+    为什么不用 execCommand：ProseMirror 只认**真实输入管线**上的beforeinput/
+    keydown，execCommand('delete') 改的是 DOM，编辑器内部 state 不同步，
+    下一次渲染会把内容恢复回去（2026-09-30 实测，见 publish_one 2b 注释）。
+    mods 用 CDP 位掩码：1=Alt 2=Ctrl 4=Meta 8=Shift。
+    """
+    p = {"type": "keyDown", "key": key, "code": code,
+         "windowsVirtualKeyCode": vk, "nativeVirtualKeyCode": vk,
+         "modifiers": mods}
+    if text:
+        p["text"] = text
+    cdp.send("Input.dispatchKeyEvent", p)
+    cdp.send("Input.dispatchKeyEvent", dict(p, type="keyUp"))
+
+
 def _wait_iframe_ready(sub, kw, probe_sel, timeout=25):
     """轮询等 <iframe src~kw> 里的文档渲染出 probe_sel。"""
     end = time.time() + timeout
@@ -457,6 +541,7 @@ def publish_one(cid, dry=False, replace=False):
 
     cdp = wp.CDP(PUB_PORT)
     sub, tid = _open_editor_tab(cdp)
+    aid, old_mtime = None, 0
 
     try:
         if dry:
@@ -466,19 +551,30 @@ def publish_one(cid, dry=False, replace=False):
                   % (SEL["title"], SEL["body"], SEL["draft_text"]))
             return ok1
 
-        # 0) replace：草稿箱点该标题卡片的「编辑」，进已有草稿覆盖
+        # 0) replace：直接按 article_id 打开已有草稿
+        #    不用草稿箱点卡片 —— 草稿箱 DOM 只渲染首屏 10 条且滚动无效
+        #    （2026-09-29 实测，37 条里第 11 条之后就找不到卡片了）。
+        #    走 /platform/upload/text/new-edit?aid=<id> 最可靠，
+        #    article_id 从官方草稿接口拿（见 _pick_draft）。
         if replace:
-            if not _wait_iframe_ready(sub, "read-draft", SEL["new_creation"], 25):
-                print("  ✗ 草稿箱 iframe 没就绪")
+            _close_stale_bili_tabs(cdp)
+            lid = cdp.new_target(BILI_DRAFT_LIST_PAGE)["id"]
+            cdp.connect_target(lid)
+            time.sleep(5)
+            aid, _drafts = _pick_draft(cdp, lid, title)
+            cdp.close_target(lid)
+            if not aid:
+                print("  ✗ 草稿箱接口里没找到《%s》" % title)
                 return False
-            # 候选键：新标题前 8 字、case id、case id 首段大写（PROSP）
-            cid_up = cid.upper()
-            keys = [title[:8], cid, cid_up, cid_up.split("-")[0]]
-            if not _open_existing_draft(sub, [k for k in keys if k]):
-                print("  ✗ 草稿箱里没找到《%s》的编辑入口（试过 %s）"
-                      % (title, "/".join(k for k in keys if k)))
-                return False
-            time.sleep(6)
+            old_mtime = 0
+            for d in _drafts:
+                if d.get("article_id") == aid:
+                    old_mtime = d.get("mtime") or 0
+                    break
+            tid2 = cdp.new_target(BILI_EDIT_URL % aid)["id"]
+            cdp.connect_target(tid2)
+            sub, tid = cdp, tid2
+            time.sleep(4)
 
         # 1) 非 replace：创作指南页 → 点「新的创作」
         else:
@@ -495,6 +591,15 @@ def publish_one(cid, dry=False, replace=False):
             return False
 
         # 2b) replace 模式：先清空原有标题/正文，否则新内容会叠加在旧草稿上
+        #
+        # ⚠ 必须用**真实键盘事件**清空，不能用 execCommand('selectAll')+delete。
+        #   2026-09-30 实测：execCommand 版本在DOM 上看着删干净了，但 ProseMirror
+        #   内部 state 没同步 —— 下一步读children 时旧内容**自己回来了**，
+        #   随后 insertHTML 插不进去（静默无效）。结果整篇正文被塞进编辑器
+        #   遗留的 <blockquote class="eva3-blockquote"> 里，一整块引用样式，
+        #   段落间距全乱（就是用户截图里「样式丢失、段落分得太开」的成因）。
+        #   CDP Input.dispatchKeyEvent 的 Ctrl+A → Delete 走的是 ProseMirror
+        #   真实输入管线，删完是干净的 `<p class="is-empty is-editor-empty">`。
         if replace:
             cleared = sub.eval(
                 "(function(kw,ts,bs){"
@@ -505,14 +610,17 @@ def publish_one(cid, dry=False, replace=False):
                 "var t=d.querySelector(ts), b=d.querySelector(bs);"
                 "if(t){t.focus();t.value='';"
                 "t.dispatchEvent(new Event('input',{bubbles:true}));}"
-                "if(b){b.focus();"
-                "d.execCommand('selectAll');d.execCommand('delete');"
-                "d.execCommand('insertHTML', false, '<p></p>');}"
-                "return 'cleared';})(" +
+                "if(b){b.focus(); return 'focused';}"
+                "return 'no-body';})(" +
                 json.dumps("read-editor") + "," + json.dumps(SEL["title"]) +
                 "," + json.dumps(SEL["body"]) + ")", refresh_context=True)
+            if cleared == "focused":
+                _key(cdp, "a", "KeyA", 65, mods=2)      # Ctrl+A 全选正文
+                time.sleep(0.4)
+                _key(cdp, "Delete", "Delete", 46)      # Delete 删掉
+                time.sleep(1.2)
             print("    清空旧内容: %s" % cleared)
-            time.sleep(1.5)
+            time.sleep(1.0)
 
         # 3) 填标题：聚焦 textarea → Input.insertText（真实键入，框架必收）
         focus_js = ("(function(kw,s){"
@@ -532,6 +640,10 @@ def publish_one(cid, dry=False, replace=False):
         time.sleep(1)
 
         # 4) 灌正文：聚焦 ProseMirror → execCommand('insertHTML')（同头条范式）
+        #
+        #⚠ 灌完必须校验「顶层子节点数 + 纯文本长度」：静默无效的情况真实
+        #   发生过（清空没生效时 insertHTML 直接被丢弃，编辑器字数还是旧的）。
+        #   只看 return 的 len 不够 —— len 是灌完立刻读的，可能是旧内容。
         insert_js = ("(function(kw,s,html){"
                      "var f=[].slice.call(document.querySelectorAll('iframe'))"
                      ".find(function(f){return (f.src||'').indexOf(kw)>=0;});"
@@ -540,16 +652,34 @@ def publish_one(cid, dry=False, replace=False):
                      "if(!el) return 'none';"
                      "el.focus();"
                      "d.execCommand('insertHTML', false, html);"
-                     "return JSON.stringify({len:el.textContent.length});"
+                     "return JSON.stringify({len:el.textContent.length,"
+                     "kids:el.children.length});"
                      "})(" + json.dumps("read-editor") + "," +
                      json.dumps(SEL["body"]) + "," + json.dumps(body) + ")")
         r = sub.eval(insert_js)
         try:
-            blen = json.loads(r).get("len", 0)
+            info = json.loads(r)
+            blen, bkids = info.get("len", 0), info.get("kids", 0)
         except (ValueError, TypeError):
             print("  ✗ 正文灌入失败: %s" % str(r)[:80])
             return False
+        # 灌完再等一拍让 ProseMirror 提交事务，然后复核
         time.sleep(2)
+        r2 = sub.eval(_iframe_js(
+            "var el=d.querySelector(%s);"
+            "if(!el) return 'none';"
+            "return JSON.stringify({len:el.textContent.length,"
+            "kids:el.children.length});" % json.dumps(SEL["body"])))
+        try:
+            info2 = json.loads(r2)
+            blen, bkids = info2.get("len", 0), info2.get("kids", 0)
+        except (ValueError, TypeError):
+            pass
+        if bkids < 3 or blen < len(plain) * 0.9:
+            print("  ✗ 正文疑似没灌进去（顶层块 %d，编辑器字数 %d，本地 %d）"
+                  % (bkids, blen, len(plain)))
+            return False
+        time.sleep(1)
 
         # 5) 点「保存为草稿」
         save_js = ("(function(kw,txt){"
@@ -576,8 +706,22 @@ def publish_one(cid, dry=False, replace=False):
             return False
         time.sleep(4)  # 等保存请求发出/toast
 
-        print("  ✓ 标题《%s》正文 %d 字（编辑器实测 %d 字）已填，点了保存为草稿%s"
-              % (title, len(plain), blen, "（封面未传，人工核对）" if not cp else ""))
+        # 5b) **远端回读校验**（replace 模式）——「点了保存」不等于「存上了」。
+        # 2026-09-30 实测踩到：旧版脚本只点按钮就报成功，实际远端草稿正文
+        # 一个字没变（编辑器里还是 8 个 <h2>），而脚本已经写下"成功"。
+        # 唯一可靠的判据是远端 draft 的 mtime 变化 + summary 前缀匹配。
+        if replace and aid:
+            got = _verify_saved(cdp, title, expect_head=plain[:40], old_mtime=old_mtime)
+            if got == "ok":
+                print("  ✓ 远端已回读确认：mtime 已更新、正文前缀匹配")
+            else:
+                print("  ⚠ 保存后回读不一致（%s）——草稿可能没真正更新，"
+                      "请人工核对" % got)
+                return False
+
+        print("  ✓ 标题《%s》正文 %d 字（编辑器实测 %d 字 / %d 块）已存草稿%s"
+              % (title, len(plain), blen, bkids,
+                 "（封面未传，人工核对）" if not cp else ""))
         return True
     finally:
         # 留着 tab 让人工核对刚保存的草稿页；连续批量时关掉防止堆积
@@ -684,6 +828,57 @@ _JS_SET_FILES = """(function(dataurl, name){
     inp.dispatchEvent(new Event('change', {bubbles:true}));
     return 'ok:'+n+':'+sz;
   })"""
+
+
+def _verify_saved(cdp, title, expect_head, old_mtime):
+    """保存后回读远端草稿，确认真的存上了。返回 "ok" 或失败原因。
+
+    为什么必须有这一步（2026-09-30 实测）：旧版publish_one 点完「保存为草稿」
+    就 return True，结果远端草稿正文一个字没变，脚本却报成功 —— 一整轮
+    批量 37 条全部"成功"但远端是旧版，这类假成功最难查。
+
+    判据（两个都要）：
+      1. mtime 必须比保存前更新（B站只给秒级时间戳，轮询要给足窗口）；
+      2. summary 前缀要匹配本地正文开头 —— summary 是 B站自己截的前 250 字，
+         刚好够当"正文开头指纹"。⚠ 别指望 summary 全文对账：B站硬上限
+         250 字（coral 本地 847 字，远端 summary 只有 250）。
+    """
+    norm = lambda s: re.sub(r"\s+", "", s or "")
+    want = norm(expect_head)[:20]
+    lid = cdp.new_target(BILI_DRAFT_LIST_PAGE)["id"]
+    cdp.connect_target(lid)
+    try:
+        time.sleep(4)
+        end = time.time() + 30
+        last = "no-draft"
+        while time.time() < end:
+            r = _fetch_drafts(cdp, lid)
+            ds = (r.get("drafts") if isinstance(r, dict) else None) or []
+            if not ds:
+                last = "草稿接口返回空（%s）" % json.dumps(
+                    r, ensure_ascii=False)[:80]
+            hit = None
+            for d in ds:
+                if d.get("title") == title:
+                    hit = d
+                    break
+            if not hit:
+                last = "远端草稿列表里找不到该标题"
+            elif (hit.get("mtime") or 0) <= (old_mtime or 0):
+                last = "mtime 没变（仍为 %s）" % hit.get("mtime")
+            else:
+                got = norm(hit.get("summary") or "")[:20]
+                if want and not got.startswith(want[:12]):
+                    last = "summary 开头不匹配：远端 %r" % got[:20]
+                else:
+                    return "ok"
+            time.sleep(4)
+        return last
+    finally:
+        try:
+            cdp.close_target(lid)
+        except Exception:
+            pass
 
 
 def _fetch_drafts(cdp, tid):

@@ -132,6 +132,15 @@ jobs:
         # ③ 来源文本里的 < > & 必须转义干净。
         run: python scripts/test_prerender.py
 
+      - name: 测试 agnes_cover.py（生图 prompt 不含中文、构图方向、尺寸合法）
+        # 纯函数单测，不连网不调 API。守三条线：
+        # ① prompt 里不能出现中文（图像模型画不出中文，硬塞出乱码图）；
+        # ② 构图方向必须与目标尺寸一致（曾把 square 也写成 horizontal）；
+        # ③ category 必须 100% 命中风格表（miss 就全落 DEFAULT_STYLE，
+        #    整套图风格不统一）。外加 size 取值合法性（Agnes 只认
+        #    1K/2K/3K/4K/WIDTHxHEIGHT，`16:9` 会 400）与像素回读逻辑。
+        run: python -m unittest scripts.test_agnes_cover
+
   frontend:
     name: 前端自测 · Node ${{ matrix.node }}
     runs-on: ubuntu-latest

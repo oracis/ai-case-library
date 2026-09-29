@@ -258,5 +258,144 @@ class TestCoverHelpers(unittest.TestCase):
         self.assertIn("/platform/upload/text/new-edit", bp.BILI_EDIT_URL)
 
 
+class TestTagGapNewline(unittest.TestCase):
+    """标签间换行是「每段分得太开」的真凶（2026-09-30 实测）。
+
+    B站 Tiptap 的 insertHTML 把 `>` 与下一个 `<` 之间的空白文本节点当成
+    额外空段落：`<p>A</p>\\n<p>B</p>` → A、空段、B。coral 实测灌入后全文
+    5785px、夹 20+ 个 58px 空段（正常段 29px）；压掉换行后只剩 2514px。
+    """
+
+    def test_no_newline_between_tags(self):
+        html = "<section><p>A</p>\n<p>B</p>\n<blockquote>C</blockquote>\n</section>"
+        out = bp.clean_body(html)
+        self.assertNotIn("\n", out)
+        self.assertIn("<p>A</p><p>B</p><blockquote>C</blockquote>", out)
+
+    def test_space_inside_paragraph_kept(self):
+        """只压标签**之间**的空白，段内文字间的空格是正文内容，必须留。"""
+        html = "<section><p>付费意愿 3/5 与 支付 3/5</p></section>"
+        out = bp.clean_body(html)
+        self.assertIn("付费意愿 3/5 与 支付 3/5", out)
+
+    def test_all_37_articles_newline_free(self):
+        ids = bp.list_ids()
+        self.assertGreaterEqual(len(ids), 30)
+        for cid in ids:
+            h = bp.load_article_html(cid)
+            if not h:
+                continue
+            out = bp.clean_body(h)
+            self.assertNotIn("\n", out, "%s 的clean_body 仍含换行" % cid)
+
+
+class TestHeadingToBold(unittest.TestCase):
+    """B站编辑器没有小标题功能，h2/h3 必须降级成加粗段落。
+
+    B站 CSS 把 h1-h6 默认样式全清掉（`:where(p,h1..h6){margin:0;font-size:inherit}`），
+    唯一给 h2 的规则是 `font-weight:500;margin-top:36px;font-size:18px` ——
+    不加粗 + 上方 36px + 下方 0，就是用户说的「小标题没有样式、和下面内容
+    隔了太多行」。内联 style 灌进去也会被 Tiptap 剥掉（实测存草稿重开后
+    style 消失），所以只能走 `<p><strong>`。
+    """
+
+    def test_h2_becomes_strong_para(self):
+        out = bp.clean_body("<section><h2>钱从哪来</h2><p>月订阅。</p></section>")
+        self.assertIn("<p><strong>▶ 钱从哪来</strong></p>", out)
+        self.assertNotIn("<h2", out)
+
+    def test_h3_becomes_strong_para(self):
+        out = bp.clean_body("<section><h3>细节</h3><p>x</p></section>")
+        self.assertIn("<p><strong>▶ 细节</strong></p>", out)
+        self.assertNotIn("<h3", out)
+
+    def test_numbered_heading_keeps_prefix(self):
+        """`## 一、xxx` 的序号本来就该有，不加▶。"""
+        out = bp.clean_body("<section><h2>一、它是什么</h2><p>x</p></section>")
+        self.assertIn("<p><strong>一、它是什么</strong></p>", out)
+        self.assertNotIn("▶", out)
+
+    def test_no_heading_left_in_37(self):
+        import re as _re
+        for cid in bp.list_ids():
+            h = bp.load_article_html(cid)
+            if not h:
+                continue
+            out = bp.clean_body(h)
+            self.assertEqual(_re.findall(r"<h[1-6][ >]", out), [],
+                             "%s 仍残留 h 标签" % cid)
+
+
+class TestKeyClearPath(unittest.TestCase):
+    """replace 清空必须走真实键盘事件，不能用 execCommand。
+
+    execCommand('selectAll')+delete 在 DOM 上看着删干净，ProseMirror 内部
+    state 却没同步 —— 下一步读children 旧内容自己回来，insertHTML 静默
+    无效，整篇正文被塞进遗留的 <blockquote class="eva3-blockquote"> 里，
+    渲染成一整块引用（就是「样式丢失、段落分得太开」的成因）。
+    """
+
+    def test_key_helper_sends_both_events(self):
+        sent = []
+
+        class FakeCDP:
+            def send(self, method, params=None):
+                sent.append((method, dict(params or {})))
+
+        bp._key(FakeCDP(), "a", "KeyA", 65, mods=2)
+        self.assertEqual([m for m, _ in sent],
+                         ["Input.dispatchKeyEvent", "Input.dispatchKeyEvent"])
+        self.assertEqual(sent[0][1]["type"], "keyDown")
+        self.assertEqual(sent[1][1]["type"], "keyUp")
+        self.assertEqual(sent[0][1]["modifiers"], 2)
+        self.assertEqual(sent[0][1]["windowsVirtualKeyCode"], 65)
+
+    def test_publish_source_has_no_execcommand_selectall(self):
+        """守住回归：别再把 execCommand selectAll 换回来。
+
+        只查**代码行**（剔除 # 注释），否则注释里为了说明这个坑而写的
+        "execCommand('selectAll')" 字样会把自己判失败。
+        """
+        import inspect
+        code = [ln for ln in inspect.getsource(bp.publish_one).splitlines()
+                if not ln.strip().startswith("#")]
+        body = "\n".join(code)
+        self.assertNotIn("execCommand('selectAll')", body)
+        self.assertNotIn("execCommand('delete')", body)
+        self.assertIn("_key(cdp", body)
+
+    def test_insert_verifies_top_level_blocks(self):
+        """灌完必须校验顶层块数与字数，否则静默无效会被当成成功。"""
+        import inspect
+        src = inspect.getsource(bp.publish_one)
+        self.assertIn("正文疑似没灌进去", src)
+
+
+class TestVerifySaved(unittest.TestCase):
+    """保存后必须远端回读 —— 「点了保存」不等于「存上了」。
+
+    2026-09-30 实测踩到：旧版点完按钮就return True，远端正文一字未变，
+    整轮 37 条全"成功"但远端是旧版。这类假成功最难查。
+    """
+
+    def test_verify_saved_exists_and_checks_mtime(self):
+        import inspect
+        src = inspect.getsource(bp._verify_saved)
+        self.assertIn("mtime", src)
+        self.assertIn("summary", src)
+        self.assertIn('return "ok"', src)
+
+    def test_publish_calls_verify_saved_on_replace(self):
+        import inspect
+        src = inspect.getsource(bp.publish_one)
+        self.assertIn("_verify_saved(", src)
+
+    def test_verify_saved_signature(self):
+        import inspect
+        sig = inspect.signature(bp._verify_saved)
+        self.assertEqual(list(sig.parameters),
+                         ["cdp", "title", "expect_head", "old_mtime"])
+
+
 if __name__ == "__main__":
     unittest.main()

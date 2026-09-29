@@ -162,16 +162,77 @@ python scripts/bilibili_publish.py cover-status         # 回读远端对账
 跑批量前先 `_close_stale_bili_tabs()`：探查时堆积的 20 个 B站 tab 会把
 页面 WebSocket 拖到 `TimeoutError`（实测 22 个 page 时必超时）。
 
+## B站正文排版（2026-09-30 补）
+
+用户反馈的「样式丢失、每段分得太开、小标题没有样式且和下面内容隔了太多
+行」，实际是**四个独立问题**，前两个才是主因：
+
+| 症状 | 真因 | 修法 |
+|---|---|---|
+| 整篇被引用块包住、样式全丢 | 清空正文用了 `execCommand`，ProseMirror 内部 state 不同步，旧内容自己回来，`insertHTML` 静默无效，正文全灌进遗留的 `<blockquote class="eva3-blockquote">` | 清空改走 CDP `Input.dispatchKeyEvent` 的 Ctrl+A → Delete |
+| 段落之间多出空行 | **HTML 标签之间的换行符**被 Tiptap 当成额外空段落 | `clean_body` 末尾 `re.sub(r">[ \t\r\n]+<", "><", body)` |
+| 小标题不像标题 | B站编辑器**没有小标题功能**（见下） | h2/h3 → `<p><strong>▶标题</strong></p>` |
+| 标题与正文间距过大 | B站给 h2 的规则是 `margin-top:36px; margin-bottom:0` | 同上，改成普通段落后统一 24px |
+
+### 四个坑的实测细节
+
+1. **`execCommand` 不能用来清空 ProseMirror。** DOM 上看着删干净了，
+   但编辑器内部 state 没同步 —— 下一步读 `children` 时旧内容**自己回来了**，
+   随后 `insertHTML` 直接被丢弃（无报错）。`Input.dispatchKeyEvent` 走真实
+   输入管线，删完是干净的 `<p class="is-empty is-editor-empty">`。
+2. **标签间换行 = 空段落。** `<p>A</p>\n<p>B</p>` 灌进去是 A、空段、B。
+   coral 实测：灌入后全文高 **5785px**、夹 20+ 个 58px 空段（正常段 29px）；
+   压掉换行后同样内容 **2514px**、间距回到 B站统一的 24px。
+   ⚠ 只压标签**之间**的空白，段内文字之间的空格是正文内容（`付费意愿 3/5`）。
+3. **B站没有小标题功能。** 工具栏全 DOM 扫描找「标题/heading」零命中；
+   CSS 里 `.ProseMirror :where(p,h1..h6,blockquote…){margin:0;font-size:inherit}`
+   把 h1-h6 默认样式全清掉，唯一给 h2 的规则是
+   `font-weight:500; margin-top:36px; font-size:18px`（不加粗 + 上 36px
+   + 下 0）。`insertHTML` 灌进去的 `style` 会被 Tiptap 剥掉，灌完用 JS 加
+   style、**存草稿重开后也会被洗掉**。所以只能走 `<p><strong>`（`strong`
+   能存活）。带序号的 `## 一、xxx` 保留序号不加 `▶`。
+4. **「点了保存」不等于「存上了」。** 旧版 `publish_one` 点完按钮就
+   `return True`，实测远端正文一字未变而脚本报成功。现在有
+   `_verify_saved()`：保存后回读草稿接口，要求 **mtime 已更新** 且
+   **summary 前缀匹配**（`summary` 是 B站自己截的前 250 字，够当正文开头
+   指纹；⚠ 别指望它全文对账，coral 本地 807 字远端只有 250）。
+
+### 修复前后对照（coral 实测）
+
+| 指标 | 修复前 | 修复后 |
+|---|---|---|
+| 顶层 blockquote 高 | 2492px（吞掉整篇） | 58px（只包导语） |
+| 顶层节点数 | 82 | 41 |
+| 空段落 | 20+ 个 58px | 0 |
+| 残留 h2/h3 | 8 个 | 0 |
+| 块间距 | 36px(h2) / 24px 混杂 | 统一 24px |
+| 全文高 | 5785px | 2514px |
+
 ## 与旧编排的关系
 
 `publish_both.py` / `publish_all.py` 仍在用（三平台 + 老参数），**新活一律
 走 `publish_multi.py`**：多了 B站适配器、清单状态机、单条重试、断点续传。
 
+## 配图（Agnes 生图支路）
+
+上面「待办」里那条"正文内嵌图仍未处理"有个现成落点：
+`scripts/agnes_cover.py` 读同一份 `cases.json` 出 AI 配图，落到 `out/agnes/`。
+
+**它是支路，不是主链路的一环** —— `collect → review → store → make_article →
+publish` 一行没改，产物也**不覆盖** `out/toutiao/<id>/cover.png`（那个要带标题字，
+AI 图替不了）。详见 **[AI_IMAGE_BRANCH.md](AI_IMAGE_BRANCH.md)**。
+
+```bash
+python scripts/agnes_cover.py check      # 探连通性 + 确认不扣积分
+python scripts/agnes_cover.py gen --case bustem
+```
+
 ## 待办
 
 - 公众号与小红书的草稿箱读取（`verify` 目前只支持头条与 B站）。
 - 图片上传：微信正文里的图在小红书/B站侧没处理（`article.py` 只给 HTML，
-  平台适配器自己剥图）。B站**封面**已自动（见上），正文内嵌图仍未处理。
+  平台适配器自己剥图）。B站**封面**已自动（见上），正文内嵌图仍未处理
+  → AI 配图已能出（`agnes_cover.py`），但**接进正文 HTML 这步还没做**。
 - B站草稿的**分区/话题/文集**没填（`category` 停在默认「生活」），人工终审。
 - 头图 `kibu` / `pieter-levels` 不在草稿箱（已发布），改封面要走
   作品管理 → 修改，人工。
