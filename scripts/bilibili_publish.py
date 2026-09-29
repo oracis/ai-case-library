@@ -165,6 +165,9 @@ def clean_body(html):
       一路吞到关键词所在段，1lookup 1808 字被吃剩 241 字（2026-09-29 实测）。
     · **x** → <strong>x</strong>
     · 去 style 属性（B站用自己的样式，微信灰字 style 会显脏）
+    · 剥裸 <span>：公众号模板用 `<span>标签</span>` 做灰色小标签，
+      style 被剥掉后 span 成了无意义包裹（Tiptap 会原样保留）。实测 37 篇
+      共 1162 个，全是裸 span（有 class/style 的一个都没有），剥掉文字不变。
     · 保留 h2/p/blockquote/hr
     """
     m = re.search(r"<section[^>]*>(.*)</section>", html, re.S | re.I)
@@ -186,6 +189,9 @@ def clean_body(html):
     body = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", body)
     # 去所有 style 属性
     body = re.sub(r"\s+style=\"[^\"]*\"", "", body)
+    # 剥裸 span（带属性的一律保留 —— 那些可能承载语义）
+    body = re.sub(r"<span(?![^>]*\b(?:class|style|id)\s*=)[^>]*>(.*?)</span>",
+                  r"\1", body, flags=re.S | re.I)
     # 去空段落/空引用块
     body = re.sub(r"<p[^>]*>\s*</p>", "", body)
     body = re.sub(r"<blockquote[^>]*>\s*</blockquote>", "", body)

@@ -79,12 +79,31 @@ TT_LOADMORE_JS = """
 """
 
 
+def _open_and_eval(c, url, wait, js):
+    """开 tab → 连上 → 等页面渲染 → 求值。返回 JS 结果。
+
+    ⚠️ `CDP.new_target()` 只返回 targetId，**不连 WebSocket**；
+    漏掉 `connect_target` 会报「未连接页面 target」（2026-09-29 实测）。
+    """
+    tid = c.new_target(url)["id"]
+    try:
+        c.connect_target(tid)
+        time.sleep(wait)
+        return c.eval(js)
+    finally:
+        try:
+            c.close_target(tid)
+        except Exception:                              # noqa: BLE001
+            pass
+
+
 def read_toutiao_drafts(port=CDP_PORT, load_more=True, max_rounds=40):
     """返回头条草稿箱的标题列表（只读）。失败抛异常。"""
     import wechat_publish as wp
     c = wp.CDP(port)
-    tid = c.new_target(TT_DRAFT)
+    tid = c.new_target(TT_DRAFT)["id"]
     try:
+        c.connect_target(tid)
         time.sleep(6)
         if load_more:
             for _ in range(max_rounds):
@@ -107,34 +126,52 @@ def read_toutiao_drafts(port=CDP_PORT, load_more=True, max_rounds=40):
 
 
 # ---- B站 ------------------------------------------------------------------
-BILI_DRAFT = "https://member.bilibili.com/read/draft"
-BILI_DRAFT_JS = """
-(() => {
-  const f = document.querySelector('iframe');
-  const d = f && f.contentDocument ? f.contentDocument : document;
-  const items = d.querySelectorAll('.draft-card, .draft-item, [class*="draft"] li');
-  return Array.from(items).map(el => {
-    const t = el.querySelector('h3, .draft-title, [class*="title"]');
-    return t ? (t.innerText||'').trim() : '';
-  }).filter(Boolean).slice(0, 200);
+# ⚠️ 三个坑（2026-09-29 踩完才对，别改回去）：
+# 1. `/read/draft` 是**错误页**（document.title = "出错啦!"），读出 0 条会被
+#    误判成「37 条草稿全丢了」。
+# 2. `/platform/upload-manager/opus` 默认停在**「图文」tab**（已发布图文，
+#    显示「全部 0」），草稿是同级另一个 tab，路由 `/opus/management/drafts`。
+# 3. 那个页面是 iframe 套 iframe（列表在 `member.bilibili.com/opus/
+#    management` 内），而且**只渲染首屏 10 条** —— 滚动无效、无分页控件。
+#    所以最终走**官方列表接口**（从页面 resource 里抓到的），一次拿全：
+#      /x/dynamic/feed/article/draft/list?pn=1&ps=<N>&keyword=
+#    ps 就是每页条数，传 200 一次到位。
+BILI_DRAFT = "https://member.bilibili.com/opus/management/drafts"
+BILI_API = ("https://api.bilibili.com/x/dynamic/feed/article/draft/list"
+            "?pn=1&ps=200&keyword=")
+BILI_API_JS = r"""
+(async () => {
+  try {
+    const r = await fetch(%(api)s, {credentials: 'include'});
+    const j = await r.json();
+    if (j.code !== 0) return {err: j.code + ' ' + (j.message || '')};
+    // ⚠️ 列表字段是 `drafts`（不是 items/list）—— 2026-09-29 实测：
+    // 写 items 会静默返回空数组，看起来像「草稿全没了」。
+    const drafts = (j.data && j.data.drafts) || [];
+    const titles = drafts.map(x => (x.title || '').trim()).filter(Boolean);
+    return {n: titles.length, titles: titles};
+  } catch (e) { return {err: String(e)}; }
 })()
 """
 
 
-def read_bilibili_drafts(port=CDP_PORT):
-    """返回 B站草稿箱的标题列表（只读）。"""
+def read_bilibili_drafts(port=CDP_PORT, ps=200):
+    """返回 B站草稿箱的标题列表（只读，走官方接口所以能拿全）。
+
+    在**已登录的页面上下文**里发 fetch —— 直接从 Python 发会缺 CSRF/cookie。
+    """
     import wechat_publish as wp
     c = wp.CDP(port)
-    tid = c.new_target(BILI_DRAFT)
-    try:
-        time.sleep(8)
-        out = c.eval(BILI_DRAFT_JS) or []
-        return [s for s in out if isinstance(s, str) and s.strip()]
-    finally:
-        try:
-            c.close_target(tid)
-        except Exception:                              # noqa: BLE001
-            pass
+    url = BILI_API if ps == 200 else BILI_API.replace("ps=200", "ps=%d" % ps)
+    js = BILI_API_JS % {"api": json.dumps(url)}
+    r = _open_and_eval(c, BILI_DRAFT, 10, js)
+    # JS 正常时返回 {n, titles}，异常时返回 {err} —— 靠 err 字段区分，
+    # 不能靠 isinstance(dict)：正常结果**也是** dict（会误报成失败）。
+    if not isinstance(r, dict) or r.get("err"):
+        raise RuntimeError("B站草稿接口返回异常：%s"
+                           % ((r or {}).get("err") if isinstance(r, dict) else r))
+    return [s for s in (r.get("titles") or [])
+            if isinstance(s, str) and s.strip()]
 
 
 READERS = {"toutiao": read_toutiao_drafts, "bilibili": read_bilibili_drafts}
@@ -179,6 +216,12 @@ def reconcile(plat, remote_titles, m=None, verbose=True):
         print("\n%s 对账：远端 %d 条标题，清单声称已发 %d 条"
               % (plat, len(remote_titles), len(claimed)))
         print("  匹配上 %d 条" % len(matched))
+        # 「只读到首屏」和「草稿真的丢了」必须区分开，否则会误报。
+        if claimed and len(remote_titles) < len(claimed) * 0.6:
+            print("  ⚠ 远端读到的条数（%d）明显少于清单声称（%d）："
+                  % (len(remote_titles), len(claimed)))
+            print("     多半是**分页/懒加载没翻完**，不是草稿丢了。")
+            print("     → 下面的 missing 先别当真，人工去草稿箱翻页确认。")
         if missing:
             print("\n  ⚠ 清单说已发、远端草稿箱找不到（%d）：" % len(missing))
             for c in missing:

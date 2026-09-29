@@ -220,6 +220,39 @@ class TestRunnerLogic(unittest.TestCase):
         self.assertIn("母版", self.m.error_of("绝对不存在-xyz", "bilibili"))
 
 
+class TestBilibiliReader(unittest.TestCase):
+    """B站草稿箱读取的三个坑（2026-09-29 全踩了一遍）。
+
+    这三个都是**静默失败**：URL 错 → 错误页读出 0 条；tab 错 → 「全部 0」；
+    字段名错 → 空数组。三者都长得像「37 条草稿全丢了」，差点误判。
+    """
+
+    def setUp(self):
+        from multiplatform import verify as V
+        self.V = V
+
+    def test_not_read_draft_error_page(self):
+        """`/read/draft` 是错误页，绝不能用。"""
+        self.assertNotIn("/read/draft", self.V.BILI_DRAFT)
+        self.assertIn("/opus/management/drafts", self.V.BILI_DRAFT)
+
+    def test_uses_official_api_not_dom(self):
+        """页面只渲染首屏 10 条、滚动无效 → 必须走列表接口。"""
+        self.assertIn("/x/dynamic/feed/article/draft/list", self.V.BILI_API)
+        self.assertIn("ps=200", self.V.BILI_API)
+
+    def test_api_field_is_drafts_not_items(self):
+        """字段是 `drafts`；写 items 会静默返回空数组。"""
+        self.assertIn("j.data.drafts", self.V.BILI_API_JS)
+        self.assertNotIn("d.items || d.list", self.V.BILI_API_JS)
+
+    def test_err_flag_distinguishes_failure(self):
+        """正常结果也是 dict —— 判异常只能靠 err 字段，不能靠 isinstance。"""
+        src = __import__("inspect").getsource(self.V.read_bilibili_drafts)
+        self.assertIn('r.get("err")', src)
+        self.assertNotIn("if isinstance(r, dict):", src)
+
+
 class TestVerifyMatching(unittest.TestCase):
     """远端对账的标题匹配 —— B站草稿卡片标题与本地 id 常不一致。"""
 

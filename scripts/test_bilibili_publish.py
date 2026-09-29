@@ -82,5 +82,54 @@ class TestRiskCheck(unittest.TestCase):
             self.assertEqual(bp.risk_check(t), [], t)
 
 
+class TestStripSpan(unittest.TestCase):
+    """裸 <span> 剥离（2026-09-29）。
+
+    公众号模板用 `<span>标签</span>` 做灰色小标签，style 被剥掉后 span
+    就是无意义包裹 —— 37 篇共 1162 个。但**带属性的必须保留**。
+    """
+
+    def test_bare_span_stripped(self):
+        out = bp.clean_body("<section><p><span>官方口径</span>：abc</p></section>")
+        self.assertNotIn("<span>", out)
+        self.assertIn("官方口径：abc", out)
+
+    def test_styled_span_kept(self):
+        out = bp.clean_body(
+            '<section><p><span class="x" style="color:red">A</span></p></section>')
+        self.assertIn("<span", out)
+        self.assertIn("A", out)
+
+    def test_nested_bare_span(self):
+        out = bp.clean_body("<section><p><span>外<span>内</span></span></p></section>")
+        self.assertIn("外", out)
+        self.assertIn("内", out)
+
+    def test_real_body_has_no_bare_span(self):
+        """样本文章里不该再有裸 span（回归钉死）。"""
+        import re as _re
+        body = bp.clean_body(ART)
+        self.assertIsNone(
+            _re.search(r"<span(?![^>]*\b(?:class|style|id)\s*=)", body),
+            "样本正文里仍有裸 span")
+
+    def test_real_articles_all_span_free(self):
+        """out/bili 下的真实产物逐篇过一遍（没建产物时跳过）。"""
+        import glob
+        import re as _re
+        files = glob.glob(os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "out", "bili", "*", "article.html"))
+        if not files:
+            self.skipTest("还没 build 过 out/bili")
+        bad = []
+        for f in files:
+            with open(f, encoding="utf-8") as fh:
+                b = bp.clean_body(fh.read())
+            if _re.search(r"<span(?![^>]*\b(?:class|style|id)\s*=)", b):
+                bad.append(os.path.basename(os.path.dirname(f)))
+        self.assertEqual(bad, [], "这些篇仍有裸 span：%s" % bad[:5])
+
+
 if __name__ == "__main__":
     unittest.main()
