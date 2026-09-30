@@ -33,6 +33,27 @@ scripts/multiplatform/
 `wechat_publish.py` / `xhs_publish.py` / `toutiao_publish.py` /
 `bilibili_publish.py` 里。那是几个月踩坑的沉淀，不能为了架构好看重写。
 
+## 调度模型：按平台聚合，不按 case
+
+`Runner.run()` 先把「每个平台各自待办哪些 case」算出来，再**按平台**批量
+提交，不是「一条 case 依次跑完四个平台」（2026-09-30 改）。
+
+原因：B站这类平台的批量必须在一个进程内串行跑完。逐条 spawn 子进程，
+每条都要重起 CDP 连接、重开草稿箱 tab —— 37 条下来既慢（70s/条）又会把
+页面 WebSocket 拖超时（实测跑到第 2 条就 `TimeoutError: timed out`）。
+
+```python
+# 支持批量的平台：一次提交，脚本内串行
+Adapter.batch(cids) -> Result        # 谁支持看 supports_only
+Adapter.parse_batch(out) -> (done, failed)   # 逐条判定成败
+# 不支持的：退回逐条 run_one()
+```
+
+⚠ **批量不能只看退出码定成败。**「15 条挂 1 条」整体 rc≠0，但那 14 条
+已经存好了。按 rc 一刀切会把成功的误标 `failed`，下次重发一遍 —— 对
+B站这种「一条草稿要 1 分钟」的平台代价很高。所以 `Adapter.run(full=True)`
+拿完整 stdout，交给 `parse_batch()` 逐条回写状态。
+
 ## 状态机
 
 清单落盘在 `data/publish_manifest.json`，结构
@@ -93,6 +114,25 @@ python scripts/publish_multi.py retry                # 重试全部 failed
 python scripts/publish_multi.py retry --case kibu
 python scripts/publish_multi.py reset --case kibu    # 强制重发
 
+# 只跑某些平台（--platforms 每个子命令都能带）
+python scripts/publish_multi.py run --all --platforms bilibili
+python scripts/publish_multi.py status --platforms bilibili,toutiao
+```
+
+### 断点续传（批量中途断连后补跑）
+
+B站批量跑到一半机器休眠 / CDP 断连是常态。脚本层支持只跑指定 id：
+
+```bash
+# 照着上轮日志 [23/37] 之后的编号补跑
+python scripts/bilibili_publish.py publish --replace --retries 2 \
+  --only promptmonitor-io,prosp,rezi,search1api,shipfast
+```
+
+`--retries N` 是**单条**重试（默认 1），单条异常不中断整轮，结束时打印
+`失败 N 条：...`。`--keep-tabs` 保留浏览器 tab 供人工核对（默认每条跑完
+清掉，否则废 tab 累积会拖垮 WebSocket）。
+
 # 远端回读校验（只读，不点任何按钮）
 python scripts/publish_multi.py verify --platform bilibili
 python scripts/publish_multi.py verify --platform toutiao
@@ -120,7 +160,12 @@ python scripts/publish_multi.py mark bilibili --case kibu --state published
 公众号与小红书的草稿箱读取还没做（`verify` 会明确说不支持），目前只有
 头条与 B站。
 
-## B站封面（2026-09-29 补）
+## B站专章
+
+B站是四个平台里坑最多的（没有状态文件、批量要在一个进程内跑、正文排版
+有自己的规则），单开一章。
+
+### 封面（2026-09-29 跑通）
 
 B站专栏草稿**可以带自定义封面**，草稿阶段就能设，不必等发布。上传链路是
 手工点出来的，脚本照抄：
@@ -162,10 +207,10 @@ python scripts/bilibili_publish.py cover-status         # 回读远端对账
 跑批量前先 `_close_stale_bili_tabs()`：探查时堆积的 20 个 B站 tab 会把
 页面 WebSocket 拖到 `TimeoutError`（实测 22 个 page 时必超时）。
 
-## B站正文排版（2026-09-30 补）
+### 正文排版（2026-09-30 定位）
 
-用户反馈的「样式丢失、每段分得太开、小标题没有样式且和下面内容隔了太多
-行」，实际是**四个独立问题**，前两个才是主因：
+用户反馈过两轮，实际是**五个独立问题**，前两个才是「样式丢失、段落分太开」
+的主因：
 
 | 症状 | 真因 | 修法 |
 |---|---|---|
@@ -173,8 +218,9 @@ python scripts/bilibili_publish.py cover-status         # 回读远端对账
 | 段落之间多出空行 | **HTML 标签之间的换行符**被 Tiptap 当成额外空段落 | `clean_body` 末尾 `re.sub(r">[ \t\r\n]+<", "><", body)` |
 | 小标题不像标题 | B站编辑器**没有小标题功能**（见下） | h2/h3 → `<p><strong>▶标题</strong></p>` |
 | 标题与正文间距过大 | B站给 h2 的规则是 `margin-top:36px; margin-bottom:0` | 同上，改成普通段落后统一 24px |
+| **表格形式的数据样式全丢** | 公众号的「表格」是 flex 伪装的，不是 `<table>`；剥 style + 剥裸 span 把标签和值粘成一团 | 连续一组转「整组一个 blockquote + 每行 `标签　值`」，见下 |
 
-### 四个坑的实测细节
+#### 五个坑的实测细节
 
 1. **`execCommand` 不能用来清空 ProseMirror。** DOM 上看着删干净了，
    但编辑器内部 state 没同步 —— 下一步读 `children` 时旧内容**自己回来了**，
@@ -196,8 +242,51 @@ python scripts/bilibili_publish.py cover-status         # 回读远端对账
    `_verify_saved()`：保存后回读草稿接口，要求 **mtime 已更新** 且
    **summary 前缀匹配**（`summary` 是 B站自己截的前 250 字，够当正文开头
    指纹；⚠ 别指望它全文对账，coral 本地 807 字远端只有 250）。
+5. **「表格」是 flex 伪装的，B站也不支持真表格。** 见下一节。
 
-### 修复前后对照（coral 实测）
+#### 伪表格 → 键值块（第 5 个坑展开）
+
+公众号模板里那些灰底圆角的「数据表格」（付费意愿 3/5、官方口径 $3,150 MRR
+等）**不是 `<table>`** —— 37 篇里一篇真表格都没有，全是：
+
+```html
+<p style="display:flex;justify-content:space-between">
+  <span style="color:#57606a">官方口径</span>
+  <span style="font-weight:bold">$3,150 MRR</span>
+</p>
+```
+
+两个 `<span>` 两端对齐伪装成两列。而 `clean_body` 剥 style、又剥裸 span，
+结果就是 `<p>官方口径$3,150 MRR</p>` —— 标签和值直接粘连，全角空格都没留。
+影响面：**37/37，共 500 行**（每篇 11–16 行）。
+
+**为什么不能转成真 `<table>`**（实测）：工具栏扫描 title/aria-label/innerText
+找「表格/table」零命中；`insertHTML` 灌 `<table><tr><td>A</td><td>B</td></tr>…`
+会被**整体降级成一个 `<p>`**，所有单元格粘成一串（"官方口径$3,150 MRR客户
+44 个…"），连换行都没有 —— **比不处理还糟**。
+
+**采用方案**：连续一组伪表格行 → **一个** `<blockquote>`，每行
+`<p>标签　值</p>`，值加粗；标签列按组内最长标签补**全角空格**对齐
+（标签全是中文短词，实测只有 17 种、2–5 字，中文等宽假设很稳）。
+
+三种候选的实测渲染（3 行样本）：
+
+| 方案 | 高度 | 视觉分组 |
+|---|---|---|
+| 纯段落 + 全角空格 | 135px | 无 |
+| **整组一个 blockquote** | **135px** | **22px 左缩进，整组成块** ✓ |
+| 每行单独 blockquote | 159px | 有但更碎更高 |
+
+单个 blockquote 的 `margin-top` 就是 24px（和 `p` 一样），**不会额外撑高**，
+还白送 22px 缩进把整组框成「卡片」，最接近原来的灰底表格。
+⚠ 别用「每行一个 blockquote」——连续多个 blockquote 各自带 24px 边距，
+正是坑 1 里「每段分得太开」的成因。
+
+⚠ **顺序敏感**：这一步必须在「去 style」和「剥裸 span」**之前**，否则
+识别特征（style 里的 flex、span 分列）已经被抹掉了。测试
+`test_order_matters_flex_before_strip_span` 钉住了这个顺序。
+
+#### 修复前后对照（coral 实测）
 
 | 指标 | 修复前 | 修复后 |
 |---|---|---|
@@ -207,6 +296,7 @@ python scripts/bilibili_publish.py cover-status         # 回读远端对账
 | 残留 h2/h3 | 8 个 | 0 |
 | 块间距 | 36px(h2) / 24px 混杂 | 统一 24px |
 | 全文高 | 5785px | 2514px |
+| 数据行 | 标签值粘连 `官方口径$3,150 MRR` | 3 组键值 blockquote，标签列对齐 |
 
 ## 与旧编排的关系
 

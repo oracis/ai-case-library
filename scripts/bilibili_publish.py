@@ -33,6 +33,7 @@ import os
 import re
 import sys
 import time
+import unicodedata
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import wechat_publish as wp  # noqa: E402  复用 CDP / 案例加载
@@ -203,6 +204,88 @@ def _heading_to_bold(body):
     return body
 
 
+def _display_width(s):
+    """按「终端/等宽」口径算显示宽度：中日韩全角算 2，其余算 1。
+
+    中文在 B站正文里是等宽的（17px 中文字体），所以按这个口径补齐空格
+    能让「标签列」对齐。标签全是中文短词（实测 17 种，2–5 字），假设很稳。
+    """
+    return sum(2 if unicodedata.east_asian_width(c) in "WF" else 1
+               for c in s)
+
+
+# 匹配**连续一组** flex 伪表格行。必须是连续的：同一张表的行在源 HTML 里
+# 是挨着的，中间不会有别的段落。
+_FLEX_BLOCK_RE = re.compile(
+    r"(?:<p[^>]*display:\s*flex[^>]*justify-content:\s*space-between"
+    r"[^>]*>.*?</p>\s*)+", re.S | re.I)
+_FLEX_ROW_RE = re.compile(
+    r"<p[^>]*display:\s*flex[^>]*justify-content:\s*space-between[^>]*>"
+    r"(.*?)</p>", re.S | re.I)
+
+
+def _flex_rows_to_kv_block(body):
+    """把公众号的「flex 伪表格」转成 B站能看的键值块。
+
+    **问题**（2026-09-30 实测，37/37 全中，每篇 11–16 行）：
+      公众号模板里那些灰底圆角的「数据表格」其实不是 `<table>`，而是
+      `<p style="display:flex;justify-content:space-between">` 里放两个
+      `<span>`（标签 + 值）两端对齐。clean_body 剥 style 又剥裸 span 之后，
+      标签和值直接粘成一团：
+          `<p>官方口径$3,150 MRR</p>`  ← 用户看到的「表格样式全丢了」
+      全角空格都没留一个，读起来像乱码。
+
+    **为什么不能用真 <table>**（实测）：
+      · B站工具栏没有任何表格按钮（扫描 title/aria-label/innerText 零命中）；
+      · insertHTML 灌 `<table><tr><td>A</td><td>B</td></tr>…` 会被**整体降级
+        成一个 `<p>`**，所有单元格粘成一串（"官方口径$3,150 MRR客户44 个…"），
+        连换行都没有 —— 比不处理还糟。
+
+    **方案**：连续一组伪表格行 → 一个 `<blockquote>`，每行 `<p>标签　值</p>`。
+      实测三种候选的渲染（3 行样本）：
+        纯段落           135px，无视觉分组
+        整组一个 blockquote  **135px**（一样高！）+ 22px 左缩进 → 整组成块 ✓
+        每行单独 blockquote  159px，更高且碎
+      单个 blockquote 的 margin-top 就是 24px（和 p 一样），**不会额外撑高**，
+      还白送 22px 缩进把整组框成一个「卡片」，最接近原来的灰底表格。
+      ⚠ 别用「每行一个 blockquote」：连续多个 blockquote 会各自带 24px
+      边距，正是之前「每段分得太开」的成因。
+
+    对齐：按组内最长标签补**全角空格**（宽度 2），让标签列右端对齐。
+      例：wmax=10 时「启动轻」(w=6) 补 3 个全角空格 → 6+6=12，
+          「够得着客户」(w=10) 补 1 个 → 10+2=12。两列就对齐了。
+    """
+
+    def _one(m):
+        rows = _FLEX_ROW_RE.findall(m.group(0))
+        kv = []
+        for rw in rows:
+            sp = re.findall(r"<span[^>]*>(.*?)</span>", rw, re.S | re.I)
+            if len(sp) < 2:
+                continue
+            k = re.sub(r"<[^>]+>", "", sp[0]).strip()
+            v = re.sub(r"<[^>]+>", "", sp[-1]).strip()
+            if k or v:
+                kv.append((k, v))
+        if not kv:
+            return ""
+        lines = []
+        if len(kv) == 1:
+            # 只有一行就别包块了（一个 blockquote 包单行没意义）
+            k, v = kv[0]
+            return "<p>%s　%s</p>" % (k, v)
+        wmax = max(_display_width(k) for k, _ in kv)
+        for k, v in kv:
+            # 目标：标签+补齐 的总宽 = wmax + 2（留一个全角空格的间隔）
+            need = max(2, wmax + 2 - _display_width(k))
+            pad = "　" * ((need + 1) // 2)
+            lines.append("<p>%s%s<strong>%s</strong></p>"
+                         % (k, pad, v) if v else "<p>%s</p>" % k)
+        return "<blockquote>" + "".join(lines) + "</blockquote>"
+
+    return _FLEX_BLOCK_RE.sub(_one, body)
+
+
 def clean_body(html):
     """清洗成 B站专栏富文本片段（直接 insertHTML 进编辑器）。
 
@@ -240,6 +323,14 @@ def clean_body(html):
       `strong` 能存活（实测存草稿重开后仍是 `<strong>`），字号跟着正文
       17px 走，段落间距由 B站统一的 24px margin 管，比 h2 的 36px/0 协调。
       `## 一、xxx` 这种带序号前缀会保留 —— 序号本来就该有。
+    · **flex 伪表格 → 键值 blockquote**（2026-09-30 补，用户反馈「表格形式的
+      数据样式都丢了」）。公众号的「数据表格」是 `<p style="display:flex;
+      justify-content:space-between">` + 两个 `<span>`（标签/值）伪装出来的，
+      不是真 `<table>`。剥 style + 剥裸 span 会把两者粘成一团
+      （`官方口径$3,150 MRR`）。必须在**剥 style 之前**识别并转成
+      「整组一个 blockquote + 每行 `标签　值`」，详见 `_flex_rows_to_kv_block`。
+      ⚠ 顺序敏感：这一步必须在「去 style」和「剥裸 span」**之前**，
+      否则识别特征（style 里的 flex、span 分列）已经被抹掉了。
     """
     m = re.search(r"<section[^>]*>(.*)</section>", html, re.S | re.I)
     body = m.group(1) if m else html
@@ -258,6 +349,9 @@ def clean_body(html):
                   body, flags=re.S)
     # **加粗** → strong
     body = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", body)
+    # flex 伪表格 → 键值 blockquote（**必须在去 style/剥 span 之前**，
+    # 否则识别特征没了。37/37 全有这种表，详见函数 docstring）
+    body = _flex_rows_to_kv_block(body)
     # h2/h3 小标题 → 加粗段落（B站没有标题功能，见 docstring）
     body = _heading_to_bold(body)
     # 去所有 style 属性
@@ -521,7 +615,7 @@ def _iframe_click(sub, kw, sel, timeout=8):
     return False
 
 
-def publish_one(cid, dry=False, replace=False):
+def publish_one(cid, dry=False, replace=False, keep_tabs=False):
     _need_sel()
     html = load_article_html(cid)
     if not html:
@@ -540,11 +634,22 @@ def publish_one(cid, dry=False, replace=False):
         return False
 
     cdp = wp.CDP(PUB_PORT)
-    sub, tid = _open_editor_tab(cdp)
     aid, old_mtime = None, 0
+    # replace 模式**不要**先开新建入口 tab —— 它完全用不上（直接按
+    # article_id 打开已有草稿），留着纯粹白占一个 page target。批量 37 条
+    # 时这些废 tab 会累积到把页面 WebSocket 拖超时（2026-09-30 实测：
+    # 第 2 条就TimeoutError: timed out，栈在 _open_editor_tab 的
+    # Page.navigate）。
+    sub, tid = (None, None) if replace else _open_editor_tab(cdp)
 
     try:
         if dry:
+            if sub is None:
+                _close_stale_bili_tabs(cdp)
+                lid0 = cdp.new_target(BILI_DRAFT_LIST_PAGE)["id"]
+                cdp.connect_target(lid0)
+                time.sleep(5)
+                sub, tid = cdp, lid0
             ok1 = _wait_iframe_ready(sub, "read-draft", SEL["new_creation"], 20)
             print("  [dry] 入口 iframe 就绪: %s" % ("✓" if ok1 else "✗"))
             print("  [dry] 标题=%s 正文=%s 存草稿文本=%r（未实际填写）"
@@ -724,20 +829,63 @@ def publish_one(cid, dry=False, replace=False):
                  "（封面未传，人工核对）" if not cp else ""))
         return True
     finally:
-        # 留着 tab 让人工核对刚保存的草稿页；连续批量时关掉防止堆积
-        pass
+        # 单条跑完就清掉自己开的 B站 tab：批量时 tab 会累积，实测 20+ 个
+        # 页面 target 会把页面 WebSocket 拖到 TimeoutError。非批量（人工
+        # 核对）场景由 --keep-tabs 保留。
+        if not keep_tabs:
+            try:
+                _close_stale_bili_tabs(cdp)
+            except Exception:
+                pass
 
 
-def publish_all(replace=False):
+def publish_all(replace=False, retries=1, only=None):
     ids = list_ids()
-    print("publish 全部 %d 篇 → B站草稿箱%s" % (len(ids), "（覆盖已有草稿）" if replace else ""))
+    if only:
+        # 断点续传：只跑白名单里的 id（批量中途 CDP 断连/机器休眠后补跑用）。
+        # 给出的是**全部 id 的序号**，方便直接复用上轮日志里的 [23/37] 编号。
+        want = set(only)
+        ids = [c for c in ids if c in want]
+        print("仅处理指定 %d 条" % len(ids))
+    print("publish %d 篇 → B站草稿箱%s%s"
+          % (len(ids), "（覆盖已有草稿）" if replace else "",
+             "（每条重试 %d 次）" % retries if retries else ""))
     ok = 0
+    failed = []
     for i, cid in enumerate(ids, 1):
         print("[%d/%d] %s" % (i, len(ids), cid))
-        if publish_one(cid, replace=replace):
+        done = False
+        for attempt in range(retries + 1):
+            if attempt:
+                # 重试前先彻底清一遍 tab：上次残留的 target 是超时主因
+                try:
+                    c = wp.CDP(PUB_PORT)
+                    _close_stale_bili_tabs(c)
+                except Exception:
+                    pass
+                time.sleep(4)
+                print("    ↻ 重试第 %d 次" % attempt)
+            try:
+                if publish_one(cid, replace=replace):
+                    done = True
+                    break
+            except Exception as e:
+                # CDP 超时 / 页��崩了都不该中断整轮
+                print("    ! %s: %s" % (type(e).__name__, str(e)[:90]))
+        if done:
             ok += 1
+        else:
+            failed.append(cid)
         time.sleep(3)
     print("完成 %d/%d" % (ok, len(ids)))
+    if failed:
+        # 用**空格**分隔（不是逗号）：`--only` 的参数是逗号分隔，失败清单
+        # 要能直接复制回 --only 补跑，两种分隔符混用会解析出错。
+        print("失败 %d 条：%s" % (len(failed), " ".join(failed)))
+    # 部分失败也要 rc≠0，让调用方（publish_multi 的 batch）能感知。
+    # ⚠ 但调用方**不能只用 rc 判定**：rc=1 只说明"至少挂了一条"，
+    #   已经成功那些必须靠 parse_batch 从 stdout 逐条确认，否则会被重发。
+    return ok, failed
 
 
 # --------------------------------------------------------------------------
@@ -1324,7 +1472,13 @@ def main():
     p.add_argument("--case", default=None)
     p.add_argument("--dry", action="store_true")
     p.add_argument("--replace", action="store_true",
-                   help="草稿箱点该标题卡片的「编辑」覆盖旧稿（改文案后重存用）")
+                   help="按 article_id 打开已有草稿覆盖重存（改文案后用）")
+    p.add_argument("--retries", type=int, default=1,
+                   help="单条失败重试次数（默认 1；批量时 CDP 超时很常见）")
+    p.add_argument("--keep-tabs", action="store_true",
+                   help="跑完保留浏览器 tab（人工核对用，默认清掉）")
+    p.add_argument("--only", default=None,
+                   help="只跑这些 case id（逗号分隔），断点续传用")
     c = sub.add_parser("cover")
     c.add_argument("--all", action="store_true")
     c.add_argument("--case", default=None)
@@ -1343,9 +1497,15 @@ def main():
         probe()
     elif args.cmd == "publish":
         if args.case:
-            publish_one(args.case, dry=args.dry, replace=args.replace)
+            publish_one(args.case, dry=args.dry, replace=args.replace,
+                        keep_tabs=args.keep_tabs)
         else:
-            publish_all(replace=args.replace)
+            only = ([x.strip() for x in args.only.split(",") if x.strip()]
+                    if args.only else None)
+            _ok, failed = publish_all(replace=args.replace,
+                                      retries=args.retries, only=only)
+            if failed:
+                sys.exit(1)
     elif args.cmd == "cover":
         if args.case:
             cover_one(args.case, dry=args.dry)

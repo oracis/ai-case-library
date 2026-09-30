@@ -14,6 +14,10 @@
    hidden input + DataTransfer → 裁剪弹窗确定 → 存草稿。
    远端判据是 `image_urls/origin_image_urls`，**不是 `banner_url`**
    （后者在草稿接口里恒空，详见 bilibili_publish._cover_of）。
+5. **批量必须走脚本自带的 `publish --only/--retries`**，不要逐条 spawn。
+   逐条 spawn 每条都要重起 CDP、重开草稿箱 tab，37 条下来既慢又会把页面
+   WebSocket 拖超时（2026-09-30 实测跑到第 2 条就 TimeoutError）。
+   `--only` 是断点续传用：机器休眠/断连后照着上轮日志的编号补跑剩下的。
 """
 
 import os
@@ -31,6 +35,7 @@ class Bilibili(Adapter):
     supports_publish = False          # 只存草稿，脚本无 --yes
     supports_replace = True
     supports_cover = True
+    supports_only = True
     has_state_file = False
 
     def done_ids(self):
@@ -43,3 +48,54 @@ class Bilibili(Adapter):
         if force:
             args.append("--force")
         return self.run(args, not dry, timeout=600)
+
+    def parse_batch(self, out):
+        """从批量 stdout 里解析每条的成败。
+
+        为什么不能只看退出码：批量「37 条里挂了 3 条」整体是失败，但那 34 条
+        其实已经存好了 —— 按退出码会把它们全标 failed，下次又重发一遍。
+        脚本的输出格式是稳定的：
+            [3/37] cid
+              ✓ 标题《…》正文 N 字 … 已存草稿
+        所以「有 `✓ 标题` 且没被后面的失败标记覆盖」= 成功。
+        失败清单脚本会自己打印「失败 N 条：a b c」，那个更准，优先用。
+        """
+        done, failed = set(), set()
+        cur = None
+        ok_flag = False
+        for ln in (out or "").splitlines():
+            s = ln.strip()
+            if s.startswith("[") and "]" in s:
+                # 新一条开始：先结算上一条
+                if cur is not None:
+                    (done if ok_flag else failed).add(cur)
+                cur = s.split("]", 1)[1].strip().split()[0] if "]" in s else None
+                ok_flag = False
+            elif s.startswith("✓ 标题") and cur:
+                ok_flag = True
+            elif s.startswith("失败 ") and "条：" in s:
+                # 脚本给的失败清单最准，直接覆盖
+                for x in s.split("条：", 1)[1].replace(",", " ").split():
+                    failed.add(x.strip())
+                    done.discard(x.strip())
+        if cur is not None:
+            (done if ok_flag else failed).add(cur)
+        return done, failed
+
+    def batch(self, cids, dry=False, replace=False, retries=2):
+        """一个进程内串行跑多条。
+
+        ⚠ 关键：一条一条 spawn 会因为每条都重开 CDP/草稿箱 tab 而把页面
+        WebSocket 拖超时，且中途断连后没有断点续传信息。脚本内的
+        `publish --only a,b,c --retries N` 都处理了。
+        不传 cids 时是「全部」——注意那是脚本的 list_ids() 全集，不是
+        runner 筛出来的「未完成集」，所以调用方必须显式给 cids。
+        """
+        if not cids:
+            return None
+        args = ["publish"]
+        if replace:
+            args.append("--replace")
+        args += ["--retries", str(retries), "--only", ",".join(cids)]
+        # 每条约 30-60s，留足余量；full=True 拿完整 stdout 逐条判定成败
+        return self.run(args, not dry, timeout=900 * len(cids), full=True)

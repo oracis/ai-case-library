@@ -103,8 +103,10 @@ def _resolve(case):
 
 def cmd_run(args):
     plats = parse_plats(args.platforms)
-    r = Runner(plats, dry=args.dry, yes=args.yes, retries=args.retries)
-    r.run(only=_resolve(args.case), limit=args.near or 0)
+    r = Runner(plats, dry=args.dry, yes=args.yes, retries=args.retries,
+               replace=args.replace)
+    r.run(only=_resolve(args.case), limit=args.near or 0,
+          force=args.replace)
     return 0
 
 
@@ -197,6 +199,8 @@ def main(argv=None):
     p.add_argument("--yes", action="store_true",
                    help="真公开发布（默认只存草稿）")
     p.add_argument("--retries", type=int, default=1)
+    p.add_argument("--replace", action="store_true",
+                   help="改文案后覆盖重存（已 draft_saved 的也重发）")
     p.set_defaults(fn=cmd_run)
 
     p = _add_plats(sub.add_parser("status", help="各平台状态统计"))

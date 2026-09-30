@@ -15,13 +15,17 @@ PY = sys.executable
 class Result:
     """一次平台调用的结果。`ok` 只表示流程跑完，不代表远端一定有草稿。"""
 
-    __slots__ = ("ok", "state", "note", "rc")
+    __slots__ = ("ok", "state", "note", "rc", "out")
 
-    def __init__(self, ok, state="failed", note="", rc=0):
+    def __init__(self, ok, state="failed", note="", rc=0, out=""):
         self.ok = ok
         self.state = state          # draft_saved / published / failed
         self.note = note
         self.rc = rc
+        # 完整 stdout。批量调用要靠它逐条判定成败 —— 只看退出码的话
+        # 「37 条里挂了 3 条」会被当成整体失败，已经成功的 34 条会被
+        # 误标 failed 而重发。只有 full=True 时才填。
+        self.out = out
 
     def __repr__(self):
         return "<Result %s %s %r>" % (self.state, self.ok, self.note[:40])
@@ -43,9 +47,11 @@ class Adapter:
     can_build = True
     # 有独立的「补封面」步骤吗（子类覆盖 cover()）
     supports_cover = False
+    # 批量支持「只跑指定 id」吗（子类覆盖 batch()）
+    supports_only = False
 
     # ---- 子进程 -----------------------------------------------------------
-    def run(self, args, enabled=True, timeout=1800):
+    def run(self, args, enabled=True, timeout=1800, full=False):
         cmd = [PY, os.path.join(SCRIPTS, self.script)] + list(args)
         if not enabled:
             return Result(True, "pending", "dry-run: " + " ".join(args), 0)
@@ -58,7 +64,8 @@ class Adapter:
             return Result(False, "failed", "启动失败：%s" % e, -1)
         note = _tail(p.stdout)
         ok = p.returncode == 0
-        return Result(ok, "draft_saved" if ok else "failed", note, p.returncode)
+        return Result(ok, "draft_saved" if ok else "failed", note,
+                      p.returncode, p.stdout if full else "")
 
     # ---- 流程 -------------------------------------------------------------
     def missing_artifacts(self, art):
@@ -81,6 +88,17 @@ class Adapter:
     def cover(self, art, dry=False, force=False):
         """补封面。不支持的平台返回 pending，runner 会跳过。"""
         return Result(True, "pending", "%s 无独立封面步骤" % self.label)
+
+    def batch(self, cids, dry=False, replace=False, retries=1):
+        """一次跑多条。
+
+        为什么要有这条：一条一条 spawn 子进程，每条都要重新起 CDP 连接、
+        重新开草稿箱 tab，37 条下来既慢又容易把页面 WebSocket 拖超时
+        （B站实测：单条 spawn 版跑到第 2 条就 TimeoutError）。平台脚本
+        自带批量时走这里，一个进程内串行搞定。不支持的平台返回 None，
+        runner 会退回逐条调用。
+        """
+        return None
 
     def verify(self, art):
         """远端回读校验。默认只看本地状态文件（保守：查不到不算失败）。"""

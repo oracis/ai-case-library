@@ -6,6 +6,7 @@
     python -m unittest test_bilibili_publish
 """
 import os
+import re
 import sys
 import unittest
 
@@ -326,6 +327,124 @@ class TestHeadingToBold(unittest.TestCase):
                              "%s 仍残留 h 标签" % cid)
 
 
+FLEX_P = ('<p style="margin:0;background:#f6f8fa;display:flex;'
+          'justify-content:space-between;">'
+          '<span style="color:#57606a;">%s</span>'
+          '<span style="font-weight:bold;">%s</span></p>')
+
+
+class TestFlexTableToKvBlock(unittest.TestCase):
+    """公众号的「数据表格」是 flex 伪装的，必须转成 B站能看的键值块。
+
+    用户反馈「表格形式的数据样式都丢失了」。实测 37/37 全有这种表，
+    每篇 11–16 行，共 500 行。源 HTML 里**没有** `<table>`，是
+    `<p style="display:flex;justify-content:space-between">` + 两个
+    `<span>`（标签/值）两端对齐伪装出来的。剥 style + 剥裸 span 会把
+    两者粘成 `官方口径$3,150 MRR`。
+    """
+
+    def test_no_real_table_in_source(self):
+        """前提：源 HTML 确实没有 <table>，所以不能指望转成真表格。"""
+        for cid in bp.list_ids():
+            h = bp.load_article_html(cid)
+            if not h:
+                continue
+            self.assertNotIn("<table", h.lower(), "%s 出现了真表格" % cid)
+
+    def test_flex_row_becomes_kv(self):
+        html = "<section>" + FLEX_P % ("官方口径", "$3,150 MRR") + \
+               FLEX_P % ("客户", "44 个活跃订阅") + "</section>"
+        out = bp.clean_body(html)
+        self.assertIn("官方口径", out)
+        self.assertIn("$3,150 MRR", out)
+        # 关键：标签和值之间必须有分隔，不能粘连
+        self.assertNotIn("官方口径$3,150", out)
+
+    def test_group_wrapped_in_one_blockquote(self):
+        """整组包**一个** blockquote（不是每行一个）。
+
+        实测：整组一个 135px + 22px 缩进；每行一个 159px 且更碎 ——
+        连续多个 blockquote 各带 24px 边距，正是「每段分得太开」的成因。
+        """
+        html = "<section>" + FLEX_P % ("团队", "未披露") + \
+               FLEX_P % ("融资", "未披露") + "</section>"
+        out = bp.clean_body(html)
+        self.assertEqual(out.count("<blockquote"), 1)
+        self.assertIn("<blockquote>", out)
+
+    def test_label_column_padded_to_same_width(self):
+        """标签列按最长标签补空格，右端要对齐（等宽口径下宽度相同）。"""
+        html = "<section>" + FLEX_P % ("够得着客户", "3/5") + \
+               FLEX_P % ("启动轻", "5/5") + "</section>"
+        out = bp.clean_body(html)
+        rows = re.findall(r"<p>([^<]*)　+", out)
+        self.assertEqual(len(rows), 2)
+        widths = {bp._display_width(r) for r in rows}
+        self.assertEqual(len(widths), 1, "标签列没对齐：%r" % rows)
+
+    def test_value_is_bold(self):
+        html = "<section>" + FLEX_P % ("客户", "44 个") + \
+               FLEX_P % ("团队", "未披露") + "</section>"
+        self.assertIn("<strong>44 个</strong>", bp.clean_body(html))
+
+    def test_single_row_not_wrapped(self):
+        """只有一行时别包 blockquote（一个 blockquote 包单行没意义）。"""
+        html = "<section>" + FLEX_P % ("年化收入", "$1.2M") + "</section>"
+        out = bp.clean_body(html)
+        self.assertNotIn("<blockquote", out)
+        self.assertIn("$1.2M", out)
+
+    def test_all_37_have_kv_blocks(self):
+        """37 篇每篇都得转出键值块，且不能残留粘连。"""
+        for cid in bp.list_ids():
+            h = bp.load_article_html(cid)
+            if not h:
+                continue
+            out = bp.clean_body(h)
+            self.assertIn("<blockquote>", out, "%s 没转出键值块" % cid)
+            # flex 特征必须已被消费掉
+            self.assertNotIn("space-between", out, "%s 残留 flex" % cid)
+
+    def test_order_matters_flex_before_strip_span(self):
+        """顺序回归：转换必须在剥裸 span 之前，否则 span 分列信息没了。
+
+        钉法：clean_body 源码里 `_flex_rows_to_kv_block` 必须出现在
+        「剥裸 span」那条 re.sub 之前。
+        """
+        import inspect
+        code = [ln for ln in inspect.getsource(bp.clean_body).splitlines()
+                if not ln.strip().startswith("#")]
+        body = "\n".join(code)
+        i_flex = body.index("_flex_rows_to_kv_block")
+        i_span = body.index(r"<span(?![^>]*\b(?:class|style|id)")
+        i_style = body.index(r'\s+style=\"[^\"]*\"')
+        self.assertLess(i_flex, i_span, "必须在剥裸 span 之前")
+        self.assertLess(i_flex, i_style, "必须在去 style 之前")
+
+    def test_display_width_counts_cjk_as_two(self):
+        self.assertEqual(bp._display_width("团队"), 4)
+        self.assertEqual(bp._display_width("够得着客户"), 10)
+        self.assertEqual(bp._display_width("　"), 2)   # 全角空格
+        self.assertEqual(bp._display_width("3/5"), 3)
+
+
+class TestNoRealTableInserted(unittest.TestCase):
+    """B站不支持真表格，别往里灌 <table>。
+
+    实测：工具栏零命中；insertHTML 灌 `<table><tr><td>A</td><td>B</td></tr>`
+    会被整体降级成**一个 <p>**，所有单元格粘成一串，连换行都没有 ——
+    比不处理还糟。
+    """
+
+    def test_clean_body_never_emits_table(self):
+        for cid in bp.list_ids():
+            h = bp.load_article_html(cid)
+            if not h:
+                continue
+            out = bp.clean_body(h)
+            self.assertNotIn("<table", out.lower(), "%s 输出了 table" % cid)
+
+
 class TestKeyClearPath(unittest.TestCase):
     """replace 清空必须走真实键盘事件，不能用 execCommand。
 
@@ -395,6 +514,47 @@ class TestVerifySaved(unittest.TestCase):
         sig = inspect.signature(bp._verify_saved)
         self.assertEqual(list(sig.parameters),
                          ["cdp", "title", "expect_head", "old_mtime"])
+
+
+class TestNoLeakedTabs(unittest.TestCase):
+    """replace 模式不许开多余的「新建入口」tab。
+
+    2026-09-30 实测踩到：publish_one 开头无条件 _open_editor_tab()，
+    而 replace 模式直接按 article_id 打开已有草稿，那个 tab 完全用不上。
+    批量 37 条时废 tab 累积，第 2 条就 TimeoutError: timed out
+    （栈在 _open_editor_tab 的 Page.navigate），整轮中断。
+    """
+
+    def test_replace_skips_open_editor_tab(self):
+        import inspect
+        code = [ln for ln in inspect.getsource(bp.publish_one).splitlines()
+                if not ln.strip().startswith("#")]
+        body = "\n".join(code)
+        self.assertIn("(None, None) if replace else _open_editor_tab(cdp)", body)
+
+    def test_publish_one_cleans_tabs_in_finally(self):
+        import inspect
+        src = inspect.getsource(bp.publish_one)
+        self.assertIn("keep_tabs", src)
+        self.assertIn("_close_stale_bili_tabs(cdp)", src.split("finally")[-1])
+
+    def test_publish_all_has_retries(self):
+        import inspect
+        sig = inspect.signature(bp.publish_all)
+        self.assertIn("retries", sig.parameters)
+        src = inspect.getsource(bp.publish_all)
+        self.assertIn("重试", src)
+        # 单条异常不能中断整轮
+        self.assertIn("except Exception", src)
+
+    def test_cli_exposes_retries_and_keep_tabs(self):
+        import subprocess
+        import sys
+        out = subprocess.run(
+            [sys.executable, bp.__file__, "publish", "--help"],
+            capture_output=True, text=True, timeout=60).stdout
+        self.assertIn("--retries", out)
+        self.assertIn("--keep-tabs", out)
 
 
 if __name__ == "__main__":

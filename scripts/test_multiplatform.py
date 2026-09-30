@@ -326,5 +326,155 @@ class TestMissingArtifacts(unittest.TestCase):
                       REGISTRY["bilibili"].requires)
 
 
+class TestBatchScheduling(unittest.TestCase):
+    """调度按**平台**聚合：支持批量的平台一次提交，不逐条 spawn。
+
+    2026-09-30 改。原因：逐条 spawn 每条都要重起 CDP、重开草稿箱 tab，
+    37 条下来既慢又会把页面 WebSocket 拖超时（实测第 2 条就 TimeoutError）。
+    """
+
+    def test_bilibili_supports_only(self):
+        self.assertTrue(REGISTRY["bilibili"].supports_only)
+
+    def test_other_platforms_default_off(self):
+        for k in ("wechat", "toutiao", "xiaohongshu"):
+            if k in REGISTRY:
+                self.assertFalse(getattr(REGISTRY[k], "supports_only", False), k)
+
+    def test_base_batch_returns_none(self):
+        """不支持批量的平台 batch() 返回 None，runner 会退回逐条。"""
+        from multiplatform.adapters.base import Adapter
+        self.assertIsNone(Adapter().batch(["a", "b"]))
+
+    def test_batch_builds_only_flag(self):
+        ad = REGISTRY["bilibili"]
+
+        captured = {}
+
+        def fake_run(args, enabled=True, timeout=1800, full=False):
+            captured["args"] = args
+            captured["full"] = full
+            from multiplatform.adapters.base import Result
+            return Result(True, "draft_saved", "", 0, "")
+
+        ad.run = fake_run
+        ad.batch(["a", "b"], replace=True, retries=3)
+        self.assertIn("--replace", captured["args"])
+        self.assertIn("--only", captured["args"])
+        self.assertEqual(captured["args"][captured["args"].index("--only") + 1],
+                         "a,b")
+        self.assertEqual(captured["args"][captured["args"].index("--retries") + 1],
+                         "3")
+        # full=True 是逐条判定成败的前提
+        self.assertTrue(captured["full"])
+
+    def test_batch_without_cids_is_none(self):
+        """不传 cids 时返回 None —— 脚本的"全部"是 list_ids() 全集，
+        不是 runner 筛出来的未完成集，混用会重发已完成的。"""
+        self.assertIsNone(REGISTRY["bilibili"].batch([]))
+
+
+class TestParseBatch(unittest.TestCase):
+    """批量结果必须**逐条**判定，不能只看退出码。
+
+    「15 条挂 1 条」整体 rc≠0，但那 14 条已经存好了。按 rc 一刀切会把
+    成功的误标 failed，下次又重发一遍 —— B站一条草稿要 1 分钟，代价很高。
+    """
+
+    SAMPLE = """publish 15 篇 → B站草稿箱（覆盖已有草稿）（每条重试 2 次）
+[1/15] promptmonitor-io
+    清空旧内容: focused
+  ✓ 远端已回读确认：mtime 已更新、正文前缀匹配
+  ✓ 标题《x》正文 999 字（编辑器实测 999 字 / 43 块）已存草稿
+[2/15] prosp
+    ! TimeoutError: timed out
+    ↻ 重试第 1 次
+[3/15] rezi
+  ✓ 标题《y》正文 100 字（编辑器实测 100 字 / 12 块）已存草稿
+完成 13/15
+失败 2 条：prosp stan
+"""
+
+    def test_splits_done_and_failed(self):
+        done, failed = REGISTRY["bilibili"].parse_batch(self.SAMPLE)
+        self.assertEqual(done, {"promptmonitor-io", "rezi"})
+        self.assertEqual(failed, {"prosp", "stan"})
+
+    def test_last_entry_is_settled(self):
+        """最后一条后面没有新的 [i/N] 也要结算，不能漏掉。"""
+        done, failed = REGISTRY["bilibili"].parse_batch(
+            "[1/1] solo\n  ✓ 标题《z》正文 5 字已存草稿\n完成 1/1")
+        self.assertEqual(done, {"solo"})
+        self.assertEqual(failed, set())
+
+    def test_empty_input(self):
+        done, failed = REGISTRY["bilibili"].parse_batch("")
+        self.assertEqual((done, failed), (set(), set()))
+
+    def test_no_success_marks_all_failed(self):
+        done, failed = REGISTRY["bilibili"].parse_batch(
+            "[1/2] a\n    ! TimeoutError\n[2/2] b\n完成 0/2")
+        self.assertEqual(done, set())
+        self.assertEqual(failed, {"a", "b"})
+
+
+class TestReplaceMode(TmpManifest):
+    """`run --replace`：改文案后覆盖重存，已 draft_saved 的也要重跑。
+
+    默认队列会跳过所有已完成的，改了文案想重存就得先 reset 再 run，
+    两步且容易忘。`--replace` 一步到位（平台侧传 --replace，调度侧 force）。
+    """
+
+    def test_runner_accepts_replace(self):
+        import inspect
+        sig = inspect.signature(runner.Runner.__init__)
+        self.assertIn("replace", sig.parameters)
+
+    def test_replace_requeues_done_ones(self):
+        """force=True 时队列要包含已 draft_saved 的。
+
+        ⚠ 必须用**临时清单**：默认 `S.Manifest()` 指向真实的
+        `data/publish_manifest.json`，那里 37 条全是 draft_saved，
+        队列恒为 0，断言会假失败（第一版就踩了）。
+        """
+        m = self.m
+        total = len(runner.Runner(["bilibili"], dry=True, manifest=m).queue())
+        self.assertGreater(total, 0)
+        # 把一条标成"已发过"：普通队列应少一条，replace 队列不变
+        m.set("coral", "bilibili", "draft_saved", "旧标题")
+        r = runner.Runner(["bilibili"], dry=True, manifest=m)
+        self.assertEqual(len(r.queue()), total - 1)
+        r2 = runner.Runner(["bilibili"], dry=True, manifest=m,
+                           replace=True)
+        self.assertEqual(len(r2.queue()), total)
+
+    def test_run_one_skips_only_when_not_replace(self):
+        import inspect
+        src = inspect.getsource(runner.Runner.run_one)
+        self.assertIn("and not self.replace", src)
+
+    def test_cli_has_replace(self):
+        import subprocess
+        import sys
+        out = subprocess.run(
+            [sys.executable, os.path.join(ROOT, "scripts", "publish_multi.py"),
+             "run", "--help"],
+            capture_output=True, text=True, timeout=60).stdout
+        self.assertIn("--replace", out)
+
+
+class TestResultCarriesStdout(unittest.TestCase):
+    """Result.out 存完整 stdout，供 parse_batch 逐条判定。"""
+
+    def test_out_default_empty(self):
+        from multiplatform.adapters.base import Result
+        self.assertEqual(Result(True).out, "")
+
+    def test_out_kept_when_requested(self):
+        from multiplatform.adapters.base import Result
+        r = Result(True, out="[1/1] a\n  ✓ 标题")
+        self.assertIn("✓ 标题", r.out)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -29,13 +29,16 @@ if hasattr(sys.stdout, "reconfigure"):
 
 class Runner:
     def __init__(self, plats, dry=False, yes=False, retries=1,
-                 manifest=None, verbose=True):
+                 manifest=None, verbose=True, replace=False):
         self.plats = list(plats)
         self.dry = dry
         self.yes = yes
         self.retries = max(0, retries)
         self.m = manifest or S.Manifest()
         self.verbose = verbose
+        # replace：改文案后覆盖重存。平台侧是 --replace（B站按 article_id
+        # 打开已有草稿重写），调度侧要把已 draft_saved 的也重新纳入队列。
+        self.replace = replace
         self.ads = [get_ad(p) for p in self.plats]
 
     def log(self, msg):
@@ -43,16 +46,21 @@ class Runner:
             print(msg, flush=True)
 
     # ---- 队列 -------------------------------------------------------------
-    def queue(self, only=None, limit=0):
-        """至少一个平台还没发过的 case（库里最新在前）。"""
+    def queue(self, only=None, limit=0, force=False):
+        """至少一个平台还没发过的 case（库里最新在前）。
+
+        force=True（`--replace`）时忽略"已发过"，把该平台重新纳入队列 ——
+        改了文案要覆盖重存时用它。
+        """
         out = []
         for c in A.load_cases():
             cid = c.get("id")
             if only and cid != only:
                 continue
             art = A.load_article(cid, c.get("name", ""))
+            force = force or self.replace
             todo = [p for p in self.plats
-                    if not self._is_done(cid, p, art)]
+                    if force or not self._is_done(cid, p, art)]
             if not todo:
                 continue
             out.append((art, todo))
@@ -84,7 +92,7 @@ class Runner:
             self.m.mark_failed(cid, plat, "缺母版 out/articles/%s.html" % cid,
                                title)
             return "failed"
-        if self._is_done(cid, plat, art):
+        if self._is_done(cid, plat, art) and not self.replace:
             self.log("    [%s] 已发过，跳过" % ad.label)
             return "skip"
 
@@ -97,7 +105,8 @@ class Runner:
                 ad.build(art, dry=False)
             elif attempt == 0 and not self.dry and ad.can_build and not miss:
                 pass                            # 产物齐了，不必 build
-            r = ad.publish(art, dry=self.dry, yes=self.yes)
+            r = ad.publish(art, dry=self.dry, yes=self.yes,
+                           replace=self.replace)
             if r.ok:
                 st = "published" if (self.yes and getattr(
                     ad, "supports_publish", False)) else "draft_saved"
@@ -115,32 +124,92 @@ class Runner:
         return "failed"
 
     # ---- 整轮 -------------------------------------------------------------
-    def run(self, only=None, limit=0):
-        jobs = self.queue(only=only, limit=limit)
+    def run(self, only=None, limit=0, force=False):
+        """按**平台**聚合调度，不是按 case。
+
+        为什么要换维度：B站这类平台的批量必须在一个进程内串行跑完 ——
+        逐条 spawn 每条都要重起 CDP、重开草稿箱 tab，37 条下来既慢又会把
+        页面 WebSocket 拖超时（2026-09-30 实测：跑到第 2 条就
+        TimeoutError）。所以先把「每个平台各自待办哪些 case」算出来，
+        支持 batch() 的平台一次提交，不支持的才逐条。
+
+        副作用：同一条 case 的不同平台不再紧挨着跑，日志按平台分段。
+        """
+        jobs = self.queue(only=only, limit=limit,
+                          force=force or self.replace)
         if not jobs:
             self.log("没有待发的（所选平台都发过了）。")
             return []
         self.log("=" * 62)
-        self.log("待发 %d 条（%s）  %s"
+        self.log("待发 %d 条：%s  %s"
                  % (len(jobs), "/".join(a.cid for a, _ in jobs),
                     "[dry-run]" if self.dry else
                     ("[真发]" if self.yes else "[存草稿]")))
-        done, bad = [], []
-        for i, (art, todo) in enumerate(jobs, 1):
-            self.log("\n[%d/%d] %s —— %s"
-                     % (i, len(jobs), art.cid, art.name))
-            ok = True
-            for plat in todo:
-                r = self.run_one(art, plat)
-                if r == "failed":
-                    ok = False
-            (done if ok else bad).append(art.cid)
+
+        # 平台 → 待办 case 列表（保持 queue 顺序）
+        per = {p: [] for p in self.plats}
+        arts = {}
+        for art, todo in jobs:
+            arts[art.cid] = art
+            for p in todo:
+                per[p].append(art.cid)
+
+        tally = {}                      # cid → 该 case 是否全平台都过
+        for p in self.plats:
+            cids = per[p]
+            if not cids:
+                continue
+            ad = get_ad(p)
+            self.log("\n—— %s：%d 条 ——" % (ad.label, len(cids)))
+            if getattr(ad, "supports_only", False):
+                self._run_batch(ad, p, cids, arts, tally)
+            else:
+                for cid in cids:
+                    art = arts[cid]
+                    self.log("  %s" % cid)
+                    r = self.run_one(art, p)
+                    tally[cid] = tally.get(cid, True) and (r != "failed")
+
+        done = [c for c, v in tally.items() if v]
+        bad = [c for c, v in tally.items() if not v]
         self.log("\n" + "=" * 62)
-        self.log("完成 %d 条，全平台都过了 %d 条" % (len(jobs), len(done)))
+        self.log("共 %d 条，全平台都过了 %d 条" % (len(jobs), len(done)))
         if bad:
             self.log("有问题 %d 条：%s" % (len(bad), ", ".join(bad)))
-            self.log("（重试：publish_multi.py --retry-failed）")
+            self.log("（重试：publish_multi.py retry --case <id>）")
         return done + bad
+
+    def _run_batch(self, ad, plat, cids, arts, tally):
+        """一次提交整个平台的多条，再按脚本输出逐条回写状态。
+
+        ⚠ 不能只看退出码定成败：批量「15 条挂 1 条」整体 rc≠0，但那 14 条
+        已经存好了。按 rc 一刀切会把成功的误标 failed，下次重发 —— 对
+        B站这种「一条草稿要 1 分钟」的平台代价很高。
+        """
+        r = ad.batch(cids, dry=self.dry, retries=self.retries,
+                     replace=self.replace)
+        if r is None:                       # 平台没实现 batch，退回逐条
+            for cid in cids:
+                res = self.run_one(arts[cid], plat)
+                tally[cid] = tally.get(cid, True) and (res != "failed")
+            return
+        if self.dry:
+            self.log("    [dry] %s" % r.note[:100])
+            return
+        done, failed = ad.parse_batch(r.out)
+        for cid in cids:
+            art = arts[cid]
+            title = self._title(art, plat)
+            if cid in done:
+                self.m.set(cid, plat, "draft_saved", title)
+                self.log("    ✓ %s" % cid)
+                tally[cid] = tally.get(cid, True) and True
+            else:
+                why = ("脚本报告失败" if cid in failed
+                       else "批量输出里没确认到（可能中途断连）")
+                self.m.mark_failed(cid, plat, why, title)
+                self.log("    ✗ %s %s" % (cid, why))
+                tally[cid] = False
 
 
 def bootstrap_manifest(plats, force=False):
