@@ -1488,6 +1488,17 @@ def main():
     sub.add_parser("cover-status")
     args = ap.parse_args()
 
+    # 127.0.0.1 必须绕开系统代理，否则 websocket 连 Chrome 调试端口会被掐
+    # （WinError 10053）。本脚本直接 import wechat_publish 复用 wp.CDP，从不走
+    # wp.main()，所以这里要自己清一遍——否则后台跑批次时本地 CDP 连接全挂。
+    for _k in ("http_proxy", "https_proxy", "HTTP_PROXY", "HTTPS_PROXY",
+               "all_proxy", "ALL_PROXY", "ftp_proxy", "FTP_PROXY"):
+        os.environ.pop(_k, None)
+    _np = os.environ.get("no_proxy", "")
+    if "127.0.0.1" not in _np:
+        os.environ["no_proxy"] = ("127.0.0.1,localhost"
+                                   + ("," + _np if _np else ""))
+
     if args.cmd == "build":
         if args.case:
             build_one(args.case)
