@@ -1861,7 +1861,7 @@ def pending_cases(need_cards=True):
     need_cards=True 时只算已 build 过（有 note.json）的；
     False 则连没生成卡片的也算，交给出发前自动 build。
     """
-    skip = set(_published_ids()) | set(_drafted_ids()) | {"voklit"}
+    skip = set(_published_ids()) | set(_drafted_ids())
     built = set()
     if os.path.isdir(OUT):
         for d in os.listdir(OUT):

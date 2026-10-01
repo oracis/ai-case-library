@@ -209,17 +209,24 @@ class TestPickNext(unittest.TestCase):
             finally:
                 x.OUT = old
 
-    def test_pending_skips_drafted_and_voklit(self):
+    def test_pending_has_no_hardcoded_case_id(self):
+        """待发判定只能看 published/drafted 两个台账，不能硬编码任何案例 id。
+
+        曾经把 voklit 写死进skip（| {"voklit"}）当作临时跳过，
+        结果它永久无法再被 queue / publish --all 选中，只能手动 --case。
+        voklit 合规重发后已移除，这里钉死。
+        """
         with tempfile.TemporaryDirectory() as tmp:
             old = x.OUT
             x.OUT = tmp
             try:
-                self._with_cards(tmp, ["a"])
+                self._with_cards(tmp, ["a", "voklit"])
                 cases = [{"id": "a"}, {"id": "voklit"}]
                 x.load_cases = lambda: cases
                 x._published_ids = lambda: []
                 x._drafted_ids = lambda: ["a"]
-                self.assertEqual(x.pending_cases(), [])
+                # voklit 没进过草稿台账 → 必须出现在待发队列里
+                self.assertEqual([c["id"] for c in x.pending_cases()], ["voklit"])
             finally:
                 x.OUT = old
 
