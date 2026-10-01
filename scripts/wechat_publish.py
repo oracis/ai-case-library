@@ -1089,7 +1089,10 @@ def build_one(c, no):
     m = re.search(r"<h1[^>]*>(.*?)</h1>", out, re.S)
     title = strip_tags(m.group(1)).strip() if m else c.get("name", "")
     subtitle = c.get("one_liner", "")
-    tag = "拆解海外 · 第 %d 篇" % no
+    # 2026-10-01：非「海外小生意」内容不占「拆解海外 · 第 N 篇」这个篇号。
+    # 篇号是**栏目身份**，工具推广/使用类文章挂在这个栏目下会让读者以为
+    # 这是第 42 个海外小生意案例。所以按 content_kind 换标签。
+    tag = c.get("series_tag") or ("拆解海外 · 第 %d 篇" % no)
     block = []
     block.append("<!--\n万物解释者 · 公众号图文（自动生成，可直接粘贴版）\n"
                  "使用方法：浏览器打开 → 全选复制 → 粘进公众号后台「新建图文」正文区。\n"
@@ -1102,8 +1105,10 @@ def build_one(c, no):
     block.append(out)
     block.append('  <hr style="border:none;border-top:1px solid #eee;'
                  'margin:22px 0 14px;">')
+    _f = (c.get("series_footer") or "— 万物解释者 · 拆解海外 —")
+    _f = _f.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
     block.append('  <p style="margin:0;text-align:center;font-size:13px;'
-                 'color:#bbb;">— 万物解释者 · 拆解海外 —</p>')
+                 'color:#bbb;">%s</p>' % _f)
     block.append("</div>")
     block.append("<!--\n==================== 公众号后台填写建议（不要复制这一段进正文）====================\n"
                  "标题（建议，≤30 字）：\n  主标题：%s\n"
@@ -1315,13 +1320,25 @@ class CDP:
         except urllib.error.URLError as e:
             raise SystemExit(
                 "\n✗ 连不上 Chrome 调试端口 127.0.0.1:%d\n"
+                "  Chrome 136+ 拒绝在【默认 user-data-dir】上开调试端口，直接照旧命令启动\n"
+                "  必然失败（DevTools remote debugging requires a non-default data directory）。\n"
+                "  正解是：非默认目录 + 目录联接(junction)指回原 User Data，这样登录态照旧可用。\n"
+                "  ⚠ 别【复制】Cookies / Local State 等文件过去 —— Chrome App-Bound 加密\n"
+                "    绑定原始路径，复制出来的副本解不开，后台一律退回扫码登录。\n"
                 "  请按顺序确认：\n"
                 "  1) 已【完全退出】所有 Chrome 窗口（任务管理器确认无 chrome.exe 残留）\n"
-                "  2) 用下面命令重启（同一用户目录，复用登录态）：\n"
+                "  2) 首次准备联接（管理员 PowerShell 只需做一次）：\n"
+                "     $src = \"$env:LOCALAPPDATA\\Google\\Chrome\\User Data\"\n"
+                "     $dst = \"$env:LOCALAPPDATA\\Google\\ChromeCDP\"\n"
+                "     New-Item -ItemType Directory -Force -Path $dst | Out-Null\n"
+                "     cmd /c mklink /J \"$dst\\User Data\" \"$src\"\n"
+                "  3) 重启（联接后可复用登录态）：\n"
                 "     & \"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" "
                 "--remote-debugging-port=%d "
-                "--user-data-dir=\"C:\\Users\\DELL\\AppData\\Local\\Google\\Chrome\\User Data\"\n"
-                "  3) 浏览器打开 http://127.0.0.1:%d/json/version 应返回一段 JSON\n"
+                "--user-data-dir=\"%%LOCALAPPDATA%%\\Google\\ChromeCDP\"\n"
+                "  4) 浏览器打开 http://127.0.0.1:%d/json/version 应返回一段 JSON\n"
+                "  5) 若 /json/version 通了但页面提示「请重新登录」，说明微信后台会话\n"
+                "     cookie 确实不在这个 profile 里（不是路径问题），必须人工扫码一次。\n"
                 "  原始错误：%s" % (port, port, port, e)
             )
         self.bws = WS(ver["webSocketDebuggerUrl"])
@@ -3021,7 +3038,16 @@ def cmd_publish(args):
 # 补封面（历史草稿）
 # ======================================================================
 def _connect_mp(cdp, debug=False):
-    """连到一个已登录的 mp 页面，返回 (tid, token)。优先复用已开着的 tab。"""
+    """连到一个已登录的 mp 页面，返回 (tid, token)。优先复用已开着的 tab。
+
+    ⚠ **「请重新登录」不等于掉登录**（2026-10-01 实测）：
+    拿不到 token 时页面只显示「请重新登录」，但**重新导航一次通常就能换到
+    有效 token**（实测第 10 次、约 30 秒才换到）。所以：
+      · 复用已有 tab 拿不到 → **重新导航**再等，不要立刻报错；
+      · 重导航后仍拿不到，才可能真是登录态过期（那要人工扫码）。
+    原来只原地轮询 25 秒，恰好卡在换 token 需要的 30 秒之前 → 批量直接退出。
+    """
+    tids = []
     for t in cdp.list_targets():
         u = t.get("url") or ""
         if t.get("type") == "page" and "mp.weixin.qq.com" in u:
@@ -3029,13 +3055,28 @@ def _connect_mp(cdp, debug=False):
                 tok = _get_token(cdp, debug=debug)
                 if tok and tok != "NO_TOKEN":
                     return t["id"], tok
-    tid = cdp.new_target(MP_HOME)["id"]
+                # 这个 tab 拿不到 token，先记下来当重导航的落点，
+                # **别每个轮次都new_target** —— 实测失败重试会堆出6 个
+                # 一模一样的首页 tab，既干扰后续复用也把页面搞乱。
+                tids.append(t["id"])
+    tid = tids[-1] if tids else cdp.new_target(MP_HOME)["id"]
     cdp.connect_target(tid)
     for _ in range(25):
         time.sleep(1)
         tok = _get_token(cdp, debug=debug)
         if tok and tok != "NO_TOKEN":
             return tid, tok
+    # 原地等不出来 → 重导航到首页（换 token 的正规途径），再等 60 秒。
+    print("  [login] 原地拿不到 token，重新导航到首页再等…")
+    for attempt in range(10):
+        cdp.eval("location.href='https://mp.weixin.qq.com/cgi-bin/home'",
+                 refresh_context=True)
+        for _ in range(3):
+            time.sleep(2)
+            tok = _get_token(cdp, debug=debug)
+            if tok and tok != "NO_TOKEN":
+                print("  [login] 第%d 轮重导航后拿到 token=%s" % (attempt + 1, tok))
+                return tid, tok
     return tid, None
 
 
@@ -3058,6 +3099,79 @@ def _draft_list(cdp, tok, count=50):
         return json.loads(raw).get("app_msg_list") or []
     except Exception:
         return []
+
+
+def verify_refreshed(cdp, tok, expect, fresh_seconds=1800, count=60, since=None):
+    """按**篇号**回读远端草稿，核对 refresh 到底有没有真写进去。
+
+    为什么必须有这个（2026-10-01）
+    ------------------------------
+    `保存: OK` 的判据只是「保存后 URL 出现了 appmsgid=」，
+    那是**编辑器自己跳转**的信号，**不保证正文落库**。
+    历史教训：整轮 37 条全报「成功」，用户看到的还是旧排版。
+
+    ⚠ **键必须是篇号，不能是标题** —— 按标题反查时 `0/N` 表示
+    「没匹配上远端」，很容易被误读成「远端是空的、所以不用改」。
+
+    可用判据（按可信度从高到低）：
+      1. `update_time` 距当前秒数 —— 刚刷的必然是新鲜值（最省事）；
+      2. `title` 与本地 `make_wechat_title(c)` 一致；
+      3. 列表接口不返回正文长度，正文要另开编辑页读（贵，逐条才做）。
+
+    ⚠ **`fresh_seconds` 别设太紧**（2026-10-01 踩过）。
+    批量跑 40 分钟刷 37 条时，最后一条距「批次开始」已 40 分钟，
+    阈值卡在边界会把刚刷的误判成 STALE。判断「这条刷了没有」用
+    `since`（批次开始时间戳）比用「距今 N 秒」准得多。
+
+    参数
+    ----
+    expect : {appmsgid: {"title": str, "refreshed_at": str}}
+        台账里带 `appmsgid` 的条目。
+    since : float | None
+        批次开始时间戳。给了就优先用它（`update_time >= since` 即算刷过），
+        避免长批次里「距今 N秒」误判。
+    返回：{appmsgid: (状态, 说明)}，状态 ∈
+        OK / STALE / TITLE_MISMATCH / MISSING
+    """
+    now = int(time.time())
+    remote = {}
+    for d in _draft_list(cdp, tok, count=count):
+        aid = d.get("appmsgid")
+        if aid:
+            remote[str(aid)] = d
+
+    out = {}
+    for aid, exp in (expect or {}).items():
+        aid = str(aid)
+        d = remote.get(aid)
+        if not d:
+            out[aid] = ("MISSING", "远端草稿列表里没有这个篇号")
+            continue
+        ut = int(d.get("update_time") or 0)
+        age = now - ut
+        want = (exp.get("title") or "").strip()
+        got = (d.get("title") or "").strip()
+        if want and got != want:
+            out[aid] = ("TITLE_MISMATCH",
+                        "远端标题=%r，本地期望=%r（正文大概率也没写进去）"
+                        % (got[:30], want[:30]))
+            continue
+        if since:
+            if ut >= int(since):
+                out[aid] = ("OK", "update_time 距今 %ds（≥批次起点），标题一致" % age)
+            else:
+                out[aid] = ("STALE",
+                            "update_time 距今 %ds，早于批次起点 %ds，这条没被刷到"
+                            % (age, now - int(since)))
+        elif age <= fresh_seconds:
+            out[aid] = ("OK", "update_time 距今 %ds，标题一致" % age)
+        else:
+            out[aid] = ("STALE",
+                        "update_time 距今 %ds（>%ds），这条可能没被刷到"
+                        % (age, fresh_seconds))
+    return out
+
+
 
 
 class DraftEditorError(RuntimeError):
@@ -3260,6 +3374,37 @@ def cmd_delete(args):
           % (len(gone), len(targets), "、".join(gone) or "无"))
 
 
+BROKEN_DRAFTS = os.path.join(ROOT, "data", "wechat_broken_drafts.json")
+
+
+def load_broken():
+    """读「服务端打不开的草稿」黑名单（case id -> {appmsgid, 首次发现时间}）。
+
+    为什么要有这个：`系统错误(320003)` 有两种含义 —— 限流（暂时，重试能好）
+    和**记录级损坏**（永久，这条草稿在服务端已不可访问）。后者会让 refresh
+    在它上面白白耗掉两轮打开 + 退避，单条能吃掉几分钟，批量看起来就是
+    「卡住不动」。交替测试确认是损坏后写进这里，之后每轮自动跳过。
+    """
+    try:
+        with open(BROKEN_DRAFTS, encoding="utf-8") as f:
+            d = json.load(f)
+        return d if isinstance(d, dict) else {}
+    except Exception:
+        return {}
+
+
+def save_broken(d):
+    tmp = BROKEN_DRAFTS + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(d, f, ensure_ascii=False, indent=2)
+    os.replace(tmp, BROKEN_DRAFTS)
+
+
+def _parse_when(s):
+    """'2026-10-01 20:04' -> unix 秒。给 --skip-refreshed-after 用。"""
+    return int(time.mktime(time.strptime(s.strip(), "%Y-%m-%d %H:%M")))
+
+
 def cmd_refresh(args):
     """把本地重新生成过的正文，就地灌回**已存在**的草稿（不新建草稿）。
 
@@ -3279,11 +3424,24 @@ def cmd_refresh(args):
     published = load_published()
     issues = issue_registry(cases)
     only = set(x.strip() for x in (args.case or "").split(",") if x.strip())
+    skip_set = set(x.strip() for x in
+                   (getattr(args, "exclude_case", "") or "").split(",") if x.strip())
+    broken = load_broken()
+    if broken and not args.dry:
+        print("已跳过 %d 条服务端损坏草稿（%s；--include-broken 可强制重试）"
+              % (len(broken), "、".join(sorted(broken)[:8])
+                 + ("…" if len(broken) > 8 else "")))
 
     todo = []
     for c in cases:
         cid = c["id"]
         if only and cid not in only:
+            continue
+        if cid in skip_set:
+            print("  [skip] %s 被 --exclude-case 排除" % cid)
+            continue
+        if cid in broken and not getattr(args, "include_broken", False):
+            print("  [skip] %s 服务端草稿已损坏（黑名单）" % cid)
             continue
         rec = published.get(cid)
         if not rec:
@@ -3293,6 +3451,17 @@ def cmd_refresh(args):
             # 然后报找不到）。发表后把 status 改成 published 就不会再排进来。
             print("  [skip] %s 已发表，不在草稿箱" % cid)
             continue
+        # --skip-refreshed-after：续跑时把本轮已经刷成功的排掉。中断过的批次
+        # 重新排队会从头再刷一遍，每条 1-2 分钟，白等几十分钟；refresh 本身幂等，
+        # 但**没必要**。判据用 `refreshed_at`（服务端那一刻的本地时间）。
+        if getattr(args, "skip_refreshed_after", ""):
+            try:
+                if rec.get("refreshed_at") and _parse_when(
+                        rec["refreshed_at"]) >= _parse_when(args.skip_refreshed_after):
+                    print("  [skip] %s 本轮已刷过（%s）" % (cid, rec["refreshed_at"]))
+                    continue
+            except ValueError:
+                pass
         art = find_article(cid, c.get("name"))
         if not art:
             print("  [skip] %s 缺发布就绪 HTML" % cid)
@@ -3462,6 +3631,13 @@ def main():
     pr = sub.add_parser("refresh", help="把本地重生成过的正文就地灌回已有草稿")
     pr.add_argument("--port", type=int, default=CDP_PORT)
     pr.add_argument("--case", help="只刷指定 case id（逗号分隔）")
+    pr.add_argument("--exclude-case", default="",
+                    help="排除指定 case id（逗号分隔），临时绕开服务端打不开的草稿")
+    pr.add_argument("--include-broken", action="store_true",
+                    help="连黑名单里的损坏草稿也强制重试（确认服务端已恢复时用）")
+    pr.add_argument("--skip-refreshed-after", default="",
+                    help="跳过 refreshed_at 晚于该时间的条目，如 2026-10-01-20:04，"
+                         "用于中断后从断点续跑")
     pr.add_argument("--limit", type=int, default=0, help="只刷前 N 篇")
     pr.add_argument("--dry", action="store_true", help="只打印计划不打开浏览器")
     pr.add_argument("--cover", action="store_true",
