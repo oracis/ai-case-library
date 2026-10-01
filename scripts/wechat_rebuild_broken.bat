@@ -63,7 +63,7 @@ curl -s --noproxy * --max-time 4 http://127.0.0.1:9222/json/version 2>nul | find
 if errorlevel 1 (
   echo   starting Chrome for Testing...
   if exist "%CFT%" (
-    start "" "%CFT%" --remote-debugging-port=9222 --user-data-dir="%PROF%" --no-first-run --no-default-browser-check
+    start "" "%CFT%" --remote-debugging-port=9222 --user-data-dir="%PROF%" --no-first-run --no-default-browser-check --no-sandbox
   ) else (
     echo   [warn] Chrome for Testing not found, falling back to system Chrome
     start "" "%ProgramFiles%\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --user-data-dir="%PROF%"

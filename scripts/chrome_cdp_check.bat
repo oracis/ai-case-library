@@ -11,6 +11,17 @@ REM
 REM  Flow: clear LOCK -> start Chrome for Testing -> check CDP ->
 REM        live-probe the real login state (token probe)
 REM
+REM  IMPORTANT: --no-sandbox is REQUIRED on this machine.
+REM  Without it Chrome starts, loads policy/variations services, then
+REM  dies within ~2s with exit code 3 (RESULT_CODE_KILLED_BAD_MESSAGE)
+REM  and the DevTools port never opens. Verified by flag-matrix test:/nREM    baseline              -> FAIL (exit 3)
+REM    --disable-gpu         -> FAIL (exit 3)
+REM    --no-sandbox          -> CDP OK
+REM    --no-sandbox + gpu off-> CDP OK
+REM  Root cause: the sandbox blocks renderer/GPU child-process
+REM  creation in this environment. The flag is safe here because we
+REM  only automate our own local WeChat session.
+REM
 REM  Run this on the LOCAL machine (double-click). The agent sandbox
 REM  cannot keep a GUI process alive.
 REM
@@ -62,7 +73,7 @@ if exist "%PROF%\Default\LOCK" (
 
 echo.
 echo === 1) Start Chrome for Testing ===
-start "" "%CFT%" --remote-debugging-port=9222 --user-data-dir="%PROF%" --no-first-run --no-default-browser-check
+start "" "%CFT%" --remote-debugging-port=9222 --user-data-dir="%PROF%" --no-first-run --no-default-browser-check --no-sandbox
 REM "timeout" is unreliable here: Git Bash injects GNU coreutils
 REM timeout into PATH, which shadows the cmd.exe builtin.
 REM "ping -n" sleeps reliably in BOTH environments.

@@ -109,3 +109,8 @@ data/xhs_drafts.json.bak
 # 注意 data/publish_manifest.json（多平台发布清单）**要入库**：
 # 它是「哪条案例在哪个平台发到哪一步」的唯一事实来源（尤其 B站草稿只存在
 # 远端，本地无状态文件）。丢了就得靠人肉翻四个平台的草稿箱重建。
+
+# Windows reserved device names. A stray redirect like `> NUL` in Git Bash
+# creates a real 0-byte file named NUL, which git refuses to add
+# (error: invalid path 'NUL').
+NUL

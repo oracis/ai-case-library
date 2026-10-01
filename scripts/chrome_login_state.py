@@ -90,9 +90,13 @@ def live_token_check():
         return {"ok": False, "why": "import 失败: %s" % e}
     try:
         cdp = wp.CDP()
-        tok = wp._connect_mp(cdp)
-        return {"ok": bool(tok), "token": tok}
-    except SystemExit as e:
+        # ⚠ _connect_mp 返回的是 **(tid, token)** 二元组，不是裸 token。
+        # 早先这里按单值接，得到的是 tid，token 恒为 None ——
+        # 于是无论登录态多好都会误报「拿不到 token」。
+        res = wp._connect_mp(cdp)
+        tid, tok = res if isinstance(res, tuple) else (None, res)
+        return {"ok": bool(tok), "token": tok, "tid": tid}
+    except SystemExit:
         return {"ok": False, "why": "CDP 连不上（Chrome 没起？）"}
     except Exception as e:
         return {"ok": False, "why": "%s: %s" % (type(e).__name__, e)}
