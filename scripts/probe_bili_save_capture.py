@@ -4,7 +4,7 @@
 `-400 请求错误`，但bundle 里的 arg 结构明明对。唯一能确定答案的办法
 不是读压缩代码，而是**让真编辑器自己发一次，抓它发出去的字节**。
 
-关键坑：axios 在浏览器里走**XMLHttpRequest**，不�� fetch。
+关键坑：axios 在浏览器里走**XMLHttpRequest**，不走 fetch。
 只 hook `window.fetch` 什么都抓不到（这个坑踩过）。
 
 用法：
