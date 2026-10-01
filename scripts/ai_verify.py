@@ -23,11 +23,26 @@
     python scripts/ai_verify.py --limit 5 --publish   # 够格的直接发布成案例
     python scripts/ai_verify.py --all --publish --min-score 60
 
-环境变量（LLM 走 OpenAI 兼容接口，DeepSeek / Kimi / GLM 都行）
+环境变量（LLM 走 OpenAI 兼容接口，DeepSeek / Kimi / GLM / OpenCode Zen 都行）
     CASE_LIB_AI_KEY     必填（--plan 除外）
     CASE_LIB_AI_BASE    默认 https://api.deepseek.com
     CASE_LIB_AI_MODEL   默认 deepseek-chat
     CASE_LIB_ADMIN_PASSWORD   后台密码（写草稿/发布要登录 5053）
+
+换模型（CLI 覆盖环境变量，不传就用上面的默认值）
+    # 先花几毛钱验端点，别直接跑一批才发现 key 不对
+    python scripts/ai_verify.py --ping
+    python scripts/ai_verify.py --ping --ai-base https://opencode.ai/zen/v1 \
+                                --ai-model space-bunny-free --ai-key sk_xxx
+    # 通了再核
+    python scripts/ai_verify.py --triage --limit 5
+    python scripts/ai_verify.py --limit 5 --ai-model space-bunny-free \
+                                --ai-base https://opencode.ai/zen/v1
+
+    端点约定：base 填到 /v1（别带 /chat/completions），尾部斜杠会被rstrip。
+    ⚠ 换端点最常见的两个坑，--ping 会直接指出来：
+      · HTTP 403 = Cloudflare/WAF 拦 UA，不是 key 问题（请求头已带浏览器 UA）
+      · HTTP 400 = 该端点不支持 response_format={"type":"json_object"}
 
 设计约束
 --------
@@ -46,6 +61,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -649,7 +665,13 @@ def llm(messages, temperature=0.2):
     req = urllib.request.Request(
         AI_BASE + "/chat/completions", data=body,
         headers={"Content-Type": "application/json",
-                 "Authorization": "Bearer " + AI_KEY})
+                 "Authorization": "Bearer " + AI_KEY,
+                 # ⚠ 必须带 UA：OpenCode Zen（Space Bunny）这类端点前面挂
+                 # Cloudflare，urllib 默认 UA 会被 403「error code: 1010」拦掉
+                 # —— 那是 WAF 拦截，不是 key 或参数问题，换真 key 也照样403。
+                 # 2026-10-01 实测：加上浏览器 UA 后 403 → 401（=请求形状通了）。
+                 "User-Agent": UA,
+                 "Accept": "application/json"})
     try:
         with urllib.request.urlopen(req, timeout=300) as r:
             data = json.loads(r.read().decode("utf-8"))
@@ -668,6 +690,46 @@ def llm(messages, temperature=0.2):
         raise RuntimeError("LLM 回答被 max_tokens 截断（finish_reason=length）"
                            "——模型思考太长，正文没输出完整 JSON")
     return ch["message"]["content"]
+
+
+def ping_llm():
+    """只验证「当前模型端点通不通」，不改任何数据、不烧核验额度。
+
+    换模型前先跑这个：403/401/404 指向完全不同的问题，
+    混在一起报「调用失败」会让人白排查半天。
+    """
+    if not AI_KEY:
+        print("[!] 没设key。--ai-key 传，或设 CASE_LIB_AI_KEY 环境变量。")
+        return 2
+    print("端点：%s\n模型：%s\n" % (AI_BASE, AI_MODEL))
+    t0 = time.time()
+    try:
+        out = llm([{"role": "user",
+                    "content": "只回这个 JSON，不要任何解释："
+                               "{\"ok\":1,\"n\":\"<模型名>\"}"}],
+                  temperature=0.0)
+    except RuntimeError as e:
+        msg = str(e)
+        print("[X] 端点不通：%s" % msg)
+        if "HTTP 403" in msg:
+            print("    → 多半是 Cloudflare/WAF 拦 UA（不是 key 问题）。"
+                  "确认请求带了浏览器 User-Agent。")
+        elif "HTTP 401" in msg:
+            print("    → key 无效/没这个订阅。检查 --ai-key。")
+        elif "HTTP 404" in msg:
+            print("    → base 或模型名写错。这个端点的模型名很挑，"
+                  "先用 GET <base>/models 列出可用值。")
+        elif "HTTP 400" in msg:
+            print("    → 参数被拒。常见原因：模型不支持 response_format="
+                  "{\"type\":\"json_object\"}（部分第三方端点不支持），"
+                  "或 max_tokens 超出上限。")
+        else:
+            print("    → 看上面的原始报错。")
+        return 1
+    dt = time.time() - t0
+    print("[OK] %.1fs 响应：%s" % (dt, (out or "")[:200].replace("\n", " ")))
+    print("\n可以直接用了：python scripts/ai_verify.py --triage --limit 5")
+    return 0
 
 
 SYSTEM_PROMPT = """你是「拆解海外」案例库的核实研究员。给你一条候选案例的资料、
@@ -1387,6 +1449,16 @@ def main():
     g.add_argument("--all", action="store_true", help="全部可选候选（跳过占位/太小）")
     g.add_argument("--id", action="append", default=[], help="指定候选 id，可多次")
     ap.add_argument("--limit", type=int, default=None, help="最多处理几条（默认 5）")
+    # 换模型：CLI 优先于环境变量，不传就用CASE_LIB_AI_* 的默认值。
+    # 换端点只需 --ai-base + --ai-model；--ai-key 单独给时沿用原 base/model。
+    ap.add_argument("--ai-model", default=None,
+                    help="覆盖模型名（如 deepseek-chat / space-bunny-free）")
+    ap.add_argument("--ai-base", default=None,
+                    help="覆盖 API base（如 https://opencode.ai/zen/v1）")
+    ap.add_argument("--ai-key", default=None,
+                    help="覆盖 API key（默认读 CASE_LIB_AI_KEY）")
+    ap.add_argument("--ping", action="store_true",
+                    help="只测当前模型端点通不通（发一个极短请求，不改任何数据）")
     ap.add_argument("--include-small", action="store_true", help="连「体量太小」的也处理")
     ap.add_argument("--publish", action="store_true",
                     help="够格的直接发布成案例（human_read 仍不勾：它只能由人勾，"
@@ -1396,6 +1468,14 @@ def main():
     ap.add_argument("--password", default=os.environ.get("CASE_LIB_ADMIN_PASSWORD"),
                     help="后台密码（默认读 CASE_LIB_ADMIN_PASSWORD）")
     args = ap.parse_args()
+
+    # CLI 覆盖优先于环境变量；configure() 不传的项保持原值。
+    if args.ai_key or args.ai_base or args.ai_model:
+        configure(api_key=args.ai_key, base=args.ai_base, model=args.ai_model)
+        print("AI 已切换 → %s @ %s\n" % (AI_MODEL, AI_BASE))
+
+    if args.ping:
+        return ping_llm()
 
     cands = load_json("candidates")
     index = triage_index()

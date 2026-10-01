@@ -915,3 +915,133 @@ class HNAlgoliaSearchTest(unittest.TestCase):
         # bing 仍被纳入 —— HN 没有把通用搜索挤掉
         self.assertIn("https://bing-hit.example/report", out)
         self.assertLessEqual(len(out), 6)
+
+
+class LlmEndpointTest(unittest.TestCase):
+    """换模型端点（--ai-model/--ai-base/--ai-key）的行为约束。"""
+
+    def test_llm_request必须带浏览器UA(self):
+        """⚠ 回归钉死：LLM 请求头必须有 User-Agent。
+
+        OpenCode Zen（Space Bunny）这类端点前面挂 Cloudflare，
+        urllib 默认 UA 会被 403「error code: 1010」拦掉——
+        那是 WAF 拦截，**换真 key 也照样 403**，很容易误判成 key 问题。
+        2026-10-01 实测：加上 UA 后 403 → 401（请求形状就通了）。
+        """
+        captured = {}
+
+        class FakeResp:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *a):
+                return False
+
+            def read(self):
+                return json.dumps({
+                    "choices": [{"message": {"content": "{}"},
+                                 "finish_reason": "stop"}]
+                }).encode("utf-8")
+
+        def fake_urlopen(req, timeout=None):
+            captured["headers"] = dict(req.headers)
+            captured["url"] = req.full_url
+            captured["body"] = json.loads(req.data.decode("utf-8"))
+            return FakeResp()
+
+        old_urlopen, old_key = A.urllib.request.urlopen, A.AI_KEY
+        A.urllib.request.urlopen = fake_urlopen
+        A.AI_KEY = "dummy"
+        try:
+            A.llm([{"role": "user", "content": "hi"}])
+        finally:
+            A.urllib.request.urlopen = old_urlopen
+            A.AI_KEY = old_key
+
+        hdrs = {k.lower(): v for k, v in captured["headers"].items()}
+        ua = hdrs.get("user-agent", "")
+        self.assertTrue(ua, "LLM 请求没带 User-Agent —— 会被 Cloudflare 403")
+        self.assertIn("Mozilla/5.0", ua)
+        self.assertIn("authorization", hdrs)
+        # 端点拼接形状：base + /chat/completions，base 尾部斜杠要已被rstrip
+        self.assertTrue(captured["url"].endswith("/chat/completions"))
+        # JSON 模式是硬要求（解析链路依赖），别为了迁就某端点去掉
+        self.assertEqual(captured["body"]["response_format"],
+                         {"type": "json_object"})
+
+    def test_configure只覆盖传入项(self):
+        old = (A.AI_KEY, A.AI_BASE, A.AI_MODEL)
+        try:
+            A.configure(api_key="k2", base="https://x.example/v1", model="m2")
+            self.assertEqual((A.AI_KEY, A.AI_BASE, A.AI_MODEL),
+                             ("k2", "https://x.example/v1", "m2"))
+            # 只给一个：其余保持原值（后台 GUI 存key 就靠这个语义）
+            A.configure(model="m3")
+            self.assertEqual((A.AI_KEY, A.AI_BASE, A.AI_MODEL),
+                             ("k2", "https://x.example/v1", "m3"))
+        finally:
+            A.AI_KEY, A.AI_BASE, A.AI_MODEL = old
+
+    def test_configure会rstrip_base的斜杠(self):
+        old = A.AI_BASE
+        try:
+            A.configure(base="https://y.example/v1/")
+            self.assertEqual(A.AI_BASE, "https://y.example/v1")
+        finally:
+            A.AI_BASE = old
+
+    def test_ping无key时返回2不联网(self):
+        old = A.AI_KEY
+        try:
+            A.AI_KEY = ""
+
+            def boom(*a, **k):
+                raise AssertionError("没 key 时不该发请求")
+
+            old_urlopen = A.urllib.request.urlopen
+            A.urllib.request.urlopen = boom
+            try:
+                self.assertEqual(A.ping_llm(), 2)
+            finally:
+                A.urllib.request.urlopen = old_urlopen
+        finally:
+            A.AI_KEY = old
+
+    def test_ping能按状态码给出不同诊断(self):
+        """403/401/404/400 指向完全不同的问题，不能一律报「调用失败」。"""
+        import urllib.error
+
+        def mk(code):
+            def fake(*a, **k):
+                raise urllib.error.HTTPError(
+                    "u", code, "err", {},
+                    __import__("io").BytesIO(b'{"errmsg":"x"}'))
+            return fake
+
+        cases = {
+            403: "WAF",
+            401: "--ai-key",
+            404: "/models",
+            400: "response_format",
+        }
+        old_urlopen, old_key, old_out = (
+            A.urllib.request.urlopen, A.AI_KEY, sys.stdout)
+        try:
+            import io
+            A.AI_KEY = "dummy"
+            for code, expect in cases.items():
+                A.urllib.request.urlopen = mk(code)
+                buf = io.StringIO()
+                sys.stdout = buf
+                try:
+                    rc = A.ping_llm()
+                finally:
+                    sys.stdout = old_out
+                out = buf.getvalue()
+                self.assertEqual(rc, 1, "HTTP %s 应返回 1" % code)
+                self.assertIn(expect, out,
+                              "HTTP %s 的诊断里应提到 %s" % (code, expect))
+        finally:
+            A.urllib.request.urlopen = old_urlopen
+            A.AI_KEY = old_key
+            sys.stdout = old_out
