@@ -547,6 +547,21 @@ class EvidenceLevel(unittest.TestCase):
         # B 档不算一手（first_hand_kinds 返回集合，空集合即 False）
         self.assertFalse(R.first_hand_kinds({"source_kinds": ["review"]}))
 
+    def test_revenuecat_已登记为B档来源(self):
+        """RevenueCat 是订阅数据商（估算模型），不是支付网关直连。
+
+        刻意不给 A 级：标 A 会让读者以为我们看过商户自己的支付后台，
+        而那是这个来源撑不起来的。它只能到 partial（口径待核）。
+        """
+        self.assertIn("revenuecat", R.SOURCE_TIER_KEYS)
+        tier = dict((k, t) for k, _l, t, _p in R.SOURCE_TIERS)["revenuecat"]
+        self.assertEqual(tier, "B")
+        self.assertEqual(R.best_supported_level(["revenuecat"]), "partial")
+        # 不是一手来源，所以带它进定档不能享受 premium 直通
+        self.assertFalse(R.first_hand_kinds({"source_kinds": ["revenuecat"]}))
+        # 但也不能当「黑户」——有它不该比没它更差
+        self.assertIsNotNone(R.best_supported_level(["revenuecat"]))
+
     def test_撑得住时不建议改(self):
         for v, kinds in (("stripe", ["stripe"]),
                          ("official", ["official"]),
@@ -585,6 +600,99 @@ class EvidenceLevel(unittest.TestCase):
             if to:
                 bad.append("%s(%s>%s)" % (c.get("id"), c.get("verification"), to))
         self.assertEqual(bad, [], "等级高于来源证据：%s" % "、".join(bad))
+
+
+class TestContentGate(unittest.TestCase):
+    """第 4 层闸门：正文写完了吗（2026-09-30 加）。
+
+    为什么单独一层：前 3 层查的都是「有没有做过核实」，不查「案例写没写」。
+    mort / quran-unlock 就带着「具体定位未获取」、空的 how_it_makes_money、
+    空的 replicability 过了 promote，还被发布成四个平台的草稿。
+    """
+
+    GOOD = {
+        "one_liner": "AI 求职代理：盯 5 万个企业招聘页，按简历打分并自动投递",
+        "what_it_does": "它常驻监控 5 万多个公司招聘页，职位发布几小时内进入匹配池，"
+                        "再按简历给每个岗位打 0-100 的匹配分，高分优先推送。",
+        "how_it_makes_money": "Freemium 订阅：Free 档 £0 永久，PRO 档 £3.99/周或 £14.99/月。",
+        "verdict": "方向对但商业没跑通：累计收入 $566、活跃订阅 2 个，"
+                   "$6.4K 的叫价买的不是业务，是域名和产品骨架。",
+        "why_it_works": ["把求职漏斗从海投改成打分", "抓的是不经过招聘平台的那段数据",
+                         "分数化结果让人能快速决策", "周付降低脉冲型需求的付费门槛",
+                         "反向看数字：产品被验证，需求规模没被验证"],
+        "playbook": ["抓招聘链路上最脏的一段数据源", "把结果量化成 0-100 分数",
+                     "AI 生成压在重新表述而非凭空生成", "小 MRR 标的的倍数要反着读",
+                     "脉冲型需求周付但会压低 LTV"],
+        "replicability": {"tech": 3, "distribution": 3, "capital": 2, "timing": 4},
+    }
+
+    def test_完整案例放行(self):
+        self.assertTrue(R.content_gate(self.GOOD)["ok"])
+
+    def test_占位符拦下(self):
+        """这是 mort / quran-unlock 当初的真实状态。"""
+        bad = dict(self.GOOD, one_liner="AI 产品（具体定位未获取）",
+                   what_it_does="移动 app（具体定位未获取）")
+        g = R.content_gate(bad)
+        self.assertFalse(g["ok"])
+        keys = {p["key"] for p in g["blocked"]}
+        self.assertIn("placeholder_one_liner", keys)
+        self.assertIn("placeholder_what_it_does", keys)
+
+    def test_空字段拦下(self):
+        for field in ("one_liner", "what_it_does", "how_it_makes_money", "verdict"):
+            with self.subTest(field=field):
+                g = R.content_gate(dict(self.GOOD, **{field: ""}))
+                self.assertFalse(g["ok"], "%s 为空应被拦" % field)
+
+    def test_空列表与空replicability拦下(self):
+        g = R.content_gate(dict(self.GOOD, why_it_works=[], playbook=[]))
+        self.assertFalse(g["ok"])
+        self.assertEqual({p["key"] for p in g["blocked"]},
+                         {"empty_why_it_works", "empty_playbook"})
+
+    def test_太短不拦只提示(self):
+        """长度是文笔问题不是事实问题，拦它等于逼人凑字数（同 caliber_consistent）。"""
+        g = R.content_gate(dict(self.GOOD, how_it_makes_money="月订阅。"))
+        self.assertTrue(g["ok"], "太短必须放行")
+        self.assertTrue(any(p["key"] == "too_short_how_it_makes_money"
+                            for p in g["hints"]))
+
+    def test_缺replicability只提示(self):
+        """存量里不少案例 replicability 为空，拦发布会一次拦住十几条。"""
+        g = R.content_gate(dict(self.GOOD, replicability={}))
+        self.assertTrue(g["ok"])
+        self.assertTrue(any(p["key"] == "empty_replicability"
+                            for p in g["hints"]))
+
+    def test_占位符表覆盖实际踩过的词(self):
+        for w in ("未获取", "待补充", "待核实", "TODO"):
+            self.assertIn(w, R.PLACEHOLDER_PATTERNS)
+
+    def test_每条问题都带blocking标记(self):
+        for p in R.content_problems({"one_liner": "AI 产品（具体定位未获取）"}):
+            self.assertIn("blocking", p, "分不出拦不拦 = 前端没法显示")
+
+    def test_存量案例全部放行(self):
+        """闸门不能拦住已发布的存量 —— 39 条里一条都拦就说明定得太紧。"""
+        import json
+        with open(os.path.join(ROOT, "data", "cases.json"), encoding="utf-8") as f:
+            cases = json.load(f)
+        bad = []
+        for c in cases:
+            g = R.content_gate(c)
+            if not g["ok"]:
+                bad.append("%s(%s)" % (c.get("id"),
+                                       ",".join(p["key"] for p in g["blocked"])))
+        self.assertEqual(bad, [], "存量被拦：%s" % "、".join(bad))
+
+    def test_schema暴露给前端(self):
+        s = R.schema()
+        self.assertIn("content_fields", s)
+        self.assertIn("placeholders", s)
+        keys = {f["key"] for f in s["content_fields"]}
+        self.assertEqual(keys, {"one_liner", "what_it_does",
+                                "how_it_makes_money", "verdict"})
 
 
 if __name__ == "__main__":

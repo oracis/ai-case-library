@@ -114,6 +114,19 @@ REPLICABILITY = {
     # 获客靠开发者社区与 SEO；启动只有服务器与上游调用费；
     # 窗口正开着——agent 联网需求刚起量。
     "search1api": {"tech": 3, "distribution": 3, "capital": 2, "timing": 2},
+
+    # ---- 2026-09-30 补的两条 ----
+
+    # AI 求职代理：爬 14 家 ATS / 5 万+ career page 是主要工程量，还要做
+    # 简历解析与 0-100 打分；获客靠「海投无效」这个搜索入口，不投广告；
+    # 启动只有模型调用费与爬虫带宽；求职赛道已有 Teal/Simplify/Huntr 在前，
+    # 窗口偏晚，但它切的是 career page 这段脏数据。
+    "mort": {"tech": 3, "distribution": 3, "capital": 2, "timing": 4},
+
+    # 信仰类打卡 App：React Native 双端 + Firebase + RevenueCat，一个人能做完；
+    # 获客全靠 App Store / Google Play 自然量 + 社区分发，是四维里最轻的；
+    # 启动只有一个开发者账号；内容是现成经文，边际成本为零。时机不早不晚。
+    "quran-unlock": {"tech": 2, "distribution": 2, "capital": 1, "timing": 2},
 }
 
 

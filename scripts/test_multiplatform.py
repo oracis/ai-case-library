@@ -476,5 +476,34 @@ class TestResultCarriesStdout(unittest.TestCase):
         self.assertIn("✓ 标题", r.out)
 
 
+class TestSubprocessEncoding(unittest.TestCase):
+    """子进程 stdout 必须钉死 UTF-8（2026-09-30 修的静默功能 bug）。
+
+    Windows 控制台默认 cp936：子进程按 GBK 编码输出，父进程按 utf-8 解码，
+    中文字段全变乱码 ——「  ✓ 标题《MORT》已存草稿」→「  BÕ¾×¨À¸·¢²¼…」。
+    后果不是难看而是**判定失效**：B站靠 `startswith("✓ 标题")` 逐条认成败，
+    乱码后一条都匹配不上，已经存好的草稿全被误标 failed，下次重跑又建重复。
+    实测踩过：mort 重存远端回读都确认成功了，清单仍写 failed。
+    """
+
+    def test_run_给子进程设UTF8(self):
+        import inspect
+        from multiplatform.adapters.base import Adapter
+        src = inspect.getsource(Adapter.run)
+        self.assertIn("PYTHONIOENCODING", src)
+        self.assertIn("utf-8", src)
+
+    def test_乱码输出判不出成功(self):
+        """钉住「为什么必须设编码」：乱码流里一条成功都认不出来。"""
+        mojibake = ("publish 1 篇 → B站草稿箱\n"
+                    "[1/1] mort\n"
+                    "  \u00b6\u00d5\u00be\u00d7\u00a8\u00b7\u00a2\u00b4"
+                    "\u300aMORT\u300b\u5df2\u5b58\u8349\u7a3f\n"
+                    "\u5b8c\u6210 1/1")
+        done, failed = REGISTRY["bilibili"].parse_batch(mojibake)
+        self.assertEqual(done, set(), "乱码流不该被判成功")
+        self.assertEqual(failed, {"mort"}, "会被误标 failed → 下次重发建重复")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

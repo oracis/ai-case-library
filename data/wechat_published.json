@@ -294,5 +294,20 @@
     "appmsgid": "100000279",
     "file": "公众号-search1api拆解.html",
     "refreshed_at": "2026-09-25 17:34"
+  },
+  "quran-unlock": {
+    "title": "Quran Unlock：信仰类习惯打卡 App：读古兰经解锁 apps，靠内购变现",
+    "published_at": "2026-09-30 17:00",
+    "status": "draft",
+    "appmsgid": "100000318",
+    "file": "公众号-quran-unlock拆解.html",
+    "refreshed_at": "2026-10-01 00:56"
+  },
+  "mort": {
+    "title": "MORT：AI 求职代理：盯 5 万个企业招聘页，按简历打分并自动投递",
+    "published_at": "2026-09-30 19:50",
+    "status": "draft",
+    "appmsgid": "100000329",
+    "file": "公众号-mort拆解.html"
   }
 }

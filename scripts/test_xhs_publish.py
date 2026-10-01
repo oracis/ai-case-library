@@ -355,5 +355,77 @@ class TestNoExternalBrand(unittest.TestCase):
         self.assertNotIn("万物解释者", m.group(1))
 
 
+class TestPurgeStateRollback(unittest.TestCase):
+    """purge 删掉远端草稿后，本地「已发过」名单必须同步回退（2026-09-30 补）。
+
+    `mark_drafted` 只增不减，而 `_drafted_ids` 正是 publish 的幂等判据 ——
+    删了草稿却留着记录，这条就永远不会再发出去。实测踩过：purge 删掉 MORT
+    的小红书草稿后，`publish_multi run mort --platforms xhs` 直接回
+    「没有待发的（所选平台都发过了）」。
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.NamedTemporaryFile(
+            suffix=".json", delete=False, mode="w", encoding="utf-8")
+        self.path = self.tmp.name
+        self.tmp.close()
+        with open(self.path, "w", encoding="utf-8") as f:
+            json.dump([{"id": "a", "at": "t"}, {"id": "b", "at": "t"}], f)
+
+    def tearDown(self):
+        try:
+            os.unlink(self.path)
+        except OSError:
+            pass
+
+    def test_unmark去掉指定id(self):
+        self.assertTrue(x._unmark(self.path, "a"))
+        d = json.load(open(self.path, encoding="utf-8"))
+        self.assertEqual([i["id"] for i in d], ["b"])
+
+    def test_unmark幂等(self):
+        self.assertTrue(x._unmark(self.path, "a"))
+        self.assertFalse(x._unmark(self.path, "a"), "第二次应返回 False")
+
+    def test_unmark不误删别人(self):
+        x._unmark(self.path, "a")
+        d = json.load(open(self.path, encoding="utf-8"))
+        self.assertEqual([i["id"] for i in d], ["b"], "b 必须留着")
+
+    def test_unmark支持dict形态(self):
+        with open(self.path, "w", encoding="utf-8") as f:
+            json.dump({"a": {"at": "t"}, "b": {"at": "t"}}, f)
+        self.assertTrue(x._unmark(self.path, "a"))
+        self.assertEqual(list(json.load(open(self.path, encoding="utf-8"))), ["b"])
+
+    def test_purge会调用_unmark(self):
+        """漏了这个调用，上面全部白测。"""
+        import inspect
+        src = inspect.getsource(x.cmd_purge)
+        self.assertIn("_unmark", src)
+        self.assertIn("_card_to_cid", src)
+
+    def test_标题反查认得真实草稿标题(self):
+        """草稿标题是传播力钩子，不是产品名 —— 反查靠 out/xhs/*/note.json。
+
+        ⚠ **断言必须从 note.json 现读标题，不能写死字面量**：
+        quran-unlock 的标题已从「月收$676：移动 app」改成
+        「月收$659：信仰类习惯打卡App」（$676 被 TrustMRR 复核推翻）。
+        写死的旧标题会让这条测试在改文案后必然失败，且失败信息
+        完全指不到真正原因（跟反查逻辑无关）。
+        """
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        note = os.path.join(root, "out", "xhs", "quran-unlock", "note.json")
+        with open(note, encoding="utf-8") as f:
+            real_title = json.load(f)["title"]
+        self.assertEqual(x._card_to_cid("月收$84：AI"), "mort")
+        self.assertEqual(x._card_to_cid(real_title), "quran-unlock")
+
+    def test_标题反查查不到就返回None(self):
+        """查不到宁可不改状态文件 —— 错删记录会让已发过的案例被重复发布。"""
+        self.assertIsNone(x._card_to_cid("完全不存在的草稿标题 zzz"))
+        self.assertIsNone(x._card_to_cid(""))
+
+
 if __name__ == "__main__":
     unittest.main()

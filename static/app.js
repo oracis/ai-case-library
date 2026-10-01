@@ -45,7 +45,8 @@ const TIER_DESC = {
 const tierKey = (c) => (c && c.tier) || 'backup';
 
 const KIND_LABEL = {
-  stripe: '支付验证', official: '官方', press: '报道', review: '核查', founder: '自述'
+  stripe: '支付验证', official: '官方', press: '报道', review: '核查',
+  revenuecat: '订阅数据商', founder: '自述'
 };
 
 const REP_LABEL = {

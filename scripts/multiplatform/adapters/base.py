@@ -55,9 +55,21 @@ class Adapter:
         cmd = [PY, os.path.join(SCRIPTS, self.script)] + list(args)
         if not enabled:
             return Result(True, "pending", "dry-run: " + " ".join(args), 0)
+        # ⚠ 必须**显式**给子进程钉死 UTF-8（2026-09-30 修）。
+        #   Windows 控制台默认 cp936，子进程会按 GBK 编码 stdout；而本函数
+        #   用 encoding="utf-8" 解码 —— 两边对不上，中文全变乱码：
+        #     「  ✓ 标题《MORT》已存草稿」→ 「  BÕ¾×¨À¸·¢²¼…」
+        #   后果不是难看，是**功能坏掉**：B站适配器靠 `s.startswith("✓ 标题")`
+        #   从 stdout 逐条判定成败（"37 条挂 1 条"不能一刀切当整体失败），
+        #   勾号变乱码后一条都匹配不上 → 已存好的草稿全被误标 failed，
+        #   下次重跑就又建一份重复草稿。实测踩过：mort 重存明明成功、
+        #   远端回读也确认了，清单却写 failed。
+        env = dict(os.environ)
+        env["PYTHONIOENCODING"] = "utf-8"
+        env.setdefault("PYTHONUTF8", "1")
         try:
             p = subprocess.run(cmd, cwd=ROOT, timeout=timeout,
-                               encoding="utf-8", errors="replace")
+                               encoding="utf-8", errors="replace", env=env)
         except subprocess.TimeoutExpired:
             return Result(False, "failed", "超时 %ds" % timeout, -1)
         except OSError as e:
@@ -79,9 +91,16 @@ class Adapter:
 
     def publish(self, art, dry=False, replace=False, yes=False):
         args = ["publish", "--case", art.cid]
-        if replace:
+        # ⚠ 只有 supports_replace 的平台才透传 --replace（2026-09-30 修）。
+        #   契约写在 Adapter 上，调用方无条件拼参数就等于绕过契约：
+        #   小红书 supports_replace=False，它的脚本没有 --replace 这个参数，
+        #   拼上去直接 argparse 报「unrecognized arguments」退出 2，
+        #   重试三次全一样的错，最后标 failed。
+        #   改文案要重存小红书，得先删掉旧草稿（xhs_publish.py purge）
+        #   再普通 publish —— 那边本来就没有「更新草稿」这个动作。
+        if replace and self.supports_replace:
             args.append("--replace")
-        if yes:
+        if yes and self.supports_publish:
             args.append("--yes")
         return self.run(args, not dry)
 

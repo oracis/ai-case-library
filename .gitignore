@@ -95,6 +95,11 @@ _shots/
 # 本地探针目录（CDP 截图 + 一次性调试脚本）：产物随时可重生成，不入库
 tmp/
 
+# 探针缓存：抓下来的真实请求体 / 远端草稿正文（.cache/bili_save_capture.json
+# 是 draft/add 的抓包样本，.cache/wechat_drafts.json 是 32 条草稿正文全文）。
+# 都可由 `probe_*` / `wechat_reconcile.py --fetch` 随时重抓，且含账号内容。
+.cache/
+
 # 头条封面批量同步期间的临时目录（scripts/_cov_driver.py 用，跑完即删）
 .tmpcov/
 

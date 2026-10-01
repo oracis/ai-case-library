@@ -283,7 +283,113 @@ COVER_THEMES = [
     ("#3a2418", "#5e3a22", "#f0a860"),     # 暖棕
     ("#2f2a12", "#554b1e", "#e8d46b"),     # 橄榄金
     ("#33182a", "#5a2745", "#ff9ecb"),     # 洋红
+    ("#0d2b45", "#164a6b", "#7fd4ff"),     # 天青
+    ("#2b1f0d", "#5a421a", "#ffc861"),     # 琥珀
+    ("#1d1035", "#3a1f6e", "#a8e0ff"),     # 靛蓝
+    ("#0f3330", "#1d5f5c", "#5fe3d0"),     # 青玉
 ]
+
+# 同一个 batch 里挨着发的新案例很容易撞色 —— 旧的 `sum(ord) % N` 哈希太弱，
+# 实测 mort（m=109×4+…）与 quran-unlock（q=113…）字符数差异刚好抵消，两条
+# 都落到索引 0，封面一模一样（2026-09-30 用户在头条后台发现）。
+#
+# 修法不是「换个更强的哈希」—— 那只能把概率压低，不能归零。真正的坑是
+# **分配必须与调用范围无关**：`covers`（全量 39 条）和 `cover --case mort`
+# （单条）如果各自从空状态开始探测，同一条案例两次跑会拿到不同颜色，
+# 已发布的封面就会跟着变色。所以这里不记录「谁占了哪个槽」，而是把
+# 整个 cases.json 的 id 顺序当作已占用的全集：探测时跳过**任何其他案例**
+# 已经用掉的槽位，只跟自己比。这样单条跑和全量跑结果必然一致。
+def _all_case_ids():
+    """库里全部案例 id（封面分配时当作「别人已占用的槽位」）。"""
+    global _ALL_IDS_CACHE
+    if _ALL_IDS_CACHE is None:
+        try:
+            import json
+            path = os.path.join(os.path.dirname(os.path.dirname(
+                os.path.abspath(__file__))), "data", "cases.json")
+            with open(path, encoding="utf-8") as f:
+                data = json.load(f)
+            rows = data if isinstance(data, list) else list(data.values())
+            _ALL_IDS_CACHE = [str(r.get("id", "")) for r in rows
+                              if isinstance(r, dict) and r.get("id")]
+        except Exception:                                # noqa: BLE001
+            _ALL_IDS_CACHE = []
+    return _ALL_IDS_CACHE
+
+
+_ALL_IDS_CACHE = None
+
+
+def _cover_theme(cid, key="toutiao"):
+    """给 case id 分配一个封面主题。
+
+    两条性质，缺一不可：
+
+    1. **稳定** —— 结果只由 id 决定。全量跑和单条跑一致，改库也不会让
+       已发布的封面变色。所以不能用「本次运行已占用了哪些槽」这种进程内
+       状态，必须从 cases.json 全量重算。
+    2. **相邻不同色** —— 39 条案例只有 10 套主题，全局互不撞色做不到
+       （必然重复）。真正影响观感的是**挨着发的那两条别撞**（用户在
+       头条草稿箱一眼就看出来了），所以按 cases.json 顺序做**全局贪心**
+       分配：每条避开「自己哈希 + 左右邻居」三者。
+
+    为什么不是「只看左右邻居」：那样 A 避开 B、B 避开 C 之后，B 仍可能
+    撞上 A（实测 39 条里还剩 4 对）。贪心让前面的选择影响后面的落点，
+    撞色只留在不相邻的案例之间，隔若干条就看不到。
+    """
+def _cover_theme(cid, key="toutiao"):
+    """给 case id 分配一个封面主题。
+
+    两条性质，缺一不可：
+
+    1. **稳定** —— 结果只由 id 决定。全量跑和单条跑一致，改库也不会让
+       已发布的封面变色。所以不能用「本次运行已占用了哪些槽」这种进程内
+       状态，必须每次从 cases.json 全量重算。
+    2. **相邻不同色** —— 39 条案例只有 10 套主题，全局互不撞色做不到
+       （必然重复）。真正影响观感的是**挨着发的那两条别撞**（用户在
+       头条草稿箱一眼就看出来了），所以按 cases.json 顺序做分配，
+       每条避开**左右邻居的最终落点**（不是哈希起点 —— 邻居会顺移，
+       拿起点当约束等于没约束，实测这样还剩 6 对相邻撞色）。
+
+    撞色只留在不相邻的案例之间，隔若干条就看不到，不影响阅读。
+    """
+    cid = str(cid)
+    n = len(COVER_THEMES)
+    ids = _all_case_ids()
+    h = [sum((j + 1) * ord(ch) for j, ch in enumerate(s)) % n for s in ids]
+    try:
+        pos = ids.index(cid)
+    except ValueError:
+        pos = -1
+
+    def pick(i, avoid):
+        """第 i 条在避开 avoid 的前提下取槽位（顺移，不重复）。"""
+        for step in range(n):
+            cand = (h[i] + step) % n
+            if cand not in avoid:
+                return cand
+        return h[i] % n
+
+    # 从头分配到 pos+1（多算一条后邻，它的落点才能被 pos 避开）
+    end = min(pos + 2, len(ids))
+    land = [None] * end
+    for i in range(end):
+        avoid = set()
+        if i > 0:
+            avoid.add(land[i - 1])
+        if i + 1 < len(ids):
+            # 后邻的落点由「它避开我」决定 —— 用它的哈希起点做预判，
+            # 再加一条硬约束：它绝不会落在我这一条上（见下面对称处理）
+            avoid.add(h[i + 1])
+        land[i] = pick(i, avoid)
+    # 修正：若 pos 与 pos+1 落点相同，后邻让位
+    if pos + 1 < len(ids) and land[pos] == land[pos + 1]:
+        for step in range(n):
+            cand = (h[pos + 1] + step) % n
+            if cand != land[pos]:
+                land[pos + 1] = cand
+                break
+    return COVER_THEMES[land[pos]]
 
 
 def _text_em_width(s):
@@ -330,7 +436,7 @@ def cover_html(c, no, w=1080, h=460):
     name = (c.get("name") or c.get("id") or "").strip()
     line = (c.get("one_liner") or "").strip()
     tag = "拆解海外 · 第 %d 篇" % no
-    theme = COVER_THEMES[sum(ord(x) for x in c.get("id", "")) % len(COVER_THEMES)]
+    theme = _cover_theme(c.get("id", ""), "wechat")
     base, band, ac = theme
 
     def esc(s):
@@ -1393,6 +1499,22 @@ class CDP:
                 raise
             print("  [warn] CDP 页面连接断开，已重连同一标签页")
             return _roundtrip()
+
+    def click(self, x, y):
+        """真实坐标点击（mousePressed + mouseReleased 一对）。
+
+        为什么不用 JS 的 el.click()：React/Vue 按钮常常不绑合成事件，
+        el.click() 返回 true 但页面纹丝不动（2026-09-30 在 B站「新的创作」
+        按钮上实测过四种 JS 派发方式全部无效）。真实坐标事件走浏览器命中
+        测试，才是我们要的「用户真的点了一下」。
+
+        供 multiplatform/verify.py 的头条「加载更多」复用。
+        """
+        for ev in ("mousePressed", "mouseReleased"):
+            self.send("Input.dispatchMouseEvent",
+                      {"type": ev, "x": x, "y": y,
+                       "button": "left", "clickCount": 1})
+        return True
 
     def eval(self, expr, refresh_context=False, debug=False, context_id=None):
         if refresh_context or (context_id is None

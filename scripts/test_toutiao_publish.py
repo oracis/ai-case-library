@@ -14,6 +14,7 @@ ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 
 import toutiao_publish as tp  # noqa: E402
+import wechat_publish as wp  # noqa: E402
 
 MD = """# 标题行
 
@@ -194,7 +195,14 @@ class TestTtCoverNum(unittest.TestCase):
              "one_liner": "一个 API 做电话、邮箱、IP 的实时数据校验",
              "metrics": {"headline": "MRR $244,029；累计收入 $4,985,134"}}
         html = tp.tt_cover_html(c)
-        self.assertIn("#221b3d", html)            # 主题深色底（缩略图对比度）
+        # 断言「用的是主题表里的深色底」，而不是钉死某个色值 ——
+        # 2026-09-30 修了封面撞色（相邻两条必须不同色，见 test_cover_theme），
+        # 分配规则变了，1lookup 从紫罗兰变成了橄榄金。色值会随 cases.json
+        # 顺序变动，钉死它等于给这个测试埋一颗地雷。
+        base, band, ac = wp._cover_theme("1lookup", "toutiao")
+        self.assertIn("background:%s" % base, html)
+        self.assertIn("background:%s" % band, html)
+        self.assertIn("color:%s" % ac, html)
         self.assertIn("MRR $244,029", html)       # 无尾逗号的完整数字
         self.assertNotIn("CASE STUDY", html)      # 小字装饰已去掉
         self.assertNotIn("numsub", html)

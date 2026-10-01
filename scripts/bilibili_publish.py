@@ -37,6 +37,7 @@ import unicodedata
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import wechat_publish as wp  # noqa: E402  复用 CDP / 案例加载
+import bili_draft_api as bili_api  # noqa: E402  草稿箱接口层（读/写/删）
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "out", "bili")
@@ -478,7 +479,7 @@ def probe():
 # --------------------------------------------------------------------------
 # publish：填一稿进专栏投稿页并存草稿
 # --------------------------------------------------------------------------
-BILI_NEW_ARTICLE = BILI_ARTICLE.rstrip("/") + "/new-article"
+BILI_NEW_ARTICLE = BILI_ARTICLE.rstrip("/") + "/new-edit"
 BILI_DRAFT_LIST = BILI_ARTICLE
 
 # 同域 iframe 文档获取 + 编辑器就绪探测（在主文档 context 执行）
@@ -553,7 +554,7 @@ def _open_editor_tab(cdp):
         tid = cdp.new_target(BILI_NEW_ARTICLE)["id"]
     sub = wp.CDP(PUB_PORT)
     sub.connect_target(tid)
-    if "new-article" not in (sub.eval("location.href") or ""):
+    if "new-edit" not in (sub.eval("location.href") or ""):
         sub.send("Page.navigate", {"url": BILI_NEW_ARTICLE})
         time.sleep(8)
     return sub, tid
@@ -615,7 +616,45 @@ def _iframe_click(sub, kw, sel, timeout=8):
     return False
 
 
-def publish_one(cid, dry=False, replace=False, keep_tabs=False):
+def _dry_api(cid):
+    """`publish --dry` 的 API 路线版本：**只做本地校验，不发任何请求**。
+
+    与 UI 路线 --dry 的语义不同（UI 版会开 tab 看选择器在不在），
+    这里改成「正文能不能过闸门 + 会构造出几个段落」。
+    """
+    html = load_article_html(cid)
+    if not html:
+        print("  ✗ 找不到 out/articles/%s.html" % cid)
+        return False
+    title = make_title(cid, html)
+    body = clean_body(html)
+    plain = re.sub(r"<[^>]+>", "", body)
+    risk = risk_check(title + plain)
+    if risk:
+        print("  ✗ 风险词未清干净：%s" % risk)
+        return False
+    arg = bili_api.build_arg(title, body)
+    print("  [dry] 标题《%s》正文 %d 字 → 构造 %d 段，category_id=%d"
+          % (title, len(plain),
+             len(arg["opus"]["content"]["paragraphs"]), arg["category_id"]))
+    print("  [dry] 未发请求（API 路线不发草稿箱列表，只读不写）")
+    return len(plain) >= 200
+
+
+def publish_one(cid, dry=False, replace=False, keep_tabs=False, use_api=True,
+                cdp=None):
+    """存一条草稿到 B站。
+
+    `use_api=True`（**默认**）走 draft/add 接口，不开编辑器、秒级。
+    `use_api=False` 走老 UI 路线（开 tab → 灌正文 → 点「保存为草稿」），
+    保留它的唯一理由是**行内样式**（粗体/颜色/居中）——API 路线不构造
+    word.style，会丢。
+    """
+    if use_api:
+        if dry:
+            return _dry_api(cid)
+        return save_via_api(cid, replace=replace, cdp=cdp)
+
     _need_sel()
     html = load_article_html(cid)
     if not html:
@@ -681,14 +720,12 @@ def publish_one(cid, dry=False, replace=False, keep_tabs=False):
             sub, tid = cdp, tid2
             time.sleep(4)
 
-        # 1) 非 replace：创作指南页 → 点「新的创作」
+        # 1) 非 replace：B站 2026-09-30 改版后「新的创作」按钮点击失效
+        #    （read-draft 始终全屏、read-editor 不出现），改为直接走 new-edit
+        #    编辑器入口——_open_editor_tab 已 navigate 到 new-edit，read-editor
+        #    iframe 直接出现，下方标题/正文/封面的填充逻辑完全复用。
         else:
-            if not _wait_iframe_ready(sub, "read-draft", SEL["new_creation"], 25):
-                print("  ✗ 入口 iframe（创作指南）没出来")
-                return False
-            if not _iframe_click(sub, "read-draft", SEL["new_creation"]):
-                print("  ✗ 「新的创作」点不到")
-                return False
+            pass
 
         # 2) 等编辑器 iframe（read-editor）就绪
         if not _wait_iframe_ready(sub, "read-editor", SEL["title"], 30):
@@ -839,7 +876,7 @@ def publish_one(cid, dry=False, replace=False, keep_tabs=False):
                 pass
 
 
-def publish_all(replace=False, retries=1, only=None):
+def publish_all(replace=False, retries=1, only=None, use_api=True):
     ids = list_ids()
     if only:
         # 断点续传：只跑白名单里的 id（批量中途 CDP 断连/机器休眠后补跑用）。
@@ -847,11 +884,21 @@ def publish_all(replace=False, retries=1, only=None):
         want = set(only)
         ids = [c for c in ids if c in want]
         print("仅处理指定 %d 条" % len(ids))
-    print("publish %d 篇 → B站草稿箱%s%s"
+    print("publish %d 篇 → B站草稿箱%s%s%s"
           % (len(ids), "（覆盖已有草稿）" if replace else "",
-             "（每条重试 %d 次）" % retries if retries else ""))
+             "（每条重试 %d 次）" % retries if retries else "",
+             "" if use_api else "（UI 路线，要样式时用）"))
     ok = 0
     failed = []
+    # API 路线不碰 tab，连接可复用 —— 批量时省掉每条重建 CDP 的开销
+    cdp = None
+    if use_api:
+        try:
+            cdp = wp.CDP(PUB_PORT)
+            bili_api._bili_tab(cdp)
+        except Exception as e:                # noqa: BLE001
+            print("  ! 建 CDP 失败（%s），逐条重试" % str(e)[:60])
+            cdp = None
     for i, cid in enumerate(ids, 1):
         print("[%d/%d] %s" % (i, len(ids), cid))
         done = False
@@ -859,18 +906,20 @@ def publish_all(replace=False, retries=1, only=None):
             if attempt:
                 # 重试前先彻底清一遍 tab：上次残留的 target 是超时主因
                 try:
-                    c = wp.CDP(PUB_PORT)
-                    _close_stale_bili_tabs(c)
-                except Exception:
+                    if use_api:
+                        bili_api._bili_tab(cdp or wp.CDP(PUB_PORT))
+                    else:
+                        _close_stale_bili_tabs(wp.CDP(PUB_PORT))
+                except Exception:                # noqa: BLE001
                     pass
                 time.sleep(4)
                 print("    ↻ 重试第 %d 次" % attempt)
             try:
-                if publish_one(cid, replace=replace):
+                if publish_one(cid, replace=replace, use_api=use_api, cdp=cdp):
                     done = True
                     break
-            except Exception as e:
-                # CDP 超时 / 页��崩了都不该中断整轮
+            except Exception as e:                # noqa: BLE001
+                # CDP 超时 / 页面崩了都不该中断整轮
                 print("    ! %s: %s" % (type(e).__name__, str(e)[:90]))
         if done:
             ok += 1
@@ -899,6 +948,11 @@ def publish_all(replace=False, retries=1, only=None):
 BILI_DRAFT_LIST_PAGE = "https://member.bilibili.com/opus/management/drafts"
 BILI_DRAFT_API = ("https://api.bilibili.com/x/dynamic/feed/article/draft/list"
                   "?pn=1&ps=200&keyword=")
+# 删草稿：路径是 draft/**delete** 不是 draft/remove —— 猜 remove 会返回
+# 空 {}（连 {code,msg} 都没有），一度以为没权限。真实路径是从草稿箱页面
+# 加载的 DraftList-*.js bundle 里正则抓出来的（2026-09-30）。
+# article_id 从 draft/list 的 drafts[].article_id 拿。
+BILI_DRAFT_REMOVE_API = "https://api.bilibili.com/x/dynamic/feed/article/draft/delete"
 BILI_EDIT_URL = "https://member.bilibili.com/platform/upload/text/new-edit?aid=%s"
 
 
@@ -1065,6 +1119,130 @@ def _pick_draft(cdp, tid, title):
     return None, drafts
 
 
+# --------------------------------------------------------------------------
+# **API 存草稿**（2026-10-01 接通，取代开编辑器点按钮）
+# --------------------------------------------------------------------------
+#
+# 为什么从 UI 换成 API：
+#   UI 路线单条 ~70 秒（开 tab → 等 iframe → 清空 → 灌正文 → 点保存 →
+#   回读），批量 37 条极易撞 CDP tab 累积超时；API 路线**不开编辑器、
+#   不碰 tab**，秒级完成，且不丢封面（image_urls 从旧草稿原样带回）。
+#
+# ⚠ **代价：行内样式不保留**。API 路线只映射段落级（标题/引用/段落），
+#   粗体/颜色/居中这些富文本格式在 word.style 里，本实现不构造。
+#   要样式就用 --ui 走老路。
+#
+# 请求形状见 bili_draft_api 模块 docstring —— 2026-10-01 之前那版
+# （form-urlencoded + csrf 在 body + {type,text} 节点）**全是错的**，
+# 一律 -400。
+
+def _api_tab(cdp):
+    """接一个已登录的 B站 page；必要时新开草稿箱页。返回 target_id。"""
+    return bili_api._bili_tab(cdp)
+
+
+def save_via_api(cid, replace=False, cdp=None, title=None, body=None):
+    """用 draft/add 存一条草稿（新建或按标题覆盖）。返回 True/False。
+
+    这是 `publish_one` 的默认路径。流程全程不开编辑器：
+        1. clean_body → build_arg
+        2. replace 时先按标题找 article_id + 抄旧草稿的 image_urls
+        3. draft/add（带 article_id 即更新）
+        4. draft/view 回读校验 mtime 变了、正文非空
+
+    `cdp` 可传入复用（批量时省连接）；不给就自己建。
+    """
+    html = load_article_html(cid)
+    if not html:
+        print("  ✗ 找不到 out/articles/%s.html" % cid)
+        return False
+    title = title or make_title(cid, html)
+    body = body if body is not None else clean_body(html)
+    plain = re.sub(r"<[^>]+>", "", body)
+    risk = risk_check(title + plain)
+    if risk:
+        print("  ✗ 风险词未清干净：%s —— 先修 clean_body/LEADOUT_KW" % risk)
+        return False
+    if len(plain) < 200:
+        print("  ✗ 正文仅 %d 字（B站专栏建议 ≥300），跳过" % len(plain))
+        return False
+
+    own = cdp is None
+    cdp = cdp or wp.CDP(PUB_PORT)
+    tid = None
+    try:
+        tid = _api_tab(cdp)
+        aid, old = None, {}
+        if replace:
+            drafts = bili_api.list_drafts(cdp)
+            norm = lambda s: re.sub(r"\s+", "", (s or "").lower())
+            want = norm(title)
+            for d in drafts:
+                if norm(d.get("title")) == want:
+                    aid = d.get("article_id")
+                    break
+            if aid is None:               # 前缀兜底，与 _pick_draft 同策略
+                for d in drafts:
+                    t = norm(d.get("title"))
+                    if t and (t.startswith(want[:10]) or want.startswith(t[:10])):
+                        aid = d.get("article_id")
+                        break
+            if not aid:
+                print("  ✗ 草稿箱接口里没找到《%s》（现有 %d 条，"
+                      "不确定是否已改标题）" % (title, len(drafts)))
+                return False
+            # 抄旧草稿里不想丢的字段（封面/可见性），build_arg 会原样带回
+            try:
+                old = bili_api.view_draft(cdp, aid)
+            except Exception as e:                # noqa: BLE001
+                print("    ⚠ 读旧草稿详情失败（%s），按默认值写" % str(e)[:60])
+                old = {}
+            old_mtime = old.get("mtime") or 0
+        else:
+            old_mtime = 0
+
+        arg = bili_api.build_arg(
+            title, body, article_id=aid,
+            image_urls=old.get("origin_image_urls") or old.get("image_urls"),
+            private_pub=old.get("private_pub", 2),
+            original=old.get("original", 0),
+            reprint=old.get("reprint", 1))
+        out = bili_api.save_draft(cdp, arg)
+        if not isinstance(out, dict) or out.get("code") != 0:
+            print("  ✗ draft/add 失败：%s"
+                  % json.dumps(out, ensure_ascii=False)[:200])
+            return False
+        new_aid = (out.get("data") or {}).get("article_id") or aid
+
+        # 回读校验：「点了保存」≠「存上了」。UI 路线栽过这个坑（2026-09-30）。
+        time.sleep(1.5)
+        after = bili_api.view_draft(cdp, new_aid)
+        got = (after.get("content") or "")
+        ok = bool(got.strip())
+        if replace and old_mtime and after.get("mtime") == old_mtime:
+            ok = False
+        tag = "更新" if aid else "新建"
+        if ok:
+            print("  ✓ API %s草稿 aid=%s《%s》正文 %d 字 / %d 段"
+                  % (tag, new_aid, title, len(got),
+                     len(arg["opus"]["content"]["paragraphs"])))
+            if after.get("image_urls"):
+                print("    封面保留: %s" % after["image_urls"][0][:70])
+            else:
+                print("    ⚠ 该草稿无封面（封面只能走 UI 上传，"
+                      "draft/add 只认远端 URL）")
+            return True
+        print("  ✗ 回读校验失败：mtime=%s→%s，正文 %d 字"
+              % (old_mtime, after.get("mtime"), len(got)))
+        return False
+    finally:
+        if own and tid:
+            try:
+                cdp.close_target(tid)
+            except Exception:                # noqa: BLE001
+                pass
+
+
 def _cover_present(cdp, tid):
     """当前草稿是否已有自定义封面（DOM 层面）。
 
@@ -1111,6 +1289,43 @@ def _open_cover_switch(cdp, tid):
             return r
         time.sleep(1.2)
     return r if isinstance(r, str) and r else "FAIL:%r" % (r,)
+
+
+def _drop_existing_cover(cdp, tid):
+    """删掉已选的旧封面，为「重新上传」腾地方。返回 True/False。
+
+    已有封面时 `.selected-action` 里有两个按钮：删除、重新上传。
+    先删再传最稳 —— 不删的话裁剪框预填的是旧图，容易叠图。
+    删不掉不算硬失败：_upload_cover_file 会退到「重新上传」路径。
+    """
+    end = time.time() + 12
+    while time.time() < end:
+        r = cdp.eval(_iframe_js(
+            "var bs=[].slice.call("
+            "  d.querySelectorAll('.selected-action button, .selected-action a'))"
+            "  .filter(function(x){return (x.innerText||'').trim()==='删除';});"
+            "if(!bs[0]) return 'no-btn'; bs[0].click(); return 'clicked';"),
+            refresh_context=True)
+        if r == "clicked":
+            # 可能有二次确认
+            time.sleep(1.5)
+            cdp.eval(_iframe_js(
+                "var b=[].slice.call("
+                "  d.querySelectorAll('.vui-dialog button, .vui-modal button'))"
+                "  .find(function(x){return (x.innerText||'').trim()==='确定';});"
+                "if(b) b.click(); return 'ok';"),
+                refresh_context=True)
+            e2 = time.time() + 12
+            while time.time() < e2:
+                if not _cover_present(cdp, tid):
+                    return True
+                time.sleep(1.0)
+            return False
+        if r == "no-btn":
+            # 已经不在「有封面」状态（可能自己就没了）
+            return True
+        time.sleep(1.0)
+    return False
 
 
 def _upload_cover_file(cdp, tid, img_path):
@@ -1239,8 +1454,14 @@ def _banner_of(cdp, tid, aid):
     return None
 
 
-def cover_one(cid, dry=False, cdp=None, tab_id=None, keep_tab=False):
-    """给单条草稿补封面。返回 True/False。"""
+def cover_one(cid, dry=False, cdp=None, tab_id=None, keep_tab=False,
+              force=False):
+    """给单条草稿补封面。返回 True/False。
+
+    force=True 时**即使远端已有封面也重新上传**（配色改了要换图时用）。
+    旧实现里 force 只影响「批量时跳不跳过」，cover_one 本身永远走
+    「封面已存在 → 跳过上传」，所以 `cover --case X --force` 是假的。
+    """
     html = load_article_html(cid)
     if not html:
         print("  ✗ 找不到 out/articles/%s.html" % cid)
@@ -1299,10 +1520,17 @@ def cover_one(cid, dry=False, cdp=None, tab_id=None, keep_tab=False):
         if sw.startswith("FAIL"):
             print("  ✗ %s" % sw)
             return False
-        if _cover_present(cdp, tid2):
+        if _cover_present(cdp, tid2) and not force:
             # 已经传过一次（上次崩在存草稿前）：直接存草稿即可
             print("    封面已存在，跳过上传")
         else:
+            if force and _cover_present(cdp, tid2):
+                # 已有封面时上传按钮是「重新上传」，_upload_cover_file 已认。
+                # 但 B站裁剪框预填的是**旧图**，不点「删除」的话新图可能
+                # 叠在旧图上；这里先尝试删掉旧封面，删不掉也不阻断
+                # （_upload_cover_file 会走「重新上传」兜底路径）。
+                print("    强制重设：先删旧封面")
+                _drop_existing_cover(cdp, tid2)
             up = _upload_cover_file(cdp, tid2, cp)
             if up.startswith("FAIL"):
                 print("  ✗ %s" % up)
@@ -1335,8 +1563,12 @@ def cover_one(cid, dry=False, cdp=None, tab_id=None, keep_tab=False):
             cdp.close_target(tid)
 
 
-def cover_all(only_missing=True, cdp=None):
-    """批量补封面。only_missing=True 时先回读远端，已设过的跳过。"""
+def cover_all(only_missing=True, cdp=None, force=False):
+    """批量补封面。only_missing=True 时先回读远端，已设过的跳过。
+
+    force=True 时**传下去给 cover_one**：连已有封面的也真重传（配色改了
+    要换图）。否则 --force 只影响「跳不跳过」，不换图（那是旧行为，假的）。
+    """
     ids = list_ids()
     print("cover 全部 %d 篇 → B站草稿%s" % (len(ids), "（只补没封面的）"
                                               if only_missing else "（全部重设）"))
@@ -1396,7 +1628,7 @@ def cover_all(only_missing=True, cdp=None):
         print("[%d/%d] %s" % (i, len(todo), cid))
         good = False
         try:
-            good = cover_one(cid, cdp=cdp, keep_tab=True)
+            good = cover_one(cid, cdp=cdp, keep_tab=True, force=force)
         except Exception as e:
             print("  ✗ 异常: %s" % str(e)[:150])
         if good:
@@ -1414,7 +1646,7 @@ def cover_all(only_missing=True, cdp=None):
             print("[重试] %s" % cid)
             good = False
             try:
-                good = cover_one(cid, cdp=cdp, keep_tab=True)
+                good = cover_one(cid, cdp=cdp, keep_tab=True, force=force)
             except Exception as e:
                 print("  ✗ 异常: %s" % str(e)[:150])
             if good:
@@ -1429,6 +1661,117 @@ def cover_all(only_missing=True, cdp=None):
     if failed:
         print("仍失败 %d 条：%s" % (len(failed), "、".join(failed)))
     return ok, len(todo)
+
+
+def _norm_title(s):
+    return re.sub(r"\s+", "", (s or "").lower())
+
+
+def find_duplicate_drafts(cdp, tid):
+    """回读草稿箱，按标题分组，返回 {归一标题: [(article_id, 标题, raw), ...]}。
+
+    只含重复的组。重复是怎么来的（2026-09-30 实测）：`publish --case X`
+    单条重试、或 publish_all 中途被 SIGTERM 杀掉，都会在草稿箱里**再建
+    一份** —— B站发布是「新建草稿」不是「更新」，所以重试必留重复。
+    """
+    r = _fetch_drafts(cdp, tid)
+    if not isinstance(r, dict) or r.get("err") is not None:
+        raise RuntimeError("草稿接口异常: %s"
+                           % json.dumps(r, ensure_ascii=False)[:200])
+    groups = {}
+    for d in r.get("drafts") or []:
+        groups.setdefault(_norm_title(d.get("title")), []).append(
+            (d.get("article_id"), d.get("title") or "", d))
+    return {k: v for k, v in groups.items() if len(v) > 1}
+
+
+def _draft_remove(cdp, tid, article_id):
+    """调官方接口删一条草稿，返回 {code, msg}。
+
+    ⚠ CSRF：写操作必须带 `bili_jct`，否则 -111「CSRF 校验失败」
+    （2026-09-30 实测）。它就在 cookie 里，但**不能**靠 fetch 的
+    credentials 自动带 —— B站要求 csrf 字段出现在 body 里。
+    """
+    js = """(async () => {
+      const m = document.cookie.match(/(?:^|;\\s*)bili_jct=([^;]+)/);
+      const csrf = m ? m[1] : '';
+      const r = await fetch(%s, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: 'article_id=' + %s + '&csrf=' + csrf
+      });
+      const j = await r.json();
+      return JSON.stringify({code: j.code, msg: j.message});
+    })()""" % (json.dumps(BILI_DRAFT_REMOVE_API), json.dumps(str(article_id)))
+    out = cdp.eval(js, refresh_context=True)
+    if isinstance(out, str):
+        try:
+            out = json.loads(out)
+        except Exception:                                # noqa: BLE001
+            pass
+    return out
+
+
+def dedup(keep=1, dry=False, max_del=20):
+    """把草稿箱里同标题的重复草稿删到剩 keep 条。
+
+    保留策略：**优先留有封面的**（`image_urls`/`origin_image_urls` 非空），
+    同为有封面或同为无封面时留 `article_id` 大的（后建的那份通常是重试时
+    带最新正文存的）。⚠ 绝不要看 `banner_url` —— 草稿接口里它恒为 `""`，
+    拿它判会永远误报成「都没封面」。
+
+    2026-09-30 起**默认真删**（用户授权：删重复不用问）。`dry=True` 仍可
+    用来先看清单。
+    """
+    _close_stale_bili_tabs(wp.CDP(PUB_PORT))
+    cdp = wp.CDP(PUB_PORT)
+    tid = cdp.new_target(BILI_DRAFT_LIST_PAGE)["id"]
+    cdp.connect_target(tid)
+    time.sleep(6)
+    try:
+        dups = find_duplicate_drafts(cdp, tid)
+        if not dups:
+            print("✓ 草稿箱无同标题重复")
+            return 0
+        extra = sum(len(v) - keep for v in dups.values())
+        print("发现 %d 组重复、共 %d 条多余草稿：" % (len(dups), extra))
+        plan = []
+        for _norm, items in sorted(dups.items()):
+            # 保留策略：**有封面的优先留**，其次留 aid 大的（后建的，通常是
+            # 重试成功那次，正文/封面更全）。2026-09-30 实测踩过反面：按
+            # aid 最小留，结果留下 16:44 那条空白草稿，删掉了 18:01 那条
+            # 带封面的 —— 封面白设了。
+            items = sorted(
+                items,
+                key=lambda x: (0 if _cover_of(x[2]) else 1, -x[0]))
+            keep_ids = [x[0] for x in items[:keep]]
+            drop_ids = [x[0] for x in items[keep:]]
+            print("  《%s》×%d → 保留 %s，删除 %s"
+                  % (items[0][1][:40], len(items), keep_ids, drop_ids))
+            for aid in keep_ids:
+                d = next(x[2] for x in items if x[0] == aid)
+                print("      保留 aid=%d %s"
+                      % (aid, "有封面" if _cover_of(d) else "无封面"))
+            plan += drop_ids
+        if dry:
+            print("\n[dry] 将删除 %d 条：%s" % (len(plan), plan[:20]))
+            print("      确认无误后去掉 --dry 执行真删")
+            return 0
+        done, failed = [], []
+        for aid in plan[:max_del]:
+            out = _draft_remove(cdp, tid, aid)
+            ok = isinstance(out, dict) and out.get("code") == 0
+            print("  %s aid=%s %s" % ("✓" if ok else "✗", aid,
+                                      json.dumps(out, ensure_ascii=False)[:120]))
+            (done if ok else failed).append(aid)
+            time.sleep(1.2)
+        print("\n删除完成 %d / 失败 %d" % (len(done), len(failed)))
+        if failed:
+            print("失败 aid: %s" % failed)
+        return 0 if not failed else 2
+    finally:
+        cdp.close_target(tid)
 
 
 def cover_status():
@@ -1477,6 +1820,9 @@ def main():
                    help="单条失败重试次数（默认 1；批量时 CDP 超时很常见）")
     p.add_argument("--keep-tabs", action="store_true",
                    help="跑完保留浏览器 tab（人工核对用，默认清掉）")
+    p.add_argument("--ui", action="store_true",
+                   help="**改走 UI 路线**（开编辑器点按钮，慢但保留行内样式："
+                        "粗体/颜色/居中。默认走 draft/add 接口，秒级）")
     p.add_argument("--only", default=None,
                    help="只跑这些 case id（逗号分隔），断点续传用")
     c = sub.add_parser("cover")
@@ -1486,6 +1832,14 @@ def main():
     c.add_argument("--force", action="store_true",
                    help="连远端已有封面的也重设（默认只补没封面的）")
     sub.add_parser("cover-status")
+    d = sub.add_parser("dedup", help="草稿箱同标题去重（默认直接删，只留清单）")
+    d.add_argument("--delete", action="store_true",
+                   help="兼容旧调用（现在默认就删，这个开关是冗余的）")
+    d.add_argument("--dry", action="store_true",
+                   help="只列清单不删。删草稿不可逆，确认清单时用")
+    d.add_argument("--keep", type=int, default=1,
+                   help="同标题保留几条（默认 1，即删到只剩一条）")
+    d.add_argument("--max-del", type=int, default=20)
     args = ap.parse_args()
 
     # 127.0.0.1 必须绕开系统代理，否则 websocket 连 Chrome 调试端口会被掐
@@ -1507,23 +1861,29 @@ def main():
     elif args.cmd == "probe":
         probe()
     elif args.cmd == "publish":
+        use_api = not args.ui
         if args.case:
             publish_one(args.case, dry=args.dry, replace=args.replace,
-                        keep_tabs=args.keep_tabs)
+                        keep_tabs=args.keep_tabs, use_api=use_api)
         else:
             only = ([x.strip() for x in args.only.split(",") if x.strip()]
                     if args.only else None)
             _ok, failed = publish_all(replace=args.replace,
-                                      retries=args.retries, only=only)
+                                      retries=args.retries, only=only,
+                                      use_api=use_api)
             if failed:
                 sys.exit(1)
     elif args.cmd == "cover":
         if args.case:
-            cover_one(args.case, dry=args.dry)
+            cover_one(args.case, dry=args.dry, force=args.force)
         else:
-            cover_all(only_missing=not args.force)
+            cover_all(only_missing=not args.force, force=args.force)
     elif args.cmd == "cover-status":
         cover_status()
+    elif args.cmd == "dedup":
+        # 2026-09-30 用户授权：删重复不用再问，默认直接删。--dry 仍保留
+        # 用来「先看清单再删」，--delete 变成兼容旧调用的冗余开关。
+        dedup(keep=args.keep, dry=args.dry, max_del=args.max_del)
     else:
         ap.print_help()
 

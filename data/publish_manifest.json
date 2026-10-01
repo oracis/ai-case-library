@@ -319,9 +319,9 @@
    "title": "月收$234K：给残障机构做病历系统"
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-09-30 17:44",
    "attempt": 0,
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   },
   "wechat": {
@@ -467,6 +467,32 @@
    "title": ""
   }
  },
+ "mort": {
+  "bilibili": {
+   "at": "2026-09-30 19:44",
+   "attempt": 2,
+   "state": "draft_saved",
+   "title": "MORT：AI 产品"
+  },
+  "toutiao": {
+   "at": "2026-09-30 19:30",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "MORT：AI 产品"
+  },
+  "wechat": {
+   "at": "2026-09-30 19:50",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "MORT：AI 产品"
+  },
+  "xhs": {
+   "at": "2026-09-30 20:14",
+   "attempt": 1,
+   "state": "draft_saved",
+   "title": "月收$84：AI"
+  }
+ },
  "nitra": {
   "bilibili": {
    "at": "2026-09-29 22:06",
@@ -527,9 +553,9 @@
    "title": "月收$250K：靠几个网站收租"
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-09-30 17:44",
    "attempt": 0,
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   },
   "wechat": {
@@ -623,6 +649,33 @@
    "title": ""
   }
  },
+ "quran-unlock": {
+  "bilibili": {
+   "at": "2026-09-30 20:16",
+   "attempt": 2,
+   "error": "批量输出里没确认到（可能中途断连）",
+   "state": "failed",
+   "title": "Quran Unlock：移动 app"
+  },
+  "toutiao": {
+   "at": "2026-09-30 20:15",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "Quran Unlock：移动 app"
+  },
+  "wechat": {
+   "at": "2026-09-30 20:04",
+   "attempt": 0,
+   "state": "pending",
+   "title": "Quran Unlock：移动 app"
+  },
+  "xhs": {
+   "at": "2026-09-30 20:04",
+   "attempt": 0,
+   "state": "pending",
+   "title": "Quran Unlock：移动 app"
+  }
+ },
  "rezi": {
   "bilibili": {
    "at": "2026-09-29 22:06",
@@ -709,9 +762,9 @@
    "title": "年收$200M：AI 客服解决才收钱"
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-09-30 17:44",
    "attempt": 0,
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   },
   "wechat": {
@@ -917,9 +970,9 @@
    "title": "月收$8.6K：帮设计师渲染效果图"
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-09-30 17:44",
    "attempt": 0,
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   },
   "wechat": {

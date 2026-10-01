@@ -133,6 +133,7 @@ CATEGORY_STYLE = {
     "电商": "e-commerce storefront and order management screens",
     "创作者经济": "creator economy studio, content and monetization panels",
     "交易市场": "marketplace listing and matching interface",
+    "移动应用": "mobile phone app screens, app store listing and habit tracking UI",
     "未分类": "generic software product concept illustration",
 }
 DEFAULT_STYLE = "flat geometric editorial illustration, product and workflow concept"
@@ -153,6 +154,7 @@ CATEGORY_THEME = {
     "电商": "online store and orders",
     "创作者经济": "content creation and monetization",
     "交易市场": "marketplace and matching",
+    "移动应用": "mobile app screens and habit streaks",
     "未分类": "software product",
 }
 

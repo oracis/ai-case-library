@@ -69,6 +69,10 @@ TT_DRAFT = "https://mp.toutiao.com/profile_v4/manage/draft"
 # 作品管理（已发布/已发内容都在这）——草稿箱里没有的稿走这里改
 TT_WORKS = "https://mp.toutiao.com/profile_v4/manage/content/all?enter_from=left_menu"
 
+# 草稿箱整页是否已展开（进程内状态，见 open_draft_editor 里的说明）。
+# 只在「本次进程的草稿箱 tab 上」成立，换页/刷新后要手动清。
+_draft_box_expanded = {"v": False}
+
 # ---- 选择器（实验性，probe 后可改这里）-------------------------------------
 SEL = {
     "title": ("textarea[placeholder*='文章标题'], "
@@ -548,8 +552,7 @@ def tt_cover_html(c):
     饰（顶部品牌行/一句话介绍）——只剩两个色块、两个大字，无论怎么裁都
     可读。
     """
-    i = sum(ord(ch) for ch in c.get("id", "")) % len(wp.COVER_THEMES)
-    base, band, ac = wp.COVER_THEMES[i]
+    base, band, ac = wp._cover_theme(c.get("id", ""), "toutiao")
     name = c.get("name") or c.get("id") or ""
     headline = (c.get("metrics") or {}).get("headline") or ""
     num = tt_cover_num(headline)
@@ -1275,7 +1278,21 @@ def open_draft_editor(title, wait=25):
     before = _page_target_ids()
     # 草稿箱初次只渲染前几条，目标卡在第 10 条开外时 _DRAFT_SCROLL_TO
     # 会一直 'none' 空转超时（2026-09-29 实测）。先把整页展开。
-    _load_all_drafts(cdp, max_rounds=20, pause=1.5)
+    #
+    # 2026-09-30：整页展开是单条耗时的最大头（168s 里约 100s 在这）。
+    # 展开是**幂等**的 —— 同一页反复展开，第二遍起 _DRAFT_LOADMORE_JS 直接
+    # 返回 'none'，一轮就 break。所以别在每条前都跑满 20 轮，先探一次：
+    # 已经有足够多的卡片就跳过。但**只探不点**是有代价的 —— 页面刚打开时
+    # 可能只渲染 8 条而真值是 39，所以判据用「已展开」标记而不是数卡片。
+    if not _draft_box_expanded.get("v"):
+        _load_all_drafts(cdp, max_rounds=20, pause=1.5)
+        # 展开后卡片数应接近草稿总数；明显更少说明还没展开完。
+        try:
+            n = int(cdp.eval(_DRAFT_ITEM_COUNT_JS) or 0)
+        except Exception:                             # noqa: BLE001
+            n = 0
+        if n >= 20:
+            _draft_box_expanded["v"] = True
     pos = ""
     for attempt in range(6):
         r = cdp.eval(_DRAFT_SCROLL_TO % json.dumps(title))
@@ -1384,10 +1401,15 @@ def cmd_cover(args):
         cases = cases[:1]
     print("将为 %d 篇草稿补封面%s" % (len(cases), "（dry-run）" if args.dry else ""))
     ok = 0
+    t_all = time.time()
     for i, c in enumerate(cases, 1):
+        # 关键：每条都 flush。批量跑要 40+ 分钟，重定向到管道时 Python
+        # 默认块缓冲（4~8KB），不刷就是「看起来卡住、Chrome 也没动静」。
+        # 2026-09-30 用户两次问「还在更新吗」就是被这个坑到的。
         print("[%d/%d] %-22s 《%s》" % (i, len(cases), c["id"],
-                                        find_title(c)))
+                                        find_title(c)), flush=True)
         r = None
+        t0 = time.time()
         for attempt in (1, 2):                    # CDP 偶发断连，单条重试一次
             try:
                 r = cover_one(c, dry=args.dry, force=getattr(args, "force", False))
@@ -1395,7 +1417,8 @@ def cmd_cover(args):
             except Exception as e:                # noqa: BLE001
                 r = "%s: %s（attempt %d）" % (type(e).__name__, e, attempt)
                 time.sleep(3)
-        print("    → %s" % r)
+        print("    → %s（%.0fs，本条累计 %.1f 分钟）"
+              % (r, time.time() - t0, (time.time() - t_all) / 60.0), flush=True)
         if r.startswith("ok"):
             ok += 1
     print("\n完成：%d/%d" % (ok, len(cases)))

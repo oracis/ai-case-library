@@ -7,6 +7,7 @@
 """
 import os
 import re
+import subprocess
 import sys
 import unittest
 
@@ -555,6 +556,109 @@ class TestNoLeakedTabs(unittest.TestCase):
             capture_output=True, text=True, timeout=60).stdout
         self.assertIn("--retries", out)
         self.assertIn("--keep-tabs", out)
+
+
+class TestDraftDedup(unittest.TestCase):
+    """草稿箱去重（2026-09-30 加）。
+
+    重复是怎么来的：`publish --case X` 重试、或 publish_all 中途被杀，
+    都会在草稿箱里**再建一份** —— B站发布是「新建草稿」不是「更新」。
+
+    两个坑都踩过，钉在这里：
+      1. 接口路径是 draft/**delete**，不是 draft/remove（猜 remove 会返回
+         空 {}，连 {code,msg} 都没有，一度以为没权限）。
+      2. 写操作必须带 `bili_jct`，否则 -111「CSRF 校验失败」。它在 cookie
+         里但不会随 credentials 自动进 body，得显式拼进 csrf 字段。
+    """
+
+    def test_删除接口路径是delete不是remove(self):
+        self.assertTrue(bp.BILI_DRAFT_REMOVE_API.endswith("/draft/delete"))
+        self.assertNotIn("draft/remove", bp.BILI_DRAFT_REMOVE_API)
+
+    def test_删除请求带csrf(self):
+        import inspect
+        src = inspect.getsource(bp._draft_remove)
+        self.assertIn("bili_jct", src, "必须从 cookie 取 bili_jct")
+        self.assertIn("csrf", src)
+
+    def test_保留有封面的那条(self):
+        """按 aid 最小保留会留下空白草稿、删掉带封面的那条（实测踩过）。
+
+        同标题重复时，优先留 `_cover_of` 非空的。
+        """
+        import inspect
+        src = inspect.getsource(bp.dedup)
+        self.assertIn("_cover_of", src)
+
+    def test_默认真删_用户已授权(self):
+        """2026-09-30 用户授权：删重复不用再问，dedup 默认就删。
+
+        `--delete` 留作兼容旧调用，真正控制行为的是 `--dry`。
+        """
+        import inspect
+        sig = inspect.signature(bp.dedup)
+        self.assertFalse(sig.parameters["dry"].default,
+                         "dedup 默认必须真删（用户已授权），要预览用 --dry")
+        out = subprocess.run(
+            [sys.executable, bp.__file__, "dedup", "--help"],
+            capture_output=True, text=True, timeout=60).stdout
+        self.assertIn("--dry", out, "必须有 --dry 才能只列清单不删")
+        self.assertIn("--delete", out, "--delete 保留为兼容旧调用的冗余开关")
+
+
+class TestCoverForce(unittest.TestCase):
+    """`cover --force` 必须真重设，不能只影响「跳不跳过」（2026-09-30 修）。
+
+    旧实现里 force 只传给 cover_all 决定跳不跳过，cover_one 内部永远
+    「封面已存在 → 跳过上传」，所以 `cover --case X --force` 打印
+    「封面已存在，跳过上传」什么都没换 —— 用户以为改了配色却没换图。
+    """
+
+    def test_cover_one接受force(self):
+        import inspect
+        sig = inspect.signature(bp.cover_one)
+        self.assertIn("force", sig.parameters)
+        self.assertFalse(sig.parameters["force"].default,
+                         "force 必须默认 False，否则普通 cover 会重传全部")
+
+    def test_批量透传force到cover_one(self):
+        import inspect
+        src = inspect.getsource(bp.cover_all)
+        self.assertIn("force=force", src,
+                      "cover_all 必须把 force 传给 cover_one")
+
+    def test_单条CLI透传force(self):
+        import inspect
+        src = inspect.getsource(bp.main)
+        self.assertIn("cover_one(args.case, dry=args.dry, force=args.force)",
+                      src)
+        self.assertIn("cover_all(only_missing=not args.force, force=args.force)",
+                      src)
+
+    def test_force时会先删旧封面(self):
+        """不删旧封面，裁剪框预填的是旧图，新图容易叠上去。"""
+        import inspect
+        src = inspect.getsource(bp.cover_one)
+        self.assertIn("_drop_existing_cover", src)
+        self.assertTrue(hasattr(bp, "_drop_existing_cover"))
+        dsrc = inspect.getsource(bp._drop_existing_cover)
+        self.assertIn("删除", dsrc, "要点掉 .selected-action 里的「删除」")
+
+    def test_删旧封面删不掉不阻断(self):
+        """删不掉不算硬失败 —— _upload_cover_file 有「重新上传」兜底。
+
+        判据：调用 `_drop_existing_cover` 的返回值不能被当条件用
+        （不能写 `if not _drop_existing_cover(...): return False`）。
+        """
+        import inspect
+        src = inspect.getsource(bp.cover_one)
+        call = [ln for ln in src.splitlines()
+                if "_drop_existing_cover(" in ln and "def " not in ln]
+        self.assertTrue(call, "应有无条件调用")
+        self.assertFalse(call[0].strip().startswith("if "),
+                         "删旧封面的结果不能当阻断条件：%s" % call[0].strip())
+        self.assertTrue(call[0].strip().endswith(")"),
+                        "应是无条件调用（返回值丢弃）")
 
 
 if __name__ == "__main__":

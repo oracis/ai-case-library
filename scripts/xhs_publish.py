@@ -408,8 +408,12 @@ def _bar(label, v, mx):
 
 def card_html(c, page, total):
     """第 page(1-based) 张卡片，3:4 全 HTML 文档。"""
-    i = sum(ord(x) for x in c.get("id", "")) % len(wp.COVER_THEMES)
-    _base, _band, ac = wp.COVER_THEMES[i]
+    # 2026-09-30：原来这里用的是 `sum(ord(x)) % N` 旧哈希，和头条/公众号
+    # 修好的 `_cover_theme` 不是一套算法 → **同一案例在小红书和别的平台
+    # 撞色**（用户截图里 mort 和 quran-unlock 都是绿的）。统一走
+    # `_cover_theme`，四个平台从此同色。
+    # （`key` 参数目前只作语义标记，各平台实际共用同一套 COVER_THEMES。）
+    _base, _band, ac = wp._cover_theme(c.get("id", ""), "xhs")
     name = c.get("name") or c.get("id") or ""
     one = re.sub(r"（[^）]*）", "", (c.get("one_liner") or "")).strip() or \
         (c.get("category") or "")
@@ -1608,6 +1612,7 @@ def cmd_purge(args):
     print("\n开始删除，最多 %d 条%s…"
           % (limit, ("（标题含「%s」）" % want) if want else ""))
     n = fail = 0
+    dropped = []
     while n < limit:
         before = fetch_drafts(sub)
         if not before:
@@ -1621,6 +1626,10 @@ def cmd_purge(args):
         if r == "ok" and len(after) < len(before):
             n += 1
             print("  [%d] 已删：%s" % (n, head["title"]))
+            cid = _card_to_cid(head.get("title"))
+            if cid and _unmark(_draft_file(), cid):
+                dropped.append(cid)
+                print("      本地状态已回退：%s 重新变成「未发」" % cid)
         else:
             fail += 1
             print("  [warn] 没删掉（%s）：%s" % (r, head["title"]))
@@ -1629,6 +1638,9 @@ def cmd_purge(args):
                 break
     print("\n完成：删了 %d 条，草稿箱剩 %d 条。"
           % (n, len(fetch_drafts(sub) or [])))
+    if dropped:
+        print("状态回退 %d 条（可重新 publish）：%s"
+              % (len(dropped), "、".join(dropped)))
 
 
 def cmd_queue(args):
@@ -1674,6 +1686,66 @@ def _draft_file():
 def mark_drafted(cid):
     """进过草稿箱也算「发过了」，避免重复生成草稿（2026-09-26 清重复踩过）。"""
     _mark(_draft_file(), cid)
+
+
+def _unmark(p, cid):
+    """把 cid 从「已发过」名单里去掉。返回是否真的改动了。
+
+    为什么需要（2026-09-30 补）：`mark_drafted` 是**只增不减**的 —— 删掉远端
+    草稿后本地还记着「发过了」，而 `_drafted_ids` 正是 publish 的幂等判据，
+    于是这条永远不会再被发出去。实测：purge 删掉 MORT 的小红书草稿后，
+    `publish_multi run mort --platforms xhs` 直接说「没有待发的」。
+    """
+    if not os.path.isfile(p):
+        return False
+    try:
+        d = json.load(open(p, encoding="utf-8"))
+    except Exception:
+        return False
+    if isinstance(d, dict):
+        if cid not in d:
+            return False
+        d.pop(cid, None)
+        with open(p, "w", encoding="utf-8") as f:
+            json.dump(d, f, ensure_ascii=False, indent=2)
+        return True
+    if not isinstance(d, list):
+        return False
+    rest = [x for x in d if not (isinstance(x, dict) and x.get("id") == cid)]
+    if len(rest) == len(d):
+        return False
+    with open(p, "w", encoding="utf-8") as f:
+        json.dump(rest, f, ensure_ascii=False, indent=2)
+    return True
+
+
+def _card_to_cid(title):
+    """草稿卡片标题 → 本地 case id。
+
+    小红书草稿标题格式是「<传播力钩子>：<产品名/一句话定位>」（如
+    「月收$84：AI」），和产品名是两回事，所以只能靠 out/xhs/*/note.json
+    的标题反查。查不到就返回 None —— 宁可不改状态文件，也不要错删别人的
+    记录（那会让已发过的案例被重复发布）。
+    """
+    t = (title or "").strip()
+    if not t:
+        return None
+    base = os.path.join(ROOT, "out", "xhs")
+    if not os.path.isdir(base):
+        return None
+    norm = lambda s: re.sub(r"\s+", "", s or "")
+    for d in sorted(os.listdir(base)):
+        f = os.path.join(base, d, "note.json")
+        if not os.path.isfile(f):
+            continue
+        try:
+            j = json.load(open(f, encoding="utf-8"))
+        except Exception:
+            continue
+        ti = norm(j.get("title"))
+        if ti and (ti == norm(t) or ti in norm(t) or norm(t) in ti):
+            return d
+    return None
 
 
 def _mark(p, cid):

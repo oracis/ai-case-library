@@ -978,6 +978,25 @@ class Handler(BaseHTTPRequestHandler):
                 taken = {c.get("id") for c in cases}
                 now = datetime.now().strftime("%Y-%m-%d")
 
+                # 第 4 层闸门：正文写完了吗（2026-09-30 加）。
+                # 前三层只查「有没有做过核实」，不查「案例写没写」——
+                # mort / quran-unlock 就带着「具体定位未获取」过了闸门，
+                # 还被发布成四个平台的草稿。这里检查的是**合并后的内容**
+                #（候选原值 + 请求体 fields 覆盖），因为 promote 允许直接
+                # 在发布时补正文，那也得算进去。
+                merged = dict(hit)
+                for _k, _v in (body.get("fields") or {}).items():
+                    if _k != "id":
+                        merged[_k] = _v
+                cg = VRULES.content_gate(merged)
+                if not cg["ok"]:
+                    return self._json({
+                        "error": "正文还没写完，不能入库：" +
+                                 "；".join(p["label"] for p in cg["problems"]),
+                        "content_gate": cg,
+                        "result": result,
+                    }, 409)
+
                 # 核实等级不能高于来源证据 —— 入库时就兜一道，免得又攒出一批虚标。
                 # 曾经 11 条案例标着 stripe / official，来源却只有第三方拆解站：
                 # 那种标注是替读者做了一次他们没授权的信任背书。

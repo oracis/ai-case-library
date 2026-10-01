@@ -137,6 +137,11 @@ SOURCE_TIERS = [
     # 它早就在用 —— ai_verify 的 kind 白名单里有、cases.json 里有十几条都标着它，
     # 唯独这张表没登记，于是「这个来源属于哪一档」一直没有被规则承认过。
     ("review", "第三方评测/核查站", "B", False),
+    # revenuecat = 订阅数据商（App 收入估算模型）。它读的是苹果/谷歌的账单再
+    # 建模外推，不是直连商户后台 —— 所以刻意不给 A 级：标成「支付网关验证」
+    # 会让读者以为我们看过商户自己的 Stripe 面板，而那是我们没做的事。
+    # 同理它撑不起 official，只能到 partial（口径待核）。
+    ("revenuecat", "第三方订阅数据商（RevenueCat 估算）", "B", False),
     ("founder", "创始人自己的推文/帖子", "C", False),
     ("secondary", "中文二手转述（公众号/知识星球）", "D", False),
 ]
@@ -180,7 +185,7 @@ def best_supported_level(kinds):
         return "stripe"
     if "official" in ks:
         return "official"
-    if ks & {"press", "review"}:
+    if ks & {"press", "review", "revenuecat"}:
         return "partial"
     if "founder" in ks:
         return "founder"
@@ -551,6 +556,128 @@ def blank():
     }
 
 
+# ---------------------------------------------------------------------------
+# 第 4 层：正文质量（2026-09-30 加）
+#
+# 为什么不放在 MUSTS 里
+# --------------------
+# MUSTS 是「你做过核实这件事吗」，逐条勾选；正文质量是「这条案例写完了吗」，
+# 要读字段本身才知道，勾不出来。2026-09-30 实测：mort 与 quran-unlock
+# 只搬了 TrustMRR 的数字，what_it_does 还写着「具体定位未获取」，
+# how_it_makes_money / why_it_works / playbook / replicability 全空，
+# 就这么过了 promote 闸门进了 cases，又被发布成四个平台的草稿。
+#
+# 闸门原本只查来源与核实等级，**正文写没写根本不查** —— 空壳案例就这么漏出去，
+# 而下游所有环节（公众号长文、首页排序、四象限图）都默认这些字段有内容。
+#
+# 口径
+# ----
+#   只拦「结构性缺失 + 占位符」两类硬伤，不做文笔评分、不看字数下限的细节。
+#   存量 39 条必须全过（否则一上线就拦住历史案例），所以阈值定得宽松：
+#   真正抓的是「还没写」而不是「写得短」。
+# ---------------------------------------------------------------------------
+
+# 出现即判定为「没写」的占位符。判断整段而不是整条：一段话里带了
+# 「具体定位未获取」就没写清，而「未披露的创始人」不算。
+PLACEHOLDER_PATTERNS = (
+    "未获取",
+    "待补充",
+    "待核实",
+    "待定",
+    "TODO",
+    "暂缺",
+    "待补",
+)
+
+# 字段 -> (最小长度, 标签)。长度**不拦发布**，只作提示（见 content_problems）。
+# 下限定在存量非占位案例的最短值附近，再低就抓不到任何东西。
+CONTENT_FIELDS = (
+    ("one_liner", 18, "一句话定位"),
+    ("what_it_does", 40, "它是做什么的"),
+    ("how_it_makes_money", 24, "怎么赚钱"),
+    ("verdict", 30, "一句话结论"),
+)
+
+
+def content_problems(payload):
+    """返回这条案例的正文质量问题列表（空 = 可入库）。
+
+    payload 是「候选 + 请求体 fields 覆盖后的合并结果」——promote 允许
+    请求体带 fields 直接写正文，所以要检查合并后的值，不是候选原值。
+
+    只拦 blocking=True 的两类硬伤：字段为空、正文还是占位符。
+    「太短」不拦（blocking=False），理由同 MUSTS 里的 caliber_consistent：
+    长度是文笔问题不是事实问题，拦它等于逼人用废话凑字数；而且库里
+    已有相当一批正当的短句（outrank 的「月订阅，卖的是自然流量这套结果」
+    27 个字说清了一门生意），一刀切会把这些也拦下。短句只作提示。
+    """
+    out = []
+    if not isinstance(payload, dict):
+        return [{"key": "no_payload", "field": "", "label": "取不到候选内容",
+                 "why": "内部错误：候选读不出来。", "blocking": True}]
+
+    for key, minlen, label in CONTENT_FIELDS:
+        val = str(payload.get(key) or "").strip()
+        if not val:
+            out.append({"key": "empty_" + key, "field": key,
+                        "label": label + " 是空的",
+                        "why": "正文缺这一段，生成的文章会少一节。",
+                        "blocking": True})
+        elif any(p in val for p in PLACEHOLDER_PATTERNS):
+            hit = [p for p in PLACEHOLDER_PATTERNS if p in val]
+            out.append({"key": "placeholder_" + key, "field": key,
+                        "label": label + " 还是占位符",
+                        "why": "出现「%s」= 候选里没写。先去候选把这段补上再提升，"
+                               "占位符会被原样印到文章里。" % "、".join(hit),
+                        "blocking": True})
+        elif len(val) < minlen:
+            out.append({"key": "too_short_" + key, "field": key,
+                        "label": label + " 偏短（%d 字，建议 ≥ %d）"
+                                        % (len(val), minlen),
+                        "why": "不拦发布，但这么短读者可能看不出这门生意怎么做。",
+                        "blocking": False})
+
+    for key, label in (("why_it_works", "它为什么能成"),
+                       ("playbook", "能搬走的部分")):
+        seq = payload.get(key) or []
+        if not isinstance(seq, list):
+            seq = [seq]
+        clean = [x for x in seq if str(x or "").strip()]
+        if not clean:
+            out.append({"key": "empty_" + key, "field": key,
+                        "label": label + " 是空的",
+                        "why": "没有这一段，文章只能变成产品介绍。",
+                        "blocking": True})
+
+    rep = payload.get("replicability") or {}
+    if not isinstance(rep, dict) or not rep:
+        out.append({"key": "empty_replicability", "field": "replicability",
+                    "label": "缺可复制性四维评分",
+                    "why": "它是 solo_fit 的输入，缺了首页的「一个人能不能做」"
+                           "排序里这条是空白。",
+                    "blocking": False})
+    return out
+
+
+def content_gate(payload):
+    """正文质量闸门的返回结构，供 server 与前端复用。
+
+    ok / blocking 决定拦不拦；hints 是提示，随结果一起返回但不影响放行。
+    """
+    problems = content_problems(payload)
+    blocking = [p for p in problems if p.get("blocking")]
+    hints = [p for p in problems if not p.get("blocking")]
+    return {
+        "ok": not blocking,
+        "problems": problems,
+        "count": len(problems),
+        "blocked": blocking,
+        "hints": hints,
+        "verdict": ("正文可入库" if not blocking else
+                    "正文还没写完：%s" % "；".join(p["label"] for p in blocking)),
+    }
+
+
 def schema():
     """把规则本身吐给前端，界面按它渲染 —— 规则改了界面自动跟着变。"""
     return {
@@ -569,6 +696,12 @@ def schema():
         "tier_meta": TIER_META,
         # 不是可勾项，只是告诉界面「还有这么一笔自动加成分存在」
         "gate_bonus": dict(GATE_ALL_BONUS),
+        # 第 4 层：正文质量。让界面能把「还没写完」当成闸门显示出来，
+        # 而不是让人 promote 完才发现文章少三节。
+        "content_fields": [
+            {"key": k, "min_length": n, "label": lb} for k, n, lb in CONTENT_FIELDS
+        ],
+        "placeholders": list(PLACEHOLDER_PATTERNS),
     }
 
 

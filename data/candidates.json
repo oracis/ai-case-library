@@ -69,27 +69,6 @@
     }
   },
   {
-    "id": "mort",
-    "name": "MORT",
-    "name_en": "MORT",
-    "origin": "未披露",
-    "one_liner": "AI 产品（具体定位未获取）",
-    "category": "AI 工具",
-    "verification": "partial",
-    "metrics": {
-      "headline": "收入 $84 / 售价 $6.4K / 倍数 6.4x（TrustMRR 市场挂牌）"
-    },
-    "models": [
-      "交易市场"
-    ],
-    "note": "6.4x 是本库见到的最高倍数，但月收入仅 $84——高倍数通常意味着买家在为「潜力」付费而非现金流。这个现象本身值得研究。",
-    "blocking": "口径与产品定位均待补",
-    "added_at": "2026-09-11",
-    "source_kind": "verified",
-    "trustmrr_slug": "mort",
-    "source_url": "https://trustmrr.com/startup/mort"
-  },
-  {
     "id": "localkdock",
     "name": "Localdock",
     "name_en": "Localdock",
@@ -179,27 +158,6 @@
     "source_kind": "verified",
     "trustmrr_slug": "sociano",
     "source_url": "https://trustmrr.com/startup/sociano"
-  },
-  {
-    "id": "quran-unlock",
-    "name": "Quran Unlock",
-    "name_en": "Quran Unlock",
-    "origin": "未披露",
-    "one_liner": "移动 app（具体定位未获取）",
-    "category": "移动应用",
-    "verification": "partial",
-    "metrics": {
-      "headline": "收入 $676 / 售价 $4.5K / 倍数 0.6x（TrustMRR 市场挂牌）"
-    },
-    "models": [
-      "交易市场"
-    ],
-    "note": "移动 app 类标的，0.6x 倍数偏低。可用来比较「app 类资产」与「SaaS 类资产」的市场定价差异。",
-    "blocking": "口径待核",
-    "added_at": "2026-09-11",
-    "source_kind": "verified",
-    "trustmrr_slug": "quran-unlock",
-    "source_url": "https://trustmrr.com/startup/quran-unlock"
   },
   {
     "id": "thehundred",
