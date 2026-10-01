@@ -38,37 +38,95 @@ MAIN_PROFILE = os.path.expandvars(
 COOKIE_REL = os.path.join("Default", "Network", "Cookies")
 
 
+def _silent_unlink(path):
+    """删临时文件，失败也当成功。"""
+    try:
+        if os.path.exists(path):
+            os.remove(path)
+    except OSError:
+        pass
+
+
+def _count_rows(db, tmp):
+    """把 cookie 库复制到临时文件后统计行数。返回 (total, wechat)。
+
+    ⚠⚠ **Chrome 运行时会把Cookies 库锁住**，这里必须多级降级：
+    Chrome 的 cookie 库由 network service 持有，Windows 上可能不给
+    共享读。实测 `shutil.copy2` 会直接抛
+    `PermissionError: [WinError 32] 另一个程序正在使用此文件`。
+    ⇒ 依次尝试三条路，任何一条成功即可，**都不行就报 unavailable
+    而不是让整个脚本崩掉**（崩掉会掩盖真正的登录态判据）。
+
+    降级顺序：
+      1. `shutil.copy2`     —— 最快，Chrome 未运行时通常可用
+      2. 手工 `open(rb).read()` —— 绕过 CopyFile2 的共享模式要求
+      3. `sqlite3` backup()—— 直接从源库读，走 SQLite 自己的文件打开
+    """
+    # --- 1) shutil.copy2 ---
+    try:
+        shutil.copy2(db, tmp)
+    except (OSError, PermissionError):
+        # copy2 可能已经建出了半个文件，先清掉再换路子，
+        # 否则后续 sqlite 会报 "unable to open database file"。
+        _silent_unlink(tmp)
+        # --- 2) 手工字节拷贝 ---
+        try:
+            with open(db, "rb") as fsrc:
+                data = fsrc.read()
+            with open(tmp, "wb") as fdst:
+                fdst.write(data)
+        except OSError:
+            _silent_unlink(tmp)
+            # --- 3) sqlite backup 直读 ---
+            src = sqlite3.connect("file:%s?mode=ro"
+                                  % db.replace("\\", "/"), uri=True)
+            try:
+                dst = sqlite3.connect(tmp)
+                try:
+                    src.backup(dst)
+                finally:
+                    dst.close()
+            finally:
+                src.close()
+
+    conn = sqlite3.connect(tmp)
+    try:
+        total = conn.execute("select count(*) from cookies").fetchone()[0]
+        wechat = conn.execute(
+            "select count(*) from cookies where host_key like '%weixin%'"
+        ).fetchone()[0]
+    finally:
+        conn.close()
+    return total, wechat
+
+
 def cookie_stats(profile_dir):
     """读 profile 的 cookie 库，返回统计。文件不存在返回 None。
 
-    ⚠ 必须先拷到临时文件再打开：Chrome 运行时源库被锁，且直接读会
-    干扰 Chrome 自己的写入。
+    ⚠ 这个统计**仅供参考，不是登录态判据**。唯一判据是实拉能否拿到
+    token（见 live_token_check）。文件大小尤其不可信：SQLite 文件大小
+    由历史记录/已删除页/WAL 残留决定，与当前 cookie 数无正相关。
     """
     db = os.path.join(profile_dir, COOKIE_REL)
     if not os.path.exists(db):
         return None
     tmp = os.path.join(tempfile.gettempdir(), "ck_probe.db")
     try:
-        shutil.copy2(db, tmp)
-        conn = sqlite3.connect(tmp)
-        try:
-            total = conn.execute(
-                "select count(*) from cookies"
-            ).fetchone()[0]
-            wechat = conn.execute(
-                "select count(*) from cookies "
-                "where host_key like '%weixin%'"
-            ).fetchone()[0]
-        finally:
-            conn.close()
+        total, wechat = _count_rows(db, tmp)
     except sqlite3.Error as e:
-        return {"error": str(e)}
+        return {"error": "sqlite: %s" % e}
+    except OSError as e:
+        # 拿不到就明说「不可读」，而不是抛栈让诊断中断。
+        return {"error": "无法读取（Chrome 占用中）: %s" % e}
     finally:
         if os.path.exists(tmp):
-            os.remove(tmp)
+            try:
+                os.remove(tmp)
+            except OSError:
+                pass
     return {
         "path": db,
-        #仅供人参考，**不作判据**
+        # 仅供人参考，**不作判据**
         "bytes": os.path.getsize(db),
         "total": total,
         "wechat": wechat,
@@ -138,7 +196,10 @@ def main():
         if s is None:
             print("    文件不存在")
         elif "error" in s:
+            #⚠ 拿不到统计**不代表登录态有问题**，只说明 Chrome 正占用该库。
+            #    真正的判据是下面的实拉检测，别在这里下结论。
             print("    读取失败: %s" % s["error"])
+            print("    （Chrome 运行时锁住该库属正常，不影响登录态判断）")
         else:
             print("    文件大小   = %d 字节   ← 仅供参考，不是判据" % s["bytes"])
             print("    cookie 总数= %d" % s["total"])
@@ -152,11 +213,16 @@ def main():
         print(" 实拉检测: [OK] 拿到 token=%s" % live.get("token"))
         print("\n 结论: 登录态可用，可以直接跑 refresh。")
     else:
-        print(" 实拉检测: [X] %s" % live.get("why", "拿不到 token"))
-        print("\n 结论: 登录态不可用。请在Chrome 窗口里扫码登录 mp.weixin.qq.com，")
-        print("       然后重跑本脚本。⚠ 注意区分：")
-        print("       - 进程被收走（10061/10054）→ 重跑一次即可，不是掉登录")
-        print("       - Cookie 真丢（这里会报拿不到 token）→ 才要重新扫码")
+        why = live.get("why", "拿不到 token")
+        print(" 实拉检测: [X] %s" % why)
+        if "CDP" in why:
+            print("\n 结论: Chrome 没起来 —— 这不是登录态问题。")
+            print("       用 scripts\\chrome_cdp_check.bat 重跑（会自动带 --no-sandbox）。")
+        else:
+            print("\n 结论: 登录态不可用。请在Chrome 窗口里扫码登录 mp.weixin.qq.com，")
+            print("       然后重跑本脚本。⚠ 注意区分：")
+            print("       - 进程被收走 / CDP 连不上 → 不是掉登录，重跑即可")
+            print("       - 实拉仍 NO_TOKEN（这里）→ 才要重新扫码")
     print("-" * 62)
 
 
