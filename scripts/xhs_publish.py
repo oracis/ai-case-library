@@ -163,6 +163,14 @@ def _hard_clip(s, n):
 OVERRIDES_PATH = os.path.join(ROOT, "data", "xhs_title_overrides.json")
 _OVERRIDES_CACHE = None
 
+# 正文/卡片覆盖表（2026-10-01 新增）。
+# 为什么需要：标题覆盖只能改标题，但 2026-10-01 voklit 被判**文本违规+图片违规**
+# （笔记已不可见），根因是正文与卡片在讲「怎么卖虚拟号码 / 短信 / OTP」——
+# 小红书对「通信资源」类目明确禁售，且**红线是语义级不是关键词级**，
+# 替换个别词救不回来，只能整段改写意图。数据侧不该动 cases.json（四平台共用）。
+NOTE_OVERRIDES_PATH = os.path.join(ROOT, "data", "xhs_note_overrides.json")
+_NOTE_OVERRIDES_CACHE = None
+
 
 def _title_overrides():
     """标题覆盖表（xhs_ai_titles.py 产出）；文件缺失/损坏时当空表。"""
@@ -173,6 +181,22 @@ def _title_overrides():
         except Exception:                                  # noqa: BLE001
             _OVERRIDES_CACHE = {}
     return _OVERRIDES_CACHE
+
+
+def _note_overrides():
+    """正文/卡片覆盖表；文件缺失/损坏时当空表。"""
+    global _NOTE_OVERRIDES_CACHE
+    if _NOTE_OVERRIDES_CACHE is None:
+        try:
+            _NOTE_OVERRIDES_CACHE = json.load(open(NOTE_OVERRIDES_PATH, encoding="utf-8"))
+        except Exception:                                  # noqa: BLE001
+            _NOTE_OVERRIDES_CACHE = {}
+    return _NOTE_OVERRIDES_CACHE
+
+
+def note_override(cid):
+    """取某案例的小红书覆盖项（title/body/tags/cards），没有则 None。"""
+    return _note_overrides().get(cid or "")
 
 
 def _title_desc(desc, budget):
@@ -308,6 +332,11 @@ def build_tags(c):
 
 
 def build_body(c):
+    # 2026-10-01：正文覆盖优先。禁售类目（通信资源等）光改标题没用，
+    # 违规判定看的是整段意图，必须能整体替换正文。
+    ov = note_override(c.get("id") or "")
+    if ov and ov.get("body"):
+        return ov["body"]
     h = (c.get("metrics") or {}).get("headline") or ""
     # 小红书种草口径（薛红笙路数）：第一屏就要有钩子——
     # 反差 / 具体数字 / 一句话痛点，别上来就"拆一个案例"这种叙述腔。
@@ -375,11 +404,68 @@ def cover_headline(headline, budget=24):
 
 
 def build_note(c, used=None):
+    # 2026-10-01：覆盖表优先级最高（title/body/tags 都可覆盖）。
+    # 为什么不改 cases.json —— 那是四平台共用源，改了要重建全部 37 条公众号
+    # HTML 并重跑 refresh；违规只是小红书单平台的问题。
+    ov = note_override(c.get("id") or "") or {}
     return {
-        "title": make_xhs_title(c, used),
-        "body": build_body(c),
-        "tags": build_tags(c),
+        "title": ov.get("title") or make_xhs_title(c, used),
+        "body": ov.get("body") or build_body(c),
+        "tags": ov.get("tags") or build_tags(c),
     }
+
+
+# ---- 合规预检（2026-10-01）------------------------------------------------
+# 为什么加：voklit 被判「文本违规 + 图片违规」、笔记已不可见，处置书四条判定
+# 全中。**根因是发布前没有任何小红书合规检查** —— 头条有 risk_words()，小红书
+# 以前没有。
+# ⚠ 红线是**语义级**不是关键词级：这里只能拦「明确踩线」的写法，拦不住
+# 「面向 XX 群体提供服务」这种无联系方式却暗示导流的表达。真正的兜底是
+# 人读一遍 note.json，别只看脚本通过。
+XHS_BANNED = {
+    "通信资源": ("虚拟号码", "虚拟号", "物联卡", "SIM卡", "接码", "中间号",
+                 "外呼", "短信通道", "VoIP", "OTP验证", "接验证码", "2FA接码"),
+    "引流导流": ("加微信", "加微", "微信号", "QQ群", "加群", "私信我", "联系我",
+                 "戳我", "主页链接", "公众号搜", "扫码"),
+    "灰产工具": ("破解", "刷量", "批量注册", "代实名", "租号", "账号交易",
+                 "免实名", "绕过风控", "脚本批量"),
+}
+
+
+def xhs_compliance(note):
+    """对 build_note() 的产物做合规预检，返回 [(类别, 命中词, 片段)]。
+
+    只看**最终产物**（标题+正文+卡片），因为覆盖表可能已把违规措辞换掉。
+    """
+    blob = (note.get("title") or "") + "\n" + (note.get("body") or "")
+    blob += "\n" + (note.get("_cards_text") or "")
+    hits = []
+    for cat, words in XHS_BANNED.items():
+        for w in words:
+            i = blob.find(w)
+            if i >= 0:
+                hits.append((cat, w, blob[max(0, i - 12):i + len(w) + 12]))
+    return hits
+
+
+def cards_text(c):
+    """把卡片上会印出来的文字抽成纯文本，供合规预检扫。
+
+    ⚠ 别漏了封面那行 one_liner —— 它来自 cases.json 的 `one_liner`，
+    覆盖表若只改 what/money 而漏 headline，封面仍会印违规措辞。
+    """
+    ov = note_override(c.get("id") or "") or {}
+    cards = ov.get("cards") or {}
+    parts = [
+        c.get("name") or "",
+        cards.get("headline") or c.get("one_liner") or "",
+        cards.get("what") or c.get("what_it_does") or "",
+        cards.get("money") or c.get("how_it_makes_money") or "",
+    ]
+    parts += list(cards.get("why") or c.get("why_it_works") or [])
+    pb = cards.get("playbook")
+    parts += [pb] if isinstance(pb, str) else list(pb or c.get("playbook") or [])
+    return "\n".join(str(x) for x in parts if x)
 
 
 # ---- 卡片 HTML -------------------------------------------------------------
@@ -422,6 +508,18 @@ def card_html(c, page, total):
     brand = "拆解海外"
     page_no = "%02d / %02d" % (page, total)
 
+    # 2026-10-01：卡片文案覆盖（图片违规的根因在卡片，不只在正文）。
+    # 违规判定看整段意图，所以 cards 要能整体替换 what/money/why/playbook；
+    # ⚠ 只改正文不覆盖卡片，等于把同样的违规文案重新印一遍发出去。
+    ov = note_override(c.get("id") or "") or {}
+    cards = ov.get("cards") or {}
+    c_one = cards.get("headline") or one
+    c_what = cards.get("what") or c.get("what_it_does") or "—"
+    c_money = cards.get("money") or c.get("how_it_makes_money") or "—"
+    c_why = cards.get("why") or c.get("why_it_works") or []
+    c_pb = cards.get("playbook")
+    c_pb = [c_pb] if isinstance(c_pb, str) else (c_pb or c.get("playbook") or [])
+
     head = (
         '<div class="hd"><div class="brand"><span class="sq"></span>%s</div>'
         '<div class="pg">%s</div></div>' % (esc(brand), esc(page_no)))
@@ -434,7 +532,7 @@ def card_html(c, page, total):
             '<div class="numbox"><div class="num fit">%s</div>'
             '<div class="numsub">数据来自公开披露 · 口径见末页</div></div>'
             '<div class="swipe">👉 右滑看完整拆解</div>'
-            % (ac, esc(name), esc(one),
+            % (ac, esc(name), esc(c_one),
                esc(cover_headline(headline) or _clip(headline, 30))))
     elif page == 2:    # 是什么 · 怎么赚钱
         body = (
@@ -442,16 +540,15 @@ def card_html(c, page, total):
             '<div class="blk fit"><div class="para">%s</div></div>'
             '<div class="h2" style="color:%s">它怎么赚钱</div>'
             '<div class="blk fit"><div class="para">%s</div></div>'
-            % (ac, esc(c.get("what_it_does") or "—"),
-               ac, esc(c.get("how_it_makes_money") or "—")))
+            % (ac, esc(c_what), ac, esc(c_money)))
     elif page == 3:    # 为什么成立
         body = ('<div class="h2" style="color:%s">它为什么能成立</div>'
                 '<div class="blk fit grow"><div class="inner">%s</div></div>'
-                % (ac, _bullets(c.get("why_it_works") or [])))
+                % (ac, _bullets(c_why)))
     elif page == 4:    # 方法论
         body = ('<div class="h2" style="color:%s">能抄走的方法论</div>'
                 '<div class="blk fit grow"><div class="inner">%s</div></div>'
-                % (ac, _bullets(c.get("playbook") or [])))
+                % (ac, _bullets(c_pb)))
     else:              # 三张评分
         rep = c.get("replicability") or {}
         sf = c.get("solo_fit") or {}
@@ -680,6 +777,17 @@ def build_case(port, c, cards=5, used=None):
     note = build_note(c, used)
     if used is not None:
         used.add(note["title"])
+    # 合规预检（2026-10-01）。卡片文字也要进检查范围 —— voklit 就是
+    # 「正文改干净了但卡片还印着违规措辞」这一路栽的。
+    note["_cards_text"] = cards_text(c)
+    hits = xhs_compliance(note)
+    note.pop("_cards_text", None)
+    if hits:
+        print("  [合规警告] %s 命中 %d 条：" % (cid, len(hits)))
+        for cat, w, frag in hits[:8]:
+            print("    - [%s] %s← %s" % (cat, w, frag.replace("\n", " ")))
+        print("    ⚠ 小红书对通信资源/引流/灰产是**禁售类目**，改措辞救不回来。")
+        print("    ⚠ 处置：换平台（公众号/B站可发），或整体改写意图。")
     note["images"] = render_case_pngs(port, c, d, cards)
     with open(os.path.join(d, "note.md"), "w", encoding="utf-8") as f:
         f.write(note["title"] + "\n\n" + note["body"] + "\n")
@@ -1709,7 +1817,8 @@ def _card_to_cid(title):
         if not os.path.isfile(f):
             continue
         try:
-            j = json.load(open(f, encoding="utf-8"))
+            with open(f, encoding="utf-8") as fh:
+                j = json.load(fh)
         except Exception:
             continue
         ti = norm(j.get("title"))

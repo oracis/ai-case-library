@@ -396,7 +396,8 @@ class TestPurgeStateRollback(unittest.TestCase):
         with open(self.path, "w", encoding="utf-8") as f:
             json.dump({"a": {"at": "t"}, "b": {"at": "t"}}, f)
         self.assertTrue(x._unmark(self.path, "a"))
-        self.assertEqual(list(json.load(open(self.path, encoding="utf-8"))), ["b"])
+        with open(self.path, encoding="utf-8") as fh:
+            self.assertEqual(list(json.load(fh)), ["b"])
 
     def test_purge会调用_unmark(self):
         """漏了这个调用，上面全部白测。"""
@@ -425,6 +426,90 @@ class TestPurgeStateRollback(unittest.TestCase):
         """查不到宁可不改状态文件 —— 错删记录会让已发过的案例被重复发布。"""
         self.assertIsNone(x._card_to_cid("完全不存在的草稿标题 zzz"))
         self.assertIsNone(x._card_to_cid(""))
+
+
+class TestCompliance(unittest.TestCase):
+    """合规预检（2026-10-01，因voklit 被判「文本+图片违规」而加）。
+
+    背景：那篇笔记被小红书判四条全中（引流 / 提供通信资源 / 推广非正规工具 /
+    账号异常操作），处置结果「已不可被他人查看」。根因是**发布前没有任何
+    小红书合规检查** —— 头条有 risk_words()，小红书以前没有。
+    """
+
+    def _case(self, cid):
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        cases = json.load(open(os.path.join(root, "data", "cases.json"),
+                              encoding="utf-8"))
+        return next(c for c in cases if c.get("id") == cid)
+
+    def test_voklit最终产物无违规词(self):
+        """覆盖表必须把通信资源类目的话术全换掉 —— 正文**和卡片**都要换。
+
+        ⚠ 卡片是最容易漏的：只改正文不覆盖 cards，等于把违规措辞重新印一遍
+        发出去，那才是「图片违规」的来源。
+        """
+        c = self._case("voklit")
+        note = x.build_note(c)
+        note["_cards_text"] = x.cards_text(c)
+        hits = x.xhs_compliance(note)
+        self.assertEqual(
+            hits, [],
+            "voklit 覆盖后仍命中 %r —— 小红书对通信资源是禁售类目，"
+            "改措辞救不回来，必须换平台或整体改写意图" % (hits,))
+
+    def test_覆盖表不改动四平台共用源(self):
+        """方案 A 的核心约束：只救小红书，不动 cases.json。
+
+        动 cases.json 会牵连公众号 —— 要重建全部 37 条 HTML 并重跑 refresh。
+        这里从磁盘读原始 JSON 断言违规原文仍在，而不是只对比函数输出。
+        """
+        import json
+        import os
+        path = os.path.join(x.ROOT, "data", "cases.json")
+        with open(path, encoding="utf-8") as fh:
+            raw = fh.read()
+        self.assertIn("虚拟电话号码", raw,
+                      "cases.json 里的违规原文被改了，方案 A 越界了")
+        self.assertIn("VoIP", raw)
+
+        # 落盘产物用的是覆盖后的正文，与源数据里的原文必须不同
+        c = self._case("voklit")
+        note = x.build_note(c)
+        self.assertNotIn("虚拟电话号码", note["body"])
+        self.assertNotIn("VoIP", note["body"])
+
+        # 覆盖表本身不能写进 cases.json
+        self.assertNotIn("xhs_note_overrides", raw)
+
+    def test_原始cases数据会被预检拦下(self):
+        """反向验证预检有效：不带覆盖表时，voklit 原文必须命中通信资源类目。
+
+        没有这条，无法证明「0 命中」是覆盖生效而不是预检失灵。
+        """
+        c = self._case("voklit")
+        blob = "\n".join([
+            c.get("what_it_does") or "",
+            c.get("how_it_makes_money") or "",
+        ] + list(c.get("why_it_works") or []) + list(c.get("playbook") or []))
+        hits = [(cat, w) for cat, w in
+                ((cat, w) for cat, words in x.XHS_BANNED.items()
+                 for w in words if w in blob)]
+        cats = {cat for cat, _w in hits}
+        self.assertIn("通信资源", cats,
+                      "预检对「虚拟号码/OTP/短信」这类词必须能拦下，"
+                      "否则 voklit 覆盖后的 0 命中说明不了问题")
+
+    def test_引流词也被拦(self):
+        note = {"title": "月收$1.6K", "body": "加微信详聊", "_cards_text": ""}
+        hits = x.xhs_compliance(note)
+        self.assertTrue(any(cat == "引流导流" for cat, _w, _f in hits))
+
+    def test_正常内容不误报(self):
+        """别把正常案例也拦了 —— 误报会让预检被忽略。"""
+        c = self._case("quran-unlock")
+        note = x.build_note(c)
+        note["_cards_text"] = x.cards_text(c)
+        self.assertEqual(x.xhs_compliance(note), [])
 
 
 if __name__ == "__main__":
