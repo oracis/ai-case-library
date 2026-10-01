@@ -179,6 +179,11 @@ OUTRO = [
     "海外每天都有新跑通的小项目。我每天筛一批发在社群里：哪些值得看、哪些我直接否掉了、为什么。",
 ]
 
+# 结尾按内容品类分。默认 OUTRO 是「海外小生意」口径（社群招新），
+# 非案例类（工具/方法论/观点）照抄会露馅 —— 读者点进来发现是开源项目，
+# 却被问「要不要进群看新项目」。与 TITLE_OVERRIDES 同一思路：表里没写的走默认。
+OUTRO_OVERRIDES = {}
+
 
 # ------------------------------------------------------------------ 小工具
 def human_num(n):
@@ -510,6 +515,13 @@ def render_markdown(case, titles, manual, secs, score):
                 L.append("> %s" % p)
                 L.append("")
                 continue
+            # 代码块：``` 包裹的整段原样输出，不当普通段落处理。
+            # ⚠ 工具推广文必带命令行示例，走通用段落路径会把缩进和换行吃掉，
+            # 读者复制到的是一段乱码 —— 所以必须单独走 fenced 分支。
+            if p.startswith("```"):
+                L.append(p)
+                L.append("")
+                continue
             L.append(p)
             if not p.startswith("- "):        # 列表项之间不留空行，紧凑一些
                 L.append("")
@@ -517,10 +529,11 @@ def render_markdown(case, titles, manual, secs, score):
 
     L.append("---")
     L.append("")
-    for p in OUTRO:
+    for p in OUTRO_OVERRIDES.get(case.get("id"), OUTRO):
         L.append(p)
         L.append("")
-    L.append("<!-- 公众号正文不能放外链：案例库链接放「阅读原文」和自定义菜单 -->")
+    if case.get("id") not in OUTRO_OVERRIDES:
+        L.append("<!-- 公众号正文不能放外链：案例库链接放「阅读原文」和自定义菜单 -->")
     L.append("<!--")
     L.append("核对用来源（发布前逐个点开确认，别进正文）：")
     for s in case.get("sources") or []:
@@ -646,7 +659,17 @@ def render_html(case, titles, manual, secs, score):
                 rows.append(_split_row(p))
                 continue
             _flush_html_rows(P, rows)
-            if p.startswith("- "):
+            if p.startswith("```"):
+                # 代码块 → 真正的 <pre><code>。同 render_markdown 的理由：
+                # 命令行示例的缩进/换行必须原样保留，读者要能直接复制。
+                code = re.sub(r"^```[a-zA-Z]*\n?", "", p)
+                code = re.sub(r"\n?```$", "", code)
+                P.append('<pre style="background:#f6f8fa;border:1px solid #e1e4e8;'
+                         'border-radius:6px;padding:12px 14px;margin:0 0 14px;'
+                         'overflow-x:auto;font-size:13px;line-height:1.6;'
+                         'font-family:Consolas,Monaco,\'Courier New\',monospace;'
+                         'color:#24292f;">%s</pre>' % _esc(code))
+            elif p.startswith("- "):
                 # 2026-09-24：去掉 padding-left+text-indent 的悬挂缩进 —— 正文没有
                 # 项目符号，单行时看不出效果，多行时「首行顶格、续行缩进」反而
                 # 显得错乱。列表项与普通段落同款，全部左缘对齐。
@@ -664,7 +687,7 @@ def render_html(case, titles, manual, secs, score):
         _flush_html_rows(P, rows)
 
     P.append('<hr style="border:none;border-top:1px solid #e1e4e8;margin:28px 0 18px;">')
-    for p in OUTRO:
+    for p in OUTRO_OVERRIDES.get(case.get("id"), OUTRO):
         P.append('<p style="margin:0 0 10px;color:#57606a;font-size:14px;">%s</p>' % _esc(p))
     P.append('<!-- 核对用来源见同名 .md 草稿 -->')
     P.append('</section>')

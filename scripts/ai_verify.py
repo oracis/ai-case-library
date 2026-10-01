@@ -713,8 +713,8 @@ def llm(messages, temperature=0.2):
         hint = ""
         if e.code == 401 and not AI_KEY:
             hint = ("（当前是免 key 模式：这个模型不支持空 Bearer，"
-                    "多半是「限时免费但锁 OpenCode 客户端」或需要真 key，"
-                    "跑 scripts/probe_free_llm.py 看当前哪些真能用）")
+                    "多半是「限时免费但锁客户端」或需要真 key，"
+                    "换--model 试别的，或用 --llm-profile 接一份可用性档案）")
         raise RuntimeError("LLM 接口 HTTP %s%s%s" % (
             e.code, ("：" + detail) if detail else "", hint)) from e
     except urllib.error.URLError as e:
@@ -757,8 +757,9 @@ def ping_llm():
         elif "HTTP 401" in msg:
             if not AI_KEY:
                 print("    → 当前是**免 key 模式**，这个模型不支持空 Bearer。"
-                      "多半是「限时免费但锁 OpenCode 客户端」或需真 key。")
-                print("    → 跑 scripts/probe_free_llm.py 看当前哪些真能免 key 用。")
+                      "多半是「限时免费但锁客户端」或需真 key。")
+                print("    → 换 --model 试别的，或用 --llm-profile 接一份"
+                      "可用性档案（只挑现在真能调的模型）。")
             else:
                 print("    → key 无效/没这个订阅。检查 --ai-key。")
         elif "HTTP 404" in msg:
@@ -1505,8 +1506,8 @@ def main():
     ap.add_argument("--ping", action="store_true",
                     help="只测当前模型端点通不通（发一个极短请求，不改任何数据）")
     ap.add_argument("--llm-profile", default=None,
-                    help="用 free-llm-probe 的档案/接口自动选模型。"
-                         "可给档案文件路径、HTTP URL（如 "
+                    help="用可用性档案/接口自动挑一个现在真能调的模型。"
+                         "可给档案 JSON 路径、HTTP URL（如 "
                          "http://127.0.0.1:8787/usable），"
                          "或 `档案路径:档案id` 精确指定。"
                          "只认 ok=true 的档案。")
@@ -1520,7 +1521,7 @@ def main():
                     help="后台密码（默认读 CASE_LIB_ADMIN_PASSWORD）")
     args = ap.parse_args()
 
-    # --llm-profile：从 free-llm-probe 的档案/接口取「现在能用的模型」。
+    # --llm-profile：从可用性档案/接口取「现在能用的模型」。
     # 放在 --ai-* 之前，让显式 --ai-* 能再覆盖档案里的值。
     if getattr(args, "llm_profile", None):
         try:

@@ -2,11 +2,16 @@
 REM ============================================================
 REM  Chrome CDP 登录态自检（诊断「登录后一会就掉」）
 REM
-REM  根因参考 docs：scripts\chrome_cdp_setup.md
-REM  本脚本：清 LOCK → 启动 Chrome → 检查 CDP → 看 Cookies 大小
+REM  流程：清 LOCK → 启动 Chrome for Testing → 检查 CDP → 体检登录态
 REM
-REM  ⚠ Chrome 必须在【本机】跑，agent 环境拉不起GUI 进程。
+REM  ⚠ Chrome 必须在【本机】跑，agent 环境拉不起 GUI 进程。
 REM     直接双击本文件即可。
+REM
+REM  ⚠ 判据已修正（2026-10-02）：不要再看 Cookies 文件大小！
+REM     实测日常 Chrome 的 cookie 库 1.4MB 但微信 cookie 只有 8 条，
+REM     CDP profile 只有 32KB 却是 12 条且能正常登录。
+REM     文件大小取决于 SQLite 页/WAL 残留膨胀，与登录态无正相关。
+REM     唯一可靠判据 =能不能拿到 token（脚本最后一步会实拉）。
 REM ============================================================
 setlocal
 cd /d "%~dp0\.."
@@ -21,9 +26,10 @@ set PYTHONIOENCODING=utf-8
 
 set CFT=%LOCALAPPDATA%\Google\ChromeForTesting\chrome-win64\chrome.exe
 set PROF=%LOCALAPPDATA%\Google\ChromeCDP
+
 if not exist "%CFT%" (
     echo [X] 没找到 Chrome for Testing：%CFT%
-    echo     装一次即可（官方针对CDP 场景的推荐浏览器）。
+    echo     请先下载 Chrome for Testing（官方针对CDP 场景的推荐浏览器）。
     pause
     exit /b 1
 )
@@ -38,8 +44,8 @@ if exist "%PROF%\Default\LOCK" (
 
 echo.
 echo === 1) 启动 Chrome（Chrome for Testing + 独立 profile）===
-start "" "%CFT%" --remote-debugging-port=9222 --user-data-dir="%PROF%"
-timeout /t 10 /nobreak >nul
+start "" "%CFT%" --remote-debugging-port=9222 --user-data-dir="%PROF%" --no-first-run --no-default-browser-check
+timeout /t 12 /nobreak >nul
 
 curl -s --noproxy * --max-time 5 http://127.0.0.1:9222/json/version 2>nul | findstr /c:"Browser" >nul
 if errorlevel 1 (
@@ -52,31 +58,8 @@ if errorlevel 1 (
 echo [OK] CDP 端口通
 
 echo.
-echo === 2) Cookies 文件大小（登录态是否真在盘上）===
-for %%F in ("%PROF%\Default\Network\Cookies" "%LOCALAPPDATA%\Google\Chrome\User Data\Default\Network\Cookies") do (
-    if exist %%F (
-        for %%S in (%%~zF) do (
-            echo   %%~nxF  = %%S 字节
-        )
-    ) else (
-        echo   %%~nxF  不存在
-    )
-)
-echo   判据：CDP profile 的 Cookies 应 ^>100KB。若只有 32KB 左右= 登录态又丢了。
-
+echo === 2) 登录态体检 ===
+python -X utf8 scripts\chrome_login_state.py
 echo.
-echo === 3) 登录自检 ===
-python -X utf8 scripts\wechat_verify_refresh.py --list
-if errorlevel 1 (
-    echo.
-    echo [X] 拿不到 token —— 请在浏览器里扫码登录 mp.weixin.qq.com
-    echo     登录后再跑一次本文件，确认 Cookies 是否涨到 100KB 以上。
-    pause
-    exit /b 1
-)
-echo [OK] 登录态可用
-
-echo.
-echo 全部通过。登录态持久性由Cookies 大小判断，详见 scripts\chrome_cdp_setup.md
 pause
 endlocal

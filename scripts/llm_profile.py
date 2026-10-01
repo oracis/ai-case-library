@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-"""读 free-llm-probe 的档案/接口，把「现在能用的 LLM」接进核验流程。
+"""读 LLM 可用性档案/接口，把「现在能用的 LLM」接进核验流程。
 
 **为什么需要这个**：`ai_verify.py` 原本只能手填 base/model/key 三个字段，
 换模型要改环境变量或改代码。而「哪些模型现在真能调」是**会变的**——
-同一个模型今天免费、下周可能下线。free-llm-probe 负责回答这个动态问题，
+同一个模型今天免费、下周可能下线。外部探测工具负责回答这个动态问题，
 本模块负责把答案喂进核验流程。
 
 三种来源（可组合，优先级从高到低）
@@ -15,12 +15,12 @@
 3. **HTTP 接口**：`--llm-profile http://127.0.0.1:8787/usable`
    走 JSON 接口拿实时状态（消费方崩溃后自愈，不必等下次定时刷新）。
 
-档案 schema 由 free-llm-probe 定义，本模块只读不改：
+档案 schema（稳定契约，本模块只读不改）：
     {id, source, base, model, auth, no_key, ok, reason, freshness, last_ok_at, ...}
 
 ⚠ **要同时看 `ok` 和 `freshness`**。不可用档案（限地区/锁客户端/已下线）
 留着只是给人看的，喂给核验流程只会浪费一轮抓取。
-⚠ **`ok=true` 不等于现在能用**：free-llm-probe v2.0 起档案带五档时效，
+⚠ **`ok=true` 不等于现在能用**：带五档时效的档案里，
 `ok=true` + `freshness=expired` 表示「上次能用、现已连挂或超 7 天没成功」，
 拿它调核验会一路失败。
 """
@@ -54,9 +54,8 @@ def load_payload(src):
     if not os.path.isfile(path):
         raise FileNotFoundError(
             "找不到档案文件：%s\n"
-            "先跑一次探测产出档案：\n"
-            "  python free-llm-probe/probe.py "
-            "--emit-profiles %s" % (path, src))
+            "先跑一次外部探测工具产出档案（档案 schema 见本模块 docstring），"
+            "再把路径传给 --llm-profile。" % (path,))
     with open(path, encoding="utf-8") as f:
         return json.load(f)
 
@@ -77,8 +76,8 @@ def pick(payload, want_id=None, allow_expired=False):
 
     want_id 形如 `opencode-zen/space-bunny-free`（也允许只写模型名）。
 
-    ⚠ **必须同时看 `ok` 和 `freshness`**。free-llm-probe v2.0 起档案带
-    五档时效；`ok=true` + `freshness=expired` 的条目已经连挂或超期，
+    ⚠ **必须同时看 `ok` 和 `freshness`**。带五档时效的档案里，
+    `ok=true` + `freshness=expired` 的条目已经连挂或超期，
     直接拿来调会失败。`allow_expired=True` 才放行（明确知道要重试时用）。
     """
     profiles = [p for p in (payload.get("profiles") or [])

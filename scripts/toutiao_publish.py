@@ -292,7 +292,7 @@ FOOTER_TEXT = ("「拆解海外」逐个拆海外小生意：它干什么、钱�
                "照实标注（MRR 就写 MRR，只有流水就写近 30 天收入），不做换算夸大。")
 
 
-def blocks_to_html(blocks, footer=True):
+def blocks_to_html(blocks, footer=True, footer_text=None):
     """块 → 头条编辑器的富文本 HTML。
 
     头条 ProseMirror schema 实测（2026-09-28 探针）：
@@ -342,7 +342,7 @@ def blocks_to_html(blocks, footer=True):
     if footer:
         out.append("<hr>")
         out.append("<h2>%s</h2>" % FOOTER_NOTE)
-        out.append("<p>%s</p>" % inline(FOOTER_TEXT))
+        out.append("<p>%s</p>" % inline(footer_text or FOOTER_TEXT))
     return "\n".join(out)
 
 # 头条审核/推荐的敏感词 → 中性替身。**标题命中就自动换掉**，不留人工判断：
@@ -385,7 +385,11 @@ def build_article(c):
     plain = strip_md("\n".join(t for _, t in blocks))
     hits = []                                     # 被自动中性化的敏感词
     title = make_toutiao_title(c, hits_out=hits)
-    html = blocks_to_html(blocks)
+    # 2026-10-01：栏目页脚覆盖。
+    # 默认页脚是「「拆解海外」逐个拆海外小生意：它干什么、钱从哪来、做到多大…」——
+    # 对工具推广/使用类内容是错的（这篇不是海外小生意，还教读者「数据来自公开披露」，
+    # 而实测数据来自公开接口）。不填则逐字节保持原样（39 条不受影响）。
+    html = blocks_to_html(blocks, footer_text=c.get("footer_text"))
     return {
         "id": cid,
         "name": c.get("name", ""),
@@ -556,6 +560,16 @@ def tt_cover_html(c):
     name = c.get("name") or c.get("id") or ""
     headline = (c.get("metrics") or {}).get("headline") or ""
     num = tt_cover_num(headline)
+    # 2026-10-01：封面文案覆盖（非「营收案例」内容用）。
+    # 默认版式是「金额 + 产品名」—— 对案例成立，对工具推广就是错位：
+    # 实测出来num="84 个模型里 11"、name="free-llm-probe"，
+    # 读起来像在报营收（而且句子被截断，语义不完整）。
+    # 所以让 cover_kv 能整体指定两行；不填则逐字节保持原样（39 条不受影响）。
+    ck = c.get("cover_kv") or {}
+    if ck.get("num"):
+        num = ck["num"]
+    if ck.get("name"):
+        name = ck["name"]
     return (
         '<!doctype html><html><head><meta charset="utf-8"><style>'
         "*{margin:0;padding:0;box-sizing:border-box;}"

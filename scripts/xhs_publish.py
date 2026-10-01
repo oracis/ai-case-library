@@ -513,6 +513,16 @@ def card_html(c, page, total):
     # ⚠ 只改正文不覆盖卡片，等于把同样的违规文案重新印一遍发出去。
     ov = note_override(c.get("id") or "") or {}
     cards = ov.get("cards") or {}
+    # 2026-10-01：封面页版式文案也要能覆盖。
+    # 为什么：kick 是**硬编码在模板里**的「CASE STUDY · 海外小生意」，
+    # cards 覆盖表按字段取（headline/what/money/why/playbook）碰不到它 ——
+    # 结果是开源工具项目的卡片上印着「海外小生意」。
+    # 同样地，「数据来自公开披露」对非营收类内容也是错的（这里是实测，不是披露）。
+    # 取值回退到原默认值，既有 39 条渲染结果逐字节不变。
+    c_kicker = cards.get("kicker") or "CASE STUDY · 海外小生意"
+    c_numsub = cards.get("numsub") or "数据来自公开披露 · 口径见末页"
+    c_swipe = cards.get("swipe") or "👉 右滑看完整拆解"
+    c_brand = cards.get("brand") or brand
     c_one = cards.get("headline") or one
     c_what = cards.get("what") or c.get("what_it_does") or "—"
     c_money = cards.get("money") or c.get("how_it_makes_money") or "—"
@@ -522,18 +532,21 @@ def card_html(c, page, total):
 
     head = (
         '<div class="hd"><div class="brand"><span class="sq"></span>%s</div>'
-        '<div class="pg">%s</div></div>' % (esc(brand), esc(page_no)))
+        '<div class="pg">%s</div></div>' % (esc(c_brand), esc(page_no)))
 
     if page == 1:      # 封面
         body = (
-            '<div class="kicker" style="color:%s">CASE STUDY · 海外小生意</div>'
+            '<div class="kicker" style="color:%s">%s</div>'
             '<div class="name fit">%s</div>'
             '<div class="one fit">%s</div>'
             '<div class="numbox"><div class="num fit">%s</div>'
-            '<div class="numsub">数据来自公开披露 · 口径见末页</div></div>'
-            '<div class="swipe">👉 右滑看完整拆解</div>'
-            % (ac, esc(name), esc(c_one),
-               esc(cover_headline(headline) or _clip(headline, 30))))
+            '<div class="numsub">%s</div></div>'
+            '<div class="swipe">%s</div>'
+            % (ac, esc(c_kicker),
+               esc(cards.get("name") or name), esc(c_one),
+               esc(cards.get("cover_num") or cover_headline(headline)
+                   or _clip(headline, 30)),
+               esc(c_numsub), esc(c_swipe)))
     elif page == 2:    # 是什么 · 怎么赚钱
         body = (
             '<div class="h2" style="color:%s">它是什么</div>'
