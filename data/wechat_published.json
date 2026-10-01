@@ -21,7 +21,7 @@
     "status": "draft",
     "file": "公众号-magicslides-app拆解.html",
     "appmsgid": "100000125",
-    "refreshed_at": "2026-09-24 00:51"
+    "refreshed_at": "2026-10-01 14:31"
   },
   "stan": {
     "title": "Stan：帮创作者「靠自己活着和工作」的平台",
@@ -45,7 +45,7 @@
     "status": "draft",
     "file": "公众号-gojiberryai拆解.html",
     "appmsgid": "100000138",
-    "refreshed_at": "2026-09-24 00:53"
+    "refreshed_at": "2026-10-01 14:46"
   },
   "sierra": {
     "title": "Sierra：企业级 AI 客服代理，只在问题被真正解决时才收钱",
@@ -53,7 +53,7 @@
     "status": "draft",
     "file": "公众号-sierra拆解.html",
     "appmsgid": "100000142",
-    "refreshed_at": "2026-09-24 00:54"
+    "refreshed_at": "2026-10-01 14:51"
   },
   "genius-ai": {
     "title": "Genius AI（原 GlossGenius）：给美发店、美甲店、理疗诊所做的一体化后台：预约、收银、发短信",
@@ -61,15 +61,15 @@
     "status": "draft",
     "file": "公众号-genius-ai拆解.html",
     "appmsgid": "100000146",
-    "refreshed_at": "2026-09-24 00:54"
+    "refreshed_at": "2026-10-01 14:57"
   },
   "nitra": {
-    "title": "Nitra：给独立小诊所做后台：管钱、管合规、管药品库存",
+    "title": "中文媒体把这家美国医疗公司的客户数，写多了 10 倍",
     "published_at": "2026-09-21 21:48",
     "status": "draft",
     "file": "公众号-nitra拆解.html",
     "appmsgid": "100000150",
-    "refreshed_at": "2026-09-24 00:55"
+    "refreshed_at": "2026-10-01 15:01"
   },
   "viktor": {
     "title": "Viktor：住进 Slack / Teams 的 AI 同事，你 @ 它，它把活干完再贴回来",
@@ -77,7 +77,7 @@
     "status": "draft",
     "file": "公众号-viktor拆解.html",
     "appmsgid": "100000154",
-    "refreshed_at": "2026-09-24 00:56"
+    "refreshed_at": "2026-10-01 15:03"
   },
   "chatbase": {
     "title": "Chatbase：上传文档就能得到一个客服机器人；从推文发出去到第一个付费客户只用 30 分钟",
@@ -245,7 +245,7 @@
     "status": "draft",
     "appmsgid": "100000242",
     "file": "公众号-voklit拆解.html",
-    "refreshed_at": "2026-09-25 17:27"
+    "refreshed_at": "2026-10-01 13:42"
   },
   "prosp": {
     "title": "PROSP：把 B2B 销售的一整天，压成一个按钮",
@@ -253,7 +253,7 @@
     "status": "draft",
     "appmsgid": "100000251",
     "file": "公众号-prosp拆解.html",
-    "refreshed_at": "2026-09-25 17:27"
+    "refreshed_at": "2026-10-01 14:02"
   },
   "divine-widgets": {
     "title": "Divine Widgets：一个人做的圣经小组件，锁屏上每天一句",
@@ -261,7 +261,7 @@
     "status": "draft",
     "appmsgid": "100000255",
     "file": "公众号-divine-widgets拆解.html",
-    "refreshed_at": "2026-09-25 17:28"
+    "refreshed_at": "2026-10-01 14:07"
   },
   "promptmonitor-io": {
     "title": "品牌开始问「AI 回答里提不提我」，于是有了这门生意",
@@ -269,7 +269,7 @@
     "status": "draft",
     "appmsgid": "100000259",
     "file": "公众号-promptmonitor-io拆解.html",
-    "refreshed_at": "2026-09-25 17:29"
+    "refreshed_at": "2026-10-01 14:12"
   },
   "uplinked-b-v": {
     "title": "把「我知道要发内容，但没时间写」做成订阅",
@@ -277,7 +277,7 @@
     "status": "draft",
     "appmsgid": "100000267",
     "file": "公众号-uplinked-b-v拆解.html",
-    "refreshed_at": "2026-09-25 17:31"
+    "refreshed_at": "2026-10-01 14:16"
   },
   "le19emetrou": {
     "title": "€337 的广告费，卖 €34,99 的高尔夫开瓶器",
@@ -285,7 +285,7 @@
     "status": "draft",
     "appmsgid": "100000275",
     "file": "公众号-le19emetrou拆解.html",
-    "refreshed_at": "2026-09-25 17:33"
+    "refreshed_at": "2026-10-01 14:21"
   },
   "search1api": {
     "title": "Search1API：不赌哪个 AI 会赢，只卖它们都需要的那次联网",
@@ -293,7 +293,7 @@
     "status": "draft",
     "appmsgid": "100000279",
     "file": "公众号-search1api拆解.html",
-    "refreshed_at": "2026-09-25 17:34"
+    "refreshed_at": "2026-10-01 14:26"
   },
   "quran-unlock": {
     "title": "Quran Unlock：信仰类习惯打卡 App：读古兰经解锁 apps，靠内购变现",
@@ -301,13 +301,14 @@
     "status": "draft",
     "appmsgid": "100000318",
     "file": "公众号-quran-unlock拆解.html",
-    "refreshed_at": "2026-10-01 00:56"
+    "refreshed_at": "2026-10-01 13:50"
   },
   "mort": {
     "title": "MORT：AI 求职代理：盯 5 万个企业招聘页，按简历打分并自动投递",
     "published_at": "2026-09-30 19:50",
     "status": "draft",
     "appmsgid": "100000329",
-    "file": "公众号-mort拆解.html"
+    "file": "公众号-mort拆解.html",
+    "refreshed_at": "2026-10-01 13:56"
   }
 }
