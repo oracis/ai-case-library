@@ -1,19 +1,28 @@
 @echo off
 REM ============================================================
-REM  重建 6 条服务端损坏的公众号草稿（2026-10-01 确认 320003 记录级损坏）
+REM  Rebuild the 6 corrupted WeChat drafts (320003 record damage)
 REM
-REM  为什么必须重建：magicslides-app / stan / 1lookup / gojiberryai /
-REM  sierra / genius-ai 在服务端**打不开编辑页**，refresh 刷不进去。
-REM  唯一出路是当新草稿重发（publish --case 走的就是这条路径）。
+REM  NOTE: This file MUST stay pure ASCII. cmd.exe reads .bat using
+REM  the OEM codepage (GBK on this machine); any Chinese byte in a
+REM  REM/comment/echo line corrupts parsing and silently drops the
+REM  following commands (that is how "cd /d" got lost and the path
+REM  became scripts\scripts\...).
 REM
-REM  用法：双击本文件，或在 cmd 里跑
-REM     scripts\wechat_rebuild_broken.bat          干跑看计划
-REM     scripts\wechat_rebuild_broken.bat --go     真跑
+REM  Usage:
+REM     scripts\wechat_rebuild_broken.bat          dry run (show plan)
+REM     scripts\wechat_rebuild_broken.bat --go     actually publish
+REM
+REM  Run on the LOCAL machine (double-click).
 REM ============================================================
-setlocal
-cd /d "%~dp0\.."
+setlocal EnableExtensions
 
-REM ⚠ 代理必须清掉，否则 CDP 的 WebSocket 会被掐断（10053/10054）
+set "SCRIPT_DIR=%~dp0"
+set "ROOT=%~dp0.."
+set "PROF=%LOCALAPPDATA%\Google\ChromeCDP"
+set "CFT=%LOCALAPPDATA%\Google\ChromeForTesting\chrome-win64\chrome.exe"
+
+REM The proxy MUST be cleared, otherwise the CDP WebSocket gets cut
+REM (10053 / 10054).
 set HTTP_PROXY=
 set HTTPS_PROXY=
 set http_proxy=
@@ -25,75 +34,89 @@ set PYTHONIOENCODING=utf-8
 set GO=
 if /i "%~1"=="--go" set GO=--go
 
-echo === 0) 前置检查 ===
-where chrome.exe >nul 2>&1
-if exist "%LOCALAPPDATA%\Google\ChromeCDP\Default\LOCK" (
-    echo ⚠ 存在残留 LOCK，Chrome 会启动即退。正在清理...
-    del /f /q "%LOCALAPPDATA%\Google\ChromeCDP\Default\LOCK" 2>nul
+REM ---- resolve a python interpreter -------------------------------
+set "PY="
+where python >nul 2>nul && set "PY=python"
+if not defined PY (
+  if exist "%LOCALAPPDATA%\.workbuddy\binaries\python\versions\3.13.12\python.exe" (
+    set "PY=%LOCALAPPDATA%\.workbuddy\binaries\python\versions\3.13.12\python.exe"
+  )
+)
+if not defined PY (
+  echo [X] No python interpreter found on PATH.
+  pause
+  exit /b 1
 )
 
-REM 启动 Chrome（如果还没在跑）
+echo === 0) Preflight: clear stale LOCK ===
+REM A leftover LOCK makes Chrome exit instantly (no error, no window).
+if exist "%PROF%\Default\LOCK" (
+  echo   found LOCK, deleting...
+  del /f /q "%PROF%\Default\LOCK" 2>nul
+) else (
+  echo   no LOCK
+)
+
+echo.
+echo === 1) Start Chrome (CDP) if not running ===
 curl -s --noproxy * --max-time 4 http://127.0.0.1:9222/json/version 2>nul | findstr /c:"webSocketDebuggerUrl" >nul
 if errorlevel 1 (
-    echo 启动 Chrome（CDP 模式）...
-    start "" "%ProgramFiles%\Google\Chrome\Application\chrome.exe" ^
-        --remote-debugging-port=9222 ^
-        --user-data-dir="%LOCALAPPDATA%\Google\ChromeCDP"
-    timeout /t 8 /nobreak >nul
+  echo   starting Chrome for Testing...
+  if exist "%CFT%" (
+    start "" "%CFT%" --remote-debugging-port=9222 --user-data-dir="%PROF%" --no-first-run --no-default-browser-check
+  ) else (
+    echo   [warn] Chrome for Testing not found, falling back to system Chrome
+    start "" "%ProgramFiles%\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --user-data-dir="%PROF%"
+  )
+  REM See chrome_cdp_check.bat: GNU "timeout" shadows the cmd builtin.
+  ping -n 13 127.0.0.1 >nul
 )
 
 curl -s --noproxy * --max-time 5 http://127.0.0.1:9222/json/version 2>nul | findstr /c:"Browser" >nul
 if errorlevel 1 (
-    echo.
-    echo [X] CDP 端口 9222 不通。
-    echo.
-    echo     请【完全退出】所有 Chrome 窗口（任务管理器确认无 chrome.exe），
-    echo     然后手动执行：
-    echo.
-    echo       "%ProgramFiles%\Google\Chrome\Application\chrome.exe" ^
-    echo         --remote-debugging-port=9222 ^
-    echo         --user-data-dir="%LOCALAPPDATA%\Google\ChromeCDP"
-    echo.
-    echo     启动后浏览器打开 http://127.0.0.1:9222/json/version 应返回一段JSON。
-    pause
-    exit /b 1
+  echo.
+  echo [X] CDP port 9222 not reachable.
+  echo.
+  echo     Close ALL Chrome windows first (check Task Manager for chrome.exe),
+  echo     then double-click this file again.
+  echo.
+  echo     Manual fallback:
+  echo       "%LOCALAPPDATA%\Google\ChromeForTesting\chrome-win64\chrome.exe" --remote-debugging-port=9222 --user-data-dir="%PROF%"
+  echo       "%ProgramFiles%\Google\Chrome\Application\chrome.exe"            --remote-debugging-port=9222 --user-data-dir="%PROF%"
+  echo.
+  echo     After it starts, http://127.0.0.1:9222/json/version must return JSON.
+  pause
+  exit /b 1
 )
-echo [OK] CDP 端口通
+echo   [OK] CDP port is up
 
 echo.
-echo === 1) 登录自检 ===
-python -X utf8 scripts\wechat_verify_refresh.py --list
-if errorlevel 1 (
-    echo.
-    echo [X] 拿不到 token —— 浏览器里请扫码登录 mp.weixin.qq.com。
-    echo     登录后重新运行本文件。
-    pause
-    exit /b 1
-)
+echo === 2) Login probe (real token check, not cookie size) ===
+"%PY%" -X utf8 "%SCRIPT_DIR%chrome_login_state.py"
+echo.
 
 echo.
-echo === 2) 服务端那6 条损坏记录的现状 ===
-python -X utf8 scripts\wechat_publish.py delete ^
-    --appmsgid 100000125,100000130,100000134,100000138,100000142,100000146 --dry
+echo === 3) Current state of the 6 damaged records ===
+"%PY%" -X utf8 -u "%SCRIPT_DIR%wechat_publish.py" delete --appmsgid 100000125,100000130,100000134,100000138,100000142,100000146 --dry
 
 echo.
-echo === 3) 逐条重建 ===
+echo === 4) Rebuild one by one ===
 for %%C in (magicslides-app stan 1lookup gojiberryai sierra genius-ai) do (
-    echo.
-    echo -------- %%C --------
-    python -X utf8 -u scripts\wechat_publish.py publish --case %%C %GO%
-    if errorlevel 1 echo [warn] %%C 失败，看上面的日志
+  echo.
+  echo -------- %%C --------
+  "%PY%" -X utf8 -u "%SCRIPT_DIR%wechat_publish.py" publish --case %%C %GO%
+  if errorlevel 1 echo [warn] %%C failed, see the log above
 )
 
 echo.
-echo === 4) 回读对账（按篇号，别信"保存 OK"）===
-python -X utf8 scripts\wechat_verify_refresh.py --all
+echo === 5) Remote read-back (by appmsgid, do not trust "saved OK") ===
+"%PY%" -X utf8 "%SCRIPT_DIR%wechat_verify_refresh.py" --all
 
 echo.
-echo === 全部结束 ===
-echo 请人工确认 6 条新草稿的标题/正文/封面是否正常。
-echo 确认后：
-echo   1) 把新appmsgid 写回 data\wechat_published.json
-echo   2) 从 data\wechat_broken_drafts.json 移除这 6 个条目
+echo === Done ===
+echo Manually confirm the 6 new drafts (title / body / cover).
+echo Then:
+echo   1) write the new appmsgid values back to data\wechat_published.json
+echo   2) remove those 6 entries from data\wechat_broken_drafts.json
 pause
 endlocal

@@ -2,21 +2,31 @@
 REM ============================================================
 REM  AI Case Library - local launcher (zero dependency)
 REM  Just runs the stdlib-only Python server.
+REM
+REM  NOTE: keep this file pure ASCII. cmd.exe reads .bat using the
+REM  OEM codepage (GBK on this machine); Chinese bytes in comments
+REM  or echo lines corrupt parsing and can silently drop the
+REM  commands that follow.
 REM ============================================================
-setlocal
+setlocal EnableExtensions
 
 cd /d "%~dp0"
 
-REM 依次探测：py 启动器 -> python
+REM Probe for an interpreter: py launcher -> python
 set PYEXE=
 where py >nul 2>nul && set PYEXE=py
 if not defined PYEXE (
   where python >nul 2>nul && set PYEXE=python
 )
 if not defined PYEXE (
-  echo [!] 没找到 Python。请安装 Python 3.9+ 后重试：
-  echo     https://www.python.org/downloads/
-  echo     安装时记得勾选 "Add Python to PATH"。
+  if exist "%LOCALAPPDATA%\.workbuddy\binaries\python\versions\3.13.12\python.exe" (
+    set PYEXE=%LOCALAPPDATA%\.workbuddy\binaries\python\versions\3.13.12\python.exe
+  )
+)
+if not defined PYEXE (
+  echo [!] No Python interpreter found. Install Python 3.9+ and retry:
+  echohttps://www.python.org/downloads/
+  echo     Tick "Add Python to PATH" during setup.
   pause
   exit /b 1
 )
