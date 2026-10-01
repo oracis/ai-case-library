@@ -351,6 +351,28 @@ def main():
         cid = d["candidates"][0]["id"]
         p = "/api/candidates/%s/promote" % urllib.parse.quote(cid)
 
+        # ⚠️ 必须自带一份完整正文，不能指望候选池里恰好有一条写全的。
+        # 2026-09-17 加了 content_gate（正文质量闸门）后本测试开始 409：
+        # 它拿真实候选池第一条promote，而那条候选的 what_it_does 是空的。
+        # 依赖真实数据 = 测试固件随数据漂移。promote 支持请求体 fields 覆盖，
+        # 所以这里自带正文，只测闸门逻辑、不受候选池状态影响。
+        ok_fields = {
+            "one_liner": "自测用例：一个用来验证发布闸门的虚构小产品",
+            "what_it_does": "它做的是把长文档里的表格自动抠成结构化数据，"
+                            "省掉人工誊抄这一步，输出一份能直接导进表格软件的 CSV。",
+            "how_it_makes_money": "按月订阅收费，用户上传自己的文档模板，不按处理量另外计费。",
+            "verdict": "这是一门toB 工具生意，需求真实但门槛也低，"
+                       "能不能立住取决于谁先把模板生态占住。",
+            "why_it_works": [
+                "把「誊抄」这个动作单独拎出来定价，客户一眼能算出省了多少工时。",
+                "输出格式直接对齐表格软件，不要求用户改工作习惯，迁移成本低。",
+            ],
+            "playbook": [
+                "选一个每天都有人手动做的重复动作当靶子。",
+                "先只支持一种最主流的输入格式，把兼容留给后面。",
+            ],
+        }
+
         st, body = areq("POST", p, {})
         check("条件不齐时 promote 被拦（409）", st == 409,
               "实际 %d" % st)
@@ -391,7 +413,7 @@ def main():
         check("GET 核实草稿可回填", st == 200 and json.loads(body)["draft"].get("caliber") == "arr")
 
         # 质量分满分 → 应该是精品档
-        st, body = areq("POST", p, {"verification_config": draft})
+        st, body = areq("POST", p, {"verification_config": draft, "fields": ok_fields})
         j = json.loads(body) if st == 201 else {}
         check("条件齐全后可以发布", st == 201, "实际 %d %s" % (st, body[:80] if st != 201 else ""))
         if st == 201:
@@ -416,7 +438,7 @@ def main():
             cid2 = d2["candidates"][0]["id"]
             light = dict(draft, bonus=[])
             st, body = areq("POST", "/api/candidates/%s/promote" % urllib.parse.quote(cid2),
-                            {"verification_config": light})
+                            {"verification_config": light, "fields": ok_fields})
             j2 = json.loads(body) if st == 201 else {}
             check("零加分但有官方来源 → 进精品池（默认政策）",
                   st == 201 and j2["case"].get("tier") == "premium",
@@ -434,7 +456,7 @@ def main():
                         sources=[{"label": "评测站", "url": "https://review.example/x",
                                   "kind": "review"}])
             st, body = areq("POST", "/api/candidates/%s/promote" % urllib.parse.quote(cidm),
-                            {"verification_config": weak})
+                            {"verification_config": weak, "fields": ok_fields})
             jm = json.loads(body) if st == 201 else {}
             check("无一手来源且零加分 → 进备选池",
                   st == 201 and jm["case"].get("tier") == "backup",

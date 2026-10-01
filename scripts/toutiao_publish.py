@@ -638,20 +638,6 @@ def cover_path(cid):
     return ""
 
 
-def _file_input_node(cdp):
-    """DOM 域里查 file input 的 nodeId（封面 file input 是点开才动态创建的）。"""
-    try:
-        r = cdp.send("DOM.getDocument", {"depth": 0})
-        root = r.get("result", {}).get("root", {}).get("nodeId")
-        if not root:
-            return 0
-        r2 = cdp.send("DOM.querySelector", {"nodeId": root,
-                                            "selector": "input[type=file]"})
-        return r2.get("result", {}).get("nodeId", 0)
-    except Exception:                                 # noqa: BLE001
-        return 0
-
-
 def _set_files_via_js(cdp, path):
     """把本地图片转 base64 → 塞进 file input → 派发 change。
 

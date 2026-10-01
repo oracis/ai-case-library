@@ -169,7 +169,6 @@ LEVEL_RANK = {
 }
 
 LEVEL_LABEL = {k: lab for k, lab, _ in VERIFICATIONS}
-KIND_TIER = {k: tier for k, _lab, tier, _fh in SOURCE_TIERS}
 
 
 def best_supported_level(kinds):

@@ -245,25 +245,6 @@ def create_bucket(oss, bucket, acl="public-read"):
     return st, body.decode("utf-8", "replace")[:400]
 
 
-def set_bucket_acl(oss, bucket, acl="public-read"):
-    """占位：阿里云不允许通过 API 把 Bucket ACL 设为 public。
-    公共访问必须改用 Bucket Policy（见 set_bucket_policy）。
-    保留这个函数只是为了让旧代码不报错。"""
-    return 403, ("Put public bucket acl is not allowed by Aliyun policy; "
-                 "use Bucket Policy instead")
-
-
-def get_bucket_acl(oss, bucket):
-    """读一次当前 ACL，做诊断用。阿里云对公共访问做了策略收紧，
-    主账号经常看不到 ACL 返回值，需要看 get_bucket_policy 才能确认状态。"""
-    st, body, _ = oss.request("GET", bucket, subresource="acl")
-    if st != 200:
-        return None, body.decode("utf-8", "replace")[:200]
-    import re
-    m = re.search(r"<Grant>(.*?)</Grant>", body.decode("utf-8", "replace"), re.S)
-    return (m.group(1) if m else "<no Grant>"), ""
-
-
 # 允许匿名 GET 所有对象的最小策略。阿里云 OSS 公共访问的推荐方式。
 PUBLIC_READ_POLICY = """{
   "Version": "1",

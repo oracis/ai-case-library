@@ -1873,7 +1873,16 @@ def _body_len(cdp):
 
 
 def _set_body(cdp, html, min_len=50):
-    """正文注入：官方 API 优先，失败/没落库再退回 execCommand('insertHTML')。"""
+    """正文注入：官方 API 优先，失败/没落库再退回 execCommand('insertHTML')。
+
+    ⚠ 别再写第三种「合成 ClipboardEvent 触发 paste」的方案 —— 那条路走过，
+    坑很硬：合成 paste 只会把文本插进 DOM 表面，**不更新 ProseMirror 的内部
+    文档**，于是页面看着有字、但「正文字数 0」、保存后正文为空。真要直接改
+    内部 state，唯一办法是从 DOM 节点抠出 EditorView（`el.pmViewDesc.view`，
+    个别版本是 `__pmViewDesc`），用 `view.domParser` 解析后 dispatch 一个
+    `tr.replaceWith(...)` 事务。但既然官方 `mp_editor_set_content` 能用，
+    优先用它，样式保留率还更高。
+    """
     api = _set_body_via_api(cdp, html)
     if isinstance(api, str) and api.startswith("API_TRIGGERED"):
         time.sleep(1.5)
@@ -1886,44 +1895,6 @@ def _set_body(cdp, html, min_len=50):
         n = int(r.split(":", 1)[1])
         return ("FALLBACK_OK:%d(api=%s)" % (n, api)) if n >= min_len else "TOO_SHORT:%d" % n
     return "FAIL:%s(api=%s)" % (r, api)
-
-
-def _paste_html(cdp, sel, html):
-    # 关键坑：合成 ClipboardEvent 的 paste 只会把文本插进 DOM 表面，不会更新
-    # ProseMirror 的内部文档——于是「正文字数 0」、保存后正文为空。
-    # 正确做法：从 DOM 节点抠出 ProseMirror 的 EditorView（__pmViewDesc.view），
-    # 用 view 自带的 domParser 把 HTML 解析成同 schema 的节点，再 dispatch 一个
-    # replaceWith 事务直接替换整篇文档。这样字数统计/保存都会认。
-    expr = (
-        "(function(){"
-        "var el=document.querySelector(%s);if(!el)return 'NO_EL';"
-        "// ProseMirror 把 ViewDesc 挂在 DOM 节点上（属性名 pmViewDesc，个别版本 __pmViewDesc）；"
-        "// 从编辑区本体逐级向上找，任一命中即可拿到 EditorView。"
-        "var pm=null,cur=el,probe='';"
-        "while(cur&&!pm){"
-        "var d=cur.pmViewDesc||cur.__pmViewDesc;"
-        "if(d){probe+=(cur.tagName||'?')+':desc;';if(d.view)pm=d.view;}"
-        "cur=cur.parentElement;}"
-        "if(!pm)return 'NO_PM:'+probe.slice(0,200);"
-        "var dom=document.createElement('div');dom.innerHTML=%s;"
-        "var node=null;"
-        "try{node=pm.domParser.parse(dom);}catch(e){return 'PARSE_ERR:'+e.message;}"
-        "var tr=pm.state.tr;"
-        "tr.replaceWith(0,pm.state.doc.content.size,node.content);"
-        "pm.focus();pm.dispatch(tr);"
-        "return 'PM_OK:'+pm.state.doc.textContent.length;"
-        "})()"
-        % (json.dumps(sel), json.dumps(html))
-    )
-    return cdp.eval(expr)
-
-
-def _click(cdp, sel):
-    expr = (
-        "(function(){var el=document.querySelector(%s);if(!el)return 'NO_EL';"
-        "el.click();return 'CLICKED';})()" % json.dumps(sel)
-    )
-    return cdp.eval(expr)
 
 
 def _click_by_text(cdp, text):
@@ -1982,18 +1953,6 @@ def _text_visible(cdp, text):
         "return 'NO';})()" % json.dumps(text)
     )
     return cdp.eval(expr) == "YES"
-
-
-def _editor_text_len(cdp, sel):
-    expr = (
-        "(function(){var el=document.querySelector(%s);"
-        "return el?(''+el.innerText).length:-1;})()" % json.dumps(sel)
-    )
-    r = cdp.eval(expr)
-    try:
-        return int(r)
-    except (TypeError, ValueError):
-        return -1
 
 
 def _post_save_diagnose(cdp):

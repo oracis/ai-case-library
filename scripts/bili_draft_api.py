@@ -406,41 +406,6 @@ def _strip_tags(s):
              .replace("&quot;", '"').replace("&#39;", "'")).strip()
 
 
-def update_draft(cdp, article_id, title, body_html, **kw):
-    """**更新一条已有草稿的正文**（读→改→写一步到位）。
-
-    先 draft/view 读真草稿（拿image_urls 等不想丢的字段），再 build_arg
-    造新arg 回传。成功后回读校验 mtime 变了、content 变了。
-
-    返回 (ok: bool, info: dict)。info 里有 before/after 的 mtime 与字数。
-    """
-    before = view_draft(cdp, article_id)
-    if not before:
-        return False, {"err": "draft/view 读不到 article_id=%s" % article_id}
-    arg = build_arg(title, body_html,
-                    article_id=article_id,
-                    image_urls=before.get("origin_image_urls")
-                    or before.get("image_urls"),
-                    private_pub=before.get("private_pub", 0),
-                    original=before.get("original", 0),
-                    reprint=before.get("reprint", 1))
-    out = save_draft(cdp, arg)
-    if not isinstance(out, dict) or out.get("code") != 0:
-        return False, {"err": "draft/add 失败：%s"
-                       % json.dumps(out, ensure_ascii=False)[:200],
-                       "arg_keys": sorted(arg.keys())}
-    time.sleep(1.5)
-    after = view_draft(cdp, article_id)
-    return True, {
-        "mtime_before": before.get("mtime"),
-        "mtime_after": after.get("mtime"),
-        "changed": before.get("mtime") != after.get("mtime"),
-        "len_before": len(before.get("content") or ""),
-        "len_after": len(after.get("content") or ""),
-        "title_after": after.get("title"),
-    }
-
-
 def list_drafts(cdp, pn=1, ps=200, keyword=""):
     """返回草稿列表 [{article_id,title,...}, ...]。"""
     js = """(async () => {

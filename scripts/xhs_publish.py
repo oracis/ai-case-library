@@ -388,8 +388,6 @@ def build_note(c, used=None):
 # 容器内的文字一律用 1em 相对字号，缩容器=缩全部。固定元素（标题条/评分块）
 # 不参与压缩。
 
-PAGE_TITLES = ["封面", "是什么·怎么赚钱", "为什么成立", "方法论", "三张评分"]
-
 
 def _bullets(items):
     return "".join(
@@ -753,8 +751,6 @@ SEL_BODY = ".tiptap.ProseMirror[contenteditable='true']"
 SEL_FILE = '.img-list input[type=file]'
 SEL_FILE_ANY = 'input[type=file]'   # 图文页刚切开时还没有 .img-list
 SEL_IMG = '.img-list img'
-# 原创声明：内容设置面板里的开关（2026-09-26 实测）
-SEL_ORIGINAL = '.original-wrapper .d-switch, .original-wrapper input[type=checkbox]'
 
 
 def _js_original(state=True):
@@ -1449,35 +1445,9 @@ def cmd_drafts(args):
 
 # 草稿箱删除按钮是 Vue 组件，合成 jclick 无效（2026-09-28 实测返回 null 且
 # 无效果）——只能定位坐标后走 CDP Input.dispatchMouseEvent 真实点击。
-# ⚠️ 必须过滤可见性（width/height>0）：页面上有隐藏副本（display:none），
-# 不滤会拿到布局坐标 x=2566（视口外），真实鼠标点了个寂寞（2026-09-28 踩坑）。
-_JS_PURGE_LOCATE = """(function(){
-  var btns=[].slice.call(document.querySelectorAll('.draft-actions .btn'))
-    .filter(function(b){
-      var t=(b.innerText||'').trim();
-      if(t.indexOf('删除')<0) return false;
-      var r=b.getBoundingClientRect();
-      return r.width>0 && r.height>0;
-    });
-  if(!btns.length) return null;
-  btns[0].scrollIntoView({block:'center', inline:'center'});
-  return 'PENDING';
-})()"""
-
-_JS_PURGE_COORD = """(function(){
-  var btns=[].slice.call(document.querySelectorAll('.draft-actions .btn'))
-    .filter(function(b){
-      if((b.innerText||'').trim().indexOf('删除')<0) return false;
-      var r=b.getBoundingClientRect();
-      return r.width>0 && r.height>0 && r.left>=0 &&
-             r.left<window.innerWidth && r.top>=0 && r.top<window.innerHeight;
-    });
-  if(!btns.length) return null;
-  var r=btns[0].getBoundingClientRect();
-  return JSON.stringify({x:Math.round(r.left+r.width/2),
-                         y:Math.round(r.top+r.height/2)});
-})()"""
-
+# ⚠️ 定位时必须过滤可见性（width/height>0）**且**落在视口内：页面上有隐藏
+# 副本（display:none），不滤会拿到布局坐标 x=2566（视口外），真实鼠标点了
+# 个寂寞（2026-09-28 踩坑）。
 _JS_PURGE_CONFIRM_COORD = """(function(){
   var cands=[].slice.call(document.querySelectorAll(
         'button, [class*=btn], [class*=confirm] *, [class*=modal] *, [class*=pop] *'))

@@ -822,10 +822,6 @@ def infer_source(rec):
     return ""
 
 
-def kind_label(kind):
-    return KIND_LABEL.get(kind, kind)
-
-
 def ensure_source_kind(records, force=False):
     """给老数据补 source_kind（按 harvest_source / source_url 推导）。
 

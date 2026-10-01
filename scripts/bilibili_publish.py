@@ -480,7 +480,6 @@ def probe():
 # publish：填一稿进专栏投稿页并存草稿
 # --------------------------------------------------------------------------
 BILI_NEW_ARTICLE = BILI_ARTICLE.rstrip("/") + "/new-edit"
-BILI_DRAFT_LIST = BILI_ARTICLE
 
 # 同域 iframe 文档获取 + 编辑器就绪探测（在主文档 context 执行）
 _JS_FDOC = """(function(kw){
@@ -491,50 +490,6 @@ _JS_FDOC = """(function(kw){
   if(!d) return 'no-doc';
   return d.body ? 'ready' : 'empty';
 })"""
-
-
-def _in_iframe_doc(sub, kw):
-    """返回 (kind, doc)：kind = 'draft'|'editor'|'none'，doc 是同域 iframe 文档。"""
-    r = sub.eval("""(function(kw){
-      var f=[].slice.call(document.querySelectorAll('iframe')).find(
-        function(f){return (f.src||'').indexOf(kw)>=0;});
-      if(!f) return 'no-iframe';
-      var d=f.contentDocument;
-      return d && d.body ? 'ready' : 'no-doc';
-    })(""" + json.dumps(kw) + ")", refresh_context=True)
-    if r != "ready":
-        return "none", None
-    return ("draft" if kw == "read-draft" else "editor"), None
-
-
-def _open_existing_draft(sub, keys):
-    """草稿箱里点标题卡片的「编辑」，返回是否成功（会换到编辑器页）。
-
-    keys 是**多个候选前缀**（按序试）：改过标题的稿在草稿箱里存的是旧标题
-    （实测 prosp 首版「PROSP：把 B2B 销售的一整天…」vs 新版「月收$128K：…」），
-    所以除新标题前缀外还要带上 case id（英文名 id 往往就是旧标题开头）。
-    """
-    for key in keys:
-        r = sub.eval("""(function(t){
-          var f=[].slice.call(document.querySelectorAll('iframe')).find(
-            function(f){return (f.src||'').indexOf('read-draft')>=0;});
-          if(!f||!f.contentDocument) return 'no-iframe';
-          var d=f.contentDocument;
-          // 直接在 .draft-card 里找，别从标题往上爬 —— 爬会落到图片占位
-          // 这类更小的子元素上（它们文本相同但没有编辑按钮）。
-          var card=[].slice.call(
-            d.querySelectorAll('.draft-card, [class*=draft-card]')).find(
-            function(c){return (c.innerText||'').indexOf(t)>=0;});
-          if(!card) return 'no-card';
-          var btn=card.querySelector(
-            '.draft-card_action-edit, [class*=action-edit]');
-          if(!btn) return 'no-edit-btn';
-          btn.click();
-          return 'clicked';
-        })(""" + json.dumps(key) + ")", refresh_context=True)
-        if r == "clicked":
-            return True
-    return False
 
 
 def _need_sel():
@@ -593,26 +548,6 @@ def _wait_iframe_ready(sub, kw, probe_sel, timeout=25):
             if r2 is True or r2 == "true" or r2 is True:
                 return True
         time.sleep(1.5)
-    return False
-
-
-def _iframe_click(sub, kw, sel, timeout=8):
-    """在 src 含 kw 的同域 iframe 里点 sel（先 JS click，失败回退真实坐标点击）。"""
-    js = ("(function(kw,s){"
-          "var f=[].slice.call(document.querySelectorAll('iframe'))"
-          ".find(function(f){return (f.src||'').indexOf(kw)>=0;});"
-          "if(!f||!f.contentDocument) return 'no-iframe';"
-          "var el=f.contentDocument.querySelector(s);"
-          "if(!el) return 'none';"
-          "el.scrollIntoView({block:'center'});"
-          "el.click();"
-          "return 'clicked';})(" + json.dumps(kw) + "," + json.dumps(sel) + ")")
-    end = time.time() + timeout
-    while time.time() < end:
-        r = sub.eval(js)
-        if r == "clicked":
-            return True
-        time.sleep(1.2)
     return False
 
 

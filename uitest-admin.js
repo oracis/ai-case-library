@@ -143,34 +143,69 @@ let _schema = null;
 
    所以按优先级试探，并把最后一个失败原因带进报错里。
    可用 CASE_LIB_PYTHON 环境变量直接指定，CI 与本地都能救急。 */
-function findPython() {
-  if (process.env.CASE_LIB_PYTHON) return process.env.CASE_LIB_PYTHON;
-  const { execFileSync } = require('child_process');
-  const candidates = process.platform === 'win32'
+/* ---------------- 找 Python ----------------
+   ⚠️ 必须用 **异步 execFile**，不能用 execFileSync。
+   本机（WorkBuddy 托管 runtime + Windows）上同步 spawn 一律返回
+   EBUSY —— 连 `C:\Python313\python.exe` 这种系统解释器也一样，
+   异步 spawn 同一个 exe 却正常。所以这不是「解释器有问题」，
+   是同步 spawn 这条路在本机被拒。踩过，别改回execFileSync。*/
+function findPython(cb) {
+  if (process.env.CASE_LIB_PYTHON) return cb(null, process.env.CASE_LIB_PYTHON);
+  const { execFile } = require('child_process');
+  const home = process.env.USERPROFILE || process.env.HOME || '';
+  // WorkBuddy 托管的 runtime 不在 PATH 里，但版本固定、最可靠。
+  const managed = home
+    ? [path.join(home, '.workbuddy', 'binaries', 'python', 'versions', '3.13.12', 'python.exe')]
+    : [];
+  const candidates = (process.platform === 'win32'
     ? ['python', 'python3', 'py']
-    : ['python3', 'python'];
+    : ['python3', 'python']
+  ).concat(managed);
   const errors = [];
-  for (const exe of candidates) {
-    try {
-      execFileSync(exe, ['-c', 'print(1)'], { encoding: 'utf8', stdio: 'pipe' });
-      return exe;
-    } catch (e) {
-      errors.push(exe + ' → ' + (e.code || String(e.message).slice(0, 60)));
+  let i = 0;
+  (function next() {
+    if (i >= candidates.length) {
+      return cb(new Error(
+        '找不到可用的 Python 解释器（试过 ' + candidates.join(' / ') + '）。\n'
+        + '  失败详情：' + errors.join('；') + '\n'
+        + '  指定一个：set CASE_LIB_PYTHON=C:\\path\\to\\python.exe'));
     }
-  }
-  throw new Error(
-    '找不到可用的 Python 解释器（试过 ' + candidates.join(' / ') + '）。\n'
-    + '  失败详情：' + errors.join('；') + '\n'
-    + '  指定一个：set CASE_LIB_PYTHON=C:\\path\\to\\python.exe');
+    const exe = candidates[i++];
+    execFile(exe, ['-c', 'print(1)'], { encoding: 'utf8' }, (e) => {
+      if (!e) return cb(null, exe);
+      errors.push(exe + ' → ' + (e.code || String(e.message).slice(0, 60)));
+      next();
+    });
+  })();
 }
 
-function readVerifySchema() {
-  if (_schema) return _schema;
-  const { execFileSync } = require('child_process');
-  const out = execFileSync(findPython(), ['scripts/verify_rules.py', '--schema'],
-    { cwd: ROOT, encoding: 'utf8' });
-  _schema = JSON.parse(out);
-  return _schema;
+function readVerifySchema(cb) {
+  if (_schema) return cb(null, _schema);
+  const { execFile } = require('child_process');
+  findPython((err, exe) => {
+    if (err) return cb(err);
+    execFile(exe, ['scripts/verify_rules.py', '--schema'],
+      { cwd: ROOT, encoding: 'utf8' }, (e, out) => {
+        if (e) return cb(new Error('verify_rules.py --schema 失败：'
+          + (e.stderr || e.message).toString().slice(0, 200)));
+        try {
+          _schema = JSON.parse(out);
+        } catch (pe) {
+          return cb(new Error('verify_rules.py --schema 输出不是 JSON：'
+            + String(pe.message) + ' / ' + String(out).slice(0, 120)));
+        }
+        cb(null, _schema);
+      });
+  });
+}
+
+/* Promise 包装，供 sandbox.fetch 那种拿不到 cb 的地方用。
+   失败时 resolve(null) 而不是 reject —— 调用方靠 null 判断并自己出断言，
+   免得一个探测失败把整个测试进程带崩。 */
+function readVerifySchemaAsync() {
+  return new Promise((resolve) => {
+    readVerifySchema((err, s) => resolve(err ? null : s));
+  });
 }
 
 /* ---------------- 会话状态 ----------------
@@ -193,7 +228,7 @@ const sandbox = {
         return Promise.resolve({ ok: false, status: 401,
           json: () => Promise.resolve({ error: '需要管理员登录' }) });
       }
-      return Promise.resolve({ ok: true, json: () => Promise.resolve(readVerifySchema()) });
+      return Promise.resolve({ ok: true, json: () => readVerifySchemaAsync() });
     }
     if (url.includes('/api/login')) {
       const body = JSON.parse((opt && opt.body) || '{}');
@@ -370,15 +405,13 @@ process.on('unhandledRejection', (e) => {
     if (!cands.length) {
       ck('候选池非空（工作台需要素材）', false);
     } else {
-      let sch = null;
-      let schErr = '';
-      try { sch = readVerifySchema(); } catch (e) { schErr = e.message; }
+      const sch = await readVerifySchemaAsync();
       /* 失败时把真实原因带出来。以前这里吞掉异常只说「读不到」，
          于是在 Windows 上看到的是一个没有线索的红叉 —— 真正的原因是
          Node 起不了子进程（EBUSY / 找不到解释器），跟规则表本身无关。 */
       ck('规则表可读取（跑 verify_rules.py 真实现）', !!sch,
         sch ? ('gates=' + sch.gates.length + ' musts=' + sch.musts.length)
-            : ('原因：' + String(schErr).split('\n')[0]));
+            : '原因：读不到 verify_rules.py --schema');
 
       if (sch) {
         ck('门槛 3 项', sch.gates.length === 3, String(sch.gates.length));

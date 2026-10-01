@@ -253,16 +253,40 @@ function dualScore(c) {
   return f && typeof f.score === 'number' ? f.score : null;
 }
 
+/* 这两个必须和 renderCases 的 sortBy 分支**用同一个比较器**。
+   之前一个按 rank（整数序号）排、一个按 score（浮点分）排，分数并列时
+   两者首项不一致 —— 榜单说 A 第一、列表却显示 B 第一（实测 88.6 分并列
+   的 quran-unlock / insect-bite-id）。rank 是后端算分时定的，重算后
+   可能与 score 漂移，所以这里一律以 score 为准。
+
+   排完顺手把 rank / medal 按新顺序重算：奖牌必须和列表顺序自洽，
+   否则会出现「金牌排在银牌后面」。返回的是浅拷贝，不改原始数据。 */
+function _rerank(list, fitKey) {
+  return list.map((c, i) => {
+    const f = c[fitKey];
+    const rank = i + 1;
+    const medal = rank === 1 ? 'gold' : rank === 2 ? 'silver'
+      : rank === 3 ? 'bronze' : null;
+    return Object.assign({}, c, {
+      [fitKey]: Object.assign({}, f, { rank, medal }),
+    });
+  });
+}
+
 function soloRanked() {
-  return DATA.cases
-    .filter((c) => c.solo_fit && typeof c.solo_fit.rank === 'number')
-    .sort((a, b) => a.solo_fit.rank - b.solo_fit.rank);
+  return _rerank(
+    DATA.cases
+      .filter((c) => c.solo_fit && typeof c.solo_fit.score === 'number')
+      .sort((a, b) => hiFirst(soloScore(a), soloScore(b))),
+    'solo_fit');
 }
 
 function dualRanked() {
-  return DATA.cases
-    .filter((c) => c.composite && typeof c.composite.rank === 'number')
-    .sort((a, b) => a.composite.rank - b.composite.rank);
+  return _rerank(
+    DATA.cases
+      .filter((c) => c.composite && typeof c.composite.score === 'number')
+      .sort((a, b) => hiFirst(dualScore(a), dualScore(b))),
+    'composite');
 }
 
 /** 取某个象限里的案例（已按综合分排好） */
