@@ -16,10 +16,13 @@
    走 JSON 接口拿实时状态（消费方崩溃后自愈，不必等下次定时刷新）。
 
 档案 schema 由 free-llm-probe 定义，本模块只读不改：
-    {id, source, base, model, auth, no_key, ok, reason, ...}
+    {id, source, base, model, auth, no_key, ok, reason, freshness, last_ok_at, ...}
 
-⚠ **只认 `ok=true` 的档案**。不可用档案（限地区/锁客户端/已下线）
+⚠ **要同时看 `ok` 和 `freshness`**。不可用档案（限地区/锁客户端/已下线）
 留着只是给人看的，喂给核验流程只会浪费一轮抓取。
+⚠ **`ok=true` 不等于现在能用**：free-llm-probe v2.0 起档案带五档时效，
+`ok=true` + `freshness=expired` 表示「上次能用、现已连挂或超 7 天没成功」，
+拿它调核验会一路失败。
 """
 import json
 import os
@@ -58,14 +61,42 @@ def load_payload(src):
         return json.load(f)
 
 
-def pick(payload, want_id=None):
+# 过期判定：ok=true 只说明「末次探测成功」，freshness=expired 说明
+# 连挂≥3 次或超 7 天没成功 —— 实测已不可用却仍标 ok=true。
+# 消费方只判 ok 会挑中这种条目，然后每次核验都失败。
+EXPIRED = ("expired",)
+
+
+def _is_usable(p):
+    return (isinstance(p, dict) and p.get("ok")
+            and (p.get("freshness") or "unknown") not in EXPIRED)
+
+
+def pick(payload, want_id=None, allow_expired=False):
     """从档案里挑一条可用档案。
 
     want_id 形如 `opencode-zen/space-bunny-free`（也允许只写模型名）。
+
+    ⚠ **必须同时看 `ok` 和 `freshness`**。free-llm-probe v2.0 起档案带
+    五档时效；`ok=true` + `freshness=expired` 的条目已经连挂或超期，
+    直接拿来调会失败。`allow_expired=True` 才放行（明确知道要重试时用）。
     """
     profiles = [p for p in (payload.get("profiles") or [])
-                if isinstance(p, dict) and p.get("ok")]
+                if isinstance(p, dict) and p.get("ok")
+                and (allow_expired
+                     or (p.get("freshness") or "unknown") not in EXPIRED)]
     if not profiles:
+        # 单独诊断：到底是全挂了，还是有但过期了 —— 两者处置完全不同。
+        allok = [p for p in (payload.get("profiles") or [])
+                 if isinstance(p, dict) and p.get("ok")]
+        if allok:
+            raise RuntimeError(
+                "档案里所有 ok=true 的条目都已过期（连挂≥3 次或超 7 天没成功）：\n"
+                "  %s\n"
+                "先重跑探测刷新档案：python -X utf8 probe.py --emit-profiles"
+                % "\n  ".join(
+                    "%s（%s）" % (p.get("id"), p.get("freshness"))
+                    for p in allok[:10]))
         raise RuntimeError(
             "档案里没有可用档案（ok=true 的条目为 0）。\n"
             "可能原因：①真key 过期 ②限地区 ③上游全挂。\n"
@@ -95,9 +126,14 @@ def pick(payload, want_id=None):
 
 
 def describe(p):
-    """给命令行回显用的一行摘要。"""
-    return "%s（%s，%s）" % (
-        p.get("id"), p.get("base"), p.get("model"))
+    """给命令行回显用的一行摘要。**带上时效** —— 不标时效等于误导。"""
+    fresh = p.get("freshness") or "unknown"
+    if fresh in EXPIRED:
+        return "%s（%s，%s）⚠ 已过期：%s" % (
+            p.get("id"), p.get("base"), p.get("model"),
+            p.get("last_ok_at") or "从未成功过")
+    return "%s（%s，%s，%s）" % (
+        p.get("id"), p.get("base"), p.get("model"), fresh)
 
 
 def resolve(spec):
@@ -129,6 +165,5 @@ def to_llm_args(p):
 
 
 def list_usable(payload):
-    """列出所有可用档案 id，供报错时提示。"""
-    return [p.get("id") for p in (payload.get("profiles") or [])
-            if isinstance(p, dict) and p.get("ok")]
+    """列出所有可用档案 id，供报错时提示。与 pick() 口径保持一致。"""
+    return [p.get("id") for p in (payload.get("profiles") or []) if _is_usable(p)]
