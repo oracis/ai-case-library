@@ -3060,8 +3060,31 @@ def _draft_list(cdp, tok, count=50):
         return []
 
 
-def _open_draft_editor(cdp, appmsgid, tok, timeout=30):
-    """新开 tab 打开**已存在**的草稿编辑页，返回 tid。"""
+class DraftEditorError(RuntimeError):
+    """草稿编辑页**没打开**（错误页 / 限流 / 记录损坏）。
+
+    必须和「打开了但正文没写进去」区分开：错误页上根本没有编辑器 DOM，
+    此时 `_set_body` 会返回 NO_EL、`保存` 的点击也必然落空 —— 一路报
+    NO_EL / NO_FILE_INPUT / NO_COVER_BTN 全是**后果**，不是选择器失效
+    （2026-10-01 排查 `系统错误(320003)` 时踩过）。
+    """
+
+
+def _editor_ready(cdp):
+    try:
+        return bool(cdp.eval("!!document.querySelector('#title')",
+                             refresh_context=True))
+    except Exception:
+        return False
+
+
+def _open_draft_editor(cdp, appmsgid, tok, timeout=30, strict=False):
+    """新开 tab 打开**已存在**的草稿编辑页，返回 tid。
+
+    strict=True 时，timeout 内编辑器没就绪就抛 `DraftEditorError`
+    （并关掉 tab）。批量场景必须 strict：否则错误页会被当成正常编辑器
+    继续走，于是每条都假成功、又白等 timeout。
+    """
     url = ("https://mp.weixin.qq.com/cgi-bin/appmsg?t=media/appmsg_edit"
            "&action=edit&reprint_confirm=0&type=77&appmsgid=%s&token=%s"
            "&lang=zh_CN" % (appmsgid, tok))
@@ -3069,12 +3092,14 @@ def _open_draft_editor(cdp, appmsgid, tok, timeout=30):
     cdp.connect_target(tid)
     for _ in range(timeout):
         time.sleep(1)
+        if _editor_ready(cdp):
+            return tid
+    if strict:
         try:
-            if cdp.eval("!!document.querySelector('#title')",
-                        refresh_context=True):
-                return tid
+            cdp.close_target(tid)
         except Exception:
             pass
+        raise DraftEditorError("编辑器未就绪（appmsgid=%s）" % appmsgid)
     return tid
 
 
@@ -3295,7 +3320,9 @@ def cmd_refresh(args):
             by_title[t] = d.get("appmsgid")
 
     ok_n = fail_n = skip_n = 0
-    for cid, art, rec in todo:
+    editor_errors = []          # 编辑器压根没打开的条目，收尾时统一报
+    consecutive_errors = 0
+    for idx, (cid, art, rec) in enumerate(todo):
         aid = rec.get("appmsgid") or by_title.get((rec.get("title") or "").strip())
         if not aid:
             print("\n→ %-18s [skip] 查不到 appmsgid（标题没在草稿列表里匹配上）" % cid)
@@ -3305,7 +3332,30 @@ def cmd_refresh(args):
         body = pm_safe_body(ex["body_html"])
         c = next((x for x in cases if x["id"] == cid), None)
         print("\n→ %-18s appmsgid=%s 正文 %d 字" % (cid, aid, len(strip_tags(body))))
-        tid = _open_draft_editor(cdp, aid, tok)
+        # 上一条连续失败 → 先退避，别在限流窗口里继续加压（320003 多为高频
+        # 打开编辑器触发）。退避后重试一次：限流是**暂时**的，记录级损坏才是
+        # 永久的 —— 重试一次就能把这两类分开，不必事后逐条复现。
+        if consecutive_errors >= 2:
+            wait = min(20 + 10 * (consecutive_errors - 2), 90)
+            print("  [backoff] 连续失败 %d 次，等待 %ds 再试" % (consecutive_errors, wait))
+            time.sleep(wait)
+        tid = None
+        for attempt in (1, 2):
+            try:
+                tid = _open_draft_editor(cdp, aid, tok, strict=True)
+                break
+            except DraftEditorError as e:
+                print("  [editor] 第%d次打开失败: %s" % (attempt, e))
+                if attempt == 1:
+                    time.sleep(20)
+        if tid is None:
+            # 编辑器没打开 = 正文一个字都没改。必须单列出来：这是**服务端问题**，
+            # 不是「脚本写错了」，混进 fail_n 会让人一直查选择器。
+            print("  [skip] 编辑器未就绪，本条未改动（服务端错误页）")
+            editor_errors.append(cid)
+            consecutive_errors += 1
+            fail_n += 1
+            continue
         try:
             # 标题/摘要/作者一起同步：草稿箱列表上显示的是**标题字段**，只刷正文
             # 不刷标题，列表里就还挂着旧文案（2026-09-24 用户截图里那条正是：
@@ -3350,6 +3400,7 @@ def cmd_refresh(args):
             print("  保存: %s (%s)" % ("OK" if saved else "超时", rc))
             if saved:
                 ok_n += 1
+                consecutive_errors = 0
                 # 顺手把 appmsgid 补进记录：以后不必再靠标题反查
                 rec["appmsgid"] = str(aid)
                 # 标题也一起写回 —— 记录里存的是**服务端现在是什么**。
@@ -3362,12 +3413,24 @@ def cmd_refresh(args):
                 save_published(published)
             else:
                 fail_n += 1
+                consecutive_errors += 1
         except Exception as e:
             print("  [error] %s" % e)
             fail_n += 1
+            consecutive_errors += 1
         finally:
-            cdp.close_target(tid)
+            if tid:
+                try:
+                    cdp.close_target(tid)
+                except Exception:
+                    pass
+            # 条与条之间留呼吸时间：连续开编辑器是限流的主要触发条件。
+            if idx + 1 < len(todo):
+                time.sleep(6)
     print("\n完成：刷新 %d 篇，失败 %d 篇，跳过 %d 篇" % (ok_n, fail_n, skip_n))
+    if editor_errors:
+        print("编辑器未就绪（本条未改动，需稍后重跑）：%s"
+              % "、".join(editor_errors))
 
 
 # ======================================================================

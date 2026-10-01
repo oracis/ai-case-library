@@ -78,8 +78,18 @@ ADMIN_BASE = os.environ.get("CASE_LIB_ADMIN_BASE", "http://127.0.0.1:5053")
 AI_BASE = (os.environ.get("CASE_LIB_AI_BASE") or "https://api.deepseek.com").rstrip("/")
 AI_KEY = os.environ.get("CASE_LIB_AI_KEY", "")
 AI_MODEL = os.environ.get("CASE_LIB_AI_MODEL", "deepseek-chat")
+# 这些base 走本机代理会超时/403，LLM 请求时绕过代理（仅 LLM，不影响其他）
+AI_BASE_NO_PROXY = ("opencode.ai/zen",)
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/126.0 Safari/537.36")
+
+
+def _direct_opener():
+    """一个绕开系统代理的 opener，只给免鉴权端点用（stdlib，零依赖）。"""
+    if not hasattr(_direct_opener, "_cached"):
+        _direct_opener._cached = urllib.request.build_opener(
+            urllib.request.ProxyHandler({}))
+    return _direct_opener._cached
 
 GATE_KEYS = [g["key"] for g in VR.GATES]
 MUST_KEYS = [m["key"] for m in VR.MUSTS]
@@ -665,27 +675,54 @@ def llm(messages, temperature=0.2):
     req = urllib.request.Request(
         AI_BASE + "/chat/completions", data=body,
         headers={"Content-Type": "application/json",
-                 "Authorization": "Bearer " + AI_KEY,
+                 # ⚠ key 为空时必须发「空 Bearer」（等号后什么都不给），
+                 # 不能省略这个头、也不能填占位串：
+                 #· 省略 Authorization → 端点等到超时才报错，难排查；
+                 #   · 填 `Bearer free` / `Bearer sk-xxx` → 401 Invalid API key，
+                 #     因为服务端会校验 key 是否真实存在。
+                 # 空值才走「免鉴权/ 隐身模型」分支。
+                 # 2026-10-01 实测：space-bunny-free 只有这样才能免 key 调通。
+                 "Authorization": "Bearer " + (AI_KEY or ""),
                  # ⚠ 必须带 UA：OpenCode Zen（Space Bunny）这类端点前面挂
                  # Cloudflare，urllib 默认 UA 会被 403「error code: 1010」拦掉
                  # —— 那是 WAF 拦截，不是 key 或参数问题，换真 key 也照样403。
                  # 2026-10-01 实测：加上浏览器 UA 后 403 → 401（=请求形状通了）。
                  "User-Agent": UA,
                  "Accept": "application/json"})
+    # 免鉴权端点（opencode.ai/zen）走本机代理会超时/403，直接绕过。
+    # 只对 LLM 请求生效，不动其他网络行为。
+    opener = _direct_opener() if any(
+        h in AI_BASE for h in AI_BASE_NO_PROXY) else None
+    # ⚠ OpenerDirector 的方法叫 .open()，没有 .urlopen() —— 两者接口不同，
+    #   不能简单互换（写错会AttributeError）。
     try:
-        with urllib.request.urlopen(req, timeout=300) as r:
-            data = json.loads(r.read().decode("utf-8"))
+        if opener is not None:
+            resp = opener.open(req, timeout=300)
+        else:
+            resp = urllib.request.urlopen(req, timeout=300)
     except urllib.error.HTTPError as e:
         # 只抛 "HTTP Error 400" 没法排障——服务端的 reason（模型名错、key 无效、
         # 参数不合法）都在响应体里，带出来写进任务日志。
+        # ⚠ 401 在「空 Bearer」语境下含义不同：多半是「这个模型不支持免 key」，
+        #    而非「key 填错了」——两者要分开报，否则会一直往换 key 的方向查。
         detail = ""
         try:
             detail = e.read().decode("utf-8", "replace")[:300]
         except Exception:                                    # noqa: BLE001
             pass
-        raise RuntimeError("LLM 接口 HTTP %s%s" % (
-            e.code, ("：" + detail) if detail else "")) from e
-    ch = data["choices"][0]
+        hint = ""
+        if e.code == 401 and not AI_KEY:
+            hint = ("（当前是免 key 模式：这个模型不支持空 Bearer，"
+                    "多半是「限时免费但锁 OpenCode 客户端」或需要真 key，"
+                    "跑 scripts/probe_free_llm.py 看当前哪些真能用）")
+        raise RuntimeError("LLM 接口 HTTP %s%s%s" % (
+            e.code, ("：" + detail) if detail else "", hint)) from e
+    except urllib.error.URLError as e:
+        raise RuntimeError("LLM 端点连不上（%s）：%s"
+                           % (AI_BASE, e.reason)) from e
+    with resp:
+        data = json.loads(resp.read().decode("utf-8"))
+    ch = (data.get("choices") or [{}])[0]
     if ch.get("finish_reason") == "length":
         raise RuntimeError("LLM 回答被 max_tokens 截断（finish_reason=length）"
                            "——模型思考太长，正文没输出完整 JSON")
@@ -698,10 +735,13 @@ def ping_llm():
     换模型前先跑这个：403/401/404 指向完全不同的问题，
     混在一起报「调用失败」会让人白排查半天。
     """
-    if not AI_KEY:
-        print("[!] 没设key。--ai-key 传，或设 CASE_LIB_AI_KEY 环境变量。")
+    if not AI_KEY and "opencode.ai/zen" not in AI_BASE:
+        print("[!] 没设 key。--ai-key 传，或设 CASE_LIB_AI_KEY 环境变量。")
+        print("    （免 key 端点 %s 不需要 key，可直接 --ping）"
+              % "opencode.ai/zen")
         return 2
-    print("端点：%s\n模型：%s\n" % (AI_BASE, AI_MODEL))
+    print("端点：%s\n模型：%s\n认证：%s\n"
+          % (AI_BASE, AI_MODEL, "带 key" if AI_KEY else "免 key（空 Bearer）"))
     t0 = time.time()
     try:
         out = llm([{"role": "user",
@@ -715,7 +755,12 @@ def ping_llm():
             print("    → 多半是 Cloudflare/WAF 拦 UA（不是 key 问题）。"
                   "确认请求带了浏览器 User-Agent。")
         elif "HTTP 401" in msg:
-            print("    → key 无效/没这个订阅。检查 --ai-key。")
+            if not AI_KEY:
+                print("    → 当前是**免 key 模式**，这个模型不支持空 Bearer。"
+                      "多半是「限时免费但锁 OpenCode 客户端」或需真 key。")
+                print("    → 跑 scripts/probe_free_llm.py 看当前哪些真能免 key 用。")
+            else:
+                print("    → key 无效/没这个订阅。检查 --ai-key。")
         elif "HTTP 404" in msg:
             print("    → base 或模型名写错。这个端点的模型名很挑，"
                   "先用 GET <base>/models 列出可用值。")
@@ -1459,6 +1504,12 @@ def main():
                     help="覆盖 API key（默认读 CASE_LIB_AI_KEY）")
     ap.add_argument("--ping", action="store_true",
                     help="只测当前模型端点通不通（发一个极短请求，不改任何数据）")
+    ap.add_argument("--llm-profile", default=None,
+                    help="用 free-llm-probe 的档案/接口自动选模型。"
+                         "可给档案文件路径、HTTP URL（如 "
+                         "http://127.0.0.1:8787/usable），"
+                         "或 `档案路径:档案id` 精确指定。"
+                         "只认 ok=true 的档案。")
     ap.add_argument("--include-small", action="store_true", help="连「体量太小」的也处理")
     ap.add_argument("--publish", action="store_true",
                     help="够格的直接发布成案例（human_read 仍不勾：它只能由人勾，"
@@ -1468,6 +1519,22 @@ def main():
     ap.add_argument("--password", default=os.environ.get("CASE_LIB_ADMIN_PASSWORD"),
                     help="后台密码（默认读 CASE_LIB_ADMIN_PASSWORD）")
     args = ap.parse_args()
+
+    # --llm-profile：从 free-llm-probe 的档案/接口取「现在能用的模型」。
+    # 放在 --ai-* 之前，让显式 --ai-* 能再覆盖档案里的值。
+    if getattr(args, "llm_profile", None):
+        try:
+            import llm_profile as LP
+            p = LP.resolve(args.llm_profile)
+            b, m, k = LP.to_llm_args(p)
+            # 免 key 档案要显式把 key 清成空串，不能传 None ——
+            # configure() 的语义是「不传的项保持原值」，传 None 等于
+            # 沿用旧的付费 key，会变成「拿付费 key 调免鉴权端点」：
+            # 可能 401，也可能走错计费。空串才会走空 Bearer 分支。
+            configure(api_key=(k if k else ""), base=b, model=m)
+            print("档案生效 → %s\n" % LP.describe(p))
+        except (FileNotFoundError, RuntimeError) as e:
+            raise SystemExit("[!] %s" % e)
 
     # CLI 覆盖优先于环境变量；configure() 不传的项保持原值。
     if args.ai_key or args.ai_base or args.ai_model:
@@ -1514,9 +1581,12 @@ def main():
             print("   判定：%s" % r["verdict"])
         return 0
 
-    if not AI_KEY:
+    #免鉴权端点（opencode.ai/zen 的隐身模型）不需要 key，别在这里挡住。
+    if not AI_KEY and not any(h in AI_BASE for h in AI_BASE_NO_PROXY):
         raise SystemExit("[!] 缺 CASE_LIB_AI_KEY 环境变量（LLM 接口密钥）。"
-                         "只想看卡点请用 --plan。")
+                         "只想看卡点请用 --plan。\n"
+                         "    免 key 端点例外：--ai-base https://opencode.ai/zen/v1 "
+                         "--ai-model space-bunny-free 不用给key。")
     if not args.password:
         raise SystemExit("[!] 缺后台密码：--password 或 CASE_LIB_ADMIN_PASSWORD。"
                          "密码忘了跑 python scripts/auth.py --reset")
