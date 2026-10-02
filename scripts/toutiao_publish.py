@@ -51,7 +51,10 @@ TITLE_OVERRIDES_PATH = os.path.join(ROOT, "data", "xhs_title_overrides.json")
 DRAFT_FILE = os.path.join(ROOT, "data", "toutiao_drafts.json")
 PUB_FILE = os.path.join(ROOT, "data", "toutiao_published.json")
 
-CDP_PORT = int(os.environ.get("CDP_PORT", 9222))
+# ⚠ 端口必须与 profile 配对：**9222 是公众号的 ChromeCDP**，
+# 头条的登录态在 `chrome-debug-profile` ⇒ 用 9223。
+# 抢同一个端口会连上别人的浏览器，症状是「被重定向到登录页」。
+CDP_PORT = int(os.environ.get("CDP_TOUTIAO_PORT", 9223))
 
 TITLE_MAX = 30          # 头条标题硬上限（实测后台 30 字，超了会被截断/拦）
 BODY_MIN = 300          # 头条推荐 1000+ 字，低于这个数建议别发
@@ -1890,6 +1893,24 @@ def main():
                     help="--open 时最长等多少秒（默认 600）")
     lg.set_defaults(fn=cmd_login)
     args = ap.parse_args()
+    #⚠ 走CDP 的子命令共用这一个自动启动入口（清代理 → 删 LOCK →
+    # 带 --no-sandbox 起 Chrome for Testing → 轮询 9222）。
+    # 不做这步的话，`drafts` / `cover` / `dedup` / `probe` 在 Chrome 没起时
+    # 只会报一句「连不上 9222」然后让人自己去开浏览器（实测踩过）。
+    # 纯离线子命令（build/queue/preview）不需要浏览器，别去启动。
+    if getattr(args, "cmd", "") not in ("build", "queue", "preview"):
+        try:
+            # ⚠ 头条的登录态在 `chrome-debug-profile`，**不是**公众号那个
+            # ChromeCDP。拿错 profile 的症状极具误导性：CDP 连得上、
+            # 页面也能开，但被重定向到登录页 ⇒ 看着像「掉登录了」，
+            # 实际是**开错浏览器**。
+            import chrome_cdp_launch as _L
+            wp._autostart_chrome_if_needed(
+                CDP_PORT, profile=_L.PLAT_PROFILE)
+        except SystemExit:
+            raise
+        except Exception as e:
+            print("[warn] autostart 失败: %s" % e)
     rc = args.fn(args)
     if isinstance(rc, int) and rc != 0:
         sys.exit(rc)

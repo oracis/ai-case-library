@@ -46,8 +46,13 @@ CHROME = "C:/Program Files/Google/Chrome/Application/chrome.exe"
 TITLE_MAX = 20          # 小红书标题硬上限
 BODY_MAX = 1000         # 小红书正文硬上限
 CARD_W, CARD_H = 1080, 1440   # 3:4
-BUILD_PORT = 9333       # 临时无头 Chrome（只渲染卡片，不碰 9222 登录态）
-PUB_PORT = 9222         # 发布用，与公众号同一调试 Chrome
+BUILD_PORT = 9333       # 临时无头 Chrome（只渲染卡片，不碰登录态）
+# ⚠ 端口必须与 profile 配对：**9222 是公众号的 ChromeCDP**，
+# 小红书的登录态在 `chrome-debug-profile` ⇒ 用 9223。
+# 抢同一个端口会连上别人的浏览器，症状是「被重定向到登录页」。
+# ⚠ 草稿也是绑 profile 的本地数据：同一个账号在ChromeCDP 里草稿箱是 0 条，
+# 在 chrome-debug-profile 里才是 36 条（2026-10-02 实测）。
+PUB_PORT = int(os.environ.get("CDP_XHS_PORT", 9223))
 
 # ---- 文案：话题标签 --------------------------------------------------------
 
@@ -1959,6 +1964,24 @@ def main():
                    help="沿用当前编辑页状态（默认重新导航，避免图/字叠加）")
     q.set_defaults(fn=cmd_publish)
     args = ap.parse_args()
+    # ⚠ 走 CDP 的子命令共用这一个自动启动入口（清代理 → 删 LOCK →
+    # 带 --no-sandbox 起 Chrome for Testing → 轮询端口）。
+    # 不做这步的话，`drafts` / `publish` / `purge` 在 Chrome 没起时
+    # 只会报一句「连不上 9222」然后让人自己去开浏览器（实测踩过）。
+    # 纯离线子命令（build/queue/preview）不需要浏览器。
+    if getattr(args, "cmd", "") not in ("build", "queue", "preview"):
+        try:
+            # ⚠ 小红书的登录态在 `chrome-debug-profile`，**不是**公众号那个
+            # ChromeCDP（那里草稿箱是 0 条）。拿错 profile 的症状：
+            # CDP 连得上、页面能开，但草稿箱空/被重定向到登录页。
+            import chrome_cdp_launch as _L
+            import wechat_publish as _wp
+            _wp._autostart_chrome_if_needed(
+                PUB_PORT, profile=_L.PLAT_PROFILE)
+        except SystemExit:
+            raise
+        except Exception as e:
+            print("[warn] autostart 失败: %s" % e)
     args.fn(args)
 
 

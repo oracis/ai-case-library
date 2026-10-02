@@ -3711,12 +3711,19 @@ def cmd_refresh(args):
 # ======================================================================
 # CLI
 # ======================================================================
-def _autostart_chrome_if_needed(port=CDP_PORT):
+def _autostart_chrome_if_needed(port=CDP_PORT, profile=None):
     """CDP 连不上时自动拉起 Chrome（带 `--no-sandbox`）。
 
     ⚠ 本机 Chrome 不带 `--no-sandbox` 会在 2 秒内自杀（exit code 3 =
     Chromium `RESULT_CODE_KILLED_BAD_MESSAGE`），DevTools 端口根本不开。
     所以这里统一代劳，不再要求用户先手工启动 Chrome。
+
+    ⚠⚠ **`profile` 必须按平台给对**（2026-10-02 实测，本机登录态是分裂的）：
+        - 公众号 → `%LOCALAPPDATA%\\Google\\ChromeCDP`（9222）
+        - 头条 / B站 / 小红书 → `%USERPROFILE%\\chrome-debug-profile`（9223）
+      拿错 profile 的症状**极具误导性**：CDP 连得上、页面也能开，
+      但被重定向到登录页 ⇒ 看着像「掉登录了」，实际是**开错浏览器**。
+      ⇒ 头条/B站/小红书 传 `profile=L.PLAT_PROFILE, port=L.PLAT_PORT`。
 
     返回 True 表示 CDP 可用（已有实例，或已自动拉起）。
     """
@@ -3732,20 +3739,20 @@ def _autostart_chrome_if_needed(port=CDP_PORT):
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     import chrome_cdp_launch as L
     L.clear_proxy()
-    profile = os.path.expandvars(L.PROFILE)
+    profile = os.path.expandvars(profile or L.PROFILE)
     chrome, label = L.pick_chrome()
     if chrome is None:
         return False
     L.remove_lock(profile)
-    proc = subprocess.Popen(L.build_args(chrome, profile),
+    proc = subprocess.Popen(L.build_args(chrome, profile, port=port),
                             stdout=subprocess.DEVNULL,
                             stderr=subprocess.DEVNULL)
-    if not L.wait_cdp(proc):
+    if not L.wait_cdp(proc, port=port):
         raise SystemExit(
-            "\u2717 Chrome \u542f\u52a8\u5931\u8d25\uff08exit=%s\uff09\u3002\n"
-            "  \u82e5\u4e3a exit 3\uff0c\u591a\u534a\u6f0f\u4e86 --no-sandbox\u3002"
-            % proc.poll())
-    print("[autostart] Chrome \u5df2\u542f\u52a8\uff08%s, --no-sandbox\uff09" % label)
+            "✗ Chrome 启动失败（exit=%s）。\n"
+            "  若为 exit 3，多半漏了 --no-sandbox。" % proc.poll())
+    print("[autostart] Chrome 已启动（%s, --no-sandbox）port=%d profile=%s"
+          % (label, port, profile))
     return True
 
 

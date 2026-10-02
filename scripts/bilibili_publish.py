@@ -44,7 +44,10 @@ OUT = os.path.join(ROOT, "out", "bili")
 OUT_ART = os.path.join(ROOT, "out", "articles")
 OUT_TT = os.path.join(ROOT, "out", "toutiao")
 CASES = os.path.join(ROOT, "data", "cases.json")
-PUB_PORT = 9222
+# ⚠ 端口必须与 profile 配对：**9222 是公众号的 ChromeCDP**，
+# B站的登录态在 `chrome-debug-profile` ⇒ 用 9223。
+# 抢同一个端口会连上别人的浏览器，症状是「被重定向到登录页」。
+PUB_PORT = int(os.environ.get("CDP_BILI_PORT", 9223))
 
 # 专栏投稿入口（登录后确认；可能跳创作中心新版 URL）
 BILI_ARTICLE = "https://member.bilibili.com/platform/upload/text"
@@ -1787,6 +1790,22 @@ def main():
     if "127.0.0.1" not in _np:
         os.environ["no_proxy"] = ("127.0.0.1,localhost"
                                    + ("," + _np if _np else ""))
+
+    # ⚠ 走 CDP 的子命令共用这一个自动启动入口（清代理 → 删 LOCK →
+    # 带 --no-sandbox 起 Chrome for Testing → 轮询端口）。
+    # 不做这步的话，Chrome 没起时只会报「连不上 9222」让人自己去开浏览器。
+    # `build` 是纯离线（只拼 HTML），不需要浏览器。
+    if args.cmd != "build":
+        try:
+            # ⚠ B站的登录态在 `chrome-debug-profile`，**不是**公众号那个
+            # ChromeCDP。拿错 profile 的症状：CDP 连得上、页面能开，
+            # 但被重定向到登录页 ⇒ 看着像掉登录，实际是开错浏览器。
+            import chrome_cdp_launch as _L
+            wp._autostart_chrome_if_needed(PUB_PORT, profile=_L.PLAT_PROFILE)
+        except SystemExit:
+            raise
+        except Exception as e:
+            print("[warn] autostart 失败: %s" % e)
 
     if args.cmd == "build":
         if args.case:

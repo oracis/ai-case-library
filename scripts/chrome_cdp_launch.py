@@ -36,7 +36,27 @@ CHROME_CANDIDATES = [
     (r"%LOCALAPPDATA%\Google\ChromeForTesting\chrome-win64\chrome.exe", "Chrome for Testing"),
     (r"%ProgramFiles%\Google\Chrome\Application\chrome.exe", "system Chrome"),
 ]
-PROFILE = r"%LOCALAPPDATA%\Google\ChromeCDP"
+
+# ⚠⚠ **本机有两个 profile，登录态分布是分裂的**（2026-10-02 实测）。
+# 起因是历史遗留：`xhs_publish.py` / `toutiao_publish.py` / `bilibili_publish.py`
+# 早期都用 `chrome-debug-profile`，公众号后来迁到了 `ChromeCDP`，两边没合并。
+#
+#实测 cookie 分布（cookie 条数只是线索，不是判据）：
+#   chrome-debug-profile : toutiao 29 / bilibili 23 / xiaohongshu 17
+#   ChromeCDP            : toutiao  5 / bilibili  5 / xiaohongshu 17
+#
+# ⇒ **头条 / B站 / 小红书 的登录态在 `chrome-debug-profile`**，
+#   **公众号在 `ChromeCDP`**。
+#⇒ 端口也必须分开：9222 给公众号（autostart 默认），9223 给三平台。
+#⇒ 拿错 profile 的症状极具误导性：脚本能连上 CDP、页面也能开，
+#   但被重定向到登录页 ⇒ 看起来像「掉登录了」，实际是**开错浏览器**。
+PROFILE = os.path.expandvars(
+    os.environ.get("CDP_PROFILE") or r"%LOCALAPPDATA%\Google\ChromeCDP")
+# 三平台（头条 / B站 / 小红书）用的 profile + 端口
+PLAT_PROFILE = os.path.expandvars(
+    os.environ.get("CDP_PLAT_PROFILE")
+    or r"%USERPROFILE%\chrome-debug-profile")
+PLAT_PORT = int(os.environ.get("CDP_PLAT_PORT", "9223"))
 
 
 def log(msg):
@@ -93,11 +113,11 @@ def pick_chrome():
     return None, None
 
 
-def build_args(chrome, profile, extra=()):
+def build_args(chrome, profile, extra=(), port=None):
     """⚠ `--no-sandbox` 是硬性要求，见模块 docstring。"""
     return [
         chrome,
-        "--remote-debugging-port=%d" % CDP_PORT,
+        "--remote-debugging-port=%d" % (port or CDP_PORT),
         "--user-data-dir=%s" % profile,
         "--no-first-run",
         "--no-default-browser-check",
@@ -105,13 +125,13 @@ def build_args(chrome, profile, extra=()):
     ] + list(extra)
 
 
-def wait_cdp(proc, timeout=40):
+def wait_cdp(proc, timeout=40, port=None):
     """轮询 DevTools 端口。返回 True 表示已通。
 
     ⚠ 用 urllib 而不是 curl：curl 会带上系统代理，必须显式清空。
     """
     op = urllib.request.build_opener(urllib.request.ProxyHandler({}))
-    url = "http://127.0.0.1:%d/json/version" % CDP_PORT
+    url = "http://127.0.0.1:%d/json/version" % (port or CDP_PORT)
     deadline = time.time() + timeout
     while time.time() < deadline:
         if proc is not None and proc.poll() is not None:
