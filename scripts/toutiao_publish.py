@@ -548,55 +548,98 @@ def tt_cover_num(headline):
     return re.sub(r"[，、；,;/／\s]+$", "", x._clip(h, _NUM_BUDGET))
 
 
+def tt_cover_desc(c):
+    """转发到 wechat_publish.cover_desc()（公共实现，见那里的取值优先级）。
+
+    保留这个别名是因为 toutiao_publish 内部多处按 `tt_cover_*` 命名调用，
+    改名会散落到很多处；实质逻辑只有一份。
+    """
+    return wp.cover_desc(c)
+
+
 def tt_cover_html(c):
-    """头条专用横版封面（16:9）。
+    """头条专用横版封面（16:9）：**项目名 + 一句话介绍**，不含金额。
 
     设计目标「缩略图可读」：草稿箱/推荐频道缩略图只有 ~100px 宽（源图的
     1/20），2026-09-29 二次重做 —— 旧版用主题深色底 + 亮色特大数字 + 白色
     特大产品名 + 顶部「万物解释者·拆解海外」品牌行 + 一句话介绍，但头条推
     荐卡片是横版缩略图，会按一定比例裁切：左边距、左对齐的文字会被切掉。
-    新版把 MRR+产品名**水平居中**，缩字号，砍掉在缩略图下不可见的小字装
-    饰（顶部品牌行/一句话介绍）——只剩两个色块、两个大字，无论怎么裁都
-    可读。
+    新版把两行文字**水平居中**，缩字号，砍掉在缩略图下不可见的小字装
+    饰——无论怎么裁都可读。
+
+    2026-10-02：原先两行是「金额 + 产品名」，去掉金额。金额是抓取快照，
+    会过期；产品名 + 它是干什么的才是稳定信息（与公众号封面口径一致）。
     """
     base, band, ac = wp._cover_theme(c.get("id", ""), "toutiao")
-    name = c.get("name") or c.get("id") or ""
-    headline = (c.get("metrics") or {}).get("headline") or ""
-    num = tt_cover_num(headline)
-    # 2026-10-01：封面文案覆盖（非「营收案例」内容用）。
-    # 默认版式是「金额 + 产品名」—— 对案例成立，对工具推广就是错位：
-    # 实测出来num="84 个模型里 11"、name="free-llm-probe"，
-    # 读起来像在报营收（而且句子被截断，语义不完整）。
-    # 所以让 cover_kv 能整体指定两行；不填则逐字节保持原样（39 条不受影响）。
+    name = (c.get("name") or c.get("id") or "").strip()
+    desc = tt_cover_desc(c)
+    # 2026-10-01 的 cover_kv 覆盖机制保留（free-llm-probe 等非营收内容用），
+    # 但 num 语义已变：现在承载的是「介绍」而非金额。
     ck = c.get("cover_kv") or {}
     if ck.get("num"):
-        num = ck["num"]
+        desc = ck["num"]
     if ck.get("name"):
         name = ck["name"]
+    # 没有介绍就不渲染这一行（不是渲染空 div —— 那样会留下多余行间距）
+    desc_block = ('<div class="desc fit">%s</div>' % esc(desc)) if desc else ""
+    # 字号按文案长度自适应 —— 固定字号在缩略图里要么看不清、要么被
+    # max-height 静默截断（实测「108px 项目名 + 46px 描述」在 1920 宽画布
+    # 的缩略图里项目名几乎看不见，而 57 字描述在 46px×2.9em 下会溢出）。
+    # 目标：项目名在缩略图里仍是第一眼，描述完整可读不截断。
+    # 字号按文案长度自适应。目标（按 1920×1080 画布、列表缩略图 ~100px 宽）：
+    #   · 项目名在缩略图里是第一眼，不能因为描述长就退到看不清
+    #   · 描述完整可读、不被 max-height 静默截断
+    # 实测教训：先固定 108/46，短文案（voklit 6 字名）看着空、
+    # 长文案（aeo-engine 57 字）描述被压到 34px，两头都不理想。
+    n_len = len(name)
+    d_len = len(desc)
+    # 无描述时：大字单行
+    desc_size, gap = 46, 26
+    if not desc:
+        name_size = 168 if n_len <= 8 else (144 if n_len <= 14 else 120)
+    else:
+        # 有描述：项目名仍是主视觉。短描述给大字，长描述才降级。
+        name_size = 150 if n_len <= 8 else (132 if n_len <= 14 else 112)
+        # 描述按长度选字号（可用宽 1920-180=1740px，两行内放下）
+        if d_len <= 12:
+            desc_size = 62
+        elif d_len <= 20:
+            desc_size = 54
+        elif d_len <= 30:
+            desc_size = 46
+        elif d_len <= 42:
+            desc_size = 39
+        else:
+            desc_size = 33
+        # 字越大行间距越松
+        gap = 34 if name_size >= 140 else 26
     return (
         '<!doctype html><html><head><meta charset="utf-8"><style>'
         "*{margin:0;padding:0;box-sizing:border-box;}"
         "html,body{width:%(W)dpx;height:%(H)dpx;}"
         'body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;'
         "background:%(BASE)s;color:#fff;display:flex;flex-direction:column;"
-        "padding:60px 90px;position:relative;overflow:hidden;}"
+        "padding:0 90px;position:relative;overflow:hidden;}"
         ".glow{position:absolute;right:-260px;top:-260px;width:720px;"
         "height:720px;border-radius:50%%;background:%(BAND)s;opacity:.55;}"
         ".main{flex:1;display:flex;flex-direction:column;justify-content:center;"
-        "align-items:center;text-align:center;position:relative;min-height:0;}"
-        ".num{font-size:150px;font-weight:900;color:%(AC)s;line-height:1.3;"
-        "max-height:1.55em;overflow:hidden;letter-spacing:-2px;}"
-        ".name{font-size:108px;font-weight:900;color:#fff;line-height:1.3;"
-        "margin-top:18px;max-height:2.85em;overflow:hidden;}"
+        "align-items:center;text-align:center;position:relative;min-height:0;"
+        "gap:%(GAP)dpx;}"
+        ".name{font-size:%(NSIZE)dpx;font-weight:900;color:#fff;line-height:1.22;"
+        "max-height:2.5em;overflow:hidden;letter-spacing:-1px;}"
+        ".desc{font-size:%(DSIZE)dpx;font-weight:500;color:%(AC)s;line-height:1.45;"
+        "max-height:2.95em;overflow:hidden;}"
         "</style></head><body>"
         '<div class="glow"></div>'
         '<div class="main">'
-        '<div class="num fit">%(NUM)s</div>'
         '<div class="name fit">%(NAME)s</div>'
+        "%(DESCBLOCK)s"
         "</div>"
         "</body></html>"
         % {"W": TT_COVER_W, "H": TT_COVER_H, "BASE": base, "BAND": band,
-           "AC": ac, "NAME": esc(name), "NUM": esc(num)})
+           "AC": ac, "NAME": esc(name), "NSIZE": name_size,
+           "DSIZE": desc_size, "GAP": gap,
+           "DESCBLOCK": desc_block})
 
 
 def render_tt_cover(port, c):
@@ -1855,7 +1898,10 @@ def main():
                         help="批量生成头条横版封面 out/toutiao/<id>/cover.png")
     cv.add_argument("--case")
     cv.add_argument("--all", action="store_true")
-    cv.add_argument("--port", type=int, default=9222)
+    # 2026-10-02：原来写死 9222（公众号那份），与模块级 CDP_PORT 不一致 ——
+    # `covers` 只渲染本地 PNG、不需要登录态，用哪份都行，但硬编码端口
+    # 会在只起了 9223 时报「连不上 9222」。跟 CDP_PORT 走。
+    cv.add_argument("--port", type=int, default=CDP_PORT)
     cv.set_defaults(fn=cmd_covers)
     pr = sub.add_parser("probe", help="登录后导出发文页 DOM，校准选择器")
     pr.add_argument("--url")

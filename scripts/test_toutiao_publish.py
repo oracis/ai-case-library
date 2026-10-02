@@ -6,6 +6,7 @@
     python -m unittest test_toutiao_publish
 """
 import os
+import re
 import sys
 import unittest
 
@@ -203,16 +204,22 @@ class TestTtCoverNum(unittest.TestCase):
         self.assertIn("background:%s" % base, html)
         self.assertIn("background:%s" % band, html)
         self.assertIn("color:%s" % ac, html)
-        self.assertIn("MRR $244,029", html)       # 无尾逗号的完整数字
         self.assertNotIn("CASE STUDY", html)      # 小字装饰已去掉
         self.assertNotIn("numsub", html)
+        # 2026-10-02：封面两行改成「项目名 + 一句话介绍」，**不含金额**。
+        # metrics.headline 是抓取当天的快照，会随站点自己变 ——
+        # 印在封面等于印一个会过期的数字。
+        self.assertIn("1Lookup", html)
+        self.assertIn("一个 API 做电话、邮箱、IP 的实时数据校验", html)
+        for stale in ("$244,029", "$4,985,134", "MRR"):
+            self.assertNotIn(stale, html)
 
     def test_cover_html_placeholder_oneliner_never_shows_unclassified(self):
-        """prosp 实测：one_liner 是占位符、category=未分类 → 封面印出「未分类」。
+        """prosp 实测：one_liner 是占位符、category=未分类 → 封面不能印「未分类」。
 
-        2026-09-29 改方案 A 后封面只有两行（数字 + 产品名），本来就不印
-        one_liner，所以「兜底文案」不再是必需 —— 但**占位符绝不能上封面**
-        这条硬约束还得钉死（将来谁加回第三行就会踩）。
+        2026-09-29 改方案 A 后封面只有两行（数字 + 产品名）；2026-10-02 又把
+        数字换成一句话介绍。版式一直在变，但**占位符绝不能上封面**这条硬约束
+        始终得钉死（将来谁加回第三行就会踩）。
         """
         c = {"id": "prosp", "name": "PROSP", "category": "未分类",
              "one_liner": "（待补充：产品定位未明）",
@@ -220,10 +227,106 @@ class TestTtCoverNum(unittest.TestCase):
         html = tp.tt_cover_html(c)
         self.assertNotIn("未分类", html)
         self.assertNotIn("待补充", html)
-        # 方案 A：只有数字 + 产品名，不带任何小字介绍
-        self.assertIn("$128,000 MRR", html)
+        # one_liner 是纯括注 → 去掉后为空 → 这一行不渲染（用户要求
+        # 「没简要介绍就不显示」），只剩产品名，且不回落成 category。
         self.assertIn("PROSP", html)
-        self.assertNotIn("one_liner", html)
+        self.assertNotIn("class=\"desc\"", html)
+        # 金额已被移除需求覆盖掉，不该再出现。
+        self.assertNotIn("$128,000", html)
+
+    def test_cover_desc_priority_and_blank_fallback(self):
+        """"没简要介绍就不显示"这条要真的成立：四种取值路径各钉一遍。"""
+        base = {"id": "x", "name": "X", "metrics": {"headline": "$9 MRR"}}
+        # 1) one_liner 优先，去掉尾注括注
+        self.assertEqual(
+            tp.tt_cover_desc(dict(base, one_liner="干这个的（数据来自公开披露）")),
+            "干这个的")
+        # 2) one_liner 缺失 → what_it_does 首句
+        self.assertEqual(
+            tp.tt_cover_desc(dict(base, what_it_does="第一句。第二句。")),
+            "第一句")
+        # 3) 全都没有 → 空串（封面不渲染这一行），**绝不回落金额**
+        self.assertEqual(tp.tt_cover_desc(base), "")
+        self.assertEqual(tp.tt_cover_desc(dict(base, category="未分类")), "")
+        # 4) cover_kv.desc 显式覆盖优先级最高
+        self.assertEqual(
+            tp.tt_cover_desc(dict(base, cover_kv={"desc": "自定义"},
+                                  one_liner="原始")),
+            "自定义")
+
+    def test_wechat_cover_uses_same_desc_and_skips_blank(self):
+        """公众号封面必须与头条/B站/小红书同一口径（铁律：单一真理）。
+
+        2026-10-02：原来公众号封面直接用 one_liner，而 one_liner 实测
+        4/39 内嵌金额（shipfast $199 / outrank 月入 30 万…），导致公众号
+        封面与新口径分叉。现在统一走 cover_desc()，空介绍不渲染整行。
+        """
+        wp = sys.modules.get("wechat_publish") or wp
+        c = {"id": "outrank", "name": "Outrank",
+             "one_liner": "月入 30 万的自动化 SEO 引擎",
+             "cover_desc": "从 AI 博客生成器起步的自动化 SEO 引擎"}
+        html = wp.cover_html(c, 7)
+        # 手写的 cover_desc 生效，one_liner 里的金额不出现
+        self.assertIn("自动化 SEO 引擎", html)
+        self.assertNotIn("30万", html.replace(" ", ""))
+        # 有介绍时该行必须存在
+        self.assertIn('id="t-line"', html)
+
+        # 无任何介绍 → 整行不渲染，且 name 仍然渲染
+        blank = {"id": "novdesc", "name": "Solo",
+                 "metrics": {"headline": "$9 MRR"}}
+        html2 = wp.cover_html(blank, 8)
+        self.assertNotIn('id="t-line"', html2)
+        self.assertNotIn("$9", html2)
+        self.assertIn("Solo", html2)
+
+    # 封面金额正则：与 out/cover_audit.py 同一份判据。
+    # ⚠ 必须自带「正例必抓 / 反例不误报」自测 —— 第一版正则实测4 条误报
+    #   （B2B 被当成「B2 金额」、「盯 5 万个企业招聘页」被当成金额），
+    #   而当时**没有任何测试**能发现，因为断言只查了 1lookup 一条。
+    _MONEY = re.compile(
+        r"(?:"
+        r"\$" + r"\d[\d,.]*"
+        + r"|" + r"\d[\d,.]*" + r"\s*(?:美元|美金|元|人民币|刀|usd|rmb|cny)"
+        + r"|(?:" + r"\d[\d,.]*" + r"\s*(?:万|千)\s*(?:美元|美金|元|人民币))"
+        + r"|(?:" + r"\d[\d,.]*" + r"\s*(?:万|千)"
+                        r"(?=\s*(?:MRR|收入|营收|流水|用户|月)))"
+        + r"|(?:" + r"\d[\d,.]*" + r"\s*(?:K|M|B)\s*(?:MRR|ARR)?"
+                        r"(?=\s*(?:收入|营收|流水|/月|月)))"
+        + r"|(?:月入|年收入|营收|月收入|收入|流水|MRR|ARR)"
+                        r"\s*(?:达|到|从|为|[:：])?\s*\$?" + r"\d[\d,.]*"
+        + r")",
+        re.I)
+
+    def test_cover_money_regex_has_no_false_positive(self):
+        """封面金额判据：真金额必抓，业务数字不误报。"""
+        must_hit = ["$199", "$8.6K", "月入 30 万", "MRR 1.7 万",
+                    "20 万美元", "ARR $2M", "5万美元", "收入 4.5万"]
+        must_miss = ["B2B 顾问", "盯 5 万个企业招聘页", "12 周内容策略",
+                     "第 42 篇", "30 分钟", "三步走", "SLA 99.9%"]
+        for s in must_hit:
+            self.assertTrue(self._MONEY.search(s), "应命中金额：%s" % s)
+        for s in must_miss:
+            m = self._MONEY.search(s)
+            self.assertIsNone(m, "误报金额：%s -> %r" % (s, m and m.group(0)))
+
+    def test_every_case_cover_has_no_money(self):
+        """39 条真实数据逐条过一遍金额判据（不是抽 1~2 条）。"""
+        import json
+        p = os.path.join(ROOT, "data", "cases.json")
+        if not os.path.exists(p):
+            self.skipTest("cases.json 不在")
+        data = json.load(open(p, encoding="utf-8"))
+        cases = data["cases"] if isinstance(data, dict) else data
+        bad = []
+        for c in cases:
+            html = tp.tt_cover_html(c)
+            vis = re.sub(r"<style.*?</style>", " ", html, flags=re.S | re.I)
+            vis = re.sub(r"<[^>]+>", " ", vis)
+            m = self._MONEY.search(vis)
+            if m:
+                bad.append("%s→%r" % (c["id"], m.group(0)))
+        self.assertEqual(bad, [], "封面出现金额：%s" % bad)
 
 
 if __name__ == "__main__":

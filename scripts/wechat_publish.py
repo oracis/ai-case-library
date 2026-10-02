@@ -325,23 +325,85 @@ def _all_case_ids():
 _ALL_IDS_CACHE = None
 
 
-def _cover_theme(cid, key="toutiao"):
-    """给 case id 分配一个封面主题。
+# ==========================================================================
+# 封面文案：项目名 + 一句话介绍（**不含金额**）
+# ==========================================================================
+# 2026-10-02 用户要求：封面不要出现金额。`metrics.headline` 是**抓取当天
+# 的快照**，数字会随站点自己变（与 TrustMRR 实测对不上也常见），
+# 印在封面上等于印一个会过期的数字。
+#
+# ⚠ 放在 wechat_publish 而不是 toutiao_publish 的原因：避免循环 import
+#   （toutiao → xhs 已存在，xhs不能再 → toutiao）。
+#   头条、B站（复用头条 cover.png）、小红书、公众号四平台共用这一份。
 
-    两条性质，缺一不可：
+# 封面描述里要剔掉的金额片段。
+# ⚠ 只剔「金额本身」，**尽量不动 surrounding 语义** —— 但正则有漏网，
+#   所以真正的正解是数据层写 `cover_desc`（见 cover_desc() 的优先级）。
+_MONEY_TOKEN = re.compile(
+    r"(?:[$￥€£]\s?[\d,]+(?:\.\d+)?\s?[KkMmBb]?)"      # $2.4K / $199
+    r"|(?:\d[\d,]*(?:\.\d+)?\s?[KkMmBb]?\s?(?:万|亿)?"   # 25 万 / 3.57M
+    r"(?:美元|美金|人民币|元|欧元|英镑))"
+    r"|(?:[$￥€£]\s?[\d,]+(?:\.\d+)?)"
+)
 
-    1. **稳定** —— 结果只由 id 决定。全量跑和单条跑一致，改库也不会让
-       已发布的封面变色。所以不能用「本次运行已占用了哪些槽」这种进程内
-       状态，必须从 cases.json 全量重算。
-    2. **相邻不同色** —— 39 条案例只有 10 套主题，全局互不撞色做不到
-       （必然重复）。真正影响观感的是**挨着发的那两条别撞**（用户在
-       头条草稿箱一眼就看出来了），所以按 cases.json 顺序做**全局贪心**
-       分配：每条避开「自己哈希 + 左右邻居」三者。
+# 描述里的营收修饰语，剔金额后常留下空洞短语（实测 outrank 变废句）
+_REVENUE_PHRASE = re.compile(
+    r"(?:月入|年收入|年入|营收|月营收|收入|售价|定价|ARR|MRR)"
+    r"\s*(?:达到|高达|超过|近|约|突破|达|是)?\s*"
+)
 
-    为什么不是「只看左右邻居」：那样 A 避开 B、B 避开 C 之后，B 仍可能
-    撞上 A（实测 39 条里还剩 4 对）。贪心让前面的选择影响后面的落点，
-    撞色只留在不相邻的案例之间，隔若干条就看不到。
+
+def _tidy_desc(s):
+    """把剥掉金额后的残句收拾干净：去空洞介词/标点、压空白。"""
+    s = _REVENUE_PHRASE.sub("", s)
+    s = re.sub(r"[，,]\s*(?:[，,]\s*)+", "，", s)       # 连续逗号压成一个
+    s = re.sub(r"^\s*(?:的|和|与|、|，|,|；|;|·|-|—)+\s*", "", s)
+    s = re.sub(r"\s+(?:的|和|与)\s*$", "", s)
+    s = re.sub(r"[，,、；;·]\s*$", "", s)                  # 结尾悬标点
+    s = re.sub(r"\s{2,}", " ", s).strip()
+    return s
+
+
+def cover_desc(c):
+    """封面第二行：项目的一句话介绍。**不含任何金额**。
+
+    取值优先级（高→低）：
+      1. `cover_kv.desc` —— 显式覆盖（沿用既有 cover_kv 机制）
+      2. `cover_desc`   —— **数据层手写的封面专用文案（推荐）**
+      3. `one_liner`    —— 39/39 全有值
+      4. `what_it_does` 首句 —— 新案例漏填 one_liner 时的兜底
+      5. 空串           —— **都没有就不显示这一行**（用户原话：
+                        「如果没简要介绍，就不显示」）
+
+    ⚠ 不要回退到 `metrics.headline`：那正是要移除的金额来源。
+    ⚠ 不要用 `how_it_makes_money`：那是营收模型，答非所问。
+    ⚠⚠ **one_liner 里本身可能嵌金额**（实测 4/39：shipfast $199、
+      visualizee-ai $150/月→$8.6K、outrank 月入 30 万、pieter-levels
+      25 万美元）。正则剥离在 3 条上好用，但 outrank 那种
+      「月入 30 万的自动化 SEO 引擎」会漏（后面跟「的」不是货币单位），
+      剥出来是废句。⇒ **正解是数据层写 `cover_desc`**，正则只作最后兜底。
     """
+    ck = c.get("cover_kv") or {}
+    d = (ck.get("desc") or "").strip()
+    if d:
+        return d
+    d = (c.get("cover_desc") or "").strip()
+    if d:
+        return d
+    cands = []
+    if (c.get("one_liner") or "").strip():
+        # 去掉括注（常有「（数据来自公开披露）」这类尾注）
+        cands.append(re.sub(r"（[^）]*）", "", c["one_liner"]))
+    w = (c.get("what_it_does") or "").strip()
+    if w:
+        cands.append(re.split(r"[。！？!?；;]", w, 1)[0])
+    for raw in cands:
+        t = _tidy_desc(_MONEY_TOKEN.sub("", raw))
+        if t:
+            return t
+    return ""
+
+
 def _cover_theme(cid, key="toutiao"):
     """给 case id 分配一个封面主题。
 
@@ -439,7 +501,10 @@ def cover_html(c, no, w=1080, h=460):
     4. 字号按实测字宽自适应，任意长度都不截断（截断比小字号更难看）。
     """
     name = (c.get("name") or c.get("id") or "").strip()
-    line = (c.get("one_liner") or "").strip()
+    # 2026-10-02：统一走cover_desc()，不再直接用 one_liner ——
+    # one_liner 实测 4/39 内嵌金额（shipfast $199、outrank 月入 30 万…），
+    # 且四平台口径必须一致（铁律：封面文案单一真理）。
+    line = cover_desc(c)
     tag = "拆解海外 · 第 %d 篇" % no
     theme = _cover_theme(c.get("id", ""), "wechat")
     base, band, ac = theme
@@ -449,6 +514,14 @@ def cover_html(c, no, w=1080, h=460):
 
     f_name = _fit_font_size(name, _COVER_TEXT_W, [68, 62, 56, 50, 46, 42, 38, 34, 30])
     f_line = _fit_font_size(line, _COVER_TEXT_W, [28, 25, 23, 21, 19, 17])
+    # 空介绍不渲染这一行（与头条/B站/小红书一致）。不渲染比渲染空 div
+    # 好：空 div 靠 margin-top:20px 撑出一道无意义的空隙。
+    line_block = (
+        '<div id="t-line" style="font-size:%dpx;font-weight:500;color:%s;'
+        'line-height:1.45;margin-top:20px;overflow:hidden;'
+        'text-overflow:ellipsis;white-space:nowrap;">%s</div>' % (f_line, ac, esc(line))
+        if line else ""
+    )
 
     body = (
         '<div style="position:relative;width:%dpx;height:%dpx;'
@@ -470,15 +543,13 @@ def cover_html(c, no, w=1080, h=460):
         '<div id="t-name" style="font-size:%dpx;font-weight:800;color:#ffffff;'
         'line-height:1.1;margin-top:20px;overflow:hidden;'
         'text-overflow:ellipsis;white-space:nowrap;">%s</div>'
-        '<div id="t-line" style="font-size:%dpx;font-weight:500;color:%s;'
-        'line-height:1.45;margin-top:20px;overflow:hidden;'
-        'text-overflow:ellipsis;white-space:nowrap;">%s</div>'
+        "%s"
         '</div>'
         '<div style="position:absolute;right:56px;bottom:38px;font-size:17px;'
         'color:rgba(255,255,255,.72);letter-spacing:2px;">%s</div>'
         '</div>'
         % (w, h, base, band, band, band, ac, ac, ac,
-           _COVER_TEXT_W, ac, f_name, esc(name), f_line, ac, esc(line), tag)
+           _COVER_TEXT_W, ac, f_name, esc(name), line_block, tag)
     )
     return (
         '<!doctype html><html><head><meta charset="utf-8">'

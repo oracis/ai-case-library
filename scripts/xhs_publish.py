@@ -504,8 +504,13 @@ def card_html(c, page, total):
     # （`key` 参数目前只作语义标记，各平台实际共用同一套 COVER_THEMES。）
     _base, _band, ac = wp._cover_theme(c.get("id", ""), "xhs")
     name = c.get("name") or c.get("id") or ""
-    one = re.sub(r"（[^）]*）", "", (c.get("one_liner") or "")).strip() or \
-        (c.get("category") or "")
+    # 2026-10-02：**直接用公共实现 wp.cover_desc()**，不自己写一份。
+    # 理由是「口径单一真理」：封面文案（项目名 + 不含金额的一句话介绍）
+    # 在各平台必须一致，各自实现必然漂移 —— 已经踩过
+    # 「小红书和别的平台撞色」那个坑（各写各的 `_cover_theme` 哈希）。
+    # ⚠ 不能 import toutiao_publish 拿 tt_cover_desc：那边已 import 本模块，
+    #   反向依赖会成循环引用。wechat_publish 才是正确的公共位置。
+    one = wp.cover_desc(c)
     headline = (c.get("metrics") or {}).get("headline") or ""
     # 2026-09-28：账号昵称仍是小红书默认 id，印「万物解释者」（公众号名）
     # 属「展示其他平台信息」，与站外导流同款风险。水印只留无账号名/平台名的
@@ -528,7 +533,8 @@ def card_html(c, page, total):
     c_numsub = cards.get("numsub") or "数据来自公开披露 · 口径见末页"
     c_swipe = cards.get("swipe") or "👉 右滑看完整拆解"
     c_brand = cards.get("brand") or brand
-    c_one = cards.get("headline") or one
+    # c_one 已删（2026-10-02）：封面页改为在渲染处按「空则不显示」现场取
+    # cards.get("headline") or one，留一个只用不读的变量是死代码。
     c_what = cards.get("what") or c.get("what_it_does") or "—"
     c_money = cards.get("money") or c.get("how_it_makes_money") or "—"
     c_why = cards.get("why") or c.get("why_it_works") or []
@@ -540,18 +546,29 @@ def card_html(c, page, total):
         '<div class="pg">%s</div></div>' % (esc(c_brand), esc(page_no)))
 
     if page == 1:      # 封面
+        # 2026-10-02：**金额块整体从封面移除**。
+        # 原版无条件渲染 numbox，装的是 metrics.headline —— 那是抓取当天的
+        # 快照金额，会随站点自己变，印在封面上等于印一个会过期的数字。
+        # 中间一版还留着「有才显示」的回退（cover_num / cover_headline /
+        # headline），实测那三条路都会把金额重新塞回封面，等于没改 ——
+        # 口径要一致就彻底断掉来源，只保留 cards 显式给的 cover_num。
+        # numbox 为空时连边框底色一起不渲染，否则留一个空灰块。
+        _num = (cards.get("cover_num") or "").strip()
+        _numbox = ('<div class="numbox"><div class="num fit">%s</div>'
+                   '<div class="numsub">%s</div></div>'
+                   % (esc(_num), esc(c_numsub))) if _num else ""
+        # 同理：简要介绍为空时不渲染这一行（用户「没简介就不显示」）。
+        _one = (cards.get("headline") or one).strip()
+        _oneblock = '<div class="one fit">%s</div>' % esc(_one) if _one else ""
         body = (
             '<div class="kicker" style="color:%s">%s</div>'
             '<div class="name fit">%s</div>'
-            '<div class="one fit">%s</div>'
-            '<div class="numbox"><div class="num fit">%s</div>'
-            '<div class="numsub">%s</div></div>'
+            "%s"
+            "%s"
             '<div class="swipe">%s</div>'
             % (ac, esc(c_kicker),
-               esc(cards.get("name") or name), esc(c_one),
-               esc(cards.get("cover_num") or cover_headline(headline)
-                   or _clip(headline, 30)),
-               esc(c_numsub), esc(c_swipe)))
+               esc(cards.get("name") or name),
+               _oneblock, _numbox, esc(c_swipe)))
     elif page == 2:    # 是什么 · 怎么赚钱
         body = (
             '<div class="h2" style="color:%s">它是什么</div>'
