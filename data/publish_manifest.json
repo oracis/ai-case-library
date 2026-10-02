@@ -651,10 +651,9 @@
  },
  "quran-unlock": {
   "bilibili": {
-   "at": "2026-09-30 20:16",
+   "at": "2026-10-02 17:41",
    "attempt": 2,
-   "error": "批量输出里没确认到（可能中途断连）",
-   "state": "failed",
+   "state": "draft_saved",
    "title": "Quran Unlock：移动 app"
   },
   "toutiao": {
@@ -912,28 +911,28 @@
  },
  "uplinked-b-v": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-02 17:41",
    "attempt": 0,
    "state": "draft_saved",
    "title": "月收$2.4K：在领英上自动加客户"
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-02 17:41",
    "attempt": 0,
    "state": "draft_saved",
-   "title": ""
+   "title": "月收$2.4K：在领英上自动加客户"
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-02 17:41",
    "attempt": 0,
    "state": "draft_saved",
-   "title": ""
+   "title": "月收$2.4K：在领英上自动加客户"
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-02 17:41",
    "attempt": 0,
    "state": "draft_saved",
-   "title": ""
+   "title": "月收$2.4K：在领英上自动加客户"
   }
  },
  "viktor": {
