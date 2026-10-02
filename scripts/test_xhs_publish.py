@@ -423,11 +423,15 @@ class TestPurgeStateRollback(unittest.TestCase):
         完全指不到真正原因（跟反查逻辑无关）。
         """
         root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        note = os.path.join(root, "out", "xhs", "quran-unlock", "note.json")
-        with open(note, encoding="utf-8") as f:
-            real_title = json.load(f)["title"]
-        self.assertEqual(x._card_to_cid("月收$84：AI"), "mort")
-        self.assertEqual(x._card_to_cid(real_title), "quran-unlock")
+
+        def _real_title(cid):
+            note = os.path.join(root, "out", "xhs", cid, "note.json")
+            with open(note, encoding="utf-8") as f:
+                return json.load(f)["title"]
+
+        self.assertEqual(x._card_to_cid(_real_title("mort")), "mort")
+        self.assertEqual(x._card_to_cid(_real_title("quran-unlock")),
+                         "quran-unlock")
 
     def test_标题反查查不到就返回None(self):
         """查不到宁可不改状态文件 —— 错删记录会让已发过的案例被重复发布。"""

@@ -560,10 +560,14 @@ def card_html(c, page, total):
         # 同理：简要介绍为空时不渲染这一行（用户「没简介就不显示」）。
         _one = (cards.get("headline") or one).strip()
         _oneblock = '<div class="one fit">%s</div>' % esc(_one) if _one else ""
+        # 正文块包一层 .body（flex:1 + 垂直居中）—— 去掉 numbox 后
+        # 内容不再被 margin-top:auto 顶到上方，视觉重心回到中间。
         body = (
+            '<div class="body">'
             '<div class="kicker" style="color:%s">%s</div>'
             '<div class="name fit">%s</div>'
             "%s"
+            "</div>"
             "%s"
             '<div class="swipe">%s</div>'
             % (ac, esc(c_kicker),
@@ -638,6 +642,14 @@ def card_html(c, page, total):
         ".name{font-size:84px;font-weight:900;line-height:1.15;margin-top:26px;}"
         ".one{font-size:40px;font-weight:600;line-height:1.5;color:#5c554a;"
         "margin-top:20px;}"
+        # 2026-10-02：numbox 移除后，第一张卡片只剩 kicker/name/one/swipe
+        # 四个块，全是 flex:0 0 auto —— 内容会全挤在顶部 1/3，下方留大片空白
+        # （postiz / coral 实测）。⚠ 关键是**不能靠 numbox 的
+        # `margin-top:auto` 撑开**，那东西已经没了。
+        # 正解：正文块（kicker+name+one）自己`flex:1 1 auto` + 内部垂直居中，
+        # 这样有没有金额块都能视觉居中。
+        ".body{flex:1 1 auto;min-height:0;display:flex;"
+        "flex-direction:column;justify-content:center;}"
         ".numbox{margin-top:auto;background:#f6f3ee;border-radius:24px;"
         "padding:34px 34px;flex:0 0 auto;}"
         ".num{font-size:44px;font-weight:800;line-height:1.4;}"
