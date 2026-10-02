@@ -3066,7 +3066,19 @@ def _connect_mp(cdp, debug=False):
         tok = _get_token(cdp, debug=debug)
         if tok and tok != "NO_TOKEN":
             return tid, tok
-    # 原地等不出来 → 重导航到首页（换 token 的正规途径），再等 60 秒。
+    # 原地等不出来 → 先试「点一下登录按钮」（2026-10-02 用户实测发现）。
+    # 公众号会话 cookie 过期时，后台首页**并不显示二维码**，而是显示一个
+    # 「登录」按钮 —— cookie 其实还在，只是后台要你点一下才发新session。
+    # 点一下就能进，**不需要扫码**。这比让用户掏手机扫码省事得多。
+    if _try_click_login(cdp):
+        for _ in range(15):
+            time.sleep(2)
+            tok = _get_token(cdp, debug=debug)
+            if tok and tok != "NO_TOKEN":
+                print("  [login] 点「登录」按钮后直接拿到 token=%s（无需扫码）" % tok)
+                return tid, tok
+
+    # 点按钮也不行 → 重导航到首页（换 token 的正规途径），再等 60 秒。
     print("  [login] 原地拿不到 token，重新导航到首页再等…")
     for attempt in range(10):
         cdp.eval("location.href='https://mp.weixin.qq.com/cgi-bin/home'",
@@ -3078,6 +3090,38 @@ def _connect_mp(cdp, debug=False):
                 print("  [login] 第%d 轮重导航后拿到 token=%s" % (attempt + 1, tok))
                 return tid, tok
     return tid, None
+
+
+def _try_click_login(cdp):
+    """后台首页若显示「登录」按钮就点它。返回 True 表示点了。
+
+    ⚠ 这不是 hack：会话 cookie 还在，只是后台要一次手动确认才换新session。
+    2026-10-02 实测：点一下即进，**不需要扫码**。
+    """
+    try:
+        res = cdp.eval("""
+          (function(){
+            var cands = document.querySelectorAll(
+              'a.login_btn, div.login_btn, a.login, div.login, ' +
+              '.login__btn, .wx_login, [class*="login"]');
+            for (var i = 0; i < cands.length; i++) {
+              var e = cands[i];
+              var t = (e.innerText || e.textContent || '').trim();
+              //只要纯「登录」两个字，避免误点「登录过的账号」之类
+              if (/^登\\s*录$/.test(t)) {
+                e.click();
+                return 'clicked';
+              }
+            }
+            return null;
+          })()
+        """)
+    except Exception:
+        return False
+    if res == "clicked":
+        print("  [login] 页面显示「登录」按钮（会话还在），已自动点击")
+        return True
+    return False
 
 
 def _draft_list(cdp, tok, count=50):

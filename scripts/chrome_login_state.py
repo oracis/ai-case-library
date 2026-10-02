@@ -25,6 +25,7 @@ import json
 import os
 import shutil
 import sqlite3
+import subprocess
 import sys
 import tempfile
 
@@ -133,19 +134,46 @@ def cookie_stats(profile_dir):
     }
 
 
-def live_token_check():
+def live_token_check(autostart=True):
     """实拉一次后台首页，看能不能解析出 token。
 
     这是唯一的充分判据：cookie 在磁盘上 ≠ 服务端认你这个会话。
+
+    ⚠ `autostart=True` 时会**自己拉起 Chrome**（带 `--no-sandbox`），
+    因为在本机不开这个标志Chrome 会在 2 秒内自杀（exit code 3），
+    见 chrome_cdp_launch.py 的说明。
     """
     # 必须复用 wechat_publish 自己的登录函数，那里面包含了
-    # 「原地等 → 重导航 cgi-bin/home → 最多 10 轮」这套兜底，
+    # 「原地等 → 点登录按钮 → 重导航」这套三级兜底，
     # 自己重写一套简化版会误报。
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     try:
         import wechat_publish as wp
     except Exception as e:  # pragma: no cover
         return {"ok": False, "why": "import 失败: %s" % e}
+
+    proc = None
+    if autostart:
+        try:
+            import chrome_cdp_launch as L
+            L.clear_proxy()
+            profile = os.path.expandvars(L.PROFILE)
+            chrome, label = L.pick_chrome()
+            if chrome is None:
+                return {"ok": False, "why": "找不到 Chrome 可执行文件"}
+            L.remove_lock(profile)
+            proc = subprocess.Popen(L.build_args(chrome, profile),
+                                    stdout=subprocess.DEVNULL,
+                                    stderr=subprocess.DEVNULL)
+            if not L.wait_cdp(proc):
+                code = proc.poll()
+                return {"ok": False,
+                        "why": "Chrome 启动失败（exit=%s）。"
+                               "若为 exit 3，多半漏了 --no-sandbox" % code}
+        except Exception as e:
+            return {"ok": False, "why": "启动 Chrome 失败: %s: %s"
+                    % (type(e).__name__, e)}
+
     try:
         cdp = wp.CDP()
         # ⚠ _connect_mp 返回的是 **(tid, token)** 二元组，不是裸 token。
