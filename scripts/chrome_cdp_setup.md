@@ -1,9 +1,11 @@
 # Chrome CDP 登录态不稳 —— 根因与修复
 
-> 2026-10-02 定位并**二次修正**。用户症状：登录后 Chrome 一会就退出，需反复重登；
+> 2026-10-02 定位并**三次修正**。用户症状：登录后 Chrome 一会就退出，需反复重登；
 > 以前登录能用很久。
 >
 > ⚠ **本文档第二节的「Cookies 大小判据」已被推翻**，见下面「零、重大修正」。
+> ⚠ **启动命令缺 `--no-sandbox` 是「启动即退」的真正根因**，见「一.5」。
+> ⚠ **登录不需要扫码，点一下「登录」按钮即可**，见「一.6」。
 > 三条判定规则请直接看**零**节。
 
 ## 零、重大修正：Cookies 文件大小**不能**当登录态判据
@@ -80,6 +82,54 @@ Chrome **136 起**（官方公告）改了行为：
 **没有**任何关于 cookie 生命周期 / 会话时长变化的内容。
 So你观察到的「一会就退出」= 进程死，**不是** cookie 自己过期。
 
+### 5. ⚠⚠ 启动即退的真根因：本机沙箱拦子进程，**必须加 `--no-sandbox`**
+
+这是「Chrome 一启动就退、9222 从不开」的**唯一真凶**，此前一直被误判成
+「登录态掉了」/「版本问题」/「LOCK 残留」。2026-10-02 用**全新临时 profile**
+跑了一个标志矩阵（每个组合用独立 profile，避免 LOCK 干扰）：
+
+| 参数组合 | 结果 |
+|---|---|
+| baseline（只有 port + user-data-dir） | **FAIL exit=3** |
+| `--disable-gpu` | **FAIL exit=3** |
+| **`--no-sandbox`** | **CDP OK** ✅ |
+| `--no-sandbox` + gpu off | CDP OK ✅ |
+| `--no-sandbox --single-process` | CDP OK ✅ |
+
+`exit=3` = Chromium `RESULT_CODE_KILLED_BAD_MESSAGE`
+（"a bad message caused the process termination"）—— 本机**沙箱拦住
+renderer/GPU 子进程的创建**，主进程收到「坏消息」后自杀。
+
+症状特征（很有辨识度）：
+- 日志正常加载完 policy / variations，**2 秒内进程消失**；
+- 无崩溃记录、无 JS 报错；
+- 9222 从不开放；
+- 与 LOCK、登录态**都无关**。
+
+⇒ 所有 CDP 启动路径（`chrome_cdp_launch.py` / `wechat_publish.py` 的 autostart /
+`.bat`）**一律带 `--no-sandbox`**。
+
+### 6. 公众号登录**不需要扫码**：点一下「登录」按钮就行
+
+页面显示「请重新登录」时，会话 cookie 其实**一直都在**，只是后台要你点一次
+才签发新 session。实抓 DOM 找到的按钮是：
+
+```html
+<a id="jumpUrl" href="/cgi-bin/loginpage?url=%2Fcgi-bin%2Fhome">登录</a>
+```
+
+⚠ **它没有 `login` class**，所以 `.login_btn, [class*="login"]` 这类选择器
+会完全落空（踩过这个坑）。正确做法是**优先 `#jumpUrl`**，文本「登录」兜底。
+
+2026-10-02 零人工干预实测通过：
+
+```
+[login] 页面显示「登录」按钮（会话还在），已自动跳转到登录页
+[login] 点「登录」按钮后直接拿到 token=754545568（无需扫码）
+```
+
+已内建在 `_connect_mp()` → `_try_click_login()`，用户无感。
+
 ## 二、修复方案
 
 ### 已下载就位
@@ -100,6 +150,15 @@ So你观察到的「一会就退出」= 进程死，**不是** cookie 自己过�
 虽然之前是误建，但它现在是干净的空 profile，正好拿来当专用 profile）
 
 ### 启动命令
+
+```bat
+"%LOCALAPPDATA%\Google\ChromeForTesting\chrome-win64\chrome.exe" ^
+  --remote-debugging-port=9222 ^
+  --user-data-dir="%LOCALAPPDATA%\Google\ChromeCDP" ^
+  --no-first-run --no-default-browser-check --no-sandbox
+```
+
+⚠ **`--no-sandbox` 是硬性必需**（见「一.5」），漏了必定启动即退。
 
 ```bat
 "%LOCALAPPDATA%\Google\ChromeForTesting\chrome-win64\chrome.exe" ^
@@ -146,9 +205,18 @@ profile 被反复强杀、LOCK 残留、cookie 没落盘。
 拿到 → 登录态可用，直接跑 refresh，**不用再扫码**。
 拿不到 → 真掉登录了，才需要人工扫码。
 
+⚠ **现在通常连这个 .bat 都不用双击**：项目脚本已内置 autostart，
+`wechat_publish.py refresh` / `wechat_verify_refresh.py` / `chrome_login_state.py`
+都会自己清代理 → 删 LOCK → 带 `--no-sandbox` 起 Chrome → 轮询 9222 →
+必要时自动点「登录」→ 实拉 token。`.bat` 只留作人工排查时的入口。
+
 ⚠ **不要看 Cookies 文件大小**，理由见零节。
 `chrome_login_state.py` 会把文件大小也打印出来，但那行后面标着
 「← 仅供参考，不是判据」，别被它误导。
+
+⚠ Chrome 运行时 `Cookies` 文件可能被独占锁，`shutil.copy2` 会报
+`PermissionError: [WinError 32]`。**这是文件锁，不是登录态问题**——
+`chrome_login_state.py` 已改三级降级（copy2 → 直接读 → sqlite backup）。
 
 也可以只查磁盘（Chrome 没起时）：
 
