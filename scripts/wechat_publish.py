@@ -29,6 +29,7 @@ import base64
 import glob
 import json
 import os
+import subprocess
 import re
 import select
 import socket
@@ -3658,6 +3659,44 @@ def cmd_refresh(args):
 # ======================================================================
 # CLI
 # ======================================================================
+def _autostart_chrome_if_needed(port=CDP_PORT):
+    """CDP 连不上时自动拉起 Chrome（带 `--no-sandbox`）。
+
+    ⚠ 本机 Chrome 不带 `--no-sandbox` 会在 2 秒内自杀（exit code 3 =
+    Chromium `RESULT_CODE_KILLED_BAD_MESSAGE`），DevTools 端口根本不开。
+    所以这里统一代劳，不再要求用户先手工启动 Chrome。
+
+    返回 True 表示 CDP 可用（已有实例，或已自动拉起）。
+    """
+    import urllib.request
+    op = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+    url = "http://127.0.0.1:%d/json/version" % port
+    try:
+        op.open(url, timeout=2).read()
+        return True                      # 已有实例在跑
+    except Exception:
+        pass
+
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import chrome_cdp_launch as L
+    L.clear_proxy()
+    profile = os.path.expandvars(L.PROFILE)
+    chrome, label = L.pick_chrome()
+    if chrome is None:
+        return False
+    L.remove_lock(profile)
+    proc = subprocess.Popen(L.build_args(chrome, profile),
+                            stdout=subprocess.DEVNULL,
+                            stderr=subprocess.DEVNULL)
+    if not L.wait_cdp(proc):
+        raise SystemExit(
+            "\u2717 Chrome \u542f\u52a8\u5931\u8d25\uff08exit=%s\uff09\u3002\n"
+            "  \u82e5\u4e3a exit 3\uff0c\u591a\u534a\u6f0f\u4e86 --no-sandbox\u3002"
+            % proc.poll())
+    print("[autostart] Chrome \u5df2\u542f\u52a8\uff08%s, --no-sandbox\uff09" % label)
+    return True
+
+
 def main():
     ap = argparse.ArgumentParser(description="公众号拆解自动发布管线")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -3708,6 +3747,18 @@ def main():
     _np = os.environ.get("no_proxy", "")
     if "127.0.0.1" not in _np:
         os.environ["no_proxy"] = ("127.0.0.1,localhost" + ("," + _np if _np else ""))
+
+    # 所有需要 CDP 的子命令共用这一个入口：CDP 连不上就自动拉起 Chrome。
+    # ⚠ 本机 Chrome 不带 `--no-sandbox` 会在 2 秒内自杀（exit code 3 =
+    # Chromium RESULT_CODE_KILLED_BAD_MESSAGE），端口根本不开，故统一代劳。
+    if args.cmd in ("publish", "refresh", "delete", "fix-cover", "inspect"):
+        try:
+            _autostart_chrome_if_needed()
+        except SystemExit:
+            raise
+        except Exception as _e:
+            print("[warn] 自动启动 Chrome 失败：%s: %s"
+                  % (type(_e).__name__, _e))
 
     if args.cmd == "build":
         cmd_build()
