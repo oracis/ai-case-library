@@ -30,16 +30,57 @@ ART = """<section>
 
 class TestMakeTitle(unittest.TestCase):
     def test_prefers_toutiao_meta_title(self):
-        """有头条精修标题时优先复用（prosp 等已 build 过 meta.json）。"""
+        """无人工覆盖时才看头条 meta，且**必须不含金额**才允许复用。"""
         t = bp.make_title("prosp", ART)
-        # prosp 的头条标题是「月收$128K：销售挖客户线索的工具」
-        self.assertTrue(t.startswith("月收") or t, t)
+        # prosp 已有人工覆盖（无金额口径），断言的应是覆盖生效
+        self.assertFalse(bp.TITLE_MONEY_RE.search(t), t)
 
     def test_fallback_h1_strips_paren(self):
         """无头条 meta 时退回 h1，剥括号数据说明并截 30 字。"""
         t = bp.make_title("no-such-case", ART)
         self.assertNotIn("（", t)
         self.assertLessEqual(len(t), 30)
+
+    def test_标题一律不带金额(self):
+        """2026-10-02 用户要求：封面去了金额，标题也不许带。
+
+        金额是抓取当天的快照，站点自己会变。逐条断言而不是抽样 ——
+        抽样漏掉一条就等于线上多一条带金额的草稿。
+        """
+        ov = bp._bili_title_overrides()
+        self.assertGreaterEqual(len(ov), 39, "标题覆盖表应覆盖全部案例")
+        bad = []
+        for cid in ov:
+            t = bp.make_title(cid, ART)
+            if bp.TITLE_MONEY_RE.search(t):
+                bad.append((cid, t))
+        self.assertEqual(bad, [], "标题仍带金额：%r" % (bad,))
+
+    def test_标题不超30字且无省略号(self):
+        bad = []
+        for cid in bp._bili_title_overrides():
+            t = bp.make_title(cid, ART)
+            if len(t) > 30:
+                bad.append((cid, "超长 %d" % len(t), t))
+            if "…" in t:
+                bad.append((cid, "省略号", t))
+        self.assertEqual(bad, [])
+
+    def test_金额正则不误报(self):
+        """「B2B 的 B2」「5 万个企业招聘页」都不是金额。
+
+        这条踩过两次：金额正则写太宽会把 B2B 当成 $2，把普通数量
+        当成营收，审计就会一直报假警，最后没人看审计结果。
+        """
+        for s in ("GojiberryAI：B2B 团队的 AI GTM 平台",
+                  "MORT：AI 求职代理，盯 5 万个企业招聘页",
+                  "MORT：AI 求职代理，扫 5 万条简历"):
+            self.assertIsNone(bp.TITLE_MONEY_RE.search(s), s)
+        for s in ("月收$1.6K：给跨境团队搭云通信",
+                  "年收$200M：AI 客服解决才收钱",
+                  "$85K成交：盯住 AI 怎么提你品牌",
+                  "月入 30 万的自动化 SEO 引擎"):
+            self.assertIsNotNone(bp.TITLE_MONEY_RE.search(s), s)
 
 
 class TestCleanBody(unittest.TestCase):

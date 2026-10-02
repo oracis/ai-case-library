@@ -49,6 +49,33 @@ CASES = os.path.join(ROOT, "data", "cases.json")
 # 抢同一个端口会连上别人的浏览器，症状是「被重定向到登录页」。
 PUB_PORT = int(os.environ.get("CDP_BILI_PORT", 9223))
 
+# ---- 标题去金额（2026-10-02）-------------------------------------------
+# 封面已经统一成「项目名 + 一句话介绍」，标题再挂着「月收$xxx」就自相矛盾；
+# 而且金额是抓取当天的快照，站点自己会变，印在标题里等于印一个会过期的数字。
+BILI_TITLE_OVERRIDES = os.path.join(ROOT, "data", "bili_title_overrides.json")
+# 判据要「有货币符号」或「明确营收语境」，不能只看数字 ——
+# 「B2B 团队的 AI GTM」里的 B2、「盯 5 万个企业招聘页」里的 5 万都不是金额。
+TITLE_MONEY_RE = re.compile(
+    r"[\$￥€£¥]"                       # 货币符号
+    r"|(?:月收|年收|成交|流水|营收)"                # 营收语境词
+    r"|\d[\d.,]*\s*(?:万|亿)(?![个位条件件人台次份])"    # 30万 / 1.5亿，排除量词
+)
+
+
+def _bili_title_overrides():
+    """读 data/bili_title_overrides.json；缺失或坏JSON 一律退回空表。
+
+    刻意不做「自动去金额」—— 剥掉金额后的残句读起来像机翻
+    （「从的 AI 博客生成器，15 个月变成30 万的自动化 SEO 引擎」），
+    所以标题是人工精修后落盘，这里只负责读。
+    """
+    try:
+        with open(BILI_TITLE_OVERRIDES, encoding="utf-8") as f:
+            d = json.load(f)
+        return d if isinstance(d, dict) else {}
+    except (ValueError, OSError):
+        return {}
+
 # 专栏投稿入口（登录后确认；可能跳创作中心新版 URL）
 BILI_ARTICLE = "https://member.bilibili.com/platform/upload/text"
 
@@ -146,17 +173,28 @@ def extract_title(html):
 
 
 def make_title(cid, html):
-    """B站标题 ≤40 字（建议 ≤30）。
+    """B站标题≤40 字（建议 ≤30）。
 
-    优先复用头条精修标题（out/toutiao/<id>/meta.json，已按「月收$xxx：钩子」
-    打磨过且 ≤30 字）；没有才退回文章 h1（那是数据串，只能截断兜底）。
+    ⚠ **2026-10-02 用户要求：标题也不许带金额**（封面已去金额，标题还带
+    金额会自相矛盾）。优先级：
+      1. `data/bili_title_overrides.json` —— 人工/AI 精修的无金额标题
+      2. 头条 `out/toutiao/<id>/meta.json` —— **仅当它不含金额**才用
+      3. 文章 h1（数据串，只能截断兜底）
+
+    ⚠ 头条 meta.json 的标题是「月收$xxx：钩子」口径（37/39 条带金额），
+    直接复用会把金额带进B站标题 —— 所以第2 级必须过金额正则。
     """
+    ov = _bili_title_overrides().get(cid or "")
+    if ov:
+        return ov[:30]
+
     mp = os.path.join(OUT_TT, cid, "meta.json")
     if os.path.isfile(mp):
         try:
             with open(mp, encoding="utf-8") as f:
                 t = (json.load(f).get("title") or "").strip()
-            if t:
+            # 只有不含金额的标题才允许复用
+            if t and not TITLE_MONEY_RE.search(t):
                 return t[:30]
         except (ValueError, OSError):
             pass
