@@ -51,6 +51,10 @@ ISSUE_PATH = os.path.join(ROOT, "data", "issue_numbers.json")
 PLAN_PATH = os.path.join(ROOT, "发布队列-自动生成.md")
 
 CDP_PORT = int(os.environ.get("CDP_PORT", 9222))
+# 草稿箱列表页**每页只渲染这么多张**卡片。实测（2026-10-02）：草稿共 38 篇时，
+# `?begin=0&count=10` 的页面 DOM 里只有 10 个 [data-appid]，`begin=30` 才有第 38 张。
+#⇒ 任何按appmsgid 找卡片的逻辑都必须先翻页，不能只查第 1 页。
+DRAFT_PAGE = 10
 
 # 已登录主页（靠 cookie 登录态，无需 token，会被 mp 重定向到图文列表/看板）
 MP_HOME = "https://mp.weixin.qq.com/cgi-bin/home?t=home/index&lang=zh_CN"
@@ -3329,7 +3333,7 @@ def cmd_fix_cover(args):
 
 
 def _delete_draft_ui(cdp, tok, appmsgid):
-    """在 mp 草稿箱列表页，按 appmsgid 精确点掉一篇草稿（触发器→确认框→确认）。
+    r"""在 mp 草稿箱列表页，按 appmsgid 精确点掉一篇草稿（触发器→确认框→确认）。
 
     2026-09-25：微信后台 `cgi-bin/appmsg?action=del` 的 XHR 对草稿返回
     `200009 not found`（参数对不上），个人订阅号也没有草稿删除 API 权限，
@@ -3337,19 +3341,67 @@ def _delete_draft_ui(cdp, tok, appmsgid):
     在 tooltip 文本为「删除」的 `.weui-desktop-popover__wrp` 内的 `<a>` 图标；
     点开后弹确认框，确认按钮是卡片内 `button.weui-desktop-btn_primary` 文本「删除」。
     逐个精确匹配，不会波及别的草稿。
+
+    ⚠⚠ **草稿箱是真分页的**（2026-10-02 实测踩坑）：
+    列表 URL 的 `begin`/`count` 生效，每页只有 `count=10` 条DOM 卡片。
+    所以草稿数 > 10 时，**目标很可能不在第 1 页 DOM 里**，
+    只 `querySelector('[data-appid=...]')` 必然 `NO_CARD`。
+    ⚠ 而 `NO_CARD` 这个返回值本身**会误导人**：删除其实完全可行，
+    只是得先翻到目标所在页。别据此判定「删不了」。
+    ⇒ 这里按 `begin=0,10,20,...` 逐页找，找到再删。
+    判据是接口列表 `_draft_list()` 的条数（它走XHR，能一次拿全）。
     """
-    LIST = ("https://mp.weixin.qq.com/cgi-bin/appmsg?t=media/appmsg_list"
-            "&action=list&type=77&lang=zh_CN&token=%s" % tok)
     cdp.send("Page.enable")
-    cdp.send("Page.navigate", {"url": LIST})
-    for _ in range(15):
-        time.sleep(1)
-        try:
-            if cdp.eval("!!document.querySelector('[data-appid]')",
-                        refresh_context=True):
-                break
-        except Exception:
-            pass
+
+    def _list_url(begin):
+        """⚠ 必须当函数生成，别提前 `%` 绑定 —— 提前绑定会把后续占位符吃掉。"""
+        return ("https://mp.weixin.qq.com/cgi-bin/appmsg?begin=%d&count=%d"
+                "&type=77&action=list&lang=zh_CN&token=%s"
+                % (begin, DRAFT_PAGE, tok))
+
+    def _on_page(begin):
+        cdp.send("Page.navigate", {"url": _list_url(begin)})
+        # ⚠⚠ **一次 eval 同时拿「已渲染数 + 是否命中」**（2026-10-02 优化）：
+        # 原版每次循环发 2 个 eval、轮询 25 轮，4 页实测跑了 19 分钟。
+        # CDP 的 eval 是同步往返，轮询次数必须压到个位数级。
+        # 判据不能是「任意 [data-appid] 出现」—— 卡片是**逐张插入**的，
+        # 第一张落地就break 的话，排在末尾的目标还没渲染 ⇒ 后面必然 NO_CARD。
+        js = ("(function(){var c=document.querySelectorAll('[data-appid]');"
+              "return JSON.stringify([c.length,"
+              "!!document.querySelector('[data-appid=\"%s\"]')]);})()"
+              % appmsgid)
+        rendered = 0
+        for attempt in range(10):
+            time.sleep(1.5 if attempt else 2.0)
+            try:
+                r = json.loads(cdp.eval(js, refresh_context=True) or "[0,false]")
+                rendered = r[0]
+                if r[1]:
+                    return True
+                # 渲染数稳定且非 0 = 这页已加载完，目标确实不在
+                if rendered:
+                    break
+            except Exception:
+                pass
+        print("    [翻页] begin=%d 渲染=%d，目标不在本页" % (begin, rendered),
+              flush=True)
+        return False
+
+    # 总页数上界用接口列表算（拿不到就保守翻 30 页 = 300 篇）
+    try:
+        total = len(_draft_list(cdp, tok, count=200))
+    except Exception:
+        total = 0
+    pages = max(1, (total + DRAFT_PAGE - 1) // DRAFT_PAGE) if total else 30
+
+    found = False
+    for i in range(pages):
+        if _on_page(i * DRAFT_PAGE):
+            found = True
+            break
+    if not found:
+        return "NO_CARD(scanned=%d pages)" % pages
+    print("    [命中] 在第 %d 页找到 appmsgid=%s" % (i + 1, appmsgid), flush=True)
     trig = cdp.eval("""(function(){
       var card=document.querySelector('[data-appid="%s"]');
       if(!card) return 'NO_CARD';

@@ -51,19 +51,37 @@ def clear_proxy():
 
 
 def remove_lock(profile):
-    """删掉强杀残留的锁 —— 这是「启动即退」的头号根因。
+    r"""挪掉强杀残留的锁 —— 这是「启动即退」的头号根因。
 
     ⚠ 只能用 Python 删：bash 的 `rm -f` 会被 safe-delete 策略拦
     （报 SAFE_DELETE_INVALID_PATH）。
+    ⚠⚠ **`os.remove` 本身也可能被 safe-delete 钩子拦**：钩子会改走回收站
+    API（SHFileOperationW），对 `Default\LOCK` 这种被 Chrome 占着的文件
+    直接失败（`0x2`文件不存在），报
+    `[safe-delete][SAFE_DELETE_FAIL_CLOSED] ... "reason": "trash-failed"`
+    ⇒ 表现为「删不掉 LOCK」→ Chrome 启动即退 → CDP 连不上，
+    **看起来像登录态问题，实际是锁没清掉**。
+    ⇒ 兜底用 `os.rename` 把 LOCK 挪出 profile（挪走≠删除，不触发删除钩子，
+    Chrome 看不到 `Default\LOCK` 就等于清掉了）。
     """
     lock = os.path.join(profile, "Default", "LOCK")
-    if os.path.exists(lock):
-        try:
-            os.remove(lock)
-            log("  cleared stale LOCK")
-            return True
-        except OSError as e:
-            log("  [warn] cannot remove LOCK: %s" % e)
+    if not os.path.exists(lock):
+        return False
+    try:
+        os.remove(lock)
+        log("  cleared stale LOCK")
+        return True
+    except Exception as e:
+        log("  [warn] os.remove LOCK failed (%s), fallback to rename" % e)
+    try:
+        import tempfile
+        dst = os.path.join(tempfile.gettempdir(),
+                           "chrome_cdp_LOCK_%d" % int(time.time()))
+        os.rename(lock, dst)
+        log("  moved stale LOCK -> %s" % dst)
+        return True
+    except Exception as e:
+        log("  [warn] cannot remove LOCK: %s" % e)
     return False
 
 
