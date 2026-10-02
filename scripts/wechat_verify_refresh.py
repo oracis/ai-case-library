@@ -46,6 +46,7 @@ appmsgid=**，那是编辑器跳转信号，**不保证正文落库**。
 import argparse
 import json
 import os
+import subprocess
 import sys
 import time
 
@@ -90,6 +91,8 @@ def main():
                     help="批次开始 unix 时间戳；给了就优先用它（长批次必用）")
     ap.add_argument("--probe-missing", action="store_true",
                     help="对 MISSING 的条目逐个试开编辑页，区分限流与草稿损坏")
+    ap.add_argument("--no-autostart", action="store_true",
+                    help="do not launch Chrome, only probe an existing one")
     ap.add_argument("--list", action="store_true", help="只列台账里的条目")
     ap.add_argument("--out", default="", help="把结果写成 json")
     args = ap.parse_args()
@@ -124,6 +127,33 @@ def main():
     if not expect:
         print("台账里没有带 appmsgid 的条目 —— 跑 refresh 时会顺带补记，跑完再来对账。")
         return 1
+
+    # ⚠ 本机 Chrome 不带 `--no-sandbox` 会在 2 秒内自杀（exit code 3），
+    # 所以这里自己拉起 Chrome，而不是要求用户先手工启动。
+    chrome_proc = None
+    if not args.no_autostart:
+        try:
+            sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+            import chrome_cdp_launch as L
+            L.clear_proxy()
+            profile = os.path.expandvars(L.PROFILE)
+            chrome, label = L.pick_chrome()
+            if chrome is None:
+                raise SystemExit("✗ 找不到 Chrome 可执行文件")
+            L.remove_lock(profile)
+            chrome_proc = subprocess.Popen(
+                L.build_args(chrome, profile),
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            if not L.wait_cdp(chrome_proc):
+                raise SystemExit(
+                    "✗ Chrome 启动失败（exit=%s）。\n"
+                    "  若为 exit 3，多半漏了 --no-sandbox。"
+                    % chrome_proc.poll())
+        except SystemExit:
+            raise
+        except Exception as e:
+            raise SystemExit("✗ 启动 Chrome 失败：%s: %s"
+                             % (type(e).__name__, e))
 
     cdp = W.CDP(args.port)
     _tid, tok = W._connect_mp(cdp)

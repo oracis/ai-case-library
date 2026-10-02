@@ -3093,24 +3093,34 @@ def _connect_mp(cdp, debug=False):
 
 
 def _try_click_login(cdp):
-    """后台首页若显示「登录」按钮就点它。返回 True 表示点了。
+    """后台首页若显示「登录」按钮就跳过去。返回 True 表示点了。
 
-    ⚠ 这不是 hack：会话 cookie 还在，只是后台要一次手动确认才换新session。
-    2026-10-02 实测：点一下即进，**不需要扫码**。
+    ⚠ 这不是 hack：会话 cookie 还在，只是后台要一次手动确认才换新 session。
+    2026-10-02 实测：跳一次即进，**不需要扫码**。
+
+    ⚠⚠ 真实 DOM（2026-10-02 实抓，**不要凭猜改选择器**）：
+    ```
+    <a id="jumpUrl" href="/cgi-bin/loginpage?url=%2Fcgi-bin%2Fhome">登录</a>
+    ```
+    它是 `<a id="jumpUrl">`，**没有任何 login 相关的 class**。
+    早先按 `.login_btn / [class*="login"]` 找全部落空⇒ 按钮没被点，
+    于是每次都走到「拿不到 token」，看起来像「必须扫码」。
+    ⇒ 正解：**优先 `#jumpUrl`**，其次按可见文本「登录」兜底。
     """
     try:
         res = cdp.eval("""
           (function(){
-            var cands = document.querySelectorAll(
-              'a.login_btn, div.login_btn, a.login, div.login, ' +
-              '.login__btn, .wx_login, [class*="login"]');
-            for (var i = 0; i < cands.length; i++) {
-              var e = cands[i];
+            // 1) 首选：官方那个固定 id
+            var el = document.getElementById('jumpUrl');
+            if (el) { el.click(); return 'clicked:#jumpUrl'; }
+            // 2) 兜底：找可见的、文本恰好是「登录」的链接/按钮
+            var all = document.querySelectorAll('a, button, div[role="button"]');
+            for (var i = 0; i < all.length; i++) {
+              var e = all[i];
               var t = (e.innerText || e.textContent || '').trim();
-              //只要纯「登录」两个字，避免误点「登录过的账号」之类
               if (/^登\\s*录$/.test(t)) {
                 e.click();
-                return 'clicked';
+                return 'clicked:text';
               }
             }
             return null;
@@ -3118,11 +3128,10 @@ def _try_click_login(cdp):
         """)
     except Exception:
         return False
-    if res == "clicked":
-        print("  [login] 页面显示「登录」按钮（会话还在），已自动点击")
+    if res and str(res).startswith("clicked"):
+        print("  [login] 页面显示「登录」按钮（会话还在），已自动跳转到登录页")
         return True
     return False
-
 
 def _draft_list(cdp, tok, count=50):
     """拉服务端草稿列表 -> [{appmsgid,title,cover,...}]。
