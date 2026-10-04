@@ -639,12 +639,16 @@ def main():
               and status.get("job", {}).get("state") == "idle", "实际 %s" % body[:80])
         check("status 报告 has_key 字段（本机可能已配过 key，只验类型）",
               isinstance(status.get("has_key"), bool))
+        check("status 报告 ready 字段（能不能调，不能只看有没有 key）",
+              isinstance(status.get("ready"), bool))
 
-        if not status.get("has_key"):
+        # ⚠ 判据必须用 ready 而不是 has_key：免 key 端点（space-bunny-free）
+        # has_key 恒为 False 但照样能跑，用 has_key 分支会误判。
+        if not status.get("ready"):
             st, body = areq("POST", "/api/ai/run", {"limit": 3})
-            check("没配 key 时 run -> 400", st == 400, "实际 %d %s" % (st, body[:60]))
+            check("没配好接口时 run -> 400", st == 400, "实际 %d %s" % (st, body[:60]))
         else:
-            print("  （本机已配置 key，跳过 400 分支）")
+            print("  （本机已配好 LLM 接口，跳过 400 分支）")
 
         # 保存 / 更换 / 清除 key（不触发任何网络请求）
         st, body = areq("POST", "/api/ai/settings", {"api_key": "sk-selftest-xxx",

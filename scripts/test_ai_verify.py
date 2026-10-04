@@ -982,6 +982,34 @@ class LlmEndpointTest(unittest.TestCase):
         finally:
             A.AI_KEY, A.AI_BASE, A.AI_MODEL = old
 
+    def test_configure空串key必须真清空(self):
+        """空串是「显式清空」，不是「没传」。
+
+        ⚠ 这条钉死 2026-10-04 修的致命 bug：`configure()`曾用 `if api_key:`
+        真值判据，`""` 是 falsy 被跳过 ⇒ 旧付费 key 沿用 ⇒ 免 key 端点必 401。
+        """
+        old = (A.AI_KEY, A.AI_BASE, A.AI_MODEL)
+        try:
+            A.configure(api_key="paid-key", base="https://api.deepseek.com/v1",
+                        model="deepseek-flash")
+            A.configure(api_key="", base="https://opencode.ai/zen/v1",
+                        model="space-bunny-free")
+            self.assertEqual(A.AI_KEY, "",
+                             "空串必须真清空 key，不能沿用旧的付费 key")
+            self.assertEqual(A.AI_MODEL, "space-bunny-free")
+        finally:
+            A.AI_KEY, A.AI_BASE, A.AI_MODEL = old
+
+    def test_免key端点判定(self):
+        self.assertTrue(A.is_no_key_endpoint("https://opencode.ai/zen/v1"))
+        self.assertFalse(A.is_no_key_endpoint("https://api.deepseek.com/v1"))
+        # 带key 的普通端点不算免 key
+        self.assertTrue(A.ai_ready("sk-x", "https://api.deepseek.com/v1"))
+        # 免 key 端点没有 key 也算就绪（后台门禁靠这个放行）
+        self.assertTrue(A.ai_ready("", "https://opencode.ai/zen/v1"))
+        # 两样都没有才算不就绪
+        self.assertFalse(A.ai_ready("", "https://api.deepseek.com/v1"))
+
     def test_configure会rstrip_base的斜杠(self):
         old = A.AI_BASE
         try:

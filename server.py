@@ -714,6 +714,10 @@ class Handler(BaseHTTPRequestHandler):
             return self._json({
                 "job": job,
                 "has_key": bool(st["key"]),
+                # ready = 能不能真的调起来。免 key 端点没有 key 但照样能跑，
+                # 前端别拿 has_key 当「能不能运行」的判据（会误报未配置）。
+                "ready": AIV.ai_ready(st["key"], st["base"]),
+                "no_key_endpoint": AIV.is_no_key_endpoint(st["base"]),
                 "model": st["model"] or AIV.AI_MODEL,
                 "base": st["base"] or AIV.AI_BASE,
             })
@@ -1117,6 +1121,7 @@ class Handler(BaseHTTPRequestHandler):
             st = resolve_ai_settings()
             AIV.configure(api_key=st["key"], base=st["base"], model=st["model"])
             return self._json({"ok": True, "has_key": bool(st["key"]),
+                               "ready": AIV.ai_ready(st["key"], st["base"]),
                                "model": st["model"] or AIV.AI_MODEL})
 
         if path == "/api/ai/run":
@@ -1124,10 +1129,16 @@ class Handler(BaseHTTPRequestHandler):
                 if _AI_JOB["state"] == "running":
                     return self._json({"error": "已有任务在跑，等它结束再开"}, 409)
             body = self._read_body()
-            if not resolve_ai_settings()["key"]:
+            # ⚠ 判据不是「有没有 key」，而是「能不能调」——
+            # 免 key 端点（opencode.ai/zen 的 space-bunny-free）压根没有 key，
+            # 用 `if not key` 卡门会把这类配置全挡在门外，后台点运行直接 400。
+            # ⚠ st 必须在使用前赋值（Python 把它当局部变量）。
+            st = resolve_ai_settings()
+            if not AIV.ai_ready(st["key"], st["base"]):
                 return self._json({
-                    "error": "还没有配置 LLM API Key —— 先在下方保存，"
-                             "或启动前设 CASE_LIB_AI_KEY 环境变量"}, 400)
+                    "error": "还没有配置 LLM 接口 —— 先在下方保存，"
+                             "或启动前设 CASE_LIB_AI_KEY 环境变量"
+                             "（免 key 端点只需填接口地址和模型名）"}, 400)
             try:
                 limit = int(body.get("limit") or 5)
                 min_score = int(body.get("min_score") or 0)
@@ -1237,11 +1248,12 @@ def main():
     # （环境变量优先，所以这里不会覆盖外部显式传入的值）。
     st = resolve_ai_settings()
     AIV.configure(api_key=st["key"], base=st["base"], model=st["model"])
-    if st["key"]:
-        print("  AI 核实：已就绪（%s @ %s）——后台「AI 核实」面板可用" % (
-            st["model"] or AIV.AI_MODEL, st["base"] or AIV.AI_BASE))
+    if AIV.ai_ready(st["key"], st["base"]):
+        print("  AI 核实：已就绪（%s @ %s%s）——后台「AI 核实」面板可用" % (
+            st["model"] or AIV.AI_MODEL, st["base"] or AIV.AI_BASE,
+            "，免 key 端点" if not st["key"] else ""))
     else:
-        print("  AI 核实：未配置 API Key —— 后台「AI 核实」面板里保存即可启用")
+        print("  AI 核实：未配置 LLM 接口 —— 后台「AI 核实」面板里保存即可启用")
 
     # 管理员凭据：核实功能是后台功能，没登录就用不了。
     # 自测要绕过鉴权，所以提供 CASE_LIB_NO_AUTH —— 只有测试会设它。

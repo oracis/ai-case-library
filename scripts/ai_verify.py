@@ -33,7 +33,7 @@
     # 先花几毛钱验端点，别直接跑一批才发现 key 不对
     python scripts/ai_verify.py --ping
     python scripts/ai_verify.py --ping --ai-base https://opencode.ai/zen/v1 \
-                                --ai-model space-bunny-free --ai-key sk_xxx
+                                --ai-model space-bunny-free
     # 通了再核
     python scripts/ai_verify.py --triage --limit 5
     python scripts/ai_verify.py --limit 5 --ai-model space-bunny-free \
@@ -99,15 +99,36 @@ BONUS_KEYS = [b["key"] for b in VR.BONUS]
 def configure(api_key=None, base=None, model=None):
     """运行期改 LLM 配置（后台 GUI 保存的 key 在 server 进程里生效就靠它）。
 
-    不传的项保持原值。模块级常量在函数体内读取，所以改全局立刻生效。
+    ⚠ **判据是 `is not None`，不是真值** —— 空串必须能真清空key。
+    免key 端点（opencode.ai/zen 的space-bunny-free）只认「空 Bearer」，
+    而 `if api_key:` 会把 `""` 当falsy 跳过赋值 ⇒ 旧的付费 key 被沿用下来
+    ⇒ 拿 DeepSeek 的 key 去调免 key 端点，必401 Invalid API key。
+    2026-10-04 切换模型时踩到：后台把 key 清成空串，configure 却不生效。
     """
     global AI_KEY, AI_BASE, AI_MODEL
-    if api_key:
+    if api_key is not None:
         AI_KEY = api_key
-    if base:
+    if base is not None:
         AI_BASE = base.rstrip("/")
-    if model:
+    if model is not None:
         AI_MODEL = model
+
+
+def is_no_key_endpoint(base=None):
+    """这个 base 是不是免 key 端点（不需要 API key）。
+
+    后台/CLI 判断「能不能跑」的统一口径 —— 免 key 端点没有 key 也能调，
+    用 `if notkey` 卡门会把它们全挡在门外。
+    """
+    b = (base or AI_BASE or "")
+    return any(h in b for h in AI_BASE_NO_PROXY)
+
+
+def ai_ready(key=None, base=None):
+    """LLM 是否处于可调用状态：有 key，或者 base 走免 key 端点。"""
+    k = AI_KEY if key is None else key
+    b = AI_BASE if base is None else base
+    return bool(k) or is_no_key_endpoint(b)
 
 
 class AdminError(Exception):
@@ -714,7 +735,7 @@ def llm(messages, temperature=0.2):
         if e.code == 401 and not AI_KEY:
             hint = ("（当前是免 key 模式：这个模型不支持空 Bearer，"
                     "多半是「限时免费但锁客户端」或需要真 key，"
-                    "换--model 试别的，或用 --llm-profile 接一份可用性档案）")
+                    "换 --ai-model 试别的）")
         raise RuntimeError("LLM 接口 HTTP %s%s%s" % (
             e.code, ("：" + detail) if detail else "", hint)) from e
     except urllib.error.URLError as e:
@@ -735,7 +756,7 @@ def ping_llm():
     换模型前先跑这个：403/401/404 指向完全不同的问题，
     混在一起报「调用失败」会让人白排查半天。
     """
-    if not AI_KEY and "opencode.ai/zen" not in AI_BASE:
+    if not ai_ready():
         print("[!] 没设 key。--ai-key 传，或设 CASE_LIB_AI_KEY 环境变量。")
         print("    （免 key 端点 %s 不需要 key，可直接 --ping）"
               % "opencode.ai/zen")
@@ -758,8 +779,7 @@ def ping_llm():
             if not AI_KEY:
                 print("    → 当前是**免 key 模式**，这个模型不支持空 Bearer。"
                       "多半是「限时免费但锁客户端」或需真 key。")
-                print("    → 换 --model 试别的，或用 --llm-profile 接一份"
-                      "可用性档案（只挑现在真能调的模型）。")
+                print("    → 换 --model 试别的。")
             else:
                 print("    → key 无效/没这个订阅。检查 --ai-key。")
         elif "HTTP 404" in msg:
@@ -1419,20 +1439,28 @@ def load_json(name):
         return json.load(f)
 
 
-def plan_data(include_small=False, limit=None, index=None):
+def plan_data(include_small=False, limit=None, index=None, cands=None,
+              drafts=None):
     """给后台 GUI 的结构化 plan：每条可选候选的卡点与判定（离线，只读）。
 
     带上前端要显示的初筛结论（档位 / 分数 / 下一步）—— 后台因此能直接告诉人
     「这条为什么排在前面」，而不是只给一个没有排序依据的清单。
+
+    ⚠ `cands` / `drafts` 可注入，别把测试写死成读真实data/。
+    候选池里ready 档的条目会被pick_candidates 跳过 —— 一旦真跑过一轮AI 核实
+    （草稿落进 verifications.json），可选集可能变成空，依赖真实数据的测试
+    会随数据状态漂移而失败。固件自带数据 ⇒ 不受数据变化影响。
     """
-    cands = load_json("candidates")
+    if cands is None:
+        cands = load_json("candidates")
     index = index if index is not None else triage_index()
     selected = pick_candidates(cands, limit=limit, include_small=include_small,
                                index=index)
-    try:
-        drafts = load_json("verifications")
-    except Exception:
-        drafts = {}
+    if drafts is None:
+        try:
+            drafts = load_json("verifications")
+        except Exception:
+            drafts = {}
     items = []
     for c in selected:
         blockers, r = current_blockers(drafts.get(c["id"]))
@@ -1505,12 +1533,6 @@ def main():
                     help="覆盖 API key（默认读 CASE_LIB_AI_KEY）")
     ap.add_argument("--ping", action="store_true",
                     help="只测当前模型端点通不通（发一个极短请求，不改任何数据）")
-    ap.add_argument("--llm-profile", default=None,
-                    help="用可用性档案/接口自动挑一个现在真能调的模型。"
-                         "可给档案 JSON 路径、HTTP URL（如 "
-                         "http://127.0.0.1:8787/usable），"
-                         "或 `档案路径:档案id` 精确指定。"
-                         "只认 ok=true 的档案。")
     ap.add_argument("--include-small", action="store_true", help="连「体量太小」的也处理")
     ap.add_argument("--publish", action="store_true",
                     help="够格的直接发布成案例（human_read 仍不勾：它只能由人勾，"
@@ -1521,24 +1543,17 @@ def main():
                     help="后台密码（默认读 CASE_LIB_ADMIN_PASSWORD）")
     args = ap.parse_args()
 
-    # --llm-profile：从可用性档案/接口取「现在能用的模型」。
-    # 放在 --ai-* 之前，让显式 --ai-* 能再覆盖档案里的值。
-    if getattr(args, "llm_profile", None):
-        try:
-            import llm_profile as LP
-            p = LP.resolve(args.llm_profile)
-            b, m, k = LP.to_llm_args(p)
-            # 免 key 档案要显式把 key 清成空串，不能传 None ——
-            # configure() 的语义是「不传的项保持原值」，传 None 等于
-            # 沿用旧的付费 key，会变成「拿付费 key 调免鉴权端点」：
-            # 可能 401，也可能走错计费。空串才会走空 Bearer 分支。
-            configure(api_key=(k if k else ""), base=b, model=m)
-            print("档案生效 → %s\n" % LP.describe(p))
-        except (FileNotFoundError, RuntimeError) as e:
-            raise SystemExit("[!] %s" % e)
-
     # CLI 覆盖优先于环境变量；configure() 不传的项保持原值。
-    if args.ai_key or args.ai_base or args.ai_model:
+    # ⚠ 用 `is not None` 判据：`--ai-key ""` 是「显式清空」的有效用法，
+    #    真值判据会把它当没传 ⇒ 旧 key 沿用 ⇒ 免 key 端点必401。
+    if any(v is not None for v in (args.ai_key, args.ai_base, args.ai_model)):
+        # 切到免 key 端点却还留着旧付费 key = 必 401（端点只认空 Bearer）。
+        # 这里主动清掉并说明，不让用户撞 401 才发现。
+        if (args.ai_base and is_no_key_endpoint(args.ai_base)
+                and args.ai_key is None and AI_KEY):
+            print("已切到免 key 端点，自动清掉旧 key"
+                  "（免 key 端点只认空 Bearer，带旧 key 必定 401）")
+            args.ai_key = ""
         configure(api_key=args.ai_key, base=args.ai_base, model=args.ai_model)
         print("AI 已切换 → %s @ %s\n" % (AI_MODEL, AI_BASE))
 
@@ -1583,9 +1598,9 @@ def main():
         return 0
 
     #免鉴权端点（opencode.ai/zen 的隐身模型）不需要 key，别在这里挡住。
-    if not AI_KEY and not any(h in AI_BASE for h in AI_BASE_NO_PROXY):
+    if not ai_ready():
         raise SystemExit("[!] 缺 CASE_LIB_AI_KEY 环境变量（LLM 接口密钥）。"
-                         "只想看卡点请用 --plan。\n"
+                         "只想看卡点请用--plan。\n"
                          "    免 key 端点例外：--ai-base https://opencode.ai/zen/v1 "
                          "--ai-model space-bunny-free 不用给key。")
     if not args.password:

@@ -573,7 +573,7 @@ def tt_cover_html(c):
     base, band, ac = wp._cover_theme(c.get("id", ""), "toutiao")
     name = (c.get("name") or c.get("id") or "").strip()
     desc = tt_cover_desc(c)
-    # 2026-10-01 的 cover_kv 覆盖机制保留（free-llm-probe 等非营收内容用），
+    # 2026-10-01 的 cover_kv 覆盖机制保留（非营收类内容用），
     # 但 num 语义已变：现在承载的是「介绍」而非金额。
     ck = c.get("cover_kv") or {}
     if ck.get("num"):

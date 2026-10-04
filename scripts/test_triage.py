@@ -525,8 +525,18 @@ class AiVerifyIntegration(unittest.TestCase):
                          ["top", "normal"])
 
     def test_plan带初筛结论(self):
-        plan = A.plan_data()
-        self.assertTrue(plan["items"])
+        # ⚠ 固件自带数据，不读真实 data/（方法论 B）。
+        # 原写法调 plan_data() 读真实候选池：ready 档会被 pick_candidates 跳过，
+        # 一旦真跑过 AI 核实（草稿落进 verifications.json），可选集就空了 →
+        # 测试随数据状态漂移而失败。2026-10-04 实测踩中。
+        c = cand(id="fixture-a", sources=[{"url": "https://a.dev/", "kind": "stripe"}])
+        c2 = cand(id="fixture-b", sources=[{"url": "https://b.dev/", "kind": "secondary"}],
+                  metrics={"headline": "月入 $1K"})
+        idx = T.Index(drafts={})
+        plan = A.plan_data(cands=[c, c2], drafts={}, index=idx)
+        self.assertEqual(plan["selectable"], 2,
+                         "固件候选不该被过滤掉（否则下面的循环是空转）")
+        self.assertTrue(plan["items"], "固件候选应可选")
         for it in plan["items"]:
             self.assertIn("grade", it)
             self.assertIn("score", it)

@@ -87,6 +87,11 @@ _backfill_backup/
 _rollback_backup/
 _probe/
 _shots/
+# 通用临时备份区（手工清理任务时建，如 llm-clean-<时间戳>/）。
+# ⚠ 必须排除：这类目录里的 *.bak 是清理**之前**的文件快照，
+# 会连当时正在用的 LLM key / admin 签名密钥一起兜住 ——
+# 通配 `secrets.json` 这类精确名根本拦不住（文件名带 .bak 后缀）。
+_backups/
 
 # 公众号发布队列（scripts/wechat_publish.py plan 实时生成，文件头就写着「勿手改」）
 # 与 out/ 同理：随时可由 cases.json 重算，提交进来只会天天变。
