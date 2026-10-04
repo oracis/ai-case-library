@@ -4,7 +4,7 @@ SkillHub 判据： signature 端点 200 = 该版本已公开。
              search 精确命中但 signature 404 = 入库了但本地版本更新（待发新版）。
              两者皆无 = 从未发布。
 ClawHub 判据： inspect --versions能列出该 slug。
-用法： python out/_skill_status_matrix.py
+用法： python scripts/skill_status_matrix.py
 """
 import json
 import os
@@ -50,7 +50,13 @@ def sh_search(host, token, slug):
     except Exception:  # noqa: BLE001
         return None
     res = d.get("results") or []
-    exact = [x for x in res if isinstance(x, dict) and x.get("slug") == slug]
+    # search 返回的 slug 形如 "@user_bd60432e/xxx"，必须用 publicSlug/去前缀后比较，
+    # 否则精确匹配永远落空（会把「已下架」误判成「从未发布」）。
+    def _bare(x):
+        s = str(x.get("publicSlug") or x.get("slug") or x.get("name") or "")
+        return s.rsplit("/", 1)[-1]
+
+    exact = [x for x in res if isinstance(x, dict) and _bare(x) == slug]
     if not exact:
         return None
     return max((str(x.get("version") or "") for x in exact),
@@ -59,19 +65,31 @@ def sh_search(host, token, slug):
 
 def ch_versions(slug):
     try:
-        p = subprocess.run([NODE, CH_CLI, "inspect", "@oracis/" + slug, "--versions", "--limit", "50"],
+        p = subprocess.run([NODE, CH_CLI, "inspect", "@oracis/" + slug,
+                            "--versions", "--limit", "50"],
                            capture_output=True, text=True, timeout=90)
     except Exception:  # noqa: BLE001
         return "ERR"
     out = (p.stdout or "") + (p.stderr or "")
-    if "not publicly visible" in out:
-        return "HIDDEN"
-    if "not found" in out.lower():
-        return "NONE"
-    if "reset in" in out and "not found" not in out.lower():
+    low = out.lower()
+    # ⚠ 判据顺序有讲究：限流响应里也含 "not found or unavailable to this
+    # account"，先判限流会被误当成「已下架」。yt-dlp-cn-download 就是这样被
+    # 错报成 NONE的（实际早已发布，dry-run 回 "already published" 才对）。
+    if "reset in" in low and "not publicly visible" not in low:
         return "RATELIMIT"
-    vers = sorted(set(re.findall(r"\b(\d+\.\d+\.\d+)\b", out)))
-    return ",".join(vers) if vers else "?"
+    if "not publicly visible" in low:
+        return "HIDDEN"
+    if "not found" in low or "unavailable to this account" in low:
+        return "NONE"
+    # 版本号优先取 "latest=" 与 Versions 段，去掉引擎版本等噪声
+    tail = out.split("Versions:", 1)[-1] if "Versions:" in out else out
+    vers = sorted(set(re.findall(r"\b(\d+\.\d+\.\d+)\b", tail)),
+                  key=lambda s: [int(x) for x in s.split(".")])
+    s = ",".join(vers) if vers else "?"
+    # 审核期ClawHub 会挂 pending.publication，看得到版本但还没公开
+    if "pending.publication" in low or "hidden by moderation" in low:
+        s += "(pending)"
+    return s
 
 
 def main():
