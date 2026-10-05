@@ -90,6 +90,51 @@ def main():
         chk("正常目录返回路径", out is not None and os.path.isdir(out))
         chk("  清掉了残留", not os.path.exists(os.path.join(normal, "old_leftover.txt")))
 
+        # ---- 1b 不整目录删（2026-10-05 修复）----
+        # 起因：`public/` 恰好 50 文件＝沙箱批量删除阈值，`rmtree` 被拦
+        # ⇒ 构建中断、部署全没跑。且文件数 = 8 + 案例数+1，**每加一条
+        # 案例就 +1**，第 42 条必撞，属结构性必然。
+        print("\n[1b] prepare_out 不再整目录删除")
+        keep_dir = os.path.join(tmp_root, "keepdir")
+        os.makedirs(keep_dir, exist_ok=True)
+        keeper = os.path.join(keep_dir, "index.html")
+        with open(keeper, "w", encoding="utf-8") as f:
+            f.write("上一版产物")
+        stamp = os.path.getmtime(keeper)
+        with open(os.path.join(keep_dir, "orphan.txt"), "w", encoding="utf-8") as f:
+            f.write("不认识的文件")
+        # 一个「不是构建产物」的子目录：绝不能被当成孤儿文件删掉
+        subdir = os.path.join(keep_dir, "not_ours_dir")
+        os.makedirs(subdir, exist_ok=True)
+        with open(os.path.join(subdir, "keep.txt"), "w", encoding="utf-8") as f:
+            f.write("别人的东西")
+        out = mod.prepare_out(keep_dir)
+        chk("返回路径", out is not None)
+        chk("  同名产物被保留（证明没 rmtree）", os.path.exists(keeper))
+        chk("  孤儿文件被删", not os.path.exists(os.path.join(keep_dir, "orphan.txt")))
+        chk("  非产物子目录没被删", os.path.isdir(subdir))
+        chk("  子目录里的文件还在", os.path.exists(os.path.join(subdir, "keep.txt")))
+
+        # ---- 1c 过期案例页剪枝 ----
+        print("\n[1c] prune_stale_cases 剪过期案例页")
+        pr = os.path.join(tmp_root, "prune")
+        case_dir = os.path.join(pr, "case")
+        os.makedirs(case_dir, exist_ok=True)
+        for cid in ("a", "b", "c"):
+            with open(os.path.join(case_dir, "%s.html" % cid), "w", encoding="utf-8") as f:
+                f.write("<html>%s</html>" % cid)
+        with open(os.path.join(case_dir, "index.html"), "w", encoding="utf-8") as f:
+            f.write("总目录")
+        n = mod.prune_stale_cases(pr, ["a", "b"])   # c 已从案例集删除
+        chk("删了 1 个", n == 1, "n=%s" % n)
+        chk("  保留仍在集合里的 a", os.path.exists(os.path.join(case_dir, "a.html")))
+        chk("  保留仍在集合里的 b", os.path.exists(os.path.join(case_dir, "b.html")))
+        chk("  删掉已移除的 c", not os.path.exists(os.path.join(case_dir, "c.html")))
+        chk("  ⚠ 总目录 index.html 不能被删",
+            os.path.exists(os.path.join(case_dir, "index.html")))
+        n2 = mod.prune_stale_cases(pr, ["a", "b"])   # 幂等
+        chk("再跑一次删 0 个（幂等）", n2 == 0, "n=%s" % n2)
+
         # ---------------- 2 正常构建 ----------------
         print("\n[2] 正常构建")
         site = os.path.join(tmp_root, "site")

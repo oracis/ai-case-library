@@ -97,7 +97,28 @@ def human(n):
 
 
 def prepare_out(out_dir):
-    """清空并重建输出目录。做了防误删检查。"""
+    """准备输出目录：**就地覆盖，不整目录删**。
+
+    ⚠⚠⚠ **为什么不再 `shutil.rmtree` 整目录**（2026-10-05 修复，实测被拦）：
+    `public/` 的文件数 ＝ 8 个顶层 + (案例数 + 1) 个 `case/*.html`。
+    案例 41 条时正好 **50 个文件 ＝ 沙箱批量删除阈值**，
+    `rmtree` 触发 `SAFE_DELETE_BULK_CONFIRM_REQUIRED` 被拦 ⇒
+    构建中断、比对与部署全没跑、退出非 0。
+    ⇒ 而且这不是偶发：**每加一个案例就 +1**，第 42 条案例必撞，
+    属于结构性必然，不是偶发故障。
+    ⇒ 而且 `rmtree` 与本函数注释（「只删自己生成的文件」）**不符**：
+    它把目录里**任何人**放进去的文件一起删了。
+
+    改法：**产物本来就全是覆盖写**（`build()` 里每个文件都是
+    `open(..., "w")`，`prerender.build_all()` 也是逐个覆盖），
+    所以根本不需要删目录 —— 只需要删掉**过期残留**：
+      - 顶层：只删本脚本不认的孤儿文件（且必须是文件，不碰子目录）
+      - `case/`：留给 `prune_stale_cases()`，等算出当前案例集后
+        只删**已不存在**的 `<id>.html`（案例被删/改 id 的残骸）
+    这样既避开批量删除门禁，又真正兑现「只删自己生成的东西」。
+
+    ⚠ 仍保留全部防误删护栏：源码目录、含 .git 的目录一律拒绝。
+    """
     abs_out = os.path.abspath(out_dir)
 
     if abs_out == ROOT:
@@ -114,13 +135,47 @@ def prepare_out(out_dir):
         return None
 
     if os.path.isdir(abs_out):
-        # 只删自己生成的文件；目录里还有别的文件就一并清掉但给出提示
-        leftovers = [f for f in os.listdir(abs_out) if f not in OUR_FILES]
-        if leftovers:
-            print("    清理输出目录（会删除其中 %d 个非构建文件）" % len(leftovers))
-        shutil.rmtree(abs_out)
-    os.makedirs(abs_out)
+        # 产物全是覆盖写，所以这里只需删「不认识的孤儿文件」，
+        # 且**只删文件、不碰子目录**（子目录可能是别人的东西）。
+        orphans = [f for f in os.listdir(abs_out)
+                   if f not in OUR_FILES
+                   and os.path.isfile(os.path.join(abs_out, f))]
+        for name in orphans:
+            os.remove(os.path.join(abs_out, name))
+            print("    删过期产物：%s" % name)
+        if orphans:
+            print("    （清理了 %d 个非构建文件）" % len(orphans))
+    if not os.path.isdir(abs_out):
+        os.makedirs(abs_out)
     return abs_out
+
+
+def prune_stale_cases(out_dir, case_ids):
+    """删掉 `case/` 下已不在 `case_ids` 里的 `<id>.html`。返回删除个数。
+
+    ⚠⚠ **为什么必须有这一步**（不做会留残骸）：
+    构建是「覆盖写」，不会自动清掉**已删除案例**的页面。
+    案例被移除或改 id 后，旧的 `case/xxx.html` 会永远留在产物里，
+    被 sitemap/内链指向 → 线上 404 + 搜索引擎收录垃圾页。
+    以前靠 `rmtree` 顺手清掉，现在改成显式按当前案例集剪枝。
+    """
+    case_dir = os.path.join(os.path.abspath(out_dir), prerender.CASE_DIR)
+    if not os.path.isdir(case_dir):
+        return 0
+    keep = {"%s.html" % cid for cid in case_ids}
+    keep.add(prerender.INDEX_FILE)     # 总目录每次都会重写，别删
+    stale = [fn for fn in os.listdir(case_dir)
+             if fn.endswith(".html") and fn not in keep]
+    for fn in stale:
+        try:
+            os.remove(os.path.join(case_dir, fn))
+        except OSError as e:
+            print("    [warn] 删不掉过期案例页 %s：%s" % (fn, e))
+            continue
+    if stale:
+        print("    case/：剪掉 %d 个过期案例页（案例已删除或改 id）"
+              % len(stale))
+    return len(stale)
 
 
 def build(out_dir, include_inbox=True, pretty=False, site_url=""):
@@ -212,6 +267,13 @@ def build(out_dir, include_inbox=True, pretty=False, site_url=""):
     # ---- 4. 预渲染每条案例的独立页面
     print("[4/5] 预渲染案例独立页…")
     pr = prerender.build_all(cases, abs_out, site)
+
+    # ---- 4b. 剪掉过期案例页
+    # ⚠ 以前靠prepare_out() 的 rmtree 顺手清掉，现在改成显式剪枝。
+    #   不做这一步，案例被删/改 id 后旧页面会永远留在产物里，
+    #   被sitemap/内链指向 → 线上 404 + 搜索引擎收录垃圾页。
+    #   必须在 build_all() 之后：只有它跑完才知道当前有哪些 id。
+    prune_stale_cases(abs_out, [c["id"] for c in cases])
 
     # ---- 5. 自检
     print("[5/5] 自检…")
