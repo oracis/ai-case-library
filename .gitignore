@@ -117,6 +117,13 @@ tmp/
 # xhs_drafts.json 的手工备份（防 purge 误删，留一次就够）
 data/xhs_drafts.json.bak
 
+# wechat_publish.py sync 每次回写前自动生成的台账快照 + 原子写临时文件。
+# ⚠ **别提交**：sync 是日常操作，每次都产出一份 .bak，入库只会堆噪音 diff，
+# 而真正的权威版本在 git 里（曾靠 `git show HEAD:data/wechat_published.json`
+# 从这里恢复过被测试误写的 41 条台账）。留着当本地安全网，但不入库。
+data/wechat_published.json.bak
+data/wechat_published.json.tmp
+
 # 注意 data/publish_manifest.json（多平台发布清单）**要入库**：
 # 它是「哪条案例在哪个平台发到哪一步」的唯一事实来源（尤其 B站草稿只存在
 # 远端，本地无状态文件）。丢了就得靠人肉翻四个平台的草稿箱重建。

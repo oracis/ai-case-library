@@ -3562,6 +3562,68 @@ def cmd_delete(args):
           % (len(gone), len(targets), "、".join(gone) or "无"))
 
 
+def cmd_sync(args):
+    """远端 ⇄ 本地对账。**只读远端**，默认也只读本地；`--apply` 才回写台账。
+
+    为什么需要（2026-10-05 用户提出）：公众号是订阅号，`freepublish` 无权限，
+    群发只能你在后台手动点 ⇒ 本地台账永远不知道文章已经发表。
+    结果就是「本地记 draft、远端已发表」，下次 refresh 会去刷一条
+    **已经不在草稿箱**的文章，白等几分钟还容易误判成掉登录。
+
+    用法：
+        python wechat_publish.py sync              # 只读报告（默认）
+        python wechat_publish.py sync --apply      # 确认差异后回写台账
+        python wechat_publish.py sync --case nitra # 只看某几条
+
+    ⚠⚠ 三条硬约束：
+      1. **默认只读**。改台账必须显式 `--apply`，且 `--apply` 前会自动备份
+         `wechat_published.json.bak`。
+      2. **UNKNOWN ≠ 已删**。任一侧接口没读成功时，只标 UNKNOWN，
+         绝不下「远端已删除」结论 —— 那会建议删掉其实还在的条目。
+      3. **不碰远端任何写操作**。已发表列表读不到就报读不到，不猜。
+    """
+    import wechat_sync as ws
+    cases = load_cases()
+    cases_by_id = {c["id"]: c for c in cases}
+    only = set(x.strip() for x in (getattr(args, "case", "") or "").split(",")
+               if x.strip())
+
+    local = ws.load_local()
+    if only:
+        local = {k: v for k, v in local.items() if k in only}
+        print("只看 %d 条：%s" % (len(local), "、".join(sorted(local))))
+
+    def _tmatch(cid, c):
+        try:
+            return make_wechat_title(c)
+        except Exception:
+            return (local.get(cid) or {}).get("title")
+
+    cdp = CDP(args.port)
+    _tid0, tok = _connect_mp(cdp)
+    if not tok:
+        raise SystemExit("✗ 拿不到 token：确认调试窗口里 mp.weixin.qq.com 已登录")
+
+    diffs, local, meta = ws.run_sync(cdp, tok, local=local,
+                                    cases_by_id=cases_by_id,
+                                    title_matcher=_tmatch)
+    print(ws.render_report(diffs, len(meta["remote_draft"]),
+                           len(meta["remote_pub"]), len(local),
+                           draft_ok=meta["draft_ok"], pub_ok=meta["pub_ok"]))
+    if not meta["draft_ok"] or not meta["pub_ok"]:
+        print("\n[!] 有接口没读到，结论不完整。修好接口再跑一次，"
+              "别拿这次的 UNKNOWN 当删除依据。")
+    if not args.apply:
+        fix = [d for d in diffs if d[0] == "FIX"]
+        if fix:
+            print("\n这是只读报告，未改任何文件。确认无误后加 --apply 回写。")
+        return
+    n_pub, n_missing = ws.apply_fixes(diffs, local)
+    print("\n已回写 data/wechat_published.json："
+          "status→published %d 条 · 标missing %d 条（备份见 .bak）"
+          % (n_pub, n_missing))
+
+
 BROKEN_DRAFTS = os.path.join(ROOT, "data", "wechat_broken_drafts.json")
 
 
@@ -3657,6 +3719,27 @@ def cmd_refresh(args):
         todo.append((cid, art, rec))
     if args.limit:
         todo = todo[:args.limit]
+
+    # ---- 排序：草稿箱显示次序 = 服务端 update_time 倒序（微信无手动排序功能）
+    # ⚠⚠ **默认按 cases.json 原序刷，会把草稿箱刷得更乱**（2026-10-05 用户反馈）。
+    # 实测：草稿箱 30 条的 update_time 有 3 处逆序，且与排期分毫无关系 ——
+    # 排期第 4 位的 shipfast 掉到第 29 位、排期第 41 位的 uplinked 排第 9。
+    # 根因：`load_cases()` 返回 cases.json 的**录入顺序**，不是排期序。
+    # ⇒ `--order rank` 显式按排期分排（复用 make_article 的判据，避免两处漂移）。
+    # ⇒⚠ **刷新顺序与期望显示顺序相反**：最后刷的 update_time 最新、排最前。
+    #    所以要让草稿箱从上到下 = 排期 1,2,3...，必须**倒序刷**
+    #    （排期第 N 条先刷，第 1 条最后刷）。
+    order = (getattr(args, "order", "") or "").strip().lower()
+    if order in ("rank", "schedule"):
+        import make_article as _MA
+        by_id = {c["id"]: c for c in cases}
+        todo = [t for t in todo if t[0] in by_id]
+        # 降序= 分高在前。倒着刷 ⇒ 最后刷的是分最高的 ⇒ 它排最前。
+        todo.sort(key=lambda t: _MA.rank_key(by_id[t[0]]), reverse=True)
+        print("排序：按排期分倒序刷（最后刷的排最前）")
+    elif order:
+        print("[!] 未知 --order %r（可选：rank）" % order)
+        return
     if not todo:
         print("没有可刷新的草稿（--case 没匹配到、或都没发过）。")
         return
@@ -3872,6 +3955,11 @@ def main():
                     help="跳过 refreshed_at 晚于该时间的条目，如 2026-10-01-20:04，"
                          "用于中断后从断点续跑")
     pr.add_argument("--limit", type=int, default=0, help="只刷前 N 篇")
+    pr.add_argument("--order", default="",
+                    help="刷新顺序。默认 cases.json 原序；"
+                         "rank=按排期分倒序刷（这样草稿箱显示次序=排期序）。"
+                         "⚠ 草稿箱次序由服务端 update_time 决定，微信无手动排序，"
+                         "只能靠刷新顺序控序")
     pr.add_argument("--dry", action="store_true", help="只打印计划不打开浏览器")
     pr.add_argument("--cover", action="store_true",
                     help="连封面一起重画（篇号/主题变了必须带这个）")
@@ -3879,6 +3967,14 @@ def main():
     pdel.add_argument("--port", type=int, default=CDP_PORT)
     pdel.add_argument("--appmsgid", help="要删的草稿 id（逗号分隔）")
     pdel.add_argument("--dry", action="store_true", help="只打印待删标题不真删")
+    ps = sub.add_parser(
+        "sync",
+        help="远端⇄本地对账：读草稿箱 + 已发表列表，修正本地台账的 status")
+    ps.add_argument("--port", type=int, default=CDP_PORT)
+    ps.add_argument("--case", help="只对账指定 case id（逗号分隔）")
+    ps.add_argument("--apply", action="store_true",
+                    help="**回写** data/wechat_published.json（默认只读报告）。"
+                         "自动先备份 .bak。WARN/UNKNOWN 一律不动")
     args = ap.parse_args()
 
     # 127.0.0.1 必须绕开系统代理，否则 websocket 连 Chrome 调试端口会被掐（WinError 10053）
@@ -3892,7 +3988,8 @@ def main():
     # 所有需要 CDP 的子命令共用这一个入口：CDP 连不上就自动拉起 Chrome。
     # ⚠ 本机 Chrome 不带 `--no-sandbox` 会在 2 秒内自杀（exit code 3 =
     # Chromium RESULT_CODE_KILLED_BAD_MESSAGE），端口根本不开，故统一代劳。
-    if args.cmd in ("publish", "refresh", "delete", "fix-cover", "inspect"):
+    if args.cmd in ("publish", "refresh", "delete", "fix-cover", "inspect",
+                    "sync"):
         try:
             _autostart_chrome_if_needed()
         except SystemExit:
@@ -3919,6 +4016,8 @@ def main():
         cmd_refresh(args)
     elif args.cmd == "delete":
         cmd_delete(args)
+    elif args.cmd == "sync":
+        cmd_sync(args)
 
 
 if __name__ == "__main__":
