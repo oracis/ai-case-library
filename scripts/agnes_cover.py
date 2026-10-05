@@ -134,6 +134,8 @@ CATEGORY_STYLE = {
     "创作者经济": "creator economy studio, content and monetization panels",
     "交易市场": "marketplace listing and matching interface",
     "移动应用": "mobile phone app screens, app store listing and habit tracking UI",
+    "Real Estate": "property listings, mortgage charts and map interface",
+    "Entertainment": "audio waveform editor, mixing console and mastering presets",
     "未分类": "generic software product concept illustration",
 }
 DEFAULT_STYLE = "flat geometric editorial illustration, product and workflow concept"
@@ -155,6 +157,8 @@ CATEGORY_THEME = {
     "创作者经济": "content creation and monetization",
     "交易市场": "marketplace and matching",
     "移动应用": "mobile app screens and habit streaks",
+    "Real Estate": "property listings, mortgage records and map search",
+    "Entertainment": "audio waveform editor, mixing console and mastering presets",
     "未分类": "software product",
 }
 

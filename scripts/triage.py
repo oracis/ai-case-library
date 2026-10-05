@@ -166,6 +166,29 @@ AGG_HOSTS = (
 # 直接挤进深核队列 —— 这正是初筛最该拦下的那类误判。
 NUM_PLACEHOLDERS = ("未获取", "待补", "暂无", "未知", "尚未", "疑似")
 
+# 人工挂起标记。**人显式写下的决定必须压过一切机器判据** —— 这不是新功能，
+# 是补一个洞：`_grade()` 里 ready 只看草稿 publishable，全文件对
+# human_read / 人工降级**零处理**。后果实测过：Draftly 被 AI 判过 publishable
+# 之后，作者已明确决定「按一手数据降级、不晋升」，triage 却仍然天天报它 ready
+# ——「去后台点发布，别再花 AI」。机器每轮都在替人撤销一次决定。
+#
+# 约定：候选条目上写`hold: true`（或 hold_reason 非空）即人工挂起。
+# 只压 ready，不压 deep/backfill：挂起是「别自动推进这条」，不是「这条没价值」，
+# 材料若真齐了，人自己把它删掉或改标记就行，不该由机器代劳。
+HOLD_KEY = "hold"
+HOLD_REASON_KEY = "hold_reason"
+
+
+def is_held(rec):
+    """这条是否被人工挂起。挂起压过 ready，但不改变其他分级的产出。"""
+    if not isinstance(rec, dict):
+        return False
+    v = rec.get(HOLD_KEY)
+    if v is True or v == 1 or (isinstance(v, str) and v.strip().lower()
+                               in ("true", "yes", "1", "on")):
+        return True
+    return bool((rec.get(HOLD_REASON_KEY) or "").strip())
+
 # metrics 里这些 key 装的是**文本旁证**，不是这个项目的数字。扫数字时必须跳过。
 #
 # 「有数字」在这条流水线上值 16 分（WEIGHTS["has_numbers"]），还参与
@@ -658,11 +681,17 @@ def _can_deep(scope, got_numbers, rev, flag_keys, hit_keys, host):
     return bool(host) and host not in AGG_HOSTS and host not in CODE_HOSTS
 
 
-def _grade(rec, scope, score, flags, hit_keys, got, rev, att, ready, bf, host):
+def _grade(rec, scope, score, flags, hit_keys, got, rev, att, ready, bf, host,
+           held=False):
     """判级。顺序即优先级：硬标记 > 已就绪 > 可补 > 深核 > 分数 > 关注度兜底。"""
     keys = {k for k, _ in flags}
     if "duplicate" in keys:
         return "drop"
+    if held:
+        # 人工挂起 > 已就绪。放在 ready 前面是有意的：ready 的动作文案是
+        # 「去后台点发布」，对一条人已经判过死刑的条目说这话，等于让机器
+        # 每天推着人去发一条不该发的稿。
+        return "later"
     if ready:
         return "ready"
     if bf:
@@ -713,7 +742,13 @@ def score_record(rec, scope="candidate", index=None):
         flags.append(("duplicate", dup))
 
     draft, verdict = index.draft_of(rec)
-    ready = bool(verdict and verdict.get("publishable"))
+    # draft_ready 是草稿的原始判定，held 是人工挂起 —— 两个都要留痕。
+    # 对外暴露的 ready 必须是「有效就绪」= 草稿说行**且**人没挂起。
+    # 只改grade 不改 ready 会留下自相矛盾的状态：grade=later 却 ready=True，
+    # 调用方（后台列表、pick_candidates 的跳过逻辑）若只读 ready 就会照动。
+    draft_ready = bool(verdict and verdict.get("publishable"))
+    held = is_held(rec)
+    ready = draft_ready and not held
 
     hit_keys = _score_evidence(rec, scope, hits, misses, flags)
     got, rev = _score_data(rec, hits, misses, flags)
@@ -724,7 +759,10 @@ def score_record(rec, scope="candidate", index=None):
     score = max(0, min(100, score))
 
     bf = backfill_reason(rec, scope, got)
-    grade = _grade(rec, scope, score, flags, hit_keys, got, rev, att, ready, bf, host)
+    if held:
+        flags.append(("hold", (rec.get(HOLD_REASON_KEY) or "人工挂起：不要自动推进这条")))
+    grade = _grade(rec, scope, score, flags, hit_keys, got, rev, att, ready, bf, host,
+                   held=held)
     tier, tier_why = suggest_tier(rec, scope, got)
 
     out = {
@@ -744,6 +782,8 @@ def score_record(rec, scope="candidate", index=None):
         "flags": [{"key": k, "why": d} for k, d in flags],
         "attention": att,
         "ready": ready,
+        "draft_ready": draft_ready,
+        "held": held,
     }
     if bf:
         out["backfill_kind"] = bf[0]

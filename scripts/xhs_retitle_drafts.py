@@ -19,6 +19,7 @@ Page.reload(ignoreCache=True) 之后再看才准（2026-09-27 实测）。
 import argparse
 import json
 import os
+import subprocess
 import sys
 import time
 
@@ -38,15 +39,29 @@ def _done_ids():
     记标题是为了「标题改过之后还能重跑」：2026-09-27 那批 36 条改完就进了名单，
     后来发现其中几条口径错了（ARR 写成月收）要再改一次，名单却把它们挡住了。
     现在只要 `名单里的标题 != 当前应改成的新标题`，这条就重新出队。
-    老文件是纯 id 列表，读进来当 `{id: None}`。
+
+    ⚠⚠ `_save_done` 写出来的是 **`[[id, title], ...]`**（`sorted(done.items())`
+    的直接结果），而老版本是纯 id 列表。三种形态都要认，否则这里直接
+    `TypeError: unhashable type: 'list'` 崩掉（2026-10-05 实测）：
+      - ["a", "b"]            老版纯 id
+      - [["a", "标题"], ...]  当前版 id+标题
+      - {"a": "标题", ...}    防御性兜底
     """
     try:
         d = json.load(open(DONE_FILE, encoding="utf-8"))
     except Exception:
         return {}
+    if isinstance(d, dict):
+        return {k: v for k, v in d.items() if isinstance(k, str)}
     if isinstance(d, list):
-        return {i: None for i in d}
-    return d if isinstance(d, dict) else {}
+        out = {}
+        for it in d:
+            if isinstance(it, str):
+                out[it] = None
+            elif isinstance(it, (list, tuple)) and it:
+                out[str(it[0])] = (it[1] if len(it) > 1 else None)
+        return out
+    return {}
 
 
 def _save_done(done):
@@ -55,8 +70,64 @@ def _save_done(done):
         json.dump(sorted(done.items()), f, ensure_ascii=False, indent=2)
 
 
+def _legacy_titles():
+    """历史标题：把 data/xhs_title_overrides.json 的**旧版本**全捞出来。
+
+    为什么需要（2026-10-05 实测）：批量改标题后，`title_map()` 的两个来源
+    —— `note.json`（已重建=new）和 `make_xhs_title()`（读 override=new）——
+    **都已经是新标题**了，于是草稿箱里那批旧标题（`月收$1.6K：…`）
+    一条都认不出来，37条全被标成 `[孤儿]`，脚本直接崩在下一步。
+
+    对手改标题这件事，"新旧标题都在认亲表里"是硬要求：认亲表是**唯一**
+    把远端草稿对回 case 的桥，认不出就等于没法定位、只能靠人肉数。
+
+    来源按可靠性排序：① 备份目录里的 override 快照 ② git 历史里该文件
+    的所有版本。取不到就返回空 dict（不阻断，只是会退化成"孤儿"）。
+    """
+    out = {}
+    p = os.path.join(ROOT, "data", "xhs_title_overrides.json")
+    cands = []
+    bdir = os.path.join(ROOT, "_backups")
+    if os.path.isdir(bdir):
+        for fn in os.listdir(bdir):
+            if fn.startswith("xhs_title_overrides"):
+                cands.append(os.path.join(bdir, fn))
+    cands.sort(key=lambda q: os.path.getmtime(q), reverse=True)
+    for f in cands:
+        try:
+            d = json.load(open(f, encoding="utf-8"))
+        except Exception:
+            continue
+        if isinstance(d, dict):
+            for cid, t in d.items():
+                if isinstance(t, str) and t.strip():
+                    out.setdefault(x.norm_title(t), cid)
+    try:
+        raw = subprocess.run(
+            ["git", "log", "--format=%H", "--", "data/xhs_title_overrides.json"],
+            cwd=ROOT, capture_output=True, text=True, timeout=60).stdout.split()
+        for sha in raw[:12]:
+            blob = subprocess.run(
+                ["git", "show", "%s:data/xhs_title_overrides.json" % sha],
+                cwd=ROOT, capture_output=True, text=True, timeout=60).stdout
+            if not blob.strip():
+                continue
+            d = json.loads(blob)
+            if isinstance(d, dict):
+                for cid, t in d.items():
+                    if isinstance(t, str) and t.strip():
+                        out.setdefault(x.norm_title(t), cid)
+    except Exception:
+        pass
+    return out
+
+
 def title_map():
-    """认亲表：草稿标题（新旧都认）→ case id。"""
+    """认亲表：草稿标题（新旧都认）→ case id。
+
+    ⚠ 新标题优先级高于旧标题：同一个 norm key 只认一个 case，冲突时
+    保留**先写入**的，所以先放新标题，旧标题仅作补充。
+    """
     m = {}
     for c in x.load_cases():
         cid = c["id"]
@@ -70,6 +141,9 @@ def title_map():
         for t in (old, x.make_xhs_title(c)):
             if t:
                 m[x.norm_title(t)] = cid
+    # 兜底：旧标题（不覆盖已存在的 key）
+    for k, cid in _legacy_titles().items():
+        m.setdefault(k, cid)
     return m
 
 

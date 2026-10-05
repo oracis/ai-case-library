@@ -53,11 +53,21 @@ class Bilibili(Adapter):
         """从批量 stdout 里解析每条的成败。
 
         为什么不能只看退出码：批量「37 条里挂了 3 条」整体是失败，但那 34 条
-        其实已经存好了 —— 按退出码会把它们全标 failed，下次又重发一遍。
-        脚本的输出格式是稳定的：
-            [3/37] cid
-              ✓ 标题《…》正文 N 字 … 已存草稿
-        所以「有 `✓ 标题` 且没被后面的失败标记覆盖」= 成功。
+        其实已经存好了 —— 按退出码会把它们全标failed，下次又重发一遍。
+
+        ⚠⚠ **判据不能绑死某一个前缀**（2026-10-05 实测踩中）：
+        脚本的输出格式变过 —— 早期是 `✓ 标题《…》`，现在（API 路径）是
+        `✓ API 新建草稿 aid=343012《…》正文 1246 字 / 22 段`。
+        `parse_batch` 只认 `s.startswith("✓ 标题")` ⇒ 两条真存好的草稿
+        全被判 failed，台账写 failed、队列反复重发 ⇒ **远端多出重复草稿**
+        （这正是记忆铁律里 B站「远端 38→101 条副本」那类事故的配方）。
+
+        所以判据改成「**行首 ✓ 且不是纯提示行**」，覆盖
+        `✓ 标题《…》` / `✓ API 新建草稿 …` / `✓ 已存草稿 …` 三种历史格式。
+        ⚠ 不能额外要求行内出现「草稿」二字 —— 回归测试立刻抓到反例：
+        `✓ 标题《MORT》正文 900 字`（早期格式）就没有「草稿」，
+        加上这层过滤会把已成功的判成失败（实测 test_legacy_title_prefix红）。
+        真正的失败信号是 `✗`，或脚本自己打的「失败 N 条：…」。
         失败清单脚本会自己打印「失败 N 条：a b c」，那个更准，优先用。
         """
         done, failed = set(), set()
@@ -71,8 +81,10 @@ class Bilibili(Adapter):
                     (done if ok_flag else failed).add(cur)
                 cur = s.split("]", 1)[1].strip().split()[0] if "]" in s else None
                 ok_flag = False
-            elif s.startswith("✓ 标题") and cur:
+            elif s.startswith("✓") and cur:
                 ok_flag = True
+            elif s.startswith("✗") and cur:
+                ok_flag = False
             elif s.startswith("失败 ") and "条：" in s:
                 # 脚本给的失败清单最准，直接覆盖
                 for x in s.split("条：", 1)[1].replace(",", " ").split():

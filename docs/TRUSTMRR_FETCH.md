@@ -27,3 +27,15 @@
    按 id 命中同名 slug，抓回却是另一个隐身挂牌（创始人/收入全对不上）——
    所以站点索引层必须抓 `.md` 核对 `# 标题`，不符或抓不到一律退回无果。
    Wayback 捞已撤页在本机不通（archive.org 502/timeout，需代理）。
+
+7c. ⚠ **`.md` 后缀只对 `/startup/` 有效，`/founder/` 必须去后缀**（2026-10-05 实测）：
+   `https://trustmrr.com/founder/hypitai.md` 返回 **HTTP 200，但内容是 404 页**
+   （62KB 全是 Next.js 骨架，含 `NEXT_HTTP_ERROR_FALLBACK;404` 与 "Founder not found"）。
+   **HTTP 200 完全掩盖 404** —— 只看状态码会把它当有效证据写进来源。
+   正确端点：`https://trustmrr.com/founder/<handle>`（126KB，`<title>` 形如
+   "Hypit AI (@hypitai) - 1 startup · $31,309 revenue"，带Total/MRR/粉丝/子项目列表）。
+   与 startup 路径**正好相反**（`/startup/<slug>.md` 才是 llms.txt 指定的 AI 入口）。
+   ⚠ 判据：不能只看 HTTP 码，必须查`<title>` 或搜 `NEXT_HTTP_ERROR_FALLBACK`；
+   两条路径交叉印证（founder 页给「共几个 startup / 合计收入 / MRR / 粉丝」，
+   startup `.md` 给「逐日收入 / 订阅数 / 口径 / 挂牌状态」—— 互补而非重复），
+   拼接时两边数字必须对得上（Hypit 案例两边 MRR 同为 $14,124，交叉通过）。

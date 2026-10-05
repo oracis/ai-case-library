@@ -3102,12 +3102,23 @@ def cmd_publish(args):
             except Exception:
                 pass
     if not args.dry:
-        save_published(published)
-        print("\n已记录 %d 条到 %s" % (done, os.path.relpath(PUBLISHED_PATH, ROOT)))
-        left = [c["id"] for (c, _a, _r) in todo
-                if published.get(c["id"], {}).get("status") != "draft"]
-        if left:
-            print("⚠ 这些没发完，重跑 `publish` 会接着处理：%s" % ", ".join(left))
+            save_published(published)
+            print("\n已记录 %d 条到 %s" % (done, os.path.relpath(PUBLISHED_PATH, ROOT)))
+            left = [c["id"] for (c, _a, _r) in todo
+                    if published.get(c["id"], {}).get("status") != "draft"]
+            if left:
+                print("⚠ 这些没发完，重跑 `publish` 会接着处理：%s" % ", ".join(left))
+            # ⚠⚠ 出口非零，别让「全篇失败」以 rc=0 溜出去。
+            #   单篇异常在上面被 `except: continue` 吞掉（那是 2026-09-21 为了
+            #   不让一次断连拖垮 16 篇加的），但**进程退出码仍是 0**
+            #   ⇒ 上层 `multiplatform` runner 判`r.ok=True`
+            #   ⇒ publish_manifest 写 `draft_saved`
+            #   ⇒ **草稿压根没进后台却记成成功**。
+            #   2026-10-05 实测踩中：harperai 报「URL 未出现 appmsgid」
+            #   被吞 → 台账 draft_saved → 队列清空、再也不会重试。
+            #   上层只能靠 stdout 猜，这里必须给出机器可读的出口码。
+            if left:
+                raise SystemExit(3)
 
 
 # ======================================================================

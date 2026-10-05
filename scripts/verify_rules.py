@@ -442,6 +442,27 @@ def evaluate(v, metric_value=None):
             "label": "未选择收入口径",
             "why": "ARR / MRR / 累计 / 流水……选错一个数字就差十倍。",
         })
+    # AI 明确说「口径与候选数字不一致」时，必填不算齐。
+    #
+    # 为什么必须是硬性 must 而不是 warning：本条流水线最大的假绿就在这里。
+    # 2026-10-05 实测private-venture-1 —— AI 核验白纸黑字写下「候选 headline 的
+    # $34K 与原文任何口径都不吻合，$1M 售价根本不存在，且署名 david 的那条
+    # Private Venture 是另一个实体」，caliber_consistent_ai 存成 False。
+    # 但 publishable只看「勾齐了没」（见下），musts 里 caliber_consistent 照样
+    # 留着勾 —— 于是规则引擎判它 publishable，triage 催「去后台点发布」。
+    # 一条被 AI 证伪的数字，靠一个没人看的字段，就这么走到了发布按钮前。
+    #
+    # 注意与denied_gates 的区别：门槛反证在「另有门槛成立」时是放行+ 挂警告
+    # （策略是「一道成立就进库」）。口径不同 —— 口径就是那个数字本身，
+    # 数字被否了还发，等于把错的收入印在文章里。必须回到人。
+    if v.get("caliber_consistent_ai") is False:
+        missing_musts.append({
+            "key": "caliber_consistent_ai",
+            "label": "AI 已否掉候选的收入口径/数字",
+            "why": (v.get("caliber_reason")
+                    or "AI 核验认为候选资料的收入数字与一手来源对不上。"
+                       "必须人工裁定：改正数字，或放弃这条。"),
+        })
     if not sources:
         missing_musts.append({
             "key": "source_kinds",

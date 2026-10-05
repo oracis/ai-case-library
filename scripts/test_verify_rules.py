@@ -6,12 +6,16 @@
 2. 缺硬性必填 → 永远不可发布，跟质量分多高无关
 3. 门槛「拿不准」（unknown）≠ 被否决：它只是一次没核到，交人工确认，不判死
 4. 没有一手来源不再一票否决（用户要求放开），降级为「待人工复核」提醒
+5. AI 明确否掉候选的收入口径/数字（caliber_consistent_ai=False）⇒ 必须回到人，
+   不得判 publishable。这条与第 1 条刻意不同，理由见 CaliberDeniedByAI 类注释。
 
 历史教训：只有中文二手转述是库里两个数字错误的共同成因。它现在是提醒而非拦路，
 但仍然要能被眼尖看到 —— 所以第 4 条只放宽「能不能发」，没放宽「要不要提醒」。
 
 同样地，第 1 条放宽的是「谁说了算」：AI 一次检索的否定不替人判死候选，
 但它找到的反证必须原样摆到界面上（denied_gates / warnings），由人来推翻。
+第 5 条是这条原则的边界：口径不是「某个门槛的成立与否」，它就是那个数字本身，
+被证伪的数字不能靠另一个门槛成立就放行。
 """
 
 import os
@@ -693,6 +697,52 @@ class TestContentGate(unittest.TestCase):
         keys = {f["key"] for f in s["content_fields"]}
         self.assertEqual(keys, {"one_liner", "what_it_does",
                                 "how_it_makes_money", "verdict"})
+
+
+class CaliberDeniedByAI(unittest.TestCase):
+    """AI 明确否掉候选数字 ⇒ 必须回到人，不得判publishable。
+
+    这是本库最大的一条假绿（2026-10-05 实测）：
+    private-venture-1 的 AI 核验白纸黑字写下「候选的 $34K 与原文任何收入口径
+    都不吻合，$1M 售价根本不存在，署名 david 的那条是另一个实体」，
+    caliber_consistent_ai 存成 False —— 但 musts 里 caliber_consistent 照样
+    留着粘勾，publishable 只看「勾齐没」，于是它被判可发布、triage 催
+    「去后台点发布」。数字被证伪了，却靠一个没人看的字段走到了发布按钮前。
+
+    与门槛反证的处理刻意不同：门槛反证是「一道成立就进库 + 挂警告」；
+    口径反证必须拦 —— 口径就是那个数字本身，数字错了还发，等于把错的
+    收入印在文章里。
+    """
+
+    def test_AI否掉口径_不可发布(self):
+        r = R.evaluate(full(caliber_consistent_ai=False))
+        self.assertFalse(r["publishable"])
+        self.assertIn("caliber_consistent_ai",
+                      [m["key"] for m in r["missing"]])
+
+    def test_缺省与None_不拦(self):
+        """没这项、或AI 没表态(None) ≠ 被否掉。不能误伤正常条目。"""
+        self.assertTrue(R.evaluate(full())["publishable"])
+        self.assertTrue(R.evaluate(full(caliber_consistent_ai=None))["publishable"])
+
+    def test_AI认可口径_照旧放行(self):
+        self.assertTrue(R.evaluate(full(caliber_consistent_ai=True))["publishable"])
+
+    def test_提示语要带AI给的理由(self):
+        """人被拦下时必须看到为什么 —— 理由在caliber_reason 里，别丢。"""
+        v = full(caliber_consistent_ai=False,
+                 caliber_reason="原文 All time 仅 $1,197，$34K 无对应")
+        r = R.evaluate(v)
+        hit = [m for m in r["missing"] if m["key"] == "caliber_consistent_ai"]
+        self.assertEqual(len(hit), 1)
+        self.assertIn("1,197", hit[0]["why"])
+
+    def test_无理由时也有兜底文案(self):
+        v = full(caliber_consistent_ai=False)
+        v.pop("caliber_reason", None)
+        r = R.evaluate(v)
+        hit = [m for m in r["missing"] if m["key"] == "caliber_consistent_ai"]
+        self.assertTrue(hit[0]["why"].strip(), "不能给一条空理由把人拦下")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,38 @@
+{
+  "quran-unlock": {
+    "cover_desc": "穆斯林读古兰经解锁应用，用信仰戒除分心",
+    "ok": true,
+    "why": "ok",
+    "auto": true
+  },
+  "mort": {
+    "cover_desc": "AI求职代理替你盯岗匹配并自动投递，帮求职者少跑弯路",
+    "ok": true,
+    "why": "ok",
+    "auto": true
+  },
+  "voklit": {
+    "cover_desc": "Voklit为数字游民和小商户提供跨境通话与短信服务",
+    "ok": true,
+    "why": "ok",
+    "auto": true
+  },
+  "prosp": {
+    "cover_desc": "PROSP帮销售团队一键生成并发送LinkedIn个性化私信",
+    "ok": true,
+    "why": "ok",
+    "auto": true
+  },
+  "divine-widgets": {
+    "cover_desc": "圣经小组件应用，让基督教女性解锁即见每日经文与祷告",
+    "ok": true,
+    "why": "ok",
+    "auto": true
+  },
+  "promptmonitor-io": {
+    "cover_desc": "帮品牌营销团队监测各类AI模型回答中的品牌曝光",
+    "ok": true,
+    "why": "ok",
+    "auto": true
+  }
+}

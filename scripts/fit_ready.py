@@ -136,12 +136,24 @@ def load_cases():
 
 
 def missing_replicability(cases, only=None):
+    """缺 replicability 的案例。
+
+    判据必须与 score_solo_fit 的INVERT 完全一致（四个维度齐全且都是 int），
+    不能只判非空。2026-10-05 实测过这个洞：harperai / easymix 晋升时写的是
+    旧维度键名 {tech, data, sales, domain}，非空所以 --check 报「缺 0 条」，
+    但 score_solo_fit 要的是 {tech, capital, distribution, timing}，
+    于是它俩算不出 solo_fit、composite 只有 39 条，测试挂了 4 项。
+
+    校验工具报「齐」而下游说「缺」，比直接报错更坏 —— 它让人以为不用管。
+    """
+    need = set(SF.INVERT.values())
     out = []
     for c in cases:
         cid = c.get("id")
         if only and cid not in only:
             continue
-        if not (c.get("replicability") or {}):
+        rep = c.get("replicability") or {}
+        if not rep or any(not isinstance(rep.get(k), int) for k in need):
             out.append(cid)
     return out
 

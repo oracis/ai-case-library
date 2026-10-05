@@ -51,7 +51,11 @@ class TestTitle(unittest.TestCase):
         self.assertNotIn("…", t)
 
     def test_cheng_jiao_caliber(self):
-        c = _mkc(id="pm", name="Promptmonitor.io",
+        # ⚠ id 必须是**真实库里不存在**的：make_xhs_title 会先查
+        # data/xhs_title_overrides.json，而 override 的键就是 case id。
+        # 用真 id（如 prosp / promptmonitor-io）写固件 = 测试结果取决于
+        # 线上文案，改一次标题就假失败一次（2026-10-05 实测）。
+        c = _mkc(id="_t_nonexistent_chengjiao", name="Promptmonitor.io",
                  one_liner="监测品牌在各类 AI 模型回答中的曝光情况",
                  metrics={"headline": "以 $85,000 成交（TrustMRR 平台公开案例）"})
         t = x.make_xhs_title(c)
@@ -60,7 +64,7 @@ class TestTitle(unittest.TestCase):
         self.assertIn("成交", t)
 
     def test_mrr_caliber(self):
-        c = _mkc(id="prosp", one_liner="（待补充：产品定位未明）",
+        c = _mkc(id="_t_nonexistent_mrr", one_liner="（待补充：产品定位未明）",
                  metrics={"headline": "$128,000 MRR（最高当前 MRR）"})
         t = x.make_xhs_title(c)
         self.assertTrue(len(t) <= x.TITLE_MAX)

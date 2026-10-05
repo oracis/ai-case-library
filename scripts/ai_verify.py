@@ -160,12 +160,17 @@ def _priority(c):
 
 
 def pick_candidates(cands, limit=None, ids=None, include_small=False,
-                    index=None, skip_ready=True):
+                    index=None, skip_ready=True, include_held=False):
     """从候选池挑出值得核实的条目。
 
     自动跳过：占位条目（名字带（ 的观察/待发现）、headline 还是「未获取」的、
-    标了「体量太小」的（除非 include_small）、以及**初筛判定材料已齐的**
+    标了「体量太小」的（除非 include_small）、**人工挂起的**（除非 include_held）、
+    以及**初筛判定材料已齐的**
     （那种条目缺的是人点发布，不是 AI 核实 —— 核它等于重复花钱）。
+
+    ⚠ include_held 只应出现在「人明确点名要重核」的场合。挂起是作者写下的
+    「这条不推进」，让批量任务默默把它捡回来，等于机器替人撤销决定。
+    --id 显式点名不受挂起影响（人点名本身就是最新决定）。
 
     排序（2026-09-20 改）：
       1. 人显式标的「高优先级复核」置顶 —— 机器分不许覆盖人的判断；
@@ -189,6 +194,8 @@ def pick_candidates(cands, limit=None, ids=None, include_small=False,
         if "未获取" in head:
             continue
         if not include_small and "体量太小" in blocking:
+            continue
+        if not include_held and TR.is_held(c):
             continue
         r = TR.score_record(c, "candidate", index)
         if skip_ready and r["grade"] == "ready":
