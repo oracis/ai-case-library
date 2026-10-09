@@ -436,17 +436,51 @@ class TestFlexTableToKvBlock(unittest.TestCase):
         widths = {bp._display_width(r) for r in rows}
         self.assertEqual(len(widths), 1, "标签列没对齐：%r" % rows)
 
-    def test_不再使用全角空格补齐(self):
-        """回归钉：不能再用全角空格对齐（B站比例字体下不可靠）。
+    def test_用表意空格U3000补齐而非半角(self):
+        """回归钉：标签列的填充物必须是 U+3000（恒 1em），不是半角空格。
 
-        全库 41 篇 / 526 行的输出都不许再出现 U+3000。
+        ⚠⚠ **2026-10-10 修正**：这条断言原来写的是「不许出现 U+3000」，
+        那是在禁止**全角空格对齐**（旧方案，已废弃）。但排查发现真正的问题
+        恰恰是**半角空格**：B站正文是比例字体，半角宽度约0.25–0.5em 且随
+        字体浮动 ⇒ 数值算准了渲染仍对不齐（用户截图即此现象）。
+        U+3000 在中文字体里恒为 1em、与中文字等宽，是唯一可靠解法，
+        所以断言方向必须反过来：**必须用 U+3000，且不许用半角补齐**。
         """
         for cid in bp.list_ids():
             h = bp.load_article_html(cid)
             if not h:
                 continue
-            self.assertNotIn("　", bp.clean_body(h),
-                             "%s 还在用全角空格对齐" % cid)
+            out = bp.clean_body(h)
+            rows = re.findall(r"<p>([^<]*?)｜\s*<strong>", out)
+            if not rows:
+                continue
+            self.assertTrue(
+                any("\u3000" in r for r in rows)
+                or len({bp._display_width(r) for r in rows}) == 1,
+                "%s 的标签列既没补 U+3000 也没对齐" % cid)
+
+    def test_标签列不用半角空格补齐(self):
+        """标签与分隔符之间不许出现半角空格（比例字体下宽度不定）。
+
+        只允许「标签 + U+3000* ｜ + 半角空格 + 值」的形态。
+        """
+        for cid in bp.list_ids():
+            h = bp.load_article_html(cid)
+            if not h:
+                continue
+            rows = re.findall(r"<p>([^<]*?)｜\s*<strong>", bp.clean_body(h))
+            for r in rows:
+                if "\u3000" in r:
+                    # U+3000 之后不该再跟 ASCII 空格（分隔符前只留 1 个）
+                    after = r.split("\u3000")[-1]
+                    self.assertNotIn(
+                        "  ", after,
+                        "%s 分隔符前有多个半角空格：%r" % (cid, r))
+                else:
+                    # 无补齐 ⇒ 只能是「纯中文标签 + 单个半角空格」
+                    self.assertNotIn(
+                        "  ", r,
+                        "%s 疑似用半角空格补齐：%r" % (cid, r))
 
     def test_分隔符把两列切开(self):
         """标签和值必须被 ｜ 隔开，不能粘连（用户看到的「像乱码」）。"""

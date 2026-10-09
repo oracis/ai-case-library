@@ -524,7 +524,7 @@ def main():
     #   ⇒ 症状是「连不上 9222」，很容易误判成掉登录。
     #   跟B站自己的模块常量走，别再写死端口。
     import bilibili_publish as bp
-    cdp = wp.CDP(getattr(bp, "CDP_PORT", 9223))
+    cdp = wp.CDP(bp.PUB_PORT)
     _bili_tab(cdp)
     drafts = list_drafts(cdp)
     print("草稿箱 %d 条" % len(drafts))
