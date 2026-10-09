@@ -66,11 +66,14 @@
   "sierra": {
     "title": "Sierra：企业级 AI 客服代理，只在问题被真正解决时才收钱",
     "published_at": "2026-10-02 01:23",
-    "status": "partial",
+    "status": "published",
     "appmsgid": "100000375",
     "file": "公众号-sierra拆解.html",
     "rebuilt_from_broken": "100000142",
-    "refreshed_at": "2026-10-02 01:46"
+    "refreshed_at": "2026-10-02 01:46",
+    "group_sent": true,
+    "synced_at": "2026-10-10 00:07",
+    "sync_note": "远端已发表列表里存在，本地由 sync 回写"
   },
   "genius-ai": {
     "title": "Genius AI（原 GlossGenius）：给美发店、美甲店、理疗诊所做的一体化后台：预约、收银、发短信",
@@ -131,34 +134,46 @@
   "postiz": {
     "title": "Postiz：社媒一键多平台排期发布，靠 agent 营销把 MRR 从 1.7 万推到 20 万",
     "published_at": "2026-09-21 22:10",
-    "status": "draft",
+    "status": "published",
     "file": "公众号-postiz拆解.html",
     "appmsgid": "100000166",
-    "refreshed_at": "2026-10-02 13:34"
+    "refreshed_at": "2026-10-02 13:34",
+    "group_sent": true,
+    "synced_at": "2026-10-10 00:07",
+    "sync_note": "远端已发表列表里存在，本地由 sync 回写"
   },
   "shipfast": {
     "title": "被吹爆的 ShipFast，近 30 天收入只剩约 $3,000",
     "published_at": "2026-09-21 22:39",
-    "status": "draft",
+    "status": "published",
     "appmsgid": "100000170",
     "file": "公众号-shipfast拆解.html",
-    "refreshed_at": "2026-10-02 13:35"
+    "refreshed_at": "2026-10-02 13:35",
+    "group_sent": true,
+    "synced_at": "2026-10-10 00:07",
+    "sync_note": "远端已发表列表里存在，本地由 sync 回写"
   },
   "trustmrr": {
     "title": "TrustMRR：把「验证收入」本身做成了产品：连 Stripe 才能上榜的创业公司收入数据库 + 交易市场",
     "published_at": "2026-09-21 22:43",
-    "status": "draft",
+    "status": "published",
     "appmsgid": "100000172",
     "file": "公众号-trustmrr拆解.html",
-    "refreshed_at": "2026-10-02 13:38"
+    "refreshed_at": "2026-10-02 13:38",
+    "group_sent": true,
+    "synced_at": "2026-10-10 00:07",
+    "sync_note": "远端已发表列表里存在，本地由 sync 回写"
   },
   "comp-ai": {
     "title": "Comp AI：帮公司过 SOC 2 / ISO 27001 合规审计，把六个月的流程压到几周",
     "published_at": "2026-09-22 00:10",
-    "status": "draft",
+    "status": "published",
     "appmsgid": "100000176",
     "file": "公众号-comp-ai拆解.html",
-    "refreshed_at": "2026-10-02 14:01"
+    "refreshed_at": "2026-10-02 14:01",
+    "group_sent": true,
+    "synced_at": "2026-10-10 00:07",
+    "sync_note": "远端已发表列表里存在，本地由 sync 回写"
   },
   "aeo-engine": {
     "title": "AEO Engine",
