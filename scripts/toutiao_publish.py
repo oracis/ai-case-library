@@ -1432,6 +1432,31 @@ def _page_target_ids():
     return out
 
 
+def _pgc_id_of(target):
+    """从 target 的 URL 里取 `pgc_id`（草稿 ID）；取不到返回 ""。
+
+    ⚠ 这是「头条复用了编辑页 tab」的判据：同一个 tab 从草稿 A导航到
+      草稿 B 时，tab id 不变但 `pgc_id` 会变 ⇒ 用它区分「加载中/没动」
+      与「真的换到下一篇」。
+    """
+    u = target.get("url") or ""
+    m = re.search(r"[?&]pgc_id=(\d+)", u)
+    return m.group(1) if m else ""
+
+
+def _current_pgc_id(cdp):
+    """当前**草稿箱**页所在 tab 的 pgc_id（用来记「点编辑前」的值）。"""
+    try:
+        for t in wp.CDP(CDP_PORT).list_targets():
+            if t.get("type") == "page" \
+                    and "/manage/draft" in t.get("url", "") \
+                    and t.get("webSocketDebuggerUrl"):
+                return _pgc_id_of(t)
+    except Exception:                                 # noqa: BLE001
+        pass
+    return ""
+
+
 def _open_published_editor(title, wait=25, max_seconds=90):
     """草稿箱里没有这篇时，去「作品管理」点它的「修改」。
 
@@ -1582,18 +1607,38 @@ def open_draft_editor(title, wait=25):
             _draft_box_expanded["v"] = True
         elif not total and n >= 20:
             _draft_box_expanded["v"] = True
+    # ⚠⚠ 2026-10-09 再修：找不到卡时**必须让展开状态失效并重试**。
+    #   原bug：`_draft_box_expanded` 一旦置True 就永不复查。实测批量跑到
+    #   第 22 条起连续 9 条报「草稿箱：列表里没这张卡」，而这 9 条全都
+    #   实实在在在草稿箱清单里（第 18-28 条）。根因是草稿箱列表会**回缩**
+    #   （关tab / 路由刷新 / 列表虚拟化）回首屏 20 条，而缓存说「已展开」，
+    #   于是第 21 条开外的卡永远搜不到，每次都掉进作品管理兜底空等 90s。
+    #   ⇒ 失败时重置缓存并重新展开，最多试 2轮。
     pos = ""
-    for attempt in range(6):
-        r = cdp.eval(_DRAFT_SCROLL_TO % json.dumps(title))
-        if r == "none":
+    for round_ in range(2):
+        for attempt in range(6):
+            r = cdp.eval(_DRAFT_SCROLL_TO % json.dumps(title))
+            if r == "none":
+                time.sleep(1.5)
+                continue                               # 列表还没渲染出这张卡
+            time.sleep(1.2)                                # 等scroll稳定
+            pos = cdp.eval(_DRAFT_EDIT_POS % json.dumps(title))
+            if pos and pos not in ("none", "zero", "offscreen"):
+                break
             time.sleep(1.5)
-            continue                                   # 列表还没渲染出这张卡
-        time.sleep(1.2)                                # 等scroll稳定
-        pos = cdp.eval(_DRAFT_EDIT_POS % json.dumps(title))
-        if pos and pos not in ("none", "zero", "offscreen"):
+            pos = ""
+        if pos:
             break
-        time.sleep(1.5)
-        pos = ""
+        # 没找到 ⇒ 假设列表已回缩，作废「已展开」缓存，下一轮强制重新展开
+        if round_ == 0:
+            _draft_box_expanded["v"] = False
+            print("    (列表可能已回缩，重新展开草稿箱后重试)")
+            n = _load_all_drafts(cdp, max_rounds=20, pause=1.5)
+            total = _draft_total(cdp)
+            if total and n >= total:
+                _draft_box_expanded["v"] = True
+            elif not total and n >= 20:
+                _draft_box_expanded["v"] = True
     if not pos:
         # 草稿箱里没有这张卡 → 可能已经发布/被删。头条已发布文章也能编辑，
         # 转「内容管理」列表页找（2026-09-29 实测：kibu / pieter-levels
@@ -1607,20 +1652,33 @@ def open_draft_editor(title, wait=25):
     _click_pos(cdp, json.loads(pos), 2.5)
     time.sleep(4)
 
+    # ⚠⚠ 2026-10-09 修：头条**会复用已有的 publish tab**，不是每次都新开。
+    #   原来只认「新开 tab」（`t["id"] in before` 直接continue），实测批量
+    #   重试时 9 条全部报「点了编辑但没等到新开编辑页 tab」，而列表里明明有
+    #   一个 `/graphic/publish?pgc_id=...` 的 tab —— 头条把上一条残留的编辑页
+    #   **原地导航**到下一条草稿了，tab id 没变。
+    #   ⇒ 两段式：先等「新 tab」；等不到再回落「已在publish 页但 pgc_id 变了」。
     end = time.time() + wait
     newt = None
+    before_pgc = _current_pgc_id(cdp)
     while time.time() < end:
         for t in wp.CDP(CDP_PORT).list_targets():
-            if t.get("id") in before or t.get("type") != "page":
+            if t.get("type") != "page":
                 continue
-            if "/graphic/publish" in t.get("url", ""):
+            if "/graphic/publish" not in t.get("url", ""):
+                continue
+            if t.get("id") not in before:              # 首选：新开的 tab
+                newt = t
+                break
+            if _pgc_id_of(t) not in ("", before_pgc):   # 回落：复用的 tab
                 newt = t
                 break
         if newt:
             break
         time.sleep(1)
     if not newt:
-        return None, None, "点了编辑但没等到新开编辑页 tab"
+        return None, None, ("点了编辑但没等到编辑页 tab"
+                            "（新 tab 没开出来，复用 tab 也没换 pgc_id）")
     c = wp.CDP(CDP_PORT)
     if not c.connect_target(newt["id"]):
         return None, None, "连不上新编辑页 tab"

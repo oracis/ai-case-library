@@ -5,6 +5,7 @@
 跑法（在 scripts/ 目录下）：
     python -m unittest test_toutiao_publish
 """
+import inspect
 import os
 import re
 import sys
@@ -497,6 +498,77 @@ class TestLoadAllDrafts(unittest.TestCase):
                          if not ln.strip().startswith("#"))
         self.assertNotIn('if state == "none":\n            break', body,
                          "不能「按钮没了就break」——实测会停在 20 条")
+
+
+class TestPgcIdDedup(unittest.TestCase):
+    """编辑页 tab 必须按 **`pgc_id`** 认，不能按 tab id。
+
+    ⚠⚠ 2026-10-09 实测：头条会**复用同一个 tab** 导航到下一条草稿
+      （tab id 不变、`pgc_id` 变）；而我们灌完关页后，头条又可能开一个
+      **新 tab 指回同一个 `pgc_id`** ⇒ 只按 tab id 去重会把同一条反复灌，
+      实测 `meerkats-ai` 被**重复灌 3 次**。
+    """
+
+    def test_pgc_id_extracted_from_url(self):
+        t = {"url": "https://mp.toutiao.com/profile_v4/graphic/publish"
+                     "?pgc_id=7693136073802744354"}
+        self.assertEqual(tp._pgc_id_of(t), "7693136073802744354")
+        self.assertEqual(tp._pgc_id_of({"url": "…/manage/draft"}), "")
+
+    def test_same_tab_id_different_pgc_are_different_drafts(self):
+        a = {"id": "T1", "url": "/graphic/publish?pgc_id=111"}
+        b = {"id": "T1", "url": "/graphic/publish?pgc_id=222"}
+        # 同一个 tab id，但 pgc_id 不同 ⇒ 必须是两条不同的草稿
+        self.assertNotEqual(tp._pgc_id_of(a), tp._pgc_id_of(b))
+
+    def test_handoff_dedups_by_pgc_not_tab_id(self):
+        import tt_manual_handoff as mh
+        src = inspect.getsource(mh.main)
+        self.assertIn("done_pgc", src,
+                      "监听器必须按 pgc_id 记已处理，不能只按 tab id")
+        # 不允许「seen.add(tgt["id"])」这种只按 tab id 的写法
+        self.assertNotIn('seen.add(tgt["id"])', src,
+                         "不能只按 tab id 去重——头条会复用 tab")
+
+
+class TestTitleReadFix(unittest.TestCase):
+    """编辑页读标题必须用 `tp.SEL["title"]`，不能用 `bf.SEL`（正文区）。
+
+    ⚠ 2026-10-09 实测：用 `bf.SEL` 读出来的是**整篇正文**，
+      `find_case_fuzzy` 必然匹配不上 ⇒ 监听器认不出案例，只能干瞪眼。
+    """
+
+    def test_handoff_reads_title_with_title_selector(self):
+        import tt_manual_handoff as mh
+        src = inspect.getsource(mh.main)
+        self.assertIn("tp.SEL[", src,
+                      "读标题必须用 tp.SEL['title']")
+        # 读标题那几行里绝不能出现 bf.SEL（那是正文区）
+        read_block = "\n".join(
+            ln for ln in src.splitlines()
+            if "e.value" in ln or "SEL["
+            in ln or "bf.SEL" in ln)
+        self.assertNotIn("bf.SEL)", read_block,
+                         "读标题不能拿 bf.SEL（正文区）——会读出整篇正文")
+
+    def test_title_selector_targets_title_field(self):
+        sel = tp.SEL["title"]
+        self.assertIn("标题", sel)
+        # body 选择器绝不能包含 title 的判据（否则又读回正文）
+        self.assertNotIn("标题", tp.SEL["body"])
+
+    def test_find_case_fuzzy_exit_is_contained(self):
+        """`find_case_fuzzy` 匹配不上会 sys.exit ⇒ 必须被包住。"""
+        import tt_manual_handoff as mh
+        src = inspect.getsource(mh._match_case)
+        self.assertIn("SystemExit", src,
+                      "必须捕获 find_case_fuzzy 的 SystemExit，否则打死监听器")
+
+    def test_drift_whitelist_covers_known_remotes(self):
+        import tt_manual_handoff as mh
+        self.assertEqual(mh._match_case("MORT：AI 产品", {}), "mort")
+        self.assertEqual(mh._match_case("Quran Unlock：移动 app", {}),
+                         "quran-unlock")
 
 
 if __name__ == "__main__":
