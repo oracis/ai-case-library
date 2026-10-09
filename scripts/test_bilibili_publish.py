@@ -415,14 +415,91 @@ class TestFlexTableToKvBlock(unittest.TestCase):
         self.assertIn("<blockquote>", out)
 
     def test_label_column_padded_to_same_width(self):
-        """标签列按最长标签补空格，右端要对齐（等宽口径下宽度相同）。"""
+        """标签列补半角空格到统一槽位，**分隔符落在同一列**。
+
+        ⚠ 2026-10-09 改口径：旧断言钉的是全角空格（`　+`），实现已换成
+        「标签 + 半角空格 + ｜ 」。全角在 B站比例字体下宽度不定，
+        正是用户截图里「值列对不齐」的成因，全角钉法已作废。
+        """
         html = "<section>" + FLEX_P % ("够得着客户", "3/5") + \
                FLEX_P % ("启动轻", "5/5") + "</section>"
         out = bp.clean_body(html)
-        rows = re.findall(r"<p>([^<]*)　+", out)
-        self.assertEqual(len(rows), 2)
+        # ⚠ 两个取捕获的坑：
+        #   ① 必须贪婪 `[^<]*`：惰性会被后面的 `\s*` 抢走补空格。
+        #   ② **绝不能 rstrip** —— 补的半角空格正是要测的东西，rstrip 等于
+        #      把被测对象删掉。捕获组回溯后正好是「标签 + 补空格」，
+        #      ｜ 归 `\s*`，不含分隔符本身。
+        # 断言用 `_display_width`（CJK 记 2），不是 len()：补的是半角空格，
+        # 标签是中文，字符数天然不等，显示宽度才相等。
+        rows = re.findall(r"<p>([^<]*)｜\s*<strong>", out)
+        self.assertEqual(len(rows), 2, out)
         widths = {bp._display_width(r) for r in rows}
         self.assertEqual(len(widths), 1, "标签列没对齐：%r" % rows)
+
+    def test_不再使用全角空格补齐(self):
+        """回归钉：不能再用全角空格对齐（B站比例字体下不可靠）。
+
+        全库 41 篇 / 526 行的输出都不许再出现 U+3000。
+        """
+        for cid in bp.list_ids():
+            h = bp.load_article_html(cid)
+            if not h:
+                continue
+            self.assertNotIn("　", bp.clean_body(h),
+                             "%s 还在用全角空格对齐" % cid)
+
+    def test_分隔符把两列切开(self):
+        """标签和值必须被 ｜ 隔开，不能粘连（用户看到的「像乱码」）。"""
+        html = "<section>" + FLEX_P % ("付费意愿", "3/5") + \
+               FLEX_P % ("支付可达", "3/5") + "</section>"
+        out = bp.clean_body(html)
+        self.assertEqual(out.count("｜"), 2, out)
+        self.assertNotIn("付费意愿3/5", out)
+        self.assertNotIn("付费意愿<strong>", out)
+
+    def test_输出不含多余右花括号(self):
+        """回归钉：2026-10-09 真的 bug —— return 里字面量多写一个 `}`。
+
+        实测 trustmrr 3 处 `</blockquote>}`，正文凭空冒出花括号。
+        根因就是 return 语句本身，不是正则；曾误诊为「正则跨标签 / 捕获组
+        错位」并据此「加固」了两个本来正确的正则。钉死输出侧。
+        """
+        for cid in bp.list_ids():
+            h = bp.load_article_html(cid)
+            if not h:
+                continue
+            out = bp.clean_body(h)
+            self.assertNotIn("}", out, "%s 正文里有裸花括号" % cid)
+            self.assertEqual(out.count("<blockquote>"),
+                             out.count("</blockquote>"),
+                             "%s blockquote 开闭不配对" % cid)
+
+    def test_槽位下限为0(self):
+        """补空格数下限必须是 0 —— 下限 1 会让最长标签那行凭空多推一格，
+        ｜ 比别的行右移，正是要消灭的那种参差。"""
+        html = "<section>" + FLEX_P % ("团队", "1 人") + \
+               FLEX_P % ("窗口还开着", "4/5") + "</section>"
+        out = bp.clean_body(html)
+        # 捕获组是「标签 + 补空格 + ｜ 前那个固定间隔空格」，
+        # 所以对齐目标是 slot+1 而不是 slot。最长标签那行补空格=0，
+        # 若下限写成 1 这里会变成 slot+2，测试即挂。
+        rows = re.findall(r"<p>([^<]*)｜\s*<strong>", out)
+        self.assertEqual(len(rows), 2, out)
+        self.assertEqual({bp._display_width(r) for r in rows},
+                         {bp._display_width("窗口还开着") + 1}, rows)
+
+    def test_相邻非flex段落不被吞掉(self):
+        """转换只吃连续的 flex 行，前后普通段落必须原样保留。"""
+        html = ("<section><p>前导段落。</p>"
+                + FLEX_P % ("团队", "1 人")
+                + FLEX_P % ("融资", "$0，无 VC") +
+                "<p>后继段落。</p></section>")
+        out = bp.clean_body(html)
+        self.assertIn("前导段落。", out)
+        self.assertIn("后继段落。", out)
+        self.assertIn("团队", out)
+        self.assertIn("无 VC", out)
+        self.assertEqual(out.count("<p>"), out.count("</p>"))
 
     def test_value_is_bold(self):
         html = "<section>" + FLEX_P % ("客户", "44 个") + \

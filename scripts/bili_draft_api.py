@@ -399,7 +399,24 @@ def build_arg(title, body_html, article_id=None, image_urls=None,
 
 
 def _strip_tags(s):
+    """剥标签取纯文本。**块级标签的闭合处必须留一个换行**。
+
+    ⚠⚠ 2026-10-09 修（这是「B站表格样式不好看」的直接根因）：
+      原来只有 `<br>` 换成 `\\n`，其余标签一律删掉不占位。于是
+      blockquote 里的多个 `<p>` 被剥成
+          `付费意愿 ｜ 3/5支付可达 ｜ 3/5合规空间 ｜ 2/5…`
+      —— `build_arg` 的blockquote 分支是靠 `txt.split("\\n")` 拆行的，
+      没有 `\\n` 就一行到底。而接口路线（`save_via_api`，也是
+      `publish_one` 的**默认**）是B站当前的主路径。
+
+      ⇒ 把块级标签的**闭标签**替换成换行。`</p>` 前后本来就不该有正文，
+      插入换行不改变语义，却让 `split("\\n")` 重新生效。
+      只处理闭标签（`<br>` 原本就有），开标签删掉即可。
+    """
     s = _re.sub(r"<br\s*/?>", "\n", s or "")
+    # 块级闭标签 → 换行占位。必须排在通用剥标签**之前**。
+    s = _re.sub(r"</(?:p|div|li|h[1-6]|blockquote|section|tr|td)\s*>",
+                "\n", s, flags=_re.I)
     s = _re.sub(r"<[^>]+>", "", s)
     return (s.replace("&nbsp;", " ").replace("&amp;", "&")
              .replace("&lt;", "<").replace("&gt;", ">")

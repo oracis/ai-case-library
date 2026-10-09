@@ -242,6 +242,72 @@ class TestStripTags(unittest.TestCase):
     def test_tags_removed(self):
         self.assertEqual(api._strip_tags("<p>x <b>y</b></p>"), "x y")
 
+    # --- 2026-10-09：块级闭标签必须留换行（用户反馈「表格样式不好看」的真根因）
+
+    def test_块级闭标签留换行(self):
+        """</p> 等闭标签要变成换行，否则 build_arg 的 split("\\n") 失效。
+
+        `build_arg` 的 blockquote 分支靠 `txt.split("\\n")` 拆成多段。
+        原来 `_strip_tags` 只把 `<br>` 换成换行，其余标签删掉不占位，
+        于是 blockquote 里的 6 个 `<p>` 被剥成一大坨：
+            `付费意愿 ｜ 3/5支付可达 ｜ 3/5合规空间 ｜ 2/5…`
+        接口路线（save_via_api，publish_one 默认）就是这么存的，
+        所以线上 B站草稿的「表格」全是粘成一行的一坨。
+        """
+        self.assertEqual(api._strip_tags("<p>a</p><p>b</p>"), "a\nb")
+        self.assertEqual(
+            api._strip_tags("<blockquote><p>a</p><p>b</p></blockquote>"),
+            "a\nb")
+
+    def test_多行评分不再粘连(self):
+        """6 行评分必须拆成 6 段，而不是一坨。"""
+        rows = "".join("<p>标签%d ｜ <strong>%d/5</strong></p>" % (i, i)
+                       for i in range(1, 7))
+        arg = api.build_arg("t", "<blockquote>%s</blockquote>" % rows)
+        paras = arg["opus"]["content"]["paragraphs"]
+        self.assertEqual(len(paras), 6, [p["text"]["nodes"][0]["word"]["words"]
+                                         for p in paras])
+        for i, p in enumerate(paras, 1):
+            t = "".join(n["word"]["words"] for n in p["text"]["nodes"])
+            self.assertIn("标签%d ｜ " % i, t)
+            self.assertTrue(t.endswith("%d/5" % i), t)
+
+    def test_补空格在剥标签后仍保留(self):
+        """对齐依赖的半角空格不能被剥标签顺手吃掉。"""
+        out = api._strip_tags("<p>启动轻     ｜ <strong>5/5</strong></p>")
+        self.assertEqual(out, "启动轻     ｜ 5/5")
+
+    def test_全库526行不丢(self):
+        """端到端：clean_body → build_arg，每一行都得独立成段。
+
+        41 篇真实产物逐篇比对，任何一篇丢行都会在这里暴露。
+        """
+        import os
+        import bilibili_publish as bp
+        checked = 0
+        for cid in bp.list_ids():
+            h = bp.load_article_html(cid)
+            if not h:
+                continue
+            body = bp.clean_body(h)
+            want = body.count("｜")
+            if not want:
+                continue
+            checked += 1
+            arg = api.build_arg("t", body)
+            got = 0
+            for p in arg["opus"]["content"]["paragraphs"]:
+                t = "".join(n["word"]["words"] for n in p["text"]["nodes"])
+                if "｜" in t:
+                    got += 1
+            self.assertEqual(got, want, "%s 丢行：html %d → api %d"
+                             % (cid, want, got))
+        self.assertGreater(checked, 30, "真实样本太少，测试没意义")
+
+    def test_首尾空白仍被strip(self):
+        """新加的换行占位不能漏出首尾空白。"""
+        self.assertEqual(api._strip_tags("<p>  x  </p>"), "x")
+
 
 if __name__ == "__main__":
     unittest.main()
