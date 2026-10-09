@@ -1376,18 +1376,49 @@ def _load_all_drafts(cdp, max_rounds=40, pause=2.0):
 
     ⚠ 2026-10-09 重写。原来用 `_DRAFT_LOADMORE_JS` 取坐标 + 坐标派发，
       那条路**从来没生效过**（恒停在首屏 20 条），害得 dedup / drafts 反查
-      全是假阴性。现在改用 `_DRAFT_LOADMORE_CLICK_JS`（JS 点最深 SPAN）。
-      停止判据也从「点不到就 break」改成「卡片数 ≥ 页头声明总数」。
+      全是假阴性。改用 `_DRAFT_LOADMORE_CLICK_JS`（JS 点最深 SPAN）。
+
+    ⚠⚠ 2026-10-09 再修：**光靠「按钮消失」会提前退出，恒停在 20 条。**
+      实测时序（草稿箱 29 条）：
+        t+0s  点击 → `clicked:SPAN`，卡片 20，按钮 none
+        t+2s  卡片**仍是 20**（接口还没回来）
+        t+4s  卡片 **29** ← 数据这才到
+      按钮在**请求发出瞬间**就被隐藏了，比响应早 2–4 秒 ⇒
+      「`state == "none"` 就 break」等于在数据到达前就退出。
+      后果：`tt_audit_drafts` 只读到 20 条 → 标题映射漏 9 条
+      （含 `trustmrr` / `viktor` / `coral`）→ `--all` 批量刷新会**静默漏刷**。
+
+      ⇒ 停止判据改成「**卡片数 ≥ 页头声明总数**」，按钮消失只当辅助信号：
+        按钮还在 → 点它，等pause；
+        按钮没了但卡片没到总数 → **继续等**（`settle` 轮），别急着退出。
     """
-    for _ in range(max_rounds):
+    def _count():
+        try:
+            return int(cdp.eval(_DRAFT_ITEM_COUNT_JS) or 0)
+        except (TypeError, ValueError, RuntimeError):
+            return 0
+
+    def _total():
+        return _draft_total(cdp)
+
+    settle = 0                      # 按钮已消失但卡片没到总数的连续轮数
+    while settle < 5:               # 容忍最多 5 轮（约 10s）的延迟到达
+        total = _total()
+        n = _count()
+        if total and n >= total:    # 真的加载全了
+            return n
+        # ⚠ 页头总数读不到（total=0）⇒ 没有判据可依。此时只能靠按钮状态收敛，
+        #   但**不能**直接 return 0 —— 前面 `_count()` 拿到的条数才是真实信息
+        #   （实测首屏就有 20 条，全读不到就等于把已加载的也丢了）。
         state = cdp.eval(_DRAFT_LOADMORE_CLICK_JS) or "none"
-        if state == "none":                    # 按钮没了 = 全部加载完
-            break
-        time.sleep(pause)
-    try:
-        return int(cdp.eval(_DRAFT_ITEM_COUNT_JS) or 0)
-    except Exception:                                 # noqa: BLE001
-        return 0
+        if state == "none":
+            # 按钮没了：可能正在等响应（实测延迟 2–4s），也可能是真到底了。
+            # 再等一轮看卡片数涨不涨；连续 5 轮不涨才认输。
+            settle += 1
+        else:
+            settle = 0
+            time.sleep(pause)
+    return _count()
 
 
 def _page_target_ids():
@@ -1401,8 +1432,15 @@ def _page_target_ids():
     return out
 
 
-def _open_published_editor(title, wait=25):
+def _open_published_editor(title, wait=25, max_seconds=90):
     """草稿箱里没有这篇时，去「作品管理」点它的「修改」。
+
+    ⚠⚠ 2026-10-09 加 `max_seconds` 上限。原因：作品管理列表有几百条，
+    原来固定滚 120 屏 × 1.2s ≈ **144 秒**才放弃。批量刷 41 条时，
+    每条不在草稿箱的案例都要付这144 秒 —— 实测`--all` 跑到第 1 条
+    就卡了 15 分钟没进展（当时页面正停在 manage/content/all）。
+    ⇒ 时间预算到就返回「没找到」，让调用方跳过，别让批量任务被拖死。
+    草稿箱里有的案例**根本不会走这里**，所以调小不影响正常刷新。
 
     头条已发布文章可编辑（能补封面），路径：作品管理 /profile_v4/manage/content/all
     → 找到标题卡 → 点「修改」→ 新开 tab /graphic/publish?pgc_id=...
@@ -1434,9 +1472,14 @@ def _open_published_editor(title, wait=25):
       return String(el.scrollTop);
     })()"""
     pos = ""
-    # 作品管理有 495 条（2026-09-29 实测），目标可能排在几十页之后，
-    # 每轮滚一屏 → 120 轮足够到底；先按标题扫，扫到就停。
+    # 作品管理有 495 条（2026-09-29 实测），目标可能排在几十页之后。
+    # ⚠ 上限同时受 `max_seconds` 约束 —— 原来死跑 120 轮 ≈ 144 秒，
+    #   批量场景会把整批拖死（见上面 docstring）。
+    deadline = time.time() + max_seconds
     for _ in range(120):
+        if time.time() > deadline:
+            return None, None, "《%s》作品管理搜索超时（%ds），跳过" % (
+                title, max_seconds)
         box.eval(scroll_js)
         time.sleep(1.0)
         # 只认**已发布**那条卡（作品管理里同名可能有「由文章生成」的衍生条目，

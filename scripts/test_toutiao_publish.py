@@ -415,5 +415,89 @@ class TestTtCoverNum(unittest.TestCase):
         self.assertEqual(bad, [], "封面出现金额：%s" % bad)
 
 
+class TestLoadAllDrafts(unittest.TestCase):
+    """`_load_all_drafts` 必须等到「卡片数 ≥ 页头声明总数」才算完。
+
+    ⚠⚠ 2026-10-09 实测的假阴性（草稿箱真实 29 条，却只读到 20 条）：
+      头条「加载更多」按钮在**请求发出瞬间**就被隐藏，比响应早 2–4 秒：
+        t+0s  点击 → `clicked:SPAN`，卡片 20，按钮 none
+        t+2s  卡片**仍是 20**（接口还没回来）
+        t+4s  卡片 **29** ← 数据这才到
+      旧实现「`state == "none"` 就 break」⇒ 在数据到达前就退出。
+      后果链条：`tt_audit_drafts` 只读 20 条 → `tt_body_fill._match_remote_titles`
+      只匹配到 20/41 → `--all` **静默漏刷 9 条**（含 trustmrr / viktor / coral）。
+
+    用假 CDP 复现这个时序：按钮立刻消失，但卡片数要过几轮才涨。
+    """
+
+    class _FakeCDP(object):
+        """按脚本顺序应答。`steps` = [(返回或None 表示抛异常), ...]。"""
+
+        def __init__(self, script):
+            self.script = script
+            self.i = 0
+
+        def eval(self, js):
+            v = self.script[self.i] if self.i < len(self.script) else None
+            self.i += 1
+            return v
+
+    def test_按钮先消失卡片后到_仍要等到总数(self):
+        # 一个总数探针 + 一段「点完就 none、卡片停在 20」的序列，
+        # 最后卡片才涨到 29。旧实现在这里就 break 了。
+        script = [
+            "29",                     # _draft_total
+            "20",                     # _count → 没到29，继续
+            "clicked:SPAN",           # 点得到 → sleep
+            "29",                     # _draft_total
+            "20",                     # _count
+            "none",                   # 按钮消失，但卡片还20 → settle=1
+            "29",                     # _draft_total
+            "20",                     # _count
+            "none",                   # settle=2
+            "29",                     # _draft_total
+            "29",                     # _count → 到总数，返回 29
+        ]
+        cdp = self._FakeCDP(script)
+        n = tp._load_all_drafts(cdp, pause=0)
+        self.assertEqual(n, 29, "按钮消失后必须继续等到卡片到齐")
+
+    def test_卡片已等于总数_立即返回不点(self):
+        """已经在总数上就别去点按钮（多点可能触发无意义请求）。"""
+        script = ["29", "29"]
+        cdp = self._FakeCDP(script)
+        self.assertEqual(tp._load_all_drafts(cdp, pause=0), 29)
+
+    def test_总数读不到_仍返回已渲染的条数(self):
+        """页头总数缺失（total=0）时不能死循环，更不能把已加载的条数丢掉。
+
+        ⚠ 曾经的 bug：`if total and n >= total` 在 total=0 时恒假，
+        循环只靠 settle 收敛，退出后 `return _count()` 拿到的是 0 ——
+        等于「读不到总数」就等于「草稿箱是空的」。实测首屏明明有 20 条。
+        """
+        # 序列按真实调用顺序：每轮 = _total → _count → 点按钮
+        script = ["0", "20", "none",    # 轮1
+                  "0", "20", "none",    # 轮2
+                  "0", "20", "none",    # 轮3
+                  "0", "20", "none",    # 轮4
+                  "0", "20", "none",    # 轮5 → settle 满 5，退出
+                  "20"]                 # 最后的 return _count()
+        cdp = self._FakeCDP(script)
+        n = tp._load_all_drafts(cdp, pause=0)
+        self.assertEqual(n, 20, "总数读不到时必须返回已渲染条数，不能返回 0")
+
+    def test_停止判据是卡片数而非按钮(self):
+        """钉死判据：源码里不能拿按钮状态当唯一退出条件。"""
+        import inspect
+        src = inspect.getsource(tp._load_all_drafts)
+        self.assertIn("_draft_total", src, "必须读页头声明总数做判据")
+        self.assertIn("n >= total", src, "必须比较卡片数与总数")
+        # 按钮消失只能累加 settle，不能直接 return/break
+        body = "\n".join(ln for ln in src.splitlines()
+                         if not ln.strip().startswith("#"))
+        self.assertNotIn('if state == "none":\n            break', body,
+                         "不能「按钮没了就break」——实测会停在 20 条")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
