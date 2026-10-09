@@ -173,6 +173,21 @@ _TABLE_SEP_RE = re.compile(r"^\|[\s:\-|]+$")       # |---|---| 表格对齐行
 _STAR_RE = re.compile(r"(?<!\*)\*\*(?=\S)(.+?)(?<=\S)\*\*(?!\*)", re.S)
 _KV_RE = re.compile(r"^([^：:]{1,12}[：:])\s*(.*)$", re.S)
 
+# 表格文本超过这个长度就不进表格（2026-10-09）。
+# 数据分布：735 个单元格里 735 个标签列 ≤12 字；值列 622 个 ≤12 字、
+# 92 个 13–60 字、**21 个 >60 字（最长 184）**。超长的几乎全是
+# 「备注」行的口径说明段落（「TrustMRR 直连验证。MRR 为当月经常性收入…」），
+# 挤进窄表格会把行高撑得参差、窄列里中文长句折行很难看。
+# ⇒ 阈值行整行搬出去，渲成表格后面的普通段落（实测 41 篇共 21 处）。
+# 60 是按分布定的：13–30 字（40 个）留在表里正好一行，31–60 字（52 个）
+# 多数也能一行，只有真正的说明段落（>60）才搬走。
+CELL_LONG = 60
+
+# 占位表头标签 —— 整行丢掉（见 build_table）。
+# 全库119 张表的表头都是「维度 | 内容」（`make_article._flush_md_rows` 生成的）。
+# ⚠ 别把「客户」「团队」「增长」「备注」这些**真数据行的标签**放进来。
+_HEADER_LABELS = ("维度", "内容", "项目", "指标")
+
 
 def strip_md(s):
     """去掉 markdown 强调符号，用于纯文本派生（字数统计 / 敏感词扫描）。"""
@@ -191,13 +206,84 @@ def clean_line(s):
     return re.sub(r"\s+", " ", s).strip()
 
 
-def md_to_blocks(md):
-    """公众号长文 markdown → [(kind, text)]，kind ∈ h2 / p / ul / kv / quote。
+def _flush_para(blocks, para):
+    """把攒着的段落行收成一块；空则什么都不做（原地清空 para）。"""
+    if para:
+        blocks.append(("p", clean_line(" ".join(para))))
+        para.clear()
 
-    头条编辑器不支持 markdown 表格，表格行转「标签：值」；引用转引号段落。
+
+def _table_rows(line):
+    """一行 markdown 表格 → 单元格列表；不是表格行返回 None。
+
+    空单元格被丢掉（`|a||b|`），所以**各行列数可能不齐** ——
+    `build_table` 按最长行补齐，别假设整齐。
+    """
+    s = (line or "").strip()
+    if not s.startswith("|"):
+        return None
+    cells = [c.strip() for c in s.strip("|").split("|")]
+    cells = [c for c in cells if c]
+    return cells or None
+
+
+def build_table(rows):
+    """连续表格行 → ("table", {...}) 载荷；没有有效表格行返回 None。
+
+    产出 `{"rows": [[c, c], ...], "long": [(标签, 值), ...]}`：
+      · `rows`  —— **短值**行，进真表格（已剥掉表头）；
+      · `long`  —— 超长值行（见 `CELL_LONG`），转成表格后面的段落。
+
+    ⚠ **表头行被丢掉**：全库 119 张表的表头都是 `| 维度 | 内容 |`
+    （旧代码也用 `cells[0] != "维度"` 硬丢），这两列名对读者零信息量，
+    留在表里就是一行废话。`<th>` 实测也会被降级成 `<td>`，所以不损失样式。
+
+    单列行不算表格（`|备注长文……|` 这种），返回 None 交回给段落路径。
+    """
+    rows = [r for r in rows if r]
+    if not rows:
+        return None
+    # 剥表头：第一行是「维度 | 内容」这类占位列名时丢掉。
+    # ⚠ 只认**恰好**是这两个词或这组词，别把「客户 | 团队」这种真数据行误伤。
+    if rows[0][0] in _HEADER_LABELS:
+        rows = rows[1:]
+    rows = [r for r in rows if r]
+    if not rows:
+        return None
+    ncol = max(len(r) for r in rows)
+    if ncol < 2:
+        return None
+    short, long_rows = [], []
+    for r in rows:
+        r = list(r) + [""] * (ncol - len(r))
+        if max(len(c) for c in r) > CELL_LONG:
+            # 整行都是长文（如「备注」的口径说明段落）→ 不挤进窄表格
+            long_rows.append((r[0], "".join(r[1:]).strip()))
+            continue
+        short.append(r)
+    return {"rows": short, "long": long_rows}
+
+
+def md_to_blocks(md):
+    """公众号长文 markdown → [(kind, text)]，kind ∈ h2 / p / ul / table / quote。
+
+    **表格保留成真表格**（2026-10-09 改）。此前这里把表格行降级成
+    「标签：值」再由 `blocks_to_html` 渲成 `<ul><li>`，理由写的是
+    「头条编辑器不支持 markdown 表格」—— **那个结论是错的**，
+    它来自一次只扫 title/aria-label/innerText 的探针，漏了 class：
+
+        syl-toolbar-tool table static table-menu-button-before
+        syl-table-menu-wrapper / -list / -size-tip …
+
+    头条工具栏**有**表格按钮（还带行列选择菜单）。实测 `insertHTML`
+    灌 `<table>` 会被完整保留，并规范化成
+    `<div class="tableWrapper"><table><colgroup>…<td><p>…</p></td>`；
+    **存草稿重开后 12 个单元格一个不少**（2026-10-09 实测）。
+    ⇒ 真表格可用，别再降级成列表。
     """
     blocks = []
     para = []
+    trows = []                                    # 正在攒的连续表格行
     in_comment = False                            # 多行 <!-- ... --> 注释块
     for raw in (md or "").splitlines():
         line = raw.rstrip()
@@ -206,10 +292,22 @@ def md_to_blocks(md):
             if "-->" in s:
                 in_comment = False
             continue
+        # ---- 表格行：先攒着，遇非表格行才结算 ----
+        if s.startswith("|"):
+            if _TABLE_SEP_RE.match(s) and "-" in s:       # 对齐行吃掉，不算数据
+                continue
+            cells = _table_rows(s)
+            if cells:
+                trows.append(cells)
+            continue
+        if trows:                                    # 攒到这儿就结算
+            _flush_para(blocks, para)
+            tb = build_table(trows)
+            if tb:
+                blocks.append(("table", tb))
+            trows = []
         if not s:
-            if para:
-                blocks.append(("p", clean_line(" ".join(para))))
-                para = []
+            _flush_para(blocks, para)
             continue
         if s.startswith("<!--"):                  # 模板注释，整块丢掉
             # 单行 <!-- x --> 一次跳过；跨行的要一直吃到 --> 为止，
@@ -220,40 +318,28 @@ def md_to_blocks(md):
         if s.startswith("# "):                    # h1 = 标题，正文里不要
             continue
         if s.startswith("## "):
-            if para:
-                blocks.append(("p", clean_line(" ".join(para))))
-                para = []
+            _flush_para(blocks, para)
             blocks.append(("h2", clean_line(s[3:])))
             continue
         if _HR_RE.match(s):                       # --- 分隔线（区别于表格对齐行）
-            if para:
-                blocks.append(("p", clean_line(" ".join(para))))
-                para = []
+            _flush_para(blocks, para)
             blocks.append(("hr", ""))
             continue
-        if _TABLE_SEP_RE.match(s) and "-" in s:   # 表格分隔行 |---|
-            continue
-        if s.startswith("|"):                     # 表格行 → key：value
-            cells = [c.strip() for c in s.strip("|").split("|")]
-            cells = [c for c in cells if c]
-            if len(cells) >= 2 and cells[0] != "维度":
-                blocks.append(("kv", "%s：%s" % (cells[0], " ".join(cells[1:]))))
-            continue
         if s.startswith(">"):
-            if para:
-                blocks.append(("p", clean_line(" ".join(para))))
-                para = []
+            _flush_para(blocks, para)
             blocks.append(("quote", clean_line(s.lstrip("> "))))
             continue
         if re.match(r"^[-*]\s+", s):
-            if para:
-                blocks.append(("p", clean_line(" ".join(para))))
-                para = []
+            _flush_para(blocks, para)
             blocks.append(("ul", clean_line(re.sub(r"^[-*]\s+", "", s))))
             continue
         para.append(s)
-    if para:
-        blocks.append(("p", clean_line(" ".join(para))))
+    if trows:                                       # 撞到文件末尾的表格
+        _flush_para(blocks, para)
+        tb = build_table(trows)
+        if tb:
+            blocks.append(("table", tb))
+    _flush_para(blocks, para)
     # hr 没有文本内容，不能被下面的「去空文本」过滤器吃掉
     return [b for b in blocks if b[1] or b[0] == "hr"]
 
@@ -295,18 +381,50 @@ FOOTER_TEXT = ("「拆解海外」逐个拆海外小生意：它干什么、钱�
                "照实标注（MRR 就写 MRR，只有流水就写近 30 天收入），不做换算夸大。")
 
 
+def table_to_html(tb):
+    """表格载荷 → 头条认得的真表格 HTML。
+
+    ⚠ 写法是**照着实测落地结果反推的**，不是想当然：
+    - 外层 `div.tableWrapper` —— 编辑器自己就是这么包的；
+    - `<tbody>` 必带，`<th>` 会被降级成 `<td>`（实测），所以表头不用；
+    - `<td>` 里是 `<p>`，裸文本也会被规范化成 `<p>`，但写出来更稳；
+    - `colgroup` / `style` / `data-colwidth` **一律不给** —— 编辑器按内容
+      自己算列宽（实测它会补`min-width` 和 `data-colwidth`），给了反而多一份
+      要被清洗的样式。
+
+    超长值行不在这里 —— 它们由 `build_table` 拆出去，
+    由 `blocks_to_html` 紧跟表格渲成普通段落。
+    """
+    rows = tb.get("rows") or []
+    if not rows:
+        return ""
+    trs = []
+    for r in rows:
+        tds = "".join("<td><p>%s</p></td>" % inline(c) for c in r)
+        trs.append("<tr>%s</tr>" % tds)
+    return '<div class="tableWrapper"><table><tbody>%s</tbody></table></div>' \
+           % "".join(trs)
+
+
 def blocks_to_html(blocks, footer=True, footer_text=None):
     """块 → 头条编辑器的富文本 HTML。
 
-    头条 ProseMirror schema 实测（2026-09-28 探针）：
+    头条 ProseMirror schema 实测（2026-09-28 探针+ 2026-10-09 补测）：
       ✔ h1/h2/h3 → 统一渲染成 <h1 class="pgc-h-forward-slash"> 装饰标题
       ✔ ul+li / ol+li / li 内 <strong> / blockquote / hr
+      ✔ table（2026-10-09 补：工具栏 `syl-toolbar-tool table`，见 `md_to_blocks`）
       ✘ em、u —— 会被静默丢掉，别用
 
     所以这里**把 markdown 里本来就有、但被之前版本拍平的结构还原回来**：
       二级标题 → <h2>；列表 → 真 <ul><li>；引用 → <blockquote>；
-      连续的表格行 → 一整组 <ul><li><strong>标签：</strong>值</li>；
+      连续的表格行 → 一整张 `<table>`（超长行拆成后面的段落）；
       --- → <hr>。连续的同类块会被合并成一个 <ul>，视觉上是一组而不是 N 段。
+
+    ⚠⚠ **块之间必须用 `""` 拼，不能用换行**（2026-10-09 实测）：
+    Tiptap 把标签间的 `\n` 当成额外空段落 —— 同一份内容
+    `"\n".join` 渲出 3 个空 `<p>`，`"".join` 只有 2 个（首尾那两个是
+    ProseMirror 自带的，无法消除）。B站那边早就有同样的结论
+    （`>[ \t\r\n]+<` → `><`，见 docs/MULTIPLATFORM.md），头条之前漏了。
     """
     out = []
     i, n = 0, len(blocks)
@@ -324,15 +442,17 @@ def blocks_to_html(blocks, footer=True, footer_text=None):
                 items.append("<li>%s</li>" % inline(blocks[i][1]))
                 i += 1
             out.append("<ul>%s</ul>" % "".join(items))
-        elif kind == "kv":
-            items = []
-            while i < n and blocks[i][0] == "kv":
-                lab, val = split_kv(blocks[i][1])
-                items.append(
-                    "<li><strong>%s</strong>%s</li>" % (esc(lab), inline(val))
-                    if lab else "<li>%s</li>" % inline(blocks[i][1]))
-                i += 1
-            out.append("<ul>%s</ul>" % "".join(items))
+        elif kind == "table":
+            html = table_to_html(text)
+            if html:
+                out.append(html)
+            else:
+                out.append("")                # 全是长行 → 只剩下面的段落
+            # 表格后面紧跟被拆出来的长值段落（「备注：…」）
+            for lab, val in (text.get("long") or []):
+                out.append("<p><strong>%s</strong>%s</p>"
+                           % (esc("%s：" % lab), inline(val)))
+            i += 1
         elif kind == "quote":
             t = inline(text)
             # 原文自带「」就别套两层
@@ -346,7 +466,10 @@ def blocks_to_html(blocks, footer=True, footer_text=None):
         out.append("<hr>")
         out.append("<h2>%s</h2>" % FOOTER_NOTE)
         out.append("<p>%s</p>" % inline(footer_text or FOOTER_TEXT))
-    return "\n".join(out)
+    # ⚠ 空串不能留 —— 它在"".join 里无害，但会让下面这个判断失真
+    out = [o for o in out if o]
+    #⚠ "" 拼接，不是 "\n"（见 docstring：换行会变空段落）
+    return "".join(out)
 
 # 头条审核/推荐的敏感词 → 中性替身。**标题命中就自动换掉**，不留人工判断：
 # 「躺着收租」这类词看着有味道，但头条推荐会把「躺」系关键词当低质收益噱头压权。
@@ -376,6 +499,25 @@ def neutralize_risk(title):
     return out, hits
 
 
+def blocks_plain_text(blocks):
+    """块 → 纯文本（字数统计 / 敏感词扫描用）。
+
+    ⚠ 表格块的载荷是 **dict** 不是 str（2026-10-09 改），
+    直接 `"\n".join(t for _, t in blocks)` 会 TypeError。
+    表格按「标签 值」逐行摊平，单元格之间用空格拼，量级与视觉一致。
+    """
+    parts = []
+    for kind, t in blocks:
+        if kind == "table":
+            for r in (t.get("rows") or []):
+                parts.append(" ".join(c for c in r if c))
+            for lab, val in (t.get("long") or []):
+                parts.append("%s %s" % (lab, val) if lab else val)
+        else:
+            parts.append(t)
+    return "\n".join(p for p in parts if p)
+
+
 def build_article(c):
     """把一个 case 变成头条稿。返回 meta dict（不写盘）。"""
     cid = c["id"]
@@ -385,7 +527,7 @@ def build_article(c):
         with open(md_path, encoding="utf-8") as f:
             md = f.read()
     blocks = md_to_blocks(md)
-    plain = strip_md("\n".join(t for _, t in blocks))
+    plain = strip_md(blocks_plain_text(blocks))
     hits = []                                     # 被自动中性化的敏感词
     title = make_toutiao_title(c, hits_out=hits)
     # 2026-10-01：栏目页脚覆盖。
@@ -1157,6 +1299,18 @@ _DRAFT_EDIT_POS = """(function(t){
 # 草稿箱是**分页渲染**：首屏只出 20 条 `article-draft-item`，其余藏在
 # 「加载更多」按钮后面（页头会写「共 N 条内容」）。不点开它，同标题重复
 # 一律统计不到（dedup 曾因此全部报「0 条」假阴性）。
+#
+# ⚠⚠ 2026-10-09 实测：`_DRAFT_LOADMORE_JS` 返回的坐标**点不动**（两个坑叠加）：
+#   ① 按钮在文档 y=3433 处而视口只有 907 高，且页面有隐藏滚动上下文，
+#      里面的 `scrollIntoView` **不**更新 `getBoundingClientRect()`
+#      ⇒ 派发的坐标事件落在视口外 = 点空气；
+#   ② 就算把窗口滚对了坐标，点 `.common-load-more-wrap` 本身也**不触发**
+#      加载 —— 真正挂 onClick 的是它里面**最深的那个 SPAN**。
+#   实测：策略 A（scrollIntoView+旧坐标）恒 20；
+#        策略 B（window.scrollTo+重取坐标+坐标派发）恒 20，偶尔掉到 0；
+#        策略 C（JS .click() 容器本身）恒 20；
+#        ✅ 策略 D（JS .click() **最深的 SPAN**）20 → 29 一次到位。
+# ⇒ 结论：用 `_DRAFT_LOADMORE_CLICK_JS`，别再用坐标派发。
 _DRAFT_LOADMORE_JS = """(function(){
   var ws = document.querySelectorAll('.common-load-more-wrap, .common-load-more-footer');
   for(var i=0;i<ws.length;i++){
@@ -1170,20 +1324,65 @@ _DRAFT_LOADMORE_JS = """(function(){
   return 'none';
 })()"""
 
+# ✅ 真正管用的点法（2026-10-09 实测 20 → 29）：直接 JS .click()「加载更多」
+#    容器里**最深的**可点子节点，从后往前找第一个 cursor:pointer/BUTTON/SPAN。
+#    ⚠ 别改回坐标派发 —— 上面三个坑全在坐标上。
+_DRAFT_LOADMORE_CLICK_JS = """(function(){
+  var ws = document.querySelectorAll(
+      '.common-load-more-wrap, .common-load-more-footer');
+  for (var i = 0; i < ws.length; i++) {
+    var w = ws[i];
+    if ((w.innerText||'').indexOf('加载更多') < 0) continue;
+    var all = [].slice.call(w.querySelectorAll('*'));
+    for (var j = all.length - 1; j >= 0; j--) {
+      var e = all[j];
+      var cs = getComputedStyle(e);
+      if (cs.cursor === 'pointer' || e.tagName === 'BUTTON' ||
+          e.tagName === 'SPAN') {
+        e.click();
+        return 'clicked:' + e.tagName;
+      }
+    }
+    w.click();
+    return 'clicked:wrap';
+  }
+  return 'none';
+})()"""
+
+# 页头声明的草稿总数（页头「共 N 条内容」）—— 展开判据用它，别只数卡片
+_DRAFT_TOTAL_JS = """(function(){
+  var m = (document.body.innerText||'').match(/共\\s*(\\d+)\\s*条/);
+  return m ? m[1] : '';
+})()"""
+
 _DRAFT_ITEM_COUNT_JS = ("document.querySelectorAll('.article-draft-item, "
                         ".draft-item').length")
 
 
+def _draft_total(cdp):
+    """页头声明的草稿总数（int）；页头没写返回 0。
+
+    ⚠ 判「草稿箱是否已展开完」必须用它，不能只数卡片：首屏恒 20 条，
+    数卡片在没展开时也给 20 ⇒ 假阴性（2026-10-09 踩过）。
+    """
+    try:
+        return int(cdp.eval(_DRAFT_TOTAL_JS) or 0)
+    except (TypeError, ValueError, RuntimeError):
+        return 0
+
+
 def _load_all_drafts(cdp, max_rounds=40, pause=2.0):
-    """点「加载更多」把草稿箱整页展开，返回渲染出的条目数。"""
+    """点「加载更多」把草稿箱整页展开，返回渲染出的条目数。
+
+    ⚠ 2026-10-09 重写。原来用 `_DRAFT_LOADMORE_JS` 取坐标 + 坐标派发，
+      那条路**从来没生效过**（恒停在首屏 20 条），害得 dedup / drafts 反查
+      全是假阴性。现在改用 `_DRAFT_LOADMORE_CLICK_JS`（JS 点最深 SPAN）。
+      停止判据也从「点不到就 break」改成「卡片数 ≥ 页头声明总数」。
+    """
     for _ in range(max_rounds):
-        pos = cdp.eval(_DRAFT_LOADMORE_JS) or "none"
-        if pos == "none":
+        state = cdp.eval(_DRAFT_LOADMORE_CLICK_JS) or "none"
+        if state == "none":                    # 按钮没了 = 全部加载完
             break
-        if pos == "hidden":
-            time.sleep(pause)
-            continue
-        _click_pos(cdp, json.loads(pos), 3)
         time.sleep(pause)
     try:
         return int(cdp.eval(_DRAFT_ITEM_COUNT_JS) or 0)
@@ -1322,22 +1521,23 @@ def open_draft_editor(title, wait=25):
     time.sleep(2)
 
     before = _page_target_ids()
-    # 草稿箱初次只渲染前几条，目标卡在第 10 条开外时 _DRAFT_SCROLL_TO
+    # 草稿箱初次只渲染前 20 条，目标卡在第 20 条开外时 _DRAFT_SCROLL_TO
     # 会一直 'none' 空转超时（2026-09-29 实测）。先把整页展开。
     #
     # 2026-09-30：整页展开是单条耗时的最大头（168s 里约 100s 在这）。
-    # 展开是**幂等**的 —— 同一页反复展开，第二遍起 _DRAFT_LOADMORE_JS 直接
-    # 返回 'none'，一轮就 break。所以别在每条前都跑满 20 轮，先探一次：
-    # 已经有足够多的卡片就跳过。但**只探不点**是有代价的 —— 页面刚打开时
-    # 可能只渲染 8 条而真值是 39，所以判据用「已展开」标记而不是数卡片。
+    # 展开是**幂等**的 —— 同一页反复展开，第二遍起 _DRAFT_LOADMORE_CLICK_JS
+    # 直接返回 'none'，一轮就 break。所以别在每条前都跑满 20 轮，先探一次。
+    #
+    # ⚠⚠ 2026-10-09 修判据：原来用 `n >= 20` 当「已展开」，而首屏**恒是**
+    #    20 条 ⇒ 永远第一轮就判定「已展开」，第 21 条开外的稿（实测草稿共
+    #    29 条）**永远搜不到** ⇒ open_draft_editor 直接掉进作品管理兜底。
+    #    现在拿页头声明的总数当基准：有总数就比总数，没总数才退回 ≥20。
     if not _draft_box_expanded.get("v"):
-        _load_all_drafts(cdp, max_rounds=20, pause=1.5)
-        # 展开后卡片数应接近草稿总数；明显更少说明还没展开完。
-        try:
-            n = int(cdp.eval(_DRAFT_ITEM_COUNT_JS) or 0)
-        except Exception:                             # noqa: BLE001
-            n = 0
-        if n >= 20:
+        n = _load_all_drafts(cdp, max_rounds=20, pause=1.5)
+        total = _draft_total(cdp)
+        if total and n >= total:
+            _draft_box_expanded["v"] = True
+        elif not total and n >= 20:
             _draft_box_expanded["v"] = True
     pos = ""
     for attempt in range(6):

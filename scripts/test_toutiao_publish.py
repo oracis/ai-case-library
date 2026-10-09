@@ -56,25 +56,115 @@ class TestBlocks(unittest.TestCase):
     def test_comment_block_dropped(self):
         """多行 <!-- --> 注释必须整块吃掉：模板里「核对用来源（别进正文）」
         就在这种块里，只跳过单行会让它漏进正文。"""
-        bs = tp.md_to_blocks(MD)
-        joined = "\n".join(t for _, t in bs)
+        joined = tp.blocks_plain_text(tp.md_to_blocks(MD))
         self.assertNotIn("别进正文", joined)
         self.assertNotIn("多行注释块", joined)
         self.assertNotIn("-->", joined)
 
     def test_url_and_md_link_cleaned(self):
-        text = "\n".join(t for _, t in tp.md_to_blocks(MD))
+        text = tp.blocks_plain_text(tp.md_to_blocks(MD))
         self.assertNotIn("http", text)
         self.assertIn("官网", text)
         # `**` 由 blocks_to_html 转成 <strong>，最终 HTML 里不该有裸 markdown 符号
         self.assertNotIn("**", tp.blocks_to_html(tp.md_to_blocks(MD)))
 
-    def test_table_becomes_kv(self):
+    def test_table_is_real_table_not_kv(self):
+        """表格必须**保留成真表格**，不能降级成 kv 列表。
+
+        2026-10-09：旧断言是 `assertNotIn("<table", html)`，理由写的是
+        「头条编辑器不支持表格」。**那个结论是错的** —— 探针只扫了
+        title/aria-label，漏了 class 里的 `syl-toolbar-tool table`。
+        实测 insertHTML 灌 <table> 完整存活，存草稿重开也还在。
+        """
         bs = tp.md_to_blocks(MD)
-        kv = [t for k, t in bs if k == "kv"]
-        self.assertTrue(any(t.startswith("官方口径") for t in kv))
-        self.assertFalse(any(t.startswith("维度") for t in kv))
-        self.assertFalse(any("|" in t for _, t in bs))
+        tabs = [t for k, t in bs if k == "table"]
+        self.assertEqual(len(tabs), 1, "表格块应该被识别成一个 table 块")
+        tb = tabs[0]
+        # 表头「维度 | 内容」被吃掉，只剩数据行
+        self.assertEqual(tb["rows"], [["官方口径", "月收入 $12K"]])
+        # **不再有 kv 块** —— 这条是回归钉：别又退回列表降级
+        self.assertFalse(any(k == "kv" for k, _ in bs))
+        # 表格之外不该残留 markdown 竖线
+        self.assertFalse(any("|" in t for k, t in bs if k != "table"))
+
+    def test_table_html_shape(self):
+        """表格 HTML 用编辑器实测认得的写法（见 table_to_html 的注释）。"""
+        html = tp.blocks_to_html(tp.md_to_blocks(MD))
+        self.assertIn('<div class="tableWrapper"><table><tbody>', html)
+        self.assertIn("<tr><td><p>官方口径</p></td>"
+                      "<td><p>月收入 $12K</p></td></tr>", html)
+        # 表头不进表
+        self.assertNotIn("<p>维度</p>", html)
+        # 不给编辑器会自己算的样式
+        self.assertNotIn("colgroup", html)
+        self.assertNotIn("data-colwidth", html)
+        self.assertNotIn("<th>", html)
+
+    def test_blocks_joined_without_newline(self):
+        """⚠ 块之间**不能有换行**（2026-10-09 实测）。
+
+        Tiptap 把标签间的 `\\n` 当成额外空段落：同一份内容
+        `"\\n".join` 渲出 3 个空 `<p>`，`"".join` 只有 2 个。
+        """
+        html = tp.blocks_to_html(tp.md_to_blocks(MD))
+        self.assertNotIn("\n", html)
+        self.assertNotIn("> <", html)          # 「>  <」= 空段落
+
+    def test_long_cell_becomes_paragraph_after_table(self):
+        """>`CELL_LONG` 的值行不挤进表格，转成表格后面的「标签：值」段落。"""
+        long_val = "很长的口径说明。" * 12            # >60 字
+        md = ("## 它到底做到多大\n\n"
+              "| 维度 | 内容 |\n| --- | --- |\n"
+              "| 官方口径 | $53K MRR |\n"
+              "| 备注 | %s |\n" % long_val)
+        html = tp.blocks_to_html(tp.md_to_blocks(md), footer=False)
+        # 短值留在表里
+        self.assertIn("<td><p>官方口径</p></td>", html)
+        # 长值不在表里
+        self.assertNotIn("<td><p>%s</p></td>" % long_val, html)
+        # 变成表格后面的段落，且标签加粗
+        self.assertIn("<p><strong>备注：</strong>%s</p>" % long_val, html)
+        # 段落必须在表格**之后**
+        self.assertLess(html.index("<table>"), html.index("备注："))
+
+    def test_all_cells_long_table_still_renders(self):
+        """整张表全是长行 → 没有 <table>，但长段落一个都不能丢。"""
+        # 每格必须 >CELL_LONG(60) 才算长行，所以要repeat 够多次
+        long_a = "甲说明" * 30                             # 90 字
+        long_b = "乙说明" * 30                             # 90 字
+        self.assertGreater(len(long_a), tp.CELL_LONG)
+        md = ("| 维度 | 内容 |\n| --- | --- |\n"
+              "| 甲 | %s |\n| 乙 | %s |\n" % (long_a, long_b))
+        bs = tp.md_to_blocks(md)
+        tabs = [t for k, t in bs if k == "table"]
+        self.assertEqual(len(tabs), 1)
+        # rows 空、long 有两条 ⇒ 不渲表格
+        self.assertEqual(tabs[0]["rows"], [])
+        self.assertEqual(len(tabs[0]["long"]), 2)
+        html = tp.blocks_to_html(bs, footer=False)
+        self.assertNotIn("<table", html)
+        self.assertNotIn("tableWrapper", html)
+        self.assertIn("甲：", html)
+        self.assertIn("乙：", html)
+
+    def test_uneven_columns_padded(self):
+        """`|a|b|c|` 与 `|a|b|` 混排 → 按最长行补齐，不错位。"""
+        md = "| a | b | c |\n| --- | --- | --- |\n| 1 | 2 |\n| 3 | 4 | 5 |"
+        tb = [t for k, t in tp.md_to_blocks(md) if k == "table"][0]
+        self.assertEqual(tb["rows"], [["a", "b", "c"], ["1", "2", ""],
+                                      ["3", "4", "5"]])
+
+    def test_single_column_is_not_table(self):
+        """单列行不算表格，交回段落路径（否则渲出一列的怪表格）。"""
+        bs = tp.md_to_blocks("| 只有一列 |\n| --- |")
+        self.assertFalse(any(k == "table" for k, _ in bs))
+
+    def test_table_at_eof_without_blank_line(self):
+        """表格撞到文件末尾（后面没空行）也必须结算，不能整段丢掉。"""
+        bs = tp.md_to_blocks("正文一句\n\n| 维度 | 内容 |\n| --- | --- |\n| 甲 | 1 |")
+        tabs = [t for k, t in bs if k == "table"]
+        self.assertEqual(len(tabs), 1)
+        self.assertEqual(tabs[0]["rows"], [["甲", "1"]])
 
     def test_kinds(self):
         bs = tp.md_to_blocks(MD)
@@ -84,6 +174,7 @@ class TestBlocks(unittest.TestCase):
         self.assertIn("ul", kinds)
         self.assertIn("p", kinds)
         self.assertIn("hr", kinds)
+        self.assertIn("table", kinds)
 
     def test_html_structure(self):
         """还原真富文本：假标题 / 假列表 / 扁平表格全部升级成真标签。"""
@@ -97,19 +188,14 @@ class TestBlocks(unittest.TestCase):
         self.assertIn("<blockquote>「一句钩子」</blockquote>", html)
         self.assertIn("---", html.replace("<hr>", "---"))   # --- → <hr>
         self.assertIn("<hr>", html)
-        self.assertNotIn("<table", html)
         self.assertIn(tp.FOOTER_NOTE, html)
 
-    def test_bold_and_kv_group(self):
-        """**整段加粗** → <strong>；连续表格行 → 一组「加粗标签 + 值」列表。"""
-        html = tp.blocks_to_html(tp.md_to_blocks(MD))
-        self.assertIn("<strong>整段加粗</strong>", html)
-        self.assertIn("<li><strong>官方口径：</strong>月收入 $12K</li>", html)
-        # 一组 kv 只包一个 <ul>，不能每个 pdf 一格
-        self.assertEqual(html.count("<ul>"), html.count("</ul>"))
-        # 头条不认 em / u，别生成这两种标签
-        self.assertNotIn("<em", html)
-        self.assertNotIn("<u>", html)
+    def test_bold_inside_table_cell(self):
+        """**加粗** 在单元格里也能活（实测 `<td><p><strong>` 存活）。"""
+        md = "| 维度 | 内容 |\n| --- | --- |\n| 甲 | **4/5** |"
+        html = tp.blocks_to_html(tp.md_to_blocks(md), footer=False)
+        self.assertIn("<td><p><strong>4/5</strong></p></td>", html)
+        self.assertNotIn("**", html)
 
     def test_empty_input(self):
         self.assertEqual(tp.md_to_blocks(""), [])
