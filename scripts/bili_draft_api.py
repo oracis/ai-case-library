@@ -519,7 +519,12 @@ def delete_draft(cdp, article_id):
 
 
 def main():
-    cdp = wp.CDP(9222)
+    # ⚠⚠ 2026-10-09 修：原来硬编码 9222（**公众号**那个 profile），
+    #   而 B站登录态在 `chrome-debug-profile` = **9223**
+    #   ⇒ 症状是「连不上 9222」，很容易误判成掉登录。
+    #   跟B站自己的模块常量走，别再写死端口。
+    import bilibili_publish as bp
+    cdp = wp.CDP(getattr(bp, "CDP_PORT", 9223))
     _bili_tab(cdp)
     drafts = list_drafts(cdp)
     print("草稿箱 %d 条" % len(drafts))
