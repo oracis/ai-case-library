@@ -10,13 +10,21 @@
   2. `<td>` 单元格数 == 本地稿里的单元格数
   3. 正文里**没有**降级残留（`标签：值` 的列表形态）
 
-⚠ 头条发文页边填边自动存草稿 ⇒ 每次验收都会在草稿箱留一条记录。
-   标题统一用 `zz表格验收-可删`，跑完用 `toutiao_publish.py dedup` 收拾。
+🚨🚨 2026-10-09 事故（本脚本即元凶，必须记住）：
+   旧版 `clear_body()` **无条件 `return True`**，从不回读验证清空是否真成功；
+   而清空失败后代码仍继续 `insertHTML` ⇒ 新正文被**追加**到旧正文后面
+   ⇒ 远端表格数翻倍（`kibu` 本地 3 表/34 格 → 远端 6 表/66 格）。
+   旧版还把标题写成 `zz表格验收-可删`，实测在草稿箱留下 2 条垃圾稿。
+   ✅ 现在的硬约束：
+     - `clear_body()` **必须回读**并用**占位符识别**判空（清空后 ProseMirror
+       会显示 `请输入正文`，innerText 长度 7，**不是 0**）；
+     - 清空结果非 True ⇒ **立即中止该案例，绝不 insertHTML**；
+     - 默认**不再改标题** ⇒ 不再产生 `zz表格验收-可删` 测试稿。
 
 用法：
-    python -X utf8 scripts/tt_table_verify.py --case uplinked-b-v
-    python -X utf8 scripts/tt_table_verify.py --all      # 全库41 条（慢，约 25 分钟）
-    python -X utf8 scripts/tt_table_verify.py --case quran-unlock --keep-title
+    python -X utf8 scripts/tt_table_verify.py --case kibu
+    python -X utf8 scripts/tt_table_verify.py --all      # 全库 41 条（慢）
+    python -X utf8 scripts/tt_table_verify.py --case X --keep-title
 """
 import argparse
 import json
@@ -27,6 +35,7 @@ import time
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import toutiao_publish as tp                                   # noqa: E402
+import tt_body_fill as bf                # 占位符判空 + 已就绪的正确范式  # noqa: E402
 
 SEL = json.dumps(tp.SEL["body"])
 
@@ -44,31 +53,15 @@ READ = """(function(){
   });
 })(%s)"""
 
-_CLEAR = """(function(){
-  var e = document.querySelector(%s);
-  if (!e) return 'no editor';
-  e.focus();
-  var r = document.createRange(); r.selectNodeContents(e);
-  var s = getSelection(); s.removeAllRanges(); s.addRange(r);
-  return 'selected';
-})(%s)"""
-
-
 def clear_body(cdp):
-    if cdp.eval(_CLEAR % (SEL, SEL)) != "selected":
-        return False
-    time.sleep(0.3)
-    for ty in ("keyDown", "keyUp"):
-        cdp.send("Input.dispatchKeyEvent", {
-            "type": ty, "key": "a", "code": "KeyA",
-            "modifiers": 2, "windowsVirtualKeyCode": 65})
-    time.sleep(0.3)
-    for ty in ("keyDown", "keyUp"):
-        cdp.send("Input.dispatchKeyEvent", {
-            "type": ty, "key": "Delete", "code": "Delete",
-            "windowsVirtualKeyCode": 46})
-    time.sleep(0.9)
-    return True
+    """清空正文并**回读验证**。返回 True/False/None(未知)。
+
+    🚨 与旧版的区别：旧版无条件 `return True`，清空失败也报成功，调用方
+    于是把新正文**追加**到旧正文后面（表格数翻倍事故的根因）。
+    ✅ 现在委托给 `bf.clear_body()`，它走按键管线后用**占位符识别**回读判空
+    （清空后 ProseMirror 显示 `请输入正文`，innerText 长度 7，不是 0）。
+    """
+    return bf.clear_body(cdp)
 
 
 def read(cdp):
@@ -87,10 +80,31 @@ def verify_one(cdp, cid, keep_title=False):
     want_tables = body.count("<table")
     want_cells = body.count("<td>")
 
-    clear_body(cdp)
-    title = ("zz表格验收-可删" if not keep_title else None)
-    if title:
-        tp._focus_and_type(cdp, tp.SEL["title"], title)
+    # 🚨 先等编辑器就绪，否则会对着半空的编辑器动手
+    ready = False
+    for _ in range(10):
+        time.sleep(2)
+        if bf.is_empty(cdp) is not None:
+            ready = True
+            break
+    if not ready:
+        raise RuntimeError("编辑器一直没就绪，不敢动手")
+
+    before = read(cdp)
+    if (before.get("tables") or 0) == want_tables \
+            and (before.get("cells") or 0) == want_cells:
+        # 🚨 幂等短路：已是目标就别清空重灌，否则平白多一次写远端的风险
+        return True, want_tables, want_cells, before["tables"], before["cells"], 0
+
+    cleared = clear_body(cdp)
+    # 🚨🚨 清空没成功就**绝不 insertHTML** —— 否则新正文追加到旧正文后面
+    if cleared is not True:
+        return False, want_tables, want_cells, \
+            before.get("tables") or 0, before.get("cells") or 0, -1
+
+    if keep_title:
+        # 仅在显式 --keep-title 时才动标题；默认不改 ⇒ 不产生 zz 测试稿
+        pass
     cdp.eval("(function(){var e=document.querySelector(%s);"
              "if(e){e.focus();} return 'ok';})()" % SEL)
     cdp.send("Runtime.evaluate", {
@@ -110,7 +124,8 @@ def main():
     ap.add_argument("--case", default="uplinked-b-v")
     ap.add_argument("--all", action="store_true")
     ap.add_argument("--keep-title", action="store_true",
-                    help="用真标题（验收完草稿箱里就是正式稿，可直接发）")
+                    help="保留原标题（已默认行为，留作兼容；不会再写 "
+                         "zz表格验收-可删 这种测试标题）")
     ap.add_argument("--cleanup", action="store_true", default=True)
     args = ap.parse_args()
 
@@ -133,9 +148,14 @@ def main():
                 failed += 1
                 continue
             flag = "✔" if ok else "✘"
-            print("  %s %-20s 本地 %d表/%d格 → 远端 %d表/%d格%s"
-                  % (flag, c["id"], wt, wc, gt, gc,
-                     "（降级残留 %d）" % deg if deg else ""))
+            if deg < 0:
+                print("  %s %-20s 【已中止】清空正文未成功，绝不插入新内容"
+                      "（远端仍是 %d表/%d格，本地目标 %d表/%d格）"
+                      % (flag, c["id"], gt, gc, wt, wc))
+            else:
+                print("  %s %-20s 本地 %d表/%d格 → 远端 %d表/%d格%s"
+                      % (flag, c["id"], wt, wc, gt, gc,
+                         "（降级残留 %d）" % deg if deg else ""))
             passed += ok
             failed += (not ok)
         clear_body(cdp)

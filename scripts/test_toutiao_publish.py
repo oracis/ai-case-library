@@ -5,6 +5,7 @@
 跑法（在 scripts/ 目录下）：
     python -m unittest test_toutiao_publish
 """
+import ast
 import inspect
 import os
 import re
@@ -569,6 +570,129 @@ class TestTitleReadFix(unittest.TestCase):
         self.assertEqual(mh._match_case("MORT：AI 产品", {}), "mort")
         self.assertEqual(mh._match_case("Quran Unlock：移动 app", {}),
                          "quran-unlock")
+
+
+def _fn_code(fn):
+    """返回函数的**可执行代码**（AST 反序列化，自动丢掉注释与 docstring）。
+
+    ⚠ 为什么必须用 AST 而不是 grep：加固后的代码里，docstring 和注释都会
+    正面提到「旧版无条件 `return True`」「绝不 insertHTML」这些历史说明。
+    朴素字符串匹配会把说明文字当成残留代码 ⇒ 假失败；也可能漏掉真正的
+    残留调用。AST 只看结构，注释和字符串字面量都不参与。
+    """
+    tree = ast.parse(inspect.getsource(fn))
+    fndef = next(n for n in tree.body
+                if isinstance(n, ast.FunctionDef) and n.name == fn.__name__)
+    # 摘掉 docstring 节点，避免文字干扰
+    if (fndef.body and isinstance(fndef.body[0], ast.Expr)
+            and isinstance(fndef.body[0].value, ast.Constant)
+            and isinstance(fndef.body[0].value.value, str)):
+        fndef.body = fndef.body[1:]
+    return ast.unparse(fndef)
+
+
+def _returns_literal_true(fn):
+    """函数里是否存在 `return True` / `return False` 这类**字面量**返回。"""
+    for node in ast.walk(ast.parse(inspect.getsource(fn))):
+        if isinstance(node, ast.Return) and isinstance(node.value,
+                                                      ast.Constant) \
+                and isinstance(node.value.value, bool):
+            return True
+    return False
+
+
+class TestTableVerifyHardened(unittest.TestCase):
+    """🚨 `tt_table_verify.py` 加固回归（2026-10-09 事故钉死）。
+
+    事故链：旧版 `clear_body()` 无条件 `return True`（从不回读验证）
+    → 清空失败仍继续 `insertHTML` → 新正文**追加**在旧正文后
+    → `kibu` 远端 6表/66格（本地只有 3表/34格）
+    → 且默认写 `zz表格验收-可删` 标题，草稿箱多出 2 条垃圾稿。
+    """
+
+    def test_clear_body_delegates_to_verified_impl(self):
+        """clear_body 必须委托给带回读校验的实现，不能自己拍 True。"""
+        import tt_table_verify as V
+        self.assertFalse(
+            _returns_literal_true(V.clear_body),
+            "clear_body 绝不能返回字面量 True —— 那正是表格数翻倍的根因")
+        code = _fn_code(V.clear_body)
+        self.assertIn("bf.clear_body(cdp)", code,
+                      "应复用 tt_body_fill.clear_body（占位符判空 + 回读）")
+
+    def test_abort_when_clear_not_true(self):
+        """清空结果非 True ⇒ 必须中止，绝不 insertHTML。"""
+        import tt_table_verify as V
+        tree = ast.parse(inspect.getsource(V.verify_one))
+        body = tree.body[0].body
+
+        # 🚨 结构判据（按 AST 节点位置，不靠字符串/行号）：
+        #    中止判据 `cleared is not True` 必须早于真正发insertHTML 的那次调用
+        guard = next((n.lineno for n in body
+                      if isinstance(n, ast.If)
+                      and "cleared is not True" in ast.unparse(n.test)), None)
+        self.assertIsNotNone(guard, "必须校验清空结果后才允许插入")
+
+        # 中止分支内部必须真的return
+        abort = next(n for n in body
+                     if isinstance(n, ast.If) and n.lineno == guard)
+        self.assertTrue(any(isinstance(x, ast.Return) for x in abort.body),
+                        "中止分支必须 return，不能只是打个标记继续往下走")
+
+        # insertHTML 那次 cdp.send 的位置
+        def _send_lineno(n):
+            for x in ast.walk(n):
+                if isinstance(x, ast.Call) \
+                        and ast.unparse(x.func).endswith("cdp.send") \
+                        and "insertHTML" in ast.unparse(x):
+                    return x.lineno
+            return None
+
+        ins = next((l for l in (_send_lineno(n) for n in body)
+                    if l is not None), None)
+        self.assertIsNotNone(ins, "应能找到发insertHTML 的 cdp.send 调用")
+        self.assertLess(guard, ins,
+                        "中止判据必须出现在 insertHTML 之前，"
+                        "否则等于没拦")
+
+    def test_no_test_title_written(self):
+        """默认不再写 zz 测试标题（那会在草稿箱留下垃圾稿）。"""
+        import tt_table_verify as V
+        code = _fn_code(V.verify_one)
+        self.assertNotIn("_focus_and_type", code,
+                         "验收脚本不该再改标题 ⇒ 不会再产生 zz 垃圾稿")
+        self.assertNotIn("zz表格验收", code,
+                         "verify_one 可执行代码里不该出现 zz 测试标题")
+
+    def test_placeholder_aware_emptiness(self):
+        """判空必须用占位符识别：清空后 innerText 长度是 7 不是 0。
+
+        ⚠ 判据落在注入的 **JS 常量** 上，不是 Python 函数体 ——
+          冒烟测试若只 grep 函数源码会漏掉真实实现。
+        """
+        import tt_body_fill as bf
+        js = bf._IS_EMPTY
+        self.assertIn("placeholder", js.lower(),
+                      "判空 JS 必须识别 .syl-placeholder"
+                      "（否则长度 7 被当成有内容）")
+        self.assertIn("syl-placeholder", js,
+                      "必须命中头条真实的占位符类名")
+        # 反向：绝不能用 `length <= N` 这种会被占位符破掉的判据
+        self.assertNotRegex(js, r"\.length\s*<=\s*\d",
+                            "不能用 innerText 长度阈值判空（占位符让它恒为 7）")
+
+    def test_idempotent_short_circuit(self):
+        """远端已是目标内容时短路，不要清空重灌（少一次写远端）。"""
+        import tt_table_verify as V
+        src = inspect.getsource(V.verify_one)
+        self.assertIn("return True", src.split("insertHTML")[0],
+                      "insertHTML 之前应有幂等短路分支")
+
+    def test_reports_abort_reason(self):
+        """中止时必须打印原因，不能静默算作普通不通过。"""
+        import tt_table_verify as V
+        src = inspect.getsource(V.main)
+        self.assertIn("已中止", src, "中止分支要有明确输出")
 
 
 if __name__ == "__main__":
