@@ -55,6 +55,17 @@ from email.utils import formatdate
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+
+def safe_relpath(path, start):
+    """os.path.relpath 的跨盘符安全版（与 auto_deploy.safe_relpath 同义）。
+
+    Windows 上 path 与 start 分属不同盘符时会抛 ValueError，本函数退回绝对路径。
+    """
+    try:
+        return os.path.relpath(path, start).replace(os.sep, "/")
+    except ValueError:
+        return os.path.abspath(path).replace(os.sep, "/")
+
 # 各扩展名的 Content-Type。OSS 不会自己猜，传错了浏览器行为会很怪。
 MIME = {
     ".html": "text/html; charset=utf-8",
@@ -309,7 +320,7 @@ def upload(oss, bucket, src_dir, prefix="", dry_run=False):
     for root, _dirs, names in os.walk(src_dir):
         for n in sorted(names):
             full = os.path.join(root, n)
-            rel = os.path.relpath(full, src_dir).replace(os.sep, "/")
+            rel = safe_relpath(full, src_dir)
             key = (prefix.strip("/") + "/" + rel).lstrip("/") if prefix else rel
             files.append((full, key))
     files.sort(key=lambda x: x[1])
@@ -318,7 +329,7 @@ def upload(oss, bucket, src_dir, prefix="", dry_run=False):
         print("[!] %s 里没有文件，先跑 python scripts/build_static.py" % src_dir)
         return 1
 
-    print("源目录：%s" % os.path.relpath(src_dir, ROOT).replace(os.sep, "/"))
+    print("源目录：%s" % safe_relpath(src_dir, ROOT))
     print("目标：oss://%s/%s" % (bucket, prefix.strip("/") + "/" if prefix else ""))
     print()
     print("  %-22s %10s  %-10s %s" % ("对象", "大小", "缓存", "Content-Type"))

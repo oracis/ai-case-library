@@ -78,13 +78,26 @@ def digest(rel, raw):
     return hashlib.sha256(normalize(rel, raw)).hexdigest()
 
 
+def safe_relpath(path, start):
+    """os.path.relpath 的跨盘符安全版。
+
+    Windows 上 relpath 遇到 path 与 start 分属不同盘符（如项目在 D:、
+    临时目录在 C:）会抛 ValueError: path is on mount 'C:', start on mount 'D:'。
+    这里退回绝对路径，保证只影响日志展示、不让流程崩。
+    """
+    try:
+        return os.path.relpath(path, start).replace("\\", "/")
+    except ValueError:
+        return os.path.abspath(path).replace("\\", "/")
+
+
 def local_manifest(root):
     """本地产物清单：{相对路径: 哈希}。"""
     out = {}
     for dp, _, fns in os.walk(root):
         for fn in fns:
             p = os.path.join(dp, fn)
-            rel = os.path.relpath(p, root).replace("\\", "/")
+            rel = safe_relpath(p, root)
             with open(p, "rb") as f:
                 out[rel] = digest(rel, f.read())
     return out

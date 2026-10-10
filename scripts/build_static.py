@@ -96,6 +96,19 @@ def human(n):
     return "%.1f KB" % (n / 1024.0) if n < 1024 * 1024 else "%.2f MB" % (n / 1048576.0)
 
 
+def safe_relpath(path, start):
+    """os.path.relpath 的跨盘符安全版。
+
+    Windows 上 path 与 start 分属不同盘符（如项目在 D:、测试临时目录在 C:）
+    会抛 `ValueError: path is on mount 'C:', start on mount 'D:'`。
+    这里退回绝对路径，只影响日志展示，不让构建流程崩。
+    """
+    try:
+        return os.path.relpath(path, start).replace(os.sep, "/")
+    except ValueError:
+        return os.path.abspath(path).replace(os.sep, "/")
+
+
 def prepare_out(out_dir):
     """准备输出目录：**就地覆盖，不整目录删**。
 
@@ -320,7 +333,7 @@ def build(out_dir, include_inbox=True, pretty=False, site_url=""):
     # ---- 汇总
     total = 0
     print()
-    print("构建完成 · %s" % os.path.relpath(abs_out, ROOT).replace(os.sep, "/") + "/")
+    print("构建完成 · %s" % safe_relpath(abs_out, ROOT) + "/")
     print("-" * 54)
     for name in sorted(os.listdir(abs_out)):
         p = os.path.join(abs_out, name)
@@ -349,9 +362,9 @@ def build(out_dir, include_inbox=True, pretty=False, site_url=""):
     print("生成时间：%s" % payload.get("generated_at"))
     print()
     print("本地预览：")
-    print("  双击 %s/index.html 直接看" % os.path.relpath(abs_out, ROOT).replace(os.sep, "/"))
+    print("  双击 %s/index.html 直接看" % safe_relpath(abs_out, ROOT))
     print("  或 python -m http.server 8080 --directory %s"
-          % os.path.relpath(abs_out, ROOT).replace(os.sep, "/"))
+          % safe_relpath(abs_out, ROOT))
     print()
     print("部署到阿里云 OSS：")
     print("  python scripts/deploy_oss.py --bucket <你的bucket>")
