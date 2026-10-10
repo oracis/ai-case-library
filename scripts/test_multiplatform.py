@@ -417,6 +417,38 @@ class TestParseBatch(unittest.TestCase):
         self.assertEqual(done, set())
         self.assertEqual(failed, {"a", "b"})
 
+    def test_autostart_line_does_not_open_a_case(self):
+        """🚨 2026-10-11 踩坑回归钉死。
+
+        旧判据 `s.startswith("[") and "]" in s` 太松：脚本启动时打的
+        `[autostart] Chrome 已启动（Chrome for Testing, --no-sandbox）
+        port=9223 profile=…` 也以 `[` 开头、含 `]`，于是 cur 被设成
+        `autostart`，结算时掉进 failed —— 而 7 条其实全部 `✓ API 新建草稿`
+        真存好了。结果是「done 6 / failed ['Chrome', <真失败那条>」，
+        台账写 failed ⇒ 队列反复重发 ⇒ 远端多出重复草稿。
+        """
+        out = (
+            "cleared stale LOCK\n"
+            "[autostart] Chrome 已启动（Chrome for Testing, --no-sandbox）"
+            "port=9223 profile=C:\\Users\\DELL\\chrome-debug-profile\n"
+            "仅处理指定 7 条\n"
+            "publish 7 篇 → B站草稿箱（每条重试 1 次）\n"
+            "[1/7] augora-ai\n"
+            "  ✓ API 新建草稿 aid=343497《…》正文 1691 字 / 39 段\n"
+            "[2/7] cometly\n"
+            "  ✓ API 新建草稿 aid=343498《…》正文 2300 字 / 42 段\n"
+            "[7/7] wpconvert-ai-convert-ai-sites-to-wordpress\n"
+            "  ✓ API 新建草稿 aid=343503《…》正文 2228 字 / 42 段\n"
+            "完成 7/7\n"
+        )
+        done, failed = REGISTRY["bilibili"].parse_batch(out)
+        self.assertEqual(done, {
+            "augora-ai", "cometly",
+            "wpconvert-ai-convert-ai-sites-to-wordpress"})
+        self.assertEqual(failed, set())
+        self.assertNotIn("autostart", failed)
+        self.assertNotIn("Chrome", failed)
+
 
 class TestReplaceMode(TmpManifest):
     """`run --replace`：改文案后覆盖重存，已 draft_saved 的也要重跑。
@@ -503,6 +535,49 @@ class TestSubprocessEncoding(unittest.TestCase):
         done, failed = REGISTRY["bilibili"].parse_batch(mojibake)
         self.assertEqual(done, set(), "乱码流不该被判成功")
         self.assertEqual(failed, {"mort"}, "会被误标 failed → 下次重发建重复")
+
+
+class TestPublishMultiCli(unittest.TestCase):
+    """publish_multi.py 的 CLI 参数接线回归（2026-10-10 实测三连崩）。
+
+    背景：`retry` 子命令最后复用 `cmd_run`，但子解析器只定义了
+    case/dry/yes/retries —— cmd_run 里引用的 `args.replace`、
+    `args.near` 根本不存在，一跑到就 AttributeError。
+    第二个坑：`cmd_reset` 把 `parse_plats()` 的**列表**直接塞给
+    `Manifest.remove(cid, plat)`（只收单平台字符串做 dict key）
+    → TypeError: unhashable type: 'list'。
+    """
+
+    def _tmp_manifest(self):
+        d = tempfile.mkdtemp(prefix="pmcli_")
+        self.addCleanup(shutil.rmtree, d, ignore_errors=True)
+        return S.Manifest(os.path.join(d, "manifest.json"))
+
+    def test_retry_namespace_covers_cmd_run_needs(self):
+        """retry 的命名空间必须带齐 cmd_run 引用的全部属性。"""
+        import publish_multi as PM
+        from unittest import mock
+        m = self._tmp_manifest()
+        m.mark_failed("kibu", "xhs", "模拟失败", "标题")
+        with mock.patch.object(PM.S, "Manifest", return_value=m):
+            # 旧实现这里崩 AttributeError: 'Namespace' object has no
+            # attribute 'replace'（修完 replace 还会崩 'near'）。
+            rc = PM.main(["retry", "--platforms", "xhs", "--dry"])
+        self.assertEqual(rc, 0)
+
+    def test_reset_accepts_platform_list(self):
+        """--platforms xhs 解析出来是列表，reset 必须逐平台 remove。"""
+        import publish_multi as PM
+        from unittest import mock
+        import types
+        m = self._tmp_manifest()
+        m.mark_building("kibu", "xhs", "标题")
+        args = types.SimpleNamespace(case="kibu", all_platforms=False,
+                                     platforms="xhs")
+        with mock.patch.object(PM.S, "Manifest", return_value=m):
+            rc = PM.cmd_reset(args)   # 旧实现 TypeError: unhashable 'list'
+        self.assertEqual(rc, 0)
+        self.assertEqual(m.state("kibu", "xhs"), "pending")
 
 
 if __name__ == "__main__":

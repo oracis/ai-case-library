@@ -69,17 +69,32 @@ class Bilibili(Adapter):
         加上这层过滤会把已成功的判成失败（实测 test_legacy_title_prefix红）。
         真正的失败信号是 `✗`，或脚本自己打的「失败 N 条：…」。
         失败清单脚本会自己打印「失败 N 条：a b c」，那个更准，优先用。
+
+        ⚠⚠ **「新一条开始」的判定必须是 `[N/M] <cid>` 这一种形状**
+        （2026-10-11 实测踩中）。旧写法 `s.startswith("[") and "]" in s`
+        太松 —— 脚本启动时打的 `[autostart] Chrome 已启动
+        （Chrome for Testing, --no-sandbox）port=9223 profile=…` 也以 `[` 开头、
+        含 `]`，于是在**还没开始处理任何一条**时就被当成「新一条」，
+        cur 被设成 `autostart`，结束时结算 ⇒ **7 条全掉进 failed，且失败
+        列表里多出一个叫 `Chrome` 的假 id**（实测：done 6 条 / failed
+        `['Chrome', 'wpconvert-ai-convert-ai-sites-to-wordpress']`，
+        而 7 条其实全部 `✓ API 新建草稿 aid=…` 真存好了）。
+        ⇒ 台账写 failed ⇒ 队列反复重发 ⇒ 远端多出重复草稿。
+        修法：只认 `[数字/数字]` 这种进度条形状，其它方括号行一律当提示行跳过。
         """
+        import re
+        MARK_RE = re.compile(r"^\[\d+/\d+\]\s+(\S+)")
         done, failed = set(), set()
         cur = None
         ok_flag = False
         for ln in (out or "").splitlines():
             s = ln.strip()
-            if s.startswith("[") and "]" in s:
+            m = MARK_RE.match(s)
+            if m:
                 # 新一条开始：先结算上一条
                 if cur is not None:
                     (done if ok_flag else failed).add(cur)
-                cur = s.split("]", 1)[1].strip().split()[0] if "]" in s else None
+                cur = m.group(1)
                 ok_flag = False
             elif s.startswith("✓") and cur:
                 ok_flag = True

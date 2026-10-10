@@ -371,5 +371,54 @@
     "status": "draft",
     "appmsgid": "100000415",
     "file": "公众号-harperai拆解.html"
+  },
+  "wpconvert-ai-convert-ai-sites-to-wordpress": {
+    "title": "把 AI 建站工具生成的网站，转成 WordPress——一个工程师的生意",
+    "published_at": "2026-10-10 16:10",
+    "status": "draft",
+    "appmsgid": "100000424",
+    "file": "公众号-wpconvert-ai-convert-ai-sites-to-wordpress拆解.html"
+  },
+  "augora-ai": {
+    "title": "Shopify 商家的 Meta 追踪本来就是错的，于是有了这门生意",
+    "published_at": "2026-10-10 16:17",
+    "status": "draft",
+    "appmsgid": "100000428",
+    "file": "公众号-augora-ai拆解.html"
+  },
+  "vectosolve": {
+    "title": "月收 $1,808 但唯一在增长：把 PNG 转成可编辑的 SVG",
+    "published_at": "2026-10-10 16:24",
+    "status": "draft",
+    "appmsgid": "100000432",
+    "file": "公众号-vectosolve拆解.html"
+  },
+  "publbee": {
+    "title": "自助出版的作者愿意为工具付钱——只是撑不起大生意",
+    "published_at": "2026-10-10 16:33",
+    "status": "draft",
+    "appmsgid": "100000436",
+    "file": "公众号-publbee拆解.html"
+  },
+  "podawaa": {
+    "title": "把 LinkedIn 内容发布做成订阅，然后靠平台自己的增长做到月收 $6.6 万",
+    "published_at": "2026-10-10 16:40",
+    "status": "draft",
+    "appmsgid": "100000440",
+    "file": "公众号-podawaa拆解.html"
+  },
+  "vid-ai": {
+    "title": "两年做到累计 $162 万，然后峰值留存掉到 46%",
+    "published_at": "2026-10-10 16:55",
+    "status": "draft",
+    "appmsgid": "100000446",
+    "file": "公众号-vid-ai拆解.html"
+  },
+  "cometly": {
+    "title": "$20 万/月的营销归因生意，但不是一个人做的",
+    "published_at": "2026-10-10 17:01",
+    "status": "draft",
+    "appmsgid": "100000450",
+    "file": "公众号-cometly拆解.html"
   }
 }

@@ -134,7 +134,11 @@ def cmd_reset(args):
     if not cid:
         print("--reset 必须给 --case（不想误清整个库）")
         return 1
-    m.remove(cid, None if args.all_platforms else parse_plats(args.platforms))
+    if args.all_platforms:
+        m.remove(cid)
+    else:
+        for p in parse_plats(args.platforms):
+            m.remove(cid, p)
     print("已清除 %s 的清单记录" % cid)
     return 0
 
@@ -212,9 +216,12 @@ def main(argv=None):
 
     p = _add_plats(sub.add_parser("retry", help="重试失败项"))
     p.add_argument("case", nargs="?")
+    p.add_argument("--near", type=int, default=0, help="最近 N 条，0=全部")
     p.add_argument("--dry", action="store_true")
     p.add_argument("--yes", action="store_true")
     p.add_argument("--retries", type=int, default=2)
+    p.add_argument("--replace", action="store_true",
+                   help="改文案后覆盖重存（已 draft_saved 的也重发）")
     p.set_defaults(fn=cmd_retry)
 
     p = _add_plats(sub.add_parser("reset", help="清除清单记录（强制重发）"))
