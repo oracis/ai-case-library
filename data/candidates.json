@@ -77,7 +77,10 @@
     "verification": "stripe",
     "refreshed_at": "2026-10-10",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-10T02:13:06.386Z"
+    "data_freshness": "2026-10-10T02:13:06.386Z",
+    "segment": "赛道样本",
+    "segment_reason": "体量够（$202,060 MRR / 90% 利润率 / 11 个月收入稳在 $18–22 万 / 峰值留存 93%），证明营销归因这条赛道确实有 $20 万/月体量的生意。但 solo_possible 被官网证伪：9 人团队（2 创始人 + CTO + 2 CSM + AE + 实施专员）且公开扩编engineering/design/go-to-market，Enterprise 配专属 solutions engineer 与 onboarding，明确无免费试用、需预约通话才报价。⇒ 按「赛道样本」写（赛道体量/做法/定价），不按「一个人怎么做」写；质量分 35< 精品线 60，且 replicable_low / solo_playbook 拿不到。",
+    "exclude_from_solo_cases": true
   },
   {
     "id": "private-venture-1",
