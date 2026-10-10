@@ -80,6 +80,14 @@ AI_KEY = os.environ.get("CASE_LIB_AI_KEY", "")
 AI_MODEL = os.environ.get("CASE_LIB_AI_MODEL", "deepseek-chat")
 # 这些base 走本机代理会超时/403，LLM 请求时绕过代理（仅 LLM，不影响其他）
 AI_BASE_NO_PROXY = ("opencode.ai/zen",)
+# 🚨 **截断自动重试**（2026-10-10）。
+# 推理模型把思考 token 也算进 max_tokens，核一条要烧 4000+（思考约 3600），
+# 16000 仍偶发被吃光 —— `publbee`、`vectosolve` 都因此失败过，而同批里
+# 知识面窄的条目一次就过，说明是**模型思考长度波动**、不是条目问题。
+# 所以这属于「可重试失败」，不该让人手动重跑（实测重跑一次就好）。
+AI_MAX_TOKENS = int(os.environ.get("CASE_LIB_AI_MAX_TOKENS") or 16000)
+LLM_TRUNCATE_RETRIES = 2
+LLM_TRUNCATE_STEP = 4000
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/126.0 Safari/537.36")
 
@@ -689,7 +697,41 @@ def fetch_text(url, cap=6000):
 # ---------------------------------------------------------------------------
 # LLM（OpenAI 兼容 /chat/completions）
 # ---------------------------------------------------------------------------
-def llm(messages, temperature=0.2):
+def llm(messages, temperature=0.2, max_tokens=None):
+    """调一次模型。**截断了会自动加大预算重试**（见下方注释）。
+
+    `max_tokens=None` 表示用默认 `AI_MAX_TOKENS`。
+    """
+    last_err = None
+    budget = max_tokens or AI_MAX_TOKENS
+    for attempt in range(LLM_TRUNCATE_RETRIES + 1):
+        try:
+            return _llm_once(messages, temperature, budget)
+        except _Truncated as e:
+            last_err = e
+            # 🚨 截断是**可重试**的失败，不该让人手动重跑（2026-10-10）。
+            # 实测这条坑反复踩：`publbee`、`vectosolve` 两次都因
+            # finish_reason=length 失败，而同一批次里知识面窄的条目
+            # （augora-ai）一次就过 —— 说明是模型思考长度波动，不是条目问题。
+            #
+            # 为什么原来「调大 max_tokens」没根治：推理模型把**思考**
+            # 也算进 max_tokens，16000 仍会被吃光。
+            # 正确解法是让模型**别再想那么久**：显式要求
+            # 直接输出 JSON 决策、压缩思考过程，而不是无限加预算。
+            if attempt >= LLM_TRUNCATE_RETRIES:
+                break
+            grown = AI_MAX_TOKENS + (attempt + 1) * LLM_TRUNCATE_STEP
+            print("   ↻ LLM 输出被截断，自动加预算重试"
+                  "（%d → %d）" % (budget, grown))
+            budget = grown
+    raise RuntimeError(str(last_err))
+
+
+class _Truncated(RuntimeError):
+    """内部信号：回答被 max_tokens 截断（可重试）。"""
+
+
+def _llm_once(messages, temperature, max_tokens):
     body = json.dumps({
         "model": AI_MODEL,
         "messages": messages,
@@ -697,8 +739,8 @@ def llm(messages, temperature=0.2):
         "response_format": {"type": "json_object"},
         # 推理模型（如 deepseek-flash）的思考 token 也计入 max_tokens——
         # 实测核一条要烧 4000+（其中思考约 3600），2000/8000 都会被截断，
-        # 这里放宽到 16000；不够时 finish_reason=length 会给出明确报错。
-        "max_tokens": 16000,
+        # 这里放宽到 AI_MAX_TOKENS；不够时llm() 会自动加重试预算。
+        "max_tokens": max_tokens,
     }).encode("utf-8")
     req = urllib.request.Request(
         AI_BASE + "/chat/completions", data=body,
@@ -752,8 +794,8 @@ def llm(messages, temperature=0.2):
         data = json.loads(resp.read().decode("utf-8"))
     ch = (data.get("choices") or [{}])[0]
     if ch.get("finish_reason") == "length":
-        raise RuntimeError("LLM 回答被 max_tokens 截断（finish_reason=length）"
-                           "——模型思考太长，正文没输出完整 JSON")
+        raise _Truncated("LLM 回答被 max_tokens 截断（finish_reason=length）"
+                         "——模型思考太长，正文没输出完整 JSON")
     return ch["message"]["content"]
 
 

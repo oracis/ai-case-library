@@ -209,6 +209,39 @@ TEXT_ONLY_KEYS = (
     "metric_note",       # 口径说明（"截至 2026-09" 这类日期会误命中）
 )
 
+# 🚨 **不是月收入**的数字字段（2026-10-10 实测补的洞）。
+#
+# `has_numbers()` 回答的是「记录里有没有数字」，这个问法太宽：它会把这三类
+# 数字当成「有生意」，于是零收入条目被送进花钱的深核 ——
+# 实测 8 条（占 deep 队列的 35%）全是这类假阳性：
+#
+#   · all_time  —— **累计**收入。项目死了之后它永远停在历史值上。
+#     clevia 的 all_time=$126、whispercoach 的 all_time=$314，都是
+#     「这个项目一共收过这么多钱」的残值，和「现在还在赚多少」无关。
+#     拿它当月收入，等于把三年前的墓碑当成今天的收入证明。
+#   · visitors  —— 站点**流量**，跟收入没有换算关系（saar=23 个访客）。
+#   · price_point —— 卖方**要价**。这是卖家对标的估值，不是买家付的钱，
+#     和 revenue 差着一个数量级甚至两个。
+#
+# 它们仍然该留在记录里（挂牌信息本身有价值，`has_trade` 另有加分），
+# 但**不能**用来证明「这条有收入、值得花 AI 去核」。
+REVENUE_KEYS = ("mrr", "last_30d_revenue", "arr")
+
+# 看着像数字、实际不是月收入的字段键。
+NON_REVENUE_KEYS = (
+    "all_time",       # 累计收入（死项目也非零）
+    "visitors",       # 流量
+    "price_point",    # 挂牌要价
+    "customers",      # 客户总数（不是本期付费数）
+    "growth",         # 增速（0% 也带数字）
+    "margin",         # 利润率（0% 也带数字）
+    "multiple",       # 倍数
+)
+
+# `trade` 里唯一算收入的键。`price` 是卖方要价、`multiple` 是倍数，
+# 两者都与「买家实际付了多少」差着量级，见 has_numbers() 里的注释。
+TRADE_REVENUE_KEYS = ("revenue", "revenue_last30d", "last_30d_revenue")
+
 # 只从标题抽到的疑似金额。它是个线索，不是数据，也不足以支撑深核 ——
 # 但比什么都没有强：至少知道官网在哪、值不值得点开看。
 SUSPECT_AMOUNT = "疑似金额"
@@ -319,18 +352,54 @@ def has_numbers(rec):
 
     **文本旁证字段要跳过**（TEXT_ONLY_KEYS）。它们说的是「关于数据的事」，
     不是数据本身；扫它们的数字等于把别人的话当成这个项目的收入。
+
+    🚨 **非收入类数字字段要跳过**（NON_REVENUE_KEYS，2026-10-10 补）。
+    这一条最要紧：累计收入 / 流量 / 挂牌要价都带数字，但它们证明不了
+    「这个项目现在还在赚钱」。`all_time` 在项目死掉之后依然非零，
+    用它当月收入会把墓碑当成收入证明 —— 实测 8 条零收入条目因此被
+    判成 deep，白花深核预算。判定细则见该常量注释。
     """
-    for k, v in (rec.get("metrics") or {}).items():
-        if k in TEXT_ONLY_KEYS:
+    m = rec.get("metrics") or {}
+    for k, v in m.items():
+        if k in TEXT_ONLY_KEYS or k in NON_REVENUE_KEYS:
             continue
-        if not isinstance(v, (str, int, float)):
+        if not isinstance(v, (str, int, float)) or isinstance(v, bool):
+            continue
+        # 数值字段必须为正：``mrr: 0`` 照样含数字字符，但零收入不是「有数字」。
+        # TrustMRR 对非订阅制项目 Current MRR 恒为 0，这类记录很常见。
+        if isinstance(v, (int, float)):
+            if v > 0:
+                return True
             continue
         s = str(v)
         if any(p in s for p in NUM_PLACEHOLDERS):
             continue
         if re.search(r"\d", s):
             return True
-    return bool(rec.get("trade"))
+    # 🚨 **挂牌要价不算收入**（2026-10-10 实测补的第二个洞）。
+    # `trade.price` 是卖方开价，不是买家付的钱：`clevia` 的 price=$100,000
+    # 而实际收入是 $0，`saar` 的 price=$1,700 实际收入 $6.99 ——
+    # 差三到四个数量级。只有 `trade.revenue`（挂牌页披露的营收）才是收入。
+    # 它此前让 `return bool(rec.get("trade"))` 把一批零收入条目直接放进深核队列。
+    trade = rec.get("trade") or {}
+    if isinstance(trade, dict):
+        for k in TRADE_REVENUE_KEYS:
+            v = trade.get(k)
+            if isinstance(v, (int, float)) and not isinstance(v, bool) and v > 0:
+                return True
+            if isinstance(v, str) and re.search(r"\d", v):
+                # 字符串金额要归一化后再判零：「$0.00」「0」都是零收入，
+                # 不能因为「含数字字符」就当成有收入。
+                # 🚨 单位必须一起传（2026-10-10 补）：`re.sub(r"[^\d.]", "", v)`
+                # 会把 `$10K` 洗成 `10`，K 倍率跟着字母一起被扔掉 ——
+                # 判「是否 >0」方向没错，但拿到的数差 1000 倍。
+                # 只取首字母当单位：`10K USD` → `k`；无字母的 `$0.00` → ``。
+                munit = re.search(r"[a-zA-Z]", v)
+                got = _amount(re.sub(r"[^\d.]", "", v),
+                              munit.group(0) if munit else "")
+                if got:
+                    return True
+    return False
 
 
 def _amount(num, unit):
@@ -369,6 +438,20 @@ def revenue_of(rec):
         if got is not None and mm.group(3).upper() == "ARR":
             got /= 12.0
         return got
+
+    # 挂牌页披露的营收（`trade.revenue`）是可信的收入口径 ——
+    # 它由 TrustMRR 从支付网关侧抄下来，不是卖方自报。
+    # `trade.price` 是要价、`trade.multiple` 是倍数，都不算收入，故不取。
+    trade = rec.get("trade") or {}
+    if isinstance(trade, dict):
+        for k in TRADE_REVENUE_KEYS:
+            v = trade.get(k)
+            if isinstance(v, (int, float)) and not isinstance(v, bool) and v > 0:
+                return float(v)
+            if isinstance(v, str):
+                got = _amount(re.sub(r"[^\d.]", "", v), "")
+                if got:
+                    return got
     return None
 
 

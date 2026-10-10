@@ -749,13 +749,35 @@ def test_infer_source():
     # 「凡是带 TrustMRR 来源的，source_kind 都为 verified」——池子被发布空了
     # （2026-09-20 把最后 5 条发走之后就是空的）时它依然成立，
     # 写成 `tr and all(...)` 会让空池子判失败，那是把「没数据」误报成「数据错了」。
+    #
+    # 🚨 2026-10-10 例外：榜单条目不等于项目页。
+    # `private-venture-1` 的 URL 是 `trustmrr.com/startup/private-venture`，
+    # 但它是**市场挂牌条目**（`models:["交易市场"]`、名字带「榜单条目 1」、
+    # note 明写「需先确认两条 Private Venture 是否同一实体」）——
+    # 实体都没确认，把可信度提到「支付网关 API 直读」是失实的，
+    # 保持 `discovery` 才是对的。它的 `verification` 也是 `partial` 而非 stripe。
+    #
+    # 所以判据要按「**是不是项目页**」分，不能只看 URL 里有没有 trustmrr.com。
+    # 之前这条断言没报错，纯粹是因为该条 `source_url` 是 None、压根没进这个集合；
+    # backfill 顺手把 URL 补上后它才暴露 —— 说明「用 None 躲过断言」也是假绿的一种。
     with open(os.path.join(REPO, "data", "candidates.json"), encoding="utf-8") as f:
         cands = json.load(f)
-    tr = [c for c in cands if "trustmrr.com" in (c.get("source_url") or "")]
+    LISTING = {"private-venture-1"}          # 榜单/交易条目，非项目页
+    tr = [c for c in cands
+          if "trustmrr.com" in (c.get("source_url") or "")
+          and c.get("id") not in LISTING]
     bad_tr = [c.get("id") for c in tr if c.get("source_kind") != "verified"]
-    chk("候选池里带 TrustMRR 来源的都是 verified",
+    chk("候选池里带 TrustMRR 项目页的都是 verified",
         not bad_tr,
         "共 %d 条，异常 %s" % (len(tr), bad_tr[:5]))
+    # 榜单条目必须**显式**留在 discovery/partial，不能被顺手升成 verified
+    for c in cands:
+        if c.get("id") in LISTING:
+            chk("榜单条目 %s 保持 discovery（实体未确认，不升verified）" % c.get("id"),
+                c.get("source_kind") == "discovery"
+                and c.get("verification") != "stripe",
+                "source_kind=%s verification=%s"
+                % (c.get("source_kind"), c.get("verification")))
 
     # 案例侧不加同款断言：source_kind（verified/discovery）是**候选池专有**字段，
     # 描述「这条是从哪条采集流水线来的」。案例用的是另一套 ——
@@ -837,6 +859,7 @@ def main():
     section("sources.json 配置一致性", test_sources_config)
     section("来源推断与存量回填", test_infer_source)
     section("TrustMRR discovery 通道", test_trustmrr_discovery)
+    section("save_json 保留换行格式", test_save_json_preserves_newline)
 
     print("=" * 62)
     if fails:
@@ -847,6 +870,74 @@ def main():
         print("  结果：全部通过（%d 项）" % passed)
     print("=" * 62)
     return 1 if fails else 0
+
+
+def test_save_json_preserves_newline():
+    """🚨 回归钉：写 JSON 必须保留原文件换行格式（红线 23，2026-10-10 实测）。
+
+    这条坑真实发生过：`save_json()` 用 `open(path, "w")`，
+    Windows 文本模式会把 json 的 `\\n` 翻译成 `\\r\\n`。
+    而 `data/` 下两种格式**并存**：
+        inbox.json / cases.json              = CRLF
+        candidates.json / inbox_archive.json = LF
+
+    实测后果：跑一次 harvest 就把 623 条、13286 行的 `inbox_archive.json`
+    从 LF 悄悄改成 CRLF —— **数据一个字没变**，但 diff 全红，
+    极易误判成「采集把队列搞乱了」，白排查半小时。
+
+    这类故障不会报错、不会崩，只会让版本历史被噪音淹没，
+    所以必须用测试钉死。
+    """
+    print("[13] save_json 保留换行格式")
+    tmp = tempfile.mkdtemp(prefix="harvest_nl_")
+    orig_dir = H.DATA_DIR
+    try:
+        H.DATA_DIR = tmp
+        payload = [{"id": "a", "name": "x"}, {"id": "b", "name": "y"}]
+        body = json.dumps(payload, ensure_ascii=False, indent=2)
+
+        # ① 预置 LF 文件 → 写回必须还是 LF（不能被翻译成 CRLF）
+        for name in ("lf_file", "cases"):
+            p = os.path.join(tmp, name + ".json")
+            with open(p, "w", encoding="utf-8", newline="\n") as f:
+                f.write(body)
+            H.save_json(name, payload)
+            raw = open(p, "rb").read()
+            chk("%s 保持 LF" % name, b"\r\n" not in raw,
+                "CRLF=%d" % raw.count(b"\r\n"))
+
+        # ② 预置 CRLF 文件 → 写回必须还是 CRLF（不能被抹成 LF）
+        for name in ("crlf_file", "inbox"):
+            p = os.path.join(tmp, name + ".json")
+            with open(p, "w", encoding="utf-8", newline="\r\n") as f:
+                f.write(body)
+            H.save_json(name, payload)
+            raw = open(p, "rb").read()
+            chk("%s 保持 CRLF" % name, raw.count(b"\r\n") == raw.count(b"\n"),
+                "CRLF=%d 总LF=%d" % (raw.count(b"\r\n"), raw.count(b"\n")))
+
+        # ③ 内容必须与 json 语义一致（换行修复不能改数据）
+        p = os.path.join(tmp, "lf_file.json")
+        chk("内容无损", json.loads(open(p, encoding="utf-8").read()) == payload)
+
+        # ④ 新建文件（不存在）不应报错，默认 LF
+        H.save_json("brand_new", payload)
+        p = os.path.join(tmp, "brand_new.json")
+        chk("新建文件用 LF", os.path.exists(p)
+            and b"\r\n" not in open(p, "rb").read())
+
+        # ⑤ detect_newline 判据本身
+        chk("detect: 不存在→默认 LF",
+            H.detect_newline(os.path.join(tmp, "nope.json")) == "\n")
+        chk("detect: CRLF 文件判 CRLF",
+            H.detect_newline(os.path.join(tmp, "crlf_file.json")) == "\r\n")
+        chk("detect: LF 文件判 LF",
+            H.detect_newline(os.path.join(tmp, "lf_file.json")) == "\n")
+    finally:
+        H.DATA_DIR = orig_dir
+        import shutil
+        shutil.rmtree(tmp, ignore_errors=True)
+    print()
 
 
 if __name__ == "__main__":

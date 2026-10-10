@@ -55,11 +55,44 @@ def load_json(name, default=None):
 
 
 def save_json(name, payload):
+    """写 data/<name>.json。
+
+    🚨 **必须保留原文件的换行格式**（红线 23，2026-10-10 实测踩到）。
+    `open(path, "w")` 在 Windows 上是文本模式，会把 json 里的 `\n`
+    翻译成 `\r\n` —— 而`data/` 下两种格式**并存**：
+        inbox.json / cases.json          = CRLF
+        candidates.json / inbox_archive.json = LF
+    实测后果：跑一次 harvest 就把 623 条的 `inbox_archive.json`
+    从 LF 悄悄改成 CRLF，13286 行全变、diff 全红，但**数据一个字没变**
+    ⇒ 极易误判成「采集把队列搞乱了」，白排查半小时。
+
+    所以先探原文件字节形态（不存在时按 LF 新建），再用对应 `newline`
+    写。`newline=""` 会让 json 的 `\n` 原样落盘，不做任何翻译。
+    """
     path = os.path.join(DATA_DIR, name + ".json")
+    nl = detect_newline(path)
     tmp = path + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
+    with open(tmp, "w", encoding="utf-8", newline=nl) as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
     os.replace(tmp, path)
+
+
+def detect_newline(path, default="\n"):
+    """读文件头几百字节判断换行风格；文件不存在/没线索时返回 default。
+
+    只看开头几百字节就够：JSON 前几十行必然有换行，不会碰上
+    「整个文件挤在一行」这种极端情况；而读全文在大文件上纯属浪费。
+    """
+    try:
+        with open(path, "rb") as f:
+            head = f.read(4096)
+    except OSError:
+        return default
+    if b"\r\n" in head:
+        return "\r\n"
+    if b"\n" in head:
+        return "\n"
+    return default
 
 
 def http_json(url, timeout=25, headers=None, data=None):

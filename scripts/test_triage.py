@@ -99,7 +99,99 @@ class Basics(unittest.TestCase):
         self.assertFalse(T.has_numbers(rec(metrics={"headline": "具体数字待补"})))
         self.assertTrue(T.has_numbers(rec(metrics={"headline": "收入 $5K / 月"})))
         self.assertTrue(T.has_numbers(rec(metrics={"mrr": 1200})))
-        self.assertTrue(T.has_numbers(rec(trade={"price": "$10K"})))
+        self.assertTrue(T.has_numbers(rec(trade={"revenue": "$10K"})))
+
+    def test_挂牌要价不算收入(self):
+        """🚨 `trade.price` 是卖方开价，不是买家付的钱（2026-10-10 实测）。
+
+        这一条曾经被反着断言（旧测试写的是「只给 price 也算有数字」）。
+        真实数据里它把8 条零收入条目直接推进了深核队列：
+
+            clevia  price=$100,000  实际收入 $0
+            saar    price=$1,700    实际收入 $6.99
+
+        要价与实收差三到四个数量级，用它证明「有生意」等于什么都没证明。
+        只有 `trade.revenue`（支付网关侧抄下来的挂牌页营收）才算。
+        """
+        # 只有要价 / 只有倍数 —— 都不算「有收入」
+        self.assertFalse(T.has_numbers(rec(trade={"price": "$10K"})))
+        self.assertFalse(T.has_numbers(rec(trade={"price": "$100,000", "multiple": "4.2x"})))
+        self.assertFalse(T.has_numbers(rec(trade={"price": "$1,700", "revenue": None})))
+        # 挂牌页披露了营收 —— 算
+        self.assertTrue(T.has_numbers(rec(trade={"price": "$1.2M", "revenue": "$63,587"})))
+        # 营收是 0 也不算
+        self.assertFalse(T.has_numbers(rec(trade={"price": "$100,000", "revenue": "$0.00"})))
+
+    def test_K倍率不被字母吃掉(self):
+        """🚨 `$10K` 归一化时字母必须留给单位解析（2026-10-10 补）。
+
+        `re.sub(r"[^\\d.]", "", "$10K")` 得到 `"10"` —— K 倍率跟着字母
+        一起被扔掉，量级差 1000 倍。判「是否 >0」方向仍对，但一旦有人
+        复用这个解析出来的数做展示/比较，就是差三个数量级的假数。
+        """
+        # 直接验解析函数，别只验布尔
+        self.assertEqual(T._amount("10", "k"), 10000.0)
+        self.assertEqual(T._amount("1.2", "m"), 1200000.0)
+        # 走 has_numbers 这条真实路径：$10K 必须仍被认成有收入
+        self.assertTrue(T.has_numbers(rec(trade={"price": "$1.2M", "revenue": "$10K"})))
+        # $0K / $0.00 依然是零
+        self.assertFalse(T.has_numbers(rec(trade={"price": "$1M", "revenue": "$0K"})))
+        self.assertFalse(T.has_numbers(rec(trade={"price": "$1M", "revenue": "$0.00"})))
+
+    def test_非收入类数字字段不算收入(self):
+        """🚨 累计收入 / 流量 / 要价都带数字，但证明不了「现在还在赚」（2026-10-10）。
+
+        `all_time` 最要命：项目死掉之后它永远停在历史值上。
+        clevia 的 all_time=$126、whispercoach 的 all_time=$314 都是残值，
+        拿它当月收入等于把墓碑当成收入证明。
+        """
+        # 累计收入不是月收入
+        self.assertFalse(T.has_numbers(rec(metrics={
+            "headline": "TrustMRR 收录（收入未公开）", "all_time": 126.34})))
+        self.assertFalse(T.has_numbers(rec(metrics={
+            "headline": "TrustMRR 收录（收入未公开）", "all_time": 314, "growth": "-100.0%（近 30 天）"})))
+        # 流量不是收入
+        self.assertFalse(T.has_numbers(rec(metrics={
+            "headline": "TrustMRR 收录（收入未公开）", "visitors": 23})))
+        # 数字型零收入同样不算（mrr:0 含数字字符，但不是「有数字」）
+        self.assertFalse(T.has_numbers(rec(metrics={
+            "headline": "TrustMRR 收录（收入未公开）", "mrr": 0, "customers": 0})))
+        # 但它们仍在记录里，不影响真数字字段被认出
+        self.assertTrue(T.has_numbers(rec(metrics={
+            "headline": "未获取", "all_time": 126.34, "mrr": 1200})))
+        # 清单本身是规则的一部分，删一个就等于放宽一类误判
+        self.assertEqual(set(T.NON_REVENUE_KEYS),
+                         {"all_time", "visitors", "price_point", "customers",
+                          "growth", "margin", "multiple"})
+
+    def test_零收入条目不进深核队列(self):
+        """回归钉：8 条零收入条目曾占 deep 队列的 35%，纯属白花深核预算。
+
+        数据取自data/inbox.json 真实记录（TrustMRR 收录但收入未公开）。
+        """
+        for name, metrics in [
+            ("clevia", {"headline": "TrustMRR 收录（收入未公开）", "all_time": 126.34,
+                        "growth": "+0.0%（近 30 天）", "price_point": "$100,000", "margin": "0%"}),
+            ("saar", {"headline": "TrustMRR 收录（收入未公开）", "visitors": 23,
+                      "price_point": "$1,700", "margin": "0%"}),
+            ("pman-ai", {"headline": "TrustMRR 收录（收入未公开）",
+                         "price_point": "$9,000", "margin": "75%"}),
+        ]:
+            r = T.score_record(rec(id=name, name=name, harvest_source="trustmrr",
+                                   source_kind="verified",
+                                   metrics=metrics,
+                                   trade={"price": metrics.get("price_point"),
+                                          "multiple": None, "revenue": None}),
+                               "inbox")
+            self.assertNotEqual(r["grade"], "deep",
+                                "%s 收入未公开却进了深核队列" % name)
+
+    def test_交易页营收计入月收入(self):
+        """`trade.revenue` 是支付网关侧抄下来的可信口径，能当月收入判量级。"""
+        self.assertEqual(T.revenue_of(rec(trade={"price": "$1.2M", "revenue": "$63,587"})),
+                         63587.0)
+        # 要价不能被当成月收入（差量级）
+        self.assertIsNone(T.revenue_of(rec(trade={"price": "$100,000", "multiple": "4.2x"})))
 
     def test_文本旁证不算数字(self):
         """**「关于数据的事」不是数据本身。**
