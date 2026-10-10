@@ -221,6 +221,70 @@ class TestTitle(unittest.TestCase):
         self.assertLessEqual(len(t), tp.TITLE_MAX)
 
 
+class TestNoRawMarkdown(unittest.TestCase):
+    """🚨 全库级：裸 Markdown 标记不许进案例正文（2026-10-11 事故）。
+
+    这条坑真实发生过：给7 条新候选写内容包时，习惯性用了
+    `**加粗**` 来强调关键数字。内容包本身校验全绿
+    （`contentpack_ready --check` 只查条数与字数），
+    promote 也不管这个 ⇒ `**` 原样进了 cases.json，
+    又原样渲进案例页，读者看到的是「这是**大公司样本**」这样的字面星号。
+
+    渲染器**不解析** Markdown（`prerender.py` 里没有 bold/em 的处理，
+    它只做 HTML 转义），所以星号不会消失，只会原样显示。
+    既有 41 条案例因此全都没有 `**` —— 但那是**约定**，没有任何机制拦着，
+    所以下一个写内容包的人一定会再犯。
+
+    这条断言把它变成机制：全库任何一条案例的正文/判词/玩法里
+    出现 `**`，测试就红。
+    """
+
+    FIELDS_TEXT = ("what_it_does", "verdict", "how_it_makes_money")
+    FIELDS_LIST = ("why_it_works", "playbook", "signals")
+
+    def test_no_case_field_contains_bold_marker(self):
+        cases = tp.load_cases()
+        bad = []
+        for c in cases:
+            for f in self.FIELDS_TEXT:
+                if "**" in (c.get(f) or ""):
+                    bad.append("%s.%s" % (c["id"], f))
+            for f in self.FIELDS_LIST:
+                for i, s in enumerate(c.get(f) or []):
+                    if "**" in (s or ""):
+                        bad.append("%s.%s[%d]" % (c["id"], f, i))
+        self.assertEqual(bad, [],
+                         "这些字段有裸 Markdown 加粗标记，渲染器不解析会原样显示：%s"
+                         % bad[:8])
+
+    def test_no_metric_note_contains_bold_marker(self):
+        """metric_note 也会显示在案例卡片上，同样不许带星号。"""
+        bad = [c["id"] for c in tp.load_cases()
+               if "**" in ((c.get("metrics") or {}).get("metric_note") or "")]
+        self.assertEqual(bad, [], "metric_note 带 **：%s" % bad[:8])
+
+    def test_content_packs_have_no_bold_marker(self):
+        """源头拦：内容包本身就不该写 `**`（写都别写，别指望下游过滤）。"""
+        try:
+            import contentpack_ready as CP
+        except ImportError:
+            self.skipTest("contentpack_ready 不可导入")
+        bad = []
+        for cid, pack in CP.PACKS.items():
+            for f in ("what_it_does", "verdict", "how_it_makes_money",
+                      "metric_note"):
+                v = (pack.get(f) or {}) if f == "metric_note" else pack.get(f)
+                if isinstance(v, dict):
+                    v = v.get("metric_note") or ""
+                if "**" in (v or ""):
+                    bad.append("%s.%s" % (cid, f))
+            for f in self.FIELDS_LIST:
+                for i, s in enumerate(pack.get(f) or []):
+                    if "**" in (s or ""):
+                        bad.append("%s.%s[%d]" % (cid, f, i))
+        self.assertEqual(bad, [], "内容包里有 **：%s" % bad[:8])
+
+
 class TestBuild(unittest.TestCase):
     def test_build_article_offline(self):
         c = {"id": "pieter-levels", "name": "Pieter Levels 的产品矩阵",

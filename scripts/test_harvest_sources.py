@@ -860,6 +860,7 @@ def main():
     section("来源推断与存量回填", test_infer_source)
     section("TrustMRR discovery 通道", test_trustmrr_discovery)
     section("save_json 保留换行格式", test_save_json_preserves_newline)
+    section("category_cn 英文分类归一", test_category_cn_normalizes_english)
 
     print("=" * 62)
     if fails:
@@ -870,6 +871,65 @@ def main():
         print("  结果：全部通过（%d 项）" % passed)
     print("=" * 62)
     return 1 if fails else 0
+
+
+def test_category_cn_normalizes_english():
+    """🚨 回归钉：TrustMRR 的英文category 必须在采集入口归一到中文分类。
+
+    这条坑真实发生过：2026-10-11 晋升 7 条后，全库 48 条案例里出现
+    8 个英文分类（Artificial Intelligence / SaaS / Design Tools /
+    Content Creation / Social Media / Entertainment / Real Estate），
+    而这个库自己的分类体系一直是中文的（AI 工具 / 垂直行业 SaaS /
+    创作者经济…）。
+
+    后果不是「不好看」，而是**同一个概念被劈成两个分类**：
+    分类统计被劈开、封面风格表要专门给英文名补一套键、
+    按分类做的筛选与统计会漏掉一半案例。
+
+    与country_cn 同一层解决：落进库里的必须是本库的分类。
+    """
+    print("[14] category_cn 把英文分类归一到本库体系")
+    M = {
+        "Artificial Intelligence": "AI 工具",
+        "AI": "AI 工具",
+        "SaaS": "垂直行业 SaaS",
+        "Design Tools": "创作者经济",
+        "Content Creation": "创作者经济",
+        "Social Media": "创作者经济",
+        "Video": "创作者经济",
+        "Music": "创作者经济",
+        "Marketing Tools": "营销工具",
+        "Developer Tools": "开发者工具",
+        "E-commerce": "电商",
+        "Finance": "垂直行业 SaaS",
+        "Mobile App": "移动应用",
+        "Customer Support": "客户服务",
+    }
+    for raw, want in sorted(M.items()):
+        chk("category_cn(%r) == %r" % (raw, want), H.category_cn(raw) == want)
+
+    # 大小写与空白不敏感（TrustMRR 拼法不保证）
+    chk("大小写不敏感",
+        H.category_cn("artificial intelligence") == "AI 工具")
+    chk("去首尾空白", H.category_cn("  SaaS  ") == "垂直行业 SaaS")
+
+    # 🚨 反向：认不出来要**原样留着**，不能硬凑。
+    # 硬凑会把「确实没有合适分类」伪装成「已归类」，那比英文名更坏。
+    chk("认不出来原样留着", H.category_cn("Weird New Thing") == "Weird New Thing")
+    chk("空值给空串", H.category_cn("") == "" and H.category_cn(None) == "")
+
+    # 🚨 归一后的值必须**已在封面风格表里**登记，否则 styles 拿不到
+    # → 落进 DEFAULT_STYLE，风格不统一。这是这次事故的真实判据。
+    try:
+        import agnes_cover as A
+    except ImportError:
+        A = None
+    if A is not None:
+        unstyled = sorted({H.category_cn(k) for k in M}
+                          - set(A.CATEGORY_STYLE) - set(A.CATEGORY_THEME))
+        chk("归一后的分类都已在封面风格表登记：%s" % (unstyled or "全部命中"),
+            not unstyled)
+    print()
 
 
 def test_save_json_preserves_newline():

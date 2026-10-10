@@ -428,6 +428,63 @@ def country_cn(code):
     return COUNTRY_CN.get(c, c)
 
 
+# TrustMRR 的 category 是英文（Artificial Intelligence / Design Tools / SaaS…），
+# 而这个库自己的分类体系一直是中文的（AI 工具 / 开发者工具 / 交易市场…）。
+# 两者原先直接混在 cases.json 里，于是同一个概念有两个分类名，
+# 分类统计被劈成两半，封面风格表还要专门给英文名补一套键。
+#
+# 这里在**采集入口**归一化，和 country_cn 同一层：源站给什么不重要，
+# 落进库里的必须是本库的分类。认不出来的原样留着 —— 别硬凑，
+# 硬凑会把「确实没有合适分类」的情况伪装成「已归类」。
+CATEGORY_CN = {
+    "artificial intelligence": "AI 工具",
+    "ai": "AI 工具",
+    "ai tools": "AI 工具",
+    "saas": "垂直行业 SaaS",
+    "business": "企业服务",
+    "enterprise": "企业服务",
+    "marketing": "营销工具",
+    "marketing tools": "营销工具",
+    "sales": "企业服务",
+    "developer tools": "开发者工具",
+    "development": "开发者工具",
+    "productivity": "企业服务",
+    "design tools": "创作者经济",
+    "design": "创作者经济",
+    "content creation": "创作者经济",
+    "content": "创作者经济",
+    "social media": "创作者经济",
+    "social": "创作者经济",
+    "video": "创作者经济",
+    "audio": "创作者经济",
+    "music": "创作者经济",
+    "marketplace": "交易市场",
+    "ecommerce": "电商",
+    "e-commerce": "电商",
+    "retail": "电商",
+    "education": "垂直行业 SaaS",
+    "health": "垂直行业 SaaS",
+    "healthcare": "垂直行业 SaaS",
+    "finance": "垂直行业 SaaS",
+    "fintech": "垂直行业 SaaS",
+    "legal": "垂直行业 SaaS",
+    "real estate": "Real Estate",
+    "entertainment": "Entertainment",
+    "mobile app": "移动应用",
+    "mobile apps": "移动应用",
+    "customer support": "客户服务",
+    "customer success": "客户服务",
+}
+
+
+def category_cn(raw):
+    """把 TrustMRR 的英文分类归一到本库的中文分类；认不出来就原样留着。"""
+    c = (raw or "").strip()
+    if not c:
+        return ""
+    return CATEGORY_CN.get(c.lower(), c)
+
+
 def _money_cell(n):
     """把 API 里的裸数字格式化成阅读用字符串，给 metrics 兜底显示。"""
     try:
@@ -467,7 +524,7 @@ def _unwrap_api_item(it):
     last30 = rev.get("last30Days") or 0
     total = rev.get("total") or 0
     rank = it.get("rank")
-    category = it.get("category") or ""
+    category = category_cn(it.get("category"))
     country = country_cn(it.get("country"))
     stealth = bool(it.get("stealthMode"))
     on_sale = bool(it.get("onSale"))

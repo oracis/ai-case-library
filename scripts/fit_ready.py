@@ -127,6 +127,59 @@ REPLICABILITY = {
     # 获客全靠 App Store / Google Play 自然量 + 社区分发，是四维里最轻的；
     # 启动只有一个开发者账号；内容是现成经文，边际成本为零。时机不早不晚。
     "quran-unlock": {"tech": 2, "distribution": 2, "capital": 1, "timing": 2},
+
+    # ---- 2026-10-11 补：Stripe 深核通过的 7 条 ----
+    #
+    # 这批的共同点：数字全部由支付网关 API 直读，不靠自报截图，
+    # 但 `mrr` 跨度从 $1,521 到 $202,060，**四维评分不能看体量**，
+    # 要看「一个人能不能接住这个生意」—— 有的体量大恰恰因为它需要团队。
+
+    # 营销归因（cometly）：技术不难（接各广告平台 API + 多表归因），
+    # 真正吃人的是distribution —— 它靠 2 位创始人 + 2 CSM + AE + 实施专员
+    # 共 9 人做客户成功，Enterprise 还要专属 solutions engineer。
+    # 🚨 四维里 capital 判 5 不是因为要烧钱，而是因为「要养一支交付团队」
+    # 本身就是最大的启动成本。timing 判 2：投放规模越大归因越痛，长期存在。
+    # ⇒ 这一条是「赛道成立但个人做不了」的典型，四维必须把交付成本算进去。
+    "cometly": {"tech": 3, "distribution": 5, "capital": 5, "timing": 2},
+
+    # AI 短视频（vid-ai）：管线全是现成能力拼装（脚本/TTS/素材/合成），
+    # 技术不是门槛；获客靠内容平台本身，粘在平台生态里；
+    # 启动只需模型调用费；但窗口判5 —— 峰值留存已腰到46%，
+    # 且平台自带 AI 剪辑就会关窗，这位置的时间价值在快速归零。
+    "vid-ai": {"tech": 3, "distribution": 4, "capital": 2, "timing": 5},
+
+    # LinkedIn 内容增长（podawaa）：技术是常规SaaS；获客要打进
+    # 「用 LinkedIn 做获客」这个分散人群，是最重的一维；
+    # 启动轻（无付金/资质）；timing 判 5 —— 平台红利在退，
+    # 最近完整月已 -15.2%，且平台随时会把分析做进原生。
+    "podawaa": {"tech": 3, "distribution": 5, "capital": 2, "timing": 5},
+
+    # KDP 作者工具（publbee）：接关键词数据 + 调大模型，技术轻；
+    # 获客全靠 SEO 打「kindle 出版怎么做」这类长尾词，不用投广告；
+    # 启动只有模型费与少量带宽；时机判 4 —— 这个位置已经有一批同类工具，
+    # 窗口不算早也不算晚，但付费人群的总量本身就有限。
+    "publbee": {"tech": 2, "distribution": 3, "capital": 2, "timing": 4},
+
+    # 位图转 SVG（vectosolve）：纯计算 + 格式转换，技术门槛最低；
+    # 获客靠搜索长尾（单价 $7 的东西只能靠自然流量）；
+    # 启动几乎零成本（计算/存储便宜）；timing 判 2：需求一直在，
+    # 但也永远不会变大 —— 天花板等于流量天花板。
+    "vectosolve": {"tech": 2, "distribution": 3, "capital": 1, "timing": 2},
+
+    # Shopify 服务端追踪（augora-ai）：技术是像素/转化/去重的工程活，
+    # 不难但琐碎；获客靠跨境电商社群与「ROAS 算不准」这个搜索入口；
+    # 启动轻；timing 判 3 —— iOS 隐私政策一直在收紧，
+    # 需求被政策持续喂养，但政策哪天松了这个优势就没了。
+    "augora-ai": {"tech": 3, "distribution": 3, "capital": 2, "timing": 3},
+
+    # AI 建站转 WordPress（wpconvert）：**四维里最轻的一条**——
+    # 它是纯工程转换：解析 → 重写 → 部署，一个人能接住（页面标注团队 1 人，
+    # 也是这批唯一拿到 `solo_possible` 的）；获客靠「AI 建的站搬不走」
+    # 这个明确痛点；启动只有服务器。
+    # ⚠️ timing 判 5：需求正绑在上游 AI 建站工具身上 ——
+    # v0 / Replicate 自己把导出做好，需求就被上游吃掉。
+    "wpconvert-ai-convert-ai-sites-to-wordpress": {"tech": 2, "distribution": 2,
+                                                 "capital": 1, "timing": 5},
 }
 
 
@@ -222,10 +275,22 @@ def cmd_apply(dry_run=False):
         return
 
     if touched:
-        with open(CASES_PATH, "w", encoding="utf-8") as f:
-            json.dump(cases, f, ensure_ascii=False, indent=2)
-            f.write("\n")
-        print("\n已写入 data/cases.json（%s）" % today)
+        # ⚠️ 原格式保护（2026-10-11 补）。实测 data/cases.json 是
+        # **CRLF + indent=2 + 无末尾换行**，而这里原来写的是
+        # 默认文本模式 + LF + indent=2 + 末尾补 \n
+        # ⇒ Windows 下整个 cases.json 的 diff 全红，而数据只多了几个字段。
+        # 同一个坑 harvest.save_json() 犯过、contentpack_ready.py 也犯过。
+        # ⚠️ cases.json 有四万行，格式噪音会把真实改动彻底淹没 ——
+        # 下次真出问题时就分不清是数据变了还是换行变了。
+        raw = open(CASES_PATH, "rb").read()
+        nl = "\r\n" if b"\r\n" in raw[:8192] else "\n"
+        tail_nl = raw.endswith(b"\n")
+        body = json.dumps(cases, ensure_ascii=False, indent=2)
+        text = (body + ("\n" if tail_nl else "")).replace("\n", nl)
+        with open(CASES_PATH, "w", encoding="utf-8", newline="") as f:
+            f.write(text)
+        print("\n已写入 data/cases.json（%s，格式保持 %s /末尾换行=%s）"
+              % (today, "CRLF" if nl == "\r\n" else "LF", tail_nl))
 
     print("\n接着跑这两步把派生分算出来：")
     print("  python scripts/score_solo_fit.py")

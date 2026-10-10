@@ -311,6 +311,36 @@ def slugify(text, taken=None):
     return "%s-%d" % (base, i)
 
 
+def _carry_segment(hit):
+    """把候选上的「赛道标记」原样搬进案例。
+
+    为什么不逐个 pick 而要用白名单前缀：`segment` / `segment_reason` /
+    `exclude_from_solo_cases` 是 2026-10-10 给 cometly 加的独立标记，
+    语义是「可写，但换口径」—— 与 `hold`（不晋升不写稿）**不是一回事**，
+    混用会误伤 cometly。
+
+    ⚠️ 白名单而不是 `for k in hit: 全部搬`：promote 上游是 HTTP 请求体，
+    无条件透传等于让任何调用方往对外案例页注入任意字段。
+    只放行 `segment` 开头的键 + `exclude_from_solo_cases`，
+    以后加同类标记只需往这个列表里加一项。
+    """
+    allow_prefix = "segment"
+    allow_exact = {"exclude_from_solo_cases"}
+    out = {}
+    for k, v in (hit or {}).items():
+        if not isinstance(k, str):
+            continue
+        if not (k.startswith(allow_prefix) or k in allow_exact):
+            continue
+        # 空值与 False 一律不搬 —— 对这些标记来说「字段缺失」和「显式 false」
+        # 是同一个意思（没被排除）。搬过去只会在 cases.json 里造出一堆
+        # 语义重复的噪音字段，反倒让人分不清「没标」和「标了不排除」。
+        if v in (None, "", [], {}) or v is False:
+            continue
+        out[k] = v
+    return out
+
+
 def apply_human_read(case, cfg, draft=None):
     """把「人工核读」的状态写到案例上。
 
@@ -1058,6 +1088,14 @@ class Handler(BaseHTTPRequestHandler):
                     "verified_at": now,
                     "updated_at": now,
                     "tags": hit.get("tags", []),
+                    # 赛道标记必须跟着晋升一起搬（2026-10-11 补）。
+                    # 上面的 new_case 是**白名单**构造：候选上没列出的字段一律不带。
+                    # 而 `segment` / `exclude_from_solo_cases` 全库只有这里读 ——
+                    # 不显式透传，cometly 会在 promote 的那一刻丢掉「赛道样本」身份，
+                    # 以「一个人怎么做」的口径进 cases.json。
+                    # ⚠️ 它恰恰是 solo_possible 被官网证伪后唯一的挡箭牌：
+                    # cometly 是 9 人团队，丢掉标记 = 把团队型项目写成个人案例。
+                    **_carry_segment(hit),
                     # 三档（政策见 verify_rules.default_case_tier）：一手来源进精品，
                     # 第三方来源进实核，其余进备选。实核和备选都不是废品 ——
                     # 它们是「先入库留着，条件补齐了随时拔档」。

@@ -382,6 +382,86 @@ SCORES = {
              "且版权授权链在国内更复杂（词曲版权与录音版权分属不同权利人，"
              "商用授权要一层层签），这是海外没有的成本。",
     ),
+
+    # ===== 2026-10-11 补：Stripe 深核通过的 7 条 =====
+    # 六维口径与老案例一致：demand/payment/compliance/acquisition/
+    # localization/competition，1 = 最差，5 = 最好；competition 分数越高
+    # 意思是「竞争越友好/越空」，不是「竞争越激烈」。
+
+    "cometly": dict(
+        demand=4, payment=4, compliance=2, acquisition=3, localization=3, competition=1,
+        blocker="企业销售与数据合规",
+        note="需求真实且付费意愿强——国内 SaaS 公司在信息流与私域上花的钱不比美国少，"
+             "「投放有没有回报」是真痛点。支付一维是顺的：企业级订阅、国内发票与"
+             "对公结算都比美国创业公司走得更顺。"
+             "难在两处：①归因数据要跨平台打通，个保法与《数据出境》对"
+             "跨境广告数据的约束很紧；②它的打法是大客户销售 + 实施，"
+             "国内这一格站着神策、 GrowingIO、易观等，"
+             "而且客户要私有化部署、要对接自己的数仓 —— "
+             "等于把产品重做一遍。学习价值在「切入角度」，不在照搬。",
+    ),
+    "vid-ai": dict(
+        demand=4, payment=4, compliance=3, acquisition=3, localization=3, competition=2,
+        note="短视频批量生产的需求在国内更旺——抖音/视频号/小红书三头都吃，"
+             "内容更新频率比海外高。支付顺、模型调用国内也有几家可选。"
+             "合规不是问题（生成内容不涉硬红线）。"
+             "竞争这一维要扣分：剪映、即梦、腾讯的AI 剪辑已是免费且在持续加强，"
+             "把它当「现有工具已经免费内置」来判。"
+             "⚠️ 而它自己峰值留存已腰到 46%，说明这个位置在海外都正在被平台收编，"
+             "国内窗口只会更短。",
+    ),
+    "podawaa": dict(
+        demand=3, payment=4, compliance=3, acquisition=2, localization=1, competition=1,
+        blocker="平台不可迁移",
+        note="需求部分成立：国内做B2B 获客的人确实需要内容工具。"
+             "但它的价值全部绑定在 LinkedIn 这个平台上 —— "
+             "而国内没有等价物：领英职场版 2023 年已关停，"
+             "现在占着这个位置的是脉脉 + 企业微信 + 公众号 + 视频号。"
+             "产品等于要重做一遍（换平台、换内容形态、换获客逻辑），"
+             "localization 直接判 1。且那一格已有大量国内内容工具占着。",
+    ),
+    "publbee": dict(
+        demand=4, payment=4, compliance=3, acquisition=3, localization=3, competition=2,
+        note="需求成立：亚马逊KDP 在中国的作者群体真实存在且在增长，"
+             "他们也为工具付费，支付与合规都没有硬伤。"
+             "获客靠 SEO 打「kindle 自出版怎么做」这类长尾词，"
+             "这条路在国内同样跑得通。"
+             "扣分在竞争：国内「AI 写书」「选题工具」已有不少，"
+             "且国内作者的主要变现渠道是番茄、七猫等平台，"
+             "那套生态里KDP 的关键词逻辑并不完全适用。",
+    ),
+    "vectosolve": dict(
+        demand=3, payment=4, compliance=4, acquisition=3, localization=2, competition=2,
+        note="需求在国内存在——激光切割、刺绣、小批量定制都需要位图转矢量，"
+             "淘宝/1688 上的小商家就是这批客户。支付与合规都顺。"
+             "获客靠搜索长尾（跟海外一个道理），"
+             "但国内拿量的成本结构不同：这里靠付费搜索与电商平台内流量，"
+             "单价 $7 的产品很难跑正。"
+             "localization 扣分：DXF/DST 那套厂商格式在国内一样有人用，"
+             "但雕花、激光切割的软件生态与工艺习惯不同，要重做素材库。",
+    ),
+    "augora-ai": dict(
+        demand=4, payment=4, compliance=2, acquisition=3, localization=2, competition=2,
+        blocker="隐私与跨平台数据",
+        note="需求成立且比海外更痛：国内跨境电商与DTC 商家广告投放规模大，"
+             "但 iOS 隐私政策对归因的破坏在国内的伤害一样重。"
+             "支付顺。难在合规：它要接Meta CAPI、要把广告点击与转化对应起来，"
+             "在国内这套链路还额外压着个保法与跨境数据传输要求。"
+             "且它的主战场是 Shopify 商家 —— 国内这批人更常用店小秘/马帮/抖音小店，"
+             "渠道接不上，等于换一套客户。",
+    ),
+    "wpconvert-ai-convert-ai-sites-to-wordpress": dict(
+        demand=3, payment=4, compliance=4, acquisition=3, localization=2, competition=3,
+        blocker="上游不给导出",
+        note="需求成立但形态要换：国内也有一大批用 Lovable/v0 类工具搭的站，"
+             "也搬不动。支付、合规都没问题 —— 这是纯工程服务，"
+             "不涉任何数据红线，这是它四维里最漂亮的一档。"
+             "要改的是渠道与获客：WordPress 在国内的使用率远低于美国，"
+             "不少站建在国产建站平台上，localization 判 2。"
+             "竞争这一维相对友好（1-5里给 3）：帮人从低代码平台搬走这件事国内还没"
+             "形成成熟供给。但它的命门与海外一样 —— 上游 AI 建站工具一旦把导出做好，"
+             "需求就被吃掉了。",
+    ),
 }
 
 
