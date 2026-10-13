@@ -69,6 +69,7 @@ class Adapter:
         env.setdefault("PYTHONUTF8", "1")
         try:
             p = subprocess.run(cmd, cwd=ROOT, timeout=timeout,
+                               stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                encoding="utf-8", errors="replace", env=env)
         except subprocess.TimeoutExpired:
             return Result(False, "failed", "超时 %ds" % timeout, -1)

@@ -103,6 +103,33 @@
    "title": ""
   }
  },
+ "boothie-ai-photo-editor": {
+  "bilibili": {
+   "at": "2026-10-13 22:48",
+   "attempt": 3,
+   "state": "draft_saved",
+   "title": "Boothie: AI Photo Editor：MRR $"
+  },
+  "toutiao": {
+   "at": "2026-10-13 22:35",
+   "attempt": 2,
+   "state": "draft_saved",
+   "title": "Boothie: AI Photo Editor：MRR $"
+  },
+  "wechat": {
+   "at": "2026-10-13 22:11",
+   "attempt": 2,
+   "error": "缺母版 out/articles/boothie-ai-photo-editor.html",
+   "state": "failed",
+   "title": "Boothie: AI Photo Editor"
+  },
+  "xhs": {
+   "at": "2026-10-13 23:31",
+   "attempt": 3,
+   "state": "failed",
+   "title": "Boothie: AI Photo Editor"
+  }
+ },
  "bustem": {
   "bilibili": {
    "at": "2026-09-29 22:06",
@@ -285,6 +312,20 @@
    "title": ""
   }
  },
+ "downconvert-sketchup-files": {
+  "bilibili": {
+   "at": "2026-10-13 22:48",
+   "attempt": 1,
+   "state": "draft_saved",
+   "title": "DOWNCONVERT SKETCHUP FILES：MRR"
+  },
+  "toutiao": {
+   "at": "2026-10-13 22:59",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "DOWNCONVERT SKETCHUP FILES：MRR"
+  }
+ },
  "easymix": {
   "bilibili": {
    "at": "2026-10-05 15:15",
@@ -309,6 +350,26 @@
    "attempt": 1,
    "state": "draft_saved",
    "title": "法国录音棚收 250 欧一单，有人把混音做成了订阅"
+  }
+ },
+ "fastwrite-io": {
+  "bilibili": {
+   "at": "2026-10-13 22:48",
+   "attempt": 1,
+   "state": "draft_saved",
+   "title": "fastwrite.io：MRR $13,484，Trust"
+  },
+  "toutiao": {
+   "at": "2026-10-13 22:57",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "fastwrite.io：AI写作工具SaaS，辅助学生学术"
+  },
+  "xhs": {
+   "at": "2026-10-13 23:32",
+   "attempt": 0,
+   "state": "building",
+   "title": "fastwrite.io：AI写作工具SaaS，辅助学生学术"
   }
  },
  "genius-ai": {
@@ -363,6 +424,20 @@
    "title": ""
   }
  },
+ "growingupvideo": {
+  "bilibili": {
+   "at": "2026-10-13 22:48",
+   "attempt": 1,
+   "state": "draft_saved",
+   "title": "GrowingUpVideo：近 30 天收入 $3,285"
+  },
+  "toutiao": {
+   "at": "2026-10-13 23:04",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "GrowingUpVideo：近 30 天收入 $3,285"
+  }
+ },
  "harperai": {
   "bilibili": {
    "at": "2026-10-05 15:15",
@@ -387,6 +462,20 @@
    "attempt": 1,
    "state": "draft_saved",
    "title": "把英国公开抵押记录连成一张网，然后卖给贷款经纪"
+  }
+ },
+ "homy": {
+  "bilibili": {
+   "at": "2026-10-13 22:48",
+   "attempt": 1,
+   "state": "draft_saved",
+   "title": "Homy：近 30 天收入 $1,345"
+  },
+  "toutiao": {
+   "at": "2026-10-13 23:06",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "Homy：近 30 天收入 $1,345"
   }
  },
  "insect-bite-id": {
@@ -491,6 +580,20 @@
    "attempt": 0,
    "state": "draft_saved",
    "title": ""
+  }
+ },
+ "macwall": {
+  "bilibili": {
+   "at": "2026-10-13 22:48",
+   "attempt": 1,
+   "state": "draft_saved",
+   "title": "MacWall：近 30 天收入 $3,575"
+  },
+  "toutiao": {
+   "at": "2026-10-13 23:01",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "MacWall：近 30 天收入 $3,575"
   }
  },
  "magicslides-app": {
@@ -623,6 +726,26 @@
    "title": ""
   }
  },
+ "nutria-9e3eaa": {
+  "bilibili": {
+   "at": "2026-10-13 22:48",
+   "attempt": 1,
+   "state": "draft_saved",
+   "title": "Nutria ：MRR $46,123，TrustMRR 第"
+  },
+  "toutiao": {
+   "at": "2026-10-13 23:37",
+   "attempt": 2,
+   "state": "draft_saved",
+   "title": "Nutria (9e3eaa)：AI 卡路里追踪应用，MRR"
+  },
+  "xhs": {
+   "at": "2026-10-13 23:32",
+   "attempt": 1,
+   "state": "failed",
+   "title": "Nutria (9e3eaa)：AI 卡路里追踪应用，MRR"
+  }
+ },
  "outrank": {
   "bilibili": {
    "at": "2026-09-29 22:06",
@@ -647,6 +770,20 @@
    "attempt": 0,
    "state": "draft_saved",
    "title": ""
+  }
+ },
+ "pet-plus-us": {
+  "bilibili": {
+   "at": "2026-10-13 22:48",
+   "attempt": 1,
+   "state": "draft_saved",
+   "title": "Pet Plus Us：近 30 天收入 $23,162"
+  },
+  "toutiao": {
+   "at": "2026-10-13 23:41",
+   "attempt": 1,
+   "state": "draft_saved",
+   "title": "Pet Plus Us：AI 生成宠物与主人个性化肖像，挂牌"
   }
  },
  "pieter-levels": {
@@ -803,6 +940,20 @@
    "attempt": 2,
    "state": "draft_saved",
    "title": "自助出版的作者愿意为工具付钱——只是撑不起大生意"
+  }
+ },
+ "quotedeck": {
+  "bilibili": {
+   "at": "2026-10-13 22:48",
+   "attempt": 1,
+   "state": "draft_saved",
+   "title": "QuoteDeck：MRR $1,750，TrustMRR"
+  },
+  "toutiao": {
+   "at": "2026-10-13 23:15",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "QuoteDeck：MRR $1,750，TrustMRR"
   }
  },
  "quran-unlock": {
@@ -1013,6 +1164,20 @@
    "title": ""
   }
  },
+ "stealth-rdp": {
+  "bilibili": {
+   "at": "2026-10-13 22:48",
+   "attempt": 1,
+   "state": "draft_saved",
+   "title": "Stealth RDP：近 30 天收入 $1,089"
+  },
+  "toutiao": {
+   "at": "2026-10-13 23:39",
+   "attempt": 1,
+   "state": "draft_saved",
+   "title": "Stealth RDP：提供跨美欧的Windows/Linu"
+  }
+ },
  "storyshort-ai": {
   "bilibili": {
    "at": "2026-09-29 22:06",
@@ -1219,6 +1384,34 @@
    "attempt": 0,
    "state": "draft_saved",
    "title": ""
+  }
+ },
+ "wagiff-app": {
+  "bilibili": {
+   "at": "2026-10-13 22:48",
+   "attempt": 1,
+   "state": "draft_saved",
+   "title": "Wagiff App：MRR $18,508，TrustMR"
+  },
+  "toutiao": {
+   "at": "2026-10-13 23:12",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "Wagiff App：MRR $18,508，TrustMR"
+  }
+ },
+ "white-glove-content": {
+  "bilibili": {
+   "at": "2026-10-13 22:48",
+   "attempt": 1,
+   "state": "draft_saved",
+   "title": "White Glove Content：MRR $70,49"
+  },
+  "toutiao": {
+   "at": "2026-10-13 23:09",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "White Glove Content：MRR $70,49"
   }
  },
  "wpconvert-ai-convert-ai-sites-to-wordpress": {
