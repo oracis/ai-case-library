@@ -1,48 +1,5 @@
 [
   {
-    "id": "boothie-ai-photo-editor",
-    "name": "Boothie: AI Photo Editor",
-    "name_en": "Boothie: AI Photo Editor",
-    "origin": "土耳其",
-    "one_liner": "Boothie is an AI photo app for iOS and Android. Pick a look, upload a selfie, and get it re-rendered in that aesthetic: Canon G7X digicam, Kodak Gold film, vintage photobooth, night flash and more. A",
-    "category": "Mobile Apps",
-    "verification": "partial",
-    "metrics": {
-      "mrr": 46093.41,
-      "all_time": 133441.24,
-      "last_30d_revenue": 41326.98,
-      "customers": 1879,
-      "growth": "-9.1%（近 30 天）",
-      "price_point": "$1,500,000",
-      "margin": "54%",
-      "headline": "MRR $46,093，TrustMRR 第 501 名",
-      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。排名来自 TrustMRR 榜单，随榜单实时变动。",
-      "provenance": "Data identified in the Verification Sources section below is verified through connected external providers and APIs. All other details—including founder-provided descriptions, seller messages, and profile text—are user-generated"
-    },
-    "models": [
-      "交易市场"
-    ],
-    "note": "来自 TrustMRR 官方公开数据端点 /api/ai（收入由支付网关 API 直读，非截图自报）。本条同步了官网、排名、收入、分类等字段，仍需人工确认口径与时效（页面标注的同步时间可能已过期）。 挂牌出售中，要价 $1,500,000；倍数 3.02x。",
-    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
-    "source_url": "https://trustmrr.com/startup/boothie",
-    "website": "https://boothieapp.com",
-    "harvest_source": "trustmrr",
-    "added_at": "2026-10-10",
-    "founded_at": "2026-06-23",
-    "founder_x": "keremcanseker_",
-    "founder_name": "Keremcan Şeker",
-    "trade": {
-      "price": "$1,500,000",
-      "multiple": "3.02x",
-      "revenue": "$41,327"
-    },
-    "source_kind": "verified",
-    "trustmrr_slug": "boothie",
-    "data_freshness": "2026-10-11T04:13:34.182Z",
-    "founder_x_followers": "26",
-    "promoted_from_inbox": "2026-10-13"
-  },
-  {
     "id": "draftly",
     "name": "Draftly",
     "name_en": "Draftly",

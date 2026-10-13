@@ -201,6 +201,53 @@ class OtherFields(unittest.TestCase):
         self.assertEqual(why, [])
 
 
+class ZeroRevenueVerified(unittest.TestCase):
+    """根因修复（2026-10-13）：详情页核实收入为 0 的条目，headline 必须照实写
+    $0，不能停在「收入未公开」占位上被 triage 每轮重报 backfill。"""
+
+    @staticmethod
+    def detail_record(mrr=0, last30=0, total=0, website="", category=""):
+        """造一条 /startup/<slug> 详情页形状的记录（含 _from="detail"）。"""
+        return {
+            "name": "ZeroCo", "slug": "zeroco",
+            "url": "https://trustmrr.com/startup/zeroco",
+            "website": website, "description": "", "category": category,
+            "country": "", "foundedDate": "",
+            "revenue": {"total": total, "last30Days": last30, "mrr": mrr},
+            "customers": None, "activeSubscriptions": None,
+            "xHandle": "", "xFounderName": "", "_from": "detail",
+        }
+
+    def test_详情页核为0时_写0headline不带rank(self):
+        r = rec(metrics={"headline": "TrustMRR 收录（收入未公开）"})
+        B.merge_record(r, self.detail_record(mrr=0, last30=0))
+        head = r["metrics"]["headline"]
+        self.assertEqual(head, "TrustMRR 验证：近 30 天收入 $0")
+        self.assertNotIn("第", head, "零收入条目不该带榜单排名")
+
+    def test_有累计值时附历史值注解(self):
+        r = rec(metrics={"headline": "收入未公开"})
+        B.merge_record(r, self.detail_record(mrr=0, last30=0, total=247.61))
+        self.assertEqual(
+            r["metrics"]["headline"],
+            "TrustMRR 验证：近 30 天收入 $0（累计 $248，历史值）")
+
+    def test_纯批量匹配缺失时_仍留待补不写0(self):
+        """没有详情页核实（_from != detail）的零值条目不瞎写 $0，保留占位待补。"""
+        r = rec(metrics={"headline": "收入未公开"})
+        B.merge_record(r, api_item(mrr=0, last30=0, total=0))
+        self.assertEqual(r["metrics"]["headline"], "收入未公开")
+
+    def test_端到端_has_numbers与revenue_of(self):
+        """已核为 0 的条目：has_numbers 认它有数字（不再报 backfill），
+        revenue_of 解析出 0（→ tiny_revenue → 落 later，而非深核/backfill）。"""
+        r = rec(metrics={"headline": "TrustMRR 收录（收入未公开）"})
+        B.merge_record(r, self.detail_record(mrr=0, last30=0))
+        self.assertTrue(T.has_numbers(r),
+                        "已核为 0 应被认作有数字，不再报 backfill")
+        self.assertEqual(T.revenue_of(r), 0)
+
+
 class RealData(unittest.TestCase):
     """拿真实数据做一次不变量检查：数字可以少，但键名不能漂。"""
 

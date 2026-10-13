@@ -1,5 +1,94 @@
 [
   {
+    "id": "boothie-ai-photo-editor",
+    "name": "Boothie: AI Photo Editor",
+    "name_en": "Boothie: AI Photo Editor",
+    "origin": "土耳其",
+    "one_liner": "Boothie 是 iOS/Android 双端的 AI 修图 App：选一个风格（佳能 G7X 数码相机、柯达金胶卷、复古照相亭、夜景闪光等），上传自拍，AI 就把整张照片重渲染成那种质感。",
+    "category": "Mobile Apps",
+    "industry": "移动应用 / AI 摄影",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 46093.41,
+      "all_time": 133441.24,
+      "last_30d_revenue": 41326.98,
+      "customers": 1879,
+      "growth": "-9.1%（近 30 天）",
+      "price_point": "$1,500,000",
+      "margin": "54%",
+      "headline": "MRR $46,093，TrustMRR 第 501 名",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。排名来自 TrustMRR 榜单，随榜单实时变动。",
+      "provenance": "Data identified in the Verification Sources section below is verified through connected external providers and APIs. All other details—including founder-provided descriptions, seller messages, and profile text—are user-generated"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {},
+    "verdict": "Boothie 证明「垂直场景的 AI 修图」能跑出真收入：上线数月做到 MRR 约 $4.6 万、近 30 天收入约 $4.1 万、1,879 个付费客户、毛利率 54%；目前挂牌 $150 万（约 3x 倍数）出售。体量不大但模式已验证，近 30 天小幅下滑 -9.1%，不是增长故事。",
+    "what_it_does": "Boothie 面向手机用户做 AI 照片编辑，主打「一键换风格」：用户选好想要的视觉风格（数码相机质感、胶片色调、复古照相亭、夜景闪光等），上传自拍或人像，App 用 AI 模型把整张图重渲染成对应美学。覆盖 iOS 与 Android，2026 年 6 月上线。",
+    "how_it_makes_money": "订阅制：App 内按周期付费解锁风格包与高清导出，免费档限制导出分辨率或次数。收入由 TrustMRR 通过支付网关 API 直读，非截图自报。",
+    "why_it_works": [
+      "踩中「自拍+风格化」强需求：用户愿意为「把自己拍好看」持续付费，比通用修图更易转化。",
+      "风格模板即产品：把「佳能 G7X/柯达金」这类具体审美做成可复刻 preset，降低决策成本。",
+      "移动端原生+订阅：iOS/Android 双端覆盖，订阅制把一次性下载变成持续收入。",
+      "收入已被支付网关验证：MRR $46,093、客户 1,879 是 TrustMRR 直读，不是自报。"
+    ],
+    "playbook": [
+      "选一个窄审美赛道（某类胶片/相机质感）做深，比「全能修图」更易建立辨识度。",
+      "用 preset/风格包组织功能，让用户为「具体想要的效果」付费，而非为工具付费。",
+      "上线即接支付网关验证收入，用真实 MRR 讲故事，比截图更有说服力。",
+      "单人/小团队先做 MVP 验证付费意愿，再决定是否融资扩张。"
+    ],
+    "signals": [
+      "MRR $46,093（TrustMRR 支付网关直读，2026-10-11 同步）",
+      "近 30 天收入 $41,327；累计收入 $133,441",
+      "付费客户 1,879；毛利率 54%",
+      "挂牌出售 $1,500,000，倍数 3.02x；近 30 天增长 -9.1%（下滑）"
+    ],
+    "corrections": [
+      {
+        "claim": "挂牌价 $1,500,000 是收入或 ARPU",
+        "truth": "那是卖方在 TrustMRR marketplace 的开价（倍数 3.02x），不是月收入，也不能当客单价。",
+        "source": "https://trustmrr.com/startup/boothie"
+      },
+      {
+        "claim": "近 30 天是增长",
+        "truth": "TrustMRR 页面标注近 30 天增长为 -9.1%，是下滑不是增长，不能当增长故事讲。",
+        "source": "https://trustmrr.com/startup/boothie"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR Boothie 收入页",
+        "url": "https://trustmrr.com/startup/boothie",
+        "kind": "stripe"
+      },
+      {
+        "label": "Boothie 官网",
+        "url": "https://boothieapp.com",
+        "kind": "official"
+      }
+    ],
+    "published_from": "boothie-ai-photo-editor",
+    "verified_at": "2026-10-13",
+    "updated_at": "2026-10-13",
+    "tags": [
+      "AI修图",
+      "移动应用",
+      "订阅制",
+      "土耳其",
+      "一人公司可参考"
+    ],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 75,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
     "id": "nutria-9e3eaa",
     "name": "Nutria (9e3eaa)",
     "name_en": "Nutria (9e3eaa)",
