@@ -1073,3 +1073,78 @@ class LlmEndpointTest(unittest.TestCase):
             A.urllib.request.urlopen = old_urlopen
             A.AI_KEY = old_key
             sys.stdout = old_out
+
+
+class ConfigChainTest(unittest.TestCase):
+    """LLM 配置三级链（环境变量 > secrets.json > 默认）的行为约束。
+
+    2026-10-13 加：默认端点切到智谱 GLM-4-Flash，key 走 secrets.json。
+    """
+
+    def test_环境变量赢过secrets(self):
+        old_env, old_sec = os.environ.get("CASE_LIB_AI_MODEL"), A._SEC
+        try:
+            A._SEC = {"ai_model": "from-secrets"}
+            os.environ["CASE_LIB_AI_MODEL"] = "from-env"
+            self.assertEqual(A._cfg("CASE_LIB_AI_MODEL", "ai_model", "d"), "from-env")
+        finally:
+            A._SEC = old_sec
+            if old_env is None:
+                os.environ.pop("CASE_LIB_AI_MODEL", None)
+            else:
+                os.environ["CASE_LIB_AI_MODEL"] = old_env
+
+    def test_secrets赢过默认(self):
+        old_env, old_sec = os.environ.get("CASE_LIB_AI_MODEL"), A._SEC
+        try:
+            A._SEC = {"ai_model": "from-secrets"}
+            os.environ.pop("CASE_LIB_AI_MODEL", None)
+            self.assertEqual(A._cfg("CASE_LIB_AI_MODEL", "ai_model", "d"), "from-secrets")
+        finally:
+            A._SEC = old_sec
+            if old_env is not None:
+                os.environ["CASE_LIB_AI_MODEL"] = old_env
+
+    def test_显式空串环境变量赢过secrets(self):
+        """⚠ 回归钉死：显式设成空串（= 清空）必须赢过 secrets。
+
+        若把 `_cfg` 写成 `os.environ.get(k) or sec.get(k) or default` 的真值链，
+        空串会被跳过 ⇒ 旧 key 被悄悄沿用 ⇒ 免 key 端点必 401
+        （2026-10-04 同类事故的配置链版本）。
+        """
+        old_env, old_sec = os.environ.get("CASE_LIB_AI_KEY"), A._SEC
+        try:
+            A._SEC = {"ai_key": "old-paid-key"}
+            os.environ["CASE_LIB_AI_KEY"] = ""
+            self.assertEqual(A._cfg("CASE_LIB_AI_KEY", "ai_key", ""), "",
+                             "显式空串必须真清空，不能沿用 secrets 里的旧 key")
+        finally:
+            A._SEC = old_sec
+            if old_env is None:
+                os.environ.pop("CASE_LIB_AI_KEY", None)
+            else:
+                os.environ["CASE_LIB_AI_KEY"] = old_env
+
+    def test_都没有才用默认(self):
+        old_env, old_sec = os.environ.get("CASE_LIB_AI_BASE"), A._SEC
+        try:
+            A._SEC = {}
+            os.environ.pop("CASE_LIB_AI_BASE", None)
+            self.assertEqual(
+                A._cfg("CASE_LIB_AI_BASE", "ai_base", "https://default.example/v1"),
+                "https://default.example/v1")
+        finally:
+            A._SEC = old_sec
+            if old_env is not None:
+                os.environ["CASE_LIB_AI_BASE"] = old_env
+
+    def test_默认端点是智谱GLM(self):
+        """钉死 2026-10-13 的切换：默认 = 智谱 glm-4-flash（免费档）。
+
+        space-bunny-free 2026-10-11 起被上游封直连，不许再变回默认。
+        （环境变量显式覆盖时跳过——那是合法的临时切换，不是默认值漂移。）
+        """
+        if any(k in os.environ for k in ("CASE_LIB_AI_BASE", "CASE_LIB_AI_MODEL")):
+            self.skipTest("环境变量覆盖了默认值")
+        self.assertEqual(A.AI_BASE, "https://open.bigmodel.cn/api/paas/v4")
+        self.assertEqual(A.AI_MODEL, "glm-4-flash")

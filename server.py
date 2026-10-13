@@ -1168,7 +1168,7 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json({"error": "已有任务在跑，等它结束再开"}, 409)
             body = self._read_body()
             # ⚠ 判据不是「有没有 key」，而是「能不能调」——
-            # 免 key 端点（opencode.ai/zen 的 space-bunny-free）压根没有 key，
+            # 免 key 端点压根没有 key，
             # 用 `if not key` 卡门会把这类配置全挡在门外，后台点运行直接 400。
             # ⚠ st 必须在使用前赋值（Python 把它当局部变量）。
             st = resolve_ai_settings()

@@ -1,5 +1,808 @@
 [
   {
+    "id": "nutria-9e3eaa",
+    "name": "Nutria (9e3eaa)",
+    "name_en": "Nutria (9e3eaa)",
+    "origin": "",
+    "one_liner": "AI 卡路里追踪应用，MRR 约 $46K 但近 30 天下滑 25%",
+    "category": "Health & Fitness",
+    "industry": "健康与健身",
+    "status": "curated",
+    "verification": "official",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 46123.12,
+      "all_time": 557394.09,
+      "last_30d_revenue": 82290.08,
+      "customers": 14505,
+      "growth": "-25.1%（近 30 天）",
+      "price_point": "$1,500,000",
+      "margin": "80%",
+      "headline": "MRR $46,123，TrustMRR 第 192 名",
+      "metric_note": "MRR口径，挂牌要价150万美元，不等于收入。近30天收入下滑，需关注增长趋势。"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {},
+    "verdict": "适合小规模健康和健身应用开发者，但增长放缓，需持续创新。",
+    "what_it_does": "Nutria是一款AI卡路里追踪应用，帮助用户记录饮食和运动，提供个性化的健康建议。适用于关注健康和健身的消费者。",
+    "how_it_makes_money": "按月订阅收费，月收入约3.2美元/用户，MRR约46,123美元。付费客户约14,505人。",
+    "why_it_works": [
+      "AI 识别食物并估算卡路里，省去手动记录，降低使用门槛。",
+      "提供个性化健康建议，根据用户习惯调整，提升用户粘性。",
+      "简洁易用的界面设计，用户学习成本低，快速上手。",
+      "定期更新健康资讯，增加用户活跃度，促进复购率提升。"
+    ],
+    "playbook": [
+      "与健身房、健康食品品牌合作，扩大用户基础。",
+      "推出免费试用版本，吸引新用户，再逐步引导付费。",
+      "利用社交媒体进行推广，针对健身爱好者进行精准营销。",
+      "定期举办线上健康讲座，提升品牌知名度和用户参与度。"
+    ],
+    "signals": [
+      "MRR $46,123（TrustMRR 第 192 名，支付网关验证）",
+      "付费客户 14,505，ARPU 仅约 $3/月",
+      "近 30 天下滑 25.1%，累计收入 $557,394",
+      "挂牌要价 $150 万 ≠ 收入，毛利率 80%"
+    ],
+    "corrections": [],
+    "sources": [
+      {
+        "label": "TrustMRR",
+        "url": "https://trustmrr.com/startup/nutria-9e3eaa.md",
+        "kind": "official"
+      }
+    ],
+    "published_from": "nutria-9e3eaa",
+    "verified_at": "2026-10-13",
+    "updated_at": "2026-10-13",
+    "tags": [
+      "健康与健身",
+      "AI应用",
+      "订阅制"
+    ],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official），按默认政策进精品池",
+    "quality_score": 20,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "fastwrite-io",
+    "name": "fastwrite.io",
+    "name_en": "fastwrite.io",
+    "origin": "德国",
+    "one_liner": "AI写作工具SaaS，辅助学生学术写作",
+    "category": "AI 工具",
+    "industry": "教育科技",
+    "status": "curated",
+    "verification": "official",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 13483.91,
+      "all_time": 201970.84953236254,
+      "last_30d_revenue": 13430.656869201837,
+      "customers": 618,
+      "growth": "-2.9%（近 30 天）",
+      "price_point": "$320,000",
+      "margin": "65%",
+      "headline": "MRR $13,484，TrustMRR 第 391 名",
+      "metric_note": "MRR口径，挂牌要价 $320,000 不等于收入，近30天增长 -2.9%，收入规模较小，增长放缓。",
+      "provenance": "Data identified in the Verification Sources section below is verified through connected external providers and APIs. All other details—including founder-provided descriptions, seller messages, and profile text—are user-generated"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {},
+    "verdict": "适合教育科技领域创业者，但收入规模较小，增长放缓，存在天花板。",
+    "what_it_does": "fastwrite.io 是一家教育科技SaaS公司，提供AI驱动的写作工具，帮助学生进行草稿、编辑和提升学术文本质量，帮助用户产出更高品质的学术作品。",
+    "how_it_makes_money": "按月订阅收费，客户付费价格约为 $21.8/月，MRR $13,484，毛利率65%。",
+    "why_it_works": [
+      "产品针对学生学术写作痛点，提供高效AI辅助，提升作品质量，数据显示MRR稳定在13483.91美元。",
+      "结合教育行业需求，快速响应学术写作规范，近30天客户数618，显示产品在目标用户群体中受欢迎。",
+      "AI技术结合学术写作场景，实现草稿生成、编辑优化等功能，毛利率65%，说明产品在成本控制上有效。",
+      "用户反馈积极，累计收入201970.84953236254美元，证明产品在市场上具有持续盈利能力。"
+    ],
+    "playbook": [
+      "针对学生用户，通过教育平台合作推广，利用平台流量获取潜在客户。",
+      "定价策略采用分层定价，针对不同学术阶段和需求提供不同套餐，满足多样化需求。",
+      "利用社交媒体和学术论坛进行内容营销，分享使用案例和成功故事，提高品牌知名度。",
+      "定期举办线上研讨会和写作工作坊，提升用户粘性，同时收集用户反馈，优化产品功能。"
+    ],
+    "signals": [
+      "MRR $13,484（第 391 名，支付网关验证）",
+      "付费客户 618，累计收入 $201,971",
+      "近 30 天 -2.9%（基本持平），毛利率 65%",
+      "挂牌要价 $32 万 ≠ 收入"
+    ],
+    "corrections": [],
+    "sources": [
+      {
+        "label": "TrustMRR",
+        "url": "https://trustmrr.com/startup/fastwrite-io.md",
+        "kind": "official"
+      },
+      {
+        "label": "fastwrite.io",
+        "url": "https://www.fastwrite.io/",
+        "kind": "official"
+      }
+    ],
+    "published_from": "fastwrite-io",
+    "verified_at": "2026-10-13",
+    "updated_at": "2026-10-13",
+    "tags": [
+      "AI工具",
+      "教育科技",
+      "SaaS"
+    ],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official），按默认政策进精品池",
+    "quality_score": 35,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "downconvert-sketchup-files",
+    "name": "DOWNCONVERT SKETCHUP FILES",
+    "name_en": "DOWNCONVERT SKETCHUP FILES",
+    "origin": "阿联酋",
+    "one_liner": "SketchUp 文件版本转换工具，月收入 $3,748",
+    "category": "企业服务",
+    "industry": "企业服务",
+    "status": "curated",
+    "verification": "official",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 3747.96,
+      "all_time": 36194.38073938771,
+      "last_30d_revenue": 5423.075410462948,
+      "customers": 43,
+      "growth": "-21.0%（近 30 天）",
+      "visitors": 8141,
+      "price_point": "$17,900",
+      "margin": "95%",
+      "headline": "MRR $3,748，TrustMRR 第 1055 名",
+      "metric_note": "MRR 为月经常性收入，挂牌要价 $17,900 ≠ 实际收入；近 30 天收入下滑 21%，体量小且小幅下行。",
+      "provenance": "Data identified in the Verification Sources section below is verified through connected external providers and APIs. All other details—including founder-provided descriptions, seller messages, and profile text—are user-generated"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {},
+    "verdict": "SketchUp 版本向下兼容转换工具，月经常性收入约 $3,748，但近 30 天在下滑（-21%）、天花板受 SketchUp 用户群规模限制；适合学「格式兼容」这一稳定缝隙。",
+    "what_it_does": "将最新版本的 SketchUp 文件转换为旧版本，方便在不同版本的 SketchUp 之间打开和协作；月访问约 8,141 次。",
+    "how_it_makes_money": "按月订阅制，$17,900 挂牌价，实际客户付费价格约为 $87.2/月。",
+    "why_it_works": [
+      "SketchUp 跨版本协作是刚性痛点，每月仍有约 8,141 次访问说明需求稳定。",
+      "工具即开即用、无需专业知识，降低使用门槛，43 名付费客户自愿续费。",
+      "定价合理，挂牌价 $17,900，月收入 $3,748，毛利率 95%，体现产品高性价比。",
+      "MRR $3,748、累计收入 $36,194，证明「格式兼容」这个细分有人长期付钱。"
+    ],
+    "playbook": [
+      "针对 SketchUp 用户进行精准营销，利用社交媒体和行业论坛推广。",
+      "提供免费试用，吸引潜在用户，通过用户反馈优化产品。",
+      "定期更新功能，保持产品竞争力，吸引新用户并留住老用户。",
+      "与 SketchUp 官方或相关社区合作，提高品牌知名度和信任度。"
+    ],
+    "signals": [
+      "MRR $3,748（第 1055 名，支付网关验证）",
+      "付费客户 43，月访问约 8,141",
+      "近 30 天 -21% 在下滑，累计收入 $36,194",
+      "挂牌要价 $17,900 ≠ 收入，毛利率 95%"
+    ],
+    "corrections": [],
+    "sources": [
+      {
+        "label": "TrustMRR",
+        "url": "https://trustmrr.com/startup/digital-natives-services-fz-llc.md",
+        "kind": "official"
+      }
+    ],
+    "published_from": "downconvert-sketchup-files",
+    "verified_at": "2026-10-13",
+    "updated_at": "2026-10-13",
+    "tags": [
+      "SketchUp",
+      "文件转换",
+      "企业服务"
+    ],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official），按默认政策进精品池",
+    "quality_score": 35,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "macwall",
+    "name": "MacWall",
+    "name_en": "MacWall",
+    "origin": "美国",
+    "one_liner": "为 Mac 用户提供 4K 电影感动态壁纸的订阅产品",
+    "category": "垂直行业 SaaS",
+    "industry": "垂直行业SaaS",
+    "status": "curated",
+    "verification": "official",
+    "caliber": "mrr",
+    "metrics": {
+      "all_time": 7885.530485153427,
+      "last_30d_revenue": 3575.210485153427,
+      "growth": "+126.6%（近 30 天）",
+      "visitors": 37800,
+      "price_point": "$100,000",
+      "margin": "98%",
+      "headline": "近 30 天收入 $3,575",
+      "metric_note": "近 30 天收入口径，挂牌要价 $100,000 ≠ 收入；近 30 天 +126.6% 来自刚上线的极小基数，非趋势，体量小。"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {},
+    "verdict": "Mac 动态壁纸订阅产品，刚上线、基数极小（近 30 天 $3,575），+126.6% 是极小基数尖峰、不代表趋势；毛利率 98% 但体量天花板明显。",
+    "what_it_does": "MacWall提供高质量的4K动态壁纸，专为Mac用户设计，用户可通过官网购买并下载使用。",
+    "how_it_makes_money": "MacWall以$100,000的挂牌要价出售产品，实际收入为近30天$3,575，无法推算客户付费价格。",
+    "why_it_works": [
+      "针对Mac用户群体，提供独特的高清动态壁纸，满足个性化需求，市场定位精准。",
+      "产品以4K分辨率和电影感画质为卖点，视觉冲击力强，吸引追求高品质视觉体验的用户。",
+      "官网购买流程简洁，下载便捷，用户体验良好，减少用户流失。",
+      "毛利率 98%，交付成本极低，定价空间大；一次买断或订阅都能保持高毛利。"
+    ],
+    "playbook": [
+      "针对Mac用户群体进行市场调研，了解他们的壁纸偏好和预算。",
+      "通过官网和社交媒体平台进行推广，利用视觉营销吸引潜在用户。",
+      "提供免费试用，让用户亲身体验产品，提高转化率。",
+      "定期更新壁纸内容，保持产品的新鲜感和吸引力。"
+    ],
+    "signals": [
+      "近 30 天收入 $3,575，累计 $7,886",
+      "官网访问量约 37,800，+126.6% 来自刚上线极小基数",
+      "毛利率 98%，挂牌要价 $100,000 ≠ 收入",
+      "Mac 4K 动态壁纸订阅"
+    ],
+    "corrections": [],
+    "sources": [
+      {
+        "label": "TrustMRR profile",
+        "url": "https://trustmrr.com/startup/macwall.md",
+        "kind": "official"
+      },
+      {
+        "label": "MacWall website",
+        "url": "https://macwall.app/",
+        "kind": "official"
+      }
+    ],
+    "published_from": "macwall",
+    "verified_at": "2026-10-13",
+    "updated_at": "2026-10-13",
+    "tags": [
+      "Mac",
+      "壁纸",
+      "SaaS"
+    ],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official），按默认政策进精品池",
+    "quality_score": 20,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "growingupvideo",
+    "name": "GrowingUpVideo",
+    "name_en": "GrowingUpVideo",
+    "origin": "",
+    "one_liner": "5分钟内将照片变成电影级AI变脸视频",
+    "category": "AI 工具",
+    "industry": "AI工具",
+    "status": "curated",
+    "verification": "official",
+    "caliber": "mrr",
+    "metrics": {
+      "all_time": 8177.07,
+      "last_30d_revenue": 3285.02,
+      "growth": "+38.9%（近 30 天）",
+      "price_point": "$120,000",
+      "margin": "61%",
+      "headline": "近 30 天收入 $3,285",
+      "metric_note": "近 30 天收入口径，挂牌要价 $120,000 ≠ 收入；无 MRR、客户数未知，+38.9% 来自极小基数，小体量市场。",
+      "provenance": "Data identified in the Verification Sources section below is verified through connected external providers and APIs. All other details—including founder-provided descriptions, seller messages, and profile text—are user-generated"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {},
+    "verdict": "把照片做成有电影感的动态视频（如成长纪念）的 AI 小工具，小众、刚起步、收入不稳定；适合学选品，不适合当增长样本。",
+    "what_it_does": "GrowingUpVideo将少量照片转换为5-10分钟的电影级AI变脸视频，适用于个人、情侣或宠物不同年龄或生活阶段的照片。",
+    "how_it_makes_money": "未公开具体定价，挂牌要价$120,000，近30天收入$3,285，无法推算客户付费价格。",
+    "why_it_works": [
+      "用户对个性化视频制作需求旺盛，GrowingUpVideo提供快速、便捷的AI变脸服务，满足用户对回忆视频的定制化需求。",
+      "产品利用AI技术实现照片到视频的转换，技术门槛高，竞争者少，保证了其市场独占性。",
+      "产品定价合理，挂牌价$120,000，毛利率61%，对目标用户群体具有吸引力。",
+      "把静态照片转成有电影感的动态视频（成长/纪念场景），切中「想留住时间」的情感需求，靠成品效果自传播。"
+    ],
+    "playbook": [
+      "针对不同用户群体，推出定制化服务套餐，如个人、情侣、宠物等，满足多样化需求。",
+      "利用社交媒体和视频平台进行推广，展示产品效果，吸引潜在客户。",
+      "与摄影工作室、婚庆公司等合作，拓展销售渠道，增加产品曝光度。",
+      "定期举办优惠活动，刺激用户购买，提高复购率。"
+    ],
+    "signals": [
+      "近 30 天收入 $3,285，累计 $8,177",
+      "近 30 天 +38.9% 来自极小基数，非趋势",
+      "毛利率 61%，挂牌要价 $120,000 ≠ 收入",
+      "无 MRR/客户数，刚起步"
+    ],
+    "corrections": [],
+    "sources": [
+      {
+        "label": "TrustMRR",
+        "url": "https://trustmrr.com/startup/growingupvideo.md",
+        "kind": "official"
+      }
+    ],
+    "published_from": "growingupvideo",
+    "verified_at": "2026-10-13",
+    "updated_at": "2026-10-13",
+    "tags": [
+      "AI工具",
+      "视频制作",
+      "创意营销"
+    ],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official），按默认政策进精品池",
+    "quality_score": 0,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "homy",
+    "name": "Homy",
+    "name_en": "Homy",
+    "origin": "印度",
+    "one_liner": "Mac 文件搜索优化工具，小众市场潜力待挖掘",
+    "category": "企业服务",
+    "industry": "企业服务",
+    "status": "curated",
+    "verification": "official",
+    "caliber": "mrr",
+    "metrics": {
+      "all_time": 1345.3566353044473,
+      "last_30d_revenue": 1345.3566353044473,
+      "visitors": 5841,
+      "price_point": "$10,000",
+      "margin": "98%",
+      "headline": "近 30 天收入 $1,345",
+      "metric_note": "近 30 天已验证收入 $1,345；挂牌要价 $10,000 ≠ 收入；刚上线、体量极小，无足够历史判断趋势。",
+      "provenance": "Data identified in the Verification Sources section below is verified through connected external providers and APIs. All other details—including founder-provided descriptions, seller messages, and profile text—are user-generated"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {},
+    "verdict": "Homy 刚上线、体量极小（近 30 天已验证收入仅 $1,345），毛利率 98% 但尚无从判断留存；适合学它的「Mac 原生小工具」切口，不适合把它当已验证的生意。",
+    "what_it_does": "Homy 是一款 Mac 应用，用更聪明的索引与预览改善文件搜索体验，面向被 Spotlight 不够用折磨的个人与小型团队 Mac 用户。",
+    "how_it_makes_money": "Homy 以 $10,000 的挂牌要价出售，具体付费价格和客户数未公开，无法估算客单价。",
+    "why_it_works": [
+      "针对 Mac 用户痛点，提供更高效文件搜索解决方案，提升工作效率",
+      "利用智能索引技术，大幅缩短搜索时间，提升用户体验",
+      "小众市场定位精准，满足特定用户群体对文件搜索工具的高要求",
+      "高毛利率表明产品定价策略合理，且产品本身具有高附加值"
+    ],
+    "playbook": [
+      "专注于 Mac 用户社区，通过论坛和社交媒体进行产品推广",
+      "提供免费试用版本，吸引用户体验并转化为付费用户",
+      "与 Mac 相关的在线课程和博客合作，增加产品曝光度",
+      "定期收集用户反馈，持续优化产品功能，增强用户粘性"
+    ],
+    "signals": [
+      "近 30 天收入 $1,345（刚上线，等同累计）",
+      "毛利率 98%，挂牌要价 $10,000 ≠ 收入",
+      "无足够历史数据判断趋势与留存",
+      "Mac 文件搜索小工具"
+    ],
+    "corrections": [],
+    "sources": [
+      {
+        "label": "TrustMRR",
+        "url": "https://trustmrr.com/startup/homy.md",
+        "kind": "official"
+      },
+      {
+        "label": "Homy Website",
+        "url": "https://tryhomy.app/",
+        "kind": "official"
+      }
+    ],
+    "published_from": "homy",
+    "verified_at": "2026-10-13",
+    "updated_at": "2026-10-13",
+    "tags": [
+      "Mac",
+      "文件搜索",
+      "企业服务"
+    ],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official），按默认政策进精品池",
+    "quality_score": 35,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "stealth-rdp",
+    "name": "Stealth RDP",
+    "name_en": "Stealth RDP",
+    "origin": "",
+    "one_liner": "提供跨美欧的Windows/Linux VPS托管服务，月收入近1100美元",
+    "category": "垂直行业 SaaS",
+    "industry": "垂直行业SaaS",
+    "status": "curated",
+    "verification": "official",
+    "caliber": "mrr",
+    "metrics": {
+      "all_time": 37167.36991334586,
+      "last_30d_revenue": 1089.1337404027165,
+      "growth": "-37.4%（近 30 天）",
+      "price_point": "$60,000",
+      "margin": "40%",
+      "headline": "近 30 天收入 $1,089",
+      "metric_note": "近30天收入口径，挂牌要价$60,000，无MRR或客户数，无法推算客户付费价格，收入增长放缓",
+      "provenance": "Data identified in the Verification Sources section below is verified through connected external providers and APIs. All other details—including founder-provided descriptions, seller messages, and profile text—are user-generated"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {},
+    "verdict": "小规模VPS托管服务，收入波动大，适合有服务器托管需求的初创企业，但增长放缓，风险较高",
+    "what_it_does": "Stealth RDP 提供Windows和Linux VPS托管服务，面向个人、开发者和企业用户，服务覆盖美国和欧洲",
+    "how_it_makes_money": "按年收费，挂牌要价$60,000，实际收入约$1,089/月，毛利率40%，无MRR或客户数，无法推算客户付费价格",
+    "why_it_works": [
+      "覆盖美欧两大市场，满足不同地区用户需求，近30天收入近1100美元",
+      "提供Windows/Linux双系统支持，满足不同开发环境需求，增强用户粘性",
+      "价格挂牌60,000美元，显示品牌实力，吸引高端客户群体",
+      "40%的毛利率，确保了稳定的盈利能力，为持续发展提供保障"
+    ],
+    "playbook": [
+      "针对美欧市场，利用本地化推广策略，提高品牌知名度",
+      "与开发者社区合作，提供优惠套餐，吸引新用户",
+      "定期推出促销活动，刺激老用户续费和新用户购买",
+      "优化客户服务，提高客户满意度，降低客户流失率"
+    ],
+    "signals": [
+      "近 30 天收入 $1,089，累计 $37,167",
+      "近 30 天 -37.4% 明显下滑，毛利率 40%",
+      "挂牌要价 $60,000 ≠ 收入，无 MRR/客户数",
+      "VPS 托管，覆盖美欧"
+    ],
+    "corrections": [],
+    "sources": [
+      {
+        "label": "TrustMRR Profile",
+        "url": "https://trustmrr.com/startup/stealth-rdp.md",
+        "kind": "official"
+      },
+      {
+        "label": "Stealth RDP Website",
+        "url": "https://www.stealthrdp.com",
+        "kind": "official"
+      }
+    ],
+    "published_from": "stealth-rdp",
+    "verified_at": "2026-10-13",
+    "updated_at": "2026-10-13",
+    "tags": [
+      "VPS托管",
+      "服务器托管",
+      "垂直行业SaaS"
+    ],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official），按默认政策进精品池",
+    "quality_score": 35,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "white-glove-content",
+    "name": "White Glove Content",
+    "name_en": "White Glove Content",
+    "origin": "美国",
+    "one_liner": "为创作者和品牌提供社交媒体无脸视频内容订阅服务",
+    "category": "Content Creation",
+    "industry": "内容创作",
+    "status": "curated",
+    "verification": "official",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 70495.01,
+      "all_time": 262077.96,
+      "last_30d_revenue": 75572.99,
+      "customers": 601,
+      "growth": "+30.1%（近 30 天）",
+      "visitors": 16692,
+      "price_point": "$2,500,000",
+      "margin": "65%",
+      "headline": "MRR $70,495，TrustMRR 第 315 名",
+      "metric_note": "MRR口径，挂牌要价250万美元，非收入，增长速度需关注"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {},
+    "verdict": "适合有稳定视频内容需求且预算充足的创作者和品牌，但增长速度较快，风险和天花板需关注",
+    "what_it_does": "为创作者和品牌提供订阅制内容生产服务（含视频与社媒内容的策划、写作、剪辑代运营），客户把稳定出内容这件事外包出去，而不是自己养团队。",
+    "how_it_makes_money": "订阅制收费，约117.3美元/月/客户，MRR约70,495美元，客户付费价格约117.3美元/月",
+    "why_it_works": [
+      "针对创作者/品牌的「稳定出内容」痛点，用订阅把内容生产外包出去，MRR $70,495、601 名付费客户跑通了经常性收入。",
+      "订阅制把客户的获客与内容产出解耦，按月付费让收入变成可预期的经常性收入。",
+      "高毛利率65%表明服务定价合理，且内容制作效率高，客户愿意为专业服务付费。",
+      "客户数量601，说明市场拓展能力强，服务已覆盖多个创作者和品牌，形成良好口碑效应。"
+    ],
+    "playbook": [
+      "针对不同客户需求，提供定制化内容策划方案，确保内容与品牌形象匹配。",
+      "建立内容生产团队，优化工作流程，提高内容制作效率，降低成本。",
+      "通过社交媒体、行业论坛等渠道进行精准营销，吸引潜在客户。",
+      "定期举办客户研讨会，收集反馈，持续优化产品和服务。"
+    ],
+    "signals": [
+      "MRR $70,495（第 315 名，支付网关验证）",
+      "付费客户 601，累计收入 $262,078",
+      "近 30 天 +30.1%（单月动能，非长期趋势）",
+      "挂牌要价 $250 万 ≠ 收入，毛利率 65%"
+    ],
+    "corrections": [],
+    "sources": [
+      {
+        "label": "TrustMRR profile",
+        "url": "https://trustmrr.com/startup/white-glove-content.md",
+        "kind": "official"
+      },
+      {
+        "label": "White Glove Content website",
+        "url": "https://www.whiteglovecontent.com/",
+        "kind": "official"
+      },
+      {
+        "label": "TrustMRR marketplace",
+        "url": "https://trustmrr.com/",
+        "kind": "official"
+      }
+    ],
+    "published_from": "white-glove-content",
+    "verified_at": "2026-10-13",
+    "updated_at": "2026-10-13",
+    "tags": [
+      "内容制作",
+      "社交媒体",
+      "订阅服务"
+    ],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official），按默认政策进精品池",
+    "quality_score": 20,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "pet-plus-us",
+    "name": "Pet Plus Us",
+    "name_en": "Pet Plus Us",
+    "origin": "美国",
+    "one_liner": "AI 生成宠物与主人个性化肖像，挂牌要价 7.5 万美元。",
+    "category": "Artificial Intelligence",
+    "industry": "人工智能",
+    "status": "curated",
+    "verification": "official",
+    "caliber": "mrr",
+    "metrics": {
+      "all_time": 28297.7,
+      "last_30d_revenue": 23161.5,
+      "growth": "+9078.1%（近 30 天）",
+      "price_point": "$75,000",
+      "margin": "45%",
+      "headline": "近 30 天收入 $23,162",
+      "metric_note": "近30天收入口径，挂牌要价不等于实际收入，收入波动大，增长数据可能不稳定。"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {},
+    "verdict": "产品处于早期阶段，收入波动大，不适合追求稳定收入的开发者。",
+    "what_it_does": "Pet Plus Us利用AI技术将用户上传的宠物照片与主人照片合成为个性化肖像，用户可选择风格，生成美观的宠物与主人合影。",
+    "how_it_makes_money": "未公开具体定价，挂牌要价75000美元，毛利率45%，实际收入23161.5美元（近30天），无法推算客单价。",
+    "why_it_works": [
+      "精准捕捉宠物特征，生成高度相似肖像，满足用户对个性化纪念品的需求。",
+      "提供多种风格选择，满足不同用户审美偏好，增加产品吸引力。",
+      "高额定价策略，针对高端市场，凸显产品独特性和价值。",
+      "利用AI技术简化制作流程，降低成本，提高效率，确保快速交付。"
+    ],
+    "playbook": [
+      "针对宠物主人群体进行市场定位，通过社交媒体和宠物相关平台进行推广。",
+      "定价策略锚定高端市场，采用一次性高额收费模式。",
+      "利用AI技术优化用户体验，快速生成肖像，提高转化率。",
+      "与宠物相关品牌合作，进行联合营销，扩大品牌影响力。"
+    ],
+    "signals": [
+      "近 30 天收入 $23,162，累计 $28,298",
+      "近 30 天 +9078% 来自极小基数，不具趋势意义",
+      "毛利率 45%，挂牌要价 $75,000 ≠ 收入",
+      "刚起步、波动大，无 MRR 口径"
+    ],
+    "corrections": [],
+    "sources": [
+      {
+        "label": "TrustMRR Profile",
+        "url": "https://trustmrr.com/startup/pet-plus-us.md",
+        "kind": "official"
+      },
+      {
+        "label": "Pet Plus Us Website",
+        "url": "https://pet-plus-us.com/",
+        "kind": "official"
+      }
+    ],
+    "published_from": "pet-plus-us",
+    "verified_at": "2026-10-13",
+    "updated_at": "2026-10-13",
+    "tags": [
+      "AI",
+      "个性化",
+      "宠物"
+    ],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official），按默认政策进精品池",
+    "quality_score": 20,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "wagiff-app",
+    "name": "Wagiff App",
+    "name_en": "Wagiff App",
+    "origin": "沙特阿拉伯",
+    "one_liner": "中东北非地区男性用户戒除不良习惯的社交应用",
+    "category": "未分类",
+    "industry": "社交网络",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 18507.72,
+      "all_time": 68178.92,
+      "last_30d_revenue": 26979.46,
+      "customers": 4843,
+      "growth": "-11.5%（近 30 天）",
+      "price_point": "$299,543",
+      "margin": "76%",
+      "headline": "MRR $18,508，TrustMRR 第 730 名",
+      "metric_note": "MRR 口径，挂牌要价 $299,543 ≠ 收入；近 30 天收入下降 11.5%，体量小。"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {},
+    "verdict": "中东北非男性戒除习惯的社区型应用，MRR $18,508 但近 30 天在下滑（-11.5%）、ARPU 仅约 $3.8/月；靠区域与人群切口立住，天花板受小众定位限制。",
+    "what_it_does": "Wagiff App 是一款针对中东北非地区男性用户的社交应用，帮助用户戒除不良习惯，如戒除色情内容等。用户可以通过该应用分享戒除经历，参与社区讨论。",
+    "how_it_makes_money": "Wagiff App 采用订阅制收费，MRR $18,508，近30天收入 $26,979.46，客户付费价格约为 $3.8/月。",
+    "why_it_works": [
+      "针对特定地区和性别，精准定位用户需求，满足中东北非地区男性用户戒除不良习惯的迫切需求。",
+      "社区互动性强，用户分享戒除经历，形成共鸣，增强用户粘性，提升复购率。",
+      "应用内社区讨论活跃，用户参与度高，通过社交互动促进戒除习惯的成功率。",
+      "高毛利率表明产品定价策略合理，且用户对服务价值认可度高，付费意愿强。"
+    ],
+    "playbook": [
+      "与当地知名宗教或社会团体合作，扩大品牌影响力，吸引目标用户。",
+      "推出定制化内容，如宗教领袖或知名人士的戒除经验分享，增加用户信任。",
+      "利用社交媒体和在线广告，针对特定地区和性别进行精准营销。",
+      "定期举办线上或线下活动，增强用户社区归属感，提高用户活跃度。"
+    ],
+    "signals": [
+      "MRR $18,508（第 730 名，Stripe 验证）",
+      "付费客户 4,843，累计收入 $68,179",
+      "近 30 天 -11.5% 在下滑，ARPU 约 $3.8/月",
+      "挂牌要价 $299,543 ≠ 收入，毛利率 76%"
+    ],
+    "corrections": [],
+    "sources": [
+      {
+        "label": "TrustMRR 官方公开数据端点",
+        "url": "https://www.trustmrr.com/api/ai",
+        "kind": "stripe"
+      }
+    ],
+    "published_from": "wagiff-app",
+    "verified_at": "2026-10-13",
+    "updated_at": "2026-10-13",
+    "tags": [
+      "社交应用",
+      "戒除习惯",
+      "订阅制"
+    ],
+    "tier": "premium",
+    "tier_reason": "有一手来源（stripe），按默认政策进精品池",
+    "quality_score": 0,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "quotedeck",
+    "name": "QuoteDeck",
+    "name_en": "QuoteDeck",
+    "origin": "美国",
+    "one_liner": "为保险代理提供专业报价工具",
+    "category": "Productivity",
+    "industry": "保险科技",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 1749.98,
+      "all_time": 19830.01,
+      "last_30d_revenue": 3259.93,
+      "customers": 4,
+      "growth": "+53.8%（近 30 天）",
+      "price_point": "$18,000",
+      "margin": "85%",
+      "headline": "MRR $1,750，TrustMRR 第 1377 名",
+      "metric_note": "MRR 口径，挂牌要价 $18,000 ≠ 收入；近 30 天 +53.8% 来自仅 4 个客户的极小基数，不具趋势意义，体量很小。"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {},
+    "verdict": "保险代理用的报价 SaaS，体量极小（仅 4 个付费客户），+53.8% 来自极小基数、不具趋势意义；适合当「这个细分有人付钱」的证据，不适合当增长样本。",
+    "what_it_does": "QuoteDeck 是一款针对保险行业的 SaaS 解决方案，帮助保险代理和机构轻松创建和展示专业的健康和人寿保险报价。",
+    "how_it_makes_money": "按月订阅收费，4个付费客户，MRR $1,750，客户付费价格约为 $437.5/月。",
+    "why_it_works": [
+      "保险代理做报价普遍靠手工表格，QuoteDeck 把它做成可视化流程，省时间。",
+      "锚定健康/人寿险这个高客单价细分，4 个付费客户愿付约 $437/月。",
+      "毛利率 85%、纯 SaaS 交付，边际成本极低，收入干净。",
+      "累计收入 $19,830、MRR $1,750，证明「代理报价」这个缝隙有人付钱。"
+    ],
+    "playbook": [
+      "锚定保险代理/经纪人群体，在行业论坛与社群做精准触达。",
+      "以「几分钟出专业报价单」为核心卖点，降低销售演示门槛。",
+      "提供模板化报价，减少代理的重复劳动，提升续费率。",
+      "与保险培训机构或代理社群合作，借成熟渠道低成本获客。"
+    ],
+    "signals": [
+      "MRR $1,750（第 1377 名，Stripe 验证）",
+      "仅 4 个付费客户，+53.8% 来自极小基数",
+      "累计收入 $19,830，毛利率 85%",
+      "挂牌要价 $18,000 ≠ 收入，体量很小"
+    ],
+    "corrections": [],
+    "sources": [
+      {
+        "label": "TrustMRR",
+        "url": "https://trustmrr.com/startup/quotedeck-llc.md",
+        "kind": "stripe"
+      }
+    ],
+    "published_from": "quotedeck",
+    "verified_at": "2026-10-13",
+    "updated_at": "2026-10-13",
+    "tags": [
+      "SaaS",
+      "保险行业",
+      "报价工具"
+    ],
+    "tier": "premium",
+    "tier_reason": "有一手来源（stripe），按默认政策进精品池",
+    "quality_score": 0,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
     "id": "wpconvert-ai-convert-ai-sites-to-wordpress",
     "name": "WPConvert.ai - Convert AI sites to WordPress",
     "name_en": "WPConvert.ai - Convert AI sites to WordPress",

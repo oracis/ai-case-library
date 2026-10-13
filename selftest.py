@@ -642,7 +642,7 @@ def main():
         check("status 报告 ready 字段（能不能调，不能只看有没有 key）",
               isinstance(status.get("ready"), bool))
 
-        # ⚠ 判据必须用 ready 而不是 has_key：免 key 端点（space-bunny-free）
+        # ⚠ 判据必须用 ready 而不是 has_key：免 key 端点
         # has_key 恒为 False 但照样能跑，用 has_key 分支会误判。
         if not status.get("ready"):
             st, body = areq("POST", "/api/ai/run", {"limit": 3})

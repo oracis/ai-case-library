@@ -62,15 +62,21 @@ def main():
     ap.add_argument("--include-small", action="store_true")
     ap.add_argument("--publish", action="store_true")
     ap.add_argument("--min-score", type=int, default=0)
-    ap.add_argument("--ai-base", default="https://opencode.ai/zen/v1")
-    ap.add_argument("--ai-model", default="space-bunny-free")
+    ap.add_argument("--ai-base", default=None,
+                    help="覆盖 LLM 端点（默认走 ai_verify 的配置链）")
+    ap.add_argument("--ai-model", default=None, help="覆盖模型名")
+    ap.add_argument("--ai-key", default=None,
+                    help="覆盖 API key（显式传空串 = 清空）")
     args = ap.parse_args()
 
     _no_proxy_env()
-    # 免 key 端点：显式传空串清 key（真值判据会沿用旧 key ⇒ 必 401）
-    AV.configure(api_key="", base=args.ai_base, model=args.ai_model)
+    # 不传就用 ai_verify import 时解析好的配置（环境变量 > secrets.json > GLM 默认）。
+    # ⚠ 用 `is not None` 判「传过没有」：`--ai-key ""` 是显式清空（免 key 端点需要），
+    #   真值判据会把它跳过 ⇒ 沿用旧 key ⇒ 打免 key 端点必 401。
+    if any(v is not None for v in (args.ai_key, args.ai_base, args.ai_model)):
+        AV.configure(api_key=args.ai_key, base=args.ai_base, model=args.ai_model)
     if not AV.ai_ready():
-        raise SystemExit("[!] LLM 不可用")
+        raise SystemExit("[!] LLM 不可用：检查 CASE_LIB_AI_KEY / data/secrets.json 的 ai_key")
 
     cands = AV.load_json("candidates")
     index = AV.triage_index()

@@ -34,9 +34,11 @@
   3. 不与 `one_liner` 逐字相同（相同 = 没简写，白花钱）；
   4. LLM 返回必须是可解析的 JSON 对象。
 
-⚠ 免key 端点：默认 `opencode.ai/zen/v1` + `space-bunny-free`，
+⚠ LLM 配置：不传参时走 `ai_verify` import 时解析好的配置链
+  （环境变量 > data/secrets.json > 默认 智谱 glm-4-flash）。
   切模型走 `--ai-base/--ai-model/--ai-key`，先 `--ping` 再批量
   （记忆铁律 8：空 Bearer、必须发 UA、门禁走 ai_ready()）。
+  ⚠ space-bunny-free（opencode.ai/zen）2026-10-11 起被上游封直连，已弃用。
 """
 from __future__ import annotations
 
@@ -113,8 +115,6 @@ def validate(desc, one_liner):
 
 def ping():
     import ai_verify as AV
-    AV.configure(api_key="", base="https://opencode.ai/zen/v1",
-                 model="space-bunny-free")
     if not AV.ai_ready():
         print("[!] ai_ready() 为假 —— 门禁不允许跑")
         return 2
@@ -124,8 +124,6 @@ def ping():
 
 def ask_llm(case):
     import ai_verify as AV
-    AV.configure(api_key="", base="https://opencode.ai/zen/v1",
-                 model="space-bunny-free")
     payload = {
         "name": case.get("name") or case.get("id"),
         "one_liner": case.get("one_liner") or "",
@@ -170,8 +168,15 @@ def main():
     ap.add_argument("--apply", action="store_true", help="把草稿写进 cases.json")
     ap.add_argument("--all", action="store_true", help="连已有 cover_desc 也重写")
     ap.add_argument("--ping", action="store_true", help="只测端点通不通")
+    ap.add_argument("--ai-base", default=None, help="覆盖 LLM 端点")
+    ap.add_argument("--ai-model", default=None, help="覆盖模型名")
+    ap.add_argument("--ai-key", default=None, help="覆盖 API key（空串 = 清空）")
     ap.add_argument("--limit", type=int, default=0)
     args = ap.parse_args()
+
+    if any(v is not None for v in (args.ai_key, args.ai_base, args.ai_model)):
+        import ai_verify as AV
+        AV.configure(api_key=args.ai_key, base=args.ai_base, model=args.ai_model)
 
     if args.ping:
         return ping()

@@ -23,21 +23,25 @@
     python scripts/ai_verify.py --limit 5 --publish   # 够格的直接发布成案例
     python scripts/ai_verify.py --all --publish --min-score 60
 
-环境变量（LLM 走 OpenAI 兼容接口，DeepSeek / Kimi / GLM / OpenCode Zen 都行）
-    CASE_LIB_AI_KEY     必填（--plan 除外）
-    CASE_LIB_AI_BASE    默认 https://api.deepseek.com
-    CASE_LIB_AI_MODEL   默认 deepseek-chat
+环境变量（LLM 走 OpenAI 兼容接口，GLM / DeepSeek / Kimi 都行）
+    CASE_LIB_AI_KEY     必填（--plan 除外）。也可放 data/secrets.json 的 ai_key
+                        （该文件已被 .gitignore 排除，是 key 的正规位置）
+    CASE_LIB_AI_BASE    默认 https://open.bigmodel.cn/api/paas/v4（智谱）
+    CASE_LIB_AI_MODEL   默认 glm-4-flash（免费档）
     CASE_LIB_ADMIN_PASSWORD   后台密码（写草稿/发布要登录 5053）
 
+    读取优先级：环境变量 > data/secrets.json > 上面这些默认值。
+    ⚠ space-bunny-free（opencode.ai/zen）2026-10-11 起被上游封直连，已弃用；
+       DeepSeek 是付费端点，按需显式切。
+
 换模型（CLI 覆盖环境变量，不传就用上面的默认值）
-    # 先花几毛钱验端点，别直接跑一批才发现 key 不对
+    # 先花几秒验端点，别直接跑一批才发现 key 不对
     python scripts/ai_verify.py --ping
-    python scripts/ai_verify.py --ping --ai-base https://opencode.ai/zen/v1 \
-                                --ai-model space-bunny-free
     # 通了再核
     python scripts/ai_verify.py --triage --limit 5
-    python scripts/ai_verify.py --limit 5 --ai-model space-bunny-free \
-                                --ai-base https://opencode.ai/zen/v1
+    python scripts/ai_verify.py --limit 5 --ai-model deepseek-chat \
+                                --ai-base https://api.deepseek.com \
+                                --ai-key sk-xxx
 
     端点约定：base 填到 /v1（别带 /chat/completions），尾部斜杠会被rstrip。
     ⚠ 换端点最常见的两个坑，--ping 会直接指出来：
@@ -74,10 +78,44 @@ sys.path.insert(0, os.path.join(ROOT, "scripts"))
 import verify_rules as VR                                        # noqa: E402
 import triage as TR                                              # noqa: E402
 
+def _load_secrets():
+    """读 data/secrets.json 里的 LLM 配置（该文件已被 .gitignore 排除，key 放这里）。
+
+    缺文件 / 读失败都返回空 dict —— 缺一个密钥文件不该让整个脚本起不来。
+    """
+    p = os.path.join(ROOT, "data", "secrets.json")
+    if not os.path.isfile(p):
+        return {}
+    try:
+        with open(p, encoding="utf-8") as f:
+            return json.load(f) or {}
+    except Exception:                                        # noqa: BLE001
+        return {}
+
+
+_SEC = _load_secrets()
+
+
+def _cfg(env_key, sec_key, default):
+    """配置优先级：环境变量 > data/secrets.json > 内置默认。
+
+    ⚠ 用 `in os.environ` 判「设过没有」，不用真值 —— 显式设成空串
+    （表示清空）也必须赢过 secrets.json，否则旧 key 会被悄悄沿用。
+    """
+    if env_key in os.environ:
+        return os.environ[env_key]
+    v = _SEC.get(sec_key)
+    return v if v else default
+
+
 ADMIN_BASE = os.environ.get("CASE_LIB_ADMIN_BASE", "http://127.0.0.1:5053")
-AI_BASE = (os.environ.get("CASE_LIB_AI_BASE") or "https://api.deepseek.com").rstrip("/")
-AI_KEY = os.environ.get("CASE_LIB_AI_KEY", "")
-AI_MODEL = os.environ.get("CASE_LIB_AI_MODEL", "deepseek-chat")
+# 🚨 默认端点 = 智谱 GLM-4-Flash（免费档，2026-10-13 切换）。
+# 上一个默认 space-bunny-free（opencode.ai/zen）2026-10-11 起被上游封直连，已弃用；
+# 再上一个 DeepSeek 是付费的。key 走 CASE_LIB_AI_KEY 或 secrets.json 的 ai_key。
+AI_BASE = _cfg("CASE_LIB_AI_BASE", "ai_base",
+               "https://open.bigmodel.cn/api/paas/v4").rstrip("/")
+AI_KEY = _cfg("CASE_LIB_AI_KEY", "ai_key", "")
+AI_MODEL = _cfg("CASE_LIB_AI_MODEL", "ai_model", "glm-4-flash")
 # 这些base 走本机代理会超时/403，LLM 请求时绕过代理（仅 LLM，不影响其他）
 AI_BASE_NO_PROXY = ("opencode.ai/zen",)
 # 🚨 **截断自动重试**（2026-10-10）。
@@ -1575,11 +1613,11 @@ def main():
     # 换模型：CLI 优先于环境变量，不传就用CASE_LIB_AI_* 的默认值。
     # 换端点只需 --ai-base + --ai-model；--ai-key 单独给时沿用原 base/model。
     ap.add_argument("--ai-model", default=None,
-                    help="覆盖模型名（如 deepseek-chat / space-bunny-free）")
+                    help="覆盖模型名（如 glm-4-flash / deepseek-chat）")
     ap.add_argument("--ai-base", default=None,
-                    help="覆盖 API base（如 https://opencode.ai/zen/v1）")
+                    help="覆盖 API base（如 https://open.bigmodel.cn/api/paas/v4）")
     ap.add_argument("--ai-key", default=None,
-                    help="覆盖 API key（默认读 CASE_LIB_AI_KEY）")
+                    help="覆盖 API key（默认读 CASE_LIB_AI_KEY / secrets.json）")
     ap.add_argument("--ping", action="store_true",
                     help="只测当前模型端点通不通（发一个极短请求，不改任何数据）")
     ap.add_argument("--include-small", action="store_true", help="连「体量太小」的也处理")
@@ -1646,12 +1684,13 @@ def main():
             print("   判定：%s" % r["verdict"])
         return 0
 
-    #免鉴权端点（opencode.ai/zen 的隐身模型）不需要 key，别在这里挡住。
+    #免鉴权端点压根没有 key，别在这里挡住（判据是 ai_ready 而不是「有没有 key」）。
     if not ai_ready():
-        raise SystemExit("[!] 缺 CASE_LIB_AI_KEY 环境变量（LLM 接口密钥）。"
+        raise SystemExit("[!] 缺 LLM key：设 CASE_LIB_AI_KEY 环境变量，"
+                         "或写进 data/secrets.json 的 ai_key。"
                          "只想看卡点请用--plan。\n"
-                         "    免 key 端点例外：--ai-base https://opencode.ai/zen/v1 "
-                         "--ai-model space-bunny-free 不用给key。")
+                         "    免 key 端点例外：--ai-base <免key端点> "
+                         "--ai-model <模型> 不用给key。")
     if not args.password:
         raise SystemExit("[!] 缺后台密码：--password 或 CASE_LIB_ADMIN_PASSWORD。"
                          "密码忘了跑 python scripts/auth.py --reset")
