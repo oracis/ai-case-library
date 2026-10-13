@@ -422,5 +422,12 @@
     "status": "draft",
     "appmsgid": "100000450",
     "file": "公众号-cometly拆解.html"
+  },
+  "boothie-ai-photo-editor": {
+    "title": "Boothie: AI Photo Editor",
+    "published_at": "2026-10-14 01:06",
+    "status": "draft",
+    "appmsgid": "100000462",
+    "file": "公众号-boothie-ai-photo-editor拆解.html"
   }
 }
