@@ -40,6 +40,7 @@ import json
 import os
 import re
 import sys
+from datetime import datetime
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
@@ -88,7 +89,10 @@ def archive_from_inbox(ids):
     if not spill:
         return 0, len(inbox)
 
-    today = "2026-10-10"
+    # 🚨 不能写死日期（2026-10-14 修）：原代码硬编码 "2026-10-10"，
+    # 脚本是 10-10 写的，之后每天跑都会把归档时间盖成 10-10 ——
+    # 血缘字段错一天，审计时就看不出「这条什么时候离开队列的」。
+    today = datetime.now().strftime("%Y-%m-%d")
     existing = []
     if os.path.exists(ARCHIVE):
         with open(ARCHIVE, encoding="utf-8", newline="") as f:
@@ -340,7 +344,9 @@ def to_candidate(rec, live, m, growth, ret=None, peak=None, last=None, override=
     out["verification"] = "stripe"
     # ⚠️ 已晋升过的条目要保住**原始**晋升日期，不能被这次刷新覆盖成今天
     # （`to_candidate` 顶部已经把 `promoted_from_inbox` 搬过来了）。
-    out.setdefault("promoted_from_inbox", "2026-10-10")
+    # 🚨 兜底日期同样不能写死（2026-10-14 修）：原硬编码 "2026-10-10"
+    # 是脚本写成日，之后每天晋升的新条目血缘全被盖成那一天。
+    out.setdefault("promoted_from_inbox", datetime.now().strftime("%Y-%m-%d"))
     out["refreshed_at"] = (live.get("synced_at") or "")[:10] or None
     if out["refreshed_at"] is None:
         del out["refreshed_at"]
