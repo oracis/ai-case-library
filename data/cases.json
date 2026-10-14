@@ -86,7 +86,8 @@
     "quality_score": 75,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "judgment": "1,879 个付费客户撑起 $46,093 MRR，ARPU 约 $24.5/月。54% 毛利在这批里偏低——App 内购要吃平台抽成，这是订阅之外的额外成本。可抄的是「风格包解锁」这个结构；风险在于风格包必须持续上新，近 30 天 -9.1% 更像供给节奏问题，不是需求塌了。"
   },
   {
     "id": "nutria-9e3eaa",
@@ -156,7 +157,8 @@
     "quality_score": 20,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "judgment": "14,505 个付费客户才做出 $46,123 MRR，ARPU 仅 $3.2/月——典型的「低价冲量」打法，价值不在定价而在它能把付费用户堆到万人级。接手方第一件事不是拉新而是查留存：近 30 天 -25.1%、累计 $557,394 说明钱曾经赚过，现在在退。"
   },
   {
     "id": "fastwrite-io",
@@ -232,7 +234,8 @@
     "quality_score": 35,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "judgment": "618 个客户、$21.8/月，属于「低频高黏」的教育订阅，累计 $201,971 说明它熬过了多年。近 30 天 -2.9% 是持平不是衰退，不必紧张。真正的风险不在增长而在政策：学术诚信规则一旦收紧，AI 代写是第一个被砍的场景。"
   },
   {
     "id": "downconvert-sketchup-files",
@@ -304,7 +307,8 @@
     "quality_score": 35,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "judgment": "43 个客户 × $87.2/月 = $3,748 MRR，ARPU 在这批里偏高，也说明它的全部市场就这么大。95% 毛利、几乎零服务成本，是最干净的毛利结构。-21% 的下滑要归因到 SketchUp 版本迭代——这类工具吃的是平台兼容性红利，平台一变就得跟着改。"
   },
   {
     "id": "macwall",
@@ -378,7 +382,8 @@
     "quality_score": 20,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "judgment": "累计 $7,886 约等于近 30 天 $3,575 的两倍多，说明它基本是最近两个月才开始收钱，等于全新产品。官网 37,800 访问对 $3,575 收入，这个转化口径建议自己再核一遍。98% 毛利说明成本只有带宽，可以当「数字产品零边际成本」的样本看。"
   },
   {
     "id": "growingupvideo",
@@ -447,7 +452,8 @@
     "quality_score": 0,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "judgment": "累计 $8,177 约等于近 30 天 $3,285 的 2.5 倍，同样是刚起步。60% 毛利明显低于纯数字产品——生成式视频有真实算力成本。值得学的是选品角度：把一个普通功能包装成「成长纪念」这种强情感场景，比功能本身更值钱。"
   },
   {
     "id": "homy",
@@ -521,7 +527,8 @@
     "quality_score": 35,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "judgment": "近 30 天 $1,345 等于累计收入，说明第一笔钱才刚开始，连一个完整月度都不到。98% 毛利 + Mac 原生小工具，是典型的「一个人 + 一个平台窗口期」切口。无 MRR、无客户数意味着连订阅结构都还没验证——当练手项目看，别当生意看。"
   },
   {
     "id": "stealth-rdp",
@@ -595,7 +602,8 @@
     "quality_score": 35,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "judgment": "累计 $37,167 对近 30 天 $1,089，说明历史上有过好时候，现在在衰退（-37.4%）。40% 毛利是这批里最低的——VPS 有真实硬件和带宽成本，赚的是运维钱不是设计钱，规模上不去。接手价值有限，更像个人副业。"
   },
   {
     "id": "white-glove-content",
@@ -676,7 +684,8 @@
     "quality_score": 20,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "judgment": "601 个客户 × $117.3/月 = $70,495 MRR，ARPU 在这批里排前列，而且撑住了 7 万级体量——说明客单价扛住了规模。这是内容外包，交付靠人：一旦质量下滑就是一次性生意，没有网络效应。+30.1% 是单月动能，别当长期趋势。"
   },
   {
     "id": "pet-plus-us",
@@ -749,7 +758,8 @@
     "quality_score": 20,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "judgment": "累计 $28,298 里 $23,162 来自近 30 天——82% 的历史收入集中在最近一个月，这是集中成交（多半靠平台推荐位）而不是自然增长，+9078% 因此完全不可外推。45% 毛利说明有生成或实物成本。拿它估值会算错。"
   },
   {
     "id": "wagiff-app",
@@ -819,7 +829,8 @@
     "quality_score": 0,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "judgment": "4,843 个客户但 ARPU 仅 $3.8/月，和 Nutria 是同一种「低价冲量」打法，76% 毛利。不同的是它靠极明确的人群切口（中东北非男性戒断）加社区属性。风险也在这：这类社区产品一旦撞上内容审核或支付政策，收入会快速塌。"
   },
   {
     "id": "quotedeck",
@@ -889,7 +900,8 @@
     "quality_score": 0,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "judgment": "只有 4 个付费客户，ARPU 却高达 $437.5/月——这是「高单价、极低渗透」的专业工具。真正值得学的是它选了一个能收 $437/月的窄人群（保险代理），卖的是行业 know-how 加报价流程，不是软件功能。4 个客户说明这类生意靠单客价值，不靠数量。"
   },
   {
     "id": "wpconvert-ai-convert-ai-sites-to-wordpress",

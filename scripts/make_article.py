@@ -504,14 +504,22 @@ def build_sections(case):
 
     # 结论
     concl = []
-    # 无纠错的案例，verdict 已经在开头的钩子里出现过一次，这里不再重复
-    if case.get("verdict") and corr:
+    # 优先用编辑判断（`judgment` 字段）：它回答的是「谁适合抄、坑在哪」，
+    # 和开头钩子里的 verdict（结论/买不买的价值）分工不同，不算复读。
+    # 没有 judgment 才退回 verdict —— 且仅限有纠错的案例，否则会与钩子重复。
+    if case.get("judgment"):
+        concl.append(case["judgment"])
+    elif case.get("verdict") and corr:
         concl.append(case["verdict"])
     if comp:
         qlabel = comp.get("quadrant_label") or QUADRANTS.get(
             comp.get("quadrant"), ("", ""))[0]
         concl.append("**结论**：%s（综合 %.1f 分）" % (qlabel, comp.get("score", 0)))
-    secs.append(("我的判断", concl))
+    # ⚠⚠ **绝不留空标题**（2026-10-14 修）。此前无 corr、无 comp 的案例
+    # concl 为空，正文里就出现一个光秃秃的「我的判断」+ 分隔线（用户截图报障）。
+    # 那比复读 verdict 更糟 —— 宁可整段不出现。
+    if concl:
+        secs.append(("我的判断", concl))
 
     return secs
 
