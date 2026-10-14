@@ -274,8 +274,9 @@ def _raw_make_xhs_title(c, used=None):
     ov = _title_overrides().get(c.get("id") or "")
     if ov and 4 <= len(ov) <= TITLE_MAX:
         return ov
-    h = (c.get("metrics") or {}).get("headline") or ""
-    amt = first_amount(h)
+    # 2026-10-14：红线（标题禁金额/收入指标）——不再用「月收$X」/「X成交」前缀。
+    # 金额是正文该讲的事，标题只放「产品名：描述」或通用尾缀。
+    amt = None
     desc = short_desc(c)
     name = (c.get("name") or c.get("id") or "").strip()
     generic = ["海外小生意", "一人公司生意", "海外小项目"]
@@ -309,8 +310,11 @@ def make_xhs_title(c, used=None):
 
     correct_title_metric 会把把 ARR 值误标成「月收」的标题改成「年收」，
     这样哪怕 overrides 还是旧写法，发出来的标题也不会错。
+    2026-10-14：再加一道 strip_title_money 兜底，拦住 one_liner 里漏进标题的金额。
     """
-    return correct_title_metric(_raw_make_xhs_title(c, used), c)
+    import make_article as _ma
+    return _ma.strip_title_money(
+        correct_title_metric(_raw_make_xhs_title(c, used), c))
 
 
 def _clip(s, n):

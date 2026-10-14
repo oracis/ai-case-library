@@ -111,17 +111,20 @@ def _manual_title(cid):
 def make_wechat_title(c):
     """从 cases.json 生成适合公众号的简洁标题（≤64 字，优先 ≤30 字）。
 
-    规则：手改过的优先；否则名字 + one_liner 最简；能放下再加月收入/累计收入。
+    规则：手改过的优先；否则名字 + one_liner 最简。
     例：Insect Bite ID → "Insect Bite ID：用 AI 识别虫咬类型"
+
+    ⚠⚠ 2026-10-14：红线（标题禁金额/收入指标）——
+    不再在标题追「，月收 $X」/「，累计 $X」。金额数字是正文该讲的事，
+    放进标题既违反红线、也容易被平台判营销感过重。标题只放「产品名：一句话描述」。
+    （头条标题以本函数为候选，故一并受益。）
     """
+    import make_article as _ma
     manual = _manual_title(c.get("id"))
     if manual:
-        return manual
+        return _ma.strip_title_money(manual)
     name = (c.get("name") or "").strip()
-    one = (c.get("one_liner") or "").strip()
-    metrics = c.get("metrics") or {}
-    mrr = metrics.get("mrr")
-    all_time = metrics.get("all_time")
+    one = _ma.strip_title_money((c.get("one_liner") or "").strip())
 
     def _ok(t):
         return t and len(t) <= 64
@@ -129,22 +132,10 @@ def make_wechat_title(c):
     if name and one:
         t = "%s：%s" % (name, one)
         if _ok(t):
-            return t
-    if name and one and mrr:
-        mrr_text = "%d" % mrr
-        if mrr >= 1000:
-            k = round(mrr / 1000, 1)
-            mrr_text = ("%g" % k).rstrip(".") + "K"
-        t = "%s：%s，月收 $%s" % (name, one, mrr_text)
-        if _ok(t):
-            return t
-    if name and one and all_time:
-        t = "%s：%s，累计 $%s" % (name, one, "{:,}".format(all_time))
-        if _ok(t):
-            return t
+            return _ma.strip_title_money(t)
     if name:
-        return name[:64]
-    return (c.get("id") or "untitled")[:64]
+        return _ma.strip_title_money(name[:64])
+    return _ma.strip_title_money((c.get("id") or "untitled")[:64])
 
 
 # ---- 微信编辑器（ProseMirror）样式白名单 ------------------------------
