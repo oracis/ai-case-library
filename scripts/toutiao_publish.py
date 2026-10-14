@@ -1435,7 +1435,13 @@ def _load_all_drafts(cdp, max_rounds=40, pause=2.0):
         return _draft_total(cdp)
 
     settle = 0                      # 按钮已消失但卡片没到总数的连续轮数
-    while settle < 5:               # 容忍最多 5 轮（约 10s）的延迟到达
+    rounds = 0
+    # ⚠ 2026-10-14 修无限循环：原 `while settle < 5` 在「加载更多」按钮被
+    # 永久探测到（元素残留 / 点击不触发加载）时，state 永远 != "none" ⇒
+    # settle 永远到不了 5 ⇒ 死循环（实测 _tt_verify 卡死 1h42m）。加硬上限
+    # max_rounds 兜底，到顶直接返回已加载条数（不丢已加载的）。
+    while settle < 5 and rounds < max_rounds:
+        rounds += 1
         total = _total()
         n = _count()
         if total and n >= total:    # 真的加载全了

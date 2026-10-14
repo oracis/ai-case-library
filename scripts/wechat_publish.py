@@ -1307,7 +1307,11 @@ class WS:
     def __init__(self, url):
         m = re.match(r"ws://([^:/]+):(\d+)(/.*)", url)
         self.host, self.port, self.path = m.group(1), int(m.group(2)), m.group(3)
-        self.sock = socket.create_connection((self.host, self.port), timeout=30)
+        # 2026-10-14：头条发文页的 Runtime.evaluate（尤其正文 insertHTML /
+        # 封面上传）偶发要 20s+ 才回包，原 30s 太紧会冒 socket.timeout 把
+        # publish_one 打挂。放宽到 90s 兜底；真·卡死也会在 90s 后冒异常被
+        # 上层 try 接住（不会无限挂）。公众号侧 eval 本来就快，放宽无害。
+        self.sock = socket.create_connection((self.host, self.port), timeout=90)
         self._handshake()
         self._buf = b""
 
