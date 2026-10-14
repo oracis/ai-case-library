@@ -18,6 +18,7 @@
 import argparse
 import json
 import os
+import re
 import sys
 import time
 
@@ -121,6 +122,8 @@ def fill_one(c, dry=False, force=False, remote_title=None):
     want_t, want_c = body.count("<table"), body.count("<td>")
     if not want_t:
         return "本地稿无表格"
+    # 远端 `text` 是编辑器 innerText 的长度；这里用剥标签后的文字长度做同量纲比较。
+    want_text = len(re.sub(r"<[^>]+>", "", body).replace("&nbsp;", " "))
 
     box_title = remote_title or meta["title"]
     cdp, t, err = tp.open_draft_editor(box_title)
@@ -138,9 +141,18 @@ def fill_one(c, dry=False, force=False, remote_title=None):
         if not ok:
             return "编辑器一直没就绪，不敢动手"
         before = read_body(cdp)
-        if (before.get("tables") or 0) == want_t \
-                and (before.get("cells") or 0) == want_c:
-            return "skip：已是目标内容（%d 表/%d 格）" % (want_t, want_c)
+        # ⚠⚠ 2026-10-14 修「假绿」：原来**只比表格数**判幂等
+        #   （`before.tables == want_t and before.cells == want_c`），
+        #   于是正文文字变了、表格数没变时一律 skip —— 2026-10-14 要给 11 条
+        #   补「我的判断」段，工具却全部报「skip：已是目标内容」，什么都没改。
+        #   ✅ 现在**正文长度也必须相等**才算已同步；`--force` 可强行重灌。
+        same = ((before.get("tables") or 0) == want_t
+                and (before.get("cells") or 0) == want_c
+                and abs((before.get("text") or 0) - want_text) <= max(
+                    40, want_text // 10))
+        if same and not force:
+            return "skip：已是目标内容（%d 表/%d 格 / %d 字）" % (
+                want_t, want_c, before.get("text") or 0)
         if dry:
             return "dry：当前 %d 表/%d 格 → 目标 %d 表/%d 格" % (
                 before.get("tables") or 0, before.get("cells") or 0,
@@ -218,6 +230,8 @@ def main():
     ap.add_argument("--dry", action="store_true")
     ap.add_argument("--remote-title", default=None,
                     help="配合 --case：直接指定草稿箱里的真实标题")
+    ap.add_argument("--force", action="store_true",
+                    help="无视幂等判据强行重灌正文（表格数相同但正文变了时必用）")
     args = ap.parse_args()
     if not args.case and not args.all:
         args.case = "aeo-engine"
@@ -247,7 +261,7 @@ def main():
     ok = bad = skip = 0
     for i, c in enumerate(cases, 1):
         try:
-            r = fill_one(c, dry=args.dry,
+            r = fill_one(c, dry=args.dry, force=args.force,
                          remote_title=(args.remote_title
                                        or remote.get(c["id"])))
         except Exception as e:                # noqa: BLE001

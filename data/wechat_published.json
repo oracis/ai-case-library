@@ -435,76 +435,87 @@
     "published_at": "2026-10-14 01:13",
     "status": "draft",
     "appmsgid": "100000466",
-    "file": "公众号-nutria-9e3eaa拆解.html"
+    "file": "公众号-nutria-9e3eaa拆解.html",
+    "refreshed_at": "2026-10-14 13:37"
   },
   "fastwrite-io": {
     "title": "fastwrite.io：AI写作工具SaaS，辅助学生学术写作",
     "published_at": "2026-10-14 01:19",
     "status": "draft",
     "appmsgid": "100000470",
-    "file": "公众号-fastwrite-io拆解.html"
+    "file": "公众号-fastwrite-io拆解.html",
+    "refreshed_at": "2026-10-14 13:38"
   },
   "downconvert-sketchup-files": {
     "title": "DOWNCONVERT SKETCHUP FILES：SketchUp 文件版本转换工具，月收入 $3,748",
     "published_at": "2026-10-14 01:24",
     "status": "draft",
     "appmsgid": "100000474",
-    "file": "公众号-downconvert-sketchup-files拆解.html"
+    "file": "公众号-downconvert-sketchup-files拆解.html",
+    "refreshed_at": "2026-10-14 13:39"
   },
   "macwall": {
     "title": "MacWall：为 Mac 用户提供 4K 电影感动态壁纸的订阅产品",
     "published_at": "2026-10-14 01:30",
     "status": "draft",
     "appmsgid": "100000478",
-    "file": "公众号-macwall拆解.html"
+    "file": "公众号-macwall拆解.html",
+    "refreshed_at": "2026-10-14 13:40"
   },
   "growingupvideo": {
     "title": "GrowingUpVideo：5分钟内将照片变成电影级AI变脸视频",
     "published_at": "2026-10-14 01:36",
     "status": "draft",
     "appmsgid": "100000482",
-    "file": "公众号-growingupvideo拆解.html"
+    "file": "公众号-growingupvideo拆解.html",
+    "refreshed_at": "2026-10-14 13:41"
   },
   "homy": {
     "title": "Homy：Mac 文件搜索优化工具，小众市场潜力待挖掘",
     "published_at": "2026-10-14 01:41",
     "status": "draft",
     "appmsgid": "100000486",
-    "file": "公众号-homy拆解.html"
+    "file": "公众号-homy拆解.html",
+    "refreshed_at": "2026-10-14 13:42"
   },
   "stealth-rdp": {
     "title": "Stealth RDP：提供跨美欧的Windows/Linux VPS托管服务，月收入近1100美元",
     "published_at": "2026-10-14 01:47",
     "status": "draft",
     "appmsgid": "100000490",
-    "file": "公众号-stealth-rdp拆解.html"
+    "file": "公众号-stealth-rdp拆解.html",
+    "refreshed_at": "2026-10-14 13:43"
   },
   "white-glove-content": {
     "title": "White Glove Content：为创作者和品牌提供社交媒体无脸视频内容订阅服务",
     "published_at": "2026-10-14 01:52",
     "status": "draft",
     "appmsgid": "100000494",
-    "file": "公众号-white-glove-content拆解.html"
+    "file": "公众号-white-glove-content拆解.html",
+    "refreshed_at": "2026-10-14 13:44"
   },
   "pet-plus-us": {
     "title": "Pet Plus Us：AI 生成宠物与主人个性化肖像，挂牌要价 7.5 万美元。",
     "published_at": "2026-10-14 01:58",
     "status": "draft",
     "appmsgid": "100000498",
-    "file": "公众号-pet-plus-us拆解.html"
+    "file": "公众号-pet-plus-us拆解.html",
+    "refreshed_at": "2026-10-14 13:45"
   },
   "wagiff-app": {
     "title": "Wagiff App：中东北非地区男性用户戒除不良习惯的社交应用",
     "published_at": "2026-10-14 02:03",
     "status": "draft",
     "appmsgid": "100000502",
-    "file": "公众号-wagiff-app拆解.html"
+    "file": "公众号-wagiff-app拆解.html",
+    "refreshed_at": "2026-10-14 13:46"
   },
   "quotedeck": {
     "title": "QuoteDeck：为保险代理提供专业报价工具",
     "published_at": "2026-10-14 02:09",
     "status": "draft",
     "appmsgid": "100000506",
-    "file": "公众号-quotedeck拆解.html"
+    "file": "公众号-quotedeck拆解.html",
+    "refreshed_at": "2026-10-14 13:47"
   }
 }

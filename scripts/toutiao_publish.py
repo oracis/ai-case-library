@@ -576,13 +576,46 @@ def _ids(path):
 
 
 def _mark(path, cid):
-    ids = _ids(path)
-    if cid in ids:
+    """把案例追加进台账（草稿 / 已发布共用）。
+
+    ⚠⚠ 2026-10-14 修「台账历史被毁」：旧实现 `_ids()` 只取 id、
+       丢掉每条原有的 `at`，追加一条就把**整本台账的发布时间**
+       全部重写成当前时间（实测：追 1 条 macwall，9 条 9-28 的
+       老记录全变成当天时间）⇒ 现在保留旧条目原值，只给新条目
+       打时间戳。
+    ⚠ 行尾按原文件走：`toutiao_published.json` 是 LF、
+       `toutiao_drafts.json` 是 CRLF（本仓库两种并存），
+       写错行尾 = git 里多一份全文件 diff。
+    ⚠ `newline=""` 必须显式给：Windows 文本模式会把 \n 翻成
+       \r\n，行尾控制权就没了。
+    """
+    raw = b""
+    if os.path.isfile(path):
+        with open(path, "rb") as f:
+            raw = f.read()
+    lf = raw.count(b"\n") - raw.count(b"\r\n")
+    crlf = raw.count(b"\r\n")
+    nl = "\r\n" if crlf > lf else "\n"
+    try:
+        entries = json.loads(raw.decode("utf-8")) if raw.strip() else []
+    except Exception:                                # noqa: BLE001
+        entries = []
+    if not isinstance(entries, list):
+        entries = []
+    now = time.strftime("%Y-%m-%d %H:%M")
+    norm = []
+    for e in entries:
+        if isinstance(e, dict) and e.get("id"):
+            norm.append({"id": e["id"],
+                         "at": e.get("at") or now})
+        elif isinstance(e, str) and e:
+            norm.append({"id": e, "at": now})
+    if any(e["id"] == cid for e in norm):
         return
-    ids.append(cid)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump([{"id": i, "at": time.strftime("%Y-%m-%d %H:%M")} for i in ids],
-                  f, ensure_ascii=False, indent=2)
+    norm.append({"id": cid, "at": now})
+    text = json.dumps(norm, ensure_ascii=False, indent=2)
+    with open(path, "w", encoding="utf-8", newline="") as f:
+        f.write(text.replace("\n", nl))
 
 
 def mark_drafted(cid):

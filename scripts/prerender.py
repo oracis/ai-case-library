@@ -273,6 +273,7 @@ def frag_metrics(c):
         push("累计收入", human_money(m["all_time"]), True)
     push("客户/规模", m.get("customers"))
     push("团队", m.get("team"))
+    push("站长/创始人", c.get("founder"))
     push("融资", m.get("funding"))
     push("估值", m.get("valuation"))
     push("增长", m.get("growth"))
@@ -384,6 +385,16 @@ def render_body(c):
     if c.get("how_it_makes_money"):
         out.append('<div class="d-h">钱从哪来</div>'
                    '<p class="d-p">%s</p>' % esc(c["how_it_makes_money"]))
+
+    # 骨架第 3、4 段（2026-10-14 补，对齐固定 7 段叙事）：
+    # 流量来源 + 站长是谁。与 app.js 的 detailHTML() 保持同一顺序与判空逻辑 ——
+    # 存量老案例没这两个字段，整段不出现，不留空壳小标题。
+    if frag_list(c.get("traffic_sources"), "src"):
+        out.append('<div class="d-h">流量从哪来</div>'
+                   + frag_list(c.get("traffic_sources"), "src"))
+    if c.get("founder"):
+        out.append('<div class="d-h">站长是谁</div>'
+                   '<p class="d-p">%s</p>' % esc(c["founder"]))
 
     if frag_list(c.get("why_it_works"), "why"):
         out.append('<div class="d-h">为什么这事能成</div>'

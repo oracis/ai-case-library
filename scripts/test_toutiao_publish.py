@@ -7,6 +7,7 @@
 """
 import ast
 import inspect
+import json
 import os
 import re
 import sys
@@ -757,6 +758,68 @@ class TestTableVerifyHardened(unittest.TestCase):
         import tt_table_verify as V
         src = inspect.getsource(V.main)
         self.assertIn("已中止", src, "中止分支要有明确输出")
+
+
+class TestMarkLedger(unittest.TestCase):
+    """`_mark()` 台账写入回归（2026-10-14 假绿/毁历史事故）。
+
+    ⚠ 旧实现用 `_ids()` 只取 id、丢 `at`，追加一条就把整本台账的
+      发布时间洗成当前时间 —— 实测追 1 条 macwall，9 条 9-28 老记录
+      全变当天。这几条测试钉死：旧条目时间戳不许动、幂等、行尾不变。
+    ⚠ 绝不能用 `data/*.json` 当靶子（曾覆盖 41 条台账）—— 全部走 tmp。
+    """
+
+    def _tmp(self, name, text):
+        import tempfile
+        p = os.path.join(tempfile.mkdtemp(prefix="tt_mark_"), name)
+        with open(p, "w", encoding="utf-8", newline="") as f:
+            f.write(text)
+        return p
+
+    def test_existing_timestamps_preserved(self):
+        p = self._tmp("pub.json",
+                      '[{"id": "a", "at": "2026-09-28 20:40"},\n'
+                      ' {"id": "b", "at": "2026-09-28 20:40"}]')
+        tp._mark(p, "macwall")
+        d = json.load(open(p, encoding="utf-8"))
+        self.assertEqual([x["id"] for x in d], ["a", "b", "macwall"])
+        self.assertEqual(d[0]["at"], "2026-09-28 20:40",
+                         "旧条目 at 被重写 = 台账历史被毁")
+        self.assertEqual(d[1]["at"], "2026-09-28 20:40")
+        self.assertTrue(d[2]["at"].startswith("20"), "新条目要打时间戳")
+
+    def test_idempotent_no_rewrite(self):
+        raw = '[{"id": "a", "at": "2026-09-28 20:40"}]'
+        p = self._tmp("pub.json", raw)
+        before = open(p, "rb").read()
+        tp._mark(p, "a")                      # 已存在 → 应原样返回
+        self.assertEqual(open(p, "rb").read(), before,
+                         "幂等：已存在的 id 不该重写文件")
+
+    def test_crlf_preserved(self):
+        p = self._tmp("drafts.json",
+                      '[\r\n  {"id": "a", "at": "2026-09-28 20:40"}\r\n]')
+        tp._mark(p, "b")
+        raw = open(p, "rb").read()
+        self.assertIn(b"\r\n", raw, "CRLF 文件必须保持 CRLF")
+        self.assertNotIn(b"\n", raw.replace(b"\r\n", b""),
+                         "不允许混入裸 LF")
+
+    def test_lf_preserved(self):
+        p = self._tmp("pub.json",
+                      '[\n  {"id": "a", "at": "2026-09-28 20:40"}\n]')
+        tp._mark(p, "b")
+        raw = open(p, "rb").read()
+        self.assertNotIn(b"\r\n", raw, "LF 文件必须保持 LF")
+
+    def test_legacy_plain_id_list(self):
+        """老格式（纯 id 列表）也要能追加，且补上时间戳。"""
+        p = self._tmp("pub.json", '["a", "b"]')
+        tp._mark(p, "c")
+        d = json.load(open(p, encoding="utf-8"))
+        self.assertEqual([x["id"] for x in d], ["a", "b", "c"])
+        for x in d:
+            self.assertTrue(x.get("at"), "纯 id 老条目要补 at")
 
 
 if __name__ == "__main__":

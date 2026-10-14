@@ -618,6 +618,49 @@ CONTENT_FIELDS = (
     ("verdict", 30, "一句话结论"),
 )
 
+# ---------------------------------------------------------------------------
+# 骨架补全段（2026-10-14 加）：把案例页拉齐到固定的 7 段叙事。
+#
+# 为什么要补这两段 —— 原来的正文骨架只有 5 段（它是什么 / 钱从哪来 /
+# 为什么能成 / 支撑证据 / 能搬走什么），缺了「**流量从哪来**」和
+# 「**站长是谁**」。这两段不是装饰：
+#   · 流量来源决定了这个生意能不能被别人复制 —— 只讲产品不讲获客，
+#     读者抄走产品却抄不走订单，等于给了个误导性的样本；
+#   · 创始人背景决定这个判断值不值得信 —— 「前 ArcSight 老兵」和
+#     「随机注册的 indie hacker」根本不是同一类样本，不标出来
+#     就把两类东西放在同一个排行榜里比。
+#
+# ⚠⚠ **刻意不做成 blocking**（与 CONTENT_FIELDS 的区别就在这）：
+# 全库 60 条老案例都没有这两段，`candidates.json` 里的候选同样没有。
+# 一旦设成必填，闸门会把**所有存量候选**一次性判死，promote 直接瘫掉，
+# 且没有任何绕过路径（闸门是唯一入口）。所以只出 hint ——
+# 新写的案例会被提醒，老案例不补也不会挡住入库。
+CONTENT_SOFT = (
+    ("traffic_sources", "流量从哪来", "list",
+     "读者最常问「这生意靠什么获客」。不写这段，案例就只是产品介绍。"),
+    ("founder", "站长是谁", "str",
+     "创始人背景决定这个样本值不值得当参照。不写就分不清"
+     "「大厂老兵创业」和「个人独立开发」。"),
+)
+
+
+def _soft_problems(payload):
+    """CONTENT_SOFT 的缺失提示。全部 blocking=False，只提醒不拦截。"""
+    out = []
+    for key, label, kind, why in CONTENT_SOFT:
+        val = payload.get(key)
+        if kind == "list":
+            if not isinstance(val, list):
+                val = [val] if val else []
+            empty = not [x for x in val if str(x or "").strip()]
+        else:
+            empty = not str(val or "").strip()
+        if empty:
+            out.append({"key": "empty_" + key, "field": key,
+                        "label": label + " 还空着",
+                        "why": why, "blocking": False})
+    return out
+
 
 def content_problems(payload):
     """返回这条案例的正文质量问题列表（空 = 可入库）。
@@ -676,6 +719,8 @@ def content_problems(payload):
                     "why": "它是 solo_fit 的输入，缺了首页的「一个人能不能做」"
                            "排序里这条是空白。",
                     "blocking": False})
+    # 骨架补全段（流量来源 / 站长是谁）：只提醒，见 CONTENT_SOFT 的说明
+    out += _soft_problems(payload)
     return out
 
 
@@ -720,6 +765,11 @@ def schema():
         # 而不是让人 promote 完才发现文章少三节。
         "content_fields": [
             {"key": k, "min_length": n, "label": lb} for k, n, lb in CONTENT_FIELDS
+        ],
+        # 骨架补全段：缺失只提醒不拦（CONTENT_SOFT 里有为什么不 blocking 的说明）
+        "content_soft": [
+            {"key": k, "label": lb, "kind": kd, "why": w}
+            for k, lb, kd, w in CONTENT_SOFT
         ],
         "placeholders": list(PLACEHOLDER_PATTERNS),
     }

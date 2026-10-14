@@ -1097,6 +1097,7 @@ function detailHTML(c) {
   if (m.all_time) push('累计收入', '$' + num(m.all_time), true);
   push('客户/规模', m.customers);
   push('团队', m.team);
+  push('站长/创始人', c.founder);
   push('融资', m.funding);
   push('估值', m.valuation);
   push('增长', m.growth);
@@ -1119,6 +1120,23 @@ function detailHTML(c) {
   if (c.how_it_makes_money) {
     out.push('<div class="d-h">钱从哪来</div>');
     out.push(`<p class="d-p">${esc(c.how_it_makes_money)}</p>`);
+  }
+
+  /* 骨架第 3 段：流量从哪来（2026-10-14 补，对齐固定 7 段骨架）
+     为什么必须有它 —— 只讲产品不讲获客，读者会抄走产品却抄不走订单，
+     案例就退化成一个误导性的样本。存量老案例没这字段时整段跳过。 */
+  if ((c.traffic_sources || []).length) {
+    out.push('<div class="d-h">流量从哪来</div>');
+    out.push('<ul class="d-list src">' + c.traffic_sources
+      .map((x) => `<li>${esc(x)}</li>`).join('') + '</ul>');
+  }
+
+  /* 骨架第 4 段：站长是谁 —— 决定这个样本值不值得当参照。
+     「大厂老兵创业」和「个人独立开发」不是同一类东西，不标出来
+     就被放进同一个排行榜里比了。 */
+  if (c.founder) {
+    out.push('<div class="d-h">站长是谁</div>');
+    out.push(`<p class="d-p">${esc(c.founder)}</p>`);
   }
 
   /* 为什么成立 */

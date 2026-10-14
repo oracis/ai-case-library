@@ -528,6 +528,9 @@ body { display: flex; flex-direction: column; }
 .d-list.why li::before { background: var(--money); }
 .d-list.play li::before { background: var(--accent); }
 .d-list.sig li::before { background: var(--v-partial); }
+/* 流量来源（2026-10-14 骨架补全段）—— 独立配色，避免和「为什么能成/
+   证据/能搬走」三段撞色，四段连读时能一眼分清 */
+.d-list.src li::before { background: var(--v-founder); }
 .d-list li b { color: var(--text); font-weight: 600; }
 
 /* 修正区块 —— 本库的标志性功能 */

@@ -1081,6 +1081,15 @@ class Handler(BaseHTTPRequestHandler):
                     "why_it_works": hit.get("why_it_works", []),
                     "playbook": hit.get("playbook", []),
                     "signals": hit.get("signals", []),
+                    # 骨架补全段（2026-10-14）：固定 7 段叙事里新增的两段 ——
+                    # 「流量从哪来」和「站长是谁」。上面是**白名单**构造，
+                    # 不显式列出就会在 promote 的那一刻被丢掉（与 cometly 的
+                    # segment 标记同一个坑，见下方注释）。
+                    # ⚠️ 缺失是**正常状态**：全库 60 条老案例都没有这两段，
+                    #   verify_rules.CONTENT_SOFT 也刻意只出 hint 不拦，
+                    #   所以这里取不到就写空值，让前端跳过该段而不是报错。
+                    "founder": hit.get("founder", ""),
+                    "traffic_sources": hit.get("traffic_sources", []),
                     # 来源与修正优先用草稿里登记的，没有才回落到候选自带的
                     "corrections": draft.get("corrections") or hit.get("corrections", []),
                     "sources": draft.get("sources") or hit.get("sources", []),
