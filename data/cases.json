@@ -905,6 +905,7 @@
   },
   {
     "id": "wpconvert-ai-convert-ai-sites-to-wordpress",
+    "cover_desc": "把 AI 生成的网站一键转成可上线的 WordPress 站点",
     "name": "WPConvert.ai - Convert AI sites to WordPress",
     "name_en": "WPConvert.ai - Convert AI sites to WordPress",
     "origin": "美国",
@@ -1065,6 +1066,7 @@
   },
   {
     "id": "augora-ai",
+    "cover_desc": "Shopify 商家的服务端广告追踪与营销自动化",
     "name": "Augora AI",
     "name_en": "Augora AI",
     "origin": "荷兰",
@@ -1214,6 +1216,7 @@
   },
   {
     "id": "vectosolve",
+    "cover_desc": "把位图一键转成可编辑的 SVG 矢量图",
     "name": "VECTOSOLVE",
     "name_en": "VECTOSOLVE",
     "origin": "法国",
@@ -1363,6 +1366,7 @@
   },
   {
     "id": "publbee",
+    "cover_desc": "Amazon KDP 自助出版作者的 AI 工具箱",
     "name": "Publbee",
     "name_en": "Publbee",
     "origin": "奥地利",
@@ -1505,6 +1509,7 @@
   },
   {
     "id": "podawaa",
+    "cover_desc": "LinkedIn 内容排期发布与增长分析工具",
     "name": "Podawaa",
     "name_en": "Podawaa",
     "origin": "法国",
@@ -1647,6 +1652,7 @@
   },
   {
     "id": "vid-ai",
+    "cover_desc": "把想法或脚本一键变成能发布的短视频",
     "name": "Vid.AI",
     "name_en": "Vid.AI",
     "origin": "美国",
