@@ -151,7 +151,8 @@ def heal_remote_ref(branch):
 
 def main():
     ap = argparse.ArgumentParser(description="每日采集 + 自动提交推送")
-    ap.add_argument("--source", default="all", choices=["hn", "ph", "trustmrr", "all"])
+    ap.add_argument("--source", default="all",
+                    choices=["hn", "ph", "trustmrr", "trustmrr_sitemap", "all"])
     ap.add_argument("--limit", type=int, default=40)
     ap.add_argument("--max-inbox", type=int, default=None,
                     help="采集队列上限，透传给 harvest.py（默认用 harvest 自己的值）")

@@ -25,6 +25,7 @@
 """
 
 import argparse
+import gzip
 import html
 import json
 import os
@@ -34,6 +35,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -839,6 +841,447 @@ def harvest_trustmrr_html(limit):
     return items
 
 
+# ---------------------------------------------------------------- TrustMRR sitemap 全量通道
+#
+# 2026-10-14 新增。背景：/api/ai 与 discovery 两个公开端点合计只有约 100 条
+# （各 25×2 的固定榜单，无分页无搜索），而 robots 公示的 startup-sitemap.xml
+# 有 1.1 万+ 个 slug。这个通道把「发现面」从榜单扩到全站。
+#
+# 🚨 边界（llms.txt 明文，2026-10-14 实测读过全文）：
+#   "Do not scrape the website for full marketplace access. Use the public
+#    discovery tools for bounded snapshots."
+# 所以本通道的做法是：
+#   ① sitemap 是 robots 公示的索引 —— 只用来枚举 slug（发现面）；
+#   ② 每个 startup 的详情只取官方 .md（llms.txt 指定的公开 AI 入口），
+#      **不碰渲染后的 HTML**；
+#   ③ 每轮只抓有界的一批（游标轮换 + 本地缓存 + 断点续抓），
+#      **不做一次性全量镜像** —— 全量市场数据的获取官方指向认证 API，
+#      bulk mirror 等于绕开那道门，不做。
+# 覆盖节奏：默认每轮 100 个 .md，跑满全池约 110 轮（按日跑约 4 个月），
+# 需要加速时用 --tm-sweep 显式加量（用户主动发起，仍是有界批量）。
+
+TRUSTMRR_SITEMAP = "https://trustmrr.com/startup-sitemap.xml"
+TM_CACHE = "trustmrr_profiles"           # data/trustmrr_profiles.json
+TM_STALE_DAYS = 14                       # 档案超过这么多天，轮换时顺手刷新
+TM_WORKERS = 5                           # .md 是缓存快照，5 并发足够，也别太吵
+TM_MD_TIMEOUT = 25
+TM_ROUND_BUDGET = 100                    # 每轮 .md 抓取上限（日常跑默认值）
+
+
+def _fetch_text(url, timeout=30, gzip_ok=True):
+    """抓文本，**支持 gzip**（urllib 不会自动解压，得自己来）。
+
+    sitemap 不压是 1.7MB（文档实测 120s+ 拉不完），压后 160KB / 6s。
+    服务器不发 gzip 时原样返回明文，两条路都走。
+    """
+    hdrs = {"User-Agent": UA, "Accept-Language": "en-US,en;q=0.9"}
+    if gzip_ok:
+        hdrs["Accept-Encoding"] = "gzip"
+    req = urllib.request.Request(url, headers=hdrs)
+    proxies = {k: os.environ.get(k) for k in PROXY_ENV_KEYS if os.environ.get(k)}
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({})) if proxies \
+        else urllib.request.build_opener()
+    with opener.open(req, timeout=timeout) as r:
+        raw = r.read()
+        if gzip_ok and (r.headers.get("Content-Encoding") or "").lower().strip() == "gzip":
+            raw = gzip.decompress(raw)
+        return raw.decode("utf-8", "replace")
+
+
+def tm_sitemap_slugs():
+    """抓 startup-sitemap.xml → {slug: lastmod}。
+
+    ⚠ lastmod **不能当新鲜度用**：实测 11578 条里 11545 条的 lastmod 就是当天
+    （站点每日重生 sitemap），它只证明 slug 存在，不说明数据动过。
+    真正的增量判据在本地缓存（这个 slug 抓过没有），不在 lastmod。
+    """
+    try:
+        xml = _fetch_text(TRUSTMRR_SITEMAP, timeout=40)
+    except Exception as e:                                     # noqa: BLE001
+        print("    [!] TrustMRR sitemap 失败: %s" % e)
+        return {}
+    out = {}
+    for m in re.finditer(
+            r"<url>\s*<loc>https?://(?:www\.)?trustmrr\.com/startup/"
+            r"([a-z0-9\-]+)</loc>(?:<lastmod>([^<]*)</lastmod>)?", xml):
+        out[m.group(1)] = (m.group(2) or "")[:19]
+    return out
+
+
+def tm_cache_load():
+    st = load_json(TM_CACHE, {}) or {}
+    st.setdefault("sitemap", {})        # slug -> lastmod（sitemap 快照）
+    st.setdefault("profiles", {})       # slug -> 精简档案（.md 解析结果）
+    st.setdefault("gone", [])           # 抓过但确认不存在的 slug，别反复抓
+    st.setdefault("cursor", 0)          # 未抓池的轮换游标
+    st.setdefault("fetched_at", "")
+    return st
+
+
+def _md_first_link(s):
+    """取 markdown 链接的 (文本, 目标)；没有链接返回 ("", "")。"""
+    m = re.search(r"\[([^\]]+)\]\(([^)]+)\)", s or "")
+    return (m.group(1), m.group(2)) if m else ("", "")
+
+
+def _md_unescape(s):
+    """还原 markdown 转义字符（\\| → | 等）。
+
+    创始人名常带「名 \\| 公司」形态（表格里的转义竖线），不清会带着
+    反斜杠进库。只动标点，不动正文。
+    """
+    return re.sub(r"\\([\\`*_{}\[\]()#+\-.!|])", r"\1", s or "")
+
+
+def parse_trustmrr_md(text):
+    """解析 /startup/<slug>.md（llms.txt 指定的公开 AI 档案）。
+
+    比 /api/ai 多三样东西，每样都直接对应本库的红线：
+      ① 出处分层（Verification Sources：哪些字段由外部 provider 验证）；
+      ② Revenue last synced 时间戳（数据时效，红线：页面标注可能过期）；
+      ③ 12 个月收入流水（红线 2「连续多月真实爬升」的唯一判据）。
+    结构不认识的响应（404 兜底页等）返回 None —— 宁可漏抓不可错解析。
+    """
+    if not text or "## Profile" not in text:
+        return None
+    if "AI-agent Markdown profile" not in text:
+        return None
+
+    def field(label):
+        m = re.search(r"^- %s:\s*(.+)$" % re.escape(label), text, re.M)
+        return m.group(1).strip() if m else ""
+
+    def money(pat, flags=0):
+        m = re.search(pat, text, flags)
+        if not m:
+            return None
+        try:
+            return float(m.group(1).replace(",", ""))
+        except ValueError:
+            return None
+
+    p = {"stealth": False}
+    m = re.search(r"^#\s+(.+?)\s*$", text, re.M)
+    p["name"] = _md_unescape(clean(m.group(1))) if m else ""
+    if not p["name"]:
+        return None
+    # .md 尾部注明：「Stealth Company is a placeholder label」——真名不公开
+    if p["name"].lower() in ("stealth company", "anonymous startup"):
+        p["stealth"] = True
+
+    sm = re.search(r"^- Slug:\s*`?([a-z0-9\-]+)`?\s*$", text, re.M)
+    p["slug"] = sm.group(1) if sm else ""
+    _t, website = _md_first_link(field("Website"))
+    p["website"] = website or clean(field("Website"))
+    p["desc"] = clean(field("Description"))[:240]
+    p["country"] = field("Country")
+    p["founded"] = field("Founded date")[:10]
+
+    _ft, furl = _md_first_link(field("Founder"))
+    p["founder"] = _md_unescape(clean(_ft)) or _md_unescape(clean(field("Founder")))
+    xm = re.search(r"(?:x|twitter)\.com/([A-Za-z0-9_]+)", furl or "")
+    p["x_handle"] = xm.group(1) if xm else ""
+    p["x_followers"] = field("X followers")
+
+    sy = re.search(r"^- Revenue last synced:\s*([0-9T:\-\.Z]+)", text, re.M)
+    p["synced"] = sy.group(1) if sy else ""
+    rf = re.search(r"next refresh expected around ([0-9T:\-\.]+Z)", text)
+    p["refresh"] = rf.group(1) if rf else ""
+
+    # 收入表：周期 -> 金额（同时留快照行，两者应一致；不一致以快照行为准）
+    rev = {}
+    for row in re.finditer(
+            r"^\|\s*(Last 24 hours|Last 7 days|Last 30 days|Last 3 months|"
+            r"Last 6 months|Last 12 months|All time)\s*\|\s*\$?([\d,]+(?:\.\d+)?)\s*\|",
+            text, re.M):
+        rev[row.group(1)] = float(row.group(2).replace(",", ""))
+    p["rev"] = rev
+    p["last30"] = money(r"^- Last 30 days revenue snapshot:\s*\$?([\d,]+(?:\.\d+)?)", re.M)
+    if p["last30"] is None:
+        p["last30"] = rev.get("Last 30 days", 0)
+    g = re.search(r"^- Last 30 days revenue growth:\s*([+-]?[\d.]+)%", text, re.M)
+    p["growth"] = float(g.group(1)) if g else None
+    p["total"] = money(r"^- All-time revenue snapshot:\s*\$?([\d,]+(?:\.\d+)?)", re.M)
+    if p["total"] is None:
+        p["total"] = rev.get("All time", 0)
+
+    p["mrr"] = money(r"^- Current MRR:\s*\$?([\d,]+(?:\.\d+)?)", re.M) or 0
+    subs = re.search(r"^- Current active subscriptions:\s*([\d,]+)", text, re.M)
+    p["subs"] = int(subs.group(1).replace(",", "")) if subs else 0
+    vis = re.search(r"^- Last 30 days traffic or visitors:\s*([\d,]+)", text, re.M)
+    p["visitors"] = int(vis.group(1).replace(",", "")) if vis else 0
+    p["rpv"] = money(r"^- Last 30 days revenue per visitor:\s*\$?([\d.]+)", re.M)
+
+    # 月度流水。⚠ 正则只认 `| 2025-11 | $20,174 |` 形态：日流水表的
+    # `| 2026-09-15 |` 后面跟的是 `-15` 再才是 `|`，天然不会误匹配。
+    monthly = []
+    for row in re.finditer(r"^\|\s*(20\d{2}-\d{2})\s*\|\s*\$?([\d,]+(?:\.\d+)?)\s*\|",
+                           text, re.M):
+        monthly.append([row.group(1), float(row.group(2).replace(",", ""))])
+    p["monthly"] = monthly
+
+    p["pricing"] = clean(field("Pricing model"))
+    p["team"] = clean(field("Team size"))
+    p["funding"] = clean(field("Funding"))
+
+    # Markets 链接形如 /category/developer-tools —— 取 URL slug 映射本库分类
+    #（链接文本 "Dev Tools" 不在 CATEGORY_CN 里，URL slug 在）
+    p["category"] = ""
+    for _lt, lurl in re.findall(r"\[([^\]]+)\]\(([^)]+)\)", field("Markets")):
+        cm = re.search(r"/category/([a-z0-9\-]+)", lurl)
+        if cm:
+            p["category"] = category_cn(cm.group(1).replace("-", " "))
+            break
+    if not p["category"]:
+        p["category"] = category_cn(field("Markets"))
+
+    acq = re.search(r"^## Acquisition\s*\n(.*?)(?=\n## |\Z)", text, re.S | re.M)
+    acq_text = acq.group(1) if acq else ""
+    p["on_sale"] = "Status: Listed for sale" in acq_text
+    p["asking"] = money(r"^- Asking price:\s*\$?([\d,]+(?:\.\d+)?)", re.M)
+    mm = re.search(r"^- Revenue multiple:\s*([\d.]+)x", acq_text, re.M)
+    p["multiple"] = float(mm.group(1)) if mm else None
+    om = re.search(r"^- Acquisition offers received:\s*(\d+)", acq_text, re.M)
+    p["offers"] = int(om.group(1)) if om else None
+    return p
+
+
+def tm_models(p):
+    """从 .md 推断商业模式。MRR>0 即订阅；否则看定价文案。
+
+    /api/ai 那边是 `["订阅制"] if mrr else []` —— 对买断制产品（如 ShipFast：
+    MRR 恒 0 但 all-time $1.27M）会丢信息。.md 有 Pricing model 原文，能补上。
+    """
+    if p.get("on_sale"):
+        return ["交易市场"]
+    if (p.get("mrr") or 0) > 0:
+        return ["订阅制"]
+    pricing = (p.get("pricing") or "").lower()
+    if re.search(r"lifetime|one[- ]time|一次性|买断", pricing):
+        return ["买断制"]
+    if re.search(r"subscri|/mo|per month|monthly|/yr|annual|recurring", pricing):
+        return ["订阅制"]
+    return []
+
+
+def tm_pick_batch(st, budget):
+    """选出本轮要抓的 slug：**优先没抓过的**（游标轮换），全覆盖后才刷新陈旧的。
+
+    与 IH 分片池同一套路：游标记住上次抓到哪，每轮接着走，到尾部环绕。
+    把偶发的慢抓摊到多次运行，不阻塞单次采集，也不需要一次性全量下载。
+    """
+    slugs = list(st["sitemap"].keys())
+    if not slugs:
+        return []
+    gone = set(st.get("gone") or [])
+    fresh = [s for s in slugs if s not in st["profiles"] and s not in gone]
+    if fresh:
+        cur = int(st.get("cursor") or 0) % len(fresh)
+        batch = (fresh + fresh)[cur:cur + budget]
+        st["cursor"] = (cur + len(batch)) % len(fresh)
+        return batch
+    stale = sorted((s for s in st["profiles"] if s not in gone),
+                   key=lambda s: (st["profiles"][s].get("fetched") or "",
+                                  st["profiles"][s].get("synced") or ""))[:budget]
+    return stale
+
+
+def tm_fetch_profiles(slugs, workers=TM_WORKERS, timeout=TM_MD_TIMEOUT,
+                      checkpoint=None):
+    """并发抓 .md 并解析。checkpoint(profiles) 每 100 个回调一次供落盘续抓。
+
+    429 退避重试；404/410 记 gone（实测返回干净的 404 "Not found"，别下一轮再抓）；
+    其余错误重试 3 次。**解析不出档案不算 gone**——那可能是瞬时故障或半截响应，
+    下一轮轮换会重试；只有 HTTP 404/410 才判「真没了」。
+    """
+    results = {}
+    gone = set()
+
+    def one(slug):
+        last_err = ""
+        for attempt in range(3):
+            try:
+                text = _fetch_text("%s/startup/%s.md" % (TRUSTMRR_SITE, slug),
+                                   timeout=timeout)
+                p = parse_trustmrr_md(text)
+                if p:
+                    p["fetched"] = datetime.now().strftime("%Y-%m-%d")
+                return slug, p, False
+            except urllib.error.HTTPError as e:
+                last_err = "HTTP %s" % e.code
+                if e.code in (404, 410):
+                    return slug, None, True
+                if e.code == 429:
+                    time.sleep(5 * (attempt + 1))     # 被限流就退避，别硬刚
+                    continue
+            except Exception as e:                                  # noqa: BLE001
+                last_err = "%s: %s" % (type(e).__name__, e)
+            if attempt < 2:
+                time.sleep(1.5 * (attempt + 1))
+        print("    [!] .md 抓取失败 (%s): %s" % (slug, last_err))
+        return slug, None, False
+
+    with ThreadPoolExecutor(max_workers=workers) as ex:
+        futs = [ex.submit(one, s) for s in slugs]
+        done = 0
+        for fut in as_completed(futs):
+            slug, p, is_gone = fut.result()
+            if p:
+                results[slug] = p
+            elif is_gone:
+                gone.add(slug)
+            done += 1
+            if checkpoint and done % 100 == 0:
+                checkpoint(results)
+    if checkpoint:
+        checkpoint(results)
+    return results, gone
+
+
+def harvest_trustmrr_sitemap(limit, budget=TM_ROUND_BUDGET, dry_run=False):
+    """TrustMRR sitemap 全量通道：游标轮换抓 .md 档案，按收入挑 Top 进队列。
+
+    与 harvest_trustmrr（/api/ai 榜单）的分工：
+      - /api/ai：字段全、带排名，但只有约 100 条固定榜单，无分页；
+      - 本通道：发现面 1.1 万 slug，逐轮轮换覆盖，每轮有界。
+    两边产物按 slug/name 双重去重（profiles 缓存 + 入库时再判一次）。
+
+    排序口径：max(MRR, 近30天) 降序；当前收入为 0 但 all-time 非零的
+    （买断制/已衰退产品）按 all-time 参排 —— 证明「真收到过钱」，
+    但 headline 会写明口径，不会伪装成当前收入（红线 1）。
+    """
+    st = tm_cache_load()
+    sitemap = tm_sitemap_slugs()
+    if sitemap:
+        fresh_n = sum(1 for s in sitemap if s not in st["sitemap"])
+        st["sitemap"].update(sitemap)
+        print("    [i] sitemap %d 个 slug（新增 %d）" % (len(sitemap), fresh_n))
+    if not st["sitemap"]:
+        print("    [!] sitemap 没拿到，本地也无缓存")
+        return []
+
+    batch = tm_pick_batch(st, budget)
+    if not batch:
+        print("    [i] 没有待抓的 slug")
+        return []
+    print("    [i] 本轮抓 %d 个 .md 档案（池 %d，已抓 %d，游标 %s）"
+          % (len(batch), len(st["sitemap"]), len(st["profiles"]), st["cursor"]))
+
+    def ckpt(partial):
+        if not dry_run:
+            st["profiles"].update(partial)
+            save_json(TM_CACHE, st)
+
+    got, gone = tm_fetch_profiles(batch, checkpoint=ckpt)
+    st["profiles"].update(got)
+    if gone:
+        known = set(st.get("gone") or [])
+        known.update(gone)
+        st["gone"] = sorted(known)
+    st["fetched_at"] = datetime.now().strftime("%Y-%m-%d %H:%M")
+    if not dry_run:
+        save_json(TM_CACHE, st)
+    # 抓取结果可观察：成功/失败分开报。失败的slug不记 gone，下轮轮换重试
+    # （429 限流是主因，退避后多数能补上；实测一轮 250 个成功率约 94%）。
+    print("    [i] 本轮抓到 %d 份档案，失败 %d 个（失败的留待下轮重试）"
+          % (len(got), len(batch) - len(got) - len(gone)))
+
+    # ---- 选拔：已在库的、隐身的、全零收入的不占位 ----
+    taken_slugs, taken_names = set(), set()
+    for fn in ("inbox", "candidates", "cases", "inbox_archive"):
+        for c in (load_json(fn, []) or []):
+            if c.get("trustmrr_slug"):
+                taken_slugs.add(c["trustmrr_slug"])
+            if c.get("name"):
+                taken_names.add(c["name"].lower())
+
+    pool, skipped = [], {"dup": 0, "stealth": 0, "zero": 0, "floor": 0}
+    for slug, p in st["profiles"].items():
+        if p.get("gone"):
+            continue
+        if slug in taken_slugs or (p.get("name") or "").lower() in taken_names:
+            skipped["dup"] += 1
+            continue
+        if p.get("stealth"):
+            skipped["stealth"] += 1
+            continue
+        lead = max(p.get("mrr") or 0, p.get("last30") or 0)
+        if lead == 0 and (p.get("total") or 0) == 0:
+            # 全零：.md 收入表是全的，全零就是真没有收入，没有案例价值。
+            # （/api/ai 那边放行零收入是因为「可能只是没同步」，.md 没有这个问题）
+            skipped["zero"] += 1
+            continue
+        if 0 < lead < TRUSTMRR_MRR_FLOOR:
+            skipped["floor"] += 1
+            continue
+        pool.append((slug, p, lead if lead else (p.get("total") or 0)))
+    pool.sort(key=lambda t: -t[2])
+    picked = pool[:limit]
+    if skipped["dup"] or skipped["stealth"] or skipped["zero"] or skipped["floor"]:
+        print("    [i] 档案池选拔：跳过 已在库 %d / 隐身 %d / 全零收入 %d / 低于 $%d %d"
+              % (skipped["dup"], skipped["stealth"], skipped["zero"],
+                 TRUSTMRR_MRR_FLOOR, skipped["floor"]))
+
+    items = []
+    for slug, p, _lead in picked:
+        note = ("来自 TrustMRR 官方公开 Markdown 档案 %s/startup/%s.md"
+                "（llms.txt 指定的 AI 入口；收入由支付提供商 API 直接读取验证，"
+                "非截图自报）。" % (TRUSTMRR_SITE, slug))
+        if p.get("synced"):
+            note += "收入数据同步于 %s" % p["synced"]
+        if p.get("refresh"):
+            note += "，档案为缓存快照（下次刷新约 %s）" % p["refresh"]
+        note += ("。口径：MRR = 当前月经常性收入（非订阅制项目恒 0）；"
+                 "近 30 天 = 滚动 30 天已验证流水，含一次性与用量收入，"
+                 "别当经常性收入引用；累计 = all-time。仍需人工确认口径与时效。")
+        if p.get("monthly"):
+            note += "已带 12 个月收入流水（monthly_timeline），可判连续多月是否真实爬升。"
+
+        items.append({
+            "name": p["name"][:90],
+            "one_liner": (p.get("desc") or "")[:240],
+            "url": "%s/startup/%s" % (TRUSTMRR_SITE, slug),
+            "website": p.get("website") or "",
+            "points": 0, "comments": 0,
+            "created_at": datetime.now().strftime("%Y-%m-%d"),
+            "_blob": "%s %s verified revenue mrr" % (p["name"], p.get("desc") or ""),
+            "_verified_rank": False,
+            "_origin": "trustmrr",
+            "_api": {
+                "slug": slug,
+                "website": p.get("website") or "",
+                "rank": None,
+                "mrr": p.get("mrr") or 0,
+                "revenue_last30d": p.get("last30") or 0,
+                "revenue_total": p.get("total") or 0,
+                "customers": None,
+                "subscriptions": p.get("subs") or 0,
+                "growth": p.get("growth"),
+                "growth_mrr": None,
+                "asking_price": p.get("asking"),
+                "multiple": p.get("multiple"),
+                "profit_margin": None,
+                "visitors": p.get("visitors") or 0,
+                "revenue_per_visitor": p.get("rpv"),
+                "category": p.get("category") or "",
+                "country": country_cn(p.get("country")),
+                "founded": p.get("founded") or "",
+                "x_handle": p.get("x_handle") or "",
+                "x_founder": p.get("founder") or "",
+                "markdown_url": "%s/startup/%s.md" % (TRUSTMRR_SITE, slug),
+                "pageviews": None,
+                "offers": p.get("offers"),
+                "on_sale": bool(p.get("on_sale")),
+                "stealth": False,
+                "note": note,
+            },
+            "_models": tm_models(p),
+            "_freshness": p.get("synced") or "",
+            "_monthly": p.get("monthly") or [],
+        })
+    return items
+
+
 # ---------------------------------------------------------------- 来源性质
 #
 # 五个信息源的 A/B/B- 分级落到代码里就是这四个值。前端据此显示徽章，
@@ -1621,7 +2064,8 @@ def write_report(added_pairs, by_source, inbox_total, archived_now,
 def main():
     ap = argparse.ArgumentParser(description="采集候选项目到采集队列")
     ap.add_argument("--source", default="hn",
-                    choices=["hn", "ph", "trustmrr", "indiehackers", "arrclub", "all"],
+                    choices=["hn", "ph", "trustmrr", "indiehackers", "arrclub",
+                             "trustmrr_sitemap", "all"],
                     help="要跑的采集源（默认 hn）")
     ap.add_argument("--limit", type=int, default=50, help="每个源最多取多少条")
     ap.add_argument("--token", default=os.environ.get("PH_TOKEN", ""),
@@ -1639,6 +2083,12 @@ def main():
     ap.add_argument("--ih-breadth", action="store_true",
                     help="IndieHackers 走 sitemap 广度模式（慢，但覆盖上万产品）。"
                          "默认只用两个列表页，几秒拿 42 个高收入/最新产品")
+    ap.add_argument("--tm-budget", type=int, default=TM_ROUND_BUDGET,
+                    help="TrustMRR sitemap 通道每轮抓多少个 .md 档案（默认 %d）。"
+                         "抓取有界、断点续抓，跑满全池约 110 轮" % TM_ROUND_BUDGET)
+    ap.add_argument("--tm-sweep", type=int, default=0,
+                    help="一次性加大本轮 .md 抓取量（覆盖 --tm-budget）。"
+                         "仍是有界批量，不做全量镜像（llms.txt 边界）")
     ap.add_argument("--fix-source-kind", action="store_true",
                     help="给存量数据（采集队列 + 候选池）补 source_kind 后退出，不采集")
     args = ap.parse_args()
@@ -1676,7 +2126,8 @@ def main():
     print("=" * 60)
 
     raw = []
-    want = {"hn", "ph", "trustmrr", "indiehackers"} if args.source == "all" else {args.source}
+    want = {"hn", "ph", "trustmrr", "indiehackers", "trustmrr_sitemap"} \
+        if args.source == "all" else {args.source}
 
     # ARR Club 单独处理：它是二手转述，只写参照表，不进候选池（避免污染）。
     if "arrclub" in want:
@@ -1723,6 +2174,13 @@ def main():
     if "trustmrr" in want:
         print("[*] TrustMRR 榜单 / 市场")
         got = harvest_trustmrr(args.limit)
+        print("    → 拉到 %d 条" % len(got))
+        raw += got
+
+    if "trustmrr_sitemap" in want:
+        print("[*] TrustMRR sitemap 全量通道（游标轮换 + 官方 .md 档案）")
+        got = harvest_trustmrr_sitemap(
+            args.limit, budget=args.tm_sweep or args.tm_budget, dry_run=args.dry_run)
         print("    → 拉到 %d 条" % len(got))
         raw += got
 
@@ -1805,12 +2263,18 @@ def main():
             if api.get("profit_margin") is not None:
                 metrics["margin"] = "%s%%" % api["profit_margin"]
 
-            if mrr:
+            if mrr and mrr >= (api.get("revenue_last30d") or 0):
                 headline = "MRR " + _money_cell(mrr)
                 if api.get("rank"):
                     headline += "，TrustMRR 第 %s 名" % api["rank"]
             elif api.get("revenue_last30d"):
+                # 门面指标取 MRR 与近 30 天中较大的那个（与 _unwrap_api_item
+                # 同一口径）：只写 MRR 会把佣金/流水型业务显示成个位数
+                # （实测 MRR $63 / 近 30 天 $2k+ 的真实条目），看着像没在运营。
                 headline = "近 30 天收入 " + _money_cell(api["revenue_last30d"])
+            elif api.get("revenue_total"):
+                headline = ("累计收入 %s（当前 MRR 与近 30 天均为 0，口径见 metric_note）"
+                            % _money_cell(api["revenue_total"]))
             else:
                 headline = "TrustMRR 收录（收入未公开）"
             metrics["headline"] = headline
@@ -1832,7 +2296,9 @@ def main():
                 "category": api.get("category") or "未分类",
                 "verification": "partial",
                 "metrics": metrics,
-                "models": ["订阅制"] if mrr else [],
+                # sitemap 通道带 _models（买断制/订阅制从 Pricing model 推断），
+                # 没有时沿用旧口径；_freshness/_monthly 同理（.md 才有）
+                "models": it.get("_models") or (["订阅制"] if mrr else []),
                 "note": api.get("note") or "",
                 "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
                 "source_url": it.get("url") or "",
@@ -1932,6 +2398,13 @@ def main():
             cand["hn_id"] = it["object_id"]
         if api.get("slug"):
             cand["trustmrr_slug"] = api["slug"]
+        # .md 档案独有的两样：收入同步时间（数据时效）+ 12 个月流水（红线 2 判据）。
+        # monthly_timeline 是 list，triage.has_numbers() 的 isinstance 守卫会跳过它，
+        # 不会把「历史月度收入」误判成「当前有收入」。
+        if it.get("_freshness"):
+            cand["data_freshness"] = it["_freshness"]
+        if it.get("_monthly"):
+            metrics["monthly_timeline"] = it["_monthly"]
 
         if listing:
             cand["metrics"] = {"headline": " · ".join(

@@ -295,7 +295,7 @@ def test_integration():
     tmp = tempfile.mkdtemp(prefix="harvest_test_")
     orig_dir = H.DATA_DIR
     orig = (H.harvest_hn, H.harvest_indiehackers, H.harvest_trustmrr,
-            H.harvest_producthunt)
+            H.harvest_producthunt, H.harvest_trustmrr_sitemap)
     try:
         H.DATA_DIR = tmp
 
@@ -327,8 +327,26 @@ def test_integration():
                      "points": 500, "comments": 0, "created_at": "2026-09-01",
                      "_blob": "PH Thing launched mrr", "_origin": "ph"}]
 
+        def fake_tm_sitemap(limit, budget=100, dry_run=False):
+            return [{"name": "TM Sitemap Thing", "one_liner": "from .md profile",
+                     "url": "https://trustmrr.com/startup/tm-sitemap",
+                     "website": "https://tms.example", "points": 0, "comments": 0,
+                     "created_at": "2026-10-14",
+                     "_blob": "TM Sitemap Thing mrr revenue verified",
+                     "_origin": "trustmrr", "_verified_rank": False,
+                     "_api": {"slug": "tm-sitemap", "website": "https://tms.example",
+                              "rank": None, "mrr": 800, "revenue_last30d": 800,
+                              "revenue_total": 9600, "subscriptions": 40,
+                              "category": "开发者工具", "country": "SG",
+                              "on_sale": False, "stealth": False,
+                              "note": "来自 .md 档案"},
+                     "_models": ["订阅制"],
+                     "_freshness": "2026-10-14T08:00:00Z",
+                     "_monthly": [["2026-09", 800.0]]}]
+
         H.harvest_hn, H.harvest_indiehackers = fake_hn, fake_ih
         H.harvest_trustmrr, H.harvest_producthunt = fake_tm, fake_ph
+        H.harvest_trustmrr_sitemap = fake_tm_sitemap
 
         argv = sys.argv
         sys.argv = ["harvest.py", "--source", "all", "--limit", "5",
@@ -345,7 +363,7 @@ def test_integration():
         with open(os.path.join(tmp, "inbox.json"), encoding="utf-8") as f:
             inbox = json.load(f)
         ids = {c.get("name"): c for c in inbox}
-        chk("四个源都进了采集队列", len(inbox) == 4, sorted(ids))
+        chk("五个源都进了采集队列", len(inbox) == 5, sorted(ids))
         chk("每条都有 source_kind 字段",
             all(c.get("source_kind") for c in inbox),
             [(c.get("name"), c.get("source_kind")) for c in inbox])
@@ -355,6 +373,14 @@ def test_integration():
             ids.get("IH Thing", {}).get("source_kind") == "self_reported")
         chk("TrustMRR 条目 -> verified",
             ids.get("TM Thing", {}).get("source_kind") == "verified")
+        chk("TrustMRR sitemap 条目 -> verified",
+            ids.get("TM Sitemap Thing", {}).get("source_kind") == "verified")
+        chk("sitemap 条目带 .md 档案三件套（freshness/monthly/models）",
+            (ids.get("TM Sitemap Thing", {}).get("data_freshness") == "2026-10-14T08:00:00Z"
+             and (ids.get("TM Sitemap Thing", {}).get("metrics") or {}).get("monthly_timeline")
+             == [["2026-09", 800.0]]
+             and ids.get("TM Sitemap Thing", {}).get("models") == ["订阅制"]),
+            ids.get("TM Sitemap Thing"))
         chk("Product Hunt 条目 -> discovery",
             ids.get("PH Thing", {}).get("source_kind") == "discovery")
 
@@ -378,7 +404,7 @@ def test_integration():
     finally:
         H.DATA_DIR = orig_dir
         (H.harvest_hn, H.harvest_indiehackers, H.harvest_trustmrr,
-         H.harvest_producthunt) = orig
+         H.harvest_producthunt, H.harvest_trustmrr_sitemap) = orig
         import shutil
         shutil.rmtree(tmp, ignore_errors=True)
     print()
