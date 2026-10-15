@@ -124,9 +124,12 @@ class TestDelistedGate(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn("偏差", why)
 
-    def test_破例名单必须留痕(self):
-        """vid-ai 被作者破例放行，但破例理由要能写进口径说明。"""
-        self.assertIn("vid-ai", PC.OVERRIDE_RETAIN)
+    def test_放宽后_vidai_按规则放行且下滑事实仍写进说明(self):
+        """2026-10-15 门槛 60%→40%：vid-ai（46%）不再需要破例，按规则就该放行。
+
+        但**放宽不等于不标注**：峰值→最近月的下滑必须照样写进 metric_note，
+        读者要能看见它在降。这条验的就是「放行了，但没把数字藏起来」。
+        """
         rec = {"id": "vid-ai", "trade": {"price": "$1,500,000", "multiple": "2.87x"},
                "metrics": {"mrr": 57663.33}, "added_at": "2026-09-23"}
         lv = live(mrr=48380.0, monthly=[
@@ -136,16 +139,53 @@ class TestDelistedGate(unittest.TestCase):
             {"month": "2026-09", "revenue": 41609.0},
             {"month": "2026-10", "revenue": 9643.0}])
         lv["synced_at"] = "2026-10-10T02:07:37.798Z"
+        self.assertLess(0.40, 41609.0 / 89846.0)  # 46%：高于新门槛
         ok, why, m, extra = PC.check_one(rec, lv)
-        self.assertTrue(ok, "破例条目应当放行：%s" % why)
-        self.assertIn("override", extra)
+        self.assertTrue(ok, "46%% 留存高于门槛 40%%，应当按规则放行：%s" % why)
         note = PC.build_metric_note(rec, lv, m, extra.get("growth"),
                                     extra.get("ret"), extra.get("peak"),
                                     extra.get("last"), extra.get("override"))
         self.assertIn("留存", note)
-        self.assertIn("破例", note)
-        # 下滑事实不许被破例掩盖
+        # 下滑事实不许因为「放行了」就消失
         self.assertIn("46%", note)
+        self.assertIn("$89,846", note)
+
+    def test_破例名单必须留痕(self):
+        """低于门槛的条目被人工破例放行时，理由要能写进口径说明。
+
+        （vid-ai 在 2026-10-15 门槛下调后已按规则放行，不再走破例分支，
+        所以这里用一个留存低于门槛的合成条目来验破例链路本身。）
+        """
+        rid = "_test_override_case"
+        old = PC.OVERRIDE_RETAIN.get(rid)
+        PC.OVERRIDE_RETAIN[rid] = "测试用破例：高位横盘后缓降"
+        try:
+            # 形状必须是「峰值后连续温和下滑」：单月跌幅保持在 -50% 以内
+            #（否则先被 COLLAPSE 判据拦下，走不到留存分支），
+            # 而峰值→最近完整月的留存低于 40%（3800/10000 = 38%）。
+            rec = {"id": rid, "metrics": {"mrr": 3800.0}}
+            lv = live(mrr=3800.0, monthly=[
+                {"month": "2026-05", "revenue": 10000.0},   # 峰值
+                {"month": "2026-06", "revenue": 6000.0},
+                {"month": "2026-07", "revenue": 4500.0},
+                {"month": "2026-08", "revenue": 4000.0},
+                {"month": "2026-09", "revenue": 3800.0}])   # 留存 38% < 40%
+            lv["synced_at"] = "2026-10-06T00:00:00Z"
+            ok, why, m, extra = PC.check_one(rec, lv)
+            self.assertTrue(ok, "破例条目应当放行：%s" % why)
+            self.assertIn("override", extra)
+            note = PC.build_metric_note(rec, lv, m, extra.get("growth"),
+                                        extra.get("ret"), extra.get("peak"),
+                                        extra.get("last"), extra.get("override"))
+            self.assertIn("留存", note)
+            self.assertIn("破例", note)
+            # 下滑事实不许被破例掩盖
+            self.assertIn("38%", note)
+        finally:
+            if old is None:
+                PC.OVERRIDE_RETAIN.pop(rid, None)
+            else:
+                PC.OVERRIDE_RETAIN[rid] = old
 
     def test_未破例的腰斩条目被挡(self):
         """linkpost 实测：峰值 $35,909 → $5,702，留存 16%。

@@ -117,6 +117,9 @@ tmp/
 # xhs_drafts.json 的手工备份（防 purge 误删，留一次就够）
 data/xhs_drafts.json.bak
 
+# xhs 草稿校验的临时产物（scripts/_xhs_verify.py 输出，仅 total/amount_violations）
+data/_xhs_verify.json
+
 # wechat_publish.py sync 每次回写前自动生成的台账快照 + 原子写临时文件。
 # ⚠ **别提交**：sync 是日常操作，每次都产出一份 .bak，入库只会堆噪音 diff，
 # 而真正的权威版本在 git 里（曾靠 `git show HEAD:data/wechat_published.json`

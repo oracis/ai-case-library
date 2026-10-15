@@ -1064,16 +1064,33 @@ def tm_models(p):
     return []
 
 
-def tm_pick_batch(st, budget):
-    """选出本轮要抓的 slug：**优先没抓过的**（游标轮换），全覆盖后才刷新陈旧的。
+def tm_pick_batch(st, budget, seeds=None):
+    """选出本轮要抓的 slug：**种子优先，其次没抓过的**（游标轮换），全覆盖后才刷新陈旧的。
 
     与 IH 分片池同一套路：游标记住上次抓到哪，每轮接着走，到尾部环绕。
     把偶发的慢抓摊到多次运行，不阻塞单次采集，也不需要一次性全量下载。
+
+    seeds：外部线索源给的 slug 清单（如 howtomakemi 索引与 TrustMRR 的交叉集）。
+    它们只是「排队优先级」，不改变抓取边界——仍受 budget 有界约束，
+    已抓过/已 gone 的自动跳过。种子本身不进 st，避免污染轮换池。
     """
     slugs = list(st["sitemap"].keys())
     if not slugs:
         return []
     gone = set(st.get("gone") or [])
+    seed_fresh = []
+    for s in (seeds or []):
+        if s not in st["profiles"] and s not in gone and s not in seed_fresh:
+            seed_fresh.append(s)
+    if seed_fresh:
+        batch = seed_fresh[:budget]
+        print("    [i] 种子队列 %d 个新 slug 优先抓取" % len(seed_fresh))
+        return batch
+    if seeds:
+        # 种子模式：只抓种子。种子抓完就停，不轮换 sitemap 其他 slug——
+        # 那会稀释「这个线索源发现了什么」。定期全面轮换请走不带
+        # --tm-seeds 的普通模式。
+        return []
     fresh = [s for s in slugs if s not in st["profiles"] and s not in gone]
     if fresh:
         cur = int(st.get("cursor") or 0) % len(fresh)
@@ -1138,7 +1155,8 @@ def tm_fetch_profiles(slugs, workers=TM_WORKERS, timeout=TM_MD_TIMEOUT,
     return results, gone
 
 
-def harvest_trustmrr_sitemap(limit, budget=TM_ROUND_BUDGET, dry_run=False):
+def harvest_trustmrr_sitemap(limit, budget=TM_ROUND_BUDGET, dry_run=False,
+                             seeds_file=None):
     """TrustMRR sitemap 全量通道：游标轮换抓 .md 档案，按收入挑 Top 进队列。
 
     与 harvest_trustmrr（/api/ai 榜单）的分工：
@@ -1146,10 +1164,24 @@ def harvest_trustmrr_sitemap(limit, budget=TM_ROUND_BUDGET, dry_run=False):
       - 本通道：发现面 1.1 万 slug，逐轮轮换覆盖，每轮有界。
     两边产物按 slug/name 双重去重（profiles 缓存 + 入库时再判一次）。
 
+    seeds_file：外部线索源的 slug 清单文件（每行一个，# 开头为注释）。
+    用来把别的站点的索引（如 howtomakemi）当发现面——slug 命中 TrustMRR
+    的按一手档案抓，没命中的线索另行核验。种子只影响排队先后，抓取量与
+    边界（llms.txt：有界批量、不全量镜像）不变。
+
     排序口径：max(MRR, 近30天) 降序；当前收入为 0 但 all-time 非零的
     （买断制/已衰退产品）按 all-time 参排 —— 证明「真收到过钱」，
     但 headline 会写明口径，不会伪装成当前收入（红线 1）。
     """
+    seeds = []
+    if seeds_file:
+        try:
+            with open(seeds_file, encoding="utf-8") as f:
+                seeds = [ln.strip() for ln in f
+                         if ln.strip() and not ln.startswith("#")]
+            print("    [i] 种子清单 %s：%d 个 slug" % (seeds_file, len(seeds)))
+        except OSError as e:
+            print("    [!] 读不到种子清单 %s: %s（按普通轮换跑）" % (seeds_file, e))
     st = tm_cache_load()
     sitemap = tm_sitemap_slugs()
     if sitemap:
@@ -1160,10 +1192,14 @@ def harvest_trustmrr_sitemap(limit, budget=TM_ROUND_BUDGET, dry_run=False):
         print("    [!] sitemap 没拿到，本地也无缓存")
         return []
 
-    batch = tm_pick_batch(st, budget)
+    batch = tm_pick_batch(st, budget, seeds=seeds)
     if not batch:
-        print("    [i] 没有待抓的 slug")
-        return []
+        # 种子已抓完：档案池里可能还有上轮被 limit 截断、没进队列的，
+        # 直接走选拔（不抓取）。种子全进过库时才真没事干。
+        if not (seeds and any(s in st["profiles"] for s in seeds)):
+            print("    [i] 没有待抓的 slug")
+            return []
+        print("    [i] 种子已抓完，直接从档案池选拔")
     print("    [i] 本轮抓 %d 个 .md 档案（池 %d，已抓 %d，游标 %s）"
           % (len(batch), len(st["sitemap"]), len(st["profiles"]), st["cursor"]))
 
@@ -1196,7 +1232,10 @@ def harvest_trustmrr_sitemap(limit, budget=TM_ROUND_BUDGET, dry_run=False):
                 taken_names.add(c["name"].lower())
 
     pool, skipped = [], {"dup": 0, "stealth": 0, "zero": 0, "floor": 0}
+    seed_set = set(seeds)
     for slug, p in st["profiles"].items():
+        if seed_set and slug not in seed_set:
+            continue                      # 种子模式：只从本线索源的档案里选拔
         if p.get("gone"):
             continue
         if slug in taken_slugs or (p.get("name") or "").lower() in taken_names:
@@ -2089,6 +2128,10 @@ def main():
     ap.add_argument("--tm-sweep", type=int, default=0,
                     help="一次性加大本轮 .md 抓取量（覆盖 --tm-budget）。"
                          "仍是有界批量，不做全量镜像（llms.txt 边界）")
+    ap.add_argument("--tm-seeds", default="",
+                    help="外部线索源的 slug 清单文件（每行一个，# 注释）。"
+                         "命中 TrustMRR 的 slug 优先抓一手 .md 档案——"
+                         "用来把别的站点的索引当发现面（如 howtomakemi）")
     ap.add_argument("--fix-source-kind", action="store_true",
                     help="给存量数据（采集队列 + 候选池）补 source_kind 后退出，不采集")
     args = ap.parse_args()
@@ -2180,7 +2223,8 @@ def main():
     if "trustmrr_sitemap" in want:
         print("[*] TrustMRR sitemap 全量通道（游标轮换 + 官方 .md 档案）")
         got = harvest_trustmrr_sitemap(
-            args.limit, budget=args.tm_sweep or args.tm_budget, dry_run=args.dry_run)
+            args.limit, budget=args.tm_sweep or args.tm_budget,
+            dry_run=args.dry_run, seeds_file=args.tm_seeds or None)
         print("    → 拉到 %d 条" % len(got))
         raw += got
 

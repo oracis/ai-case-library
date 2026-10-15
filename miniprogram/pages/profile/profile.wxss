@@ -1,0 +1,40 @@
+.page { padding: 24rpx 24rpx 80rpx; display: flex; flex-direction: column; gap: 18rpx; }
+
+.me { padding: 24rpx 28rpx; }
+.avatar {
+  width: 72rpx; height: 72rpx; border-radius: 20rpx;
+  background: var(--accent-dim); color: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 34rpx; font-weight: 700; margin-right: 20rpx;
+}
+.me-name { font-size: 29rpx; font-weight: 650; }
+.me-sub { font-size: 21rpx; color: var(--text-3); margin-top: 2rpx; font-family: ui-monospace, Menlo, monospace; }
+.me-rules { font-size: 23rpx; color: var(--text-3); border: 1rpx solid var(--border); border-radius: 14rpx; padding: 4rpx 18rpx; }
+
+.ent { border-color: rgba(70,211,138,.3); background: linear-gradient(180deg, rgba(70,211,138,.06), transparent), var(--surface); }
+.ent-h { font-size: 29rpx; font-weight: 700; color: var(--money); }
+.ent-sub { font-size: 22rpx; color: var(--text-2); margin-top: 4rpx; }
+.ent-badge {
+  font-size: 21rpx; color: var(--money); font-weight: 600;
+  background: var(--money-dim); border-radius: 12rpx; padding: 2rpx 16rpx;
+}
+
+.sec-h {
+  font-size: 25rpx; font-weight: 650; color: var(--text);
+  padding-left: 14rpx; border-left: 4rpx solid var(--accent);
+  margin-top: 8rpx;
+}
+
+.fn { display: flex; flex-direction: column; gap: 16rpx; }
+.fn-h { font-size: 29rpx; font-weight: 650; }
+.fn-sub { font-size: 22rpx; color: var(--text-3); margin-top: 3rpx; line-height: 1.55; }
+.fn-price { font-family: ui-monospace, Menlo, monospace; font-size: 32rpx; font-weight: 700; color: var(--money); }
+.fn-unit { font-size: 22rpx; color: var(--text-3); }
+.fn-owned { font-size: 24rpx; color: var(--money); text-align: center; padding: 14rpx 0; }
+
+.rp-item { display: flex; align-items: center; padding: 22rpx 28rpx; }
+.rp-item:active { background: var(--surface-2); }
+.rp-name { flex: 1; font-size: 27rpx; }
+.rp-go { color: var(--text-3); }
+
+.foot { text-align: center; font-size: 21rpx; padding: 30rpx 0; line-height: 1.8; }

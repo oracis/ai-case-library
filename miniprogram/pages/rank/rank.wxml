@@ -1,0 +1,40 @@
+<view class="page">
+
+  <view class="intro card">
+    <view class="i-h">两个问题，筛掉 90% 的「看看而已」</view>
+    <view class="i-p">
+      ① <b>一个人做得来</b>吗（技术/运营门槛）？② <b>搬得回国内</b>吗（合规/支付/语言）？
+      两条都过 60 分才算黄金象限。评分依据写在每个案例的详情里。
+    </view>
+  </view>
+
+  <view wx:if="{{loading}}" class="empty">加载中…</view>
+
+  <block wx:for="{{quads}}" wx:key="key">
+    <view class="quad" wx:if="{{item.count > 0}}">
+      <view class="q-head">
+        <text class="q-title {{item.key}}">{{item.title}}</text>
+        <text class="q-count">{{item.count}}</text>
+      </view>
+      <view class="q-sub">{{item.sub}}</view>
+
+      <view class="card q-item" wx:for="{{item.items}}" wx:for-item="c" wx:key="id"
+            bindtap="goCase" data-id="{{c.id}}">
+        <view class="row">
+          <text class="qi-name">{{c.name}}</text>
+          <view class="gap"></view>
+          <text class="qi-money" wx:if="{{c.mainRev}}">{{c.mainRev.text}}</text>
+        </view>
+        <view class="qi-one">{{c.one_liner}}</view>
+        <view class="row qi-scores">
+          <text class="pill">单干 {{c.solo}}</text>
+          <text class="pill">回国 {{c.china}}</text>
+          <view class="gap"></view>
+          <text class="qi-sc">综合 {{c.score == null ? '–' : c.score}}</text>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <view class="foot">共 {{total}} 条案例参与评分 · 本页功能免费</view>
+</view>

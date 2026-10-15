@@ -106,14 +106,26 @@ def archive_from_inbox(ids):
 
 # 允许入库的最低月收入（美元）。与 triage.TINY_REVENUE 同源，
 # 但这里额外要求**实测**（不是缓存），因为深核之后就该按一手数判定。
-MIN_MRR = 1000.0
+#
+# 2026-10-15 下调 1000 → 300（作者定：对照站 1133 条、我们才 77 条，
+# 门槛过严）。选 300 而不是更低：
+#   · $300/月 = $3.6K/年，仍是「有人在持续付费」的真生意，不是注册用户数；
+#   · 更低（$100）会放进大量还处在验证期的项目 —— 它们的收入曲线不足
+#     两个月，讲不出可复制的结论（实测：阈值 $100 时多出的条目里
+#     近一半月度时间线不到 3 行）。
+# 数字小不可怕，可怕的是口径不清：小体量条目照样走 metric_note 声明口径、
+# 照样按三档 tier 落到「备选/实核」，读者自己能判断值不值。
+MIN_MRR = 300.0
 
 # 实测 MRR 相对缓存的允许偏差。超过说明这段时间发生了实质变化
 #（暴涨、暴跌、换支付网关），必须让人看一眼，不自动搬。
 MAX_DRIFT = 0.35
 
 # 月收入跌幅超过这个比例 ⇒ 产品在萎缩，不适合写成「增长案例」
-COLLAPSE = -0.30
+# 2026-10-15 随 PEAK_RETENTION 一起放宽（-0.30 → -0.50）：单月跌三成
+# 对月流水几百美金的小生意太常见（一个大客户流失就够），把它判成
+# 「萎缩」会误杀；真正该拦的是从峰值掉六成 —— 那由 PEAK_RETENTION 管。
+COLLAPSE = -0.50
 
 # 🚨 **历史峰值留存率**下限（2026-10-10 实测补的第二个判据）。
 #
@@ -131,7 +143,14 @@ COLLAPSE = -0.30
 #
 # 为什么不是「一律拦掉」：留存低不等于没价值，它可能值得写成
 # 「衰退案例」。所以这里只**不自动晋升**，由人决定要不要写、怎么写。
-PEAK_RETENTION = 0.60
+# 2026-10-15 下调 0.60 → 0.40（作者定：放宽条件）。
+# 原来的 60% 是「拦爆款崩塌」，但它把一类有价值的样本一起拦掉了：
+# 高位横盘后温和下滑的稳定生意（vid-ai 那种）。40% 以下仍拦 ——
+# 留存 40% 意味着从峰值掉了六成，那已经不是「在做的生意」，
+# 是「正在结束的生意」，写进库会变成用幸存者偏差讲故事。
+# ⚠ 放宽不等于不标注：留存率一律由 metric_note 明写（「历史峰值 $X →
+#   最近完整月 $Y，留存 Z%」），读者看得见它在降，不靠把数字藏起来。
+PEAK_RETENTION = 0.40
 
 # 🚨 **人工破例名单**（2026-10-10，作者决定）。
 #
@@ -203,16 +222,36 @@ def check_one(rec, live):
     """
     rid = rec.get("id")
     extra = {}
-    if live["state"] != "live":
+    # 🚨 2026-10-15 修：原来一句 `!= "live"` 把 gone 和 unknown 混成
+    # 同一句「已下架」。unknown 多半是 TrustMRR 429 限流（批量跑 240 条时
+    # 实测 203 条全落这里）—— 那是**没判定**，不是**判死了**，
+    # 按已下架处理会让一批活着的生意被静默放弃。
+    # 现在：gone 才叫下架；unknown 返回 ok=None（= 跳过，留在队列里等重试），
+    # 调用方不得把它当成拒绝，更不得据此归档。
+    if live.get("state") == "unknown":
+        why = live.get("err") or ("HTTP %s" % live.get("http")) or "未知原因"
+        return None, ("远端没拿到判定（%s）—— 不作结论，留待重试" % why), None, extra
+    if live.get("state") != "live":
         return False, "已下架（sitemap 无此 slug 且 .md 抓不到）", None, extra
 
     m = live["metrics"]
-    mrr = m.get("mrr")
-    if not isinstance(mrr, (int, float)) or mrr <= 0:
-        return False, "实测 MRR 为 %s —— 收入未公开或已归零，不够成案" % mrr, m, extra
+    mrr = m.get("mrr") if isinstance(m.get("mrr"), (int, float)) else 0
+    last30 = (m.get("last_30d_revenue")
+              if isinstance(m.get("last_30d_revenue"), (int, float)) else 0)
+    # 门面口径 = max(MRR, 近30天)。🚨 2026-10-14 修：原闸门硬判 MRR>0，
+    # 把非订阅制/买断制真生意全误杀——而库里 60 条案例本就有 24 条 MRR=0
+    # （MacWall、Homy…全是「近 30 天收入」口径，红线 1 只要求声明口径，
+    # 没要求排除这类生意）。当时因此砍掉了 avenue-ticketing（近30天
+    # $502K，全种子池最大）和 corsidia（$81K/月、累计 $3.15M）。
+    # 判据改为「门面收入为正」；caliber/headline 按实际门面写（见 to_candidate）。
+    lead = max(mrr or 0, last30 or 0)
+    if lead <= 0:
+        return False, ("实测 MRR 为 %s、近 30 天 %s —— 收入未公开或已归零，"
+                       "不够成案" % (mrr, last30)), m, extra
 
-    if mrr < MIN_MRR:
-        return False, "实测 MRR %s 低于成案门槛 %s" % (fmt_money(mrr), fmt_money(MIN_MRR)), m, extra
+    if lead < MIN_MRR:
+        return False, ("实测门面收入 %s 低于成案门槛 %s"
+                       % (fmt_money(lead), fmt_money(MIN_MRR))), m, extra
 
     growth, mth = calendar_month_growth(live.get("monthly"), live.get("synced_at"))
     if growth is not None and growth <= COLLAPSE:
@@ -247,15 +286,29 @@ def check_one(rec, live):
 
 def build_metric_note(rec, live, m, growth, ret=None, peak=None, last=None, override=None):
     """口径说明。**每个进案例的数字都必须带它**（红线 1）。"""
-    bits = [
-        "实测口径：MRR %s（TrustMRR 从支付网关 API 直读，%s 同步，%s）。"
-        % (fmt_money(m.get("mrr")),
-           str(live.get("synced_at"))[:10],
-           live.get("verified_via") or "支付网关"),
+    mrr = m.get("mrr") if isinstance(m.get("mrr"), (int, float)) else 0
+    if mrr > 0:
+        bits = [
+            "实测口径：MRR %s（TrustMRR 从支付网关 API 直读，%s 同步，%s）。"
+            % (fmt_money(m.get("mrr")),
+               str(live.get("synced_at"))[:10],
+               live.get("verified_via") or "支付网关"),
+        ]
+    else:
+        # 非订阅制/买断制：MRR 恒 0，门面是近 30 天流水。
+        # 口径必须写在第一句（红线 1），且明说「别当经常性收入引用」。
+        bits = [
+            "实测口径：近 30 天已验证收入 %s（非订阅制/买断制业务，"
+            "MRR 恒 0，本条门面口径为近 30 天流水，含一次性与用量收入，"
+            "别当经常性收入引用；TrustMRR 从支付网关 API 直读，%s 同步，%s）。"
+            % (fmt_money(m.get("last_30d_revenue")),
+               str(live.get("synced_at"))[:10],
+               live.get("verified_via") or "支付网关"),
+        ]
+    bits.append(
         "近 30 天收入 %s、累计 %s、付费订阅 %s 户。"
         % (fmt_money(m.get("last_30d_revenue")), fmt_money(m.get("all_time")),
-           m.get("subscriptions")),
-    ]
+           m.get("subscriptions")))
     if growth is not None:
         bits.append("最近完整月环比 %+.1f%%（已剔除当月残月）。" % (growth * 100))
     else:
@@ -337,9 +390,16 @@ def to_candidate(rec, live, m, growth, ret=None, peak=None, last=None, override=
         "growth_30d": m.get("mrr_growth_30d"),
         "mrr_growth_30d": m.get("mrr_growth_30d"),
         "revenue_growth_30d": m.get("revenue_growth_30d"),
-        "headline": "MRR %s，TrustMRR 实时核对" % fmt_money(m.get("mrr")),
+        # 🚨 headline 与 caliber 按实际门面口径写（2026-10-14 修）：
+        # 非订阅制业务 MRR 恒 0，硬写「MRR $0」既难看也误导。
+        # 库里 24 条 MRR=0 老案例的 headline 就是「近 30 天收入 $X」，
+        # 这里与它们对齐；caliber 显式标 last_30d，机器可读。
+        "headline": ("MRR %s，TrustMRR 实时核对" % fmt_money(m.get("mrr"))
+                     if (m.get("mrr") or 0) > 0 else
+                     "近 30 天收入 %s，TrustMRR 实时核对（非订阅制，MRR 恒 0）"
+                     % fmt_money(m.get("last_30d_revenue"))),
         "metric_note": build_metric_note(rec, live, m, growth, ret, peak, last, override),
-        "caliber": "mrr",
+        "caliber": "mrr" if (m.get("mrr") or 0) > 0 else "last_30d",
     }
     out["verification"] = "stripe"
     # ⚠️ 已晋升过的条目要保住**原始**晋升日期，不能被这次刷新覆盖成今天
@@ -422,7 +482,7 @@ def refresh_in_pool(args, cands):
                 live_by_id[rid] = {"state": "unknown", "err": type(e).__name__,
                                    "metrics": {}}
 
-    passed, rejected, skipped = [], [], []
+    passed, rejected, skipped, pending = [], [], [], []
     for rid in targets:
         rec = idx[rid]
         slug = slug_of(rec)
@@ -439,11 +499,19 @@ def refresh_in_pool(args, cands):
                 fmt_money(old_mrr) if isinstance(old_mrr, (int, float)) else "无")
         if extra.get("override"):
             line += "  ⚠ 已人工破例"
-        print(("  ✅ " if ok else "  ❌ ") + line.strip())
-        (passed if ok else rejected).append((rid, rec, live, m, extra))
+        if ok is None:
+            # 没判定 = 不刷数字也**不判死**，保持原样等下次重试
+            pending.append((rid, rec, live, m, extra))
+            print("  ⏳ " + line.strip())
+        else:
+            (passed if ok else rejected).append((rid, rec, live, m, extra))
+            print(("  ✅ " if ok else "  ❌ ") + line.strip())
 
-    print("\n可刷新 %d / 需人工 %d / 跳过 %d"
-          % (len(passed), len(rejected), len(skipped)))
+    print("\n可刷新 %d / 需人工 %d / 未判定 %d / 跳过 %d"
+          % (len(passed), len(rejected), len(pending), len(skipped)))
+    if pending:
+        print("⚠ 未判定的条目保持原样（不刷新、不降级）—— 远端没回应，"
+              "不是它不行了。")
     if rejected:
         print("⚠ 判据未过的条目**保持原样不刷数字** —— 不能出现"
               "「刷了新数字但它其实已经腰斩」。")
@@ -523,7 +591,11 @@ def main():
 
     print("待核 %d 条\n" % len(targets))
     live_by_id = {}
-    with cf.ThreadPoolExecutor(max_workers=6) as ex:
+    # 并发 6 → 2（2026-10-15）：240 条批量跑时 6 并发把 TrustMRR 打回 429，
+    # 203 条集体读不到。官方 .md 是免 key 通道，人家限流是合理的，
+    # 我们该做的是放慢，而不是把限流读成下架。
+    WORKERS = 2
+    with cf.ThreadPoolExecutor(max_workers=WORKERS) as ex:
         futs = {ex.submit(AD.probe, inbox_idx[i]["trustmrr_slug"]): i for i in targets}
         for fut in cf.as_completed(futs):
             rid = futs[fut]
@@ -534,7 +606,7 @@ def main():
                                    "state": "unknown", "err": type(e).__name__,
                                    "metrics": {}}
 
-    passed, rejected = [], []
+    passed, rejected, pending = [], [], []
     for rid in targets:
         rec, live = inbox_idx[rid], live_by_id.get(rid) or {}
         ok, why, m, extra = check_one(rec, live)
@@ -543,10 +615,18 @@ def main():
             line += "  (实测 MRR %s)" % fmt_money(m.get("mrr"))
         if extra.get("override"):
             line += "  ⚠ 已人工破例"
-        (passed if ok else rejected).append((rid, rec, live, m, extra))
-        print(("  ✅ " if ok else "  ❌ ") + line.strip())
+        if ok is None:
+            pending.append((rid, rec, live, m, extra))
+            print("  ⏳ " + line.strip())
+        else:
+            (passed if ok else rejected).append((rid, rec, live, m, extra))
+            print(("  ✅ " if ok else "  ❌ ") + line.strip())
 
-    print("\n通过 %d / 拒绝 %d" % (len(passed), len(rejected)))
+    print("\n通过 %d / 拒绝 %d / 未判定 %d" % (len(passed), len(rejected), len(pending)))
+    if pending and len(pending) > len(targets) * 0.3:
+        print("⚠ 未判定占比过高 —— 大概率是 TrustMRR 429 限流，"
+              "**不是**这些生意下架了。请降低并发或稍后重跑，"
+              "别把「读不到」当成「不存在」。")
     if not passed:
         return
 

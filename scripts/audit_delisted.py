@@ -45,6 +45,7 @@ import json
 import os
 import re
 import sys
+import time
 import urllib.error
 import urllib.request
 
@@ -91,17 +92,44 @@ def load_sitemap():
     return set(re.findall(r"/startup/([A-Za-z0-9\-_]+)</loc>", xml))
 
 
-def probe(slug):
-    """返回 (状态, 标题, 实测数字字典)。状态 ∈ live / gone / unknown。"""
+def probe(slug, retries=3):
+    """返回 (状态, 标题, 实测数字字典)。状态 ∈ live / gone / unknown。
+
+    🚨 2026-10-15 加限流退避：批量晋升（240 条）时 TrustMRR 开始回 429，
+    一次失败就被当成「读不到」，下游把 203 条活着的生意全判成「已下架」——
+    那是把限流误读成下架（红线 5：工具读不到 ≠ 远端没有）。
+    429 / 5xx 属于**暂时**失败，必须退避重试；只有 404（或 200 但带
+    NOT_FOUND_MARK）才配叫 gone。重试也失败的，老实报 unknown + http 码，
+    让调用方知道「没判定」而不是「判死了」。
+    """
     out = {"slug": slug, "state": "unknown", "title": None, "metrics": {}}
-    try:
-        txt = _get(MD % slug, timeout=60)
-    except urllib.error.HTTPError as e:
-        out["state"] = "gone" if e.code == 404 else "unknown"
-        out["http"] = e.code
-        return out
-    except Exception as e:
-        out["err"] = type(e).__name__
+    last_code = None
+    for attempt in range(retries):
+        try:
+            txt = _get(MD % slug, timeout=60)
+            break
+        except urllib.error.HTTPError as e:
+            last_code = e.code
+            if e.code == 404:
+                out["state"] = "gone"
+                out["http"] = 404
+                return out
+            # 429 / 503 等：退避后重试
+            if attempt < retries - 1:
+                time.sleep(2.0 * (2 ** attempt))
+                continue
+            out["http"] = e.code
+            out["err"] = "HTTPError"
+            return out
+        except Exception as e:                                  # noqa: BLE001
+            last_code = None
+            if attempt < retries - 1:
+                time.sleep(1.5 * (2 ** attempt))
+                continue
+            out["err"] = type(e).__name__
+            return out
+    else:                                                       # pragma: no cover
+        out["http"] = last_code
         return out
 
     # 🚨 HTTP 200 完全掩盖 404 —— 必须查内容标记

@@ -1,0 +1,104 @@
+/**
+ * 全局样式。
+ * 配色逐值复刻自 Web 站 static/style.css 的 :root —— 两端必须同源，
+ * 否则用户从站里点进小程序会有「换了家店」的割裂感。
+ */
+
+page {
+  --bg: #0b0e14;
+  --surface: #141922;
+  --surface-2: #1a2029;
+  --surface-3: #212833;
+  --border: #232b37;
+  --border-2: #2e3846;
+
+  --text: #e7edf5;
+  --text-2: #a7b3c2;
+  --text-3: #6c7987;
+
+  --accent: #5aa9ff;
+  --money: #46d38a;
+  --money-dim: #123a28;
+
+  --v-stripe: #46d38a;      /* 收入经支付网关验证 */
+  --v-official: #5aa9ff;    /* 官方口径 */
+  --v-partial: #e5b567;     /* 第三方来源，口径待核 */
+  --v-founder: #b08ce8;     /* 创始人自报 */
+  --v-disputed: #ef6d6d;    /* 来源矛盾 */
+  --v-unverified: #7c8797;  /* 未验证 */
+
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-size: 28rpx;
+  line-height: 1.6;
+}
+
+/* ---- 通用积木 ---- */
+
+.card {
+  background: var(--surface);
+  border: 1rpx solid var(--border);
+  border-radius: 24rpx;
+  padding: 28rpx;
+}
+
+.row { display: flex; align-items: center; }
+.gap { flex: 1; }
+
+.muted { color: var(--text-3); }
+.dim { color: var(--text-2); }
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.tag {
+  display: inline-block;
+  padding: 2rpx 14rpx;
+  border-radius: 24rpx;
+  font-size: 20rpx;
+  line-height: 1.7;
+  border: 1rpx solid var(--border);
+  color: var(--text-3);
+  white-space: nowrap;
+}
+
+/* 验证等级徽标：颜色直接复用 Web 站的六级判据色 */
+.vb { padding: 2rpx 12rpx; border-radius: 20rpx; font-size: 19rpx; white-space: nowrap; }
+.vb-stripe    { color: var(--v-stripe);    background: rgba(70, 211, 138, .13); border: 1rpx solid rgba(70, 211, 138, .34); }
+.vb-official  { color: var(--v-official);  background: rgba(90, 169, 255, .13); border: 1rpx solid rgba(90, 169, 255, .34); }
+.vb-partial   { color: var(--v-partial);   background: rgba(229, 181, 103, .13); border: 1rpx solid rgba(229, 181, 103, .34); }
+.vb-founder   { color: var(--v-founder);   background: rgba(176, 140, 232, .13); border: 1rpx solid rgba(176, 140, 232, .34); }
+.vb-disputed  { color: var(--v-disputed);  background: rgba(239, 109, 109, .13); border: 1rpx solid rgba(239, 109, 109, .34); }
+.vb-unverified{ color: var(--v-unverified); background: rgba(124, 135, 151, .13); border: 1rpx solid rgba(124, 135, 151, .34); }
+
+/* 主按钮（购买）—— 用库里代表「钱」的绿色，和 Web 站一致 */
+.btn-primary {
+  background: var(--money);
+  color: #06121f;
+  font-weight: 600;
+  border-radius: 16rpx;
+  padding: 18rpx 40rpx;
+  font-size: 28rpx;
+  text-align: center;
+  display: inline-block;
+}
+.btn-primary[disabled] { opacity: .45; }
+.btn-ghost {
+  background: var(--surface-2);
+  color: var(--text-2);
+  border: 1rpx solid var(--border-2);
+  border-radius: 16rpx;
+  padding: 16rpx 36rpx;
+  font-size: 27rpx;
+  display: inline-block;
+  text-align: center;
+}
+
+.empty {
+  padding: 120rpx 0;
+  text-align: center;
+  color: var(--text-3);
+  font-size: 26rpx;
+  line-height: 2;
+}

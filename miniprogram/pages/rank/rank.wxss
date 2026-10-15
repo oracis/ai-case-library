@@ -1,0 +1,33 @@
+.page { padding: 24rpx 24rpx 80rpx; display: flex; flex-direction: column; gap: 22rpx; }
+
+.intro { display: flex; flex-direction: column; gap: 10rpx; }
+.i-h { font-size: 28rpx; font-weight: 650; }
+.i-p { font-size: 24rpx; color: var(--text-2); line-height: 1.7; }
+.i-p b { color: var(--text); }
+
+.quad { display: flex; flex-direction: column; gap: 12rpx; }
+.q-head { display: flex; align-items: baseline; gap: 12rpx; }
+.q-title { font-size: 28rpx; font-weight: 700; }
+.q-title.star { color: var(--money); }
+.q-title.solo { color: var(--accent); }
+.q-title.team { color: var(--v-partial); }
+.q-title.hard { color: var(--text-3); }
+.q-count {
+  font-family: ui-monospace, Menlo, monospace; font-size: 22rpx; color: var(--text-3);
+  background: var(--surface-2); border-radius: 16rpx; padding: 0 14rpx;
+}
+.q-sub { font-size: 22rpx; color: var(--text-3); margin-top: -6rpx; }
+
+.q-item { display: flex; flex-direction: column; gap: 8rpx; padding: 22rpx 26rpx; }
+.q-item:active { background: var(--surface-2); }
+.qi-name { font-size: 28rpx; font-weight: 600; }
+.qi-money { font-family: ui-monospace, Menlo, monospace; font-size: 25rpx; color: var(--money); }
+.qi-one { font-size: 23rpx; color: var(--text-2); line-height: 1.6; }
+.qi-scores { gap: 12rpx; }
+.pill {
+  font-size: 20rpx; color: var(--text-3);
+  border: 1rpx solid var(--border); border-radius: 14rpx; padding: 0 12rpx; line-height: 1.7;
+}
+.qi-sc { font-size: 21rpx; color: var(--accent); font-family: ui-monospace, Menlo, monospace; }
+
+.foot { text-align: center; color: var(--text-3); font-size: 21rpx; padding: 30rpx 0; }

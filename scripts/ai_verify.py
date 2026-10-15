@@ -895,8 +895,10 @@ SYSTEM_PROMPT = """你是「拆解海外」案例库的核实研究员。给你�
    拿不准就填 "unknown" —— 别填 false，也别为了让候选通过而凑一个 yes。
    "no" 是有分量的：三道里一道都没成立、却有明确反证时，这条会被判不进库。
 3. 来源 URL 只能用原文段里出现的，禁止编造。
-4. 收入口径是重点：分清 MRR / ARR / run-rate / 累计收入 / 平台流水(GMV) / 毛利。
+4. 收入口径是重点：分清 MRR / ARR / run-rate / 累计收入 / 平台流水(GMV) / 毛利 / 近30天流水。
    「累计收入被当年化」「平台流水被当收入」是这个库踩过的真实坑。
+   非订阅制生意（买断/用量/一次性入账）的门面数字是 TrustMRR 直读的近 30 天
+   已验证收入 —— 选 last_30d，不要硬套 MRR（它不是经常性收入）。
 5. 原文摘录太短、不足以支撑判断的项，一律 unknown 并在 evidence 里说明缺什么。
 6. sources 里的 kind 按「这条来源**凭什么可信**」来填，不要按站点名气：
    stripe    = 支付网关侧的验证数据。**TrustMRR 的收入页就属于这一类** ——
@@ -915,7 +917,7 @@ SYSTEM_PROMPT = """你是「拆解海外」案例库的核实研究员。给你�
  "is_business": "yes|no|unknown", "is_business_evidence": "str",
  "solo_possible": "yes|no|unknown", "solo_possible_evidence": "str",
  "verification": "stripe|official|partial|founder|disputed",
- "caliber": "arr|mrr|run_rate|lifetime|gmv|gross",
+ "caliber": "arr|mrr|run_rate|lifetime|gmv|gross|last_30d",
  "caliber_reason": "str", "caliber_consistent": bool,
  "number": "写进库的那个数字，带 $ 与单位",
  "sources": [{"label":"str","url":"str","kind":"stripe|official|press|review|founder|secondary"}],

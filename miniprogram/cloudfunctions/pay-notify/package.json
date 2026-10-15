@@ -1,0 +1,9 @@
+{
+  "name": "pay-notify",
+  "version": "1.0.0",
+  "description": "接收虚拟支付发货推送 xpay_goods_deliver_notify，验签由云开发网关完成",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~4.0.2"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "compileType": "miniprogram",
+  "libVersion": "3.4.10",
+  "appid": "touristappid",
+  "projectname": "ai-case-library-miniprogram",
+  "description": "海外软件生意拆解库小程序。appid 在导入开发者工具后由工具自动替换为真实 AppID。",
+  "setting": {
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "urlCheck": false
+  },
+  "condition": {}
+}

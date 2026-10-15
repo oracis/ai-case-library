@@ -62,8 +62,11 @@ STATIC_DIR = os.path.join(ROOT, "static")
 # 前端里 app.js 的引入点 —— 静态标记就注在它前面
 ANCHOR = '<script src="./app.js"></script>'
 # 由本脚本（含 prerender.py）生成的东西。清理输出目录时只认这些，避免误删别人的文件。
+# manifest.webmanifest / sw.js 必须列进来：prepare_out() 会删掉所有「不认识的顶层文件」，
+# 漏列就会被下一轮构建当孤儿删掉，PWA 静默失效（而且线上看不出异常）。
 OUR_FILES = ("index.html", "style.css", "app.js", "data.js", "data.json",
-             "404.html", "sitemap.xml", "robots.txt", "case")
+             "404.html", "sitemap.xml", "robots.txt", "case",
+             "manifest.webmanifest", "sw.js")
 
 NOT_FOUND_HTML = """<!DOCTYPE html>
 <html lang="zh-CN">
@@ -203,6 +206,12 @@ def build(out_dir, include_inbox=True, pretty=False, site_url=""):
         payload["inbox"] = []
         st = payload.get("stats") or {}
         st["inbox_included"] = False
+        # 墓碑区里标了 needs_verify 的条目，性质和 inbox 一样 ——
+        # 是「还没核完的原始素材」。对外发布时不能跟已核案例一起印出去，
+        # 否则等于在一个主打「每个数字都核过」的库里塞了一条没核的数字。
+        gy = payload.get("graveyard") or []
+        payload["graveyard"] = [g for g in gy if not g.get("needs_verify")]
+        st["graveyard"] = len(payload["graveyard"])
         payload["stats"] = st
 
     cases = payload.get("cases") or []
@@ -231,12 +240,22 @@ def build(out_dir, include_inbox=True, pretty=False, site_url=""):
 
     # ---- 3. 拷静态资源并注入静态标记
     print("[3/5] 拷资源 + 注入静态标记…")
-    for name in ("style.css", "app.js"):
+    for name in ("style.css", "app.js", "manifest.webmanifest", "sw.js"):
         src = os.path.join(STATIC_DIR, name)
         if not os.path.isfile(src):
             print("    [!] 缺少 static/%s" % name)
             return 1
         shutil.copy2(src, os.path.join(abs_out, name))
+
+    # PWA 图标：整目录拷。prepare_out() 只删顶层孤儿文件、不碰子目录，
+    # 所以过期的图标不会自动清 —— 图标由 scripts/gen_pwa_icons.py 生成，
+    # 要清理就删 static/icons/ 后重跑该脚本，别手删 public/icons/。
+    src_icons = os.path.join(STATIC_DIR, "icons")
+    if os.path.isdir(src_icons):
+        shutil.copytree(src_icons, os.path.join(abs_out, "icons"),
+                        dirs_exist_ok=True)
+    else:
+        print("    [!] 缺少 static/icons/（跑 scripts/gen_pwa_icons.py 生成）")
 
     with open(os.path.join(STATIC_DIR, "index.html"), encoding="utf-8") as f:
         html = f.read()

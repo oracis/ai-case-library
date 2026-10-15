@@ -110,6 +110,8 @@ body { display: flex; flex-direction: column; }
 .nav-item.active .nav-ico { color: var(--accent); }
 .nav-ico { font-size: 12px; color: var(--text-3); width: 14px; text-align: center; }
 .nav-label { flex: 1; }
+/* 短标签只给移动端底部 tab 用，桌面隐藏（见 900px 断点） */
+.nav-short { display: none; }
 .nav-count {
   font-family: var(--mono); font-size: 11px;
   background: var(--surface-3); color: var(--text-2);
@@ -212,6 +214,13 @@ body { display: flex; flex-direction: column; }
 .vigilance .v-ico { color: var(--v-partial); font-size: 13px; line-height: 1.55; }
 .vigilance b { color: #f0dcb4; font-weight: 650; }
 .vigilance em { font-style: normal; color: var(--v-partial); font-family: var(--mono); }
+
+/* 健康度横幅的「汇总行 / 完整说明」双结构（2026-10-14 移动端压缩）。
+   桌面：完整说明常驻，汇总行不渲染出来 —— 与改造前视觉一致。
+   移动端规则见 900px 断点。 */
+.v-body { min-width: 0; flex: 1 1 auto; }
+.v-main { display: none; }
+.v-detail { display: block; }
 
 .topbar {
   padding: 18px 22px 14px;
@@ -876,6 +885,13 @@ body { display: flex; flex-direction: column; }
 .fb-count.on { color: var(--accent); }
 .fb-count.on.empty { color: var(--v-disputed); }
 
+/* ---- [hidden] 显式规则 ----
+   UA 样式表的 [hidden] { display: none } 打不过作者样式里的类选择器：
+   `.controls` 写了 display:flex，hidden 属性就失效，切视图时控件不会
+   消失、只会变成空占位。所以谁设了 display，谁就得自己认领 hidden。
+   （app.js 的 switchView 因此改用 el.hidden 而不是 style.display。） */
+.controls[hidden], .filterbar[hidden], .chips[hidden] { display: none; }
+
 /* ============================ 综合排行（双轴） ============================ */
 
 .dual-formula {
@@ -1019,29 +1035,120 @@ body { display: flex; flex-direction: column; }
 
 /* ============================ 响应式 ============================ */
 @media (max-width: 900px) {
-  .app { grid-template-columns: 1fr; }
+  /* ---- 底部 tab（2026-10-14 重构）----
+     旧方案是「顶部横向滚动图标条」：8 个没有文字的图标挤成一行，
+     读者全靠猜；而且顶部还叠着 hero、stat-strip、搜索框三层，
+     手机上首屏往下滚三次还看不见第一个案例。
+     改成底部固定 tab：图标 + 短标签，拇指够得着，
+     也是移动端读者最熟的导航形态（和小程序底栏同构）。
+     ⚠ 侧栏只是「换个位置」，DOM 一行没动 —— switchView 照旧工作，
+     active 态、nav-count 数字全部复用，不新增一套视图逻辑。 */
+  .app { display: flex; flex-direction: column; }
   .sidebar {
-    flex-direction: row; align-items: center; gap: 10px;
-    overflow-x: auto; padding: 10px 12px; border-right: 0;
-    border-bottom: 1px solid var(--border);
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+    flex-direction: row; align-items: stretch; gap: 0;
+    /* iPhone 底部小黑条：tab 栏必须让开，否则最后一项被压住 */
+    padding: 0 0 env(safe-area-inset-bottom, 0px);
+    background: var(--bg-2); border-right: 0;
+    border-top: 1px solid var(--border);
+    overflow: visible;
   }
-  .brand-txt, .side-meta { display: none; }
-  .nav { flex-direction: row; }
-  .nav-label { display: none; }
-  .nav-item { padding: 7px 10px; }
-  .nav-count { display: none; }
-  .readtrack { min-width: 130px; padding: 8px 10px; }
-  .readtrack-sub { display: none; }
+  /* 品牌块、三级漏斗、已读进度都是「桌面工作台」元素，手机上让位 */
+  .brand, .funnel, .readtrack, .side-meta { display: none; }
+  .nav {
+    flex: 1 1 auto; flex-direction: row;
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav-label, .nav-count { display: none; }
+  /* nav-short：HTML 里预置的短标签，桌面隐藏、这里显示。
+     刻意不用 CSS 截断长标签 —— 「创业墓碑区」截断成「创业墓…」
+     读起来像坏数据，不如另存一套短名。 */
+  .nav-short {
+    display: block; font-size: 9.5px; line-height: 1.15;
+    letter-spacing: .1px; color: var(--text-3);
+  }
+  .nav-item {
+    flex: 0 0 auto; flex-direction: column; gap: 3px;
+    align-items: center; justify-content: center;
+    min-width: 54px; padding: 7px 11px 6px; border-radius: 0;
+  }
+  .nav-item .nav-ico { font-size: 16px; width: auto; }
+  .nav-item.active .nav-short { color: var(--accent); }
+  /* 右侧渐隐：暗示 tab 可以横向滚，右边还有 */
+  .sidebar::after {
+    content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 26px;
+    background: linear-gradient(90deg, rgba(15,19,27,0), var(--bg-2));
+    pointer-events: none;
+  }
   .topbar { padding: 14px 14px 12px; }
-  .scroll { padding: 16px 14px 50px; }
+  .scroll { padding: 16px 14px calc(64px + env(safe-area-inset-bottom, 0px)); }
   .vigilance { padding: 9px 14px; font-size: 12px; }
+  /* ---- 健康度横幅：一行汇总 + 可展开说明 ----
+     改造前 4 行密文占 120px，是首屏最大的一块非内容区。
+     汇总行的数字与完整说明同源（见 renderVigilance），
+     最关键的「待核数字引用前请自己再搜一遍」收在说明里，桌面端常驻。 */
+  .v-main {
+    display: flex; align-items: baseline; gap: 8px;
+    font-size: 12px; line-height: 1.5; color: #d8c7a4;
+  }
+  .v-main span { min-width: 0; }
+  .v-detail { display: none; font-size: 11.5px; line-height: 1.7; margin-top: 8px; }
+  .vigilance.v-open .v-detail { display: block; }
+  .v-more {
+    flex: 0 0 auto; margin-left: auto; padding: 2px 10px;
+    font-size: 11px; font-family: inherit; cursor: pointer;
+    color: var(--v-partial); background: transparent;
+    border: 1px solid color-mix(in srgb, var(--v-partial) 42%, transparent);
+    border-radius: 20px; transition: background .14s;
+  }
+  .v-more:hover { background: color-mix(in srgb, var(--v-partial) 13%, transparent); }
   .stat-strip { gap: 18px; }
   .stat-n { font-size: 18px; }
   .grid { grid-template-columns: 1fr; }
   .quad-grid { grid-template-columns: 1fr; }
   .dual-cols { grid-template-columns: 1fr; gap: 26px; }
-  .filterbar { padding: 8px 10px; gap: 6px; }
-  .fb-count { width: 100%; }
+  /* ---- 控件行：grid 定死两行 ----
+     搜索框独占一行，排序/核实等级并排。用 grid 而不是 flex 自然回流：
+     两个 select 的文案一长，flex 会把第二个挤到第三行去。 */
+  .controls {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px; margin-bottom: 10px;
+  }
+  .search-wrap { grid-column: 1 / -1; min-width: 0; }
+  .controls .select { min-width: 0; }
+  /* ---- 按分筛选：一行排开 ----
+     改造前 6 个控件竖排 3 行、90px 高 —— 因为 select 会按自己的最长
+     选项定宽（「有市场，但一个人啃不动」一个人就 140px），整行必然回流。
+     grid + minmax(0,1fr) 让两列可压缩：显示不下就省略号，但绝不换行、
+     绝不横向溢出。「象限」标签和分隔条是纯装饰，窄屏先让位。 */
+  .filterbar {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center; column-gap: 6px;
+    padding: 7px 10px; gap: 0;
+  }
+  .filterbar .fb-sep, .filterbar .fb-label.q { display: none; }
+  /* 只有真的有内容/真的没隐藏时才占第二行 —— 空行会撑出 5px 死高 */
+  .fb-count:not(:empty) { grid-column: 1 / 4; grid-row: 2; width: auto; margin-top: 5px; }
+  .fb-reset:not([hidden]) { grid-column: 4; grid-row: 2; justify-self: end; margin-top: 5px; }
+  /* ---- 模式芯片：单行横滚 ----
+     12 个芯片竖着堆 3 行、87px 高，把首张案例卡片推到第三屏。
+     改成一行横滚 + 右侧渐隐暗示「右边还有」—— 移动端筛选的常见形态。
+     渐隐必须挂在 .chips-wrap 上：挂在 .chips 自己身上会跟着内容一起滚走。 */
+  .chips-wrap { position: relative; min-width: 0; }
+  .chips-wrap::after {
+    content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 26px;
+    background: linear-gradient(90deg, rgba(11,14,20,0), var(--bg));
+    pointer-events: none;
+  }
+  .chips {
+    flex-wrap: nowrap; overflow-x: auto;
+    -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  }
+  .chips::-webkit-scrollbar { display: none; }
+  .chips .chip { flex: 0 0 auto; }
   .dboard-row { grid-template-columns: auto 1fr; }
   .db-score {
     grid-column: 2; text-align: left;
@@ -1153,4 +1260,266 @@ body { display: flex; flex-direction: column; }
   .sf-t { flex: 1 1 100%; order: 3; }
   .dp-row { flex-wrap: wrap; gap: 6px 10px; }
   .dp-t { flex: 1 1 100%; order: 3; }
+}
+
+/* ============================================================
+   创业墓碑区（2026-10-14）
+   ------------------------------------------------------------
+   视觉上刻意和案例卡片区分开：案例卡片用「绿色左边条 = 收入已核实」，
+   墓碑卡片用「红色左边条 = 已经死了」，并在死因标签上再上六种色 ——
+   读者扫一眼列表就知道自己在看「活着的」还是「死掉的」，而不用读文字。
+   六色沿用现有变量，不新造调色板（深色主题下新色容易飘）。
+   ============================================================ */
+.gy-filter { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+.gy-chip {
+  padding: 4px 11px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; color: var(--text-2);
+  font-size: 12px; cursor: pointer; white-space: nowrap;
+  transition: all .13s;
+}
+.gy-chip:hover { border-color: var(--border-2); color: var(--text); }
+.gy-chip.on {
+  background: var(--accent-dim); border-color: #3a6ea8;
+  color: #cfe4ff; font-weight: 550;
+}
+.gy-chip b { font-family: var(--mono); font-size: 10.5px; opacity: .65; margin-left: 3px; }
+
+.grid-gy { display: grid; grid-template-columns: repeat(auto-fill, minmax(296px, 1fr)); gap: 14px; }
+
+.gy-card {
+  --gc: var(--v-disputed);
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 15px 16px 13px;
+  cursor: pointer;
+  display: flex; flex-direction: column; gap: 9px;
+  transition: border-color .16s, transform .16s, box-shadow .16s, background .16s;
+  overflow: hidden;
+}
+.gy-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
+  background: var(--gc); opacity: .8;
+}
+.gy-card:hover { border-color: var(--border-2); background: var(--surface-2); transform: translateY(-1px); }
+
+.gy-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex: 0 0 auto; }
+.gy-years { font-family: var(--mono); font-size: 10.5px; color: var(--text-3); }
+
+/* 死因标签：颜色即分类，卡片左边条与它同色，六类一一对应 */
+.gy-reason {
+  --rc: var(--v-unverified);
+  display: inline-block; padding: 2px 9px; border-radius: 20px;
+  font-size: 11.5px; line-height: 1.7; white-space: nowrap;
+  color: var(--rc); background: color-mix(in srgb, var(--rc) 13%, transparent);
+  border: 1px solid color-mix(in srgb, var(--rc) 34%, transparent);
+}
+.gy-reason.big { font-size: 12.5px; padding: 3px 12px; }
+.gy-reason[data-k="cash"]           { --rc: var(--v-disputed); }
+.gy-reason[data-k="unit_economics"] { --rc: var(--v-partial); }
+.gy-reason[data-k="legal"]          { --rc: var(--v-founder); }
+.gy-reason[data-k="product"]        { --rc: var(--v-official); }
+.gy-reason[data-k="competition"]    { --rc: var(--accent); }
+.gy-reason[data-k="demand"]         { --rc: var(--v-unverified); }
+/* 卡片左边条跟着死因走：分类在整列里一眼可辨 */
+.gy-card:has(.gy-reason[data-k="cash"])           { --gc: var(--v-disputed); }
+.gy-card:has(.gy-reason[data-k="unit_economics"]) { --gc: var(--v-partial); }
+.gy-card:has(.gy-reason[data-k="legal"])          { --gc: var(--v-founder); }
+.gy-card:has(.gy-reason[data-k="product"])        { --gc: var(--v-official); }
+.gy-card:has(.gy-reason[data-k="competition"])    { --gc: var(--accent); }
+.gy-card:has(.gy-reason[data-k="demand"])         { --gc: var(--v-unverified); }
+
+.gy-name { margin: 0; font-size: 15px; font-weight: 650; letter-spacing: .1px; line-height: 1.4; flex: 0 0 auto; }
+.gy-name small {
+  display: block; font-size: 10.5px; font-weight: 400;
+  color: var(--text-3); font-family: var(--mono); margin-top: 1px;
+}
+/* 只有摘要允许被压缩。卡片有 overflow:hidden，如果每行都能收缩，
+   窗口一窄（grid 行高被压）就先挤掉金额行 —— 截图实测踩过：
+   Quibi 的「$17.5 亿」在 760px 高的窗口里整行消失，只剩一句话。
+   金额是这一区唯一的信息量所在，绝不能是最先被裁掉的那个。 */
+.gy-sum {
+  margin: 0; font-size: 12.5px; color: var(--text-2); line-height: 1.62;
+  flex: 1 1 auto; min-height: 0;
+}
+
+.gy-loss { display: flex; align-items: baseline; gap: 7px; flex-wrap: wrap; flex: 0 0 auto; }
+.gy-loss b { font-family: var(--mono); font-size: 17px; color: var(--v-disputed); letter-spacing: -.02em; }
+.gy-kind { font-size: 11px; color: var(--text-3); }
+/* 「待核实」不是免责声明，是本库的诚实标记 —— 宁可标出来也不假装精确 */
+.gy-pending {
+  font-size: 10.5px; padding: 1px 7px; border-radius: 20px;
+  color: var(--v-partial); background: color-mix(in srgb, var(--v-partial) 13%, transparent);
+  border: 1px dashed color-mix(in srgb, var(--v-partial) 42%, transparent);
+  cursor: help;
+}
+.gy-meta { display: flex; gap: 10px; flex-wrap: wrap; font-size: 11.5px; color: var(--text-3); flex: 0 0 auto; }
+
+@media (max-width: 900px) {
+  .gy-filter { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; }
+  .gy-loss b { font-size: 16px; }
+}
+
+/* ============================================================
+   首屏 Hero（2026-10-14）
+   ------------------------------------------------------------
+   目的是把首屏顺序改成「先证据 → 再理由 → 再路径 → 最后才是工具」。
+   视觉上刻意压低装饰：一个主数字 + 四块统计 + 三个栏目，
+   不做满屏大图 —— 这个库的读者是来找数字的，不是来看设计的。
+   ============================================================ */
+.hero { margin-bottom: 24px; }
+.hero-h1 {
+  font-size: 20px; font-weight: 600; letter-spacing: -.01em;
+  color: var(--text); line-height: 1.3;
+}
+.hero-h1 b {
+  font-family: var(--mono); font-size: 42px; font-weight: 700;
+  color: var(--money); margin-right: 4px; letter-spacing: -.03em;
+}
+.hero-sub { margin: 8px 0 0; font-size: 13.5px; color: var(--text-2); line-height: 1.65; }
+
+.hero-stats { display: flex; gap: 26px; flex-wrap: wrap; margin-top: 16px; }
+.hs-tile { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.hs-tile b {
+  font-family: var(--mono); font-size: 25px; font-weight: 700;
+  color: var(--text); line-height: 1.1; letter-spacing: -.02em;
+}
+.hs-u { display: none; }
+.hs-l { font-size: 11.5px; color: var(--text-3); line-height: 1.4; }
+
+.hero-btns { display: flex; gap: 8px; margin-top: 18px; }
+.hb {
+  padding: 7px 16px; border-radius: 8px; cursor: pointer;
+  background: var(--surface); border: 1px solid var(--border-2);
+  color: var(--text-2); font-size: 13px; transition: all .14s;
+}
+.hb:hover { border-color: var(--accent); color: var(--text); }
+.hb.primary { background: var(--accent); border-color: var(--accent); color: #06121f; font-weight: 550; }
+.hb.primary:hover { filter: brightness(1.1); color: #06121f; }
+
+/* 折叠态：留一条标题横幅，不占整屏 */
+.hero.collapsed .hero-sub,
+.hero.collapsed .hero-tier,
+.hero.collapsed .hero-stats { display: none; }
+.hero.collapsed .hero-h1 { font-size: 15px; }
+.hero.collapsed .hero-h1 b { font-size: 19px; }
+/* ⚠ 折叠态**必须保留「展开」按钮**：移动端首次访问就是折叠态
+   （见 app.js heroIsCollapsed），早期版本把 hero-btns 一起隐藏，
+   结果手机上没有任何入口能展开 hero —— 死胡同。
+   「开始浏览」在折叠态没意义（它只是滚动到网格），收起。 */
+.hero.collapsed .hero-lead {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; flex-wrap: wrap;
+}
+.hero.collapsed .hero-btns { margin-top: 0; flex: 0 0 auto; }
+.hero.collapsed #hero-go { display: none; }
+
+.hero-body { margin-top: 22px; }
+.hero-cols {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(258px, 1fr));
+  gap: 20px 24px;
+}
+.hero-col h3 {
+  margin: 0 0 3px; font-size: 12.5px; font-weight: 600; color: var(--text);
+  letter-spacing: .02em;
+}
+.hc-note { margin: 0 0 8px; font-size: 11.5px; color: var(--text-3); line-height: 1.5; }
+
+.hero-rank { list-style: none; margin: 0; padding: 0; }
+.hr-item {
+  display: flex; align-items: baseline; gap: 8px;
+  padding: 6px 6px; margin: 0 -6px; border-radius: 6px;
+  border-bottom: 1px solid var(--border); cursor: pointer;
+  transition: background .13s;
+}
+.hr-item:hover { background: var(--surface); }
+.hr-item:last-child { border-bottom: none; }
+.hr-rank { font-family: var(--mono); font-size: 11px; color: var(--text-3); width: 13px; flex: 0 0 auto; }
+.hr-name {
+  flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap; font-size: 12.5px; color: var(--text);
+}
+.hr-cal {
+  flex: 0 0 auto; font-size: 10px; color: var(--text-3);
+  padding: 1px 6px; border: 1px solid var(--border); border-radius: 20px;
+}
+.hr-v-amount { flex: 0 0 auto; font-family: var(--mono); font-size: 13px; color: var(--money); }
+.hr-v {
+  flex: 0 0 auto; font-size: 10px; padding: 1px 6px; border-radius: 20px;
+  color: var(--text-3); border: 1px solid var(--border);
+}
+.hr-empty { font-size: 12px; color: var(--text-3); padding: 6px 0; }
+
+.hero-why { list-style: none; margin: 0; padding: 0; }
+.hero-why li {
+  position: relative; padding: 0 0 0 15px; margin-bottom: 9px;
+  font-size: 12.5px; color: var(--text-2); line-height: 1.62;
+}
+.hero-why li::before {
+  content: ''; position: absolute; left: 0; top: 7px;
+  width: 5px; height: 5px; border-radius: 50%; background: var(--money);
+}
+.hero-why li:last-child { margin-bottom: 0; }
+.hero-why b { color: var(--text); font-weight: 600; }
+
+.hero-steps {
+  display: flex; gap: 22px; flex-wrap: wrap;
+  margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border);
+}
+.hs { font-size: 12.5px; color: var(--text-2); display: flex; align-items: baseline; gap: 7px; }
+.hs b {
+  font-family: var(--mono); font-size: 11px; color: var(--money);
+  background: var(--money-dim); border-radius: 5px; padding: 1px 6px;
+}
+
+@media (max-width: 900px) {
+  .hero-h1 { font-size: 17px; }
+  .hero-h1 b { font-size: 34px; }
+  .hero-stats { gap: 18px; }
+  .hs-tile b { font-size: 21px; }
+  .hero-steps { flex-direction: column; gap: 8px; }
+}
+/* 分档明细：紧跟 hero-sub，一行说清「多少条是一手来源撑住的」 */
+.hero-tier {
+  margin: 7px 0 0; font-size: 12px; color: var(--text-3); line-height: 1.55;
+}
+.hero-tier b { font-family: var(--mono); color: var(--money); font-weight: 600; }
+.hero.collapsed .hero-tier { display: none; }
+
+/* ============================================================
+   PWA（2026-10-14）
+   ------------------------------------------------------------
+   安装到主屏后没有浏览器 UI，theme-color 决定状态栏颜色，
+   所以它必须和 --bg 一致，否则顶部会出现一条异色带。
+   ============================================================ */
+
+/* 「有新内容，刷新」提示条。
+   为什么需要：SW 的 shell 资源走 stale-while-revalidate，读者可能
+   长时间停在一个旧 app.js 上而不自知。案例库天天更新，
+   这个条是让读者自己决定什么时候刷新，而不是强行 reload
+   打断他正在读的案例。 */
+.sw-toast {
+  position: fixed; left: 50%; bottom: calc(74px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 35;
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px 8px 14px;
+  background: var(--surface-2); border: 1px solid var(--border-2);
+  border-radius: 22px; box-shadow: 0 8px 26px rgba(0,0,0,.45);
+  font-size: 12.5px; color: var(--text-2);
+  animation: sw-up .22s cubic-bezier(.22,.8,.3,1);
+}
+@keyframes sw-up { from { transform: translate(-50%, 12px); opacity: 0; } }
+.sw-toast b { color: var(--money); font-weight: 600; }
+.sw-toast button {
+  padding: 4px 12px; border-radius: 16px; cursor: pointer;
+  background: var(--accent); border: 0; color: #06121f;
+  font-size: 12px; font-weight: 550;
+}
+.sw-toast button:hover { filter: brightness(1.12); }
+/* 桌面端 toast 不用给底部 tab 让位 */
+@media (min-width: 901px) {
+  .sw-toast { bottom: 22px; }
 }

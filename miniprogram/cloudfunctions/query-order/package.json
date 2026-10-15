@@ -1,0 +1,9 @@
+{
+  "name": "query-order",
+  "version": "1.0.0",
+  "description": "query_order 查单兜底 + 权益刷新",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~4.0.2"
+  }
+}

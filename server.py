@@ -409,6 +409,11 @@ def build_payload(include_private=False):
     candidates = load_json("candidates")
     inbox = load_json("inbox")
     sources = load_json("sources")
+    # 创业墓碑区（2026-10-14 加）：已停运项目的复盘，独立于 cases.json ——
+    # 成功案例讲「怎么成的」，失败案例讲「怎么死的」，两者的证据要求不同，
+    # 混在一张表里会让 case 的入库闸门（content_gate）失去意义。
+    # 缺文件返回 []（load_json 容错），所以这条路径在补数据前也是安全的。
+    graveyard = load_json("graveyard")
 
     # 精写案例和候选池都要进前端（站点/后台），所以在这里统一过一遍文本清理：
     # 写稿时顺手记的核对备注（「（Stripe 直连验证，2026-09-17 快照）」）对读者没用、
@@ -494,6 +499,7 @@ def build_payload(include_private=False):
         "solo_top3": solo_top3,
         "dual_scored": len(dual_ranked),
         "dual_top3": dual_top3,
+        "graveyard": len(graveyard),
         "quadrants": quadrants,
         "flagged": sum(
             len(c.get("corrections", [])) for c in cases
@@ -515,6 +521,8 @@ def build_payload(include_private=False):
         "candidates": candidates,
         "inbox": inbox,
         "sources": sources,
+        # 创业墓碑区：已停运项目的死因复盘。与 cases 平级，独立数据文件。
+        "graveyard": graveyard,
         # 展示配置（公众号 / 社群 / 仓库）。前端用它渲染引流位，别在页面里写死。
         "site": load_site(),
         # 核实草稿（候选 id -> 已填条件）。界面打开工作台时直接读它回填。

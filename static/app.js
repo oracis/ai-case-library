@@ -44,9 +44,13 @@ const TIER_DESC = {
 };
 const tierKey = (c) => (c && c.tier) || 'backup';
 
+/* 与 scripts/verify_rules.py 的 SOURCE_TIERS 必须同键 —— test_prerender 会
+   逐键对照，少一个前端就把该档来源渲染成「来源」两个字。
+   secondary = 中文二手转述（D 级）：本库发现过的两个数字错误都出在这一层，
+   所以界面上必须能把它和一手来源区分开，不能显示成一个 generic 标签。 */
 const KIND_LABEL = {
   stripe: '支付验证', official: '官方', press: '报道', review: '核查',
-  revenuecat: '订阅数据商', founder: '自述'
+  revenuecat: '订阅数据商', founder: '自述', secondary: '二手转述'
 };
 
 const REP_LABEL = {
@@ -325,30 +329,42 @@ function renderRead() {
 /* ---------------- 渲染：顶部统计 ---------------- */
 function renderStats() {
   const s = DATA.stats || {};
-  // 「精写案例」下面挂一行分档明细：一眼看出这批案例里哪些是一手来源撑住的
-  const t = s.tiers || {};
-  const tierSub = '精品 ' + (t.premium || 0) + ' · 实核 ' + (t.standard || 0) +
-                  ' · 备选 ' + (t.backup || 0);
-  const items = [
-    { n: s.curated || 0, k: '精写案例', cls: '', sub: tierSub },
-    { n: s.candidates || 0, k: '候选池', cls: '' },
-    { n: s.inbox || 0, k: '采集队列', cls: '' },
-    { n: s.verified || 0, k: '已核实（支付/官方）', cls: 'g' },
-    { n: s.flagged || 0, k: '修正标记', cls: 'a' },
-    { n: s.categories || 0, k: '覆盖分类', cls: 'b' }
-  ];
-  $('stat-strip').innerHTML = items.map((it) =>
+  /* ⚠️ 与首屏 Hero / 侧栏三级漏斗的分工（2026-10-14 改）
+   ────────────────────────────────────────────────────────
+   改之前这里摆 6 项：精写案例 / 候选池 / 采集队列 / 已核实 / 修正标记 / 覆盖分类。
+   截图实测的结果是同一个数字在首屏出现三遍：
+     ·「60 精写案例」→ stat-strip + 侧栏漏斗 + Hero 大标题
+     ·「388 采集队列」→ stat-strip + 侧栏漏斗
+     ·「70 修正标记」→ stat-strip + Hero 的「发现过的数字出入」（还是同一个 stats.flagged）
+   读者看到的是「60」横着竖着各出现一次，第一眼反而不知道哪个是重点。
+   ⇒ 现在这一条只保留 Hero 与侧栏漏斗**都没覆盖**的三项。
+*/
+const items = [
+  { n: s.candidates || 0, k: '候选池', cls: '' },
+  { n: (s.by_verification || {}).partial || 0, k: '口径待核', cls: 'a' },
+  { n: s.categories || 0, k: '覆盖分类', cls: 'b' }
+];
+
+/* 对外发布版（build_static.py --no-inbox）把这几个作业数字置空后，
+   这一条只剩「覆盖分类」一个数，而且 Hero 已经把该给读者的说完了。
+   作业界面不该出现在对外页面上 —— 检测到发布版就整条收起。 */
+const statEl = $('stat-strip');
+statEl.hidden = s.inbox_included === false;   // ⚠ 本函数里是 s，不是 st
+if (!statEl.hidden) {
+  statEl.innerHTML = items.map((it) =>
     `<div class="stat"><div class="stat-n ${it.cls}">${esc(it.n)}</div>` +
     `<div class="stat-k">${esc(it.k)}</div>` +
     (it.sub ? `<div class="stat-sub">${esc(it.sub)}</div>` : '') +
     `</div>`
   ).join('');
+}
 
   $('nav-count-cases').textContent = s.curated || 0;
   $('nav-count-cands').textContent = s.candidates || 0;
   $('nav-count-inbox').textContent = s.inbox || 0;
   $('nav-count-china').textContent = s.china_scored || 0;
   $('nav-count-dual').textContent = s.dual_scored || 0;
+  $('nav-count-graveyard').textContent = s.graveyard || 0;
 
   $('side-meta').innerHTML =
     `<div>案例 <b>${s.curated || 0}</b> · 候选 <b>${s.candidates || 0}</b></div>` +
@@ -385,14 +401,35 @@ function renderVigilance() {
   const s = DATA.stats || {};
   const t = s.tiers || {};
 
+  /* 结构：汇总行（v-main）+ 完整说明（v-detail）。
+     桌面端完整说明常驻、汇总行不显示 —— 和改造前一模一样；
+     移动端只显示汇总行，完整说明收在「说明」按钮后面
+     （原来 4 行密文占 120px，是首屏最大的一块非内容区）。
+     ⚠ 两处的数字同源同式，不存在第二套算法。 */
   $('vigilance').innerHTML =
-    '<span class="v-ico">▲</span><div>' +
+    '<span class="v-ico">▲</span><div class="v-body">' +
+    '<div class="v-main"><span>' +
+    `<b>${s.curated || 0}</b> 条案例 · <b>${t.premium || 0}</b> 条收入已核实 · ` +
+    `<em>${s.flagged || 0}</em> 处数字出入</span>` +
+    '<button class="v-more" id="v-more" type="button" aria-expanded="false">说明</button>' +
+    '</div>' +
+    '<div class="v-detail">' +
     `本库共 <b>${s.curated || 0}</b> 条案例：<b>${t.premium || 0}</b> 条的收入已被支付网关或官方口径核实（精品池）；` +
     `另有 <em>${t.standard || 0}</em> 条有独立第三方来源、口径待核（实核池），` +
     `<em>${t.backup || 0}</em> 条只有创始人自报或来源矛盾（备选池）；` +
     `并记录 <em>${s.flagged || 0}</em> 处已发现的数字出入。` +
     '<b>凡标注待核的数字，引用前请自己再搜一遍。</b>' +
-    '</div>';
+    '</div></div>';
+
+  const btn = $('v-more');
+  if (btn) {
+    btn.onclick = () => {
+      const box = $('vigilance');
+      const open = box.classList.toggle('v-open');
+      btn.textContent = open ? '收起' : '说明';
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    };
+  }
 }
 
 /* ---------------- 渲染：模式芯片 ---------------- */
@@ -1416,10 +1453,344 @@ function drawerPromoHTML() {
   </div>`;
 }
 
+/* ============================================================
+   首屏 Hero（2026-10-14）
+   ------------------------------------------------------------
+   为什么加它：原来的首屏第一眼是筛选器和卡片网格，新访客看到的是
+   「一堆要自己填的控件」，看不出这库值什么。Hero 把顺序改成
+   「先证据 → 再理由 → 再路径 → 最后才是工具」。
+
+   ⚠️ 为什么可收起：对每天来用的人它是纯噪音，直接占掉一屏。
+     状态存 localStorage，默认展开；收起后留一条标题横幅，随时能展开。
+   ============================================================ */
+const HERO_KEY = 'case-lib-hero-collapsed';
+
+function heroIsCollapsed() {
+  let saved = null;
+  try { saved = localStorage.getItem(HERO_KEY); } catch (e) { return false; }
+  if (saved !== null) return saved === '1';
+  // 没手动设置过：小屏默认收起。手机上首屏被 hero 占满时，
+  // 读者往下滚三次还看不到第一个案例 —— 先给证据，但别挡路。
+  return window.matchMedia('(max-width: 900px)').matches;
+}
+function heroSetCollapsed(v) {
+  try { localStorage.setItem(HERO_KEY, v ? '1' : '0'); } catch (e) { /* 无痕模式，忽略 */ }
+}
+
+/** 案例的主要金额 + **口径标签**（一起返回）。
+    🚨 口径必须显式带上：ARR / MRR / 近 30 天收入 / 累计 四种口径混在一列
+    排名就是本库红线第 1 条 —— Current MRR 对非订阅制恒为 0，
+    last_30d_revenue 可以比 MRR 高 36 倍。排行榜是读者第一眼看到的地方，
+    在这里混口径等于把最大的误差摆在最显眼的位置。
+    ⇒ renderHero 因此排**两个榜**，不合并不排序。 */
+function moneyWithCaliber(c) {
+  const m = c.metrics || {};
+  if (m.arr) return [m.arr, 'ARR'];
+  if (m.mrr) return [m.mrr, 'MRR'];
+  if (m.last_30d_revenue) return [m.last_30d_revenue, '近 30 天收入'];
+  return [null, ''];
+}
+
+function rankHTML(list, withCaliber) {
+  if (!list.length) return '<li class="hr-empty">这一档还没有案例</li>';
+  return list.map((c, i) => {
+    const [v, cal] = moneyWithCaliber(c);
+    const badge = c.verification && c.verification !== 'unverified'
+      ? `<span class="hr-v" data-v="${esc(c.verification)}">${esc(V_LABEL[c.verification] || '')}</span>`
+      : '';
+    return `<li class="hr-item" data-id="${esc(c.id)}">
+      <span class="hr-rank">${i + 1}</span>
+      <span class="hr-name">${esc(c.name)}</span>
+      ${withCaliber ? `<span class="hr-cal">${esc(cal)}</span>` : ''}
+      <b class="hr-v-amount">${esc(money(v) || '—')}</b>
+      ${badge}
+    </li>`;
+  }).join('');
+}
+
+function renderHero() {
+  const hero = $('hero');
+  if (!hero) return;
+  const cases = (DATA && DATA.cases) || [];
+  const st = (DATA && DATA.stats) || {};
+
+  $('hero-n').textContent = st.curated || cases.length;
+
+  /* 分档明细跟着 Hero 走（原来挂在 stat-strip 的「精写案例」下面）：
+     「43 条是一手来源撑住的」是本库最该被看见的一句话 —— 它说明这批案例
+     不是从哪都能抄来的公开资料，而是有支付网关/官方口径的。 */
+  const t = st.tiers || {};
+  const hasTier = t.premium || t.standard || t.backup;
+  const tierEl = $('hero-tier');
+  tierEl.hidden = !hasTier;
+  if (hasTier) {
+    tierEl.innerHTML =
+      `<b>${esc(t.premium || 0)}</b> 条精品（一手来源撑住，数字可直接引用）·` +
+      ` <b>${esc(t.standard || 0)}</b> 条实核 · <b>${esc(t.backup || 0)}</b> 条备选`;
+  }
+
+  /* ---- 四个大数字：只放「能一眼看懂且是真的」的量 ---- */
+  const origins = new Set(cases.map((c) => (c.origin || '').trim()).filter(Boolean));
+  const tiles = [
+    { n: st.curated || cases.length, u: '个', l: '已拆解案例' },
+    { n: (st.by_verification || {}).stripe || 0, u: '个', l: '收入经支付网关验证' },
+    { n: origins.size, u: '个国家/地区', l: '有真实项目在跑' },
+    { n: st.flagged || 0, u: '处', l: '发现过的数字出入' }
+  ];
+  $('hero-stats').innerHTML = tiles.map((t) =>
+    `<div class="hs-tile"><b>${esc(t.n)}</b><span class="hs-u">${esc(t.u)}</span>
+      <span class="hs-l">${esc(t.l)}</span></div>`
+  ).join('');
+
+  /* ---- 两个榜，同口径各排各的 ---- */
+  const subList = cases
+    .filter((c) => (c.metrics || {}).arr || (c.metrics || {}).mrr)
+    .sort((a, b) => (moneyWithCaliber(b)[0] || 0) - (moneyWithCaliber(a)[0] || 0))
+    .slice(0, 6);
+  const d30 = cases
+    .filter((c) => (c.metrics || {}).last_30d_revenue)
+    .sort((a, b) => b.metrics.last_30d_revenue - a.metrics.last_30d_revenue)
+    .slice(0, 6);
+  $('rank-sub').innerHTML = rankHTML(subList, true);
+  $('rank-30d').innerHTML = rankHTML(d30, false);
+
+  /* ---- 榜上点条目 = 打开案例详情 ---- */
+  [$('rank-sub'), $('rank-30d')].forEach((el) => {
+    if (!el) return;
+    el.querySelectorAll('.hr-item').forEach((li) => {
+      li.onclick = () => openCase(li.dataset.id);
+    });
+  });
+
+  /* ---- 折叠态 ---- */
+  const collapsed = heroIsCollapsed();
+  hero.classList.toggle('collapsed', collapsed);
+  $('hero-toggle').textContent = collapsed ? '展开' : '收起';
+  $('hero-body').hidden = collapsed;
+
+  $('hero-toggle').onclick = () => {
+    const next = !hero.classList.contains('collapsed');
+    hero.classList.toggle('collapsed', next);
+    $('hero-body').hidden = next;
+    $('hero-toggle').textContent = next ? '展开' : '收起';
+    heroSetCollapsed(next);
+  };
+  $('hero-go').onclick = () => {
+    const grid = $('grid-cases');
+    if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+}
+
+/* ============================================================
+   创业墓碑区（2026-10-14）
+   ------------------------------------------------------------
+   为什么单独一块，而不是把倒闭项目塞进案例库：
+   成功案例过的是 content_gate（正文齐 + 数字核过 + 口径一致），
+   失败案例没有可核的收入 —— 只核「死因 + 教训 + 来源」。两者的证据
+   标准不同，塞进同一张表会让 cases 的入库闸门名存实亡。
+
+   字段契约：data/graveyard.json。死因是**闭集**，前端不认未知 key ——
+   遇到不认识的值原样显示，而不是兜底成某个类别：兜底等于吞掉分类，
+   吞掉之后列表看着整齐，其实把没分类的东西伪装成已分类。
+   ============================================================ */
+
+/* 与 data/graveyard.json 的 death_reason 一一对应。新增分类先改这里。 */
+const DEATH_LABEL = {
+  cash:           '资金链断裂',
+  unit_economics: '单位经济不成立',
+  legal:          '法律 / 监管',
+  product:        '产品 / 技术失败',
+  competition:    '被竞争挤掉',
+  demand:         '伪需求'
+};
+/* 副标题只写「这类死法的判据」—— 读者要能据此认出自己正在犯的错。 */
+const DEATH_DESC = {
+  cash:           '钱先烧完了，自我造血还没跑通',
+  unit_economics: '每多卖一单亏更多，规模救不了',
+  legal:          '合规、监管，或干脆是造假',
+  product:        '核心功能不成立，或者压根没做出来',
+  competition:    '被更强的模式或更强的玩家挤掉',
+  demand:         '东西做出来了，但用户不要这种形式'
+};
+
+/* loss_kind 决定这个金额该怎么读 —— 把「烧掉 30 亿」和「估值蒸发 90 亿」
+   混成同一个数字是这一区最容易犯的错（WeWork vs Theranos 就是反例：
+   前者真烧，后者只是账面上归零）。所以标签必须跟着金额一起显示。 */
+const LOSS_KIND = {
+  burned:    '累计烧钱',
+  valuation: '估值蒸发',
+  debt:      '债务 / 损失规模',
+  mixed:     '损失口径待定'
+};
+
+let gyFilter = '';
+
+function deathLabel(k) { return DEATH_LABEL[k] || k || '未分类'; }
+function deathDesc(k) { return DEATH_DESC[k] || ''; }
+
+/** 金额转成中文习惯的量级表述。$10,000,000,000 在卡片上没法看。
+    ⚠⚠ **单位换算必须是 1e8，不是 1e9** —— 中文「亿」= 10^8。
+    写成分母 1e9 会让每个数字**整整差 10 倍**（100 亿美元显示成「10 亿」），
+    而这一区讲的就是「烧了多少钱」，差 10 倍等于把结论讲反了。
+    实测：WeWork 1e10 → 「$100 亿」、Theranos 9e9 → 「$90 亿」。 */
+function lossText(usd) {
+  if (!usd || usd <= 0) return '';
+  if (usd >= 1e8) {
+    const yi = usd / 1e8;
+    return '$' + (yi >= 100 ? yi.toFixed(0) : yi.toFixed(1)) + ' 亿';
+  }
+  if (usd >= 1e4) return '$' + Math.round(usd / 1e4) + ' 万';
+  return '$' + num(usd);
+}
+
+function graves() {
+  return (DATA && DATA.graveyard) || [];
+}
+
+function renderGraveyardFilter() {
+  const el = $('gy-filter');
+  if (!el) return;
+  const all = graves();
+  const counts = {};
+  all.forEach((g) => {
+    const k = g.death_reason || '';
+    counts[k] = (counts[k] || 0) + 1;
+  });
+  const keys = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+
+  let html = `<button class="gy-chip${gyFilter ? '' : ' on'}" data-k="">全部 <b>${all.length}</b></button>`;
+  keys.forEach((k) => {
+    const on = gyFilter === k;
+    html += `<button class="gy-chip${on ? ' on' : ''}" data-k="${esc(k)}" title="${esc(deathDesc(k))}">
+      ${esc(deathLabel(k))} <b>${counts[k]}</b></button>`;
+  });
+  el.innerHTML = html;
+  el.querySelectorAll('.gy-chip').forEach((b) => {
+    b.onclick = () => {
+      gyFilter = b.dataset.k;
+      renderGraveyardFilter();
+      renderGraveyard();
+    };
+  });
+}
+
+function renderGraveyard() {
+  const grid = $('grid-gy');
+  if (!grid) return;
+  const all = graves();
+  const rows = gyFilter ? all.filter((g) => (g.death_reason || '') === gyFilter) : all;
+
+  $('empty-gy').hidden = rows.length > 0;
+  if (!rows.length) {
+    grid.innerHTML = '';
+    return;
+  }
+
+  grid.innerHTML = rows.map((g) => {
+    const kind = LOSS_KIND[g.loss_kind] || '';
+    const loss = lossText(g.loss_usd);
+    // 待核实 ≠ 不可用：死因和教训是公开确定的事实，只有金额没核到精确口径。
+    // 所以条目照常展示，只在金额旁挂标记 —— 整条藏起来反而是另一种失真。
+    const pending = g.loss_status === 'pending' && loss;
+    return `<article class="gy-card" data-id="${esc(g.id)}">
+      <div class="gy-head">
+        <span class="gy-reason" data-k="${esc(g.death_reason || '')}">${esc(deathLabel(g.death_reason))}</span>
+        <span class="gy-years">${esc(g.years || '')}</span>
+      </div>
+      <h3 class="gy-name">${esc(g.name)}
+        ${g.name_en && g.name_en !== g.name ? `<small>${esc(g.name_en)}</small>` : ''}
+      </h3>
+      <p class="gy-sum">${esc(g.death_summary || '')}</p>
+      ${loss ? `<div class="gy-loss">
+        <b>${esc(loss)}</b>
+        <span class="gy-kind">${esc(kind)}</span>
+        ${pending ? '<span class="gy-pending" title="金额还没核到精确口径，按原文标出来而不是假装精确">待核实</span>' : ''}
+      </div>` : ''}
+      <div class="gy-meta">
+        ${g.origin ? `<span>🌐 ${esc(g.origin)}</span>` : ''}
+        ${g.industry ? `<span>${esc(g.industry)}</span>` : ''}
+      </div>
+    </article>`;
+  }).join('');
+
+  grid.querySelectorAll('.gy-card').forEach((el) => {
+    el.onclick = () => openGrave(el.dataset.id);
+  });
+}
+
+function graveDetailHTML(g) {
+  const out = [];
+  const loss = lossText(g.loss_usd);
+  const kind = LOSS_KIND[g.loss_kind] || '';
+
+  out.push(`<div class="d-head">
+    <div class="d-title">${esc(g.name)}
+      ${g.name_en && g.name_en !== g.name ? `<small>${esc(g.name_en)}</small>` : ''}
+    </div>
+    <div class="d-badges">
+      <span class="gy-reason big" data-k="${esc(g.death_reason || '')}">${esc(deathLabel(g.death_reason))}</span>
+      ${g.verification ? `<span class="badge" data-v="${esc(g.verification)}">${esc(V_LABEL[g.verification] || g.verification)}</span>` : ''}
+    </div>
+  </div>`);
+
+  if (deathDesc(g.death_reason)) {
+    out.push(`<div class="d-verdict">${esc(deathDesc(g.death_reason))}</div>`);
+  }
+  out.push(`<div class="d-h">怎么死的</div><p class="d-p">${esc(g.death_summary || '')}</p>`);
+
+  if (loss || g.years || g.origin) {
+    const rows = [];
+    if (loss) {
+      rows.push([
+        LOSS_KIND[g.loss_kind] || '损失规模',
+        loss + (g.loss_status === 'pending' ? '（待核实）' : ''),
+        true
+      ]);
+    }
+    if (g.years) rows.push(['存活区间', g.years, false]);
+    if (g.origin) rows.push(['国家 / 地区', g.origin, false]);
+    if (g.industry) rows.push(['赛道', g.industry, false]);
+    out.push('<div class="d-h">损失与时间线</div><div class="metrics">' + rows.map((r) =>
+      `<div class="k">${esc(r[0])}</div><div class="v${r[2] ? ' mono' : ''}">${esc(r[1])}</div>`
+    ).join('') + '</div>');
+  }
+  if (g.loss_note) {
+    out.push(`<div class="metric-warn"><b>口径说明：</b>${esc(g.loss_note)}</div>`);
+  }
+
+  if ((g.lessons || []).length) {
+    out.push('<div class="d-h">你能带走的教训</div><ul class="d-list why">' +
+      g.lessons.map((x) => `<li>${esc(x)}</li>`).join('') + '</ul>');
+  }
+
+  if ((g.sources || []).length) {
+    out.push('<div class="d-h">来源</div><ul class="d-list sig">' + g.sources.map((s) =>
+      `<li>${s.url ? `<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.label || s.url)}</a>`
+                    : esc(s.label || '')}</li>`
+    ).join('') + '</ul>');
+  }
+
+  // 与案例详情保持一个出口：看完失败案例，回到成功案例继续看
+  out.push('<div class="d-h">对照</div>' +
+    '<p class="d-p">想知道同一类死法有没有「活下来的版本」，' +
+    '回<b>精写案例</b>按同样的维度筛一遍 —— 成功案例里每条都标了它到底赚不赚得到钱。</p>');
+
+  return out.join('');
+}
+
+function openGrave(id) {
+  const g = graves().find((x) => x.id === id);
+  if (!g) return;
+  $('drawer-body').innerHTML = graveDetailHTML(g);
+  $('drawer').hidden = false;
+  $('drawer-mask').hidden = false;
+  $('drawer').scrollTop = 0;
+}
+
 /* ---------------- 视图切换 ---------------- */
 function switchView(v) {
   view = v;
-  ['cases', 'dual', 'china', 'candidates', 'inbox', 'sources', 'method'].forEach((name) => {
+  ['cases', 'dual', 'china', 'graveyard', 'candidates', 'inbox', 'sources', 'method'].forEach((name) => {
     const el = $('view-' + name);
     if (el) el.hidden = (name !== v);
   });
@@ -1428,13 +1799,26 @@ function switchView(v) {
   });
   // 搜索 / 排序 / 模式芯片 / 按分筛选：只在案例视图显示（榜单视图本身已是全量排行）
   const showControls = (v === 'cases');
+  /* ⚠ 用 hidden 属性，不要 style.display：
+     `.controls`/`.filterbar` 自带 display:flex（移动端还是 grid），
+     内联 style 会连布局方式一起覆盖掉；而 hidden 配合 CSS 里的
+     `[hidden] { display: none }` 显式规则才能既切换显隐、又保留布局。
+     （UA 自带的 [hidden] 规则打不过类选择器，必须自己补那条。） */
   const ctrl = document.querySelector('.controls');
-  if (ctrl) ctrl.style.display = showControls ? 'flex' : 'none';
+  if (ctrl) ctrl.hidden = !showControls;
   const fb = $('filterbar');
-  if (fb) fb.style.display = showControls ? 'flex' : 'none';
-  $('chips').style.display = showControls ? 'flex' : 'none';
+  if (fb) fb.hidden = !showControls;
+  $('chips').hidden = !showControls;
   $('scroll').scrollTop = 0;
   renderPodium();
+  /* 把当前视图写进 URL hash。
+     ⚠ 用 replaceState 而不是 location.hash = v：后者会触发 hashchange，
+     而 hashchange 监听里又调用 switchView，虽然最终幂等但会多绕一圈；
+     replaceState 静默更新，且不往历史记录里堆一串视图切换
+     （否则读者按「后退」要退七八次才能离开本站）。 */
+  if (('#' + v) !== location.hash) {
+    history.replaceState(null, '', '#' + v);
+  }
 }
 
 /* ---------------- 数据加载 ---------------- */
@@ -1471,6 +1855,9 @@ async function load() {
   renderDual();
   renderFilterBar();
   renderPodium();
+  renderHero();
+  renderGraveyardFilter();
+  renderGraveyard();
   renderCandidates();
   renderInbox();
   renderSources();
@@ -1530,12 +1917,76 @@ function bind() {
   });
 }
 
+/* ---------------- 视图路由（URL hash）----------------
+   为什么加：分享链接只能把人送到首页，等于让对方自己再找一遍。
+   #graveyard / #china 这类深链可以直接落到对应视图 —— 公众号文里
+   「看这条墓碑区案例」这类引用也能真的落到位置上。
+   非法 hash 静默回落到 cases（不报错：手打错一个字母不该白屏）。 */
+const VIEWS = ['cases', 'dual', 'china', 'graveyard', 'candidates', 'inbox', 'sources', 'method'];
+
+function viewFromHash() {
+  const h = (location.hash || '').replace(/^#/, '');
+  return VIEWS.indexOf(h) >= 0 ? h : 'cases';
+}
+
+window.addEventListener('hashchange', () => {
+  const v = viewFromHash();
+  if (v !== view) switchView(v);
+});
+
+/* ---------------- PWA：注册 SW + 更新提示（2026-10-14） ----------------
+   只在 http(s) 下注册：file:// 打开时 SW 不存在，注册会抛错。
+   更新提示而不是自动 reload —— 读者可能正读到一个案例的中段，
+   强行刷新等于把他正在看的内容抢走。 */
+(function registerSW() {
+  if (!('serviceWorker' in navigator)) return;
+  if (!/^https?:$/.test(location.protocol)) return;
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js').then(function (reg) {
+      // 已有 SW 在等接管：说明这次发布带来了新壳，提示刷新
+      if (reg.waiting) showUpdateToast(reg);
+      reg.addEventListener('updatefound', function () {
+        const nw = reg.installing;
+        if (!nw) return;
+        nw.addEventListener('statechange', function () {
+          if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+            showUpdateToast(reg);
+          }
+        });
+      });
+    }).catch(function () { /* 本地 file:// 或不支持，静默跳过 */ });
+
+    // 新 SW 接管后刷新一次，让页面用上新壳
+    var reloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      if (reloaded) return;
+      reloaded = true;
+      location.reload();
+    });
+  });
+})();
+
+function showUpdateToast(reg) {
+  if (document.getElementById('sw-toast')) return;
+  var el = document.createElement('div');
+  el.id = 'sw-toast';
+  el.className = 'sw-toast';
+  el.innerHTML = '有新内容 <b>·</b> <button type="button">刷新</button>';
+  el.querySelector('button').onclick = function () {
+    if (reg.waiting) reg.waiting.postMessage('SKIP_WAITING');
+    else location.reload();
+  };
+  document.body.appendChild(el);
+}
+
 /* ---------------- 启动 ---------------- */
 (async function main() {
   loadRead();
   bind();
   try {
     await load();
+    const v0 = viewFromHash();
+    if (v0 !== 'cases') switchView(v0);
   } catch (err) {
     document.getElementById('scroll').innerHTML =
       '<div class="empty">加载失败：' + esc(err.message) +

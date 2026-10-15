@@ -136,6 +136,21 @@ CATEGORY_STYLE = {
     "移动应用": "mobile phone app screens, app store listing and habit tracking UI",
     "Real Estate": "property listings, mortgage charts and map interface",
     "Entertainment": "audio waveform editor, mixing console and mastering presets",
+    # ---- 2026-10-15 补：门槛放宽后新案例带来的英文/小写分类 ----
+    # 分类名来自 TrustMRR 档案，同一件事中英两套写法并存（AI 工具 /
+    # Artificial Intelligence）。两张表按**字符串**查，不归一化，
+    # 所以漏一个就等于该分类的封面退回 DEFAULT_STYLE —— 封面风格全库统一
+    # 这件事会被静默打破（test_agnes_cover 专门盯着这个）。
+    "Artificial Intelligence": "AI assistant interface, chat panels and automation flows, "
+                               "neural network motifs",
+    "Content Creation": "creator studio, content calendar and publishing panels",
+    "Health & Fitness": "fitness tracking app screens, workout plans and progress charts",
+    "Mobile Apps": "mobile phone app screens, app store listing and habit tracking UI",
+    "Productivity": "productivity workspace, task boards and time tracking panels",
+    "analytics": "analytics dashboard, data charts and reporting panels",
+    "games": "game interface, board or match screens and ranking panels",
+    "recruiting": "recruiting pipeline, candidate profiles and application tracking",
+    "security": "security monitoring console, alerts and device tracking map",
     "未分类": "generic software product concept illustration",
 }
 DEFAULT_STYLE = "flat geometric editorial illustration, product and workflow concept"
@@ -159,6 +174,16 @@ CATEGORY_THEME = {
     "移动应用": "mobile app screens and habit streaks",
     "Real Estate": "property listings, mortgage records and map search",
     "Entertainment": "audio waveform editor, mixing console and mastering presets",
+    # 与 CATEGORY_STYLE 同批补的英文/小写分类（见那里的注释）
+    "Artificial Intelligence": "AI assistant and automation",
+    "Content Creation": "content creation and publishing",
+    "Health & Fitness": "fitness tracking and workout plans",
+    "Mobile Apps": "mobile app screens and habit streaks",
+    "Productivity": "task boards and time tracking",
+    "analytics": "data analytics and reporting",
+    "games": "game match screens and ranking",
+    "recruiting": "candidate pipeline and applications",
+    "security": "monitoring console and device tracking",
     "未分类": "software product",
 }
 

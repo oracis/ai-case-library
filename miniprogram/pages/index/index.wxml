@@ -1,0 +1,61 @@
+<view class="page">
+
+  <!-- 搜索 -->
+  <view class="searchbar">
+    <view class="s-inner">
+      <text class="s-ico">⌕</text>
+      <input class="s-input" placeholder="搜案例：产品名 / 定位 / 分类"
+             value="{{kw}}" bindinput="onSearch" confirm-type="search" />
+      <text wx:if="{{kw}}" class="s-clear" bindtap="clearKw">✕</text>
+    </view>
+  </view>
+
+  <!-- 口径提示：库规红线 1 的读者端呈现 —— 金额不裸奔 -->
+  <view class="caliber-note">
+    <text class="cn-b">口径提示</text>
+    <text class="cn-t">MRR（订阅月收入）与「近30天」（含一次性收入）不可比，本站所有金额均带口径标签，请分别看。</text>
+  </view>
+
+  <view wx:if="{{notConfigured}}" class="empty">
+    <view>云函数未部署，或 utils/config.js 里的 ENV_ID 还没改成你的环境 ID</view>
+    <view class="btn-ghost" bindtap="retry">重试</view>
+  </view>
+
+  <view wx:if="{{loading && !notConfigured}}" class="empty">加载中…</view>
+
+  <view wx:elif="{{!loading && filtered.length === 0 && !notConfigured}}" class="empty">
+    没有匹配「{{kw}}」的案例
+  </view>
+
+  <view class="list">
+    <view class="card case-card" wx:for="{{filtered}}" wx:key="id"
+          bindtap="goCase" data-id="{{item.id}}">
+      <view class="row">
+        <text class="c-name">{{item.name}}</text>
+        <text class="tag tier" wx:if="{{item.tierText}}">{{item.tierText}}</text>
+        <view class="gap"></view>
+        <text class="c-country">{{item.origin}}</text>
+      </view>
+
+      <view class="c-one">{{item.one_liner}}</view>
+
+      <view class="row c-meta">
+        <text class="vb vb-{{item.verification}}">{{item.verifText}}</text>
+        <block wx:if="{{item.mainRev}}">
+          <text class="c-money">{{item.mainRev.text}}</text>
+          <text class="c-caliber">{{item.mainRev.caliberLabel}}</text>
+        </block>
+        <text wx:elif class="c-money muted">收入未披露</text>
+      </view>
+
+      <view class="row c-scores">
+        <text class="s">一个人做得来 <b>{{item.solo}}</b></text>
+        <text class="s">搬回国内 <b>{{item.china}}</b></text>
+        <view class="gap"></view>
+        <text class="s mono sc">综合 {{item.score == null ? '–' : item.score}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="foot">共 {{filtered.length}} 条 · 内容免费，深度报告/导出为付费功能</view>
+</view>

@@ -705,7 +705,18 @@ def main():
             dst = os.path.join(DATA, name)
             if os.path.isfile(src):
                 shutil.copy2(src, dst)
-        shutil.rmtree(BACKUP)
+        # ⚠ 清备份目录失败**不能让整轮自检崩掉**（2026-10-14 修）。
+        #   rmtree 在 WorkBuddy 沙箱里被劫持到「丢回收站」，实测会抛
+        #   `OSError: SHFileOperationW 失败: 0x2`。而它跑在**结果汇总之前**，
+        #   于是变成「全部 PASS 却 traceback + 退出码非 0」——
+        #   看输出的人会以为自检炸了，实际上一条测试都没失败。
+        #   残留一个 .selftest_backup 只是脏目录，不影响 data/ 已还原这个事实。
+        try:
+            shutil.rmtree(BACKUP)
+        except OSError as e:                                  # noqa: BLE001
+            print("    [warn] 没清掉 %s：%s（data/ 已还原，"
+                  "手动删掉即可，不影响自检结论）"
+                  % (os.path.relpath(BACKUP, ROOT), e))
         # 测试期间新建的文件不在备份里，还原盖不掉 —— 会把假 key 留给用户
         if not had_secrets_in_backup \
                 and os.path.exists(os.path.join(DATA, "secrets.json")):

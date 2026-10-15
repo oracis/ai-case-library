@@ -327,7 +327,10 @@ def test_integration():
                      "points": 500, "comments": 0, "created_at": "2026-09-01",
                      "_blob": "PH Thing launched mrr", "_origin": "ph"}]
 
-        def fake_tm_sitemap(limit, budget=100, dry_run=False):
+        # 2026-10-15：harvest 加了 --tm-seeds（种子队列文件），调用点会传
+        # seeds_file= —— 这里的假函数必须一并接收，否则集成测试报
+        # "unexpected keyword argument"，而真实函数签名其实是对得上的。
+        def fake_tm_sitemap(limit, budget=100, dry_run=False, seeds_file=None):
             return [{"name": "TM Sitemap Thing", "one_liner": "from .md profile",
                      "url": "https://trustmrr.com/startup/tm-sitemap",
                      "website": "https://tms.example", "points": 0, "comments": 0,

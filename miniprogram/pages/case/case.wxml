@@ -1,0 +1,99 @@
+<view class="page" wx:if="{{c}}">
+
+  <!-- 头部 -->
+  <view class="card head">
+    <view class="row">
+      <text class="h-name">{{c.name}}</text>
+      <view class="gap"></view>
+      <text class="h-country">{{c.origin}}</text>
+    </view>
+    <view class="h-one">{{c.one_liner}}</view>
+    <view class="row h-tags">
+      <text class="vb vb-{{c.verification}}">{{c.verifText}}</text>
+      <text class="tag" wx:if="{{c.tierText}}">{{c.tierText}}池</text>
+      <text class="tag" wx:if="{{c.category}}">{{c.category}}</text>
+    </view>
+
+    <!-- 收入区：每个数字自带口径标签（红线 1） -->
+    <view class="rev" wx:if="{{c.revLines.length}}">
+      <view class="rev-item" wx:for="{{c.revLines}}" wx:key="caliberLabel">
+        <text class="rev-v">{{item.text}}</text>
+        <text class="rev-c">{{item.caliberLabel}}</text>
+      </view>
+    </view>
+    <view class="rev-none" wx:elif>收入未公开披露</view>
+  </view>
+
+  <!-- 双轴评分 -->
+  <view class="card scores">
+    <view class="row sc-row">
+      <view class="sc-cell">
+        <text class="sc-v">{{c.solo == null ? '–' : c.solo}}</text>
+        <text class="sc-l">一个人做得来</text>
+      </view>
+      <view class="sc-cell">
+        <text class="sc-v">{{c.china == null ? '–' : c.china}}</text>
+        <text class="sc-l">搬回国内</text>
+      </view>
+      <view class="sc-cell">
+        <text class="sc-v accent">{{c.score == null ? '–' : c.score}}</text>
+        <text class="sc-l">综合分</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 免费正文 -->
+  <view class="card sec">
+    <view class="sec-h">它做什么</view>
+    <view class="sec-p">{{c.what_it_does}}</view>
+  </view>
+
+  <view class="card sec">
+    <view class="sec-h">钱从哪来</view>
+    <view class="sec-p">{{c.how_it_makes_money}}</view>
+  </view>
+
+  <view class="card sec" wx:if="{{c.why_it_works && c.why_it_works.length}}">
+    <view class="sec-h">为什么能成</view>
+    <view class="sec-p" wx:for="{{c.why_it_works}}" wx:key="index">{{item}}</view>
+  </view>
+
+  <view class="card sec" wx:if="{{c.verdict}}">
+    <view class="sec-h">一句话结论</view>
+    <view class="sec-p verdict">{{c.verdict}}</view>
+  </view>
+
+  <!-- 深度报告：软墙。未购买展示价值主张 + 购买按钮 -->
+  <view class="card report">
+    <view class="row">
+      <view class="gap">
+        <view class="rp-h">深度报告</view>
+        <view class="rp-sub">打法清单 · 创始人 · 流量来源 · 证据链</view>
+      </view>
+      <text class="rp-price">{{goods.priceText}}</text>
+    </view>
+
+    <block wx:if="{{hasReport}}">
+      <view class="rp-open">
+        <button class="btn-primary" bindtap="goReport">查看深度报告 →</button>
+      </view>
+    </block>
+    <block wx:else>
+      <view class="rp-points">
+        <view class="rp-p">▸ 可迁移打法逐条列（含优先级）</view>
+        <view class="rp-p">▸ 创始人背景与冷启动路径</view>
+        <view class="rp-p">▸ 流量来源拆解（SEO / 社群 / 口碑）</view>
+        <view class="rp-p">▸ 收入口径明细与证据等级</view>
+      </view>
+      <button class="btn-primary" bindtap="buyReport" disabled="{{buying}}">
+        {{buying ? '支付中…' : '解锁本篇深度报告'}}
+      </button>
+      <view class="rp-note">一次购买，永久可看 · 安卓费率 1%，iOS 走苹果支付</view>
+    </block>
+  </view>
+
+  <view class="foot muted">相同内容在 Web 站可免费阅读 —— 这里付费用的是结构化报告的便捷形态</view>
+</view>
+
+<view class="empty" wx:elif="{{missing}}">案例不存在或已下架</view>
+<view class="empty" wx:else>加载中…</view>

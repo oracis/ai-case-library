@@ -222,30 +222,37 @@ TITLE_OVERRIDES = {
     "nutria-9e3eaa": [
         "Nutria (9e3eaa)：AI 卡路里追踪应用，但近 30 天在下滑",
         "Nutria：用 AI 记卡路里，但增长已经掉头向下",
+        "$46K MRR 的 AI 卡路里应用，为什么在往下掉",
     ],
     "downconvert-sketchup-files": [
         "DOWNCONVERT SKETCHUP FILES：SketchUp 文件版本转换工具",
         "把高版本 SketchUp 文件降回低版本，一门小而稳的生意",
+        "一个只解决「文件打不开」的工具，月入 $3,748",
     ],
     "stealth-rdp": [
         "Stealth RDP：跨美欧的 Windows/Linux VPS 托管服务",
         "给远程办公的人提供跨大西洋的 VPS 托管",
+        "跨大西洋的 VPS 托管，月入一千多美元的生意怎么做",
     ],
     "pet-plus-us": [
         "Pet Plus Us：AI 生成宠物与主人个性化肖像",
         "用 AI 把宠物和主人画成一对肖像，按张收费",
+        "把宠物画进肖像里：一个要价 7.5 万美元的小生意",
     ],
     "postiz": [
         "Postiz：社媒多平台一键排期，靠 agent 营销起飞",
         "Postiz：把社媒排期做成订阅，agent 帮它做营销",
+        "MRR 从 1.7 万到 20 万：一个开源排期工具的陡坡",
     ],
     "visualizee-ai": [
         "Visualizee.ai：建筑与室内设计的效果图渲染工具",
         "给建筑师做效果图渲染，一次转型跳对了赛道",
+        "卡在 $150/月两年，转型后跳到 $8.6K：它改了什么",
     ],
     "outrank": [
         "Outrank：从 AI 博客生成器到自动化 SEO 引擎",
         "Outrank：把 AI 博客生成器做成自动化 SEO 引擎",
+        "月入 $300 到 30 万：一个 AI 博客生成器的 15 个月",
     ],
 }
 
@@ -405,7 +412,15 @@ def strip_title_money(t):
 def build_titles(case):
     """三条备选标题。没手改过的走模板，并在草稿里标出建议手改。"""
     if case["id"] in TITLE_OVERRIDES:
-        return TITLE_OVERRIDES[case["id"]], True
+        titles = list(TITLE_OVERRIDES[case["id"]])
+        # 2026-10-15：手改过的标题表里实测有 7 条只写了 2 个（nutria、
+        # postiz、visualizee-ai…），而下游按「三选一」渲染，拿 titles[2]
+        # 会 IndexError 直接崩。这里补齐到 3 个 —— 补的是模板生成的那条，
+        # 手写的两条排前面，人的选择权没被稀释。
+        if len(titles) < 3:
+            name = case.get("name", case["id"])
+            titles.append("%s 这条生意，国内能做吗" % name)
+        return titles, True
     m = case.get("metrics") or {}
     name = case.get("name", case["id"])
     hook = m.get("headline") or case.get("one_liner") or ""
@@ -611,8 +626,12 @@ def render_markdown(case, titles, manual, secs, score):
     L = []
     L.append("# %s" % titles[0])
     L.append("")
-    L.append("<!-- 备选标题 2：%s -->" % titles[1])
-    L.append("<!-- 备选标题 3：%s -->" % titles[2])
+    # 2026-10-15：原来硬取 titles[1] / titles[2]，而 build_titles() 只保证
+    # 至少 1 个 —— 实测有 7 条老案例（nutria、postiz、visualizee-ai…）
+    # 只产得出 2 个标题，于是生成文章这一步直接 IndexError 崩掉。
+    # 备选标题是给人挑的，有几个写几个；没有就不写，别为了凑数编一个。
+    for i, t in enumerate(titles[1:], start=2):
+        L.append("<!-- 备选标题 %d：%s -->" % (i, t))
     if not manual:
         L.append("<!-- [!] 标题由模板生成，发布前请手改 -->")
     comp = case.get("composite") or {}
@@ -929,7 +948,14 @@ def main():
               % (stem, s, "已手改" if manual else "待手改"))
 
     print("-" * 62)
-    print("  生成 %d 个文件 -> %s" % (len(written), os.path.relpath(args.out, ROOT)))
+    # 跨盘符安全版（同 build_static.safe_relpath）：输出目录可能落在别的盘
+    # （测试临时目录就在 C:），裸 relpath 会抛 ValueError 把整条流程打断，
+    # 而这里只是打印一行日志 —— 不值得为它崩。
+    try:
+        out_show = os.path.relpath(args.out, ROOT)
+    except ValueError:
+        out_show = os.path.abspath(args.out)
+    print("  生成 %d 个文件 -> %s" % (len(written), out_show))
     if all_hits:
         print("  [!] 宣传性词汇已替换：%s" % "、".join(sorted(set(all_hits))))
     if all_warns:

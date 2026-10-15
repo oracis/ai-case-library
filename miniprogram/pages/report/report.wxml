@@ -1,0 +1,74 @@
+<!-- 未购买：购买引导 -->
+<view class="page" wx:if="{{!hasReport && !missing}}">
+  <view class="card gate">
+    <view class="g-ico">🔒</view>
+    <view class="g-h">深度报告未解锁</view>
+    <view class="g-p">包含可迁移打法清单、创始人背景、流量来源拆解与口径明细。</view>
+    <view class="g-price">{{goods.priceText}} <text class="g-unit">/ 篇</text></view>
+    <button class="btn-primary" bindtap="buy" disabled="{{buying}}">
+      {{buying ? '支付中…' : '解锁本篇报告'}}
+    </button>
+    <view class="g-note">一次购买永久可看 · 购买记录可在「我的」查看</view>
+  </view>
+</view>
+
+<view class="page" wx:elif="{{hasReport && c}}">
+
+  <view class="card head">
+    <view class="row">
+      <text class="rp-badge">深度报告</text>
+      <view class="gap"></view>
+      <text class="rp-date">{{c.updated_at}}</text>
+    </view>
+    <view class="h-name">{{c.name}}</view>
+    <view class="h-one">{{c.one_liner}}</view>
+  </view>
+
+  <!-- 打法清单 -->
+  <view class="card sec" wx:if="{{c.playbook.length}}">
+    <view class="sec-h">可迁移打法</view>
+    <view class="pb-item" wx:for="{{c.playbook}}" wx:key="index">
+      <text class="pb-num">{{index + 1}}</text>
+      <text class="pb-t">{{item}}</text>
+    </view>
+    <view class="pb-note" wx:if="{{c.playbook.length === 0}}">本条暂无打法提炼，以正文结论为准。</view>
+  </view>
+
+  <!-- 创始人 -->
+  <view class="card sec" wx:if="{{c.founderText}}">
+    <view class="sec-h">创始人</view>
+    <view class="sec-p">{{c.founderText}}</view>
+    <view class="sec-warn" wx:if="{{c.founderText === '未公开'}}">未检索到可靠公开信息，不猜测、不补写。</view>
+  </view>
+
+  <!-- 流量来源 -->
+  <view class="card sec" wx:if="{{c.traffic.length}}">
+    <view class="sec-h">流量从哪来</view>
+    <view class="tf-item" wx:for="{{c.traffic}}" wx:key="index">
+      <text class="tf-dot"></text>
+      <text class="tf-t">{{item}}</text>
+    </view>
+  </view>
+
+  <!-- 口径与证据 -->
+  <view class="card sec">
+    <view class="sec-h">数字口径与证据</view>
+    <view class="ev-row" wx:for="{{c.revLines}}" wx:key="caliberLabel">
+      <text class="ev-v">{{item.text}}</text>
+      <text class="ev-c">{{item.caliberLabel}}</text>
+    </view>
+    <view class="ev-none" wx:if="{{c.revLines.length === 0}}">收入未公开披露</view>
+    <view class="row ev-tags">
+      <text class="vb vb-{{c.verification}}">{{c.verifText}}</text>
+      <text class="tag" wx:if="{{c.tierText}}">{{c.tierText}}池</text>
+      <text class="tag">口径：{{c.caliberText}}</text>
+    </view>
+    <view class="ev-note">
+      MRR 与「近30天」是两种口径，不可比、不可相加。标「待核」的数字引用前请自行复核。
+    </view>
+  </view>
+
+  <view class="foot muted">报告内容与 Web 站同源 · 付费购买的是结构化呈现与离线查阅</view>
+</view>
+
+<view class="empty" wx:elif="{{missing}}">案例不存在或已下架</view>

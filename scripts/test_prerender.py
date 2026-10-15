@@ -148,7 +148,11 @@ def main():
             thin.append("%s(%d字)" % (c["id"], n))
         if c.get("one_liner") and m.esc(c["one_liner"]) not in h:
             no_liner.append(c["id"])
-        if "app.js" in h:
+        # 2026-10-15：原来是裸判断 `"app.js" in h`，但内联进页面的 style.css
+        # 注释里本来就写着「（app.js 的 switchView 因此改用 el.hidden…）」——
+        # 于是每一页都命中，误报成「独立页依赖 app.js」。
+        # 这里要验的是**真的引用了脚本**，所以只认 <script src=...app.js>。
+        if re.search(r'<script[^>]*\bsrc=["\'][^"\']*app\.js', h):
             with_js.append(c["id"])
         if re.search(r'(href|src)="/(?!/)', h):
             abs_path.append(c["id"])

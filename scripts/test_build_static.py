@@ -194,7 +194,10 @@ def main():
         print("\n[6] index.html 里退回绝对路径时应当失败")
         fake = os.path.join(tmp_root, "fake_static")
         os.makedirs(fake, exist_ok=True)
-        for n in ("style.css", "app.js"):
+        # 2026-10-15：build 现在强制要 PWA 的两个文件（manifest.webmanifest /
+        # sw.js），缺了会先报「缺少 static/xxx」直接返回 1，
+        # 根本走不到下面要验的根路径检查 —— 所以假目录必须一并备齐。
+        for n in ("style.css", "app.js", "manifest.webmanifest", "sw.js"):
             shutil.copy2(os.path.join(orig_static_dir, n), os.path.join(fake, n))
         broken = open(os.path.join(orig_static_dir, "index.html"), encoding="utf-8").read()
         broken = broken.replace('href="./style.css"', 'href="/style.css"')

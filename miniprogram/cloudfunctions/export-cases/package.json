@@ -1,0 +1,9 @@
+{
+  "name": "export-cases",
+  "version": "1.0.0",
+  "description": "全站 CSV 导出（服务端校验权益）",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~4.0.2"
+  }
+}

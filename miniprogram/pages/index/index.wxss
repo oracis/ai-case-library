@@ -1,0 +1,46 @@
+.page { padding: 24rpx 24rpx 80rpx; }
+
+.searchbar { margin-bottom: 16rpx; }
+.s-inner {
+  display: flex; align-items: center; gap: 12rpx;
+  background: var(--surface); border: 1rpx solid var(--border);
+  border-radius: 20rpx; padding: 16rpx 24rpx;
+}
+.s-ico { color: var(--text-3); font-size: 32rpx; }
+.s-input { flex: 1; font-size: 27rpx; color: var(--text); }
+.s-clear { color: var(--text-3); font-size: 26rpx; padding: 0 8rpx; }
+
+/* 口径提示条： amber 色系（Web 站待核色），不用红色 —— 这是提示不是警报 */
+.caliber-note {
+  display: flex; gap: 12rpx; align-items: flex-start;
+  background: rgba(229, 181, 103, .08);
+  border: 1rpx solid rgba(229, 181, 103, .22);
+  border-radius: 16rpx; padding: 14rpx 20rpx; margin-bottom: 20rpx;
+}
+.cn-b {
+  flex: 0 0 auto; color: var(--v-partial); font-size: 22rpx; font-weight: 600;
+  border: 1rpx solid rgba(229, 181, 103, .35); border-radius: 12rpx;
+  padding: 0 12rpx; line-height: 1.7;
+}
+.cn-t { color: var(--text-2); font-size: 22rpx; line-height: 1.6; }
+
+.list { display: flex; flex-direction: column; gap: 18rpx; }
+
+.case-card { display: flex; flex-direction: column; gap: 12rpx; }
+.case-card:active { background: var(--surface-2); }
+
+.c-name { font-size: 31rpx; font-weight: 650; letter-spacing: .2rpx; }
+.c-country { font-size: 21rpx; color: var(--text-3); }
+.tier { font-size: 19rpx; color: var(--money); border-color: rgba(70,211,138,.3); }
+
+.c-one { font-size: 25rpx; color: var(--text-2); line-height: 1.65; }
+
+.c-meta { flex-wrap: wrap; gap: 10rpx; }
+.c-money { font-family: ui-monospace, Menlo, monospace; font-size: 28rpx; color: var(--money); font-weight: 600; }
+.c-caliber { font-size: 19rpx; color: var(--text-3); border: 1rpx solid var(--border); border-radius: 12rpx; padding: 0 10rpx; line-height: 1.7; }
+
+.c-scores { font-size: 22rpx; color: var(--text-3); gap: 22rpx; }
+.c-scores b { color: var(--text-2); font-family: ui-monospace, Menlo, monospace; font-weight: 600; }
+.c-scores .sc { color: var(--accent); }
+
+.foot { text-align: center; color: var(--text-3); font-size: 21rpx; padding: 40rpx 0 20rpx; }

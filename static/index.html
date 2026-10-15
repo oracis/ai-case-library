@@ -2,11 +2,21 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>拆解海外 · Overseas Teardowns</title>
 <!-- 相对路径：这样既是本地服务（根路径）也能直接部署到 OSS / Pages 的子目录 -->
 <link rel="stylesheet" href="./style.css">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📇</text></svg>">
+<!-- PWA：可安装到桌面/主屏，standalone 下没有浏览器 UI（2026-10-14）。
+     viewport-fit=cover 让内容延伸到刘海/圆角区域，配合 CSS 的
+     env(safe-area-inset-*) 才不会把底部 tab 压在 iPhone 小黑条底下。 -->
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#0b0e14">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="拆解海外">
+<link rel="apple-touch-icon" href="./icons/icon-180.png">
 </head>
 <body>
 
@@ -26,31 +36,41 @@
     </div>
 
     <nav class="nav" id="nav">
+      <!-- nav-short：底部 tab 用的短标签。桌面端隐藏，移动端显示。
+           长标签（nav-label）在 375px 宽的 tab 里放不下 5 个字，
+           所以两套文字并存，而不是靠 CSS 截断 —— 截断会把「创业墓碑区」
+           变成「创业墓…」，读起来像坏数据。 -->
       <button class="nav-item active" data-view="cases">
-        <span class="nav-ico">▦</span><span class="nav-label">精写案例</span>
+        <span class="nav-ico">▦</span><span class="nav-label">精写案例</span><span class="nav-short">案例</span>
         <span class="nav-count" id="nav-count-cases">–</span>
       </button>
       <button class="nav-item" data-view="dual">
-        <span class="nav-ico">⬥</span><span class="nav-label">综合排行</span>
+        <span class="nav-ico">⬥</span><span class="nav-label">综合排行</span><span class="nav-short">排行</span>
         <span class="nav-count" id="nav-count-dual">–</span>
       </button>
       <button class="nav-item" data-view="china">
-        <span class="nav-ico">⇈</span><span class="nav-label">移植排行</span>
+        <span class="nav-ico">⇈</span><span class="nav-label">移植排行</span><span class="nav-short">移植</span>
         <span class="nav-count" id="nav-count-china">–</span>
       </button>
+      <!-- 创业墓碑区：失败案例。排在内部视图之前 —— 它是对外内容，
+           而候选池/采集队列是作业界面，不该挡在读者路径上。 -->
+      <button class="nav-item" data-view="graveyard">
+        <span class="nav-ico">⚑</span><span class="nav-label">创业墓碑区</span><span class="nav-short">墓碑区</span>
+        <span class="nav-count" id="nav-count-graveyard">–</span>
+      </button>
       <button class="nav-item" data-view="candidates">
-        <span class="nav-ico">◫</span><span class="nav-label">候选池</span>
+        <span class="nav-ico">◫</span><span class="nav-label">候选池</span><span class="nav-short">候选</span>
         <span class="nav-count" id="nav-count-cands">–</span>
       </button>
       <button class="nav-item" data-view="inbox">
-        <span class="nav-ico">▤</span><span class="nav-label">采集队列</span>
+        <span class="nav-ico">▤</span><span class="nav-label">采集队列</span><span class="nav-short">队列</span>
         <span class="nav-count" id="nav-count-inbox">–</span>
       </button>
       <button class="nav-item" data-view="sources">
-        <span class="nav-ico">◈</span><span class="nav-label">信息源</span>
+        <span class="nav-ico">◈</span><span class="nav-label">信息源</span><span class="nav-short">信源</span>
       </button>
       <button class="nav-item" data-view="method">
-        <span class="nav-ico">◎</span><span class="nav-label">方法论</span>
+        <span class="nav-ico">◎</span><span class="nav-label">方法论</span><span class="nav-short">方法</span>
       </button>
     </nav>
 
@@ -120,7 +140,7 @@
           <option value="55">≥ 55</option>
         </select>
         <span class="fb-sep"></span>
-        <span class="fb-label">象限</span>
+        <span class="fb-label q">象限</span>
         <select id="quad" class="select sm" title="四象限">
           <option value="">全部象限</option>
           <option value="go">可以开干</option>
@@ -131,11 +151,66 @@
         <button class="fb-reset" id="fb-reset" hidden>清空筛选</button>
         <span class="fb-count" id="fb-count"></span>
       </div>
-      <div class="chips" id="chips"></div>
+      <!-- chips-wrap：只给移动端横滚渐隐用（桌面它就是透明容器）。
+           没有这一层，渐隐会跟着 chips 一起被滚走。 -->
+      <div class="chips-wrap"><div class="chips" id="chips"></div></div>
     </header>
 
     <div class="scroll" id="scroll">
       <section id="view-cases" class="view">
+        <!-- 首屏 Hero（2026-10-14 新增）
+             为什么放在卡片网格之前：原来首屏第一眼是筛选器和卡片，
+             新访客看到的是「一堆要自己填的控件」，看不到这库到底值什么。
+             现在的顺序是「先给证据（大数字 + 收入榜）→ 再给理由（为什么用）
+             → 再给路径（三步）→ 最后才是可操作的工具界面」。
+             Hero 可收起并存 localStorage —— 对每天来用的人来说它是噪音。 -->
+        <div class="hero" id="hero">
+          <div class="hero-lead">
+            <div class="hero-h1">
+              <b id="hero-n">–</b> 个已拆解的海外软件生意
+            </div>
+            <p class="hero-sub">每个都标了数字可信到什么程度 —— 这个收入是支付网关读出来的，还是创始人自己说的。</p>
+            <!-- 分档明细：随 Hero 渲染。原来挂在 stat-strip 的「精写案例」下面，
+                 因为同一个数字在三处重复，已移到这里（见 app.js renderStats 注释）。 -->
+            <p class="hero-tier" id="hero-tier" hidden></p>
+            <div class="hero-stats" id="hero-stats"></div>
+            <div class="hero-btns">
+              <button class="hb primary" id="hero-go">开始浏览</button>
+              <button class="hb" id="hero-toggle">收起</button>
+            </div>
+          </div>
+
+          <div class="hero-body" id="hero-body">
+            <div class="hero-cols">
+              <!-- 两个榜刻意分开，不合并成一个「Top 10 收入」 -->
+              <div class="hero-col">
+                <h3>收入榜 · 年度 / 月度经常性</h3>
+                <p class="hc-note">只排有 ARR 或 MRR 的，同口径才可比。</p>
+                <ol class="hero-rank" id="rank-sub"></ol>
+              </div>
+              <div class="hero-col">
+                <h3>近 30 天已验证收入</h3>
+                <p class="hc-note">支付网关 API 直读，本库最硬的一档数字。</p>
+                <ol class="hero-rank" id="rank-30d"></ol>
+              </div>
+              <div class="hero-col">
+                <h3>为什么用这个库</h3>
+                <ul class="hero-why">
+                  <li><b>收入经支付网关验证</b>，不是创始人自报。数字虚不虚，看徽章就知道。</li>
+                  <li><b>双轴评分</b>：一个人能不能做 × 能不能搬回国内做 —— 结论常常相反，混在一起会误导。</li>
+                  <li><b>发现过数字出入就写出来</b>，并注明是哪一条、正确值是多少。</li>
+                  <li><b>还有一块墓碑区</b>：倒下的项目怎么死的，比成功的更省钱。</li>
+                </ul>
+              </div>
+            </div>
+            <div class="hero-steps">
+              <span class="hs"><b>1</b> 浏览案例，按地区/品类/收入筛</span>
+              <span class="hs"><b>2</b> 读「这个案例能学到什么」和「能带走什么」</span>
+              <span class="hs"><b>3</b> 看双轴评分，判断该不该抄、能不能在国内做</span>
+            </div>
+          </div>
+        </div>
+
         <div class="china-podium" id="china-podium"></div>
         <div class="grid" id="grid-cases"></div>
         <div class="empty" id="empty-cases" hidden>没有匹配的案例。试试换个关键词，或点「全部」清空筛选。</div>
@@ -171,6 +246,24 @@
         </div>
         <div class="china-key" id="china-key"></div>
         <div class="china-board" id="china-board"></div>
+      </section>
+
+      <!-- 创业墓碑区（2026-10-14）：失败案例。独立数据文件 data/graveyard.json，
+           不进 cases.json —— 成功案例和失败案例的证据要求不一样，
+           混进同一张表会让 cases 的入库闸门失去意义。 -->
+      <section id="view-graveyard" class="view" hidden>
+        <div class="sec-head">
+          <h2>创业墓碑区 · 别人替你交过的学费</h2>
+          <p>成功难以复制，失败却有规律。这里收录已停运的真实项目 ——
+             <b>怎么死的、烧了多少、踩了什么坑</b>，每条都附原始来源。
+             上面的案例告诉你「什么能成」，这一区告诉你「什么会死」——
+             后者往往更省钱，因为不用你亲自交学费。<br>
+             ⚠️ 金额旁的<b>「待核实」</b>标记是真的没核：这个库的原则是不把
+             没核的数字印成结论，所以宁可标出来，也不假装精确。</p>
+        </div>
+        <div class="gy-filter" id="gy-filter"></div>
+        <div class="grid grid-gy" id="grid-gy"></div>
+        <div class="empty" id="empty-gy" hidden>没有匹配的停运项目。</div>
       </section>
 
       <section id="view-candidates" class="view" hidden>
