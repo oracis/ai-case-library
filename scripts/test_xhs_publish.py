@@ -527,5 +527,98 @@ class TestCompliance(unittest.TestCase):
         self.assertEqual(x.xhs_compliance(note), [])
 
 
+class TestMarkLedger(unittest.TestCase):
+    """`_mark()`/`_unmark()` 台账写入回归（2026-10-15 毁历史事故）。
+
+    ⚠ 旧实现只取 id 列表、丢`at`，追加一条就把整本台账的发布时间
+      洗成当前时间 ⇒ `data/xhs_drafts.json` 的 `at` 完全不可信。
+      这几条测试钉死：旧条目时间戳不许动、幂等、行尾不变。
+    ⚠ 绝不能用 `data/*.json` 当靶子（曾覆盖 41 条台账）—— 全部走 tmp。
+    """
+
+    def _tmp(self, name, text):
+        p = os.path.join(tempfile.mkdtemp(prefix="xhs_mark_"), name)
+        with open(p, "w", encoding="utf-8", newline="") as f:
+            f.write(text)
+        return p
+
+    def test_existing_timestamps_preserved(self):
+        p = self._tmp("drafts.json",
+                      '[{"id": "a", "at": "2026-09-28 20:40"},\n'
+                      ' {"id": "b", "at": "2026-09-28 20:40"}]')
+        x._mark(p, "podawaa")
+        d = json.load(open(p, encoding="utf-8"))
+        self.assertEqual([y["id"] for y in d], ["a", "b", "podawaa"])
+        self.assertEqual(d[0]["at"], "2026-09-28 20:40",
+                         "旧条目 at 被重写 = 台账历史被毁")
+        self.assertEqual(d[1]["at"], "2026-09-28 20:40")
+        self.assertTrue(d[2]["at"].startswith("20"), "新条目要打时间戳")
+
+    def test_idempotent_no_rewrite(self):
+        raw = '[{"id": "a", "at": "2026-09-28 20:40"}]'
+        p = self._tmp("drafts.json", raw)
+        before = open(p, "rb").read()
+        x._mark(p, "a")                # 已存在 → 应原样返回
+        self.assertEqual(open(p, "rb").read(), before,
+                         "幂等：已存在的 id 不该重写文件")
+
+    def test_crlf_preserved(self):
+        """真实台账 `data/xhs_drafts.json` 是 CRLF（实测 233 个 CRLF）。"""
+        p = self._tmp("drafts.json",
+                      '[\r\n  {"id": "a", "at": "2026-09-28 20:40"}\r\n]')
+        x._mark(p, "b")
+        raw = open(p, "rb").read()
+        self.assertIn(b"\r\n", raw, "CRLF 文件必须保持 CRLF")
+        self.assertNotIn(b"\n", raw.replace(b"\r\n", b""),
+                         "不允许混入裸 LF")
+
+    def test_lf_preserved(self):
+        p = self._tmp("pub.json",
+                      '[\n  {"id": "a", "at": "2026-09-28 20:40"}\n]')
+        x._mark(p, "b")
+        raw = open(p, "rb").read()
+        self.assertNotIn(b"\r\n", raw, "LF 文件必须保持 LF")
+
+    def test_legacy_plain_id_list(self):
+        """老格式（纯 id 列表）也要能追加，且补上时间戳。"""
+        p = self._tmp("pub.json", '["a", "b"]')
+        x._mark(p, "c")
+        d = json.load(open(p, encoding="utf-8"))
+        self.assertEqual([y["id"] for y in d], ["a", "b", "c"])
+        for y in d:
+            self.assertTrue(y.get("at"), "纯 id 老条目要补 at")
+
+    def test_legacy_dict_format(self):
+        """老格式（{"id": {...}}）也要能追加，且**保持 dict 形态**。
+
+        ⚠ 不许借修 bug 之手把老台账归一成 list —— 那等于擅自改用户
+          数据文件形态，老测试 `test_unmark支持dict形态` 就是这么钉的。
+        """
+        p = self._tmp("pub.json", '{"a": {"at": "2026-09-28 20:40"}}')
+        x._mark(p, "c")
+        d = json.load(open(p, encoding="utf-8"))
+        self.assertIsInstance(d, dict, "老 dict 台账不该被归一成 list")
+        self.assertEqual(sorted(d), ["a", "c"])
+        self.assertEqual(d["a"], {"at": "2026-09-28 20:40"},
+                         "dict 老格式的条目也要原样保住")
+
+    def test_unmark_keeps_others_and_newlines(self):
+        p = self._tmp("drafts.json",
+                      '[\r\n  {"id": "a", "at": "2026-09-28 20:40"},\r\n'
+                      '  {"id": "b", "at": "2026-10-01 09:00"}\r\n]')
+        self.assertTrue(x._unmark(p, "a"), "确实存在的 id 应返回 True")
+        d = json.load(open(p, encoding="utf-8"))
+        self.assertEqual([y["id"] for y in d], ["b"])
+        self.assertEqual(d[0]["at"], "2026-10-01 09:00",
+                         "_unmark 也不该动别人的时间戳")
+        self.assertNotIn(b"\n", open(p, "rb").read().replace(b"\r\n", b""),
+                         "_unmark 必须保持 CRLF")
+        self.assertFalse(x._unmark(p, "不存在"), "不存在的 id 返回 False")
+
+    def test_unmark_missing_file(self):
+        p = os.path.join(tempfile.mkdtemp(prefix="xhs_mark_"), "none.json")
+        self.assertFalse(x._unmark(p, "a"), "文件不存在时不该建文件/报错")
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1825,26 +1825,11 @@ def _unmark(p, cid):
     于是这条永远不会再被发出去。实测：purge 删掉 MORT 的小红书草稿后，
     `publish_multi run mort --platforms xhs` 直接说「没有待发的」。
     """
-    if not os.path.isfile(p):
+    entries, nl, was_dict = _load_ledger(p)
+    rest = [e for e in entries if e["id"] != cid]
+    if len(rest) == len(entries):
         return False
-    try:
-        d = json.load(open(p, encoding="utf-8"))
-    except Exception:
-        return False
-    if isinstance(d, dict):
-        if cid not in d:
-            return False
-        d.pop(cid, None)
-        with open(p, "w", encoding="utf-8") as f:
-            json.dump(d, f, ensure_ascii=False, indent=2)
-        return True
-    if not isinstance(d, list):
-        return False
-    rest = [x for x in d if not (isinstance(x, dict) and x.get("id") == cid)]
-    if len(rest) == len(d):
-        return False
-    with open(p, "w", encoding="utf-8") as f:
-        json.dump(rest, f, ensure_ascii=False, indent=2)
+    _write_ledger(p, rest, nl, was_dict)
     return True
 
 
@@ -1878,19 +1863,66 @@ def _card_to_cid(title):
     return None
 
 
-def _mark(p, cid):
+def _load_ledger(p):
+    """读台账 → (条目 list, 行尾符, 原形态)。
+
+    ⚠ 行尾按原文件走（本仓库 LF/CRLF 并存），写错行尾 = git 里
+       多一份全文件 diff。
+    ⚠ **原形态必须带出来**：老台账可能是 dict（{"id": {...}}），
+       写回时要保持 dict，不能顺手归一成 list —— 那会让下游按
+       dict 读的代码（`_drafted_ids`/`_published_ids` 都兼容两种）
+       之外的东西失效，也等于擅自改用户数据文件。
+    """
+    raw = b""
+    if os.path.isfile(p):
+        with open(p, "rb") as f:
+            raw = f.read()
+    lf = raw.count(b"\n") - raw.count(b"\r\n")
+    crlf = raw.count(b"\r\n")
+    nl = "\r\n" if crlf > lf else "\n"
     try:
-        d = json.load(open(p, encoding="utf-8")) if os.path.isfile(p) else []
-    except Exception:
+        d = json.loads(raw.decode("utf-8")) if raw.strip() else []
+    except Exception:                                     # noqa: BLE001
         d = []
-    ids = list(d.keys()) if isinstance(d, dict) else \
-        [x.get("id") for x in d if isinstance(x, dict) and x.get("id")]
-    if cid in ids:
+    was_dict = isinstance(d, dict)
+    if was_dict:
+        d = [{"id": k, "at": v} for k, v in d.items()]
+    if not isinstance(d, list):
+        d = []
+    now = time.strftime("%Y-%m-%d %H:%M")
+    norm = []
+    for e in d:
+        if isinstance(e, dict) and e.get("id"):
+            norm.append({"id": e["id"], "at": e.get("at") or now})
+        elif isinstance(e, str) and e:                    # 纯 id 老格式
+            norm.append({"id": e, "at": now})
+    return norm, nl, was_dict
+
+
+def _write_ledger(p, entries, nl, was_dict=False):
+    """⚠ `newline=""` 必须显式给：Windows 文本模式会把 \n 翻成 \r\n，
+    行尾控制权就没了。"""
+    obj = ({e["id"]: e.get("at") for e in entries} if was_dict else entries)
+    text = json.dumps(obj, ensure_ascii=False, indent=2)
+    with open(p, "w", encoding="utf-8", newline="") as f:
+        f.write(text.replace("\n", nl))
+
+
+def _mark(p, cid):
+    """把案例追加进台账（草稿 / 已发布共用）。
+
+    ⚠⚠ 2026-10-15 修「台账历史被毁」：旧实现只取 id 列表、丢掉每条原有的
+       `at`，追加一条就把**整本台账的发布时间**全部重写成当前时间
+       （实测：追 1 条新案例，几十条老记录全变成当天时间）
+       ⇒ `data/xhs_drafts.json` 的 `at` 完全不可信，只能拿 id 集合当幂等
+       判据。现改为保留旧条目原值，只给新条目打时间戳。
+       与头条 `toutiao_publish._mark` 同构（那边 10-14 已修，有回归测试）。
+    """
+    entries, nl, was_dict = _load_ledger(p)
+    if any(e["id"] == cid for e in entries):              # 幂等：原样返回不重写
         return
-    ids.append(cid)
-    with open(p, "w", encoding="utf-8") as f:
-        json.dump([{"id": i, "at": time.strftime("%Y-%m-%d %H:%M")} for i in ids],
-                  f, ensure_ascii=False, indent=2)
+    entries.append({"id": cid, "at": time.strftime("%Y-%m-%d %H:%M")})
+    _write_ledger(p, entries, nl, was_dict)
 
 
 def _drafted_ids():
