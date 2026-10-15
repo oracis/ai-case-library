@@ -257,9 +257,9 @@ def check_growth_claims(data, s):
                                ("增长", "增速", "上涨", "环比", "提升", "涨"))
             if looks_growth:
                 bad.append("%g%%" % v)
-            else:
-                # 既不是增速语境也不在白名单 —— 保守起见也算问题
-                bad.append("%g%%（语境不明）" % v)
+            # 非增长语境（市场费用 / 毛利率 / 收入分成 / 有机占比 / 佣金等）
+            # 不是增速断言，不再误拦 —— 红线 2 只管「把高增速当增长故事」，
+            # 费率类 % 不在射程内。
     if not bad:
         return []
     # 文案里含字面量百分号，用 % 格式化会炸
@@ -306,6 +306,9 @@ def validate(data, src_numbers=None, summary=None):
     for k in ("one_liner", "what_it_does", "how_it_makes_money", "verdict"):
         if not _has_cjk(data.get(k)):
             problems.append("%s 不是中文" % k)
+        for b in BAN_PHRASES:
+            if b in (data.get(k) or ""):
+                problems.append("%s 含空话「%s」" % (k, b))
     for i, item in enumerate(data.get("why_it_works") or [], 1):
         if not _has_cjk(item):
             problems.append("why_it_works[%d] 不是中文" % i)

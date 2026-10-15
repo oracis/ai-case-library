@@ -521,7 +521,7 @@
     "id": "fireply-ai",
     "name": "Fireply AI",
     "name_en": "Fireply AI",
-    "one_liner": "Grow on X. AI agent replies in your voice. You do nothing.",
+    "one_liner": "MRR $1,279，为X平台创作者提供AI回复服务",
     "category": "创作者经济",
     "models": [
       "订阅制"
@@ -548,7 +548,26 @@
     "promoted_from_inbox": "2026-10-14",
     "refreshed_at": "2026-10-14",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-14T12:51:38.581Z"
+    "data_freshness": "2026-10-14T12:51:38.581Z",
+    "what_it_does": "Fireply AI成立于2026年3月5日，为X平台上的创作者和品牌提供AI代理服务，通过AI代理以用户的声音回复，无需人工操作，解决手动滚动和回复的繁琐问题，避免通用AI的低效或自动化风险。",
+    "how_it_makes_money": "Fireply AI 提供三档订阅：Growth（每天 20 条回复）$69/月、Advanced（每天 35 条）$99/月、Scale（每天 50 条）$129/月。17 个订阅 ÷ MRR $1,279 推算客单价约 $75.24。",
+    "verdict": "它卖的不是AI回复，是发布节奏的保障",
+    "why_it_works": [
+      "MRR $1,279，客单价$75.24，说明产品为用户提供了明确的性价比优势；",
+      "针对X平台创作者的痛点，提供自动化回复服务，节省了用户时间；",
+      "AI代理以用户声音回复，避免了通用AI的潜在风险，增加了用户信任。"
+    ],
+    "playbook": [
+      "针对特定平台（X）的用户需求，提供定制化解决方案；",
+      "通过AI技术自动化解决用户痛点，提高效率；",
+      "提供多种订阅计划，满足不同用户的需求。"
+    ],
+    "replicability": {
+      "tech": 3,
+      "distribution": 3,
+      "capital": 2,
+      "timing": 3
+    }
   },
   {
     "id": "ismalicious",
@@ -990,7 +1009,7 @@
     "name": "FireCert",
     "name_en": "FireCert",
     "origin": "英国",
-    "one_liner": "MRR $4,919，为消防安全合规提供一站式平台服务",
+    "one_liner": "MRR $4,919，为消防安全合规提供一体化平台服务",
     "category": "垂直行业 SaaS",
     "models": [
       "订阅制"
@@ -1021,7 +1040,7 @@
     "data_freshness": "2026-10-14T10:59:28.522Z",
     "what_it_does": "FireCert 是一家成立于 2026 年 2 月 24 日的英国公司，提供消防安全合规平台服务。该平台帮助用户管理消防警报、应急照明、灭火器和安全系统的资产证书和合规性，无需使用电子表格、PDF 或分散的记录。",
     "how_it_makes_money": "FireCert 提供两种定价方案：专业版每月 £79，企业版每月 £129。根据活跃订阅数和 MRR 计算，客单价为 $117.12。",
-    "verdict": "它卖的不是证书管理，是合规性的一站式解决方案",
+    "verdict": "它卖的不是证书管理，是合规性的一体化解决方案",
     "why_it_works": [
       "MRR $4,919，客单价 $117.12，说明产品满足了用户对合规性管理的需求；95% 的毛利率表明产品具有高附加值；近 30 天增速 18.4%，表明市场对合规性管理服务的需求在增长。"
     ],
@@ -1523,7 +1542,7 @@
     "name": "Bluff AI",
     "name_en": "Bluff AI",
     "origin": "美国",
-    "one_liner": "Transform any photo with AI. Built for Gen Z, grown entirely on organic TikTok",
+    "one_liner": "MRR $2,532，Bluff AI 将照片一键变美或造假，Gen Z 专属，TikTok 零广告自然增长",
     "category": "Entertainment",
     "models": [
       "交易市场"
@@ -1557,7 +1576,26 @@
     "promoted_from_inbox": "2026-10-14",
     "refreshed_at": "2026-10-14",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-14T11:40:37.039Z"
+    "data_freshness": "2026-10-14T11:40:37.039Z",
+    "what_it_does": "Bluff AI 是一款 AI 照片处理应用，由创始人 Jordan 于 2026 年 6 月 6 日创立。它通过 AI 技术将任何照片一键变美或造假，无需任何编辑技巧。产品面向 Gen Z 用户，主要通过 TikTok 平台进行自然增长。",
+    "how_it_makes_money": "Bluff AI 提供免费 3 天试用期，之后每周订阅价为 $6.99，包含 450 个积分。此外，用户还可以购买额外的应用内积分。根据活跃订阅数和 MRR 计算，客单价为 $21.64。",
+    "verdict": "Bluff AI 卖的不是照片处理，是快速发布节奏，用户购买的是发布效率，而非画质。",
+    "why_it_works": [
+      "MRR $2,532，用户数 12,754，Bluff AI 通过 AI 技术简化了照片编辑流程，满足了 Gen Z 用户对快速发布内容的需求。",
+      "12,754 名用户几乎全部来自 TikTok 自然流量，没投任何广告——Gen Z 刷到变美前后对比视频后直接下载，获客成本接近零。",
+      "产品定价合理，提供免费试用期，降低了用户尝试门槛。"
+    ],
+    "playbook": [
+      "把变美前/后对比视频做成 TikTok 内容，靠 Gen Z 自发转发扩散，不买量。",
+      "提供免费试用期，让用户亲身体验产品价值。",
+      "通过应用内积分销售，增加用户粘性和收入。"
+    ],
+    "replicability": {
+      "tech": 3,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 3
+    }
   },
   {
     "id": "baller",
@@ -2430,7 +2468,7 @@
     "name": "Coralflavor",
     "name_en": "Coralflavor",
     "origin": "美国",
-    "one_liner": "Unfiltered AI chatbot",
+    "one_liner": "$2,002 的 MRR 来自一个不审查用户提问的 AI 聊天机器人",
     "category": "AI 工具",
     "models": [
       "订阅制"
@@ -2458,7 +2496,26 @@
     "promoted_from_inbox": "2026-10-15",
     "refreshed_at": "2026-10-14",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-14T09:54:15.752Z"
+    "data_freshness": "2026-10-14T09:54:15.752Z",
+    "what_it_does": "Coralflavor 是一个不审查用户提问的 AI 聊天机器人，成立于 2024 年 12 月 16 日，目前拥有 218 个活跃订阅数",
+    "how_it_makes_money": "Coralflavor 提供免费和付费版本，付费版本包括每月 $9 的 Pro 订阅和每月 $49 的 Pro+ 订阅，客单价为 $9.18",
+    "verdict": "Coralflavor 卖的是信息自由，它允许用户自由探索知识，而不受 AI 模型审查的限制",
+    "why_it_works": [
+      "Coralflavor 的价值主张是提供不审查的 AI 聊天机器人，这满足了用户对信息自由的需求，吸引了特定用户群体（档案自述）",
+      "近 30 天已验证收入为 $2,068，近 30 天增速为 32.7%，表明产品在用户中有良好的接受度（收入数据）",
+      "Coralflavor 的定价策略合理，免费版本吸引用户，付费版本提供额外功能，保证了收入的稳定性（档案自述）"
+    ],
+    "playbook": [
+      "提供免费版本吸引用户，并通过付费版本提供额外功能来增加收入（档案自述）",
+      "专注于特定用户群体，如需要信息自由的用户，而不是追求广泛的用户群体（档案自述）",
+      "利用支付网关 API 直读功能，确保收入数据的准确性和及时性（收入数据）"
+    ],
+    "replicability": {
+      "tech": 3,
+      "distribution": 3,
+      "capital": 2,
+      "timing": 3
+    }
   },
   {
     "id": "apexvol",
@@ -2735,7 +2792,7 @@
     "name": "ClawLink",
     "name_en": "ClawLink",
     "origin": "斯里兰卡",
-    "one_liner": "ClawLink connects OpenClaw and Hermes Agent to Gmail, Calendar, Slack, Notion, GitHub, Shopify, and 100+ apps. No OAuth setup. No API keys. No custom MCP config. Just install, pair your account, and let your agent use your apps from chat.",
+    "one_liner": "MRR $2,219，连接100+应用，自动化工作流",
     "category": "开发者工具",
     "models": [
       "订阅制"
@@ -2765,7 +2822,26 @@
     "promoted_from_inbox": "2026-10-15",
     "refreshed_at": "2026-10-14",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Polar (API key)），非截图自报。",
-    "data_freshness": "2026-10-14T10:35:55.835Z"
+    "data_freshness": "2026-10-14T10:35:55.835Z",
+    "what_it_does": "ClawLink是一款连接OpenClaw、Hermes Agent等与Gmail、Calendar、Slack、Notion、GitHub、Shopify等100+应用的工具，无需OAuth设置、API密钥或自定义MCP配置，只需安装、配对账户，即可通过聊天使用应用，成立于2025年8月19日，目前有226个活跃订阅数",
+    "how_it_makes_money": "定价为每月$6，MRR为$2,219，客单价为$9.82，通过支付网关Polar收取费用",
+    "verdict": "它卖的不是连接，是自动化工作流——客户买的是效率提升，不是单纯的应用连接",
+    "why_it_works": [
+      "226个活跃订阅数，简化了工作流程，提高了效率",
+      "无需复杂设置，降低了使用门槛",
+      "连接了100+应用，满足了多样化的工作需求"
+    ],
+    "playbook": [
+      "提供覆盖 100+ 应用的连接能力，免去 OAuth/API 密钥/自定义 MCP 配置，满足多应用集成需求",
+      "简化设置流程，降低用户使用门槛",
+      "持续扩展应用连接，增加用户粘性"
+    ],
+    "replicability": {
+      "tech": 3,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 3
+    }
   },
   {
     "id": "ai-text-humanizer-netherlands-belgium",
@@ -2948,7 +3024,7 @@
     "name": "AnyAPI",
     "name_en": "AnyAPI",
     "origin": "美国",
-    "one_liner": "Openrouter for scraping. Social data, SEO data, enrichment, all in one place. Multiple providers compete on price and uptime",
+    "one_liner": "提供按需付费的数据 API 服务，近30天收入$8,320",
     "category": "AI 工具",
     "models": [
       "订阅制"
@@ -2977,7 +3053,26 @@
     "promoted_from_inbox": "2026-10-15",
     "refreshed_at": "2026-10-14",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。此前该条目在候选池里没有任何收入数字，本次首次补齐。",
-    "data_freshness": "2026-10-14T12:15:52.546Z"
+    "data_freshness": "2026-10-14T12:15:52.546Z",
+    "what_it_does": "AnyAPI提供开放路由器服务，集成社交数据、SEO数据和丰富功能，通过多个提供商的价格和可用性竞争，旨在解决不同数据API订阅的繁琐问题，用户按请求付费，无需订阅。",
+    "how_it_makes_money": "按请求付费，无订阅费用，客单价无法推算。",
+    "verdict": "它卖的不是API，是简化数据获取流程的解决方案。",
+    "why_it_works": [
+      "近30天收入增长 559.3%（支付网关直读），说明按请求付费比逐个订阅 API 更轻——开发者只在用到时花钱；",
+      "提供 366 个 API 端点，聚合多家供应商的社交/SEO 数据，按次计费比分别订阅更便宜；",
+      "无订阅模式，用户无需长期承诺，灵活性高。"
+    ],
+    "playbook": [
+      "提供多样化的API选择，满足不同用户需求；",
+      "优化API性能和稳定性，确保高可用性；",
+      "通过社交媒体和内容营销提升品牌知名度。"
+    ],
+    "replicability": {
+      "tech": 4,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 3
+    }
   },
   {
     "id": "aprs-conseil",
@@ -4661,7 +4756,7 @@
     "name": "CHIPTUNE",
     "name_en": "CHIPTUNE",
     "origin": "法国",
-    "one_liner": "MRR $557，为汽车专业人士提供一站式模拟器工具",
+    "one_liner": "MRR $557，为汽车专业人士提供一体化模拟器工具",
     "category": "垂直行业 SaaS",
     "models": [
       "订阅制"
@@ -5095,7 +5190,7 @@
     "name": "BromeAI",
     "name_en": "BromeAI",
     "origin": "法国",
-    "one_liner": "BromeAI is a multi-provider - one subscription service. Access ChatGPT, Claude, Gemini and more in one place",
+    "one_liner": "MRR $677，提供多模型 AI 订阅服务",
     "category": "AI 工具",
     "models": [
       "订阅制"
@@ -5124,7 +5219,26 @@
     "promoted_from_inbox": "2026-10-15",
     "refreshed_at": "2026-10-14",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-14T21:24:50.787Z"
+    "data_freshness": "2026-10-14T21:24:50.787Z",
+    "what_it_does": "BromeAI是一个多提供商的订阅服务，用户可以一次性订阅多个顶级AI模型，如ChatGPT、Claude、Gemini等，成立于2025年4月17日，目前有34个活跃订阅数。",
+    "how_it_makes_money": "BromeAI提供三个定价档位：Basic $9.90/month，Plus $24.90/month，Pro $49.90/month。根据MRR和活跃订阅数计算，客单价为$19.91。",
+    "verdict": "它卖的不是单个AI模型，是持续更新的内容库",
+    "why_it_works": [
+      "34 个订阅，一个订阅同时用上 ChatGPT/Claude/Gemini 多个顶级模型，省去分别开会员的麻烦",
+      "近30天收入增长 66.5%（支付网关直读），说明多模型打包的需求真实存在",
+      "MRR $677，显示出稳定的收入来源"
+    ],
+    "playbook": [
+      "把多个顶级模型打包成一个订阅，用户不用分别开会员",
+      "通过近30天收入增长66.5%的数据，持续优化产品和服务",
+      "利用支付网关API直读，确保收入数据的准确性"
+    ],
+    "replicability": {
+      "tech": 3,
+      "distribution": 3,
+      "capital": 2,
+      "timing": 3
+    }
   },
   {
     "id": "fire-tech-apps-llc",
@@ -6221,7 +6335,7 @@
     "name": "Car Dealer Tracker",
     "name_en": "Car Dealer Tracker",
     "origin": "阿联酋",
-    "one_liner": "MRR $987，为汽车经销商提供一站式管理解决方案",
+    "one_liner": "MRR $987，为汽车经销商提供一体化管理解决方案",
     "category": "垂直行业 SaaS",
     "models": [
       "订阅制"
@@ -6866,7 +6980,7 @@
     "name": "Aura AI - AI Video & Image Generator",
     "name_en": "Aura AI - AI Video & Image Generator",
     "origin": "意大利",
-    "one_liner": "MRR $2,480，Aura AI 一站式AI视频和图像生成平台",
+    "one_liner": "MRR $2,480，Aura AI 一体化AI视频和图像生成平台",
     "category": "创作者经济",
     "models": [
       "订阅制"
@@ -6896,7 +7010,7 @@
     "refreshed_at": "2026-10-14",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
     "data_freshness": "2026-10-14T21:05:38.390Z",
-    "what_it_does": "Aura AI，成立于2023年12月25日，提供一站式AI视频和图像生成服务，支持文本到视频、图像到视频生成，无水印输出，适用于创作者。",
+    "what_it_does": "Aura AI，成立于2023年12月25日，提供一体化AI视频和图像生成服务，支持文本到视频、图像到视频生成，无水印输出，适用于创作者。",
     "how_it_makes_money": "Aura AI通过订阅模式盈利，客单价为$30.62，近30天MRR为$2,480，毛利率70%。",
     "verdict": "它卖的不是视频生成工具，是持续内容创作的解决方案。",
     "why_it_works": [
@@ -7139,7 +7253,7 @@
     "name": "BLOXG — Roblox Marketing Agency",
     "name_en": "BLOXG — Roblox Marketing Agency",
     "origin": "英国",
-    "one_liner": "BLOXG is a rapidly growing influencer marketplace built for Roblox, one of the world's largest gaming platforms with 100M+ daily active users. Launched in 2026, BLOXG has already paid $2,000–$3,000+ to creators within its first few months. ",
+    "one_liner": "BLOXG，Roblox平台上的网红市场，近30天收入$4,799",
     "category": "games",
     "models": [
       "交易市场"
@@ -7172,7 +7286,22 @@
     "promoted_from_inbox": "2026-10-15",
     "refreshed_at": "2026-10-14",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。此前该条目在候选池里没有任何收入数字，本次首次补齐。",
-    "data_freshness": "2026-10-14T17:42:11.050Z"
+    "data_freshness": "2026-10-14T17:42:11.050Z",
+    "what_it_does": "BLOXG是一个专为Roblox平台打造的网红市场，于2026年4月27日上线。它通过整合第三方创作者和直接活动执行，为Roblox开发者提供一个预订创作者、启动活动并触及Roblox受众的平台。",
+    "how_it_makes_money": "BLOXG通过收取第三方创作者订单的15%市场费用和通过其4个自有Roblox频道执行活动的100%收入来盈利。",
+    "verdict": "BLOXG真正卖的是为Roblox开发者提供一体化网红预订和活动执行服务。",
+    "why_it_works": [
+      "Roblox拥有超过1亿的日活跃用户，为BLOXG提供了庞大的潜在客户群；BLOXG整合了第三方创作者和自有频道，简化了开发者获取网红和执行活动的流程；BLOXG的毛利率高达85%，保证了良好的盈利能力。"
+    ],
+    "playbook": [
+      "把第三方创作者和自有频道整合到一处"
+    ],
+    "replicability": {
+      "tech": 3,
+      "distribution": 3,
+      "capital": 2,
+      "timing": 3
+    }
   },
   {
     "id": "archifruits-ai",
@@ -7783,7 +7912,7 @@
     "id": "account-expense-manager",
     "name": "Account & Expense Manager",
     "name_en": "Account & Expense Manager",
-    "one_liner": "MRR $632，为精明的储蓄者和预算新手提供一站式财务管理解决方案",
+    "one_liner": "MRR $632，为精明的储蓄者和预算新手提供一体化财务管理解决方案",
     "category": "移动应用",
     "models": [
       "订阅制"
@@ -8830,7 +8959,7 @@
     "id": "toonthis",
     "name": "ToonThis",
     "name_en": "ToonThis",
-    "one_liner": "ToonThis turns selfies into cartoon, caricature, chibi, crochet-doll and other AI art styles in seconds. Native SwiftUI iOS app, localized in 13 languages. Subscriptions via RevenueCat, 100% organic g",
+    "one_liner": "ToonThis，每月MRR $576，将自拍转换为卡通风格，每月吸引约600新用户",
     "category": "AI 工具",
     "models": [
       "交易市场"
@@ -8863,6 +8992,21 @@
     "promoted_from_inbox": "2026-10-15",
     "refreshed_at": "2026-10-14",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（RevenueCat (API key)），非截图自报。",
-    "data_freshness": "2026-10-14T18:49:29.428Z"
+    "data_freshness": "2026-10-14T18:49:29.428Z",
+    "what_it_does": "ToonThis 是一款把自拍转成卡通/漫画/小丑等 AI 艺术风格的 iOS 应用，单一开发者于 2025-04-01 创立，支持 13 种语言，经 RevenueCat 管订阅，完全靠 App Store 自然搜索（ASO）获客、零广告投放。",
+    "how_it_makes_money": "ToonThis提供每周$6.99和每年$24.99的订阅服务，毛利率为80%。根据活跃订阅数和MRR计算，客单价为$14.77。",
+    "verdict": "ToonThis真正卖的是快速、便捷的自拍风格转换服务，而非传统的艺术创作工具",
+    "why_it_works": [
+      "ToonThis 每月约 600 新用户全部来自 App Store 自然搜索（ASO），零广告投放；支持 13 种语言与多种艺术风格，降低使用门槛；80% 毛利率保证盈利（收入数据）。"
+    ],
+    "playbook": [
+      "靠 App Store 搜索优化（ASO）自然获客、不花广告费；提供多种艺术风格满足不同用户；保持易用性降低学习成本"
+    ],
+    "replicability": {
+      "tech": 3,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 2
+    }
   }
 ]

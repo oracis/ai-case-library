@@ -95,6 +95,20 @@ class GrowthClaims(unittest.TestCase):
             _draft(why_it_works=["增长 30%"]), {})
         self.assertTrue(p)
 
+    def test_non_growth_pct_allowed(self):
+        """「15% 市场费用」「100% 收入」是费率/分成，不是增速，不误拦。"""
+        p = D.check_growth_claims(
+            _draft(how_it_makes_money="收取 15% 市场费用，保留 100% 收入分成"),
+            {"growth_30d": 681.1})
+        self.assertEqual(p, [])
+
+    def test_organic_growth_pct_allowed(self):
+        """「100% 有机增长」= 获客结构描述（全自然流量），不是增速率，不误拦。"""
+        p = D.check_growth_claims(
+            _draft(what_it_does="实现 100% 的有机增长，零广告投放"),
+            {"growth_30d": 10.5})
+        self.assertEqual(p, [])
+
 
 class Caliber(unittest.TestCase):
     def test_non_subscription_cannot_say_mrr(self):
