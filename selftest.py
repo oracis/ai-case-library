@@ -31,6 +31,13 @@ ADMIN_PORT = PORT + 1                       # server.py 默认后台 = 公开 +1
 BASE = "http://127.0.0.1:%d" % PORT
 ADMIN_BASE = "http://127.0.0.1:%d" % ADMIN_PORT
 
+# 自测固件候选（跑前注入、跑完随 data/ 一起还原）。
+# 2026-10-15：166 条候选全部晋升后候选池被抽空，依赖「候选池真实第一条」的
+# 断言随即漂移（写接口 404、/api/ai/plan 的 total=0）。两条固件把测试与真实
+# 数据解耦：A 供 [5] 的 promote 消费，B 只用于写接口与 plan，不会被提走。
+FIXTURE_A = "_selftest_promote_fixture"
+FIXTURE_B = "_selftest_write_fixture"
+
 opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 fails = []
 passed = 0
@@ -172,8 +179,12 @@ def run_auth_section():
         st, body, _ = req_at(abase, "GET", "/api/data")
         check("游客仍可正常浏览案例",
               st == 200 and len(json.loads(body).get("cases", [])) > 0)
-        # 用一条真实存在的候选来测写接口，别写死 id —— 前面几节会把它提走
-        some_cand = (json.loads(body).get("candidates") or [{}])[0].get("id", "eloquent")
+        # 用自测固件候选来测写接口 —— 不能取候选池真实第一条：
+        # 2026-10-15 把 166 条候选全晋升后，池子只剩 1 条，[5] 节又把它提走，
+        # 于是这里拿到回退 id「eloquent」→ PUT 404。固件不随真实数据漂移。
+        some_cand = FIXTURE_B
+        if some_cand not in [c.get("id") for c in (json.loads(body).get("candidates") or [])]:
+            some_cand = (json.loads(body).get("candidates") or [{}])[0].get("id", "eloquent")
 
         # --- 登录 ---
         st, _, _ = req_at(abase, "POST", "/api/login", {"password": "definitely-wrong"})
@@ -240,12 +251,52 @@ def run_auth_section():
             print("  [警告] 未能复原 data/admin.json：%s" % e)
 
 
+def seed_fixtures():
+    """往候选池插两条合成候选，避免断言依赖真实候选池的状态。
+
+    候选池会被日常晋升抽空（2026-10-15 全量晋升后只剩 1 条），而 [5] 节又会
+    把它提走 —— 之后「登录后写接口放行」「后台 plan」就都成了测空气。
+    固件注入在备份之后，跑完随 data/ 一起还原，不留痕。
+    """
+    p = os.path.join(DATA, "candidates.json")
+    with open(p, encoding="utf-8") as f:
+        cands = json.load(f)
+    have = {c.get("id") for c in cands}
+    tmpl = {
+        "added_at": "2026-10-15",
+        "category": "自测固件",
+        "name_en": "Selftest Fixture",
+        "one_liner": "自测固件：不参与任何真实统计，跑完即随 data/ 还原。",
+        "what_it_does": "",
+        "how_it_makes_money": "",
+        "verdict": "",
+        "origin": "",
+        "source_kind": "selftest",
+        "source_url": "",
+        "metrics": {},
+        "models": [],
+        "note": "selftest fixture",
+    }
+    for fid, nm in ((FIXTURE_A, "自测固件A（供发布闸门消费）"),
+                    (FIXTURE_B, "自测固件B（供写接口与 plan 使用）")):
+        if fid in have:
+            continue
+        rec = dict(tmpl)
+        rec["id"] = fid
+        rec["name"] = nm
+        cands.insert(0, rec)
+    with open(p, "w", encoding="utf-8") as f:
+        json.dump(cands, f, ensure_ascii=False, indent=2)
+    print("已注入自测固件候选：%s / %s" % (FIXTURE_A, FIXTURE_B))
+
+
 def main():
     # ---------- 先备份 ----------
     if os.path.isdir(BACKUP):
         shutil.rmtree(BACKUP)
     shutil.copytree(DATA, BACKUP)
     print("已备份 data/ -> %s" % os.path.basename(BACKUP))
+    seed_fixtures()
 
     print("=" * 62)
     print("  自测 · AI 案例库（端口 %d）" % PORT)
