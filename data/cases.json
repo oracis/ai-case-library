@@ -25999,7 +25999,8 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
-    }
+    },
+    "cover_desc": "AI 换风格修图，一键出复古自拍"
   },
   {
     "id": "nutria-9e3eaa",
@@ -27631,7 +27632,7 @@
   },
   {
     "id": "wpconvert-ai-convert-ai-sites-to-wordpress",
-    "cover_desc": "把 AI 生成的网站一键转成可上线的 WordPress 站点",
+    "cover_desc": "AI 建站生成的网站一键转 WordPress",
     "name": "WPConvert.ai - Convert AI sites to WordPress",
     "name_en": "WPConvert.ai - Convert AI sites to WordPress",
     "origin": "美国",
@@ -28742,7 +28743,8 @@
       "LinkedIn",
       "SaaS 公司推荐"
     ],
-    "founder": "未公开"
+    "founder": "未公开",
+    "cover_desc": "AI营销归因，SaaS数据分析平台"
   },
   {
     "id": "easymix",
@@ -30117,7 +30119,8 @@
       "行业会议与研讨会",
       "合作伙伴关系"
     ],
-    "founder": "未公开"
+    "founder": "未公开",
+    "cover_desc": "AI代写LinkedIn，助B2B顾问涨粉揽客"
   },
   {
     "caliber": "run_rate",
@@ -31400,7 +31403,8 @@
       "订阅套餐推广",
       "定制团队计划"
     ],
-    "founder": "未公开"
+    "founder": "未公开",
+    "cover_desc": "AI线索挖掘，精准触达B2B客户"
   },
   {
     "category": "企业服务",
@@ -32035,7 +32039,8 @@
       "合作伙伴推荐",
       "行业展会"
     ],
-    "founder": "未公开"
+    "founder": "未公开",
+    "cover_desc": "Slack/Teams AI同事，跨系统工作助手"
   },
   {
     "category": "AI 工具",
@@ -32197,7 +32202,8 @@
       "内容营销",
       "合作伙伴推荐"
     ],
-    "founder": "未公开"
+    "founder": "未公开",
+    "cover_desc": "文档变客服，30分钟见效益"
   },
   {
     "category": "AI 工具",
@@ -32793,7 +32799,8 @@
       "交易市场曝光",
       "Startup Signals 数据库订阅"
     ],
-    "founder": "未公开"
+    "founder": "未公开",
+    "cover_desc": "收入数据验证平台，助创业公司交易"
   },
   {
     "category": "企业服务",
@@ -32943,7 +32950,8 @@
       "行业展会",
       "B2B搜索引擎营销"
     ],
-    "founder": "未公开"
+    "founder": "未公开",
+    "cover_desc": "合规审计，六个月流程压到几周"
   },
   {
     "category": "营销工具",
@@ -33087,7 +33095,8 @@
       "内容营销",
       "行业会议"
     ],
-    "founder": "未公开"
+    "founder": "未公开",
+    "cover_desc": "AI问答营销工具，让品牌在AI答案中被提及"
   },
   {
     "category": "AI 工具",
@@ -33233,7 +33242,8 @@
       "自由职业者社群",
       "专业博客文章"
     ],
-    "founder": "未公开"
+    "founder": "未公开",
+    "cover_desc": "AI自动化接单助手，解放自由职业者"
   },
   {
     "category": "AI 工具",
@@ -33382,7 +33392,8 @@
       "合作伙伴推荐",
       "B2B 网络研讨会"
     ],
-    "founder": "未公开"
+    "founder": "未公开",
+    "cover_desc": "上传商品图，3 分钟出投放广告素材"
   },
   {
     "category": "AI 工具",
@@ -33939,7 +33950,8 @@
       "公司规模筛选精准定位",
       "AI生成个性化内容吸引"
     ],
-    "founder": "未公开"
+    "founder": "未公开",
+    "cover_desc": "AI线索管理，助力营销高效触达"
   },
   {
     "category": "开发者工具",
@@ -34083,7 +34095,8 @@
       "合作伙伴推荐",
       "在线搜索"
     ],
-    "founder": "未公开"
+    "founder": "未公开",
+    "cover_desc": "部署托管开源 AI agent，卖配置服务"
   },
   {
     "category": "开发者工具",
@@ -34226,7 +34239,8 @@
       "技术博客合作",
       "开发者社区推荐"
     ],
-    "founder": "未公开"
+    "founder": "未公开",
+    "cover_desc": "不配 API key 就托管一个 agent"
   },
   {
     "category": "营销工具",
@@ -34662,7 +34676,8 @@
       "B2B平台广告",
       "专业论坛合作"
     ],
-    "founder": "未公开"
+    "founder": "未公开",
+    "cover_desc": "电商打假，全网监控仿货并下架"
   },
   {
     "category": "垂直行业 SaaS",

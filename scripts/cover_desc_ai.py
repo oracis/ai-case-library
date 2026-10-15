@@ -172,6 +172,8 @@ def main():
     ap.add_argument("--ai-model", default=None, help="覆盖模型名")
     ap.add_argument("--ai-key", default=None, help="覆盖 API key（空串 = 清空）")
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--only", default="",
+                    help="逗号分隔的 case id，只处理这些（无视「已有就跳过」）")
     args = ap.parse_args()
 
     if any(v is not None for v in (args.ai_key, args.ai_base, args.ai_model)):
@@ -182,8 +184,19 @@ def main():
         return ping()
 
     cases = load_cases()
-    todo = [c for c in cases
-            if args.all or not (c.get("cover_desc") or "").strip()]
+    if args.only:
+        # ⚠ --only 无视「已有 cover_desc 就跳过」——用户点名要的就是重写它们。
+        #   典型场景：已有 cover_desc 但**超 30 字**（封面溢出），得压短。
+        want = {s.strip() for s in args.only.split(",") if s.strip()}
+        by = {c["id"]: c for c in cases}
+        missing = want - set(by)
+        if missing:
+            print("找不到 case：%s" % sorted(missing))
+            return 1
+        todo = [by[i] for i in sorted(want)]
+    else:
+        todo = [c for c in cases
+                if args.all or not (c.get("cover_desc") or "").strip()]
 
     if args.plan:
         print("待生成 cover_desc：%d / %d" % (len(todo), len(cases)))
@@ -229,16 +242,27 @@ def main():
         with io.open(CASES, encoding="utf-8", newline="") as f:
             raw = f.read()
         data = json.loads(raw)
+        # ⚠ --only 必须**同时约束 draft 的筛选和 apply 的写盘** ——
+        #   只改前者的话，草稿文件里**历史遗留**的其它记录会被顺带写进去
+        #   （实测点名 1 条却写了 22 条）。草稿是累积文件，不是本次产物。
+        only_set = ({s.strip() for s in args.only.split(",") if s.strip()}
+                    if args.only else None)
         applied, skipped = [], []
         for c in data:
             cid = c.get("id")
+            if only_set is not None and cid not in only_set:
+                continue
             rec = drafts.get(cid)
             if not rec:
                 continue
             if not rec.get("auto"):
                 skipped.append((cid, rec.get("why")))
                 continue
-            if not args.all and (c.get("cover_desc") or "").strip():
+            # ⚠ `--only` 是「用户点名要重写」，所以要越过这条跳过 ——
+            #   否则「已有 cover_desc 但超 30 字」这类正好点名不到的
+            #   （实测 wpconvert 31 字，--only 点名了也被 skip）。
+            if not (args.all or args.only) and \
+                    (c.get("cover_desc") or "").strip():
                 skipped.append((cid, "已有手写 cover_desc，跳过"))
                 continue
             ok, why = validate(rec["cover_desc"], c.get("one_liner"))
