@@ -620,5 +620,73 @@ class TestMarkLedger(unittest.TestCase):
         self.assertFalse(x._unmark(p, "a"), "文件不存在时不该建文件/报错")
 
 
+class TestGenericFallbackTitle(unittest.TestCase):
+    """「产品名：海外小生意」兜底回归（2026-10-15，12/60 条中招）。
+
+    ⚠ 根因：`_raw_make_xhs_title` 的「产品名：描述」那条候选塞的是**裸
+      desc**，没过 `_title_desc()` 压缩（金额前缀那条过了、这条没过，纯
+      bug）⇒ desc 超 20 字预算就整条被拒，直落 generic「海外小生意」。
+      实测 12 条：`quotedeck` 的 desc 只 11 字、拼起来 21 字、超预算
+      1 字也被拒。
+
+    这几条钉死两件事：
+      ① desc 略超预算时，仍必须走压缩而不是退到「海外小生意」；
+      ② 覆盖表里那 12 条的成品标题不许含通用词。
+    """
+
+    GEN = ("海外小生意", "一人公司生意", "海外小项目")
+
+    def _desc_over_budget_case(self):
+        """desc 只比预算多几个字 —— 旧实现在这里退到「海外小生意」。
+
+        ⚠ 名字要用**真实长度**（`QuoteDeck` 9 字），`_mkc` 默认名只有
+          4 字，拼起来不超预算，测不到 bug（我第一版就踩了这个）。
+        """
+        c = _mkc(name="QuoteDeck", one_liner="为保险代理提供专业报价")
+        total = len(c["name"]) + 1 + len(c["one_liner"])
+        self.assertGreater(total, x.TITLE_MAX,
+                           "样例必须真的超预算（现 %d），否则测不到" % total)
+        self.assertLessEqual(total - x.TITLE_MAX, 3,
+                             "样例应是「略超」，超太多测的是另一条路径")
+        return c
+
+    def test_略超预算不落通用兜底(self):
+        t = x.make_xhs_title(self._desc_over_budget_case())
+        for g in self.GEN:
+            self.assertNotIn(g, t, "desc 略超就退到「%s」= 压缩没生效" % g)
+        self.assertTrue(4 <= len(t) <= x.TITLE_MAX, "长度仍须在预算内：%r" % t)
+        self.assertNotIn("…", t, "不许出现省略号")
+
+    def test_压缩后仍保留描述主干(self):
+        """压缩应取主干，不是砍成空壳。"""
+        c = _mkc(one_liner="为 Mac 用户提供 4K 电影感动态壁纸的订阅服务")
+        t = x.make_xhs_title(c)
+        self.assertTrue(len(t) <= x.TITLE_MAX)
+        self.assertNotIn("…", t)
+        # 至少留下描述里的一部分实词
+        self.assertTrue(any(w in t for w in ("壁纸", "Mac", "订阅", "4K")),
+                        "压缩把描述全砍没了：%r" % t)
+
+    def test_真实十二条覆盖无通用词(self):
+        """data/xhs_title_overrides.json 里那批不许再出现通用词。"""
+        p = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                         "..", "data", "xhs_title_overrides.json")
+        if not os.path.isfile(p):
+            self.skipTest("覆盖表不存在")
+        ov = json.load(open(p, encoding="utf-8"))
+        cases = {c["id"]: c for c in x.load_cases()}
+        checked = 0
+        for cid, v in ov.items():
+            if cid not in cases:
+                continue
+            t = x.make_xhs_title(cases[cid])
+            for g in self.GEN:
+                self.assertNotIn(g, t, "%s 退到通用词「%s」：%r" % (cid, g, t))
+            self.assertLessEqual(len(t), x.TITLE_MAX,
+                                 "%s 超预算：%r" % (cid, t))
+            checked += 1
+        self.assertGreater(checked, 20, "只检查到 %d 条，覆盖表没读对" % checked)
+
+
 if __name__ == "__main__":
     unittest.main()

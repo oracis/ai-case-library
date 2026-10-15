@@ -290,7 +290,12 @@ def _raw_make_xhs_title(c, used=None):
             cands.append("%s：%s" % (lead, name))
         cands += ["%s：%s" % (lead, g) for g in generic]
     if name:
-        cands.append("%s：%s" % (name, desc))
+        # ⚠ 2026-10-15 修「12 条标题全是『海外小生意』」：这里原来塞的是
+        #   **裸 desc**，没过 _title_desc 压缩 ⇒ 只要 desc 超预算整条候选
+        #   就被判废，直接掉进 generic「海外小生意」。实测 quotedeck 的
+        #   desc 只有 11 字、拼起来 21 字、超预算 1 字也被拒。
+        #   金额前缀那条走了压缩、这条没走，是纯 bug。
+        cands.append("%s：%s" % (name, _title_desc(desc, TITLE_MAX - len(name) - 1)))
         cands += ["%s：%s" % (name, g) for g in generic]
     cands.append("拆解一个海外小生意")
     for t in cands:
