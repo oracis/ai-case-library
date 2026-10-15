@@ -13,6 +13,8 @@
     空 dict 跳过      `if summary:` 把空素材条目的守卫整个绕过
     slug 对不上       fireply 的 slug 对不上 fireply-ai → 拿到空素材
     MRR 贴错标签      素材 MRR=1279 / 30天=1155，模型写「MRR $1,155」
+    货币写错「元」     28 条把 USD 写成「元」，trustmrr 全是美元应写 $
+    裸 .0 浮点        37 条整数被写成 31677.0 这类浮点尾
 
 改守卫前先跑这个：python scripts/test_draft_case_text.py
 """
@@ -118,6 +120,42 @@ class Caliber(unittest.TestCase):
         """「MRR 恒 0」本身是正确说法，不该被拦。"""
         p = D.check_caliber(_draft(one_liner="MRR 0，非订阅制"),
                             {"cur_mrr": 0, "rev_30d": 1155.0})
+        self.assertEqual(p, [])
+
+
+class CurrencyFormat(unittest.TestCase):
+    """货币单位（元）与裸 .0 浮点守卫：实测 28 条写成「元」、37 条带 .0。"""
+
+    def test_cny_yuan_flagged(self):
+        p = D.check_currency_format(_draft(
+            one_liner="近30天已验证收入31677.0元"))
+        self.assertTrue(p)
+        self.assertIn("元", p[0])
+
+    def test_eur_yuan_allowed(self):
+        p = D.check_currency_format(_draft(
+            how_it_makes_money="每月 1990 欧元，按欧元计价"))
+        self.assertEqual(p, [])
+
+    def test_element_yuan_allowed(self):
+        p = D.check_currency_format(_draft(
+            playbook=["利用游戏化元素提升留存"]))
+        self.assertEqual(p, [])
+
+    def test_bare_float_flagged(self):
+        p = D.check_currency_format(_draft(
+            how_it_makes_money="毛利率为 85.0%"))
+        self.assertTrue(p)
+        self.assertIn(".0", p[0])
+
+    def test_normal_decimal_allowed(self):
+        p = D.check_currency_format(_draft(
+            how_it_makes_money="客单价为 $7.76"))
+        self.assertEqual(p, [])
+
+    def test_dollar_ok(self):
+        p = D.check_currency_format(_draft(
+            one_liner="近30天已验证收入 $31,677"))
         self.assertEqual(p, [])
 
 

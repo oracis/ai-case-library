@@ -38,6 +38,7 @@
 import argparse
 import json
 import os
+import re
 import sys
 import time
 
@@ -96,6 +97,10 @@ SYSTEM = """你是一个只写事实、不写形容词的案例库撰稿人。
 
 9. 【客单价用素材里算好的那个】素材里给了「客单价（已算好）」就直接引用，
    不要自己再做除法。没给就写「无法推算」。
+
+10. 【货币与数字格式】库里所有收入都是 USD，金额一律用「$」符号 +
+    千分位（如 $31,677），**绝不许写「元」**（排除欧洲生意的「欧元」）。
+    整数不要带 .0 浮点尾（写 $1,408，不要写 1408.0）。小数（如 $7.76）照常保留。
 
 输出**严格**为如下 JSON，不要任何额外文字、不要 markdown 代码块：
 {
@@ -316,6 +321,37 @@ def validate(data, src_numbers=None, summary=None):
     rep = data.get("replicability") or {}
     if set(rep) != {"tech", "distribution", "capital", "timing"}:
         problems.append("replicability 键名不对：%s" % ",".join(sorted(rep)))
+    problems += check_currency_format(data)
+    return problems
+
+
+# TrustMRR 所有收入都是 USD，库里惯例用 $ 符号；模型常误写成「元」或裸 .0 浮点。
+# 这两类是确定性机械错误，拦下来比事后修更稳。
+
+
+def check_currency_format(data):
+    """返回问题列表。拦：误用人民币「元」（排除「欧元」）、裸 .0 浮点。"""
+    problems = []
+    fields = ["one_liner", "what_it_does", "how_it_makes_money", "verdict"]
+    fields += ["why_it_works", "playbook"]  # 列表字段一并扫
+    texts = []
+    for k in fields:
+        v = data.get(k)
+        if isinstance(v, str):
+            texts.append((k, v))
+        elif isinstance(v, list):
+            for i, it in enumerate(v):
+                if isinstance(it, str):
+                    texts.append(("%s[%d]" % (k, i), it))
+    for label, t in texts:
+        # 货币「元」= 数字紧邻（或隔空格）在前；排除「欧元」「元素」等含「元」的字。
+        if re.search(r"\d\s*元", t):
+            problems.append("%s 用了人民币「元」，库里收入全是 USD，应写 $" % label)
+            break
+        # 裸 .0 浮点（整数被写成浮点），排除正常的非 .0 小数
+        for mm in re.findall(r"\d+\.0(?!\d)", t):
+            problems.append("%s 含裸 .0 浮点「%s」，整数不要带 .0" % (label, mm))
+            break
     return problems
 
 
