@@ -1,5 +1,4 @@
 {
-  "description": "海外软件生意拆解库 —— 免费看案例，付费买功能（深度报告/导出/会员）",
   "pages": [
     "pages/index/index",
     "pages/rank/rank",
@@ -8,7 +7,7 @@
     "pages/report/report"
   ],
   "window": {
-    "navigationBarTitleText": "拆解海外",
+    "navigationBarTitleText": "远镜拆解",
     "navigationBarBackgroundColor": "#0b0e14",
     "navigationBarTextStyle": "white",
     "backgroundColor": "#0b0e14",

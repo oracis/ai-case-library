@@ -1,5 +1,11 @@
 /**
- * 发货核心（pay-notify 与 query-order 共用，两边各带一份）。
+ * 发货核心（pay-notify 与 query-order 共用，各带一份）。
+ *
+ * ⚠ 2026-10-15：原先只有 pay-notify / query-order 各有一份，get-cases 与
+ *    export-cases 都 require 了本文件却**没有**这个文件 —— 部署即崩。
+ *    「云函数上传不含上级目录」，所以每个需要它的云函数都必须各带一份。
+ *    改本文件要同步到这四处（scripts/verify_paywall.py 的
+ *    test_lib_deliver_present 会查四处 md5 一致）。
  *
  * 幂等（官方硬要求）：以平台单号 wx_order_id 判重 —— 同一订单重复通知只发一次货。
  * 订单表 orders 是事实来源：case_id 等下单时写好的信息从库里读，
@@ -115,4 +121,22 @@ async function getEntitlements(db, openid) {
   };
 }
 
-module.exports = { deliver, getEntitlements, goodsByPid };
+/**
+ * 能不能看某条案例的完整内容（含收入数据与深度报告正文）。
+ *
+ * 2026-10-15 商业模式改为**内容收费**（原来「内容免费」被证明收不到钱 ——
+ * 免费接口把 17 个付费导出列全给了，用户三行代码自己拼 CSV，导出门形同虚设，
+ * 见 scripts/verify_paywall.py）。
+ *
+ * 判定只看服务端 users 表：买了单篇报告、或有导出权、或会员未过期。
+ * 前端不参与判定 —— 前端只是展示门，抓包改按钮没有任何意义。
+ */
+function canReadFull(ent, caseId, now) {
+  if (!ent) return false;
+  if (ent.export_all) return true;
+  if (ent.member_until && ent.member_until > (now || Date.now())) return true;
+  if (Array.isArray(ent.reports) && caseId && ent.reports.indexOf(caseId) >= 0) return true;
+  return false;
+}
+
+module.exports = { deliver, getEntitlements, goodsByPid, canReadFull };

@@ -1,16 +1,17 @@
 /**
  * 全站导出（硬功能，服务端校验权益）。
  *
- * 与深度报告（软墙）不同：导出是**计算功能**，白嫖成本为零
- * （CSV 拿到就能扩散），所以权益校验必须落在服务端 ——
- * 前端按钮只是入口，不是边界。
+ * 与深度报告同属付费内容，但**导出必须硬校验**：
+ * CSV 拿到就能扩散，前端按钮只是入口，不是边界。
  *
- * 产出：CSV 文本（前端复制到剪贴板）+ 云存储文件（返回 fileID 备用）。
- * 注意 wx.openDocument 不支持 csv，所以主路径是剪贴板。
+ * 2026-10-15：内容收费后，导出的每一列都在 get-cases 的 PAID 层里
+ * （mrr / last_30d_revenue / arr / all_time / caliber 等），
+ * 所以这道门是唯一入口 —— 判定必须与 get-cases 的 canReadFull 同一套规则，
+ * 不在这里另写一份，避免两处漂移出「买了报告却导不出」这种反直觉 bug。
  */
 
 const cloud = require('wx-server-sdk');
-const { getEntitlements } = require('./lib/deliver.js');
+const { getEntitlements, canReadFull } = require('./lib/deliver.js');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
@@ -43,9 +44,11 @@ exports.main = async (event) => {
   }
 
   const ent = await getEntitlements(db, openid);
-  const isMember = ent.member_until && ent.member_until > Date.now();
-  if (!ent.export_all && !isMember) {
-    return { errcode: 40301, errmsg: '导出为付费功能：请先购买「全站案例导出」或开通月度会员' };
+  if (!canReadFull(ent, '')) {
+    return {
+      errcode: 40301,
+      errmsg: '导出为付费功能：请先购买「全站案例导出」、开通月度会员，或购买任一篇深度报告'
+    };
   }
 
   const r = await db.collection('cases').limit(1000).get();

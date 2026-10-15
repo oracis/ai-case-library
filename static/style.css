@@ -85,9 +85,10 @@ body { display: flex; flex-direction: column; }
 .brand-mark {
   width: 36px; height: 36px; flex: 0 0 36px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #2f6fd0, #1d4b8f);
-  color: #fff; font-size: 17px; font-weight: 700;
-  display: grid; place-items: center;
+  /* 图形由 scripts/gen_logo.py 生成（logo.svg），和 PWA 图标、小程序头像
+     同源同形。这里只负责尺寸和圆角，别在 CSS 里再画一遍 —— 两处各画一版
+     迟早跑偏，那正是 2026-10-15 换 logo 时发现的老问题。 */
+  display: block;
   box-shadow: 0 2px 10px rgba(47,111,208,.35);
 }
 .brand-title { font-size: 15px; font-weight: 650; letter-spacing: .2px; }

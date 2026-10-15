@@ -1,9 +1,16 @@
+<!-- 加载中：避免「先闪一下付费墙、再闪一下正文」的抖动 -->
+<view class="page" wx:if="{{loading}}">
+  <view class="card gate">
+    <view class="g-p">加载中…</view>
+  </view>
+</view>
+
 <!-- 未购买：购买引导 -->
-<view class="page" wx:if="{{!hasReport && !missing}}">
+<view class="page" wx:elif="{{!hasReport && !missing}}">
   <view class="card gate">
     <view class="g-ico">🔒</view>
     <view class="g-h">深度报告未解锁</view>
-    <view class="g-p">包含可迁移打法清单、创始人背景、流量来源拆解与口径明细。</view>
+    <view class="g-p">包含可迁移打法清单、创始人背景、流量来源拆解与收入口径明细。</view>
     <view class="g-price">{{goods.priceText}} <text class="g-unit">/ 篇</text></view>
     <button class="btn-primary" bindtap="buy" disabled="{{buying}}">
       {{buying ? '支付中…' : '解锁本篇报告'}}

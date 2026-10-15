@@ -45,7 +45,10 @@
           <text class="c-money">{{item.mainRev.text}}</text>
           <text class="c-caliber">{{item.mainRev.caliberLabel}}</text>
         </block>
-        <text wx:elif class="c-money muted">收入未披露</text>
+        <!-- 2026-10-15 修：原来这里写成 <text wx:elif>，属性缺值且指令用错 ——
+             wx:elif 必须紧贴 wx:if 并带表达式，这里是二选一收尾，应用 wx:else。
+             和 case.wxml 第 24 行是同一个 bug，说明这批 WXML 从没被编译过。 -->
+        <text wx:else class="c-money muted">收入未披露</text>
       </view>
 
       <view class="row c-scores">

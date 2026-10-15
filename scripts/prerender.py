@@ -110,6 +110,14 @@ DEFAULT_SITE = {
     "icp": "",                    # 备案号，备案下来后填这里
 }
 
+# 案例页（case/*.html）的图标声明。路径走 ../icons/ —— 这些页面比主页深一层。
+# 图形来自 scripts/gen_logo.py，和主页侧栏、PWA 图标、小程序头像同一套几何；
+# 抽成常量是因为下面两个 head 模板都要用，写两遍迟早改一处漏一处。
+PAGE_FAVICON = (
+    '<link rel="icon" href="../icons/logo.svg" type="image/svg+xml">\n'
+    '<link rel="icon" href="../icons/icon-192.png" type="image/png" sizes="192x192">\n'
+)
+
 # 案例页里内联的一小段补充样式。主样式表（style.css）是给 SPA 的网格布局写的，
 # 独立阅读页只需要一个居中窄栏，所以这里补一点，避免为了 24 个页面去改主样式表。
 PAGE_CSS = """\
@@ -631,6 +639,7 @@ def render_case_page(c, ctx):
             '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
             "<title>%s</title>\n"
             '<meta name="description" content="%s">\n'
+            "%s"
             "%s\n"
             '<meta property="og:title" content="%s">\n'
             '<meta property="og:site_name" content="%s">\n'
@@ -645,7 +654,7 @@ def render_case_page(c, ctx):
             "%s%s"
             '<footer class="docfoot">%s</footer>'
             "</main>\n</body>\n</html>\n"
-            % (esc(full_title), esc_attr(desc), canonical,
+            % (esc(full_title), esc_attr(desc), PAGE_FAVICON, canonical,
                esc_attr(full_title), esc_attr(site["title"]), esc_attr(desc),
                og_url, page_css(), ld_json, render_promo_bar(site), top, crumb,
                render_body(c), render_pager(ctx.get("prev"), ctx.get("next")),
@@ -686,6 +695,7 @@ def render_index_page(cases, ctx, rank_key="composite"):
             '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
             "<title>%s</title>\n"
             '<meta name="description" content="%s">\n'
+            "%s"
             "<style>%s</style>\n"
             "</head>\n<body>\n"
             '<main class="doc">%s'
@@ -698,7 +708,8 @@ def render_index_page(cases, ctx, rank_key="composite"):
             '<footer class="docfoot"><p><a href="../index.html">回到案例库</a>'
             "</p></footer>"
             "</main>\n</body>\n</html>\n"
-            % (esc(title), esc_attr(desc), page_css(), render_promo_bar(site),
+            % (esc(title), esc_attr(desc), PAGE_FAVICON, page_css(),
+               render_promo_bar(site),
                esc(site["title"]),
                len(cases), esc(site["tagline"]), "".join(items),
                render_promo(site)))

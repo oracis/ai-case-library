@@ -135,3 +135,4 @@ data/wechat_published.json.tmp
 # creates a real 0-byte file named NUL, which git refuses to add
 # (error: invalid path 'NUL').
 NUL
+miniprogram/project.private.config.json

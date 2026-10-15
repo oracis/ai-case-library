@@ -24,6 +24,7 @@ var SHELL = [
   './manifest.webmanifest',
   './style.css',
   './app.js',
+  './icons/logo.svg',
   './icons/icon-192.png',
   './icons/icon-512.png'
 ];

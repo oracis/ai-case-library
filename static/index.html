@@ -6,7 +6,10 @@
 <title>拆解海外 · Overseas Teardowns</title>
 <!-- 相对路径：这样既是本地服务（根路径）也能直接部署到 OSS / Pages 的子目录 -->
 <link rel="stylesheet" href="./style.css">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📇</text></svg>">
+<!-- 图标：SVG 给现代浏览器，PNG 兜底。图形来自 scripts/gen_logo.py，
+     和 PWA 图标、小程序头像同一套几何。 -->
+<link rel="icon" href="./icons/logo.svg" type="image/svg+xml">
+<link rel="icon" href="./icons/icon-192.png" type="image/png" sizes="192x192">
 <!-- PWA：可安装到桌面/主屏，standalone 下没有浏览器 UI（2026-10-14）。
      viewport-fit=cover 让内容延伸到刘海/圆角区域，配合 CSS 的
      env(safe-area-inset-*) 才不会把底部 tab 压在 iPhone 小黑条底下。 -->
@@ -28,7 +31,7 @@
   <!-- ================= 侧栏 ================= -->
   <aside class="sidebar">
     <div class="brand">
-      <div class="brand-mark">案</div>
+      <img class="brand-mark" src="./icons/logo.svg" alt="" width="36" height="36">
       <div class="brand-txt">
         <div class="brand-title">拆解海外</div>
         <div class="brand-sub">overseas teardowns</div>

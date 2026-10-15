@@ -7,7 +7,10 @@
  *   2. JS 语法（node --check 全量）
  *   3. 签名算法跨语言对照（Node crypto 实现 vs 官方 Python hmac 示例）
  *      —— 签名错一分钱都收不到，这是最值得自动化的断言
- *   4. 数据契约比对：get-cases 的 FIELDS 白名单必须覆盖 sync 脚本 mapCase 的全部输出键
+ *   4. 数据契约比对：get-cases 的 FREE / PAID 两层白名单（之和）必须覆盖
+ *      sync 脚本 mapCase 的全部输出键
+ *   5. 付费墙有效性：导出列必须含 FREE 层给不了的字段
+ *      —— 2026-10-15「内容免费」被证伪后加的；细节见 scripts/verify_paywall.py
  *      （白名单漏键 = 字段静默不外泄；mapCase 多键 = 白名单收窄，仅警告）
  *   5. WXML 标签配对
  *   6. app.json 页面路由与文件存在性
@@ -116,10 +119,20 @@ print(json.dumps(out))
 /* ---------- 4. 数据契约比对 ---------- */
 function checkContract() {
   const gcSrc = fs.readFileSync(path.join(MP, 'cloudfunctions/get-cases/index.js'), 'utf8');
-  const m = gcSrc.match(/const FIELDS = \{([\s\S]*?)\};/);
-  if (!m) { bad('契约', 'get-cases 里找不到 FIELDS 定义'); return; }
-  const fields = (m[1].match(/(\w+):\s*true/g) || []).map((s) => s.split(':')[0].trim());
-  if (!fields.length) { bad('契约', 'FIELDS 解析为空'); return; }
+  // 2026-10-15 起白名单拆成 FREE / PAID 两层（内容收费）。契约要同时覆盖两层：
+  // sync 脚本 mapCase 输出的键必须落在「两层之和」里，否则付费用户会拿到
+  // 恒为 undefined 的字段（前端不报错，只显示空白，最难查）。
+  const mf = gcSrc.match(/const FREE = \{([\s\S]*?)\};/);
+  const mp = gcSrc.match(/const PAID = \{([\s\S]*?)\};/);
+  if (!mf || !mp) {
+    bad('契约', 'get-cases 里找不到 FREE / PAID 两层定义');
+    return;
+  }
+  const grab = (s) => (s.match(/(\w+):\s*true/g) || []).map((x) => x.split(':')[0].trim());
+  const free = grab(mf[1]);
+  const paid = grab(mp[1]);
+  const fields = free.concat(paid);
+  if (!fields.length) { bad('契约', 'FREE/PAID 解析为空'); return; }
 
   const sync = require(path.join(ROOT, 'scripts/sync_cases_cloudbase.js'));
   const cases = JSON.parse(fs.readFileSync(sync.CASES_PATH, 'utf8'));
@@ -130,9 +143,10 @@ function checkContract() {
   const missing = [...keys].filter((k) => fields.indexOf(k) < 0);
   const extra = fields.filter((k) => !keys.has(k));
   if (missing.length) {
-    bad('契约', 'mapCase 输出的键不在 get-cases FIELDS 白名单: ' + missing.join(', '));
+    bad('契约', 'mapCase 输出的键不在 get-cases FREE/PAID 白名单: ' + missing.join(', '));
   } else {
-    ok('契约', keys.size + ' 个键全部在白名单内');
+    ok('契约', keys.size + ' 个键全部在白名单内（FREE ' + free.length
+      + ' + PAID ' + paid.length + '）');
   }
   if (extra.length) {
     console.log('  ! 白名单有但映射未产出的键（收窄，允许）: ' + extra.join(', '));
@@ -204,6 +218,26 @@ function checkRoutes() {
   });
 }
 
+/* ---------- 6b. app.json 顶层 schema（开发者工具才报的错）---------- */
+// 这类错只在真机编译时报「无效的 app.json ["xxx"]」，纯 JSON 合法校验抓不到。
+// 用精准黑名单：只拦已证实的非法顶层键，不给完整 allowlist（避免微信新增合法键时误伤）。
+function checkAppJsonSchema() {
+  const app = JSON.parse(fs.readFileSync(path.join(MP, 'app.json'), 'utf8'));
+  // 已证实非法：app.json 顶层无 description 字段，会触发「无效的 app.json ["description"]」
+  //   —— 该字段属于 project.config.json / sitemap.json（sitemap 用 desc，非 description）
+  const invalid = ['description'];
+  let hit = false;
+  invalid.forEach((k) => {
+    if (Object.prototype.hasOwnProperty.call(app, k)) {
+      bad('app.json schema',
+        '顶层含非法字段 "' + k + '"（开发者工具报『无效的 app.json ["' + k + '"]』）；' +
+        '该字段属 project.config.json 或 sitemap.json，应从 app.json 删除');
+      hit = true;
+    }
+  });
+  if (!hit) ok('app.json schema', '无非法顶层字段');
+}
+
 /* ---------- main ---------- */
 console.log('=== 1. JSON 合法性 ===');
 checkJson('app.json');
@@ -239,6 +273,7 @@ fs.readdirSync(path.join(MP, 'pages')).forEach((pg) => checkWxml('pages/' + pg +
 
 console.log('\n=== 6. 路由与云函数 ===');
 checkRoutes();
+checkAppJsonSchema();
 
 console.log('\n========================================');
 console.log('通过 ' + pass + ' · 失败 ' + fail);

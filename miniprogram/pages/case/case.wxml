@@ -14,14 +14,20 @@
       <text class="tag" wx:if="{{c.category}}">{{c.category}}</text>
     </view>
 
-    <!-- 收入区：每个数字自带口径标签（红线 1） -->
+    <!-- 收入区：每个数字自带口径标签（红线 1）
+         ⚠ 2026-10-15 修：原来这里是 <view class="rev-none" wx:elif>，属性缺值
+         且用错了指令 —— wx:elif 必须紧贴上一条 wx:if 并带表达式。
+         更要紧的是**语义错了**：内容收费后 revLines 为空有两种原因
+         （未解锁 / 该产品真没披露收入），都写成「收入未公开披露」会把
+         未解锁的读者误导成「这产品没收入」——那是事实错误。
+         改成 wx:else，并按 locked 区分文案。 -->
     <view class="rev" wx:if="{{c.revLines.length}}">
       <view class="rev-item" wx:for="{{c.revLines}}" wx:key="caliberLabel">
         <text class="rev-v">{{item.text}}</text>
         <text class="rev-c">{{item.caliberLabel}}</text>
       </view>
     </view>
-    <view class="rev-none" wx:elif>收入未公开披露</view>
+    <view class="rev-none" wx:else>{{locked ? '收入数据需付费解锁' : '收入未公开披露'}}</view>
   </view>
 
   <!-- 双轴评分 -->
