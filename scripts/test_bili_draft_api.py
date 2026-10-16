@@ -309,5 +309,91 @@ class TestStripTags(unittest.TestCase):
         self.assertEqual(api._strip_tags("<p>  x  </p>"), "x")
 
 
+class _FakeCdp:
+    """只够 upload_cover 用：给出一个 member 域 target，捕获 eval 的 JS。"""
+
+    def __init__(self, resp):
+        self.resp = resp
+        self.js = None
+        self.connected = None
+
+    def list_targets(self):
+        return [{"type": "page", "id": "T1",
+                 "url": "https://member.bilibili.com/opus/management/drafts"}]
+
+    def connect_target(self, tid):
+        self.connected = tid
+
+    def eval(self, js, refresh_context=False):
+        self.js = js
+        return self.resp
+
+
+class TestUploadCover(unittest.TestCase):
+    """2026-10-16 新增：封面走 upcover 图床上传（不再开编辑器）。
+
+    ⚠ 请求形状来自社区逆向文档 + 首次真实实测（prosp/1lookup 两篇写回
+      article.biliimg.com）。**这是防止再走回 UI 路线的回归锁**。
+    """
+
+    def _png(self, tmpdir, nbytes=1024):
+        p = os.path.join(tmpdir, "cover.png")
+        with open(p, "wb") as f:
+            f.write(b"\x89PNG\r\n\x1a\n" + b"\x00" * nbytes)
+        return p
+
+    def test_endpoint_constant(self):
+        self.assertEqual(api.ARTICLE_UPCOVER,
+                         "https://member.bilibili.com/x/web/article/upcover")
+
+    def test_returns_data_url(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            resp = json.dumps({"code": 0,
+                               "data": {"size": 8, "url":
+                                        "https://i0.hdslb.com/bfs/article/x.png"}},
+                              ensure_ascii=False)
+            cdp = _FakeCdp(resp)
+            url = api.upload_cover(cdp, self._png(d))
+            self.assertEqual(url, "https://i0.hdslb.com/bfs/article/x.png")
+            self.assertEqual(cdp.connected, "T1")
+
+    def test_request_shape(self):
+        """form-urlencoded + cover=data:image/png;base64 + csrf 从 cookie 读。"""
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            cdp = _FakeCdp(json.dumps({"code": 0, "data": {"url": "u"}}))
+            api.upload_cover(cdp, self._png(d))
+            js = cdp.js
+            self.assertIn("x-www-form-urlencoded", js)
+            self.assertIn(api.ARTICLE_UPCOVER, js)
+            self.assertIn("data:image/png;base64,", js)
+            self.assertIn("URLSearchParams", js)
+            self.assertIn("bili_jct", js)       # csrf 在 body
+            self.assertIn("cover", js)
+            self.assertIn("csrf", js)
+
+    def test_code_nonzero_raises(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            cdp = _FakeCdp(json.dumps({"code": -400, "message": "请求错误"}))
+            with self.assertRaises(RuntimeError):
+                api.upload_cover(cdp, self._png(d))
+
+    def test_missing_url_raises(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            cdp = _FakeCdp(json.dumps({"code": 0, "data": {}}))
+            with self.assertRaises(RuntimeError):
+                api.upload_cover(cdp, self._png(d))
+
+    def test_oversize_raises(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            cdp = _FakeCdp(json.dumps({"code": 0, "data": {"url": "u"}}))
+            with self.assertRaises(RuntimeError):
+                api.upload_cover(cdp, self._png(d, nbytes=5 * 1024 * 1024))
+
+
 if __name__ == "__main__":
     unittest.main()
