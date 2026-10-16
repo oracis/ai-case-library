@@ -207,16 +207,33 @@ def pick_chrome():
     return None, None
 
 
-def build_args(chrome, profile, extra=(), port=None):
-    """⚠ `--no-sandbox` 是硬性要求，见模块 docstring。"""
-    return [
+def build_args(chrome, profile, extra=(), port=None, headless=None):
+    """⚠ `--no-sandbox` 是硬性要求，见模块 docstring。
+
+    默认无头（`--headless=new`）：不弹可见窗口、真正后台运行、省掉 UI 渲染
+    开销。无头下 CDP 完全兼容（XHS 的 `DOM.setFileInputFiles` 传图、
+    B站封面上传、各平台 eval/点击都照常工作），本机 `xhs_publish.ensure_chrome`
+    渲染卡片早已用 `--headless=new --disable-gpu` 验证可用。
+
+    强制有头（首次扫码登录用）：传 `headless=False`，或设环境变量
+    `CHROME_HEADED=1`。
+    """
+    if headless is None:
+        headless = not str(os.environ.get("CHROME_HEADED", "")).lower() \
+            in ("1", "true", "yes")
+    base = [
         chrome,
         "--remote-debugging-port=%d" % (port or CDP_PORT),
         "--user-data-dir=%s" % profile,
         "--no-first-run",
         "--no-default-browser-check",
         "--no-sandbox",
-    ] + list(extra)
+    ]
+    if headless:
+        # 镜像 xhs_publish.ensure_chrome 已验证可用的无头配置
+        base.append("--headless=new")
+        base.append("--disable-gpu")
+    return base + list(extra)
 
 
 def wait_cdp(proc, timeout=40, port=None):
@@ -344,6 +361,9 @@ def build_parser():
                          " / three(三平台任一)。决定 profile+端口+登录探测。")
     ap.add_argument("--list", action="store_true",
                     help="只打印平台→端口映射后退出")
+    ap.add_argument("--headed", action="store_true",
+                    help="禁用无头（默认无头后台运行；仅首次扫码登录需要，"
+                         "也可设环境变量 CHROME_HEADED=1 强制有头）")
     ap.add_argument("--hold", action="store_true",
                     help="keep Chrome alive after the probe")
     ap.add_argument("--keep-chrome", dest="keep", action="store_true",
@@ -384,7 +404,8 @@ def main():
             return 1
         log("=== launching Chrome (%s) ===" % label)
         remove_lock(profile)
-        args_list = build_args(chrome, profile, port=port)
+        args_list = build_args(chrome, profile, port=port,
+                                headless=(False if args.headed else None))
         # 2026-10-15：把 Chrome 的 stdout/stderr 重定向到 DEVNULL。
         # ⚠ 旧写法「继承 console」在【后台任务】里是致命的：Chrome 子进程
         #   继承的是一条**无人排空的管道**，Chrome 一旦往里写（它很话唠）管道

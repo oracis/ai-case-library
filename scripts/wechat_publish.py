@@ -3906,6 +3906,8 @@ def _autostart_chrome_if_needed(port=CDP_PORT, profile=None):
     if chrome is None:
         return False
     L.remove_lock(profile)
+    headless = not str(os.environ.get("CHROME_HEADED", "")).lower() \
+        in ("1", "true", "yes")
     proc = subprocess.Popen(L.build_args(chrome, profile, port=port),
                             stdout=subprocess.DEVNULL,
                             stderr=subprocess.DEVNULL)
@@ -3913,8 +3915,8 @@ def _autostart_chrome_if_needed(port=CDP_PORT, profile=None):
         raise SystemExit(
             "✗ Chrome 启动失败（exit=%s）。\n"
             "  若为 exit 3，多半漏了 --no-sandbox。" % proc.poll())
-    print("[autostart] Chrome 已启动（%s, --no-sandbox）port=%d profile=%s"
-          % (label, port, profile))
+    print("[autostart] Chrome 已启动（%s, --no-sandbox, %s）port=%d profile=%s"
+          % (label, "headless" if headless else "headed", port, profile))
     return True
 
 
