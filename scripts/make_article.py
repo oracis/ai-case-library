@@ -287,6 +287,47 @@ TITLE_OVERRIDES = {
         "Bustem：找仿品、找窜货、下架链接",
         "电商打假：软件扫一遍，人工再扫一遍",
     ],
+    # —— 2026-10-16：公众号 7 条旧草稿「封面第二行 + 摘要清英」配套标题。
+    # 这些案例的 cover_desc 早已中文化，但草稿建在那之前，封面第二行还是
+    # 英文 one_liner；根目录精修版 HTML 的「摘要」注释也有 5 条是英文
+    # （vid-ai/podawaa/publbee/vectosolve/augora-ai，已同步改成中文）。
+    # 原标题多带金额（"月收 $1,808…"/"累计 $162 万…"）或超长，统一换成
+    # 「品牌：一句话」干净版；nutria 原名带 (9e3eaa) 哈希，一并去掉。
+    "nutria-9e3eaa": [
+        "Nutria：AI 卡路里追踪应用",
+        "Nutria：拍照记录饮食，AI 算卡路里",
+        "万人付费的卡路里 App，正在退潮",
+    ],
+    "vid-ai": [
+        "Vid.AI：脚本一键变短视频",
+        "Vid.AI：把想法变成能发布的视频",
+        "长视频剪短视频，交给 AI 跑完整套",
+    ],
+    "podawaa": [
+        "Podawaa：把 LinkedIn 发布做成订阅",
+        "Podawaa：内容排期、运营、看数据一站做",
+        "靠平台自己的增长做起的内容工具",
+    ],
+    "publbee": [
+        "Publbee：KDP 作者的 AI 工具箱",
+        "Publbee：自助出版的一站式工具集",
+        "自助出版作者愿意为工具付钱",
+    ],
+    "vectosolve": [
+        "VectoSolve：位图一键转可编辑 SVG",
+        "VectoSolve：PNG/JPG 转干净矢量图",
+        "把转矢量做成小工具，卖给设计师",
+    ],
+    "augora-ai": [
+        "Augora AI：Shopify 广告追踪自动化",
+        "Augora AI：服务端追踪 Meta 转化",
+        "Shopify 商家的 Meta 追踪本来是错的",
+    ],
+    "quran-unlock": [
+        "Quran Unlock：读古兰经解锁其他 App",
+        "Quran Unlock：把信仰变成打卡机制",
+        "用完即走的信仰工具，靠内购变现",
+    ],
 }
 
 # 宣传性词汇 → 直接替换。公众号「赚钱类」内容容易限流，宁可写保守一点。

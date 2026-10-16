@@ -26145,7 +26145,8 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
-    }
+    },
+    "cover_desc": "AI 卡路里追踪应用，拍照记录饮食与运动"
   },
   {
     "id": "fastwrite-io",
