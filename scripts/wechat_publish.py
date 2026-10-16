@@ -698,6 +698,79 @@ COVER_MENU_FROM_BODY = "从正文选择"
 COVER_STEP_NEXT = "下一步"
 COVER_STEP_CONFIRM = "确认"
 
+_FIRST_IMG_JS = (
+    "(function(){"
+    "var sels=['.appmsg_content_img_item img','.ProseMirror img',"
+    "'#js_content img','.edui_body img','img'];"
+    "for(var k=0;k<sels.length;k++){"
+    "var imgs=document.querySelectorAll(sels[k]);"
+    "for(var i=0;i<imgs.length;i++){"
+    "var s=imgs[i].src||imgs[i].getAttribute('src')||'';"
+    "if(s&&s.indexOf('http')===0)return s;}}"
+    "return '';})()"
+)
+
+
+def _first_body_img_url(cdp):
+    """正文第一张图的**完整** URL。
+
+    `_upload_cover` 只回传 src 的前 50 字符（`OK:IMG:<src[:50]>`），
+    不够喂给 change_cover，所以这里单独取全量。
+    """
+    try:
+        return str(cdp.eval(_FIRST_IMG_JS) or "")
+    except Exception:                                          # noqa: BLE001
+        return ""
+
+
+def _set_cover_via_jsapi(cdp, ori_img_url, timeout=25):
+    """用官方 JS API `mp_editor_change_cover` 设封面（绕开 UI 裁剪弹窗）。
+
+    源码依据（`appmsg_edit_v2_gray_fe.js`）：
+        var E="mp_editor_change_cover"
+        apiParam = {oriImgUrl:<http(s) 链接>, picCrop_235_1:[x1,y1,x2,y2](可选)}
+      · 不传 picCrop_* 时自动按 2.35:1 **居中裁剪**（O() 函数）
+      · oriImgUrl 会经 `/cgi-bin/uploadimg2cdn` 自动转存到微信 CDN
+      · 图文类型(share_page_type=0) 只需 235_1 与 1_1 两个尺寸
+
+    ⚠⚠ **oriImgUrl 绝不能带 query string**（2026-10-16 实测）：带
+    `?wx_fmt=png&from=appmsg` 时 uploadimg2cdn 返 `ret:-201`
+    「原图转存失败，请检查图片格式」；`split('?')[0]` 后立即成功。
+
+    为什么替掉 UI 路线（`_set_cover_from_body`）：
+      · 单篇省约 3 分钟（UI 要在 封面菜单→选图→下一步→确认 间轮询等待）
+      · headless 下裁剪弹窗的「确认」按钮点不着（CONFIRM_ERR），
+        那 12 篇 refresh --cover 的封面全因此没换上
+      · 实测 2 秒返回「封面设置成功」，保存后 cover 字段确认变更
+
+    返回 'SUC:封面设置成功' / 'ERR:...' / 'TIMEOUT' / 'BAD_URL' / 'NO_API'
+    """
+    url = (ori_img_url or "").split("?")[0]
+    if not url.startswith("http"):
+        return "BAD_URL"
+    expr = (
+        "(function(url){"
+        "window.__cc='PENDING';"
+        "var api=window.__MP_Editor_JSAPI__;"
+        "if(!api||typeof api.invoke!=='function')"
+        "{window.__cc='NO_API';return;}"
+        "try{"
+        "api.invoke({apiName:'mp_editor_change_cover',apiParam:{oriImgUrl:url},"
+        "sucCb:function(res){"
+        "window.__cc='SUC:'+JSON.stringify(res).slice(0,300);},"
+        "errCb:function(err){"
+        "window.__cc='ERR:'+JSON.stringify(err).slice(0,400);}});"
+        "}catch(e){window.__cc='THROW:'+e.message;}"
+        "})(%s)" % json.dumps(url)
+    )
+    cdp.eval(expr)
+    for _ in range(timeout):
+        time.sleep(1)
+        st = cdp.eval("window.__cc")
+        if st and not str(st).startswith("PENDING"):
+            return str(st)
+    return "TIMEOUT"
+
 
 def _mouse_click(cdp, x, y):
     """真实鼠标点击。Vue 组件（弹窗/下拉/开关）对 JS .click() 经常无响应，
@@ -3875,8 +3948,17 @@ def cmd_refresh(args):
                         up = _upload_cover(cdp, gen)
                         print("  封面入素材库: %s" % up)
                         time.sleep(2)
-                        sc = _set_cover_from_body(cdp, force=True)
-                        print("  换封面: %s" % sc)
+                        if getattr(args, "cover_api", False):
+                            # 官方 JS API 路线：_upload_cover 只回传 URL 前 50
+                            # 字符，这里从 DOM 取全量，去 query 后调
+                            # mp_editor_change_cover（实测 2 秒、保存后确认落库）
+                            iu = _first_body_img_url(cdp)
+                            sc = _set_cover_via_jsapi(cdp, iu)
+                            print("  换封面(API): %s (img=...%s)"
+                                  % (sc, (iu or "")[-36:]))
+                        else:
+                            sc = _set_cover_from_body(cdp, force=True)
+                            print("  换封面: %s" % sc)
                     else:
                         print("  [warn] 封面重画失败: %s" % gen)
                 except Exception as e:                              # noqa: BLE001
@@ -4052,6 +4134,10 @@ def main():
     pr.add_argument("--dry", action="store_true", help="只打印计划不打开浏览器")
     pr.add_argument("--cover", action="store_true",
                     help="连封面一起重画（篇号/主题变了必须带这个）")
+    pr.add_argument("--cover-api", action="store_true",
+                    help="封面改用官方 JS API mp_editor_change_cover 设置"
+                         "（绕开 UI 裁剪弹窗：单篇省约 3 分钟，且 headless 可用；"
+                         "需同时带 --cover）")
     pdel = sub.add_parser("delete", help="按 appmsgid 删除草稿箱里的草稿")
     pdel.add_argument("--port", type=int, default=CDP_PORT)
     pdel.add_argument("--appmsgid", help="要删的草稿 id（逗号分隔）")
