@@ -3583,12 +3583,102 @@ def cmd_fix_cover(args):
     print("\n完成：补齐 %d 篇，跳过/失败 %d 篇" % (fixed, skipped))
 
 
+def _del_api_url(tok):
+    """删除接口 URL（2026-10-16 抓包实证，推翻了 9-25 的错误记忆）。"""
+    return ("https://mp.weixin.qq.com/cgi-bin/operate_appmsg"
+            "?sub=del&t=ajax-response&lang=zh_CN&f=json&ajax=1&token=%s" % tok)
+
+
+def _del_api_body(aid, tok, fp):
+    """删除接口表单体。fp 可空（实测服务端校验宽松，跨篇延用也过）。"""
+    return ("AppMsgId=%s&fingerprint=%s&token=%s&lang=zh_CN&f=json&ajax=1"
+            % (aid, fp or "", tok))
+
+
+# 页面里 fingerprint 的候选位置（抓包：删除 body 带 fingerprint=<32位hex>）
+_FP_JS = """(function(){
+  var c=['fingerprint','__fingerprint','fp','wxFingerprint'];
+  for(var i=0;i<c.length;i++){
+    try{ if(window[c[i]]) return String(window[c[i]]); }catch(e){}
+  }
+  var el=document.querySelector('[data-fingerprint]');
+  if(el) return el.getAttribute('data-fingerprint')||'';
+  var m=(document.documentElement.innerHTML||'').match(
+    /fingerprint["'\\s:=]+["']?([0-9a-f]{16,40})/);
+  return m?m[1]:'';
+})()"""
+
+
+def _delete_draft_api(cdp, tok, appmsgid, timeout=15):
+    r"""走 operate_appmsg?sub=del 删一篇草稿（API，不点 UI）。
+
+    2026-10-16 抓包实测（**推翻 2026-09-25 的错误记忆**）：
+    真实接口不是 `cgi-bin/appmsg?action=del`（那个返 200009 not found 是
+    **猜错了接口身**，不是「没权限」）——
+        POST /cgi-bin/operate_appmsg?sub=del&t=ajax-response&lang=zh_CN&f=json&ajax=1
+        body: AppMsgId=<id>&fingerprint=<fp>&token=<tok>&lang=zh_CN&f=json&ajax=1
+        成功: base_resp.ret == 0
+    fingerprint 是页面生成的 32 位 hex；实测跨篇延用同一份也过 ret:0
+    （服务端校验宽松），读不到就空着试。本函数只负责 API 一击，
+    失败由上层退 `_delete_draft_ui`（UI 点击删），双保险。
+
+    ⚠⚠ **ret:0 不等于删掉了**：2026-10-16 实测对**不存在的 appmsgid**
+    也返 base_resp.ret=0（服务端不校验 id 是否存在，删除幂等宽容）。
+    ⇒ 上层必须删后拉 `_draft_list` 核对才算数，绝不能只信本函数返 OK。
+
+    返回 "OK" / "RET:<code>(<msg>)" / "RAW:<...>" / "ERR:<...>" / "TIMEOUT"。
+    """
+    # 确保当前页面在 mp 同域（fetch 才能带 cookie）
+    try:
+        cdp.send("Page.navigate", {"url":
+                 "https://mp.weixin.qq.com/cgi-bin/appmsg?begin=0&count=10"
+                 "&type=77&action=list&lang=zh_CN&token=%s" % tok})
+        time.sleep(2.5)
+    except Exception:
+        pass
+    fp = ""
+    try:
+        fp = str(cdp.eval(_FP_JS, refresh_context=True) or "").strip()
+    except Exception:
+        pass
+    expr = """(function(){
+      window.__dd='PENDING';
+      fetch(%s,{method:'POST',credentials:'include',
+        headers:{'Content-Type':'application/x-www-form-urlencoded'},
+        body:%s})
+        .then(function(r){return r.text();})
+        .then(function(t){window.__dd=t.slice(0,400);})
+        .catch(function(e){window.__dd='FETCH_ERR:'+e.message;});
+    })()""" % (json.dumps(_del_api_url(tok)), json.dumps(_del_api_body(appmsgid, tok, fp)))
+    try:
+        cdp.eval(expr, refresh_context=True)
+    except Exception as e:
+        return "ERR:%s" % e
+    for _ in range(timeout * 2):
+        time.sleep(0.5)
+        st = str(cdp.eval("window.__dd") or "")
+        if st and st != "PENDING":
+            try:
+                j = json.loads(st)
+                br = j.get("base_resp") or {}
+                if br.get("ret") == 0:
+                    return "OK"
+                return "RET:%s(%s)" % (br.get("ret"), br.get("err_msg"))
+            except Exception:
+                return "RAW:" + st[:120]
+    return "TIMEOUT"
+
+
 def _delete_draft_ui(cdp, tok, appmsgid):
     r"""在 mp 草稿箱列表页，按 appmsgid 精确点掉一篇草稿（触发器→确认框→确认）。
 
-    2026-09-25：微信后台 `cgi-bin/appmsg?action=del` 的 XHR 对草稿返回
-    `200009 not found`（参数对不上），个人订阅号也没有草稿删除 API 权限，
-    所以只能走 UI 点击。卡片结构是 `data-appid="<appmsgid>"` 容器里，删除触发器
+    ⚠ 历史纠错（2026-10-16）：本文档 2026-09-25 曾写「`appmsg?action=del`
+    的 XHR 返 200009 ⇒ 个人订阅号没有删除 API 权限 ⇒ 只能走 UI」——
+    **结论错了**。抓包证明真实接口是 `operate_appmsg?sub=del`（见
+    `_delete_draft_api`），200009 只是猜错接口身。现在 UI 只是 API 失败
+    后的兜底，不再是唯一路径。
+
+    卡片结构是 `data-appid="<appmsgid>"` 容器里，删除触发器
     在 tooltip 文本为「删除」的 `.weui-desktop-popover__wrp` 内的 `<a>` 图标；
     点开后弹确认框，确认按钮是卡片内 `button.weui-desktop-btn_primary` 文本「删除」。
     逐个精确匹配，不会波及别的草稿。
@@ -3696,9 +3786,10 @@ def cmd_delete(args):
     """把指定草稿从公众号草稿箱删除（按 appmsgid，--dry 先确认再真删）。
 
     用法：python wechat_publish.py delete --appmsgid 100000263,100000271
-    安全：先拉草稿列表按 appmsgid 反查标题打印确认，再逐个用 UI 点删；
-    删完再拉一次列表核对是否真的消失。误传的 id 不会波及别的草稿
-    （逐个精确匹配 data-appid）。
+    安全：先拉草稿列表按 appmsgid 反查标题打印确认，再逐个删——
+    先走 API（`_delete_draft_api`，2026-10-16 抓包实证可用），
+    失败退 UI 点删（`_delete_draft_ui`）；删完再拉一次列表核对是否真的消失。
+    误传的 id 不会波及别的草稿（逐个精确匹配 data-appid）。
     """
     cdp = CDP(args.port)
     _tid0, tok = _connect_mp(cdp)
@@ -3716,6 +3807,11 @@ def cmd_delete(args):
             print("  %s -> %s" % (aid, (d or {}).get("title", "(列表里没找到，可能已删)")))
         return
     print("草稿列表共 %d 篇" % len(drafts))
+
+    def _still_there(aid):
+        return aid in {str(d.get("appmsgid"))
+                       for d in _draft_list(cdp, tok, count=200)}
+
     for aid in targets:
         d = by_id.get(aid)
         title = (d or {}).get("title", "(列表里没找到)")
@@ -3723,8 +3819,20 @@ def cmd_delete(args):
         if not d:
             print("  [skip] 列表里没有这个 id，跳过（可能已删或 id 写错）")
             continue
-        st = _delete_draft_ui(cdp, tok, aid)
-        print("  结果: %s" % st)
+        st = _delete_draft_api(cdp, tok, aid)
+        print("  删除(API): %s" % st)
+        # ⚠⚠ API 返 OK 不等于真删掉：2026-10-16 实测对**不存在的 id**
+        # 也返 base_resp.ret=0（服务端不校验 id 是否存在）⇒ OK 后必须
+        # 拉列表核对，还在箱里就转 UI 兜底。唯一可信判据是核对。
+        if st == "OK" and _still_there(aid):
+            print("  [warn] API 返 OK 但核对还在箱里，转 UI 点删")
+            st = _delete_draft_ui(cdp, tok, aid)
+            print("  删除(UI): %s" % st)
+        elif st != "OK":
+            print("  [api 失败，转 UI 点删]")
+            st = _delete_draft_ui(cdp, tok, aid)
+            print("  删除(UI): %s" % st)
+        print("  核对: %s" % ("已消失 ✅" if not _still_there(aid) else "还在 ❌"))
     after = {str(d.get("appmsgid")) for d in _draft_list(cdp, tok, count=200)}
     gone = [aid for aid in targets if aid not in after]
     print("\n核对：%d/%d 已确认从草稿箱消失：%s"

@@ -427,5 +427,30 @@ class TestVerdictFor(unittest.TestCase):
         self.assertEqual(W._verdict_for(diag, "alive")[0], "RATE_LIMIT")
 
 
+class TestDeleteApi(unittest.TestCase):
+    """删除接口形态锁定（2026-10-16 抓包实证，推翻 9-25 错误记忆）。"""
+
+    def test_URL是operate_appmsg不是appmsg(self):
+        u = W._del_api_url("TOK123")
+        self.assertIn("cgi-bin/operate_appmsg", u)
+        self.assertIn("sub=del", u)
+        self.assertIn("t=ajax-response", u)
+        self.assertIn("token=TOK123", u)
+        # 老错误记忆的接口身不许回来
+        self.assertNotIn("appmsg?action=del", u)
+
+    def test_body带AppMsgId和固定尾巴(self):
+        b = W._del_api_body("100000220", "TOK123", "fp123")
+        self.assertEqual(
+            b, "AppMsgId=100000220&fingerprint=fp123&token=TOK123"
+               "&lang=zh_CN&f=json&ajax=1")
+
+    def test_fingerprint可空(self):
+        # 实测服务端校验宽松：fp 读不到时空着也要能发请求
+        b = W._del_api_body("100000208", "TOK123", "")
+        self.assertIn("AppMsgId=100000208", b)
+        self.assertIn("fingerprint=&", b)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
