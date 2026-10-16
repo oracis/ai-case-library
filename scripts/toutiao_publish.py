@@ -1906,14 +1906,75 @@ def cmd_publish(args):
             print("    [异常] %s：%s" % (type(e).__name__, e))
 
 
-def fetch_draft_titles(cdp, wait=10):
+def _name_keys(cid, c):
+    """从 case id / name 提取产品名匹配键（小写）。
+
+    对账专用：远端标题口径会变（2026-10-16 P0 实测三平台远端全是
+    「产品名：描述」新口径，而 make_*_title 生成的是「月收$xK：…」
+    旧口径），字面前 N 字符匹配必然失配 ⇒ 用产品名做子串匹配。
+    id 去常见后缀（-io/-ai/-app/-9e3eaa 等），name 取冒号前段。
+    """
+    keys = set()
+    core = re.sub(r"-(io|ai|app|co|com|us|b-v|net|9e3eaa|[0-9a-f]{6})$",
+                  "", cid or "")
+    if len(core) >= 4:
+        keys.add(core.lower())
+    nm = (c.get("name") or "").strip()
+    if nm:
+        head = re.split(r"[：:]", nm)[0].strip()
+        if len(head) >= 4:
+            keys.add(head.lower())
+        if len(nm) >= 4:
+            keys.add(nm.lower())
+    if len(cid or "") >= 5:
+        keys.add(cid.lower())
+    return keys
+
+
+def draft_title_match(cid, c, remote_titles):
+    """本地 case 是否命中远端草稿标题列表（产品名优先，字面兜底）。"""
+    keys = _name_keys(cid, c)
+    for t in remote_titles:
+        tl = (t or "").lower()
+        if any(k in tl for k in keys):
+            return t
+    # 兜底：生成标题的前 12 字符（老口径，给没产品名的标题用）
+    try:
+        gt = make_toutiao_title(c)
+    except Exception:
+        gt = ""
+    key = (gt or "")[:12]
+    if len(key) >= 6:
+        for t in remote_titles:
+            if key in t:
+                return t
+    return None
+
+
+def fetch_draft_titles(cdp, wait=10, scroll=True, max_scroll=10):
     """读头条草稿箱页面，返回 [(标题, 另一行信息)]。
 
     列表行长这样（innerText，按块）：
         <标题> 刚刚 编辑删除 / <标题> 4 分钟前 编辑删除
     把整页 innerText 按「编辑删除」切段，每段第一行就是标题。
+
+    ⚠⚠ **草稿箱是懒加载的**（2026-10-16 P0 实测踩坑）：首屏只有 ~21 条，
+    页面自报「共 48 条内容」+「加载更多」按钮，URL 分页参数
+    （?page=2 / ?begin=10&count=20）**无效**（都返回首屏）。
+    不滚动到底就只读到一小部分 ⇒ `drafts --write` 重建出的台账一直
+    是残缺的，`pending_cases` 的去重跟着失真。
+    ⇒ 默认滚动到出现「没有更多数据了」或达到 max_scroll 次。
     """
     time.sleep(wait)
+    if scroll:
+        for _ in range(max_scroll):
+            done = cdp.eval(
+                "(function(){var t=document.body.innerText||'';"
+                "return t.indexOf('没有更多')>=0;})()")
+            if str(done) == "True":
+                break
+            cdp.eval("window.scrollTo(0,document.body.scrollHeight)")
+            time.sleep(1.5)
     txt = cdp.eval("(function(){return document.body.innerText||'';})()") or ""
     out = []
     for seg in txt.split("编辑删除"):
@@ -1939,9 +2000,9 @@ def cmd_drafts(args):
             print("  · %s   [%s]" % (title[:40], info[:30]))
         if args.write:
             hit = 0
+            remote_titles = [a for a, _ in arr]
             for c in load_cases():
-                title = make_toutiao_title(c)
-                if any(title and title[:12] in a for a, _ in arr):
+                if draft_title_match(c["id"], c, remote_titles):
                     mark_drafted(c["id"])
                     hit += 1
             print("\n已写 %d 条进 data/toutiao_drafts.json" % hit)
