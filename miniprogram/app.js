@@ -8,12 +8,18 @@
  *    购买时再重新走登录流程。
  */
 
-const { ENV_ID } = require('./utils/config.js');
+const { ENV_ID, CONFIGURED } = require('./utils/config.js');
 
 App({
   onLaunch() {
     if (!wx.cloud) {
       console.error('当前基础库版本过低（需要 2.2.3+），请升级微信客户端');
+      return;
+    }
+    // 未配置真实环境：跳过 cloud.init / 静默登录，避免开发期刷 -601034 噪音。
+    // 上线配好 ENV_ID 后 CONFIGURED 自动为 true，以下流程照常。
+    if (!CONFIGURED) {
+      this.globalData.guest = true;
       return;
     }
     wx.cloud.init({ env: ENV_ID, traceUser: false });
@@ -37,6 +43,7 @@ App({
    */
   loadMe() {
     const app = this;
+    if (!CONFIGURED) { app.globalData.guest = true; return Promise.resolve(null); }
     return wx.cloud.callFunction({ name: 'get-cases', data: { me: true } })
       .then((res) => {
         const r = (res.result || {});

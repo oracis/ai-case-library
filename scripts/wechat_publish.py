@@ -1309,9 +1309,11 @@ class WS:
         self.host, self.port, self.path = m.group(1), int(m.group(2)), m.group(3)
         # 2026-10-14：头条发文页的 Runtime.evaluate（尤其正文 insertHTML /
         # 封面上传）偶发要 20s+ 才回包，原 30s 太紧会冒 socket.timeout 把
-        # publish_one 打挂。放宽到 90s 兜底；真·卡死也会在 90s 后冒异常被
-        # 上层 try 接住（不会无限挂）。公众号侧 eval 本来就快，放宽无害。
-        self.sock = socket.create_connection((self.host, self.port), timeout=90)
+        # publish_one 打挂。放宽到 45s 兜底（封面 20s+ 仍留 25s 余量）；
+        # 真·卡死也会在 45s 后冒异常被上层 try 接住（不会无限挂）。
+        # 2026-10-15：从 90s 降到 45s —— 小红书删稿偶发 eval 卡死，90s 单点
+        # 拖垮整轮重试循环；45s 能在半程内恢复，且对头条/公众号/B站无害。
+        self.sock = socket.create_connection((self.host, self.port), timeout=45)
         self._handshake()
         self._buf = b""
 
@@ -3994,7 +3996,9 @@ def main():
                   % (type(_e).__name__, _e))
 
     if args.cmd == "build":
-        cmd_build()
+        # 2026-10-16：原先这里写 cmd_build() 不传 args → --case 被静默忽略、
+        # 每次都跑全量 build（255 条）。--case 的本意就是「只重建这一条」。
+        cmd_build(args)
     elif args.cmd == "queue":
         cmd_queue()
     elif args.cmd == "plan":

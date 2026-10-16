@@ -33,7 +33,10 @@ Page({
     api.getCases()
       .then((cases) => this.decorate(cases))
       .catch((err) => {
-        console.warn('加载失败', err);
+        // ENV_NOT_CONFIGURED 是开发期未配云环境的预期状态，静默进空态，不打警告
+        if (!(err && err.message === 'ENV_NOT_CONFIGURED')) {
+          console.warn('加载失败', err);
+        }
         this.setData({ loading: false, notConfigured: true });
       });
   },

@@ -6,12 +6,16 @@
  * 一律走云函数，字段白名单在云函数侧控制。
  */
 
-const { FUNC } = require('./config.js');
+const { FUNC, CONFIGURED } = require('./config.js');
 
 const CACHE_KEY = 'cases_cache_v1';
 const CACHE_VER_KEY = 'cases_ver_v1';
 
 function call(name, data) {
+  // 未配置环境时直接短路：不发起必然失败的云调用，让页面走 notConfigured 降级路径
+  if (!CONFIGURED) {
+    return Promise.reject(new Error('ENV_NOT_CONFIGURED'));
+  }
   return wx.cloud.callFunction({ name, data: data || {} })
     .then((res) => {
       const r = res.result || {};

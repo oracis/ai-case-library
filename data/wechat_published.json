@@ -178,25 +178,34 @@
   "aeo-engine": {
     "title": "AEO Engine",
     "published_at": "2026-09-21 22:57",
-    "status": "draft",
+    "status": "published",
     "appmsgid": "100000180",
     "file": "公众号-aeo-engine拆解.html",
-    "refreshed_at": "2026-10-02 13:40"
+    "refreshed_at": "2026-10-02 13:40",
+    "group_sent": true,
+    "synced_at": "2026-10-16 08:55",
+    "sync_note": "远端已发表列表里存在，本地由 sync 回写"
   },
   "lancer-app": {
     "title": "Lancer.app：AI 替自由职业者干完接单最烦的那一段：找活、筛活、写提案、投出去",
     "published_at": "2026-09-21 23:03",
-    "status": "draft",
+    "status": "published",
     "appmsgid": "100000184",
     "file": "公众号-lancer-app拆解.html",
-    "refreshed_at": "2026-10-02 13:41"
+    "refreshed_at": "2026-10-02 13:41",
+    "group_sent": true,
+    "synced_at": "2026-10-16 08:55",
+    "sync_note": "远端已发表列表里存在，本地由 sync 回写"
   },
   "speel-co": {
     "title": "$65K MRR 是真的，但它已经停止增长了",
     "published_at": "2026-10-02 14:35",
-    "status": "draft",
+    "status": "published",
     "appmsgid": "100000392",
-    "file": "公众号-speel-co拆解.html"
+    "file": "公众号-speel-co拆解.html",
+    "group_sent": true,
+    "synced_at": "2026-10-16 08:55",
+    "sync_note": "远端已发表列表里存在，本地由 sync 回写"
   },
   "visualizee-ai": {
     "title": "Visualizee.ai：给建筑师和室内设计师做效果图渲染，两年卡在 $150/月，一次转型跳到 $8.6K",
@@ -223,28 +232,28 @@
     "refreshed_at": "2026-10-02 13:45"
   },
   "meerkats-ai": {
-    "title": "Meerkats.ai：替营销机构自动跑「找线索 → 补数据 → 个性化触达 → 跟进」的 AI agent",
-    "published_at": "2026-09-21 23:30",
+    "title": "Meerkats：替营销公司跑获客",
+    "published_at": "2026-10-16 08:02",
     "status": "draft",
-    "appmsgid": "100000204",
+    "appmsgid": "100000526",
     "file": "公众号-meerkats-ai拆解.html",
-    "refreshed_at": "2026-10-02 13:46"
+    "refreshed_at": "2026-10-16 09:36"
   },
   "coral": {
-    "title": "Coral：帮你把开源 AI agent 部署、托管、接上各种业务系统——卖的是「配置」，不是模型",
-    "published_at": "2026-09-21 23:36",
+    "title": "Coral：托管你的开源 AI 助手",
+    "published_at": "2026-10-16 08:14",
     "status": "draft",
-    "appmsgid": "100000208",
+    "appmsgid": "100000534",
     "file": "公众号-coral拆解.html",
-    "refreshed_at": "2026-10-02 13:48"
+    "refreshed_at": "2026-10-16 09:40"
   },
   "startclaw": {
-    "title": "StartClaw：不用买服务器、不用配 API key，就能跑起一个托管 agent",
-    "published_at": "2026-09-21 23:42",
+    "title": "StartClaw：零配置跑 AI 助手",
+    "published_at": "2026-10-16 08:20",
     "status": "draft",
-    "appmsgid": "100000212",
+    "appmsgid": "100000538",
     "file": "公众号-startclaw拆解.html",
-    "refreshed_at": "2026-10-02 13:49"
+    "refreshed_at": "2026-10-16 09:45"
   },
   "outrank": {
     "title": "Outrank：从月入 $300 的 AI 博客生成器，15 个月变成月入 30 万的自动化 SEO 引擎",
@@ -263,12 +272,12 @@
     "refreshed_at": "2026-10-02 13:51"
   },
   "bustem": {
-    "title": "Bustem：帮电商品牌全网打假：找仿品、找窜货、下架链接，软件 + 人工一起上",
-    "published_at": "2026-09-22 00:44",
+    "title": "Bustem：帮电商品牌全网打假",
+    "published_at": "2026-10-16 08:35",
     "status": "draft",
-    "appmsgid": "100000220",
+    "appmsgid": "100000546",
     "file": "公众号-bustem拆解.html",
-    "refreshed_at": "2026-10-02 13:52"
+    "refreshed_at": "2026-10-16 09:49"
   },
   "kibu": {
     "title": "Kibu：专给智障与发育障碍（I/DD）服务机构做的内容、合规与电子病历系统",
@@ -319,12 +328,12 @@
     "refreshed_at": "2026-10-01 20:10"
   },
   "uplinked-b-v": {
-    "title": "把「我知道要发内容，但没时间写」做成订阅",
-    "published_at": "2026-09-25 00:15",
+    "title": "UpLinked：领英上自动加客户",
+    "published_at": "2026-10-16 07:56",
     "status": "draft",
-    "appmsgid": "100000267",
+    "appmsgid": "100000522",
     "file": "公众号-uplinked-b-v拆解.html",
-    "refreshed_at": "2026-10-01 20:11"
+    "refreshed_at": "2026-10-16 09:32"
   },
   "le19emetrou": {
     "title": "€337 的广告费，卖 €34,99 的高尔夫开瓶器",
@@ -373,11 +382,12 @@
     "file": "公众号-harperai拆解.html"
   },
   "wpconvert-ai-convert-ai-sites-to-wordpress": {
-    "title": "把 AI 建站工具生成的网站，转成 WordPress——一个工程师的生意",
+    "title": "WPConvert：AI 建站转 WP",
     "published_at": "2026-10-10 16:10",
     "status": "draft",
     "appmsgid": "100000424",
-    "file": "公众号-wpconvert-ai-convert-ai-sites-to-wordpress拆解.html"
+    "file": "公众号-wpconvert-ai-convert-ai-sites-to-wordpress拆解.html",
+    "refreshed_at": "2026-10-16 09:23"
   },
   "augora-ai": {
     "title": "Shopify 商家的 Meta 追踪本来就是错的，于是有了这门生意",
@@ -417,18 +427,20 @@
     "dedup_note": "100000442 与 100000446 内容逐字相同（正文 1914 字节一致），是同一条案例的重复草稿。100000442 服务端 cover 为空（草稿箱灰块），100000446 有封面。已补封面 + 删重复，保留 100000446。"
   },
   "cometly": {
-    "title": "$20 万/月的营销归因生意，但不是一个人做的",
-    "published_at": "2026-10-10 17:01",
+    "title": "Cometly：广告数据归因分析",
+    "published_at": "2026-10-16 07:50",
     "status": "draft",
-    "appmsgid": "100000450",
-    "file": "公众号-cometly拆解.html"
+    "appmsgid": "100000518",
+    "file": "公众号-cometly拆解.html",
+    "refreshed_at": "2026-10-16 09:27"
   },
   "boothie-ai-photo-editor": {
-    "title": "Boothie: AI Photo Editor",
-    "published_at": "2026-10-14 01:06",
+    "title": "Boothie：AI 照片编辑器",
+    "published_at": "2026-10-15 22:34",
     "status": "draft",
-    "appmsgid": "100000462",
-    "file": "公众号-boothie-ai-photo-editor拆解.html"
+    "appmsgid": "100000510",
+    "file": "公众号-boothie-ai-photo-editor拆解.html",
+    "refreshed_at": "2026-10-16 09:19"
   },
   "nutria-9e3eaa": {
     "title": "Nutria (9e3eaa)：AI 卡路里追踪应用，MRR 约 $46K 但近 30 天下滑 25%",

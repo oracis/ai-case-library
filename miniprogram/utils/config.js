@@ -9,6 +9,9 @@
 // 云开发环境 ID：CloudBase 控制台 → 你的环境 → 环境 ID（形如 case-lib-1a2b3c）
 const ENV_ID = 'YOUR-CLOUDBASE-ENV-ID';
 
+// 是否已配置真实环境：未配置时拦截所有云调用，避免开发期刷 -601034 红（上线后自动失效）
+const CONFIGURED = typeof ENV_ID === 'string' && ENV_ID.length > 0 && ENV_ID !== 'YOUR-CLOUDBASE-ENV-ID';
+
 // 云函数名（部署后若改名，改这里）
 const FUNC = {
   cases: 'get-cases',        // 拉取案例全量（精简字段）
@@ -34,4 +37,4 @@ const GOODS = {
 // 会员时长（毫秒）—— 云函数按同一常量发放权益，两边要一致
 const MEMBER_DAYS = 30;
 
-module.exports = { ENV_ID, FUNC, GOODS, MEMBER_DAYS };
+module.exports = { ENV_ID, FUNC, GOODS, MEMBER_DAYS, CONFIGURED };

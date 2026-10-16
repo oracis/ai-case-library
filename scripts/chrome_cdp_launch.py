@@ -385,8 +385,15 @@ def main():
         log("=== launching Chrome (%s) ===" % label)
         remove_lock(profile)
         args_list = build_args(chrome, profile, port=port)
-        # 不重定向 stdout/stderr：让子进程继承 console，避免管道牵连
-        proc = subprocess.Popen(args_list)
+        # 2026-10-15：把 Chrome 的 stdout/stderr 重定向到 DEVNULL。
+        # ⚠ 旧写法「继承 console」在【后台任务】里是致命的：Chrome 子进程
+        #   继承的是一条**无人排空的管道**，Chrome 一旦往里写（它很话唠）管道
+        #   缓冲填满 → Chrome 写阻塞 → CDP 调试端口起不来 / 页面 eval 永久挂死。
+        #   前台跑因为终端会排空管道所以正常；后台跑必挂。DEVNULL 彻底断掉
+        #   这条管道，对前台/后台都安全，且 autostart 自己的日志走 Python print，
+        #   不依赖 Chrome 的输出，重定向无损功能。
+        proc = subprocess.Popen(
+            args_list, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         log("  pid=%d" % proc.pid)
         log("  flags: --no-sandbox (REQUIRED on this machine)")
         log("")
