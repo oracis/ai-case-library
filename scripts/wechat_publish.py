@@ -3183,11 +3183,26 @@ def _connect_mp(cdp, debug=False):
                 tids.append(t["id"])
     tid = tids[-1] if tids else cdp.new_target(MP_HOME)["id"]
     cdp.connect_target(tid)
+    login_attempted = False
     for _ in range(25):
         time.sleep(1)
         tok = _get_token(cdp, debug=debug)
         if tok and tok != "NO_TOKEN":
             return tid, tok
+        # 会话 cookie 还在、只是后台要一次手动确认换新 session 时，首页会显示
+        # 「登录」按钮（#jumpUrl）。headless 下沙箱可能在 ~25s 就回收进程，若傻等
+        # 满 25s 再点按钮，恢复还没完成就被杀 ⇒ 整批连不上。所以几秒拿不到 token
+        # 就立刻尝试点登录按钮，争取在回收窗内恢复（实测点一下即进，无需扫码）。
+        if _ >= 4 and not login_attempted:
+            login_attempted = True
+            if _try_click_login(cdp):
+                for _ in range(15):
+                    time.sleep(2)
+                    tok = _get_token(cdp, debug=debug)
+                    if tok and tok != "NO_TOKEN":
+                        print("  [login] 点「登录」按钮后直接拿到 token=%s（无需扫码）"
+                              % tok)
+                        return tid, tok
     # 原地等不出来 → 先试「点一下登录按钮」（2026-10-02 用户实测发现）。
     # 公众号会话 cookie 过期时，后台首页**并不显示二维码**，而是显示一个
     # 「登录」按钮 —— cookie 其实还在，只是后台要你点一下才发新session。
