@@ -90,5 +90,30 @@ class TestFetchDraftTitlesScroll(unittest.TestCase):
         self.assertIsInstance(out, list)
 
 
+class TestPrefixMatch(unittest.TestCase):
+    """P1 实测漏判：远端标题用缩写/简称，子串匹配失效（2026-10-16）。"""
+
+    def test_缩写标题能匹配上(self):
+        # 「PromptMon：盯 AI 里的品牌」vs id=promptmonitor-io
+        c = {"id": "promptmonitor-io", "name": "Promptmonitor.io"}
+        t = tp.draft_title_match("promptmonitor-io", c,
+                                 ["PromptMon：盯 AI 里的品牌"])
+        self.assertIsNotNone(t)
+
+    def test_简称去后缀能匹配上(self):
+        # 「Divine：给站长卖网站挂件」vs id=divine-widgets
+        c = {"id": "divine-widgets", "name": "Divine Widgets"}
+        t = tp.draft_title_match("divine-widgets", c,
+                                 ["Divine：给站长卖网站挂件"])
+        self.assertIsNotNone(t)
+
+    def test_前缀互补不许误伤(self):
+        # 短词（<5 字符）不参与前缀互补，防「ai」命中一切
+        c = {"id": "vid-ai", "name": "Vid.AI"}
+        t = tp.draft_title_match("vid-ai", c,
+                                 ["某品牌：让 AI 帮你做别的事"])
+        self.assertIsNone(t)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

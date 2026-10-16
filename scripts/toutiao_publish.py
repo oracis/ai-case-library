@@ -1938,6 +1938,17 @@ def draft_title_match(cid, c, remote_titles):
         tl = (t or "").lower()
         if any(k in tl for k in keys):
             return t
+    # 前缀互补兜底（P1 实测漏判）：远端标题用缩写/简称时子串匹配失效，
+    # 如「PromptMon：盯 AI 里的品牌」vs id=promptmonitor-io、
+    # 「Divine：给站长卖网站挂件」vs id=divine-widgets。
+    # 判据：本地键与远端标题任一词互为前缀（长度≥5，防误伤）。
+    for t in remote_titles:
+        tl = (t or "").lower()
+        twords = [w for w in re.split(r"[^a-z0-9]+", tl) if len(w) >= 5]
+        for k in keys:
+            for w in twords:
+                if w.startswith(k) or k.startswith(w):
+                    return t
     # 兜底：生成标题的前 12 字符（老口径，给没产品名的标题用）
     try:
         gt = make_toutiao_title(c)
@@ -1949,6 +1960,51 @@ def draft_title_match(cid, c, remote_titles):
             if key in t:
                 return t
     return None
+
+
+def fetch_draft_api(cdp):
+    """草稿箱 JSON API（2026-10-16 P1 实证，用户提供接口 + 实测）。
+
+        GET /mp/agw/creator_center/draft_list?type=0&count=200&app_id=1231
+        （需在 mp.toutiao.com 同源页面上下文里 fetch，自动带 cookie）
+
+    返回 [(title, info)]（与 fetch_draft_titles 同格式，可直接替换）；
+    失败返回 None（上层退 UI 滚动方案）。实测：
+      - code=0，48 条全量一次到手（UI 滚动 ~90s 且只拿部分）
+      - type=0 / type=2 都返同样 48 条（type 维度不影响图文草稿）
+      - count=200 无翻页字段（draft_list 就是全量；>200 才会截断）
+    字段：title / abstract / gid / update_time / cover_image...
+    """
+    js = ("(function(){return fetch("
+          "'/mp/agw/creator_center/draft_list?type=0&count=200&app_id=1231',"
+          "{credentials:'include',"
+          "headers:{'Accept':'application/json, text/plain, */*'}})"
+          ".then(function(r){return r.text();})"
+          ".catch(function(e){return 'ERR:'+e.message;})})()")
+    try:
+        s = str(cdp.eval(js) or "")
+    except Exception:
+        return None
+    if not s.startswith("{"):
+        return None
+    try:
+        d = json.loads(s)
+    except Exception:
+        return None
+    dl = d.get("draft_list")
+    if not isinstance(dl, list):
+        return None
+    out = []
+    for x in dl:
+        if not isinstance(x, dict):
+            continue
+        t = (x.get("title") or "").strip()
+        if len(t) < 3:
+            continue
+        ut = x.get("update_time") or 0
+        info = time.strftime("%m-%d %H:%M", time.localtime(ut)) if ut else ""
+        out.append((t, info))
+    return out
 
 
 def fetch_draft_titles(cdp, wait=10, scroll=True, max_scroll=10):
@@ -1990,12 +2046,17 @@ def fetch_draft_titles(cdp, wait=10, scroll=True, max_scroll=10):
 
 
 def cmd_drafts(args):
-    """从草稿箱列表反查，重建已发记录。"""
+    """从草稿箱反查，重建已发记录。API 优先，UI 滚动兜底。"""
     cdp, t = _open(TT_DRAFT, wait=8)
     try:
         _check_login(cdp)
-        arr = fetch_draft_titles(cdp)
-        print("读到 %d 条草稿：" % len(arr))
+        arr = fetch_draft_api(cdp)
+        if arr is not None:
+            print("读到 %d 条草稿（API draft_list）：" % len(arr))
+        else:
+            print("[api 不通，退 UI 滚动]")
+            arr = fetch_draft_titles(cdp)
+            print("读到 %d 条草稿：" % len(arr))
         for title, info in arr:
             print("  · %s   [%s]" % (title[:40], info[:30]))
         if args.write:
