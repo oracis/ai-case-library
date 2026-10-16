@@ -352,12 +352,12 @@
     "refreshed_at": "2026-10-01 20:13"
   },
   "quran-unlock": {
-    "title": "Quran Unlock：信仰类习惯打卡 App：读古兰经解锁 apps，靠内购变现",
+    "title": "Quran Unlock：读古兰经解锁其他 App",
     "published_at": "2026-09-30 17:00",
     "status": "draft",
     "appmsgid": "100000318",
     "file": "公众号-quran-unlock拆解.html",
-    "refreshed_at": "2026-10-01 20:05"
+    "refreshed_at": "2026-10-16 13:52"
   },
   "mort": {
     "title": "MORT：AI 求职代理：盯 5 万个企业招聘页，按简历打分并自动投递",
@@ -390,41 +390,46 @@
     "refreshed_at": "2026-10-16 09:23"
   },
   "augora-ai": {
-    "title": "Shopify 商家的 Meta 追踪本来就是错的，于是有了这门生意",
+    "title": "Augora AI：Shopify 广告追踪自动化",
     "published_at": "2026-10-10 16:17",
     "status": "draft",
     "appmsgid": "100000428",
-    "file": "公众号-augora-ai拆解.html"
+    "file": "公众号-augora-ai拆解.html",
+    "refreshed_at": "2026-10-16 13:30"
   },
   "vectosolve": {
-    "title": "月收 $1,808 但唯一在增长：把 PNG 转成可编辑的 SVG",
+    "title": "VectoSolve：位图一键转可编辑 SVG",
     "published_at": "2026-10-10 16:24",
     "status": "draft",
     "appmsgid": "100000432",
-    "file": "公众号-vectosolve拆解.html"
+    "file": "公众号-vectosolve拆解.html",
+    "refreshed_at": "2026-10-16 13:35"
   },
   "publbee": {
-    "title": "自助出版的作者愿意为工具付钱——只是撑不起大生意",
+    "title": "Publbee：KDP 作者的 AI 工具箱",
     "published_at": "2026-10-10 16:33",
     "status": "draft",
     "appmsgid": "100000436",
-    "file": "公众号-publbee拆解.html"
+    "file": "公众号-publbee拆解.html",
+    "refreshed_at": "2026-10-16 13:39"
   },
   "podawaa": {
-    "title": "把 LinkedIn 内容发布做成订阅，然后靠平台自己的增长做到月收 $6.6 万",
+    "title": "Podawaa：把 LinkedIn 发布做成订阅",
     "published_at": "2026-10-10 16:40",
     "status": "draft",
     "appmsgid": "100000440",
-    "file": "公众号-podawaa拆解.html"
+    "file": "公众号-podawaa拆解.html",
+    "refreshed_at": "2026-10-16 13:43"
   },
   "vid-ai": {
-    "title": "两年做到累计 $162 万，然后峰值留存掉到 46%",
+    "title": "Vid.AI：脚本一键变短视频",
     "published_at": "2026-10-10 16:55",
     "status": "draft",
     "appmsgid": "100000446",
     "file": "公众号-vid-ai拆解.html",
     "dedup_deleted": "100000442",
-    "dedup_note": "100000442 与 100000446 内容逐字相同（正文 1914 字节一致），是同一条案例的重复草稿。100000442 服务端 cover 为空（草稿箱灰块），100000446 有封面。已补封面 + 删重复，保留 100000446。"
+    "dedup_note": "100000442 与 100000446 内容逐字相同（正文 1914 字节一致），是同一条案例的重复草稿。100000442 服务端 cover 为空（草稿箱灰块），100000446 有封面。已补封面 + 删重复，保留 100000446。",
+    "refreshed_at": "2026-10-16 13:47"
   },
   "cometly": {
     "title": "Cometly：广告数据归因分析",
@@ -443,12 +448,12 @@
     "refreshed_at": "2026-10-16 09:19"
   },
   "nutria-9e3eaa": {
-    "title": "Nutria (9e3eaa)：AI 卡路里追踪应用，MRR 约 $46K 但近 30 天下滑 25%",
+    "title": "Nutria：AI 卡路里追踪应用",
     "published_at": "2026-10-14 01:13",
     "status": "draft",
     "appmsgid": "100000466",
     "file": "公众号-nutria-9e3eaa拆解.html",
-    "refreshed_at": "2026-10-14 13:37"
+    "refreshed_at": "2026-10-16 13:26"
   },
   "fastwrite-io": {
     "title": "fastwrite.io：AI写作工具SaaS，辅助学生学术写作",
