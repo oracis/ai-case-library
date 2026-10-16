@@ -212,7 +212,13 @@
     "published_at": "2026-10-16 20:18",
     "status": "draft",
     "appmsgid": "100000783",
-    "file": "公众号-visualizee-ai拆解.html"
+    "file": "公众号-visualizee-ai拆解.html",
+    "prev_published": {
+      "appmsg_id": "2247484219",
+      "url": "https://mp.weixin.qq.com/s/XiQeUcoXQ0dMm3hRYS4Y4w",
+      "title": "Visualizee.ai：给建筑师和室内设计师做效果图渲染，两年卡在 $150/月，一次转型跳到 $8.6K",
+      "found_by": "sync 2026-10-16：远端已发表列表最新一条（群发后自动离开草稿箱）。2026-10-16 曾据用户记忆误判为「误删」并重建（100000783），实际是旧版早已群发；status=draft 指的是这份更新版草稿。"
+    }
   },
   "checkvibe": {
     "title": "CheckVibe：扫描 vibe-coded 应用的安全漏洞——转换率翻三倍靠的不是产品，是付费墙的写法",
