@@ -25,6 +25,7 @@ wechat_publish.py — 公众号「万物解释者 · 拆解海外」自动发布
 依赖：纯标准库。Chrome 需本机已装，且以远程调试端口启动（见 discover 提示）。
 """
 import argparse
+import atexit
 import base64
 import glob
 import json
@@ -3923,6 +3924,40 @@ def cmd_refresh(args):
               % "、".join(editor_errors))
 
 
+# 本进程自动拉起的 Chrome（退出时清理，避免孤儿进程堆积）
+_AUTOSTART_PROC = None
+
+
+def _kill_autostart_chrome(*_a):
+    """退出时收掉**本进程**拉起的 Chrome。
+
+    2026-10-16：此前 Popen 起的 Chrome 从不清收 —— 脚本正常退出或被杀后
+    Chrome 变孤儿，多轮重跑堆积几十个 chrome.exe，内存压力反过来让新任务
+    更早被回收（恶性循环）。用户当场发现「退出为什么不杀 chrome 进程」。
+    只杀**自己起的那个**（记 pid），不动用户手动开的 Chrome。
+    """
+    global _AUTOSTART_PROC
+    p = _AUTOSTART_PROC
+    if p is None:
+        return
+    _AUTOSTART_PROC = None
+    try:
+        if p.poll() is None:
+            # Windows：taskkill /T 连渲染/GPU 子进程一起收（只 terminate 主进程
+            # 会留下一堆子进程继续占内存）
+            subprocess.run(["taskkill", "/PID", str(p.pid), "/T", "/F"],
+                           stdout=subprocess.DEVNULL,
+                           stderr=subprocess.DEVNULL, timeout=10)
+    except Exception:                                          # noqa: BLE001
+        try:
+            p.kill()
+        except Exception:                                      # noqa: BLE001
+            pass
+
+
+atexit.register(_kill_autostart_chrome)
+
+
 # ======================================================================
 # CLI
 # ======================================================================
@@ -3961,9 +3996,11 @@ def _autostart_chrome_if_needed(port=CDP_PORT, profile=None):
     L.remove_lock(profile)
     headless = not str(os.environ.get("CHROME_HEADED", "")).lower() \
         in ("1", "true", "yes")
+    global _AUTOSTART_PROC
     proc = subprocess.Popen(L.build_args(chrome, profile, port=port),
                             stdout=subprocess.DEVNULL,
                             stderr=subprocess.DEVNULL)
+    _AUTOSTART_PROC = proc          # 记下来，退出时收掉（见 _kill_autostart_chrome）
     if not L.wait_cdp(proc, port=port):
         raise SystemExit(
             "✗ Chrome 启动失败（exit=%s）。\n"
