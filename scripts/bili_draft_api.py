@@ -127,6 +127,7 @@ DRAFT_ADD = API + "/x/dynamic/feed/article/draft/add"
 DRAFT_DELETE = API + "/x/dynamic/feed/article/draft/delete"
 
 DRAFT_PAGE = "https://member.bilibili.com/opus/management/drafts"
+ARTICLE_UPCOVER = "https://member.bilibili.com/x/web/article/upcover"
 
 
 def _bili_tab(cdp, new_if_none=True, wait=8):
@@ -516,6 +517,90 @@ def delete_draft(cdp, article_id):
         return json.loads(raw)
     except Exception:                                    # noqa: BLE001
         raise RuntimeError("draft/delete 返回非 JSON：%r" % (raw,))
+
+
+def _member_tab(cdp, wait=6):
+    """连一个 **member.bilibili.com** 的 page target（upcover 要同源）。
+
+    `_bili_tab` 只要求 URL 含 bilibili.com —— 落到 www.bilibili.com 时
+    upcover 就是跨源 fetch（CORS 凭据那套没必要赌）。这里收紧到 member 域，
+    没有就新开草稿箱页（DRAFT_PAGE 本身就在 member 域）。
+    """
+    for t in cdp.list_targets():
+        u = t.get("url") or ""
+        if t.get("type") == "page" and "member.bilibili.com" in u:
+            cdp.connect_target(t["id"])
+            return t["id"]
+    tid = cdp.new_target(DRAFT_PAGE)["id"]
+    time.sleep(wait)
+    cdp.connect_target(tid)
+    return tid
+
+
+def upload_cover(cdp, png_path):
+    """把本地封面图传到 B站专栏图床，返回 CDN URL（article.biliimg.com 系）。
+
+    2026-10-16 补齐「草稿封面不再走 UI」的最后一块。请求形状（社区逆向
+    文档 + bilibili-zhuanland-markdown-tool 项目双向印证；**首次实测后
+    应以 hook 抓包复核**，见模块 docstring 的教训）：
+
+        POST https://member.bilibili.com/x/web/article/upcover
+        Content-Type: application/x-www-form-urlencoded; charset=UTF-8
+        X-Requested-With: XMLHttpRequest
+        body: cover=<data:image/png;base64,...>&csrf=<bili_jct>
+        200  -> {"code":0,"data":{"size":123,"url":".../bfs/article/xxx"}}
+
+    与 draft/add 同套路：**页面上下文 fetch**（credentials include），
+    cookie/Origin/Referer 全由浏览器自动带，Python 侧不碰 cookie。
+    返回的 URL 直接喂 `build_arg(image_urls=[url])`。
+
+    🚩 **host 会变，但不用担心**（2026-10-16 三例实测 prosp/bustem/chatbase）：
+    upcover 返回 `i0.hdslb.com/bfs/article/<sha>.png`，把它塞进
+    `image_urls` 提交 `draft/add` **完全接受**，且 `draft/view` 回读时
+    B站已把它规范化成 `article.biliimg.com/bfs/article/<sha>.png`
+    —— **sha 一致**（这才是判据，别比 host）。
+    ⚠ 历史草稿的封面在 `article.biliimg.com/bfs/new_dyn/<sha>`（UI 路线
+    留下的），新 API 路线落在 `bfs/article/` 下，**两条路径并存不冲突**。
+    ⚠ 曾因为「upcover 返 i0.hdslb.com ≠ 现有 new_dyn」而误判 host 不兼容
+    而跳过实测，白白绕回 UI 路线 —— **别再做这种 host 前置比对**。
+    """
+    import base64
+    with open(png_path, "rb") as f:
+        raw = f.read()
+    if len(raw) > 5 * 1024 * 1024:
+        raise RuntimeError("封面图超过 5MB 上限：%d 字节" % len(raw))
+    data_uri = "data:image/png;base64," + base64.b64encode(raw).decode()
+    _member_tab(cdp)
+    js = """(async () => {
+      var m = document.cookie.match(/(?:^|;\\s*)bili_jct=([^;]+)/);
+      var csrf = m ? m[1] : '';
+      var body = new URLSearchParams();
+      body.append('cover', %s);
+      body.append('csrf', csrf);
+      var r = await fetch(%s, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {'Content-Type':
+                    'application/x-www-form-urlencoded; charset=UTF-8',
+                  'X-Requested-With': 'XMLHttpRequest'},
+        body: body.toString()
+      });
+      return await r.text();
+    })()""" % (json.dumps(data_uri), json.dumps(ARTICLE_UPCOVER))
+    out = cdp.eval(js, refresh_context=True)
+    try:
+        j = json.loads(out)
+    except Exception:                                    # noqa: BLE001
+        raise RuntimeError("upcover 返回非 JSON：%r" % (out,))
+    if j.get("code") != 0:
+        raise RuntimeError("upcover 上传失败（code=%s）：%s"
+                           % (j.get("code"),
+                              json.dumps(j, ensure_ascii=False)[:200]))
+    url = (j.get("data") or {}).get("url") or ""
+    if not url:
+        raise RuntimeError("upcover 返回里没有 data.url：%s"
+                           % json.dumps(j, ensure_ascii=False)[:200])
+    return url
 
 
 def main():

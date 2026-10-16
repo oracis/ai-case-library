@@ -20,11 +20,18 @@
   python scripts/bilibili_publish.py publish --all          # 批量存草稿箱（草稿不限 5 篇/天）
   python scripts/bilibili_publish.py cover --case prosp     # 补封面（复用头条 cover.png）
   python scripts/bilibili_publish.py cover --all            # 批量补封面
+  python scripts/bilibili_publish.py cover --all --api      # 同上，但走 upcover 图床 API（秒级，不开编辑器）
   python scripts/bilibili_publish.py cover-status           # 回读远端 37 条 banner_url 对账
 
 SEL 已按 2026-09-29 实测填定（read-draft → 新的创作 → read-editor 编辑器）。
-投稿页 DOM 随 B站改版会漂，若 publish 连续失败先重跑 `probe` 校准。
+投稿页 DOM 随B站改版会漂，若 publish 连续失败先重跑 `probe` 校准。
 封面上传链路见 cover_one()，2026-09-29 实测跑通。
+
+🚩 **封面已全面 API 化（2026-10-16）**：`bili_draft_api.upload_cover()` 打
+`member.bilibili.com/x/web/article/upcover` 上传图床拿 CDN URL，再喂
+`draft/add` 的 `image_urls` —— **不用再开编辑器、不用传文件**。
+`publish` 默认就带封面（`cover=True`），换已有草稿的图用
+`cover --api --force`。UI 路线（`cover_one`，无 `--api`）保留作为 fallback。
 """
 
 import argparse
@@ -659,18 +666,24 @@ def _dry_api(cid):
 
 
 def publish_one(cid, dry=False, replace=False, keep_tabs=False, use_api=True,
-                cdp=None):
+                cdp=None, cover=True):
     """存一条草稿到 B站。
 
     `use_api=True`（**默认**）走 draft/add 接口，不开编辑器、秒级。
     `use_api=False` 走老 UI 路线（开 tab → 灌正文 → 点「保存为草稿」），
     保留它的唯一理由是**行内样式**（粗体/颜色/居中）——API 路线不构造
     word.style，会丢。
+
+    `cover=True`（API 路线默认，2026-10-16）：发布时把
+    out/toutiao/<id>/cover.png 经 upcover 图床上传写进 image_urls
+    —— 新草稿发布即带封面，不再需要事后 `cover` 补。replace 且远端
+    已有封面时不重传（换图用 `cover --api --force`）。
     """
     if use_api:
         if dry:
             return _dry_api(cid)
-        return save_via_api(cid, replace=replace, cdp=cdp)
+        return save_via_api(cid, replace=replace, cdp=cdp,
+                            refresh_cover=cover)
 
     _need_sel()
     html = load_article_html(cid)
@@ -1158,7 +1171,8 @@ def _api_tab(cdp):
     return bili_api._bili_tab(cdp)
 
 
-def save_via_api(cid, replace=False, cdp=None, title=None, body=None):
+def save_via_api(cid, replace=False, cdp=None, title=None, body=None,
+                 refresh_cover=False, force=False):
     """用 draft/add 存一条草稿（新建或按标题覆盖）。返回 True/False。
 
     这是 `publish_one` 的默认路径。流程全程不开编辑器：
@@ -1167,6 +1181,10 @@ def save_via_api(cid, replace=False, cdp=None, title=None, body=None):
         3. draft/add（带 article_id 即更新）
         4. draft/view 回读校验 mtime 变了、正文非空
 
+    `refresh_cover=True`（2026-10-16）：把 out/toutiao/<id>/cover.png 经
+        upcover 图床上传，拿到的 CDN URL 写进 image_urls —— 草稿封面
+        不再必须走 UI。`force=True` 连已有封面也重传；否则仅「本来
+        没封面」才传（replace 保住旧封面）。
     `cdp` 可传入复用（批量时省连接）；不给就自己建。
     """
     html = load_article_html(cid)
@@ -1218,9 +1236,25 @@ def save_via_api(cid, replace=False, cdp=None, title=None, body=None):
         else:
             old_mtime = 0
 
+        image_urls = old.get("origin_image_urls") or old.get("image_urls")
+        if refresh_cover and (force or not image_urls):
+            # 2026-10-16：封面走 upcover 图床上传拿 CDN URL，不再开编辑器。
+            cp = cover_path(cid)
+            if not cp:
+                print("  ✗ 没有封面源图 out/toutiao/%s/cover.png" % cid)
+                return False
+            try:
+                cover_url = bili_api.upload_cover(cdp, cp)
+            except Exception as e:                    # noqa: BLE001
+                print("  ✗ 封面上传失败（%s）—— 按无封面存，"
+                      "稍后 cover --api 补" % str(e)[:100])
+                cover_url = None
+            if cover_url:
+                print("    封面上传: %s" % cover_url[:70])
+                image_urls = [cover_url]
         arg = bili_api.build_arg(
             title, body, article_id=aid,
-            image_urls=old.get("origin_image_urls") or old.get("image_urls"),
+            image_urls=image_urls,
             private_pub=old.get("private_pub", 2),
             original=old.get("original", 0),
             reprint=old.get("reprint", 1))
@@ -1244,10 +1278,10 @@ def save_via_api(cid, replace=False, cdp=None, title=None, body=None):
                   % (tag, new_aid, title, len(got),
                      len(arg["opus"]["content"]["paragraphs"])))
             if after.get("image_urls"):
-                print("    封面保留: %s" % after["image_urls"][0][:70])
+                print("    封面: %s" % after["image_urls"][0][:70])
             else:
-                print("    ⚠ 该草稿无封面（封面只能走 UI 上传，"
-                      "draft/add 只认远端 URL）")
+                print("    ⚠ 该草稿无封面（cover --api 可补：upcover "
+                      "图床 + draft/add，不开编辑器）")
             return True
         print("  ✗ 回读校验失败：mtime=%s→%s，正文 %d 字"
               % (old_mtime, after.get("mtime"), len(got)))
@@ -1580,6 +1614,56 @@ def cover_one(cid, dry=False, cdp=None, tab_id=None, keep_tab=False,
             cdp.close_target(tid)
 
 
+def cover_via_api(only=None, force=False):
+    """cover --api：不开编辑器，upcover 上传 + draft/add 换封面。
+
+    与 UI 路线（cover_one）等价，但全程不走编辑器 iframe：
+      1. 按标题在草稿箱找 article_id（复用 save_via_api 的 replace 匹配）
+      2. upload_cover 传 out/toutiao/<id>/cover.png 拿 CDN URL
+      3. draft/add 带 image_urls 更新（正文从 out/articles 原样重建）
+    only=None 扫全部 list_ids()；远端已有封面的跳过（force 才重传）。
+    """
+    ids = ([x.strip() for x in (only or "").split(",") if x.strip()]
+           or list_ids())
+    print("cover(api) %d 篇 → B站草稿%s"
+          % (len(ids), "（全部重设）" if force else "（只补没封面的）"))
+    cdp = wp.CDP(PUB_PORT)
+    _close_stale_bili_tabs(cdp)
+    skip = set()
+    if not force:
+        try:
+            tid = cdp.new_target(BILI_DRAFT_LIST_PAGE)["id"]
+            cdp.connect_target(tid)
+            time.sleep(5)
+            r = _fetch_drafts(cdp, tid)
+            if isinstance(r, dict) and r.get("err") is None:
+                for d in r.get("drafts") or []:
+                    if _cover_of(d):
+                        skip.add(re.sub(r"\s+", "",
+                                        (d.get("title") or "").lower()))
+            print("  远端已有封面 %d 条（将跳过）" % len(skip))
+            cdp.close_target(tid)
+        except Exception as e:                          # noqa: BLE001
+            print("  ⚠ 读远端封面状态失败（%s），改为全量重设" % e)
+    ok = 0
+    failed = []
+    for cid in ids:
+        html = load_article_html(cid)
+        t = make_title(cid, html) if html else ""
+        if not force and re.sub(r"\s+", "", t.lower()) in skip:
+            continue
+        print("\n→ %s" % cid)
+        if save_via_api(cid, replace=True, cdp=cdp,
+                        refresh_cover=True, force=force):
+            ok += 1
+        else:
+            failed.append(cid)
+    print("\ncover(api) 完成：成功 %d / 失败 %d%s"
+          % (ok, len(failed),
+             ("（%s）" % "、".join(failed)) if failed else ""))
+    return not failed
+
+
 def cover_all(only_missing=True, cdp=None, force=False):
     """批量补封面。only_missing=True 时先回读远端，已设过的跳过。
 
@@ -1848,6 +1932,9 @@ def main():
     c.add_argument("--dry", action="store_true")
     c.add_argument("--force", action="store_true",
                    help="连远端已有封面的也重设（默认只补没封面的）")
+    c.add_argument("--api", action="store_true",
+                   help="走 upcover 图床 API 上传封面，不开编辑器"
+                        "（2026-10-16；失败可回退 UI 路线）")
     sub.add_parser("cover-status")
     d = sub.add_parser("dedup", help="草稿箱同标题去重（默认直接删，只留清单）")
     d.add_argument("--delete", action="store_true",
@@ -1907,7 +1994,9 @@ def main():
             if failed:
                 sys.exit(1)
     elif args.cmd == "cover":
-        if args.case:
+        if getattr(args, "api", False):
+            cover_via_api(only=args.case, force=args.force)
+        elif args.case:
             cover_one(args.case, dry=args.dry, force=args.force)
         else:
             cover_all(only_missing=not args.force, force=args.force)
