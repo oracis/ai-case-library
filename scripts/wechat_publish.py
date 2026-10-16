@@ -786,8 +786,23 @@ _DLG_CANDS_JS = (
     "disp:cs.display,vis:cs.visibility,leaf:e.children.length===0});}"
     "return JSON.stringify(out);})()")
 
+# 全文档兜底：headless 下封面裁剪页的弹窗未必是 `.weui-desktop-dialog`
+# （宽>300/高>100），导致 `_center_in_dialog` 永远找不到「确认」。
+# 这里直接扫整页，但只取「文本精确相等」的叶子/按钮，不会误命中正文段落。
+_DOC_CANDS_JS = (
+    "(function(){"
+    "var out=[];"
+    "var all=[].slice.call(document.querySelectorAll('button,a,span,div,p'));"
+    "for(var j=0;j<all.length;j++){var e=all[j],cs=getComputedStyle(e);"
+    "var r=e.getBoundingClientRect();"
+    "out.push({t:(e.innerText||e.textContent||'').replace(/\\s+/g,' ').trim().slice(0,40),"
+    "left:Math.round(r.left),top:Math.round(r.top),"
+    "w:Math.round(r.width),h:Math.round(r.height),"
+    "disp:cs.display,vis:cs.visibility,leaf:e.children.length===0});}"
+    "return JSON.stringify(out);})()")
 
-def _pick_dialog_button(cands, text):
+
+def _pick_dialog_button(cands, text, exact_only=False):
     """从弹窗候选元素里挑点击目标（纯函数，便于回归测试）。
 
     优先级：① 文本**完全相等**的叶子 → ② 完全相等 → ③ 包含的叶子 → ④ 包含。
@@ -796,6 +811,9 @@ def _pick_dialog_button(cands, text):
     为什么不直接「包含就选」：正文段落也「包含」按钮文字，且在 DOM 里更靠前，
     会先被选中（点击落在正文上、弹窗按钮没点到）。所以先要「完全相等」，
     再要求是叶子节点；正文段落是容器、且文字长，两道都过不了。
+
+    exact_only=True 时只走「完全相等」两档（①②③→只留①②），用于全文档兜底，
+    避免正文段落（`<p>` 常是叶子、且文字「包含」按钮词）被「包含」档误选中。
     """
     def usable(c):
         return (c.get("disp") != "none" and c.get("vis") != "hidden"
@@ -805,8 +823,9 @@ def _pick_dialog_button(cands, text):
     def has(c, exact):
         return (c.get("t", "") == text) if exact else (text in c.get("t", ""))
 
-    for exact, leaf_only in ((True, True), (True, False),
-                             (False, True), (False, False)):
+    tiers = ((True, True), (True, False)) if exact_only \
+        else ((True, True), (True, False), (False, True), (False, False))
+    for exact, leaf_only in tiers:
         for c in cands:
             if usable(c) and has(c, exact) and (not leaf_only or c.get("leaf")):
                 return c
@@ -814,7 +833,7 @@ def _pick_dialog_button(cands, text):
 
 
 def _center_in_dialog(cdp, text):
-    """在**当前可见弹窗内部**找按钮并返回中心坐标，找不到返回 None。
+    """在**当前可见弹窗内部**找按钮并返回中心坐标，找不到时回退全文档兜底。
 
     为什么要单独一个函数（2026-09-21 实测，代价是一次批量发布里 3 篇残废）：
     用 `_click_visible(cdp, "a,button,span,div", "确认")` 点封面的「确认」时，
@@ -826,20 +845,39 @@ def _center_in_dialog(cdp, text):
          里面没有作者输入框 → 报「作者框没找到(NO)」。
     一个错点同时造出两个"故障"。修法：把搜索范围钉死在可见弹窗里，
     并优先**文本完全相等**的叶子节点，再要求坐标落在视口内。
+
+    ⚠ 2026-10-16 补：headless 下微信封面裁剪页弹窗未必是 `.weui-desktop-dialog`
+    （宽>300/高>100），`_DLG_CANDS_JS` 扫不到 → 永远 CONFIRM_ERR → 封面设不上。
+    所以弹窗范围找不到时，回退 `_DOC_CANDS_JS` 全文档精确匹配（exact_only，
+    只取文本==目标、可见、在视口内的元素，正文段落不会被「包含」档误命中）。
     """
-    raw = cdp.eval(_DLG_CANDS_JS)
-    if not raw:
-        return None                      # 没有可见弹窗
-    try:
-        cands = json.loads(raw)
-    except Exception:
-        return None
-    c = _pick_dialog_button(cands, text)
+    def _pick(raw):
+        if not raw:
+            return None
+        try:
+            return _pick_dialog_button(json.loads(raw), text)
+        except Exception:
+            return None
+
+    # 弹窗范围优先；找不到再全文档兜底（exact_only 防正文误命中）
+    c = _pick(cdp.eval(_DLG_CANDS_JS))
+    if c is None:
+        c = _pick_dialog_button(_doc_cands(cdp), text, exact_only=True)
     if not c:
         return None
     return {"x": c["left"] + c["w"] // 2,
             "y": c["top"] + c["h"] // 2,
             "txt": c["t"][:24]}
+
+
+def _doc_cands(cdp):
+    raw = cdp.eval(_DOC_CANDS_JS)
+    if not raw:
+        return []
+    try:
+        return json.loads(raw)
+    except Exception:
+        return []
 
 
 def _click_in_dialog(cdp, text):
