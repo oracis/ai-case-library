@@ -57,6 +57,33 @@ CDP_PORT = int(os.environ.get("CDP_PORT", 9222))
 #⇒ 任何按appmsgid 找卡片的逻辑都必须先翻页，不能只查第 1 页。
 DRAFT_PAGE = 10
 
+# ⚠ 代理污染防御：连 127.0.0.1 的 CDP 调试端口时，父进程继承的 http_proxy
+# （如 127.0.0.1:2662）会让 urllib 走代理、把 WS 掐成 10053。本模块被 50+ 脚本
+# import 当库用——import 时【绝不能】pop 掉调用方的 http_proxy（会误伤它们的外网
+# 代理），所以这里只把本地地址加进 no_proxy，既挡住 localhost 走代理、又不破坏
+# importer。真正连 CDP 的两条路径还有额外兜底：CDP._http 用 ProxyHandler({}) 显式
+# 禁代理，WS 是裸 socket.create_connection 根本不读代理 env（见下方 __main__ 入口
+# 的更激进清法，仅本脚本直接运行时生效）。
+_LOCAL_NO_PROXY_HOSTS = ("127.0.0.1", "localhost", "::1")
+
+
+def ensure_no_proxy_for_localhost():
+    """import 成库时调用：把本地地址加进 no_proxy / NO_PROXY。
+
+    避免 CDP 连 127.0.0.1 时被继承的 http_proxy 掐断（10053），同时【不】pop
+    掉 http_proxy/https_proxy——否则会误伤 importer 的外网代理。幂等。
+    """
+    for _env in ("no_proxy", "NO_PROXY"):
+        _val = os.environ.get(_env, "")
+        _parts = [p.strip() for p in _val.split(",") if p.strip()]
+        for _h in _LOCAL_NO_PROXY_HOSTS:
+            if _h not in _parts:
+                _parts.append(_h)
+        os.environ[_env] = ",".join(_parts)
+
+
+ensure_no_proxy_for_localhost()  # 模块导入即生效（覆盖 import-as-library 路径）
+
 # 已登录主页（靠 cookie 登录态，无需 token，会被 mp 重定向到图文列表/看板）
 MP_HOME = "https://mp.weixin.qq.com/cgi-bin/home?t=home/index&lang=zh_CN"
 
@@ -2947,9 +2974,19 @@ def publish_one(cdp, c, art, dry=False, no=0):
             # 少了 ② 草稿箱列表项就是灰块 —— 服务端 cover 字段为空。
             up = _upload_cover(cdp, gen)
             print("  封面入素材库: %s" % up)
-            sc = _set_cover_from_body(cdp)
-            print("  设封面: %s" % sc)
-            if not str(sc).startswith(("OK", "SKIP")):
+            # 设封面：优先官方 JS API（mp_editor_change_cover），失败退 UI 路线。
+            # 为什么 API 优先（2026-10-16 批量实测）：UI 路线在 headless 下
+            # 裁剪弹窗的「确认」按钮点不着（CONFIRM_ERR:NO_IN_DIALOG），
+            # 11 篇全中；API 路线 11/11 成功、单篇约 2 秒（UI 要轮询 ~3 分钟）。
+            # ⚠ oriImgUrl 必须 split('?')[0]（带 query 会被 uploadimg2cdn 拒，
+            # 返 ret:-201）—— _set_cover_via_jsapi 内部已处理。
+            iu = _first_body_img_url(cdp)
+            sc = _set_cover_via_jsapi(cdp, iu) if iu.startswith("http") else "BAD_URL"
+            print("  设封面(API): %s (img=...%s)" % (sc, (iu or "")[-36:]))
+            if not str(sc).startswith("SUC"):
+                sc = _set_cover_from_body(cdp)
+                print("  设封面(UI 兜底): %s" % sc)
+            if not str(sc).startswith(("OK", "SKIP", "SUC")):
                 cover_ok = False
                 print("  [warn] 封面没设上（草稿箱列表会显示灰块）: %s" % sc)
         else:
@@ -3060,9 +3097,17 @@ def finish_one(cdp, c, appmsgid, tok):
             for d in _draft_list(cdp, tok):
                 if str(d.get("appmsgid")) == str(appmsgid):
                     if not str(d.get("cover") or "").strip():
-                        sc = _set_cover_from_body(cdp)
-                        print("  补封面: %s" % sc)
-                        if not str(sc).startswith(("OK", "SKIP")):
+                        # API 优先（headless 下 UI 弹窗「确认」点不着），
+                        # 失败退 UI 路线。同 publish_one 的口径。
+                        iu = _first_body_img_url(cdp)
+                        sc = (_set_cover_via_jsapi(cdp, iu)
+                              if iu.startswith("http") else "BAD_URL")
+                        print("  补封面(API): %s (img=...%s)"
+                              % (sc, (iu or "")[-36:]))
+                        if not str(sc).startswith("SUC"):
+                            sc = _set_cover_from_body(cdp)
+                            print("  补封面(UI 兜底): %s" % sc)
+                        if not str(sc).startswith(("OK", "SKIP", "SUC")):
                             cover_ok = False
                     break
         except Exception as e:
@@ -4156,9 +4201,7 @@ def main():
     for _k in ("http_proxy", "https_proxy", "HTTP_PROXY", "HTTPS_PROXY",
                "all_proxy", "ALL_PROXY", "ftp_proxy", "FTP_PROXY"):
         os.environ.pop(_k, None)
-    _np = os.environ.get("no_proxy", "")
-    if "127.0.0.1" not in _np:
-        os.environ["no_proxy"] = ("127.0.0.1,localhost" + ("," + _np if _np else ""))
+    ensure_no_proxy_for_localhost()  # 幂等，import 时已跑过，这里再保一次
 
     # 所有需要 CDP 的子命令共用这一个入口：CDP 连不上就自动拉起 Chrome。
     # ⚠ 本机 Chrome 不带 `--no-sandbox` 会在 2 秒内自杀（exit code 3 =
