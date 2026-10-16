@@ -334,5 +334,98 @@ class TestIssueNumbers(unittest.TestCase):
         self.assertNotIn("拆解海外 · 第 0 篇", W.cover_html(c, 29))
 
 
+class TestVerdictFor(unittest.TestCase):
+    """refresh 的「编辑器打不开」诊断判据（_verdict_for）。
+
+    守的线：**UNKNOWN 不能升格成 PUBLISHED/MISSING**。
+    背景（2026-10-16）：visualizee-ai 的草稿从服务端消失，refresh 只报
+    「编辑器未就绪(320003)」—— 限流 / 用户群发过 / 草稿被删三种成因
+    页面上一模一样，人肉排查半小时还得问用户。_verdict_for 把三种分清，
+    且比 wechat_sync.classify 更严：**草稿箱没读成功时，即使已发表列表
+    靠标题匹配上了，也只敢判 UNKNOWN**（远端为空 ≠ 草稿箱无）。
+    """
+    def setUp(self):
+        # title_matcher 用 title_want，不依赖发布脚本
+        self.cases = {
+            "pub": {"id": "pub", "title_want": "标题-pub"},
+            "gone": {"id": "gone", "title_want": "标题-gone"},
+            "alive": {"id": "alive", "title_want": "标题-alive"},
+        }
+
+        def matcher(cid, c):
+            return c.get("title_want")
+
+        self.matcher = matcher
+        self.draft = {"9": {"title": "标题-alive", "appmsgid": 9}}
+        self.pub = [{"appmsg_id": 2, "title": "标题-pub"}]
+
+    def _diag(self, cid, rec, draft=None, pub=None, draft_ok=True, pub_ok=True):
+        """跑真 classify，包成 _verdict_for 要的 (diffs, meta)。"""
+        import wechat_sync as S
+        local = {cid: rec}
+        diffs = S.classify(local, self.draft if draft is None else draft,
+                           self.pub if pub is None else pub, self.cases,
+                           draft_ok=draft_ok, pub_ok=pub_ok,
+                           title_matcher=self.matcher)
+        return (diffs, {"draft_ok": draft_ok, "pub_ok": pub_ok})
+
+    def test_草稿没了但已发表_判PUBLISHED(self):
+        d = self._diag("pub", {"status": "draft", "title": "标题-pub",
+                               "appmsgid": "2"})
+        v, detail = W._verdict_for(d, "pub")
+        self.assertEqual(v, "PUBLISHED")
+        self.assertIn("群发", detail)
+
+    def test_两侧都读成功且都没有_判MISSING(self):
+        d = self._diag("gone", {"status": "draft", "title": "标题-gone",
+                                "appmsgid": "3"})
+        v, _ = W._verdict_for(d, "gone")
+        self.assertEqual(v, "MISSING")
+
+    def test_草稿还在箱里_判RATE_LIMIT(self):
+        d = self._diag("alive", {"status": "draft", "title": "标题-alive",
+                                 "appmsgid": "9"})
+        v, detail = W._verdict_for(d, "alive")
+        self.assertEqual(v, "RATE_LIMIT")
+        self.assertIn("限流", detail)
+
+    def test_草稿箱读不到时即使已发表匹配上也只判UNKNOWN(self):
+        # 最危险的一条：草稿箱 XHR 挂了 ⇒ remote_draft={}，
+        # classify 仍会按「已发表有同标题」出 FIX；这里必须压回 UNKNOWN。
+        d = self._diag("pub", {"status": "draft", "title": "标题-pub",
+                               "appmsgid": "2"},
+                       draft={}, draft_ok=False)
+        v, detail = W._verdict_for(d, "pub")
+        self.assertEqual(v, "UNKNOWN")
+        self.assertIn("草稿箱", detail)
+
+    def test_已发表列表读不到判UNKNOWN(self):
+        d = self._diag("gone", {"status": "draft", "title": "标题-gone",
+                                "appmsgid": "3"},
+                       pub=[], pub_ok=False)
+        v, _ = W._verdict_for(d, "gone")
+        self.assertEqual(v, "UNKNOWN")
+
+    def test_对账本身挂了也判UNKNOWN(self):
+        for bad in (None, False):
+            v, detail = W._verdict_for(bad, "gone")
+            self.assertEqual(v, "UNKNOWN")
+            self.assertTrue(detail)
+
+    def test_别的case的diff不干扰本条判定(self):
+        # 一批里同时有「已群发」和「草稿还在」两种，各判各的
+        import wechat_sync as S
+        local = {
+            "pub": {"status": "draft", "title": "标题-pub", "appmsgid": "2"},
+            "alive": {"status": "draft", "title": "标题-alive",
+                      "appmsgid": "9"},
+        }
+        diffs = S.classify(local, self.draft, self.pub, self.cases,
+                           title_matcher=self.matcher)
+        diag = (diffs, {"draft_ok": True, "pub_ok": True})
+        self.assertEqual(W._verdict_for(diag, "pub")[0], "PUBLISHED")
+        self.assertEqual(W._verdict_for(diag, "alive")[0], "RATE_LIMIT")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

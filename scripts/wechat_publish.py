@@ -3824,6 +3824,63 @@ def _parse_when(s):
     return int(time.mktime(time.strptime(s.strip(), "%Y-%m-%d %H:%M")))
 
 
+def _reconcile_remote(cdp, tok, published, cases_by_id):
+    """拉远端草稿箱 + 已发表列表，与本地台账三方对账。**不落盘**。
+
+    封装 `wechat_sync.run_sync`（那边有全套判据：分页拉取、三层 JSON 解析、
+    标题归一化认亲、四态判定）。返回 (diffs, meta)。
+
+    为什么 refresh 要用它（2026-10-16 实战）：visualizee-ai 的草稿从服务端
+    消失后，refresh 只报「编辑器未就绪(320003)」—— 限流、你群发过、草稿被删
+    这三种成因在页面上长得一模一样。人肉排查花了半小时（拉 48 条草稿列表 +
+    标题关键词 0 命中 + 探针 + 问用户），这个函数把整套排查固化成一次对账。
+    """
+    import wechat_sync as ws
+
+    def _tmatch(cid, c):
+        try:
+            return make_wechat_title(c)
+        except Exception:
+            return (published.get(cid) or {}).get("title")
+
+    return ws.run_sync(cdp, tok, local=published, cases_by_id=cases_by_id,
+                       title_matcher=_tmatch)
+
+
+def _verdict_for(diag, cid):
+    """从对账结果里取某条 case 的本质结论。返回 (verdict, detail)。
+
+    verdict 四种（别把后两种混成前两种）：
+      PUBLISHED  草稿箱无 + 已发表列表有同标题 ⇒ **你后台群发过**，
+                 台账该标 published（有双侧证据，可回写）
+      MISSING    两侧接口都读成功、且都没有 ⇒ 草稿真没了（死篇号），
+                 只能重建（publish --case X），重试无用
+      RATE_LIMIT 草稿还在箱里、只是编辑器打不开 ⇒ 限流或记录损坏，
+                 等几分钟重试
+      UNKNOWN    任一侧接口没读准 ⇒ **不下任何结论**（宁可重跑也不要误判）
+
+    ⚠ 比 `wechat_sync.classify` 更严一档：classify 的 DRAFT_GONE_BUT_PUBLISHED
+    只看「已发表有同标题」，不看草稿箱读没读成；这里要求**双侧都读成功**
+    才敢判 PUBLISHED（草稿箱读失败时远端为空，不能当「草稿箱无」的证据）。
+    """
+    if not diag:
+        return "UNKNOWN", "对账没跑成（异常），重跑本命令即可"
+    diffs, meta = diag
+    if not (meta.get("draft_ok") and meta.get("pub_ok")):
+        side = "草稿箱" if not meta.get("draft_ok") else "已发表列表"
+        return "UNKNOWN", ("%s没读到 ⇒ 无法区分「真没了」和「没读到」，"
+                           "不下结论" % side)
+    for lvl, code, c, detail in diffs:
+        if c != cid:
+            continue
+        if code == "DRAFT_GONE_BUT_PUBLISHED":
+            return "PUBLISHED", detail
+        if code == "REMOTE_MISSING":
+            return "MISSING", detail
+    # 没有这条的 diff ⇒ classify 认为草稿还在箱里（编辑器打不开是另一回事）
+    return "RATE_LIMIT", "草稿箱里还有这条 ⇒ 限流或记录级损坏，等几分钟重试"
+
+
 def cmd_refresh(args):
     """把本地重新生成过的正文，就地灌回**已存在**的草稿（不新建草稿）。
 
@@ -3840,6 +3897,7 @@ def cmd_refresh(args):
     退回按标题在服务端草稿列表里反查。
     """
     cases = load_cases()
+    cases_by_id = {c["id"]: c for c in cases}
     published = load_published()
     issues = issue_registry(cases)
     only = set(x.strip() for x in (args.case or "").split(",") if x.strip())
@@ -3931,6 +3989,10 @@ def cmd_refresh(args):
     ok_n = fail_n = skip_n = 0
     editor_errors = []          # 编辑器压根没打开的条目，收尾时统一报
     consecutive_errors = 0
+    # 编辑器打不开时的服务端对账缓存：整批只跑一次（拉两侧列表不便宜），
+    # 之后每条失败都从这份缓存里取结论。None=还没跑；False=跑失败过。
+    diag = None
+    ledger_fixes = []           # 对账判定「你群发过」的 case，收尾回写台账
     for idx, (cid, art, rec) in enumerate(todo):
         aid = rec.get("appmsgid") or by_title.get((rec.get("title") or "").strip())
         if not aid:
@@ -3960,8 +4022,34 @@ def cmd_refresh(args):
         if tid is None:
             # 编辑器没打开 = 正文一个字都没改。必须单列出来：这是**服务端问题**，
             # 不是「脚本写错了」，混进 fail_n 会让人一直查选择器。
-            print("  [skip] 编辑器未就绪，本条未改动（服务端错误页）")
-            editor_errors.append(cid)
+            print("  [skip] 编辑器未就绪，本条未改动")
+            # 2026-10-16：别再只报一句「未就绪」—— 限流 / 你群发过 / 草稿被删
+            # 这三种成因页面上长得一模一样（都是 320003 错误页），人肉排查要
+            # 半小时还得问用户。这里自动对账服务端，一次分清（见 _verdict_for）。
+            # ⚠ 编辑器 tab 已被 strict=True 关掉，先连回一个活着的 mp 页面，
+            #   对账的同步 XHR 才能带上登录 cookie。
+            if diag is None:
+                print("  [diag] 对账服务端（草稿箱 + 已发表列表，整批只跑一次）…")
+                try:
+                    _tdiag, tdiag_tok = _connect_mp(cdp)
+                    diag = _reconcile_remote(cdp, tdiag_tok, published,
+                                             cases_by_id)
+                except Exception as _e:                              # noqa: BLE001
+                    print("  [diag] 对账本身失败: %s: %s"
+                          % (type(_e).__name__, _e))
+                    diag = False
+            verdict, detail = _verdict_for(diag, cid)
+            _vlabel = {"PUBLISHED": "你群发过它",
+                       "MISSING": "草稿已不存在（死篇号）",
+                       "RATE_LIMIT": "草稿还在箱里（限流/记录损坏）",
+                       "UNKNOWN": "证据不足，不下结论"}[verdict]
+            print("  [diag] %s ⇒ %s" % (_vlabel, detail))
+            if verdict == "PUBLISHED":
+                ledger_fixes.append(cid)
+            elif verdict == "MISSING":
+                print("        重建：python wechat_publish.py publish --case %s"
+                      % cid)
+            editor_errors.append("%s[%s]" % (cid, verdict))
             consecutive_errors += 1
             fail_n += 1
             continue
@@ -4047,8 +4135,30 @@ def cmd_refresh(args):
                 time.sleep(6)
     print("\n完成：刷新 %d 篇，失败 %d 篇，跳过 %d 篇" % (ok_n, fail_n, skip_n))
     if editor_errors:
-        print("编辑器未就绪（本条未改动，需稍后重跑）：%s"
-              % "、".join(editor_errors))
+        print("编辑器未就绪（本条未改动）：%s" % "、".join(editor_errors))
+    if ledger_fixes:
+        # 有双侧证据才回写：草稿箱没有 + 已发表列表有同标题（群发后服务端会
+        # 换发新 appmsg_id，所以已发表侧只能靠标题认亲——判据与 sync 完全一致）。
+        # 复用 wechat_sync.apply_fixes：**唯一的台账写入口**，自动先备份 .bak，
+        # 且只改 status，不动 title/appmsgid（那些可能是你在后台改过的）。
+        # ⚠ 只回写本批涉及的 case：--case 过滤时不该顺手改别条。
+        import wechat_sync as ws
+        fix_diffs = [d for d in (diag[0] if diag else [])
+                     if d[0] == "FIX" and d[1] == "DRAFT_GONE_BUT_PUBLISHED"
+                     and d[2] in set(ledger_fixes)]
+        n_pub, _n_missing = ws.apply_fixes(fix_diffs, published)
+        if n_pub:
+            save_published(published)
+            print("\n[ledger] %d 条已改判 published（你后台群发过：草稿箱已无 + "
+                  "已发表列表有同标题；备份 .bak 已留）：%s"
+                  % (n_pub, "、".join(ledger_fixes)))
+            print("        下次 refresh 不会再排它们（已发表不在草稿箱）。")
+        else:
+            print("\n[ledger] 判定「已群发」但回写 0 条 —— 反常，请人工核对：%s"
+                  % "、".join(ledger_fixes))
+    if editor_errors:
+        print("\n提示：全量对账（只读报告）跑 `python wechat_publish.py sync`；"
+              "`sync --apply` 可随时按远端真相修正台账。")
 
 
 # 本进程自动拉起的 Chrome（退出时清理，避免孤儿进程堆积）
