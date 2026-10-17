@@ -8,7 +8,7 @@
 | 平台 | 读 | 写 | 删 | 说明 |
 |---|---|---|---|---|
 | **B站** | ✅ 4 个接口 | ✅ `draft/add` 带 id 即更新 | ✅ `draft/delete` | 秒级完成，不开编辑器；已投稿列表 `x/space/article?mid=` |
-| **头条** | ✅ `draft_list` + `mp_provider` | ⚠ 需 `tt-anti-token`（见第三章） | ✅ `delete_draft` | 2026-10-17 更新，**「只能 UI」是旧结论** |
+| **头条** | ✅ `draft_list` + `mp_provider` | ✅ `article/publish`（`--api`，需新鲜 `tt-anti-token`） | ✅ `delete_draft` | 2026-10-17 更新，**「只能 UI」是旧结论** |
 | **公众号** | ✅ `app_msg_list` + `appmsgpublish?sub=list` | ✅ `mp_editor_change_cover` / `mp_editor_set_content` | ✅ `operate_appmsg?sub=del` | 2026-10-16 更新，`action=del` 恒 200009 是猜错接口身 |
 | **小红书** | ⚠ 无服务端 API | ⚠ 无 | ⚠ 无 | **草稿在浏览器本地 IndexedDB** |
 
@@ -29,12 +29,12 @@
 代码：`fetch_draft_api` / `fetch_draft_api_raw` / `delete_draft_api` /
 `fetch_published_articles`（都在 `scripts/toutiao_publish.py`）。
 
-### 新增/保存（接口与 body 已摸清，卡在 token）
+### 新增/保存（**纯 API 可用**，2026-10-17 定案）
 
 ```
 POST /mp/agw/article/publish?source=mp&type=article&aid=1231&mp_publish_ab_val=0
 Content-Type: application/x-www-form-urlencoded;charset=UTF-8
-tt-anti-token: wAR3gsQKW-<96 hex>          ← 🚨 必需，缺了返 code:7050
+tt-anti-token: HOikR1wqgY-6a2d77a42…            ← 🚨 必需，缺了返 code:7050
 body: 20 个 form 字段（source=29 / title / content / save=0 /
       extra={…} / search_creation_info={…} / title_id=<ms>_<rand> /
       mp_editor_stat={} / pgc_feed_covers=[] / draft_form_data={"coverType":2} …）
@@ -43,9 +43,42 @@ resp: {"code":0,"data":{"pgc_id":"…"},"message":"保存成功"}
 
 - `save=0` **就是存草稿**（不是发布）；首次不带 `pgc_id`＝创建，带了＝更新。
 - 🚨 **body 必须 form-urlencoded**：用 JSON 发 HTTP200 但不生效。
-- 🚨 **`tt-anti-token` 带时效**：页面运行时生成，抓包几分钟后重放即 7050；
-  不在 HTML / `window` / cookie 里，已抓的两个 editor chunk 搜不到生成逻辑
-  ⇒ 纯 API 化需逆向该 token（2026-10-17 未完成）。过渡期 publish 仍走 UI。
+- ✅ **`tt-anti-token` 只需新鲜，不必逆向**（见下方「四段对照」）。
+- 用法：`toutiao_publish.py publish --api`（token 取一次用一批）。
+
+### 🚨 四段对照实验：推翻「需逆向 token」的旧结论
+
+`tmp/tt_fresh_replay.py`。上午一度判定「token 带时效 ⇒ 纯 API 化不可行」，
+**错在把「token 过期」和「token 缺失」的 7050 当成一回事** —— 两者报文完全
+一样，光看状态码根本分不开。同会话对照：
+
+| 段 | 做法 | 结果 |
+|---|---|---|
+| A | hook 抓真实请求头 | 只有 3 个：`Accept` / `Content-Type` / **`tt-anti-token`** |
+| B | 同页即时重放「原 body + 抓到的头」 | `code:0` ✅ |
+| C | 同一 token **换 body（换标题）** | `code:0` ✅ |
+| D | 我方 `_publish_draft_body()` + 抓到的头 | `code:0` ✅（3 个 pgc_id 各不相同） |
+
+⇒ 同时证伪三件事：① 无需逆向生成算法；② token **不绑定 body**；
+③ 我方 20 字段 body 形态本来就对。**唯一约束是 token 要新鲜。**
+
+### `tt-anti-token` 是什么 / 从哪来
+
+页面运行时生成的**写操作反滥用凭证**，75~78 字符，形如 `HOikR1wqgY-6a2d77a42…`
+（前缀每次不同）。不在 HTML、不在 `window`、**不在 cookie**（用户提供的完整
+cookie 清单里只有 `sessionid` / `passport_csrf_token` / `csrf_session_id` /
+`odin_tt` / `ttwid` / `ttcid` —— 全是**会话身份**，不含反滥用凭证）。
+
+**取法（不逆向）**：开编辑器页挂 hook → 触发一次页面自己的自动保存（填标题）
+→ token 被记下。代价是留一条探针草稿，`cleanup_probe_draft()` 删掉。
+⚠ 无头 Chrome 不触发自动保存（有头才行）。
+
+**🚨 别和 msToken 混**：那是两套东西 ——
+`mssdk.bytedance.com/web/r/token` 签发的是 **msToken**（挂 `_msToken` cookie，
+服务内容**读取**接口的 argus/a_bogus 风控链）；`tt-anti-token` 服务的是
+mp 站长后台的**写操作**。cookie 里两者都没有。
+这层 argus/msToken 校验「环境像不像真浏览器」，**无法去浏览器化**
+⇒ 头条的「已发表列表」只能 `Page.navigate` 导航式读（同源 fetch 被挡成 HTML）。
 
 ### 踩坑（都实测过）
 

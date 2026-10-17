@@ -1316,6 +1316,85 @@ def publish_one(c, dry=False, yes=False, cover=True):
         cdp.close_target(t["id"])
 
 
+def publish_api_one(c, cdp=None, anti_token=None, verify=True):
+    """建一篇草稿，**纯 API 路线**（2026-10-17 实测 code:0 全通）。
+
+    与 `publish_one`（UI 路线）的差别：
+      · 不开编辑器、不点任何按钮、不填 DOM —— 只有一次 fetch；
+      · 封面**不传**（头条的封面是独立上传接口，`cover_tos_url` 需先
+        拿到 TOS 直链；这轮只证明「正文建稿」纯 API 可行，封面待接）；
+      · 自动存草稿靠 `save=0`（实证值，不是发布）。
+
+    ⚠ **anti_token 必须新鲜**（这是唯一约束）。自己取会留一条探针草稿，
+    所以：优先用调用方传进来的（批量时取一次用一批）；没给就现取 +
+    事后清理。取不到就返回 None，让调用方退 UI 路线，**不静默失败**。
+    """
+    meta_path = os.path.join(OUT, c["id"], "meta.json")
+    # ⚠ 用 os.path.isfile 不是 is_file —— 后者是 pathlib 的方法，
+    #   os.path(=ntpath) 上没有，实测 AttributeError。
+    if not os.path.isfile(meta_path):
+        meta = build_article(c)
+        write_article(meta)
+    else:
+        with open(meta_path, encoding="utf-8") as f:
+            meta = json.load(f)
+    html_path = os.path.join(OUT, c["id"], "article.html")
+    with open(html_path, encoding="utf-8") as f:
+        full = f.read()
+    body_html = full.split("\n", 1)[1] if full.startswith("<h1>") else full
+
+    own = False
+    box = cdp
+    tid = None
+    if box is None:
+        sess = open_api_session()
+        if not sess:
+            return None
+        box, tid = sess
+    try:
+        if not anti_token:
+            print("    取 tt-anti-token（会让页面自己保存一次探针稿）…")
+            anti_token = grab_anti_token(box)
+            own = bool(anti_token)
+            if not anti_token:
+                print("    ✗ 没拿到 token（掉登录或无头不触发自动保存）"
+                      " ⇒ 退 UI 路线")
+                return None
+        pgcid, msg = save_draft_api(box, meta["title"], body_html,
+                                    anti_token=anti_token)
+        print("    API 存草稿：%s（pgc_id=%s）" % (msg, pgcid or "无"))
+        if not pgcid:
+            return None
+        if verify:
+            # 「API 返 OK ≠ 真存上了」—— 头条 delete 对假 gid 也返 code:0，
+            # 所以回读 draft_list 核对标题在不在，是唯一可信判据。
+            # ⚠ 但 draft_list 也是被 argus 记账的请求：**批量时逐条回读会
+            #   把后续 publish 顶进风控**（2026-10-17 实测）⇒ 批量调用方
+            #   应传 verify=False，改为**整批存完统一核对一次**。
+            try:
+                raw = fetch_draft_api_raw(box) or []
+                hit = [x for x in raw if (x.get("title") or "") == meta["title"]]
+                if not hit:
+                    print("    ✗ 回读校验失败：草稿箱里没有这篇 ⇒ 不写台账")
+                    return None
+                print("    回读校验：✓ 草稿箱命中（gid=%s）"
+                      % hit[0].get("gid"))
+            except Exception as e:                           # noqa: BLE001
+                print("    [warn] 回读校验异常（%s），按服务端 code:0 记"
+                      % str(e)[:60])
+        mark_drafted(c["id"])
+        return pgcid
+    finally:
+        if own:
+            n = cleanup_probe_draft(box)
+            print("    清理探针草稿 %d 条" % n)
+        if cdp is None:
+            try:
+                box.close_target(tid)
+            except Exception:                               # noqa: BLE001
+                pass
+
+
 # 草稿箱列表会长，靠下的卡片「编辑」按钮在视口外 —— 点不到。
 # 所以分两步：先把卡片滚进视口，等一拍，再量坐标（并校验确实在可视区内）。
 _DRAFT_SCROLL_TO = """(function(t){
@@ -1905,6 +1984,32 @@ def cmd_queue(args):
     print("\n要发就跑：python scripts/toutiao_publish.py publish --near %d" % n)
 
 
+def _diagnose_failure(c, cdp=None):
+    """publish_one 失败后跑一次四态对账，把「失败」翻译成本质结论。
+
+    为什么需要（2026-10-17）：失败只说「标题框没找到」「自动保存没等到」，
+    用户看不出该怎么办。真实成因常常是**这条已经发出去了**（你后台群发过
+    ⇒ 重发会出重复稿）或**远端根本没有**（重试无用）。
+    `reconcile_verdict` 把这套判据共用给四平台，这里只是接一下。
+
+    诊断本身失败**绝不阻断**主流程 —— 它是锦上添花，不是发布的一环。
+    """
+    try:
+        import reconcile_verdict as rv
+        if cdp is None:
+            cdp, t = _open(TT_HOME, wait=6)
+            try:
+                p = rv.probe(cdp, "toutiao")
+            finally:
+                cdp.close_target(t["id"])
+        else:
+            p = rv.probe(cdp, "toutiao")
+        print(rv.explain("toutiao", c["id"], c, p,
+                         title_maker=make_toutiao_title))
+    except Exception as e:                                   # noqa: BLE001
+        print("    [诊断跳过] %s（不影响发布结论）" % str(e)[:80])
+
+
 def cmd_publish(args):
     if args.case:
         todo = [find_case_fuzzy(args.case)]
@@ -1917,15 +2022,96 @@ def cmd_publish(args):
     if not todo:
         print("没有待发的案例。")
         return
+    failed = []
+    if args.api and not args.dry:
+        # 批量走 API：token **取一次用一批**（唯一约束是要新鲜，
+        # 逐条重取既慢又每次都留探针稿）。
+        # 🚨 全流程同一个编辑器 tab（首页 tab 会被 argus 挡，见 open_api_session）。
+        sess = open_api_session()
+        token = None
+        if not sess:
+            print("[api] 编辑器页开不了（Chrome 没起来/掉登录）⇒ 退 UI 路线")
+        else:
+            cdp, tid = sess
+            token = grab_anti_token(cdp)
+            print("[api] tt-anti-token：%s"
+                  % (("已取（%d 字符）" % len(token)) if token else "没取到"))
+            if token:
+                # 🚨🚨 **不要在 publish 之前调 cleanup_probe_draft**。
+                # 2026-10-17 实测：cleanup 会连着发好几轮 draft_list + delete，
+                # 紧接着的 publish 就被 argus 风控挡成 HTML（症状与缺 token
+                # 不同 —— 缺 token 返 JSON 7050，argus 返 <!doctypehtml>）。
+                # 对照实验：中间只插 3 次 delete 仍 code:0，但 cleanup 默认
+                # rounds=3×pause=3s 的量级就会触发。
+                # ⇒ 顺序固定为「取 token → 立刻连打 → **最后**统一清理」。
+                for i, c in enumerate(todo, 1):
+                    print("[%d/%d] %s —— %s"
+                          % (i, len(todo), c["id"], c.get("name", "")))
+                    try:
+                        ok = bool(publish_api_one(c, cdp=cdp,
+                                                  anti_token=token,
+                                                  verify=False))
+                    except SystemExit:
+                        raise
+                    except Exception as e:              # noqa: BLE001
+                        ok = False
+                        print("    [异常] %s：%s" % (type(e).__name__, e))
+                    if not ok:
+                        failed.append(c["id"])
+                        _diagnose_failure(c, cdp=cdp)
+                print("[api] 清理探针草稿 %d 条" % cleanup_probe_draft(cdp))
+                # 整批存完后**统一核对一次**（而不是逐条）—— draft_list
+                # 也是被 argus 记账的请求，逐条回读会把后续 publish 顶进风控。
+                try:
+                    raw = fetch_draft_api_raw(cdp) or []
+                    titles = [x.get("title") or "" for x in raw]
+                    missing = []
+                    for c in todo:
+                        try:
+                            t = make_toutiao_title(c)
+                        except Exception:              # noqa: BLE001
+                            continue
+                        if not draft_title_match(c["id"], c, titles):
+                            missing.append(c["id"])
+                    if missing:
+                        print("[api] ⚠ 回读核对：%d 条草稿箱里没找到 %s"
+                              % (len(missing), " ".join(missing)))
+                        print("     （可能是同标题被服务端合并，也可能被风控吞）")
+                    else:
+                        print("[api] 回读核对：✓ %d 条全部命中草稿箱"
+                              % len(todo))
+                except Exception as e:                  # noqa: BLE001
+                    print("[api] [warn] 回读核对异常：%s" % str(e)[:60])
+            try:
+                cdp.close_target(tid)
+            except Exception:                           # noqa: BLE001
+                pass
+        if not token:
+            print("[api] 退回 UI 路线")
+        else:
+            if failed:
+                print("\n失败 %d 条：%s"
+                      % (len(failed), " ".join(failed)))
+                print("（每条的四态结论见上；MISSING 只能重建，"
+                      "RATE_LIMIT 等几分钟重跑）")
+            return
     for i, c in enumerate(todo, 1):
         print("[%d/%d] %s —— %s" % (i, len(todo), c["id"], c.get("name", "")))
+        ok = True
         try:
-            publish_one(c, dry=args.dry, yes=args.yes,
-                        cover=not args.no_cover)
+            ok = bool(publish_one(c, dry=args.dry, yes=args.yes,
+                                  cover=not args.no_cover))
         except SystemExit:
             raise
         except Exception as e:                        # noqa: BLE001
+            ok = False
             print("    [异常] %s：%s" % (type(e).__name__, e))
+        if not ok and not args.dry:
+            failed.append(c["id"])
+            _diagnose_failure(c)
+    if failed and not args.dry:
+        print("\n失败 %d 条：%s" % (len(failed), " ".join(failed)))
+        print("（每条的四态结论见上；MISSING 只能重建，RATE_LIMIT 等几分钟重跑）")
 
 
 def _name_keys(cid, c):
@@ -2122,34 +2308,234 @@ def _publish_draft_body(title, content_html, pgc_id=None, abstract_text="",
     return urlencode(fields)
 
 
+# hook 抓「真实」publish 请求的 header。⚠ 三个 hook 分支（fetch / XHR
+# open / XHR send）**都要记 send 的 body** —— 上一轮漏抓 body + header
+# 导致返工三次（hook 三件套：URL / header / body，缺一不可）。
+_HOOK_ANTI_TOKEN = r"""
+(function(){
+  if (window.__ttAntiHook) { return 'already'; }
+  window.__ttAntiHook = true;
+  window.__antiRec = [];
+  var F = window.fetch;
+  window.fetch = function(input, init){
+    try {
+      var u = (typeof input === 'string') ? input : (input && input.url);
+      if (u && /article\/publish/.test(u)) {
+        var h = (init && init.headers) || {};
+        var flat = {};
+        try {
+          if (typeof Headers !== 'undefined' && h instanceof Headers) {
+            h.forEach(function(v, k){ flat[k] = String(v); });
+          } else { for (var k in h) { flat[k] = String(h[k]); } }
+        } catch (e) { flat = {}; }
+        if (flat['tt-anti-token']) {
+          window.__antiRec.push(flat['tt-anti-token']);
+        }
+      }
+    } catch (e) {}
+    return F.apply(this, arguments);
+  };
+  var XO = XMLHttpRequest.prototype.open;
+  var XS = XMLHttpRequest.prototype.send;
+  var XSH = XMLHttpRequest.prototype.setRequestHeader;
+  XMLHttpRequest.prototype.open = function(m, u){
+    this.__u = u; return XO.apply(this, arguments);
+  };
+  XMLHttpRequest.prototype.setRequestHeader = function(k, v){
+    try {
+      if (!this.__h) { this.__h = {}; }
+      this.__h[k] = String(v);
+    } catch (e) {}
+    return XSH.apply(this, arguments);
+  };
+  XMLHttpRequest.prototype.send = function(b){
+    try {
+      if (this.__u && /article\/publish/.test(this.__u) &&
+          this.__h && this.__h['tt-anti-token']) {
+        window.__antiRec.push(this.__h['tt-anti-token']);
+      }
+    } catch (e) {}
+    return XS.apply(this, arguments);
+  };
+  return 'hooked';
+})()
+"""
+
+
+def grab_anti_token(cdp, attempts=4, per_attempt=25, page=None):
+    """从**真实**页面流量里捞一个新鲜的 `tt-anti-token`。
+
+    ## 为什么这么做（2026-10-17 定案，纠正了上午的错误结论）
+
+    上午的错误结论是：「token 带时效，所以纯 API 化需逆向其生成算法、不可行」。
+    **那个结论是错的**，错在把「token 过期」和「token 缺失」的 7050 当成一回事
+    （两者返回的报文完全一样，光看状态码根本分不开）。
+
+    同会话对照实验（tmp/tt_fresh_replay.py，四段全部 code:0 保存成功）：
+      A hook 抓真实请求头 → 只有 3 个：Accept / Content-Type / **tt-anti-token**
+      B 同页即时重放「原 body + 抓到的头」 → code:0 ✅
+      C 同一 token **换 body（换标题）**      → code:0 ✅
+      D 我方 `_publish_draft_body()` + 抓到的头 → code:0 ✅（3 个 pgc_id 各不相同）
+
+    ⇒ 三件事同时被证伪：① 无需逆向生成算法；② token **不绑定 body**
+       （换标题照样过）；③ 我方 20 字段 body 形态本来就是对的。
+
+    ### token 有效期实测（tmp/tt_token_ttl.py）
+
+    取一次 token，间隔 0/3/6/10/20s 各打一次：**5/5 全部 code:0**
+    （0s、6.5s、13.1s、19.7s、26.3s，各得一个不同 pgc_id）
+    ⇒ 既**不短命**（>26s 有效）也**非一次性**（可重复用）。
+    所以批量时「取一次用一批」完全成立，不必逐条重取。
+
+    ⚠ 但有个**前置条件**：请求头必须**三个齐全**
+    （`Accept` / `Content-Type` / `tt-anti-token`）。少 `Accept` 会被 argus
+    风控挡成 HTML（症状与 token 问题完全不同，别混）。
+
+    真正唯一的约束是：**token 必须新鲜**（抓完立刻用）。
+
+    ## 怎么拿
+
+    不用逆向 —— 让页面自己生成：在**编辑器页**挂 hook，再触发一次它自己的
+    自动保存（填一下标题），token 就被记下来了。代价是**留一条探针草稿**，
+    由调用方 `cleanup_probe_draft()` 删掉。
+
+    🚨 **cdp 必须已连在编辑器页上**（用 `open_api_session()` 开），理由两条：
+      · 首页 tab 里 `fetch('article/publish')` 被 argus 风控挡回来，返的不是
+        JSON 而是 `<!doctypehtml>…argus…` 验证页（2026-10-17 实测）；
+      · 本函数不再自己 connect/close target —— 那会把调用方的 `cdp.ws`
+        切走又关掉，后续请求直接 WinError 10053（同日实测）。
+        「取 token」和「存草稿」必须在**同一个编辑器 tab** 里跑完。
+
+    ⚠ **必须是有头 Chrome**：无头不触发编辑器自己的自动保存 ⇒ 抓不到 token
+    （2026-10-17 实测，`os.environ["CHROME_HEADED"]="1"` 才能起有头实例）。
+
+    返回 token 字符串；拿不到返回 None（上层会退 UI 路线，不静默失败）。
+    """
+    if not os.environ.get("CHROME_HEADED"):
+        print("    [warn] grab_anti_token 需要有头 Chrome（CHROME_HEADED=1）："
+              "无头不触发自动保存 ⇒ 拿不到 token")
+    # ⚠ 自动保存**不一定每次都触发**（实测约 40% 抓不到：可能是页面刚挂载
+    #   时序问题、或标题框还没就绪、或那次保存被 argus 挡了没发出去）。
+    #   所以要多轮重试：每轮换一个标题（避开去重），重新聚焦再打一次。
+    for attempt in range(max(1, attempts)):
+        try:
+            cdp.eval(_HOOK_ANTI_TOKEN)
+            _focus_and_type(cdp, SEL["title"], "__probe_tok%d__" % attempt)
+            end = time.time() + per_attempt
+            while time.time() < end:
+                time.sleep(1.5)
+                tok = cdp.eval("(window.__antiRec||[])[window.__antiRec.length-1]"
+                               " || ''")
+                if tok:
+                    return str(tok)
+        except Exception as e:                               # noqa: BLE001
+            print("    [warn] 取 token 异常：%s" % str(e)[:70])
+    print("    [warn] %d 轮都没抓到 token" % max(1, attempts))
+    return None
+
+
+def open_api_session(wait=10):
+    """开一个**编辑器页会话**，返回 (cdp, tid)；连不上/掉登录返回 None。
+
+    🚨 为什么必须全程待在编辑器页（2026-10-17 实测踩坑）：
+
+    在**首页** tab 里 `fetch('article/publish')` 会被 argus 风控挡回来 ——
+    返回的不是 JSON 而是 `<!doctypehtml><html>…argus…` 的验证页。
+    同样请求在**编辑器页** tab 里 `code:0` 保存成功。
+    原因：argus 的签名注入挂在编辑器自己的 chunk 上，只有那个页面上下文才有。
+    所以「取 token → 存草稿 → 核对 → 清理」全流程必须同一个编辑器 tab。
+    """
+    cdp = wp.CDP(CDP_PORT)
+    tid = cdp.new_target(TT_EDITOR)["id"]
+    if not cdp.connect_target(tid):
+        return None
+    time.sleep(wait)
+    if "/auth/page/login" in str(cdp.eval("location.href") or ""):
+        try:
+            cdp.close_target(tid)
+        except Exception:                                   # noqa: BLE001
+            pass
+        return None
+    return cdp, tid
+
+
+def cleanup_probe_draft(cdp, title_prefix="__probe", rounds=3, pause=3.0):
+    """删掉 grab_anti_token 留下的探针草稿（用 delete_draft_api）。
+
+    ⚠ **必须重试**：hook 抓到 token 时，页面那次自动保存**可能还没落库**
+    （2026-10-17 实测首轮 `draft_list` 里还没有，过几秒才出现）。
+    只查一次会「删 0 条」然后留下垃圾稿 —— 而 `draft_list` 读到的条数
+    是唯一判据，所以宁可多等几轮。
+    """
+    total = 0
+    for _ in range(max(1, rounds)):
+        try:
+            raw = fetch_draft_api_raw(cdp) or []
+        except Exception:                                   # noqa: BLE001
+            return total
+        victims = [x for x in raw
+                   if (x.get("title") or "").startswith(title_prefix)]
+        if not victims:
+            if total:
+                break          # 删过一轮且这轮空了 ⇒ 收工，别再轮询
+            time.sleep(pause)  # 一条都没删过 ⇒ 多半是「还没落库」，再等
+            continue
+        for x in victims:
+            if delete_draft_api(cdp, x.get("gid"),
+                                x.get("draft_type") or 2) == "OK":
+                total += 1
+        time.sleep(pause)
+    return total
+
+
 def save_draft_api(cdp, title, content_html, pgc_id=None, abstract_text="",
                    anti_token=None):
-    """新建/更新一篇头条草稿（API 路线，2026-10-17 抓包实证）。
+    """新建/更新一篇头条草稿（**纯 API 路线**，2026-10-17 实测可用）。
 
     返回 (pgc_id, msg)：成功 pgc_id 非空；失败 msg 为原因。
 
-    🚨 **`tt-anti-token` 是必需 header**（2026-10-17 实证）：
-      - 无 token → `{"code":7050,"message":"保存失败"}`；
-      - 带 token → `{"code":0,"message":"保存成功","data":{"pgc_id":...}}`；
-      - token 形如 `wAR3gsQKW-<96 hex>`，页面运行时生成、**带时效**
-        （抓包几分钟后重放即失效），也不在 HTML / window / cookie 里，
-        已抓的两个 editor chunk（graphic/index、vmok-remote-entry）里搜不到
-        生成逻辑 ⇒ **纯 API 化还需逆向该 token**（2026-10-17 未完成）。
-      - 过渡期：publish 仍走 UI（有头 Chrome）自动保存，这条留作将来接。
+    🚨 **`tt-anti-token` 是必需 header**（2026-10-17 实证，缺则恒 7050）：
+      - 形如 `HOikR1wqgY-6a2d77a42…`（75~78 字符，前缀每次不同），页面运行时
+        生成、**不在 HTML / window / cookie 里**（用户 2026-10-17 提供的完整
+        cookie 清单里也没有它 —— 那份 cookie 只有 sessionid / csrf / odin_tt
+        / ttwid 之类的**会话身份**，不含任何反滥用凭证）。
+      - 它**不是** msToken（`mssdk.bytedance.com/web/r/token` 签发的是
+        msToken，挂 `_msToken` cookie，服务内容**读取**接口的风控；两者别混）。
+      - **只需新鲜，不必逆向**（见 `grab_anti_token` 的四段对照实验）。
 
     ⚠ 另有独立坑：body 必须 **form-urlencoded**，用 JSON 发 HTTP200 但
     不生效（服务端返 7050，不是宽容返 OK）。
+
+    🚨 **两个独立的失败形态，别混**（2026-10-17 各实测踩过）：
+      · 缺 `tt-anti-token` → `{"code":7050,"message":"保存失败"}`（JSON 正常返回）
+      · 缺 `Accept` 头        → 返回 **argus 风控页**（`<!doctypehtml>…argus…`，
+        不是 JSON ⇒ `save_draft_api` 里 `not out.startswith("{")` 那个分支
+        报 `ERR:<!doctypehtml>…`）。这两个症状完全不同，别都当成 token 问题。
+      真实请求头一共只有 3 个：`Accept` / `Content-Type` / `tt-anti-token`。
+
+    anti_token=None 时不自己去找（保持纯函数），由 `publish_api_one` 负责取。
     """
     body = _publish_draft_body(title, content_html, pgc_id, abstract_text)
-    hdr = ("'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'"
-           + (",'tt-anti-token':'%s'" % anti_token if anti_token else ""))
+    hdr = {"Accept": "application/json, text/plain, */*",
+           "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"}
+    if anti_token:
+        hdr["tt-anti-token"] = anti_token
+    # 🚨🚨 **必须 json.dumps 转义后再拼进 JS，不能原始字符串替换**
+    # （2026-10-17 实测，同会话同 token 同 body 的对照）：
+    #   · `body:'@B@'.replace("@B@", body)` 原始塞中文 → 🚫 argus 风控页
+    #   · `body:%s` % json.dumps(body)      转义后 → ✅ code:0
+    # 原因：原始替换把**裸 UTF-8 中文**直接写进 CDP `Runtime.evaluate`
+    # 的表达式源码，CDP 通道传输/解析后内容被破坏（body 里 `extra`、
+    # `search_creation_info` 等字段全是 JSON 串，一坏就整篇废掉）。
+    # json.dumps 默认 ensure_ascii=True ⇒ 源码纯 ASCII，跨通道绝对安全。
+    # ⚠ 这与「缺 token(7050)/缺 Accept(argus)」是三个独立故障，别混。
     js = ("(function(){"
-          "return fetch('@U@',{method:'POST',credentials:'include',"
-          "headers:{" + hdr + "},body:'@B@'})"
+          "return fetch(%s,{method:'POST',credentials:'include',"
+          "headers:%s,body:%s})"
           ".then(function(r){return r.text();})"
           ".catch(function(e){return 'ERR:'+e.message;})})()"
-          .replace("@U@", _publish_api_url())
-          .replace("@B@", body))
+          % (json.dumps(_publish_api_url()), json.dumps(hdr),
+             json.dumps(body)))
     try:
         out = str(cdp.eval(js) or "")
     except Exception as e:
@@ -2698,6 +3084,9 @@ def main():
                    help="忽略已发记录，全部重发（用于补封面等重做场景）")
     p.add_argument("--no-cover", action="store_true",
                    help="不传封面卡片图（默认会传小红书 card-1 当封面）")
+    p.add_argument("--api", action="store_true",
+                   help="纯 API 建稿（不开编辑器/不点按钮，2026-10-17 实测可用）。"
+                        "token 取一次用一批；⚠ 暂不含封面上传")
     p.set_defaults(fn=cmd_publish)
     cv = sub.add_parser("covers",
                         help="批量生成头条横版封面 out/toutiao/<id>/cover.png")

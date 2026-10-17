@@ -9,6 +9,7 @@
 """
 import json
 import sys
+import inspect
 from urllib.parse import parse_qs
 import unittest
 
@@ -189,6 +190,42 @@ class TestSaveDraftApi(unittest.TestCase):
         self.assertNotIn("tt-anti-token", cdp.js)
         self.assertIn("form-urlencoded", cdp.js)
 
+    def test_Accept头必须带(self):
+        """回归：少 Accept 头会被 argus 风控挡成 HTML（实测）。"""
+        cdp = self._cdp()
+        tp.save_draft_api(cdp, "t", "<p>c</p>", anti_token="tok")
+        self.assertIn("Accept", cdp.js)
+        self.assertIn("application/json, text/plain, */*", cdp.js)
+
+    def test_三头齐全(self):
+        """真实请求头就 3 个：Accept / Content-Type / tt-anti-token。"""
+        cdp = self._cdp()
+        tp.save_draft_api(cdp, "t", "<p>c</p>", anti_token="tok")
+        for h in ("Accept", "Content-Type", "tt-anti-token"):
+            self.assertIn('"%s"' % h, cdp.js)
+
+    def test_必须json转义不能裸塞中文(self):
+        """🚨 回归：body 拼进 JS 必须 json.dumps 转义（纯 ASCII 源码）。
+
+        实测（同会话同 token 同 body 的对照，唯一变量是拼法）：
+          · 原始字符串替换（裸 UTF-8 中文进 Runtime.evaluate 表达式）
+            → 🚫 argus 风控页
+          · json.dumps 转义后拼                 → ✅ code:0
+        裸中文会被 CDP 通道破坏，而 body 里 extra/search_creation_info
+        等字段全是 JSON 串，一坏整篇废掉 ⇒ 症状伪装成「风控」。
+
+        判据：拼出来的 JS 里不能出现原始中文（现在被 urlencode + json.dumps
+        双重转义成 `%E4%B8%AD` 这种纯 ASCII 形态）。
+        """
+        cdp = self._cdp()
+        tp.save_draft_api(cdp, "中文标题：冒号描述", "<p>中文正文</p>",
+                          anti_token="tok")
+        self.assertNotIn("中文标题", cdp.js)     # 必须被转义
+        self.assertNotIn("中文正文", cdp.js)
+        self.assertIn("%E4%B8%AD", cdp.js)      # 「中」的 percent-encoding
+        # 且 headers 必须是 JSON 字面量（带引号），不是裸拼接
+        self.assertIn('headers:{"Accept"', cdp.js)
+
     def test_有token必注入(self):
         cdp = self._cdp()
         tp.save_draft_api(cdp, "t", "<p>c</p>", anti_token="wAR3gsQKW-xyz")
@@ -204,6 +241,137 @@ class TestSaveDraftApi(unittest.TestCase):
         cdp = self._cdp('{"code":0,"data":{"pgc_id":"769"},"message":"保存成功"}')
         pid, msg = tp.save_draft_api(cdp, "t", "c")
         self.assertEqual(pid, "769")
+
+
+class TestAntiToken(unittest.TestCase):
+    """tt-anti-token 的定性（2026-10-17 同会话对照实验）。
+
+    背景：上午一度判定「token 带时效 ⇒ 纯 API 化需逆向生成算法 ⇒ 不可行」。
+    **那个结论是错的** —— token 过期和 token 缺失返的 7050 一模一样，
+    光看状态码分不开。同会话四段对照（tmp/tt_fresh_replay.py）全部 code:0：
+      B 原 body + 抓到的头 → ✅   C 同一 token 换 body → ✅
+      D 我方 body + 抓到的头 → ✅  ⇒ 无需逆向、token 不绑 body、形态本来就对。
+    这些断言把结论钉死，防止将来又滑回「要逆向」的错误叙事。
+    """
+
+    def test_hook三件套齐全(self):
+        """hook 必须记 header（URL/header 两个 hook 分支都在）。"""
+        src = tp._HOOK_ANTI_TOKEN
+        self.assertIn("window.fetch", src)          # fetch 分支
+        self.assertIn("setRequestHeader", src)     # XHR header 分支
+        self.assertIn("prototype.send", src)       # XHR send 分支
+        self.assertIn("tt-anti-token", src)
+
+    def test_旧结论不许回来(self):
+        """docstring 里必须钉住三个已证事实，且不能再断言「需逆向/不可行」。"""
+        d = tp.grab_anti_token.__doc__ or ""
+        self.assertIn("无需逆向", d)        # ① 不必逆向生成算法
+        self.assertIn("不绑定 body", d)     # ② token 与 body 无关
+        self.assertIn("唯一的约束", d)      # ③ 唯一约束是新鲜度
+        # 「不可行」只允许出现在明确否定的行里（「…是错的」/「错误结论」）
+        for line in d.splitlines():
+            if "不可行" in line:
+                self.assertTrue("错的" in line or "错误" in line,
+                                "不该无条件断言不可行：%s" % line)
+
+    def test_取不到返回None不抛(self):
+        """掉登录 / 无头不触发 ⇒ 返回 None，让上层退 UI，不静默失败。"""
+        class FakeBox:
+            def new_target(self, url):
+                return {"id": "t1"}
+
+            def connect_target(self, tid):
+                return False
+
+        old_cdp, old_box = tp.wp.CDP, tp.CDP_PORT
+        tp.wp.CDP = lambda port: FakeBox()
+        tp.CDP_PORT = 65535            # 免得真去连
+        try:
+            self.assertIsNone(tp.grab_anti_token(None))
+        finally:
+            tp.wp.CDP = old_cdp
+            tp.CDP_PORT = old_box
+
+
+class TestCleanupProbeDraft(unittest.TestCase):
+    """探针草稿清理：只删 __probe 前缀，不误伤真稿。"""
+
+    def test_只删探针前缀(self):
+        calls = []
+        state = {"left": [{"title": "__probe_tok__", "gid": "1",
+                           "draft_type": 2},
+                          {"title": "TrustMRR：…", "gid": "2",
+                           "draft_type": 2}]}
+
+        def fake_raw(cdp):
+            # 模拟服务端真删：gid=1 删完就从列表里消失
+            return list(state["left"])
+
+        def fake_del(cdp, gid, dt=2):
+            calls.append(gid)
+            state["left"] = [x for x in state["left"]
+                             if str(x["gid"]) != str(gid)]
+            return "OK"
+
+        old_raw, old_del, old_sleep = (tp.fetch_draft_api_raw,
+                                        tp.delete_draft_api, tp.time.sleep)
+        tp.fetch_draft_api_raw, tp.delete_draft_api = fake_raw, fake_del
+        tp.time.sleep = lambda *a: None      # 别真等 3s
+        try:
+            n = tp.cleanup_probe_draft(object())
+        finally:
+            tp.fetch_draft_api_raw = old_raw
+            tp.delete_draft_api = old_del
+            tp.time.sleep = old_sleep
+        self.assertEqual(n, 1)
+        self.assertEqual(calls, ["1"])       # 只删 gid=1，gid=2 是真稿
+
+    def test_首轮没落库会重试(self):
+        """实测坑：hook 抓到 token 时那次自动保存可能还没落库，
+        首轮 draft_list 里没有 ⇒ 必须重试，否则留垃圾稿。"""
+        seq = [[],                                   # 首轮：还没落库
+               [{"title": "__probe_tok__", "gid": "9", "draft_type": 2}],
+               []]                                   # 删完：空了
+
+        def fake_raw(cdp):
+            return seq.pop(0) if seq else []
+
+        old_raw, old_del, old_sleep = (tp.fetch_draft_api_raw,
+                                        tp.delete_draft_api, tp.time.sleep)
+        tp.fetch_draft_api_raw = fake_raw
+        tp.delete_draft_api = lambda c, g, d=2: "OK"
+        tp.time.sleep = lambda *a: None
+        try:
+            n = tp.cleanup_probe_draft(object())
+        finally:
+            tp.fetch_draft_api_raw = old_raw
+            tp.delete_draft_api = old_del
+            tp.time.sleep = old_sleep
+        self.assertEqual(n, 1)
+
+    def test_复用调用方socket会被污染(self):
+        """回归：grab_anti_token 绝不能 connect/close 任何 target。
+
+        实测坑：它 connect 新标签页后 finally close_target，调用方的
+        `cdp.ws` 就指向已关闭的 socket ⇒ 后续 save_draft_api 直接
+        WinError 10053。所以它只能在传入的 cdp 上就地挂 hook。
+        """
+        import inspect
+        src = inspect.getsource(tp.grab_anti_token)
+        self.assertNotIn("new_target", src)
+        self.assertNotIn("close_target", src)
+
+    def test_必须在编辑器页开会话(self):
+        """回归：API 全流程要同一个编辑器 tab。
+
+        实测坑：首页 tab 里 fetch(article/publish) 被 argus 风控挡回来，
+        返回 `<!doctypehtml>…argus…` 而不是 JSON ⇒ open_api_session
+        必须开 TT_EDITOR。
+        """
+        src = inspect.getsource(tp.open_api_session)
+        self.assertIn("TT_EDITOR", src)
+        # 掉登录要判出来返回 None，不能硬着头皮往下跑
+        self.assertIn("/auth/page/login", src)
 
 
 if __name__ == "__main__":
