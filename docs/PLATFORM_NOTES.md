@@ -239,6 +239,26 @@ DB `draft-database-v1`，stores `article-draft` / `image-draft` / `video-draft` 
 - **`mark_drafted` 只增不减**，对账要**反向清理台账**：purge 删掉的记录不会被自动
   移除，重跑就重复标记。正解 = 台账 ∩ 远端。⚠ 换封面只能删了重发。
 
+### 已发布列表抓取（2026-10-17 实证，补上「无服务端 API」的读一侧）
+
+创作平台**有**笔记管理页（已发布/审核中/未通过），只是没开放接口，走 DOM：
+
+- 入口 `https://creator.xiaohongshu.com/creator/notemanage?roleType=creator`
+  （会 302 到 `/new/note-manager?roleType=creator`；`/publish/manage`、
+  `/new/note-manage` 直接导航都会 404「页面不见了」，别用）
+- 标题选择器 `span.note-card__title`，卡片 `div.note-card`
+- ⚠ **列表在自己的滚动容器里**（`div.content`，scrollHeight>clientHeight），
+  `window.scrollTo` 无效——必须滚容器；连滚两轮无新增才算加载完
+  （首屏常不足 10 条，别用固定阈值判断结束）
+- 「全部 N」= 图文+视频+长文+播客；N 与 `图文笔记(48)` 是两个数
+
+### 草稿箱删除（purge）
+
+`python scripts/xhs_publish.py purge --match "标题" --all`。
+⚠ `_purge_one` **前提是抽屉已打开**（`.draft-item` 有渲染）——生产路径
+`cmd_purge` 会先 `fetch_drafts()` 点开抽屉+图文 tab，**自建脚本直接调
+`_purge_one` 会 `nobtn`**（2026-10-17 踩过：先 `fetch_drafts(sub)` 再删）。
+
 ### 覆盖层（方案 A：只救小红书）
 
 `data/xhs_note_overrides.json` 只覆盖小红书，不污染四平台共用源。覆盖：
@@ -394,6 +414,22 @@ python -X utf8 scripts/wechat_verify_refresh.py --since 1790856240
 - 用 `out/xhs/*/note.json` 标题反查（`_card_to_cid`）分 5 类：远端有/台账无、
   台账有/远端无、两边都有、远端重复、孤儿草稿。
   2026-10-01 靠这个发现「台账多 2 条」其实是 purge 假记录，避免了重复发布。
+
+### 「已发布还躺在草稿箱」扫描（`scripts/scan_pub_dupes.py`）
+
+四平台都是「从草稿箱发布后草稿不消失」⇒ 群发后草稿箱里留下一批已发表文章。
+本脚本只读扫四平台，按**标题去空白精确相等**算交集，输出待删清单。
+2026-10-17 首跑：6 条命中（头条 Coral/UpLinked、B站 Viktor/UpLinked B.V.、
+小红书 Bustem/StartClaw、公众号 Visualizee.ai），全部删除+核对消失。
+
+- ⚠ **公众号精确匹配会漏**：已发布是长口径标题、草稿是短口径（同一篇文章）。
+  脚本对公众号附「产品名级」（首个冒号前）提示，只列不删，人工定。
+- ⚠ **B站已发布列表用 `x/space/article`（空间公开数据、免签）**，
+  比创作中心 upload-manage 稳（后者已改版重定向到首页抓不到）。
+- 删用各平台既有命令：头条 `delete_draft_api` / B站 `delete_draft` /
+  公众号 `delete --appmsgid` / 小红书 `purge --match "标题" --all`。
+- 🚨 **删后必须回读核对**（头条对假 gid 也返 code:0；B站 delete 响应会超时
+  但实际已删——2026-10-17 实测 344019 超时、核对已消失）。
 
 ---
 
