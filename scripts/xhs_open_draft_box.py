@@ -6,7 +6,7 @@ r"""打开小红书草稿箱（用**有草稿的那份profile**）。
 
 | profile | 端口 | 草稿箱 |
 |---|---|---|
-| `C:\Users\DELL\chrome-debug-profile` | 9223 | **39 条** ✅ |
+| `C:\Users\DELL\chrome-debug-profile` | 9223 | **48 条** ✅ |
 | `%LOCALAPPDATA%\Google\ChromeCDP` | 9222 | 0 条 ❌ |
 
 草稿是**绑 profile 的本地数据**，不是绑账号的服务器数据。
