@@ -1,16 +1,61 @@
 # 四平台接口能力与踩坑档案
 
 > 本文是**详细档案**。MEMORY.md 只留铁律与索引。
-> 全部为 2026-09-30~ 10-01 实测结论，**别再靠猜**。
+> 全部为实测结论（头条/公众号 2026-10-16~17 更新），**别再靠猜**。
 
 ## 一、接口能力矩阵
 
 | 平台 | 读 | 写 | 删 | 说明 |
 |---|---|---|---|---|
-| **B站** | ✅ 4 个接口 | ✅ `draft/add` 带 id 即更新 | ✅ `draft/delete` | 秒级完成，不开编辑器 |
-| **头条** | ❌ | ❌ | ❌ | **只能 UI**，串行 ~68s/条 |
-| **公众号** | ✅ `app_msg_list` | ⚠ 只有 `refresh` 灌已有草稿 | ⚠ 只有 UI | `action=del` 恒 `200009` |
+| **B站** | ✅ 4 个接口 | ✅ `draft/add` 带 id 即更新 | ✅ `draft/delete` | 秒级完成，不开编辑器；已投稿列表 `x/space/article?mid=` |
+| **头条** | ✅ `draft_list` + `mp_provider` | ⚠ 需 `tt-anti-token`（见第三章） | ✅ `delete_draft` | 2026-10-17 更新，**「只能 UI」是旧结论** |
+| **公众号** | ✅ `app_msg_list` + `appmsgpublish?sub=list` | ✅ `mp_editor_change_cover` / `mp_editor_set_content` | ✅ `operate_appmsg?sub=del` | 2026-10-16 更新，`action=del` 恒 200009 是猜错接口身 |
 | **小红书** | ⚠ 无服务端 API | ⚠ 无 | ⚠ 无 | **草稿在浏览器本地 IndexedDB** |
+
+---
+
+## 三、头条（2026-10-16~17 全部实测；此前「只能 UI」的记录已作废）
+
+**全部接口都在 `/mp/agw/` 下，浏览器同源 fetch 即可（9223 端口 + PLAT_PROFILE）。**
+
+### 已 API 化（可直接用）
+
+| 用途 | 接口 | 关键点 |
+|---|---|---|
+| 读草稿箱 | `GET /mp/agw/creator_center/draft_list?type=0&count=200&app_id=1231` | `{"code":0,"draft_list":[…]}` 全量；翻页用 `&end_cursor=<ts>`；`type=0/2` 同结果 |
+| 删草稿 | `POST /mp/agw/creator_center/delete_draft?app_id=1231` | body **必须** `{"drafts":[{"draft_type":2,"gid":"…"}]}` |
+| 读已发布 | `GET /api/feed/mp_provider/v1/?provider_type=mp_provider&aid=13&app_name=news_article&category=mp_article&stream_api_version=88&offset=N&count=10&client_extra_params={…}&app_id=1231` | 标题在 `data[i].assembleCell.itemCell.articleBase.title`；翻页 offset 0/10/20 |
+
+代码：`fetch_draft_api` / `fetch_draft_api_raw` / `delete_draft_api` /
+`fetch_published_articles`（都在 `scripts/toutiao_publish.py`）。
+
+### 新增/保存（接口与 body 已摸清，卡在 token）
+
+```
+POST /mp/agw/article/publish?source=mp&type=article&aid=1231&mp_publish_ab_val=0
+Content-Type: application/x-www-form-urlencoded;charset=UTF-8
+tt-anti-token: wAR3gsQKW-<96 hex>          ← 🚨 必需，缺了返 code:7050
+body: 20 个 form 字段（source=29 / title / content / save=0 /
+      extra={…} / search_creation_info={…} / title_id=<ms>_<rand> /
+      mp_editor_stat={} / pgc_feed_covers=[] / draft_form_data={"coverType":2} …）
+resp: {"code":0,"data":{"pgc_id":"…"},"message":"保存成功"}
+```
+
+- `save=0` **就是存草稿**（不是发布）；首次不带 `pgc_id`＝创建，带了＝更新。
+- 🚨 **body 必须 form-urlencoded**：用 JSON 发 HTTP200 但不生效。
+- 🚨 **`tt-anti-token` 带时效**：页面运行时生成，抓包几分钟后重放即 7050；
+  不在 HTML / `window` / cookie 里，已抓的两个 editor chunk 搜不到生成逻辑
+  ⇒ 纯 API 化需逆向该 token（2026-10-17 未完成）。过渡期 publish 仍走 UI。
+
+### 踩坑（都实测过）
+
+- **hook 必记 send 的 `arguments[0]`**：只记 URL 会导致 body 猜三次全错。
+- **`Page.navigate` 会重建 document**：先挂的 hook 被冲掉（抓到 0 请求）。
+- **草稿箱 UI 懒加载**：URL 分页参数无效，得滚到「没有更多数据了」。
+- **服务端宽容 ⇒ 200/code:0 不等于事办成**：delete 假 gid 也 success；
+  publish 缺 token 返 7050；JSON body 也是 200。
+- **编辑器 chunk**：`mp/graphic/index.*.js`（189KB，接口清单都在里面）、
+  `mp/graphic/vmok-remote-entry.*.js`。
 
 ---
 

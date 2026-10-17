@@ -35,6 +35,7 @@ import os
 import re
 import sys
 import time
+from urllib.parse import urlencode
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import wechat_publish as wp  # noqa: E402  复用 CDP / cases 加载 / 公众号标题
@@ -2055,6 +2056,114 @@ def fetch_published_articles(cdp, max_page=5):
         except Exception:
             pass
     return out
+
+
+def _publish_api_url():
+    """草稿保存/发布 API URL（2026-10-17 抓包实证 + JS 反编译交叉验证）。
+
+    ⚠ **body 是 form-urlencoded，不是 JSON**（用 JSON 发会 HTTP200 但不生效
+    —— 今天踩过：200 ≠ 存上了）。
+    """
+    return ("/mp/agw/article/publish?source=mp&type=article&aid=1231"
+            "&mp_publish_ab_val=0")
+
+
+def _publish_draft_body(title, content_html, pgc_id=None, abstract_text="",
+                        cover_url="", word_cnt=None):
+    """草稿保存 body（20 个 form 字段，2026-10-17 抓包实证逐字段对齐）。
+
+    实证要点：
+    - `save=0` 才是**存草稿**（不是发布！）——第一版猜反了；
+    - 首次保存**不带** pgc_id（=创建），后续带（=更新）；
+    - `extra.content_word_cnt` 由前端算，API 调用可直接留 0（服务端重算）；
+    - `title_id` 形如 `<毫秒时间戳>_<16位随机>`，用当前时间生成即可。
+    """
+    extra = {
+        "content_source": 100000000402,
+        "content_word_cnt": word_cnt or 0,
+        "is_multi_title": 0,
+        "sub_titles": [],
+        "gd_ext": {"entrance": "", "from_page": "publisher_mp",
+                   "enter_from": "PC", "device_platform": "mp",
+                   "is_message": 0},
+        "tuwen_wtt_transfer_switch": "1",
+    }
+    search_info = {"searchTopOne": 0, "abstract": abstract_text or "",
+                   "clue_id": ""}
+    fields = {
+        "source": "29",
+        "title": title or "",
+        "content": content_html or "",
+        "save": "0",                      # 0 = 存草稿（实证）
+        "timer_status": "0",
+        "entrance": "",
+        "activity_tag": "0",
+        "article_ad_type": "3",
+        "claim_exclusive": "0",
+        "disable_praise": "0",
+        "praise": "0",
+        "govern_forward": "0",
+        "is_fans_article": "0",
+        "is_refute_rumor": "0",
+        "tree_plan_article": "0",
+        "trends_writing_tag": "0",
+        "mp_editor_stat": "{}",
+        "pgc_feed_covers": "[]",
+        "draft_form_data": json.dumps({"coverType": 2}, ensure_ascii=False),
+        "search_creation_info": json.dumps(search_info, ensure_ascii=False),
+        "extra": json.dumps(extra, ensure_ascii=False),
+        "title_id": "%d_%d" % (int(time.time() * 1000),
+                               int(time.time() * 1e6) % 10000000000000000),
+    }
+    if pgc_id:
+        fields["pgc_id"] = str(pgc_id)
+    if cover_url:
+        fields["cover_tos_url"] = cover_url
+    return urlencode(fields)
+
+
+def save_draft_api(cdp, title, content_html, pgc_id=None, abstract_text="",
+                   anti_token=None):
+    """新建/更新一篇头条草稿（API 路线，2026-10-17 抓包实证）。
+
+    返回 (pgc_id, msg)：成功 pgc_id 非空；失败 msg 为原因。
+
+    🚨 **`tt-anti-token` 是必需 header**（2026-10-17 实证）：
+      - 无 token → `{"code":7050,"message":"保存失败"}`；
+      - 带 token → `{"code":0,"message":"保存成功","data":{"pgc_id":...}}`；
+      - token 形如 `wAR3gsQKW-<96 hex>`，页面运行时生成、**带时效**
+        （抓包几分钟后重放即失效），也不在 HTML / window / cookie 里，
+        已抓的两个 editor chunk（graphic/index、vmok-remote-entry）里搜不到
+        生成逻辑 ⇒ **纯 API 化还需逆向该 token**（2026-10-17 未完成）。
+      - 过渡期：publish 仍走 UI（有头 Chrome）自动保存，这条留作将来接。
+
+    ⚠ 另有独立坑：body 必须 **form-urlencoded**，用 JSON 发 HTTP200 但
+    不生效（服务端返 7050，不是宽容返 OK）。
+    """
+    body = _publish_draft_body(title, content_html, pgc_id, abstract_text)
+    hdr = ("'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'"
+           + (",'tt-anti-token':'%s'" % anti_token if anti_token else ""))
+    js = ("(function(){"
+          "return fetch('@U@',{method:'POST',credentials:'include',"
+          "headers:{" + hdr + "},body:'@B@'})"
+          ".then(function(r){return r.text();})"
+          ".catch(function(e){return 'ERR:'+e.message;})})()"
+          .replace("@U@", _publish_api_url())
+          .replace("@B@", body))
+    try:
+        out = str(cdp.eval(js) or "")
+    except Exception as e:
+        return "", "ERR:%s" % e
+    if not out.startswith("{"):
+        return "", "ERR:%s" % out[:80]
+    try:
+        d = json.loads(out)
+    except Exception:
+        return "", "ERR:%s" % out[:80]
+    if d.get("code") != 0:
+        return "", "code=%s %s" % (d.get("code"), d.get("message"))
+    data = d.get("data") or {}
+    return str(data.get("pgc_id") or ""), d.get("message") or "ok"
 
 
 def _delete_draft_api_url():

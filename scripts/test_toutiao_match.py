@@ -9,6 +9,7 @@
 """
 import json
 import sys
+from urllib.parse import parse_qs
 import unittest
 
 sys.path.insert(0, "scripts")
@@ -159,6 +160,50 @@ class TestDeleteDraftApi(unittest.TestCase):
         self.assertEqual(d["drafts"][0]["gid"], "123")
         # form 形态也不行
         self.assertFalse(tp._delete_draft_api_body("123").startswith("gid="))
+
+
+class TestSaveDraftApi(unittest.TestCase):
+    """save_draft_api（2026-10-17 抓包实证）：form body + token 注入。"""
+
+    def _cdp(self, resp='{"code":7050,"message":"保存失败"}'):
+        class FakeCDP:
+            js = ""
+
+            def eval(self, js, **kw):
+                self.js = js
+                return resp
+        return FakeCDP()
+
+    def test_body是form不是json(self):
+        b = T_url = tp._publish_draft_body("标题", "<p>正文</p>")
+        q = parse_qs(b)
+        self.assertEqual(q["save"][0], "0")        # 0 = 存草稿
+        self.assertEqual(q["source"][0], "29")
+        self.assertNotIn("pgc_id", q)              # 创建不带
+        self.assertIn("pgc_id", parse_qs(
+            tp._publish_draft_body("t", "c", pgc_id="9")))
+
+    def test_无token不加header(self):
+        cdp = self._cdp()
+        tp.save_draft_api(cdp, "t", "<p>c</p>")
+        self.assertNotIn("tt-anti-token", cdp.js)
+        self.assertIn("form-urlencoded", cdp.js)
+
+    def test_有token必注入(self):
+        cdp = self._cdp()
+        tp.save_draft_api(cdp, "t", "<p>c</p>", anti_token="wAR3gsQKW-xyz")
+        self.assertIn("tt-anti-token", cdp.js)
+        self.assertIn("wAR3gsQKW-xyz", cdp.js)
+
+    def test_7050判失败(self):
+        pid, msg = tp.save_draft_api(self._cdp(), "t", "c")
+        self.assertEqual(pid, "")
+        self.assertIn("7050", msg)
+
+    def test_成功回pgc_id(self):
+        cdp = self._cdp('{"code":0,"data":{"pgc_id":"769"},"message":"保存成功"}')
+        pid, msg = tp.save_draft_api(cdp, "t", "c")
+        self.assertEqual(pid, "769")
 
 
 if __name__ == "__main__":
