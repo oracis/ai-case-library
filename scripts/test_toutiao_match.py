@@ -8,6 +8,7 @@
   「月收$xK：…」旧口径 ⇒ 字面前 N 字符匹配大面积失配，必须产品名匹配。
 """
 import json
+import os
 import sys
 import inspect
 from urllib.parse import parse_qs
@@ -372,6 +373,109 @@ class TestCleanupProbeDraft(unittest.TestCase):
         self.assertIn("TT_EDITOR", src)
         # 掉登录要判出来返回 None，不能硬着头皮往下跑
         self.assertIn("/auth/page/login", src)
+
+
+class TestCoverApi(unittest.TestCase):
+    """封面上传（2026-10-17 hook 抓包实证）：/spice/image 两级 + pgc_feed_covers。"""
+
+    def test_封面走pgc_feed_covers不是cover_tos_url(self):
+        """回归：字段名是 pgc_feed_covers。旧代码的 `cover_tos_url` 是臆测，
+        服务端根本不认（带封面的真实 body 里没有这个键）。"""
+        q = parse_qs(tp._publish_draft_body("t", "c"))
+        self.assertEqual(q["pgc_feed_covers"][0], "[]")   # 无封面 = 空数组
+        q2 = parse_qs(tp._publish_draft_body(
+            "t", "c", cover_url="https://x/cover.image", cover_uri="tos-cn/i/1"))
+        covers = json.loads(q2["pgc_feed_covers"][0])
+        self.assertEqual(len(covers), 1)
+        self.assertEqual(covers[0]["url"], "https://x/cover.image")
+        self.assertEqual(covers[0]["uri"], "tos-cn/i/1")
+        self.assertEqual(covers[0]["thumb_width"], 3840)
+        self.assertEqual(covers[0]["thumb_height"], 2160)
+        self.assertEqual(covers[0]["extra"],
+                         {"from_content_uri": "", "from_content": "0"})
+        self.assertNotIn("cover_tos_url", q2)
+
+    def test_上传两级接口形态(self):
+        up, cover = tp._cover_upload_urls()
+        self.assertEqual(up, "/spice/image?upload_source=20020003&aid=1231"
+                            "&device_platform=web")
+        self.assertTrue(cover.endswith("&need_cover_url=1"))
+
+    def _fake(self, js_sink, resp):
+        class FakeCDP:
+            js = ""
+
+            def eval(self, js, **kw):
+                self.js = js
+                return resp
+        cd = FakeCDP()
+        js_sink.append(cd)
+        return cd
+
+    def test_上传注入的JS必须是纯ASCII(self):
+        """回归：裸中文进 Runtime.evaluate 会坏（argus 症状）。"""
+        import tempfile
+        png = os.path.join(tempfile.mkdtemp(), "c.png")
+        with open(png, "wb") as f:
+            f.write(b"\x89PNG\r\n\x1a\n" + b"\x00" * 64)
+        sink = []
+        cdp = self._fake(sink, json.dumps(
+            {"s1": 200, "s2": 200, "img": "https://i/o.image", "uri": "u/1",
+             "w": 3840, "h": 2160, "cover": "https://i/c.image",
+             "r1": "{}", "r2": "{}"}))
+        url, uri, msg, wh = tp.upload_cover_api(cdp, png, anti_token="tok")
+        self.assertEqual(url, "https://i/c.image")
+        self.assertEqual(uri, "u/1")
+        self.assertEqual(msg, "ok")
+        self.assertEqual(wh, (3840, 2160))     # thumb 尺寸取上传返回值
+        # 源码里不能有裸中文/换行；base64 是 ASCII
+        self.assertNotIn("\n", cdp.js.split("return JSON.stringify")[-1][:80])
+        self.assertIn("need_cover_url=1", cdp.js)
+        self.assertIn("tt-anti-token", cdp.js)
+        # 🚨 字段名必须是 image_uri / image_url（实测真名，别写错）
+        self.assertIn("image_uri", cdp.js)
+        self.assertIn("image_url", cdp.js)
+        self.assertIn("cover_url", cdp.js)
+
+    def test_缺uri要报错不静默(self):
+        """实测坑：第①步字段抽错 → uri 空 → save 报 4009 封面数据异常。"""
+        sink = []
+        cdp = self._fake(sink, json.dumps(
+            {"s1": 200, "s2": 200, "img": "u", "uri": "", "w": 0, "h": 0,
+             "cover": "https://i/c.image", "r1": "{}", "r2": "{}"}))
+        import tempfile
+        png = os.path.join(tempfile.mkdtemp(), "c.png")
+        with open(png, "wb") as f:
+            f.write(b"\x89PNG\r\n\x1a\n")
+        url, _uri, msg, _wh = tp.upload_cover_api(cdp, png)
+        self.assertIsNone(url)
+        self.assertIn("image_uri", msg)
+
+    def test_封面回读校验(self):
+        """结果导向校验：认 image_uri（与上传返回值一致），不只看有没有图。"""
+        raw = [
+            {"title": "A", "cover_image": {"image_uri": "tos/i/1",
+                                            "width": 3840, "height": 2160}},
+            {"title": "B", "cover_image": {}},
+            {"title": "C"},
+        ]
+        self.assertEqual(tp.verify_draft_cover(None, "A", raw=raw)[0], "OK")
+        self.assertIn("tos/i/1", tp.verify_draft_cover(None, "A", raw=raw)[1])
+        self.assertEqual(tp.verify_draft_cover(None, "B", raw=raw)[0],
+                         "NO_COVER")
+        self.assertEqual(tp.verify_draft_cover(None, "C", raw=raw)[0],
+                         "NO_COVER")      # 字段整个没有 = 同样没封面
+        self.assertEqual(tp.verify_draft_cover(None, "Z", raw=raw)[0],
+                         "NOT_FOUND")
+
+    def test_上传失败不静默(self):
+        sink = []
+        cdp = self._fake(sink, json.dumps(
+            {"s1": 200, "s2": 500, "img": "u", "uri": "", "w": 0, "h": 0,
+             "cover": "", "r1": "{}", "r2": "boom"}))
+        url, _uri, msg, _wh = tp.upload_cover_api(cdp, "/nope/missing.png")
+        self.assertIsNone(url)
+        self.assertIn("不存在", msg)
 
 
 if __name__ == "__main__":

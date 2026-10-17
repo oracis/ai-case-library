@@ -1316,13 +1316,13 @@ def publish_one(c, dry=False, yes=False, cover=True):
         cdp.close_target(t["id"])
 
 
-def publish_api_one(c, cdp=None, anti_token=None, verify=True):
-    """建一篇草稿，**纯 API 路线**（2026-10-17 实测 code:0 全通）。
+def publish_api_one(c, cdp=None, anti_token=None, verify=True, with_cover=True):
+    """建一篇草稿，**纯 API 路线**（2026-10-17 实测 code:0 全通，含封面）。
 
     与 `publish_one`（UI 路线）的差别：
-      · 不开编辑器、不点任何按钮、不填 DOM —— 只有一次 fetch；
-      · 封面**不传**（头条的封面是独立上传接口，`cover_tos_url` 需先
-        拿到 TOS 直链；这轮只证明「正文建稿」纯 API 可行，封面待接）；
+      · 不开编辑器、不点任何按钮、不填 DOM —— 只有 2~3 次 fetch：
+        ① 传封面 `upload_cover_api`（`/spice/image` 两级）
+        ② 存草稿 `save_draft_api`（`article/publish`，`save=0`）
       · 自动存草稿靠 `save=0`（实证值，不是发布）。
 
     ⚠ **anti_token 必须新鲜**（这是唯一约束）。自己取会留一条探针草稿，
@@ -1360,8 +1360,37 @@ def publish_api_one(c, cdp=None, anti_token=None, verify=True):
                 print("    ✗ 没拿到 token（掉登录或无头不触发自动保存）"
                       " ⇒ 退 UI 路线")
                 return None
+        cover = None
+        if with_cover:
+            cp = cover_path(c["id"])
+            # 🚨 `cover.png`（3840x2160 横版）才是头条封面该用的图；
+            #   `cover_path` 找不到时会退回小红书 card-1.png（3:4 竖图），
+            #   塞进去会被裁得很难看 —— 所以缺横版就现渲染一张。
+            if not os.path.isfile(os.path.join(OUT, c["id"], "cover.png")):
+                try:
+                    made = render_tt_cover(box.port, c)
+                    if made:
+                        print("    横版封面现渲染：%s"
+                              % os.path.basename(made))
+                        cp = made
+                except Exception as e:                       # noqa: BLE001
+                    print("    [warn] 渲染封面失败：%s" % str(e)[:60])
+            if not cp or not os.path.isfile(cp):
+                print("    [warn] 没有本地封面（%s）⇒ 这篇不带封面"
+                      % (cp or "未渲染"))
+            else:
+                cu, curi, cmsg, wh = upload_cover_api(box, cp, anti_token)
+                if cu:
+                    print("    封面上传：✓ %s（%dx%d）"
+                          % (cu[-42:], wh[0], wh[1]))
+                    cover = (cu, curi, cmsg, wh)
+                else:
+                    # 封面失败**不阻断建稿** —— 先把正文存上，封面可后补
+                    # （`cover` 子命令能单独补），别让一篇稿子白建。
+                    print("    [warn] 封面上传失败（%s）⇒ 先建无封面草稿"
+                          % cmsg)
         pgcid, msg = save_draft_api(box, meta["title"], body_html,
-                                    anti_token=anti_token)
+                                    anti_token=anti_token, cover=cover)
         print("    API 存草稿：%s（pgc_id=%s）" % (msg, pgcid or "无"))
         if not pgcid:
             return None
@@ -1379,6 +1408,15 @@ def publish_api_one(c, cdp=None, anti_token=None, verify=True):
                     return None
                 print("    回读校验：✓ 草稿箱命中（gid=%s）"
                       % hit[0].get("gid"))
+                if cover:
+                    st, det = verify_draft_cover(box, meta["title"], raw=raw)
+                    print("    封面校验：%s%s"
+                          % ({"OK": "✓ 封面已落库",
+                              "NO_COVER": "✗ 没落封面",
+                              "NOT_FOUND": "✗ 找不到这篇"}[st],
+                             ("（%s）" % det) if det else ""))
+                    if st != "OK":
+                        return None
             except Exception as e:                           # noqa: BLE001
                 print("    [warn] 回读校验异常（%s），按服务端 code:0 记"
                       % str(e)[:60])
@@ -2050,7 +2088,8 @@ def cmd_publish(args):
                     try:
                         ok = bool(publish_api_one(c, cdp=cdp,
                                                   anti_token=token,
-                                                  verify=False))
+                                                  verify=False,
+                                                  with_cover=not args.no_cover))
                     except SystemExit:
                         raise
                     except Exception as e:              # noqa: BLE001
@@ -2254,15 +2293,128 @@ def _publish_api_url():
             "&mp_publish_ab_val=0")
 
 
+def _cover_upload_urls():
+    """封面/图片上传的两级接口（2026-10-17 hook 抓包实证，别猜）。
+
+    ① POST ``/spice/image?upload_source=20020003&aid=1231&device_platform=web``
+       —— multipart/form-data，字段名就是 ``image``（<blob>）。
+       返图床 URL（``...~tplv-obj.image``）+ ``uri``（``tos-cn-i-xxx/<id>``）。
+    ② POST 同上再加 ``&need_cover_url=1``，body 是 form 字段
+       ``imageUrl=<①的URL>``，**必须带 tt-anti-token**。
+       返真正的封面直链（``...~tplv-tt-cover-v2.image``）—— 这才是
+       publish body 里 ``pgc_feed_covers[].url`` 要填的东西。
+    """
+    base = "/spice/image?upload_source=20020003&aid=1231&device_platform=web"
+    return base, base + "&need_cover_url=1"
+
+
+def upload_cover_api(cdp, png_path, anti_token=None, timeout=120):
+    """纯 API 传一张本地封面，返回 `(cover_url, cover_uri, msg, (宽, 高))`。
+
+    🚨 **不需要开编辑器、不点任何按钮** —— 图片以 base64 注入页面，
+    在页面上下文里组 FormData 上传（页面本身就是最干净的签名环境）。
+
+    与 `upload_cover`（UI 路线）的差别：UI 要点封面块 → 等图库面板 →
+    上传 → 点选 → 确定，headless 下脆且慢；这里两次 fetch 搞定。
+
+    🚨 **第①步返回的字段名是 `image_uri` / `image_url`（不是 `uri`/`url`）**
+    （2026-10-17 实测）—— 抽错字段会得到空 uri，然后 `save_draft_api` 报
+    `code:4009 第1个封面数据异常，请重新上传`。同理第②步的封面直链在
+    `data.cover_url`（`data.image_url` 是 obj 原图，**不是**封面图）。
+
+    返回 `(None, None, 原因, (0,0))` 表示失败 —— **不静默**，
+    由调用方决定退不退 UI 路线。
+    """
+    fail = lambda m: (None, None, m, (0, 0))                  # noqa: E731
+    if not png_path or not os.path.isfile(png_path):
+        return fail("本地封面不存在：%s" % png_path)
+    with open(png_path, "rb") as f:
+        b64 = base64.b64encode(f.read()).decode("ascii")
+    up_url, cover_url_api = _cover_upload_urls()
+    tok_hdr = (",'tt-anti-token':%s" % json.dumps(anti_token)
+               if anti_token else "")
+    # ⚠ 三个坑都在这行代码里，改的时候别动：
+    #   ① 所有字符串都走 json.dumps —— 裸中文进 Runtime.evaluate 会坏（见
+    #      save_draft_api 的对照实验：症状长得像 argus，其实是编码坏了）；
+    #   ② 第②步要 tt-anti-token，缺了大概率报错（不是 7050，别混）；
+    #   ③ 第①步是 multipart，不能手拼 content-type（得让浏览器自己带边界）。
+    js = (
+        "(async function(){"
+        "var bin=atob(@B@);var u=new Uint8Array(bin.length);"
+        "for(var i=0;i<bin.length;i++){u[i]=bin.charCodeAt(i);}"
+        "var fd=new FormData();"
+        "fd.append('image',new Blob([u],{type:'image/png'}),'cover.png');"
+        "var r1=await fetch(@U1@,{method:'POST',credentials:'include',"
+        "headers:{'Accept':'application/json, text/plain, */*'},body:fd});"
+        "var t1=await r1.text();"
+        "var j1=null;try{j1=JSON.parse(t1);}catch(e){}"
+        "var d1=(j1&&j1.data)||{};"
+        "var img=d1.image_url||d1.url||'';"
+        "var uri=d1.image_uri||d1.uri||'';"
+        "var w=d1.image_width||0,h=d1.image_height||0;"
+        "var r2=await fetch(@U2@,{method:'POST',credentials:'include',"
+        "headers:{'Accept':'application/json, text/plain, */*',"
+        "'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'@TK@},"
+        "body:'imageUrl='+encodeURIComponent(img)});"
+        "var t2=await r2.text();"
+        "var j2=null;try{j2=JSON.parse(t2);}catch(e){}"
+        "var d2=(j2&&j2.data)||{};"
+        "var cu=d2.cover_url||d2.url||'';"
+        "if(!cu){try{var m2=t2.match(/\"cover_url\"\\s*:\\s*\"([^\"]+)\"/);"
+        "if(m2)cu=m2[1];}catch(e){}}"
+        "return JSON.stringify({s1:r1.status,s2:r2.status,"
+        "img:img,uri:uri,w:w,h:h,cover:cu,r1:t1.slice(0,3000),"
+        "r2:t2.slice(0,3000)});"
+        "})()"
+    ).replace("@B@", json.dumps(b64)).replace("@U1@", json.dumps(up_url)) \
+        .replace("@U2@", json.dumps(cover_url_api)).replace("@TK@", tok_hdr)
+    try:
+        out = str(cdp.eval(js) or "")
+    except Exception as e:                                        # noqa: BLE001
+        return fail("上传异常：%s" % str(e)[:80])
+    if not out.startswith("{"):
+        if "argus" in out:
+            return fail("上传被 argus 风控挡了（先取新鲜 token）")
+        return fail("上传返回非 JSON：%s" % out[:120])
+    try:
+        d = json.loads(out)
+    except ValueError:
+        return fail("上传返回解析失败：%s" % out[:120])
+    if os.environ.get("TT_DEBUG_COVER"):
+        print("      [upload r1] %s" % (d.get("r1") or "")[:900])
+        print("      [upload r2] %s" % (d.get("r2") or "")[:900])
+    wh = (int(d.get("w") or 0), int(d.get("h") or 0))
+    if not d.get("cover"):
+        return fail("第②步没返封面直链 s1=%s s2=%s r2=%s"
+                    % (d.get("s1"), d.get("s2"), d.get("r2")))
+    if not d.get("uri"):
+        return fail("第①步没返 image_uri（字段名变了？）r1=%s" % (d.get("r1") or "")[:200])
+    return d["cover"], d["uri"], "ok", wh
+
+
 def _publish_draft_body(title, content_html, pgc_id=None, abstract_text="",
-                        cover_url="", word_cnt=None):
+                        cover_url="", word_cnt=None, cover_uri="",
+                        thumb_w=3840, thumb_h=2160):
     """草稿保存 body（20 个 form 字段，2026-10-17 抓包实证逐字段对齐）。
 
     实证要点：
     - `save=0` 才是**存草稿**（不是发布！）——第一版猜反了；
     - 首次保存**不带** pgc_id（=创建），后续带（=更新）；
     - `extra.content_word_cnt` 由前端算，API 调用可直接留 0（服务端重算）；
-    - `title_id` 形如 `<毫秒时间戳>_<16位随机>`，用当前时间生成即可。
+    - `title_id` 形如 `<毫秒时间戳>_<16位随机>`，用当前时间生成即可；
+    - 🚨 **封面走 `pgc_feed_covers`，不是 `cover_tos_url`**（2026-10-17
+      带封面的真实抓包对齐，旧注释里的 `cover_tos_url` 是我的臆测，字段名
+      根本不会被服务端认）。结构（真实抓包原文）：
+
+          pgc_feed_covers=[{"id":"","url":"https://image-tt-private.toutiao.com
+            /tos-cn-i-6w9my0ksvp/e266…~tplv-tt-cover-v2.image?…",
+            "uri":"tos-cn-i-6w9my0ksvp/97ca…","ic_uri":"",
+            "thumb_width":3840,"thumb_height":2160,
+            "extra":{"from_content_uri":"","from_content":"0"}}]
+
+      url 是 `/spice/image?…&need_cover_url=1` 的产物（`upload_cover_api`
+      拿），uri 是第①步上传返回的原始对象 uri；缺 uri 时留空也能落库，
+      但服务端可能因此重算裁剪 —— 实测带 uri 更稳。
     """
     extra = {
         "content_source": 100000000402,
@@ -2276,6 +2428,12 @@ def _publish_draft_body(title, content_html, pgc_id=None, abstract_text="",
     }
     search_info = {"searchTopOne": 0, "abstract": abstract_text or "",
                    "clue_id": ""}
+    covers = []
+    if cover_url:
+        covers = [{"id": "", "url": cover_url, "uri": cover_uri or "",
+                   "ic_uri": "", "thumb_width": thumb_w,
+                   "thumb_height": thumb_h,
+                   "extra": {"from_content_uri": "", "from_content": "0"}}]
     fields = {
         "source": "29",
         "title": title or "",
@@ -2294,7 +2452,7 @@ def _publish_draft_body(title, content_html, pgc_id=None, abstract_text="",
         "tree_plan_article": "0",
         "trends_writing_tag": "0",
         "mp_editor_stat": "{}",
-        "pgc_feed_covers": "[]",
+        "pgc_feed_covers": json.dumps(covers, ensure_ascii=False),
         "draft_form_data": json.dumps({"coverType": 2}, ensure_ascii=False),
         "search_creation_info": json.dumps(search_info, ensure_ascii=False),
         "extra": json.dumps(extra, ensure_ascii=False),
@@ -2303,8 +2461,6 @@ def _publish_draft_body(title, content_html, pgc_id=None, abstract_text="",
     }
     if pgc_id:
         fields["pgc_id"] = str(pgc_id)
-    if cover_url:
-        fields["cover_tos_url"] = cover_url
     return urlencode(fields)
 
 
@@ -2489,7 +2645,7 @@ def cleanup_probe_draft(cdp, title_prefix="__probe", rounds=3, pause=3.0):
 
 
 def save_draft_api(cdp, title, content_html, pgc_id=None, abstract_text="",
-                   anti_token=None):
+                   anti_token=None, cover=None):
     """新建/更新一篇头条草稿（**纯 API 路线**，2026-10-17 实测可用）。
 
     返回 (pgc_id, msg)：成功 pgc_id 非空；失败 msg 为原因。
@@ -2514,8 +2670,15 @@ def save_draft_api(cdp, title, content_html, pgc_id=None, abstract_text="",
       真实请求头一共只有 3 个：`Accept` / `Content-Type` / `tt-anti-token`。
 
     anti_token=None 时不自己去找（保持纯函数），由 `publish_api_one` 负责取。
+
+    `cover` 传 `upload_cover_api()` 的返回三元组（url, uri, msg）或 None；
+    封面信息走 `pgc_feed_covers` 字段（见 `_publish_draft_body` 实证结构）。
     """
-    body = _publish_draft_body(title, content_html, pgc_id, abstract_text)
+    cover_url, cover_uri = (cover[0], cover[1]) if cover else ("", "")
+    wh = (cover[3] if cover and len(cover) > 3 else (0, 0))
+    body = _publish_draft_body(title, content_html, pgc_id, abstract_text,
+                               cover_url=cover_url, cover_uri=cover_uri,
+                               thumb_w=wh[0] or 3840, thumb_h=wh[1] or 2160)
     hdr = {"Accept": "application/json, text/plain, */*",
            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"}
     if anti_token:
@@ -2628,6 +2791,32 @@ def fetch_draft_api_raw(cdp):
         return json.loads(s).get("draft_list")
     except Exception:
         return None
+
+
+def verify_draft_cover(cdp, title, raw=None):
+    """回读 `draft_list` 看这篇的封面**有没有真落库**，返回 (状态, 详情)。
+
+    状态 ∈ `OK` / `NO_COVER` / `NOT_FOUND`。
+
+    为什么要单独一个函数（结果导向的老规矩）：`save_draft_api` 返 `code:0`
+    只说明服务端收下了请求；封面这种字段历史上就出现过「接口返 OK、
+    字段其实没落」的坑（头条 delete 对假 gid 也返 code:0）。
+
+    判据（2026-10-17 实测）：`draft_list` 每条带
+    `cover_image = {image_uri, image_url, width, height}`，
+    且 `image_uri` 与 `upload_cover_api` 第①步返回的 uri **完全一致**
+    —— 这比「有没有 src」更硬，能确认存的是我们刚传的那张。
+    """
+    if raw is None:
+        raw = fetch_draft_api_raw(cdp) or []
+    hit = [x for x in raw if (x.get("title") or "") == title]
+    if not hit:
+        return "NOT_FOUND", ""
+    ci = hit[0].get("cover_image") or {}
+    uri = ci.get("image_uri") or ""
+    if not uri:
+        return "NO_COVER", json.dumps(ci, ensure_ascii=False)[:160]
+    return "OK", "%sx%s uri=%s" % (ci.get("width"), ci.get("height"), uri)
 
 
 def fetch_draft_api(cdp):

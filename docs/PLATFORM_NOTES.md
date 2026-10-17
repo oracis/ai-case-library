@@ -46,6 +46,39 @@ resp: {"code":0,"data":{"pgc_id":"…"},"message":"保存成功"}
 - ✅ **`tt-anti-token` 只需新鲜，不必逆向**（见下方「四段对照」）。
 - 用法：`toutiao_publish.py publish --api`（token 取一次用一批）。
 
+### 封面（`upload_cover_api`，两级 fetch，纯 API，2026-10-17 实证）
+
+```
+① POST /spice/image?upload_source=20020003&aid=1231&device_platform=web
+   multipart/form-data，字段名 = image（<blob>），头只要 Accept
+   → {"code":0,"data":{"image_uri":"tos-cn-i-6w9my0ksvp/<id>",
+                        "image_url":"https://image-tt-private.toutiao.com/…~tplv-obj.image?…",
+                        "image_width":3840,"image_height":2160,…}}
+
+② POST /spice/image?…&device_platform=web&need_cover_url=1
+   body: imageUrl=<①的 image_url>；🚨 必须带 tt-anti-token
+   → data.cover_url = …~tplv-tt-cover-v2.image  ← 这才是封面直链
+
+③ publish body 里封面字段是 pgc_feed_covers（不是 cover_tos_url！！）
+   [{"id":"","url":"<②的 cover_url>","uri":"<①的 image_uri>","ic_uri":"",
+     "thumb_width":3840,"thumb_height":2160,
+     "extra":{"from_content_uri":"","from_content":"0"}}]
+```
+
+🚨 **踩坑（三个都实测撞过）**：
+1. **字段真名是 `image_uri` / `image_url`**（不是 `uri` / `url`）——抽错
+   会得到空 `uri`，然后 `publish` 返 `code:4009 第1个封面数据异常，请重新上传`。
+   第②步的封面在 `data.cover_url`，`data.image_url` 是 obj 原图，别拿错。
+2. `pgc_feed_covers` 的 `thumb_width/height` 取第①步返回的 `image_width/height`
+   （我们本地产物正好 3840×2160），别硬编码 —— 服务端会拿它算裁剪。
+3. 图片以 **base64 注入页面再组 FormData**（页面是最干净的签名环境），
+   所有字符串必须 `json.dumps` 转义 —— 裸中文进 `Runtime.evaluate` 会坏
+   （症状像 argus，其实是编码坏了）。
+
+校验：`verify_draft_cover()` 回读 `draft_list` 的 `cover_image.image_uri`，
+与第①步 uri 一致才算真落库（`code:0` 不算数 —— 头条的老毛病）。
+端到端实测 `tmp/tt_cover_e2e.py` RC=0：上传 → 存稿 → 编辑器封面区出图。
+
 ### 🚨 四段对照实验：推翻「需逆向 token」的旧结论
 
 `tmp/tt_fresh_replay.py`。上午一度判定「token 带时效 ⇒ 纯 API 化不可行」，
