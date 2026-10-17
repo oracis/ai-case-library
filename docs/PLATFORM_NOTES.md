@@ -8,7 +8,7 @@
 | 平台 | 读 | 写 | 删 | 说明 |
 |---|---|---|---|---|
 | **B站** | ✅ 4 个接口 | ✅ `draft/add` 带 id 即更新 | ✅ `draft/delete` | 秒级完成，不开编辑器；已投稿列表 `x/space/article?mid=` |
-| **头条** | ✅ `draft_list` + `mp_provider` | ✅ `article/publish`（`--api`，需新鲜 `tt-anti-token`） | ✅ `delete_draft` | 2026-10-17 更新，**「只能 UI」是旧结论** |
+| **头条** | ✅ `draft_list` + `mp_provider`（已发表只能导航式读） | ✅ `article/publish`（`--api`，需新鲜 `tt-anti-token`）+ 封面上传两级 `/spice/image` | ✅ `delete_draft` | 2026-10-17 更新，**「只能 UI」是旧结论**；群发与「给已有草稿补封面」仍 UI |
 | **公众号** | ✅ `app_msg_list` + `appmsgpublish?sub=list` | ✅ `mp_editor_change_cover` / `mp_editor_set_content` | ✅ `operate_appmsg?sub=del` | 2026-10-16 更新，`action=del` 恒 200009 是猜错接口身 |
 | **小红书** | ⚠ 无服务端 API | ⚠ 无 | ⚠ 无 | **草稿在浏览器本地 IndexedDB** |
 
@@ -78,6 +78,18 @@ resp: {"code":0,"data":{"pgc_id":"…"},"message":"保存成功"}
 校验：`verify_draft_cover()` 回读 `draft_list` 的 `cover_image.image_uri`，
 与第①步 uri 一致才算真落库（`code:0` 不算数 —— 头条的老毛病）。
 端到端实测 `tmp/tt_cover_e2e.py` RC=0：上传 → 存稿 → 编辑器封面区出图。
+
+### 还没 API 化的三处（2026-10-17 现状，别对外说「全 API」）
+
+| 操作 | 现状 | 说明 |
+|---|---|---|
+| **群发（真正发布）** | UI（`publish_one` 点发布按钮） | 只抓过 `save=0` 存草稿接口，没抓过发布接口；头条发布可能还有额外验证 |
+| **给已有草稿补/换封面** | UI（`cover` 子命令：草稿箱→编辑→图库上传） | 底层 `save_draft_api` 带 `pgc_id` 就是更新，理论上可 API 化，但没封装成命令 |
+| **探针稿清理覆盖面** | ✅ 已补 `cleanup_titles()`（精确标题删） | 2026-10-17 实测：`cleanup_probe_draft` 只删 `__probe*` 前缀，`tt_title.py` 的中文测试标题**漏删** 7 条；探针脚本收尾应改用 `cleanup_titles(cdp, [测试标题…])`。⚠ 同标题下可能躺着正稿（3 条无封面测试稿与有封面正稿同标题）——那种情况**按 gid 删**，别用标题匹配；也别用 `dedup`（保留最新一条，会删掉正稿） |
+
+⇒ 准确说法：**头条的「读草稿 / 建稿（含封面）/ 删稿」已纯 API 化；
+「群发」和「给已有草稿换封面」还走 UI；所有写操作都需要一个活着的
+编辑器页面供 `tt-anti-token`**（不点按钮，但浏览器要开着）。
 
 ### 🚨 四段对照实验：推翻「需逆向 token」的旧结论
 

@@ -478,5 +478,74 @@ class TestCoverApi(unittest.TestCase):
         self.assertIn("不存在", msg)
 
 
+class TestCleanupTitles(unittest.TestCase):
+    """cleanup_titles：精确标题清理。
+
+    背景（2026-10-17 实测）：`cleanup_probe_draft` 只匹配 `__probe`
+    前缀，探针脚本用中文测试标题时全部漏删 —— 草稿箱实留 7 条
+    （「中文标题探针」等），最后按 gid 手工删才清掉。本类把
+    「精确匹配、不误伤」的语义钉死。
+    """
+
+    def _run(self, drafts, rounds=3):
+        deleted = set()
+        state = {"n": 0}
+
+        def fake_fetch(_cdp):
+            state["n"] += 1
+            if state["n"] == 1:
+                return list(drafts)
+            return [d for d in drafts if d["gid"] not in deleted]
+
+        def fake_delete(_cdp, gid, dtype=2):
+            deleted.add(str(gid))
+            return "OK"
+
+        old_f, old_d = tp.fetch_draft_api_raw, tp.delete_draft_api
+        tp.fetch_draft_api_raw, tp.delete_draft_api = fake_fetch, fake_delete
+        try:
+            n = tp.cleanup_titles(object(), ["中文标题探针", "__probe_tok0__"],
+                                  rounds=rounds, pause=0)
+        finally:
+            tp.fetch_draft_api_raw, tp.delete_draft_api = old_f, old_d
+        return n, deleted
+
+    def test_精确匹配才删_子串不误伤(self):
+        drafts = [
+            {"gid": "1", "title": "中文标题探针", "draft_type": 2},
+            # 含测试标题作子串的正稿标题 —— 不许删
+            {"gid": "2", "title": "中文标题探针段落含中文标题探针",
+             "draft_type": 2},
+            {"gid": "3", "title": "PROSP：把 B2B 销售的一整天，压成一个按钮",
+             "draft_type": 2},
+            {"gid": "4", "title": "__probe_tok0__", "draft_type": 2},
+        ]
+        n, deleted = self._run(drafts)
+        self.assertEqual(n, 2)
+        self.assertEqual(deleted, {"1", "4"})
+
+    def test_空目标直接返回0(self):
+        n, deleted = self._run([])
+        self.assertEqual(n, 0)
+        self.assertEqual(deleted, set())
+
+    def test_空标题列表不拉列表(self):
+        # titles 全空 ⇒ 一次 fetch 都不该发（省 argus 记账）
+        calls = []
+
+        def fake_fetch(_cdp):
+            calls.append(1)
+            return []
+
+        old = tp.fetch_draft_api_raw
+        tp.fetch_draft_api_raw = fake_fetch
+        try:
+            n = tp.cleanup_titles(object(), ["", None])
+        finally:
+            tp.fetch_draft_api_raw = old
+        self.assertEqual(n, 0)
+        self.assertEqual(calls, [])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

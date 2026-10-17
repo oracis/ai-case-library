@@ -2644,6 +2644,44 @@ def cleanup_probe_draft(cdp, title_prefix="__probe", rounds=3, pause=3.0):
     return total
 
 
+def cleanup_titles(cdp, titles, rounds=3, pause=2.5):
+    """按**精确标题**删草稿（探针脚本收尾专用）。
+
+    为什么要有它（2026-10-17 实测教训）：`cleanup_probe_draft` 只匹配
+    `__probe` 前缀 —— 探针脚本用中文测试标题时**全部漏删**（`tt_title.py`
+    的「中文标题探针」等 7 条实留在草稿箱里，靠按 gid 手工删才清掉）。
+    精确标题匹配不依赖命名约定，探针脚本删自己创建的那些标题即可。
+
+    ⚠ 调用方负责保证标题**只属于测试稿**：同一个标题下可能躺着正稿
+    （今天 3 条 TrustMRR 无封面测试稿与 10-15 有封面正稿同标题），
+    精确匹配分不开它们 —— 那种情况按 gid 删，别用本函数。
+
+    删后核对内置于 `delete_draft_api`（服务端对假 gid 也返 code:0，
+    「API 返 OK ≠ 删掉」）。返回删除条数。
+    """
+    want = {t for t in (titles or []) if t}
+    if not want:
+        return 0
+    total = 0
+    for _ in range(max(1, rounds)):
+        try:
+            raw = fetch_draft_api_raw(cdp) or []
+        except Exception:                                   # noqa: BLE001
+            return total
+        victims = [x for x in raw if (x.get("title") or "") in want]
+        if not victims:
+            if total:
+                break          # 删过一轮且这轮空了 ⇒ 收工
+            time.sleep(pause)  # 一条都没删过 ⇒ 多半还没落库，再等
+            continue
+        for x in victims:
+            if delete_draft_api(cdp, x.get("gid"),
+                                x.get("draft_type") or 2) == "OK":
+                total += 1
+        time.sleep(pause)
+    return total
+
+
 def save_draft_api(cdp, title, content_html, pgc_id=None, abstract_text="",
                    anti_token=None, cover=None):
     """新建/更新一篇头条草稿（**纯 API 路线**，2026-10-17 实测可用）。
@@ -3275,7 +3313,8 @@ def main():
                    help="不传封面卡片图（默认会传小红书 card-1 当封面）")
     p.add_argument("--api", action="store_true",
                    help="纯 API 建稿（不开编辑器/不点按钮，2026-10-17 实测可用）。"
-                        "token 取一次用一批；⚠ 暂不含封面上传")
+                        "token 取一次用一批；**含封面上传**（upload_cover_api 两级 "
+                        "/spice/image，verify_draft_cover 回读核对；--no-cover 可关）")
     p.set_defaults(fn=cmd_publish)
     cv = sub.add_parser("covers",
                         help="批量生成头条横版封面 out/toutiao/<id>/cover.png")
