@@ -18,6 +18,7 @@ import os
 import re
 import sys
 import json
+import inspect
 import shutil
 import tempfile
 import unittest
@@ -450,6 +451,37 @@ class TestDeleteApi(unittest.TestCase):
         b = W._del_api_body("100000208", "TOK123", "")
         self.assertIn("AppMsgId=100000208", b)
         self.assertIn("fingerprint=&", b)
+
+
+class TestGenCoverViewport(unittest.TestCase):
+    """封面截屏的视口/目标校验（2026-10-17 修的真 bug）。
+
+    症状：封面「变小」+ 右下角「拆解海外 · 第 X 篇」丢失，
+    而 **PNG 尺寸仍是 2160x920 完全正常**，只看尺寸发现不了。
+    """
+
+    def test_必须撑视口到画布大小(self):
+        """headless 视口约 780px < 封面 1080px ⇒ clip 被裁到视口内，
+        右侧变成黑边、设计被塞进左上角 70%。"""
+        src = inspect.getsource(W._gen_cover)
+        self.assertIn("setDeviceMetricsOverride", src)
+        self.assertIn('"width": COVER_W', src)
+        self.assertIn('"height": COVER_H', src)
+        # clip 的 scale 交给 deviceScaleFactor，别再叠一个 scale:2
+        self.assertIn('"scale": 1', src)
+        self.assertIn("captureBeyondViewport", src)
+
+    def test_必须校验真的切到封面页(self):
+        """connect_target 失败会静默留在上一个 target ⇒ 截到编辑器页面。"""
+        src = inspect.getsource(W._gen_cover)
+        self.assertIn("if not cover_cdp.connect_target(cover_tid)", src)
+        self.assertIn('href.startswith("data:")', src)
+        self.assertIn("t-name", src)          # 页面里得有我们自己的节点
+
+    def test_tag仍在封面右下(self):
+        """封面 HTML 必须带「拆解海外 · 第 X 篇」（铁律：篇号随图走）。"""
+        c = {"id": "x", "name": "X"}
+        self.assertIn("拆解海外 · 第 7 篇", W.cover_html(c, 7))
 
 
 if __name__ == "__main__":

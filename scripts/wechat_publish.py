@@ -594,7 +594,46 @@ def _gen_cover(cdp, c, no, out_path):
     cover_cdp = None
     try:
         cover_cdp = CDP(cdp.port)
-        cover_cdp.connect_target(cover_tid)
+        if not cover_cdp.connect_target(cover_tid):
+            return "CONNECT_FAIL"
+        # 🚨🚨 **必须确认真的切到了封面页**（2026-10-17 实测踩坑，症状极隐蔽）：
+        # `connect_target` 失败时会**静默留在上一个 target**，于是
+        # `Page.captureScreenshot` 截到的是**公众号编辑器页面**（连裁剪弹窗的
+        # 黑边和滚动条一起）—— 而返回的 PNG **尺寸仍是 2160x920，完全正常**，
+        # 光看尺寸/文件大小发现不了；后果是封面里「拆解海外 · 第 X 篇」
+        # 被切在画面外（用户反馈「封面变小、tag 丢了」）。
+        # 双保险：① href 必须是 data:；② 页面里必须有我们自己的 #t-name 节点。
+        href = ""
+        for _ in range(12):
+            time.sleep(0.5)
+            try:
+                href = str(cover_cdp.eval("location.href",
+                                          refresh_context=True) or "")
+            except Exception:                                 # noqa: BLE001
+                href = ""
+            if href.startswith("data:"):
+                break
+        if not href.startswith("data:"):
+            return "WRONG_TARGET:%s" % href[:70]
+        if str(cover_cdp.eval("!!document.getElementById('t-name')",
+                              refresh_context=True)
+               or "") not in ("true", "True"):
+            return "NO_T_NAME_NODE"
+        # 🚨🚨 **必须把视口撑到画布大小**（2026-10-17 实测，这才是真凶）：
+        # headless 默认视口约 780px 宽，而封面是 1080px 宽 —— 于是
+        # `Page.captureScreenshot` 的 clip 被**裁到视口内**，右侧 ~300px 变成
+        # 黑边、页面自身滚动条也被截进来。产物 **尺寸仍是 2160x920**，
+        # 所以肉眼看尺寸完全正常，但设计被塞进左上角 70%、
+        # 右下角的「拆解海外 · 第 X 篇」被切到画面外 ⇒ 用户看到的
+        # 「封面变小 + tag 丢了」。
+        # deviceScaleFactor=2 + clip scale=1 ⇒ 输出正好 2160x920 且更锐。
+        try:
+            cover_cdp.send("Emulation.setDeviceMetricsOverride", {
+                "width": COVER_W, "height": COVER_H,
+                "deviceScaleFactor": 2, "mobile": False})
+            time.sleep(0.6)
+        except Exception as e:                                 # noqa: BLE001
+            print("      [warn] 设置封面视口失败：%s" % str(e)[:60])
         # 等页面渲染（含字体）
         time.sleep(1.2)
         # 文字自适应：估算公式只是起手式（对「拉丁+CJK 混排 + 粗体」会偏窄 5%），
@@ -623,8 +662,9 @@ def _gen_cover(cdp, c, no, out_path):
             print("      [warn] 封面文字自检异常: %s" % e)
         r = cover_cdp.send("Page.captureScreenshot", {
             "format": "png",
+            "captureBeyondViewport": True,
             "clip": {"x": 0, "y": 0, "width": COVER_W, "height": COVER_H,
-                     "scale": 2}
+                     "scale": 1}
         })
         data = r.get("result", {}).get("data", "")
         if not data:
