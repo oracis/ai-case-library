@@ -106,6 +106,22 @@ resp: {"code":0,"data":{"pgc_id":"…"},"message":"保存成功"}
 「群发」和「给已有草稿换封面」还走 UI；所有写操作都需要一个活着的
 编辑器页面供 `tt-anti-token`**（不点按钮，但浏览器要开着）。
 
+### 🚨 标题截断残渣：「——一」是怎么存进草稿箱的（2026-10-17）
+
+`make_toutiao_title` 旧逻辑 `cand[:TITLE_MAX]` 硬切 30 字符，实测把
+「把 AI 建站工具生成的网站，转成 WordPress——一键迁移指南」切成
+「…转成 WordPress——一」（切在破折号后一个字），服务端原样存下。
+同 case 后来补了短标题 override（「WPConvert：AI 建站转 WP」）重建一稿，
+旧残渣稿没删 ⇒ 草稿箱同 case 两条，用户截图才发现。
+
+已修 `_truncate_title()`（`scripts/toutiao_publish.py`）：截断面落在
+孤立标点 ⇒ 清掉；落在连接号后一两个字 ⇒ 连接号带残字一起清（干净收在
+前半句）。仅当原标题真超 limit 才触发，不误伤完整的「A——B」短标题。
+回归锁在 `scripts/test_toutiao_publish.py::TestTruncateTitle`。
+
+⇒ **建稿路径上任何 `[:N]` 硬切都要当疑点查**：截断面落在破折号/英文
+单词中间都会留残渣，服务端不会帮你收拾。
+
 ### 🚨 四段对照实验：推翻「需逆向 token」的旧结论
 
 `tmp/tt_fresh_replay.py`。上午一度判定「token 带时效 ⇒ 纯 API 化不可行」，

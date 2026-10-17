@@ -222,6 +222,65 @@ class TestTitle(unittest.TestCase):
         self.assertLessEqual(len(t), tp.TITLE_MAX)
 
 
+class TestTruncateTitle(unittest.TestCase):
+    """_truncate_title 回归锁（2026-10-17，wpconvert 残渣标题事故）。
+
+    旧逻辑 `cand[:30]` 硬切把「…WordPress——一键迁移」切成
+    「…WordPress——一」存进草稿箱（截图实证）。锁边界感知截断。
+    """
+
+    def test_不超长原样返回(self):
+        t = "WPConvert：AI 建站转 WP"
+        self.assertEqual(tp._truncate_title(t, 30), t)
+
+    def test_正好卡上限原样返回(self):
+        t = "把" * 30
+        self.assertEqual(tp._truncate_title(t, 30), t)
+
+    def test_连接号后一个字_一起清(self):
+        # 事故原型：截断面切在「——」后只剩一个字
+        src = "把 AI 建站工具生成的网站，转成 WordPress——一键迁移指南"
+        out = tp._truncate_title(src, 30)
+        self.assertLessEqual(len(out), 30)
+        self.assertTrue(out.endswith("WordPress"), out)
+        self.assertNotIn("——", out[-3:], out)
+
+    def test_截断面落在连接号正中间(self):
+        src = "一二三四五六七八九十——后面还有很长很长的副标题文字"
+        out = tp._truncate_title(src, 12)
+        self.assertNotIn("—", out, out)
+        self.assertTrue(out.endswith("十"), out)
+
+    def test_尾部孤立标点清掉(self):
+        src = "这是一个标题，被截断了，"
+        out = tp._truncate_title(src, 10)
+        self.assertFalse(out.rstrip().endswith(("，", ",", "：", ":", "、")), out)
+
+    def test_普通汉字截断保留不补点(self):
+        src = "一二三四五六七八九十一二三四五六七八九十"
+        out = tp._truncate_title(src, 15)
+        self.assertEqual(out, "一二三四五六七八九十一二三四五")
+
+    def test_完整短标题的连接号不误伤(self):
+        # 「A——B」本身不超长，② 规则不许触发
+        t = "月收$8K——设计师的渲染外挂"
+        self.assertEqual(tp._truncate_title(t, 30), t)
+
+    def test_清空后兜底不返回空(self):
+        out = tp._truncate_title("———", 3)
+        self.assertTrue(out)
+        self.assertLessEqual(len(out), 3)
+
+    def test_全库标题无连接号残尾(self):
+        cases = tp.load_cases()
+        bad = []
+        for c in cases:
+            t = tp.make_toutiao_title(c)
+            if re.search(r"[-—–]{1,2}.{0,2}$", t) and len(t) == tp.TITLE_MAX:
+                bad.append((c["id"], t))
+        self.assertEqual(bad, [], "这些标题截出了连接号残尾：%s" % bad)
+
+
 class TestNoRawMarkdown(unittest.TestCase):
     """🚨 全库级：裸 Markdown 标记不许进案例正文（2026-10-11 事故）。
 

@@ -132,6 +132,29 @@ def _title_override(cid):
     return (v or "").strip()
 
 
+_TITLE_TAIL_JUNK = re.compile(r"[\s—–:：,，、.。!！?？|/\\-]+$")
+
+
+def _truncate_title(title, limit):
+    """按头条 30 字上限截断，且不留「——一」式残渣。
+
+    2026-10-17：旧逻辑 `cand[:TITLE_MAX]` 硬切，实测把
+    「…转成 WordPress——一键迁移」切成「…WordPress——一」
+    （切在破折号后一个字），服务端原样存成丑标题留在草稿箱。
+    两条规则：
+      ① 截断面落在孤立标点/空白上 ⇒ 清掉；
+      ② 截断面落在连接号（——/—/-）后一两个字上 ⇒ 连接号带残字一起清，
+         干净收在前半句（仅当原标题真的超 limit，不误伤完整的「A——B」）。
+    """
+    t = (title or "")[:limit]
+    t = _TITLE_TAIL_JUNK.sub("", t)                    # ①
+    if len(title or "") > limit:                       # ②
+        m = re.search(r"[-—–]{1,2}.{0,2}$", t)
+        if m:
+            t = t[:m.start()]
+    return t or (title or "").strip()[:limit]
+
+
 def make_toutiao_title(c, hits_out=None):
     """头条标题：≤30 字，优先 AI 改写过的短标题，否则公众号标题，再兜名字。
 
@@ -153,7 +176,7 @@ def make_toutiao_title(c, hits_out=None):
     cand, hits = neutralize_risk(cand)
     if hits_out is not None:
         hits_out.extend(hits)
-    return cand[:TITLE_MAX]
+    return _truncate_title(cand, TITLE_MAX)
 
 
 def fix_arr_wording(title, c):
