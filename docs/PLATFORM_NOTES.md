@@ -12,6 +12,21 @@
 | **公众号** | ✅ `app_msg_list` + `appmsgpublish?sub=list` | ✅ `mp_editor_change_cover` / `mp_editor_set_content` | ✅ `operate_appmsg?sub=del` | 2026-10-16 更新，`action=del` 恒 200009 是猜错接口身 |
 | **小红书** | ⚠ 无服务端 API | ⚠ 无 | ⚠ 无 | **草稿在浏览器本地 IndexedDB** |
 
+### 封面白边体检（`scripts/verify_cover_edge.py`，2026-10-17 新增）
+
+背景：headless 视口 ~780px < 封面画布 1080px 时，`Page.captureScreenshot` 的 clip
+被裁到视口内，右侧 ~300px 变白边（含滚动条滑轨），**产物尺寸仍正常，肉眼发现不了**。
+已对全部 47 张线上封面实测校准判据：**右缘 4.5% 区域平均亮度 > 200 ⇒ 白边脏封面**
+（脏=255 白，净=47~75 设计底色；PROSP 修复前后 255→66）。
+
+```bash
+python scripts/verify_cover_edge.py --dir tmp/covers/audit --port 9222
+# 退出码：0=全净；1=有脏；2=用法/连接错误
+```
+
+批量 `refresh --cover --cover-api` 跑完后**必须**重抓线上封面再体检一遍
+（`tmp/wx_draft_audit.py` 抓图 + 本脚本判脏），别只看命令返回成功。
+
 ---
 
 ## 三、头条（2026-10-16~17 全部实测；此前「只能 UI」的记录已作废）

@@ -218,7 +218,8 @@
       "url": "https://mp.weixin.qq.com/s/XiQeUcoXQ0dMm3hRYS4Y4w",
       "title": "Visualizee.ai：给建筑师和室内设计师做效果图渲染，两年卡在 $150/月，一次转型跳到 $8.6K",
       "found_by": "sync 2026-10-16：远端已发表列表最新一条（群发后自动离开草稿箱）。2026-10-16 曾据用户记忆误判为「误删」并重建（100000783），实际是旧版早已群发；status=draft 指的是这份更新版草稿。"
-    }
+    },
+    "refreshed_at": "2026-10-17 17:02"
   },
   "checkvibe": {
     "title": "CheckVibe：扫描 vibe-coded 应用的安全漏洞——转换率翻三倍靠的不是产品，是付费墙的写法",
@@ -226,7 +227,7 @@
     "status": "draft",
     "appmsgid": "100000196",
     "file": "公众号-checkvibe拆解.html",
-    "refreshed_at": "2026-10-16 18:58"
+    "refreshed_at": "2026-10-17 17:04"
   },
   "storyshort-ai": {
     "title": "StoryShort.ai：自动生成无露脸短视频，靠 TikTok 图文轮播拿到 100+ 付费用户",
@@ -234,7 +235,7 @@
     "status": "draft",
     "appmsgid": "100000200",
     "file": "公众号-storyshort-ai拆解.html",
-    "refreshed_at": "2026-10-16 19:06"
+    "refreshed_at": "2026-10-17 17:06"
   },
   "meerkats-ai": {
     "title": "Meerkats：替营销公司跑获客",
@@ -266,7 +267,7 @@
     "status": "draft",
     "appmsgid": "100000214",
     "file": "公众号-outrank拆解.html",
-    "refreshed_at": "2026-10-16 19:08"
+    "refreshed_at": "2026-10-17 17:09"
   },
   "marc-lou-portfolio": {
     "title": "Marc Lou 的产品矩阵：三年发 25 个产品、12 个赚钱、1 个大成——靠「组合」而不是「单品」活着",
@@ -274,7 +275,7 @@
     "status": "draft",
     "appmsgid": "100000218",
     "file": "公众号-marc-lou-portfolio拆解.html",
-    "refreshed_at": "2026-10-16 19:04"
+    "refreshed_at": "2026-10-17 17:11"
   },
   "bustem": {
     "title": "Bustem：帮电商品牌全网打假",
@@ -306,7 +307,7 @@
     "status": "draft",
     "appmsgid": "100000242",
     "file": "公众号-voklit拆解.html",
-    "refreshed_at": "2026-10-16 19:20"
+    "refreshed_at": "2026-10-17 16:55"
   },
   "prosp": {
     "title": "PROSP：把 B2B 销售的一整天，压成一个按钮",
@@ -322,7 +323,7 @@
     "status": "draft",
     "appmsgid": "100000255",
     "file": "公众号-divine-widgets拆解.html",
-    "refreshed_at": "2026-10-16 19:18"
+    "refreshed_at": "2026-10-17 16:58"
   },
   "promptmonitor-io": {
     "title": "品牌开始问「AI 回答里提不提我」，于是有了这门生意",
@@ -330,7 +331,7 @@
     "status": "draft",
     "appmsgid": "100000259",
     "file": "公众号-promptmonitor-io拆解.html",
-    "refreshed_at": "2026-10-16 19:02"
+    "refreshed_at": "2026-10-17 17:00"
   },
   "uplinked-b-v": {
     "title": "UpLinked：领英上自动加客户",
@@ -370,7 +371,7 @@
     "status": "draft",
     "appmsgid": "100000329",
     "file": "公众号-mort拆解.html",
-    "refreshed_at": "2026-10-16 19:26"
+    "refreshed_at": "2026-10-17 16:53"
   },
   "easymix": {
     "title": "法国录音棚的一单，有人把混音做成了订阅",
@@ -378,7 +379,7 @@
     "status": "draft",
     "appmsgid": "100000407",
     "file": "公众号-easymix拆解.html",
-    "refreshed_at": "2026-10-16 19:28"
+    "refreshed_at": "2026-10-17 17:16"
   },
   "harperai": {
     "title": "把英国公开抵押记录连成一张网，然后卖给贷款经纪",
@@ -386,7 +387,7 @@
     "status": "draft",
     "appmsgid": "100000415",
     "file": "公众号-harperai拆解.html",
-    "refreshed_at": "2026-10-16 19:24"
+    "refreshed_at": "2026-10-17 16:51"
   },
   "wpconvert-ai-convert-ai-sites-to-wordpress": {
     "title": "WPConvert：AI 建站转 WP",
