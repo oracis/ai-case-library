@@ -66,6 +66,7 @@ print(rv.explain("toutiao", cid, case, p))
 import os
 import re
 import sys
+import time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SCRIPTS = os.path.join(ROOT, "scripts")
@@ -155,10 +156,15 @@ def _probe_toutiao(cdp):
     import toutiao_publish as tt
     r = {"draft_titles": None, "pub_titles": None,
          "draft_ok": False, "pub_ok": False, "why": ""}
+    # 🚨 draft_list 是相对路径 fetch，**必须在草稿箱管理页的同源上下文**里读：
+    # 首页 tab 被 argus 挡（2026-10-17 实测：开 TT_HOME 读 draft_list 恒 None，
+    # 换 TT_DRAFT 立刻 46 条全量）。cmd_drafts 一直开 TT_DRAFT，别改回去。
     try:
+        cdp.send("Page.navigate", {"url": tt.TT_DRAFT})
+        time.sleep(5)
         raw = tt.fetch_draft_api_raw(cdp)
         if raw is None:
-            r["why"] = "头条 draft_list 没读到"
+            r["why"] = "头条 draft_list 没读到（草稿箱页）"
         else:
             r["draft_titles"] = [t for t, _ in
                                  (tt.fetch_draft_api(cdp) or [])]
@@ -324,20 +330,33 @@ def main(argv=None):
                         "https://member.bilibili.com",
                         bp.PUB_PORT, bp.load_cases)
         else:
-            import wechat_publish as wp
             plat_cfg = (wp, "https://mp.weixin.qq.com", 9222, wp.load_cases)
     except Exception as e:                                  # noqa: BLE001
         print("导入平台模块失败：%s" % e)
         return 2
 
     mod, url, port, _load_cases = plat_cfg
-    wp._autostart_chrome_if_needed(port, profile=_L.PLAT_PROFILE)
-    if not wp._port_alive(port):
+    # 🚨 wp/_L 顶层（75/76 行）已 import。**函数内绝不再局部 import wp**：
+    # Python 作用域规则下，函数里只要出现一次 `import wechat_publish as wp`，
+    # 整个函数体的 wp 都变成局部变量 ⇒ 还没执行到 import 就引用必炸
+    # UnboundLocalError（2026-10-17 实测：头条/B站路径从没跑通过）。
+    # _autostart_chrome_if_needed 自带端口存活判断，其返回值就是判据
+    # （wechat_publish 里没有 _port_alive，别再调不存在的方法）。
+    if not wp._autostart_chrome_if_needed(port, profile=_L.PLAT_PROFILE):
         print("端口 %d 不通（Chrome 没起来）" % port)
         return 2
     box = wp.CDP(port)
-    tid = box.new_target(url)
-    box.connect_target(tid)
+    # 🚨 new_target 返 dict {"id":..,"targetId":..}，**必须取 ["targetId"]**：
+    # 整个 dict 传进 connect_target 会因字符串比较永不命中而重试 10 次后
+    # 静默失败（2026-10-17 实测：已发表列表自带 target 所以读得到，
+    # 草稿箱读不到——极具误导性）。
+    _t = box.new_target(url)
+    tid = _t["targetId"] if isinstance(_t, dict) else _t
+    # 🚨 connect_target 失败会静默返回 False（调用方 socket 未连），
+    # 之后每次 send 都抛「未连接页面 target」——必须显式检查。
+    if not box.connect_target(tid):
+        print("连不上新开的 target（port %d）" % port)
+        return 2
     try:
         p = probe(box, args.platform)
         if args.json:
