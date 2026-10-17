@@ -7,6 +7,7 @@
 - 三平台远端标题全是「产品名：描述」新口径，而 make_*_title 生成
   「月收$xK：…」旧口径 ⇒ 字面前 N 字符匹配大面积失配，必须产品名匹配。
 """
+import json
 import sys
 import unittest
 
@@ -113,6 +114,51 @@ class TestPrefixMatch(unittest.TestCase):
         t = tp.draft_title_match("vid-ai", c,
                                  ["某品牌：让 AI 帮你做别的事"])
         self.assertIsNone(t)
+
+
+class TestArticleApi(unittest.TestCase):
+    """已发布图文列表 API 的纯函数部分（2026-10-16 P1 实证）。"""
+
+    def test_url_构造(self):
+        u = tp._article_api_url(10, 2)
+        self.assertIn("offset=10", u)
+        self.assertIn("%22page_index%22%3A%222%22", u)
+        self.assertIn("/api/feed/mp_provider/v1/", u)
+        # 第 1 页 offset=0
+        self.assertIn("offset=0", tp._article_api_url(0, 1))
+
+    def test_标题提取路径(self):
+        item = {"assembleCell": {"itemCell": {"articleBase": {
+            "title": "Bustem：帮电商品牌全网打假"}}}}
+        self.assertEqual(tp._extract_article_title(item),
+                         "Bustem：帮电商品牌全网打假")
+        # 缺层不许炸
+        self.assertEqual(tp._extract_article_title({}), "")
+        self.assertEqual(tp._extract_article_title({"assembleCell": {}}), "")
+        self.assertEqual(tp._extract_article_title(
+            {"assembleCell": {"itemCell": {}}}), "")
+
+
+class TestDeleteDraftApi(unittest.TestCase):
+    """delete_draft 形态锁定（2026-10-16 P1 hook 抓包实证）。"""
+
+    def test_body真实形态(self):
+        b = json.loads(tp._delete_draft_api_body("7693148369283285538"))
+        self.assertEqual(b, {"drafts": [
+            {"draft_type": 2, "gid": "7693148369283285538"}]})
+
+    def test_url(self):
+        self.assertEqual(tp._delete_draft_api_url(),
+                         "/mp/agw/creator_center/delete_draft?app_id=1231")
+
+    def test_猜错的形态不许回来(self):
+        # 猜过的错误形态：{"gid":...}（顶层就是 gid，服务端返 success 但不真删）
+        d = json.loads(tp._delete_draft_api_body("123"))
+        self.assertNotEqual(d, {"gid": "123"})
+        self.assertIn("drafts", d)                 # 必须在 drafts 数组里
+        self.assertEqual(d["drafts"][0]["gid"], "123")
+        # form 形态也不行
+        self.assertFalse(tp._delete_draft_api_body("123").startswith("gid="))
 
 
 if __name__ == "__main__":

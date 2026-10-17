@@ -71,6 +71,27 @@ TT_EDITOR = "https://mp.toutiao.com/profile_v4/graphic/publish"
 TT_DRAFT = "https://mp.toutiao.com/profile_v4/manage/draft"
 # 作品管理（已发布/已发内容都在这）——草稿箱里没有的稿走这里改
 TT_WORKS = "https://mp.toutiao.com/profile_v4/manage/content/all?enter_from=left_menu"
+# 「文章」tab 落点（已发布图文列表页）。2026-10-16 P1 实证：该 tab 的
+# 列表数据走 /api/feed/mp_provider/v1/（见 ARTICLE_API_TPL），页面本身
+# 是懒加载 + JS 路由（卡片 a 无 href），UI 收集只能逐页翻。
+TT_ARTICLES_PAGE = "https://mp.toutiao.com/profile_v4/graphic/articles"
+# 已发布图文列表 API（2026-10-16 P1 实证，用户提供 URL）。
+# ⚠ 只能浏览器导航式访问（见 _article_api_url docstring）。
+# @OFF@=offset（0/10/20...）@PG@=page_index（同步递增）
+ARTICLE_API_TPL = (
+    "https://mp.toutiao.com/api/feed/mp_provider/v1/"
+    "?provider_type=mp_provider&aid=13&app_name=news_article"
+    "&category=mp_article&channel=&stream_api_version=88"
+    "&genre_type_switch=%7B%22repost%22%3A1%2C%22small_video%22%3A1"
+    "%2C%22toutiao_graphic%22%3A1%2C%22weitoutiao%22%3A1"
+    "%2C%22xigua_video%22%3A1%7D"
+    "&device_platform=pc&platform_id=0&visited_uid=3986156894822883"
+    "&offset=@OFF@&count=10&keyword="
+    "&client_extra_params=%7B%22category%22%3A%22mp_article%22"
+    "%2C%22real_app_id%22%3A%221231%22%2C%22need_forward%22%3A%22true%22"
+    "%2C%22offset_mode%22%3A%221%22%2C%22page_index%22%3A%22@PG@%22"
+    "%2C%22status%22%3A%220%22%2C%22source%22%3A%220%22%7D"
+    "&app_id=1231")
 
 # 草稿箱整页是否已展开（进程内状态，见 open_draft_editor 里的说明）。
 # 只在「本次进程的草稿箱 tab 上」成立，换页/刷新后要手动清。
@@ -1962,6 +1983,158 @@ def draft_title_match(cid, c, remote_titles):
     return None
 
 
+def _article_api_url(offset, page, count=10):
+    """已发布图文列表 API URL（2026-10-16 P1 实证，用户提供）。
+
+    ⚠⚠ **只能浏览器导航式访问**（Page.navigate 到这个 URL，body.innerText
+    就是 JSON）——同页面内 fetch 会被风控挡（返回 argus HTML），
+    curl 带完整 cookie 也返 login_status:0 空数据。三种方式只通这一种。
+    翻页：offset=0/10/20... + page_index 同步递增，has_more=false 止。
+    """
+    return ARTICLE_API_TPL.replace("@OFF@", str(offset)) \
+                          .replace("@PG@", str(page))
+
+
+def _extract_article_title(item):
+    """从 data[i] 挖标题。路径（实测）：assembleCell.itemCell.articleBase.title。
+    abstractText/content 字段为空 ⇒ 拿不到摘要，只能标题级匹配。"""
+    try:
+        ac = item.get("assembleCell") or {}
+        ic = ac.get("itemCell") or {}
+        ab = ic.get("articleBase") or {}
+        return (ab.get("title") or "").strip()
+    except Exception:
+        return ""
+
+
+def fetch_published_articles(cdp, max_page=5):
+    """已发布图文列表（文章 tab 的 API 版，2026-10-16 P1 实证）。
+
+    走 _article_api_url + 浏览器导航式读取，返回 [{title, url}]；
+    失败/空返回 []（上层可退 UI 两页收集）。
+
+    实测：本号 20 条（has_more 第 2 页即 false），与 UI 版逐条一致。
+    """
+    import json as _json
+    out = []
+    try:
+        tid = cdp.new_target(TT_ARTICLES_PAGE)["id"]
+    except Exception as e:
+        print("[warn] fetch_published_articles 开不了页：%s" % e)
+        return []
+    box = wp.CDP(CDP_PORT)
+    try:
+        box.connect_target(tid)
+        time.sleep(4)
+        for pg in range(1, max_page + 1):
+            off = (pg - 1) * 10
+            try:
+                box.send("Page.navigate",
+                         {"url": _article_api_url(off, pg)})
+                time.sleep(3.5)
+                txt = str(box.eval("(document.body.innerText||'')") or "")
+            except Exception as e:
+                print("[warn] 第 %d 页读取失败：%s" % (pg, e))
+                break
+            if not txt.startswith("{"):
+                break
+            try:
+                d = _json.loads(txt)
+            except Exception:
+                break
+            data = d.get("data") or []
+            for it in data:
+                t = _extract_article_title(it)
+                if t:
+                    out.append({"title": t, "url": ""})
+            if not d.get("has_more") or not data:
+                break
+    finally:
+        try:
+            box.close_target(tid)
+        except Exception:
+            pass
+    return out
+
+
+def _delete_draft_api_url():
+    """草稿删除 API URL（2026-10-16 P1 hook 抓包实证）。"""
+    return "/mp/agw/creator_center/delete_draft?app_id=1231"
+
+
+def _delete_draft_api_body(gid, draft_type=2):
+    """删除 API 的 body（hook 抓真实流量，非猜测）。
+
+    ⚠⚠ 真实形态是 **drafts 数组包装**：
+        {"drafts":[{"draft_type":2,"gid":"<gid>"}]}
+    猜过的错误形态：{"gid":...} / form gid=... —— 服务端对**任意 body**
+    都返 {"code":0,"success}（幂等宽容，公众号 delete 同款坑），
+    但形态不对就不真删 ⇒ 「API 返 OK ≠ 删掉」，必须删后核对。
+    """
+    return json.dumps({"drafts": [{"draft_type": draft_type,
+                                   "gid": str(gid)}]},
+                      ensure_ascii=False)
+
+
+def delete_draft_api(cdp, gid, draft_type=2):
+    """删一篇草稿（API 一击 + 删后核对，2026-10-16 P1 实证）。
+
+    流程：POST delete_draft（_delete_draft_api_body 形态）→ 重拉
+    draft_list 核对 gid 真消失。服务端宽容（假 gid 也 success），
+    所以**核对是唯一可信判据**。
+
+    返回 "OK"（已消失）/ "RET:<code>"（接口拒了）/ "STILL"（返 OK 但
+    稿子还在 ⇒ 形态失效，上层转 UI）/ "ERR:<...>"。
+    """
+    js = ("(function(){"
+          "return fetch('@URL@',{method:'POST',credentials:'include',"
+          "headers:{'Content-Type':'application/json'},"
+          "body:'@BODY@'})"
+          ".then(function(r){return r.text();})"
+          ".catch(function(e){return 'ERR:'+e.message;})})()"
+          .replace("@URL@", _delete_draft_api_url())
+          .replace("@BODY@", _delete_draft_api_body(gid, draft_type)))
+    try:
+        out = str(cdp.eval(js) or "")
+    except Exception as e:
+        return "ERR:%s" % e
+    if not out.startswith("{"):
+        return "ERR:%s" % out[:60]
+    try:
+        d = json.loads(out)
+    except Exception:
+        return "ERR:%s" % out[:60]
+    if d.get("code") != 0:
+        return "RET:%s(%s)" % (d.get("code"), d.get("message"))
+    # 删后核对（draft_list 里 gid 消失才算数）
+    dl = fetch_draft_api_raw(cdp)
+    if dl is None:
+        return "STILL"                     # 核对失败，保守判未删
+    for x in dl:
+        if str(x.get("gid")) == str(gid):
+            return "STILL"
+    return "OK"
+
+
+def fetch_draft_api_raw(cdp):
+    """draft_list 原始 dict 列表（不过滤，含空标题稿）。失败 None。"""
+    js = ("(function(){return fetch("
+          "'/mp/agw/creator_center/draft_list?type=0&count=200&app_id=1231',"
+          "{credentials:'include'})"
+          ".then(function(r){return r.text();})"
+          ".catch(function(e){return 'ERR:'+e.message;})})()")
+    try:
+        s = str(cdp.eval(js) or "")
+    except Exception:
+        return None
+    if not s.startswith("{"):
+        return None
+    try:
+        return json.loads(s).get("draft_list")
+    except Exception:
+        return None
+
+
 def fetch_draft_api(cdp):
     """草稿箱 JSON API（2026-10-16 P1 实证，用户提供接口 + 实测）。
 
@@ -2226,41 +2399,102 @@ def _confirm_delete(cdp, pos):
 
 
 def _dedup_batch(max_del=12, dry=False):
-    """一次开页、一次展开，把所有重复标题逐个删到只剩最新一条。"""
+    """一次开页，把所有重复标题逐个删到只剩最新一条。
+
+    2026-10-16 P1 起改 **API 优先**：draft_list 拿全量（含 gid /
+    update_time）分组找重复 → 每组留 update_time 最大的（最新），
+    其余走 delete_draft_api（hook 抓包实证形态）删；返 OK 但稿子
+    还在（STILL）或接口拒（RET）时转 UI 点删兜底。
+    """
     cdp, t = _open(TT_DRAFT, wait=10)
     try:
         _check_login(cdp)
-        time.sleep(4)
-        titles = _draft_all_titles(cdp)
-        print("展开后 %d 条，唯一标题 %d 个" % (len(titles), len(set(titles))))
-        from collections import Counter
-        cnt = Counter(titles)
-        dups = sorted([(t2, c) for t2, c in cnt.items() if c > 1],
-                      key=lambda kv: -kv[1])
-        print("重复标题 %d 个，共需删 %d 条"
-              % (len(dups), sum(c - 1 for _, c in dups)))
+        time.sleep(2)
+        dl = fetch_draft_api_raw(cdp)
+        if dl is None:
+            print("[api 不通，退 UI 展开]")
+            titles = _draft_all_titles(cdp)
+            print("展开后 %d 条，唯一标题 %d 个"
+                  % (len(titles), len(set(titles))))
+            return _dedup_batch_ui(cdp, titles, max_del, dry)
+        print("draft_list API：%d 条" % len(dl))
+        # 按标题分组（空标题跳过——没有标题就无从判重）
+        groups = {}
+        for x in dl:
+            ttl = (x.get("title") or "").strip()
+            if len(ttl) < 3:
+                continue
+            groups.setdefault(ttl, []).append(x)
+        dups = [(t2, xs) for t2, xs in groups.items() if len(xs) > 1]
+        dups.sort(key=lambda kv: -len(kv[1]))
+        n_del = sum(len(xs) - 1 for _, xs in dups)
+        print("重复标题 %d 个，共需删 %d 条" % (len(dups), n_del))
         if dry:
-            for t2, c in dups:
-                print("  [dry] x%d  %s" % (c, t2))
+            for t2, xs in dups:
+                print("  [dry] x%d  %s" % (len(xs), t2))
             return 0
         done = 0
         bad = 0
-        for t2, c in dups:
-            for i in range(min(c - 1, max_del)):
+        for t2, xs in dups:
+            # 留 update_time 最大的（最新），其余按时间升序删
+            xs = sorted(xs, key=lambda x: x.get("update_time") or 0)
+            keep, todel = xs[-1], xs[:-1]
+            for x in todel[:max_del]:
+                gid = x.get("gid")
+                dtype = x.get("draft_type", 2)
+                st = delete_draft_api(cdp, gid, dtype)
+                if st == "OK":
+                    done += 1
+                    continue
+                # API 没删动（STILL/RET）→ 转 UI 兜底
+                print("  [api %s，转 UI] 《%s》gid=%s"
+                      % (st, t2[:30], gid))
                 n, pos = _count_dup_and_delbtn(cdp, t2, expand=False)
-                if n <= 1 or not pos:
-                    break
-                if not _confirm_delete(cdp, pos):
-                    print("  [warn] 《%s》第 %d 条没点到确认框，停" % (t2, i + 1))
+                if not pos or not _confirm_delete(cdp, pos):
+                    print("  [warn] 《%s》UI 也没删动，停" % t2[:30])
                     bad += 1
                     break
                 done += 1
-            n, _ = _count_dup_and_delbtn(cdp, t2, expand=False)
-            print("  《%s》→ 剩 %d 条" % (t2, n))
+            print("  《%s》→ 留 gid=%s（%s）"
+                  % (t2[:36], keep.get("gid"),
+                     time.strftime("%m-%d %H:%M",
+                                   time.localtime(keep.get("update_time")
+                                                  or 0))))
         print("共删除 %d 条%s" % (done, ("，失败 %d 个标题" % bad) if bad else ""))
         return 0 if bad == 0 else 2
     finally:
         cdp.close_target(t["id"])
+
+
+def _dedup_batch_ui(cdp, titles, max_del, dry):
+    """_dedup_batch 的 UI 兜底版（API 不通时走老路）。"""
+    print("展开后 %d 条，唯一标题 %d 个" % (len(titles), len(set(titles))))
+    from collections import Counter
+    cnt = Counter(titles)
+    dups = sorted([(t2, c) for t2, c in cnt.items() if c > 1],
+                  key=lambda kv: -kv[1])
+    print("重复标题 %d 个，共需删 %d 条"
+          % (len(dups), sum(c - 1 for _, c in dups)))
+    if dry:
+        for t2, c in dups:
+            print("  [dry] x%d  %s" % (c, t2))
+        return 0
+    done = 0
+    bad = 0
+    for t2, c in dups:
+        for i in range(min(c - 1, max_del)):
+            n, pos = _count_dup_and_delbtn(cdp, t2, expand=False)
+            if n <= 1 or not pos:
+                break
+            if not _confirm_delete(cdp, pos):
+                print("  [warn] 《%s》第 %d 条没点到确认框，停" % (t2, i + 1))
+                bad += 1
+                break
+            done += 1
+        n, _ = _count_dup_and_delbtn(cdp, t2, expand=False)
+        print("  《%s》→ 剩 %d 条" % (t2, n))
+    print("共删除 %d 条%s" % (done, ("，失败 %d 个标题" % bad) if bad else ""))
+    return 0 if bad == 0 else 2
 
 
 def cmd_dedup(args):
