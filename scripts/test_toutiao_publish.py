@@ -881,5 +881,54 @@ class TestMarkLedger(unittest.TestCase):
             self.assertTrue(x.get("at"), "纯 id 老条目要补 at")
 
 
+class TestFindCaseForTitle(unittest.TestCase):
+    """find_case_for_title 回归锁（2026-10-17，refresh 子命令用）。
+
+    锁的核心：**只按冒号切，不按空格切**——「Pet Plus Us：…」按空格
+    切会碎成 "pet" 匹配不上（实测害得 6 条无主稿人工认领）。
+    """
+
+    def test_产品名全称匹配(self):
+        c = tp.find_case_for_title("Pet Plus Us：AI 生成宠物与主人个性化肖像，挂牌")
+        self.assertIsNotNone(c)
+        self.assertEqual(c["id"], "pet-plus-us")
+
+    def test_带空格的产品名不被切碎(self):
+        # head 必须保持 "stealth rdp" 整串
+        c = tp.find_case_for_title("Stealth RDP：提供跨美欧的Windows/Linu")
+        self.assertIsNotNone(c)
+        self.assertEqual(c["id"], "stealth-rdp")
+
+    def test_匹配不上返None(self):
+        self.assertIsNone(tp.find_case_for_title("一个完全陌生的标题文字"))
+
+    def test_空标题返None(self):
+        self.assertIsNone(tp.find_case_for_title(""))
+        self.assertIsNone(tp.find_case_for_title(None))
+
+
+class TestRefreshWiring(unittest.TestCase):
+    """refresh 子命令/ rebuild 参数的结构锁（2026-10-17）。"""
+
+    def test_publish_api_one_有rebuild参数且默认False(self):
+        sig = inspect.signature(tp.publish_api_one)
+        self.assertIn("rebuild", sig.parameters)
+        self.assertFalse(sig.parameters["rebuild"].default)
+
+    def test_refresh_子命令已注册(self):
+        src = open(os.path.join(HERE, "toutiao_publish.py"),
+                   encoding="utf-8").read()
+        self.assertIn('sub.add_parser("refresh"', src)
+        self.assertIn("def cmd_refresh(", src)
+        self.assertIn("def _refresh_plan(", src)
+
+    def test_refresh计划排除已发表残留(self):
+        # _refresh_plan 是浏览器侧函数，锁它的判据语句在（已发表包含⇒跳过）
+        src = open(os.path.join(HERE, "toutiao_publish.py"),
+                   encoding="utf-8").read()
+        self.assertIn("fetch_published_articles", src)
+        self.assertIn("nt in p or p in nt", src)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

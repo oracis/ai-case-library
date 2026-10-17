@@ -179,6 +179,32 @@ def make_toutiao_title(c, hits_out=None):
     return _truncate_title(cand, TITLE_MAX)
 
 
+def find_case_for_title(title):
+    """线上草稿标题 → 本地 case（产品名前缀匹配，refresh 子命令用）。
+
+    只取「第一个中/英文冒号前的串」与 case name 全称或首词比对。
+    🚨 **不能按空格切**：「Pet Plus Us：…」按空格切会碎成 "pet" 而匹配不上
+    （2026-10-17 实测踩过，害得 6 条无主稿人工认领）。
+    匹配不上返 None（调用方按无主稿单列，别硬猜）。
+    """
+    t = (title or "").strip()
+    if not t:
+        return None
+    head = re.split(r"[：:]", t, maxsplit=1)[0].strip().lower()
+    if not head:
+        return None
+    cases = load_cases()
+    for c in cases:
+        if (c.get("name") or "").strip().lower() == head:
+            return c
+    for c in cases:
+        first = re.split(r"[\s.\-–—]+",
+                         (c.get("name") or "").strip().lower(), maxsplit=1)[0]
+        if len(first) >= 5 and first == head:
+            return c
+    return None
+
+
 def fix_arr_wording(title, c):
     """兼容旧名：口径纠正委托给 xhs_publish.correct_title_metric。"""
     return x.correct_title_metric(title, c)
@@ -1339,7 +1365,8 @@ def publish_one(c, dry=False, yes=False, cover=True):
         cdp.close_target(t["id"])
 
 
-def publish_api_one(c, cdp=None, anti_token=None, verify=True, with_cover=True):
+def publish_api_one(c, cdp=None, anti_token=None, verify=True, with_cover=True,
+                    rebuild=False):
     """建一篇草稿，**纯 API 路线**（2026-10-17 实测 code:0 全通，含封面）。
 
     与 `publish_one`（UI 路线）的差别：
@@ -1351,11 +1378,17 @@ def publish_api_one(c, cdp=None, anti_token=None, verify=True, with_cover=True):
     ⚠ **anti_token 必须新鲜**（这是唯一约束）。自己取会留一条探针草稿，
     所以：优先用调用方传进来的（批量时取一次用一批）；没给就现取 +
     事后清理。取不到就返回 None，让调用方退 UI 路线，**不静默失败**。
+
+    🚨 `rebuild=True` 用于**存量草稿刷新**（2026-10-17 实测踩坑）：
+      默认行为是「meta.json 不在才 build」—— 存量刷新的 case meta 都在，
+      于是建出来的稿子用的是 meta 里的**旧标题**（API 照样返「保存成功」，
+      极具误导性）。刷新场景（标题逻辑修过、override 补过）必须先
+      `build_article` 重建 meta 再建稿，也就是传 rebuild=True。
     """
     meta_path = os.path.join(OUT, c["id"], "meta.json")
     # ⚠ 用 os.path.isfile 不是 is_file —— 后者是 pathlib 的方法，
     #   os.path(=ntpath) 上没有，实测 AttributeError。
-    if not os.path.isfile(meta_path):
+    if rebuild or not os.path.isfile(meta_path):
         meta = build_article(c)
         write_article(meta)
     else:
@@ -2174,6 +2207,111 @@ def cmd_publish(args):
     if failed and not args.dry:
         print("\n失败 %d 条：%s" % (len(failed), " ".join(failed)))
         print("（每条的四态结论见上；MISSING 只能重建，RATE_LIMIT 等几分钟重跑）")
+
+
+def _refresh_plan(box, only_case=None):
+    """扫草稿箱，列出「线上标题 ≠ 本地最新标题」的待刷新清单。
+
+    返回 [(gid, case, online_title, local_title)]。已发表的跳过
+    （群发后稿件离开草稿箱是正常行为，但**草稿箱里若躺着已发表的同篇**
+    就是残留，不该刷新——交给 scan_pub_dupes 删）。
+    """
+    raw = fetch_draft_api_raw(box) or []
+    try:
+        pub = fetch_published_articles(box, max_page=3) or []
+    except Exception:                              # noqa: BLE001
+        pub = []
+    pub_blob = [re.sub(r"\s+", "", a.get("title") or "") for a in pub]
+    plan = []
+    for x in raw:
+        t = (x.get("title") or "").strip()
+        if not t:
+            continue
+        c = find_case_for_title(t)
+        if c is None:
+            continue
+        if only_case and c["id"] != only_case:
+            continue
+        # 线上标题与某篇已发表「互相包含」⇒ 这是已发表残留，不刷新
+        nt = re.sub(r"\s+", "", t)
+        if any(nt and (nt in p or p in nt) for p in pub_blob):
+            continue
+        try:
+            local = make_toutiao_title(c)
+        except Exception:                          # noqa: BLE001
+            continue
+        if local != t:
+            plan.append((x.get("gid"), c, t, local))
+    return plan
+
+
+def cmd_refresh(args):
+    """按最新逻辑刷新存量草稿（2026-10-17：17 篇残渣/旧标题批量刷新）。
+
+    每条流程：重建 meta（含最新标题）→ 删旧稿 → 建新稿（含封面）。
+    🚨 必须先重建 meta：`publish_api_one` 默认「meta 不在才 build」，
+      存量刷新的 case meta 都在 ⇒ 不重建建出来的还是**旧标题**
+      （API 照样返「保存成功」，2026-10-17 实测踩过）。
+    🚨 需要**有头 Chrome**（`grab_anti_token` 靠编辑器自动保存触发，
+      无头抓不到 token ⇒ CHROME_HEADED=1 起 9223）。
+    """
+    if args.case and args.all:
+        print("--case 和 --all 二选一")
+        return
+    sess = open_api_session()
+    if not sess:
+        print("编辑器页开不了（Chrome 没起来/掉登录）")
+        return
+    box, tid = sess
+    plan = _refresh_plan(box, only_case=args.case)
+    if not plan:
+        print("没有需要刷新的草稿（线上标题都已等于本地最新逻辑）。")
+        return
+    print("待刷新 %d 条：" % len(plan))
+    for gid, c, online, local in plan:
+        print("  %s [%s]\n    线上: %s\n    本地: %s" % (gid, c["id"],
+                                                    online[:44], local[:44]))
+    if args.dry:
+        print("（--dry 只列清单，不动手）")
+        return
+    token = grab_anti_token(box)
+    if not token:
+        print("没取到 tt-anti-token（需要有头 Chrome：CHROME_HEADED=1）")
+        return
+    failed = []
+    for i, (gid, c, online, local) in enumerate(plan, 1):
+        print("[%d/%d] %s —— 删旧 %s" % (i, len(plan), c["id"], gid))
+        st = delete_draft_api(box, gid, draft_type=2)
+        if st != "OK":
+            print("    删旧失败：%s（跳过，不建新——避免双稿）" % st)
+            failed.append(c["id"])
+            continue
+        try:
+            ok = bool(publish_api_one(c, cdp=box, anti_token=token,
+                                      verify=False, with_cover=True,
+                                      rebuild=True))
+        except Exception as e:                      # noqa: BLE001
+            ok = False
+            print("    [异常] %s：%s" % (type(e).__name__, e))
+        if not ok:
+            failed.append(c["id"])
+    print("清理探针草稿 %d 条" % cleanup_probe_draft(box))
+    # 整批统一核对一次（逐条回读会把后续 publish 顶进风控）
+    time.sleep(3)
+    raw = fetch_draft_api_raw(box) or []
+    online_titles = [x.get("title") or "" for x in raw]
+    miss = []
+    for gid, c, online, local in plan:
+        if c["id"] in failed:
+            continue
+        if not draft_title_match(c["id"], c, online_titles):
+            miss.append((c["id"], local))
+    if miss:
+        print("⚠ 回读核对：%d 条没命中 %s" % (len(miss), miss))
+    else:
+        print("回读核对：✓ %d 条全部命中草稿箱" % len(plan))
+    if failed:
+        print("失败 %d 条：%s" % (len(failed), " ".join(failed)))
 
 
 def _name_keys(cid, c):
@@ -3339,6 +3477,14 @@ def main():
                         "token 取一次用一批；**含封面上传**（upload_cover_api 两级 "
                         "/spice/image，verify_draft_cover 回读核对；--no-cover 可关）")
     p.set_defaults(fn=cmd_publish)
+    rf = sub.add_parser("refresh",
+                        help="按最新逻辑刷新存量草稿（重建 meta→删旧→建新，"
+                             "用于标题逻辑/override 变过之后的批量重刷）")
+    rf.add_argument("--all", action="store_true",
+                    help="自动扫草稿箱：线上标题≠本地最新逻辑的全刷")
+    rf.add_argument("--case", help="只刷指定 case 对应的草稿")
+    rf.add_argument("--dry", action="store_true", help="只列清单不动手")
+    rf.set_defaults(fn=cmd_refresh)
     cv = sub.add_parser("covers",
                         help="批量生成头条横版封面 out/toutiao/<id>/cover.png")
     cv.add_argument("--case")

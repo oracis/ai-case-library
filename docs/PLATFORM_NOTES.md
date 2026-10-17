@@ -122,6 +122,29 @@ resp: {"code":0,"data":{"pgc_id":"…"},"message":"保存成功"}
 ⇒ **建稿路径上任何 `[:N]` 硬切都要当疑点查**：截断面落在破折号/英文
 单词中间都会留残渣，服务端不会帮你收拾。
 
+### 存量草稿「按最新逻辑刷新」：`refresh` 子命令（2026-10-17 实测 17 篇）
+
+标题逻辑/override 变过之后，草稿箱里的存量稿不会自动跟进。刷新流程
+（已固化成 `toutiao_publish.py refresh --all [--dry]`）：
+
+```
+扫描 draft_list → find_case_for_title（**只按冒号切、不按空格切**，
+  「Pet Plus Us：…」按空格切会碎成 "pet" 匹配不上）→ 本地
+  make_toutiao_title vs 线上标题 → 不一致的进清单
+  （线上与某篇已发表「互相包含」= 已发表残留，不刷新，交给 scan_pub_dupes 删）
+→ 删旧稿（delete_draft_api）→ 建新稿（publish_api_one rebuild=True）→ 统一回读
+```
+
+🚨 **三个踩过的坑**：
+1. **`publish_api_one` 默认「meta.json 不在才 build」**——存量刷新的 case
+   meta 都在，不传 `rebuild=True` 建出来的还是 meta 里的**旧标题**
+   （API 照样返「保存成功」，极具误导性；nutria 第一篇就这么白刷了一次）。
+2. **必须有头 Chrome**（`CHROME_HEADED=1`）：`grab_anti_token` 靠编辑器
+   自己的自动保存触发，无头抓不到 token。且全程同一个**编辑器页**
+   （`open_api_session`，首页 tab 被 argus 挡）。
+3. 批量时 `verify=False` + 最后统一核对一次——逐条 draft_list 回读会把
+   后续 publish 顶进风控。删旧失败就跳过不建新（避免双稿）。
+
 ### 🚨 四段对照实验：推翻「需逆向 token」的旧结论
 
 `tmp/tt_fresh_replay.py`。上午一度判定「token 带时效 ⇒ 纯 API 化不可行」，
