@@ -128,6 +128,9 @@ DRAFT_DELETE = API + "/x/dynamic/feed/article/draft/delete"
 
 DRAFT_PAGE = "https://member.bilibili.com/opus/management/drafts"
 ARTICLE_UPCOVER = "https://member.bilibili.com/x/web/article/upcover"
+# 已投稿专栏（空间公开数据，2026-10-17 P1 实测，免登录可读）。
+# 创作中心 upload-manage/article 已改版会重定向首页，抓不到列表请求 ⇒ 用这个。
+SPACE_ARTICLE = API + "/x/space/article"
 
 
 def _bili_tab(cdp, new_if_none=True, wait=8):
@@ -601,6 +604,63 @@ def upload_cover(cdp, png_path):
         raise RuntimeError("upcover 返回里没有 data.url：%s"
                            % json.dumps(j, ensure_ascii=False)[:200])
     return url
+
+
+def my_mid(cdp):
+    """当前登录账号的 mid（2026-10-17 P1 实测：`/x/web-interface/nav`
+    免签可拿，返回 data.mid）。"""
+    js = """(async () => {
+      const r = await fetch('https://api.bilibili.com/x/web-interface/nav',
+        {credentials: 'include'});
+      const j = await r.json();
+      return (j && j.data && j.data.mid) || 0;
+    })()"""
+    r = cdp.eval(js, refresh_context=True)
+    return int(r or 0)
+
+
+def list_published_articles(cdp, mid=None, ps=30, max_page=5):
+    """已投稿专栏列表（2026-10-17 P1 实测）。
+
+        GET https://api.bilibili.com/x/space/article?mid=<mid>&pn=<n>&ps=<ps>
+    → {"code":0,"data":{"articles":[{id,title,summary,...}]}}
+
+    ⚠ 这是**空间公开数据**，不需要登录态 ⇒ 比创作中心稿件管理稳
+    （`member.bilibili.com/platform/upload-manage/article` 已改版，实测
+    会重定向到首页，抓不到列表请求）。发布后文章即公开，故此接口就是
+    「已发布列表」的最优解。
+
+    返回 [{id, title, summary}]；失败返回 []。
+    """
+    if not mid:
+        mid = my_mid(cdp)
+    if not mid:
+        return []
+    out = []
+    for pn in range(1, max_page + 1):
+        js = """(async () => {
+          const r = await fetch(%s + '?mid=' + %d + '&pn=' + %d
+            + '&ps=' + %d, {credentials: 'include'});
+          const j = await r.json();
+          if (j.code !== 0) return {err: j.code, msg: j.message};
+          return {arts: (j.data && j.data.articles) || []};
+        })()""" % (json.dumps(SPACE_ARTICLE), mid, pn, ps)
+        try:
+            r = cdp.eval(js, refresh_context=True)
+        except Exception:                          # noqa: BLE001
+            break
+        if not isinstance(r, dict) or r.get("err") is not None:
+            break
+        arts = r.get("arts") or []
+        if not arts:
+            break
+        for a in arts:
+            out.append({"id": a.get("id"),
+                        "title": (a.get("title") or "").strip(),
+                        "summary": (a.get("summary") or "")[:120]})
+        if len(arts) < ps:
+            break
+    return out
 
 
 def main():
