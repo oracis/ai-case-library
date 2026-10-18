@@ -1111,6 +1111,98 @@ class TestCoverApi(unittest.TestCase):
         src = open(os.path.join(HERE, "toutiao_publish.py"), encoding="utf-8").read()
         self.assertIn('cv.add_argument("--api"', src)
 
+    def test_cover_one_api_checks_save_message(self):
+        """存稿被拒（如 headless 下的 7050）不能算成功（2026-10-18 修）。
+
+        旧实现 `_, msg = save_draft_api(...)` 把返回值丢了，接着靠 verify 的
+        「image_uri 非空」兜底 —— 旧封面的 uri 当然非空 ⇒ 打印「ok 换封面」，
+        线上纹丝不动。这条锁住「必须先看 msg」。
+        """
+        src = inspect.getsource(tp.cover_one_api)
+        self.assertIn("if str(msg).startswith(\"code=\")", src)
+        self.assertIn("存稿被拒", src)
+
+    def test_cover_one_api_passes_expect_uri(self):
+        src = inspect.getsource(tp.cover_one_api)
+        self.assertIn("expect_uri=curi", src)
+
+    def test_cover_one_api_checks_pgc_id_is_same_draft(self):
+        # 更新必须落到同一篇；落到别的稿上是灾难（会覆盖别的案例）
+        src = inspect.getsource(tp.cover_one_api)
+        self.assertIn("str(pid) != str(gid)", src)
+
+
+class TestVerifyCoverUri(unittest.TestCase):
+    """`verify_draft_cover` 的 uri 比对（2026-10-18 补，此前是假阳性源头）。"""
+
+    RAW = [{"title": "A", "cover_image": {"image_uri": "tos/i/NEW",
+                                          "width": 750, "height": 421}}]
+
+    def test_ok_when_uri_matches(self):
+        st, _ = tp.verify_draft_cover(None, "A", raw=self.RAW,
+                                      expect_uri="tos/i/NEW")
+        self.assertEqual(st, "OK")
+
+    def test_mismatch_when_uri_differs(self):
+        st, det = tp.verify_draft_cover(None, "A", raw=self.RAW,
+                                        expect_uri="tos/i/OLD")
+        self.assertEqual(st, "MISMATCH")
+        self.assertIn("tos/i/OLD", det)
+
+    def test_backward_compatible_without_expect(self):
+        # 不传 expect_uri 时保持旧行为（只判「有没有封面」）
+        st, _ = tp.verify_draft_cover(None, "A", raw=self.RAW)
+        self.assertEqual(st, "OK")
+
+    def test_no_cover_still_reported(self):
+        raw = [{"title": "A", "cover_image": {}}]
+        st, _ = tp.verify_draft_cover(None, "A", raw=raw, expect_uri="x")
+        self.assertEqual(st, "NO_COVER")
+
+
+class _FakeCDP(object):
+    """只实现 eval 的假 CDP，用来跑 grab_anti_token 的 UA 闸门。"""
+
+    def __init__(self, ua):
+        self.ua = ua
+        self.calls = []
+
+    def eval(self, js):
+        self.calls.append(js)
+        if "userAgent" in js:
+            return self.ua
+        return ""
+
+
+class TestHeadlessGuard(unittest.TestCase):
+    """headless 的 token 是废的 ⇒ 必须在源头拦住（2026-10-18 实测）。
+
+    证据链：headless 实例里「页面自己的自动保存」就返 7050（增强 hook
+    记录到的响应体）。而 hook 在请求**发出前**记 header，所以照样能抓到
+    token。若不拦，抓到的废 token 会被一路当成成功。
+    """
+
+    def test_headless_ua_returns_none_immediately(self):
+        fake = _FakeCDP("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                        "AppleWebKit/537.36 HeadlessChrome/154.0.0.0 Safari/537.36")
+        self.assertIsNone(tp.grab_anti_token(fake, attempts=1, per_attempt=1))
+        # 只探了一次 UA，没去装 hook、没填标题
+        self.assertEqual(len(fake.calls), 1)
+        self.assertIn("userAgent", fake.calls[0])
+
+    def test_headful_proceeds_to_hook(self):
+        fake = _FakeCDP("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                        "AppleWebKit/537.36 Chrome/154.0.0.0 Safari/537.36")
+        tp.grab_anti_token(fake, attempts=1, per_attempt=0)
+        joined = " ".join(str(c) for c in fake.calls)
+        self.assertIn("__ttAntiHook", joined)
+
+    def test_guard_reads_ua_not_env_var(self):
+        # 不看 CHROME_HEADED：设了变量但 Chrome 仍是 headless 时会假成功
+        src = inspect.getsource(tp.grab_anti_token)
+        self.assertIn("HeadlessChrome", src)
+        self.assertIn("userAgent", src)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -1488,10 +1488,12 @@ def publish_api_one(c, cdp=None, anti_token=None, verify=True, with_cover=True,
                     print("    回读校验：✓ 草稿箱命中（gid=%s）"
                           % hit[0].get("gid"))
                     if cover:
-                        st, det = verify_draft_cover(box, meta["title"], raw=raw)
+                        st, det = verify_draft_cover(box, meta["title"], raw=raw,
+                                                     expect_uri=cover[1])
                         print("    封面校验：%s%s"
                               % ({"OK": "✓ 封面已落库",
                                   "NO_COVER": "✗ 没落封面",
+                                  "MISMATCH": "✗ 落的是别的图（没换成）",
                                   "NOT_FOUND": "✗ 找不到这篇"}[st],
                                  ("（%s）" % det) if det else ""))
                         if st != "OK":
@@ -2045,9 +2047,18 @@ def cover_one_api(c, cdp, anti_token, force=False, dry=False):
     cu, curi, cmsg, wh = upload_cover_api(cdp, cp, anti_token)
     if not cu:
         return "封面上传失败：%s" % cmsg
-    _, msg = save_draft_api(cdp, meta["title"], body_html, pgc_id=gid,
-                            anti_token=anti_token, cover=(cu, curi, cmsg, wh))
-    st, det = verify_draft_cover(cdp, meta["title"])
+    pid, msg = save_draft_api(cdp, meta["title"], body_html, pgc_id=gid,
+                              anti_token=anti_token, cover=(cu, curi, cmsg, wh))
+    # 🚨 必须先看 save 的返回：2026-10-18 实测 headless 下这里是
+    #    `code=7050 保存失败`，而旧代码把这个值**丢掉了**，接着靠
+    #    verify 的「uri 非空」兜底 —— 旧封面 uri 当然非空 ⇒ 打印「ok 换封面」。
+    if str(msg).startswith("code="):
+        return "存稿被拒：%s（封面未变）" % msg
+    if not pid:
+        return "存稿没回 pgc_id（%s），无法确认已更新" % msg
+    if str(pid) != str(gid):
+        return "更新落到了别的稿上（期望 %s，实际 %s）" % (gid, pid)
+    st, det = verify_draft_cover(cdp, meta["title"], expect_uri=curi)
     if st != "OK":
         return "存稿返 %s，但封面回读是 %s（%s）" % (msg, st, det or "-")
     return "ok 换封面 gid=%s（%s）" % (gid, os.path.basename(cp))
@@ -2084,6 +2095,16 @@ def cmd_cover(args):
                   % (("已取（%d 字符）" % len(ctoken)) if ctoken else "没取到"))
             if not ctoken:
                 api = False
+    elif api and args.dry:
+        # dry-run 也要走 API 定位：否则预演看到的是 UI 那套判断（有无封面
+        # 靠 DOM），与真实执行用的 draft_list 不一致，预演就失去意义。
+        # 只读 draft_list，不取 token（dry 在封面上传前就返回了）。
+        sess = open_api_session()
+        if sess:
+            capi, ctid = sess
+        else:
+            print("  编辑器页开不了 ⇒ 预演退 UI 路线")
+            api = False
     for i, c in enumerate(cases, 1):
         # 关键：每条都 flush。批量跑要 40+ 分钟，重定向到管道时 Python
         # 默认块缓冲（4~8KB），不刷就是「看起来卡住、Chrome 也没动静」。
@@ -2860,9 +2881,25 @@ def grab_anti_token(cdp, attempts=4, per_attempt=25, page=None):
 
     返回 token 字符串；拿不到返回 None（上层会退 UI 路线，不静默失败）。
     """
-    if not os.environ.get("CHROME_HEADED"):
-        print("    [warn] grab_anti_token 需要有头 Chrome（CHROME_HEADED=1）："
-              "无头不触发自动保存 ⇒ 拿不到 token")
+    # 🚨 **headless 拿到的 token 是废的（2026-10-18 实测，代价很大的教训）**：
+    #    在 headless 实例里，「页面自己的自动保存」就返 `code:7050 保存失败`，
+    #    而 hook 是在 `fetch/XHR.send` **发出前**记录 header 的 ⇒ 抓到的
+    #    token 照记不误。复用它去存稿，同样 7050；封面那条路更糟：上传走
+    #    另一网关能成功，于是「上传 ok + 存稿 7050」被旧代码读成「换封面成功」。
+    #    根因是指纹不全（headless 下 `webgl` 取不到），前端算出的反滥用
+    #    凭证服务端不认 —— 与代码构造无关，换有头就好。
+    # ⇒ 这里**实测 UA**再决定，不看 `CHROME_HEADED` 环境变量：变量会说谎
+    #    （设了变量但 Chrome 仍是 headless 时，以前就会一路假成功）。
+    try:
+        ua = str(cdp.eval("navigator.userAgent") or "")
+    except Exception:                                        # noqa: BLE001
+        ua = ""
+    if "HeadlessChrome" in ua:
+        print("    [✗] Chrome 是 headless（UA 含 HeadlessChrome）："
+              "它生成的 tt-anti-token 服务端不认，写操作恒 7050")
+        print("        ⇒ 有头重启：CHROME_HEADED=1 python "
+              "scripts/_launch_9223.py --hold 28800")
+        return None
     # ⚠ 自动保存**不一定每次都触发**（实测约 40% 抓不到：可能是页面刚挂载
     #   时序问题、或标题框还没就绪、或那次保存被 argus 挡了没发出去）。
     #   所以要多轮重试：每轮换一个标题（避开去重），重新聚焦再打一次。
@@ -3185,19 +3222,25 @@ def fetch_draft_api_raw(cdp):
         return None
 
 
-def verify_draft_cover(cdp, title, raw=None):
-    """回读 `draft_list` 看这篇的封面**有没有真落库**，返回 (状态, 详情)。
+def verify_draft_cover(cdp, title, raw=None, expect_uri=None):
+    """回读 `draft_list` 看这篇的封面**有没有真落库 / 是不是刚传的那张**。
 
-    状态 ∈ `OK` / `NO_COVER` / `NOT_FOUND`。
+    返回 (状态, 详情)，状态 ∈ `OK` / `NO_COVER` / `NOT_FOUND` / `MISMATCH`。
 
     为什么要单独一个函数（结果导向的老规矩）：`save_draft_api` 返 `code:0`
     只说明服务端收下了请求；封面这种字段历史上就出现过「接口返 OK、
     字段其实没落」的坑（头条 delete 对假 gid 也返 code:0）。
 
+    🚨 **`expect_uri` 必须传（2026-10-18 血泪）**：
+      早先这个函数只检查「`image_uri` 非空」，而**旧封面的 uri 也是非空的**
+      ⇒ 保存其实失败（7050）时它照样返 `OK`，`cover --api` 于是打印
+      「ok 换封面」，线上一点没变。假成功就是这么来的。
+      现在给出 `expect_uri`（`upload_cover_api` 返回的 uri）时做**逐字符比对**：
+      不一致返 `MISMATCH`，让调用方没法把「没换」当成「换了」。
+
     判据（2026-10-17 实测）：`draft_list` 每条带
     `cover_image = {image_uri, image_url, width, height}`，
-    且 `image_uri` 与 `upload_cover_api` 第①步返回的 uri **完全一致**
-    —— 这比「有没有 src」更硬，能确认存的是我们刚传的那张。
+    且 `image_uri` 与 `upload_cover_api` 第①步返回的 uri 完全一致。
     """
     if raw is None:
         raw = fetch_draft_api_raw(cdp) or []
@@ -3208,7 +3251,10 @@ def verify_draft_cover(cdp, title, raw=None):
     uri = ci.get("image_uri") or ""
     if not uri:
         return "NO_COVER", json.dumps(ci, ensure_ascii=False)[:160]
-    return "OK", "%sx%s uri=%s" % (ci.get("width"), ci.get("height"), uri)
+    detail = "%sx%s uri=%s" % (ci.get("width"), ci.get("height"), uri)
+    if expect_uri and uri != expect_uri:
+        return "MISMATCH", "期望 %s，实际 %s" % (expect_uri, uri)
+    return "OK", detail
 
 
 def fetch_draft_api(cdp):

@@ -168,7 +168,7 @@ cases.json     精写库   人工核   255 条 ← 唯一写入口是 /api/candi
 | 平台 | 通道 | 读 | 写 | 删 | 台账 |
 |---|---|---|---|---|---|
 | **B站** | **纯 API** | ✅ `x/space/article?mid=` 已投稿 | ✅ `draft/add`（带 id 即更新） | ✅ `draft/delete` | 6 |
-| **头条** | **纯 API**（写操作需活着的编辑器页供 `tt-anti-token`） | ✅ `draft_list` + `mp_provider` | ✅ `article/publish`（`--api`，21 字段 form；**`--send` = save=1 群发**）+ 封面 `/spice/image` 两级 | ✅ `delete_draft` / `unpublish`（删已发布） | 17 |
+| **头条** | **纯 API**（写操作需活着的编辑器页 + **有头** Chrome 供 `tt-anti-token`） | ✅ `draft_list` + `mp_provider` | ✅ `article/publish`（`--api`，21 字段 form；**`--send` = save=1 群发**）+ 封面 `/spice/image` 两级 | ✅ `delete_draft` / `unpublish`（删已发布） | 17 |
 | **公众号** | **CDP**（9222 有头 Chrome） | ✅ `app_msg_list` + `appmsgpublish?sub=list` | ✅ `mp_editor_set_content` / `mp_editor_change_cover` | ✅ `operate_appmsg?sub=del` | 60 |
 | **小红书** | **CDP**（9223）；**读侧已接口化** | ✅ `note/user/posted` 页面内 fetch（秒级，`scripts/xhs_webapi.py`） | ⚠ 编辑器 UI（`POST /web_api/sns/v2/note` 返回 **461 风控 + verifytype**，创建发不出去） | ✅ `capa/postgw/note/delete`（纯 API） | **8**（台账已回填、重复已清理） |
 
@@ -212,7 +212,7 @@ cases.json     精写库   人工核   255 条 ← 唯一写入口是 /api/candi
 
 - **建稿**：`POST /mp/agw/article/publish`，body **必须 form-urlencoded**（JSON 发 HTTP 200 但不生效），`save=0` 就是存草稿。
 - **封面**：`/spice/image` 两级——① multipart 字段 `image` 返回 `image_uri/image_url/image_width/image_height`；② `need_cover_url=1` 拿 `cover_url`；publish body 里字段名是 **`pgc_feed_covers`**（不是 `cover_tos_url`）。
-- **token**：`tt-anti-token` **只需新鲜、不必逆向**（同会话四段对照证明不绑 body、取一次可连用 >26 s）；但必须**有头 Chrome + 同一个编辑器 tab**（首页 tab 被 argus 挡）。
+- **token**：`tt-anti-token` **只需新鲜、不必逆向**（同会话四段对照证明不绑 body、取一次可连用 >26 s）；但必须**有头 Chrome + 同一个编辑器 tab**（首页 tab 被 argus 挡）。🚨 **headless 抓到的 token 服务端不认**：页面自己的自动保存就返 `code:7050`（2026-10-18 用增强 hook 录到响应体），根因是缺 WebGL 导致反滥用凭证不合格。旧版 `verify_draft_cover` 只判「封面 uri 非空」、`cover_one_api` 又丢了 `save` 的 msg ⇒ 曾把 7050 读成「换封面成功」，现已三重把关（msg / 同 gid / expect_uri 逐字符比对）。
 - 三个故障症状不同：缺 token → `7050`；缺 `Accept` → argus HTML；**body 裸塞中文** → argus HTML（必须 `json.dumps` 转义）。
 
 #### 4.8.5 跨平台共用工具

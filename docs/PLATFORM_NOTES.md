@@ -8,7 +8,7 @@
 | 平台 | 读 | 写 | 删 | 说明 |
 |---|---|---|---|---|
 | **B站** | ✅ 4 个接口 | ✅ `draft/add` 带 id 即更新 | ✅ `draft/delete` | 秒级完成，不开编辑器；已投稿列表 `x/space/article?mid=` |
-| **头条** | ✅ `draft_list` + `mp_provider`（已发表只能导航式读） | ✅ `article/publish`（`--api`，需新鲜 `tt-anti-token`；`save=1` 即群发）+ 封面上传两级 `/spice/image` | ✅ `delete_draft` / `delete?type=2`（已发布） | 2026-10-18 更新，**六项全通**；只剩「写操作需活着的编辑器页供 token」这一条环境约束 |
+| **头条** | ✅ `draft_list` + `mp_provider`（已发表只能导航式读） | ✅ `article/publish`（`--api`，需新鲜 `tt-anti-token`；`save=1` 即群发）+ 封面上传两级 `/spice/image` | ✅ `delete_draft` / `delete?type=2`（已发布） | 2026-10-18 更新，**六项全通**；两条环境约束：写操作需活着的编辑器页供 token，且**必须是有头 Chrome**（headless 的 token 返 7050） |
 | **公众号** | ✅ `app_msg_list` + `appmsgpublish?sub=list` | ✅ `mp_editor_change_cover` / `mp_editor_set_content` | ✅ `operate_appmsg?sub=del` | 2026-10-16 更新，`action=del` 恒 200009 是猜错接口身 |
 | **小红书** | ⚠ 无服务端 API | ⚠ 无 | ⚠ 无 | **草稿在浏览器本地 IndexedDB** |
 
@@ -107,8 +107,14 @@ resp: {"code":0,"data":{"pgc_id":"…"},"message":"保存成功"}
 | **删已发布文章** | `creator_center/delete?type=2&gid=…`，body `{}` | ✅ 2026-10-18 |
 
 ⇒ 准确说法：**头条的读 / 建 / 群发 / 换封面 / 删（草稿与已发布）已全部 API 化**，
-只有一条**环境**约束：所有写操作需要**活着的编辑器页**供 `tt-anti-token`
-（不点按钮，但浏览器要开着；无头也能抓到，只是慢 —— 实测 66~69s）。
+但有两条**环境**约束：
+
+1. 写操作需要**活着的编辑器页**供 `tt-anti-token`（不点按钮，但浏览器要开着）；
+2. 🚨 **必须是有头 Chrome**（`CHROME_HEADED=1`）。headless 下抓到的 token
+   服务端**不认**：2026-10-18 用增强 hook 录到「页面自己的自动保存」响应体就是
+   `{"code":7050,"message":"保存失败"}`，复用它存稿同样 7050。根因是 headless
+   缺 WebGL（`getContext('webgl')` 返回 null），前端算出的反滥用凭证不合格
+   —— 与请求构造无关，换有头即通（同日实测新建/更新双双 `code:0`）。
 
 #### 群发：不是新接口，是同一个端点的另一个 save 值（2026-10-18）
 
@@ -154,6 +160,22 @@ Delete(t){                                  // vendors.d1505bc60ce087d047b1.js
 `cover --api`。⚠ 正文取**本地** `out/<id>/article.html` —— 线上草稿正文读不到
 （`draft_list` 只回标题/封面/时间），而本项目草稿全由脚本生成，本地即真源；
 若某篇被人工改过，这一步会把正文覆盖回本地版本。
+
+🚨 **这条路曾经是「假成功」，2026-10-18 修掉**，两个漏洞叠加：
+
+- `verify_draft_cover` 只检查 `image_uri` **非空** —— 旧封面的 uri 也非空，
+  于是「保存其实失败」被读成「封面已落库」（docstring 早就写着要比对 uri，
+  代码却没做）；
+- `cover_one_api` 把 `save_draft_api` 返回的 `msg` **丢了**，不判失败。
+
+在 headless 实例上就是这样：打印「ok 换封面 gid=…」，而回读的 `image_uri`
+和 `update_time` 跟换之前一模一样。现在三重把关：`msg` 以 `code=` 开头直接
+判失败、返回的 `pgc_id` 必须等于目标 `gid`、`verify_draft_cover(expect_uri=
+<刚上传的 uri>)` 逐字符比对。
+
+**验证手法记一笔**：本地 `cover.png` 与线上是同一张图时，「换了」和「没换」
+在回读里长得一样 ⇒ 必须拿**另一条案例的封面**去换，才能把两者分开。
+（本次就是把 1lookup 的封面换到 TrustMRR 上验证，验完已换回。）
 
 #### 探针稿清理覆盖面（2026-10-17 补）
 
