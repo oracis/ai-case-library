@@ -49,7 +49,9 @@ window._webmsxyw(<签名对象>, <data>)   // → {X-s, X-t, X-s-Common}
   CORS 预检其实是放行的（`Access-Control-Allow-Headers: content-type,x-s,x-t,x-s-common`），
   失败发生在**签名不匹配**时服务端返回的响应不带 CORS 头。⇒ 优先用
   `creator.xiaohongshu.com/api/...` 同源接口。
-- 这是**读**为主的能力。发布笔记（写）仍未打通，别拿它干写操作。
+- 这是**读**为主的能力。**创建**笔记（`web_api/sns/v2/note`）仍被 461 拦死；
+  但**删除**已打通（`capa/postgw` 另一个网关），用 `scripts/xhs_delete.py`，
+  别在这里直接拼写请求。
 
 ## 用法
 

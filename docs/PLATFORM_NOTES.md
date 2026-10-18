@@ -299,16 +299,20 @@ DB `draft-database-v1`，stores `article-draft` / `image-draft` / `video-draft` 
 - **`mark_drafted` 只增不减**，对账要**反向清理台账**：purge 删掉的记录不会被自动
   移除，重跑就重复标记。正解 = 台账 ∩ 远端。⚠ 换封面只能删了重发。
 
-### 发布（写）接口探测结论：**到风控为止，纯 API 发不出去**（2026-10-18）
+### 发布（写）接口探测结论：**创建止于风控，删除可纯 API**（2026-10-18）
+
+⚠ 这里的口径要分开读：**「创建笔记」发不出去，不等于「所有写操作」都不行**。
+`capa/postgw` 是另一个网关，删除走它、不过 461（2026-10-18 实测删成功）。
 
 端点不是秘密 —— `project-publish-vue` 的端点表里就写着（`l` = `https://edith.xiaohongshu.com`）：
 
-| 用途 | 端点 |
-|---|---|
-| 创建/发布笔记 | `POST {edith}/web_api/sns/v2/note` |
-| 改已有笔记 | `PUT {edith}/web_api/sns/capa/postgw/note/update` |
-| 上传许可 | `GET {edith}/api/media/v1/upload/creator/permit` |
-| 上传完成校验（转码等） | `GET {edith}/web_api/sns/capa/postgw/query_transcode` |
+| 用途 | 端点 | 状态 |
+|---|---|---|
+| 创建/发布笔记 | `POST {edith}/web_api/sns/v2/note` | ❌ 461 风控 |
+| 改已有笔记 | `PUT {edith}/web_api/sns/capa/postgw/note/update` | 未试 |
+| **删除笔记** | `POST {edith}/web_api/sns/capa/postgw/note/delete` | ✅ 200 `code:0` |
+| 上传许可 | `GET {edith}/api/media/v1/upload/creator/permit` | ✅ |
+| 上传完成校验（转码等） | `GET {edith}/web_api/sns/capa/postgw/query_transcode` | 未试 |
 
 实测到的地方：
 
@@ -327,6 +331,15 @@ DB `draft-database-v1`，stores `article-draft` / `image-draft` / `video-draft` 
    ⚠ 461 与 payload 无关：空 body、半结构、带 images 的完整结构返回**完全一致**，
    所以别再花时间调字段，这是**请求级闸门**（社区口径一致：461/471 = 要过验证码）。
    ⇒ 发布这一步只能留在 UI（真人点击才过得了风控）。
+4. ✅ **删除可以纯 API**（2026-10-18）：`POST {edith}/web_api/sns/capa/postgw/note/delete`
+   body `{"note_id": "<id>"}` → HTTP 200 `{"code":0,"msg":"成功"}`，回读 posted 确认消失。
+   - **参数是问出来的**：传复数 `{"noteIds":[…]}` 回 400
+     `required param check: note_id`；换成单数 `note_id` 直接过。
+   - 先用**不存在的 note_id** 试（回 `code:100601 根据笔记ID列表批量查询笔记基础信息失败`）
+     —— 服务端正常受理且没有 461，才敢动真实 ID。这个「假 ID 先探」的手法
+     以后验证任何破坏性端点都该照做。
+   - 工具：`scripts/xhs_delete.py`（默认 dry-run，`--apply` 才删；顺序是
+     快照 → 删除 → 回读验证 → 台账同步），测试 `test_xhs_delete.py` 12 项。
 
 **签名规则（顺手破的，价值最高的一条）**：`_webmsxyw` 的第二个参数随 method 变 ——
 GET 传 `'{}'`、签 `pathname+search`；**POST/PUT 必须传 body 解析后的对象**（传字符串
@@ -379,6 +392,12 @@ python -X utf8 scripts/xhs_webapi.py call --url <任意 /api/... URL>
 `data/xhs_published.json` 只记了 2 条（那 2 条是 10-03 人工从草稿箱发的）。
 其中「月收$128K：销售挖客户线索的工具」在 09-29 **发了两次**（12:09 / 22:14）。
 ⇒ 台账严重滞后于远端，对账要以接口结果为准。
+
+**重复已清理（2026-10-18）**：`scripts/xhs_delete.py --note-id 6abbc7d8… --apply`
+删掉 22:14 那篇重复发布，保留 12:09 原发（同为 1 赞，原发多 1 收藏）。
+线上 9 → 8 条，台账同步移除该条，快照存 `data/xhs_deleted.json`。
+**保留哪篇的判据**：原发优先于重复发布 —— 删原创留重复等于把自己的正常发布削掉，
+且小红书判重时后发那篇本来就更像搬运。
 
 ### 已发布列表抓取（DOM 路线，接口失效时的兜底）
 
