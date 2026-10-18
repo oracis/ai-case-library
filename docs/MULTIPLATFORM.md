@@ -364,7 +364,7 @@ python scripts/agnes_cover.py gen --case bustem
 | 今日头条 | API（`draft/add`） | ✅ API `save=1`+`entrance=main` | 20–27s | 要有头 Chrome 供 `tt-anti-token` |
 | 小红书 | UI | ✅ UI 点「发布」 | 1–2min | 创建走 UI；API 创建被 461 风控 |
 | 公众号 | UI 存草稿 | ❌ 只到草稿 | — | 个人订阅号无 `freepublish` 权限；「发表」在**编辑页**顶栏，草稿箱列表只有「编辑/删除」 |
-| B站专栏 | API（`draft/add`） | ❌ 只到草稿 | — | 编辑器前端不渲染（见下） |
+| B站专栏 | API（`draft/add`） | ❌ 只到草稿 | — | 代码只点了「保存为草稿」，从没点过「发布」（见下） |
 
 ```bash
 python scripts/publish_multi.py run --case <id>          # 只存草稿（默认）
@@ -376,17 +376,41 @@ python scripts/publish_multi.py run --case <id> --dry    # 只看计划
 `--yes` 撞上只能存草稿的平台时，状态记 `draft_saved` 并在结尾**点名**
 （`⚠ 公众号、B站专栏 只到草稿`），不会安静降级成「都成功了」。
 
-### B站编辑器：2026-10-19 起渲不出来
+### B站编辑器：能开，卡点是「发布」没实现（2026-10-19 更正）
 
-实测三种环境都空：现有 9223 profile、全新 profile、headless、headed，
-`read-editor` 的 Vue 应用只渲染出 `<div id="app" data-v-app=""><!----></div>`：
+⚠ 本节先前写成「B站前端在 Chrome 154 下挂不起来」，**那是误判**，已推翻。
+用户在同一个 9223 浏览器里手动打开一切正常（账号「世界逻辑」）；复测也正常：
 
-- 5.2MB 的 `index-*.js` 能 fetch 到 200，页面无 JS 报错，`navigator.webdriver`
-  为 `false`（不是自动化检测），`/york/read-editor?aid=x` 顶层打开同样空。
-- 结论：**B站前端在 Chrome 154 下挂不起来**，与登录态/profile 无关。
-- 影响：B站草稿 API（`draft/add`、`list_drafts`）**照常可用**，只是没法点
-  「发布」。发布接口是 `POST /x/dynamic/feed/create/opus?csrf=…`（从编辑器
-  bundle 里挖出来的，需要 `upload_id` + wbi 签名），尚未打通。
+- `member.bilibili.com/platform/upload-manager/opus`（图文管理）、
+  `.../upload/text/new-edit?aid=<aid>`（专栏编辑器）都正常渲染，
+  `#app` 约 48KB；编辑器内 `read-editor` iframe 就位，标题/正文可读，
+  按钮齐全：`删除 / 重新上传 / 添加话题 / 选择文集 / 发布设置 / 保存为草稿 / 发布`。
+- 真·空白只出现在把 `/york/read-editor?aid=x` 当**顶层页**打开时 ——
+  那本来就是 iframe 专用路由，不是故障。当时把这个当成了全站问题。
+- 现状：列表在 iframe `member.bilibili.com/opus/management` 里（`/opus`、
+  `/drafts` 两个子路由）；「编辑」按钮点开**新标签**到 `new-edit?aid=`。
+  合成 `.click()` 不生效（无用户手势，弹窗被拦），要点必须走真实鼠标事件
+  或直接 `new_target(new-edit)`。
+
+真正的卡点：`bilibili_publish.publish_one()` 只点到 `保存为草稿`，
+**从没实现点「发布」**，所以 B站永远停在草稿。
+
+发布真身（编辑器 bundle 里 `publishArticle()`）：
+
+```
+POST /x/dynamic/feed/create/opus?csrf=<bili_jct>
+{draft_id_str, opus_req:{upload_id, opus:{opus_source:2, title, content,
+  article:{category_id:15, list_id, originality, reproduced},
+  pub_info:{editor_version}}}, scene:12,
+ meta:{app_meta:{from:"create.creative.h5", mobi_app:"web"}}, option:{…}}
+```
+
+请求还带 `HttpSvcRiskEnvToken` / `HttpSvcRiskUserLog` 风控头（页面 SDK 现算），
+**直接 curl 打不通**，要走页面点击。另实测两点：点「发布」会先自动存一次草稿；
+有节流，连点会弹「您操作的太快啦~」并伴随 `保存失败，请尝试手动保存`。
+
+⚠ 2026-10-19 探测时的副作用已清理：两次实验标签已关；期间只在草稿 `342372`
+（Bustem）上触发过失败的自动保存，远端内容未改动。
 
 ### 公众号「发表」：入口确认，尚未自动化
 
