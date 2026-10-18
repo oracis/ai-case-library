@@ -8,7 +8,7 @@
 | 平台 | 读 | 写 | 删 | 说明 |
 |---|---|---|---|---|
 | **B站** | ✅ 4 个接口 | ✅ `draft/add` 带 id 即更新 | ✅ `draft/delete` | 秒级完成，不开编辑器；已投稿列表 `x/space/article?mid=` |
-| **头条** | ✅ `draft_list` + `mp_provider`（已发表只能导航式读） | ✅ `article/publish`（`--api`，需新鲜 `tt-anti-token`）+ 封面上传两级 `/spice/image` | ✅ `delete_draft` | 2026-10-17 更新，**「只能 UI」是旧结论**；群发与「给已有草稿补封面」仍 UI |
+| **头条** | ✅ `draft_list` + `mp_provider`（已发表只能导航式读） | ✅ `article/publish`（`--api`，需新鲜 `tt-anti-token`；`save=1` 即群发）+ 封面上传两级 `/spice/image` | ✅ `delete_draft` / `delete?type=2`（已发布） | 2026-10-18 更新，**六项全通**；只剩「写操作需活着的编辑器页供 token」这一条环境约束 |
 | **公众号** | ✅ `app_msg_list` + `appmsgpublish?sub=list` | ✅ `mp_editor_change_cover` / `mp_editor_set_content` | ✅ `operate_appmsg?sub=del` | 2026-10-16 更新，`action=del` 恒 200009 是猜错接口身 |
 | **小红书** | ⚠ 无服务端 API | ⚠ 无 | ⚠ 无 | **草稿在浏览器本地 IndexedDB** |
 
@@ -94,17 +94,74 @@ resp: {"code":0,"data":{"pgc_id":"…"},"message":"保存成功"}
 与第①步 uri 一致才算真落库（`code:0` 不算数 —— 头条的老毛病）。
 端到端实测 `tmp/tt_cover_e2e.py` RC=0：上传 → 存稿 → 编辑器封面区出图。
 
-### 还没 API 化的三处（2026-10-17 现状，别对外说「全 API」）
+### API 覆盖：**六项全通**（2026-10-18 补上最后两处，别再对外说「部分」）
 
-| 操作 | 现状 | 说明 |
+| 操作 | 端点 | 状态 |
 |---|---|---|
-| **群发（真正发布）** | UI（`publish_one` 点发布按钮） | 只抓过 `save=0` 存草稿接口，没抓过发布接口；头条发布可能还有额外验证 |
-| **给已有草稿补/换封面** | UI（`cover` 子命令：草稿箱→编辑→图库上传） | 底层 `save_draft_api` 带 `pgc_id` 就是更新，理论上可 API 化，但没封装成命令 |
-| **探针稿清理覆盖面** | ✅ 已补 `cleanup_titles()`（精确标题删） | 2026-10-17 实测：`cleanup_probe_draft` 只删 `__probe*` 前缀，`tt_title.py` 的中文测试标题**漏删** 7 条；探针脚本收尾应改用 `cleanup_titles(cdp, [测试标题…])`。⚠ 同标题下可能躺着正稿（3 条无封面测试稿与有封面正稿同标题）——那种情况**按 gid 删**，别用标题匹配；也别用 `dedup`（保留最新一条，会删掉正稿） |
+| 读草稿箱 | `creator_center/draft_list` | ✅ |
+| 读已发表 | `api/feed/mp_provider/v1/`（导航式） | ✅ |
+| 建稿（含封面） | `article/publish` `save=0` + `/spice/image` 两级 | ✅ |
+| **群发（正式发表）** | `article/publish` **`save=1` + `entrance=main`** | ✅ 2026-10-18 |
+| **给已有草稿换封面** | 同上，带 `pgc_id` 更新同一篇 | ✅ 2026-10-18 |
+| 删草稿 | `creator_center/delete_draft` | ✅ |
+| **删已发布文章** | `creator_center/delete?type=2&gid=…`，body `{}` | ✅ 2026-10-18 |
 
-⇒ 准确说法：**头条的「读草稿 / 建稿（含封面）/ 删稿」已纯 API 化；
-「群发」和「给已有草稿换封面」还走 UI；所有写操作都需要一个活着的
-编辑器页面供 `tt-anti-token`**（不点按钮，但浏览器要开着）。
+⇒ 准确说法：**头条的读 / 建 / 群发 / 换封面 / 删（草稿与已发布）已全部 API 化**，
+只有一条**环境**约束：所有写操作需要**活着的编辑器页**供 `tt-anti-token`
+（不点按钮，但浏览器要开着；无头也能抓到，只是慢 —— 实测 66~69s）。
+
+#### 群发：不是新接口，是同一个端点的另一个 save 值（2026-10-18）
+
+`publish.b8c90341ac.js` 里点「发布」时的映射（静态反编译原文）：
+
+```js
+o = { PUBLISH: 1, DRAFT: 0, PREVIEW: 0 }
+t({ save: o[r], entrance: (r === PUBLISH ? "main" : ""), ... })
+```
+
+⇒ **发表与存草稿只差两个字段**：`save`（0→1）与 `entrance`（""→"main"）。
+没有独立的 published 接口，之前「只抓过 save=0 存草稿、没见过发布接口」
+就是漏了这一层 —— 同一个 URL 换个字段值而已。
+
+⚠ 两个坑：
+- 该路径被 `byted_acrawler` 登记进 `enablePathList` 做 `intercept:true`，
+  所以**必须页面内 fetch**（自动加签），外部裸请求过不了。
+- `{"code":0,"message":"提交成功"}` 是**真发出去了**，不是「已受理待处理」。
+  2026-10-18 用假 pgc_id 试探，服务端当新建处理，几分钟内就出现在已发表
+  列表首位（随后已删）。
+
+#### 删已发布文章：三条形态铁律（2026-10-18 实测，全部踩过）
+
+```js
+Delete(t){                                  // vendors.d1505bc60ce087d047b1.js
+  const r = Xl({type, gid, slave_id, mp_id, is_question, question_id, is_comment});
+  const i = `${uriPrefix}/mp/agw/creator_center/delete${r}`;
+  delete e.type; delete e.gid; ...          // ← 先删字段
+  const o = JSON.stringify(e);              // ← 再序列化 ⇒ body 是 {}
+}
+```
+
+1. **字段只在 query，body 必须是 `{}`**。把 type/gid 也塞进 body → 返回
+   `{"code":0,"success"}` 但**不删**（试了两轮才发现）。
+2. **`type=2` 才是图文文章**。`type=0` 回 `1002 无效题材类型`；
+   `type=1` 同样回 `code:0` 却静默不动。
+3. **以回读为准**：这个接口对任何 body 都返 `code:0`，
+   `scripts/toutiao_publish.py unpublish --gid/--match` 删除后会重读已发表列表
+   确认 gid 真消失，否则报 `STILL`。
+
+#### 换封面：`save_draft_api` 带 `pgc_id` 就是更新（不用开编辑器）
+
+`cover --api`。⚠ 正文取**本地** `out/<id>/article.html` —— 线上草稿正文读不到
+（`draft_list` 只回标题/封面/时间），而本项目草稿全由脚本生成，本地即真源；
+若某篇被人工改过，这一步会把正文覆盖回本地版本。
+
+#### 探针稿清理覆盖面（2026-10-17 补）
+
+✅ 已补 `cleanup_titles()`（精确标题删）。2026-10-17 实测：
+`cleanup_probe_draft` 只删 `__probe*` 前缀，`tt_title.py` 的中文测试标题**漏删** 7 条；
+探针脚本收尾应改用 `cleanup_titles(cdp, [测试标题…])`。⚠ 同标题下可能躺着正稿
+（3 条无封面测试稿与有封面正稿同标题）——那种情况**按 gid 删**，别用标题匹配；
+也别用 `dedup`（保留最新一条，会删掉正稿）。
 
 **2026-10-18 复测**（用户要求「再试试头条号」）：链路仍然健康 ——
 登录态有效（`mp.toutiao.com/profile_v4/index`）、`refresh --dry` 正常

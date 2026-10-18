@@ -930,5 +930,120 @@ class TestRefreshWiring(unittest.TestCase):
         self.assertIn("nt in p or p in nt", src)
 
 
+class TestSendPublish(unittest.TestCase):
+    """「群发」= save=1 + entrance=main（2026-10-18 实测，同一个 article/publish）。
+
+    锁的是前端 `publish.b8c90341ac.js` 的映射：
+        o = { PUBLISH: 1, DRAFT: 0, PREVIEW: 0 }
+        save: o[r], entrance: (r === PUBLISH ? "main" : "")
+    一旦有人把这两个字段改回去，群发会静默退回「存草稿」——API 照样返
+    「保存成功」，不看这条测试很难发现。
+    """
+
+    def _body(self, send):
+        raw = tp._publish_draft_body("测试标题", "<p>x</p>", send=send)
+        from urllib.parse import parse_qsl
+        return dict(parse_qsl(raw, keep_blank_values=True))
+
+    def test_send_uses_save_1(self):
+        self.assertEqual(self._body(True)["save"], "1")
+
+    def test_draft_uses_save_0(self):
+        self.assertEqual(self._body(False)["save"], "0")
+
+    def test_send_sets_entrance_main(self):
+        self.assertEqual(self._body(True)["entrance"], "main")
+
+    def test_draft_entrance_empty(self):
+        self.assertEqual(self._body(False)["entrance"], "")
+
+    def test_other_fields_identical(self):
+        # 发表与存草稿只差这两个字段，其余必须逐字段一致
+        a, b = self._body(True), self._body(False)
+        diff = {k for k in a if a.get(k) != b.get(k)}
+        # title_id 每次按时间戳生成，必然不同，不算差异
+        self.assertEqual(diff, {"save", "entrance", "title_id"})
+
+    def test_save_draft_api_forwards_send(self):
+        sig = inspect.signature(tp.save_draft_api)
+        self.assertIn("send", sig.parameters)
+        self.assertFalse(sig.parameters["send"].default)
+
+    def test_publish_api_one_forwards_send(self):
+        sig = inspect.signature(tp.publish_api_one)
+        self.assertIn("send", sig.parameters)
+        self.assertFalse(sig.parameters["send"].default)
+
+    def test_cli_has_send_flag(self):
+        src = open(os.path.join(HERE, "toutiao_publish.py"), encoding="utf-8").read()
+        self.assertIn('p.add_argument("--send"', src)
+
+
+class TestDeleteArticle(unittest.TestCase):
+    """删已发布文章（2026-10-18 打通）的三条形态铁律。
+
+    都踩过，且**失败时服务端都返 `{"code":0,"success"}`**：
+      ① 字段只在 query，body 必须 `{}`（前端先 delete 再 stringify）
+      ② type=2 才是图文文章；type=0 → 1002，type=1 → 假成功
+      ③ 删完必须回读已发表列表核对 gid 是否真消失
+    """
+
+    def test_url_puts_fields_in_query(self):
+        u = tp._delete_article_api_url("739", "3986", type_=2)
+        self.assertTrue(u.startswith("/mp/agw/creator_center/delete?"))
+        for kv in ("type=2", "gid=739", "slave_id=0", "mp_id=3986",
+                   "is_question=false", "question_id=0", "is_comment=false"):
+            self.assertIn(kv, u)
+
+    def test_default_type_is_2(self):
+        # type=0 回「无效题材类型」，type=1 假成功 —— 只有 2 真删
+        self.assertEqual(tp._delete_article_api_url("g", "u"), 
+                         tp._delete_article_api_url("g", "u", type_=2))
+
+    def test_body_is_empty_object(self):
+        src = inspect.getsource(tp.delete_article_api)
+        self.assertIn("body:'{}'", src)
+        # 反例锁：body 必须是**字面量**空对象，不能再把参数拼进去
+        # （拼了就会静默不删，且仍返 code:0）
+        self.assertNotIn("json.dumps({", src.split("body:'{}'")[1])
+
+    def test_verifies_by_rereading_published(self):
+        src = inspect.getsource(tp.delete_article_api)
+        self.assertIn("fetch_published_articles", src)
+        self.assertIn("STILL", src)
+
+    def test_unpublish_command_registered(self):
+        src = open(os.path.join(HERE, "toutiao_publish.py"), encoding="utf-8").read()
+        self.assertIn('sub.add_parser("unpublish"', src)
+        self.assertIn("def cmd_unpublish(", src)
+
+    def test_unpublish_refuses_ambiguous_match(self):
+        # 多条命中必须拒绝（改错一条线上文章代价太高）
+        src = inspect.getsource(tp.cmd_unpublish)
+        self.assertIn("len(hit) > 1", src)
+        self.assertIn("--gid", src)
+
+
+class TestCoverApi(unittest.TestCase):
+    """已有草稿换封面走 API（pgc_id 更新同一篇）。"""
+
+    def test_cover_one_api_exists(self):
+        self.assertTrue(callable(getattr(tp, "cover_one_api", None)))
+
+    def test_uses_pgc_id_update(self):
+        src = inspect.getsource(tp.cover_one_api)
+        self.assertIn("pgc_id=gid", src)
+        self.assertIn("verify_draft_cover", src)
+
+    def test_reads_local_article_html(self):
+        # 线上草稿正文读不到 ⇒ 必须以本地 article.html 为准（docstring 已写明）
+        src = inspect.getsource(tp.cover_one_api)
+        self.assertIn("article.html", src)
+
+    def test_cover_cli_has_api_flag(self):
+        src = open(os.path.join(HERE, "toutiao_publish.py"), encoding="utf-8").read()
+        self.assertIn('cv.add_argument("--api"', src)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

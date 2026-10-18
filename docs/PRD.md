@@ -32,7 +32,7 @@
 - **采集脚本只写采集队列**，绝不直接写精写库。
 - **核实等级不许虚标。** 只有中文二手转述的，任何等级都不成立。
 - **不暴露未核实素材。** 对外产物必须加 `--no-inbox`，否则未核实素材会跟着上线。
-- **不自动群发。** 四平台中公众号/头条的真正「发表」仍由人点最后一击；公众号个人订阅号既无 `freepublish` 权限（2026-10-18 复核，见 §4.8.2），也没有绕过它的打算。
+- **默认不自动群发。** 能力上头条已于 2026-10-18 打通纯 API 发表（`publish --api --send`），但**策略上仍要求人显式加 `--send`**（或传 `--yes`），不设「自动发」默认值；公众号个人订阅号既无 `freepublish` 权限（2026-10-18 复核，见 §4.8.2），也没有绕过它的打算。
 - **不为了多平台而降低单条质量。** 小红书有独立合规口径（`xhs_note_overrides.json`），宁可少发，不共用一套文案硬塞。
 
 ---
@@ -168,7 +168,7 @@ cases.json     精写库   人工核   255 条 ← 唯一写入口是 /api/candi
 | 平台 | 通道 | 读 | 写 | 删 | 台账 |
 |---|---|---|---|---|---|
 | **B站** | **纯 API** | ✅ `x/space/article?mid=` 已投稿 | ✅ `draft/add`（带 id 即更新） | ✅ `draft/delete` | 6 |
-| **头条** | **纯 API**（写操作需活着的编辑器页供 `tt-anti-token`） | ✅ `draft_list` + `mp_provider` | ✅ `article/publish`（`--api`，21 字段 form）+ 封面 `/spice/image` 两级 | ✅ `delete_draft` | 17 |
+| **头条** | **纯 API**（写操作需活着的编辑器页供 `tt-anti-token`） | ✅ `draft_list` + `mp_provider` | ✅ `article/publish`（`--api`，21 字段 form；**`--send` = save=1 群发**）+ 封面 `/spice/image` 两级 | ✅ `delete_draft` / `unpublish`（删已发布） | 17 |
 | **公众号** | **CDP**（9222 有头 Chrome） | ✅ `app_msg_list` + `appmsgpublish?sub=list` | ✅ `mp_editor_set_content` / `mp_editor_change_cover` | ✅ `operate_appmsg?sub=del` | 60 |
 | **小红书** | **CDP**（9223）；**读侧已接口化** | ✅ `note/user/posted` 页面内 fetch（秒级，`scripts/xhs_webapi.py`） | ⚠ 编辑器 UI（`POST /web_api/sns/v2/note` 返回 **461 风控 + verifytype**，创建发不出去） | ✅ `capa/postgw/note/delete`（纯 API） | **8**（台账已回填、重复已清理） |
 
@@ -337,7 +337,7 @@ cases.json     精写库   人工核   255 条 ← 唯一写入口是 /api/candi
 | P2 | 公众号编辑器 DOM 选择器是硬编码实测值（`cover_input`/`save_draft` 仍为 `None`） | 微信改版会全线失效 |
 | P2 | `deploy_oss` 全量覆盖、无版本化、孤儿文件不清理 | 删文件需手动 |
 | P2 | 台账靠半自动回写：群发后 `status=published` 需跑 `sync` | 四平台都存在「已发但台账未更新」的窗口 |
-| P2 | 头条「群发」与「给已有草稿换封面」仍 UI | 与「读/建/删已 API 化」不一致 |
+| ✅ 已解决 | 头条「群发」与「给已有草稿换封面」仍 UI | 2026-10-18 打通：群发=`save=1`+`entrance=main`（同一端点）；换封面=`cover --api`（带 `pgc_id` 更新）；另补 `unpublish` 删已发布文章 ⇒ **六项全通** |
 | P2 | 小红书**草稿**只在浏览器 IndexedDB，换机器即丢；**创建笔记**被风控拦死（461/verifytype=124） | 草稿只能同 profile；创建只能走 UI；读列表已改用 `xhs_webapi.py`（秒级）；**删除已可纯 API**（`xhs_delete.py`） |
 | ✅ 已解决 | 小红书台账滞后（线上 9 vs 本地 2） | 2026-10-18 `xhs_sync_ledger.py --apply` 回填，重复发布已标注 |
 | ✅ 已解决 | 小红书 prosp 重复发布两篇（12:09 / 22:14） | 2026-10-18 `xhs_delete.py --apply` 删 22:14 一篇，留原发；线上 9→8，台账同步 |

@@ -1366,18 +1366,24 @@ def publish_one(c, dry=False, yes=False, cover=True):
 
 
 def publish_api_one(c, cdp=None, anti_token=None, verify=True, with_cover=True,
-                    rebuild=False):
-    """建一篇草稿，**纯 API 路线**（2026-10-17 实测 code:0 全通，含封面）。
+                    rebuild=False, send=False):
+    """建一篇草稿；`send=True` 时**一步正式发表**（纯 API，2026-10-18 打通）。
 
     与 `publish_one`（UI 路线）的差别：
       · 不开编辑器、不点任何按钮、不填 DOM —— 只有 2~3 次 fetch：
         ① 传封面 `upload_cover_api`（`/spice/image` 两级）
-        ② 存草稿 `save_draft_api`（`article/publish`，`save=0`）
-      · 自动存草稿靠 `save=0`（实证值，不是发布）。
+        ② `save_draft_api`（`article/publish`，草稿 `save=0` / 发表 `save=1`）
+      · 发表只是 `save=1` + `entrance="main"`，**不是另一个接口**
+        （依据见 `_publish_draft_body` 的 docstring）。
 
     ⚠ **anti_token 必须新鲜**（这是唯一约束）。自己取会留一条探针草稿，
     所以：优先用调用方传进来的（批量时取一次用一批）；没给就现取 +
     事后清理。取不到就返回 None，让调用方退 UI 路线，**不静默失败**。
+
+    🚨 **发表是不可逆的线上动作**（2026-10-18 实测：返回的 `pgc_id` 就是
+      发表后的 gid，文章立刻进已发表列表并对外可见）。所以 `send=True`
+      时回读校验走**已发表列表**而非草稿箱，且调用方要么显式 `--send`，
+      要么先走 `--dry`。撤回手段是 `delete_article_api`。
 
     🚨 `rebuild=True` 用于**存量草稿刷新**（2026-10-17 实测踩坑）：
       默认行为是「meta.json 不在才 build」—— 存量刷新的 case meta 都在，
@@ -1446,37 +1452,57 @@ def publish_api_one(c, cdp=None, anti_token=None, verify=True, with_cover=True,
                     print("    [warn] 封面上传失败（%s）⇒ 先建无封面草稿"
                           % cmsg)
         pgcid, msg = save_draft_api(box, meta["title"], body_html,
-                                    anti_token=anti_token, cover=cover)
-        print("    API 存草稿：%s（pgc_id=%s）" % (msg, pgcid or "无"))
+                                    anti_token=anti_token, cover=cover,
+                                    send=send)
+        print("    API %s：%s（pgc_id=%s）"
+              % ("发表" if send else "存草稿", msg, pgcid or "无"))
         if not pgcid:
             return None
         if verify:
             # 「API 返 OK ≠ 真存上了」—— 头条 delete 对假 gid 也返 code:0，
-            # 所以回读 draft_list 核对标题在不在，是唯一可信判据。
+            # 所以回读核对是唯一可信判据。
             # ⚠ 但 draft_list 也是被 argus 记账的请求：**批量时逐条回读会
             #   把后续 publish 顶进风控**（2026-10-17 实测）⇒ 批量调用方
             #   应传 verify=False，改为**整批存完统一核对一次**。
-            try:
-                raw = fetch_draft_api_raw(box) or []
-                hit = [x for x in raw if (x.get("title") or "") == meta["title"]]
-                if not hit:
-                    print("    ✗ 回读校验失败：草稿箱里没有这篇 ⇒ 不写台账")
-                    return None
-                print("    回读校验：✓ 草稿箱命中（gid=%s）"
-                      % hit[0].get("gid"))
-                if cover:
-                    st, det = verify_draft_cover(box, meta["title"], raw=raw)
-                    print("    封面校验：%s%s"
-                          % ({"OK": "✓ 封面已落库",
-                              "NO_COVER": "✗ 没落封面",
-                              "NOT_FOUND": "✗ 找不到这篇"}[st],
-                             ("（%s）" % det) if det else ""))
-                    if st != "OK":
+            if send:
+                # 发表走的是「已发表」列表核对；草稿箱里此刻还没有这篇
+                try:
+                    arts = fetch_published_articles(box, max_page=2) or []
+                    hit = [a for a in arts
+                           if (a.get("title") or "").strip() == meta["title"].strip()]
+                    if not hit:
+                        print("    ✗ 回读校验失败：已发表列表里没有这篇"
+                              "（可能还在审核队列）⇒ 不写台账")
                         return None
-            except Exception as e:                           # noqa: BLE001
-                print("    [warn] 回读校验异常（%s），按服务端 code:0 记"
-                      % str(e)[:60])
-        mark_drafted(c["id"])
+                    print("    回读校验：✓ 已发表列表命中")
+                except Exception as e:                       # noqa: BLE001
+                    print("    [warn] 已发表列表回读异常（%s），按 code:0 记"
+                          % str(e)[:60])
+            else:
+                try:
+                    raw = fetch_draft_api_raw(box) or []
+                    hit = [x for x in raw if (x.get("title") or "") == meta["title"]]
+                    if not hit:
+                        print("    ✗ 回读校验失败：草稿箱里没有这篇 ⇒ 不写台账")
+                        return None
+                    print("    回读校验：✓ 草稿箱命中（gid=%s）"
+                          % hit[0].get("gid"))
+                    if cover:
+                        st, det = verify_draft_cover(box, meta["title"], raw=raw)
+                        print("    封面校验：%s%s"
+                              % ({"OK": "✓ 封面已落库",
+                                  "NO_COVER": "✗ 没落封面",
+                                  "NOT_FOUND": "✗ 找不到这篇"}[st],
+                                 ("（%s）" % det) if det else ""))
+                        if st != "OK":
+                            return None
+                except Exception as e:                       # noqa: BLE001
+                    print("    [warn] 回读校验异常（%s），按服务端 code:0 记"
+                          % str(e)[:60])
+        if send:
+            mark_published(c["id"])
+        else:
+            mark_drafted(c["id"])
         return pgcid
     finally:
         if own:
@@ -1968,6 +1994,65 @@ def cover_one(c, dry=False, force=False):
         cdp.close_target(t["id"])
 
 
+def cover_one_api(c, cdp, anti_token, force=False, dry=False):
+    """给**已有草稿**换封面（纯 API，2026-10-18 新增）。
+
+    做法：`save_draft_api` 带 `pgc_id` 就是**更新同一篇**，所以只要把
+    「标题 + 正文 + 新封面」重新提交一次，封面就换了，不用打开编辑器。
+
+    ⚠ 两条前提，必须知道：
+      1. **正文取本地 `out/<id>/article.html`**。线上草稿的正文读不到
+         （`draft_list` 只回标题/封面/时间，没有 content），而本项目草稿
+         全由脚本生成 ⇒ 本地即真源。若某篇被人工改过，这一步会把正文
+         覆盖回本地版本。
+      2. `force=False` 时，若线上该稿**已有封面**就跳过（与 UI 版语义一致）。
+
+    返回 `ok…` 表示成功，其余为原因（与 `cover_one` 同口径，便于 cmd_cover 统计）。
+    """
+    meta_path = os.path.join(OUT, c["id"], "meta.json")
+    if not os.path.isfile(meta_path):
+        return "缺 meta.json（先跑 build）"
+    with open(meta_path, encoding="utf-8") as f:
+        meta = json.load(f)
+    html_path = os.path.join(OUT, c["id"], "article.html")
+    if not os.path.isfile(html_path):
+        return "缺 article.html（先跑 build）"
+    with open(html_path, encoding="utf-8") as f:
+        full = f.read()
+    body_html = full.split("\n", 1)[1] if full.startswith("<h1>") else full
+
+    raw = fetch_draft_api_raw(cdp) or []
+    hit = [x for x in raw if (x.get("title") or "").strip() == meta["title"].strip()]
+    if not hit:
+        return "草稿箱里没有《%s》（已发表？已删？）" % meta["title"]
+    gid = str(hit[0].get("gid"))
+    has_cover = bool((hit[0].get("cover_image") or {}).get("image_url"))
+    if has_cover and not force:
+        return "这张草稿本来就有封面；要换新图加 --force"
+    if dry:
+        return "ok[dry] 将更新 gid=%s 的封面" % gid
+
+    cp = None
+    if not os.path.isfile(os.path.join(OUT, c["id"], "cover.png")):
+        try:
+            cp = render_tt_cover(cdp.port, c)
+        except Exception:                                  # noqa: BLE001
+            cp = None
+    cp = cp or cover_path(c["id"])
+    if not cp or not os.path.isfile(cp):
+        return "没有本地封面图"
+
+    cu, curi, cmsg, wh = upload_cover_api(cdp, cp, anti_token)
+    if not cu:
+        return "封面上传失败：%s" % cmsg
+    _, msg = save_draft_api(cdp, meta["title"], body_html, pgc_id=gid,
+                            anti_token=anti_token, cover=(cu, curi, cmsg, wh))
+    st, det = verify_draft_cover(cdp, meta["title"])
+    if st != "OK":
+        return "存稿返 %s，但封面回读是 %s（%s）" % (msg, st, det or "-")
+    return "ok 换封面 gid=%s（%s）" % (gid, os.path.basename(cp))
+
+
 def cmd_cover(args):
     """给已有的头条草稿补封面（原地改，不重发）。"""
     cases = []
@@ -1980,9 +2065,25 @@ def cmd_cover(args):
         cases = list(load_cases())
     if not args.all:
         cases = cases[:1]
-    print("将为 %d 篇草稿补封面%s" % (len(cases), "（dry-run）" if args.dry else ""))
+    print("将为 %d 篇草稿补封面%s%s"
+          % (len(cases), "（API 路线）" if getattr(args, "api", False) else "",
+             "（dry-run）" if args.dry else ""))
     ok = 0
     t_all = time.time()
+    api = bool(getattr(args, "api", False))
+    capi, ctid, ctoken = None, None, None
+    if api and not args.dry:
+        sess = open_api_session()
+        if not sess:
+            print("  编辑器页开不了（Chrome 没起/掉登录）⇒ 退 UI 路线")
+            api = False
+        else:
+            capi, ctid = sess
+            ctoken = grab_anti_token(capi)
+            print("  tt-anti-token：%s"
+                  % (("已取（%d 字符）" % len(ctoken)) if ctoken else "没取到"))
+            if not ctoken:
+                api = False
     for i, c in enumerate(cases, 1):
         # 关键：每条都 flush。批量跑要 40+ 分钟，重定向到管道时 Python
         # 默认块缓冲（4~8KB），不刷就是「看起来卡住、Chrome 也没动静」。
@@ -1993,7 +2094,12 @@ def cmd_cover(args):
         t0 = time.time()
         for attempt in (1, 2):                    # CDP 偶发断连，单条重试一次
             try:
-                r = cover_one(c, dry=args.dry, force=getattr(args, "force", False))
+                if api and capi is not None:
+                    r = cover_one_api(c, capi, ctoken, dry=args.dry,
+                                      force=getattr(args, "force", False))
+                else:
+                    r = cover_one(c, dry=args.dry,
+                                  force=getattr(args, "force", False))
                 break
             except Exception as e:                # noqa: BLE001
                 r = "%s: %s（attempt %d）" % (type(e).__name__, e, attempt)
@@ -2002,6 +2108,11 @@ def cmd_cover(args):
               % (r, time.time() - t0, (time.time() - t_all) / 60.0), flush=True)
         if r.startswith("ok"):
             ok += 1
+    if ctid:
+        try:
+            capi.close_target(ctid)
+        except Exception:                              # noqa: BLE001
+            pass
     print("\n完成：%d/%d" % (ok, len(cases)))
 
 
@@ -2145,7 +2256,8 @@ def cmd_publish(args):
                         ok = bool(publish_api_one(c, cdp=cdp,
                                                   anti_token=token,
                                                   verify=False,
-                                                  with_cover=not args.no_cover))
+                                                  with_cover=not args.no_cover,
+                                                  send=args.send))
                     except SystemExit:
                         raise
                     except Exception as e:              # noqa: BLE001
@@ -2158,8 +2270,13 @@ def cmd_publish(args):
                 # 整批存完后**统一核对一次**（而不是逐条）—— draft_list
                 # 也是被 argus 记账的请求，逐条回读会把后续 publish 顶进风控。
                 try:
-                    raw = fetch_draft_api_raw(cdp) or []
-                    titles = [x.get("title") or "" for x in raw]
+                    if args.send:
+                        # 发表后稿件不在草稿箱，核对要打「已发表」列表
+                        arts = fetch_published_articles(cdp, max_page=3) or []
+                        titles = [a.get("title") or "" for a in arts]
+                    else:
+                        raw = fetch_draft_api_raw(cdp) or []
+                        titles = [x.get("title") or "" for x in raw]
                     missing = []
                     for c in todo:
                         try:
@@ -2169,12 +2286,14 @@ def cmd_publish(args):
                         if not draft_title_match(c["id"], c, titles):
                             missing.append(c["id"])
                     if missing:
-                        print("[api] ⚠ 回读核对：%d 条草稿箱里没找到 %s"
-                              % (len(missing), " ".join(missing)))
+                        print("[api] ⚠ 回读核对：%d 条%s里没找到 %s"
+                              % (len(missing),
+                                 "已发表列表" if args.send else "草稿箱",
+                                 " ".join(missing)))
                         print("     （可能是同标题被服务端合并，也可能被风控吞）")
                     else:
-                        print("[api] 回读核对：✓ %d 条全部命中草稿箱"
-                              % len(todo))
+                        print("[api] 回读核对：✓ %d 条全部命中%s"
+                              % (len(todo), "已发表列表" if args.send else "草稿箱"))
                 except Exception as e:                  # noqa: BLE001
                     print("[api] [warn] 回读核对异常：%s" % str(e)[:60])
             try:
@@ -2194,7 +2313,7 @@ def cmd_publish(args):
         print("[%d/%d] %s —— %s" % (i, len(todo), c["id"], c.get("name", "")))
         ok = True
         try:
-            ok = bool(publish_one(c, dry=args.dry, yes=args.yes,
+            ok = bool(publish_one(c, dry=args.dry, yes=(args.yes or args.send),
                                   cover=not args.no_cover))
         except SystemExit:
             raise
@@ -2555,11 +2674,12 @@ def upload_cover_api(cdp, png_path, anti_token=None, timeout=120):
 
 def _publish_draft_body(title, content_html, pgc_id=None, abstract_text="",
                         cover_url="", word_cnt=None, cover_uri="",
-                        thumb_w=3840, thumb_h=2160):
-    """草稿保存 body（20 个 form 字段，2026-10-17 抓包实证逐字段对齐）。
+                        thumb_w=3840, thumb_h=2160, send=False):
+    """草稿保存/发表 body（20 个 form 字段，2026-10-17 抓包实证逐字段对齐）。
 
     实证要点：
     - `save=0` 才是**存草稿**（不是发布！）——第一版猜反了；
+    - **`save=1` = 正式发表**（2026-10-18 实证，见下）；
     - 首次保存**不带** pgc_id（=创建），后续带（=更新）；
     - `extra.content_word_cnt` 由前端算，API 调用可直接留 0（服务端重算）；
     - `title_id` 形如 `<毫秒时间戳>_<16位随机>`，用当前时间生成即可；
@@ -2576,6 +2696,16 @@ def _publish_draft_body(title, content_html, pgc_id=None, abstract_text="",
       url 是 `/spice/image?…&need_cover_url=1` 的产物（`upload_cover_api`
       拿），uri 是第①步上传返回的原始对象 uri；缺 uri 时留空也能落库，
       但服务端可能因此重算裁剪 —— 实测带 uri 更稳。
+
+    ## send=True（正式发表）的依据
+
+    `publish.b8c90341ac.js` 里点「发布」时走的映射：
+
+        o = { PUBLISH: 1, DRAFT: 0, PREVIEW: 0 }
+        t({ save: o[r], entrance: (r === PUBLISH ? "main" : ""), ... })
+
+    ⇒ **发表与存草稿是同一个端点**，只有 `save`（0→1）和 `entrance`
+    （""→"main"）两个字段不同，没有独立的 published 接口。
     """
     extra = {
         "content_source": 100000000402,
@@ -2599,9 +2729,11 @@ def _publish_draft_body(title, content_html, pgc_id=None, abstract_text="",
         "source": "29",
         "title": title or "",
         "content": content_html or "",
-        "save": "0",                      # 0 = 存草稿（实证）
+        # 0 = 存草稿；1 = 正式发表（前端枚举 PUBLISH=1 / DRAFT=0，2026-10-18 实证）
+        "save": "1" if send else "0",
         "timer_status": "0",
-        "entrance": "",
+        # 发表时前端传 "main"，存草稿传 ""（同一份映射表里出来的）
+        "entrance": "main" if send else "",
         "activity_tag": "0",
         "article_ad_type": "3",
         "claim_exclusive": "0",
@@ -2844,8 +2976,8 @@ def cleanup_titles(cdp, titles, rounds=3, pause=2.5):
 
 
 def save_draft_api(cdp, title, content_html, pgc_id=None, abstract_text="",
-                   anti_token=None, cover=None):
-    """新建/更新一篇头条草稿（**纯 API 路线**，2026-10-17 实测可用）。
+                   anti_token=None, cover=None, send=False):
+    """新建/更新一篇头条草稿；`send=True` 时**直接正式发表**（2026-10-18）。
 
     返回 (pgc_id, msg)：成功 pgc_id 非空；失败 msg 为原因。
 
@@ -2877,7 +3009,8 @@ def save_draft_api(cdp, title, content_html, pgc_id=None, abstract_text="",
     wh = (cover[3] if cover and len(cover) > 3 else (0, 0))
     body = _publish_draft_body(title, content_html, pgc_id, abstract_text,
                                cover_url=cover_url, cover_uri=cover_uri,
-                               thumb_w=wh[0] or 3840, thumb_h=wh[1] or 2160)
+                               thumb_w=wh[0] or 3840, thumb_h=wh[1] or 2160,
+                               send=send)
     hdr = {"Accept": "application/json, text/plain, */*",
            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"}
     if anti_token:
@@ -2969,6 +3102,66 @@ def delete_draft_api(cdp, gid, draft_type=2):
         return "STILL"                     # 核对失败，保守判未删
     for x in dl:
         if str(x.get("gid")) == str(gid):
+            return "STILL"
+    return "OK"
+
+
+def _delete_article_api_url(gid, uid, slave_id=0, type_=2):
+    """删除**已发布**文章的 URL（2026-10-18 实测打通）。
+
+    ## 三个必须同时满足的形态条件（都踩过）
+
+    1. **字段只放 query，body 必须空 `{}`**。前端 `Delete()` 里序列化**之前**
+       就 `delete e.type / e.gid / …`，所以 body 里根本没有这些键：
+           const o = JSON.stringify(e);   // ← delete 之后
+       把 type/gid 也塞进 body → 服务端返 `{"code":0,"success"}` **但不删**。
+    2. **`type=2` 才是图文文章**。`type=0` 回 `1002 无效题材类型`；`type=1`
+       同样回 `code:0` 却不动（静默失败）。
+    3. `mp_id` 是账号的 `userID`（从列表项 `userInfo.userID` 取，
+       本号 `3986156894822883`）。
+
+    🚨 这个接口对**任何** body 都返 `code:0`（幂等宽容）⇒ 唯一可信判据是
+       删后回读已发表列表，gid 真消失才算删掉。
+    """
+    return ("/mp/agw/creator_center/delete?type=%s&gid=%s&slave_id=%s"
+            "&mp_id=%s&is_question=false&question_id=0&is_comment=false"
+            % (type_, gid, slave_id, uid))
+
+
+def delete_article_api(cdp, gid, uid, type_=2, verify=True):
+    """删一篇**已发布**文章（API，2026-10-18 实测）。
+
+    返回 "OK"（回读确认消失）/ "RET:<code>"（接口拒）/ "STILL"（返 OK 但还在）
+    / "ERR:<...>"。
+
+    ⚠ 与 `delete_draft_api` 是两套东西：那个删草稿（`creator_center/
+    delete_draft`，body 是 `{"drafts":[{draft_type,gid}]}`），这个删线上文章。
+    """
+    url = _delete_article_api_url(gid, uid, type_=type_)
+    # body 必须是空对象：字段进了 body 服务端就静默不删（见 URL 注释第 1 条）
+    js = ("(function(){return fetch(%s,{method:'POST',credentials:'include',"
+          "headers:{'Accept':'application/json',"
+          "'Content-Type':'application/json'},body:'{}'})"
+          ".then(function(r){return r.text();})"
+          ".catch(function(e){return 'ERR:'+e.message;})})()"
+          % json.dumps(url))
+    try:
+        out = str(cdp.eval(js) or "")
+    except Exception as e:
+        return "ERR:%s" % e
+    if not out.startswith("{"):
+        return "ERR:%s" % out[:60]
+    try:
+        d = json.loads(out)
+    except Exception:
+        return "ERR:%s" % out[:60]
+    if d.get("code") != 0:
+        return "RET:%s(%s)" % (d.get("code"), d.get("message"))
+    if not verify:
+        return "OK"
+    arts = fetch_published_articles(cdp, max_page=1) or []
+    for a in arts:
+        if str(a.get("gid")) == str(gid):
             return "STILL"
     return "OK"
 
@@ -3380,6 +3573,68 @@ def _dedup_batch_ui(cdp, titles, max_del, dry):
     return 0 if bad == 0 else 2
 
 
+def cmd_unpublish(args):
+    """删除**已发布**文章（撤回线上内容，2026-10-18 打通）。
+
+    两种定位方式：
+      · `--gid <gid>`  精确删
+      · `--match <标题片段>` 模糊匹配（必须**唯一命中**，多条就报错不动）
+    `--dry` 只列出命中项，不发删除请求。
+    """
+    cdp, t = _open(TT_ARTICLES_PAGE, wait=8)
+    try:
+        arts = fetch_published_articles(cdp, max_page=args.pages)
+        # fetch_published_articles 只回 title/url，这里再取一次带 gid 的原始列表
+        cdp.send("Page.navigate", {"url": _article_api_url(0, 1)})
+        time.sleep(6)
+        raw = json.loads(cdp.eval("document.body.innerText") or "{}").get("data") or []
+        rows = []
+        for it in raw:
+            cell = (it.get("assembleCell") or {}).get("itemCell") or {}
+            base = cell.get("articleBase") or {}
+            rows.append({"gid": str(base.get("gidStr") or ""),
+                         "title": base.get("title") or "",
+                         "status": base.get("itemStatus"),
+                         "uid": (cell.get("userInfo") or {}).get("userID")})
+        if not rows and arts:
+            print("⚠ 列表接口没解析出 gid，改用标题对照（无法删除）")
+
+        if args.gid:
+            hit = [r for r in rows if r["gid"] == str(args.gid)]
+        else:
+            kw = (args.match or "").strip()
+            hit = [r for r in rows if kw and kw in (r["title"] or "")]
+            if len(hit) > 1:
+                print("✗ 「%s」命中 %d 条，请改用 --gid 指定：" % (kw, len(hit)))
+                for r in hit:
+                    print("   %s  %s" % (r["gid"], r["title"][:34]))
+                return 2
+        if not hit:
+            print("✗ 没找到匹配的已发布文章（只查了前 %d 页）" % args.pages)
+            return 2
+
+        r = hit[0]
+        print("目标：%s" % r["title"])
+        print("  gid=%s status=%s uid=%s" % (r["gid"], r["status"], r["uid"]))
+        if args.dry:
+            print("（预演，未删除）")
+            return 0
+
+        st = delete_article_api(cdp, r["gid"], r["uid"])
+        print("删除结果：%s" % st)
+        if st != "OK":
+            print("⚠ 未确认删除成功 —— 头条对该接口的失败也叫 code:0，"
+                  "以回读为准；需要时人工到作品管理页删")
+            return 3
+        print("✓ 已从已发表列表消失")
+        return 0
+    finally:
+        try:
+            cdp.close_target(t["id"])
+        except Exception:
+            pass
+
+
 def cmd_dedup(args):
     """把草稿箱里同标题的重复草稿删到只剩 1 条（试填/重发留下的）。
     --all：遍历 data/toutiao_drafts.json 里登记过的每条标题逐个去重。
@@ -3476,6 +3731,10 @@ def main():
                    help="纯 API 建稿（不开编辑器/不点按钮，2026-10-17 实测可用）。"
                         "token 取一次用一批；**含封面上传**（upload_cover_api 两级 "
                         "/spice/image，verify_draft_cover 回读核对；--no-cover 可关）")
+    p.add_argument("--send", action="store_true",
+                   help="正式发表（原「群发」）。与 --api 搭配时走 save=1 + "
+                        "entrance=main，一步发出、不经草稿箱（2026-10-18 实测）；"
+                        "不配 --api 则退 UI 路线点「预览并发布」")
     p.set_defaults(fn=cmd_publish)
     rf = sub.add_parser("refresh",
                         help="按最新逻辑刷新存量草稿（重建 meta→删旧→建新，"
@@ -3501,6 +3760,14 @@ def main():
     d = sub.add_parser("drafts")
     d.add_argument("--write", action="store_true")
     d.set_defaults(fn=cmd_drafts)
+    up = sub.add_parser("unpublish",
+                        help="删除**已发布**文章（撤回线上内容，2026-10-18 打通）")
+    up.add_argument("--gid", help="精确指定文章 gid")
+    up.add_argument("--match", help="按标题片段匹配（必须唯一命中）")
+    up.add_argument("--dry", action="store_true", help="只列出命中项，不删")
+    up.add_argument("--pages", type=int, default=1, help="只查前 N 页已发表")
+    up.set_defaults(fn=cmd_unpublish)
+
     dd = sub.add_parser("dedup",
                         help="把草稿箱里同标题的重复草稿删到只剩 1 条")
     dd.add_argument("title", nargs="?", default=None,
@@ -3522,6 +3789,10 @@ def main():
     cv.add_argument("--dry", action="store_true")
     cv.add_argument("--force", action="store_true",
                     help="草稿已有封面也强制换图（重做封面后同步到草稿用）")
+    cv.add_argument("--api", action="store_true",
+                    help="纯 API 换封面（不打开编辑器；用 pgc_id 更新同一篇草稿）。"
+                         "⚠ 正文取本地 article.html —— 线上草稿正文读不到，"
+                         "本项目草稿均由脚本生成，本地即真源")
     cv.set_defaults(fn=cmd_cover)
     lg = sub.add_parser("login", help="检查登录态（退出码 0 = 已登录）")
     lg.add_argument("--open", action="store_true",
