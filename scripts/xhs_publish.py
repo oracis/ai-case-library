@@ -1898,7 +1898,15 @@ def _load_ledger(p):
     norm = []
     for e in d:
         if isinstance(e, dict) and e.get("id"):
-            norm.append({"id": e["id"], "at": e.get("at") or now})
+            item = {"id": e["id"], "at": e.get("at") or now}
+            # 扩展字段（note_id / title / note …）必须原样带过去：
+            # 对账脚本 `xhs_sync_ledger.py` 会把它们写进台账，这里归一化时
+            # 丢掉的话，下一次 `mark_published` 就把对账信息全抹了
+            # （2026-10-18 加，别为了「结构干净」又删掉）
+            for k, v in e.items():
+                if k not in item and v is not None:
+                    item[k] = v
+            norm.append(item)
         elif isinstance(e, str) and e:                    # 纯 id 老格式
             norm.append({"id": e, "at": now})
     return norm, nl, was_dict

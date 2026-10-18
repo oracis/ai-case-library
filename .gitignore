@@ -130,6 +130,10 @@ data/_xhs_verify.json
 data/wechat_published.json.bak
 data/wechat_published.json.tmp
 
+# xhs_sync_ledger.py --apply 每次回填前自动快照（data/xhs_published.json.bak-<时间戳>）。
+# 同上：本地安全网，不进库（正文差异看 data/xhs_published.json 本身）。
+data/*.bak-*
+
 # 注意 data/publish_manifest.json（多平台发布清单）**要入库**：
 # 它是「哪条案例在哪个平台发到哪一步」的唯一事实来源（尤其 B站草稿只存在
 # 远端，本地无状态文件）。丢了就得靠人肉翻四个平台的草稿箱重建。

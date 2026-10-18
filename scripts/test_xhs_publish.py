@@ -692,5 +692,83 @@ class TestGenericFallbackTitle(unittest.TestCase):
         self.assertGreater(checked, 20, "只检查到 %d 条，覆盖表没读对" % checked)
 
 
+class TestLedgerExtras(unittest.TestCase):
+    """台账扩展字段必须活下来（2026-10-18 对账回填时踩到）。
+
+    对账脚本 `xhs_sync_ledger.py` 会往 `xhs_published.json` 写
+    `note_id` / `title`，而 `_load_ledger()` 原来只挑 `id`/`at`，
+    于是**下一次 `mark_published` 就把对账信息全抹了**。
+    """
+
+    def _tmp(self, text):
+        p = os.path.join(tempfile.mkdtemp(prefix="xhs_extra_"), "pub.json")
+        with open(p, "w", encoding="utf-8", newline="") as f:
+            f.write(text)
+        return p
+
+    def test_extra_fields_survive_mark(self):
+        p = self._tmp('[{"id": "a", "at": "2026-09-29 12:09",'
+                      ' "note_id": "6abb39e8", "title": "月收$128K：x",'
+                      ' "note": "接口对账回填"}]')
+        x._mark(p, "b")
+        d = json.load(open(p, encoding="utf-8"))
+        a = [e for e in d if e["id"] == "a"][0]
+        self.assertEqual(a["note_id"], "6abb39e8", "扩展字段被归一化抹掉了")
+        self.assertEqual(a["title"], "月收$128K：x")
+        self.assertEqual(a["note"], "接口对账回填")
+        self.assertEqual(a["at"], "2026-09-29 12:09", "老条目时间戳不许动")
+
+
+class TestLedgerMoneyTokens(unittest.TestCase):
+    """`$128,000 MRR` 的金额解析（2026-10-18 对账时误判成 1280 亿）。
+
+    坑：单位字母后紧跟 `\\s*` 时，"$128,000 MRR" 里的 "M" 会被当成
+    「百万」后缀 ⇒ 128000 × 1e6，金额口径彻底错位，标题→case 全部匹配不上。
+    """
+
+    def test_mrr_word_not_read_as_million(self):
+        import xhs_sync_ledger as S
+        self.assertEqual(S.money_tokens("$128,000 MRR"), {128000.0})
+        self.assertEqual(S.money_tokens("约为 $20,000 MRR（自报）"), {20000.0})
+
+    def test_k_and_m_suffix(self):
+        import xhs_sync_ledger as S
+        self.assertEqual(S.money_tokens("月收$1.6K：x"), {1600.0})
+        self.assertEqual(S.money_tokens("$202K MRR"), {202000.0})
+
+    def test_decimal_and_commas(self):
+        import xhs_sync_ledger as S
+        self.assertEqual(S.money_tokens("MRR $42.72"), {42.72})
+        self.assertEqual(S.money_tokens("$1,600"), {1600.0})
+
+
+class TestWebApiBodyCompact(unittest.TestCase):
+    """`xhs_webapi._compact()` 必须和 JS `JSON.stringify` 逐字节一致。
+
+    坑（2026-10-18）：POST 的签名是对**对象再序列化**的结果算的，
+    发出去的 body 只要多一个空格（`json.dumps` 默认 `", "`）就对不上，
+    服务端一律 406 —— 而且 body 里的报错只有 `{"code":-1}`，极难定位。
+    """
+
+    def test_no_spaces(self):
+        import xhs_webapi as W
+        self.assertEqual(W._compact({"a": 1, "b": 2}), '{"a":1,"b":2}')
+
+    def test_non_ascii_not_escaped(self):
+        import xhs_webapi as W
+        self.assertEqual(W._compact({"t": "中文标题"}),
+                         '{"t":"中文标题"}')
+
+    def test_nested_compact(self):
+        import xhs_webapi as W
+        self.assertEqual(W._compact({"common": {"note_id": ""}}),
+                         '{"common":{"note_id":""}}')
+
+    def test_str_passthrough_and_none(self):
+        import xhs_webapi as W
+        self.assertEqual(W._compact('{"a":1}'), '{"a":1}')
+        self.assertEqual(W._compact(None), "")
+
+
 if __name__ == "__main__":
     unittest.main()

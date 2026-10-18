@@ -269,7 +269,7 @@ force 只影响 `cover_all` 的跳过判断，`cover_one` 内部永远「已存�
 
 ---
 
-## 三、小红书（草稿在本地 IndexedDB；**读侧有服务端接口**）
+## 三、小红书（草稿在本地 IndexedDB；**读侧 API 化；发布被风控挡住**）
 
 > 2026-10-18 修正：原标题写「无服务端 API」，**只说对了草稿那一半**。
 > 草稿确实只在本地（页面原文：「草稿存储于当前使用的浏览器本地，在清除浏览器
@@ -298,6 +298,51 @@ DB `draft-database-v1`，stores `article-draft` / `image-draft` / `video-draft` 
   （quran-unlock 小红书标题还写着已被推翻的「$676」）。
 - **`mark_drafted` 只增不减**，对账要**反向清理台账**：purge 删掉的记录不会被自动
   移除，重跑就重复标记。正解 = 台账 ∩ 远端。⚠ 换封面只能删了重发。
+
+### 发布（写）接口探测结论：**到风控为止，纯 API 发不出去**（2026-10-18）
+
+端点不是秘密 —— `project-publish-vue` 的端点表里就写着（`l` = `https://edith.xiaohongshu.com`）：
+
+| 用途 | 端点 |
+|---|---|
+| 创建/发布笔记 | `POST {edith}/web_api/sns/v2/note` |
+| 改已有笔记 | `PUT {edith}/web_api/sns/capa/postgw/note/update` |
+| 上传许可 | `GET {edith}/api/media/v1/upload/creator/permit` |
+| 上传完成校验（转码等） | `GET {edith}/web_api/sns/capa/postgw/query_transcode` |
+
+实测到的地方：
+
+1. ✅ **上传许可能拿**：`?version=1&source=web&biz_name=spectrum&scene=image&file_count=N`
+   返回 `uploadTempPermits[0]`（`fileIds` / `token` / `uploadAddr` / `bucket`）。
+   ⚠ `biz_name` 不能省，省了返回 `code:0` 但 `result.message = bizCloudConfig-list-empty`、
+   通道为空 —— 看 `code` 会误判成成功。
+2. ❌ **二进制上传不是裸 HTTP**：走腾讯云 COS SDK
+   （`new COS({Domain: uploadAddr, SecurityToken: permit.token, TmpSecretId:"null"…})`）。
+   直接打 ros-upload：裸 body → `request Content-Type isn't multipart/form-data`；
+   multipart → `{"code":9,"msg":"invalid param"}`。**未复刻 COS 签名**（图片上传本来
+   走 DOM 选文件，不是瓶颈）。
+3. ❌ **创建笔记被风控拦死**：`POST /web_api/sns/v2/note` 返回
+   **HTTP 461 + 响应头 `verifytype: 124` + `verifyuuid: …`**，
+   而 body 是 `{"code":0,"success":true,"data":{}}` —— **光看 body 会以为发布成功了**。
+   ⚠ 461 与 payload 无关：空 body、半结构、带 images 的完整结构返回**完全一致**，
+   所以别再花时间调字段，这是**请求级闸门**（社区口径一致：461/471 = 要过验证码）。
+   ⇒ 发布这一步只能留在 UI（真人点击才过得了风控）。
+
+**签名规则（顺手破的，价值最高的一条）**：`_webmsxyw` 的第二个参数随 method 变 ——
+GET 传 `'{}'`、签 `pathname+search`；**POST/PUT 必须传 body 解析后的对象**（传字符串
+稳定 406），且实际发出去的 body 要与它的 `JSON.stringify` 逐字节一致（紧凑、无空格、
+中文不转义）。见 `xhs_webapi._FETCH_JS` / `_compact()`，有 4 条锁测试。
+
+探针：`scripts/probe_xhs_publish_api.py --permit|--try-post`。
+
+### 台账对账：**别手改，跑 `xhs_sync_ledger.py`**（2026-10-18）
+
+线上 9 条 vs 台账 2 条那次，根因是发布路径有三条（脚本 / 人工从草稿箱点 / 手机直接发），
+后两条不写台账。工具按「线上事实」反查：`posted` 接口 → 标题映射 case id →
+`--apply` 写回（自动 `.bak-*` 备份）。映射优先级：`data/xhs_aliases.json` >
+`out/xhs/*/note.json` 标题 > `xhs_title_overrides.json` > 打分（产品名/金额/二元组）。
+⚠ 老标题（含「月收$X」）反查不到卡片标题 —— 10-14 设了「标题禁金额」红线，
+线上老笔记还是旧口径，这类必须靠 `xhs_aliases.json` 固化，否则每次靠打分猜。
 
 ### 已发布列表：**优先走接口直读**（2026-10-18 打通，秒级）
 
