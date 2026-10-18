@@ -318,9 +318,70 @@ DB `draft-database-v1`，stores `article-draft` / `image-draft` / `video-draft` 
 
 ## 四、公众号（个人订阅号，只能 CDP）
 
+### 4.0 服务端 API 复核（2026-10-18，用户要求「再探测一次」）
+
+**结论：没变 —— 当前账号拿不到 API，CDP 仍是唯一通道。但这次把边界查清了。**
+
+证据链（三条独立）：
+
+1. **官方文档**（`developers.weixin.qq.com/doc/subscription/`，订阅号**独立**文档区，
+   2026-07 还在更新）。逐接口抓「适用范围」表格原文：
+
+   | 接口 | 公众号（订阅号） | 服务号 |
+   |---|---|---|
+   | `draft/add` `draft/batchget` `draft/delete` `getdraft` | ✔ | ✔ |
+   | `material/add_material`（封面永久素材） | ✔ | ✔ |
+   | `material/uploadimg`（正文图） | ✔ | ✔ |
+   | **`freepublish/submit`（发布）** | **仅认证（企业主体已认证）** | ✔ |
+   | **`message/mass/sendall`（群发）** | **仅认证** | **仅认证** |
+
+   ⚠ 页面表格是 JS 渲染，`WebFetch` 抓不到行；要 `curl` 原始 HTML 再解析
+   `<td>`（`_probe` 里的 `doc_freepublish.html` 是当次快照）。
+
+2. **本账号实际状态**（CDP 打开后台首页原文）：
+   `万物解释者 · 公众号 · 未认证`。开发接口管理页已提示 2025-12-01 起迁移到
+   **微信开发者平台**（`developers.weixin.qq.com/platform`，需管理员单独登录）。
+
+3. **社区实测（2026-09/10 多份，口径一致）**：未认证个人订阅号调 `draft/add`
+   **直接 48001**。⚠ 别写成「个人主体不能认证」——个人订阅号是可以申请
+   「个人认证」的（¥300/次、注册满 30 天、实名、近 30 天无违规，官方社区置顶帖
+   与 2026-10 多篇教程口径一致）；但**认证=解锁哪些接口，官方没逐条列**，
+   社区有说「已认证公众号（个人/企业）即可」，也有说需企业/个体户主体。
+   `freepublish` 文档明确写「仅认证 = 仅企业主体已认证」⇒ 个人认证大概率仍不行。
+   **要实证只有一条路：认证后跑 `probe_wechat_openapi.py`。**
+   所以「文档标 ✔」≠「本账号有权限」—— 以回读/实测为准。
+
+**因此：**
+- 发布（freepublish）/ 群发：个人订阅号即使认证也不满足「企业主体」，**只能人点**；
+- 草稿箱 / 素材：文档可用，但未认证号 48001，**当前账号用不了**；
+- 想全链路 API 化，唯一路径是**换主体 + 认证服务号**（服务号发布列是 ✔）。
+  届时先跑 `scripts/probe_wechat_openapi.py`（一条命令跑通 token → 传封面 →
+  建草稿 → 回读 → 删除；错误码带人话解释），别再从零摸。
+- 账号里没有 AppID（后台只暴露 `gh_669cf14ec057` 原始ID），AppSecret 需在
+  微信开发者平台重置。
+
+### 4.0.1 ⚠ 抠 token 必须从根域名进（2026-10-18 修）
+
+会话有效时，`https://mp.weixin.qq.com/` 会 302 到 `home?...&token=xxx`；
+而直接开 `MP_HOME`（`/cgi-bin/home?t=home/index`，**不带 token**）会稳定落在
+「请重新登录」壳页 —— 同一个 Chrome、同一秒，前者 token=827333358，后者
+`NO_TOKEN`。历史 `_open_editor` 用的正是 MP_HOME。
+
+已修：新增 `MP_ENTRY = "https://mp.weixin.qq.com/"`，`_open_editor` 与 token
+兜底路径都改用它；回归锁 `test_wechat_publish.TestTokenEntry`（3 条）。
+⇒ 排查「登录态明明有效但脚本说没登录」时，先看是不是又开错入口了。
+
+### 4.0.2 发布日预检
+
+`python -X utf8 scripts/preflight.py --deep` —— 一条命令看：9222/9223 端口、
+公众号登录态（子进程里测，40s 硬超时，不会把主进程拖死）、四平台台账、
+cases 完整度、平台覆盖度。退出码 0 全绿 / 1 有 FAIL / 2 仅 WARN。
+
+### 历史结论（保留）
+
 官方 `draft/switch` **已废弃**，官方文档「适用范围」只列服务号，
 个人订阅号通常返回 `48001 api unauthorized`。
-⇒ **个人订阅号仍只能 CDP 操作后台**，别再找服务端 API。
+⇒ **个人订阅号仍只能 CDP 操作后台**。
 
 ### 读
 

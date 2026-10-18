@@ -86,6 +86,11 @@ ensure_no_proxy_for_localhost()  # 模块导入即生效（覆盖 import-as-libr
 
 # 已登录主页（靠 cookie 登录态，无需 token，会被 mp 重定向到图文列表/看板）
 MP_HOME = "https://mp.weixin.qq.com/cgi-bin/home?t=home/index&lang=zh_CN"
+# 拿 token 必须从【根域名】进：它会 302 到 `home?...&token=xxx`。
+# 直接开 MP_HOME（无 token）实测稳定落到「请重新登录」壳页 —— 即使会话
+# 完全有效（2026-10-18 实测：根域名拿到 token=827333358，MP_HOME 同刻 NO_TOKEN）。
+# 所以「开新页抠 token」一律用 MP_ENTRY；MP_HOME 只用于已有 token 的场景。
+MP_ENTRY = "https://mp.weixin.qq.com/"
 
 # 新建图文编辑器路径（token 必须在运行时从已登录页面动态抠，不能写死）
 MP_EDITOR_PATH = (
@@ -1882,7 +1887,7 @@ def _try_login(cdp):
 def _open_editor(cdp, debug=False):
     """开一个已登录主页 tab，抠 token，再导航进【新建图文】编辑器。返回 tid。
     不能直接用带 token 的 URL 开 target——token 会过期，必须运行时抠。"""
-    tid = cdp.new_target(MP_HOME)["id"]
+    tid = cdp.new_target(MP_ENTRY)["id"]
     cdp.connect_target(tid)
     # token 在主页 URL 里，但页面可能还在跳转/加载，轮询重试（最多 ~25 秒）。
     # 若碰到「请重新登录」页面，尝试点一下登录按钮（本地微信已登录时可自动登入）。
@@ -3340,7 +3345,7 @@ def _connect_mp(cdp, debug=False):
                 # **别每个轮次都new_target** —— 实测失败重试会堆出6 个
                 # 一模一样的首页 tab，既干扰后续复用也把页面搞乱。
                 tids.append(t["id"])
-    tid = tids[-1] if tids else cdp.new_target(MP_HOME)["id"]
+    tid = tids[-1] if tids else cdp.new_target(MP_ENTRY)["id"]
     cdp.connect_target(tid)
     login_attempted = False
     for _ in range(25):

@@ -484,5 +484,36 @@ class TestGenCoverViewport(unittest.TestCase):
         self.assertIn("拆解海外 · 第 7 篇", W.cover_html(c, 7))
 
 
+def _code_lines(src):
+    """只看可执行行：注释里写旧 bug 模式不算数（踩过这个坑）。"""
+    return [ln for ln in src.splitlines()
+            if ln.strip() and not ln.strip().startswith("#")]
+
+
+class TestTokenEntry(unittest.TestCase):
+    """拿 token 的入口必须是根域名。
+
+    2026-10-18 实测：会话完全有效时，根域名 302 到 `home?...&token=827333358`；
+    同一个 Chrome 里直接开 `MP_HOME`（无 token）稳定落到「请重新登录」壳页。
+    历史上 `_open_editor` 用的正是 MP_HOME ⇒ 新开页抠不到 token。
+    """
+
+    def test_MP_ENTRY是根域名(self):
+        self.assertEqual(W.MP_ENTRY, "https://mp.weixin.qq.com/")
+
+    def test_open_editor用根域名起页(self):
+        src = "\n".join(_code_lines(inspect.getsource(W._open_editor)))
+        self.assertIn("new_target(MP_ENTRY)", src)
+        self.assertNotIn("new_target(MP_HOME)", src)
+
+    def test_无token时的兜底页也用根域名(self):
+        """token 发现函数在「一个可复用 tab 都没有」时的兜底 new_target。"""
+        src = "\n".join(_code_lines(inspect.getsource(W)))
+        hits = [ln for ln in src.splitlines() if "new_target(" in ln]
+        self.assertTrue(hits)
+        for ln in hits:
+            self.assertNotIn("new_target(MP_HOME)", ln)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
