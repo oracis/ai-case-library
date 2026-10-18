@@ -4,7 +4,8 @@
 > 适用仓库：`oracis/ai-case-library`　线上：https://case.ydtgo.top
 > 配套图：`docs/产品流程图.html`（同一份事实的可视化版本）
 > 本文描述的是**代码当前实际实现的状态**，不是设想。数据截至文首日期：
-> **案例 255 条 / 候选 1 条 / 采集队列 280 条**；四平台已发：公众号 60、头条 21、B站 6、小红书 **8**（线上实读；台账已按远端对账回填）。头条线上 23 篇 = 台账 21 条（bustem / cometly 各发新旧两篇），2026-10-19 三方对账已一一对上。
+> **案例 255 条 / 候选 1 条 / 采集队列 280 条**；四平台台账（2026-10-19 按远端逐条核对）：公众号 **60**（草稿 41 / 已发 19）、头条 **59**（草稿 38 / 已发 21）、B站 **11**、小红书 **52**（草稿 44 / 已发 8）。
+> 注意「条数 ≠ 篇数」：头条线上 23 篇 = 台账 21 条（bustem / cometly 各发新旧两篇）；B站线上 13 篇 = 台账 11 条（trustmrr / uplinked 各发新旧两篇）。旧篇标题记在 `note` 的『…』里，巡检认这个别名。
 
 ---
 
@@ -165,12 +166,12 @@ cases.json     精写库   人工核   255 条 ← 唯一写入口是 /api/candi
 
 #### 4.8.1 能力矩阵（2026-10-17/18 实测）
 
-| 平台 | 通道 | 读 | 写 | 删 | 台账 |
+| 平台 | 通道 | 读 | 写 | 删 | 已发台账（另有草稿） |
 |---|---|---|---|---|---|
-| **B站** | **纯 API** | ✅ `x/space/article?mid=` 已投稿 | ✅ `draft/add`（带 id 即更新） | ✅ `draft/delete` | 6 |
-| **头条** | **纯 API**（写操作需活着的编辑器页 + **有头** Chrome 供 `tt-anti-token`） | ✅ `draft_list` + `mp_provider` | ✅ `article/publish`（`--api`，21 字段 form；**`--send` = save=1 群发**）+ 封面 `/spice/image` 两级 | ✅ `delete_draft` / `unpublish`（删已发布） | 17 |
-| **公众号** | **CDP**（9222 有头 Chrome） | ✅ `app_msg_list` + `appmsgpublish?sub=list` | ✅ `mp_editor_set_content` / `mp_editor_change_cover` | ✅ `operate_appmsg?sub=del` | 60 |
-| **小红书** | **CDP**（9223）；**读侧已接口化** | ✅ `note/user/posted` 页面内 fetch（秒级，`scripts/xhs_webapi.py`） | ⚠ 编辑器 UI（`POST /web_api/sns/v2/note` 返回 **461 风控 + verifytype**，创建发不出去） | ✅ `capa/postgw/note/delete`（纯 API） | **8**（台账已回填、重复已清理） |
+| **B站** | **纯 API** | ✅ `x/space/article?mid=` 已投稿 | ✅ `draft/add`（带 id 即更新） | ✅ `draft/delete` | **11**（线上 13 篇；⚠ 草稿无台账文件） |
+| **头条** | **纯 API**（写操作需活着的编辑器页 + **有头** Chrome 供 `tt-anti-token`） | ✅ `draft_list` + `mp_provider` | ✅ `article/publish`（`--api`，21 字段 form；**`--send` = save=1 群发**）+ 封面 `/spice/image` 两级 | ✅ `delete_draft` / `unpublish`（删已发布） | **21**（另有草稿 38） |
+| **公众号** | **CDP**（9222 有头 Chrome） | ✅ `app_msg_list` + `appmsgpublish?sub=list` | ✅ `mp_editor_set_content` / `mp_editor_change_cover` | ✅ `operate_appmsg?sub=del` | **19**（另有草稿 41） |
+| **小红书** | **CDP**（9223）；**读侧已接口化** | ✅ `note/user/posted` 页面内 fetch（秒级，`scripts/xhs_webapi.py`） | ⚠ 编辑器 UI（`POST /web_api/sns/v2/note` 返回 **461 风控 + verifytype**，创建发不出去） | ✅ `capa/postgw/note/delete`（纯 API） | **8**（另有草稿 44；台账已回填、重复已清理） |
 
 > 2026-10-18 修正：小红书「无服务端接口」只说对了**草稿**那一半（页面原文：
 > 「草稿存储于当前使用的浏览器本地」）。已发布列表 / 用户信息有服务端接口，
