@@ -376,6 +376,64 @@ _REVENUE_PHRASE = re.compile(
     r"\s*(?:达到|高达|超过|近|约|突破|达|是)?\s*"
 )
 
+# ---- 子句级清洗（2026-10-18 重做）------------------------------------------
+# 旧做法 `_MONEY_TOKEN.sub("", raw)` 只剔「金额本身」，把单位和区间留在原地，
+# 结果撕出半截句。实测 19/255 条封面文案成了废句，例如：
+#   「…并定时发布：–199/月，万、2.7 万用户。」
+#   「…开发者服务，万、145 个订阅。」
+# 金额/指标是**整段**信息，剔半截必然留残渣 ⇒ 改为按子句判断：
+# 整句只承载金额或指标就**整句丢弃**，剩下的自然句拼回去；拼不出一句像样
+# 的话就返回空串（封面只显示项目名），绝不把半截句印上去。
+_CLAUSE_SPLIT = re.compile(r"[：:，,；;。！!？?\n]")
+
+# 金额（含「19€」这种符号后置写法）
+_MONEY_ANY = re.compile(
+    r"[$￥€£]\s?\d[\d,.]*"
+    r"|\d[\d,.]*\s*[€£]"
+    r"|\d[\d,.]*\s*[万千万亿]?\s*(?:美元|美金|人民币|元|欧元|英镑|刀)"
+    r"|(?:MRR|ARR|月入|年入|营收|收入|流水|定价|售价|客单价|要价|挂牌)"
+    r"\s*[:：]?\s*[$￥€£]?\s*\d[\d,.]*\s*[KkMmBb万亿]?",
+    re.I)
+
+# 规模数字（用户数/订阅数也算会过期的快照，同样不上封面）
+_COUNT_ANY = re.compile(
+    r"\d[\d,.]*\s*[万千万亿]?\+?\s*个?\s*[新名位]?\s*"
+    r"(?:用户|订阅者|订阅|付费用户|付费开发者|粉丝|下载量?|客户|企业客户)")
+
+# 比率类指标（毛利 82% / 留存 42% / 倍数 3.4x）
+_RATIO_ANY = re.compile(
+    r"(?:毛利|留存|倍数|增速|环比|同比|转化率|付费率|估值)"
+    r"\s*[:：]?\s*[+\-]?\d[\d.,]*\s*[%％倍xX]?")
+
+# 只剩残渣的子句（剔完金额后常见）
+_RESIDUE = re.compile(
+    r"^(?:从|自|约|近|达|共|累计|一次性|月|年|起|以上|的|和|与|万|千|[KkMmBb]"
+    r"|[/／](?:月|年|次|天)|\d+)$")
+
+
+def _is_metric_clause(cl):
+    """这一小句是否只承载「金额 / 规模 / 比率」这类会过期的快照。"""
+    return bool(_MONEY_ANY.search(cl) or _COUNT_ANY.search(cl)
+                or _RATIO_ANY.search(cl))
+
+
+def _desc_from_text(raw):
+    """从一句话里拼出「只讲它是干什么的」的封面文案。拼不出就返回空串。"""
+    kept = []
+    for cl in _CLAUSE_SPLIT.split(raw or ""):
+        cl = cl.strip(" 　·-—–_")
+        if not cl or _is_metric_clause(cl):
+            continue
+        # 剔掉嵌在叙述里的指标短语（如「拿下 100 万+ 用户」），再判残渣
+        cl = _COUNT_ANY.sub("", cl)
+        cl = re.sub(r"(?:做到|冲到|达到|拿下|累计)\s*$", "", cl).strip()
+        cl = cl.strip(" 　·-—–、，,；;：:")
+        if len(re.sub(r"[^\w\u4e00-\u9fff]", "", cl)) < 3 or _RESIDUE.match(cl):
+            continue
+        kept.append(cl)
+    out = "，".join(kept)
+    return _tidy_desc(out)
+
 
 def _tidy_desc(s):
     """把剥掉金额后的残句收拾干净：去空洞介词/标点、压空白。"""
@@ -386,6 +444,25 @@ def _tidy_desc(s):
     s = re.sub(r"[，,、；;·]\s*$", "", s)                  # 结尾悬标点
     s = re.sub(r"\s{2,}", " ", s).strip()
     return s
+
+
+def _strip_name_prefix(text, name):
+    """去掉开头重复的项目名。
+
+    封面第一行已经是大字号项目名，第二行再念一遍纯属浪费 —— 实测 38 条
+    兜底路径（what_it_does 首句）都是「Demopolish帮助软件和 SaaS 创始人…」
+    这种写法。只在整词命中时剥（名字 ≥3 字符、后面紧跟非字母数字）。
+    """
+    t = (text or "").strip()
+    nm = (name or "").strip()
+    if not t or len(nm) < 3:
+        return t
+    m = re.match(r"^\s*%s(?![A-Za-z0-9])\s*[，,：:、·\-—]?\s*" % re.escape(nm),
+                 t, re.I)
+    if not m:
+        return t
+    rest = t[m.end():].strip()
+    return rest if len(re.sub(r"[^\w\u4e00-\u9fff]", "", rest)) >= 3 else t
 
 
 def cover_desc(c):
@@ -403,9 +480,11 @@ def cover_desc(c):
     ⚠ 不要用 `how_it_makes_money`：那是营收模型，答非所问。
     ⚠⚠ **one_liner 里本身可能嵌金额**（实测 4/39：shipfast $199、
       visualizee-ai $150/月→$8.6K、outrank 月入 30 万、pieter-levels
-      25 万美元）。正则剥离在 3 条上好用，但 outrank 那种
-      「月入 30 万的自动化 SEO 引擎」会漏（后面跟「的」不是货币单位），
-      剥出来是废句。⇒ **正解是数据层写 `cover_desc`**，正则只作最后兜底。
+      25 万美元）。⇒ **正解是数据层写 `cover_desc` / `cover_kv.desc`**。
+    ⚠⚠ 2026-10-18 修正：兜底不再做「剔金额 token」这种半截操作（会撕出
+      「，万、」「–199/月」这类废句，实测命中 19 条），改为**子句级**丢弃
+      （见 `_desc_from_text`）。one_liner 拼不出像样的一句话时，**继续往
+      下试 `what_it_does` 首句**，不拿残句交差；都拼不出就返回空串。
     """
     ck = c.get("cover_kv") or {}
     d = (ck.get("desc") or "").strip()
@@ -413,7 +492,10 @@ def cover_desc(c):
         return d
     d = (c.get("cover_desc") or "").strip()
     if d:
-        return d
+        # 手写文案里也常把项目名写在句首（"PROSP帮销售团队…"），封面第一行
+        # 已是大字号项目名 —— 这里同样剥掉。`cover_kv.desc` 保留完全手控，
+        # 不再二次加工（要原样显示就走那条路）。
+        return _strip_name_prefix(d, c.get("name")) or d
     cands = []
     if (c.get("one_liner") or "").strip():
         # 去掉括注（常有「（数据来自公开披露）」这类尾注）
@@ -422,7 +504,7 @@ def cover_desc(c):
     if w:
         cands.append(re.split(r"[。！？!?；;]", w, 1)[0])
     for raw in cands:
-        t = _tidy_desc(_MONEY_TOKEN.sub("", raw))
+        t = _strip_name_prefix(_desc_from_text(raw), c.get("name"))
         if t:
             return t
     return ""

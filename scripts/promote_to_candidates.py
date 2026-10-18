@@ -322,7 +322,10 @@ def build_metric_note(rec, live, m, growth, ret=None, peak=None, last=None, over
     if mg is not None:
         bits.append("近 30 天 MRR 增速 %+.1f%%。" % mg)
     if rg is not None and mg is not None and abs(rg - mg) >= 5:
-        bits.append("⚠ 同期**收入**增速为 %+.1f%%，与 MRR 增速不一致"
+        # ⚠ 这里**不写 Markdown 加粗**（2026-10-18）：metric_note 会原样进
+        #   站点卡片、预渲染页、公众号正文，三处都是 esc() 直出，`**` 不解析、
+        #   只会显示成两个星号。要强调就用中文书名号，别用 Markdown 标记。
+        bits.append("⚠ 同期收入增速为 %+.1f%%，与 MRR 增速不一致"
                     "（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。"
                     % rg)
 
@@ -346,7 +349,7 @@ def build_metric_note(rec, live, m, growth, ret=None, peak=None, last=None, over
     # 「缓存里有旧数字，只是不准」。
     old_mrr = (rec.get("metrics") or {}).get("mrr")
     if old_mrr is None:
-        bits.append("⚠ 刷新前该条目**没有任何收入数字**"
+        bits.append("⚠ 刷新前该条目没有任何收入数字"
                     "（早期入库时收入未公开），本次首次补齐。")
     elif rec.get("added_at"):
         bits.append("⚠ 队列缓存值是 %s 采集时的快照（当时 %s），与上述实测不同；"

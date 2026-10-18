@@ -124,7 +124,7 @@
         "category"
       ],
       "why": "发现新项目的雷达。能最早看到还没被报道、但已经有人在用的东西。",
-      "caveat": "**拿不到 upvote 数** —— 榜单热度的唯一指标在 feed 里没有，详情页又抓不到。所以 PH 在本库只能当发现雷达，「热度高」不等于「有人在付钱」。想要投票数只能申请官方 API token。",
+      "caveat": "「拿不到 upvote 数」 —— 榜单热度的唯一指标在 feed 里没有，详情页又抓不到。所以 PH 在本库只能当发现雷达，「热度高」不等于「有人在付钱」。想要投票数只能申请官方 API token。",
       "endpoints": [
         {
           "label": "Atom feed（唯一可达通道）",
@@ -153,7 +153,7 @@
       "tier": "B",
       "enabled": true,
       "auth": "Algolia 公开 API，无需 key（当前唯一零门槛可直接跑通的源）",
-      "how": "用 Algolia Search API 搜 Show HN 与收入关键词；拿到 objectID 后再调 items/<id> 抓**完整评论树** —— 真话（成本、获客、翻车）都在评论里，标题只是「我做了个 X」。支持 numericFilters=points>50 做质量过滤。",
+      "how": "用 Algolia Search API 搜 Show HN 与收入关键词；拿到 objectID 后再调 items/<id> 抓「完整评论树」 —— 真话（成本、获客、翻车）都在评论里，标题只是「我做了个 X」。支持 numericFilters=points>50 做质量过滤。",
       "fields": [
         "title",
         "url",
@@ -190,7 +190,7 @@
       "tier": "B-",
       "enabled": true,
       "auth": "公开页面",
-      "how": "robots.txt 明确 Allow: /。sitemap 3889 条里有约 1000 个公司页。**只解 FAQPage JSON-LD**（内含带年份的 ARR，如 2025=$600M、2024=$300M、+83% YoY），不读 RSC 里的 `arr` 字段（实测 /notion 上取不到，不可靠）。Organization 块拿官网明文。结果只写 data/arrclub.json 当校对参照，不进候选池。",
+      "how": "robots.txt 明确 Allow: /。sitemap 3889 条里有约 1000 个公司页。「只解 FAQPage JSON-LD」（内含带年份的 ARR，如 2025=$600M、2024=$300M、+83% YoY），不读 RSC 里的 `arr` 字段（实测 /notion 上取不到，不可靠）。Organization 块拿官网明文。结果只写 data/arrclub.json 当校对参照，不进候选池。",
       "fields": [
         "arr_by_year",
         "current_arr",
@@ -200,7 +200,7 @@
         "website"
       ],
       "why": "查一家公司某个时间点的 ARR 很方便，能快速判断数字是否与报道时间自洽。",
-      "caveat": "数字是二手转述 —— 页面自贴「Certificate」徽章，FAQ 里还自引「according to ARR Club's verified data」（自己说自己是 verified，这正是二手转述的特征）。年份口径有歧义：<title> 写 2026 而 FAQ 写 2025，所以**数字必须与年份成对存储**，不能只存数字。覆盖不全（/stripe 实测 404）。API 仅对企业版开放，Pro 才可导出 CSV。",
+      "caveat": "数字是二手转述 —— 页面自贴「Certificate」徽章，FAQ 里还自引「according to ARR Club's verified data」（自己说自己是 verified，这正是二手转述的特征）。年份口径有歧义：<title> 写 2026 而 FAQ 写 2025，所以「数字必须与年份成对存储」，不能只存数字。覆盖不全（/stripe 实测 404）。API 仅对企业版开放，Pro 才可导出 CSV。",
       "endpoints": [
         {
           "label": "sitemap（枚举入口，约 1000 个公司页）",

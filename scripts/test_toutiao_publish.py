@@ -323,6 +323,20 @@ class TestNoRawMarkdown(unittest.TestCase):
                if "**" in ((c.get("metrics") or {}).get("metric_note") or "")]
         self.assertEqual(bad, [], "metric_note 带 **：%s" % bad[:8])
 
+    def test_report_notes_have_no_bold_marker(self):
+        """深度报告里的 note 同样 esc() 直出（2026-10-18 补）。
+
+        `china_fit.note` / `solo_fit.delivery_note` 在 public/app.js 与
+        prerender.py 里都是转义直出，`**` 会原样显示成星号。
+        """
+        bad = []
+        for c in tp.load_cases():
+            for path in (("china_fit", "note"), ("solo_fit", "delivery_note")):
+                v = (c.get(path[0]) or {}).get(path[1]) or ""
+                if "**" in v:
+                    bad.append("%s.%s.%s" % (c["id"], path[0], path[1]))
+        self.assertEqual(bad, [], "报告 note 带 **：%s" % bad[:8])
+
     def test_content_packs_have_no_bold_marker(self):
         """源头拦：内容包本身就不该写 `**`（写都别写，别指望下游过滤）。"""
         try:
@@ -521,6 +535,59 @@ class TestTtCoverNum(unittest.TestCase):
         for s in must_miss:
             m = self._MONEY.search(s)
             self.assertIsNone(m, "误报金额：%s -> %r" % (s, m and m.group(0)))
+
+    def test_metric_clause_dropped_whole_not_half(self):
+        """指标子句是**整句**丢弃，不是剔金额 token（2026-10-18 重做）。
+
+        旧做法 `_MONEY_TOKEN.sub` 只剔金额本身，把单位和区间留在原地，
+        实测撕出 19 条废句：`…并定时发布：–199/月，万、2.7 万用户。`
+        ⇒ 现在按子句判断：只承载金额/规模/比率的整句不要。
+        """
+        c = {"id": "x", "name": "X",
+             "one_liner": "输入文字自动生成「无脸视频」并定时发布："
+                          "$39–199/月，MRR $1.8 万、2.7 万用户。"}
+        self.assertEqual(wp.cover_desc(c),
+                         "输入文字自动生成「无脸视频」并定时发布")
+
+    def test_desc_never_keeps_money_residue(self):
+        """残渣判据：`，万、`、`/月`、`从起` 这类半截话一律不许出现。"""
+        raws = [
+            "把广告账户接给 AI 托管投放：$485–2000 一年，一个人做到 MRR $5.5 万、毛利 82%。",
+            "把内容生成打包成 API 的开发者服务，MRR $1.7 万、145 个订阅。",
+            "「免费版 Chess.com」拿下 100 万+ 用户，MRR $7,306、576 个订阅。",
+            "MRR $880，提供从19€/月起的Ghost CMS托管服务",
+            "AI 生成宠物与主人个性化肖像，挂牌要价 7.5 万美元",
+        ]
+        for raw in raws:
+            d = wp._desc_from_text(raw)
+            for bad in ("万、", "，万", "/月，", "从起", "$", "€", "MRR"):
+                self.assertNotIn(bad, d, "「%s」→「%s」残留 %s" % (raw, d, bad))
+
+    def test_all_metric_oneliner_falls_back_to_what_it_does(self):
+        """one_liner 全是指标时继续往下试，不拿空串/残句交差。"""
+        c = {"id": "x", "name": "X",
+             "one_liner": "MRR $1.9 万、576 个订阅。",
+             "what_it_does": "做免费国际象棋对战平台，另有第二句。"}
+        # what_it_does 按句号切首句，逗号不切
+        self.assertEqual(wp.cover_desc(c), "做免费国际象棋对战平台，另有第二句")
+
+    def test_desc_strips_leading_project_name(self):
+        """封面第一行已是大字号项目名，第二行不许再念一遍（实测 38 条）。"""
+        c = {"id": "x", "name": "Demopolish",
+             "what_it_does": "Demopolish帮助软件和SaaS创始人60秒内做演示视频。"}
+        self.assertEqual(wp.cover_desc(c), "帮助软件和SaaS创始人60秒内做演示视频")
+
+    def test_every_case_cover_has_no_residue(self):
+        """255 条真实数据逐条过残渣判据（与金额判据并列，缺一不可）。"""
+        residue = re.compile(
+            r"(?:^[，,]|[，,]\s*(?:万|千|[KkMmBb])\s*(?:[，,。]|$)"
+            r"|[/／](?:月|年)\s*(?:[，,。]|$)|从起的)")
+        bad = []
+        for c in tp.load_cases():
+            d = wp.cover_desc(c)
+            if residue.search(d):
+                bad.append("%s→%r" % (c["id"], d[:40]))
+        self.assertEqual(bad, [], "封面文案有残渣：%s" % bad[:5])
 
     def test_every_case_cover_has_no_money(self):
         """39 条真实数据逐条过一遍金额判据（不是抽 1~2 条）。"""
