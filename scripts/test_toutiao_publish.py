@@ -947,6 +947,28 @@ class TestMarkLedger(unittest.TestCase):
         for x in d:
             self.assertTrue(x.get("at"), "纯 id 老条目要补 at")
 
+    def test_note_survives_mark(self):
+        """`note` 必须活过下一次写入（2026-10-19 实测：vid-ai 的
+        「双侧都无」被一次 mark_drafted 洗成空白，下次对账又当新发现）。"""
+        p = self._tmp("pub.json",
+                      '[{"id": "a", "at": "2026-09-28 20:40",'
+                      ' "note": "旧口径『月收$1.6K』= 这篇"}]')
+        tp._mark(p, "newcase")
+        d = json.load(open(p, encoding="utf-8"))
+        self.assertEqual(d[0]["note"], "旧口径『月收$1.6K』= 这篇")
+        self.assertEqual(d[0]["at"], "2026-09-28 20:40")
+
+    def test_extra_keys_kept_and_id_at_first(self):
+        p = self._tmp("pub.json",
+                      '[{"gid": "123", "id": "a", "note": "n",'
+                      ' "at": "2026-09-28 20:40"}]')
+        tp._mark(p, "b")
+        d = json.load(open(p, encoding="utf-8"))
+        self.assertEqual(list(d[0].keys())[:2], ["id", "at"],
+                         "id/at 要排在最前，diff 才稳定")
+        self.assertEqual(d[0]["gid"], "123")
+        self.assertEqual(d[0]["note"], "n")
+
 
 class TestFindCaseForTitle(unittest.TestCase):
     """find_case_for_title 回归锁（2026-10-17，refresh 子命令用）。

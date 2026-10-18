@@ -659,6 +659,12 @@ def _mark(path, cid):
        写错行尾 = git 里多一份全文件 diff。
     ⚠ `newline=""` 必须显式给：Windows 文本模式会把 \n 翻成
        \r\n，行尾控制权就没了。
+    🚨 2026-10-19 修「note 被抹掉」：旧实现只重建 `{id, at}`，
+       条目上的 `note`（历史对账结论：「远端标题是这条旧口径
+       文章」「旧篇已删」…）会在**下一次任意写入**时全部蒸发。
+       实测：10-17 给 vid-ai 挂的 note「双侧都无」，被后续一次
+       mark_drafted 清成空白，下次对账又当它是新发现。
+       ⇒ 现在原样保留条目里的其它键，只补/校正 at。
     """
     raw = b""
     if os.path.isfile(path):
@@ -677,8 +683,11 @@ def _mark(path, cid):
     norm = []
     for e in entries:
         if isinstance(e, dict) and e.get("id"):
-            norm.append({"id": e["id"],
-                         "at": e.get("at") or now})
+            row = {"id": e["id"], "at": e.get("at") or now}
+            for k, v in e.items():           # note 等历史字段必须留着
+                if k not in row:
+                    row[k] = v
+            norm.append(row)
         elif isinstance(e, str) and e:
             norm.append({"id": e, "at": now})
     if any(e["id"] == cid for e in norm):
