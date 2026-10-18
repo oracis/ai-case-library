@@ -212,12 +212,48 @@ class TestRunnerLogic(unittest.TestCase):
         self.assertEqual(self.m.state("prosp", "bilibili"), "pending",
                          "dry-run 不该改清单")
 
-    def test_missing_source_marked_failed(self):
+    def test_missing_source_plans_master_in_dry(self):
+        """dry 下缺母版**不写 failed**：实跑会先 make_article 现生成。
+
+        2026-10-19 改：以前缺母版直接判死，于是「一条命令发四平台」对新案例
+        永远差半步（得先手跑 make_article）。现在生成交给 runner，
+        dry-run 只提示、不动清单。
+        """
         a = A.Article("绝对不存在-xyz")
         self.assertFalse(a.ok)
-        self.assertEqual(self.r.run_one(a, "bilibili"), "failed")
+        self.assertEqual(self.r.run_one(a, "bilibili"), "ok")
+        self.assertEqual(self.m.state("绝对不存在-xyz", "bilibili"), "pending")
+
+    def test_missing_source_marked_failed(self):
+        """生成也救不回来 → failed，原因里必须带「母版」。"""
+        r = runner.Runner(["bilibili"], dry=False, manifest=self.m,
+                          verbose=False)
+        r._ensure_master = lambda cid: False        # 不真跑 make_article
+        a = A.Article("绝对不存在-xyz")
+        self.assertFalse(a.ok)
+        self.assertEqual(r.run_one(a, "bilibili"), "failed")
         self.assertEqual(self.m.state("绝对不存在-xyz", "bilibili"), "failed")
         self.assertIn("母版", self.m.error_of("绝对不存在-xyz", "bilibili"))
+
+    def test_send_on_draft_only_platform_is_reported(self):
+        """`--yes` 撞上只能存草稿的平台：状态是 draft_saved，且必须被点名。
+
+        为什么钉这条：默认「发出去」是用户的意图，平台却只能到草稿。
+        安静降级 ⇒ 用户以为四条都发了，回头发现两个平台还躺在草稿箱。
+        """
+        from unittest import mock
+        r = runner.Runner(["bilibili"], dry=False, yes=True,
+                          manifest=self.m, verbose=False)
+        ad = REGISTRY["bilibili"]
+        self.assertFalse(ad.supports_publish)
+        ok = base.Result(True, "draft_saved", "已存草稿")
+        with mock.patch.object(ad, "missing_artifacts", return_value=[]), \
+                mock.patch.object(ad, "build", return_value=ok), \
+                mock.patch.object(ad, "publish", return_value=ok):
+            self.assertEqual(r.run_one(A.Article("prosp", "PROSP"),
+                                       "bilibili"), "ok")
+        self.assertEqual(self.m.state("prosp", "bilibili"), "draft_saved")
+        self.assertIn("B站专栏", r._draft_only)
 
 
 class TestBilibiliReader(unittest.TestCase):

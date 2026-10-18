@@ -97,9 +97,14 @@ class Toutiao(Adapter):
                            "正文只有 %d 字（<%d），多半是 out/articles/%s.md "
                            "缺失，先跑 make_article --format md"
                            % (chars, self.BODY_MIN, art.cid), 1)
+        # yes（真发）优先走 **API**：`--api --send` = save=1 + entrance=main，
+        # 一步发出、不经草稿箱，20–27s；旧路（纯 UI 点「预览并发布」）要开
+        # 编辑器填表再点按钮，3 分钟起，且 UI 一改版就断。
+        # `--yes` 仍然带上：API 取不到 token 时脚本会**自动退回 UI 路线**，
+        # 那时还得靠 --yes 才真的点发布（否则只存草稿，静默降级）。
         args = ["publish", "--case", art.cid]
         if yes:
-            args.append("--yes")
+            args += ["--api", "--send", "--yes"]
         r = self.run(args, not dry, full=True)
         blob = r.out or ""
         if r.ok and ("没找到卡片图" in blob or "正文偏短" in blob):

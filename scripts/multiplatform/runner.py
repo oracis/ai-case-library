@@ -12,12 +12,14 @@
 """
 
 import os
+import subprocess
 import sys
 import time
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(_HERE))
-sys.path.insert(0, os.path.join(ROOT, "scripts"))
+SCRIPTS = os.path.join(ROOT, "scripts")
+sys.path.insert(0, SCRIPTS)
 
 from multiplatform import article as A            # noqa: E402
 from multiplatform import state as S              # noqa: E402
@@ -40,6 +42,8 @@ class Runner:
         # 打开已有草稿重写），调度侧要把已 draft_saved 的也重新纳入队列。
         self.replace = replace
         self.ads = [get_ad(p) for p in self.plats]
+        # 本轮「要发但只能到草稿」的平台（公众号/B站）—— 结尾汇总用
+        self._draft_only = set()
 
     def log(self, msg):
         if self.verbose:
@@ -84,11 +88,40 @@ class Runner:
         return art.title(prio) or art.name
 
     # ---- 单条 × 单平台 ----------------------------------------------------
+    def _ensure_master(self, cid):
+        """母版缺了就现生成 out/articles/<id>.html + .md。
+
+        为什么放这里：母版是四个平台共同的唯一真源，没有它整条 case 直接被
+        判 failed。以前这一步要人先手跑 `make_article.py --id X --format both`，
+        「一条命令发四平台」就永远差半步。生成是幂等的（已存在则不改），
+        所以放在这里没有副作用。
+        """
+        env = dict(os.environ)
+        env["PYTHONIOENCODING"] = "utf-8"
+        try:
+            subprocess.run(
+                [sys.executable, os.path.join(SCRIPTS, "make_article.py"),
+                 "--id", cid, "--format", "both"],
+                cwd=ROOT, timeout=180, stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL, env=env)
+        except Exception as e:                          # noqa: BLE001
+            self.log("    [!] 生成母版失败：%s" % str(e)[:90])
+            return False
+        return A.source_html(cid) is not None
+
     def run_one(self, art, plat):
         ad = get_ad(plat)
         cid = art.cid
         title = self._title(art, plat)
         if not art.ok:
+            if self.dry:
+                self.log("    [%s] [dry] 缺母版，实跑时会先 make_article" % ad.label)
+            else:
+                self.log("    [%s] 缺母版，先生成 out/articles/%s.{html,md}"
+                         % (ad.label, cid))
+                self._ensure_master(cid)
+                art = A.load_article(cid, art.name)
+        if not art.ok and not self.dry:
             self.m.mark_failed(cid, plat, "缺母版 out/articles/%s.html" % cid,
                                title)
             return "failed"
@@ -108,8 +141,18 @@ class Runner:
             r = ad.publish(art, dry=self.dry, yes=self.yes,
                            replace=self.replace)
             if r.ok:
-                st = "published" if (self.yes and getattr(
-                    ad, "supports_publish", False)) else "draft_saved"
+                can_send = bool(getattr(ad, "supports_publish", False))
+                if self.yes and not can_send:
+                    # 要的是「发出去」，平台却只能存草稿 —— 记 draft_saved
+                    # （事实如此），但必须**当场说出来**：安静降级会让人以为
+                    # 四条都发了，回头发现两个平台还在草稿箱里躺着。
+                    self._draft_only.add(ad.label)
+                    self.log("    [%s] △ 只到草稿（该平台无发布接口）%s"
+                             % (ad.label, r.note[:80]))
+                    if not self.dry:
+                        self.m.set(cid, plat, "draft_saved", title)
+                    return "ok"
+                st = "published" if (self.yes and can_send) else "draft_saved"
                 if not self.dry:
                     self.m.set(cid, plat, st, title)
                 self.log("    [%s] %s %s" % (ad.label, "✓", r.note[:90]))
@@ -174,6 +217,10 @@ class Runner:
         bad = [c for c, v in tally.items() if not v]
         self.log("\n" + "=" * 62)
         self.log("共 %d 条，全平台都过了 %d 条" % (len(jobs), len(done)))
+        if self._draft_only and not self.dry:
+            self.log("⚠ %s 只到草稿：平台没有发布接口，"
+                     "最后一步仍要在后台点一次"
+                     % "、".join(sorted(self._draft_only)))
         if bad:
             self.log("有问题 %d 条：%s" % (len(bad), ", ".join(bad)))
             self.log("（重试：publish_multi.py retry --case <id>）")

@@ -354,8 +354,54 @@ python scripts/agnes_cover.py check      # 探连通性 + 确认不扣积分
 python scripts/agnes_cover.py gen --case bustem
 ```
 
+## 四平台「真发布」能力（2026-10-19 实测）
+
+一次命令能建四平台的稿，但**「发出去」这一步四家能力不齐**，差别如下
+（`--yes` 时生效）：
+
+| 平台 | 建稿 | 真发布 | 单条耗时 | 卡在哪 |
+|---|---|---|---|---|
+| 今日头条 | API（`draft/add`） | ✅ API `save=1`+`entrance=main` | 20–27s | 要有头 Chrome 供 `tt-anti-token` |
+| 小红书 | UI | ✅ UI 点「发布」 | 1–2min | 创建走 UI；API 创建被 461 风控 |
+| 公众号 | UI 存草稿 | ❌ 只到草稿 | — | 个人订阅号无 `freepublish` 权限；「发表」在**编辑页**顶栏，草稿箱列表只有「编辑/删除」 |
+| B站专栏 | API（`draft/add`） | ❌ 只到草稿 | — | 编辑器前端不渲染（见下） |
+
+```bash
+python scripts/publish_multi.py run --case <id>          # 只存草稿（默认）
+python scripts/publish_multi.py run --case <id> --yes    # 能发的真发
+python scripts/publish_multi.py run --near 3 --yes       # 接下来 3 条
+python scripts/publish_multi.py run --case <id> --dry    # 只看计划
+```
+
+`--yes` 撞上只能存草稿的平台时，状态记 `draft_saved` 并在结尾**点名**
+（`⚠ 公众号、B站专栏 只到草稿`），不会安静降级成「都成功了」。
+
+### B站编辑器：2026-10-19 起渲不出来
+
+实测三种环境都空：现有 9223 profile、全新 profile、headless、headed，
+`read-editor` 的 Vue 应用只渲染出 `<div id="app" data-v-app=""><!----></div>`：
+
+- 5.2MB 的 `index-*.js` 能 fetch 到 200，页面无 JS 报错，`navigator.webdriver`
+  为 `false`（不是自动化检测），`/york/read-editor?aid=x` 顶层打开同样空。
+- 结论：**B站前端在 Chrome 154 下挂不起来**，与登录态/profile 无关。
+- 影响：B站草稿 API（`draft/add`、`list_drafts`）**照常可用**，只是没法点
+  「发布」。发布接口是 `POST /x/dynamic/feed/create/opus?csrf=…`（从编辑器
+  bundle 里挖出来的，需要 `upload_id` + wbi 签名），尚未打通。
+
+### 公众号「发表」：入口确认，尚未自动化
+
+草稿箱卡片只有「编辑 / 删除」，**「发表」在编辑页顶栏**（与「预览」并列）。
+appmsgid 可从 `/cgi-bin/appmsg?action=list_ex&type=77` 直接读，编辑页 URL 是
+`/cgi-bin/appmsg?t=media/appmsg_edit&action=edit&type=77&appmsgid=<id>`。
+
+还差两步实测定稿：① 点「发表」后的确认弹窗结构（订阅号的「群发通知」开关
+与每天 1 次的限制都在这个弹窗里）；② 发表完成后回读「发表记录」。
+**这一步会真发出去、不可撤回**，首次验证要用指定的一篇稿子做。
+
 ## 待办
 
+- 公众号 `send`（编辑页点发表 + 回读发表记录）——见上，需一次真实发布验证。
+- B站 `create/opus` 发布接口（`upload_id` + wbi 签名），或等 B站修编辑器。
 - 公众号与小红书的草稿箱读取（`verify` 目前只支持头条与 B站）。
 - 图片上传：微信正文里的图在小红书/B站侧没处理（`article.py` 只给 HTML，
   平台适配器自己剥图）。B站**封面**已自动（见上），正文内嵌图仍未处理

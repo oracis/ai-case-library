@@ -198,6 +198,11 @@ def main(argv=None):
 
     p = _add_plats(sub.add_parser("run", help="执行"))
     p.add_argument("case", nargs="?")
+    # 文档与历史命令都写成 `run --case prosp`，但 argparse 只认位置参数，
+    # 于是照文档敲会报 unrecognized arguments（2026-10-19 实测）。
+    # 两个都收，谁给用谁。
+    p.add_argument("--case", dest="case_opt", default=None,
+                   help="案例 id（与位置参数二选一）")
     p.add_argument("--near", type=int, default=0, help="最近 N 条，0=全部")
     p.add_argument("--dry", action="store_true", help="只打印子命令")
     p.add_argument("--yes", action="store_true",
@@ -241,6 +246,9 @@ def main(argv=None):
     p.set_defaults(fn=cmd_mark)
 
     args = ap.parse_args(argv)
+    # 位置参数与 --case 归一化：后续 cmd_* 只认 args.case
+    if getattr(args, "case_opt", None) and not getattr(args, "case", None):
+        args.case = args.case_opt
     return args.fn(args)
 
 
