@@ -47,28 +47,32 @@ class TestTitle(unittest.TestCase):
     def test_basic_within_budget(self):
         t = x.make_xhs_title(_mkc())
         self.assertTrue(4 <= len(t) <= x.TITLE_MAX)
-        self.assertIn("$1.6K", t)
         self.assertNotIn("…", t)
+        self.assertIn("Test", t)          # 品牌名必须保住
+        self.assertIn("一句话定位", t)
 
-    def test_cheng_jiao_caliber(self):
-        # ⚠ id 必须是**真实库里不存在**的：make_xhs_title 会先查
-        # data/xhs_title_overrides.json，而 override 的键就是 case id。
-        # 用真 id（如 prosp / promptmonitor-io）写固件 = 测试结果取决于
-        # 线上文案，改一次标题就假失败一次（2026-10-05 实测）。
-        c = _mkc(id="_t_nonexistent_chengjiao", name="Promptmonitor.io",
+    def test_title_money_redline(self):
+        """红线（2026-10-14 定）：标题里**不许**出现金额 / MRR / ARR / 月收。
+
+        这条替换了 10-05 写的三个 `assertIn("$1.6K" / "$85K" / "$128K")`。
+        那三个是旧口径（标题带金额做钩子），10-14 定了「标题禁金额」之后
+        它们必然失败 —— 不是回归，是测试没跟着改（2026-10-18 实测确认：
+        `make_xhs_title` 出口的 `strip_title_money` 会删掉所有金额）。
+        """
+        cases = [
+            _mkc(),
+            _mkc(id="_t_nonexistent_chengjiao", name="Promptmonitor.io",
                  one_liner="监测品牌在各类 AI 模型回答中的曝光情况",
-                 metrics={"headline": "以 $85,000 成交（TrustMRR 平台公开案例）"})
-        t = x.make_xhs_title(c)
-        self.assertTrue(len(t) <= x.TITLE_MAX)
-        self.assertIn("$85K", t)
-        self.assertIn("成交", t)
-
-    def test_mrr_caliber(self):
-        c = _mkc(id="_t_nonexistent_mrr", one_liner="（待补充：产品定位未明）",
-                 metrics={"headline": "$128,000 MRR（最高当前 MRR）"})
-        t = x.make_xhs_title(c)
-        self.assertTrue(len(t) <= x.TITLE_MAX)
-        self.assertIn("$128K", t)
+                 metrics={"headline": "以 $85,000 成交（TrustMRR 平台公开案例）"}),
+            _mkc(id="_t_nonexistent_mrr", one_liner="（待补充：产品定位未明）",
+                 metrics={"headline": "$128,000 MRR（最高当前 MRR）"}),
+        ]
+        for c in cases:
+            t = x.make_xhs_title(c)
+            self.assertTrue(len(t) <= x.TITLE_MAX, "超字数：%r" % t)
+            self.assertNotRegex(t, r"[¥€£$]\s*\d", "标题不该带金额：%r" % t)
+            for w in ("MRR", "ARR", "月收"):
+                self.assertNotIn(w, t, "标题不该带 %s：%r" % (w, t))
 
     def test_long_name_falls_back(self):
         c = _mkc(id="x", name="VeryLongProductName exceeding budget",

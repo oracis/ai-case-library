@@ -106,6 +106,14 @@ resp: {"code":0,"data":{"pgc_id":"…"},"message":"保存成功"}
 「群发」和「给已有草稿换封面」还走 UI；所有写操作都需要一个活着的
 编辑器页面供 `tt-anti-token`**（不点按钮，但浏览器要开着）。
 
+**2026-10-18 复测**（用户要求「再试试头条号」）：链路仍然健康 ——
+登录态有效（`mp.toutiao.com/profile_v4/index`）、`refresh --dry` 正常
+（17 篇草稿线上线下标题一致）、`grab_anti_token` 取到 **76 字符**的 token。
+⚠ 但抓取**耗时 65.8 秒**（`per_attempt` 内多轮重试才命中，对应 docstring
+里「约 40% 抓不到」的抖动）。批量发布时这 65 秒是纯等待，
+是当前链路上最明显的时间开销；`cleanup_probe_draft` 回显清理 0 条
+（探针标题 `__probe_tok*__` 那次自动保存未真正落地，非清理逻辑失效）。
+
 ### 🚨 标题截断残渣：「——一」是怎么存进草稿箱的（2026-10-17）
 
 `make_toutiao_title` 旧逻辑 `cand[:TITLE_MAX]` 硬切 30 字符，实测把
@@ -261,7 +269,12 @@ force 只影响 `cover_all` 的跳过判断，`cover_one` 内部永远「已存�
 
 ---
 
-## 三、小红书（草稿在本地 IndexedDB，无服务端 API）
+## 三、小红书（草稿在本地 IndexedDB；**读侧有服务端接口**）
+
+> 2026-10-18 修正：原标题写「无服务端 API」，**只说对了草稿那一半**。
+> 草稿确实只在本地（页面原文：「草稿存储于当前使用的浏览器本地，在清除浏览器
+> 数据时会被删除」）；但**已发布列表 / 用户信息**都有服务端接口，且能在页面
+> 内直接调通 —— 见下面「页面内 fetch」小节。
 
 `scripts/xhs_draft_idb.py` 是封装层：`list_drafts` / `get_draft` / `put_draft` /
 `delete_draft`（全部实测通过）。
@@ -286,7 +299,43 @@ DB `draft-database-v1`，stores `article-draft` / `image-draft` / `video-draft` 
 - **`mark_drafted` 只增不减**，对账要**反向清理台账**：purge 删掉的记录不会被自动
   移除，重跑就重复标记。正解 = 台账 ∩ 远端。⚠ 换封面只能删了重发。
 
-### 已发布列表抓取（2026-10-17 实证，补上「无服务端 API」的读一侧）
+### 已发布列表：**优先走接口直读**（2026-10-18 打通，秒级）
+
+`scripts/xhs_webapi.py` —— 在已登录页面里用 `fetch` + 全局签名函数发请求，
+**不点任何 DOM**：
+
+```bash
+python -X utf8 scripts/xhs_webapi.py posted          # 9 条，<2 秒
+python -X utf8 scripts/xhs_webapi.py call --url <任意 /api/... URL>
+```
+
+接口：`GET https://creator.xiaohongshu.com/api/galaxy/v2/creator/note/user/posted?page=1&page_size=30`
+返回 `data.notes[]`，字段 `id / display_title / time / likes / view_count / xsec_token`。
+
+**签名（关键，踩过一轮）**：网页版把签名函数挂在全局 `window._webmsxyw`，
+不用逆 JS。但**签名对象随 method 变**：
+
+| method | 签名对象 | 签错的后果 |
+|---|---|---|
+| GET | `pathname + search`（**query 必须一起签**） | **406 `{"code":-1,"success":false}`** |
+| POST | `pathname`，data 传 body | — |
+
+406 很隐蔽：返的是 JSON 不是报错页，看着像参数错，实际是签名漏了 query。
+
+其他两条边界：
+- **跨域到 `edith.xiaohongshu.com` 会 `TypeError: Failed to fetch`**。CORS 预检
+  其实放行（`Access-Control-Allow-Headers: content-type,x-s,x-t,x-s-common`），
+  失败发生在**签名不匹配时服务端回的响应不带 CORS 头**。⇒ 优先用
+  `creator.xiaohongshu.com/api/...` 同源接口。
+- 必须先连 **9223 的 `chrome-debug-profile`**（签名依赖页面里的 `_webmsxyw`，
+  cookie 依赖 `a1`）。探针脚本 `scripts/probe_xhs_webapi.py` 可单独验签名能力。
+
+⚠ 顺带查出台账缺口（2026-10-18）：线上**已发布 9 条**，而
+`data/xhs_published.json` 只记了 2 条（那 2 条是 10-03 人工从草稿箱发的）。
+其中「月收$128K：销售挖客户线索的工具」在 09-29 **发了两次**（12:09 / 22:14）。
+⇒ 台账严重滞后于远端，对账要以接口结果为准。
+
+### 已发布列表抓取（DOM 路线，接口失效时的兜底）
 
 创作平台**有**笔记管理页（已发布/审核中/未通过），只是没开放接口，走 DOM：
 

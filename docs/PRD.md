@@ -4,7 +4,7 @@
 > 适用仓库：`oracis/ai-case-library`　线上：https://case.ydtgo.top
 > 配套图：`docs/产品流程图.html`（同一份事实的可视化版本）
 > 本文描述的是**代码当前实际实现的状态**，不是设想。数据截至文首日期：
-> **案例 255 条 / 候选 1 条 / 采集队列 280 条**；四平台已发：公众号 60、头条 17、B站 6、小红书 2。
+> **案例 255 条 / 候选 1 条 / 采集队列 280 条**；四平台已发：公众号 60、头条 17、B站 6、小红书 **9**（线上实读；本地台账只记 2 条）。
 
 ---
 
@@ -90,7 +90,7 @@ cases.json     精写库   人工核   255 条 ← 唯一写入口是 /api/candi
 
 `inbox.json` `inbox_archive.json` `candidates.json` `cases.json` `verifications.json`（草稿库）`sources.json`（源元数据 + 过滤词表 + 字段契约）`site.json`（外显配置）`ih_slugs.json`（IH 分片游标）`issue_numbers.json`（篇号注册表）`admin.json`（口令 hash/token secret）`last_harvest.json`（采集简报）`secrets.json`（AI key）`arrclub.json`（校对参照，不进候选池）`wechat_broken_drafts.json`（320003 损坏草稿黑名单）。
 
-**四平台台账**：`wechat_published.json`（60）/ `toutiao_published.json`（17）/ `bili_published.json`（6）/ `xhs_published.json`（2）；另有 `toutiao_drafts.json` / `xhs_drafts.json` / `xhs_note_overrides.json` / `xhs_title_overrides.json`（头条与小红书共用）。
+**四平台台账**：`wechat_published.json`（60）/ `toutiao_published.json`（17）/ `bili_published.json`（6）/ `xhs_published.json`（**2 条，但线上实际 9 条 —— 台账滞后 7 条**，以 `xhs_webapi.py posted` 的远端读数为准）；另有 `toutiao_drafts.json` / `xhs_drafts.json` / `xhs_note_overrides.json` / `xhs_title_overrides.json`（头条与小红书共用）。
 
 ---
 
@@ -170,7 +170,13 @@ cases.json     精写库   人工核   255 条 ← 唯一写入口是 /api/candi
 | **B站** | **纯 API** | ✅ `x/space/article?mid=` 已投稿 | ✅ `draft/add`（带 id 即更新） | ✅ `draft/delete` | 6 |
 | **头条** | **纯 API**（写操作需活着的编辑器页供 `tt-anti-token`） | ✅ `draft_list` + `mp_provider` | ✅ `article/publish`（`--api`，21 字段 form）+ 封面 `/spice/image` 两级 | ✅ `delete_draft` | 17 |
 | **公众号** | **CDP**（9222 有头 Chrome） | ✅ `app_msg_list` + `appmsgpublish?sub=list` | ✅ `mp_editor_set_content` / `mp_editor_change_cover` | ✅ `operate_appmsg?sub=del` | 60 |
-| **小红书** | **CDP**（9223） | ⚠ 已发表列表导航式读 | ⚠ 编辑器 UI | ⚠ `_purge_one` | 2 |
+| **小红书** | **CDP**（9223）；**读侧已接口化** | ✅ `note/user/posted` 页面内 fetch（秒级，`scripts/xhs_webapi.py`） | ⚠ 编辑器 UI（发布接口未打通） | ⚠ `_purge_one` | **9**（台账只记了 2，滞后） |
+
+> 2026-10-18 修正：小红书「无服务端接口」只说对了**草稿**那一半（页面原文：
+> 「草稿存储于当前使用的浏览器本地」）。已发布列表 / 用户信息有服务端接口，
+> 且能在已登录页面内直接 fetch（签名走全局 `window._webmsxyw`）。
+> 线上实际已发 **9 条**，而 `data/xhs_published.json` 只记 2 条 ⇒ 台账缺口 7 条，
+> 其中「月收$128K：销售挖客户线索的工具」09-29 重复发了两次。
 
 口径说明：**「读/写/删」指该平台后台能做的操作**，不等于服务端开放 API。头条「只能 UI」是旧结论，已作废；公众号「删除 `action=del` 返 200009」也是猜错接口身。
 
@@ -329,7 +335,8 @@ cases.json     精写库   人工核   255 条 ← 唯一写入口是 /api/candi
 | P2 | `deploy_oss` 全量覆盖、无版本化、孤儿文件不清理 | 删文件需手动 |
 | P2 | 台账靠半自动回写：群发后 `status=published` 需跑 `sync` | 四平台都存在「已发但台账未更新」的窗口 |
 | P2 | 头条「群发」与「给已有草稿换封面」仍 UI | 与「读/建/删已 API 化」不一致 |
-| P2 | 小红书无服务端草稿（浏览器 IndexedDB），换机器即丢；列表标题可能为空 | 只能在同一 profile 里操作 |
+| P2 | 小红书**草稿**无服务端接口（浏览器 IndexedDB），换机器即丢；**发布**接口仍未打通（读侧已接口化） | 草稿只能在同一 profile 里操作；读列表已改用 `xhs_webapi.py` |
+| P2 | 小红书台账滞后：线上 9 条 vs 本地 2 条，且有 1 条重复发布 | 需按 `xhs_webapi.py posted` 回填台账 |
 | P3 | `README.md` / `公众号-发布计划.md` 数字过期（写 24 条案例） | 文档误导 |
 
 ---
