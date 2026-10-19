@@ -17,6 +17,7 @@ import io
 import json
 import os
 import re
+import subprocess
 import sys
 import tempfile
 
@@ -78,8 +79,14 @@ def main():
     chk("EDITORIAL_WEIGHT 无错 id", not bad, "、".join(bad) if bad else "")
     bad2 = [k for k in m.TITLE_OVERRIDES if k not in by_id]
     chk("TITLE_OVERRIDES 无错 id", not bad2, "、".join(bad2) if bad2 else "")
-    chk("手改标题都是 3 条备选",
-        all(len(v) == 3 for v in m.TITLE_OVERRIDES.values()))
+    # 守的是「不能只有 1~2 条」—— build_titles() 会拿模板补到 3 个，
+    # 那意味着人只写了一条、剩下两条是机器编的。多于 3 条不是错：
+    # render_markdown 会逐个写成「备选标题 N」，备选是给人挑的，有几个写几个
+    # （见 make_article.py 2026-10-15 那条注释）。实测手改表里有 3 条写了 4 个
+    #（uplinked-b-v / cometly / wpconvert…），下游一条不丢 —— 判 ==3 是把
+    # 多写的人判成错。
+    chk("手改标题至少 3 条备选",
+        all(len(v) >= 3 for v in m.TITLE_OVERRIDES.values()))
 
     print("\n[3] 传播力打分")
     chk("基础分非负", all(m.virality_base(c) >= 0 for c in cases))
@@ -365,10 +372,27 @@ def main():
         chk("[10f] 列表项悬挂缩进", False, "%s" % e)
 
     print("\n[11] 不污染工作区")
-    dirty = [p for p in ("data", "static", "dist")
-             if os.path.isdir(os.path.join(ROOT, p))
-             and any(f.endswith(".bak") for f in os.listdir(os.path.join(ROOT, p)))]
-    chk("data/static/dist 无 .bak 残留", not dirty, "、".join(dirty) if dirty else "")
+    # 只算**会进版本库**的 .bak。data/ 下本来就躺着 gitignore 掉的同步快照
+    #（wechat_published.json.bak、xhs_drafts.json.bak、*.bak-<时间戳>）：
+    # 它们永不入库，不是 make_article 的残留 —— 按文件名一律判红，
+    # 本机就永远红着一条假警报（CI 干净 checkout 反而绿）。
+    dirty = []
+    for p in ("data", "static", "dist"):
+        d = os.path.join(ROOT, p)
+        if not os.path.isdir(d):
+            continue
+        baks = [f for f in os.listdir(d) if f.endswith(".bak")]
+        for f in baks:
+            rel = "%s/%s" % (p, f)
+            try:
+                ignored = subprocess.run(["git", "check-ignore", "-q", "--", rel],
+                                         cwd=ROOT).returncode == 0
+            except Exception:
+                ignored = False          # 查不出来就当没被忽略，保守判红
+            if not ignored:
+                dirty.append(rel)
+    chk("data/static/dist 无 .bak 残留（gitignore 的同步快照不算）",
+        not dirty, "、".join(dirty))
 
     print("\n" + "=" * 62)
     if fails:
