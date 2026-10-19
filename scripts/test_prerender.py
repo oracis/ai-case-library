@@ -13,6 +13,7 @@
 """
 
 import contextlib
+import html
 import importlib.util
 import io
 import json
@@ -241,8 +242,12 @@ def main():
         h = m.render_case_page(c, {"site": site})
         head = h[:h.index("<body>")]
         t = re.search(r"<title>(.*?)</title>", head, re.S)
-        if not t or not t.group(1).strip() or len(t.group(1)) > 62:
-            long_title.append("%s(%s)" % (c["id"], len(t.group(1)) if t else 0))
+        # ⚠️ 量的是**读者看到的那串**，不是 HTML 源码：名字里带 & 的案例
+        #（aura-ai…）会被转义成 &amp;，源码多 4 个字符。prerender 卡的是可见
+        # 长度（62），按源码量会把「卡得刚好」判成超长 —— 这条断言从此假红。
+        title_txt = html.unescape(t.group(1)) if t else ""
+        if not t or not title_txt.strip() or len(title_txt) > 62:
+            long_title.append("%s(%s)" % (c["id"], len(title_txt)))
         d = re.search(r'<meta name="description" content="(.*?)">', head)
         if not d or not d.group(1).strip():
             no_desc.append(c["id"])

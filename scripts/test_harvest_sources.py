@@ -770,6 +770,12 @@ def test_infer_source():
     # 真实数据：每条都必须有 source_kind，且候选池里的 TrustMRR 条目是 verified
     for name in ("inbox", "candidates"):
         path = os.path.join(REPO, "data", name + ".json")
+        if not os.path.isfile(path):
+            # inbox.json **不入库**（2026-09-24 起队列归 data 分支承载），
+            # CI 的干净 checkout 里压根没有这个文件。按上面「空池子不算数据错」
+            # 同一条规矩，缺文件也不算 —— 但要显式说出来：静默跳过是假绿的另一种。
+            print("  [跳过] data/%s.json 不存在（未入库，CI 干净 checkout 常态）" % name)
+            continue
         with open(path, encoding="utf-8") as f:
             data = json.load(f)
         missing = [x.get("id") for x in data if not x.get("source_kind")]
