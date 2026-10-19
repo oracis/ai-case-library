@@ -151,6 +151,17 @@ CATEGORY_STYLE = {
     "games": "game interface, board or match screens and ranking panels",
     "recruiting": "recruiting pipeline, candidate profiles and application tracking",
     "security": "security monitoring console, alerts and device tracking map",
+    # ---- 2026-10-19 补：又是七种新分类（同一件事中英/大小写并存的老问题：
+    # 已有了 security 又来一个 Security、有了 Health & Fitness 又来 health fitness）。
+    # 两张表按字符串精确查、不归一化，漏一个就等于这些分类的封面退回
+    # DEFAULT_STYLE，整套图风格悄悄不统一。test_all_real_categories_covered 盯着。
+    "Design Tools": "design tool canvas, vector editing panels and layer workspace",
+    "Security": "security monitoring console, alerts and device tracking map",
+    "Utilities": "utility software interface, file manager and system tool panels",
+    "community": "community forum, member directory and discussion threads",
+    "health fitness": "fitness tracking app screens, workout plans and progress charts",
+    "no code": "no-code builder canvas, drag-and-drop blocks and workflow nodes",
+    "travel": "travel booking interface, itinerary map and destination cards",
     "未分类": "generic software product concept illustration",
 }
 DEFAULT_STYLE = "flat geometric editorial illustration, product and workflow concept"
@@ -184,6 +195,15 @@ CATEGORY_THEME = {
     "games": "game match screens and ranking",
     "recruiting": "candidate pipeline and applications",
     "security": "monitoring console and device tracking",
+    # 与 CATEGORY_STYLE 同批补的七个分类（见那里的注释）：key 差一个字母/大小写
+    # 就是没命中，别指望归一化兜底。
+    "Design Tools": "design canvas and vector editing",
+    "Security": "monitoring console and device tracking",
+    "Utilities": "utility tools and file management",
+    "community": "community forum and member profiles",
+    "health fitness": "fitness tracking and workout plans",
+    "no code": "no-code app builder and workflows",
+    "travel": "travel booking and itinerary",
     "未分类": "software product",
 }
 
