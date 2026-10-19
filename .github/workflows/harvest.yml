@@ -201,23 +201,45 @@ jobs:
             echo "origin/data 还不存在，本次将创建 data 分支。"
           fi
 
-          # 1) 队列相对 data 分支有没有真变化（三个文件在 main 上被忽略，
-          #    但 origin/data 追踪它们，diff 带 pathspec 照样能比）
-          if [ "$HAVE_DATA" = 1 ] \
-             && git diff --quiet origin/data -- data/inbox.json data/inbox_archive.json data/last_harvest.json; then
-            echo "队列与 data 分支一致，没有待提交的采集数据（本次无新增）。"
-            exit 0
+          # 0) data 分支上有的队列文件，工作区必须也有（fetch 步负责写回来）。
+          #    缺了就是异常：宁可失败，也不能把「删除」提交上去、把队列抹掉。
+          if [ "$HAVE_DATA" = 1 ]; then
+            for f in data/inbox.json data/inbox_archive.json data/last_harvest.json; do
+              if git cat-file -e "origin/data:$f" 2>/dev/null && [ ! -f "$f" ]; then
+                echo "::error::$f 在 data 分支存在但工作区没有，放弃本次提交。"
+                exit 1
+              fi
+            done
           fi
 
-          # 2) 只把队列文件强制入树（main 上它们是忽略的，必须 -f）
+          # 1) 先把队列文件强制入暂存区（main 上它们是忽略的，必须 -f）。
+          #    ⚠ 必须先 add 再比，不能反过来：git diff <commit> -- <路径>
+          #    看不见**未追踪**的工作区文件——内容一模一样也会被报成
+          #    「deleted file」。2026-10-19 dry-run 实测踩到：文件刚被
+          #    `git show` 写回来、与 data 分支逐字节相同，diff 仍报删除，
+          #    于是「无新增」的日子也造了提交。进了暂存区才参与比较，
+          #    所以下面用 --cached 比「暂存区 vs origin/data」。
           for f in data/inbox.json data/inbox_archive.json data/last_harvest.json; do
             if [ -f "$f" ]; then
               git add -f "$f"
             fi
           done
+
+          # 2) 暂存区与 data 分支没差异 = 本次无新增（跟 data 分支比，不跟
+          #    HEAD 比：这三个文件在 main 上不存在，跟 HEAD 比永远算新文件）
+          if [ "$HAVE_DATA" = 1 ] \
+             && git diff --quiet --cached origin/data -- data/inbox.json data/inbox_archive.json data/last_harvest.json; then
+            echo "队列与 data 分支一致，没有待提交的采集数据（本次无新增）。"
+            git reset -q HEAD -- data/inbox.json data/inbox_archive.json data/last_harvest.json
+            exit 0
+          fi
           if [ -z "$(git diff --cached --name-only)" ]; then
-            echo "::error::判过有变化，却没有任何队列文件进得了暂存区，不敢造提交。"
-            exit 1
+            if [ "$HAVE_DATA" = 1 ]; then
+              echo "::error::判过有变化，却没有任何队列文件进得了暂存区，不敢造提交。"
+              exit 1
+            fi
+            echo "没有队列文件可提交（首次运行且本次无采集结果）。"
+            exit 0
           fi
 
           # 3) 造树 → 以 origin/data 为父造提交 → 推送
