@@ -9,6 +9,12 @@ name: 每日采集
 # 改动，本地 push 永远是快进。
 #   本地要构建含 inbox 的 dist 时，从 data 分支取回：bash scripts/sync_inbox.sh
 #
+# **采集提交的父必须是 origin/data（2026-10-19 用 25 天全红换来的）**：
+# 提交只能用 git 管件造（`write-tree` + `commit-tree -p origin/data`），
+# 绝不能先 `git commit` 到本地 main 再 `git push HEAD:data`。后者隐含
+# 「data 分支永远是 main 的祖先」，而 main 天天在本地前进——9-25 起这个
+# 假设就破了，之后每天必被 non-fast-forward 拒，白挂 25 天。
+#
 # 为什么放 GitHub 跑而不是本地：
 #   - 不依赖你本机开着、网络通、代理不捣乱
 #   - Runner 在境外，访问 Hacker News / TrustMRR 更顺
@@ -50,7 +56,7 @@ on:
         required: false
         default: '40'
       dry_run:
-        description: 只采集不提交（调试采集规则用）
+        description: 只演练不写入（调试采集规则用）
         required: false
         default: false
         type: boolean
@@ -100,10 +106,22 @@ jobs:
             fi
           done
 
-      - name: 采集（写 data/，不提交）
-        # 复用本地同一套脚本，行为完全一致：没变化不产生空提交，只动 data/，
-        # 绝不自动改 cases.json（精写案例必须人工核实）。
-        # 注意：本步不提交——提交与推送统一在后面的「提交采集数据到 data 分支」做。
+      - name: 采集（只写 data/，不碰 git）
+        # 直接调 harvest.py，**不再过 daily_harvest.py**。
+        # daily_harvest.py 自带「检测变化 → git add → commit」三段 git 逻辑，
+        # 那是 9-24「采集队列改由 data 分支承载」之前的 main 时代残留，在 CI 里
+        # 只有一个效果是负的：
+        #   ① 采集队列三个文件都被 .gitignore 挡着，它的 git status 永远看不到
+        #      「变化」，于是每次跑完都打印「data/ 无变化 —— 本次没捞到新素材」，
+        #      而实际上可能刚捞了 165 条 —— 日志与事实相反，看日志的人会被骗；
+        #   ② 它**看得到**的反倒是 harvest 顺手重写的 data/trustmrr_profiles.json
+        #      （派生缓存，曾是 main 追踪文件，已由 .gitignore 挡下）——
+        #      2026-10-19 实跑日志里的 a3052bf 就是它把那坨机器数据 commit 到了
+        #      本地 main：既违反「main 只承载人工改动」，又把「校验」步骤的
+        #      data/ 干净断言洗成假绿（脏被它先提交了，git status 自然看不到）；
+        #   ③ 它提交到本地 main 的东西，下一步会连同队列一起被推到 data 分支。
+        # CI 只借用它的采集步 —— 参数与 daily_harvest.py 内部调 harvest.py 的
+        # 用法完全一致（同一脚本、同一参数），行为不会漂。
         env:
           SRC: ${{ github.event.inputs.source }}
           LIM: ${{ github.event.inputs.limit }}
@@ -111,11 +129,11 @@ jobs:
         run: |
           SRC="${SRC:-all}"
           LIM="${LIM:-40}"
-          echo "采集源=$SRC  单源上限=$LIM  只采集不提交=$DRY"
+          echo "采集源=$SRC  单源上限=$LIM  只演练不写入=$DRY"
           if [ "$DRY" = "true" ]; then
-            python scripts/daily_harvest.py --source "$SRC" --limit "$LIM" --dry-run --no-push
+            python scripts/harvest.py --source "$SRC" --limit "$LIM" --dry-run
           else
-            python scripts/daily_harvest.py --source "$SRC" --limit "$LIM" --no-push
+            python scripts/harvest.py --source "$SRC" --limit "$LIM"
           fi
 
       - name: 校验数据没被写坏
@@ -155,24 +173,65 @@ jobs:
       - name: 提交采集数据到 data 分支
         # 采集队列只推到独立的 data 分支，绝不碰 main（main 是人工的代码/案例，
         # 只有它干净，你本地 push 才永远是快进、不需要 rebase）。
-        # 因为这一步的提交是建在当前 main 之上的，推完 data 后要把本地 main
-        # 软重置回 origin/main，避免后续任何步骤误把采集提交推到 main。
+        #
+        # ⚠⚠ 2026-10-19 修「连挂 25 天」：提交必须挂在 origin/data 之上。
+        # 旧写法是先 `git commit`（建在本地 main 上）再 `git push HEAD:data`，
+        # 从 9-25 起每天必挂，原因只有一个：data 分支自 9-24 起就含有 main
+        # 没有的采集提交（8c161bc），而 main 之后天天在本地前进 ⇒ 建在 main
+        # 上的采集提交永远不是 data tip 的后代，push 必然 non-fast-forward
+        # 被拒。9-24 那次能成，只因当天 main 恰好就是 data 的父——「data
+        # 永远是 main 的祖先」这个隐含假设，从第一次本地提交起就注定维持不住。
+        #
+        # 现在改用 git 管件直接造提交：`write-tree` 把暂存区（= 当前 main 的
+        # 内容 + 三个队列文件）落成一棵树，`commit-tree` 以 **origin/data**
+        # 为父提交。本地 main 的指针从头到尾不动、工作区不动，只有 data 分支
+        # 前进——所以旧写法结尾的 `git reset origin/main`（防采集提交泄漏到
+        # main）也不再需要：根本没有提交落在 main 上。
+        #
+        # 「有没有真变化」跟 origin/data 比，不跟 HEAD 比：这三个文件在 main
+        # 上不存在（.gitignore 挡着），跟 HEAD 比永远算「新文件」，没有新增
+        # 的日子也会制造空提交。
+        # 若采集期间 data 分支被外人推过，push 会以 non-fast-forward 失败
+        # （父还是旧 tip）—— fail loud，不会静默覆盖别人的提交。
         run: |
-          git add -f data/inbox.json data/inbox_archive.json data/last_harvest.json
-          if [ -z "$(git diff --cached --name-only)" ]; then
-            echo "没有待提交的采集数据（本次无新增）。"
+          if git rev-parse --verify -q origin/data >/dev/null; then
+            HAVE_DATA=1
+          else
+            HAVE_DATA=0
+            echo "origin/data 还不存在，本次将创建 data 分支。"
+          fi
+
+          # 1) 队列相对 data 分支有没有真变化（三个文件在 main 上被忽略，
+          #    但 origin/data 追踪它们，diff 带 pathspec 照样能比）
+          if [ "$HAVE_DATA" = 1 ] \
+             && git diff --quiet origin/data -- data/inbox.json data/inbox_archive.json data/last_harvest.json; then
+            echo "队列与 data 分支一致，没有待提交的采集数据（本次无新增）。"
             exit 0
           fi
+
+          # 2) 只把队列文件强制入树（main 上它们是忽略的，必须 -f）
+          for f in data/inbox.json data/inbox_archive.json data/last_harvest.json; do
+            if [ -f "$f" ]; then
+              git add -f "$f"
+            fi
+          done
+          if [ -z "$(git diff --cached --name-only)" ]; then
+            echo "::error::判过有变化，却没有任何队列文件进得了暂存区，不敢造提交。"
+            exit 1
+          fi
+
+          # 3) 造树 → 以 origin/data 为父造提交 → 推送
           N=$(python -c "import json;d=json.load(open('data/last_harvest.json',encoding='utf-8'));print(d.get('added',0))" 2>/dev/null || echo '?')
           DATE=$(date +%F)
-          git commit -m "采集：新增 $N 条素材（$DATE）"
-          git push origin HEAD:refs/heads/data
-          echo "已推送到 data 分支（main 不受影响）。"
-          # 用 --mixed（默认）把本地 main 重置回 origin/main：分支指针移回，
-          # 暂存区也清掉（inbox 退回工作区、被 .gitignore 忽略），既保证采集提交
-          # 不会泄漏到 main，又让后面的「校验」步骤 git status 不会误报 data/ 脏。
-          git reset origin/main
-          echo "本地 main 已重置回 origin/main，采集提交不会泄漏到 main。"
+          TREE=$(git write-tree)
+          if [ "$HAVE_DATA" = 1 ]; then
+            NEW=$(git commit-tree "$TREE" -p origin/data -m "采集：新增 $N 条素材（$DATE）")
+          else
+            NEW=$(git commit-tree "$TREE" -m "采集：新增 $N 条素材（$DATE）")
+          fi
+          echo "新提交 $NEW（父：$( [ "$HAVE_DATA" = 1 ] && git rev-parse --short origin/data || echo '无（首建）')）"
+          git push origin "$NEW:refs/heads/data"
+          echo "已推送到 data 分支（main 不受影响，本地 main 从未移动）。"
 
       - name: 写运行摘要
         if: always()

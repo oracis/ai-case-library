@@ -295,7 +295,7 @@ def test_integration():
     tmp = tempfile.mkdtemp(prefix="harvest_test_")
     orig_dir = H.DATA_DIR
     orig = (H.harvest_hn, H.harvest_indiehackers, H.harvest_trustmrr,
-            H.harvest_producthunt)
+            H.harvest_producthunt, H.harvest_trustmrr_sitemap)
     try:
         H.DATA_DIR = tmp
 
@@ -327,8 +327,29 @@ def test_integration():
                      "points": 500, "comments": 0, "created_at": "2026-09-01",
                      "_blob": "PH Thing launched mrr", "_origin": "ph"}]
 
+        # 2026-10-15：harvest 加了 --tm-seeds（种子队列文件），调用点会传
+        # seeds_file= —— 这里的假函数必须一并接收，否则集成测试报
+        # "unexpected keyword argument"，而真实函数签名其实是对得上的。
+        def fake_tm_sitemap(limit, budget=100, dry_run=False, seeds_file=None):
+            return [{"name": "TM Sitemap Thing", "one_liner": "from .md profile",
+                     "url": "https://trustmrr.com/startup/tm-sitemap",
+                     "website": "https://tms.example", "points": 0, "comments": 0,
+                     "created_at": "2026-10-14",
+                     "_blob": "TM Sitemap Thing mrr revenue verified",
+                     "_origin": "trustmrr", "_verified_rank": False,
+                     "_api": {"slug": "tm-sitemap", "website": "https://tms.example",
+                              "rank": None, "mrr": 800, "revenue_last30d": 800,
+                              "revenue_total": 9600, "subscriptions": 40,
+                              "category": "开发者工具", "country": "SG",
+                              "on_sale": False, "stealth": False,
+                              "note": "来自 .md 档案"},
+                     "_models": ["订阅制"],
+                     "_freshness": "2026-10-14T08:00:00Z",
+                     "_monthly": [["2026-09", 800.0]]}]
+
         H.harvest_hn, H.harvest_indiehackers = fake_hn, fake_ih
         H.harvest_trustmrr, H.harvest_producthunt = fake_tm, fake_ph
+        H.harvest_trustmrr_sitemap = fake_tm_sitemap
 
         argv = sys.argv
         sys.argv = ["harvest.py", "--source", "all", "--limit", "5",
@@ -345,7 +366,7 @@ def test_integration():
         with open(os.path.join(tmp, "inbox.json"), encoding="utf-8") as f:
             inbox = json.load(f)
         ids = {c.get("name"): c for c in inbox}
-        chk("四个源都进了采集队列", len(inbox) == 4, sorted(ids))
+        chk("五个源都进了采集队列", len(inbox) == 5, sorted(ids))
         chk("每条都有 source_kind 字段",
             all(c.get("source_kind") for c in inbox),
             [(c.get("name"), c.get("source_kind")) for c in inbox])
@@ -355,6 +376,14 @@ def test_integration():
             ids.get("IH Thing", {}).get("source_kind") == "self_reported")
         chk("TrustMRR 条目 -> verified",
             ids.get("TM Thing", {}).get("source_kind") == "verified")
+        chk("TrustMRR sitemap 条目 -> verified",
+            ids.get("TM Sitemap Thing", {}).get("source_kind") == "verified")
+        chk("sitemap 条目带 .md 档案三件套（freshness/monthly/models）",
+            (ids.get("TM Sitemap Thing", {}).get("data_freshness") == "2026-10-14T08:00:00Z"
+             and (ids.get("TM Sitemap Thing", {}).get("metrics") or {}).get("monthly_timeline")
+             == [["2026-09", 800.0]]
+             and ids.get("TM Sitemap Thing", {}).get("models") == ["订阅制"]),
+            ids.get("TM Sitemap Thing"))
         chk("Product Hunt 条目 -> discovery",
             ids.get("PH Thing", {}).get("source_kind") == "discovery")
 
@@ -378,7 +407,7 @@ def test_integration():
     finally:
         H.DATA_DIR = orig_dir
         (H.harvest_hn, H.harvest_indiehackers, H.harvest_trustmrr,
-         H.harvest_producthunt) = orig
+         H.harvest_producthunt, H.harvest_trustmrr_sitemap) = orig
         import shutil
         shutil.rmtree(tmp, ignore_errors=True)
     print()
@@ -741,6 +770,12 @@ def test_infer_source():
     # 真实数据：每条都必须有 source_kind，且候选池里的 TrustMRR 条目是 verified
     for name in ("inbox", "candidates"):
         path = os.path.join(REPO, "data", name + ".json")
+        if not os.path.isfile(path):
+            # inbox.json **不入库**（2026-09-24 起队列归 data 分支承载），
+            # CI 的干净 checkout 里压根没有这个文件。按上面「空池子不算数据错」
+            # 同一条规矩，缺文件也不算 —— 但要显式说出来：静默跳过是假绿的另一种。
+            print("  [跳过] data/%s.json 不存在（未入库，CI 干净 checkout 常态）" % name)
+            continue
         with open(path, encoding="utf-8") as f:
             data = json.load(f)
         missing = [x.get("id") for x in data if not x.get("source_kind")]
@@ -749,13 +784,35 @@ def test_infer_source():
     # 「凡是带 TrustMRR 来源的，source_kind 都为 verified」——池子被发布空了
     # （2026-09-20 把最后 5 条发走之后就是空的）时它依然成立，
     # 写成 `tr and all(...)` 会让空池子判失败，那是把「没数据」误报成「数据错了」。
+    #
+    # 🚨 2026-10-10 例外：榜单条目不等于项目页。
+    # `private-venture-1` 的 URL 是 `trustmrr.com/startup/private-venture`，
+    # 但它是**市场挂牌条目**（`models:["交易市场"]`、名字带「榜单条目 1」、
+    # note 明写「需先确认两条 Private Venture 是否同一实体」）——
+    # 实体都没确认，把可信度提到「支付网关 API 直读」是失实的，
+    # 保持 `discovery` 才是对的。它的 `verification` 也是 `partial` 而非 stripe。
+    #
+    # 所以判据要按「**是不是项目页**」分，不能只看 URL 里有没有 trustmrr.com。
+    # 之前这条断言没报错，纯粹是因为该条 `source_url` 是 None、压根没进这个集合；
+    # backfill 顺手把 URL 补上后它才暴露 —— 说明「用 None 躲过断言」也是假绿的一种。
     with open(os.path.join(REPO, "data", "candidates.json"), encoding="utf-8") as f:
         cands = json.load(f)
-    tr = [c for c in cands if "trustmrr.com" in (c.get("source_url") or "")]
+    LISTING = {"private-venture-1"}          # 榜单/交易条目，非项目页
+    tr = [c for c in cands
+          if "trustmrr.com" in (c.get("source_url") or "")
+          and c.get("id") not in LISTING]
     bad_tr = [c.get("id") for c in tr if c.get("source_kind") != "verified"]
-    chk("候选池里带 TrustMRR 来源的都是 verified",
+    chk("候选池里带 TrustMRR 项目页的都是 verified",
         not bad_tr,
         "共 %d 条，异常 %s" % (len(tr), bad_tr[:5]))
+    # 榜单条目必须**显式**留在 discovery/partial，不能被顺手升成 verified
+    for c in cands:
+        if c.get("id") in LISTING:
+            chk("榜单条目 %s 保持 discovery（实体未确认，不升verified）" % c.get("id"),
+                c.get("source_kind") == "discovery"
+                and c.get("verification") != "stripe",
+                "source_kind=%s verification=%s"
+                % (c.get("source_kind"), c.get("verification")))
 
     # 案例侧不加同款断言：source_kind（verified/discovery）是**候选池专有**字段，
     # 描述「这条是从哪条采集流水线来的」。案例用的是另一套 ——
@@ -837,6 +894,8 @@ def main():
     section("sources.json 配置一致性", test_sources_config)
     section("来源推断与存量回填", test_infer_source)
     section("TrustMRR discovery 通道", test_trustmrr_discovery)
+    section("save_json 保留换行格式", test_save_json_preserves_newline)
+    section("category_cn 英文分类归一", test_category_cn_normalizes_english)
 
     print("=" * 62)
     if fails:
@@ -847,6 +906,133 @@ def main():
         print("  结果：全部通过（%d 项）" % passed)
     print("=" * 62)
     return 1 if fails else 0
+
+
+def test_category_cn_normalizes_english():
+    """🚨 回归钉：TrustMRR 的英文category 必须在采集入口归一到中文分类。
+
+    这条坑真实发生过：2026-10-11 晋升 7 条后，全库 48 条案例里出现
+    8 个英文分类（Artificial Intelligence / SaaS / Design Tools /
+    Content Creation / Social Media / Entertainment / Real Estate），
+    而这个库自己的分类体系一直是中文的（AI 工具 / 垂直行业 SaaS /
+    创作者经济…）。
+
+    后果不是「不好看」，而是**同一个概念被劈成两个分类**：
+    分类统计被劈开、封面风格表要专门给英文名补一套键、
+    按分类做的筛选与统计会漏掉一半案例。
+
+    与country_cn 同一层解决：落进库里的必须是本库的分类。
+    """
+    print("[14] category_cn 把英文分类归一到本库体系")
+    M = {
+        "Artificial Intelligence": "AI 工具",
+        "AI": "AI 工具",
+        "SaaS": "垂直行业 SaaS",
+        "Design Tools": "创作者经济",
+        "Content Creation": "创作者经济",
+        "Social Media": "创作者经济",
+        "Video": "创作者经济",
+        "Music": "创作者经济",
+        "Marketing Tools": "营销工具",
+        "Developer Tools": "开发者工具",
+        "E-commerce": "电商",
+        "Finance": "垂直行业 SaaS",
+        "Mobile App": "移动应用",
+        "Customer Support": "客户服务",
+    }
+    for raw, want in sorted(M.items()):
+        chk("category_cn(%r) == %r" % (raw, want), H.category_cn(raw) == want)
+
+    # 大小写与空白不敏感（TrustMRR 拼法不保证）
+    chk("大小写不敏感",
+        H.category_cn("artificial intelligence") == "AI 工具")
+    chk("去首尾空白", H.category_cn("  SaaS  ") == "垂直行业 SaaS")
+
+    # 🚨 反向：认不出来要**原样留着**，不能硬凑。
+    # 硬凑会把「确实没有合适分类」伪装成「已归类」，那比英文名更坏。
+    chk("认不出来原样留着", H.category_cn("Weird New Thing") == "Weird New Thing")
+    chk("空值给空串", H.category_cn("") == "" and H.category_cn(None) == "")
+
+    # 🚨 归一后的值必须**已在封面风格表里**登记，否则 styles 拿不到
+    # → 落进 DEFAULT_STYLE，风格不统一。这是这次事故的真实判据。
+    try:
+        import agnes_cover as A
+    except ImportError:
+        A = None
+    if A is not None:
+        unstyled = sorted({H.category_cn(k) for k in M}
+                          - set(A.CATEGORY_STYLE) - set(A.CATEGORY_THEME))
+        chk("归一后的分类都已在封面风格表登记：%s" % (unstyled or "全部命中"),
+            not unstyled)
+    print()
+
+
+def test_save_json_preserves_newline():
+    """🚨 回归钉：写 JSON 必须保留原文件换行格式（红线 23，2026-10-10 实测）。
+
+    这条坑真实发生过：`save_json()` 用 `open(path, "w")`，
+    Windows 文本模式会把 json 的 `\\n` 翻译成 `\\r\\n`。
+    而 `data/` 下两种格式**并存**：
+        inbox.json / cases.json              = CRLF
+        candidates.json / inbox_archive.json = LF
+
+    实测后果：跑一次 harvest 就把 623 条、13286 行的 `inbox_archive.json`
+    从 LF 悄悄改成 CRLF —— **数据一个字没变**，但 diff 全红，
+    极易误判成「采集把队列搞乱了」，白排查半小时。
+
+    这类故障不会报错、不会崩，只会让版本历史被噪音淹没，
+    所以必须用测试钉死。
+    """
+    print("[13] save_json 保留换行格式")
+    tmp = tempfile.mkdtemp(prefix="harvest_nl_")
+    orig_dir = H.DATA_DIR
+    try:
+        H.DATA_DIR = tmp
+        payload = [{"id": "a", "name": "x"}, {"id": "b", "name": "y"}]
+        body = json.dumps(payload, ensure_ascii=False, indent=2)
+
+        # ① 预置 LF 文件 → 写回必须还是 LF（不能被翻译成 CRLF）
+        for name in ("lf_file", "cases"):
+            p = os.path.join(tmp, name + ".json")
+            with open(p, "w", encoding="utf-8", newline="\n") as f:
+                f.write(body)
+            H.save_json(name, payload)
+            raw = open(p, "rb").read()
+            chk("%s 保持 LF" % name, b"\r\n" not in raw,
+                "CRLF=%d" % raw.count(b"\r\n"))
+
+        # ② 预置 CRLF 文件 → 写回必须还是 CRLF（不能被抹成 LF）
+        for name in ("crlf_file", "inbox"):
+            p = os.path.join(tmp, name + ".json")
+            with open(p, "w", encoding="utf-8", newline="\r\n") as f:
+                f.write(body)
+            H.save_json(name, payload)
+            raw = open(p, "rb").read()
+            chk("%s 保持 CRLF" % name, raw.count(b"\r\n") == raw.count(b"\n"),
+                "CRLF=%d 总LF=%d" % (raw.count(b"\r\n"), raw.count(b"\n")))
+
+        # ③ 内容必须与 json 语义一致（换行修复不能改数据）
+        p = os.path.join(tmp, "lf_file.json")
+        chk("内容无损", json.loads(open(p, encoding="utf-8").read()) == payload)
+
+        # ④ 新建文件（不存在）不应报错，默认 LF
+        H.save_json("brand_new", payload)
+        p = os.path.join(tmp, "brand_new.json")
+        chk("新建文件用 LF", os.path.exists(p)
+            and b"\r\n" not in open(p, "rb").read())
+
+        # ⑤ detect_newline 判据本身
+        chk("detect: 不存在→默认 LF",
+            H.detect_newline(os.path.join(tmp, "nope.json")) == "\n")
+        chk("detect: CRLF 文件判 CRLF",
+            H.detect_newline(os.path.join(tmp, "crlf_file.json")) == "\r\n")
+        chk("detect: LF 文件判 LF",
+            H.detect_newline(os.path.join(tmp, "lf_file.json")) == "\n")
+    finally:
+        H.DATA_DIR = orig_dir
+        import shutil
+        shutil.rmtree(tmp, ignore_errors=True)
+    print()
 
 
 if __name__ == "__main__":

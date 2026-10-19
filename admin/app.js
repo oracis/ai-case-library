@@ -376,9 +376,14 @@ async function loadAIStatus() {
     const j = await r.json();
     const st = $('ai-set-state');
     if (st) {
-      st.textContent = j.has_key
-        ? '✓ 已配置（' + (j.model || 'deepseek-chat') + '）—— 可直接跑'
-        : '未配置 Key —— 在上面保存一份即可启用';
+      // ⚠ 用 ready 而不是 has_key 判断「能不能跑」——
+      // 免 key 端点（space-bunny-free）压根没有 key，has_key 恒 false，
+      // 拿它当判据会把可用的配置误报成「未配置 Key」。
+      const rdy = j.ready !== undefined ? j.ready : j.has_key;
+      st.textContent = rdy
+        ? '✓ 已配置（' + (j.model || 'deepseek-chat') +
+          (j.no_key_endpoint ? '，免 key 端点' : '') + '）—— 可直接跑'
+        : '未配置 LLM 接口 —— 在上面保存接口地址与模型名即可启用';
     }
     const key = $('ai-key');
     if (key && j.has_key && !key.value) {
@@ -411,7 +416,7 @@ async function saveAISettings() {
     });
     const j = await r.json();
     if (!r.ok) throw new Error(j.error || '保存失败');
-    toast(j.has_key ? '已保存，Key 生效' : '已清除 Key');
+    toast(j.ready ? '已保存，生效' : '已保存（未填 Key）');
     if (key) { key.value = ''; key.placeholder = '已保存（输入新值可更换）'; }
     loadAIStatus();
   } catch (e) {

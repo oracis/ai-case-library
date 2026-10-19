@@ -57,9 +57,15 @@ V_LABEL = {
     "disputed": "数字有出入",
     "unverified": "未核实",
 }
+# 必须与 static/app.js 的 KIND_LABEL **逐键一致**（test_prerender 会对照），
+# 键集合又要覆盖 verify_rules.SOURCE_TIERS。
+# 2026-10-15 补齐 revenuecat / secondary：前者是订阅数据商（App 收入估算），
+# 后者是中文二手转述 —— 本库踩过的两个数字错误都来自这一层，
+# 独立页上必须把它显示成「二手转述」，不能退化成笼统的「来源」两个字。
 KIND_LABEL = {
     "stripe": "支付验证", "official": "官方", "press": "报道",
-    "review": "核查", "founder": "自述",
+    "review": "核查", "revenuecat": "订阅数据商",
+    "founder": "自述", "secondary": "二手转述",
 }
 REP_LABEL = {
     "tech": "技术门槛", "distribution": "获客门槛",
@@ -103,6 +109,14 @@ DEFAULT_SITE = {
     "community": {"name": "社群", "url": "", "hint": "每日线索 · 每周深度"},
     "icp": "",                    # 备案号，备案下来后填这里
 }
+
+# 案例页（case/*.html）的图标声明。路径走 ../icons/ —— 这些页面比主页深一层。
+# 图形来自 scripts/gen_logo.py，和主页侧栏、PWA 图标、小程序头像同一套几何；
+# 抽成常量是因为下面两个 head 模板都要用，写两遍迟早改一处漏一处。
+PAGE_FAVICON = (
+    '<link rel="icon" href="../icons/logo.svg" type="image/svg+xml">\n'
+    '<link rel="icon" href="../icons/icon-192.png" type="image/png" sizes="192x192">\n'
+)
 
 # 案例页里内联的一小段补充样式。主样式表（style.css）是给 SPA 的网格布局写的，
 # 独立阅读页只需要一个居中窄栏，所以这里补一点，避免为了 24 个页面去改主样式表。
@@ -273,6 +287,7 @@ def frag_metrics(c):
         push("累计收入", human_money(m["all_time"]), True)
     push("客户/规模", m.get("customers"))
     push("团队", m.get("team"))
+    push("站长/创始人", c.get("founder"))
     push("融资", m.get("funding"))
     push("估值", m.get("valuation"))
     push("增长", m.get("growth"))
@@ -384,6 +399,16 @@ def render_body(c):
     if c.get("how_it_makes_money"):
         out.append('<div class="d-h">钱从哪来</div>'
                    '<p class="d-p">%s</p>' % esc(c["how_it_makes_money"]))
+
+    # 骨架第 3、4 段（2026-10-14 补，对齐固定 7 段叙事）：
+    # 流量来源 + 站长是谁。与 app.js 的 detailHTML() 保持同一顺序与判空逻辑 ——
+    # 存量老案例没这两个字段，整段不出现，不留空壳小标题。
+    if frag_list(c.get("traffic_sources"), "src"):
+        out.append('<div class="d-h">流量从哪来</div>'
+                   + frag_list(c.get("traffic_sources"), "src"))
+    if c.get("founder"):
+        out.append('<div class="d-h">站长是谁</div>'
+                   '<p class="d-p">%s</p>' % esc(c["founder"]))
 
     if frag_list(c.get("why_it_works"), "why"):
         out.append('<div class="d-h">为什么这事能成</div>'
@@ -552,8 +577,13 @@ def render_case_page(c, ctx):
     name = c.get("name") or c.get("id")
     liner = c.get("one_liner") or ""
     # <title> 控制在 30 个汉字上下；og:title 带上站名，分享卡片才认得出是谁发的
-    title = "%s — %s" % (name, short(liner, 22)) if liner else str(name)
+    title = "%s — %s" % (short(name, 30), short(liner, 22)) if liner else short(name, 40)
     full_title = "%s · %s" % (title, site["title"])
+    # 最后再压一刀：名字特别长的案例（wpconvert-ai-convert-ai-sites-to-wordpress
+    # 实测 76 字符）会把 title 顶爆。超长不是美观问题 —— 搜索结果页会把它截断，
+    # 等于白写。宁可截掉站名尾巴，也要保证整条不超 62。
+    if len(full_title) > 62:
+        full_title = short(full_title, 62)
 
     # description 优先用一句话判断——那段话是核过数字之后的结论，比 one_liner 有信息量
     desc_src = (c.get("verdict") or liner or c.get("what_it_does") or "")
@@ -609,6 +639,7 @@ def render_case_page(c, ctx):
             '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
             "<title>%s</title>\n"
             '<meta name="description" content="%s">\n'
+            "%s"
             "%s\n"
             '<meta property="og:title" content="%s">\n'
             '<meta property="og:site_name" content="%s">\n'
@@ -623,7 +654,7 @@ def render_case_page(c, ctx):
             "%s%s"
             '<footer class="docfoot">%s</footer>'
             "</main>\n</body>\n</html>\n"
-            % (esc(full_title), esc_attr(desc), canonical,
+            % (esc(full_title), esc_attr(desc), PAGE_FAVICON, canonical,
                esc_attr(full_title), esc_attr(site["title"]), esc_attr(desc),
                og_url, page_css(), ld_json, render_promo_bar(site), top, crumb,
                render_body(c), render_pager(ctx.get("prev"), ctx.get("next")),
@@ -664,6 +695,7 @@ def render_index_page(cases, ctx, rank_key="composite"):
             '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
             "<title>%s</title>\n"
             '<meta name="description" content="%s">\n'
+            "%s"
             "<style>%s</style>\n"
             "</head>\n<body>\n"
             '<main class="doc">%s'
@@ -676,7 +708,8 @@ def render_index_page(cases, ctx, rank_key="composite"):
             '<footer class="docfoot"><p><a href="../index.html">回到案例库</a>'
             "</p></footer>"
             "</main>\n</body>\n</html>\n"
-            % (esc(title), esc_attr(desc), page_css(), render_promo_bar(site),
+            % (esc(title), esc_attr(desc), PAGE_FAVICON, page_css(),
+               render_promo_bar(site),
                esc(site["title"]),
                len(cases), esc(site["tagline"]), "".join(items),
                render_promo(site)))
@@ -833,11 +866,18 @@ def check_pages(out_dir, cases, verbose=True):
             problems.append("case/%s.html 标题是空的" % c["id"])
         if '<meta name="description" content="">' in h:
             problems.append("case/%s.html 描述是空的" % c["id"])
-        if "app.js" in h:
+        # 独立页不引 app.js、不链外样式。
+        # ⚠⚠⚠ 必须是**标签级**检查，不能拿子串糊：
+        # 2026-10-14 实测 —— static/style.css 的 PWA 注释里提了一句
+        # 「长时间停在一个旧 app.js 上」，整份样式表内联进案例页后，
+        # `"app.js" in h` 命中，一口气误报 12 条「引入了 app.js」，
+        # 而那些页面里一个 <script> 都没有，纯假阳性。
+        # 同理 style.css 也不能用子串（注释、正文里都可能出现这个词）。
+        if re.search(r"<script[^>]+src=[\"'][^\"']*app\.js", h):
             problems.append("case/%s.html 引入了 app.js（独立页不该依赖 JS）" % c["id"])
-        # 样式必须内联。外链的 ../style.css 在 file:// 直开、预览器目录隔离、
+        # 样式必须内联。外链的 style.css 在 file:// 直开、预览器目录隔离、
         # CDN 缓存不一致等情况下会取不到，而 :root 变量一缺整页就退化成白底黑字。
-        if 'rel="stylesheet"' in h or "style.css" in h:
+        if re.search(r"<link[^>]+href=[\"'][^\"']*style\.css", h) or 'rel="stylesheet"' in h:
             problems.append("case/%s.html 引用了外部样式表（应内联）" % c["id"])
         elif css not in h:
             problems.append("case/%s.html 没有完整内联样式表" % c["id"])

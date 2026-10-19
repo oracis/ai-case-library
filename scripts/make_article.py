@@ -42,7 +42,7 @@ DEFAULT_OUT = os.path.join(ROOT, "out", "articles")
 # ------------------------------------------------------------------ 维度标签
 # 与 score_china_fit.py / score_solo_fit.py 保持一致；导入失败则用这里的副本兜底
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
-from text_clean import clean_snapshot_marks, end_sentences  # noqa: E402
+from text_clean import clean_snapshot_marks, end_sentences, clean_placeholders  # noqa: E402
 
 try:
     from score_china_fit import DIMS as CHINA_DIMS       # noqa: E402
@@ -102,26 +102,231 @@ EDITORIAL_WEIGHT = {
 }
 
 # 已手改好的标题（三条备选）。没写的走模板，并在草稿里标注「建议手改」。
+# 2026-09-25：这批 TrustMRR 挂牌标的的 metrics.headline 全是「收入/售价/倍数」的
+# 挂牌数字，模板会把它们当钩子拼进标题（「Dolar App：收入 $1.1K / 售价 $30K」），
+# 既不好读，还会把无法复核的数字放进读者第一眼看到的地方。所以这里全部手改。
 TITLE_OVERRIDES = {
+    "voklit": [
+        "卖海外虚拟号码这门生意，最后为什么停机挂牌",
+        "Voklit：把「收得到验证码」做成订阅，然后卖掉",
+        "一个能收 OTP 的海外号码，值多少钱",
+    ],
+    "prosp": [
+        "PROSP：把 B2B 销售的一整天，压成一个按钮",
+        "流水看着大，但命脉长在 LinkedIn 上",
+        "卖「会议数」而不是卖功能：一个 AI 外呼工具的选择",
+    ],
+    "divine-widgets": [
+        "Divine Widgets：一个人做的圣经小组件，锁屏上每天一句",
+        "低频 App 的解药：把内容放进锁屏，而不是等用户打开",
+        "垂直到「女性 + 信仰」这一格，竞争几乎为零",
+    ],
+    "promptmonitor-io": [
+        "品牌开始问「AI 回答里提不提我」，于是有了这门生意",
+        "Promptmonitor.io：跟着预算迁移走，不跟着技术热潮走",
+        "当「搜索排名」不再是唯一 KPI，监测工具该怎么办",
+    ],
+    "uplinked-b-v": [
+        "UpLinked：领英上自动加客户",
+        "把「我知道要发内容，但没时间写」做成订阅",
+        "UpLinked B.V.：交付终点应该是发布，不是草稿",
+        "面向「有钱没时间」的人收费，比反过来容易一个量级",
+    ],
+    "le19emetrou": [
+        "一笔广告费，卖一支高尔夫开瓶器",
+        "le19emetrou：一个单品 DTC 的最小闭环能有多小",
+        "履约全自动：订单进来之后零人工，是单人生意的生死线",
+    ],
+    "search1api": [
+        "Search1API：不赌哪个 AI 会赢，只卖它们都需要的那次联网",
+        "做淘金热里的管道——一个搜索 API 的选择",
+        "累计收入是 lifetime，不是 ARR",
+    ],
     "nitra": [
         "中文媒体把这家美国医疗公司的客户数，写多了 10 倍",
-        "一年从 $4M 做到 $33M，但它真正的门槛不是技术，是牌照",
+        "一年量级翻了好多倍，但它真正的门槛不是技术，是牌照",
         "「7000 家诊所在用」——一条被抄错了一个数量级的案例",
     ],
     "shipfast": [
-        "被吹爆的 ShipFast，近 30 天收入只剩约 $3,000",
-        "累计 $1.27M，现在每月 $3K：一个爆款的完整衰退",
+        "被吹爆的 ShipFast，近 30 天收入已经塌了",
+        "从峰值到谷底：一个爆款的完整衰退",
         "同一个作者三年后换个产品，赚得比它还多",
     ],
     "chatbase": [
-        "「年入 $20M」和「累计 $20M」，差了一整个量级",
+        "「年入」和「累计」差了一整个量级",
         "同样的产品放到今天做，成本高十倍",
         "一条关于「时机窗口」的教科书",
     ],
     "speel-co": [
-        "$65K MRR 是真的，但它已经停止增长了",
-        "一个人做到 $65K MRR，然后增长归零",
+        "增长是真的，但它已经停止增长了",
+        "一个人做到可观规模，然后增长归零",
         "收入曲线是真的，天花板也是真的",
+    ],
+    # —— 2026-10-05 新入库两条。**必须手改标题**，原因是
+    # `make_wechat_title()` 的 `name + one_liner` 拼接对它们都超 64 字，
+    # 于是退化成「只剩 name」的兜底分支（实测：harperai 变成 8 字的
+    # 「HarperAI」，easymix 变成 53 字的整句 one_liner）——
+    # 一个太空，一个太长，两边都不合格。
+    #记忆铁律 10：公众号草稿标题与正文 h1 是两套逻辑，改数字要连带改。
+    "harperai": [
+        "把英国公开抵押记录连成一张网，然后卖给贷款经纪",
+        "HarperAI：卖给最怕错过再融资机会的一群人",
+        "数据人人能查，但没人愿意整理 —— 这就是护城河",
+    ],
+    "easymix": [
+        "法国录音棚的一单，有人把混音做成了订阅",
+        "easymix：上传人声和伴奏，一键出能上架的成品",
+        "它替代的不是时间，是一笔本来就存在的支出",
+    ],
+    # —— 2026-10-11 新入库 7 条（Stripe 深核候选晋升）。全部手改标题，理由同上：
+    # metrics.headline 全是「MRR + 累计 + 订阅数」的挂牌三联，模板拼出来既不好读，
+    # 又把「近 30 天 -4.9%」这种负增长和「峰值留存 46%」这种弱项放在第一眼——
+    # 读者点进来是为了看一个能学的东西，不是看一堆数字。
+    "cometly": [
+        "Cometly：广告数据归因分析",
+        "营销归因生意，但不是一个人能做的",
+        "Cometly：9 人团队撑起的生意，做法一个人抄不来",
+        "营销归因这条赛道有大生意，但别照抄它的交付结构",
+    ],
+    "podawaa": [
+        "把 LinkedIn 内容发布做成订阅，靠平台自己的增长起飞",
+        "Podawaa：近 30 天掉了 15%——一个渠道红利样本",
+        "红利会退潮，但它证明了一件事：渠道方的注意力就是需求",
+    ],
+    "vid-ai": [
+        "两年冲起来，然后峰值留存掉到 46%",
+        "Vid.AI：批量短视频生成的护城河，比想象中浅得多",
+        "几百个付费客户撑起月收——需求是真的，黏性不是",
+    ],
+    "wpconvert-ai-convert-ai-sites-to-wordpress": [
+        "WPConvert：AI 建站转 WP",
+        "把 AI 建站工具生成的网站，转成 WordPress——一个工程师的生意",
+        "WPConvert.ai：客户被平台锁住的那一刻，就是需求触发的那一刻",
+        "这批里唯一能一个人做的案例，但上游风险不小",
+    ],
+    "publbee": [
+        "自助出版的作者愿意为工具付钱——只是撑不起大生意",
+        "Publbee：一个教你怎么选品而不是怎么扩张的样本",
+        "KDP 作者的工具箱：需求真实，天花板也真实",
+    ],
+    "vectosolve": [
+        "唯一在增长的一个：把 PNG 转成可编辑的 SVG",
+        "VectoSolve：急活 + 工业格式 + 低单价走量，一个小而清晰的模型",
+        "260 个付费客户，它在逆势增长，凭什么",
+    ],
+    "augora-ai": [
+        "Shopify 商家的 Meta 追踪本来就是错的，于是有了这门生意",
+        "Augora AI：靠「你的数字是错的」立足",
+        "峰值留存 65%、收入结构透明——一个小而诚实的样本",
+    ],
+    # —— 2026-10-14 红线补：下列案例的 one_liner 里嵌了金额/收入指标，拼进标题
+    # 违反「标题禁金额」红线。one_liner 正文照旧（正文可含数字），这里只给标题
+    # 一条干净的覆盖（产品名：一句话描述，去掉金额钩子）。
+    "nutria-9e3eaa": [
+        "Nutria (9e3eaa)：AI 卡路里追踪应用，但近 30 天在下滑",
+        "Nutria：用 AI 记卡路里，但增长已经掉头向下",
+        "$46K MRR 的 AI 卡路里应用，为什么在往下掉",
+    ],
+    "downconvert-sketchup-files": [
+        "DOWNCONVERT SKETCHUP FILES：SketchUp 文件版本转换工具",
+        "把高版本 SketchUp 文件降回低版本，一门小而稳的生意",
+        "一个只解决「文件打不开」的工具，月入 $3,748",
+    ],
+    "stealth-rdp": [
+        "Stealth RDP：跨美欧的 Windows/Linux VPS 托管服务",
+        "给远程办公的人提供跨大西洋的 VPS 托管",
+        "跨大西洋的 VPS 托管，月入一千多美元的生意怎么做",
+    ],
+    "pet-plus-us": [
+        "Pet Plus Us：AI 生成宠物与主人个性化肖像",
+        "用 AI 把宠物和主人画成一对肖像，按张收费",
+        "把宠物画进肖像里：一个要价 7.5 万美元的小生意",
+    ],
+    "postiz": [
+        "Postiz：社媒多平台一键排期，靠 agent 营销起飞",
+        "Postiz：把社媒排期做成订阅，agent 帮它做营销",
+        "MRR 从 1.7 万到 20 万：一个开源排期工具的陡坡",
+    ],
+    "visualizee-ai": [
+        "Visualizee.ai：建筑与室内设计的效果图渲染工具",
+        "给建筑师做效果图渲染，一次转型跳对了赛道",
+        "卡在 $150/月两年，转型后跳到 $8.6K：它改了什么",
+    ],
+    "outrank": [
+        "Outrank：从 AI 博客生成器到自动化 SEO 引擎",
+        "Outrank：把 AI 博客生成器做成自动化 SEO 引擎",
+        "月入 $300 到 30 万：一个 AI 博客生成器的 15 个月",
+    ],
+    # —— 2026-10-16：8 条公众号草稿标题/正文 h1 清脏（与 xhs_title_overrides.json
+    # 同源）：boothie 原是纯英文产品名，其余是带金额指标的超长模板句
+    # （"Bustem：$397,729（TrustMRR 榜单值）"这种），既违反标题禁金额红线，
+    # 按微信计数（中文 2 字符/字）又超 64 字符上限会被截断。统一换成
+    # 「品牌：一句话」且 ≤20 字的干净标题。
+    "boothie-ai-photo-editor": [
+        "Boothie：AI 照片编辑器",
+        "Boothie：把产品图修到能直接上架",
+        "电商卖家自己修图，还是雇人修图",
+    ],
+    "meerkats-ai": [
+        "Meerkats：替营销公司跑获客",
+        "Meerkats：从找线索到跟进，一条流水线跑完",
+        "营销机构最缺的不是客户，是跟进人手",
+    ],
+    "coral": [
+        "Coral：托管你的开源 AI 助手",
+        "Coral：把开源 agent 部署起来，接上业务系统",
+        "开源 agent 的部署麻烦，本身就是一门生意",
+    ],
+    "startclaw": [
+        "StartClaw：零配置跑 AI 助手",
+        "StartClaw：不买服务器、不配 key 就跑 agent",
+        "托管 agent 的零配置版本，卖给不想折腾的人",
+    ],
+    "bustem": [
+        "Bustem：帮电商品牌全网打假",
+        "Bustem：找仿品、找窜货、下架链接",
+        "电商打假：软件扫一遍，人工再扫一遍",
+    ],
+    # —— 2026-10-16：公众号 7 条旧草稿「封面第二行 + 摘要清英」配套标题。
+    # 这些案例的 cover_desc 早已中文化，但草稿建在那之前，封面第二行还是
+    # 英文 one_liner；根目录精修版 HTML 的「摘要」注释也有 5 条是英文
+    # （vid-ai/podawaa/publbee/vectosolve/augora-ai，已同步改成中文）。
+    # 原标题多带金额（"月收 $1,808…"/"累计 $162 万…"）或超长，统一换成
+    # 「品牌：一句话」干净版；nutria 原名带 (9e3eaa) 哈希，一并去掉。
+    "nutria-9e3eaa": [
+        "Nutria：AI 卡路里追踪应用",
+        "Nutria：拍照记录饮食，AI 算卡路里",
+        "万人付费的卡路里 App，正在退潮",
+    ],
+    "vid-ai": [
+        "Vid.AI：脚本一键变短视频",
+        "Vid.AI：把想法变成能发布的视频",
+        "长视频剪短视频，交给 AI 跑完整套",
+    ],
+    "podawaa": [
+        "Podawaa：把 LinkedIn 发布做成订阅",
+        "Podawaa：内容排期、运营、看数据一站做",
+        "靠平台自己的增长做起的内容工具",
+    ],
+    "publbee": [
+        "Publbee：KDP 作者的 AI 工具箱",
+        "Publbee：自助出版的一站式工具集",
+        "自助出版作者愿意为工具付钱",
+    ],
+    "vectosolve": [
+        "VectoSolve：位图一键转可编辑 SVG",
+        "VectoSolve：PNG/JPG 转干净矢量图",
+        "把转矢量做成小工具，卖给设计师",
+    ],
+    "augora-ai": [
+        "Augora AI：Shopify 广告追踪自动化",
+        "Augora AI：服务端追踪 Meta 转化",
+        "Shopify 商家的 Meta 追踪本来是错的",
+    ],
+    "quran-unlock": [
+        "Quran Unlock：读古兰经解锁其他 App",
+        "Quran Unlock：把信仰变成打卡机制",
+        "用完即走的信仰工具，靠内购变现",
     ],
 }
 
@@ -140,6 +345,11 @@ OUTRO = [
     "这条案例的完整核实记录（含全部原始来源）在案例库里。",
     "海外每天都有新跑通的小项目。我每天筛一批发在社群里：哪些值得看、哪些我直接否掉了、为什么。",
 ]
+
+# 结尾按内容品类分。默认 OUTRO 是「海外小生意」口径（社群招新），
+# 非案例类（工具/方法论/观点）照抄会露馅 —— 读者点进来发现是开源项目，
+# 却被问「要不要进群看新项目」。与 TITLE_OVERRIDES 同一思路：表里没写的走默认。
+OUTRO_OVERRIDES = {}
 
 
 # ------------------------------------------------------------------ 小工具
@@ -243,16 +453,60 @@ def virality_score(case):
     return virality_base(case) + EDITORIAL_WEIGHT.get(case.get("id"), 0.0)
 
 
+def strip_title_money(t):
+    """标题红线兜底：去掉金额 / 收入指标词。
+
+    拦住自动路径（one_liner 里若带「月收入 $X」「MRR 约 $46K」之类，
+    拼进标题也不该出现金额）与未来的新案例。手工精修标题已在
+    TITLE_OVERRIDES 里单独改过、TrustMRR 品牌由调用方排除。
+
+    只删金额 token，保留其余文案；删完顺手清掉残留空格与连续标点。
+    """
+    if not t:
+        return t
+    s = t
+    # 货币符号 + 数字（+ 可选 K/M/万）
+    s = re.sub(r"[¥€£$]\s*\d[\d.,]*\s*(?:[KkMm万])?", "", s)
+    # 无符号的金额单位（近1100美元 / 7.5 万欧）
+    s = re.sub(r"\d[\d.,]*\s*(?:美元|英镑|欧元|欧)", "", s)
+    # 独立 MRR / ARR（品牌 TrustMRR 已在调用方排除）
+    s = re.sub(r"(?<![\w])MRR(?!\w)", "", s)
+    s = re.sub(r"(?<![\w])ARR(?!\w)", "", s)
+    # 收入词
+    s = re.sub(r"月收(?:入)?", "", s)
+    s = re.sub(r"月入", "", s)
+    s = re.sub(r"累计\s*[¥€£$]?\d[\d.,]*\s*(?:[KkMm万])?", "累计", s)
+    # 清理残留空格与连续标点
+    s = re.sub(r"\s+", " ", s)
+    s = re.sub(r"[，,]\s*[，,]", "，", s)
+    s = s.strip(" ，,：: ")
+    return s
+
+
 def build_titles(case):
     """三条备选标题。没手改过的走模板，并在草稿里标出建议手改。"""
     if case["id"] in TITLE_OVERRIDES:
-        return TITLE_OVERRIDES[case["id"]], True
+        titles = list(TITLE_OVERRIDES[case["id"]])
+        # 2026-10-15：手改过的标题表里实测有 7 条只写了 2 个（nutria、
+        # postiz、visualizee-ai…），而下游按「三选一」渲染，拿 titles[2]
+        # 会 IndexError 直接崩。这里补齐到 3 个 —— 补的是模板生成的那条，
+        # 手写的两条排前面，人的选择权没被稀释。
+        if len(titles) < 3:
+            name = case.get("name", case["id"])
+            titles.append("%s 这条生意，国内能做吗" % name)
+        return titles, True
     m = case.get("metrics") or {}
+    name = case.get("name", case["id"])
     hook = m.get("headline") or case.get("one_liner") or ""
+    # 定位被占位清理清空（或本来就没料）时，别拼出「PROSP：」这种带尾巴冒号的标题
+    # ——冒号后面什么都没有，比只写产品名更刺眼。
+    def _t(prefix, tail):
+        tail = (tail or "").strip()
+        return ("%s：%s" % (prefix, strip_quotes(tail))) if tail else prefix
     return [
-        "%s：%s" % (case.get("name", case["id"]), strip_quotes(hook)),
-        "%s 这条生意，国内能做吗" % case.get("name", case["id"]),
-        "拆解 %s：%s" % (case.get("name", case["id"]), case.get("one_liner", "")),
+        _t(name, strip_quotes(hook)),
+        "%s 这条生意，国内能做吗" % name,
+        _t("拆解 %s" % name, case.get("one_liner", "")),
     ], False
 
 
@@ -400,14 +654,22 @@ def build_sections(case):
 
     # 结论
     concl = []
-    # 无纠错的案例，verdict 已经在开头的钩子里出现过一次，这里不再重复
-    if case.get("verdict") and corr:
+    # 优先用编辑判断（`judgment` 字段）：它回答的是「谁适合抄、坑在哪」，
+    # 和开头钩子里的 verdict（结论/买不买的价值）分工不同，不算复读。
+    # 没有 judgment 才退回 verdict —— 且仅限有纠错的案例，否则会与钩子重复。
+    if case.get("judgment"):
+        concl.append(case["judgment"])
+    elif case.get("verdict") and corr:
         concl.append(case["verdict"])
     if comp:
         qlabel = comp.get("quadrant_label") or QUADRANTS.get(
             comp.get("quadrant"), ("", ""))[0]
         concl.append("**结论**：%s（综合 %.1f 分）" % (qlabel, comp.get("score", 0)))
-    secs.append(("我的判断", concl))
+    # ⚠⚠ **绝不留空标题**（2026-10-14 修）。此前无 corr、无 comp 的案例
+    # concl 为空，正文里就出现一个光秃秃的「我的判断」+ 分隔线（用户截图报障）。
+    # 那比复读 verdict 更糟 —— 宁可整段不出现。
+    if concl:
+        secs.append(("我的判断", concl))
 
     return secs
 
@@ -438,8 +700,12 @@ def render_markdown(case, titles, manual, secs, score):
     L = []
     L.append("# %s" % titles[0])
     L.append("")
-    L.append("<!-- 备选标题 2：%s -->" % titles[1])
-    L.append("<!-- 备选标题 3：%s -->" % titles[2])
+    # 2026-10-15：原来硬取 titles[1] / titles[2]，而 build_titles() 只保证
+    # 至少 1 个 —— 实测有 7 条老案例（nutria、postiz、visualizee-ai…）
+    # 只产得出 2 个标题，于是生成文章这一步直接 IndexError 崩掉。
+    # 备选标题是给人挑的，有几个写几个；没有就不写，别为了凑数编一个。
+    for i, t in enumerate(titles[1:], start=2):
+        L.append("<!-- 备选标题 %d：%s -->" % (i, t))
     if not manual:
         L.append("<!-- [!] 标题由模板生成，发布前请手改 -->")
     comp = case.get("composite") or {}
@@ -466,6 +732,13 @@ def render_markdown(case, titles, manual, secs, score):
                 L.append("> %s" % p)
                 L.append("")
                 continue
+            # 代码块：``` 包裹的整段原样输出，不当普通段落处理。
+            # ⚠ 工具推广文必带命令行示例，走通用段落路径会把缩进和换行吃掉，
+            # 读者复制到的是一段乱码 —— 所以必须单独走 fenced 分支。
+            if p.startswith("```"):
+                L.append(p)
+                L.append("")
+                continue
             L.append(p)
             if not p.startswith("- "):        # 列表项之间不留空行，紧凑一些
                 L.append("")
@@ -473,10 +746,11 @@ def render_markdown(case, titles, manual, secs, score):
 
     L.append("---")
     L.append("")
-    for p in OUTRO:
+    for p in OUTRO_OVERRIDES.get(case.get("id"), OUTRO):
         L.append(p)
         L.append("")
-    L.append("<!-- 公众号正文不能放外链：案例库链接放「阅读原文」和自定义菜单 -->")
+    if case.get("id") not in OUTRO_OVERRIDES:
+        L.append("<!-- 公众号正文不能放外链：案例库链接放「阅读原文」和自定义菜单 -->")
     L.append("<!--")
     L.append("核对用来源（发布前逐个点开确认，别进正文）：")
     for s in case.get("sources") or []:
@@ -602,7 +876,17 @@ def render_html(case, titles, manual, secs, score):
                 rows.append(_split_row(p))
                 continue
             _flush_html_rows(P, rows)
-            if p.startswith("- "):
+            if p.startswith("```"):
+                # 代码块 → 真正的 <pre><code>。同 render_markdown 的理由：
+                # 命令行示例的缩进/换行必须原样保留，读者要能直接复制。
+                code = re.sub(r"^```[a-zA-Z]*\n?", "", p)
+                code = re.sub(r"\n?```$", "", code)
+                P.append('<pre style="background:#f6f8fa;border:1px solid #e1e4e8;'
+                         'border-radius:6px;padding:12px 14px;margin:0 0 14px;'
+                         'overflow-x:auto;font-size:13px;line-height:1.6;'
+                         'font-family:Consolas,Monaco,\'Courier New\',monospace;'
+                         'color:#24292f;">%s</pre>' % _esc(code))
+            elif p.startswith("- "):
                 # 2026-09-24：去掉 padding-left+text-indent 的悬挂缩进 —— 正文没有
                 # 项目符号，单行时看不出效果，多行时「首行顶格、续行缩进」反而
                 # 显得错乱。列表项与普通段落同款，全部左缘对齐。
@@ -620,7 +904,7 @@ def render_html(case, titles, manual, secs, score):
         _flush_html_rows(P, rows)
 
     P.append('<hr style="border:none;border-top:1px solid #e1e4e8;margin:28px 0 18px;">')
-    for p in OUTRO:
+    for p in OUTRO_OVERRIDES.get(case.get("id"), OUTRO):
         P.append('<p style="margin:0 0 10px;color:#57606a;font-size:14px;">%s</p>' % _esc(p))
     P.append('<!-- 核对用来源见同名 .md 草稿 -->')
     P.append('</section>')
@@ -640,6 +924,9 @@ def load_cases(path):
     clean_snapshot_marks(cases)
     # 同理，列表项必须收尾：没有句号的半截句并排摆在一起读起来很涩（2026-09-24）。
     end_sentences(cases)
+    # 「（具体定位未获取）」这类采集侧兜底占位不能给读者看 —— 它挂在 one_liner 上，
+    # 会一路串进标题、摘要、封面和正文首段（2026-09-24 用户反馈）。见 text_clean。
+    clean_placeholders(cases)
     return cases
 
 
@@ -735,7 +1022,14 @@ def main():
               % (stem, s, "已手改" if manual else "待手改"))
 
     print("-" * 62)
-    print("  生成 %d 个文件 -> %s" % (len(written), os.path.relpath(args.out, ROOT)))
+    # 跨盘符安全版（同 build_static.safe_relpath）：输出目录可能落在别的盘
+    # （测试临时目录就在 C:），裸 relpath 会抛 ValueError 把整条流程打断，
+    # 而这里只是打印一行日志 —— 不值得为它崩。
+    try:
+        out_show = os.path.relpath(args.out, ROOT)
+    except ValueError:
+        out_show = os.path.abspath(args.out)
+    print("  生成 %d 个文件 -> %s" % (len(written), out_show))
     if all_hits:
         print("  [!] 宣传性词汇已替换：%s" % "、".join(sorted(set(all_hits))))
     if all_warns:

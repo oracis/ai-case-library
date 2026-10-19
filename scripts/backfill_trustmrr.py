@@ -285,12 +285,28 @@ def merge_record(rec, rich):
             head = "MRR %s" % H._money_cell(mrr)
         elif last30:
             head = "近 30 天收入 %s" % H._money_cell(last30)
+        elif rich.get("_from") == "detail":
+            # 🚨 根因修复（2026-10-13）：详情页确认收入字段为 0（TrustMRR 对非订阅制
+            # 项目 Current MRR 恒为 0，或该项目确实零收入）的条目，之前落到这里的
+            # head="" —— headline 永远停在「收入未公开」占位，于是 triage 每轮都把它
+            # 报成 backfill（「先跑零成本补数」），可 backfill_trustmrr 对「已核为 0」
+            # 的条目根本补不出数字，形成永久假阳性（实测 14 条）。
+            # 照实写 $0：有累计值则附「历史值」注解，明确不当月收入用。这样
+            # triage.has_numbers() 认它有数字（不再报 backfill），revenue_of() 解析出
+            # 0 → tiny_revenue → 落到 later。
+            # 仅对「详情页已核实」(_from=="detail") 的条目写，避免把「字段缺失=未知」
+            # 错写成「已核为 0」；纯 /api/ai 批量匹配且 revenue 缺失的仍留待补，由下一
+            # 轮 detail 抓取核实。
+            head = "TrustMRR 验证：近 30 天收入 $0"
+            if total and total > 0:
+                head += "（累计 %s，历史值）" % H._money_cell(total)
         else:
             head = ""
-        if head:
+        if head and not head.startswith("TrustMRR 验证"):
             rank = a.get("rank")
             if rank:
                 head += "，TrustMRR 第 %s 名" % rank
+        if head:
             m["headline"] = head
             changes.append("主指标→%s" % head)
 

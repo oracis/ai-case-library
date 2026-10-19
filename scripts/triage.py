@@ -105,10 +105,16 @@ LATER_LINE = 28
 ATT_HIGH, ATT_MID, ATT_LOW = 100, 30, 10
 CMT_HIGH, CMT_MID, CMT_LOW = 30, 15, 5
 
-# 收入量级门槛（美元/月）。定在 1000 是有依据的：已发布案例里最小的月收入
-# 是 startclaw 的 $1,619，再低就撑不起一篇拆解 —— 数字小到没有可复刻的判断空间。
+# 收入量级门槛（美元/月）。原定 1000，依据是「已发布案例里最小的月收入是
+# startclaw 的 $1,619，再低撑不起一篇拆解」。
+#
+# 2026-10-15 下调到 300（作者定：对照站收录 1133 条，我们才 77 条，
+# 门槛过严）。$300/月 是「有人持续付费」和「还在验证期」的分界 ——
+# 再低（$100）多出来的条目里近一半月度时间线不到 3 个月，写不出可复刻的
+# 结论。它与 promote_to_candidates.MIN_MRR 必须同值：两道门一个先筛一个后判，
+# 不同值会出现「triage 说值得核、promote 说量级不够」的自相矛盾。
 # 注意它只挡「深核」，不判归档：量级是会变的，今天 $80 不等于明年还是 $80。
-TINY_REVENUE = 1000.0
+TINY_REVENUE = 300.0
 
 GRADE_ORDER = ["ready", "deep", "backfill", "later", "drop"]
 
@@ -166,6 +172,29 @@ AGG_HOSTS = (
 # 直接挤进深核队列 —— 这正是初筛最该拦下的那类误判。
 NUM_PLACEHOLDERS = ("未获取", "待补", "暂无", "未知", "尚未", "疑似")
 
+# 人工挂起标记。**人显式写下的决定必须压过一切机器判据** —— 这不是新功能，
+# 是补一个洞：`_grade()` 里 ready 只看草稿 publishable，全文件对
+# human_read / 人工降级**零处理**。后果实测过：Draftly 被 AI 判过 publishable
+# 之后，作者已明确决定「按一手数据降级、不晋升」，triage 却仍然天天报它 ready
+# ——「去后台点发布，别再花 AI」。机器每轮都在替人撤销一次决定。
+#
+# 约定：候选条目上写`hold: true`（或 hold_reason 非空）即人工挂起。
+# 只压 ready，不压 deep/backfill：挂起是「别自动推进这条」，不是「这条没价值」，
+# 材料若真齐了，人自己把它删掉或改标记就行，不该由机器代劳。
+HOLD_KEY = "hold"
+HOLD_REASON_KEY = "hold_reason"
+
+
+def is_held(rec):
+    """这条是否被人工挂起。挂起压过 ready，但不改变其他分级的产出。"""
+    if not isinstance(rec, dict):
+        return False
+    v = rec.get(HOLD_KEY)
+    if v is True or v == 1 or (isinstance(v, str) and v.strip().lower()
+                               in ("true", "yes", "1", "on")):
+        return True
+    return bool((rec.get(HOLD_REASON_KEY) or "").strip())
+
 # metrics 里这些 key 装的是**文本旁证**，不是这个项目的数字。扫数字时必须跳过。
 #
 # 「有数字」在这条流水线上值 16 分（WEIGHTS["has_numbers"]），还参与
@@ -185,6 +214,39 @@ TEXT_ONLY_KEYS = (
     "provenance",        # 来源说明（TrustMRR 的通用文案）
     "metric_note",       # 口径说明（"截至 2026-09" 这类日期会误命中）
 )
+
+# 🚨 **不是月收入**的数字字段（2026-10-10 实测补的洞）。
+#
+# `has_numbers()` 回答的是「记录里有没有数字」，这个问法太宽：它会把这三类
+# 数字当成「有生意」，于是零收入条目被送进花钱的深核 ——
+# 实测 8 条（占 deep 队列的 35%）全是这类假阳性：
+#
+#   · all_time  —— **累计**收入。项目死了之后它永远停在历史值上。
+#     clevia 的 all_time=$126、whispercoach 的 all_time=$314，都是
+#     「这个项目一共收过这么多钱」的残值，和「现在还在赚多少」无关。
+#     拿它当月收入，等于把三年前的墓碑当成今天的收入证明。
+#   · visitors  —— 站点**流量**，跟收入没有换算关系（saar=23 个访客）。
+#   · price_point —— 卖方**要价**。这是卖家对标的估值，不是买家付的钱，
+#     和 revenue 差着一个数量级甚至两个。
+#
+# 它们仍然该留在记录里（挂牌信息本身有价值，`has_trade` 另有加分），
+# 但**不能**用来证明「这条有收入、值得花 AI 去核」。
+REVENUE_KEYS = ("mrr", "last_30d_revenue", "arr")
+
+# 看着像数字、实际不是月收入的字段键。
+NON_REVENUE_KEYS = (
+    "all_time",       # 累计收入（死项目也非零）
+    "visitors",       # 流量
+    "price_point",    # 挂牌要价
+    "customers",      # 客户总数（不是本期付费数）
+    "growth",         # 增速（0% 也带数字）
+    "margin",         # 利润率（0% 也带数字）
+    "multiple",       # 倍数
+)
+
+# `trade` 里唯一算收入的键。`price` 是卖方要价、`multiple` 是倍数，
+# 两者都与「买家实际付了多少」差着量级，见 has_numbers() 里的注释。
+TRADE_REVENUE_KEYS = ("revenue", "revenue_last30d", "last_30d_revenue")
 
 # 只从标题抽到的疑似金额。它是个线索，不是数据，也不足以支撑深核 ——
 # 但比什么都没有强：至少知道官网在哪、值不值得点开看。
@@ -296,18 +358,54 @@ def has_numbers(rec):
 
     **文本旁证字段要跳过**（TEXT_ONLY_KEYS）。它们说的是「关于数据的事」，
     不是数据本身；扫它们的数字等于把别人的话当成这个项目的收入。
+
+    🚨 **非收入类数字字段要跳过**（NON_REVENUE_KEYS，2026-10-10 补）。
+    这一条最要紧：累计收入 / 流量 / 挂牌要价都带数字，但它们证明不了
+    「这个项目现在还在赚钱」。`all_time` 在项目死掉之后依然非零，
+    用它当月收入会把墓碑当成收入证明 —— 实测 8 条零收入条目因此被
+    判成 deep，白花深核预算。判定细则见该常量注释。
     """
-    for k, v in (rec.get("metrics") or {}).items():
-        if k in TEXT_ONLY_KEYS:
+    m = rec.get("metrics") or {}
+    for k, v in m.items():
+        if k in TEXT_ONLY_KEYS or k in NON_REVENUE_KEYS:
             continue
-        if not isinstance(v, (str, int, float)):
+        if not isinstance(v, (str, int, float)) or isinstance(v, bool):
+            continue
+        # 数值字段必须为正：``mrr: 0`` 照样含数字字符，但零收入不是「有数字」。
+        # TrustMRR 对非订阅制项目 Current MRR 恒为 0，这类记录很常见。
+        if isinstance(v, (int, float)):
+            if v > 0:
+                return True
             continue
         s = str(v)
         if any(p in s for p in NUM_PLACEHOLDERS):
             continue
         if re.search(r"\d", s):
             return True
-    return bool(rec.get("trade"))
+    # 🚨 **挂牌要价不算收入**（2026-10-10 实测补的第二个洞）。
+    # `trade.price` 是卖方开价，不是买家付的钱：`clevia` 的 price=$100,000
+    # 而实际收入是 $0，`saar` 的 price=$1,700 实际收入 $6.99 ——
+    # 差三到四个数量级。只有 `trade.revenue`（挂牌页披露的营收）才是收入。
+    # 它此前让 `return bool(rec.get("trade"))` 把一批零收入条目直接放进深核队列。
+    trade = rec.get("trade") or {}
+    if isinstance(trade, dict):
+        for k in TRADE_REVENUE_KEYS:
+            v = trade.get(k)
+            if isinstance(v, (int, float)) and not isinstance(v, bool) and v > 0:
+                return True
+            if isinstance(v, str) and re.search(r"\d", v):
+                # 字符串金额要归一化后再判零：「$0.00」「0」都是零收入，
+                # 不能因为「含数字字符」就当成有收入。
+                # 🚨 单位必须一起传（2026-10-10 补）：`re.sub(r"[^\d.]", "", v)`
+                # 会把 `$10K` 洗成 `10`，K 倍率跟着字母一起被扔掉 ——
+                # 判「是否 >0」方向没错，但拿到的数差 1000 倍。
+                # 只取首字母当单位：`10K USD` → `k`；无字母的 `$0.00` → ``。
+                munit = re.search(r"[a-zA-Z]", v)
+                got = _amount(re.sub(r"[^\d.]", "", v),
+                              munit.group(0) if munit else "")
+                if got:
+                    return True
+    return False
 
 
 def _amount(num, unit):
@@ -346,6 +444,20 @@ def revenue_of(rec):
         if got is not None and mm.group(3).upper() == "ARR":
             got /= 12.0
         return got
+
+    # 挂牌页披露的营收（`trade.revenue`）是可信的收入口径 ——
+    # 它由 TrustMRR 从支付网关侧抄下来，不是卖方自报。
+    # `trade.price` 是要价、`trade.multiple` 是倍数，都不算收入，故不取。
+    trade = rec.get("trade") or {}
+    if isinstance(trade, dict):
+        for k in TRADE_REVENUE_KEYS:
+            v = trade.get(k)
+            if isinstance(v, (int, float)) and not isinstance(v, bool) and v > 0:
+                return float(v)
+            if isinstance(v, str):
+                got = _amount(re.sub(r"[^\d.]", "", v), "")
+                if got:
+                    return got
     return None
 
 
@@ -658,11 +770,17 @@ def _can_deep(scope, got_numbers, rev, flag_keys, hit_keys, host):
     return bool(host) and host not in AGG_HOSTS and host not in CODE_HOSTS
 
 
-def _grade(rec, scope, score, flags, hit_keys, got, rev, att, ready, bf, host):
+def _grade(rec, scope, score, flags, hit_keys, got, rev, att, ready, bf, host,
+           held=False):
     """判级。顺序即优先级：硬标记 > 已就绪 > 可补 > 深核 > 分数 > 关注度兜底。"""
     keys = {k for k, _ in flags}
     if "duplicate" in keys:
         return "drop"
+    if held:
+        # 人工挂起 > 已就绪。放在 ready 前面是有意的：ready 的动作文案是
+        # 「去后台点发布」，对一条人已经判过死刑的条目说这话，等于让机器
+        # 每天推着人去发一条不该发的稿。
+        return "later"
     if ready:
         return "ready"
     if bf:
@@ -713,7 +831,13 @@ def score_record(rec, scope="candidate", index=None):
         flags.append(("duplicate", dup))
 
     draft, verdict = index.draft_of(rec)
-    ready = bool(verdict and verdict.get("publishable"))
+    # draft_ready 是草稿的原始判定，held 是人工挂起 —— 两个都要留痕。
+    # 对外暴露的 ready 必须是「有效就绪」= 草稿说行**且**人没挂起。
+    # 只改grade 不改 ready 会留下自相矛盾的状态：grade=later 却 ready=True，
+    # 调用方（后台列表、pick_candidates 的跳过逻辑）若只读 ready 就会照动。
+    draft_ready = bool(verdict and verdict.get("publishable"))
+    held = is_held(rec)
+    ready = draft_ready and not held
 
     hit_keys = _score_evidence(rec, scope, hits, misses, flags)
     got, rev = _score_data(rec, hits, misses, flags)
@@ -724,7 +848,10 @@ def score_record(rec, scope="candidate", index=None):
     score = max(0, min(100, score))
 
     bf = backfill_reason(rec, scope, got)
-    grade = _grade(rec, scope, score, flags, hit_keys, got, rev, att, ready, bf, host)
+    if held:
+        flags.append(("hold", (rec.get(HOLD_REASON_KEY) or "人工挂起：不要自动推进这条")))
+    grade = _grade(rec, scope, score, flags, hit_keys, got, rev, att, ready, bf, host,
+                   held=held)
     tier, tier_why = suggest_tier(rec, scope, got)
 
     out = {
@@ -744,6 +871,8 @@ def score_record(rec, scope="candidate", index=None):
         "flags": [{"key": k, "why": d} for k, d in flags],
         "attention": att,
         "ready": ready,
+        "draft_ready": draft_ready,
+        "held": held,
     }
     if bf:
         out["backfill_kind"] = bf[0]

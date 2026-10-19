@@ -311,6 +311,36 @@ def slugify(text, taken=None):
     return "%s-%d" % (base, i)
 
 
+def _carry_segment(hit):
+    """把候选上的「赛道标记」原样搬进案例。
+
+    为什么不逐个 pick 而要用白名单前缀：`segment` / `segment_reason` /
+    `exclude_from_solo_cases` 是 2026-10-10 给 cometly 加的独立标记，
+    语义是「可写，但换口径」—— 与 `hold`（不晋升不写稿）**不是一回事**，
+    混用会误伤 cometly。
+
+    ⚠️ 白名单而不是 `for k in hit: 全部搬`：promote 上游是 HTTP 请求体，
+    无条件透传等于让任何调用方往对外案例页注入任意字段。
+    只放行 `segment` 开头的键 + `exclude_from_solo_cases`，
+    以后加同类标记只需往这个列表里加一项。
+    """
+    allow_prefix = "segment"
+    allow_exact = {"exclude_from_solo_cases"}
+    out = {}
+    for k, v in (hit or {}).items():
+        if not isinstance(k, str):
+            continue
+        if not (k.startswith(allow_prefix) or k in allow_exact):
+            continue
+        # 空值与 False 一律不搬 —— 对这些标记来说「字段缺失」和「显式 false」
+        # 是同一个意思（没被排除）。搬过去只会在 cases.json 里造出一堆
+        # 语义重复的噪音字段，反倒让人分不清「没标」和「标了不排除」。
+        if v in (None, "", [], {}) or v is False:
+            continue
+        out[k] = v
+    return out
+
+
 def apply_human_read(case, cfg, draft=None):
     """把「人工核读」的状态写到案例上。
 
@@ -379,6 +409,11 @@ def build_payload(include_private=False):
     candidates = load_json("candidates")
     inbox = load_json("inbox")
     sources = load_json("sources")
+    # 创业墓碑区（2026-10-14 加）：已停运项目的复盘，独立于 cases.json ——
+    # 成功案例讲「怎么成的」，失败案例讲「怎么死的」，两者的证据要求不同，
+    # 混在一张表里会让 case 的入库闸门（content_gate）失去意义。
+    # 缺文件返回 []（load_json 容错），所以这条路径在补数据前也是安全的。
+    graveyard = load_json("graveyard")
 
     # 精写案例和候选池都要进前端（站点/后台），所以在这里统一过一遍文本清理：
     # 写稿时顺手记的核对备注（「（Stripe 直连验证，2026-09-17 快照）」）对读者没用、
@@ -464,6 +499,7 @@ def build_payload(include_private=False):
         "solo_top3": solo_top3,
         "dual_scored": len(dual_ranked),
         "dual_top3": dual_top3,
+        "graveyard": len(graveyard),
         "quadrants": quadrants,
         "flagged": sum(
             len(c.get("corrections", [])) for c in cases
@@ -485,6 +521,8 @@ def build_payload(include_private=False):
         "candidates": candidates,
         "inbox": inbox,
         "sources": sources,
+        # 创业墓碑区：已停运项目的死因复盘。与 cases 平级，独立数据文件。
+        "graveyard": graveyard,
         # 展示配置（公众号 / 社群 / 仓库）。前端用它渲染引流位，别在页面里写死。
         "site": load_site(),
         # 核实草稿（候选 id -> 已填条件）。界面打开工作台时直接读它回填。
@@ -714,6 +752,10 @@ class Handler(BaseHTTPRequestHandler):
             return self._json({
                 "job": job,
                 "has_key": bool(st["key"]),
+                # ready = 能不能真的调起来。免 key 端点没有 key 但照样能跑，
+                # 前端别拿 has_key 当「能不能运行」的判据（会误报未配置）。
+                "ready": AIV.ai_ready(st["key"], st["base"]),
+                "no_key_endpoint": AIV.is_no_key_endpoint(st["base"]),
                 "model": st["model"] or AIV.AI_MODEL,
                 "base": st["base"] or AIV.AI_BASE,
             })
@@ -978,6 +1020,25 @@ class Handler(BaseHTTPRequestHandler):
                 taken = {c.get("id") for c in cases}
                 now = datetime.now().strftime("%Y-%m-%d")
 
+                # 第 4 层闸门：正文写完了吗（2026-09-30 加）。
+                # 前三层只查「有没有做过核实」，不查「案例写没写」——
+                # mort / quran-unlock 就带着「具体定位未获取」过了闸门，
+                # 还被发布成四个平台的草稿。这里检查的是**合并后的内容**
+                #（候选原值 + 请求体 fields 覆盖），因为 promote 允许直接
+                # 在发布时补正文，那也得算进去。
+                merged = dict(hit)
+                for _k, _v in (body.get("fields") or {}).items():
+                    if _k != "id":
+                        merged[_k] = _v
+                cg = VRULES.content_gate(merged)
+                if not cg["ok"]:
+                    return self._json({
+                        "error": "正文还没写完，不能入库：" +
+                                 "；".join(p["label"] for p in cg["problems"]),
+                        "content_gate": cg,
+                        "result": result,
+                    }, 409)
+
                 # 核实等级不能高于来源证据 —— 入库时就兜一道，免得又攒出一批虚标。
                 # 曾经 11 条案例标着 stripe / official，来源却只有第三方拆解站：
                 # 那种标注是替读者做了一次他们没授权的信任背书。
@@ -1028,6 +1089,15 @@ class Handler(BaseHTTPRequestHandler):
                     "why_it_works": hit.get("why_it_works", []),
                     "playbook": hit.get("playbook", []),
                     "signals": hit.get("signals", []),
+                    # 骨架补全段（2026-10-14）：固定 7 段叙事里新增的两段 ——
+                    # 「流量从哪来」和「站长是谁」。上面是**白名单**构造，
+                    # 不显式列出就会在 promote 的那一刻被丢掉（与 cometly 的
+                    # segment 标记同一个坑，见下方注释）。
+                    # ⚠️ 缺失是**正常状态**：全库 60 条老案例都没有这两段，
+                    #   verify_rules.CONTENT_SOFT 也刻意只出 hint 不拦，
+                    #   所以这里取不到就写空值，让前端跳过该段而不是报错。
+                    "founder": hit.get("founder", ""),
+                    "traffic_sources": hit.get("traffic_sources", []),
                     # 来源与修正优先用草稿里登记的，没有才回落到候选自带的
                     "corrections": draft.get("corrections") or hit.get("corrections", []),
                     "sources": draft.get("sources") or hit.get("sources", []),
@@ -1035,6 +1105,14 @@ class Handler(BaseHTTPRequestHandler):
                     "verified_at": now,
                     "updated_at": now,
                     "tags": hit.get("tags", []),
+                    # 赛道标记必须跟着晋升一起搬（2026-10-11 补）。
+                    # 上面的 new_case 是**白名单**构造：候选上没列出的字段一律不带。
+                    # 而 `segment` / `exclude_from_solo_cases` 全库只有这里读 ——
+                    # 不显式透传，cometly 会在 promote 的那一刻丢掉「赛道样本」身份，
+                    # 以「一个人怎么做」的口径进 cases.json。
+                    # ⚠️ 它恰恰是 solo_possible 被官网证伪后唯一的挡箭牌：
+                    # cometly 是 9 人团队，丢掉标记 = 把团队型项目写成个人案例。
+                    **_carry_segment(hit),
                     # 三档（政策见 verify_rules.default_case_tier）：一手来源进精品，
                     # 第三方来源进实核，其余进备选。实核和备选都不是废品 ——
                     # 它们是「先入库留着，条件补齐了随时拔档」。
@@ -1098,6 +1176,7 @@ class Handler(BaseHTTPRequestHandler):
             st = resolve_ai_settings()
             AIV.configure(api_key=st["key"], base=st["base"], model=st["model"])
             return self._json({"ok": True, "has_key": bool(st["key"]),
+                               "ready": AIV.ai_ready(st["key"], st["base"]),
                                "model": st["model"] or AIV.AI_MODEL})
 
         if path == "/api/ai/run":
@@ -1105,10 +1184,16 @@ class Handler(BaseHTTPRequestHandler):
                 if _AI_JOB["state"] == "running":
                     return self._json({"error": "已有任务在跑，等它结束再开"}, 409)
             body = self._read_body()
-            if not resolve_ai_settings()["key"]:
+            # ⚠ 判据不是「有没有 key」，而是「能不能调」——
+            # 免 key 端点压根没有 key，
+            # 用 `if not key` 卡门会把这类配置全挡在门外，后台点运行直接 400。
+            # ⚠ st 必须在使用前赋值（Python 把它当局部变量）。
+            st = resolve_ai_settings()
+            if not AIV.ai_ready(st["key"], st["base"]):
                 return self._json({
-                    "error": "还没有配置 LLM API Key —— 先在下方保存，"
-                             "或启动前设 CASE_LIB_AI_KEY 环境变量"}, 400)
+                    "error": "还没有配置 LLM 接口 —— 先在下方保存，"
+                             "或启动前设 CASE_LIB_AI_KEY 环境变量"
+                             "（免 key 端点只需填接口地址和模型名）"}, 400)
             try:
                 limit = int(body.get("limit") or 5)
                 min_score = int(body.get("min_score") or 0)
@@ -1218,11 +1303,12 @@ def main():
     # （环境变量优先，所以这里不会覆盖外部显式传入的值）。
     st = resolve_ai_settings()
     AIV.configure(api_key=st["key"], base=st["base"], model=st["model"])
-    if st["key"]:
-        print("  AI 核实：已就绪（%s @ %s）——后台「AI 核实」面板可用" % (
-            st["model"] or AIV.AI_MODEL, st["base"] or AIV.AI_BASE))
+    if AIV.ai_ready(st["key"], st["base"]):
+        print("  AI 核实：已就绪（%s @ %s%s）——后台「AI 核实」面板可用" % (
+            st["model"] or AIV.AI_MODEL, st["base"] or AIV.AI_BASE,
+            "，免 key 端点" if not st["key"] else ""))
     else:
-        print("  AI 核实：未配置 API Key —— 后台「AI 核实」面板里保存即可启用")
+        print("  AI 核实：未配置 LLM 接口 —— 后台「AI 核实」面板里保存即可启用")
 
     # 管理员凭据：核实功能是后台功能，没登录就用不了。
     # 自测要绕过鉴权，所以提供 CASE_LIB_NO_AUTH —— 只有测试会设它。

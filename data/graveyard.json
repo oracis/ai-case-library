@@ -1,0 +1,685 @@
+[
+  {
+    "id": "wework",
+    "name": "WeWork",
+    "name_en": "The We Company",
+    "death_reason": "unit_economics",
+    "death_summary": "用长期地产租赁的资产成本，去卖短期会员的服务 —— 每一间空置办公室都在按年亏钱，而收入按月结算，规模越大亏得越快。",
+    "loss_usd": 10000000000,
+    "loss_kind": "burned",
+    "loss_status": "pending",
+    "loss_note": "累计净亏损量级（2010–2022 年间各年相加），不同口径统计差异大，待核。",
+    "years": "2010–2022",
+    "origin": "美国",
+    "industry": "共享办公 / 地产",
+    "lessons": [
+      "签长期固定成本合同、卖按月计费的短服务，规模不经济：规模只会把结构性亏损放大，不会摊薄。",
+      "WeWork 的会员数是真的、增长是真的，但每新增一间办公室都要先垫 10–15 年租金 —— 增长和亏损同向增长时，增长越快死得越快。",
+      "「把二房东做成生活方式品牌」的故事能撑估值，撑不了现金流。2019 年 IPO 失败时投资人第一轮问的就是单店 EBITDA。",
+      "判断共享办公类生意的死法，别看会员数，看「单店毛利是否为正 + 租约剩余年限」。"
+    ],
+    "sources": [
+      {
+        "label": "维基百科：The We Company",
+        "url": "https://en.wikipedia.org/wiki/WeWork"
+      }
+    ],
+    "verification": "official",
+    "needs_verify": false
+  },
+  {
+    "id": "theranos",
+    "name": "Theranos",
+    "name_en": "Theranos, Inc.",
+    "death_reason": "legal",
+    "death_summary": "一款靠夸大的检测能力拿到的 90 亿美元估值，最终被证明核心技术从未按宣称的方式工作过 —— 不是产品失败，是产品从来不存在。",
+    "loss_usd": 9000000000,
+    "loss_kind": "valuation",
+    "loss_status": "pending",
+    "loss_note": "峰值估值口径，不是现金损失；公司实际现金消耗远低于此。两者不要混用。",
+    "years": "2003–2018",
+    "origin": "美国",
+    "industry": "医疗科技 / 硬件",
+    "lessons": [
+      "「医疗健康」的标签让尽调失效了 —— 这个行业的投资人默认监管已经把关，于是没人再去验证设备到底测不测得准。",
+      "估值蒸发和烧钱是两回事。Theranos 烧掉的钱远少于 90 亿，但对外说「损失 90 亿」更有传播力 —— 传播口径和损失口径必须分开写。",
+      "当一个产品的效果无法被第三方复现、而验证成本又极高时，「不做对照实验」本身就是商业模式的组成部分，也是它的罪名。",
+      "创始人形象（Stanford 辍学、穿黑色高领）在这个案子里的角色，和技术能力无关，只和「投资人停止提问」有关。"
+    ],
+    "sources": [
+      {
+        "label": "维基百科：Theranos",
+        "url": "https://en.wikipedia.org/wiki/Theranos"
+      }
+    ],
+    "verification": "official",
+    "needs_verify": false
+  },
+  {
+    "id": "wirecard",
+    "name": "Wirecard",
+    "name_en": "Wirecard AG",
+    "death_reason": "legal",
+    "death_summary": "做支付生意，却在自家系统里伪造交易和现金 —— 20 亿欧元「现金」根本不存在，这套造假维持了整整十年。",
+    "loss_usd": 2000000000,
+    "loss_kind": "debt",
+    "loss_status": "pending",
+    "loss_note": "20 亿欧元（约 23 亿美元）为失踪现金口径，非公司累计亏损 —— 两者不是一回事，别混写。",
+    "years": "1999–2020",
+    "origin": "德国",
+    "industry": "金融科技 / 支付",
+    "lessons": [
+      "审计失效是造假能维持十年的前提。EY 做了多年审计没查出来 —— 当审计费由被审方支付且对方规模远超你时，独立性是名义上的。",
+      "「三家客户大银行背书 + 审计通过」在 FinTech 里几乎是免检通行证，投资人把这两条当成结论而不是待验证的前提。",
+      "公司的第三张报表（现金流）和利润表长期背离，是最该早发现的信号 —— 但对增长故事，市场不看这张表。",
+      "支付是一门信任生意：你的商业模式建立在「不撒谎」上，那么造假不是道德问题，是商业模式的自毁。"
+    ],
+    "sources": [
+      {
+        "label": "维基百科：Wirecard",
+        "url": "https://en.wikipedia.org/wiki/Wirecard"
+      }
+    ],
+    "verification": "official",
+    "needs_verify": false
+  },
+  {
+    "id": "quibi",
+    "name": "Quibi",
+    "name_en": "Quibi Holdings, LLC",
+    "death_reason": "demand",
+    "death_summary": "产品做得不差，但要求用户竖屏看剧、不能分享、不能在手机外看 —— 三个限制里任意一个都足以杀死它。",
+    "loss_usd": 1750000000,
+    "loss_kind": "burned",
+    "loss_status": "pending",
+    "loss_note": "融资总额口径（上市前累计募资），非年度亏损。",
+    "years": "2018–2020",
+    "origin": "美国",
+    "industry": "流媒体 / 内容",
+    "lessons": [
+      "这是「伪需求」最干净的例子：用户不是不想要内容，是不想要「以这个形式」的内容。技术（Turnstyle 竖屏无缝拼接）是真创新，没人要。",
+      "不能分享 = 杀死社交传播。内容产品的增长引擎是分享，把分享关掉等于把引擎拆了。",
+      "17.5 亿美元烧完只换来 17 个月寿命 —— 说明钱能延长寿命，但不能把错误的产品方向拖成正的。",
+      "「下一代电视」的叙事需要用户改变观看习惯，而改变习惯的成本永远高于用户能承受的 —— 有没有这个切换成本，比体验好不好更决定生死。"
+    ],
+    "sources": [
+      {
+        "label": "维基百科：Quibi",
+        "url": "https://en.wikipedia.org/wiki/Quibi"
+      }
+    ],
+    "verification": "official",
+    "needs_verify": false
+  },
+  {
+    "id": "pets-com",
+    "name": "Pets.com",
+    "name_en": "Pets.com",
+    "death_reason": "cash",
+    "death_summary": "互联网泡沫鼎盛期靠烧钱买流量，公司是有史以来广告投放最激进的初创之一 —— 烧掉 3 亿美元后死于融资环境突然关闭。",
+    "loss_usd": 3000000000,
+    "loss_kind": "burned",
+    "loss_status": "pending",
+    "loss_note": "公开常引的累计烧钱量级，不同统计口径有差异，待核。",
+    "years": "1998–2000",
+    "origin": "美国",
+    "industry": "电商 / 宠物",
+    "lessons": [
+      "死于周期，不是死于产品。Pets.com 的送宠物上门、宠物用品选品都没做错 —— 死在 2000 年 3 月之后没有人再愿意投钱。",
+      "订阅制（每月洗护寄送）在当时是先进商业模式，说明它死得冤，不说明订阅制有问题。",
+      "重资产获客（电视广告 + 目录邮寄）在融资期是优势，在收缩期是第一个被砍的支出 —— 现金流断裂时你没法慢慢优化。",
+      "「烧钱换增长」的模型有个隐藏前提：资本环境持续宽松。判断一个生意能不能撑过周期，看它停掉投放后是否还成立。"
+    ],
+    "sources": [
+      {
+        "label": "维基百科：Pets.com",
+        "url": "https://en.wikipedia.org/wiki/Pets.com"
+      }
+    ],
+    "verification": "official",
+    "needs_verify": false
+  },
+  {
+    "id": "homejoy",
+    "name": "Homejoy",
+    "name_en": "Homejoy, Inc.",
+    "death_reason": "cash",
+    "death_summary": "YC 唯一一家倒闭的公司。清洁服务本身是稳定生意，但获客靠「一次性首单优惠 + 短信轰炸」，每新增一单都亏钱，规模只能靠钱堆。",
+    "loss_usd": 2000000000,
+    "loss_kind": "burned",
+    "loss_status": "pending",
+    "loss_note": "公开常引的融资规模口径，非累计亏损 —— 融资额与烧钱额不是同一个数，待核。",
+    "years": "2010–2014",
+    "origin": "美国",
+    "industry": "本地生活 / O2O",
+    "lessons": [
+      "「每单亏损换规模」在本地生活里是伪规模：清洁阿姨的产能有上限，订单密度再高也不能靠补贴无限堆。",
+      "市场份额是事后指标，补贴换来的市场份额不属于你 —— 停止补贴后留存多少，才是这门生意的真实答案。",
+      "YC 唯一倒闭的标签容易让人误以为 YC 眼光有问题。真相相反：这个案子反而证明了加速器教的正是「增长优先」，而它需要有人做对冲。",
+      "双边市场的真正难点不是找到师傅，是让师傅愿意留在平台上接单 —— 补贴给了用户，没解决师傅的流失。"
+    ],
+    "sources": [
+      {
+        "label": "维基百科：Homejoy",
+        "url": "https://en.wikipedia.org/wiki/Homejoy"
+      }
+    ],
+    "verification": "official",
+    "needs_verify": false
+  },
+  {
+    "id": "casper",
+    "name": "Casper Sleep",
+    "name_en": "Casper Sleep, Inc.",
+    "death_reason": "unit_economics",
+    "death_summary": "床垫是低频高单价商品，线上卖要付获客成本、退货成本和仓储成本，而复购周期是 5 年 —— 单次赚的钱永远填不满这三个坑。",
+    "loss_usd": 3000000000,
+    "loss_kind": "burned",
+    "loss_status": "pending",
+    "loss_note": "累计融资/烧钱量级口径，待核。",
+    "years": "2014–2022",
+    "origin": "美国",
+    "industry": "DTC 电商 / 家居",
+    "lessons": [
+      "低频高单价品类的核心约束是「复购周期 ÷ 客户终身价值」，不是转化率。5 年复购周期意味着你必须一直买流量才能维持生意。",
+      "床垫压缩包装是真实的差异化（省去送货安装），但它省的是履约成本，救不了获客成本。",
+      "DTC 品牌在扩张期会同时踩三个坑：退货率上升（说明流量质量下降）、仓储成本上升（说明爆款逻辑没跑通）、营销费用率不降（说明没有自然流量）。三个同时出现时，规模已经无效了。",
+      "2022 年上市又退市，教训是 IPO 不是出路 —— 拿不到融资的年份才是生死年。"
+    ],
+    "sources": [
+      {
+        "label": "维基百科：Casper Sleep",
+        "url": "https://en.wikipedia.org/wiki/Casper_Sleep"
+      }
+    ],
+    "verification": "official",
+    "needs_verify": false
+  },
+  {
+    "id": "juicero",
+    "name": "Juicero",
+    "name_en": "Juicero, Inc.",
+    "death_reason": "product",
+    "death_summary": "一台售价 999 美元的榨汁机，售价里大部分是给榨汁农场用户的 —— 榨汁包还只能联网订阅，一旦公司倒了机器立刻变砖。",
+    "loss_usd": 1200000000,
+    "loss_kind": "burned",
+    "loss_status": "pending",
+    "loss_note": "累计融资规模口径，非年度亏损，待核。",
+    "years": "2012–2017",
+    "origin": "美国",
+    "industry": "智能硬件 / 消费品",
+    "lessons": [
+      "硬件订阅制（必须联网购买消耗品）的本质是把自己变成依赖方 —— 消费者买的是一个会停止工作的设备。",
+      "「有专利、团队强、估值高」的硬件公司死于渗透压榨机（榨不出汁）的差评。硬件的生死线永远是「核心功能真能用」，而这条最难被投资人验证。",
+      "为供应链定制硬件（模组、挤压件）意味着不能转产、不能降本 —— 供应链越专用，反转时越难逃。",
+      "2015 年起就传出榨汁机榨不出汁的报道，公司 2017 年关停。从功能失效到死亡只隔两年，硬件品类的这个间隔通常都很短。"
+    ],
+    "sources": [
+      {
+        "label": "维基百科：Juicero",
+        "url": "https://en.wikipedia.org/wiki/Juicero"
+      }
+    ],
+    "verification": "official",
+    "needs_verify": false
+  },
+  {
+    "id": "kodak",
+    "name": "柯达",
+    "name_en": "Eastman Kodak Company",
+    "death_reason": "product",
+    "death_summary": "发明了数码相机却把它当成配件来卖。等到胶卷利润撑不住时，公司已经在数字影像上落后了十年。",
+    "loss_usd": 25000000000,
+    "loss_kind": "valuation",
+    "loss_status": "pending",
+    "loss_note": "市值峰值到破产前后的蒸发量级口径，非累计亏损，待核。",
+    "years": "1888–2012",
+    "origin": "美国",
+    "industry": "影像 / 制造",
+    "lessons": [
+      "柯达 1975 年就造出数码相机 —— 死于「有技术、没商业模式」，不是死于技术缺失。领先者拿着新技术的现金牛，最晚承认新技术的威胁。",
+      "转型期的经典错误是「用新业务保护旧业务」（把数码相机定价定在能服务胶卷毛利的位置），结果两边都不赚钱。",
+      "高毛利现金牛给公司带来的不只是钱，还有组织的安全感 —— 真正的阻力是内部没人愿意让旧利润归零。",
+      "这是「靠什么赚钱」这个问题的最强论据：收入结构告诉你公司会为谁而战。靠什么赚钱的公司，很难自己革自己的命。"
+    ],
+    "sources": [
+      {
+        "label": "维基百科：Kodak",
+        "url": "https://en.wikipedia.org/wiki/Kodak"
+      }
+    ],
+    "verification": "official",
+    "needs_verify": false
+  },
+  {
+    "id": "mobike",
+    "name": "摩拜单车",
+    "name_en": "Mobike",
+    "death_reason": "competition",
+    "death_summary": "在一场所有玩家同时按月补贴的补贴战里被拖垮 —— 最后一笔收入往往来自用户押金，而那笔钱本来就是用户的。",
+    "loss_usd": 10000000000,
+    "loss_kind": "burned",
+    "loss_status": "pending",
+    "loss_note": "行业累计补贴/烧钱量级口径（含多玩家，非摩拜单体），待核。",
+    "years": "2015–2019",
+    "origin": "中国",
+    "industry": "共享出行 / 共享单车",
+    "lessons": [
+      "补贴战里最先撑不住的往往不是最弱的，是现金最紧的 —— 资产负债表比运营效率更决定结局。",
+      "用户押金是负债不是收入。靠押金「扭亏」的生意会在退潮时被押金挤兑反噬 —— 这是所有需要用户预付的共享生意的共同死法。",
+      "单车是好用但极低频的入口生意。真正赚钱的是单车导流的月卡和骑行费，被补贴战打没的正是这部分。",
+      "监管入场（共享单车必须进桩、市配额）是分水岭：合规成本改变了单位经济模型，所有靠旧模型算过账的运营方案同时失效。"
+    ],
+    "sources": [
+      {
+        "label": "维基百科：摩拜单车",
+        "url": "https://zh.wikipedia.org/wiki/%E6%91%A9%E7%99%BD%E5%8D%95%E8%BD%A6"
+      }
+    ],
+    "verification": "official",
+    "needs_verify": false
+  },
+  {
+    "id": "blockbuster",
+    "name": "百思达",
+    "name_en": "Blockbuster, Inc.",
+    "death_reason": "competition",
+    "death_summary": "不是输给 Netflix，是输给自己的反应速度 —— 同样的技术，奈飞拿来寄碟，它拿来发违约金。",
+    "loss_usd": 1000000000,
+    "loss_kind": "burned",
+    "loss_status": "pending",
+    "loss_note": "当年申请破产保护时的负债规模量级口径，待核。",
+    "years": "1985–2010",
+    "industry": "零售 / 影像租赁",
+    "lessons": [
+      "最贵的错误不是技术落后，是把技术变化当成渠道变化来应对：Netflix 卖的是流媒体，百思达看到的是「实体店要增加网点」。",
+      "轻资产订阅模式（Netflix）与重资产库存模式（百思达）的成本结构完全相反 —— 用重资产的成本结构去匹配轻资产的定价必然亏。",
+      "组织惯性在这里表现为具体动作：寄碟寄晚了会寄张优惠券。优惠券买不回的是习惯，而习惯已经在对手那边。",
+      "商业模式被替代时，先死的是「还在赚钱的那条线」—— 现金流让公司没时间转型，而不是没看见。"
+    ],
+    "sources": [
+      {
+        "label": "维基百科：Blockbuster",
+        "url": "https://en.wikipedia.org/wiki/Blockbuster,_Inc."
+      }
+    ],
+    "verification": "official",
+    "needs_verify": false
+  },
+  {
+    "id": "nokia",
+    "name": "诺基亚",
+    "name_en": "Nokia Corporation",
+    "death_reason": "competition",
+    "death_summary": "手机卖得最多的时候开始做手机 —— 2013 年押注 Windows Phone，用供应链的思维管理一个软件生态。",
+    "loss_usd": 0,
+    "loss_kind": "mixed",
+    "loss_status": "pending",
+    "loss_note": "市值蒸发与裁员成本口径不同，本条暂不填具体金额，待核后补。",
+    "years": "1865–2016",
+    "origin": "芬兰",
+    "industry": "硬件 / 通信",
+    "lessons": [
+      "塞班时代的领先是「工程优势」，智能手机时代的胜负是「软件生态」—— 用前者的组织能力管后者，输在起跑线上。",
+      "3 年内从全球第一到被收购，最大的问题不是判断失误，是没有足够快的组织来消化判断。这是硬件公司的结构性弱点。",
+      "市值蒸发不等于烧钱。这条和 WeWork 的 100 亿不是一回事 —— 在列表里排序时不能把两者混成同一量级。",
+      "给硬件公司的提醒：消费电子里，软件层的份额变化可以在两个季度内抹掉十年的工程优势。"
+    ],
+    "sources": [
+      {
+        "label": "维基百科：Nokia",
+        "url": "https://en.wikipedia.org/wiki/Nokia"
+      }
+    ],
+    "verification": "official",
+    "needs_verify": false
+  },
+  {
+    "id": "hopin",
+    "name": "Hopin",
+    "name_en": "Hopin Technologies Ltd.",
+    "death_reason": "demand",
+    "death_summary": "疫情把会议搬到线上，Hopin 两年冲到 77.5 亿美元估值；世界一重新开放，需求原地消失——核心平台 1500 万美元卖身，剩余资产 2024 年 4 月清算，估值 30 个月跌掉 99%。",
+    "loss_usd": 7750000000,
+    "loss_kind": "valuation",
+    "loss_status": "verified",
+    "loss_note": "峰值估值口径（2021.8，融资 10 亿+美元后）。2023.8 卖给 RingCentral：1500 万美元现金 + 3500 万业绩对赌（SEC 文件口径）。估值蒸发不等于烧钱，两者不能混写。",
+    "years": "2019–2024",
+    "origin": "英国",
+    "industry": "线上活动 / SaaS",
+    "lessons": [
+      "疫情期间的虚拟活动不是「新习惯」，是「旧习惯的临时替代」。判据很简单：问自己「用户恢复正常选项后还会用吗」——Hopin 的增长数据回答不了这个问题，因为根本没有正常选项可作对照。",
+      "融资节奏比融资本身更危险：两年融 10 亿+美元，组织、人数、销售承诺全部按「疫情是永久状态」配置。需求回落时，这套成本结构原样变成负债。",
+      "2023 年 8 月卖核心平台前做了 5 亿美元股东回购——用最后的现金给老股东退出，直接抽干了续命钱。危机时刻，「照顾早期投资人」和「留住公司」是同一笔钱的两端。",
+      "对独立开发者的映射：不要为「一次性事件需求」搭永久成本。服务器、订阅、全职编制都按峰值配置的话，峰值过去后每月的固定账单就是你的死因。"
+    ],
+    "sources": [
+      {
+        "label": "CNBC：Hopin 两年做到 77.5 亿美元估值（2021.8）",
+        "url": "https://www.cnbc.com/2021/08/05/hopin-raises-450-million-at-a-7-75-billion-valuation.html"
+      },
+      {
+        "label": "PitchBook：Hopin 进入清算（含 RingCentral 交易金额口径）",
+        "url": "https://pitchbook.com/news/articles/virtual-events-hopin-liquidation-vc"
+      },
+      {
+        "label": "维基百科：Hopin（公司）",
+        "url": "https://en.wikipedia.org/wiki/Hopin_(company)"
+      }
+    ],
+    "verification": "official",
+    "needs_verify": false
+  },
+  {
+    "id": "coinbase-nft",
+    "name": "Coinbase NFT",
+    "name_en": "Coinbase NFT Marketplace",
+    "death_reason": "competition",
+    "death_summary": "手握上亿用户的 Coinbase 做 NFT 市场，上线 9 个月总成交量只有 730 万美元——OpenSea 一天的成交量就是它的近百倍。2024 年 8 月 1 日正式关停，功能并入 Base App。",
+    "loss_usd": 0,
+    "loss_kind": "mixed",
+    "loss_status": "pending",
+    "loss_note": "Coinbase 从未单独披露 NFT 业务投入，无可靠损失口径，本条不填金额，以市场结果（成交量、关停）立传。",
+    "years": "2022–2024",
+    "origin": "美国",
+    "industry": "加密 / 交易平台",
+    "lessons": [
+      "平台型产品的护城河是「供给密度」，不是流量。Coinbase 有上亿注册用户，但买家来的路上没有卖家，卖家也不缺别的市场——单边的巨大流量在双边市场里约等于零。",
+      "跟随策略的死穴：OpenSea 已经赢下的市场，用同样的产品形态再打一遍，胜率不是低，是零。Coinbase NFT 上线时，对手的流动性优势已经不可逆。",
+      "2023 年 2 月「暂停创作者 drops」是死亡的第一张病历——日成交 149 美元时官方说法是「聚焦其他功能」，但市场用脚投票的速度比公关稿快得多。",
+      "对独立开发者的映射：做「平台里的平台」要极度谨慎。交易所里做市场、社交 App 里做电商、操作系统里做商店——宿主随时可以用一次改版（把 NFT 入口并进 Base App）抹掉你的存在理由。"
+    ],
+    "sources": [
+      {
+        "label": "Coinbase 官方帮助中心：NFT 迁移与关停公告（2024.7–8）",
+        "url": "https://help.coinbase.com/en/wallet/managing-account/nft-migration"
+      },
+      {
+        "label": "Fortune：Coinbase NFT 暂停 drops 时日成交不足 150 美元",
+        "url": "https://fortune.com/2023/02/02/coinbase-halts-nft-artist-drops"
+      },
+      {
+        "label": "Decrypt：上线初期成交量与 OpenSea/Blur 差距",
+        "url": "https://decrypt.co/121940/coinbase-not-giving-up-on-nft-marketplace-despite-low-volume"
+      }
+    ],
+    "verification": "official",
+    "needs_verify": false
+  },
+  {
+    "id": "olive-ai",
+    "name": "Olive AI",
+    "name_en": "Olive AI, Inc.",
+    "death_reason": "cash",
+    "death_summary": "卖「AI 员工」给医院的 Olive 融了 9.02 亿美元、估值 40 亿，演示里 95% 的自动化率到了生产环境变成人工兜底的 RPA。2023 年 10 月宣布 45 天内关停，资产拆成四份卖给 Waystar、Humata Health 等。",
+    "loss_usd": 902000000,
+    "loss_kind": "burned",
+    "loss_status": "verified",
+    "loss_note": "累计融资口径（2012–2022 各轮相加），投资人回收为零头。非单年亏损。",
+    "years": "2012–2023",
+    "origin": "美国",
+    "industry": "医疗 AI / 企业自动化",
+    "lessons": [
+      "Demoware 是最贵的产品形态：演示环境跑通 95%，生产环境（对接七套 payer 系统）掉到需要工程师手动补 workflow。差评不是工程问题，是产品承诺错了交付物。",
+      "CEO 在裁员 450 人时的原话是「增长太快、缺乏焦点」——翻译过来：产品没打磨到能卖，销售先签了单。资本超前于产品成熟度时，钱买来的不是增长，是交付义务。",
+      "「AI 公司」的定位在这里是负债不是资产：客户不在乎自动化是模型还是脚本，只在乎管用。当它不管用时，「AI」两个字把信任赤字放大到整个赛道。",
+      "对独立开发者的映射：卖掉你还没做出来的东西（预售、承诺交付）等于把定价权交给客户的失望。Demo 与生产之间的差距要用合同写清楚，而不是用融资盖过去。"
+    ],
+    "sources": [
+      {
+        "label": "Fierce Healthcare：Olive 出售核心业务单元并关停（2023.10）",
+        "url": "https://www.fiercehealthcare.com/health-tech/once-high-flying-unicorn-olive-ai-sells-two-key-businesses-winds-down-operations"
+      },
+      {
+        "label": "DistilINFO：资产拆分出售明细（Waystar / Humata / Availity / BurstIQ）",
+        "url": "https://www.distilnfo.com/lifesciences/2023/11/07/olive-shutters-business-after-sale-to-waystar-and-humata-health"
+      }
+    ],
+    "verification": "official",
+    "needs_verify": false
+  },
+  {
+    "id": "gene-testing-23andme",
+    "name": "23andMe",
+    "name_en": "23andMe Holding Co.",
+    "death_reason": "legal",
+    "death_summary": "一次性 DNA 检测没有复购，数据变现的愿景被 2023 年 700 万人泄露事件和隐私监管打穿——2025 年 3 月申请 Chapter 11，市值较峰值蒸发约 95%，最终 3.05 亿美元卖给创始人自己的非营利机构。",
+    "loss_usd": 6000000000,
+    "loss_kind": "valuation",
+    "loss_status": "verified",
+    "loss_note": "2021 年 SPAC 上市后峰值市值约 60 亿美元；破产出售价 3.05 亿美元（2025.6，TTAM）。另有 2025.3 破产时 23 亿美元债务口径——债务与市值蒸发不是一回事，别混写。",
+    "years": "2006–2025",
+    "origin": "美国",
+    "industry": "基因检测 / 消费生物科技",
+    "lessons": [
+      "「数据是资产」在用户数据上更准确的版本是「数据是负债，直到你证明它是资产」。23andMe 的数据库在破产法庭上变成需要隐私专员审查的负资产——买家竞拍的前提是承诺沿用旧隐私政策。",
+      "一次性检测的商业模式天花板：99 美元试剂盒一人一次，没有复购、没有订阅，收入完全依赖新客。而生物库的成本随年限线性上升，这个模型在任何留存假设下都不成立。",
+      "泄露事件的真正代价不是 3000 万美元和解，是永久改变了公司的监管环境——破产程序里法院专门任命消费者隐私专员，加拿大和英国隐私监管机构跨国介入。",
+      "对独立开发者的映射：存用户敏感数据（健康、位置、财务）之前，先算「被攻破时的代价」。你的获客成本可能因此从 5 美元变成 5000 美元——不是营销变贵，是合规和信任变贵了。"
+    ],
+    "sources": [
+      {
+        "label": "AP News：23andMe 破产及其对 DNA 数据的含义",
+        "url": "https://apnews.com/article/0b36b01fa86073e5ae602ab8a7d0a628"
+      },
+      {
+        "label": "加拿大隐私专员办公室：英加监管联合致函破产托管人",
+        "url": "https://priv.gc.ca/en/opc-news/news-and-announcements/2025/nr-c_250501_uk"
+      },
+      {
+        "label": "CTV News（AP）：Regeneron 2.56 亿美元首笔竞标",
+        "url": "http://ctvnews.ca/business/article/biotechnology-company-regeneron-buying-23andme-for-us256-million/"
+      }
+    ],
+    "verification": "official",
+    "needs_verify": false
+  },
+  {
+    "id": "svb",
+    "name": "硅谷银行",
+    "name_en": "Silicon Valley Bank (SVB Financial)",
+    "death_reason": "cash",
+    "death_summary": "美国第 16 大银行、科技创投圈的钱仓。零利率时期吸收的存款买了长久期债券，加息后浮亏变成挤兑——2023 年 3 月 9 日单日流出 420 亿美元，48 小时内倒闭，是美国史上第二大银行破产案。",
+    "loss_usd": 42000000000,
+    "loss_kind": "debt",
+    "loss_status": "verified",
+    "loss_note": "单日净流出口径（2023.3.9，媒体与监管报告广泛引用）。另两个不可混用的口径：倒闭时总资产 2090 亿美元（2022 年末）；2021 年存款峰值 1980 亿美元。",
+    "years": "1983–2023",
+    "origin": "美国",
+    "industry": "银行 / 金融",
+    "lessons": [
+      "久期错配是「专业机构也会犯」的经典错误：负债（存款）随时可取，资产（长久期债券）要等到期。账面上「持有到期」的稳健资产，在需要变现时按市价结算——浮亏和实亏之间只隔一次挤兑。",
+      "客户集中度是隐性的相关性风险：SVB 的储户高度集中在同一个生态（初创企业 + VC），风投一句话就能同步触发全行业取款。任何「看起来分散」但实际同源的资金，在压力时刻是同一个客户。",
+      "对独立开发者的直接教训：你的公司存款、你的 SaaS 供应商的存款、你客户的存款，可能都在同一家银行。2023 年 3 月之后，多银行 / 货币基金 / 国债分散成了标准动作——代价是收益低一点，活下来才有收益。",
+      "现金流管理的失效速度按天计算，不按季度：从「我知道要出事」（挤兑前数日已知评级下调在即）到「我出事」只用了 4 天。任何按季度做资金压力测试的生意，都高估了自己的反应窗口。"
+    ],
+    "sources": [
+      {
+        "label": "参考消息（转华尔街日报）：SVB 倒闭，美国史上第二大",
+        "url": "http://m.ce.cn/gj/gd/202303/14/t20230314_38441057.shtml"
+      },
+      {
+        "label": "CGTN：SVB 资产 2090 亿美元、全行业 6200 亿美元浮亏背景",
+        "url": "https://news.cgtn.com/news/2023-03-14/How-deeply-in-trouble-is-the-U-S-banking-system--1iaidv7vtQs/index.html"
+      },
+      {
+        "label": "海外网：亏本出售 210 亿美元债券引发挤兑的时间线",
+        "url": "https://www.toutiao.com/article/7210392254803149352/"
+      }
+    ],
+    "verification": "official",
+    "needs_verify": false
+  },
+  {
+    "id": "irobot",
+    "name": "iRobot",
+    "name_en": "iRobot Corporation",
+    "death_reason": "competition",
+    "death_summary": "开创扫地机器人品类、巅峰市占率超 80% 的 iRobot，死法等收购救命——亚马逊 17 亿美元交易 2024 年被欧盟否决，创新节奏落后中国同行四年以上，2025 年 12 月破产、被自家供应商深圳杉川收购私有化，普通股股东清零。",
+    "loss_usd": 508000000,
+    "loss_kind": "debt",
+    "loss_status": "verified",
+    "loss_note": "2025.9.27 法院文件口径：总负债 5.08 亿美元、现金仅剩 2480 万、股东权益为负 2680 万。这是资不抵债口径，不是累计烧钱；普通股股东在重组中清零。",
+    "years": "1990–2025",
+    "origin": "美国",
+    "industry": "消费机器人 / 硬件",
+    "lessons": [
+      "品类开创者输给了「创新节奏」而不是「技术能力」：中国同行普及激光雷达与自动洗拖布时，iRobot 坚守视觉导航，2022 年才推出首款扫拖一体机——晚了五年以上。市占率从 80% 跌到 7.9% 只用了三年。",
+      "监管杀死了交易，也杀死了公司：欧盟以市场竞争为由否决亚马逊收购，iRobot 失去的不仅是 17 亿美元，是最后一次战略缓冲。对依赖并购退出的公司，反垄断风险是估值里的隐性折扣。",
+      "硬件公司死在「成本结构错位」：旗舰定价超 1000 美元（中国同类约三倍），创新差距却拉到四年——定价权来自品类认知，而认知消耗完的那天就是降价保份额的那天。",
+      "对独立开发者的映射：软硬结合产品的生死线是「迭代速度是否跟得上供应链伙伴」。iRobot 最后被自己的制造商接盘——当你最快的对手同时是你的供应商时，你没有秘密可言。"
+    ],
+    "sources": [
+      {
+        "label": "人民日报全国党媒平台：iRobot 破产（含 9.27 财务数据）",
+        "url": "https://www.hubpd.com/detail/index.html?contentId=4493406"
+      },
+      {
+        "label": "CDE News（CNBC）：Chapter 11 与杉川收购、欧盟否决亚马逊交易",
+        "url": "https://cde.news/?p=576514"
+      },
+      {
+        "label": "腾讯新闻：IDC 份额数据与中国品牌竞争格局",
+        "url": "https://news.qq.com/rain/a/20251215A055AP00"
+      }
+    ],
+    "verification": "official",
+    "needs_verify": false
+  },
+  {
+    "id": "bird",
+    "name": "Bird",
+    "name_en": "Bird Global, Inc.",
+    "death_reason": "unit_economics",
+    "death_summary": "曾是最快独角兽的共享滑板车公司，SPAC 上市估值 23 亿美元，2023 年 12 月申请 Chapter 11 时账上只剩 330 万美元现金。曾预测 2023 年收入 8 亿美元，实际 2.6 亿。",
+    "loss_usd": 2300000000,
+    "loss_kind": "valuation",
+    "loss_status": "verified",
+    "loss_note": "2021.11 SPAC 上市估值口径。破产时现金余额 330 万美元、市值跌破 1500 万触发退市。上市估值与破产现金不是同一口径。",
+    "years": "2017–2023",
+    "origin": "美国",
+    "industry": "共享出行 / 硬件即服务",
+    "lessons": [
+      "硬件即服务（Hardware-as-a-Service）的账：单车寿命以「月」而不是「年」计（破坏、盗窃、磨损），每辆车都是要持续垫资的消耗品。重资产 + 高频损耗 = 每单收入要同时覆盖获客、折旧和运维三项，缺一项就是亏损。",
+      "上市文件里的预测（8 亿收入）和现实（2.6 亿）差 3 倍——SPAC 时代「讲故事估值」的标准化结局。监管（城市准入、配额）和竞争（打车、单车）同时收紧时，预测失效的速度比合同期短。",
+      "1:30 合股是死亡前的标准动作：避免退市不创造价值，只是推迟判决。看到合股公告时，该看的是现金余额，不是股价。",
+      "对独立开发者的映射：任何「设备先铺出去、收入慢慢收」的模式都要先算设备生命周期内的总现金流。单次使用收费低于（设备成本 ÷ 寿命 + 运维）时，规模每扩大一倍，窟窿就加深一倍。"
+    ],
+    "sources": [
+      {
+        "label": "Axios：Bird 申请 Chapter 11（含 330 万现金、退市市值线）",
+        "url": "https://www.axios.com/2023/12/20/bird-files-for-bankruptcy"
+      },
+      {
+        "label": "FOX Business：SPAC 上市 23 亿美元估值与重组条款",
+        "url": "https://www.foxbusiness.com/markets/electric-scooter-rental-company-bird-files-bankruptcy"
+      },
+      {
+        "label": "SPAC Graveyard：收入预测 8 亿 vs 实际 2.6 亿、合股与退市时间线",
+        "url": "https://www.spacgraveyard.com/spacs/bird-global"
+      }
+    ],
+    "verification": "official",
+    "needs_verify": false
+  },
+  {
+    "id": "farfetch",
+    "name": "Farfetch",
+    "name_en": "Farfetch Limited",
+    "death_reason": "unit_economics",
+    "death_summary": "奢侈品电商平台 Farfetch 市值一度 230 亿美元，靠 28 亿美元债务撑起的重模式（买断库存、全球履约）在 2023 年 12 月资金链断裂，Coupang 注资 5 亿美元接管，股东和债券持有人全部归零。",
+    "loss_usd": 23000000000,
+    "loss_kind": "valuation",
+    "loss_status": "verified",
+    "loss_note": "2021 年峰值市值口径。2024.1.31 Coupang 以约 5 亿美元融资 + 资产收购完成接管（英国 pre-pack administration），股权与可转债持有人零回收——归零不等于蒸发数字，是持有人真的拿不回钱。",
+    "years": "2007–2024",
+    "origin": "英国",
+    "industry": "奢侈品电商 / 平台",
+    "lessons": [
+      "双边市场里，供给方自己就是最大的竞争者：Farfetch 卖的是品牌的货，而头部品牌（Kering，Gucci 母公司）随时自建 DTC——收购完成后几周内 Kering 就撤走了年 GMV 超 1 亿美元的品牌。平台的「网络效应」在供给方有能力自立门户时是反向的。",
+      "平台的价值在信任不在流量：Coupang 接手后月活仍有 2600 万，但高净值用户流向 Mytheresa 和品牌官网——信任崩塌时流量不跟你走。",
+      "230 亿美元市值公司的死因很朴素：买断库存 + 全球履约的成本结构，配上奢侈品需求的周期性回落。资本市场宽松时这是「扩张」，收紧时这是「债务」。",
+      "对独立开发者的映射：做 marketplace 先问「供给方离开你的动机是什么」。如果答案是「他们随时可以」，你的估值里就该有一笔退出成本。"
+    ],
+    "sources": [
+      {
+        "label": "Retail TouchPoints：Coupang 5 亿美元交易完成（2024.1.31）与创始人离职",
+        "url": "https://www.retailtouchpoints.com/news/farfetch-saved-from-bankruptcy-by-south-korean-ecommerce-firm-coupang/139543/"
+      },
+      {
+        "label": "Trends On Fire：230 亿峰值市值、28 亿债务与归零过程",
+        "url": "https://trendsonfire.com/retail/luxury-marketplaces.html"
+      },
+      {
+        "label": "Measure Protocol：Coupang 接管后的用户流失结构",
+        "url": "https://www.measureprotocol.com/insights/farfetch-audience-migration-coupang-luxury-ecommerce"
+      }
+    ],
+    "verification": "official",
+    "needs_verify": false
+  },
+  {
+    "id": "cazoo",
+    "name": "Cazoo",
+    "name_en": "Cazoo Group Limited",
+    "death_reason": "unit_economics",
+    "death_summary": "英国二手车电商 Cazoo 以 80 亿美元估值 SPAC 上市，每辆车毛利约 100 英镑却付着天价获客成本，2021 年一年亏损 3.29 亿英镑。2024 年 5 月破产，品牌连同网站最后卖了 500 万英镑——还不够它一年付给两家足球俱乐部的赞助费。",
+    "loss_usd": 8000000000,
+    "loss_kind": "valuation",
+    "loss_status": "verified",
+    "loss_note": "2021.8 SPAC 上市估值口径（约 63 亿英镑）。2024.6 品牌与市场业务售予 Motors 仅 500 万英镑；破产时欠 2.59 亿英镑、10107 名债权人。英镑与美元口径不要混写。",
+    "years": "2019–2024",
+    "origin": "英国",
+    "industry": "二手车电商",
+    "lessons": [
+      "单车毛利 100 英镑 vs 获客成本——这笔账在扩张期没人愿意算，破产时管理人替你算：足球赞助每年 600 万 + 1000 万英镑，而品牌最终售价 500 万。营销预算没有变成资产，连品牌本身都没变成。",
+      "死因不是「二手车电商不成立」，是「自营库存的二手车电商不成立」：Cazoo 最初买断库存，2023 年债转股 6.3 亿美元、2024 年才转型 marketplace——模式错了，钱只是延长了死亡时间。",
+      "供给被卡脖子的生意没有缓冲：二手车依赖第三方车源，涨价时进不到便宜车，成本端失控。任何时候你的上游比你的下游更集中，你都只是个价格接受者。",
+      "对独立开发者的映射：重库存 = 把生意的风险从「卖不掉」换成了「买错了」。任何「先买后卖」的扩张，都要先回答「卖不掉时这些东西归谁、值多少」。"
+    ],
+    "sources": [
+      {
+        "label": "Yahoo Finance：Cazoo 从 60 亿英镑估值到 500 万英镑出售",
+        "url": "https://finance.yahoo.com/news/cazoo-once-valued-6bn-sold-160852553.html"
+      },
+      {
+        "label": "Fleet News：管理人 Teneo 报告（2.59 亿债务、10107 债权人、年度亏损）",
+        "url": "https://www.fleetpoint.org/fleet-industry-news/news-by-date/motors-secures-cazoo-brand-for-5-million-following-administration-efforts/"
+      }
+    ],
+    "verification": "official",
+    "needs_verify": false
+  },
+  {
+    "id": "udacity",
+    "name": "Udacity",
+    "name_en": "Udacity, Inc.",
+    "death_reason": "demand",
+    "death_summary": "从斯坦福 MOOC 实验成长起来的在线教育独角兽，2015 年估值 10.8 亿美元，月费 249 美元是 Coursera Plus 的 4 倍，而免费替代品遍地都是。2024 年 3 月被埃森哲收购（传闻约 8000 万美元），转型企业培训。",
+    "loss_usd": 1080000000,
+    "loss_kind": "valuation",
+    "loss_status": "pending",
+    "loss_note": "2015 年 D 轮估值口径。2024 年收购价未官方披露，TechCrunch 报道约 8000 万美元——传闻口径，待核。",
+    "years": "2011–2024",
+    "origin": "美国",
+    "industry": "在线教育 / EdTech",
+    "lessons": [
+      "「完成率」是在线教育的隐藏生死线：MOOC 的注册数和完课数之间差着两个数量级，Udacity 的商业模式（人工项目评审 + 导师）成本结构是照着「人人都会学完」设计的。",
+      "定价贵 4 倍的前提是「效果可见」——当就业结果无法透明披露（用户长期质疑就业宣传），溢价就只剩下品牌惯性。内容质量下降后，价格差变成了用户流向免费替代品的理由。",
+      "卖给埃森哲不是失败是认输：C 端 MOOC 的经济学不成立，但企业再培训的预算成立。同样的内容，买家从个人换成企业 HR 才跑通——这等于承认原来的定价对象错了。",
+      "对独立开发者的映射：教育/内容产品的订阅价格锚永远不是你的成本，是用户的「免费替代品 + 完成概率」。付费墙能收多少钱，取决于不付费时用户损失的是什么。"
+    ],
+    "sources": [
+      {
+        "label": "Forge Global：Udacity 以 10.8 亿美元估值被 Accenture 收购",
+        "url": "https://forgeglobal.com/insights/blog/startup-trends-strategic-acquisitions-in-2024/"
+      },
+      {
+        "label": "Venture Capital Tracker：成交价未披露、TechCrunch 传闻约 8000 万",
+        "url": "https://venturecapitaltracker.com/startup/udacity"
+      }
+    ],
+    "verification": "official",
+    "needs_verify": false
+  }
+]

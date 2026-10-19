@@ -1,0 +1,37 @@
+{
+  "compileType": "miniprogram",
+  "libVersion": "3.4.10",
+  "appid": "wx25520bb91fe2ab93",
+  "projectname": "ai-case-library-miniprogram",
+  "description": "远镜拆解小程序（品牌：远镜 · 拆解海外）。AppID 于 2026-10-15 备案时从 MP 后台取得。",
+  "setting": {
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "urlCheck": false,
+    "compileWorklet": false,
+    "uglifyFileName": false,
+    "uploadWithSourceMap": true,
+    "packNpmManually": false,
+    "packNpmRelationList": [],
+    "minifyWXSS": true,
+    "minifyWXML": true,
+    "localPlugins": false,
+    "disableUseStrict": false,
+    "useCompilerPlugins": false,
+    "condition": false,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
+  },
+  "condition": {},
+  "simulatorPluginLibVersion": {},
+  "packOptions": {
+    "ignore": [],
+    "include": []
+  },
+  "editorSetting": {}
+}

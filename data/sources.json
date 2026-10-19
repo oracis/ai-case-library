@@ -10,7 +10,7 @@
       "tier": "A",
       "enabled": true,
       "auth": "公开 JSON 端点 /api/ai 无需 key；页面公开可抓",
-      "how": "主通道走官方公开端点 /api/ai（一次拿 50 条 × 40 字段，含官网、MRR、累计收入、客户数、增速、分类、国家、创始人 X 账号）；详情页 HTML 的 JSON-LD 拿官网明文；/startup/<slug>.md 拿数据新鲜度与出处分层。收入由支付网关侧验证。",
+      "how": "主通道走官方公开端点 /api/ai（一次拿 50 条 × 40 字段，含官网、MRR、累计收入、客户数、增速、分类、国家、创始人 X 账号）；详情页 HTML 的 JSON-LD 拿官网明文；/startup/<slug>.md 拿数据新鲜度、出处分层与 12 个月收入流水。2026-10-14 新增 sitemap 全量通道（harvest.py --source trustmrr_sitemap）：robots 公示的 startup-sitemap.xml 枚举 1.1 万+ slug，游标轮换逐轮抓 .md 档案，每轮有界（默认 100）、断点续抓、不做全量镜像（llms.txt 边界）。收入由支付网关侧验证。",
       "fields": [
         "mrr",
         "last_30d_revenue",
@@ -29,14 +29,20 @@
         "revenue_per_visitor",
         "founded_date",
         "founder_x_handle",
-        "data_freshness"
+        "data_freshness",
+        "monthly_timeline",
+        "current_subscriptions"
       ],
       "why": "目前可信度最高的独立项目收入来源——数字来自支付网关，不是来自创始人的嘴。它还带一个买卖市场，能直接看到真实成交价和倍数。",
-      "caveat": "只覆盖接了支付商的业务。隐身模式（stealthMode）条目官网必然为空，已跳过。MRR 与 all_time 极易混淆（Chatbase、ShipFast 都栽在这上面），且 /api/ai 只给 recentlyListed + bestDeals 两个 25 条的列表，不是全量榜。低于 $100/月的条目已按门槛跳过。",
+      "caveat": "只覆盖接了支付商的业务。隐身模式（stealthMode / Stealth Company 占位名）条目官网必然为空，已跳过。MRR 与 all_time 极易混淆（Chatbase、ShipFast 都栽在这上面），近 30 天流水可高出 MRR 三十余倍（佣金/流水型业务），引用必须声明口径。/api/ai 只给 recentlyListed + bestDeals 两个 25 条的列表；全量发现走 sitemap 通道（轮换覆盖，非一次镜像）。低于 00/月的条目已按门槛跳过，全零收入档案（.md 收入表全 0）直接丢弃——/api/ai 放行零收入是因为可能没同步，.md 没有这个问题。",
       "endpoints": [
         {
           "label": "官方 AI 端点（主通道，免鉴权）",
           "url": "https://trustmrr.com/api/ai"
+        },
+        {
+          "label": "sitemap 全量索引（robots 公示，枚举 1.1 万+ slug）",
+          "url": "https://trustmrr.com/startup-sitemap.xml"
         },
         {
           "label": "AI 读本（出处分层 + 刷新时间戳）",
@@ -118,7 +124,7 @@
         "category"
       ],
       "why": "发现新项目的雷达。能最早看到还没被报道、但已经有人在用的东西。",
-      "caveat": "**拿不到 upvote 数** —— 榜单热度的唯一指标在 feed 里没有，详情页又抓不到。所以 PH 在本库只能当发现雷达，「热度高」不等于「有人在付钱」。想要投票数只能申请官方 API token。",
+      "caveat": "「拿不到 upvote 数」 —— 榜单热度的唯一指标在 feed 里没有，详情页又抓不到。所以 PH 在本库只能当发现雷达，「热度高」不等于「有人在付钱」。想要投票数只能申请官方 API token。",
       "endpoints": [
         {
           "label": "Atom feed（唯一可达通道）",
@@ -147,7 +153,7 @@
       "tier": "B",
       "enabled": true,
       "auth": "Algolia 公开 API，无需 key（当前唯一零门槛可直接跑通的源）",
-      "how": "用 Algolia Search API 搜 Show HN 与收入关键词；拿到 objectID 后再调 items/<id> 抓**完整评论树** —— 真话（成本、获客、翻车）都在评论里，标题只是「我做了个 X」。支持 numericFilters=points>50 做质量过滤。",
+      "how": "用 Algolia Search API 搜 Show HN 与收入关键词；拿到 objectID 后再调 items/<id> 抓「完整评论树」 —— 真话（成本、获客、翻车）都在评论里，标题只是「我做了个 X」。支持 numericFilters=points>50 做质量过滤。",
       "fields": [
         "title",
         "url",
@@ -184,7 +190,7 @@
       "tier": "B-",
       "enabled": true,
       "auth": "公开页面",
-      "how": "robots.txt 明确 Allow: /。sitemap 3889 条里有约 1000 个公司页。**只解 FAQPage JSON-LD**（内含带年份的 ARR，如 2025=$600M、2024=$300M、+83% YoY），不读 RSC 里的 `arr` 字段（实测 /notion 上取不到，不可靠）。Organization 块拿官网明文。结果只写 data/arrclub.json 当校对参照，不进候选池。",
+      "how": "robots.txt 明确 Allow: /。sitemap 3889 条里有约 1000 个公司页。「只解 FAQPage JSON-LD」（内含带年份的 ARR，如 2025=$600M、2024=$300M、+83% YoY），不读 RSC 里的 `arr` 字段（实测 /notion 上取不到，不可靠）。Organization 块拿官网明文。结果只写 data/arrclub.json 当校对参照，不进候选池。",
       "fields": [
         "arr_by_year",
         "current_arr",
@@ -194,7 +200,7 @@
         "website"
       ],
       "why": "查一家公司某个时间点的 ARR 很方便，能快速判断数字是否与报道时间自洽。",
-      "caveat": "数字是二手转述 —— 页面自贴「Certificate」徽章，FAQ 里还自引「according to ARR Club's verified data」（自己说自己是 verified，这正是二手转述的特征）。年份口径有歧义：<title> 写 2026 而 FAQ 写 2025，所以**数字必须与年份成对存储**，不能只存数字。覆盖不全（/stripe 实测 404）。API 仅对企业版开放，Pro 才可导出 CSV。",
+      "caveat": "数字是二手转述 —— 页面自贴「Certificate」徽章，FAQ 里还自引「according to ARR Club's verified data」（自己说自己是 verified，这正是二手转述的特征）。年份口径有歧义：<title> 写 2026 而 FAQ 写 2025，所以「数字必须与年份成对存储」，不能只存数字。覆盖不全（/stripe 实测 404）。API 仅对企业版开放，Pro 才可导出 CSV。",
       "endpoints": [
         {
           "label": "sitemap（枚举入口，约 1000 个公司页）",

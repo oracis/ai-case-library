@@ -1,0 +1,51 @@
+[
+  {
+    "note_id": "6abbc7d8000000001b02c26b",
+    "deleted_at": "2026-10-18 22:09",
+    "applied": true,
+    "snapshot": {
+      "shared_count": 1,
+      "images_list": [
+        {
+          "url": "http://sns-na-i1.xhscdn.com/spectrum/1040g0k0325mh6e95k6005p3j8e5kmvpv8eu28ko?imageView2/2/w/1080/format/jpg"
+        },
+        {
+          "url": "http://sns-na-i1.xhscdn.com/spectrum/1040g0k0325mh6kbrl8005p3j8e5kmvpvmk9moq0?imageView2/2/w/1080/format/jpg"
+        },
+        {
+          "url": "http://sns-na-i1.xhscdn.com/spectrum/1040g0k0325mh6qmn4c005p3j8e5kmvpvlvfv42o?imageView2/2/w/1080/format/jpg"
+        },
+        {
+          "url": "http://sns-na-i1.xhscdn.com/spectrum/1040g0k0325mh7d744c005p3j8e5kmvpvgjcd38g?imageView2/2/w/1080/format/jpg"
+        },
+        {
+          "url": "http://sns-na-i1.xhscdn.com/spectrum/1040g0k0325mh7h474c005p3j8e5kmvpv60r42o0?imageView2/2/w/1080/format/jpg"
+        }
+      ],
+      "xsec_token": "YBeQZMZzj6tgtwgrtNcLcGJhGncwekhfmvVlxtYvdqrjA=",
+      "visible_time": 1790691336,
+      "display_title": "月收$128K：销售挖客户线索的工具",
+      "time": "2026-09-29 22:14",
+      "likes": 1,
+      "view_count": 50,
+      "comments_count": 0,
+      "permission_msg": "",
+      "tab_status": 1,
+      "xsec_source": "pc_creatormng",
+      "id": "6abbc7d8000000001b02c26b",
+      "collected_count": 0,
+      "sticky": false,
+      "permission_code": 0,
+      "schedule_post_time": 0,
+      "cocreate": false,
+      "pk_cover_status": 0,
+      "ref_tip": 0,
+      "type": "normal",
+      "goods_info": {
+        "goods_name": []
+      },
+      "note_id": "6abbc7d8000000001b02c26b",
+      "title": "月收$128K：销售挖客户线索的工具"
+    }
+  }
+]

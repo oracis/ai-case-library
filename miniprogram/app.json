@@ -1,0 +1,30 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/rank/rank",
+    "pages/profile/profile",
+    "pages/case/case",
+    "pages/report/report"
+  ],
+  "window": {
+    "navigationBarTitleText": "远镜拆解",
+    "navigationBarBackgroundColor": "#0b0e14",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#0b0e14",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "color": "#6c7987",
+    "selectedColor": "#5aa9ff",
+    "backgroundColor": "#141922",
+    "borderStyle": "black",
+    "list": [
+      { "pagePath": "pages/index/index", "text": "案例" },
+      { "pagePath": "pages/rank/rank", "text": "评分速查" },
+      { "pagePath": "pages/profile/profile", "text": "我的" }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

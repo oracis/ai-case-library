@@ -1,0 +1,2067 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""小红书发布链路（试点版）。
+
+公众号长文搬不动小红书（那边是 图文卡片 + <=1000 字正文），这里把
+cases.json 的结构化字段改写成两种产物：
+
+  1) note.md / note.json —— 笔记文案（标题<=20字、正文<=1000字、话题标签）
+  2) 5 张 3:4 卡片图（1080x1440）—— 封面 / 是什么·怎么赚钱 / 为什么成立 /
+     方法论 / 三张评分
+
+卡片图复用 wechat_publish.py 的 CDP 渲染方案（data URL 打开 HTML ->
+Page.captureScreenshot），字号超长自动缩，零第三方依赖。
+
+用法：
+  python scripts/xhs_publish.py build --all            # 全量生成（起临时无头 Chrome 渲染）
+  python scripts/xhs_publish.py build --case voklit    # 单条
+  python scripts/xhs_publish.py preview                # 生成 out/xhs/index.html 本地预览
+  python scripts/xhs_publish.py publish --case voklit --dry
+      # 走 9222 Chrome（要先人工登录小红书创作平台）预填笔记；--dry 只填不发
+      # 不加 --yes 时填完点「存草稿」；--yes 才点「发布」
+      # ⚠ 发布选择器按 2026-09 网页版创作平台写，属实验性，变了就人工补
+
+风控注意（2026-09 定稿）：
+  - 批量发帖易限流，建议人工节奏每天 <=2 条；
+  - 收入表述保留原文口径（MRR 就写 MRR，成交就写成交），不夸大、不写「躺赚」类词。
+"""
+
+import argparse
+import base64
+import json
+import os
+import re
+import subprocess
+import sys
+import time
+import urllib.request
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import wechat_publish as wp  # noqa: E402  复用 CDP / 色板 / 案例加载
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUT = os.path.join(ROOT, "out", "xhs")
+CHROME = "C:/Program Files/Google/Chrome/Application/chrome.exe"
+
+TITLE_MAX = 20          # 小红书标题硬上限
+BODY_MAX = 1000         # 小红书正文硬上限
+CARD_W, CARD_H = 1080, 1440   # 3:4
+BUILD_PORT = 9333       # 临时无头 Chrome（只渲染卡片，不碰登录态）
+# ⚠ 端口必须与 profile 配对：**9222 是公众号的 ChromeCDP**，
+# 小红书的登录态在 `chrome-debug-profile` ⇒ 用 9223。
+# 抢同一个端口会连上别人的浏览器，症状是「被重定向到登录页」。
+# ⚠ 草稿也是绑 profile 的本地数据：同一个账号在ChromeCDP 里草稿箱是 0 条，
+# 在 chrome-debug-profile 里才是 36 条（2026-10-02 实测）。
+PUB_PORT = int(os.environ.get("CDP_XHS_PORT", 9223))
+
+# ---- 文案：话题标签 --------------------------------------------------------
+
+BASE_TAGS = ["出海创业", "独立开发", "商业拆解", "一人公司"]
+
+TAGS_BY_CATEGORY = {
+    "AI 工具": ["AI工具", "AI创业"],
+    "开发者工具": ["开发者工具", "API"],
+    "营销工具": ["营销自动化", "增长黑客"],
+    "垂直行业 SaaS": ["SaaS"],
+    "企业服务": ["B端产品", "SaaS"],
+    "交易市场": ["交易平台"],
+    "创作者经济": ["创作者经济"],
+    "电商": ["跨境电商"],
+    "客户服务": ["SaaS"],
+    "组合策略": ["创业思路"],
+    "未分类": [],
+}
+
+
+def load_cases():
+    return wp.load_cases()
+
+
+def find_case(cid):
+    for c in load_cases():
+        if c.get("id") == cid:
+            return c
+    raise SystemExit("case not found: %s" % cid)
+
+
+def find_case_fuzzy(q):
+    """认名字/标题片段，不用背 id。「bustem」「网页小组件」「Pieter」都行。"""
+    cs = load_cases()
+    for c in cs:                                   # 精确 id 优先
+        if c.get("id") == q:
+            return c
+    low = q.lower()
+    hit = [c for c in cs
+           if low in (c.get("id") or "").lower()
+           or low in (c.get("name") or "").lower()
+           or low in (c.get("title") or "" if isinstance(c.get("title"), str) else "").lower()]
+    if not hit:
+        raise SystemExit("没匹配到案例：%s" % q)
+    if len(hit) > 1:
+        raise SystemExit("「%s」匹配到多个案例，请写全一点：\n  %s"
+                         % (q, "\n  ".join("%s —— %s" % (c["id"], c.get("name", ""))
+                                           for c in hit)))
+    return hit[0]
+
+
+# ---- 纯函数：文案改写 ------------------------------------------------------
+
+def esc(s):
+    return (s or "").replace("&", "&amp;").replace("<", "&lt;").replace(
+        ">", "&gt;").replace('"', "&quot;")
+
+
+def compact_amount(m):
+    """$128,000 -> $128K；$1.6K/$842 原样。"""
+    m = m.replace(" ", "")
+    g = re.match(r"^\$([\d,]+(?:\.\d+)?)([KM]?)$", m)
+    if not g:
+        return m
+    num, suf = g.group(1), g.group(2)
+    if suf:
+        return "$" + num + suf
+    try:
+        v = int(num.replace(",", ""))
+    except ValueError:
+        return m
+    # 别用 %g：1358 会出「$1.358K」这种三位小数，卡片上很难看（2026-09-25）。
+    # K 级：≥10K 取整，否则 1 位小数；M 级：≥100M 取整，否则 2 位。
+    if v >= 1000000:
+        m = v / 1000000.0
+        return ("$%.0fM" % m) if m >= 100 else ("$%.2fM" % m)
+    if v >= 1000:
+        k = v / 1000.0
+        return ("$%.0fK" % k) if k >= 10 else ("$%.1fK" % k)
+    return "$%d" % v
+
+
+def first_amount(headline):
+    m = re.search(r"\$\s?[\d,]+(?:\.\d+)?\s?[KM]?(?![\dA-Za-z])",
+                  headline or "")
+    return compact_amount(m.group(0)) if m else ""
+
+
+def short_desc(c):
+    """给标题/正文用的一句话业务描述：one_liner 可用就用它，否则按品类兜底。"""
+    d = (c.get("one_liner") or "").strip()
+    if (not d) or d.startswith("（待补充") or "定位未明" in d or "定位未获取" in d:
+        cat = (c.get("category") or "").strip()
+        d = ("%s小生意" % cat) if cat and cat != "未分类" else "海外小生意"
+    d = re.sub(r"（[^）]*）", "", d).strip(" ，,。")
+    d = re.sub(r"(服务|工具|产品)$", "", d) or d
+    return d
+
+
+def _hard_clip(s, n):
+    """无省略号截断：优先在句读处断，切不出就在词边界硬切。"""
+    s = re.sub(r"\s+", " ", (s or "").strip())
+    if len(s) <= n:
+        return s
+    cut = s[:n]
+    best = -1
+    for p in (cut.rfind(x) for x in "。！？；.!?;，, "):
+        if p >= n * 0.6 and p > best:
+            best = p
+    return cut[:best + 1].rstrip() if best >= 0 else cut.rstrip()
+
+
+OVERRIDES_PATH = os.path.join(ROOT, "data", "xhs_title_overrides.json")
+_OVERRIDES_CACHE = None
+
+# 正文/卡片覆盖表（2026-10-01 新增）。
+# 为什么需要：标题覆盖只能改标题，但 2026-10-01 voklit 被判**文本违规+图片违规**
+# （笔记已不可见），根因是正文与卡片在讲「怎么卖虚拟号码 / 短信 / OTP」——
+# 小红书对「通信资源」类目明确禁售，且**红线是语义级不是关键词级**，
+# 替换个别词救不回来，只能整段改写意图。数据侧不该动 cases.json（四平台共用）。
+NOTE_OVERRIDES_PATH = os.path.join(ROOT, "data", "xhs_note_overrides.json")
+_NOTE_OVERRIDES_CACHE = None
+
+
+def _title_overrides():
+    """标题覆盖表（xhs_ai_titles.py 产出）；文件缺失/损坏时当空表。"""
+    global _OVERRIDES_CACHE
+    if _OVERRIDES_CACHE is None:
+        try:
+            _OVERRIDES_CACHE = json.load(open(OVERRIDES_PATH, encoding="utf-8"))
+        except Exception:                                  # noqa: BLE001
+            _OVERRIDES_CACHE = {}
+    return _OVERRIDES_CACHE
+
+
+def _note_overrides():
+    """正文/卡片覆盖表；文件缺失/损坏时当空表。"""
+    global _NOTE_OVERRIDES_CACHE
+    if _NOTE_OVERRIDES_CACHE is None:
+        try:
+            _NOTE_OVERRIDES_CACHE = json.load(open(NOTE_OVERRIDES_PATH, encoding="utf-8"))
+        except Exception:                                  # noqa: BLE001
+            _NOTE_OVERRIDES_CACHE = {}
+    return _NOTE_OVERRIDES_CACHE
+
+
+def note_override(cid):
+    """取某案例的小红书覆盖项（title/body/tags/cards），没有则 None。"""
+    return _note_overrides().get(cid or "")
+
+
+def _title_desc(desc, budget):
+    """把一句话业务描述压到 budget 字内：取主干 → 去引号补充 → 硬切。
+
+    之前 one_liner 一超预算就整体退到「海外小生意」，36 条标题全是同一个
+    兜底词。实际各案例的 one_liner 都有现成主干（冒号/破折号前那段），
+    压一压几乎都能进标题。
+    """
+    s = re.sub(r"（[^）]*）", "", desc or "").strip(" ，,。")
+    if len(s) > budget:
+        for sep in ("——", "—", "：", "；", "。", "，", ","):
+            parts = s.split(sep)
+            head = parts[0].strip(" ，,。")
+            if len(parts) > 1 and 4 <= len(head) <= budget:
+                s = head
+                break
+    if len(s) > budget:
+        s2 = re.sub(r"「[^」]*」", "", s).strip(" ，,。")
+        if len(s2) >= 4:
+            s = s2
+    return _hard_clip(s, budget)
+
+
+MONTH_LEDGER_RE = re.compile(r"月(收|入)\s*\$([\d.,]+)([KM]?)")
+
+
+def correct_title_metric(title, c):
+    """标题里写着「月收 $X」，但那个数字其实是**年化（ARR）**时，改写成「年收」。
+
+    踩过的坑（2026-09-27）：`xhs_title_overrides.json` 是照「月收 $X」批量改写
+    的，于 sierra / genius-ai / nitra / viktor 这类**只有 arr 字段**的案例上，
+    把年化收入直接贴了「月收」标签 —— 数字没错、量词错，口径整整差 12 倍
+    （「月收 $200M」实际是年收 $200M）。chatbase 同型：MRR $863K、ARR $10M，
+    标题里的 $10M 也是年化。
+
+    只换量词不动数字；标题数字跟 mrr / last_30d_revenue 撞上了也别改（那种
+    情况数字本来就是月度）。返回修正后的标题。
+    """
+    m = (c or {}).get("metrics") or {}
+    arr = m.get("arr")
+    if not isinstance(arr, (int, float)) or not title:
+        return title
+    _unit = {"": 1.0, "K": 1e3, "M": 1e6}
+
+    def _repl(mm):
+        try:
+            v = float(mm.group(2).replace(",", "")) * _unit[mm.group(3).upper()]
+        except (ValueError, KeyError):
+            return mm.group(0)
+        # 数字跟月度口径对得上 → 量词没错，别动
+        for k in ("mrr", "last_30d_revenue"):
+            x = m.get(k)
+            if isinstance(x, (int, float)) and abs(v - x) <= max(1.0, abs(x) * 0.02):
+                return mm.group(0)
+        if abs(v - arr) > max(1.0, abs(arr) * 0.02):
+            return mm.group(0)
+        return "年%s$%s%s" % (mm.group(1), mm.group(2), mm.group(3))
+
+    return MONTH_LEDGER_RE.sub(_repl, title)
+
+
+def _raw_make_xhs_title(c, used=None):
+    """<=20 字、不带省略号的标题。
+
+    优先级：data/xhs_title_overrides.json（AI/人工覆盖）→ 规则生成
+    （desc 先压缩主干再进标题；压缩后仍放不下才依次退到产品名、通用尾缀），
+    绝不出现「…」。`used` 是批量生成时已用标题集合，撞车就依次退到下一候选。
+    """
+    ov = _title_overrides().get(c.get("id") or "")
+    if ov and 4 <= len(ov) <= TITLE_MAX:
+        return ov
+    # 2026-10-14：红线（标题禁金额/收入指标）——不再用「月收$X」/「X成交」前缀。
+    # 金额是正文该讲的事，标题只放「产品名：描述」或通用尾缀。
+    amt = None
+    desc = short_desc(c)
+    name = (c.get("name") or c.get("id") or "").strip()
+    generic = ["海外小生意", "一人公司生意", "海外小项目"]
+    lead = ("%s成交" % amt) if (amt and "成交" in h) else (
+        ("月收%s" % amt) if amt else "")
+    cands = []
+    if lead:
+        budget = TITLE_MAX - len(lead) - 1
+        cands.append("%s：%s" % (lead, _title_desc(desc, budget)))
+        if name:
+            cands.append("%s：%s" % (lead, name))
+        cands += ["%s：%s" % (lead, g) for g in generic]
+    if name:
+        # ⚠ 2026-10-15 修「12 条标题全是『海外小生意』」：这里原来塞的是
+        #   **裸 desc**，没过 _title_desc 压缩 ⇒ 只要 desc 超预算整条候选
+        #   就被判废，直接掉进 generic「海外小生意」。实测 quotedeck 的
+        #   desc 只有 11 字、拼起来 21 字、超预算 1 字也被拒。
+        #   金额前缀那条走了压缩、这条没走，是纯 bug。
+        cands.append("%s：%s" % (name, _title_desc(desc, TITLE_MAX - len(name) - 1)))
+        cands += ["%s：%s" % (name, g) for g in generic]
+    cands.append("拆解一个海外小生意")
+    for t in cands:
+        t = t.strip()
+        if 4 <= len(t) <= TITLE_MAX and (not used or t not in used):
+            return t
+    # 兜底：截 desc 而不是加省略号
+    pre = ("%s：" % lead) if lead else (("%s：" % name) if name else "")
+    budget = TITLE_MAX - len(pre)
+    if budget >= 6:
+        return pre + _hard_clip(desc, budget)
+    return "拆解一个海外小生意"
+
+
+def make_xhs_title(c, used=None):
+    """对外入口：规则/覆写生成完，再走一遍口径兜底。
+
+    correct_title_metric 会把把 ARR 值误标成「月收」的标题改成「年收」，
+    这样哪怕 overrides 还是旧写法，发出来的标题也不会错。
+    2026-10-14：再加一道 strip_title_money 兜底，拦住 one_liner 里漏进标题的金额。
+    """
+    import make_article as _ma
+    return _ma.strip_title_money(
+        correct_title_metric(_raw_make_xhs_title(c, used), c))
+
+
+def _clip(s, n):
+    """正文用：带省略号的软截断（先在句读处断）。"""
+    s = re.sub(r"\s+", " ", (s or "").strip())
+    if len(s) <= n:
+        return s
+    cut = s[:n]
+    for p in sorted(cut.rfind(x) for x in "。！？；.!?;，, "):
+        if p >= n * 0.6:
+            return cut[:p + 1]
+    return cut.rstrip() + "…"
+
+
+def build_tags(c):
+    cat = (c.get("category") or "").strip()
+    tags = list(BASE_TAGS) + TAGS_BY_CATEGORY.get(cat, [])
+    out, seen = [], set()
+    for t in tags:
+        if t and t not in seen:
+            seen.add(t)
+            out.append("#" + t)
+    return out
+
+
+def build_body(c):
+    # 2026-10-01：正文覆盖优先。禁售类目（通信资源等）光改标题没用，
+    # 违规判定看的是整段意图，必须能整体替换正文。
+    ov = note_override(c.get("id") or "")
+    if ov and ov.get("body"):
+        return ov["body"]
+    h = (c.get("metrics") or {}).get("headline") or ""
+    # 小红书种草口径（薛红笙路数）：第一屏就要有钩子——
+    # 反差 / 具体数字 / 一句话痛点，别上来就"拆一个案例"这种叙述腔。
+    hook_pool = [
+        "一个人 + 现成的上游，就能开这门生意，收入是真的👇",
+        "明码标价挂牌出售的海外小生意，我把它的账算给你看👇",
+        "不写代码也能做：这门生意靠的是转售，不是技术👇",
+        "又一个一人公司：收入是真的，成本结构比你想的薄👇",
+    ]
+    hook = hook_pool[sum(ord(x) for x in c.get("id", "")) % len(hook_pool)]
+    why = [x.strip() for x in (c.get("why_it_works") or []) if x.strip()]
+    pb = [x.strip() for x in (c.get("playbook") or []) if x.strip()]
+    name = c.get("name_en") or c.get("name") or c.get("id")
+
+    def assemble(n_why, how_n, what_n):
+        parts = [
+            hook,
+            "",
+            "📌 %s：%s" % (name, short_desc(c)),
+            _clip(c.get("what_it_does"), what_n),
+            "",
+            "💰 它怎么赚钱",
+            _clip(c.get("how_it_makes_money"), how_n),
+            "",
+            "🔍 为什么能成立",
+        ]
+        parts += ["· " + _clip(x, 52) for x in why[:n_why]]
+        if pb:
+            parts += ["", "🧠 最值得抄的一点", _clip(pb[0], 60)]
+        # headline 自带「（RevenueCat API 验证）」这类括号后缀，先剥掉再拼
+        # 统一的核验话术，避免「（…验证）（数据经第三方…核验）」双重括号。
+        cal = _clip(re.sub(r"（[^）]*）", "", h).strip(), 56)
+        if cal:
+            # 2026-09-28 审核实测：「来源：TrustMRR 公开挂牌页」被判站外导流
+            # （处置书第 1/3 条：展示其他平台信息、含义不明可能引导到站外）。
+            # 只说「第三方核验」，不出现站点名和「页/网址」字样。
+            parts += ["", "📊 口径照实说：" + cal + "（数据经第三方收入平台核验）"]
+        # 结尾要互动（评论区是小红书推荐权重的一部分）；
+        # 且**不能带站外导流**——小红书对"引流公众号/站外"判得比微信严，
+        # 早期版本那句"完整拆解在公众号…"必须删掉。
+        parts += ["", "你觉得这门生意值不值得抄？评论区聊聊👇"]
+        return "\n".join(parts)
+
+    tail = "\n" + " ".join(build_tags(c))
+    # 逐级收紧字段预算，直到塞进 1000 字
+    text = None
+    for n_why, how_n, what_n in ((3, 150, 120), (2, 110, 90), (2, 80, 70)):
+        text = assemble(n_why, how_n, what_n)
+        if len(text) + len(tail) <= BODY_MAX:
+            return text + tail
+    return (text or "") + tail
+
+
+def cover_headline(headline, budget=24):
+    """封面数字行：按「/」整段拼装，放不下完整段就丢弃（不出半截文案）。"""
+    segs = [s.strip() for s in re.split(r"（", headline or "")[0].split("/")]
+    out = ""
+    for s in segs:
+        if not s:
+            continue
+        cand = (out + " / " + s) if out else s
+        if len(cand) <= budget:
+            out = cand
+    return out
+
+
+def build_note(c, used=None):
+    # 2026-10-01：覆盖表优先级最高（title/body/tags 都可覆盖）。
+    # 为什么不改 cases.json —— 那是四平台共用源，改了要重建全部 37 条公众号
+    # HTML 并重跑 refresh；违规只是小红书单平台的问题。
+    ov = note_override(c.get("id") or "") or {}
+    return {
+        "title": ov.get("title") or make_xhs_title(c, used),
+        "body": ov.get("body") or build_body(c),
+        "tags": ov.get("tags") or build_tags(c),
+    }
+
+
+# ---- 合规预检（2026-10-01）------------------------------------------------
+# 为什么加：voklit 被判「文本违规 + 图片违规」、笔记已不可见，处置书四条判定
+# 全中。**根因是发布前没有任何小红书合规检查** —— 头条有 risk_words()，小红书
+# 以前没有。
+# ⚠ 红线是**语义级**不是关键词级：这里只能拦「明确踩线」的写法，拦不住
+# 「面向 XX 群体提供服务」这种无联系方式却暗示导流的表达。真正的兜底是
+# 人读一遍 note.json，别只看脚本通过。
+XHS_BANNED = {
+    "通信资源": ("虚拟号码", "虚拟号", "物联卡", "SIM卡", "接码", "中间号",
+                 "外呼", "短信通道", "VoIP", "OTP验证", "接验证码", "2FA接码"),
+    "引流导流": ("加微信", "加微", "微信号", "QQ群", "加群", "私信我", "联系我",
+                 "戳我", "主页链接", "公众号搜", "扫码"),
+    "灰产工具": ("破解", "刷量", "批量注册", "代实名", "租号", "账号交易",
+                 "免实名", "绕过风控", "脚本批量"),
+}
+
+
+def xhs_compliance(note):
+    """对 build_note() 的产物做合规预检，返回 [(类别, 命中词, 片段)]。
+
+    只看**最终产物**（标题+正文+卡片），因为覆盖表可能已把违规措辞换掉。
+    """
+    blob = (note.get("title") or "") + "\n" + (note.get("body") or "")
+    blob += "\n" + (note.get("_cards_text") or "")
+    hits = []
+    for cat, words in XHS_BANNED.items():
+        for w in words:
+            i = blob.find(w)
+            if i >= 0:
+                hits.append((cat, w, blob[max(0, i - 12):i + len(w) + 12]))
+    return hits
+
+
+def cards_text(c):
+    """把卡片上会印出来的文字抽成纯文本，供合规预检扫。
+
+    ⚠ 别漏了封面那行 one_liner —— 它来自 cases.json 的 `one_liner`，
+    覆盖表若只改 what/money 而漏 headline，封面仍会印违规措辞。
+    """
+    ov = note_override(c.get("id") or "") or {}
+    cards = ov.get("cards") or {}
+    parts = [
+        c.get("name") or "",
+        cards.get("headline") or c.get("one_liner") or "",
+        cards.get("what") or c.get("what_it_does") or "",
+        cards.get("money") or c.get("how_it_makes_money") or "",
+    ]
+    parts += list(cards.get("why") or c.get("why_it_works") or [])
+    pb = cards.get("playbook")
+    parts += [pb] if isinstance(pb, str) else list(pb or c.get("playbook") or [])
+    return "\n".join(str(x) for x in parts if x)
+
+
+# ---- 卡片 HTML -------------------------------------------------------------
+# 自适应原理：.fit 容器在 flex 列里被压缩（overflow:hidden + min-height:0），
+# 内容真高 scrollHeight > 视口高 clientHeight 时逐轮缩小容器字号；
+# 容器内的文字一律用 1em 相对字号，缩容器=缩全部。固定元素（标题条/评分块）
+# 不参与压缩。
+
+
+def _bullets(items):
+    return "".join(
+        '<div class="row"><div class="dot"></div>'
+        '<div class="rt">%s</div></div>' % esc(x) for x in items)
+
+
+def _bar(label, v, mx):
+    pct = max(0, min(100, 100.0 * (v or 0) / mx))
+    return ('<div class="brow"><div class="bl">%s</div>'
+            '<div class="btrack"><div class="bfill" style="width:%.0f%%">'
+            '</div><div class="bv">%s</div></div></div>'
+            % (esc(label), pct,
+               esc("%s/%s" % (v if v is not None else "—", mx))))
+
+
+def card_html(c, page, total):
+    """第 page(1-based) 张卡片，3:4 全 HTML 文档。"""
+    # 2026-09-30：原来这里用的是 `sum(ord(x)) % N` 旧哈希，和头条/公众号
+    # 修好的 `_cover_theme` 不是一套算法 → **同一案例在小红书和别的平台
+    # 撞色**（用户截图里 mort 和 quran-unlock 都是绿的）。统一走
+    # `_cover_theme`，四个平台从此同色。
+    # （`key` 参数目前只作语义标记，各平台实际共用同一套 COVER_THEMES。）
+    _base, _band, ac = wp._cover_theme(c.get("id", ""), "xhs")
+    name = c.get("name") or c.get("id") or ""
+    # 2026-10-02：**直接用公共实现 wp.cover_desc()**，不自己写一份。
+    # 理由是「口径单一真理」：封面文案（项目名 + 不含金额的一句话介绍）
+    # 在各平台必须一致，各自实现必然漂移 —— 已经踩过
+    # 「小红书和别的平台撞色」那个坑（各写各的 `_cover_theme` 哈希）。
+    # ⚠ 不能 import toutiao_publish 拿 tt_cover_desc：那边已 import 本模块，
+    #   反向依赖会成循环引用。wechat_publish 才是正确的公共位置。
+    one = wp.cover_desc(c)
+    headline = (c.get("metrics") or {}).get("headline") or ""
+    # 2026-09-28：账号昵称仍是小红书默认 id，印「万物解释者」（公众号名）
+    # 属「展示其他平台信息」，与站外导流同款风险。水印只留无账号名/平台名的
+    # slogan —— 品牌感保留，不指向任何外部平台。
+    brand = "拆解海外"
+    page_no = "%02d / %02d" % (page, total)
+
+    # 2026-10-01：卡片文案覆盖（图片违规的根因在卡片，不只在正文）。
+    # 违规判定看整段意图，所以 cards 要能整体替换 what/money/why/playbook；
+    # ⚠ 只改正文不覆盖卡片，等于把同样的违规文案重新印一遍发出去。
+    ov = note_override(c.get("id") or "") or {}
+    cards = ov.get("cards") or {}
+    # 2026-10-01：封面页版式文案也要能覆盖。
+    # 为什么：kick 是**硬编码在模板里**的「CASE STUDY · 海外小生意」，
+    # cards 覆盖表按字段取（headline/what/money/why/playbook）碰不到它 ——
+    # 结果是开源工具项目的卡片上印着「海外小生意」。
+    # 同样地，「数据来自公开披露」对非营收类内容也是错的（这里是实测，不是披露）。
+    # 取值回退到原默认值，既有 39 条渲染结果逐字节不变。
+    c_kicker = cards.get("kicker") or "CASE STUDY · 海外小生意"
+    c_numsub = cards.get("numsub") or "数据来自公开披露 · 口径见末页"
+    c_swipe = cards.get("swipe") or "👉 右滑看完整拆解"
+    c_brand = cards.get("brand") or brand
+    # c_one 已删（2026-10-02）：封面页改为在渲染处按「空则不显示」现场取
+    # cards.get("headline") or one，留一个只用不读的变量是死代码。
+    c_what = cards.get("what") or c.get("what_it_does") or "—"
+    c_money = cards.get("money") or c.get("how_it_makes_money") or "—"
+    c_why = cards.get("why") or c.get("why_it_works") or []
+    c_pb = cards.get("playbook")
+    c_pb = [c_pb] if isinstance(c_pb, str) else (c_pb or c.get("playbook") or [])
+
+    head = (
+        '<div class="hd"><div class="brand"><span class="sq"></span>%s</div>'
+        '<div class="pg">%s</div></div>' % (esc(c_brand), esc(page_no)))
+
+    if page == 1:      # 封面
+        # 2026-10-02：**金额块整体从封面移除**。
+        # 原版无条件渲染 numbox，装的是 metrics.headline —— 那是抓取当天的
+        # 快照金额，会随站点自己变，印在封面上等于印一个会过期的数字。
+        # 中间一版还留着「有才显示」的回退（cover_num / cover_headline /
+        # headline），实测那三条路都会把金额重新塞回封面，等于没改 ——
+        # 口径要一致就彻底断掉来源，只保留 cards 显式给的 cover_num。
+        # numbox 为空时连边框底色一起不渲染，否则留一个空灰块。
+        _num = (cards.get("cover_num") or "").strip()
+        _numbox = ('<div class="numbox"><div class="num fit">%s</div>'
+                   '<div class="numsub">%s</div></div>'
+                   % (esc(_num), esc(c_numsub))) if _num else ""
+        # 同理：简要介绍为空时不渲染这一行（用户「没简介就不显示」）。
+        _one = (cards.get("headline") or one).strip()
+        _oneblock = '<div class="one fit">%s</div>' % esc(_one) if _one else ""
+        # 正文块包一层 .body（flex:1 + 垂直居中）—— 去掉 numbox 后
+        # 内容不再被 margin-top:auto 顶到上方，视觉重心回到中间。
+        body = (
+            '<div class="body">'
+            '<div class="kicker" style="color:%s">%s</div>'
+            '<div class="name fit">%s</div>'
+            "%s"
+            "</div>"
+            "%s"
+            '<div class="swipe">%s</div>'
+            % (ac, esc(c_kicker),
+               esc(cards.get("name") or name),
+               _oneblock, _numbox, esc(c_swipe)))
+    elif page == 2:    # 是什么 · 怎么赚钱
+        body = (
+            '<div class="h2" style="color:%s">它是什么</div>'
+            '<div class="blk fit"><div class="para">%s</div></div>'
+            '<div class="h2" style="color:%s">它怎么赚钱</div>'
+            '<div class="blk fit"><div class="para">%s</div></div>'
+            % (ac, esc(c_what), ac, esc(c_money)))
+    elif page == 3:    # 为什么成立
+        body = ('<div class="h2" style="color:%s">它为什么能成立</div>'
+                '<div class="blk fit grow"><div class="inner">%s</div></div>'
+                % (ac, _bullets(c_why)))
+    elif page == 4:    # 方法论
+        body = ('<div class="h2" style="color:%s">能抄走的方法论</div>'
+                '<div class="blk fit grow"><div class="inner">%s</div></div>'
+                % (ac, _bullets(c_pb)))
+    else:              # 三张评分
+        rep = c.get("replicability") or {}
+        sf = c.get("solo_fit") or {}
+        cf = c.get("china_fit") or {}
+        rows = "".join([
+            _bar("技术", rep.get("tech"), 6),
+            _bar("获客", rep.get("distribution"), 6),
+            _bar("资金", rep.get("capital"), 6),
+            _bar("时机", rep.get("timing"), 6)])
+        blocker = cf.get("blocker")
+        sv = ("%.1f" % sf["score"]) if sf.get("score") is not None else "—"
+        cv = ("%.1f" % cf["score"]) if cf.get("score") is not None else "—"
+        body = (
+            '<div class="h2" style="color:%s">三张评分</div>'
+            '<div class="h3">可复制性（1–6）</div>'
+            '<div class="blk fit bars">%s</div>'
+            '<div class="scards"><div class="scard">'
+            '<div class="sv" style="color:%s">%s</div>'
+            '<div class="sl">一人上手分 · 第%s名</div></div>'
+            '<div class="scard"><div class="sv">%s</div>'
+            '<div class="sl">中国适配分 · 第%s名%s</div></div></div>'
+            % (ac, rows, ac, esc(sv), esc(str(sf.get("rank") or "—")),
+               esc(cv), esc(str(cf.get("rank") or "—")),
+               (" · 阻碍：" + esc(str(blocker))) if blocker else ""))
+    tail = ""
+    if page == total:
+        # 2026-09-28 审核实测：旧版「完整拆解 → 公众号「万物解释者」」被判
+        # 站外导流（处置书第 1 条），直接限制推荐+搜索。末页只留数据日期
+        # 与站内互动引导，任何「公众号/站外平台」字样不许上卡片。
+        tail = ('<div class="foot">数据核验截至 %s · 关注看更多海外小生意拆解</div>'
+                % esc((c.get("verified_at") or c.get("updated_at") or "")[:10]))
+
+    return (
+        '<!doctype html><html><head><meta charset="utf-8"><style>'
+        "html,body{margin:0;padding:0;}"
+        "*{box-sizing:border-box;}"
+        "body{width:%(W)dpx;height:%(H)dpx;background:#f6f3ee;"
+        "font-family:'PingFang SC','Microsoft YaHei','Noto Sans CJK SC',sans-serif;"
+        "color:#26221c;overflow:hidden;}"
+        ".wrap{width:100%%;height:100%%;padding:52px 60px 44px;}"
+        ".card{position:relative;width:100%%;height:100%%;background:#fffdf9;"
+        "border-radius:32px;border:1px solid #e8e1d5;padding:46px 48px 40px;"
+        "overflow:hidden;display:flex;flex-direction:column;}"
+        ".hd{display:flex;justify-content:space-between;align-items:center;"
+        "margin-bottom:30px;flex:0 0 auto;}"
+        ".brand{font-size:24px;font-weight:700;color:#8a8072;"
+        "display:flex;align-items:center;letter-spacing:2px;}"
+        ".sq{display:inline-block;width:18px;height:18px;border-radius:5px;"
+        "margin-right:14px;background:%(AC)s;}"
+        ".pg{font-size:22px;color:#b3a88f;}"
+        ".kicker{font-size:26px;font-weight:800;letter-spacing:6px;flex:0 0 auto;}"
+        ".name{font-size:84px;font-weight:900;line-height:1.15;margin-top:26px;}"
+        ".one{font-size:40px;font-weight:600;line-height:1.5;color:#5c554a;"
+        "margin-top:20px;}"
+        # 2026-10-02：numbox 移除后，第一张卡片只剩 kicker/name/one/swipe
+        # 四个块，全是 flex:0 0 auto —— 内容会全挤在顶部 1/3，下方留大片空白
+        # （postiz / coral 实测）。⚠ 关键是**不能靠 numbox 的
+        # `margin-top:auto` 撑开**，那东西已经没了。
+        # 正解：正文块（kicker+name+one）自己`flex:1 1 auto` + 内部垂直居中，
+        # 这样有没有金额块都能视觉居中。
+        ".body{flex:1 1 auto;min-height:0;display:flex;"
+        "flex-direction:column;justify-content:center;}"
+        ".numbox{margin-top:auto;background:#f6f3ee;border-radius:24px;"
+        "padding:34px 34px;flex:0 0 auto;}"
+        ".num{font-size:44px;font-weight:800;line-height:1.4;}"
+        ".numsub{font-size:22px;color:#8a8072;margin-top:12px;}"
+        ".swipe{margin-top:24px;font-size:26px;color:#8a8072;flex:0 0 auto;}"
+        ".h2{font-size:44px;font-weight:900;margin-bottom:26px;flex:0 0 auto;}"
+        ".h3{font-size:27px;font-weight:700;color:#8a8072;margin:2px 0 16px;"
+        "flex:0 0 auto;}"
+        ".blk{flex:1 1 0;min-height:0;overflow:hidden;font-size:30px;}"
+        ".blk .inner{display:flow-root;}"
+        ".blk.bars{flex:0 1 auto;min-height:0;font-size:28px;}"
+        ".para{font-size:1em;line-height:1.75;color:#3d382f;}"
+        ".row{display:flex;margin-bottom:0.9em;}"
+        ".dot{flex:0 0 14px;height:14px;border-radius:50%%;background:%(AC)s;"
+        "margin-top:0.6em;margin-right:24px;}"
+        ".rt{font-size:1em;line-height:1.65;color:#3d382f;}"
+        ".brow{display:flex;align-items:center;margin-bottom:20px;}"
+        ".bl{flex:0 0 96px;font-size:1em;font-weight:700;}"
+        ".btrack{flex:1;height:20px;border-radius:10px;background:#efe9dd;"
+        "margin:0 20px;overflow:hidden;}"
+        ".bfill{height:100%%;border-radius:10px;background:%(AC)s;}"
+        ".bv{flex:0 0 76px;font-size:0.9em;color:#8a8072;text-align:right;}"
+        ".scards{display:flex;gap:22px;margin-top:34px;flex:0 0 auto;}"
+        ".scard{flex:1;background:#f6f3ee;border-radius:22px;padding:28px;}"
+        ".sv{font-size:60px;font-weight:900;line-height:1.1;}"
+        ".sl{font-size:22px;color:#8a8072;margin-top:10px;line-height:1.4;}"
+        ".foot{margin-top:auto;font-size:22px;color:#8a8072;line-height:1.5;"
+        "border-top:1px solid #e8e1d5;padding-top:22px;flex:0 0 auto;}"
+        ".fit{overflow:hidden;min-height:0;}"
+        "</style></head><body><div class=\"wrap\"><div class=\"card\">"
+        "%(HEAD)s%(BODY)s%(TAIL)s</div></div></body></html>"
+        % {"W": CARD_W, "H": CARD_H, "AC": ac,
+           "HEAD": head, "BODY": body, "TAIL": tail})
+
+
+# ---- Chrome / 渲染 ---------------------------------------------------------
+
+def _port_up(port):
+    try:
+        op = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+        op.open("http://127.0.0.1:%d/json/version" % port, timeout=2).read()
+        return True
+    except Exception:
+        return False
+
+
+def ensure_chrome(port=BUILD_PORT):
+    """起一个一次性无头 Chrome 专门渲染卡片（临时 profile，不碰 9222 登录态）。"""
+    if _port_up(port):
+        return None
+    profile = os.path.join(OUT, ".chrome-profile")
+    os.makedirs(profile, exist_ok=True)
+    proc = subprocess.Popen(
+        [CHROME, "--headless=new", "--remote-debugging-port=%d" % port,
+         "--user-data-dir=" + profile, "--no-first-run",
+         "--no-default-browser-check", "--disable-gpu", "about:blank"],
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    for _ in range(30):
+        time.sleep(0.5)
+        if _port_up(port):
+            return proc
+    raise SystemExit("Chrome 调试端口起不来: %d" % port)
+
+
+GROW_JS = (
+    "(function(){var chg=0;"
+    "[].slice.call(document.querySelectorAll('.blk.grow')).forEach(function(e){"
+    "var inner=e.querySelector('.inner');if(!inner)return;"
+    "var guard=0;"
+    "while(inner.offsetHeight*1.12<e.clientHeight&&guard<8){"
+    "var fs=parseFloat(getComputedStyle(e).fontSize);"
+    "e.style.fontSize=fs*1.1+'px';guard++;chg++;}"
+    "while(inner.offsetHeight>e.clientHeight+1&&guard<14){"
+    "var fs=parseFloat(getComputedStyle(e).fontSize);"
+    "var nf=Math.max(24,fs*0.94);"
+    "if(nf>=fs-0.01)break;"
+    "e.style.fontSize=nf+'px';guard++;chg++;}});"
+    "return JSON.stringify({n:chg});})()")
+
+AUTOFIT_JS = (
+    "(function(){var chg=0;"
+    "[].slice.call(document.querySelectorAll('.fit')).forEach(function(e){"
+    "var guard=0;"
+    "while((e.scrollHeight>e.clientHeight+1||e.scrollWidth>e.clientWidth+1)"
+    "&&guard<14){var fs=parseFloat(getComputedStyle(e).fontSize);"
+    "var nf=Math.max(15,fs*0.94);"
+    "if(nf>=fs-0.01)break;"
+    "e.style.fontSize=nf+'px';guard++;chg++;}});"
+    "return JSON.stringify({n:chg});})()")
+
+
+def case_page_html(c, cards=5):
+    """一条案例的全部卡片拼进一个页面（每张占一个 1080x1440 slot）。
+
+    一次 new_target/连接/收敛，5 次 clip 截图 —— 比每卡开一个 tab 快一个
+    数量级（单 tab 路线实测 5 卡要 1m46s，大头在连接与上下文收集）。
+    """
+    docs = [card_html(c, p, cards) for p in range(1, cards + 1)]
+    css = docs[0].split("<style>")[1].split("</style>")[0]
+    slots = "".join(
+        '<div class="slot">%s</div>'
+        % d.split("<body>")[1].split("</body>")[0] for d in docs)
+    return (
+        '<!doctype html><html><head><meta charset="utf-8"><style>'
+        + css +
+        "body{width:%(W)dpx;height:%(H)dpx;}"
+        ".slot{width:%(W)dpx;height:%(Hh)dpx;position:relative;overflow:hidden;}"
+        "</style></head><body>%(SLOT)s</body></html>"
+        % {"W": CARD_W, "H": CARD_H * cards, "Hh": CARD_H, "SLOT": slots})
+
+
+def render_case_pngs(port, c, out_dir, cards=5):
+    """渲染一条案例的全部卡片 PNG，返回成功文件名列表。"""
+    html = case_page_html(c, cards)
+    data_url = "data:text/html;charset=utf-8;base64," + base64.b64encode(
+        html.encode("utf-8")).decode("ascii")
+    tid = None
+    sub = None
+    done = []
+    try:
+        browser = wp.CDP(port)
+        tid = browser.new_target(data_url)["id"]
+        sub = wp.CDP(port)
+        sub.connect_target(tid)
+        # 关键：把视口钉死成画布尺寸。headless 默认视口 ~764x485，
+        # Page.captureScreenshot 的 clip 不会按 clip 尺寸重排布局，
+        # 不 override 的话卡片会按小视口塌陷（实测 2026-09-25）。
+        # dsf 固定 1，放大倍数交给 clip.scale（两个会叠乘）。
+        sub.send("Emulation.setDeviceMetricsOverride",
+                 {"width": CARD_W, "height": CARD_H, "deviceScaleFactor": 1,
+                  "mobile": False})
+        time.sleep(1.0)
+        # 收敛循环全部放进一次 JS 同步执行（样式改动后读 getComputedStyle
+        # 会强制同步重排，纯 JS 内循环即可收敛）。每轮 eval 都带
+        # refresh_context 会触发 wp 的上下文收集（实测单卡要 30 秒+），
+        # 这里只在第一次拿上下文，后续复用。
+        sub.eval(GROW_JS, refresh_context=True)
+        sub.eval(AUTOFIT_JS)
+        for p in range(1, cards + 1):
+            r = sub.send("Page.captureScreenshot", {
+                "format": "png",
+                "captureBeyondViewport": True,
+                "clip": {"x": 0, "y": (p - 1) * CARD_H, "width": CARD_W,
+                         "height": CARD_H, "scale": 2}})
+            data = (r.get("result") or {}).get("data", "")
+            if not data:
+                print("  [warn] %s 卡片 %d 截图失败" % (c["id"], p))
+                continue
+            fn = "card-%d.png" % p
+            with open(os.path.join(out_dir, fn), "wb") as f:
+                f.write(base64.b64decode(data))
+            done.append(fn)
+        return done
+    finally:
+        if tid and browser is not None:
+            try:
+                browser.close_target(tid)
+            except Exception:
+                pass
+        for conn in (sub, browser):
+            if conn is not None and getattr(conn, "bws", None) is not None:
+                try:
+                    conn.bws.close()
+                except Exception:
+                    pass
+
+
+def build_case(port, c, cards=5, used=None):
+    cid = c["id"]
+    d = os.path.join(OUT, cid)
+    os.makedirs(d, exist_ok=True)
+    note = build_note(c, used)
+    if used is not None:
+        used.add(note["title"])
+    # 合规预检（2026-10-01）。卡片文字也要进检查范围 —— voklit 就是
+    # 「正文改干净了但卡片还印着违规措辞」这一路栽的。
+    note["_cards_text"] = cards_text(c)
+    hits = xhs_compliance(note)
+    note.pop("_cards_text", None)
+    if hits:
+        print("  [合规警告] %s 命中 %d 条：" % (cid, len(hits)))
+        for cat, w, frag in hits[:8]:
+            print("    - [%s] %s← %s" % (cat, w, frag.replace("\n", " ")))
+        print("    ⚠ 小红书对通信资源/引流/灰产是**禁售类目**，改措辞救不回来。")
+        print("    ⚠ 处置：换平台（公众号/B站可发），或整体改写意图。")
+    note["images"] = render_case_pngs(port, c, d, cards)
+    with open(os.path.join(d, "note.md"), "w", encoding="utf-8") as f:
+        f.write(note["title"] + "\n\n" + note["body"] + "\n")
+    with open(os.path.join(d, "note.json"), "w", encoding="utf-8") as f:
+        json.dump(note, f, ensure_ascii=False, indent=2)
+    return note
+
+
+# ---- preview ---------------------------------------------------------------
+
+def cmd_preview(_args):
+    cases = load_cases()
+    rows = []
+    for c in cases:
+        d = os.path.join(OUT, c["id"])
+        nj = os.path.join(d, "note.json")
+        if not os.path.isfile(nj):
+            continue
+        note = json.load(open(nj, encoding="utf-8"))
+        imgs = "".join(
+            '<figure><img loading="lazy" src="%s/%s">'
+            '<figcaption>%s · %02d/%02d</figcaption></figure>'
+            % (c["id"], fn, esc(c["name"]), i + 1, len(note["images"]))
+            for i, fn in enumerate(note["images"]))
+        rows.append(
+            '<section><h2>%s <small>%s</small></h2>'
+            '<div class="meta">标题（%d 字）：%s</div>'
+            '<pre>%s</pre><div class="row">%s</div></section>'
+            % (esc(c["name"]), esc(c["id"]), len(note["title"]),
+               esc(note["title"]), esc(note["body"]), imgs))
+    html = (
+        '<!doctype html><html lang="zh"><head><meta charset="utf-8">'
+        "<title>小红书笔记预览 · 拆解海外</title><style>"
+        "body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;"
+        "background:#f2efe9;margin:0;padding:32px;color:#26221c;}"
+        "h1{font-size:26px;}h2{font-size:20px;margin:0 0 12px;}"
+        "section{background:#fffdf9;border-radius:16px;padding:24px;"
+        "margin-bottom:28px;border:1px solid #e8e1d5;}"
+        "small{color:#8a8072;font-weight:400;}"
+        ".meta{font-size:14px;color:#5c554a;margin-bottom:8px;}"
+        "pre{white-space:pre-wrap;font:14px/1.7 inherit;background:#f6f3ee;"
+        "padding:16px;border-radius:12px;max-width:640px;}"
+        ".row{display:flex;gap:16px;flex-wrap:wrap;}"
+        "figure{margin:12px 0 0;}"
+        "img{width:216px;border-radius:12px;border:1px solid #e8e1d5;"
+        "display:block;}"
+        "figcaption{font-size:12px;color:#8a8072;margin-top:4px;}"
+        "</style></head><body><h1>小红书笔记预览（%d 条）</h1>%s</body></html>"
+        % (len(rows), "".join(rows)))
+    path = os.path.join(OUT, "index.html")
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(html)
+    print("preview ->", path)
+
+
+# ---- publish（实验性）-------------------------------------------------------
+
+PUB_URL = "https://creator.xiaohongshu.com/publish/publish?source=official"
+DRAFT_URL = "https://creator.xiaohongshu.com/publish/publish?target=draft"
+
+# 2026-09-25 实测 DOM（小红书 creator 网页版，图文流程）：
+#   默认停在「上传视频」tab，必须先切到「上传图文」才会出现编辑表单；
+#   表单 = 标题 input.d-text[placeholder*="标题"] + 正文 .tiptap.ProseMirror
+#   图文的 file input 在 .img-list 里（别抓到视频区的那个）。
+# 注意：这三个字符串会被插进 JS，里面的引号必须用单引号，
+# 否则和外层双引号撞车 → querySelector 抛错 → eval 返回 None（2026-09-25 实测）。
+SEL_TITLE = "input.d-text[placeholder*='标题']"
+SEL_BODY = ".tiptap.ProseMirror[contenteditable='true']"
+SEL_FILE = '.img-list input[type=file]'
+SEL_FILE_ANY = 'input[type=file]'   # 图文页刚切开时还没有 .img-list
+SEL_IMG = '.img-list img'
+
+
+def _js_original(state=True):
+    """勾/取消「原创声明」。返回当前是否勾选、是否点了一下。"""
+    return """(function(){
+  var want = %s;
+  var box = document.querySelector('.original-wrapper');
+  if (!box) return JSON.stringify({ok:false, why:'no_original_block'});
+  var sw = box.querySelector('.d-switch');
+  var cb = box.querySelector('input[type=checkbox]');
+  var on = !!(sw && sw.classList.contains('d-checked')) ||
+           (sw && /checked/.test(String(sw.className))) ||
+           !!(cb && cb.checked);
+  if (on === want) return JSON.stringify({ok:true, on:on, clicked:false});
+  (sw || cb).click();
+  return JSON.stringify({ok:true, on:on, clicked:true});
+})()""" % ("true" if state else "false")
+
+
+def _js_original_agree():
+    """原创声明须知弹窗：勾「我已阅读并同意」，并回报确认按钮是否可点。"""
+    return """(function(){
+  var wrap = [].slice.call(document.querySelectorAll('.d-checkbox'))
+    .filter(function(e){
+      return (e.innerText||'').indexOf('我已阅读并同意') >= 0; })[0];
+  if (!wrap) return JSON.stringify({ok:false, why:'no_dialog'});
+  var box = wrap.querySelector('input[type=checkbox]');
+  if (box && !box.checked) { wrap.click(); }
+  return JSON.stringify({ok:true, checked: !!(box && box.checked)});
+})()"""
+
+
+def _js_original_confirm():
+    """点须知弹窗里的「声明原创」（勾了同意才会 enabled）。"""
+    return """(function(){
+  var btn = [].slice.call(document.querySelectorAll('button'))
+    .filter(function(b){ return (b.innerText||'').trim() === '声明原创'; })[0];
+  if (!btn) return JSON.stringify({ok:false, why:'no_btn'});
+  if (btn.classList.contains('disabled') || btn.disabled) {
+    return JSON.stringify({ok:false, why:'disabled'});
+  }
+  btn.click();
+  return JSON.stringify({ok:true, clicked:true});
+})()"""
+
+
+def _js_trim_tail_jing():
+    """删掉正文末尾多余的裸 #（自动加话题失败时会在正文留下尾巴）。"""
+    return """(function(){
+  var ed = document.querySelector('.tiptap.ProseMirror[contenteditable='true']');
+  if (!ed) return JSON.stringify({ok:false, why:'no_editor'});
+  var t = ed.innerText || '';
+  if (!/[#＃]\\s*$/.test(t)) return JSON.stringify({ok:true, trimmed:0});
+  ed.focus();
+  var n = 0;
+  // 退格把尾巴清干净（ProseMirror 认真实键盘事件）
+  while (n < 30 && /[#＃]\\s*$/.test(ed.innerText || '')) {
+    document.execCommand('delete');
+    n++;
+  }
+  return JSON.stringify({ok:true, trimmed:n, tail:(ed.innerText||'').slice(-20)});
+})()"""
+
+
+def _js_switch_photo_tab():
+    """点「上传图文」tab；已经图文就什么都不做。"""
+    # 进了编辑器视图后 .creator-tab 会整个消失，所以先看有没有编辑区。
+    return """(function(){
+  if ((document.querySelector('.edit-container') ||
+       document.querySelector('.tiptap')) &&
+      location.href.indexOf('target=image') >= 0) {
+    return JSON.stringify({ok:true, active:true, editor:true, url:location.href});
+  }
+  var act = document.querySelector('.creator-tab.active');
+  if (act && (act.innerText||'').trim() === '上传图文') {
+    return JSON.stringify({ok:true, active:true, url:location.href});
+  }
+  var el = [].slice.call(document.querySelectorAll('.creator-tab'))
+    .filter(function(e){ return (e.innerText||'').trim() === '上传图文'; })[0];
+  if (!el) return JSON.stringify({ok:false, why:'no_tab'});
+  el.click();
+  return JSON.stringify({ok:true, active:false, url:location.href});
+})()"""
+
+
+def _js_fill_title(title):
+    """标题：input 走原生 value setter + input 事件（Vue 能收到）。"""
+    return ("""(function(){
+  var ti = document.querySelector("%s");
+  if (!ti) return JSON.stringify({ok:false, why:'no_title_el'});
+  var s = Object.getOwnPropertyDescriptor(
+    window.HTMLInputElement.prototype, 'value');
+  s.set.call(ti, %s);
+  ti.dispatchEvent(new Event('input', {bubbles:true}));
+  return JSON.stringify({ok:true, len:ti.value.length});
+})()""" % (SEL_TITLE, json.dumps(title, ensure_ascii=False)))
+
+
+def _js_fill_body(body):
+    """正文：tiptap/ProseMirror 不吃原生 value setter，按段 insertText。"""
+    lines = [l for l in body.split("\n")]
+    return ("""(function(){
+  var ed = document.querySelector("%s");
+  if (!ed) return JSON.stringify({ok:false, why:'no_editor'});
+  ed.focus();
+  var lines = %s, ok = 0;
+  for (var i = 0; i < lines.length; i++) {
+    try {
+      document.execCommand('insertText', false,
+        lines[i] + (i < lines.length - 1 ? '\\n' : ''));
+      ok++;
+    } catch (e) {}
+  }
+  ed.dispatchEvent(new Event('input', {bubbles:true}));
+  return JSON.stringify({ok:true, lines:lines.length, inserted:ok,
+                         len:(ed.innerText||'').length});
+})()""" % (SEL_BODY, json.dumps(lines, ensure_ascii=False)))
+
+
+def _js_open_topic():
+    """点编辑区「话题」按钮，打开话题选择浮层。"""
+    return """(function(){
+  var btns = [].slice.call(
+    document.querySelectorAll('.contentBtn, .edit-btn'));
+  var b = btns.filter(function(e){
+    return (e.innerText||'').trim() === '话题'; })[0];
+  if (!b) return JSON.stringify({ok:false, why:'no_topic_btn'});
+  b.click();
+  return JSON.stringify({ok:true});
+})()"""
+
+
+def _js_topic_type(tag):
+    """在话题浮层输入框里敲 #标签（焦点已在浮层里时应直接生效）。"""
+    return ("""(function(){
+  var sel = document.querySelector('.d-select-input-filter input, .d-select-input-filter textarea');
+  if (!sel) return JSON.stringify({ok:false, why:'no_topic_input'});
+  sel.focus();
+  try { document.execCommand('insertText', false, %s); } catch (e) {}
+  sel.dispatchEvent(new Event('input', {bubbles:true}));
+  return JSON.stringify({ok:true, len:(sel.value||'').length});
+})()""" % json.dumps("#" + tag.lstrip("#"), ensure_ascii=False))
+
+
+def _js_topic_pick():
+    """回车后选第一个候选话题，然后关掉浮层。"""
+    return """(function(){
+  var item = document.querySelector('.d-select-item, .d-select-option, '
+    + 'li[class*=d-select]');
+  if (item) { item.click(); return JSON.stringify({ok:true, picked:true}); }
+  return JSON.stringify({ok:false, why:'no_candidate'});
+})()"""
+
+
+def _wait(sub, js, want, tries=30, gap=1.0, label=""):
+    for _ in range(tries):
+        try:
+            r = sub.eval(js)
+            if want(r):
+                return r
+        except Exception:
+            pass
+        time.sleep(gap)
+    return None
+
+
+HOME_URL = "https://creator.xiaohongshu.com/new/home"
+
+# 创作者中心首页的暂存提示（2026-09-26 实测版式）：
+# 侧边栏改版后顶部「草稿箱(N)」没了，首页会显示「草稿箱中有未发布的作品」。
+_JS_DRAFT_SIGNAL = (
+    "(function(){var t=document.body.innerText||'';"
+    "var m=t.match(/草稿箱\\((\\d+)\\)/);"
+    "return {hint:t.indexOf('草稿箱中有未发布的作品')>=0,"
+    "n:m?parseInt(m[1],10):-1};})()"
+)
+
+
+def _draft_signal(sub):
+    """返回 {'hint':bool,'n':int}；eval 有时给对象有时给 JSON 字符串，都兜住。"""
+    try:
+        v = sub.eval(_JS_DRAFT_SIGNAL, refresh_context=True)
+    except Exception:
+        return None
+    if isinstance(v, dict):
+        return v
+    if isinstance(v, str):
+        try:
+            return json.loads(v)
+        except Exception:
+            return None
+    return None
+
+
+def _save_draft(sub, note):
+    """把当前编辑内容存成草稿。
+
+    实测（2026-09-26）：小红书图文发布页**没有「存草稿」按钮**，底部只有
+    红色「发布」；唯一办法是**离开编辑页**，小红书会自动把当前内容暂存到
+    本地草稿箱（顶部「草稿箱(N)」计数 +1 即暂存成功）。
+
+    所以这里主动 navigate 到创作中心首页，再回读计数验证。
+    返回 (是否成功, 计数)。
+    """
+    before = _draft_signal(sub) or {}
+    try:
+        sub.send("Page.navigate", {"url": HOME_URL})
+    except Exception as e:
+        print("[warn] 导航离开失败：%s" % e)
+        return False, before
+    left = False
+    for _ in range(10):          # 等 URL 真的离开发布页
+        time.sleep(1.2)
+        try:
+            if "publish/publish" not in (sub.eval("location.href") or ""):
+                left = True
+                break
+        except Exception:
+            pass
+    # 导航换了 JS context，这里每次都要带 refresh_context（否则拿的是
+    # 已销毁的旧 context，会一直重试）。自动暂存有几秒延迟，轮询几轮。
+    for _ in range(8):
+        time.sleep(1.5)
+        s = _draft_signal(sub)
+        if s and (s.get("hint") or (isinstance(s.get("n"), int) and s["n"] > 0)):
+            print("  ✅ 已存草稿（首页显示「草稿箱中有未发布的作品」）")
+            return True, s
+    print("[warn] 离开编辑页后没读到草稿信号%s，请去草稿箱核对：《%s》"
+          % ("" if left else "（页面没真的离开）", note["title"]))
+    return False, before
+
+
+def cmd_publish(args):
+    # 没写 --case 就走「发最近的没发过的」：默认 1 条（--near 3 = 3 条）
+    if not getattr(args, "case", None):
+        return _publish_batch(args)
+    c = find_case_fuzzy(args.case)
+    d = os.path.join(OUT, c["id"])
+    nj = os.path.join(d, "note.json")
+    if not os.path.isfile(nj):
+        raise SystemExit("先 build：out/xhs/%s/note.json 不存在" % args.case)
+    if not os.path.isfile(nj):
+        build_case(BUILD_PORT, c)          # 没生成过卡片就现造一张
+    note = json.load(open(nj, encoding="utf-8"))
+    if not _port_up(PUB_PORT):
+        raise SystemExit(
+            "没找到 %d 调试 Chrome。先起：\n"
+            '  "C:/Program Files/Google/Chrome/Application/chrome.exe" '
+            "--remote-debugging-port=9222 "
+            '--user-data-dir="C:\\Users\\DELL\\chrome-debug-profile" '
+            "--no-first-run --no-default-browser-check --remote-allow-origins=* "
+            "\n然后人工登录 creator.xiaohongshu.com 一次。" % PUB_PORT)
+    cdp = wp.CDP(PUB_PORT)
+    tid = None
+    for t in cdp.list_targets():
+        if "creator.xiaohongshu.com" in (t.get("url") or ""):
+            tid = t["id"]
+            break
+    if not tid:
+        tid = cdp.new_target(PUB_URL)["id"]
+        time.sleep(4)
+    sub = wp.CDP(PUB_PORT)
+    sub.connect_target(tid)
+    url = sub.eval("location.href")
+    if "publish" not in url:
+        sub.send("Page.navigate", {"url": PUB_URL})
+        time.sleep(4)
+        url = sub.eval("location.href")
+    if "login" in url or "passport" in url:
+        raise SystemExit("该 Chrome 还没登录小红书，请先人工登录后再跑 publish。")
+
+    # 默认重新导航到发布页：编辑区的图/字都只是本地状态，留着只会越叠越多。
+    # 想接着上一次的编辑继续，加 --keep。
+    if not getattr(args, "keep", False):
+        sub.send("Page.navigate", {"url": PUB_URL})
+        time.sleep(6)
+    _T0 = time.time()
+    print("  [%.0fs] 页面已就绪" % (time.time() - _T0))
+
+    # ---- 1) 切到「上传图文」tab（默认停在视频 tab，没有编辑表单）----
+    # 页面是异步挂载的：navigate 完直接找 tab 会偶发失败，
+    # 这里先等 .creator-tab 出现再切，并允许点完再复查几轮。
+    if _wait(sub, "document.querySelectorAll('.creator-tab').length",
+             lambda v: int(v or 0) > 0, tries=25, gap=1.0) is None:
+        raise SystemExit(
+            "[err] 发布页 25 秒都没渲染出 tab，检查网络或登录态。")
+    r = {}
+    for _ in range(6):
+        r = json.loads(sub.eval(_js_switch_photo_tab(), refresh_context=True))
+        if r.get("ok"):
+            break
+        time.sleep(2)
+    if not r.get("ok"):
+        raise SystemExit("[err] 找不到「上传图文」tab：%s" % r)
+    # 切 tab 后 DOM 是异步替换的；注意 .img-list 是「传了图之后」才出现的，
+    # 所以这里只能等裸的 input[type=file]（2026-09-25 实测）。
+    if _wait(sub, "document.querySelectorAll('%s').length" % SEL_FILE_ANY,
+             lambda v: int(v or 0) > 0, tries=20, gap=1.0) is None:
+        raise SystemExit(
+            "[err] 切到图文 tab 后 20 秒仍没有 file input，页面结构可能又变了。")
+
+    # ---- 2) 逐张传图（图文的 file input 在 .img-list 下）----
+    for fn in note["images"]:
+        p = os.path.abspath(os.path.join(d, fn))
+        q = sub.send("DOM.getDocument", {"depth": 0})
+        root = (q.get("result") or {}).get("root", {}).get("nodeId")
+        n = sub.send("DOM.querySelector",
+                     {"nodeId": root, "selector": SEL_FILE})
+        nid = (n.get("result") or {}).get("nodeId")
+        if not nid:      # 还没传过图 → 用裸 input
+            n = sub.send("DOM.querySelector",
+                         {"nodeId": root, "selector": SEL_FILE_ANY})
+            nid = (n.get("result") or {}).get("nodeId")
+        if not nid:
+            print("[warn] 没找到图文 file input，跳过 %s（请手动传）" % fn)
+            continue
+        before = int(sub.eval("document.querySelectorAll('%s').length" % SEL_IMG)
+                     or 0)
+        sub.send("DOM.setFileInputFiles", {"nodeId": nid, "files": [p]})
+        got = _wait(
+            sub, "document.querySelectorAll('%s').length" % SEL_IMG,
+            lambda v, b=before: (int(v or 0) > b), tries=45, gap=1.0)
+        if got is None:
+            print("[warn] %s 上传没被识别（列表没增加），可能要手动传" % fn)
+        else:
+            print("  图片已加：%s（第 %s/%s 张）"
+                  % (fn, int(got or 0), len(note["images"])))
+
+    # ---- 3) 等编辑表单出现 ----
+    if _wait(sub, "!!document.querySelector('.edit-container')",
+             lambda v: v and v != "false") is None:
+        raise SystemExit(
+            "[err] 等了 30 秒编辑表单还没出来。图传完没？去浏览器里看一眼。")
+
+    # ---- 4) 标题 / 正文 ----
+    r = json.loads(sub.eval(_js_fill_title(note["title"])))
+    if not r.get("ok"):
+        print("[warn] 标题没填上：%s。请到浏览器里手动填。" % r)
+    r = json.loads(sub.eval(_js_fill_body(note["body"])))
+    if not r.get("ok"):
+        print("[warn] 正文没填上：%s。请到浏览器里手动填。" % r)
+    else:
+        print("  正文已填：%s 行，编辑器内 %s 字" % (r.get("inserted"),
+                                                    r.get("len")))
+
+    # ---- 5) 话题（默认尝试自动加，失败只提示，不阻断）----
+    # 话题保持默认关闭：话题浮层的候选选择器目前对不上，硬试会在正文末尾
+    # 留下孤立 #（实测出现过「#SaaS#」）。正文末尾本来就带同名 #标签，够了。
+    tags = note.get("tags") or []
+    if tags and getattr(args, "tags", False):
+        sub.eval(_js_open_topic())
+        time.sleep(1.5)
+        for tag in tags:
+            if "#" not in tag:
+                tag = "#" + tag.lstrip("#")
+            r = json.loads(sub.eval(_js_topic_type(tag.lstrip("#"))))
+            if not r.get("ok"):
+                print("[warn] 话题框没打开，%s 请手加（正文里已带同名 #）" % tag)
+                break
+            time.sleep(1.2)
+            # 发真实回车（ProseMirror 只认 keydown，合成 KeyboardEvent 不稳）
+            for typ, extra in (("keyDown", {"text": "\r", "nativeVirtualKeyCode": 13}),
+                               ("keyUp", {})):
+                sub.send("Input.dispatchKeyEvent",
+                         dict({"type": typ, "key": "Enter", "code": "Enter",
+                               "windowsVirtualKeyCode": 13}, **extra))
+            time.sleep(1.2)
+            p = json.loads(sub.eval(_js_topic_pick()))
+            if not p.get("ok"):
+                print("[warn] %s 没有候选，跳过" % tag)
+            time.sleep(0.8)
+        try:
+            sub.send("Input.dispatchKeyEvent",
+                     {"type": "keyDown", "key": "Escape",
+                      "code": "Escape", "windowsVirtualKeyCode": 27})
+            sub.send("Input.dispatchKeyEvent", {"type": "keyUp",
+                                                "key": "Escape",
+                                                "code": "Escape",
+                                                "windowsVirtualKeyCode": 27})
+        except Exception:
+            pass
+
+    # ---- 5.5) 清尾巴 + 勾选「原创声明」（默认开，--no-original 才不勾）----
+    sub.eval(_js_trim_tail_jing(), refresh_context=True)
+    _wait(sub, "document.querySelectorAll('.original-wrapper').length",
+          lambda v: int(v or 0) > 0, tries=15, gap=1.0)
+    want = not getattr(args, "no_original", False)
+    o = {}
+    for _ in range(5):
+        o = json.loads(sub.eval(_js_original(want)))
+        if o.get("on") is want:
+            break
+        # 勾开会弹出《原创声明须知》：要勾同意再点「声明原创」才算数
+        a = json.loads(sub.eval(_js_original_agree(), refresh_context=True))
+        if a.get("ok"):
+            time.sleep(1.0)
+            c2 = json.loads(sub.eval(_js_original_confirm()))
+            if c2.get("ok"):
+                print("  原创声明：已签署须知")
+            else:
+                print("[warn] 原创须知没确认：%s" % c2)
+        time.sleep(1.5)
+    if o.get("on") is want:
+        print("  原创声明：%s%s" % ("已勾选" if want else "未勾选（按参数要求）",
+                                    "" if not o.get("clicked") else "（本次点开的）"))
+    else:
+        print("[warn] 「原创声明」没勾上：%s —— 请在浏览器里手动处理。" % o)
+
+    # ---- 6) 提交 ----
+    if args.dry:
+        print("DRY：标题/正文/图片/话题都已就位，未点任何按钮。"
+              "请到浏览器里检查（标签页已给你留在最前）。")
+        return
+    if not args.yes:
+        # 页面没有「存草稿」按钮：离开编辑页小红书会自动暂存（2026-09-26 实测）。
+        ok, _ = _save_draft(sub, note)
+        mark_drafted(c["id"])
+        print(("已存为草稿，去创作中心「草稿箱」里审核后再发"
+               "（草稿是浏览器本地的，换设备/清缓存就没了）。") if ok else
+              ("[warn] 没确认到草稿。可手动关掉发布页暂存，或加 --yes 直接发。"))
+        return
+    # 真发布：底部红色「发布」按钮查不到常规 DOM（探针 2026-09-26：
+    # 全元素搜文本「发布」只有左上角导航按钮），按 viewport 比例坐标
+    # 真实点击（截图实测 556/1080, 644/676），点击后跳 /publish/success。
+    sub.eval("""(function(){
+      [].slice.call(document.querySelectorAll('*')).forEach(function(e){
+        if (e.scrollHeight > e.clientHeight + 50 &&
+            /auto|scroll/.test(getComputedStyle(e).overflowY)) {
+          e.scrollTop = e.scrollHeight;
+        }
+      });
+      return 'ok';
+    })()""")
+    time.sleep(1)
+    iw = int(sub.eval("window.innerWidth") or 1080)
+    ih = int(sub.eval("window.innerHeight") or 676)
+    x = round(iw * 556.0 / 1080.0)
+    y = round(ih * 644.0 / 676.0)
+    print("点击底部「发布」：(%d, %d)" % (x, y))
+    sub.send("Input.dispatchMouseEvent",
+             {"type": "mouseMoved", "x": x, "y": y})
+    time.sleep(0.2)
+    sub.send("Input.dispatchMouseEvent",
+             {"type": "mousePressed", "x": x, "y": y, "button": "left",
+              "clickCount": 1})
+    time.sleep(0.12)
+    sub.send("Input.dispatchMouseEvent",
+             {"type": "mouseReleased", "x": x, "y": y, "button": "left",
+              "clickCount": 1})
+    for _ in range(20):
+        time.sleep(1.5)
+        if "success" in (sub.eval("location.href") or ""):
+            print("✅ 发布成功（页面已跳 /publish/success）")
+            mark_published(c["id"])
+            return
+    print("[warn] 点击后 30 秒没跳 success 页，请回浏览器确认是否成稿。")
+
+
+def _publish_batch(args):
+    """「发最近的 n 条没发过的」：默认 1 条；--all 全发；--case 已在 cmd_publish 分流。
+
+    默认只存草稿，--yes 才真发。缺卡片的案例会在发之前现造（build_case）。
+    """
+    if args.all:
+        todo = [c for c in pending_cases(need_cards=True)]
+    else:
+        todo = pending_cases(need_cards=False)[: max(1, args.near)]
+    if not todo:
+        print("没有待发的案例了（库里 %d 条都已进过小红书）。" % len(load_cases()))
+        return
+    print("待发 %d 条，按库里最新在最前：" % len(todo))
+    for c in todo:
+        has = os.path.isfile(os.path.join(OUT, c["id"], "note.json"))
+        print("  · %-24s %s" % (c["id"], "（现造卡片）" if not has else ""))
+    fail = []
+    for i, c in enumerate(todo, 1):
+        print("\n[%d/%d] %s —— %s" % (i, len(todo), c["id"], c.get("name", "")))
+        # keep 必须 False：沿用当前编辑页会往已有列表里**再叠 5 张图**。
+        # 每条都重新导航，图/字才是干净的（2026-09-26 实测）。
+        a = argparse.Namespace(
+            case=c["id"], dry=args.dry, yes=args.yes, tags=args.tags,
+            no_original=args.no_original, keep=False,
+        )
+        try:
+            cmd_publish(a)
+        except SystemExit as e:
+            print("[err] 跳过：%s" % e)
+            fail.append(c["id"])
+        except Exception as e:               # 单条炸了不连坐，继续下一条
+            print("[err] 异常：%s：%s" % (type(e).__name__, e))
+            fail.append(c["id"])
+    print("\n完成：%d 条，失败 %d 条" % (len(todo) - len(fail), len(fail)))
+    if fail:
+        print("失败清单（重跑即可，会跳过已成的）：%s" % ", ".join(fail))
+
+
+JS_CLICK_CHAIN = """
+function jclick(el){
+  var chain=[el];
+  for(var p=el.parentElement; p && chain.length<5; p=p.parentElement) chain.push(p);
+  chain.forEach(function(x){
+    x.dispatchEvent(new MouseEvent('mousedown',{bubbles:true}));
+    x.dispatchEvent(new MouseEvent('mouseup',{bubbles:true}));
+    x.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true}));
+    if(x.click) x.click();
+  });
+}
+"""
+
+JS_CARDS = "(function(){%s\n" % JS_CLICK_CHAIN + """
+  var cards=[].slice.call(document.querySelectorAll('*')).filter(function(x){
+    var t=(x.innerText||'');
+    return t.indexOf('保存于')>=0 && t.indexOf('编辑')>=0 && t.indexOf('删除')>=0;
+  });
+  cards = cards.filter(function(c){
+    return !cards.some(function(o){ return o!==c && c.contains(o); });
+  });
+  return JSON.stringify(cards.map(function(c){
+    var lines=(c.innerText||'').trim().split('\\n').map(function(s){return s.trim();})
+                 .filter(Boolean);
+    var saved='';
+    for(var i=0;i<lines.length;i++){
+      var m=lines[i].match(/保存于\\s*([0-9:\\-\\s]+)/);
+      if(m){ saved=lines[i].replace(/保存于/,'').trim(); break; }
+    }
+    return {title:(lines[0]||'').replace(/^保存于\\s*/,''), saved:saved,
+            raw:lines.slice(0,3).join(' | ')};
+  }));
+})()"""
+
+
+def _draft_cdp():
+    """连上 9222 里已登录的小红书创作中心，停在草稿箱页。"""
+    cdp = wp.CDP(PUB_PORT)
+    tid = None
+    for t in cdp.list_targets():
+        if t.get("type") == "page" and "creator.xiaohongshu.com" in (t.get("url") or ""):
+            tid = t["id"]
+            break
+    if not tid:
+        tid = cdp.new_target(PUB_URL)["id"]
+        time.sleep(4)
+    sub = wp.CDP(PUB_PORT)
+    sub.connect_target(tid)
+    sub.send("Page.navigate", {"url": DRAFT_URL})
+    time.sleep(8)
+    sub.eval("1", refresh_context=True)
+    return sub
+
+
+def _js(sub, expr):
+    r = sub.eval(expr, refresh_context=True)
+    if isinstance(r, str):
+        try:
+            r = json.loads(r)
+        except (ValueError, TypeError):
+            pass
+    return r
+
+
+def fetch_drafts(sub=None):
+    """拉草稿箱里的图文草稿，最近在前：[{title, saved, raw}]。
+
+    传 sub 就用现成的连接（比如你已经开好新标签页，避开了卡死的旧 tab）。
+    """
+    if sub is None:
+        sub = _draft_cdp()
+
+    def js(e):
+        return _js(sub, e)
+
+    if js("""(function(){
+      return [].slice.call(document.querySelectorAll('*')).filter(function(x){
+        return (x.innerText||'').indexOf('保存于')>=0;}).length>0 ? 'open' : 'closed';
+    })()""") != "open":                       # 抽屉可能开着，省一次点击
+        if js("(function(){%s\n" % JS_CLICK_CHAIN + """
+          var es=[].slice.call(document.querySelectorAll('*')).filter(function(x){
+            return /^草稿箱\\(\\d+\\)$/.test((x.innerText||'').trim()) &&
+                   x.getBoundingClientRect().width>0; });
+          if(!es.length) return 'notfound';
+          jclick(es[es.length-1]);
+          return 'clicked';
+        })()""") != "clicked":
+            raise SystemExit("打不开草稿箱抽屉")
+        time.sleep(3)
+    if js("(function(){%s\n" % JS_CLICK_CHAIN + """
+      var es=[].slice.call(document.querySelectorAll('*')).filter(function(x){
+        return /图文笔记\\(\\d+\\)/.test((x.innerText||'').trim()) &&
+               (x.innerText||'').trim().length<12 &&
+               x.getBoundingClientRect().width>0; });
+      if(!es.length) return 'notfound';
+      jclick(es[es.length-1]);
+      return 'clicked';
+    })()""") != "clicked":
+        raise SystemExit("没找到「图文笔记」tab")
+    for _ in range(6):
+        time.sleep(2.5)
+        if js("[].slice.call(document.querySelectorAll('*')).filter(function(x){\n"
+              "return (x.innerText||'').indexOf('保存于')>=0;}).length"):
+            break
+    return js(JS_CARDS) or []
+
+
+def norm_title(t):
+    """标题归一：去空白/标点/话题井号，越大越好对。"""
+    t = re.sub(r"[\s\u3000]+", "", t or "")
+    t = re.sub(r"[#＃]", "", t)
+    t = re.sub(r"(话题|收藏|点赞)\s*$", "", t)   # 结尾残留的话题标签词
+    t = re.sub(r"[，,。.；;：:！!？?（）()「」“”\"'’‘·、\-—_/\\|]", "", t)
+    return t.lower()
+
+
+def match_drafts(drafts, cases=None):
+    """草稿箱条目 ←→ 案例。返回 (已对上 case_id 的, 没对上的孤儿草稿)。
+
+    小红书标题是改写过的，所以拿 out/xhs/<id>/note.json 里的 title 去比。
+    """
+    need = {}
+    if cases is None:
+        cases = load_cases()
+    for c in cases:
+        nj = os.path.join(OUT, c["id"], "note.json")
+        if not os.path.isfile(nj):
+            continue
+        with open(nj, encoding="utf-8") as f:
+            need[norm_title(json.load(f)["title"])] = c["id"]
+    matched, orphans = [], []
+    for d in drafts:
+        key = norm_title(d.get("title"))
+        cid = need.get(key)
+        if cid is None:                       # 退一步：包含匹配
+            for k, v in need.items():
+                if k and len(k) >= 6 and (k in key or key in k):
+                    cid = v
+                    break
+        (matched if cid else orphans).append(
+            {"id": cid or "", "title": d.get("title", ""),
+             "saved": d.get("saved", ""), "raw": d.get("raw", "")})
+    return matched, orphans
+
+
+def cmd_drafts(args):
+    """把草稿箱里真实的稿子拉回来对账，重建「已发记录」。"""
+    drafts = fetch_drafts()
+    if not drafts:
+        print("草稿箱里没读到任何草稿。")
+        return
+    for i, d in enumerate(drafts, 1):
+        d["seq"] = i
+    print("草稿箱里 %d 条（最近在前）：" % len(drafts))
+    for d in drafts:
+        print("  %2d. %-26s %s" % (d["seq"], d["saved"], d["title"]))
+    if args.json:
+        with open(args.json, "w", encoding="utf-8") as f:
+            json.dump(drafts, f, ensure_ascii=False, indent=2)
+        print("\n原始清单已写：%s" % args.json)
+    matched, orphans = match_drafts(drafts)
+    print("\n对上案例 %d 条，孤儿草稿（认不出案例）%d 条"
+          % (len(matched), len(orphans)))
+    if orphans:
+        for d in orphans:
+            print("  ? %s %s" % (d["saved"], d["title"]))
+    # 同一个案例可能有多份草稿，drafts 已是最近在前，这里只留最新那份
+    latest, dup = {}, []
+    for d in matched:
+        if not d["id"]:
+            continue
+        if d["id"] in latest:
+            dup.append(d)
+        else:
+            latest[d["id"]] = d
+    if dup:
+        print("\n重复草稿（同一案例多份，保留时间最新的那份）：")
+        for d in dup:
+            print("  旧 · %s  %s  → %s" % (d["saved"], d["title"], d["id"]))
+        print("  想清掉就把上面几条的时间填进 out/xhs/del_dup_drafts.py 的 TARGETS，"
+              "跑 python out/xhs/del_dup_drafts.py --go")
+    if args.write:
+        for cid in latest:
+            _mark(_draft_file(), cid)
+        print("\n已把 %d 个案例写进 data/xhs_drafts.json（待发队列会跳过它们）"
+              % len(latest))
+    else:
+        print("（dry-run。加 --write 把对上的 %d 条写进已发记录）" % len(matched))
+
+
+# ---- 草稿箱删除（2026-09-28 加：替换全部旧水印草稿用） ----
+# 卡片结构（2026-09-28 探针实测）：
+#   .draft-info > .draft-info-desc(.draft-title-text + .draft-time)
+#              > .draft-actions > .btn(svg+span「编辑」) + .btn(svg+span「删除」)
+# DOM 顺序最新在前，btns[0] 即最新一条。
+
+# 草稿箱删除按钮是 Vue 组件，合成 jclick 无效（2026-09-28 实测返回 null 且
+# 无效果）——只能定位坐标后走 CDP Input.dispatchMouseEvent 真实点击。
+# ⚠️ 定位时必须过滤可见性（width/height>0）**且**落在视口内：页面上有隐藏
+# 副本（display:none），不滤会拿到布局坐标 x=2566（视口外），真实鼠标点了
+# 个寂寞（2026-09-28 踩坑）。
+_JS_PURGE_CONFIRM_COORD = """(function(){
+  var cands=[].slice.call(document.querySelectorAll(
+        'button, [class*=btn], [class*=confirm] *, [class*=modal] *, [class*=pop] *'))
+    .filter(function(e){
+      var t=(e.innerText||'').trim();
+      var r=e.getBoundingClientRect();
+      return (t==='确定'||t==='确认'||t==='删除') && r.width>0 && r.height>0 &&
+             r.width<400 && e.children.length<4; });
+  if(!cands.length) return null;
+  var r=cands[cands.length-1].getBoundingClientRect();
+  return JSON.stringify({x:Math.round(r.left+r.width/2),
+                         y:Math.round(r.top+r.height/2)});
+})()"""
+
+
+def _real_click(sub, coord):
+    """坐标真实点击（moved → pressed → released）。"""
+    xx, yy = int(coord["x"]), int(coord["y"])
+    sub.send("Input.dispatchMouseEvent", {"type": "mouseMoved", "x": xx, "y": yy})
+    time.sleep(0.18)
+    sub.send("Input.dispatchMouseEvent",
+             {"type": "mousePressed", "x": xx, "y": yy,
+              "button": "left", "clickCount": 1})
+    time.sleep(0.12)
+    sub.send("Input.dispatchMouseEvent",
+             {"type": "mouseReleased", "x": xx, "y": yy,
+              "button": "left", "clickCount": 1})
+
+
+_JS_PURGE_FIND = """(function(WANT){
+  // 找一张草稿卡片（.draft-item），取它的「删除」按钮；WANT 为空取最新一张
+  var items=[].slice.call(document.querySelectorAll('.draft-item'));
+  if(!items.length) return null;
+  for(var i=0;i<items.length;i++){
+    var tt=items[i].querySelector('.draft-title-text');
+    var t=(tt&&tt.innerText||'').trim();
+    if(WANT && t.indexOf(WANT)<0) continue;
+    var bs=[].slice.call(items[i].querySelectorAll('.draft-actions .btn'))
+      .filter(function(b){
+        if((b.innerText||'').trim().indexOf('删除')<0) return false;
+        var r=b.getBoundingClientRect();
+        return r.width>0 && r.height>0;   // 只滤隐藏副本，不要求已在视口
+      });
+    if(bs.length){
+      // 先把整张卡滚进视口，再把删除按钮滚到正中——深位草稿的按钮原本在视口外
+      items[i].scrollIntoView({block:'center'});
+      bs[0].scrollIntoView({block:'center'});
+      return JSON.stringify({title:t, n:1});
+    }
+  }
+  return null;
+})(%s)"""
+
+_JS_PURGE_FIND_COORD = """(function(WANT){
+  var items=[].slice.call(document.querySelectorAll('.draft-item'));
+  if(!items.length) return null;
+  for(var i=0;i<items.length;i++){
+    var tt=items[i].querySelector('.draft-title-text');
+    var t=(tt&&tt.innerText||'').trim();
+    if(WANT && t.indexOf(WANT)<0) continue;
+    var bs=[].slice.call(items[i].querySelectorAll('.draft-actions .btn'))
+      .filter(function(b){
+        if((b.innerText||'').trim().indexOf('删除')<0) return false;
+        var r=b.getBoundingClientRect();
+        return r.width>0 && r.height>0 && r.left>=0 &&
+               r.left<window.innerWidth && r.top>=0 && r.top<window.innerHeight;
+      });
+    if(bs.length){
+      var r=bs[0].getBoundingClientRect();
+      return JSON.stringify({title:t,
+        x:Math.round(r.left+r.width/2), y:Math.round(r.top+r.height/2)});
+    }
+  }
+  return null;
+})(%s)"""
+
+
+def _WIN_H(sub):
+    try:
+        return int(sub.eval("window.innerHeight") or 0)
+    except Exception:
+        return 1035
+
+
+def _purge_one(sub, want=None):
+    """删掉一张草稿。want 是标题片段时删第一张命中的，否则删最新一张。"""
+    w = json.dumps(want or "", ensure_ascii=False)
+    coord = None
+    for _ in range(4):        # 深处的卡片按钮在视口外，滚动后要再量
+        found = _js(sub, _JS_PURGE_FIND % w)
+        if not found:
+            return "nobtn"
+        time.sleep(0.9)
+        coord = _js(sub, _JS_PURGE_FIND_COORD % w)
+        if isinstance(coord, dict) and coord.get("x") and coord.get("y") \
+                and 0 <= coord["y"] < _WIN_H(sub):
+            break
+        coord = None
+    if not isinstance(coord, dict) or not coord.get("x"):
+        return "nobtn"
+    _real_click(sub, coord)
+    time.sleep(1.4)
+    cc = _js(sub, _JS_PURGE_CONFIRM_COORD)
+    if isinstance(cc, dict) and cc.get("x"):
+        _real_click(sub, cc)          # 有确认框就点掉
+    time.sleep(2.2)
+    left = _js(sub, JS_CARDS) or []
+    return "ok" if isinstance(left, list) else "stuck"
+
+
+def cmd_purge(args):
+    """删小红书草稿箱里的草稿。默认 dry-run 只列清单；--all 全删。"""
+    sub = _draft_cdp()
+    cards = fetch_drafts(sub)
+    if not cards:
+        print("草稿箱已空，没东西可删。")
+        return
+    print("草稿箱共 %d 条（最新在前）：" % len(cards))
+    for i, d in enumerate(cards, 1):
+        print("  %2d. %-26s %s" % (i, d["saved"], d["title"]))
+    if args.dry or not args.all:
+        print("\n（dry-run。确认清单没问题就加 --all 真删）")
+        return
+    limit = args.limit if args.limit > 0 else len(cards)
+    want = getattr(args, "match", None) or None
+    if want:
+        cards = [c for c in cards if want in c["title"]]
+        if not cards:
+            print("\n标题含「%s」的草稿一条都没有，不删。" % want)
+            return
+        limit = min(limit, len(cards))
+    print("\n开始删除，最多 %d 条%s…"
+          % (limit, ("（标题含「%s」）" % want) if want else ""))
+    n = fail = 0
+    dropped = []
+    while n < limit:
+        before = fetch_drafts(sub)
+        if not before:
+            break
+        head = before[0] if not want else next(
+            (c for c in before if want in c["title"]), None)
+        if head is None:
+            break
+        r = _purge_one(sub, want)
+        after = fetch_drafts(sub)
+        if r == "ok" and len(after) < len(before):
+            n += 1
+            print("  [%d] 已删：%s" % (n, head["title"]))
+            cid = _card_to_cid(head.get("title"))
+            if cid and _unmark(_draft_file(), cid):
+                dropped.append(cid)
+                print("      本地状态已回退：%s 重新变成「未发」" % cid)
+        else:
+            fail += 1
+            print("  [warn] 没删掉（%s）：%s" % (r, head["title"]))
+            if fail >= 3:
+                print("连续 3 条失败，停下。可能弹了新样式的确认框，去浏览器看一眼。")
+                break
+    print("\n完成：删了 %d 条，草稿箱剩 %d 条。"
+          % (n, len(fetch_drafts(sub) or [])))
+    if dropped:
+        print("状态回退 %d 条（可重新 publish）：%s"
+              % (len(dropped), "、".join(dropped)))
+
+
+def cmd_queue(args):
+    """看看接下来会发哪几条（不连浏览器、不花钱）。"""
+    todo = pending_cases(need_cards=not args.fresh)
+    n = max(1, args.near)
+    if not todo:
+        print("待发队列是空的。")
+        return
+    print("待发 %d 条（最新的在最上），当前取前 %d 条：\n" % (len(todo), n))
+    for c in todo[:n]:
+        has = os.path.isfile(os.path.join(OUT, c["id"], "note.json"))
+        print("  %-24s %-28s %s" % (c["id"], c.get("name", ""),
+                                    "" if has else "（没卡片，会现造）"))
+    print("\n要发就跑：python scripts/xhs_publish.py publish --near %d" % n)
+
+
+def _pub_file():
+    return os.path.join(ROOT, "data", "xhs_published.json")
+
+
+def _published_ids():
+    p = _pub_file()
+    if not os.path.isfile(p):
+        return []
+    try:
+        d = json.load(open(p, encoding="utf-8"))
+    except Exception:
+        return []
+    if isinstance(d, dict):
+        return list(d.keys())
+    return [x.get("id") for x in d if isinstance(x, dict) and x.get("id")]
+
+
+def mark_published(cid):
+    _mark(_pub_file(), cid)
+
+
+def _draft_file():
+    return os.path.join(ROOT, "data", "xhs_drafts.json")
+
+
+def mark_drafted(cid):
+    """进过草稿箱也算「发过了」，避免重复生成草稿（2026-09-26 清重复踩过）。"""
+    _mark(_draft_file(), cid)
+
+
+def _unmark(p, cid):
+    """把 cid 从「已发过」名单里去掉。返回是否真的改动了。
+
+    为什么需要（2026-09-30 补）：`mark_drafted` 是**只增不减**的 —— 删掉远端
+    草稿后本地还记着「发过了」，而 `_drafted_ids` 正是 publish 的幂等判据，
+    于是这条永远不会再被发出去。实测：purge 删掉 MORT 的小红书草稿后，
+    `publish_multi run mort --platforms xhs` 直接说「没有待发的」。
+    """
+    entries, nl, was_dict = _load_ledger(p)
+    rest = [e for e in entries if e["id"] != cid]
+    if len(rest) == len(entries):
+        return False
+    _write_ledger(p, rest, nl, was_dict)
+    return True
+
+
+def _card_to_cid(title):
+    """草稿卡片标题 → 本地 case id。
+
+    小红书草稿标题格式是「<传播力钩子>：<产品名/一句话定位>」（如
+    「月收$84：AI」），和产品名是两回事，所以只能靠 out/xhs/*/note.json
+    的标题反查。查不到就返回 None —— 宁可不改状态文件，也不要错删别人的
+    记录（那会让已发过的案例被重复发布）。
+    """
+    t = (title or "").strip()
+    if not t:
+        return None
+    base = os.path.join(ROOT, "out", "xhs")
+    if not os.path.isdir(base):
+        return None
+    norm = lambda s: re.sub(r"\s+", "", s or "")
+    for d in sorted(os.listdir(base)):
+        f = os.path.join(base, d, "note.json")
+        if not os.path.isfile(f):
+            continue
+        try:
+            with open(f, encoding="utf-8") as fh:
+                j = json.load(fh)
+        except Exception:
+            continue
+        ti = norm(j.get("title"))
+        if ti and (ti == norm(t) or ti in norm(t) or norm(t) in ti):
+            return d
+    return None
+
+
+def _load_ledger(p):
+    """读台账 → (条目 list, 行尾符, 原形态)。
+
+    ⚠ 行尾按原文件走（本仓库 LF/CRLF 并存），写错行尾 = git 里
+       多一份全文件 diff。
+    ⚠ **原形态必须带出来**：老台账可能是 dict（{"id": {...}}），
+       写回时要保持 dict，不能顺手归一成 list —— 那会让下游按
+       dict 读的代码（`_drafted_ids`/`_published_ids` 都兼容两种）
+       之外的东西失效，也等于擅自改用户数据文件。
+    """
+    raw = b""
+    if os.path.isfile(p):
+        with open(p, "rb") as f:
+            raw = f.read()
+    lf = raw.count(b"\n") - raw.count(b"\r\n")
+    crlf = raw.count(b"\r\n")
+    nl = "\r\n" if crlf > lf else "\n"
+    try:
+        d = json.loads(raw.decode("utf-8")) if raw.strip() else []
+    except Exception:                                     # noqa: BLE001
+        d = []
+    was_dict = isinstance(d, dict)
+    if was_dict:
+        d = [{"id": k, "at": v} for k, v in d.items()]
+    if not isinstance(d, list):
+        d = []
+    now = time.strftime("%Y-%m-%d %H:%M")
+    norm = []
+    for e in d:
+        if isinstance(e, dict) and e.get("id"):
+            item = {"id": e["id"], "at": e.get("at") or now}
+            # 扩展字段（note_id / title / note …）必须原样带过去：
+            # 对账脚本 `xhs_sync_ledger.py` 会把它们写进台账，这里归一化时
+            # 丢掉的话，下一次 `mark_published` 就把对账信息全抹了
+            # （2026-10-18 加，别为了「结构干净」又删掉）
+            for k, v in e.items():
+                if k not in item and v is not None:
+                    item[k] = v
+            norm.append(item)
+        elif isinstance(e, str) and e:                    # 纯 id 老格式
+            norm.append({"id": e, "at": now})
+    return norm, nl, was_dict
+
+
+def _write_ledger(p, entries, nl, was_dict=False):
+    """⚠ `newline=""` 必须显式给：Windows 文本模式会把 \n 翻成 \r\n，
+    行尾控制权就没了。"""
+    obj = ({e["id"]: e.get("at") for e in entries} if was_dict else entries)
+    text = json.dumps(obj, ensure_ascii=False, indent=2)
+    with open(p, "w", encoding="utf-8", newline="") as f:
+        f.write(text.replace("\n", nl))
+
+
+def _mark(p, cid):
+    """把案例追加进台账（草稿 / 已发布共用）。
+
+    ⚠⚠ 2026-10-15 修「台账历史被毁」：旧实现只取 id 列表、丢掉每条原有的
+       `at`，追加一条就把**整本台账的发布时间**全部重写成当前时间
+       （实测：追 1 条新案例，几十条老记录全变成当天时间）
+       ⇒ `data/xhs_drafts.json` 的 `at` 完全不可信，只能拿 id 集合当幂等
+       判据。现改为保留旧条目原值，只给新条目打时间戳。
+       与头条 `toutiao_publish._mark` 同构（那边 10-14 已修，有回归测试）。
+    """
+    entries, nl, was_dict = _load_ledger(p)
+    if any(e["id"] == cid for e in entries):              # 幂等：原样返回不重写
+        return
+    entries.append({"id": cid, "at": time.strftime("%Y-%m-%d %H:%M")})
+    _write_ledger(p, entries, nl, was_dict)
+
+
+def _drafted_ids():
+    p = _draft_file()
+    if not os.path.isfile(p):
+        return []
+    try:
+        d = json.load(open(p, encoding="utf-8"))
+    except Exception:
+        return []
+    if isinstance(d, dict):
+        return list(d.keys())
+    return [x.get("id") for x in d if isinstance(x, dict) and x.get("id")]
+
+
+def pending_cases(need_cards=True):
+    """待发队列：还没进过小红书的案例，库里最新的排最前。
+
+    need_cards=True 时只算已 build 过（有 note.json）的；
+    False 则连没生成卡片的也算，交给出发前自动 build。
+    """
+    skip = set(_published_ids()) | set(_drafted_ids())
+    built = set()
+    if os.path.isdir(OUT):
+        for d in os.listdir(OUT):
+            if os.path.isfile(os.path.join(OUT, d, "note.json")):
+                built.add(d)
+    todo = [c for c in load_cases() if c["id"] not in skip]
+    if need_cards:
+        todo = [c for c in todo if c["id"] in built]
+    return todo[::-1]          # 倒序：最近录入的案例排最前
+
+
+# ---- build -----------------------------------------------------------------
+
+def cmd_build(args):
+    cases = load_cases()
+    if args.case:
+        todo = [find_case(args.case)]
+    else:
+        todo = list(cases)
+    proc = ensure_chrome(BUILD_PORT)
+    used = set()
+    try:
+        for i, c in enumerate(todo, 1):
+            note = build_case(BUILD_PORT, c, used=used)
+            print("[%d/%d] %-22s 标题《%s》 正文 %d 字 · %d 张卡片"
+                  % (i, len(todo), c["id"], note["title"],
+                     len(note["body"]), len(note["images"])))
+    finally:
+        if proc is not None:
+            try:
+                proc.terminate()
+            except Exception:
+                pass
+    cmd_preview(args)
+
+
+def main():
+    ap = argparse.ArgumentParser(description="小红书笔记生成/发布")
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    b = sub.add_parser("build")
+    b.add_argument("--case")
+    b.add_argument("--all", action="store_true")
+    b.set_defaults(fn=cmd_build)
+    p = sub.add_parser("preview")
+    p.set_defaults(fn=cmd_preview)
+    dd = sub.add_parser("drafts",
+                        help="把草稿箱里真实的稿子拉回来对账（重建已发记录）")
+    dd.add_argument("--json", help="额外把原始清单写到这个路径")
+    dd.add_argument("--write", action="store_true",
+                    help="把对上案例的写进 data/xhs_drafts.json")
+    dd.set_defaults(fn=cmd_drafts)
+    pg = sub.add_parser("purge",
+                        help="删草稿箱里的草稿（默认 dry-run 列清单，--all 真删）")
+    pg.add_argument("--all", action="store_true", help="真删：从最新开始删到空")
+    pg.add_argument("--limit", type=int, default=0,
+                    help="最多删几条（0=不限，配 --all 先删几条试试）")
+    pg.add_argument("--match", help="只删标题含这段的（比如清理空壳草稿）")
+    pg.add_argument("--dry", action="store_true")
+    pg.set_defaults(fn=cmd_purge)
+    qq = sub.add_parser("queue", help="看看接下来会发哪几条（不动浏览器）")
+    qq.add_argument("--near", type=int, default=5, help="预览条数，默认 5")
+    qq.add_argument("--fresh", action="store_true",
+                    help="把还没生成卡片的案例也算进来")
+    qq.set_defaults(fn=cmd_queue)
+    q = sub.add_parser("publish",
+                       help="不带参数 = 发最近 1 条没发过的（--near 3 = 3 条）")
+    q.add_argument("--case", help="案例 id，也认名字/标题片段（不用背 id）")
+    q.add_argument("--near", type=int, default=1,
+                   help="发最近几条没发过的，默认 1")
+    q.add_argument("--all", action="store_true",
+                   help="publish --all：把其余全部依次存成草稿")
+    q.add_argument("--skip", help="额外跳过的 id，逗号分隔")
+    q.add_argument("--dry", action="store_true")
+    q.add_argument("--yes", action="store_true",
+                   help="真发布（默认只存草稿）")
+    q.add_argument("--tags", action="store_true",
+                   help="尝试走话题浮层加标签（默认关闭：候选选择器对不上，"
+                        "硬试会在正文末尾留下孤立 #）")
+    q.add_argument("--no-original", action="store_true",
+                   help="不勾选「原创声明」（默认会勾上）")
+    q.add_argument("--keep", action="store_true",
+                   help="沿用当前编辑页状态（默认重新导航，避免图/字叠加）")
+    q.set_defaults(fn=cmd_publish)
+    args = ap.parse_args()
+    # ⚠ 走 CDP 的子命令共用这一个自动启动入口（清代理 → 删 LOCK →
+    # 带 --no-sandbox 起 Chrome for Testing → 轮询端口）。
+    # 不做这步的话，`drafts` / `publish` / `purge` 在 Chrome 没起时
+    # 只会报一句「连不上 9222」然后让人自己去开浏览器（实测踩过）。
+    # 纯离线子命令（build/queue/preview）不需要浏览器。
+    if getattr(args, "cmd", "") not in ("build", "queue", "preview"):
+        try:
+            # ⚠ 小红书的登录态在 `chrome-debug-profile`，**不是**公众号那个
+            # ChromeCDP（那里草稿箱是 0 条）。拿错 profile 的症状：
+            # CDP 连得上、页面能开，但草稿箱空/被重定向到登录页。
+            import chrome_cdp_launch as _L
+            import wechat_publish as _wp
+            _wp._autostart_chrome_if_needed(
+                PUB_PORT, profile=_L.PLAT_PROFILE)
+        except SystemExit:
+            raise
+        except Exception as e:
+            print("[warn] autostart 失败: %s" % e)
+    args.fn(args)
+
+
+if __name__ == "__main__":
+    main()

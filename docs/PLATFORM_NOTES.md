@@ -1,0 +1,802 @@
+# 四平台接口能力与踩坑档案
+
+> 本文是**详细档案**。MEMORY.md 只留铁律与索引。
+> 全部为实测结论（头条/公众号 2026-10-16~17 更新），**别再靠猜**。
+
+## 一、接口能力矩阵
+
+| 平台 | 读 | 写 | 删 | 说明 |
+|---|---|---|---|---|
+| **B站** | ✅ 4 个接口 | ✅ `draft/add` 带 id 即更新 | ✅ `draft/delete` | 秒级完成，不开编辑器；已投稿列表 `x/space/article?mid=` |
+| **头条** | ✅ `draft_list` + `mp_provider`（已发表只能导航式读） | ✅ `article/publish`（`--api`，需新鲜 `tt-anti-token`；`save=1` 即群发）+ 封面上传两级 `/spice/image` | ✅ `delete_draft` / `delete?type=2`（已发布） | 2026-10-18 更新，**六项全通**；两条环境约束：写操作需活着的编辑器页供 token，且**必须是有头 Chrome**（headless 的 token 返 7050） |
+| **公众号** | ✅ `app_msg_list` + `appmsgpublish?sub=list` | ✅ `mp_editor_change_cover` / `mp_editor_set_content` | ✅ `operate_appmsg?sub=del` | 2026-10-16 更新，`action=del` 恒 200009 是猜错接口身 |
+| **小红书** | ⚠ 无服务端 API | ⚠ 无 | ⚠ 无 | **草稿在浏览器本地 IndexedDB** |
+
+### 封面白边体检（`scripts/verify_cover_edge.py`，2026-10-17 新增）
+
+背景：headless 视口 ~780px < 封面画布 1080px 时，`Page.captureScreenshot` 的 clip
+被裁到视口内，右侧 ~300px 变白边（含滚动条滑轨），**产物尺寸仍正常，肉眼发现不了**。
+已对全部 47 张线上封面实测校准判据：**右缘 4.5% 区域平均亮度 > 200 ⇒ 白边脏封面**
+（脏=255 白，净=47~75 设计底色；PROSP 修复前后 255→66）。
+
+```bash
+python scripts/verify_cover_edge.py --dir tmp/covers/audit --port 9222
+# 退出码：0=全净；1=有脏；2=用法/连接错误
+```
+
+批量 `refresh --cover --cover-api` 跑完后**必须**重抓线上封面再体检一遍
+（`tmp/wx_draft_audit.py` 抓图 + 本脚本判脏），别只看命令返回成功。
+
+---
+
+## 三、头条（2026-10-16~17 全部实测；此前「只能 UI」的记录已作废）
+
+**全部接口都在 `/mp/agw/` 下，浏览器同源 fetch 即可（9223 端口 + PLAT_PROFILE）。**
+
+### 已 API 化（可直接用）
+
+| 用途 | 接口 | 关键点 |
+|---|---|---|
+| 读草稿箱 | `GET /mp/agw/creator_center/draft_list?type=0&count=200&app_id=1231` | `{"code":0,"draft_list":[…]}` 全量；翻页用 `&end_cursor=<ts>`；`type=0/2` 同结果 |
+| 删草稿 | `POST /mp/agw/creator_center/delete_draft?app_id=1231` | body **必须** `{"drafts":[{"draft_type":2,"gid":"…"}]}` |
+| 读已发布 | `GET /api/feed/mp_provider/v1/?provider_type=mp_provider&aid=13&app_name=news_article&category=mp_article&stream_api_version=88&offset=N&count=10&client_extra_params={…}&app_id=1231` | 标题在 `data[i].assembleCell.itemCell.articleBase.title`；翻页 offset 0/10/20 |
+
+代码：`fetch_draft_api` / `fetch_draft_api_raw` / `delete_draft_api` /
+`fetch_published_articles`（都在 `scripts/toutiao_publish.py`）。
+
+### 新增/保存（**纯 API 可用**，2026-10-17 定案）
+
+```
+POST /mp/agw/article/publish?source=mp&type=article&aid=1231&mp_publish_ab_val=0
+Content-Type: application/x-www-form-urlencoded;charset=UTF-8
+tt-anti-token: HOikR1wqgY-6a2d77a42…            ← 🚨 必需，缺了返 code:7050
+body: 20 个 form 字段（source=29 / title / content / save=0 /
+      extra={…} / search_creation_info={…} / title_id=<ms>_<rand> /
+      mp_editor_stat={} / pgc_feed_covers=[] / draft_form_data={"coverType":2} …）
+resp: {"code":0,"data":{"pgc_id":"…"},"message":"保存成功"}
+```
+
+- `save=0` **就是存草稿**（不是发布）；首次不带 `pgc_id`＝创建，带了＝更新。
+- 🚨 **body 必须 form-urlencoded**：用 JSON 发 HTTP200 但不生效。
+- ✅ **`tt-anti-token` 只需新鲜，不必逆向**（见下方「四段对照」）。
+- 用法：`toutiao_publish.py publish --api`（token 取一次用一批）。
+
+### 封面（`upload_cover_api`，两级 fetch，纯 API，2026-10-17 实证）
+
+```
+① POST /spice/image?upload_source=20020003&aid=1231&device_platform=web
+   multipart/form-data，字段名 = image（<blob>），头只要 Accept
+   → {"code":0,"data":{"image_uri":"tos-cn-i-6w9my0ksvp/<id>",
+                        "image_url":"https://image-tt-private.toutiao.com/…~tplv-obj.image?…",
+                        "image_width":3840,"image_height":2160,…}}
+
+② POST /spice/image?…&device_platform=web&need_cover_url=1
+   body: imageUrl=<①的 image_url>；🚨 必须带 tt-anti-token
+   → data.cover_url = …~tplv-tt-cover-v2.image  ← 这才是封面直链
+
+③ publish body 里封面字段是 pgc_feed_covers（不是 cover_tos_url！！）
+   [{"id":"","url":"<②的 cover_url>","uri":"<①的 image_uri>","ic_uri":"",
+     "thumb_width":3840,"thumb_height":2160,
+     "extra":{"from_content_uri":"","from_content":"0"}}]
+```
+
+🚨 **踩坑（三个都实测撞过）**：
+1. **字段真名是 `image_uri` / `image_url`**（不是 `uri` / `url`）——抽错
+   会得到空 `uri`，然后 `publish` 返 `code:4009 第1个封面数据异常，请重新上传`。
+   第②步的封面在 `data.cover_url`，`data.image_url` 是 obj 原图，别拿错。
+2. `pgc_feed_covers` 的 `thumb_width/height` 取第①步返回的 `image_width/height`
+   （我们本地产物正好 3840×2160），别硬编码 —— 服务端会拿它算裁剪。
+3. 图片以 **base64 注入页面再组 FormData**（页面是最干净的签名环境），
+   所有字符串必须 `json.dumps` 转义 —— 裸中文进 `Runtime.evaluate` 会坏
+   （症状像 argus，其实是编码坏了）。
+
+校验：`verify_draft_cover()` 回读 `draft_list` 的 `cover_image.image_uri`，
+与第①步 uri 一致才算真落库（`code:0` 不算数 —— 头条的老毛病）。
+端到端实测 `tmp/tt_cover_e2e.py` RC=0：上传 → 存稿 → 编辑器封面区出图。
+
+### API 覆盖：**六项全通**（2026-10-18 补上最后两处，别再对外说「部分」）
+
+| 操作 | 端点 | 状态 |
+|---|---|---|
+| 读草稿箱 | `creator_center/draft_list` | ✅ |
+| 读已发表 | `api/feed/mp_provider/v1/`（导航式） | ✅ |
+| 建稿（含封面） | `article/publish` `save=0` + `/spice/image` 两级 | ✅ |
+| **群发（正式发表）** | `article/publish` **`save=1` + `entrance=main`** | ✅ 2026-10-18 |
+| **给已有草稿换封面** | 同上，带 `pgc_id` 更新同一篇 | ✅ 2026-10-18 |
+| 删草稿 | `creator_center/delete_draft` | ✅ |
+| **删已发布文章** | `creator_center/delete?type=2&gid=…`，body `{}` | ✅ 2026-10-18 |
+
+⇒ 准确说法：**头条的读 / 建 / 群发 / 换封面 / 删（草稿与已发布）已全部 API 化**，
+但有两条**环境**约束：
+
+1. 写操作需要**活着的编辑器页**供 `tt-anti-token`（不点按钮，但浏览器要开着）；
+2. 🚨 **必须是有头 Chrome**（`CHROME_HEADED=1`）。headless 下抓到的 token
+   服务端**不认**：2026-10-18 用增强 hook 录到「页面自己的自动保存」响应体就是
+   `{"code":7050,"message":"保存失败"}`，复用它存稿同样 7050。根因是 headless
+   缺 WebGL（`getContext('webgl')` 返回 null），前端算出的反滥用凭证不合格
+   —— 与请求构造无关，换有头即通（同日实测新建/更新双双 `code:0`）。
+
+#### 群发：不是新接口，是同一个端点的另一个 save 值（2026-10-18）
+
+`publish.b8c90341ac.js` 里点「发布」时的映射（静态反编译原文）：
+
+```js
+o = { PUBLISH: 1, DRAFT: 0, PREVIEW: 0 }
+t({ save: o[r], entrance: (r === PUBLISH ? "main" : ""), ... })
+```
+
+⇒ **发表与存草稿只差两个字段**：`save`（0→1）与 `entrance`（""→"main"）。
+没有独立的 published 接口，之前「只抓过 save=0 存草稿、没见过发布接口」
+就是漏了这一层 —— 同一个 URL 换个字段值而已。
+
+⚠ 两个坑：
+- 该路径被 `byted_acrawler` 登记进 `enablePathList` 做 `intercept:true`，
+  所以**必须页面内 fetch**（自动加签），外部裸请求过不了。
+- `{"code":0,"message":"提交成功"}` 是**真发出去了**，不是「已受理待处理」。
+  2026-10-18 用假 pgc_id 试探，服务端当新建处理，几分钟内就出现在已发表
+  列表首位（随后已删）。
+
+#### 删已发布文章：三条形态铁律（2026-10-18 实测，全部踩过）
+
+```js
+Delete(t){                                  // vendors.d1505bc60ce087d047b1.js
+  const r = Xl({type, gid, slave_id, mp_id, is_question, question_id, is_comment});
+  const i = `${uriPrefix}/mp/agw/creator_center/delete${r}`;
+  delete e.type; delete e.gid; ...          // ← 先删字段
+  const o = JSON.stringify(e);              // ← 再序列化 ⇒ body 是 {}
+}
+```
+
+1. **字段只在 query，body 必须是 `{}`**。把 type/gid 也塞进 body → 返回
+   `{"code":0,"success"}` 但**不删**（试了两轮才发现）。
+2. **`type=2` 才是图文文章**。`type=0` 回 `1002 无效题材类型`；
+   `type=1` 同样回 `code:0` 却静默不动。
+3. **以回读为准**：这个接口对任何 body 都返 `code:0`，
+   `scripts/toutiao_publish.py unpublish --gid/--match` 删除后会重读已发表列表
+   确认 gid 真消失，否则报 `STILL`。
+
+#### 换封面：`save_draft_api` 带 `pgc_id` 就是更新（不用开编辑器）
+
+`cover --api`。⚠ 正文取**本地** `out/<id>/article.html` —— 线上草稿正文读不到
+（`draft_list` 只回标题/封面/时间），而本项目草稿全由脚本生成，本地即真源；
+若某篇被人工改过，这一步会把正文覆盖回本地版本。
+
+🚨 **这条路曾经是「假成功」，2026-10-18 修掉**，两个漏洞叠加：
+
+- `verify_draft_cover` 只检查 `image_uri` **非空** —— 旧封面的 uri 也非空，
+  于是「保存其实失败」被读成「封面已落库」（docstring 早就写着要比对 uri，
+  代码却没做）；
+- `cover_one_api` 把 `save_draft_api` 返回的 `msg` **丢了**，不判失败。
+
+在 headless 实例上就是这样：打印「ok 换封面 gid=…」，而回读的 `image_uri`
+和 `update_time` 跟换之前一模一样。现在三重把关：`msg` 以 `code=` 开头直接
+判失败、返回的 `pgc_id` 必须等于目标 `gid`、`verify_draft_cover(expect_uri=
+<刚上传的 uri>)` 逐字符比对。
+
+**验证手法记一笔**：本地 `cover.png` 与线上是同一张图时，「换了」和「没换」
+在回读里长得一样 ⇒ 必须拿**另一条案例的封面**去换，才能把两者分开。
+（本次就是把 1lookup 的封面换到 TrustMRR 上验证，验完已换回。）
+
+#### 探针稿清理覆盖面（2026-10-17 补）
+
+✅ 已补 `cleanup_titles()`（精确标题删）。2026-10-17 实测：
+`cleanup_probe_draft` 只删 `__probe*` 前缀，`tt_title.py` 的中文测试标题**漏删** 7 条；
+探针脚本收尾应改用 `cleanup_titles(cdp, [测试标题…])`。⚠ 同标题下可能躺着正稿
+（3 条无封面测试稿与有封面正稿同标题）——那种情况**按 gid 删**，别用标题匹配；
+也别用 `dedup`（保留最新一条，会删掉正稿）。
+
+**2026-10-18 复测**（用户要求「再试试头条号」）：链路仍然健康 ——
+登录态有效（`mp.toutiao.com/profile_v4/index`）、`refresh --dry` 正常
+（17 篇草稿线上线下标题一致）、`grab_anti_token` 取到 **76 字符**的 token。
+⚠ 但抓取**耗时 65.8 秒**（`per_attempt` 内多轮重试才命中，对应 docstring
+里「约 40% 抓不到」的抖动）。批量发布时这 65 秒是纯等待，
+是当前链路上最明显的时间开销；`cleanup_probe_draft` 回显清理 0 条
+（探针标题 `__probe_tok*__` 那次自动保存未真正落地，非清理逻辑失效）。
+
+### 🚨 标题截断残渣：「——一」是怎么存进草稿箱的（2026-10-17）
+
+`make_toutiao_title` 旧逻辑 `cand[:TITLE_MAX]` 硬切 30 字符，实测把
+「把 AI 建站工具生成的网站，转成 WordPress——一键迁移指南」切成
+「…转成 WordPress——一」（切在破折号后一个字），服务端原样存下。
+同 case 后来补了短标题 override（「WPConvert：AI 建站转 WP」）重建一稿，
+旧残渣稿没删 ⇒ 草稿箱同 case 两条，用户截图才发现。
+
+已修 `_truncate_title()`（`scripts/toutiao_publish.py`）：截断面落在
+孤立标点 ⇒ 清掉；落在连接号后一两个字 ⇒ 连接号带残字一起清（干净收在
+前半句）。仅当原标题真超 limit 才触发，不误伤完整的「A——B」短标题。
+回归锁在 `scripts/test_toutiao_publish.py::TestTruncateTitle`。
+
+⇒ **建稿路径上任何 `[:N]` 硬切都要当疑点查**：截断面落在破折号/英文
+单词中间都会留残渣，服务端不会帮你收拾。
+
+### 存量草稿「按最新逻辑刷新」：`refresh` 子命令（2026-10-17 实测 17 篇）
+
+标题逻辑/override 变过之后，草稿箱里的存量稿不会自动跟进。刷新流程
+（已固化成 `toutiao_publish.py refresh --all [--dry]`）：
+
+```
+扫描 draft_list → find_case_for_title（**只按冒号切、不按空格切**，
+  「Pet Plus Us：…」按空格切会碎成 "pet" 匹配不上）→ 本地
+  make_toutiao_title vs 线上标题 → 不一致的进清单
+  （线上与某篇已发表「互相包含」= 已发表残留，不刷新，交给 scan_pub_dupes 删）
+→ 删旧稿（delete_draft_api）→ 建新稿（publish_api_one rebuild=True）→ 统一回读
+```
+
+🚨 **三个踩过的坑**：
+1. **`publish_api_one` 默认「meta.json 不在才 build」**——存量刷新的 case
+   meta 都在，不传 `rebuild=True` 建出来的还是 meta 里的**旧标题**
+   （API 照样返「保存成功」，极具误导性；nutria 第一篇就这么白刷了一次）。
+2. **必须有头 Chrome**（`CHROME_HEADED=1`）：`grab_anti_token` 靠编辑器
+   自己的自动保存触发，无头抓不到 token。且全程同一个**编辑器页**
+   （`open_api_session`，首页 tab 被 argus 挡）。
+3. 批量时 `verify=False` + 最后统一核对一次——逐条 draft_list 回读会把
+   后续 publish 顶进风控。删旧失败就跳过不建新（避免双稿）。
+4. 🚨 **鸡生蛋缺口**：标题若**不带产品名**（如旧 override「提升学术写作
+   质量」），`find_case_for_title` 匹配不回 case ⇒ `refresh` 直接跳过，
+   刷不到。解法：按已知旧标题在 draft_list 里手工定位 gid，一次性脚本
+   删旧建新。**所以 override 一律带产品名**，既是对外标题质量，也是
+   机器可匹配性的前提。
+5. **头条 30 字上限 = Python len（字符数）口径，不是宽字符**（2026-10-17
+   实证）：全库 255 条里 191 条「len≤30 但宽>30」（如 StoryShort 宽 50），
+   线上草稿箱/已发表里全部完整存在，服务端不截。别自己按宽字符砍标题。
+
+### 🚨 四段对照实验：推翻「需逆向 token」的旧结论
+
+`tmp/tt_fresh_replay.py`。上午一度判定「token 带时效 ⇒ 纯 API 化不可行」，
+**错在把「token 过期」和「token 缺失」的 7050 当成一回事** —— 两者报文完全
+一样，光看状态码根本分不开。同会话对照：
+
+| 段 | 做法 | 结果 |
+|---|---|---|
+| A | hook 抓真实请求头 | 只有 3 个：`Accept` / `Content-Type` / **`tt-anti-token`** |
+| B | 同页即时重放「原 body + 抓到的头」 | `code:0` ✅ |
+| C | 同一 token **换 body（换标题）** | `code:0` ✅ |
+| D | 我方 `_publish_draft_body()` + 抓到的头 | `code:0` ✅（3 个 pgc_id 各不相同） |
+
+⇒ 同时证伪三件事：① 无需逆向生成算法；② token **不绑定 body**；
+③ 我方 20 字段 body 形态本来就对。**唯一约束是 token 要新鲜。**
+
+### `tt-anti-token` 是什么 / 从哪来
+
+页面运行时生成的**写操作反滥用凭证**，75~78 字符，形如 `HOikR1wqgY-6a2d77a42…`
+（前缀每次不同）。不在 HTML、不在 `window`、**不在 cookie**（用户提供的完整
+cookie 清单里只有 `sessionid` / `passport_csrf_token` / `csrf_session_id` /
+`odin_tt` / `ttwid` / `ttcid` —— 全是**会话身份**，不含反滥用凭证）。
+
+**取法（不逆向）**：开编辑器页挂 hook → 触发一次页面自己的自动保存（填标题）
+→ token 被记下。代价是留一条探针草稿，`cleanup_probe_draft()` 删掉。
+⚠ 无头 Chrome 不触发自动保存（有头才行）。
+
+**🚨 别和 msToken 混**：那是两套东西 ——
+`mssdk.bytedance.com/web/r/token` 签发的是 **msToken**（挂 `_msToken` cookie，
+服务内容**读取**接口的 argus/a_bogus 风控链）；`tt-anti-token` 服务的是
+mp 站长后台的**写操作**。cookie 里两者都没有。
+这层 argus/msToken 校验「环境像不像真浏览器」，**无法去浏览器化**
+⇒ 头条的「已发表列表」只能 `Page.navigate` 导航式读（同源 fetch 被挡成 HTML）。
+
+### 台账三方对账：`scripts/toutiao_reconcile.py`（2026-10-19 首次跑）
+
+台账有两本（`data/toutiao_drafts.json` / `data/toutiao_published.json`），
+线上有两个列表（草稿箱 `draft_list` / 已发布 feed API）。**只对一本会得出
+错误结论** —— 「草稿箱没有」既可能是"已群发升格"，也可能是"被删"，还可能是
+"从没建成"。必须三方交叉。
+
+跑法（只读）：
+
+```bash
+python toutiao_reconcile.py --json out/toutiao_reconcile.json
+```
+
+2026-10-19 首轮结论（草稿箱 38 / 已发布 23 / 台账 55+17）：
+
+| 判定 | 条数 | 说明 |
+|---|---|---|
+| 仍是草稿 | 38 | 与草稿箱一一对应，无孤儿 |
+| 已发布 | 21 | 覆盖线上 23 篇（bustem / cometly 各两篇） |
+| **双侧都无（幽灵）** | 3 | aeo-engine / augora-ai / le19emetrou |
+
+幽灵的成因：10-13 23:41 那批 `drafts --write` 回填了 50 条，之后这 3 条在
+线上消失（被删或从未建成），但台账一直挂着 ⇒ `pending_cases()` 永远把它们
+排除，等于**内容永久发不出去**。修法：移出台账，记进
+`data/toutiao_ghost.json`（留痕+内容包路径），下次 `publish` 就会重新排到。
+
+#### 🚨 对账必须先看「旧口径标题」
+
+早期文章标题是 `月收$X：一句话`，现行是 `产品名：一句话`，**同一篇文章两种
+标题**。纯按产品名匹配会把老文章全判成幽灵（首轮误判 13 条）。判据是**正文**：
+`https://www.toutiao.com/article/<gid>/` 直接可读，不看标题看「它是干什么的」。
+实测纠正两处历史错挂：
+
+- 『两年做到累计 $162 万，然后峰值留存掉到 46%』→ **Vid.AI**（不是幽灵）
+- 『$20 万/月的营销归因生意』→ **Cometly**（原 note 错挂在 sierra 名下）；
+  Sierra 自己那篇是『年收$200M：AI 客服解决才收钱』
+
+#### 🚨 `_mark()` 会洗掉 `note`（已修）
+
+旧实现重建条目时只保留 `{id, at}`，**每次任意写入都把历史 note 全抹掉**
+（vid-ai 的「双侧都无」结论就是这样丢的，下一轮对账又当新发现）。
+现在原样保留其它键，只补/校正 `at`，并有 2 条回归测试钉死。
+
+### 踩坑（都实测过）
+
+- **hook 必记 send 的 `arguments[0]`**：只记 URL 会导致 body 猜三次全错。
+- **`Page.navigate` 会重建 document**：先挂的 hook 被冲掉（抓到 0 请求）。
+- **草稿箱 UI 懒加载**：URL 分页参数无效，得滚到「没有更多数据了」。
+- **服务端宽容 ⇒ 200/code:0 不等于事办成**：delete 假 gid 也 success；
+  publish 缺 token 返 7050；JSON body 也是 200。
+- **编辑器 chunk**：`mp/graphic/index.*.js`（189KB，接口清单都在里面）、
+  `mp/graphic/vmok-remote-entry.*.js`。
+
+---
+
+## 二、B站（全链路 API，`scripts/bili_draft_api.py`）
+
+`bilibili_publish.py` **默认就是 API 路线**：`publish <id> --replace` 秒级完成。
+
+接口：`draft/view` / `draft/list` / **`draft/add`（带 `article_id` 即更新）** /
+`draft/delete`。**没有单独的 update 接口。**
+
+### ⚠⚠ 请求形状只能靠 hook 抓，读压缩代码猜不出来
+
+五个必错项，全部错才不 -400：
+
+| 项 | 错 | 对 |
+|---|---|---|
+| Content-Type | form-urlencoded | **`application/json`** |
+| csrf | 放 body | **放 URL query** |
+| body | `csrf=..&arg=..` | **`{"arg":{...}}`** |
+| 段落 node | `{type,text}` | **`{node_type:1,word:{words,font_size:17,color,dark_color,style,font_level}}`** |
+| 签名 | 无 | URL 带 **WBI `w_rid`(md5) + `wts`** |
+
+- 重抓用 `scripts/probe_bili_save_capture.py`。
+- **⚠ axios 走 XHR 不走 fetch**，只hook `window.fetch` 抓不到。
+
+### WBI 签名
+
+- mixin_key 来自**免签**的 `/x/web-interface/nav`。
+- `!'()*` **只在算签名时剔除**，发出去仍是原值（抓包确认）。
+- `private_pub` 默认 **2**（不是 0）。
+
+### HTML拆段落
+
+**用整块匹配**（开标签+内容+同名列标签），**别用「交替分支+兜底分支」一个大正则**
+—— 最左匹配会让兜底分支跨过 `<p>` 抢先命中，把真 `<p>`/`<blockquote>` 整段吞掉。
+
+### 其他
+
+- **API 路线不保留行内样式**（粗体/颜色/居中），要样式用 `--ui`。
+- 封面从旧草稿 `origin_image_urls` 原样带回；传新封面仍需 UI。
+- **判有没有封面看 `image_urls`，绝不看 `banner_url`**（草稿接口恒为 `""`）。
+- ⚠ **`clean_body` 必须压掉标签间换行**：`re.sub(r">[ \t\r\n]+<", "><", body)`。
+  标签间的 `\n` 被 ProseMirror 当成**额外空段落**（58px vs 正常 29px），
+  全文凭空多出 20+ 个空段。
+
+### ⚠⚠ 任何「点按钮」型操作都必须回读校验
+
+旧版点完「保存为草稿」就 `return True`，实测远端正文一字未变而脚本报成功
+—— 整轮 37 条全「成功」但用户看到的还是旧排版。
+B站已有 `_verify_saved()`（回读 mtime + summary 前缀）。
+
+### `cover --force` 曾经是假的
+
+force 只影响 `cover_all` 的跳过判断，`cover_one` 内部永远「已存在→跳过」。
+现已把 force 透传进去，已有封面先 `_drop_existing_cover()` 再上传（删不掉不阻断）。
+
+### UI 路线的其余坑
+
+见 `.workbuddy/memory/2026-10-01.md`：tab 累积 20 个必超时；编辑器 iframe 里
+`_iframe_js` 的形状坑（别套两层 IIFE、匿名函数要写成表达式、调用点写
+`return <fn>(args)`）；封面上传用 `DataTransfer` 页面内塞 file input，且
+`change` 是同步的所以 `files[0].size` 必须派发前取；路由是 `/opus/management/drafts`。
+
+---
+
+## 三、小红书（草稿在本地 IndexedDB；**读侧 API 化；发布被风控挡住**）
+
+> 2026-10-18 修正：原标题写「无服务端 API」，**只说对了草稿那一半**。
+> 草稿确实只在本地（页面原文：「草稿存储于当前使用的浏览器本地，在清除浏览器
+> 数据时会被删除」）；但**已发布列表 / 用户信息**都有服务端接口，且能在页面
+> 内直接调通 —— 见下面「页面内 fetch」小节。
+
+`scripts/xhs_draft_idb.py` 是封装层：`list_drafts` / `get_draft` / `put_draft` /
+`delete_draft`（全部实测通过）。
+
+DB `draft-database-v1`，stores `article-draft` / `image-draft` / `video-draft` /
+`audio-draft`。图文笔记在 `image-draft`，主要字段 `content / draftId / uid / timeStamp`。
+
+- ⚠ **这是「编辑器本地自动保存」，不是云端同步**：换浏览器/清缓存/换机器草稿
+  就没了。**只能当临时草稿**，别当远端事实来源。
+- `put_draft` 只写本地存储**不上传图片** —— 图片要先走
+  `/api/media/v1/upload/creator/permit` + COS拿 `fileid` 再写进 `content.imgList`，
+  否则草稿里是坏图。写完 UI 未必立刻刷新，重新导航一次即可。
+- `xhs_publish.fetch_drafts()` 仍是 DOM 抓取（几十秒），可换 IDB 读（秒级），
+  但**别改签名**（`publish_multi` 在用）。
+- ⚠ **存草稿只能「离开编辑页」**（`_save_draft`）—— 图文发布页**没有「存草稿」按钮**，
+  导航回首页即自动暂存，靠轮询草稿信号确认。
+  流程：`publish --dry` 填满 → `_save_draft` → `mark_drafted`。
+- ⚠ **`--dry` 不是「什么都不做」**：照常连浏览器、切 tab、传 5 张图、填正文、
+  勾原创声明，只是不点「发布」。
+- ⚠ **补发前必须先 `build`**：各平台文案独立生成，别假设另一平台已同步
+  （quran-unlock 小红书标题还写着已被推翻的「$676」）。
+- **`mark_drafted` 只增不减**，对账要**反向清理台账**：purge 删掉的记录不会被自动
+  移除，重跑就重复标记。正解 = 台账 ∩ 远端。⚠ 换封面只能删了重发。
+
+### 发布（写）接口探测结论：**创建止于风控，删除可纯 API**（2026-10-18）
+
+⚠ 这里的口径要分开读：**「创建笔记」发不出去，不等于「所有写操作」都不行**。
+`capa/postgw` 是另一个网关，删除走它、不过 461（2026-10-18 实测删成功）。
+
+端点不是秘密 —— `project-publish-vue` 的端点表里就写着（`l` = `https://edith.xiaohongshu.com`）：
+
+| 用途 | 端点 | 状态 |
+|---|---|---|
+| 创建/发布笔记 | `POST {edith}/web_api/sns/v2/note` | ❌ 461 风控 |
+| 改已有笔记 | `PUT {edith}/web_api/sns/capa/postgw/note/update` | 未试 |
+| **删除笔记** | `POST {edith}/web_api/sns/capa/postgw/note/delete` | ✅ 200 `code:0` |
+| 上传许可 | `GET {edith}/api/media/v1/upload/creator/permit` | ✅ |
+| 上传完成校验（转码等） | `GET {edith}/web_api/sns/capa/postgw/query_transcode` | 未试 |
+
+实测到的地方：
+
+1. ✅ **上传许可能拿**：`?version=1&source=web&biz_name=spectrum&scene=image&file_count=N`
+   返回 `uploadTempPermits[0]`（`fileIds` / `token` / `uploadAddr` / `bucket`）。
+   ⚠ `biz_name` 不能省，省了返回 `code:0` 但 `result.message = bizCloudConfig-list-empty`、
+   通道为空 —— 看 `code` 会误判成成功。
+2. ❌ **二进制上传不是裸 HTTP**：走腾讯云 COS SDK
+   （`new COS({Domain: uploadAddr, SecurityToken: permit.token, TmpSecretId:"null"…})`）。
+   直接打 ros-upload：裸 body → `request Content-Type isn't multipart/form-data`；
+   multipart → `{"code":9,"msg":"invalid param"}`。**未复刻 COS 签名**（图片上传本来
+   走 DOM 选文件，不是瓶颈）。
+3. ❌ **创建笔记被风控拦死**：`POST /web_api/sns/v2/note` 返回
+   **HTTP 461 + 响应头 `verifytype: 124` + `verifyuuid: …`**，
+   而 body 是 `{"code":0,"success":true,"data":{}}` —— **光看 body 会以为发布成功了**。
+   ⚠ 461 与 payload 无关：空 body、半结构、带 images 的完整结构返回**完全一致**，
+   所以别再花时间调字段，这是**请求级闸门**（社区口径一致：461/471 = 要过验证码）。
+   ⇒ 发布这一步只能留在 UI（真人点击才过得了风控）。
+4. ✅ **删除可以纯 API**（2026-10-18）：`POST {edith}/web_api/sns/capa/postgw/note/delete`
+   body `{"note_id": "<id>"}` → HTTP 200 `{"code":0,"msg":"成功"}`，回读 posted 确认消失。
+   - **参数是问出来的**：传复数 `{"noteIds":[…]}` 回 400
+     `required param check: note_id`；换成单数 `note_id` 直接过。
+   - 先用**不存在的 note_id** 试（回 `code:100601 根据笔记ID列表批量查询笔记基础信息失败`）
+     —— 服务端正常受理且没有 461，才敢动真实 ID。这个「假 ID 先探」的手法
+     以后验证任何破坏性端点都该照做。
+   - 工具：`scripts/xhs_delete.py`（默认 dry-run，`--apply` 才删；顺序是
+     快照 → 删除 → 回读验证 → 台账同步），测试 `test_xhs_delete.py` 12 项。
+
+**签名规则（顺手破的，价值最高的一条）**：`_webmsxyw` 的第二个参数随 method 变 ——
+GET 传 `'{}'`、签 `pathname+search`；**POST/PUT 必须传 body 解析后的对象**（传字符串
+稳定 406），且实际发出去的 body 要与它的 `JSON.stringify` 逐字节一致（紧凑、无空格、
+中文不转义）。见 `xhs_webapi._FETCH_JS` / `_compact()`，有 4 条锁测试。
+
+探针：`scripts/probe_xhs_publish_api.py --permit|--try-post`。
+
+### 台账对账：**别手改，跑 `xhs_sync_ledger.py`**（2026-10-18）
+
+线上 9 条 vs 台账 2 条那次，根因是发布路径有三条（脚本 / 人工从草稿箱点 / 手机直接发），
+后两条不写台账。工具按「线上事实」反查：`posted` 接口 → 标题映射 case id →
+`--apply` 写回（自动 `.bak-*` 备份）。映射优先级：`data/xhs_aliases.json` >
+`out/xhs/*/note.json` 标题 > `xhs_title_overrides.json` > 打分（产品名/金额/二元组）。
+⚠ 老标题（含「月收$X」）反查不到卡片标题 —— 10-14 设了「标题禁金额」红线，
+线上老笔记还是旧口径，这类必须靠 `xhs_aliases.json` 固化，否则每次靠打分猜。
+
+### 已发布列表：**优先走接口直读**（2026-10-18 打通，秒级）
+
+`scripts/xhs_webapi.py` —— 在已登录页面里用 `fetch` + 全局签名函数发请求，
+**不点任何 DOM**：
+
+```bash
+python -X utf8 scripts/xhs_webapi.py posted          # 9 条，<2 秒
+python -X utf8 scripts/xhs_webapi.py call --url <任意 /api/... URL>
+```
+
+接口：`GET https://creator.xiaohongshu.com/api/galaxy/v2/creator/note/user/posted?page=1&page_size=30`
+返回 `data.notes[]`，字段 `id / display_title / time / likes / view_count / xsec_token`。
+
+**签名（关键，踩过一轮）**：网页版把签名函数挂在全局 `window._webmsxyw`，
+不用逆 JS。但**签名对象随 method 变**：
+
+| method | 签名对象 | 签错的后果 |
+|---|---|---|
+| GET | `pathname + search`（**query 必须一起签**） | **406 `{"code":-1,"success":false}`** |
+| POST | `pathname`，data 传 body | — |
+
+406 很隐蔽：返的是 JSON 不是报错页，看着像参数错，实际是签名漏了 query。
+
+其他两条边界：
+- **跨域到 `edith.xiaohongshu.com` 会 `TypeError: Failed to fetch`**。CORS 预检
+  其实放行（`Access-Control-Allow-Headers: content-type,x-s,x-t,x-s-common`），
+  失败发生在**签名不匹配时服务端回的响应不带 CORS 头**。⇒ 优先用
+  `creator.xiaohongshu.com/api/...` 同源接口。
+- 必须先连 **9223 的 `chrome-debug-profile`**（签名依赖页面里的 `_webmsxyw`，
+  cookie 依赖 `a1`）。探针脚本 `scripts/probe_xhs_webapi.py` 可单独验签名能力。
+
+⚠ 顺带查出台账缺口（2026-10-18）：线上**已发布 9 条**，而
+`data/xhs_published.json` 只记了 2 条（那 2 条是 10-03 人工从草稿箱发的）。
+其中「月收$128K：销售挖客户线索的工具」在 09-29 **发了两次**（12:09 / 22:14）。
+⇒ 台账严重滞后于远端，对账要以接口结果为准。
+
+**重复已清理（2026-10-18）**：`scripts/xhs_delete.py --note-id 6abbc7d8… --apply`
+删掉 22:14 那篇重复发布，保留 12:09 原发（同为 1 赞，原发多 1 收藏）。
+线上 9 → 8 条，台账同步移除该条，快照存 `data/xhs_deleted.json`。
+**保留哪篇的判据**：原发优先于重复发布 —— 删原创留重复等于把自己的正常发布削掉，
+且小红书判重时后发那篇本来就更像搬运。
+
+### 已发布列表抓取（DOM 路线，接口失效时的兜底）
+
+创作平台**有**笔记管理页（已发布/审核中/未通过），只是没开放接口，走 DOM：
+
+- 入口 `https://creator.xiaohongshu.com/creator/notemanage?roleType=creator`
+  （会 302 到 `/new/note-manager?roleType=creator`；`/publish/manage`、
+  `/new/note-manage` 直接导航都会 404「页面不见了」，别用）
+- 标题选择器 `span.note-card__title`，卡片 `div.note-card`
+- ⚠ **列表在自己的滚动容器里**（`div.content`，scrollHeight>clientHeight），
+  `window.scrollTo` 无效——必须滚容器；连滚两轮无新增才算加载完
+  （首屏常不足 10 条，别用固定阈值判断结束）
+- 「全部 N」= 图文+视频+长文+播客；N 与 `图文笔记(48)` 是两个数
+
+### 草稿箱删除（purge）
+
+`python scripts/xhs_publish.py purge --match "标题" --all`。
+⚠ `_purge_one` **前提是抽屉已打开**（`.draft-item` 有渲染）——生产路径
+`cmd_purge` 会先 `fetch_drafts()` 点开抽屉+图文 tab，**自建脚本直接调
+`_purge_one` 会 `nobtn`**（2026-10-17 踩过：先 `fetch_drafts(sub)` 再删）。
+
+### 覆盖层（方案 A：只救小红书）
+
+`data/xhs_note_overrides.json` 只覆盖小红书，不污染四平台共用源。覆盖：
+`title` / `body` / `tags` / `cards.{headline,what,money,why,playbook}`。
+
+⚠ **卡片必须一起覆盖**，否则等于把违规文案重新印到图片上。
+合规检查（`xhs_compliance`）必须覆盖标题、正文、卡片文字三处。
+
+---
+
+## 四、公众号（个人订阅号，只能 CDP）
+
+### 4.0 服务端 API 复核（2026-10-18，用户要求「再探测一次」）
+
+**结论：没变 —— 当前账号拿不到 API，CDP 仍是唯一通道。但这次把边界查清了。**
+
+证据链（三条独立）：
+
+1. **官方文档**（`developers.weixin.qq.com/doc/subscription/`，订阅号**独立**文档区，
+   2026-07 还在更新）。逐接口抓「适用范围」表格原文：
+
+   | 接口 | 公众号（订阅号） | 服务号 |
+   |---|---|---|
+   | `draft/add` `draft/batchget` `draft/delete` `getdraft` | ✔ | ✔ |
+   | `material/add_material`（封面永久素材） | ✔ | ✔ |
+   | `material/uploadimg`（正文图） | ✔ | ✔ |
+   | **`freepublish/submit`（发布）** | **仅认证（企业主体已认证）** | ✔ |
+   | **`message/mass/sendall`（群发）** | **仅认证** | **仅认证** |
+
+   ⚠ 页面表格是 JS 渲染，`WebFetch` 抓不到行；要 `curl` 原始 HTML 再解析
+   `<td>`（`_probe` 里的 `doc_freepublish.html` 是当次快照）。
+
+2. **本账号实际状态**（CDP 打开后台首页原文）：
+   `万物解释者 · 公众号 · 未认证`。开发接口管理页已提示 2025-12-01 起迁移到
+   **微信开发者平台**（`developers.weixin.qq.com/platform`，需管理员单独登录）。
+
+3. **社区实测（2026-09/10 多份，口径一致）**：未认证个人订阅号调 `draft/add`
+   **直接 48001**。⚠ 别写成「个人主体不能认证」——个人订阅号是可以申请
+   「个人认证」的（¥300/次、注册满 30 天、实名、近 30 天无违规，官方社区置顶帖
+   与 2026-10 多篇教程口径一致）；但**认证=解锁哪些接口，官方没逐条列**，
+   社区有说「已认证公众号（个人/企业）即可」，也有说需企业/个体户主体。
+   `freepublish` 文档明确写「仅认证 = 仅企业主体已认证」⇒ 个人认证大概率仍不行。
+   **要实证只有一条路：认证后跑 `probe_wechat_openapi.py`。**
+   所以「文档标 ✔」≠「本账号有权限」—— 以回读/实测为准。
+
+**因此：**
+- 发布（freepublish）/ 群发：个人订阅号即使认证也不满足「企业主体」，**只能人点**；
+- 草稿箱 / 素材：文档可用，但未认证号 48001，**当前账号用不了**；
+- 想全链路 API 化，唯一路径是**换主体 + 认证服务号**（服务号发布列是 ✔）。
+  届时先跑 `scripts/probe_wechat_openapi.py`（一条命令跑通 token → 传封面 →
+  建草稿 → 回读 → 删除；错误码带人话解释），别再从零摸。
+- 账号里没有 AppID（后台只暴露 `gh_669cf14ec057` 原始ID），AppSecret 需在
+  微信开发者平台重置。
+
+### 4.0.1 ⚠ 抠 token 必须从根域名进（2026-10-18 修）
+
+会话有效时，`https://mp.weixin.qq.com/` 会 302 到 `home?...&token=xxx`；
+而直接开 `MP_HOME`（`/cgi-bin/home?t=home/index`，**不带 token**）会稳定落在
+「请重新登录」壳页 —— 同一个 Chrome、同一秒，前者 token=827333358，后者
+`NO_TOKEN`。历史 `_open_editor` 用的正是 MP_HOME。
+
+已修：新增 `MP_ENTRY = "https://mp.weixin.qq.com/"`，`_open_editor` 与 token
+兜底路径都改用它；回归锁 `test_wechat_publish.TestTokenEntry`（3 条）。
+⇒ 排查「登录态明明有效但脚本说没登录」时，先看是不是又开错入口了。
+
+### 4.0.2 发布日预检
+
+`python -X utf8 scripts/preflight.py --deep` —— 一条命令看：9222/9223 端口、
+公众号登录态（子进程里测，40s 硬超时，不会把主进程拖死）、四平台台账、
+cases 完整度、平台覆盖度。退出码 0 全绿 / 1 有 FAIL / 2 仅 WARN。
+
+### 历史结论（保留）
+
+官方 `draft/switch` **已废弃**，官方文档「适用范围」只列服务号，
+个人订阅号通常返回 `48001 api unauthorized`。
+⇒ **个人订阅号仍只能 CDP 操作后台**。
+
+### 读
+
+- 草稿箱只读回读：`_draft_list(cdp, token)` → `app_msg_list`（**不是** `app_msg_info`），
+  `type=77` 才是图文草稿；`update_time` 是 **Unix 秒**。
+- ⚠ **草稿存的是保存那一刻的快照**，不会跟着本地 HTML 变。改了正文要
+  `refresh --case <id> --cover` 灌回**已存在**的草稿（`publish` 是新建会多一条）。
+  用户按新标题找不到旧草稿时先回读 —— 多半是「旧标题的旧草稿还在」。
+
+### ⚠ `系统错误(320003)` 三步定位法
+
+`320003` 是站内错误码，官方和社区都没有明确解释。**错误页上没有 `#title`**，
+所以脚本后续的 `NO_EL` / `NO_API` / `NO_FILE_INPUT` / `NO_COVER_BTN`
+**全是错误页造成的后果，不是选择器本身失效**。
+
+定位三步：
+1. 独立 tab 打开列表页（确认不是整个会话挂了）。
+2. 打开另一条编辑器（对照：这条能开就是单条问题）。
+3. 等 30 秒重试问题条目。
+
+实测存在**两个叠加原因**：
+1. 短时间内高频打开编辑器触发服务端限流（暂时性，等一会就好）。
+2. **草稿记录级损坏**（永久性）—— 2026-10-01 实测共**6 条**：
+   | case | appmsgid |
+   |---|---|
+   | `magicslides-app` | `100000125` |
+   | `stan` | `100000130` |
+   | `1lookup` | `100000134` |
+   | `gojiberryai` | `100000138` |
+   | `sierra` | `100000142` |
+   | `genius-ai` | `100000146` |
+
+   特征：**编辑页稳定返回 320003**（不是偶发），且**草稿列表接口里也没有它们**
+   （`count` 拉到 100 仍只有 31 条，少的就是这6 个篇号）。
+   ⇒ 只能删除重建，refresh 刷不动。
+
+#### ⚠ 怎么区分「限流」和「记录损坏」——交替测试
+
+**错误页文案一模一样，无法从页面本身判断**。唯一可靠办法是**交替试开**：
+
+```python
+for cid, aid in [('MISSING', 100000146), ('OK', 100000150),
+                 ('MISSING', 100000134), ('OK', 100000154)]:
+    open_editor(aid); check_ready()
+```
+
+- MISSING 的**稳定失败** + 正常条目**稳定成功** ⇒ 记录损坏（等多久都没用）。
+- 两者**都失败** ⇒ 限流（等几分钟，整轮重跑）。
+
+⚠ **别用「等 30 秒重试」当唯一判据** —— 实测那 6 条等 30 秒、5 分钟、
+第二天回来都是同一个错误，而同期正常条目一直能开。
+
+`scripts/wechat_verify_refresh.py --probe-missing` 已封装这个交替测试。
+
+#### 损坏草稿黑名单（`data/wechat_broken_drafts.json`）
+
+交替测试确认是记录级损坏后，把case id 写进这个文件。之后：
+
+- `refresh` **自动跳过**黑名单里的条目，不再白等两轮打开 + 退避
+  （实测单条能吃掉 3-4 分钟，6 条就是 20 分钟，批量看起来就是「卡住不动」）。
+- `--include-broken` 可强制重试（确认服务端已恢复时用）。
+- `--exclude-case id1,id2` 临时排除本次不想碰的（不改文件）。
+
+```bash
+python -X utf8 scripts/wechat_publish.py refresh --dry   # 看黑名单跳过效果
+```
+
+⚠ **判断「批量卡住了」之前先看黑名单输出** —— 跳过行会明确列出跳了哪几条，
+比盯进度条可靠。
+
+### ⚠ 中断后从断点续跑：`--skip-refreshed-after`
+
+批量被中断（手动停、Chrome 被关、限流）后重跑会**从头再刷一遍**，
+每条 1-2 分钟，白等几十分钟。用记录里的 `refreshed_at` 跳过已刷的：
+
+```bash
+python -X utf8 scripts/wechat_publish.py refresh \
+    --skip-refreshed-after "2026-10-01 20:04"
+```
+
+⚠ `refreshed_at` 只在**保存成功**时写，所以它天然只标记成功条目——
+中断点之前的不会漏掉。
+
+### ⚠ `refresh` 的假成功与加固
+
+- **`保存: OK (NO_EL)` 是假成功**，按钮根本没点到。只有
+  **`保存: OK (CLICKED:保存为草稿)`** 才表示点击命中 —— 即使命中，仍需远端回读。
+- `_open_draft_editor(strict=True)`：编辑器没就绪就抛 `DraftEditorError`。
+  不 strict 时错误页会被当成正常编辑器继续走，每条都假成功又白等 timeout。
+- 编辑器打不开的条目**单列到 `editor_errors`**，不混进 `fail_n`
+  —— 这是「服务端问题」，混进去会让人一直查选择器。
+- 连续失败退避（20~90s）+ 单条重试一次：限流是暂时的、记录损坏是永久的，
+  **重试一次就能把这两类分开**。条与条之间留 6s。
+
+### ⚠ `保存: OK` 不等于正文落库 —— 必须另起进程回读
+
+`保存: OK` 的判据只是「保存后 URL 出现了 `appmsgid=`」，
+那是**编辑器自己跳转**的信号。历史教训：整轮 37 条全报「成功」，
+用户看到的还是旧排版。
+
+⇒ 刷完必须**另起一个进程**按篇号回读（`scripts/wechat_verify_refresh.py`）。
+放同一个进程里不行 —— 那个进程的 CDP 连接与页面状态都是热的，
+无法代表「服务端现在到底是什么」。
+
+⚠⚠ **`--fresh-seconds` 别设太紧**（2026-10-01 踩过）。批量跑 40 分钟刷 37 条时，
+最后一条距「批次开始」已 40 分钟，用「距今 1800 秒」会把**刚刷好的**判成 STALE，
+白折腾一轮。正确口径是 `--since <批次开始时间戳>`：
+
+```bash
+python -X utf8 scripts/wechat_verify_refresh.py --since 1790856240
+```
+
+判据优先级：`update_time >= 批次起点` > 标题一致 > 编辑器可打开。
+
+### ⚠ 别拿 warn 当失败结论
+
+`refresh --cover` 常报「封面处理异常: timed out」+「CDP 页面连接断开，已重连」，
+但最终 `OK (CLICKED:保存为草稿)` 且封面确实换了 —— 要回读 img src 核实。
+
+---
+
+## 五、对账（`scripts/wechat_reconcile.py`）
+
+**对账先做，别先动手。**
+
+- ⚠⚠ **它按标题反查，标题变了就全盘失配**（2026-10-01 实测踩坑）：
+  本地 rebuild 后 h1 变成正式长标题、远端还是旧版短标题 → 匹配不上 →
+  `remote_len=0` → 状态 `?` → 被当成「不需要改」。
+  **`0/1350` 恰恰是「没匹配上远端」的信号，不是「远端是空的」。**
+  当时据此报了「32 条全部不需要改」，事后证明 **32/32 条正文全是旧版**。
+  ⇒ **对账的键必须是「篇号」**（`拆解海外 · 第 N 篇`，唯一稳定标识），不要用标题。
+- ⚠ 状态 `?` / `remote_len=0` **一律当「未知」处理**，不能进「无需改」结论。
+- ⚠ **本地 `out/` 不被 git 追踪**，且 `make_article --all` 会一次性重生成全部 html
+  → **文件 mtime 永远相同，不能用来判断内容变没变**，只能逐条比纯文本。
+- 比对要复用 `plain(html, drop_title=_h1(html))` 剥掉独立 `<h1>` 与题头行，
+  否则每条都报「不一致」假阳性。
+- `--fetch` 逐条打开编辑器抓远端正文（32 条≈11 分钟，**别接 `| tail`**）。
+- 用 `out/xhs/*/note.json` 标题反查（`_card_to_cid`）分 5 类：远端有/台账无、
+  台账有/远端无、两边都有、远端重复、孤儿草稿。
+  2026-10-01 靠这个发现「台账多 2 条」其实是 purge 假记录，避免了重复发布。
+
+### 「已发布还躺在草稿箱」扫描（`scripts/scan_pub_dupes.py`）
+
+四平台都是「从草稿箱发布后草稿不消失」⇒ 群发后草稿箱里留下一批已发表文章。
+本脚本只读扫四平台，按**标题去空白精确相等**算交集，输出待删清单。
+2026-10-17 首跑：6 条命中（头条 Coral/UpLinked、B站 Viktor/UpLinked B.V.、
+小红书 Bustem/StartClaw、公众号 Visualizee.ai），全部删除+核对消失。
+
+- ⚠ **公众号精确匹配会漏**：已发布是长口径标题、草稿是短口径（同一篇文章）。
+  脚本对公众号附「产品名级」（首个冒号前）提示，只列不删，人工定。
+- ⚠ **B站已发布列表用 `x/space/article`（空间公开数据、免签）**，
+  比创作中心 upload-manage 稳（后者已改版重定向到首页抓不到）。
+- 删用各平台既有命令：头条 `delete_draft_api` / B站 `delete_draft` /
+  公众号 `delete --appmsgid` / 小红书 `purge --match "标题" --all`。
+- 🚨 **删后必须回读核对**（头条对假 gid 也返 code:0；B站 delete 响应会超时
+  但实际已删——2026-10-17 实测 344019 超时、核对已消失）。
+
+---
+
+## 六、多平台编排（`scripts/publish_multi.py`）
+
+别用 `publish_both.py`（设计取舍见 `docs/MULTIPLATFORM.md`）。
+
+- 状态机 `pending/building/draft_saved/published/failed`，
+  **`building` 不算完成**（崩在这要能续跑）；写盘 tmp + `os.replace` 原子替换。
+- 幂等判据 = 清单OR 平台状态文件，**首次必须先 `sync`**（否则 37 条被当全新重发）。
+- `data/publish_manifest.json` **要入库**（B站草稿只存在远端，这是唯一事实来源）。
+- 批量**必须串行**（并发抢同一个 CDP → 批量 10053/Timeout，单条约 70s）。
+- `publish_both.py --dry` **不能透传**给小红书/头条（实测污染过bustem 草稿）。
+- `case` 是**位置参数**：`run <id> --replace`，没有 `--case`。
+- Windows 子进程要设 `PYTHONIOENCODING=utf-8`，否则乱码破坏 `parse_batch`。
+- `verify` 只支持头条与 B站草稿箱回读；差异分 `missing`/`extra`/`unmatched_titles`。
+- 状态分层：manifest 是本地状态，平台草稿箱才是远端事实。
+  单平台脚本不自动回写manifest，要显式 `mark`/`sync`。
+
+---
+
+## 七、批处理通用守则
+
+- 必须 `flush=True` 逐条打印 + 打印单条/累计耗时 + **一律不要接 `| tail -N`**
+  （块缓冲，全程零输出，看着像卡死）。踩了 3 次。
+- 长任务用受管后台任务，**不能靠 `nohup ... &`**（进程会被回收，实测 2 次）。
+  `covers --all` 要 ~10 分钟，必然撞 590s 超时且掐在中途。

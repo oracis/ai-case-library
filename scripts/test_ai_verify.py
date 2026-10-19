@@ -915,3 +915,236 @@ class HNAlgoliaSearchTest(unittest.TestCase):
         # bing 仍被纳入 —— HN 没有把通用搜索挤掉
         self.assertIn("https://bing-hit.example/report", out)
         self.assertLessEqual(len(out), 6)
+
+
+class LlmEndpointTest(unittest.TestCase):
+    """换模型端点（--ai-model/--ai-base/--ai-key）的行为约束。"""
+
+    def test_llm_request必须带浏览器UA(self):
+        """⚠ 回归钉死：LLM 请求头必须有 User-Agent。
+
+        OpenCode Zen（Space Bunny）这类端点前面挂 Cloudflare，
+        urllib 默认 UA 会被 403「error code: 1010」拦掉——
+        那是 WAF 拦截，**换真 key 也照样 403**，很容易误判成 key 问题。
+        2026-10-01 实测：加上 UA 后 403 → 401（请求形状就通了）。
+        """
+        captured = {}
+
+        class FakeResp:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *a):
+                return False
+
+            def read(self):
+                return json.dumps({
+                    "choices": [{"message": {"content": "{}"},
+                                 "finish_reason": "stop"}]
+                }).encode("utf-8")
+
+        def fake_urlopen(req, timeout=None):
+            captured["headers"] = dict(req.headers)
+            captured["url"] = req.full_url
+            captured["body"] = json.loads(req.data.decode("utf-8"))
+            return FakeResp()
+
+        old_urlopen, old_key = A.urllib.request.urlopen, A.AI_KEY
+        A.urllib.request.urlopen = fake_urlopen
+        A.AI_KEY = "dummy"
+        try:
+            A.llm([{"role": "user", "content": "hi"}])
+        finally:
+            A.urllib.request.urlopen = old_urlopen
+            A.AI_KEY = old_key
+
+        hdrs = {k.lower(): v for k, v in captured["headers"].items()}
+        ua = hdrs.get("user-agent", "")
+        self.assertTrue(ua, "LLM 请求没带 User-Agent —— 会被 Cloudflare 403")
+        self.assertIn("Mozilla/5.0", ua)
+        self.assertIn("authorization", hdrs)
+        # 端点拼接形状：base + /chat/completions，base 尾部斜杠要已被rstrip
+        self.assertTrue(captured["url"].endswith("/chat/completions"))
+        # JSON 模式是硬要求（解析链路依赖），别为了迁就某端点去掉
+        self.assertEqual(captured["body"]["response_format"],
+                         {"type": "json_object"})
+
+    def test_configure只覆盖传入项(self):
+        old = (A.AI_KEY, A.AI_BASE, A.AI_MODEL)
+        try:
+            A.configure(api_key="k2", base="https://x.example/v1", model="m2")
+            self.assertEqual((A.AI_KEY, A.AI_BASE, A.AI_MODEL),
+                             ("k2", "https://x.example/v1", "m2"))
+            # 只给一个：其余保持原值（后台 GUI 存key 就靠这个语义）
+            A.configure(model="m3")
+            self.assertEqual((A.AI_KEY, A.AI_BASE, A.AI_MODEL),
+                             ("k2", "https://x.example/v1", "m3"))
+        finally:
+            A.AI_KEY, A.AI_BASE, A.AI_MODEL = old
+
+    def test_configure空串key必须真清空(self):
+        """空串是「显式清空」，不是「没传」。
+
+        ⚠ 这条钉死 2026-10-04 修的致命 bug：`configure()`曾用 `if api_key:`
+        真值判据，`""` 是 falsy 被跳过 ⇒ 旧付费 key 沿用 ⇒ 免 key 端点必 401。
+        """
+        old = (A.AI_KEY, A.AI_BASE, A.AI_MODEL)
+        try:
+            A.configure(api_key="paid-key", base="https://api.deepseek.com/v1",
+                        model="deepseek-flash")
+            A.configure(api_key="", base="https://opencode.ai/zen/v1",
+                        model="space-bunny-free")
+            self.assertEqual(A.AI_KEY, "",
+                             "空串必须真清空 key，不能沿用旧的付费 key")
+            self.assertEqual(A.AI_MODEL, "space-bunny-free")
+        finally:
+            A.AI_KEY, A.AI_BASE, A.AI_MODEL = old
+
+    def test_免key端点判定(self):
+        self.assertTrue(A.is_no_key_endpoint("https://opencode.ai/zen/v1"))
+        self.assertFalse(A.is_no_key_endpoint("https://api.deepseek.com/v1"))
+        # 带key 的普通端点不算免 key
+        self.assertTrue(A.ai_ready("sk-x", "https://api.deepseek.com/v1"))
+        # 免 key 端点没有 key 也算就绪（后台门禁靠这个放行）
+        self.assertTrue(A.ai_ready("", "https://opencode.ai/zen/v1"))
+        # 两样都没有才算不就绪
+        self.assertFalse(A.ai_ready("", "https://api.deepseek.com/v1"))
+
+    def test_configure会rstrip_base的斜杠(self):
+        old = A.AI_BASE
+        try:
+            A.configure(base="https://y.example/v1/")
+            self.assertEqual(A.AI_BASE, "https://y.example/v1")
+        finally:
+            A.AI_BASE = old
+
+    def test_ping无key时返回2不联网(self):
+        old = A.AI_KEY
+        try:
+            A.AI_KEY = ""
+
+            def boom(*a, **k):
+                raise AssertionError("没 key 时不该发请求")
+
+            old_urlopen = A.urllib.request.urlopen
+            A.urllib.request.urlopen = boom
+            try:
+                self.assertEqual(A.ping_llm(), 2)
+            finally:
+                A.urllib.request.urlopen = old_urlopen
+        finally:
+            A.AI_KEY = old
+
+    def test_ping能按状态码给出不同诊断(self):
+        """403/401/404/400 指向完全不同的问题，不能一律报「调用失败」。"""
+        import urllib.error
+
+        def mk(code):
+            def fake(*a, **k):
+                raise urllib.error.HTTPError(
+                    "u", code, "err", {},
+                    __import__("io").BytesIO(b'{"errmsg":"x"}'))
+            return fake
+
+        cases = {
+            403: "WAF",
+            401: "--ai-key",
+            404: "/models",
+            400: "response_format",
+        }
+        old_urlopen, old_key, old_out = (
+            A.urllib.request.urlopen, A.AI_KEY, sys.stdout)
+        try:
+            import io
+            A.AI_KEY = "dummy"
+            for code, expect in cases.items():
+                A.urllib.request.urlopen = mk(code)
+                buf = io.StringIO()
+                sys.stdout = buf
+                try:
+                    rc = A.ping_llm()
+                finally:
+                    sys.stdout = old_out
+                out = buf.getvalue()
+                self.assertEqual(rc, 1, "HTTP %s 应返回 1" % code)
+                self.assertIn(expect, out,
+                              "HTTP %s 的诊断里应提到 %s" % (code, expect))
+        finally:
+            A.urllib.request.urlopen = old_urlopen
+            A.AI_KEY = old_key
+            sys.stdout = old_out
+
+
+class ConfigChainTest(unittest.TestCase):
+    """LLM 配置三级链（环境变量 > secrets.json > 默认）的行为约束。
+
+    2026-10-13 加：默认端点切到智谱 GLM-4-Flash，key 走 secrets.json。
+    """
+
+    def test_环境变量赢过secrets(self):
+        old_env, old_sec = os.environ.get("CASE_LIB_AI_MODEL"), A._SEC
+        try:
+            A._SEC = {"ai_model": "from-secrets"}
+            os.environ["CASE_LIB_AI_MODEL"] = "from-env"
+            self.assertEqual(A._cfg("CASE_LIB_AI_MODEL", "ai_model", "d"), "from-env")
+        finally:
+            A._SEC = old_sec
+            if old_env is None:
+                os.environ.pop("CASE_LIB_AI_MODEL", None)
+            else:
+                os.environ["CASE_LIB_AI_MODEL"] = old_env
+
+    def test_secrets赢过默认(self):
+        old_env, old_sec = os.environ.get("CASE_LIB_AI_MODEL"), A._SEC
+        try:
+            A._SEC = {"ai_model": "from-secrets"}
+            os.environ.pop("CASE_LIB_AI_MODEL", None)
+            self.assertEqual(A._cfg("CASE_LIB_AI_MODEL", "ai_model", "d"), "from-secrets")
+        finally:
+            A._SEC = old_sec
+            if old_env is not None:
+                os.environ["CASE_LIB_AI_MODEL"] = old_env
+
+    def test_显式空串环境变量赢过secrets(self):
+        """⚠ 回归钉死：显式设成空串（= 清空）必须赢过 secrets。
+
+        若把 `_cfg` 写成 `os.environ.get(k) or sec.get(k) or default` 的真值链，
+        空串会被跳过 ⇒ 旧 key 被悄悄沿用 ⇒ 免 key 端点必 401
+        （2026-10-04 同类事故的配置链版本）。
+        """
+        old_env, old_sec = os.environ.get("CASE_LIB_AI_KEY"), A._SEC
+        try:
+            A._SEC = {"ai_key": "old-paid-key"}
+            os.environ["CASE_LIB_AI_KEY"] = ""
+            self.assertEqual(A._cfg("CASE_LIB_AI_KEY", "ai_key", ""), "",
+                             "显式空串必须真清空，不能沿用 secrets 里的旧 key")
+        finally:
+            A._SEC = old_sec
+            if old_env is None:
+                os.environ.pop("CASE_LIB_AI_KEY", None)
+            else:
+                os.environ["CASE_LIB_AI_KEY"] = old_env
+
+    def test_都没有才用默认(self):
+        old_env, old_sec = os.environ.get("CASE_LIB_AI_BASE"), A._SEC
+        try:
+            A._SEC = {}
+            os.environ.pop("CASE_LIB_AI_BASE", None)
+            self.assertEqual(
+                A._cfg("CASE_LIB_AI_BASE", "ai_base", "https://default.example/v1"),
+                "https://default.example/v1")
+        finally:
+            A._SEC = old_sec
+            if old_env is not None:
+                os.environ["CASE_LIB_AI_BASE"] = old_env
+
+    def test_默认端点是智谱GLM(self):
+        """钉死 2026-10-13 的切换：默认 = 智谱 glm-4-flash（免费档）。
+
+        space-bunny-free 2026-10-11 起被上游封直连，不许再变回默认。
+        （环境变量显式覆盖时跳过——那是合法的临时切换，不是默认值漂移。）
+        """
+        if any(k in os.environ for k in ("CASE_LIB_AI_BASE", "CASE_LIB_AI_MODEL")):
+            self.skipTest("环境变量覆盖了默认值")
+        self.assertEqual(A.AI_BASE, "https://open.bigmodel.cn/api/paas/v4")
+        self.assertEqual(A.AI_MODEL, "glm-4-flash")

@@ -13,6 +13,7 @@
 """
 
 import contextlib
+import html
 import importlib.util
 import io
 import json
@@ -148,7 +149,11 @@ def main():
             thin.append("%s(%d字)" % (c["id"], n))
         if c.get("one_liner") and m.esc(c["one_liner"]) not in h:
             no_liner.append(c["id"])
-        if "app.js" in h:
+        # 2026-10-15：原来是裸判断 `"app.js" in h`，但内联进页面的 style.css
+        # 注释里本来就写着「（app.js 的 switchView 因此改用 el.hidden…）」——
+        # 于是每一页都命中，误报成「独立页依赖 app.js」。
+        # 这里要验的是**真的引用了脚本**，所以只认 <script src=...app.js>。
+        if re.search(r'<script[^>]*\bsrc=["\'][^"\']*app\.js', h):
             with_js.append(c["id"])
         if re.search(r'(href|src)="/(?!/)', h):
             abs_path.append(c["id"])
@@ -237,8 +242,12 @@ def main():
         h = m.render_case_page(c, {"site": site})
         head = h[:h.index("<body>")]
         t = re.search(r"<title>(.*?)</title>", head, re.S)
-        if not t or not t.group(1).strip() or len(t.group(1)) > 62:
-            long_title.append("%s(%s)" % (c["id"], len(t.group(1)) if t else 0))
+        # ⚠️ 量的是**读者看到的那串**，不是 HTML 源码：名字里带 & 的案例
+        #（aura-ai…）会被转义成 &amp;，源码多 4 个字符。prerender 卡的是可见
+        # 长度（62），按源码量会把「卡得刚好」判成超长 —— 这条断言从此假红。
+        title_txt = html.unescape(t.group(1)) if t else ""
+        if not t or not title_txt.strip() or len(title_txt) > 62:
+            long_title.append("%s(%s)" % (c["id"], len(title_txt)))
         d = re.search(r'<meta name="description" content="(.*?)">', head)
         if not d or not d.group(1).strip():
             no_desc.append(c["id"])

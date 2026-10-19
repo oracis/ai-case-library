@@ -135,7 +135,30 @@ class TestCheckReportsGaps(unittest.TestCase):
 
     def test_missing_replicability_detects(self):
         probe = [{"id": "x"}, {"id": "y", "replicability": {"tech": 1}}]
-        self.assertEqual(FR.missing_replicability(probe), ["x"])
+        self.assertEqual(FR.missing_replicability(probe), ["x", "y"])
+
+    def test_旧维度键名不算齐(self):
+        """校验必须与 score_solo_fit 的 INVERT 一致，不能只判非空。
+
+        2026-10-05 实测：harperai / easymix 晋升时写的是旧键名
+        {tech, data, sales, domain}，非空 → --check 报「缺 0 条」，
+        而 score_solo_fit 要 {tech, capital, distribution, timing} →
+        算不出 solo_fit、composite 少 2 条、测试挂 4 项。
+        校验工具报「齐」而下游说「缺」，比直接报错更坏：它让人以为不用管。
+        """
+        old_keys = [{"id": "x", "replicability": {"tech": 3, "data": 2,
+                                                  "sales": 3, "domain": 3}}]
+        self.assertEqual(FR.missing_replicability(old_keys), ["x"],
+                         "旧维度键名的条目必须被判为缺失")
+        full = [{"id": "y", "replicability": {"tech": 3, "capital": 2,
+                                             "distribution": 3, "timing": 2}}]
+        self.assertEqual(FR.missing_replicability(full), [])
+
+    def test_维度值不是int也算缺(self):
+        probe = [{"id": "x", "replicability": {"tech": "3", "capital": 2,
+                                                "distribution": 3, "timing": 2}}]
+        self.assertEqual(FR.missing_replicability(probe), ["x"],
+                         "字符串数字会让 score_solo_fit 静默跳过，必须提前报出来")
 
     def test_missing_detects_only_when_no_stored_score(self):
         """已有 solo_fit 的案例不该再被点名 —— 判断表可以后补。"""

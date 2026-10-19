@@ -1,0 +1,1230 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""toutiao_publish.py 的纯函数单测（不连浏览器）。
+
+跑法（在 scripts/ 目录下）：
+    python -m unittest test_toutiao_publish
+"""
+import ast
+import inspect
+import json
+import os
+import re
+import sys
+import unittest
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE)
+sys.path.insert(0, HERE)
+
+import toutiao_publish as tp  # noqa: E402
+import wechat_publish as wp  # noqa: E402
+
+MD = """# 标题行
+
+<!-- 注释别出来 -->
+
+> 一句钩子
+
+## 它是干什么的
+
+做一件事 https://example.com/a  很厉害，见 [官网](https://x.com)。
+
+| 维度 | 内容 |
+| --- | --- |
+| 官方口径 | 月收入 $12K |
+
+## 钱从哪来
+
+- 第一点 **加粗**
+- 第二点
+
+---
+
+<!--
+多行注释块：下面这行写着「别进正文」，
+必须整块被吃掉，只跳过 <!-- 单行会让它漏出去。
+-->
+
+**整段加粗**： pinpoint
+"""
+
+
+class TestBlocks(unittest.TestCase):
+    def test_h1_and_comment_dropped(self):
+        bs = tp.md_to_blocks(MD)
+        self.assertFalse(any("标题行" in t for _, t in bs))
+        self.assertFalse(any("注释" in t for _, t in bs))
+
+    def test_comment_block_dropped(self):
+        """多行 <!-- --> 注释必须整块吃掉：模板里「核对用来源（别进正文）」
+        就在这种块里，只跳过单行会让它漏进正文。"""
+        joined = tp.blocks_plain_text(tp.md_to_blocks(MD))
+        self.assertNotIn("别进正文", joined)
+        self.assertNotIn("多行注释块", joined)
+        self.assertNotIn("-->", joined)
+
+    def test_url_and_md_link_cleaned(self):
+        text = tp.blocks_plain_text(tp.md_to_blocks(MD))
+        self.assertNotIn("http", text)
+        self.assertIn("官网", text)
+        # `**` 由 blocks_to_html 转成 <strong>，最终 HTML 里不该有裸 markdown 符号
+        self.assertNotIn("**", tp.blocks_to_html(tp.md_to_blocks(MD)))
+
+    def test_table_is_real_table_not_kv(self):
+        """表格必须**保留成真表格**，不能降级成 kv 列表。
+
+        2026-10-09：旧断言是 `assertNotIn("<table", html)`，理由写的是
+        「头条编辑器不支持表格」。**那个结论是错的** —— 探针只扫了
+        title/aria-label，漏了 class 里的 `syl-toolbar-tool table`。
+        实测 insertHTML 灌 <table> 完整存活，存草稿重开也还在。
+        """
+        bs = tp.md_to_blocks(MD)
+        tabs = [t for k, t in bs if k == "table"]
+        self.assertEqual(len(tabs), 1, "表格块应该被识别成一个 table 块")
+        tb = tabs[0]
+        # 表头「维度 | 内容」被吃掉，只剩数据行
+        self.assertEqual(tb["rows"], [["官方口径", "月收入 $12K"]])
+        # **不再有 kv 块** —— 这条是回归钉：别又退回列表降级
+        self.assertFalse(any(k == "kv" for k, _ in bs))
+        # 表格之外不该残留 markdown 竖线
+        self.assertFalse(any("|" in t for k, t in bs if k != "table"))
+
+    def test_table_html_shape(self):
+        """表格 HTML 用编辑器实测认得的写法（见 table_to_html 的注释）。"""
+        html = tp.blocks_to_html(tp.md_to_blocks(MD))
+        self.assertIn('<div class="tableWrapper"><table><tbody>', html)
+        self.assertIn("<tr><td><p>官方口径</p></td>"
+                      "<td><p>月收入 $12K</p></td></tr>", html)
+        # 表头不进表
+        self.assertNotIn("<p>维度</p>", html)
+        # 不给编辑器会自己算的样式
+        self.assertNotIn("colgroup", html)
+        self.assertNotIn("data-colwidth", html)
+        self.assertNotIn("<th>", html)
+
+    def test_blocks_joined_without_newline(self):
+        """⚠ 块之间**不能有换行**（2026-10-09 实测）。
+
+        Tiptap 把标签间的 `\\n` 当成额外空段落：同一份内容
+        `"\\n".join` 渲出 3 个空 `<p>`，`"".join` 只有 2 个。
+        """
+        html = tp.blocks_to_html(tp.md_to_blocks(MD))
+        self.assertNotIn("\n", html)
+        self.assertNotIn("> <", html)          # 「>  <」= 空段落
+
+    def test_long_cell_becomes_paragraph_after_table(self):
+        """>`CELL_LONG` 的值行不挤进表格，转成表格后面的「标签：值」段落。"""
+        long_val = "很长的口径说明。" * 12            # >60 字
+        md = ("## 它到底做到多大\n\n"
+              "| 维度 | 内容 |\n| --- | --- |\n"
+              "| 官方口径 | $53K MRR |\n"
+              "| 备注 | %s |\n" % long_val)
+        html = tp.blocks_to_html(tp.md_to_blocks(md), footer=False)
+        # 短值留在表里
+        self.assertIn("<td><p>官方口径</p></td>", html)
+        # 长值不在表里
+        self.assertNotIn("<td><p>%s</p></td>" % long_val, html)
+        # 变成表格后面的段落，且标签加粗
+        self.assertIn("<p><strong>备注：</strong>%s</p>" % long_val, html)
+        # 段落必须在表格**之后**
+        self.assertLess(html.index("<table>"), html.index("备注："))
+
+    def test_all_cells_long_table_still_renders(self):
+        """整张表全是长行 → 没有 <table>，但长段落一个都不能丢。"""
+        # 每格必须 >CELL_LONG(60) 才算长行，所以要repeat 够多次
+        long_a = "甲说明" * 30                             # 90 字
+        long_b = "乙说明" * 30                             # 90 字
+        self.assertGreater(len(long_a), tp.CELL_LONG)
+        md = ("| 维度 | 内容 |\n| --- | --- |\n"
+              "| 甲 | %s |\n| 乙 | %s |\n" % (long_a, long_b))
+        bs = tp.md_to_blocks(md)
+        tabs = [t for k, t in bs if k == "table"]
+        self.assertEqual(len(tabs), 1)
+        # rows 空、long 有两条 ⇒ 不渲表格
+        self.assertEqual(tabs[0]["rows"], [])
+        self.assertEqual(len(tabs[0]["long"]), 2)
+        html = tp.blocks_to_html(bs, footer=False)
+        self.assertNotIn("<table", html)
+        self.assertNotIn("tableWrapper", html)
+        self.assertIn("甲：", html)
+        self.assertIn("乙：", html)
+
+    def test_uneven_columns_padded(self):
+        """`|a|b|c|` 与 `|a|b|` 混排 → 按最长行补齐，不错位。"""
+        md = "| a | b | c |\n| --- | --- | --- |\n| 1 | 2 |\n| 3 | 4 | 5 |"
+        tb = [t for k, t in tp.md_to_blocks(md) if k == "table"][0]
+        self.assertEqual(tb["rows"], [["a", "b", "c"], ["1", "2", ""],
+                                      ["3", "4", "5"]])
+
+    def test_single_column_is_not_table(self):
+        """单列行不算表格，交回段落路径（否则渲出一列的怪表格）。"""
+        bs = tp.md_to_blocks("| 只有一列 |\n| --- |")
+        self.assertFalse(any(k == "table" for k, _ in bs))
+
+    def test_table_at_eof_without_blank_line(self):
+        """表格撞到文件末尾（后面没空行）也必须结算，不能整段丢掉。"""
+        bs = tp.md_to_blocks("正文一句\n\n| 维度 | 内容 |\n| --- | --- |\n| 甲 | 1 |")
+        tabs = [t for k, t in bs if k == "table"]
+        self.assertEqual(len(tabs), 1)
+        self.assertEqual(tabs[0]["rows"], [["甲", "1"]])
+
+    def test_kinds(self):
+        bs = tp.md_to_blocks(MD)
+        kinds = [k for k, _ in bs]
+        self.assertIn("quote", kinds)
+        self.assertIn("h2", kinds)
+        self.assertIn("ul", kinds)
+        self.assertIn("p", kinds)
+        self.assertIn("hr", kinds)
+        self.assertIn("table", kinds)
+
+    def test_html_structure(self):
+        """还原真富文本：假标题 / 假列表 / 扁平表格全部升级成真标签。"""
+        html = tp.blocks_to_html(tp.md_to_blocks(MD))
+        self.assertIn("<h2>它是干什么的</h2>", html)
+        # 连续列表项合并成一个 ul，而不是 N 个 <p>· xxx</p>
+        self.assertNotIn("<p>·", html)
+        self.assertIn("<ul><li>第一点 <strong>加粗</strong></li>"
+                      "<li>第二点</li></ul>", html)
+        # 引用有自己的块级样式，不再是普通段落
+        self.assertIn("<blockquote>「一句钩子」</blockquote>", html)
+        self.assertIn("---", html.replace("<hr>", "---"))   # --- → <hr>
+        self.assertIn("<hr>", html)
+        self.assertIn(tp.FOOTER_NOTE, html)
+
+    def test_bold_inside_table_cell(self):
+        """**加粗** 在单元格里也能活（实测 `<td><p><strong>` 存活）。"""
+        md = "| 维度 | 内容 |\n| --- | --- |\n| 甲 | **4/5** |"
+        html = tp.blocks_to_html(tp.md_to_blocks(md), footer=False)
+        self.assertIn("<td><p><strong>4/5</strong></p></td>", html)
+        self.assertNotIn("**", html)
+
+    def test_empty_input(self):
+        self.assertEqual(tp.md_to_blocks(""), [])
+        self.assertIn(tp.FOOTER_NOTE, tp.blocks_to_html([]))
+
+
+class TestTitle(unittest.TestCase):
+    def test_override_preferred_and_capped(self):
+        cases = tp.load_cases()
+        self.assertTrue(cases)
+        for c in cases[:10]:
+            t = tp.make_toutiao_title(c)
+            self.assertTrue(t, "标题不能为空：%s" % c["id"])
+            self.assertLessEqual(len(t), tp.TITLE_MAX,
+                                 "标题超 %d 字：%s -> %s" % (tp.TITLE_MAX, c["id"], t))
+
+    def test_fallback_no_crash(self):
+        t = tp.make_toutiao_title({"id": "no-such-case", "name": "某产品",
+                                   "one_liner": "做一件事"})
+        self.assertTrue(t)
+        self.assertLessEqual(len(t), tp.TITLE_MAX)
+
+
+class TestTruncateTitle(unittest.TestCase):
+    """_truncate_title 回归锁（2026-10-17，wpconvert 残渣标题事故）。
+
+    旧逻辑 `cand[:30]` 硬切把「…WordPress——一键迁移」切成
+    「…WordPress——一」存进草稿箱（截图实证）。锁边界感知截断。
+    """
+
+    def test_不超长原样返回(self):
+        t = "WPConvert：AI 建站转 WP"
+        self.assertEqual(tp._truncate_title(t, 30), t)
+
+    def test_正好卡上限原样返回(self):
+        t = "把" * 30
+        self.assertEqual(tp._truncate_title(t, 30), t)
+
+    def test_连接号后一个字_一起清(self):
+        # 事故原型：截断面切在「——」后只剩一个字
+        src = "把 AI 建站工具生成的网站，转成 WordPress——一键迁移指南"
+        out = tp._truncate_title(src, 30)
+        self.assertLessEqual(len(out), 30)
+        self.assertTrue(out.endswith("WordPress"), out)
+        self.assertNotIn("——", out[-3:], out)
+
+    def test_截断面落在连接号正中间(self):
+        src = "一二三四五六七八九十——后面还有很长很长的副标题文字"
+        out = tp._truncate_title(src, 12)
+        self.assertNotIn("—", out, out)
+        self.assertTrue(out.endswith("十"), out)
+
+    def test_尾部孤立标点清掉(self):
+        src = "这是一个标题，被截断了，"
+        out = tp._truncate_title(src, 10)
+        self.assertFalse(out.rstrip().endswith(("，", ",", "：", ":", "、")), out)
+
+    def test_普通汉字截断保留不补点(self):
+        src = "一二三四五六七八九十一二三四五六七八九十"
+        out = tp._truncate_title(src, 15)
+        self.assertEqual(out, "一二三四五六七八九十一二三四五")
+
+    def test_完整短标题的连接号不误伤(self):
+        # 「A——B」本身不超长，② 规则不许触发
+        t = "月收$8K——设计师的渲染外挂"
+        self.assertEqual(tp._truncate_title(t, 30), t)
+
+    def test_清空后兜底不返回空(self):
+        out = tp._truncate_title("———", 3)
+        self.assertTrue(out)
+        self.assertLessEqual(len(out), 3)
+
+    def test_全库标题无连接号残尾(self):
+        cases = tp.load_cases()
+        bad = []
+        for c in cases:
+            t = tp.make_toutiao_title(c)
+            if re.search(r"[-—–]{1,2}.{0,2}$", t) and len(t) == tp.TITLE_MAX:
+                bad.append((c["id"], t))
+        self.assertEqual(bad, [], "这些标题截出了连接号残尾：%s" % bad)
+
+
+class TestNoRawMarkdown(unittest.TestCase):
+    """🚨 全库级：裸 Markdown 标记不许进案例正文（2026-10-11 事故）。
+
+    这条坑真实发生过：给7 条新候选写内容包时，习惯性用了
+    `**加粗**` 来强调关键数字。内容包本身校验全绿
+    （`contentpack_ready --check` 只查条数与字数），
+    promote 也不管这个 ⇒ `**` 原样进了 cases.json，
+    又原样渲进案例页，读者看到的是「这是**大公司样本**」这样的字面星号。
+
+    渲染器**不解析** Markdown（`prerender.py` 里没有 bold/em 的处理，
+    它只做 HTML 转义），所以星号不会消失，只会原样显示。
+    既有 41 条案例因此全都没有 `**` —— 但那是**约定**，没有任何机制拦着，
+    所以下一个写内容包的人一定会再犯。
+
+    这条断言把它变成机制：全库任何一条案例的正文/判词/玩法里
+    出现 `**`，测试就红。
+    """
+
+    FIELDS_TEXT = ("what_it_does", "verdict", "how_it_makes_money")
+    FIELDS_LIST = ("why_it_works", "playbook", "signals")
+
+    def test_no_case_field_contains_bold_marker(self):
+        cases = tp.load_cases()
+        bad = []
+        for c in cases:
+            for f in self.FIELDS_TEXT:
+                if "**" in (c.get(f) or ""):
+                    bad.append("%s.%s" % (c["id"], f))
+            for f in self.FIELDS_LIST:
+                for i, s in enumerate(c.get(f) or []):
+                    if "**" in (s or ""):
+                        bad.append("%s.%s[%d]" % (c["id"], f, i))
+        self.assertEqual(bad, [],
+                         "这些字段有裸 Markdown 加粗标记，渲染器不解析会原样显示：%s"
+                         % bad[:8])
+
+    def test_no_metric_note_contains_bold_marker(self):
+        """metric_note 也会显示在案例卡片上，同样不许带星号。"""
+        bad = [c["id"] for c in tp.load_cases()
+               if "**" in ((c.get("metrics") or {}).get("metric_note") or "")]
+        self.assertEqual(bad, [], "metric_note 带 **：%s" % bad[:8])
+
+    def test_report_notes_have_no_bold_marker(self):
+        """深度报告里的 note 同样 esc() 直出（2026-10-18 补）。
+
+        `china_fit.note` / `solo_fit.delivery_note` 在 public/app.js 与
+        prerender.py 里都是转义直出，`**` 会原样显示成星号。
+        """
+        bad = []
+        for c in tp.load_cases():
+            for path in (("china_fit", "note"), ("solo_fit", "delivery_note")):
+                v = (c.get(path[0]) or {}).get(path[1]) or ""
+                if "**" in v:
+                    bad.append("%s.%s.%s" % (c["id"], path[0], path[1]))
+        self.assertEqual(bad, [], "报告 note 带 **：%s" % bad[:8])
+
+    def test_content_packs_have_no_bold_marker(self):
+        """源头拦：内容包本身就不该写 `**`（写都别写，别指望下游过滤）。"""
+        try:
+            import contentpack_ready as CP
+        except ImportError:
+            self.skipTest("contentpack_ready 不可导入")
+        bad = []
+        for cid, pack in CP.PACKS.items():
+            for f in ("what_it_does", "verdict", "how_it_makes_money",
+                      "metric_note"):
+                v = (pack.get(f) or {}) if f == "metric_note" else pack.get(f)
+                if isinstance(v, dict):
+                    v = v.get("metric_note") or ""
+                if "**" in (v or ""):
+                    bad.append("%s.%s" % (cid, f))
+            for f in self.FIELDS_LIST:
+                for i, s in enumerate(pack.get(f) or []):
+                    if "**" in (s or ""):
+                        bad.append("%s.%s[%d]" % (cid, f, i))
+        self.assertEqual(bad, [], "内容包里有 **：%s" % bad[:8])
+
+
+class TestBuild(unittest.TestCase):
+    def test_build_article_offline(self):
+        c = {"id": "pieter-levels", "name": "Pieter Levels 的产品矩阵",
+             "one_liner": "组合月收入 $250K+"}
+        m = tp.build_article(c)
+        self.assertLessEqual(len(m["title"]), tp.TITLE_MAX)
+        # 首块要么是引用块要么是普通段，绝不能是扁平假结构
+        self.assertTrue(m["html"].startswith(("<p>", "<blockquote>")),
+                        m["html"][:60])
+        self.assertIn("<h2>", m["html"])          # 小标题必须是真 h2
+        self.assertIn("关于本栏目", m["html"])
+        self.assertNotIn("**", m["html"])         # 裸 markdown 符号不许出口
+
+    def test_all_cases_have_md_and_reasonable_length(self):
+        """全库 build 一遍：正文不该短到不能发（少于 300 字的列出来给人看）。"""
+        short = []
+        for c in tp.load_cases():
+            m = tp.build_article(c)
+            if m["chars"] < tp.BODY_MIN:
+                short.append((c["id"], m["chars"]))
+        if short:
+            print("\n[info] 正文少于 %d 字的案例（头条建议不发）：%s"
+                  % (tp.BODY_MIN, short))
+        self.assertTrue(True)
+
+
+class TestTtCoverNum(unittest.TestCase):
+    """封面大数字：超预算分段丢弃，绝不出现半截标点（旧版出过「$4,985,」）。"""
+
+    def test_semicolon_segments_drop_overflow(self):
+        self.assertEqual(
+            tp.tt_cover_num("MRR $244,029；累计收入 $4,985,134（Stripe 直连验证）"),
+            "MRR $244,029")
+
+    def test_slash_segments(self):
+        self.assertEqual(
+            tp.tt_cover_num("收入 $1.6K / 售价 $60K / 倍数 3.1x（TrustMRR 挂牌）"),
+            "收入 $1.6K")
+
+    def test_fullwidth_comma_segments(self):
+        self.assertEqual(
+            tp.tt_cover_num("月收入 $18,000，毛利率 90%"),
+            "月收入 $18,000")
+
+    def test_big_number_strip_thousands_separator(self):
+        # 各段都超预算时，去掉千分位逗号再试（$3,569,654 → $3569654）
+        self.assertEqual(
+            tp.tt_cover_num("MRR $3,569,654；累计收入 $76,627,685"),
+            "MRR $3569654")
+
+    def test_clip_fallback_strips_trailing_punct(self):
+        n = tp.tt_cover_num("$424,368 MRR · Stripe 验证")
+        self.assertFalse(n.endswith((",", "，", "；", ";", " ")), repr(n))
+
+    def test_empty(self):
+        self.assertEqual(tp.tt_cover_num(""), "")
+        self.assertEqual(tp.tt_cover_num(None), "")
+
+    def test_cover_html_dark_theme_and_no_smallprint_footer(self):
+        c = {"id": "1lookup", "name": "1Lookup",
+             "one_liner": "一个 API 做电话、邮箱、IP 的实时数据校验",
+             "metrics": {"headline": "MRR $244,029；累计收入 $4,985,134"}}
+        html = tp.tt_cover_html(c)
+        # 断言「用的是主题表里的深色底」，而不是钉死某个色值 ——
+        # 2026-09-30 修了封面撞色（相邻两条必须不同色，见 test_cover_theme），
+        # 分配规则变了，1lookup 从紫罗兰变成了橄榄金。色值会随 cases.json
+        # 顺序变动，钉死它等于给这个测试埋一颗地雷。
+        base, band, ac = wp._cover_theme("1lookup", "toutiao")
+        self.assertIn("background:%s" % base, html)
+        self.assertIn("background:%s" % band, html)
+        self.assertIn("color:%s" % ac, html)
+        self.assertNotIn("CASE STUDY", html)      # 小字装饰已去掉
+        self.assertNotIn("numsub", html)
+        # 2026-10-02：封面两行改成「项目名 + 一句话介绍」，**不含金额**。
+        # metrics.headline 是抓取当天的快照，会随站点自己变 ——
+        # 印在封面等于印一个会过期的数字。
+        self.assertIn("1Lookup", html)
+        self.assertIn("一个 API 做电话、邮箱、IP 的实时数据校验", html)
+        for stale in ("$244,029", "$4,985,134", "MRR"):
+            self.assertNotIn(stale, html)
+
+    def test_cover_html_placeholder_oneliner_never_shows_unclassified(self):
+        """prosp 实测：one_liner 是占位符、category=未分类 → 封面不能印「未分类」。
+
+        2026-09-29 改方案 A 后封面只有两行（数字 + 产品名）；2026-10-02 又把
+        数字换成一句话介绍。版式一直在变，但**占位符绝不能上封面**这条硬约束
+        始终得钉死（将来谁加回第三行就会踩）。
+        """
+        c = {"id": "prosp", "name": "PROSP", "category": "未分类",
+             "one_liner": "（待补充：产品定位未明）",
+             "metrics": {"headline": "$128,000 MRR"}}
+        html = tp.tt_cover_html(c)
+        self.assertNotIn("未分类", html)
+        self.assertNotIn("待补充", html)
+        # one_liner 是纯括注 → 去掉后为空 → 这一行不渲染（用户要求
+        # 「没简要介绍就不显示」），只剩产品名，且不回落成 category。
+        self.assertIn("PROSP", html)
+        self.assertNotIn("class=\"desc\"", html)
+        # 金额已被移除需求覆盖掉，不该再出现。
+        self.assertNotIn("$128,000", html)
+
+    def test_cover_desc_priority_and_blank_fallback(self):
+        """"没简要介绍就不显示"这条要真的成立：四种取值路径各钉一遍。"""
+        base = {"id": "x", "name": "X", "metrics": {"headline": "$9 MRR"}}
+        # 1) one_liner 优先，去掉尾注括注
+        self.assertEqual(
+            tp.tt_cover_desc(dict(base, one_liner="干这个的（数据来自公开披露）")),
+            "干这个的")
+        # 2) one_liner 缺失 → what_it_does 首句
+        self.assertEqual(
+            tp.tt_cover_desc(dict(base, what_it_does="第一句。第二句。")),
+            "第一句")
+        # 3) 全都没有 → 空串（封面不渲染这一行），**绝不回落金额**
+        self.assertEqual(tp.tt_cover_desc(base), "")
+        self.assertEqual(tp.tt_cover_desc(dict(base, category="未分类")), "")
+        # 4) cover_kv.desc 显式覆盖优先级最高
+        self.assertEqual(
+            tp.tt_cover_desc(dict(base, cover_kv={"desc": "自定义"},
+                                  one_liner="原始")),
+            "自定义")
+
+    def test_wechat_cover_uses_same_desc_and_skips_blank(self):
+        """公众号封面必须与头条/B站/小红书同一口径（铁律：单一真理）。
+
+        2026-10-02：原来公众号封面直接用 one_liner，而 one_liner 实测
+        4/39 内嵌金额（shipfast $199 / outrank 月入 30 万…），导致公众号
+        封面与新口径分叉。现在统一走 cover_desc()，空介绍不渲染整行。
+        """
+        wp = sys.modules.get("wechat_publish") or wp
+        c = {"id": "outrank", "name": "Outrank",
+             "one_liner": "月入 30 万的自动化 SEO 引擎",
+             "cover_desc": "从 AI 博客生成器起步的自动化 SEO 引擎"}
+        html = wp.cover_html(c, 7)
+        # 手写的 cover_desc 生效，one_liner 里的金额不出现
+        self.assertIn("自动化 SEO 引擎", html)
+        self.assertNotIn("30万", html.replace(" ", ""))
+        # 有介绍时该行必须存在
+        self.assertIn('id="t-line"', html)
+
+        # 无任何介绍 → 整行不渲染，且 name 仍然渲染
+        blank = {"id": "novdesc", "name": "Solo",
+                 "metrics": {"headline": "$9 MRR"}}
+        html2 = wp.cover_html(blank, 8)
+        self.assertNotIn('id="t-line"', html2)
+        self.assertNotIn("$9", html2)
+        self.assertIn("Solo", html2)
+
+    # 封面金额正则：与 out/cover_audit.py 同一份判据。
+    # ⚠ 必须自带「正例必抓 / 反例不误报」自测 —— 第一版正则实测4 条误报
+    #   （B2B 被当成「B2 金额」、「盯 5 万个企业招聘页」被当成金额），
+    #   而当时**没有任何测试**能发现，因为断言只查了 1lookup 一条。
+    _MONEY = re.compile(
+        r"(?:"
+        r"\$" + r"\d[\d,.]*"
+        + r"|" + r"\d[\d,.]*" + r"\s*(?:美元|美金|元|人民币|刀|usd|rmb|cny)"
+        + r"|(?:" + r"\d[\d,.]*" + r"\s*(?:万|千)\s*(?:美元|美金|元|人民币))"
+        + r"|(?:" + r"\d[\d,.]*" + r"\s*(?:万|千)"
+                        r"(?=\s*(?:MRR|收入|营收|流水|用户|月)))"
+        + r"|(?:" + r"\d[\d,.]*" + r"\s*(?:K|M|B)\s*(?:MRR|ARR)?"
+                        r"(?=\s*(?:收入|营收|流水|/月|月)))"
+        + r"|(?:月入|年收入|营收|月收入|收入|流水|MRR|ARR)"
+                        r"\s*(?:达|到|从|为|[:：])?\s*\$?" + r"\d[\d,.]*"
+        + r")",
+        re.I)
+
+    def test_cover_money_regex_has_no_false_positive(self):
+        """封面金额判据：真金额必抓，业务数字不误报。"""
+        must_hit = ["$199", "$8.6K", "月入 30 万", "MRR 1.7 万",
+                    "20 万美元", "ARR $2M", "5万美元", "收入 4.5万"]
+        must_miss = ["B2B 顾问", "盯 5 万个企业招聘页", "12 周内容策略",
+                     "第 42 篇", "30 分钟", "三步走", "SLA 99.9%"]
+        for s in must_hit:
+            self.assertTrue(self._MONEY.search(s), "应命中金额：%s" % s)
+        for s in must_miss:
+            m = self._MONEY.search(s)
+            self.assertIsNone(m, "误报金额：%s -> %r" % (s, m and m.group(0)))
+
+    def test_metric_clause_dropped_whole_not_half(self):
+        """指标子句是**整句**丢弃，不是剔金额 token（2026-10-18 重做）。
+
+        旧做法 `_MONEY_TOKEN.sub` 只剔金额本身，把单位和区间留在原地，
+        实测撕出 19 条废句：`…并定时发布：–199/月，万、2.7 万用户。`
+        ⇒ 现在按子句判断：只承载金额/规模/比率的整句不要。
+        """
+        c = {"id": "x", "name": "X",
+             "one_liner": "输入文字自动生成「无脸视频」并定时发布："
+                          "$39–199/月，MRR $1.8 万、2.7 万用户。"}
+        self.assertEqual(wp.cover_desc(c),
+                         "输入文字自动生成「无脸视频」并定时发布")
+
+    def test_desc_never_keeps_money_residue(self):
+        """残渣判据：`，万、`、`/月`、`从起` 这类半截话一律不许出现。"""
+        raws = [
+            "把广告账户接给 AI 托管投放：$485–2000 一年，一个人做到 MRR $5.5 万、毛利 82%。",
+            "把内容生成打包成 API 的开发者服务，MRR $1.7 万、145 个订阅。",
+            "「免费版 Chess.com」拿下 100 万+ 用户，MRR $7,306、576 个订阅。",
+            "MRR $880，提供从19€/月起的Ghost CMS托管服务",
+            "AI 生成宠物与主人个性化肖像，挂牌要价 7.5 万美元",
+        ]
+        for raw in raws:
+            d = wp._desc_from_text(raw)
+            for bad in ("万、", "，万", "/月，", "从起", "$", "€", "MRR"):
+                self.assertNotIn(bad, d, "「%s」→「%s」残留 %s" % (raw, d, bad))
+
+    def test_all_metric_oneliner_falls_back_to_what_it_does(self):
+        """one_liner 全是指标时继续往下试，不拿空串/残句交差。"""
+        c = {"id": "x", "name": "X",
+             "one_liner": "MRR $1.9 万、576 个订阅。",
+             "what_it_does": "做免费国际象棋对战平台，另有第二句。"}
+        # what_it_does 按句号切首句，逗号不切
+        self.assertEqual(wp.cover_desc(c), "做免费国际象棋对战平台，另有第二句")
+
+    def test_desc_strips_leading_project_name(self):
+        """封面第一行已是大字号项目名，第二行不许再念一遍（实测 38 条）。"""
+        c = {"id": "x", "name": "Demopolish",
+             "what_it_does": "Demopolish帮助软件和SaaS创始人60秒内做演示视频。"}
+        self.assertEqual(wp.cover_desc(c), "帮助软件和SaaS创始人60秒内做演示视频")
+
+    def test_every_case_cover_has_no_residue(self):
+        """255 条真实数据逐条过残渣判据（与金额判据并列，缺一不可）。"""
+        residue = re.compile(
+            r"(?:^[，,]|[，,]\s*(?:万|千|[KkMmBb])\s*(?:[，,。]|$)"
+            r"|[/／](?:月|年)\s*(?:[，,。]|$)|从起的)")
+        bad = []
+        for c in tp.load_cases():
+            d = wp.cover_desc(c)
+            if residue.search(d):
+                bad.append("%s→%r" % (c["id"], d[:40]))
+        self.assertEqual(bad, [], "封面文案有残渣：%s" % bad[:5])
+
+    def test_every_case_cover_has_no_money(self):
+        """39 条真实数据逐条过一遍金额判据（不是抽 1~2 条）。"""
+        import json
+        p = os.path.join(ROOT, "data", "cases.json")
+        if not os.path.exists(p):
+            self.skipTest("cases.json 不在")
+        data = json.load(open(p, encoding="utf-8"))
+        cases = data["cases"] if isinstance(data, dict) else data
+        bad = []
+        for c in cases:
+            html = tp.tt_cover_html(c)
+            vis = re.sub(r"<style.*?</style>", " ", html, flags=re.S | re.I)
+            vis = re.sub(r"<[^>]+>", " ", vis)
+            m = self._MONEY.search(vis)
+            if m:
+                bad.append("%s→%r" % (c["id"], m.group(0)))
+        self.assertEqual(bad, [], "封面出现金额：%s" % bad)
+
+
+class TestLoadAllDrafts(unittest.TestCase):
+    """`_load_all_drafts` 必须等到「卡片数 ≥ 页头声明总数」才算完。
+
+    ⚠⚠ 2026-10-09 实测的假阴性（草稿箱真实 29 条，却只读到 20 条）：
+      头条「加载更多」按钮在**请求发出瞬间**就被隐藏，比响应早 2–4 秒：
+        t+0s  点击 → `clicked:SPAN`，卡片 20，按钮 none
+        t+2s  卡片**仍是 20**（接口还没回来）
+        t+4s  卡片 **29** ← 数据这才到
+      旧实现「`state == "none"` 就 break」⇒ 在数据到达前就退出。
+      后果链条：`tt_audit_drafts` 只读 20 条 → `tt_body_fill._match_remote_titles`
+      只匹配到 20/41 → `--all` **静默漏刷 9 条**（含 trustmrr / viktor / coral）。
+
+    用假 CDP 复现这个时序：按钮立刻消失，但卡片数要过几轮才涨。
+    """
+
+    class _FakeCDP(object):
+        """按脚本顺序应答。`steps` = [(返回或None 表示抛异常), ...]。"""
+
+        def __init__(self, script):
+            self.script = script
+            self.i = 0
+
+        def eval(self, js):
+            v = self.script[self.i] if self.i < len(self.script) else None
+            self.i += 1
+            return v
+
+    def test_按钮先消失卡片后到_仍要等到总数(self):
+        # 一个总数探针 + 一段「点完就 none、卡片停在 20」的序列，
+        # 最后卡片才涨到 29。旧实现在这里就 break 了。
+        script = [
+            "29",                     # _draft_total
+            "20",                     # _count → 没到29，继续
+            "clicked:SPAN",           # 点得到 → sleep
+            "29",                     # _draft_total
+            "20",                     # _count
+            "none",                   # 按钮消失，但卡片还20 → settle=1
+            "29",                     # _draft_total
+            "20",                     # _count
+            "none",                   # settle=2
+            "29",                     # _draft_total
+            "29",                     # _count → 到总数，返回 29
+        ]
+        cdp = self._FakeCDP(script)
+        n = tp._load_all_drafts(cdp, pause=0)
+        self.assertEqual(n, 29, "按钮消失后必须继续等到卡片到齐")
+
+    def test_卡片已等于总数_立即返回不点(self):
+        """已经在总数上就别去点按钮（多点可能触发无意义请求）。"""
+        script = ["29", "29"]
+        cdp = self._FakeCDP(script)
+        self.assertEqual(tp._load_all_drafts(cdp, pause=0), 29)
+
+    def test_总数读不到_仍返回已渲染的条数(self):
+        """页头总数缺失（total=0）时不能死循环，更不能把已加载的条数丢掉。
+
+        ⚠ 曾经的 bug：`if total and n >= total` 在 total=0 时恒假，
+        循环只靠 settle 收敛，退出后 `return _count()` 拿到的是 0 ——
+        等于「读不到总数」就等于「草稿箱是空的」。实测首屏明明有 20 条。
+        """
+        # 序列按真实调用顺序：每轮 = _total → _count → 点按钮
+        script = ["0", "20", "none",    # 轮1
+                  "0", "20", "none",    # 轮2
+                  "0", "20", "none",    # 轮3
+                  "0", "20", "none",    # 轮4
+                  "0", "20", "none",    # 轮5 → settle 满 5，退出
+                  "20"]                 # 最后的 return _count()
+        cdp = self._FakeCDP(script)
+        n = tp._load_all_drafts(cdp, pause=0)
+        self.assertEqual(n, 20, "总数读不到时必须返回已渲染条数，不能返回 0")
+
+    def test_停止判据是卡片数而非按钮(self):
+        """钉死判据：源码里不能拿按钮状态当唯一退出条件。"""
+        import inspect
+        src = inspect.getsource(tp._load_all_drafts)
+        self.assertIn("_draft_total", src, "必须读页头声明总数做判据")
+        self.assertIn("n >= total", src, "必须比较卡片数与总数")
+        # 按钮消失只能累加 settle，不能直接 return/break
+        body = "\n".join(ln for ln in src.splitlines()
+                         if not ln.strip().startswith("#"))
+        self.assertNotIn('if state == "none":\n            break', body,
+                         "不能「按钮没了就break」——实测会停在 20 条")
+
+
+class TestPgcIdDedup(unittest.TestCase):
+    """编辑页 tab 必须按 **`pgc_id`** 认，不能按 tab id。
+
+    ⚠⚠ 2026-10-09 实测：头条会**复用同一个 tab** 导航到下一条草稿
+      （tab id 不变、`pgc_id` 变）；而我们灌完关页后，头条又可能开一个
+      **新 tab 指回同一个 `pgc_id`** ⇒ 只按 tab id 去重会把同一条反复灌，
+      实测 `meerkats-ai` 被**重复灌 3 次**。
+    """
+
+    def test_pgc_id_extracted_from_url(self):
+        t = {"url": "https://mp.toutiao.com/profile_v4/graphic/publish"
+                     "?pgc_id=7693136073802744354"}
+        self.assertEqual(tp._pgc_id_of(t), "7693136073802744354")
+        self.assertEqual(tp._pgc_id_of({"url": "…/manage/draft"}), "")
+
+    def test_same_tab_id_different_pgc_are_different_drafts(self):
+        a = {"id": "T1", "url": "/graphic/publish?pgc_id=111"}
+        b = {"id": "T1", "url": "/graphic/publish?pgc_id=222"}
+        # 同一个 tab id，但 pgc_id 不同 ⇒ 必须是两条不同的草稿
+        self.assertNotEqual(tp._pgc_id_of(a), tp._pgc_id_of(b))
+
+    def test_handoff_dedups_by_pgc_not_tab_id(self):
+        import tt_manual_handoff as mh
+        src = inspect.getsource(mh.main)
+        self.assertIn("done_pgc", src,
+                      "监听器必须按 pgc_id 记已处理，不能只按 tab id")
+        # 不允许「seen.add(tgt["id"])」这种只按 tab id 的写法
+        self.assertNotIn('seen.add(tgt["id"])', src,
+                         "不能只按 tab id 去重——头条会复用 tab")
+
+
+class TestTitleReadFix(unittest.TestCase):
+    """编辑页读标题必须用 `tp.SEL["title"]`，不能用 `bf.SEL`（正文区）。
+
+    ⚠ 2026-10-09 实测：用 `bf.SEL` 读出来的是**整篇正文**，
+      `find_case_fuzzy` 必然匹配不上 ⇒ 监听器认不出案例，只能干瞪眼。
+    """
+
+    def test_handoff_reads_title_with_title_selector(self):
+        import tt_manual_handoff as mh
+        src = inspect.getsource(mh.main)
+        self.assertIn("tp.SEL[", src,
+                      "读标题必须用 tp.SEL['title']")
+        # 读标题那几行里绝不能出现 bf.SEL（那是正文区）
+        read_block = "\n".join(
+            ln for ln in src.splitlines()
+            if "e.value" in ln or "SEL["
+            in ln or "bf.SEL" in ln)
+        self.assertNotIn("bf.SEL)", read_block,
+                         "读标题不能拿 bf.SEL（正文区）——会读出整篇正文")
+
+    def test_title_selector_targets_title_field(self):
+        sel = tp.SEL["title"]
+        self.assertIn("标题", sel)
+        # body 选择器绝不能包含 title 的判据（否则又读回正文）
+        self.assertNotIn("标题", tp.SEL["body"])
+
+    def test_find_case_fuzzy_exit_is_contained(self):
+        """`find_case_fuzzy` 匹配不上会 sys.exit ⇒ 必须被包住。"""
+        import tt_manual_handoff as mh
+        src = inspect.getsource(mh._match_case)
+        self.assertIn("SystemExit", src,
+                      "必须捕获 find_case_fuzzy 的 SystemExit，否则打死监听器")
+
+    def test_drift_whitelist_covers_known_remotes(self):
+        import tt_manual_handoff as mh
+        self.assertEqual(mh._match_case("MORT：AI 产品", {}), "mort")
+        self.assertEqual(mh._match_case("Quran Unlock：移动 app", {}),
+                         "quran-unlock")
+
+
+def _fn_code(fn):
+    """返回函数的**可执行代码**（AST 反序列化，自动丢掉注释与 docstring）。
+
+    ⚠ 为什么必须用 AST 而不是 grep：加固后的代码里，docstring 和注释都会
+    正面提到「旧版无条件 `return True`」「绝不 insertHTML」这些历史说明。
+    朴素字符串匹配会把说明文字当成残留代码 ⇒ 假失败；也可能漏掉真正的
+    残留调用。AST 只看结构，注释和字符串字面量都不参与。
+    """
+    tree = ast.parse(inspect.getsource(fn))
+    fndef = next(n for n in tree.body
+                if isinstance(n, ast.FunctionDef) and n.name == fn.__name__)
+    # 摘掉 docstring 节点，避免文字干扰
+    if (fndef.body and isinstance(fndef.body[0], ast.Expr)
+            and isinstance(fndef.body[0].value, ast.Constant)
+            and isinstance(fndef.body[0].value.value, str)):
+        fndef.body = fndef.body[1:]
+    return ast.unparse(fndef)
+
+
+def _returns_literal_true(fn):
+    """函数里是否存在 `return True` / `return False` 这类**字面量**返回。"""
+    for node in ast.walk(ast.parse(inspect.getsource(fn))):
+        if isinstance(node, ast.Return) and isinstance(node.value,
+                                                      ast.Constant) \
+                and isinstance(node.value.value, bool):
+            return True
+    return False
+
+
+class TestTableVerifyHardened(unittest.TestCase):
+    """🚨 `tt_table_verify.py` 加固回归（2026-10-09 事故钉死）。
+
+    事故链：旧版 `clear_body()` 无条件 `return True`（从不回读验证）
+    → 清空失败仍继续 `insertHTML` → 新正文**追加**在旧正文后
+    → `kibu` 远端 6表/66格（本地只有 3表/34格）
+    → 且默认写 `zz表格验收-可删` 标题，草稿箱多出 2 条垃圾稿。
+    """
+
+    def test_clear_body_delegates_to_verified_impl(self):
+        """clear_body 必须委托给带回读校验的实现，不能自己拍 True。"""
+        import tt_table_verify as V
+        self.assertFalse(
+            _returns_literal_true(V.clear_body),
+            "clear_body 绝不能返回字面量 True —— 那正是表格数翻倍的根因")
+        code = _fn_code(V.clear_body)
+        self.assertIn("bf.clear_body(cdp)", code,
+                      "应复用 tt_body_fill.clear_body（占位符判空 + 回读）")
+
+    def test_abort_when_clear_not_true(self):
+        """清空结果非 True ⇒ 必须中止，绝不 insertHTML。"""
+        import tt_table_verify as V
+        tree = ast.parse(inspect.getsource(V.verify_one))
+        body = tree.body[0].body
+
+        # 🚨 结构判据（按 AST 节点位置，不靠字符串/行号）：
+        #    中止判据 `cleared is not True` 必须早于真正发insertHTML 的那次调用
+        guard = next((n.lineno for n in body
+                      if isinstance(n, ast.If)
+                      and "cleared is not True" in ast.unparse(n.test)), None)
+        self.assertIsNotNone(guard, "必须校验清空结果后才允许插入")
+
+        # 中止分支内部必须真的return
+        abort = next(n for n in body
+                     if isinstance(n, ast.If) and n.lineno == guard)
+        self.assertTrue(any(isinstance(x, ast.Return) for x in abort.body),
+                        "中止分支必须 return，不能只是打个标记继续往下走")
+
+        # insertHTML 那次 cdp.send 的位置
+        def _send_lineno(n):
+            for x in ast.walk(n):
+                if isinstance(x, ast.Call) \
+                        and ast.unparse(x.func).endswith("cdp.send") \
+                        and "insertHTML" in ast.unparse(x):
+                    return x.lineno
+            return None
+
+        ins = next((l for l in (_send_lineno(n) for n in body)
+                    if l is not None), None)
+        self.assertIsNotNone(ins, "应能找到发insertHTML 的 cdp.send 调用")
+        self.assertLess(guard, ins,
+                        "中止判据必须出现在 insertHTML 之前，"
+                        "否则等于没拦")
+
+    def test_no_test_title_written(self):
+        """默认不再写 zz 测试标题（那会在草稿箱留下垃圾稿）。"""
+        import tt_table_verify as V
+        code = _fn_code(V.verify_one)
+        self.assertNotIn("_focus_and_type", code,
+                         "验收脚本不该再改标题 ⇒ 不会再产生 zz 垃圾稿")
+        self.assertNotIn("zz表格验收", code,
+                         "verify_one 可执行代码里不该出现 zz 测试标题")
+
+    def test_placeholder_aware_emptiness(self):
+        """判空必须用占位符识别：清空后 innerText 长度是 7 不是 0。
+
+        ⚠ 判据落在注入的 **JS 常量** 上，不是 Python 函数体 ——
+          冒烟测试若只 grep 函数源码会漏掉真实实现。
+        """
+        import tt_body_fill as bf
+        js = bf._IS_EMPTY
+        self.assertIn("placeholder", js.lower(),
+                      "判空 JS 必须识别 .syl-placeholder"
+                      "（否则长度 7 被当成有内容）")
+        self.assertIn("syl-placeholder", js,
+                      "必须命中头条真实的占位符类名")
+        # 反向：绝不能用 `length <= N` 这种会被占位符破掉的判据
+        self.assertNotRegex(js, r"\.length\s*<=\s*\d",
+                            "不能用 innerText 长度阈值判空（占位符让它恒为 7）")
+
+    def test_idempotent_short_circuit(self):
+        """远端已是目标内容时短路，不要清空重灌（少一次写远端）。"""
+        import tt_table_verify as V
+        src = inspect.getsource(V.verify_one)
+        self.assertIn("return True", src.split("insertHTML")[0],
+                      "insertHTML 之前应有幂等短路分支")
+
+    def test_reports_abort_reason(self):
+        """中止时必须打印原因，不能静默算作普通不通过。"""
+        import tt_table_verify as V
+        src = inspect.getsource(V.main)
+        self.assertIn("已中止", src, "中止分支要有明确输出")
+
+
+class TestMarkLedger(unittest.TestCase):
+    """`_mark()` 台账写入回归（2026-10-14 假绿/毁历史事故）。
+
+    ⚠ 旧实现用 `_ids()` 只取 id、丢 `at`，追加一条就把整本台账的
+      发布时间洗成当前时间 —— 实测追 1 条 macwall，9 条 9-28 老记录
+      全变当天。这几条测试钉死：旧条目时间戳不许动、幂等、行尾不变。
+    ⚠ 绝不能用 `data/*.json` 当靶子（曾覆盖 41 条台账）—— 全部走 tmp。
+    """
+
+    def _tmp(self, name, text):
+        import tempfile
+        p = os.path.join(tempfile.mkdtemp(prefix="tt_mark_"), name)
+        with open(p, "w", encoding="utf-8", newline="") as f:
+            f.write(text)
+        return p
+
+    def test_existing_timestamps_preserved(self):
+        p = self._tmp("pub.json",
+                      '[{"id": "a", "at": "2026-09-28 20:40"},\n'
+                      ' {"id": "b", "at": "2026-09-28 20:40"}]')
+        tp._mark(p, "macwall")
+        d = json.load(open(p, encoding="utf-8"))
+        self.assertEqual([x["id"] for x in d], ["a", "b", "macwall"])
+        self.assertEqual(d[0]["at"], "2026-09-28 20:40",
+                         "旧条目 at 被重写 = 台账历史被毁")
+        self.assertEqual(d[1]["at"], "2026-09-28 20:40")
+        self.assertTrue(d[2]["at"].startswith("20"), "新条目要打时间戳")
+
+    def test_idempotent_no_rewrite(self):
+        raw = '[{"id": "a", "at": "2026-09-28 20:40"}]'
+        p = self._tmp("pub.json", raw)
+        before = open(p, "rb").read()
+        tp._mark(p, "a")                      # 已存在 → 应原样返回
+        self.assertEqual(open(p, "rb").read(), before,
+                         "幂等：已存在的 id 不该重写文件")
+
+    def test_crlf_preserved(self):
+        p = self._tmp("drafts.json",
+                      '[\r\n  {"id": "a", "at": "2026-09-28 20:40"}\r\n]')
+        tp._mark(p, "b")
+        raw = open(p, "rb").read()
+        self.assertIn(b"\r\n", raw, "CRLF 文件必须保持 CRLF")
+        self.assertNotIn(b"\n", raw.replace(b"\r\n", b""),
+                         "不允许混入裸 LF")
+
+    def test_lf_preserved(self):
+        p = self._tmp("pub.json",
+                      '[\n  {"id": "a", "at": "2026-09-28 20:40"}\n]')
+        tp._mark(p, "b")
+        raw = open(p, "rb").read()
+        self.assertNotIn(b"\r\n", raw, "LF 文件必须保持 LF")
+
+    def test_legacy_plain_id_list(self):
+        """老格式（纯 id 列表）也要能追加，且补上时间戳。"""
+        p = self._tmp("pub.json", '["a", "b"]')
+        tp._mark(p, "c")
+        d = json.load(open(p, encoding="utf-8"))
+        self.assertEqual([x["id"] for x in d], ["a", "b", "c"])
+        for x in d:
+            self.assertTrue(x.get("at"), "纯 id 老条目要补 at")
+
+    def test_note_survives_mark(self):
+        """`note` 必须活过下一次写入（2026-10-19 实测：vid-ai 的
+        「双侧都无」被一次 mark_drafted 洗成空白，下次对账又当新发现）。"""
+        p = self._tmp("pub.json",
+                      '[{"id": "a", "at": "2026-09-28 20:40",'
+                      ' "note": "旧口径『月收$1.6K』= 这篇"}]')
+        tp._mark(p, "newcase")
+        d = json.load(open(p, encoding="utf-8"))
+        self.assertEqual(d[0]["note"], "旧口径『月收$1.6K』= 这篇")
+        self.assertEqual(d[0]["at"], "2026-09-28 20:40")
+
+    def test_extra_keys_kept_and_id_at_first(self):
+        p = self._tmp("pub.json",
+                      '[{"gid": "123", "id": "a", "note": "n",'
+                      ' "at": "2026-09-28 20:40"}]')
+        tp._mark(p, "b")
+        d = json.load(open(p, encoding="utf-8"))
+        self.assertEqual(list(d[0].keys())[:2], ["id", "at"],
+                         "id/at 要排在最前，diff 才稳定")
+        self.assertEqual(d[0]["gid"], "123")
+        self.assertEqual(d[0]["note"], "n")
+
+
+class TestFindCaseForTitle(unittest.TestCase):
+    """find_case_for_title 回归锁（2026-10-17，refresh 子命令用）。
+
+    锁的核心：**只按冒号切，不按空格切**——「Pet Plus Us：…」按空格
+    切会碎成 "pet" 匹配不上（实测害得 6 条无主稿人工认领）。
+    """
+
+    def test_产品名全称匹配(self):
+        c = tp.find_case_for_title("Pet Plus Us：AI 生成宠物与主人个性化肖像，挂牌")
+        self.assertIsNotNone(c)
+        self.assertEqual(c["id"], "pet-plus-us")
+
+    def test_带空格的产品名不被切碎(self):
+        # head 必须保持 "stealth rdp" 整串
+        c = tp.find_case_for_title("Stealth RDP：提供跨美欧的Windows/Linu")
+        self.assertIsNotNone(c)
+        self.assertEqual(c["id"], "stealth-rdp")
+
+    def test_匹配不上返None(self):
+        self.assertIsNone(tp.find_case_for_title("一个完全陌生的标题文字"))
+
+    def test_空标题返None(self):
+        self.assertIsNone(tp.find_case_for_title(""))
+        self.assertIsNone(tp.find_case_for_title(None))
+
+
+class TestRefreshWiring(unittest.TestCase):
+    """refresh 子命令/ rebuild 参数的结构锁（2026-10-17）。"""
+
+    def test_publish_api_one_有rebuild参数且默认False(self):
+        sig = inspect.signature(tp.publish_api_one)
+        self.assertIn("rebuild", sig.parameters)
+        self.assertFalse(sig.parameters["rebuild"].default)
+
+    def test_refresh_子命令已注册(self):
+        src = open(os.path.join(HERE, "toutiao_publish.py"),
+                   encoding="utf-8").read()
+        self.assertIn('sub.add_parser("refresh"', src)
+        self.assertIn("def cmd_refresh(", src)
+        self.assertIn("def _refresh_plan(", src)
+
+    def test_refresh计划排除已发表残留(self):
+        # _refresh_plan 是浏览器侧函数，锁它的判据语句在（已发表包含⇒跳过）
+        src = open(os.path.join(HERE, "toutiao_publish.py"),
+                   encoding="utf-8").read()
+        self.assertIn("fetch_published_articles", src)
+        self.assertIn("nt in p or p in nt", src)
+
+
+class TestSendPublish(unittest.TestCase):
+    """「群发」= save=1 + entrance=main（2026-10-18 实测，同一个 article/publish）。
+
+    锁的是前端 `publish.b8c90341ac.js` 的映射：
+        o = { PUBLISH: 1, DRAFT: 0, PREVIEW: 0 }
+        save: o[r], entrance: (r === PUBLISH ? "main" : "")
+    一旦有人把这两个字段改回去，群发会静默退回「存草稿」——API 照样返
+    「保存成功」，不看这条测试很难发现。
+    """
+
+    def _body(self, send):
+        raw = tp._publish_draft_body("测试标题", "<p>x</p>", send=send)
+        from urllib.parse import parse_qsl
+        return dict(parse_qsl(raw, keep_blank_values=True))
+
+    def test_send_uses_save_1(self):
+        self.assertEqual(self._body(True)["save"], "1")
+
+    def test_draft_uses_save_0(self):
+        self.assertEqual(self._body(False)["save"], "0")
+
+    def test_send_sets_entrance_main(self):
+        self.assertEqual(self._body(True)["entrance"], "main")
+
+    def test_draft_entrance_empty(self):
+        self.assertEqual(self._body(False)["entrance"], "")
+
+    def test_other_fields_identical(self):
+        # 发表与存草稿只差这两个字段，其余必须逐字段一致
+        a, b = self._body(True), self._body(False)
+        diff = {k for k in a if a.get(k) != b.get(k)}
+        # title_id 每次按时间戳生成，必然不同，不算差异
+        self.assertEqual(diff, {"save", "entrance", "title_id"})
+
+    def test_save_draft_api_forwards_send(self):
+        sig = inspect.signature(tp.save_draft_api)
+        self.assertIn("send", sig.parameters)
+        self.assertFalse(sig.parameters["send"].default)
+
+    def test_publish_api_one_forwards_send(self):
+        sig = inspect.signature(tp.publish_api_one)
+        self.assertIn("send", sig.parameters)
+        self.assertFalse(sig.parameters["send"].default)
+
+    def test_cli_has_send_flag(self):
+        src = open(os.path.join(HERE, "toutiao_publish.py"), encoding="utf-8").read()
+        self.assertIn('p.add_argument("--send"', src)
+
+
+class TestDeleteArticle(unittest.TestCase):
+    """删已发布文章（2026-10-18 打通）的三条形态铁律。
+
+    都踩过，且**失败时服务端都返 `{"code":0,"success"}`**：
+      ① 字段只在 query，body 必须 `{}`（前端先 delete 再 stringify）
+      ② type=2 才是图文文章；type=0 → 1002，type=1 → 假成功
+      ③ 删完必须回读已发表列表核对 gid 是否真消失
+    """
+
+    def test_url_puts_fields_in_query(self):
+        u = tp._delete_article_api_url("739", "3986", type_=2)
+        self.assertTrue(u.startswith("/mp/agw/creator_center/delete?"))
+        for kv in ("type=2", "gid=739", "slave_id=0", "mp_id=3986",
+                   "is_question=false", "question_id=0", "is_comment=false"):
+            self.assertIn(kv, u)
+
+    def test_default_type_is_2(self):
+        # type=0 回「无效题材类型」，type=1 假成功 —— 只有 2 真删
+        self.assertEqual(tp._delete_article_api_url("g", "u"), 
+                         tp._delete_article_api_url("g", "u", type_=2))
+
+    def test_body_is_empty_object(self):
+        src = inspect.getsource(tp.delete_article_api)
+        self.assertIn("body:'{}'", src)
+        # 反例锁：body 必须是**字面量**空对象，不能再把参数拼进去
+        # （拼了就会静默不删，且仍返 code:0）
+        self.assertNotIn("json.dumps({", src.split("body:'{}'")[1])
+
+    def test_verifies_by_rereading_published(self):
+        src = inspect.getsource(tp.delete_article_api)
+        self.assertIn("fetch_published_articles", src)
+        self.assertIn("STILL", src)
+
+    def test_unpublish_command_registered(self):
+        src = open(os.path.join(HERE, "toutiao_publish.py"), encoding="utf-8").read()
+        self.assertIn('sub.add_parser("unpublish"', src)
+        self.assertIn("def cmd_unpublish(", src)
+
+    def test_unpublish_refuses_ambiguous_match(self):
+        # 多条命中必须拒绝（改错一条线上文章代价太高）
+        src = inspect.getsource(tp.cmd_unpublish)
+        self.assertIn("len(hit) > 1", src)
+        self.assertIn("--gid", src)
+
+
+class TestCoverApi(unittest.TestCase):
+    """已有草稿换封面走 API（pgc_id 更新同一篇）。"""
+
+    def test_cover_one_api_exists(self):
+        self.assertTrue(callable(getattr(tp, "cover_one_api", None)))
+
+    def test_uses_pgc_id_update(self):
+        src = inspect.getsource(tp.cover_one_api)
+        self.assertIn("pgc_id=gid", src)
+        self.assertIn("verify_draft_cover", src)
+
+    def test_reads_local_article_html(self):
+        # 线上草稿正文读不到 ⇒ 必须以本地 article.html 为准（docstring 已写明）
+        src = inspect.getsource(tp.cover_one_api)
+        self.assertIn("article.html", src)
+
+    def test_cover_cli_has_api_flag(self):
+        src = open(os.path.join(HERE, "toutiao_publish.py"), encoding="utf-8").read()
+        self.assertIn('cv.add_argument("--api"', src)
+
+    def test_cover_one_api_checks_save_message(self):
+        """存稿被拒（如 headless 下的 7050）不能算成功（2026-10-18 修）。
+
+        旧实现 `_, msg = save_draft_api(...)` 把返回值丢了，接着靠 verify 的
+        「image_uri 非空」兜底 —— 旧封面的 uri 当然非空 ⇒ 打印「ok 换封面」，
+        线上纹丝不动。这条锁住「必须先看 msg」。
+        """
+        src = inspect.getsource(tp.cover_one_api)
+        self.assertIn("if str(msg).startswith(\"code=\")", src)
+        self.assertIn("存稿被拒", src)
+
+    def test_cover_one_api_passes_expect_uri(self):
+        src = inspect.getsource(tp.cover_one_api)
+        self.assertIn("expect_uri=curi", src)
+
+    def test_cover_one_api_checks_pgc_id_is_same_draft(self):
+        # 更新必须落到同一篇；落到别的稿上是灾难（会覆盖别的案例）
+        src = inspect.getsource(tp.cover_one_api)
+        self.assertIn("str(pid) != str(gid)", src)
+
+
+class TestVerifyCoverUri(unittest.TestCase):
+    """`verify_draft_cover` 的 uri 比对（2026-10-18 补，此前是假阳性源头）。"""
+
+    RAW = [{"title": "A", "cover_image": {"image_uri": "tos/i/NEW",
+                                          "width": 750, "height": 421}}]
+
+    def test_ok_when_uri_matches(self):
+        st, _ = tp.verify_draft_cover(None, "A", raw=self.RAW,
+                                      expect_uri="tos/i/NEW")
+        self.assertEqual(st, "OK")
+
+    def test_mismatch_when_uri_differs(self):
+        st, det = tp.verify_draft_cover(None, "A", raw=self.RAW,
+                                        expect_uri="tos/i/OLD")
+        self.assertEqual(st, "MISMATCH")
+        self.assertIn("tos/i/OLD", det)
+
+    def test_backward_compatible_without_expect(self):
+        # 不传 expect_uri 时保持旧行为（只判「有没有封面」）
+        st, _ = tp.verify_draft_cover(None, "A", raw=self.RAW)
+        self.assertEqual(st, "OK")
+
+    def test_no_cover_still_reported(self):
+        raw = [{"title": "A", "cover_image": {}}]
+        st, _ = tp.verify_draft_cover(None, "A", raw=raw, expect_uri="x")
+        self.assertEqual(st, "NO_COVER")
+
+
+class _FakeCDP(object):
+    """只实现 eval 的假 CDP，用来跑 grab_anti_token 的 UA 闸门。"""
+
+    def __init__(self, ua):
+        self.ua = ua
+        self.calls = []
+
+    def eval(self, js):
+        self.calls.append(js)
+        if "userAgent" in js:
+            return self.ua
+        return ""
+
+
+class TestHeadlessGuard(unittest.TestCase):
+    """headless 的 token 是废的 ⇒ 必须在源头拦住（2026-10-18 实测）。
+
+    证据链：headless 实例里「页面自己的自动保存」就返 7050（增强 hook
+    记录到的响应体）。而 hook 在请求**发出前**记 header，所以照样能抓到
+    token。若不拦，抓到的废 token 会被一路当成成功。
+    """
+
+    def test_headless_ua_returns_none_immediately(self):
+        fake = _FakeCDP("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                        "AppleWebKit/537.36 HeadlessChrome/154.0.0.0 Safari/537.36")
+        self.assertIsNone(tp.grab_anti_token(fake, attempts=1, per_attempt=1))
+        # 只探了一次 UA，没去装 hook、没填标题
+        self.assertEqual(len(fake.calls), 1)
+        self.assertIn("userAgent", fake.calls[0])
+
+    def test_headful_proceeds_to_hook(self):
+        fake = _FakeCDP("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                        "AppleWebKit/537.36 Chrome/154.0.0.0 Safari/537.36")
+        tp.grab_anti_token(fake, attempts=1, per_attempt=0)
+        joined = " ".join(str(c) for c in fake.calls)
+        self.assertIn("__ttAntiHook", joined)
+
+    def test_guard_reads_ua_not_env_var(self):
+        # 不看 CHROME_HEADED：设了变量但 Chrome 仍是 headless 时会假成功
+        src = inspect.getsource(tp.grab_anti_token)
+        self.assertIn("HeadlessChrome", src)
+        self.assertIn("userAgent", src)
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)

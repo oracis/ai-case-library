@@ -1,0 +1,9 @@
+{
+  "name": "sync-data",
+  "version": "1.0.0",
+  "description": "HTTP 触发：接收本地同步脚本推送的案例数据，upsert 进 cases 集合",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~4.0.2"
+  }
+}

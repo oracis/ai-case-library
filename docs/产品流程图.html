@@ -1,0 +1,722 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>拆解海外 · 产品流程图（PRD v2.0 配套）</title>
+<style>
+  :root{
+    --bg:#f5f6f8; --card:#ffffff; --ink:#111827; --ink2:#4b5563; --ink3:#6b7280;
+    --line:#e2e8f0; --line2:#cbd5e1;
+    --blue:#2563eb; --blueBg:#eff6ff; --blueBd:#93c5fd;
+    --purple:#7c3aed; --purpleBg:#f5f3ff; --purpleBd:#c4b5fd;
+    --orange:#ea580c; --orangeBg:#fff7ed; --orangeBd:#fdba74;
+    --green:#15803d; --greenBg:#f0fdf4; --greenBd:#86efac;
+    --red:#dc2626; --redBg:#fef2f2; --redBd:#fca5a5;
+    --cyan:#0e7490; --cyanBg:#ecfeff; --cyanBd:#67e8f9;
+    --slate:#475569; --slateBg:#f8fafc; --slateBd:#cbd5e1;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+       line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto;padding:32px 24px 80px}
+  header.top{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:26px 28px;margin-bottom:22px}
+  h1{font-size:24px;margin:0 0 6px;letter-spacing:.2px}
+  .sub{color:var(--ink3);font-size:13.5px}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .chip{font-size:12px;padding:4px 10px;border-radius:999px;background:var(--slateBg);border:1px solid var(--line);color:var(--ink2)}
+  nav.toc{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 26px}
+  nav.toc a{font-size:13px;text-decoration:none;color:var(--ink2);background:var(--card);
+            border:1px solid var(--line);border-radius:8px;padding:6px 12px}
+  nav.toc a:hover{border-color:var(--blue);color:var(--blue)}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px 26px;margin-bottom:22px}
+  h2{font-size:18px;margin:0 0 4px}
+  .lead{color:var(--ink3);font-size:13.5px;margin:0 0 16px}
+  .svgbox{width:100%;overflow-x:auto}
+  svg{display:block;width:100%;height:auto}
+  .note{margin-top:14px;padding:12px 14px;border-radius:10px;background:var(--slateBg);
+        border:1px solid var(--line);font-size:13px;color:var(--ink2)}
+  .note b{color:var(--ink)}
+  /* legend */
+  .legend{display:flex;flex-wrap:wrap;gap:14px;margin:0 0 6px;font-size:12.5px;color:var(--ink2)}
+  .legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+  /* svg node styles */
+  .b{stroke-width:1.4}
+  .blue{fill:var(--blueBg);stroke:var(--blueBd)} .blueT{fill:#1e40af}
+  .purple{fill:var(--purpleBg);stroke:var(--purpleBd)} .purpleT{fill:#5b21b6}
+  .orange{fill:var(--orangeBg);stroke:var(--orangeBd)} .orangeT{fill:#9a3412}
+  .green{fill:var(--greenBg);stroke:var(--greenBd)} .greenT{fill:#166534}
+  .red{fill:var(--redBg);stroke:var(--redBd)} .redT{fill:#991b1b}
+  .cyan{fill:var(--cyanBg);stroke:var(--cyanBd)} .cyanT{fill:#155e75}
+  .slate{fill:var(--slateBg);stroke:var(--slateBd)} .slateT{fill:#334155}
+  .t{font-size:13px;font-weight:600;text-anchor:middle;fill:var(--ink)}
+  .s{font-size:10.5px;text-anchor:middle;fill:#6b7280}
+  .lbl{font-size:11.5px;fill:#64748b}
+  .arr{fill:none;stroke:#94a3b8;stroke-width:1.6}
+  .arrp{fill:none;stroke:#a78bfa;stroke-width:1.8;stroke-dasharray:5 4}
+  .arrg{fill:none;stroke:#4ade80;stroke-width:1.8}
+  .arrr{fill:none;stroke:#f87171;stroke-width:1.8}
+  .lane{fill:#fbfcfd;stroke:var(--line)}
+  .laneDash{fill:none;stroke:var(--line2);stroke-width:1;stroke-dasharray:4 4}
+  .lhead{font-size:12.5px;font-weight:700;fill:#334155;letter-spacing:.3px}
+  .badge{font-size:10.5px;font-weight:700;text-anchor:middle}
+  .cond{fill:#fffbeb;stroke:#fcd34d}
+  /* tables */
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:var(--slateBg);font-weight:600;color:var(--ink2);white-space:nowrap}
+  td code,th code,p code,li code{background:#f1f5f9;border:1px solid #e2e8f0;border-radius:4px;padding:1px 5px;font-size:12px}
+  footer{color:var(--ink3);font-size:12.5px;text-align:center;margin-top:30px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>拆解海外 · 产品流程图</h1>
+  <div class="sub">PRD v2.0 配套可视化 —— 从「机器采集」到「读者看到」的完整链路，以及每一步由谁负责。</div>
+  <div class="meta">
+    <span class="chip">日期 2026-09-25</span>
+    <span class="chip">cases 39 · 候选 19 · 队列 400</span>
+    <span class="chip">草稿 39 篇（第 1–39 篇）</span>
+    <span class="chip">线上 case.ydtgo.top（阿里云 OSS · cn-hongkong）</span>
+    <span class="chip">零第三方依赖</span>
+  </div>
+</header>
+
+<div class="legend">
+  <span><i style="background:#eff6ff;border:1px solid #93c5fd"></i>机器 / 采集</span>
+  <span><i style="background:#f5f3ff;border:1px solid #c4b5fd"></i>人工动作</span>
+  <span><i style="background:#fff7ed;border:1px solid #fdba74"></i>判定 / 闸门</span>
+  <span><i style="background:#f0fdf4;border:1px solid #86efac"></i>通过 / 产物</span>
+  <span><i style="background:#fef2f2;border:1px solid #fca5a5"></i>拒绝 / 风险</span>
+  <span><i style="background:#ecfeff;border:1px solid #67e8f9"></i>对外交付</span>
+  <span>虚线紫 = 人工介入</span>
+</div>
+
+<nav class="toc">
+  <a href="#f1">① 全景链路</a>
+  <a href="#f2">② 采集层</a>
+  <a href="#f3">③ 深核与入库闸门</a>
+  <a href="#f4">④ 发布流水线 release</a>
+  <a href="#f5">⑤ 公众号管线</a>
+  <a href="#f6">⑥ Git / CI 拓扑</a>
+  <a href="#f7">⑦ 阈值速查</a>
+</nav>
+
+<!-- ============ 图 1 ============ -->
+<section id="f1">
+  <h2>① 全景链路</h2>
+  <p class="lead">一条主干：<b>自动采集 → 人工挑选 → 人工核实 → 入库 → 成文 → 两路分发</b>。红线以上全是机器，红线以下全是人。</p>
+  <div class="svgbox">
+  <svg viewBox="0 0 1120 760" role="img" aria-label="全景链路图">
+    <defs>
+      <marker id="a" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#94a3b8"/></marker>
+      <marker id="ap" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#a78bfa"/></marker>
+      <marker id="ag" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#4ade80"/></marker>
+      <marker id="ar" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#f87171"/></marker>
+    </defs>
+
+    <!-- lanes -->
+    <rect class="lane" x="14" y="46" width="230" height="694" rx="10"/>
+    <text class="lhead" x="30" y="70">① 采集层 · 全自动</text>
+    <text class="lbl" x="30" y="86">每天 09:00 · GitHub Actions</text>
+
+    <rect class="lane" x="262" y="46" width="212" height="694" rx="10"/>
+    <text class="lhead" x="278" y="70">② 三级漏斗</text>
+    <text class="lbl" x="278" y="86">素材 → 候选，必须过点</text>
+
+    <rect class="lane" x="492" y="46" width="286" height="694" rx="10"/>
+    <text class="lhead" x="508" y="70">③ 核实与入库</text>
+    <text class="lbl" x="508" y="86">AI 打底，人拍板</text>
+
+    <rect class="lane" x="796" y="46" width="310" height="694" rx="10"/>
+    <text class="lhead" x="812" y="70">④ 成文与分发</text>
+    <text class="lbl" x="812" y="86">一份内容，两个出口</text>
+
+    <!-- ============ lane 1 sources ============ -->
+    <g transform="translate(30,100)"><rect class="b blue" width="198" height="42" rx="8"/><text class="t" x="99" y="18">TrustMRR（主力）</text><text class="s" x="99" y="34">/api/ai · discovery · 支付网关验证</text></g>
+    <g transform="translate(30,152)"><rect class="b blue" width="198" height="42" rx="8"/><text class="t" x="99" y="18">Hacker News</text><text class="s" x="99" y="34">Algolia search_by_date / search</text></g>
+    <g transform="translate(30,204)"><rect class="b blue" width="198" height="42" rx="8"/><text class="t" x="99" y="18">Indie Hackers</text><text class="s" x="99" y="34">列表页 + sitemap 分片轮换</text></g>
+    <g transform="translate(30,256)"><rect class="b blue" width="198" height="42" rx="8"/><text class="t" x="99" y="18">Product Hunt</text><text class="s" x="99" y="34">Atom feed 雷达（不申请 token）</text></g>
+    <g transform="translate(30,308)"><rect class="b blue" width="198" height="42" rx="8"/><text class="t" x="99" y="18">ARR Club</text><text class="s" x="99" y="34">sitemap + FAQPage JSON-LD</text></g>
+
+    <path class="arr" d="M129,350 L129,372" marker-end="url(#a)"/>
+    <g transform="translate(30,376)"><rect class="b slate" width="198" height="60" rx="8"/>
+      <text class="t" x="99" y="18">harvest.py 过滤器</text>
+      <text class="s" x="99" y="34">三层去重 · 16MB/150s 兜底</text>
+      <text class="s" x="99" y="48">金额&lt;$50 · MRR&lt;100 · 提问帖丢</text></g>
+
+    <path class="arr" d="M129,436 L129,462" marker-end="url(#a)"/>
+    <g transform="translate(30,466)"><rect class="b blue" width="198" height="56" rx="8"/>
+      <text class="t" x="99" y="19">inbox.json</text>
+      <text class="s" x="99" y="35">采集队列 400 条上限</text>
+      <text class="s" x="99" y="49">溢出 → inbox_archive（只进不出）</text></g>
+
+    <g transform="translate(30,540)"><rect class="b cyan" width="198" height="44" rx="8"/>
+      <text class="t" x="99" y="18">last_harvest.json</text><text class="s" x="99" y="33">本次采集简报（新增 / 来源分布）</text></g>
+    <path class="arr" d="M129,466 L129,536" marker-end="url(#a)"/>
+
+    <g transform="translate(30,600)"><rect class="b slate" width="198" height="52" rx="8"/>
+      <text class="t" x="99" y="18">arrclub.json</text>
+      <text class="s" x="99" y="33">校对参照表</text>
+      <text class="s" x="99" y="46">不进候选池</text></g>
+    <path class="arr" d="M228,329 L258,329 L258,610 L228,610" marker-end="url(#a)"/>
+    <text class="lbl" x="236" y="324">旁路</text>
+
+    <text class="lbl" x="30" y="700">机器只到这里为止 —— 下面每一步都是人。</text>
+
+    <!-- ============ lane 2 funnel ============ -->
+    <path class="arr" d="M228,494 L278,494" marker-end="url(#a)"/>
+    <g transform="translate(278,466)"><rect class="b blue" width="180" height="56" rx="8"/>
+      <text class="t" x="90" y="19">inbox.json（400）</text><text class="s" x="90" y="35">原始素材</text><text class="s" x="90" y="49">机器写 · 随时可弃</text></g>
+
+    <path class="arr" d="M368,466 L368,500" marker-end="url(#a)"/>
+    <g transform="translate(278,504)"><rect class="b slate" width="180" height="50" rx="8"/>
+      <text class="t" x="90" y="18">triage.py 零成本初筛</text>
+      <text class="s" x="90" y="33">纯函数 · 不联网 · 不写盘</text>
+      <text class="s" x="90" y="45">DEEP 56 / LATER 28</text></g>
+
+    <path class="arrp" d="M368,554 L368,590" marker-end="url(#ap)"/>
+    <g transform="translate(278,594)"><rect class="b purple" width="180" height="56" rx="8"/>
+      <text class="t" x="90" y="19">人工点「转入候选池」</text>
+      <text class="s" x="90" y="35">只有重复才 drop</text>
+      <text class="s" x="90" y="49">高分 ≠ 可深核</text></g>
+
+    <path class="arr" d="M368,650 L368,684" marker-end="url(#a)"/>
+    <g transform="translate(278,688)"><rect class="b blue" width="180" height="44" rx="8"/>
+      <text class="t" x="90" y="18">candidates.json（19）</text><text class="s" x="90" y="33">候选池 · 人工筛过</text></g>
+
+    <!-- enricher branch -->
+    <g transform="translate(278,116)"><rect class="b slate" width="180" height="72" rx="8"/>
+      <text class="t" x="90" y="18">候选增补（可随时补跑）</text>
+      <text class="s" x="90" y="34">backfill_website.py</text>
+      <text class="s" x="90" y="47">resolve_slug.py</text>
+      <text class="s" x="90" y="60">默认 dry-run · 幂等</text></g>
+    <path class="arrp" d="M278,152 L262,152 L262,480 L278,480" marker-end="url(#ap)"/>
+    <text class="lbl" x="196" y="146">缺官网/缺 slug 先补料</text>
+
+    <!-- ============ lane 3 verify ============ -->
+    <path class="arr" d="M458,710 L508,710" marker-end="url(#a)"/>
+    <g transform="translate(508,672)"><rect class="b blue" width="254" height="44" rx="8"/>
+      <text class="t" x="127" y="18">候选 → AI 深核 ai_verify</text><text class="s" x="127" y="33">最多 5 页素材 · LLM JSON 模式 · DeepSeek</text></g>
+
+    <path class="arr" d="M635,672 L635,626" marker-end="url(#a)"/>
+    <g transform="translate(508,582)"><rect class="b slate" width="254" height="44" rx="8"/>
+      <text class="t" x="127" y="18">verifications.json 草稿</text><text class="s" x="127" y="33">gates / musts / bonus / sources / corrections</text></g>
+
+    <path class="arrp" d="M635,582 L635,540" marker-end="url(#ap)"/>
+    <g transform="translate(508,500)"><rect class="b purple" width="254" height="40" rx="8"/>
+      <text class="t" x="127" y="17">人工裁定（后台 5053 工作台）</text><text class="s" x="127" y="32">六段表单 · 实时回显判定</text></g>
+
+    <path class="arr" d="M635,500 L635,466" marker-end="url(#a)"/>
+    <g transform="translate(508,418)"><rect class="b orange" width="254" height="48" rx="8"/>
+      <text class="t" x="127" y="18">verify_rules.evaluate —— 唯一闸门</text>
+      <text class="s" x="127" y="34">三门槛一道成立即放行 · source_kinds 不得为空</text></g>
+
+    <path class="arr" d="M762,442 L812,442" marker-end="url(#a)"/>
+    <path class="arrr" d="M600,466 L600,398" marker-end="url(#ar)"/>
+    <g transform="translate(508,352)"><rect class="b red" width="254" height="46" rx="8"/>
+      <text class="t" x="127" y="18">不过 → HTTP 409</text><text class="s" x="127" y="34">退回候选池 · data/ 一个字都没动</text></g>
+    <path class="arrr" d="M508,375 L470,375 L470,690 L458,690" marker-end="url(#ar)"/>
+
+    <g transform="translate(508,290)"><rect class="b orange" width="254" height="44" rx="8"/>
+      <text class="t" x="127" y="18">evidence_gap 自动降级</text><text class="s" x="127" y="33">声称等级高于证据 → 降档并留痕</text></g>
+    <path class="arr" d="M635,418 L635,334" marker-end="url(#a)"/>
+
+    <g transform="translate(508,222)"><rect class="b green" width="254" height="48" rx="8"/>
+      <text class="t" x="127" y="18">promote 写入 cases.json（39）</text>
+      <text class="s" x="127" y="34">cases.insert(0) · 候选出池 · 草稿用完即清</text></g>
+    <path class="arrg" d="M635,290 L635,270" marker-end="url(#ag)"/>
+
+    <g transform="translate(508,120)"><rect class="b green" width="254" height="60" rx="8"/>
+      <text class="t" x="127" y="18">定档 tier</text>
+      <text class="s" x="127" y="34">premium 精品 19 · standard 实核 14</text>
+      <text class="s" x="127" y="48">backup 备选 6 · 有一手来源即精品</text></g>
+    <path class="arr" d="M635,222 L635,180" marker-end="url(#a)"/>
+
+    <!-- ============ lane 4 deliver ============ -->
+    <path class="arr" d="M762,150 L812,150" marker-end="url(#a)"/>
+    <g transform="translate(812,132)"><rect class="b cyan" width="278" height="44" rx="8"/>
+      <text class="t" x="139" y="18">静态站：build_static --no-inbox</text><text class="s" x="139" y="33">public/ 190KB · data.json + data.js · 预渲染 40 页</text></g>
+
+    <path class="arr" d="M951,176 L951,206" marker-end="url(#a)"/>
+    <g transform="translate(812,210)"><rect class="b cyan" width="278" height="44" rx="8"/>
+      <text class="t" x="139" y="18">deploy_oss → 阿里云 OSS</text><text class="s" x="139" y="33">自签名 PUT · 对象级 public-read · 上线后匿名自检</text></g>
+
+    <path class="arr" d="M951,254 L951,286" marker-end="url(#a)"/>
+    <g transform="translate(812,290)"><rect class="b cyan" width="278" height="44" rx="8"/>
+      <text class="t" x="139" y="18">读者 · case.ydtgo.top</text><text class="s" x="139" y="33">7 视图 · 三档分块 · 木桶排行 · 健康度横幅</text></g>
+
+    <g transform="translate(812,364)"><rect class="b slate" width="278" height="44" rx="8"/>
+      <text class="t" x="139" y="18">dist/（含 inbox 400）</text><text class="s" x="139" y="33">本地预览版 · 605KB · 严禁上传</text></g>
+    <path class="arrr" d="M951,132 L951,360" marker-end="url(#ar)"/>
+    <text class="lbl" x="960" y="250">别发这份</text>
+
+    <path class="arr" d="M796,300 L796,424" marker-end="url(#a)"/>
+    <g transform="translate(812,424)"><rect class="b slate" width="278" height="44" rx="8"/>
+      <text class="t" x="139" y="18">make_article → out/articles</text><text class="s" x="139" y="33">九节骨架 · 占位文案清理 · 标题 8 项排序</text></g>
+
+    <path class="arr" d="M951,468 L951,498" marker-end="url(#a)"/>
+    <g transform="translate(812,502)"><rect class="b slate" width="278" height="44" rx="8"/>
+      <text class="t" x="139" y="18">wechat_publish build</text><text class="s" x="139" y="33">篇号取持久注册表 · 封面 HTML→截图 1080×460</text></g>
+
+    <path class="arr" d="M951,546 L951,576" marker-end="url(#a)"/>
+    <g transform="translate(812,580)"><rect class="b purple" width="278" height="44" rx="8"/>
+      <text class="t" x="139" y="18">Chrome CDP → 公众号草稿箱</text><text class="s" x="139" y="33">无 freepublish 权限，只能存草稿 · 逐篇落台账</text></g>
+
+    <path class="arrp" d="M951,624 L951,650" marker-end="url(#ap)"/>
+    <g transform="translate(812,654)"><rect class="b cyan" width="278" height="44" rx="8"/>
+      <text class="t" x="139" y="18">人工群发 → 公众号「万物解释者」</text><text class="s" x="139" y="33">每周 2–3 篇 · 最后一下永远是人点</text></g>
+  </svg>
+  </div>
+  <div class="note"><b>一句话记住这张图：</b>机器负责把世界搬进 <code>inbox</code>；人负责从 <code>inbox</code> 里挑出值得核的、核出可以引用的、写成可以读的。<b>两者之间那条线，就是产品的全部价值。</b></div>
+</section>
+
+<!-- ============ 图 2 ============ -->
+<section id="f2">
+  <h2>② 采集层细节</h2>
+  <p class="lead">六个源，五种通道形态。唯一的自动化段落，也是唯一允许失败而不影响产品的段落。</p>
+  <div class="svgbox">
+  <svg viewBox="0 0 1120 430" role="img" aria-label="采集层图">
+    <rect class="lane" x="14" y="40" width="330" height="360" rx="10"/>
+    <text class="lhead" x="30" y="64">源与通道</text>
+
+    <rect class="lane" x="362" y="40" width="360" height="360" rx="10"/>
+    <text class="lhead" x="378" y="64">harvest.py 的三道保障</text>
+
+    <rect class="lane" x="740" y="40" width="366" height="360" rx="10"/>
+    <text class="lhead" x="756" y="64">产出与落点</text>
+
+    <g transform="translate(30,80)"><rect class="b blue" width="298" height="46" rx="8"/>
+      <text class="t" x="149" y="18">TrustMRR</text>
+      <text class="s" x="149" y="34">/api/ai（主）+ /api/ai/discovery（补全未覆盖 slug）</text></g>
+    <g transform="translate(30,134)"><rect class="b blue" width="298" height="46" rx="8"/>
+      <text class="t" x="149" y="18">Hacker News</text>
+      <text class="s" x="149" y="34">Algolia：search_by_date / search + Show HN 关键词</text></g>
+    <g transform="translate(30,188)"><rect class="b blue" width="298" height="46" rx="8"/>
+      <text class="t" x="149" y="18">Indie Hackers</text>
+      <text class="s" x="149" y="34">列表页 + sitemap 分片（?page=2 字节相同 → 不能分页）</text></g>
+    <g transform="translate(30,242)"><rect class="b blue" width="298" height="46" rx="8"/>
+      <text class="t" x="149" y="18">Product Hunt</text>
+      <text class="s" x="149" y="34">GraphQL 需 token → 已决策不申请，维持 Atom feed</text></g>
+    <g transform="translate(30,296)"><rect class="b blue" width="298" height="46" rx="8"/>
+      <text class="t" x="149" y="18">ARR Club</text>
+      <text class="s" x="149" y="34">sitemap + FAQPage JSON-LD → 仅供校对</text></g>
+
+    <path class="arr" d="M328,180 L378,180" marker-end="url(#a)"/>
+
+    <g transform="translate(378,76)"><rect class="b slate" width="328" height="96" rx="8"/>
+      <text class="t" x="164" y="18">① 去重</text>
+      <text class="s" x="164" y="36">跨 inbox / candidates / cases 三层比对</text>
+      <text class="s" x="164" y="52">id slug + 归一化公司名双保险</text>
+      <text class="s" x="164" y="68">TrustMRR 两列表按 slug 再去重一次</text>
+      <text class="s" x="164" y="84">认不出来源 → source_kind 取 discovery（保守）</text></g>
+
+    <g transform="translate(378,184)"><rect class="b slate" width="328" height="80" rx="8"/>
+      <text class="t" x="164" y="18">② 稳定性</text>
+      <text class="s" x="164" y="36">http_json 重试 3 次 · 退避 1.5×(n+1) · 显式绕过系统代理</text>
+      <text class="s" x="164" y="52">IH 节流 1.5s / ARR 2.0s</text>
+      <text class="s" x="164" y="68">单页抓取：16 MB 与 150s 双重兜底</text></g>
+
+    <g transform="translate(378,276)"><rect class="b slate" width="328" height="98" rx="8"/>
+      <text class="t" x="164" y="18">③ 门槛与容量</text>
+      <text class="s" x="164" y="36">金额 &lt; $50 视为行价丢弃 · MRR &lt; 100 丢弃</text>
+      <text class="s" x="164" y="52">提问帖 / Ask-Tell 类 HN 丢弃 · 黑名单站点过滤</text>
+      <text class="s" x="164" y="68">inbox 上限 400，溢出归档（永不删除）</text>
+      <text class="s" x="164" y="86">富化：只给本次新增条目抓 HN 评论与 TrustMRR .md</text></g>
+
+    <path class="arr" d="M706,180 L756,180" marker-end="url(#a)"/>
+
+    <g transform="translate(756,76)"><rect class="b cyan" width="344" height="66" rx="8"/>
+      <text class="t" x="172" y="18">inbox.json · 采集队列</text>
+      <text class="s" x="172" y="36">机器唯一写入目标</text>
+      <text class="s" x="172" y="52">公开与否由 --no-inbox 决定</text></g>
+
+    <g transform="translate(756,154)"><rect class="b green" width="344" height="52" rx="8"/>
+      <text class="t" x="172" y="18">inbox_archive.json</text>
+      <text class="s" x="172" y="38">溢出归档 · 只进不出 · 永不删除</text></g>
+
+    <g transform="translate(756,218)"><rect class="b cyan" width="344" height="52" rx="8"/>
+      <text class="t" x="172" y="18">last_harvest.json</text>
+      <text class="s" x="172" y="38">本次简报：新增数 / 来源分布 / Top 8</text></g>
+
+    <g transform="translate(756,282)"><rect class="b slate" width="344" height="52" rx="8"/>
+      <text class="t" x="172" y="18">arrclub.json</text>
+      <text class="s" x="172" y="38">校对参照 · 不进候选池（刻意隔离）</text></g>
+
+    <text class="lbl" x="756" y="356">source_kind 在此打标：verified / self_reported / secondary / discovery</text>
+  </svg>
+  </div>
+  <div class="note"><b>摔过的跤：</b>Indie Hackers 没有真分页（<code>?page=2</code> 返回的字节与首页完全相同），所以才需要 sitemap 分片轮换缓存 <code>ih_slugs.json</code>；TrustMRR 全站 <code>startup-sitemap.xml</code> 必须<b>显式 gzip</b>，否则 identity 编码的 1.7 MB 拉不动。</div>
+</section>
+
+<!-- ============ 图 3 ============ -->
+<section id="f3">
+  <h2>③ 深核 → 判定 → 入库闸门</h2>
+  <p class="lead">整套产品的信任机制都在这张图里：AI 只负责打底，<b>决定权与责任都在人</b>，而闸门允许 AI 与脚本请求，但从不放水。</p>
+  <div class="svgbox">
+  <svg viewBox="0 0 1120 620" role="img" aria-label="深核与闸门图">
+    <rect class="lane" x="14" y="40" width="330" height="540" rx="10"/>
+    <text class="lhead" x="30" y="64">AI 深核四阶段（ai_verify）</text>
+
+    <rect class="lane" x="362" y="40" width="330" height="540" rx="10"/>
+    <text class="lhead" x="378" y="64">人工裁定（admin 5053）</text>
+
+    <rect class="lane" x="710" y="40" width="396" height="540" rx="10"/>
+    <text class="lhead" x="726" y="64">promote 闸门（server.py）—— 唯一写入口</text>
+
+    <g transform="translate(30,80)"><rect class="b blue" width="298" height="66" rx="8"/>
+      <text class="t" x="149" y="18">① 拼素材</text>
+      <text class="s" x="149" y="36">官网 → 来源页 → TrustMRR .md</text>
+      <text class="s" x="149" y="52">slug 反查 → HN/Bing/DDG（最多 5 页）</text></g>
+
+    <g transform="translate(30,156)"><rect class="b blue" width="298" height="66" rx="8"/>
+      <text class="t" x="149" y="18">② 调 LLM</text>
+      <text class="s" x="149" y="36">OpenAI 兼容端点 · DeepSeek · temperature 0.2</text>
+      <text class="s" x="149" y="52">JSON 模式 · 300s 超时 · finish_reason 会报错</text></g>
+
+    <g transform="translate(30,232)"><rect class="b blue" width="298" height="80" rx="8"/>
+      <text class="t" x="149" y="18">③ 映射草稿</text>
+      <text class="s" x="149" y="36">三态门槛 yes / no / unknown</text>
+      <text class="s" x="149" y="52">布尔 False 不当反证（重要防呆）</text>
+      <text class="s" x="149" y="68">musts 取并集「勾是粘的」· human_read 绝不代勾</text></g>
+
+    <g transform="translate(30,322)"><rect class="b slate" width="298" height="52" rx="8"/>
+      <text class="t" x="149" y="18">④ 落 verifications.json</text><text class="s" x="149" y="38">服务端再跑一次规则引擎回显判定</text></g>
+
+    <g transform="translate(30,392)"><rect class="b red" width="298" height="60" rx="8"/>
+      <text class="t" x="149" y="18">失败语义（三选一）</text>
+      <text class="s" x="149" y="36">一页素材都没抓到 → 跳过，不写草稿</text>
+      <text class="s" x="149" y="52">判定不可发布 → 草稿照存，清单给人</text></g>
+
+    <g transform="translate(30,470)"><rect class="b slate" width="298" height="86" rx="8"/>
+      <text class="t" x="149" y="18">中途补给件</text>
+      <text class="s" x="149" y="36">backfill_website.py · resolve_slug.py</text>
+      <text class="s" x="149" y="52">补到 ≥200 字才能进正文管线</text>
+      <text class="s" x="149" y="68">无 TrustMRR 链接时用 confirm=True 反查</text>
+      <text class="s" x="149" y="82">（含身份确认，防同名误配）</text></g>
+
+    <path class="arr" d="M328,190 L378,190" marker-end="url(#a)"/>
+
+    <g transform="translate(378,80)"><rect class="b purple" width="298" height="46" rx="8"/>
+      <text class="t" x="149" y="18">工作台六段表单</text>
+      <text class="s" x="149" y="34">门槛 / 必填 / 口径 / 等级 / 来源 / 修正</text></g>
+
+    <g transform="translate(378,138)"><rect class="b purple" width="298" height="66" rx="8"/>
+      <text class="t" x="149" y="18">三道门槛（一道成立即进库）</text>
+      <text class="s" x="149" y="36">公司仍在运营 · 是真实生意 · 有个人路径</text>
+      <text class="s" x="149" y="52">denied 且未 confirmed 才拦截</text></g>
+
+    <g transform="translate(378,216)"><rect class="b purple" width="298" height="66" rx="8"/>
+      <text class="t" x="149" y="18">必填（只有一项真拦人）</text>
+      <text class="s" x="149" y="36">caliber_decided 拦发布</text>
+      <text class="s" x="149" y="52">caliber_consistent / human_read 不拦，只提醒</text></g>
+
+    <g transform="translate(378,294)"><rect class="b purple" width="298" height="52" rx="8"/>
+      <text class="t" x="149" y="18">六项加分 + 自动 +10</text>
+      <text class="s" x="149" y="38">满分 100 · 三道全 yes 且无 denied 才自动加</text></g>
+
+    <g transform="translate(378,358)"><rect class="b orange" width="298" height="52" rx="8"/>
+      <text class="t" x="149" y="18">实时回显判定条</text>
+      <text class="s" x="149" y="38">红=门槛未过 · 黄=提醒 · 灰=质量分 X/100</text></g>
+
+    <path class="arr" d="M676,190 L726,190" marker-end="url(#a)"/>
+
+    <g transform="translate(726,80)"><rect class="b orange" width="364" height="44" rx="8"/>
+      <text class="t" x="182" y="18">evaluate 未过 → HTTP 409</text><text class="s" x="182" y="34">data/ 一字未改 · 候选留在池里，允许明天再来</text></g>
+
+
+    <path class="arrg" d="M908,124 L908,158" marker-end="url(#ag)"/>
+    <g transform="translate(726,162)"><rect class="b orange" width="364" height="52" rx="8"/>
+      <text class="t" x="182" y="18">evidence_gap 虚标检测</text>
+      <text class="s" x="182" y="36">声称等级 &gt; 来源撑得住 → 自动降档</text>
+      <text class="s" x="182" y="46">写入 verification_downgraded（11 条已降级）</text></g>
+
+    <path class="arr" d="M908,214 L908,244" marker-end="url(#a)"/>
+    <g transform="translate(726,248)"><rect class="b green" width="364" height="52" rx="8"/>
+      <text class="t" x="182" y="18">default_case_tier 定档</text>
+      <text class="s" x="182" y="36">有一手来源 → premium；第三方撑住 → standard；否则按 60 分线</text>
+      <text class="s" x="182" y="46">刻意不走 evaluate 的 tier，避免后台预览与落库分叉</text></g>
+
+    <path class="arr" d="M908,300 L908,330" marker-end="url(#a)"/>
+    <g transform="translate(726,334)"><rect class="b green" width="364" height="52" rx="8"/>
+      <text class="t" x="182" y="18">写入 cases.json（insert(0)）</text>
+      <text class="s" x="182" y="36">候选出池 · 草稿用完即清 · verified_at / updated_at</text>
+      <text class="s" x="182" y="46">human_read 时间戳只认服务端已存草稿</text></g>
+
+    <path class="arr" d="M908,386 L908,414" marker-end="url(#a)"/>
+    <g transform="translate(726,418)"><rect class="b green" width="364" height="52" rx="8"/>
+      <text class="t" x="182" y="18">入库后 Enrichment（fit + score）</text>
+      <text class="s" x="182" y="36">fit_ready 写 replicability → score_solo_fit / score_china_fit</text>
+      <text class="s" x="182" y="46">补齐后方可进入 make_article 的文章管线</text></g>
+
+    <text class="lbl" x="726" y="500">注意：内容包必须在这之前补齐（contentpack_ready），</text>
+    <text class="lbl" x="726" y="516">否则 promote 只搬候选已有字段，会造出空壳案例。</text>
+  </svg>
+  </div>
+  <div class="note"><b>为什么「source_kinds 为空不许入库」是硬规则：</b>2026-09-24 踩出来的——一条没有任何来源的案例如果被标为「已核实」，整个库的可信度就归零。<b>没有来源，就没有资格称核实。</b></div>
+</section>
+
+<!-- ============ 图 4 ============ -->
+<section id="f4">
+  <h2>④ 发布流水线 release.py</h2>
+  <p class="lead">六步串行，<b>依赖声明有约束力</b>（不是注释）；失败即停，无回滚实现，靠幂等 + 全量覆盖补偿。</p>
+  <div class="svgbox">
+  <svg viewBox="0 0 1120 470" role="img" aria-label="release 流水线图">
+    <text class="lhead" x="20" y="30">主干（拓扑序）</text>
+    <path class="arr" d="M20,62 L1090,62" marker-end="url(#a)"/>
+
+    <g transform="translate(20,80)"><rect class="b slate" width="164" height="62" rx="8"/>
+      <text class="t" x="82" y="18">1 contentpack</text>
+      <text class="s" x="82" y="34">把人工内容包</text>
+      <text class="s" x="82" y="48">写回候选</text></g>
+    <g transform="translate(200,80)"><rect class="b green" width="164" height="62" rx="8"/>
+      <text class="t" x="82" y="18">2 publish</text>
+      <text class="s" x="82" y="34">逐条 promote</text>
+      <text class="s" x="82" y="48">过闸门才准发</text></g>
+    <g transform="translate(380,80)"><rect class="b slate" width="164" height="62" rx="8"/>
+      <text class="t" x="82" y="18">3 fit</text>
+      <text class="s" x="82" y="34">写 replicability</text>
+      <text class="s" x="82" y="48">四个人工判断</text></g>
+    <g transform="translate(560,80)"><rect class="b slate" width="164" height="62" rx="8"/>
+      <text class="t" x="82" y="18">4 score</text>
+      <text class="s" x="82" y="34">算 solo / china</text>
+      <text class="s" x="82" y="48">木桶综合分</text></g>
+    <g transform="translate(740,80)"><rect class="b cyan" width="164" height="62" rx="8"/>
+      <text class="t" x="82" y="18">5 build</text>
+      <text class="s" x="82" y="34">public/ --no-inbox</text>
+      <text class="s" x="82" y="48">预渲染 + 自检</text></g>
+    <g transform="translate(920,80)"><rect class="b cyan" width="164" height="62" rx="8"/>
+      <text class="t" x="82" y="18">6 deploy</text>
+      <text class="s" x="82" y="34">OSS 全量 PUT</text>
+      <text class="s" x="82" y="48">上线后匿名自检</text></g>
+
+    <text class="lbl" x="20" y="170">依赖由 STEP.after 声明，改顺序忘改声明 → 自检直接红</text>
+
+    <rect class="lane" x="14" y="186" width="530" height="266" rx="10"/>
+    <text class="lhead" x="30" y="210">失败语义</text>
+
+    <g transform="translate(30,224)"><rect class="b orange" width="498" height="46" rx="8"/>
+      <text class="t" x="249" y="18">preflight 检查 → 失败即停，退出码 = 步骤序号</text>
+      <text class="s" x="249" y="36">唯一的真实数据写入在 promote，且它在写盘前就会返 409</text></g>
+
+    <g transform="translate(30,282)"><rect class="b slate" width="498" height="62" rx="8"/>
+      <text class="t" x="249" y="18">无回滚实现，四条补偿</text>
+      <text class="s" x="249" y="36">① 失败即停，后续步骤不会基于脏产物运行</text>
+      <text class="s" x="249" y="52">② 六步全部幂等，修好原样重跑 ③ OSS 全量覆盖自纠正 ④ 部署后校验失败返 7</text></g>
+
+    <g transform="translate(30,356)"><rect class="b slate" width="498" height="80" rx="8"/>
+      <text class="t" x="249" y="18">参数陷坑</text>
+      <text class="s" x="249" y="36">build_static 默认 dist（含 inbox）· deploy_oss 默认 dist</text>
+      <text class="s" x="249" y="52">但正确组合是 public + --no-inbox，release 写死 public</text>
+      <text class="s" x="249" y="68">互斥校验：--keep-inbox 与非 --skip-deploy 直接拒绝</text></g>
+
+    <rect class="lane" x="562" y="186" width="544" height="266" rx="10"/>
+    <text class="lhead" x="578" y="210">deploy_oss 保护清单</text>
+
+    <g transform="translate(578,224)"><rect class="b red" width="512" height="52" rx="8"/>
+      <text class="t" x="256" y="18">inbox 硬闸门（三态）</text>
+      <text class="s" x="256" y="36">0 放行 · 正数拒绝 · None（读不到）也拒绝</text>
+      <text class="s" x="256" y="46">第一版把「读不到」吞成 0，2026-09-20 把 441 条未核实素材推上公网</text></g>
+
+    <g transform="translate(578,288)"><rect class="b slate" width="512" height="62" rx="8"/>
+      <text class="t" x="256" y="18">签名与上传</text>
+      <text class="s" x="256" y="36">hmac-sha1 自签名 · 零依赖 · Region 必填且刻意不兜底（cn-hongkong）</text>
+      <text class="s" x="256" y="52">每个 PUT 带 x-oss-acl: public-read（Bucket ACL 不被对象继承）</text></g>
+
+    <g transform="translate(578,362)"><rect class="b slate" width="512" height="62" rx="8"/>
+      <text class="t" x="256" y="18">上线自检与已知限制</text>
+      <text class="s" x="256" y="36">不带签名 GET 首页（Bucket 为 private 时上传照样成功、访问才 403）</text>
+      <text class="s" x="256" y="52">全量覆盖、无 ?v= 版本化、远端孤儿文件需手动删</text></g>
+  </svg>
+  </div>
+  <div class="note"><b>auto_deploy 不是发布主路径。</b>它只做「线上和我本地不一样就补一次」的幂等兜底，并不知道你是否改完。<code>generated_at</code> 与 <code>stats.inbox</code> 会先归一化再比，否则每天必然误判为有差异。</div>
+</section>
+
+<!-- ============ 图 5 ============ -->
+<section id="f5">
+  <h2>⑤ 公众号管线</h2>
+  <p class="lead">cases → 正文 → 发布就绪 HTML → 草稿箱。<b>通道是浏览器自动化而不是微信 API</b>——未认证订阅号没有 <code>freepublish</code> 权限。</p>
+  <div class="svgbox">
+  <svg viewBox="0 0 1120 560" role="img" aria-label="公众号管线图">
+    <g transform="translate(20,40)"><rect class="b green" width="240" height="52" rx="8"/>
+      <text class="t" x="120" y="18">cases.json</text><text class="s" x="120" y="38">已核实案例（读，不写）</text></g>
+
+    <path class="arr" d="M260,66 L304,66" marker-end="url(#a)"/>
+    <g transform="translate(304,40)"><rect class="b slate" width="240" height="52" rx="8"/>
+      <text class="t" x="120" y="18">make_article</text><text class="s" x="120" y="38">九节骨架 · 占位清理 · 标题/排期</text></g>
+
+    <path class="arr" d="M544,66 L588,66" marker-end="url(#a)"/>
+    <g transform="translate(588,40)"><rect class="b cyan" width="240" height="52" rx="8"/>
+      <text class="t" x="120" y="18">out/articles/*.html</text><text class="s" x="120" y="38">核对稿 md + 全内联 html</text></g>
+
+    <path class="arr" d="M828,66 L872,66" marker-end="url(#a)"/>
+    <g transform="translate(872,40)"><rect class="b slate" width="228" height="52" rx="8"/>
+      <text class="t" x="114" y="18">wechat build</text><text class="s" x="114" y="38">公众号-&lt;id&gt;拆解.html</text></g>
+
+    <path class="arr" d="M986,92 L986,130" marker-end="url(#a)"/>
+    <g transform="translate(872,134)"><rect class="b purple" width="228" height="66" rx="8"/>
+      <text class="t" x="114" y="18">publish · Chrome CDP 9222</text>
+      <text class="s" x="114" y="38">手写 WebSocket · token 运行时从</text>
+      <text class="s" x="114" y="52">已登录页面抠 · 入口强制清代理</text></g>
+
+    <path class="arr" d="M986,200 L986,236" marker-end="url(#a)"/>
+    <g transform="translate(872,240)"><rect class="b cyan" width="228" height="52" rx="8"/>
+      <text class="t" x="114" y="18">草稿箱 + wechat_published.json</text><text class="s" x="114" y="38">37 draft · 2 已群发 · 逐篇落台账</text></g>
+
+    <path class="arrp" d="M986,292 L986,326" marker-end="url(#ap)"/>
+    <g transform="translate(872,330)"><rect class="b cyan" width="228" height="52" rx="8"/>
+      <text class="t" x="114" y="18">人工群发</text><text class="s" x="114" y="38">每周 2–3 篇 · 最后一下由人</text></g>
+
+    <!-- lower detail blocks -->
+    <rect class="lane" x="14" y="130" width="400" height="410" rx="10"/>
+    <text class="lhead" x="30" y="154">篇号与封面（最近修好的两个坑）</text>
+
+    <g transform="translate(30,168)"><rect class="b orange" width="368" height="96" rx="8"/>
+      <text class="t" x="184" y="18">篇号 = 历史编号，不是排序位置</text>
+      <text class="s" x="184" y="38">新案例往 cases.json 头部插入 → 按位置编号会让</text>
+      <text class="s" x="184" y="52">老 30 篇全体后移、并与新 9 篇撞号</text>
+      <text class="s" x="184" y="70">改法：持久注册表 issue_numbers.json</text>
+      <text class="s" x="184" y="84">空表按 wechat_published 插入顺序补种 1–30，再续 31–39</text></g>
+
+    <g transform="translate(30,276)"><rect class="b red" width="368" height="52" rx="8"/>
+      <text class="t" x="184" y="18">坑：补种后必须先 save 再返回</text>
+      <text class="s" x="184" y="38">曾因漏 save，每次重跑都重种一遍</text></g>
+
+    <g transform="translate(30,340)"><rect class="b slate" width="368" height="82" rx="8"/>
+      <text class="t" x="184" y="18">封面生成</text>
+      <text class="s" x="184" y="36">HTML → data URL → Chrome 截图 1080×460@2x</text>
+      <text class="s" x="184" y="52">必须带 doctype + charset，否则中文按 Latin-1 解码全乱</text>
+      <text class="s" x="184" y="68">「硬停」渐变规避近黑色带 · 最多 10 轮 JS 收缩字号</text></g>
+
+    <g transform="translate(30,434)"><rect class="b slate" width="368" height="90" rx="8"/>
+      <text class="t" x="184" y="18">封面安装顺序</text>
+      <text class="s" x="184" y="38">① 上传 → 插入正文　② 从「正文选择」设为封面</text>
+      <text class="s" x="184" y="56">顺序不能反：整篇替换会抹掉正文里那张图，</text>
+      <text class="s" x="184" y="70">而服务端 cover 还指着旧图</text>
+      <text class="s" x="184" y="84">已有封面的草稿走另一套 Vue 组件 → 按文本点 + 可见性兜底</text></g>
+
+    <rect class="lane" x="432" y="130" width="420" height="410" rx="10"/>
+    <text class="lhead" x="448" y="154">稳定性设计（都是摔出来的）</text>
+
+    <g transform="translate(448,168)"><rect class="b slate" width="388" height="80" rx="8"/>
+      <text class="t" x="194" y="18">收尾判定</text>
+      <text class="s" x="194" y="36">封面 + 原创都到位才算 ok，否则 partial</text>
+      <text class="s" x="194" y="52">曾无条件返回 ok → 四篇草稿长期没人管</text>
+      <text class="s" x="194" y="68">partial 会被重新排进下一轮队列</text></g>
+
+    <g transform="translate(448,260)"><rect class="b slate" width="388" height="80" rx="8"/>
+      <text class="t" x="194" y="18">弹窗按钮挑选</text>
+      <text class="s" x="194" y="36">只在 .weui-desktop-dialog 内搜，且要求可见</text>
+      <text class="s" x="194" y="52">曾因命中正文里的「确认」二字 → 封面没设 + 原创失败</text>
+      <text class="s" x="194" y="68">一个错点造成两个故障</text></g>
+
+    <g transform="translate(448,352)"><rect class="b slate" width="388" height="80" rx="8"/>
+      <text class="t" x="194" y="18">幂等与断点续</text>
+      <text class="s" x="194" y="36">appmsgid 是就地操作同一篇的唯一凭据（有它就不重发）</text>
+      <text class="s" x="194" y="52">逐篇 save_published（全量跑几小时，结尾才写会重发）</text>
+      <text class="s" x="194" y="68">单篇异常 continue + 断 ws 重连 · 不关浏览器保登录态</text></g>
+
+    <g transform="translate(448,444)"><rect class="b slate" width="388" height="80" rx="8"/>
+      <text class="t" x="194" y="18">refresh / fix-cover</text>
+      <text class="s" x="194" y="36">refresh：就地替换正文并同步标题/摘要/作者</text>
+      <text class="s" x="194" y="52">--cover：先重画上传，再强制换封面</text>
+      <text class="s" x="194" y="68">已知限制：草稿列表只能拉最近 50/60 篇</text></g>
+  </svg>
+  </div>
+  <div class="note"><b>台账字段：</b><code>wechat_published.json</code> 记 <code>title / published_at / status(draft|partial|published) / file / appmsgid / refreshed_at / group_sent</code>。注意 <code>status=draft</code> 的实际含义是「草稿管线已完成」，是否已群发要看 <code>group_sent</code>。</div>
+</section>
+
+<!-- ============ 图 6 ============ -->
+<section id="f6">
+  <h2>⑥ Git / CI 拓扑</h2>
+  <p class="lead">机器数据与人工产物分分支。<b>这是「每次 push 都要 rebase」的根治方案。</b></p>
+  <div class="svgbox">
+  <svg viewBox="0 0 1120 420" role="img" aria-label="Git 与 CI 图">
+    <rect class="lane" x="14" y="40" width="530" height="360" rx="10"/>
+    <text class="lhead" x="30" y="64">分支职责</text>
+
+    <g transform="translate(30,80)"><rect class="b purple" width="230" height="72" rx="8"/>
+      <text class="t" x="115" y="18">main</text>
+      <text class="s" x="115" y="36">代码 + 精写案例（人工）</text>
+      <text class="s" x="115" y="52">本地 push 永远快进</text>
+      <text class="s" x="115" y="66">永不接收机器数据</text></g>
+
+    <g transform="translate(290,80)"><rect class="b blue" width="230" height="72" rx="8"/>
+      <text class="t" x="115" y="18">data</text>
+      <text class="s" x="115" y="36">仅承载 inbox 三个文件</text>
+      <text class="s" x="115" y="52">机器人 push</text>
+      <text class="s" x="115" y="66">每次先 fetch 取回，防止互相覆盖</text></g>
+
+    <path class="arr" d="M115,152 L115,196" marker-end="url(#a)"/>
+    <path class="arr" d="M405,152 L405,196" marker-end="url(#a)"/>
+
+    <g transform="translate(30,200)"><rect class="b slate" width="490" height="76" rx="8"/>
+      <text class="t" x="245" y="18">ci.yml（contents: read）</text>
+      <text class="s" x="245" y="36">触发：push main / PR · Python 3.9–3.13 + Node 18–22 矩阵</text>
+      <text class="s" x="245" y="52">data/*.json 合法性 → selftest → 单测 → release --selfcheck</text>
+      <text class="s" x="245" y="68">→ 构建静态站 → prerender --check → 断言仓库全程干净 · 不部署</text></g>
+
+    <g transform="translate(30,288)"><rect class="b slate" width="490" height="92" rx="8"/>
+      <text class="t" x="245" y="18">harvest.yml（contents: write）</text>
+      <text class="s" x="245" y="36">触发：每天 UTC 01:00（北京 09:00）+ 手动 · concurrency 防并发</text>
+      <text class="s" x="245" y="52">从 data 取回旧队列 → daily_harvest --no-push → 内联校验</text>
+      <text class="s" x="245" y="68">→ git add -f 三个文件 → push HEAD:refs/heads/data</text>
+      <text class="s" x="245" y="84">→ git reset origin/main 兜底（防机器提交泄漏）· 不部署</text></g>
+
+    <rect class="lane" x="562" y="40" width="544" height="360" rx="10"/>
+    <text class="lhead" x="578" y="64">为什么这么切</text>
+
+    <g transform="translate(578,80)"><rect class="b red" width="512" height="72" rx="8"/>
+      <text class="t" x="256" y="18">旧做法的代价</text>
+      <text class="s" x="256" y="36">采集直接提交到 main → 本地每次 push 都要 rebase</text>
+      <text class="s" x="256" y="52">且 GITHUB_TOKEN 的提交不触发 ci.yml（GitHub 防递归），</text>
+      <text class="s" x="256" y="66">所以数据校验必须内联在 harvest.yml 里</text></g>
+
+    <g transform="translate(578,164)"><rect class="b green" width="512" height="72" rx="8"/>
+      <text class="t" x="256" y="18">切开之后</text>
+      <text class="s" x="256" y="36">main 只承载人工改动 → 本地永远快进</text>
+      <text class="s" x="256" y="52">.gitignore 屏蔽 inbox + git reset origin/main 双保险</text>
+      <text class="s" x="256" y="66">sync_inbox.sh 用 git show（只写工作区、不碰索引）按需取回</text></g>
+
+    <g transform="translate(578,248)"><rect class="b orange" width="512" height="62" rx="8"/>
+      <text class="t" x="256" y="18">两个 workflow 都不部署</text>
+      <text class="s" x="256" y="36">上线权在本地：python scripts/release.py ...</text>
+      <text class="s" x="256" y="52">harvest.yml 曾每天用默认 dist 把 400+ 条未核实素材推上公网</text></g>
+
+    <g transform="translate(578,322)"><rect class="b slate" width="512" height="62" rx="8"/>
+      <text class="t" x="256" y="18">待确认</text>
+      <text class="s" x="256" y="36">仓库内无分支保护配置文件，main 的服务端保护规则需在 GitHub</text>
+      <text class="s" x="256" y="52">后台人工确认（当前实际生效的是权限最小化约定）</text></g>
+  </svg>
+  </div>
+</section>
+
+<!-- ============ 图 7 ============ -->
+<section id="f7">
+  <h2>⑦ 阈值与口径速查</h2>
+  <p class="lead">照着这张表就能判断「现在能不能发」。</p>
+  <table>
+    <tr><th>项</th><th>阈值 / 口径</th><th>出处</th></tr>
+    <tr><td>初筛分数线</td><td>DEEP <b>56</b> · LATER <b>28</b>（0–100 clamp）</td><td>triage.py</td></tr>
+    <tr><td>公告质量分门槛</td><td><b>60</b> 分进精品池（6 项 bonus 20/20/15/15/15/15 + 全覆盖自动 10，满分 100）</td><td>verify_rules.py</td></tr>
+    <tr><td>入库硬条件</td><td>三门槛一道成立 · <code>source_kinds</code> 非空 · <code>caliber_decided</code> · 等级与口径值合法</td><td>verify_rules.evaluate</td></tr>
+    <tr><td>内容包</td><td><code>why_it_works</code> / <code>playbook</code> ≥ 3 条且每条 ≥ 20 字 · <code>signals</code> ≥ 2 · headline 必须带 <code>metric_note</code></td><td>contentpack_ready / publish_ready</td></tr>
+    <tr><td>国内移植 <code>china_fit</code></td><td>付费意愿 ×1.5 · 支付可达 ×1.2 · 合规 ×1.2 · 获客迁移/改造成本/竞争空位 ×1.0；raw 满分 <b>34.5</b> → 归一 100</td><td>score_china_fit.py</td></tr>
+    <tr><td>个人可做 <code>solo_fit</code></td><td>单人交付 ×1.4 · 够得着客户 ×1.3 · 启动轻 ×1.1 · 造得出来/窗口还开着 ×1.0；raw 满分 <b>29</b></td><td>score_solo_fit.py</td></tr>
+    <tr><td>木桶综合 <code>composite</code></td><td><b>0.6 × min(solo, china) + 0.4 × mean(solo, china)</b>，及格线 <b>70</b></td><td>score_* / app.js</td></tr>
+    <tr><td>采集容量</td><td>inbox <b>400</b> 上限 · MRR <b>&lt;100</b> 丢 · 金额 <b>&lt;$50</b> 丢 · 单页 16MB / 150s</td><td>harvest.py</td></tr>
+    <tr><td>深核素材</td><td>最多 <b>5</b> 页 · 每页 <b>6000</b> 字 · 少于 <b>200</b> 字回落 meta 摘要</td><td>ai_verify.py</td></tr>
+    <tr><td>作业时间</td><td>采集每天 <b>09:00</b>（UTC 01:00）· 目标「一天精写 2–3 条」</td><td>harvest.yml / README</td></tr>
+    <tr><td>当前规模</td><td>cases <b>39</b>（精品 19 / 实核 14 / 备选 6）· 候选 <b>19</b> · 队列 <b>400</b> · 已评分 <b>30</b> · 草稿 <b>39</b> 篇</td><td>data/*.json</td></tr>
+  </table>
+  <div class="note"><b>下一步要补的：</b>31–39 这 9 条还没写手写评分表，<code>china_fit</code>/<code>solo_fit</code>/<code>why_it_works</code>/<code>playbook</code> 是空的，导致 <code>test_make_article</code> 有 5 项失败——是数据缺口，不是回归。</div>
+</section>
+
+<footer>拆解海外 · Overseas Teardowns　|　PRD v2.0 配套流程图　|　规则以代码为准：verify_rules.py · server.py · harvest.py · wechat_publish.py</footer>
+
+</div>
+</body>
+</html>

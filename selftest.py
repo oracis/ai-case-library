@@ -31,6 +31,13 @@ ADMIN_PORT = PORT + 1                       # server.py 默认后台 = 公开 +1
 BASE = "http://127.0.0.1:%d" % PORT
 ADMIN_BASE = "http://127.0.0.1:%d" % ADMIN_PORT
 
+# 自测固件候选（跑前注入、跑完随 data/ 一起还原）。
+# 2026-10-15：166 条候选全部晋升后候选池被抽空，依赖「候选池真实第一条」的
+# 断言随即漂移（写接口 404、/api/ai/plan 的 total=0）。两条固件把测试与真实
+# 数据解耦：A 供 [5] 的 promote 消费，B 只用于写接口与 plan，不会被提走。
+FIXTURE_A = "_selftest_promote_fixture"
+FIXTURE_B = "_selftest_write_fixture"
+
 opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 fails = []
 passed = 0
@@ -172,8 +179,12 @@ def run_auth_section():
         st, body, _ = req_at(abase, "GET", "/api/data")
         check("游客仍可正常浏览案例",
               st == 200 and len(json.loads(body).get("cases", [])) > 0)
-        # 用一条真实存在的候选来测写接口，别写死 id —— 前面几节会把它提走
-        some_cand = (json.loads(body).get("candidates") or [{}])[0].get("id", "eloquent")
+        # 用自测固件候选来测写接口 —— 不能取候选池真实第一条：
+        # 2026-10-15 把 166 条候选全晋升后，池子只剩 1 条，[5] 节又把它提走，
+        # 于是这里拿到回退 id「eloquent」→ PUT 404。固件不随真实数据漂移。
+        some_cand = FIXTURE_B
+        if some_cand not in [c.get("id") for c in (json.loads(body).get("candidates") or [])]:
+            some_cand = (json.loads(body).get("candidates") or [{}])[0].get("id", "eloquent")
 
         # --- 登录 ---
         st, _, _ = req_at(abase, "POST", "/api/login", {"password": "definitely-wrong"})
@@ -240,12 +251,55 @@ def run_auth_section():
             print("  [警告] 未能复原 data/admin.json：%s" % e)
 
 
+def seed_fixtures():
+    """往候选池插两条合成候选，避免断言依赖真实候选池的状态。
+
+    候选池会被日常晋升抽空（2026-10-15 全量晋升后只剩 1 条），而 [5] 节又会
+    把它提走 —— 之后「登录后写接口放行」「后台 plan」就都成了测空气。
+    固件注入在备份之后，跑完随 data/ 一起还原，不留痕。
+    """
+    p = os.path.join(DATA, "candidates.json")
+    with open(p, encoding="utf-8") as f:
+        cands = json.load(f)
+    have = {c.get("id") for c in cands}
+    tmpl = {
+        "added_at": "2026-10-15",
+        "category": "自测固件",
+        "name_en": "Selftest Fixture",
+        "one_liner": "自测固件：不参与任何真实统计，跑完即随 data/ 还原。",
+        "what_it_does": "",
+        "how_it_makes_money": "",
+        "verdict": "",
+        "origin": "",
+        "source_kind": "selftest",
+        "source_url": "",
+        "metrics": {},
+        "models": [],
+        "note": "selftest fixture",
+    }
+    added = []
+    for fid, nm in ((FIXTURE_A, "自测固件A（供发布闸门消费）"),
+                    (FIXTURE_B, "自测固件B（供写接口与 plan 使用）")):
+        if fid in have:
+            continue
+        rec = dict(tmpl)
+        rec["id"] = fid
+        rec["name"] = nm
+        cands.insert(0, rec)
+        added.append(fid)
+    if added:
+        with open(p, "w", encoding="utf-8") as f:
+            json.dump(cands, f, ensure_ascii=False, indent=2)
+        print("已注入自测固件候选：%s" % " / ".join(added))
+
+
 def main():
     # ---------- 先备份 ----------
     if os.path.isdir(BACKUP):
         shutil.rmtree(BACKUP)
     shutil.copytree(DATA, BACKUP)
     print("已备份 data/ -> %s" % os.path.basename(BACKUP))
+    seed_fixtures()
 
     print("=" * 62)
     print("  自测 · AI 案例库（端口 %d）" % PORT)
@@ -351,6 +405,28 @@ def main():
         cid = d["candidates"][0]["id"]
         p = "/api/candidates/%s/promote" % urllib.parse.quote(cid)
 
+        # ⚠️ 必须自带一份完整正文，不能指望候选池里恰好有一条写全的。
+        # 2026-09-17 加了 content_gate（正文质量闸门）后本测试开始 409：
+        # 它拿真实候选池第一条promote，而那条候选的 what_it_does 是空的。
+        # 依赖真实数据 = 测试固件随数据漂移。promote 支持请求体 fields 覆盖，
+        # 所以这里自带正文，只测闸门逻辑、不受候选池状态影响。
+        ok_fields = {
+            "one_liner": "自测用例：一个用来验证发布闸门的虚构小产品",
+            "what_it_does": "它做的是把长文档里的表格自动抠成结构化数据，"
+                            "省掉人工誊抄这一步，输出一份能直接导进表格软件的 CSV。",
+            "how_it_makes_money": "按月订阅收费，用户上传自己的文档模板，不按处理量另外计费。",
+            "verdict": "这是一门toB 工具生意，需求真实但门槛也低，"
+                       "能不能立住取决于谁先把模板生态占住。",
+            "why_it_works": [
+                "把「誊抄」这个动作单独拎出来定价，客户一眼能算出省了多少工时。",
+                "输出格式直接对齐表格软件，不要求用户改工作习惯，迁移成本低。",
+            ],
+            "playbook": [
+                "选一个每天都有人手动做的重复动作当靶子。",
+                "先只支持一种最主流的输入格式，把兼容留给后面。",
+            ],
+        }
+
         st, body = areq("POST", p, {})
         check("条件不齐时 promote 被拦（409）", st == 409,
               "实际 %d" % st)
@@ -391,7 +467,7 @@ def main():
         check("GET 核实草稿可回填", st == 200 and json.loads(body)["draft"].get("caliber") == "arr")
 
         # 质量分满分 → 应该是精品档
-        st, body = areq("POST", p, {"verification_config": draft})
+        st, body = areq("POST", p, {"verification_config": draft, "fields": ok_fields})
         j = json.loads(body) if st == 201 else {}
         check("条件齐全后可以发布", st == 201, "实际 %d %s" % (st, body[:80] if st != 201 else ""))
         if st == 201:
@@ -416,7 +492,7 @@ def main():
             cid2 = d2["candidates"][0]["id"]
             light = dict(draft, bonus=[])
             st, body = areq("POST", "/api/candidates/%s/promote" % urllib.parse.quote(cid2),
-                            {"verification_config": light})
+                            {"verification_config": light, "fields": ok_fields})
             j2 = json.loads(body) if st == 201 else {}
             check("零加分但有官方来源 → 进精品池（默认政策）",
                   st == 201 and j2["case"].get("tier") == "premium",
@@ -434,7 +510,7 @@ def main():
                         sources=[{"label": "评测站", "url": "https://review.example/x",
                                   "kind": "review"}])
             st, body = areq("POST", "/api/candidates/%s/promote" % urllib.parse.quote(cidm),
-                            {"verification_config": weak})
+                            {"verification_config": weak, "fields": ok_fields})
             jm = json.loads(body) if st == 201 else {}
             check("无一手来源且零加分 → 进备选池",
                   st == 201 and jm["case"].get("tier") == "backup",
@@ -546,6 +622,12 @@ def main():
         # ---------- 8 后台鉴权 ----------
         # 上面那台服务关了鉴权，这里另起一台「带鉴权」的，验证闸门真的关得上：
         # 游客碰不到任何写接口，登录后才放行，登出后立刻失效。
+        # 补种固件：[5] 节连发三次 promote 是会把池子抽干的 —— 真实候选只有
+        # 几条的时候（2026-10 后的常态），[8] 的写接口与 [10] 的 plan 都要靠
+        # 固件续命。CI 的干净 checkout 没有 inbox.json 来挡这一下，曾为此连红
+        # 一个月而本地全绿（本地数据文件制造的假象）。seed_fixtures 幂等，
+        # 毫秒级、纯本地，跑完随 data/ 一起还原。
+        seed_fixtures()
         run_auth_section()
 
         # ---------- 9 双站点隔离 ----------
@@ -617,12 +699,16 @@ def main():
               and status.get("job", {}).get("state") == "idle", "实际 %s" % body[:80])
         check("status 报告 has_key 字段（本机可能已配过 key，只验类型）",
               isinstance(status.get("has_key"), bool))
+        check("status 报告 ready 字段（能不能调，不能只看有没有 key）",
+              isinstance(status.get("ready"), bool))
 
-        if not status.get("has_key"):
+        # ⚠ 判据必须用 ready 而不是 has_key：免 key 端点
+        # has_key 恒为 False 但照样能跑，用 has_key 分支会误判。
+        if not status.get("ready"):
             st, body = areq("POST", "/api/ai/run", {"limit": 3})
-            check("没配 key 时 run -> 400", st == 400, "实际 %d %s" % (st, body[:60]))
+            check("没配好接口时 run -> 400", st == 400, "实际 %d %s" % (st, body[:60]))
         else:
-            print("  （本机已配置 key，跳过 400 分支）")
+            print("  （本机已配好 LLM 接口，跳过 400 分支）")
 
         # 保存 / 更换 / 清除 key（不触发任何网络请求）
         st, body = areq("POST", "/api/ai/settings", {"api_key": "sk-selftest-xxx",
@@ -679,7 +765,18 @@ def main():
             dst = os.path.join(DATA, name)
             if os.path.isfile(src):
                 shutil.copy2(src, dst)
-        shutil.rmtree(BACKUP)
+        # ⚠ 清备份目录失败**不能让整轮自检崩掉**（2026-10-14 修）。
+        #   rmtree 在 WorkBuddy 沙箱里被劫持到「丢回收站」，实测会抛
+        #   `OSError: SHFileOperationW 失败: 0x2`。而它跑在**结果汇总之前**，
+        #   于是变成「全部 PASS 却 traceback + 退出码非 0」——
+        #   看输出的人会以为自检炸了，实际上一条测试都没失败。
+        #   残留一个 .selftest_backup 只是脏目录，不影响 data/ 已还原这个事实。
+        try:
+            shutil.rmtree(BACKUP)
+        except OSError as e:                                  # noqa: BLE001
+            print("    [warn] 没清掉 %s：%s（data/ 已还原，"
+                  "手动删掉即可，不影响自检结论）"
+                  % (os.path.relpath(BACKUP, ROOT), e))
         # 测试期间新建的文件不在备份里，还原盖不掉 —— 会把假 key 留给用户
         if not had_secrets_in_backup \
                 and os.path.exists(os.path.join(DATA, "secrets.json")):

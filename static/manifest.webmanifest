@@ -1,0 +1,47 @@
+{
+  "name": "拆解海外 · 海外软件生意案例库",
+  "short_name": "拆解海外",
+  "description": "逐个拆解海外软件生意是怎么赚钱的：收入经支付网关验证，附双轴评分（一个人能不能做 × 能不能搬回国内做），另设创业墓碑区收录失败复盘。",
+  "lang": "zh-CN",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b0e14",
+  "theme_color": "#0b0e14",
+  "categories": ["business", "productivity", "education"],
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "创业墓碑区",
+      "short_name": "墓碑区",
+      "description": "倒下的项目是怎么死的",
+      "url": "./index.html#graveyard"
+    },
+    {
+      "name": "移植排行",
+      "short_name": "移植",
+      "description": "哪些适合搬回国内做",
+      "url": "./index.html#china"
+    }
+  ]
+}

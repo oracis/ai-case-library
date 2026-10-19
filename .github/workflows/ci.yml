@@ -4,6 +4,11 @@ name: CI
 # 这个库的价值全在数据是否可靠，所以额外加了两条数据断言：
 #   - data/*.json 必须是合法 JSON（手改 JSON 打错逗号能立刻发现）
 #   - 自测跑完后数据必须与提交时一字不差（验证备份/还原真的有效）
+#
+# ⚠️ 每个检查步骤都标了 continue-on-error（2026-10-19 改）：
+# 以前一个步骤挂掉就挡住后面所有步骤，CI 只报「第 2 步失败」——
+# 后果是 main 连红一个月（9-20 起 87+ 次），后面十几步的结果从来
+# 没人看过，真问题全被埋着。现在每一步都照跑，由末尾的「汇总」统一判红。
 on:
   push:
     branches: [main]
@@ -29,6 +34,8 @@ jobs:
           python-version: ${{ matrix.python }}
 
       - name: 校验 data/*.json 是不是合法 JSON
+        id: json
+        continue-on-error: true
         run: |
           python - <<'PY'
           import json, pathlib, sys
@@ -46,9 +53,13 @@ jobs:
           PY
 
       - name: 后端接口自测（起临时服务，跑完自动还原 data/）
+        id: selftest
+        continue-on-error: true
         run: python selftest.py
 
       - name: 断言数据未被自测污染
+        id: clean
+        continue-on-error: true
         run: |
           if [ -n "$(git status --porcelain data/)" ]; then
             echo "::error::自测改动了 data/，备份/还原机制失效："
@@ -63,10 +74,16 @@ jobs:
         # 表现是 403「must be addressed using the specified endpoint」，看不出原因）；
         # ② 带未核实队列的产物不许上传（曾把 441 条素材推上公网）；
         # ③ 参数闸门要在真的碰阿里云之前生效。
+        id: deploy_oss
+        continue-on-error: true
         run: python -m unittest scripts.test_deploy_oss
       - name: 测试 publish_ready.py（内容包闸门）
+        id: publish_ready
+        continue-on-error: true
         run: python -m unittest scripts.test_publish_ready
       - name: 测试 fit_ready.py（三套人工判断的补齐与方向一致）
+        id: fit_ready
+        continue-on-error: true
         run: python -m unittest scripts.test_fit_ready
       - name: 测试 release.py（六步顺序 + 失败即停 + 退出码语义）
         # 顺序错了不会报错，只会静默产出错的东西（fit 跑在 publish 前 /
@@ -74,18 +91,24 @@ jobs:
         # ① 步骤表声明的依赖与实际顺序一致（不是逐对手写断言，是声明式校验）；
         # ② 任何一步非 0 退出都不继续往下跑；
         # ③ 对外产物目录默认 public，不接受 dist（那是带 inbox 的预览版）。
+        id: release
+        continue-on-error: true
         run: python scripts/release.py --selfcheck && python -m unittest scripts.test_release
 
       - name: 测试 auto_deploy.py（兜底部署的判断准确性）
         # 判断判错的两种方式都不报错：把没变的说成变了 → 每天空转部署；
         # 把变了的说成没变 → 改了永远不上线且无提示。
         # 所以既测归一化（时间戳不算差异），也用**真实构建的两份产物**验证。
+        id: auto_deploy
+        continue-on-error: true
         run: python -m unittest scripts.test_auto_deploy
 
       - name: 测试 make_article.py（草稿生成与发布红线）
         # 守两条线：① 人工表（EDITORIAL_WEIGHT/TITLE_OVERRIDES）里的 id 不能写错，
         # 错一个会静默失效、排名悄悄跑偏；② 正文里绝不能出现裸 URL；
         # ③ 键值行必须是两端对齐的卡片行，不许退回「······」点线凑对齐。
+        id: make_article
+        continue-on-error: true
         run: python scripts/test_make_article.py
 
       - name: 测试 wechat_publish.py（公众号样式白名单的方向）
@@ -94,6 +117,8 @@ jobs:
         # 只能用点线凑对齐。这里两边都钉死：① 该留的布局属性不许再砍回去；
         # ② 实测确实留不住的（position / transform / 渐变）和会被误用的取值
         # （display:none）不许放宽 —— 放宽的后果是保存后样式静默消失、不报错。
+        id: wechat_publish
+        continue-on-error: true
         run: python -m unittest scripts.test_wechat_publish
 
       - name: 测试 verify_rules.py（规则引擎 + 等级与证据）
@@ -102,12 +127,16 @@ jobs:
         # ② 必填缺项永远不可发布；③ **声称的核实等级必须有来源撑住**
         # （曾经 11 条案例标着 stripe 却只有一个第三方拆解站来源）；
         # ④ human_read / caliber_consistent 保持不拦发布。
+        id: verify_rules
+        continue-on-error: true
         run: python scripts/test_verify_rules.py
 
       - name: 测试 ai_verify.py（卡点挑选与草稿映射，离线）
         # AI 自动核实的纯函数部分：候选挑选、AI 回答 → 草稿的映射。
         # 守的线：没有一手来源不勾 primary_source、human_read 不许自动勾、
         # bonus 必须与来源构成对得上 —— AI 的布尔回答不许裸信。
+        id: ai_verify
+        continue-on-error: true
         run: python scripts/test_ai_verify.py
 
       - name: 测试 triage.py（零成本初筛：打分 / 判级 / 去重 / 排序契约）
@@ -116,6 +145,8 @@ jobs:
         # 守的线：① 疑似金额（从标题正则抽的数）不算数字；
         # ② 没有数字的不许进深核；③ 候选池不由分数判死（人工挑的不能被机器归档）；
         # ④ 材料已齐的跳过；⑤ 人工标的「高优先级」压过机器分。
+        id: triage
+        continue-on-error: true
         run: python scripts/test_triage.py
 
       - name: 测试 harvest.py 五源解析（离线，用真抓下来的 fixture）
@@ -124,13 +155,63 @@ jobs:
         # 守的线：① 每条采集结果都必须带 source_kind（可信度不能丢）；
         # ② IndieHackers 的自报数字必须标 self_reported；
         # ③ Product Hunt 不许带任何收入字段；④ sitemap 里的里程碑 URL 要丢掉。
+        id: harvest
+        continue-on-error: true
         run: python scripts/test_harvest_sources.py
 
       - name: 测试 prerender.py（常量对齐、脱离 JS、转义）
         # 守三条线：① prerender.py 里的文案常量与 app.js 不能漂移（漂了不报错，
         # 只是同一条案例在两个地方显示成两个词）；② 案例页不跑 JS 也得读得到正文；
         # ③ 来源文本里的 < > & 必须转义干净。
+        id: prerender
+        continue-on-error: true
         run: python scripts/test_prerender.py
+
+      - name: 测试 agnes_cover.py（生图 prompt 不含中文、构图方向、尺寸合法）
+        # 纯函数单测，不连网不调 API。守三条线：
+        # ① prompt 里不能出现中文（图像模型画不出中文，硬塞出乱码图）；
+        # ② 构图方向必须与目标尺寸一致（曾把 square 也写成 horizontal）；
+        # ③ category 必须 100% 命中风格表（miss 就全落 DEFAULT_STYLE，
+        #    整套图风格不统一）。外加 size 取值合法性（Agnes 只认
+        #    1K/2K/3K/4K/WIDTHxHEIGHT，`16:9` 会 400）与像素回读逻辑。
+        id: agnes
+        continue-on-error: true
+        run: python -m unittest scripts.test_agnes_cover
+
+      - name: 汇总（任一步失败即判红，但每一步都跑到了）
+        # 上面每步都 continue-on-error，所以它们谁也挡不住谁；判红统一由这里做。
+        # 「跳过」也一起打出来 —— 静默 pass 是假绿的另一种。
+        id: gate
+        if: always()
+        run: |
+          bad=0
+          for pair in \
+            "校验 JSON:${{ steps.json.outcome }}" \
+            "接口自测:${{ steps.selftest.outcome }}" \
+            "数据未污染:${{ steps.clean.outcome }}" \
+            "deploy_oss:${{ steps.deploy_oss.outcome }}" \
+            "publish_ready:${{ steps.publish_ready.outcome }}" \
+            "fit_ready:${{ steps.fit_ready.outcome }}" \
+            "release:${{ steps.release.outcome }}" \
+            "auto_deploy:${{ steps.auto_deploy.outcome }}" \
+            "make_article:${{ steps.make_article.outcome }}" \
+            "wechat_publish:${{ steps.wechat_publish.outcome }}" \
+            "verify_rules:${{ steps.verify_rules.outcome }}" \
+            "ai_verify:${{ steps.ai_verify.outcome }}" \
+            "triage:${{ steps.triage.outcome }}" \
+            "harvest:${{ steps.harvest.outcome }}" \
+            "prerender:${{ steps.prerender.outcome }}" \
+            "agnes:${{ steps.agnes.outcome }}" \
+          ; do
+            printf '  %-16s %s\n' "${pair%%:*}" "${pair#*:}"
+            [ "${pair#*:}" = "failure" ] && bad=1
+          done
+          if [ "$bad" = 0 ]; then
+            echo "全部步骤通过。"
+            exit 0
+          fi
+          echo "::error::上面有步骤失败，本 job 判红（其余步骤的结果已一并跑出）"
+          exit 1
 
   frontend:
     name: 前端自测 · Node ${{ matrix.node }}
@@ -147,30 +228,42 @@ jobs:
           node-version: ${{ matrix.node }}
 
       - name: app.js 语法检查
+        id: syntax_app
+        continue-on-error: true
         run: node --check static/app.js
 
       # 后台是独立站点，脚本也要单独过一遍语法 ——
       # 它不被 static/index.html 引用，公开站那步检查覆盖不到它。
       - name: 后台脚本语法检查
+        id: syntax_admin
+        continue-on-error: true
         run: |
           node --check admin/app.js
           node --check admin/verify.js
 
       - name: 测试脚本语法检查
+        id: syntax_test
+        continue-on-error: true
         run: |
           node --check uitest.js
           node --check uitest-admin.js
 
       - name: 渲染冒烟测试（DOM 桩，无需浏览器）
+        id: uitest
+        continue-on-error: true
         run: node uitest.js
 
       - name: 后台冒烟测试（登录 / 核实 / 入库）
         # 这步需要能起 python 子进程（读 verify_rules.py 的规则表）——
         # 后台的「门槛/必填/加分」三个数字必须来自真实现，不能写死。
         # 找不到解释器时会明确报出来（以前是吞掉异常只说「读不到」）。
+        id: uitest_admin
+        continue-on-error: true
         run: node uitest-admin.js
 
       - name: 断言测试没有写脏 data/
+        id: clean
+        continue-on-error: true
         run: |
           if [ -n "$(git status --porcelain data/)" ]; then
             echo "::error::前端测试改动了 data/"
@@ -178,6 +271,29 @@ jobs:
             exit 1
           fi
           echo "data/ 未被改动。"
+
+      - name: 汇总（任一步失败即判红，但每一步都跑到了）
+        id: gate
+        if: always()
+        run: |
+          bad=0
+          for pair in \
+            "app.js 语法:${{ steps.syntax_app.outcome }}" \
+            "后台脚本语法:${{ steps.syntax_admin.outcome }}" \
+            "测试脚本语法:${{ steps.syntax_test.outcome }}" \
+            "渲染冒烟:${{ steps.uitest.outcome }}" \
+            "后台冒烟:${{ steps.uitest_admin.outcome }}" \
+            "data 未脏:${{ steps.clean.outcome }}" \
+          ; do
+            printf '  %-16s %s\n' "${pair%%:*}" "${pair#*:}"
+            [ "${pair#*:}" = "failure" ] && bad=1
+          done
+          if [ "$bad" = 0 ]; then
+            echo "全部步骤通过。"
+            exit 0
+          fi
+          echo "::error::上面有步骤失败，本 job 判红（其余步骤的结果已一并跑出）"
+          exit 1
 
   static:
     name: 静态产物 · 构建 + 只读模式测试
@@ -196,17 +312,24 @@ jobs:
       - name: 构建静态站
         # 这个 job 守的是「能部署出去的那份东西确实可用」。
         # 本地产物和 CI 产物理应一致，所以这里也真跑一遍构建。
+        # 构建失败时后面三步没有意义，所以只有它不标 continue-on-error。
         run: python scripts/build_static.py
 
       - name: 测静态产物（应切到只读模式、从 data.js 取数）
+        id: uitest
+        continue-on-error: true
         run: node uitest.js --static
 
       - name: 校验预渲染产物（案例页不跑 JS 也要读得到正文）
         # build_static.py 构建时已经自检过一遍，这里是独立复检：
         # 万一以后有人绕过 build_static.py 直接调 prerender，也不会漏掉。
+        id: prerender
+        continue-on-error: true
         run: python scripts/prerender.py --check --out dist
 
       - name: 断言构建只产出 dist/，没碰别的地方
+        id: clean
+        continue-on-error: true
         run: |
           # dist/ 已在 .gitignore 里，所以构建完仓库应当完全干净
           if [ -n "$(git status --porcelain)" ]; then
@@ -221,3 +344,23 @@ jobs:
           name: static-site
           path: dist/
           retention-days: 7
+
+      - name: 汇总（任一步失败即判红，但每一步都跑到了）
+        id: gate
+        if: always()
+        run: |
+          bad=0
+          for pair in \
+            "静态冒烟:${{ steps.uitest.outcome }}" \
+            "预渲染复检:${{ steps.prerender.outcome }}" \
+            "仓库未脏:${{ steps.clean.outcome }}" \
+          ; do
+            printf '  %-16s %s\n' "${pair%%:*}" "${pair#*:}"
+            [ "${pair#*:}" = "failure" ] && bad=1
+          done
+          if [ "$bad" = 0 ]; then
+            echo "全部步骤通过。"
+            exit 0
+          fi
+          echo "::error::上面有步骤失败，本 job 判红（其余步骤的结果已一并跑出）"
+          exit 1

@@ -1,0 +1,134 @@
+{
+  "quran-unlock": {
+    "cover_desc": "穆斯林读古兰经解锁应用，用信仰戒除分心",
+    "ok": true,
+    "why": "ok",
+    "auto": true
+  },
+  "mort": {
+    "cover_desc": "AI求职代理替你盯岗匹配并自动投递，帮求职者少跑弯路",
+    "ok": true,
+    "why": "ok",
+    "auto": true
+  },
+  "voklit": {
+    "cover_desc": "Voklit为数字游民和小商户提供跨境通话与短信服务",
+    "ok": true,
+    "why": "ok",
+    "auto": true
+  },
+  "prosp": {
+    "cover_desc": "PROSP帮销售团队一键生成并发送LinkedIn个性化私信",
+    "ok": true,
+    "why": "ok",
+    "auto": true
+  },
+  "divine-widgets": {
+    "cover_desc": "圣经小组件应用，让基督教女性解锁即见每日经文与祷告",
+    "ok": true,
+    "why": "ok",
+    "auto": true
+  },
+  "promptmonitor-io": {
+    "cover_desc": "帮品牌营销团队监测各类AI模型回答中的品牌曝光",
+    "ok": true,
+    "why": "ok",
+    "auto": true
+  },
+  "aeo-engine": {
+    "cover_desc": "AI问答营销工具，让品牌在AI答案中被提及",
+    "ok": true,
+    "why": "ok",
+    "auto": true
+  },
+  "boothie-ai-photo-editor": {
+    "cover_desc": "AI 换风格修图，一键出复古自拍",
+    "ok": true,
+    "why": "人工改写（去营销套话）",
+    "auto": true
+  },
+  "bustem": {
+    "cover_desc": "电商打假，全网监控仿货并下架",
+    "ok": true,
+    "why": "人工改写（去营销套话）",
+    "auto": true
+  },
+  "chatbase": {
+    "cover_desc": "文档变客服，30分钟见效益",
+    "ok": true,
+    "why": "ok",
+    "auto": true
+  },
+  "cometly": {
+    "cover_desc": "AI营销归因，SaaS数据分析平台",
+    "ok": true,
+    "why": "ok",
+    "auto": true
+  },
+  "comp-ai": {
+    "cover_desc": "合规审计，六个月流程压到几周",
+    "ok": true,
+    "why": "人工改写（去营销套话）",
+    "auto": true
+  },
+  "coral": {
+    "cover_desc": "部署托管开源 AI agent，卖配置服务",
+    "ok": true,
+    "why": "人工改写（去营销套话）",
+    "auto": true
+  },
+  "gojiberryai": {
+    "cover_desc": "AI线索挖掘，精准触达B2B客户",
+    "ok": true,
+    "why": "ok",
+    "auto": true
+  },
+  "lancer-app": {
+    "cover_desc": "AI自动化接单助手，解放自由职业者",
+    "ok": true,
+    "why": "ok",
+    "auto": true
+  },
+  "meerkats-ai": {
+    "cover_desc": "AI线索管理，助力营销高效触达",
+    "ok": true,
+    "why": "ok",
+    "auto": true
+  },
+  "speel-co": {
+    "cover_desc": "上传商品图，3 分钟出投放广告素材",
+    "ok": true,
+    "why": "人工改写（去营销套话）",
+    "auto": true
+  },
+  "startclaw": {
+    "cover_desc": "不配 API key 就托管一个 agent",
+    "ok": true,
+    "why": "人工改写（去营销套话）",
+    "auto": true
+  },
+  "trustmrr": {
+    "cover_desc": "收入数据验证平台，助创业公司交易",
+    "ok": true,
+    "why": "ok",
+    "auto": true
+  },
+  "uplinked-b-v": {
+    "cover_desc": "AI代写LinkedIn，助B2B顾问涨粉揽客",
+    "ok": true,
+    "why": "ok",
+    "auto": true
+  },
+  "viktor": {
+    "cover_desc": "Slack/Teams AI同事，跨系统工作助手",
+    "ok": true,
+    "why": "ok",
+    "auto": true
+  },
+  "wpconvert-ai-convert-ai-sites-to-wordpress": {
+    "cover_desc": "AI 建站生成的网站一键转 WordPress",
+    "ok": true,
+    "why": "人工改写（去营销套话）",
+    "auto": true
+  }
+}

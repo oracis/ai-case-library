@@ -34,6 +34,10 @@ Squeezy）抓的，写稿时顺手记一句核对备注，比如
     from text_clean import end_sentences
     end_sentences(cases)            # 给正文级列表项补结尾句号
                                     # 「卖的是…而不是服务」→「卖的是…而不是服务。」
+
+    from text_clean import strip_placeholders, clean_placeholders
+    strip_placeholders("客服类产品（具体定位未获取）")   # => "客服类产品"
+    clean_placeholders(cases)       # 清掉 one_liner / what_it_does 的定位占位
 """
 
 import re
@@ -98,6 +102,89 @@ def clean_snapshot_marks(obj):
                 obj[i] = strip_snapshot_marks(v)
             elif isinstance(v, (dict, list)):
                 clean_snapshot_marks(v)
+    return obj
+
+
+# ---------------------------------------------------------------- 占位文案
+# 2026-09-24 用户反馈：公众号标题上直接印着「Voklit：客服类产品（具体定位未获取）」。
+# 这句括号是**采集侧的兜底**——初筛没查到产品定位就填它，好让内部一眼看出
+# 「这条缺料」。但它挂在 one_liner 上，一路流进了标题、摘要、封面文案和正文
+# 首段：等于把「我们没查到」印在读者面前，比不写更难看。
+#
+# 清理刻意做窄，只认两类「没有内容」的措辞，括号内还必须是短句：
+#   · 定位查不到：「（具体定位未获取）」「（待补充：产品定位未明）」
+#   · 干脆没料：「（主动匿名，无公开信息）」「（暂无公开信息）」
+#   · 「（含 Figma 插件）」「（Lemon Squeezy 侧验证）」→ 留（那是真信息）
+# 删完只剩标点/空白的，返回空串 —— 渲染层靠 `if text:` 整行不输出，
+# 所以不会留下一个孤零零的「Voklit：」，标题会退回只写产品名。
+#
+# 2026-09-24 用户第二次强调：「空的占位就不要用了，没有内容就不要显示」——
+# 原先只清「定位未获取」一族，把「（主动匿名，无公开信息）」当成了真信息保留，
+# 结果 stealth-company 的标题是「Stealth Company：（主动匿名，无公开信息）」，
+# 等于把「这条没料」印成标题。所以补上第二族。
+_PLACE_HINT = re.compile(
+    r"定位未获取|定位未明|产品定位|待补充|未获取|未明"          # 定位查不到
+    r"|无公开信息|暂无公开信息|不公开|未公开|信息不详|不详"      # 干脆没料
+)
+_PLACE_BRACKET = re.compile(r"[（(]([^（）()]{0,24})[）)]")
+# 裸占位（没带括号的形态，数据里也有：「具体定位未获取」）。
+# 第二族（没料的措辞）只按**括号形态**清 —— 裸写「无公开信息」如果出现在
+# 一句真话里（「官网无公开信息，故未采信」），整句是有意义的，不能删。
+_PLACE_BARE = re.compile(
+    r"(?:具体|产品|整体)?定位(?:信息)?(?:未获取|未明|不详|待补充)"
+    r"|待补充[：:]?"
+    r"|未获取")
+# 判断「还有没有内容」：有一个中文/字母/数字就算有。
+# **不能**靠 strip 标点集来判断 —— 那样会把正常句尾的「。」也吃掉
+# （2026-09-24 踩过：rezi 的 what_it_does 结尾句号被 strip 掉，30 条老案例
+#   的正文全被改了一遍，diff 一片红）。
+_MEANINGFUL = re.compile(r"[0-9A-Za-z\u4e00-\u9fff]")
+# 删掉占位后可能留在**句尾**的孤立连接符：「客服、」→「客服」。
+# 刻意不含「。！？」—— 句号是正文的收尾，不是占位残留。
+_DANGLING_TAIL = re.compile(r"[，,、：:；;·\-—]+$")
+
+
+def strip_placeholders(text):
+    """删掉「没有内容」的占位（带括号或裸写）；只剩占位时返回空串。
+
+    非字符串原样返回。
+    """
+    if not isinstance(text, str):
+        return text
+    s = _PLACE_BRACKET.sub(
+        lambda m: "" if _PLACE_HINT.search(m.group(1)) else m.group(0), text)
+    s = _PLACE_BARE.sub("", s)
+    s = s.strip()
+    if not _MEANINGFUL.search(s):
+        return ""
+    return _DANGLING_TAIL.sub("", s)
+
+
+def clean_placeholders(obj, fields=("one_liner", "what_it_does"),
+                       nested=("claim",)):
+    """就地清掉案例里**会外显**的定位占位字段，返回同一个对象。
+
+    只动两处：
+      · `fields` —— 直接进标题 / 摘要 / 封面 / 正文首段的定位字段；
+      · `corrections[].claim` —— 会被当成「流传的说法」原文引用出来
+        （voklit 那条的 claim 里就嵌着「（客服类产品，具体定位未获取）」）。
+    `verdict` / `note` / `signals` 里的同类措辞是**写给内部看的**（说明这条
+    没查到什么），各有各的渲染判断，不在这里抹掉。
+    """
+    if isinstance(obj, dict):
+        obj = [obj]
+    for c in obj or []:
+        if not isinstance(c, dict):
+            continue
+        for f in fields:
+            if isinstance(c.get(f), str):
+                c[f] = strip_placeholders(c[f])
+        for it in (c.get("corrections") or []):
+            if not isinstance(it, dict):
+                continue
+            for f in nested:
+                if isinstance(it.get(f), str):
+                    it[f] = strip_placeholders(it[f])
     return obj
 
 
@@ -174,6 +261,58 @@ if __name__ == "__main__":
         if got != want:
             print("    期望 %r" % want)
     print("\n%d/%d 通过" % (len(CASES) - bad, len(CASES)))
+
+    # ---- 占位文案 ----
+    P = strip_placeholders
+    PCASES = [
+        # 应删：定位没查到的兜底括号
+        ("客服类产品（具体定位未获取）", "客服类产品"),
+        ("网页小组件（具体定位未获取）", "网页小组件"),
+        ("（待补充：产品定位未明）", ""),
+        ("AI 产品（具体定位未获取）", "AI 产品"),
+        ("具体定位未获取", ""),                      # 裸占位（无括号）也清
+        # 应留：括号里是**真信息**
+        ("（含 Figma 插件）", "（含 Figma 插件）"),
+        ("一套面向设计师的工具（含 Figma 插件）", "一套面向设计师的工具（含 Figma 插件）"),
+        ("（Lemon Squeezy 侧验证）", "（Lemon Squeezy 侧验证）"),
+        # 应删：「没料」也该当空占位，不该印成标题（2026-09-24 用户第二次强调）
+        ("（主动匿名，无公开信息）", ""),
+        ("Stealth Company（暂无公开信息）", "Stealth Company"),
+        # 句尾句号必须留住（占位清理不是「洗标点」）
+        ("客服类产品（具体定位未获取）。", "客服类产品。"),
+        ("AI 简历生成器。", "AI 简历生成器。"),
+        ("监测品牌在各类 AI 模型回答中的曝光情况",
+         "监测品牌在各类 AI 模型回答中的曝光情况"),
+        ("搜索类 API 服务", "搜索类 API 服务"),
+        ("一套面向设计师的工具（含 Figma 插件）", "一套面向设计师的工具（含 Figma 插件）"),
+        ("", ""),
+    ]
+    pbad = 0
+    for src, want in PCASES:
+        got = P(src)
+        flag = "ok " if got == want else "BAD"
+        if got != want:
+            pbad += 1
+        print("%s %r\n    -> %r" % (flag, src, got))
+        if got != want:
+            print("    期望 %r" % want)
+    print("\n%d/%d 通过（占位文案）" % (len(PCASES) - pbad, len(PCASES)))
+    bad += pbad
+
+    one = {"one_liner": "客服类产品（具体定位未获取）",
+           "what_it_does": "（待补充：产品定位未明）",
+           "verdict": "（主动匿名，无公开信息）",
+           "corrections": [{"claim": "Voklit 属「客户服务」类产品（客服类产品，具体定位未获取）",
+                            "truth": "它是云通信服务。"}]}
+    clean_placeholders(one)
+    scope_ok = (one["one_liner"] == "客服类产品" and one["what_it_does"] == ""
+                and one["verdict"] == "（主动匿名，无公开信息）"
+                and one["corrections"][0]["claim"] == "Voklit 属「客户服务」类产品")
+    if not scope_ok:
+        bad += 1
+    print("%s 清 one_liner / what_it_does / corrections[].claim，"
+          "verdict 等字段不动\n    -> %r"
+          % ("ok " if scope_ok else "BAD", one))
 
     # ---- 结尾句号 ----
     E = end_sentence

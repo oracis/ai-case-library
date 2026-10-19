@@ -395,13 +395,27 @@ class InboxGate(unittest.TestCase):
         self.assertIsNone(D.inbox_count(path))
 
     def test_real_builds(self):
-        """真实产物：dist 带队列、public 不带 —— 这就是那道闸门的分界线。"""
-        dist = os.path.join(ROOT, "dist", "data.json")
-        public = os.path.join(ROOT, "public", "data.json")
-        if not os.path.exists(dist) or not os.path.exists(public):
-            self.skipTest("还没构建产物")
-        self.assertGreater(D.inbox_count(dist), 0, "dist 应当带未核实队列")
-        self.assertEqual(D.inbox_count(public), 0, "public 必须不含未核实队列")
+        """真实构建：dist 带队列、对外版不带 —— 这就是那道闸门的分界线。
+
+        别直接读工作目录里的 `public/data.json` 当契约（2026-10-10踩坑）：
+        那是手工作业目录，谁都可能用不带 `--no-inbox` 的命令重建一次。
+        实测就是这么变成假红的 —— 线上产物 inbox=0 干干净净，本地public
+        却因为一次普通构建变成 400，于是测试报「public 含未核实队列」。
+        契约该由流水线自己产出：这里现build 两份到临时目录再断言。
+        """
+        import build_static
+
+        with_full = os.path.join(self.tmp, "out_full")
+        with_clean = os.path.join(self.tmp, "out_clean")
+        self.assertEqual(build_static.build(with_full, include_inbox=True), 0)
+        self.assertEqual(build_static.build(with_clean, include_inbox=False), 0)
+
+        n_full = D.inbox_count(os.path.join(with_full, "data.json"))
+        n_clean = D.inbox_count(os.path.join(with_clean, "data.json"))
+        self.assertIsNotNone(n_full, "完整版必须能读出 inbox 字段")
+        self.assertIsNotNone(n_clean, "对外版必须能读出 inbox 字段（恒 0，不是缺失）")
+        self.assertEqual(n_clean, 0, "对外版必须不含未核实队列")
+        self.assertGreaterEqual(n_full, n_clean, "完整版的队列不该少于对外版")
 
 
 if __name__ == "__main__":

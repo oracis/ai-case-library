@@ -23,11 +23,30 @@
     python scripts/ai_verify.py --limit 5 --publish   # 够格的直接发布成案例
     python scripts/ai_verify.py --all --publish --min-score 60
 
-环境变量（LLM 走 OpenAI 兼容接口，DeepSeek / Kimi / GLM 都行）
-    CASE_LIB_AI_KEY     必填（--plan 除外）
-    CASE_LIB_AI_BASE    默认 https://api.deepseek.com
-    CASE_LIB_AI_MODEL   默认 deepseek-chat
+环境变量（LLM 走 OpenAI 兼容接口，GLM / DeepSeek / Kimi 都行）
+    CASE_LIB_AI_KEY     必填（--plan 除外）。也可放 data/secrets.json 的 ai_key
+                        （该文件已被 .gitignore 排除，是 key 的正规位置）
+    CASE_LIB_AI_BASE    默认 https://open.bigmodel.cn/api/paas/v4（智谱）
+    CASE_LIB_AI_MODEL   默认 glm-4-flash（免费档）
     CASE_LIB_ADMIN_PASSWORD   后台密码（写草稿/发布要登录 5053）
+
+    读取优先级：环境变量 > data/secrets.json > 上面这些默认值。
+    ⚠ space-bunny-free（opencode.ai/zen）2026-10-11 起被上游封直连，已弃用；
+       DeepSeek 是付费端点，按需显式切。
+
+换模型（CLI 覆盖环境变量，不传就用上面的默认值）
+    # 先花几秒验端点，别直接跑一批才发现 key 不对
+    python scripts/ai_verify.py --ping
+    # 通了再核
+    python scripts/ai_verify.py --triage --limit 5
+    python scripts/ai_verify.py --limit 5 --ai-model deepseek-chat \
+                                --ai-base https://api.deepseek.com \
+                                --ai-key sk-xxx
+
+    端点约定：base 填到 /v1（别带 /chat/completions），尾部斜杠会被rstrip。
+    ⚠ 换端点最常见的两个坑，--ping 会直接指出来：
+      · HTTP 403 = Cloudflare/WAF 拦 UA，不是 key 问题（请求头已带浏览器 UA）
+      · HTTP 400 = 该端点不支持 response_format={"type":"json_object"}
 
 设计约束
 --------
@@ -39,12 +58,14 @@
 """
 
 import argparse
+import gzip
 import html as html_mod
 import json
 import os
 import re
 import subprocess
 import sys
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -57,12 +78,64 @@ sys.path.insert(0, os.path.join(ROOT, "scripts"))
 import verify_rules as VR                                        # noqa: E402
 import triage as TR                                              # noqa: E402
 
+def _load_secrets():
+    """读 data/secrets.json 里的 LLM 配置（该文件已被 .gitignore 排除，key 放这里）。
+
+    缺文件 / 读失败都返回空 dict —— 缺一个密钥文件不该让整个脚本起不来。
+    """
+    p = os.path.join(ROOT, "data", "secrets.json")
+    if not os.path.isfile(p):
+        return {}
+    try:
+        with open(p, encoding="utf-8") as f:
+            return json.load(f) or {}
+    except Exception:                                        # noqa: BLE001
+        return {}
+
+
+_SEC = _load_secrets()
+
+
+def _cfg(env_key, sec_key, default):
+    """配置优先级：环境变量 > data/secrets.json > 内置默认。
+
+    ⚠ 用 `in os.environ` 判「设过没有」，不用真值 —— 显式设成空串
+    （表示清空）也必须赢过 secrets.json，否则旧 key 会被悄悄沿用。
+    """
+    if env_key in os.environ:
+        return os.environ[env_key]
+    v = _SEC.get(sec_key)
+    return v if v else default
+
+
 ADMIN_BASE = os.environ.get("CASE_LIB_ADMIN_BASE", "http://127.0.0.1:5053")
-AI_BASE = (os.environ.get("CASE_LIB_AI_BASE") or "https://api.deepseek.com").rstrip("/")
-AI_KEY = os.environ.get("CASE_LIB_AI_KEY", "")
-AI_MODEL = os.environ.get("CASE_LIB_AI_MODEL", "deepseek-chat")
+# 🚨 默认端点 = 智谱 GLM-4-Flash（免费档，2026-10-13 切换）。
+# 上一个默认 space-bunny-free（opencode.ai/zen）2026-10-11 起被上游封直连，已弃用；
+# 再上一个 DeepSeek 是付费的。key 走 CASE_LIB_AI_KEY 或 secrets.json 的 ai_key。
+AI_BASE = _cfg("CASE_LIB_AI_BASE", "ai_base",
+               "https://open.bigmodel.cn/api/paas/v4").rstrip("/")
+AI_KEY = _cfg("CASE_LIB_AI_KEY", "ai_key", "")
+AI_MODEL = _cfg("CASE_LIB_AI_MODEL", "ai_model", "glm-4-flash")
+# 这些base 走本机代理会超时/403，LLM 请求时绕过代理（仅 LLM，不影响其他）
+AI_BASE_NO_PROXY = ("opencode.ai/zen",)
+# 🚨 **截断自动重试**（2026-10-10）。
+# 推理模型把思考 token 也算进 max_tokens，核一条要烧 4000+（思考约 3600），
+# 16000 仍偶发被吃光 —— `publbee`、`vectosolve` 都因此失败过，而同批里
+# 知识面窄的条目一次就过，说明是**模型思考长度波动**、不是条目问题。
+# 所以这属于「可重试失败」，不该让人手动重跑（实测重跑一次就好）。
+AI_MAX_TOKENS = int(os.environ.get("CASE_LIB_AI_MAX_TOKENS") or 16000)
+LLM_TRUNCATE_RETRIES = 2
+LLM_TRUNCATE_STEP = 4000
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/126.0 Safari/537.36")
+
+
+def _direct_opener():
+    """一个绕开系统代理的 opener，只给免鉴权端点用（stdlib，零依赖）。"""
+    if not hasattr(_direct_opener, "_cached"):
+        _direct_opener._cached = urllib.request.build_opener(
+            urllib.request.ProxyHandler({}))
+    return _direct_opener._cached
 
 GATE_KEYS = [g["key"] for g in VR.GATES]
 MUST_KEYS = [m["key"] for m in VR.MUSTS]
@@ -72,15 +145,36 @@ BONUS_KEYS = [b["key"] for b in VR.BONUS]
 def configure(api_key=None, base=None, model=None):
     """运行期改 LLM 配置（后台 GUI 保存的 key 在 server 进程里生效就靠它）。
 
-    不传的项保持原值。模块级常量在函数体内读取，所以改全局立刻生效。
+    ⚠ **判据是 `is not None`，不是真值** —— 空串必须能真清空key。
+    免key 端点（opencode.ai/zen 的space-bunny-free）只认「空 Bearer」，
+    而 `if api_key:` 会把 `""` 当falsy 跳过赋值 ⇒ 旧的付费 key 被沿用下来
+    ⇒ 拿 DeepSeek 的 key 去调免 key 端点，必401 Invalid API key。
+    2026-10-04 切换模型时踩到：后台把 key 清成空串，configure 却不生效。
     """
     global AI_KEY, AI_BASE, AI_MODEL
-    if api_key:
+    if api_key is not None:
         AI_KEY = api_key
-    if base:
+    if base is not None:
         AI_BASE = base.rstrip("/")
-    if model:
+    if model is not None:
         AI_MODEL = model
+
+
+def is_no_key_endpoint(base=None):
+    """这个 base 是不是免 key 端点（不需要 API key）。
+
+    后台/CLI 判断「能不能跑」的统一口径 —— 免 key 端点没有 key 也能调，
+    用 `if notkey` 卡门会把它们全挡在门外。
+    """
+    b = (base or AI_BASE or "")
+    return any(h in b for h in AI_BASE_NO_PROXY)
+
+
+def ai_ready(key=None, base=None):
+    """LLM 是否处于可调用状态：有 key，或者 base 走免 key 端点。"""
+    k = AI_KEY if key is None else key
+    b = AI_BASE if base is None else base
+    return bool(k) or is_no_key_endpoint(b)
 
 
 class AdminError(Exception):
@@ -112,12 +206,17 @@ def _priority(c):
 
 
 def pick_candidates(cands, limit=None, ids=None, include_small=False,
-                    index=None, skip_ready=True):
+                    index=None, skip_ready=True, include_held=False):
     """从候选池挑出值得核实的条目。
 
     自动跳过：占位条目（名字带（ 的观察/待发现）、headline 还是「未获取」的、
-    标了「体量太小」的（除非 include_small）、以及**初筛判定材料已齐的**
+    标了「体量太小」的（除非 include_small）、**人工挂起的**（除非 include_held）、
+    以及**初筛判定材料已齐的**
     （那种条目缺的是人点发布，不是 AI 核实 —— 核它等于重复花钱）。
+
+    ⚠ include_held 只应出现在「人明确点名要重核」的场合。挂起是作者写下的
+    「这条不推进」，让批量任务默默把它捡回来，等于机器替人撤销决定。
+    --id 显式点名不受挂起影响（人点名本身就是最新决定）。
 
     排序（2026-09-20 改）：
       1. 人显式标的「高优先级复核」置顶 —— 机器分不许覆盖人的判断；
@@ -141,6 +240,8 @@ def pick_candidates(cands, limit=None, ids=None, include_small=False,
         if "未获取" in head:
             continue
         if not include_small and "体量太小" in blocking:
+            continue
+        if not include_held and TR.is_held(c):
             continue
         r = TR.score_record(c, "candidate", index)
         if skip_ready and r["grade"] == "ready":
@@ -634,7 +735,41 @@ def fetch_text(url, cap=6000):
 # ---------------------------------------------------------------------------
 # LLM（OpenAI 兼容 /chat/completions）
 # ---------------------------------------------------------------------------
-def llm(messages, temperature=0.2):
+def llm(messages, temperature=0.2, max_tokens=None):
+    """调一次模型。**截断了会自动加大预算重试**（见下方注释）。
+
+    `max_tokens=None` 表示用默认 `AI_MAX_TOKENS`。
+    """
+    last_err = None
+    budget = max_tokens or AI_MAX_TOKENS
+    for attempt in range(LLM_TRUNCATE_RETRIES + 1):
+        try:
+            return _llm_once(messages, temperature, budget)
+        except _Truncated as e:
+            last_err = e
+            # 🚨 截断是**可重试**的失败，不该让人手动重跑（2026-10-10）。
+            # 实测这条坑反复踩：`publbee`、`vectosolve` 两次都因
+            # finish_reason=length 失败，而同一批次里知识面窄的条目
+            # （augora-ai）一次就过 —— 说明是模型思考长度波动，不是条目问题。
+            #
+            # 为什么原来「调大 max_tokens」没根治：推理模型把**思考**
+            # 也算进 max_tokens，16000 仍会被吃光。
+            # 正确解法是让模型**别再想那么久**：显式要求
+            # 直接输出 JSON 决策、压缩思考过程，而不是无限加预算。
+            if attempt >= LLM_TRUNCATE_RETRIES:
+                break
+            grown = AI_MAX_TOKENS + (attempt + 1) * LLM_TRUNCATE_STEP
+            print("   ↻ LLM 输出被截断，自动加预算重试"
+                  "（%d → %d）" % (budget, grown))
+            budget = grown
+    raise RuntimeError(str(last_err))
+
+
+class _Truncated(RuntimeError):
+    """内部信号：回答被 max_tokens 截断（可重试）。"""
+
+
+def _llm_once(messages, temperature, max_tokens):
     body = json.dumps({
         "model": AI_MODEL,
         "messages": messages,
@@ -642,31 +777,112 @@ def llm(messages, temperature=0.2):
         "response_format": {"type": "json_object"},
         # 推理模型（如 deepseek-flash）的思考 token 也计入 max_tokens——
         # 实测核一条要烧 4000+（其中思考约 3600），2000/8000 都会被截断，
-        # 这里放宽到 16000；不够时 finish_reason=length 会给出明确报错。
-        "max_tokens": 16000,
+        # 这里放宽到 AI_MAX_TOKENS；不够时llm() 会自动加重试预算。
+        "max_tokens": max_tokens,
     }).encode("utf-8")
     req = urllib.request.Request(
         AI_BASE + "/chat/completions", data=body,
         headers={"Content-Type": "application/json",
-                 "Authorization": "Bearer " + AI_KEY})
+                 # ⚠ key 为空时必须发「空 Bearer」（等号后什么都不给），
+                 # 不能省略这个头、也不能填占位串：
+                 #· 省略 Authorization → 端点等到超时才报错，难排查；
+                 #   · 填 `Bearer free` / `Bearer sk-xxx` → 401 Invalid API key，
+                 #     因为服务端会校验 key 是否真实存在。
+                 # 空值才走「免鉴权/ 隐身模型」分支。
+                 # 2026-10-01 实测：space-bunny-free 只有这样才能免 key 调通。
+                 "Authorization": "Bearer " + (AI_KEY or ""),
+                 # ⚠ 必须带 UA：OpenCode Zen（Space Bunny）这类端点前面挂
+                 # Cloudflare，urllib 默认 UA 会被 403「error code: 1010」拦掉
+                 # —— 那是 WAF 拦截，不是 key 或参数问题，换真 key 也照样403。
+                 # 2026-10-01 实测：加上浏览器 UA 后 403 → 401（=请求形状通了）。
+                 "User-Agent": UA,
+                 "Accept": "application/json"})
+    # 免鉴权端点（opencode.ai/zen）走本机代理会超时/403，直接绕过。
+    # 只对 LLM 请求生效，不动其他网络行为。
+    opener = _direct_opener() if any(
+        h in AI_BASE for h in AI_BASE_NO_PROXY) else None
+    # ⚠ OpenerDirector 的方法叫 .open()，没有 .urlopen() —— 两者接口不同，
+    #   不能简单互换（写错会AttributeError）。
     try:
-        with urllib.request.urlopen(req, timeout=300) as r:
-            data = json.loads(r.read().decode("utf-8"))
+        if opener is not None:
+            resp = opener.open(req, timeout=300)
+        else:
+            resp = urllib.request.urlopen(req, timeout=300)
     except urllib.error.HTTPError as e:
         # 只抛 "HTTP Error 400" 没法排障——服务端的 reason（模型名错、key 无效、
         # 参数不合法）都在响应体里，带出来写进任务日志。
+        # ⚠ 401 在「空 Bearer」语境下含义不同：多半是「这个模型不支持免 key」，
+        #    而非「key 填错了」——两者要分开报，否则会一直往换 key 的方向查。
         detail = ""
         try:
             detail = e.read().decode("utf-8", "replace")[:300]
         except Exception:                                    # noqa: BLE001
             pass
-        raise RuntimeError("LLM 接口 HTTP %s%s" % (
-            e.code, ("：" + detail) if detail else "")) from e
-    ch = data["choices"][0]
+        hint = ""
+        if e.code == 401 and not AI_KEY:
+            hint = ("（当前是免 key 模式：这个模型不支持空 Bearer，"
+                    "多半是「限时免费但锁客户端」或需要真 key，"
+                    "换 --ai-model 试别的）")
+        raise RuntimeError("LLM 接口 HTTP %s%s%s" % (
+            e.code, ("：" + detail) if detail else "", hint)) from e
+    except urllib.error.URLError as e:
+        raise RuntimeError("LLM 端点连不上（%s）：%s"
+                           % (AI_BASE, e.reason)) from e
+    with resp:
+        data = json.loads(resp.read().decode("utf-8"))
+    ch = (data.get("choices") or [{}])[0]
     if ch.get("finish_reason") == "length":
-        raise RuntimeError("LLM 回答被 max_tokens 截断（finish_reason=length）"
-                           "——模型思考太长，正文没输出完整 JSON")
+        raise _Truncated("LLM 回答被 max_tokens 截断（finish_reason=length）"
+                         "——模型思考太长，正文没输出完整 JSON")
     return ch["message"]["content"]
+
+
+def ping_llm():
+    """只验证「当前模型端点通不通」，不改任何数据、不烧核验额度。
+
+    换模型前先跑这个：403/401/404 指向完全不同的问题，
+    混在一起报「调用失败」会让人白排查半天。
+    """
+    if not ai_ready():
+        print("[!] 没设 key。--ai-key 传，或设 CASE_LIB_AI_KEY 环境变量。")
+        print("    （免 key 端点 %s 不需要 key，可直接 --ping）"
+              % "opencode.ai/zen")
+        return 2
+    print("端点：%s\n模型：%s\n认证：%s\n"
+          % (AI_BASE, AI_MODEL, "带 key" if AI_KEY else "免 key（空 Bearer）"))
+    t0 = time.time()
+    try:
+        out = llm([{"role": "user",
+                    "content": "只回这个 JSON，不要任何解释："
+                               "{\"ok\":1,\"n\":\"<模型名>\"}"}],
+                  temperature=0.0)
+    except RuntimeError as e:
+        msg = str(e)
+        print("[X] 端点不通：%s" % msg)
+        if "HTTP 403" in msg:
+            print("    → 多半是 Cloudflare/WAF 拦 UA（不是 key 问题）。"
+                  "确认请求带了浏览器 User-Agent。")
+        elif "HTTP 401" in msg:
+            if not AI_KEY:
+                print("    → 当前是**免 key 模式**，这个模型不支持空 Bearer。"
+                      "多半是「限时免费但锁客户端」或需真 key。")
+                print("    → 换 --model 试别的。")
+            else:
+                print("    → key 无效/没这个订阅。检查 --ai-key。")
+        elif "HTTP 404" in msg:
+            print("    → base 或模型名写错。这个端点的模型名很挑，"
+                  "先用 GET <base>/models 列出可用值。")
+        elif "HTTP 400" in msg:
+            print("    → 参数被拒。常见原因：模型不支持 response_format="
+                  "{\"type\":\"json_object\"}（部分第三方端点不支持），"
+                  "或 max_tokens 超出上限。")
+        else:
+            print("    → 看上面的原始报错。")
+        return 1
+    dt = time.time() - t0
+    print("[OK] %.1fs 响应：%s" % (dt, (out or "")[:200].replace("\n", " ")))
+    print("\n可以直接用了：python scripts/ai_verify.py --triage --limit 5")
+    return 0
 
 
 SYSTEM_PROMPT = """你是「拆解海外」案例库的核实研究员。给你一条候选案例的资料、
@@ -679,8 +895,10 @@ SYSTEM_PROMPT = """你是「拆解海外」案例库的核实研究员。给你�
    拿不准就填 "unknown" —— 别填 false，也别为了让候选通过而凑一个 yes。
    "no" 是有分量的：三道里一道都没成立、却有明确反证时，这条会被判不进库。
 3. 来源 URL 只能用原文段里出现的，禁止编造。
-4. 收入口径是重点：分清 MRR / ARR / run-rate / 累计收入 / 平台流水(GMV) / 毛利。
+4. 收入口径是重点：分清 MRR / ARR / run-rate / 累计收入 / 平台流水(GMV) / 毛利 / 近30天流水。
    「累计收入被当年化」「平台流水被当收入」是这个库踩过的真实坑。
+   非订阅制生意（买断/用量/一次性入账）的门面数字是 TrustMRR 直读的近 30 天
+   已验证收入 —— 选 last_30d，不要硬套 MRR（它不是经常性收入）。
 5. 原文摘录太短、不足以支撑判断的项，一律 unknown 并在 evidence 里说明缺什么。
 6. sources 里的 kind 按「这条来源**凭什么可信**」来填，不要按站点名气：
    stripe    = 支付网关侧的验证数据。**TrustMRR 的收入页就属于这一类** ——
@@ -699,7 +917,7 @@ SYSTEM_PROMPT = """你是「拆解海外」案例库的核实研究员。给你�
  "is_business": "yes|no|unknown", "is_business_evidence": "str",
  "solo_possible": "yes|no|unknown", "solo_possible_evidence": "str",
  "verification": "stripe|official|partial|founder|disputed",
- "caliber": "arr|mrr|run_rate|lifetime|gmv|gross",
+ "caliber": "arr|mrr|run_rate|lifetime|gmv|gross|last_30d",
  "caliber_reason": "str", "caliber_consistent": bool,
  "number": "写进库的那个数字，带 $ 与单位",
  "sources": [{"label":"str","url":"str","kind":"stripe|official|press|review|founder|secondary"}],
@@ -804,9 +1022,18 @@ TRUSTMRR_SITE = "https://trustmrr.com"
 #   POST /api/mcp/discovery     MCP；其中 get_startup(slug) 要 OAuth，用不了
 # llms.txt 明确要求「别爬渲染后的 HTML 拿全量市场数据」，所以 TrustMRR 侧一律
 # 走上面这两个官方通道，不套无头浏览器。
+TRUSTMRR_API = TRUSTMRR_SITE + "/api/ai"
 TRUSTMRR_DISCOVERY_API = TRUSTMRR_SITE + "/api/ai/discovery"
 
+# robots.txt 里公布的全站 sitemap（2026-09-24 实测 10,691 条 startup slug）。
+# 这是「缺 trustmrr_slug 也能复核」的关键一环：/api/ai 两个端点只有 90 条且
+# 轮换，旧候选一旦不在当轮就再也对不上号；sitemap 覆盖全站，能直接确认
+# 「id / 名称归一后的 slug 到底存不存在」，不用一个个 404 试探。
+TRUSTMRR_SITEMAP = TRUSTMRR_SITE + "/startup-sitemap.xml"
+
 _DISCOVERY_CACHE = {"data": None}
+_INDEX_CACHE = {"data": None}
+_SITEMAP_CACHE = {"data": None}
 
 
 def trustmrr_discovery(force=False):
@@ -840,6 +1067,190 @@ def trustmrr_discovery(force=False):
                 out[slug] = it
     _DISCOVERY_CACHE["data"] = out
     return out
+
+
+# ---------------------------------------------------------------- slug 反查
+#
+# 「缺 trustmrr_slug 就不能复核了吗」——不是。slug 只是**TrustMRR 这一条通道**的
+# 钥匙，而入库闸门要的是 source_kinds 非空（官网 official / 创始人 founder /
+# 评测 review 都算数）。2026-09-24 voklit 实测：挂牌页已撤、slug 试了 4 个变体
+# 全 404，只靠官网照样过闸入库（等级 official）。所以缺 slug 时有两条路：
+#   ① 用官方公开索引反查 slug（下面这套），把 TrustMRR 一手证据找回来；
+#   ② 反查不到就换其它一手来源复核，别因为「没有 slug」就整条放弃。
+# 这里实现 ①；返回空则由调用方走 ②。
+
+
+def trustmrr_sitemap_slugs(force=False):
+    """官方 startup-sitemap.xml 里的**全量 slug 集合**（robots.txt 公布）。
+
+    2026-09-24 实测：gzip 160KB / 6 秒，解压后 1.7MB、10,691 条。
+    必须显式要 gzip —— http_get 发的是 `Accept-Encoding: identity`，同一个文件
+    下发 1.7MB 时 120 秒都拉不完（实测截断），而压缩后 6 秒就完。
+
+    失败一律返回空集合（不抛），反查流程照常退到下一层。
+    """
+    if _SITEMAP_CACHE["data"] is not None and not force:
+        return _SITEMAP_CACHE["data"]
+
+    slugs = set()
+    try:
+        req = urllib.request.Request(TRUSTMRR_SITEMAP, headers={
+            "User-Agent": UA,
+            "Accept": "application/xml,text/xml,*/*;q=0.8",
+            "Accept-Encoding": "gzip",
+        })
+        with urllib.request.urlopen(req, timeout=60) as r:
+            raw = r.read(4 * 1024 * 1024)
+        if raw[:2] == b"\x1f\x8b":                       # gzip 魔数
+            raw = gzip.decompress(raw)
+        text = raw.decode("utf-8", "replace")
+        for loc in re.findall(r"<loc>([^<]+)</loc>", text):
+            m = re.search(r"/startup/([^/<]+)", loc)
+            if m:
+                slugs.add(m.group(1).strip().lower())
+    except Exception:
+        slugs = set()
+    _SITEMAP_CACHE["data"] = slugs
+    return slugs
+
+
+def trustmrr_index(force=False):
+    """汇总两个公开端点，返回 {slug: {name, website, ...}}（含 askingPrice/multiple）。
+
+    /api/ai           → recentlyListedStartups(25) + bestDeals(25)
+    /api/ai/discovery → recentlyAddedStartups(25) + fastestGrowingStartups(25)
+    合起来约 90 个唯一 slug（重叠个位数），是「名称/官网 → slug」的匹配表。
+    失败一律返回 {}（不抛）。
+    """
+    if _INDEX_CACHE["data"] is not None and not force:
+        return _INDEX_CACHE["data"]
+
+    out = dict(trustmrr_discovery(force=force))
+    try:
+        data = json.loads(http_get(TRUSTMRR_API, timeout=30, max_bytes=400000))
+        for key in ("recentlyListedStartups", "bestDeals"):
+            for it in (data.get(key) or []):
+                slug = (it.get("slug") or "").strip()
+                if slug:
+                    out.setdefault(slug, it)
+    except Exception:
+        pass
+    _INDEX_CACHE["data"] = out
+    return out
+
+
+def _norm_key(s):
+    """归一化名称用于比对：只留小写字母数字。"""
+    return re.sub(r"[^a-z0-9]+", "", (s or "").lower())
+
+
+def _host_of(url):
+    """取 URL 主机名（去 www.），非 http 开头返回空。"""
+    u = (url or "").strip().lower()
+    if not u.startswith("http"):
+        return ""
+    m = re.match(r"https?://([^/\s]+)", u)
+    if not m:
+        return ""
+    host = m.group(1).split(":")[0]
+    return host[4:] if host.startswith("www.") else host
+
+
+def slug_guesses(cand):
+    """从候选的 id / 名称推出可能的 slug，按可信度排序。"""
+    out = []
+
+    def add(s):
+        s = re.sub(r"[^a-z0-9\-]+", "-", (s or "").lower())
+        s = re.sub(r"-{2,}", "-", s).strip("-")
+        if s and s not in out:
+            out.append(s)
+
+    cid = (cand.get("id") or "").strip()
+    name = (cand.get("name_en") or cand.get("name") or "").strip()
+    for base in (cid, name):
+        add(base)
+    for base in (cid, name):
+        b = re.sub(r"[^a-z0-9\-]+", "-", (base or "").lower()).strip("-")
+        # 「Private Venture（榜单条目 1）」这类榜单后缀：去掉尾部数字
+        b2 = re.sub(r"-\d+$", "", b)
+        if b2 and b2 != b:
+            add(b2)
+        # 产品名常见的域名后缀词，去掉再试一次（layzr-ai → layzr）
+        for suf in ("-ai", "-app", "-io", "-com", "-hq", "-inc", "-llc"):
+            if b2.endswith(suf):
+                add(b2[: -len(suf)])
+    return out
+
+
+def trustmrr_md_title(slug, timeout=20):
+    """抓挂牌页 .md 的 `# 标题`（买不到/抓不到返回空）。"""
+    try:
+        md = fetch_text("%s/startup/%s.md" % (TRUSTMRR_SITE, slug), cap=400)
+    except Exception:
+        return ""
+    m = re.search(r"^#\s*(.+)$", md or "", re.M)
+    return m.group(1).strip() if m else ""
+
+
+def resolve_trustmrr_slug(cand, index=None, slugs=None, confirm=False):
+    """反查候选对应的 TrustMRR slug。返回 (slug, how)；查不到返回 ("", "")。
+
+    how 就是证据强度，从强到弱：
+      "已登记"   —— 候选自己带 trustmrr_slug（最可靠）
+      "来源页"   —— source_url 本身就是挂牌页
+      "官网匹配" —— /api/ai 索引里同官网域名的条目（机器可判的强匹配）
+      "官网子域" —— 索引里官网域名互为子域（www./app. 之类）
+      "名称匹配" —— 索引里名称归一后完全相同
+      "站点索引" —— sitemap（全站 1.07 万条）里存在同名 / 同 id 的 slug
+
+    confirm=True 时**只对最弱的「站点索引」层做身份确认**（抓 .md 比对标题）：
+    sitemap 只能证明「这个 slug 存在」，不能证明「就是同一个产品」。2026-09-24
+    实测踩到过 —— 候选 `private-venture-1`（榜单条目，$1M 挂牌 / 卖家 david）
+    按 id 命中同名 slug，抓回来却是另一个隐身挂牌（Stealth Company /
+    Kostadin Ristovski / MRR $44.92 / 未挂牌），数字全对不上。喂错证据比没有
+    证据更危险（AI 会「基于不完整证据做错误否定」），所以默认就确认一次。
+    隐身挂牌的标题是占位符（Stealth Company），也会被确认挡掉 —— 这是对的，
+    宁可退回「无果」让深核走官网，也不要塞一个身份不明的一手来源进去。
+    """
+    s = (cand.get("trustmrr_slug") or "").strip()
+    if s:
+        return s, "已登记"
+
+    m = re.search(r"trustmrr\.com/startup/([\w.\-]+)", cand.get("source_url") or "")
+    if m:
+        return m.group(1), "来源页"
+
+    if not (cand.get("id") or cand.get("name") or cand.get("name_en")):
+        return "", ""
+
+    idx = trustmrr_index() if index is None else index
+    host = _host_of(cand.get("website"))
+    if host and idx:
+        for slug, it in idx.items():
+            if _host_of(it.get("website")) == host:
+                return slug, "官网匹配"
+        for slug, it in idx.items():
+            oh = _host_of(it.get("website"))
+            if oh and (oh.endswith("." + host) or host.endswith("." + oh)):
+                return slug, "官网子域"
+
+    key = _norm_key(cand.get("name_en") or cand.get("name"))
+    if key and idx:
+        for slug, it in idx.items():
+            if _norm_key(it.get("name")) == key:
+                return slug, "名称匹配"
+
+    known = trustmrr_sitemap_slugs() if slugs is None else slugs
+    for g in slug_guesses(cand):
+        if g not in known:
+            continue
+        if confirm:
+            title = trustmrr_md_title(g)
+            if not title or (_norm_key(title) != key and _norm_key(title) != _norm_key(cand.get("name"))):
+                continue
+        return g, "站点索引"
+    return "", ""
 
 
 # ---------------------------------------------------------------- 无头浏览器
@@ -919,10 +1330,18 @@ def known_urls(cand):
         if isinstance(s, dict):
             add(s.get("url"))
 
-    # 兜底：候选池 28 条**没有任何一条**带 URL（2026-09-24 实测），
-    # 于是 known_urls 恒为空、每次都退化成「纯搜索」——而搜索走 cn.bing.com，
-    # 查小众外文站基本查不到（le19emetrou 那轮抓回 5 个百度知道/作业帮页）。
-    # 候选 id 本身就来自采集站 slug，挂牌页可以直拼；实测 28 条里大部分有。
+    # 兜底 1：缺 slug 时**反查**（2026-09-24 新增）。官方 sitemap 覆盖全站
+    # 1.07 万条 slug，比「id 直拼了事」强：直拼在 livecrew-ai 那种 id≠slug
+    # 的情况下必然 404，反查则能对上 layzr-ai → layzr 这类变形。
+    # confirm=True：站点索引层只证明 slug 存在，不证明是同一产品（踩过
+    # private-venture-1 的坑），所以抓一次 .md 核对标题才用。
+    # 已有的 TrustMRR 链接不动，只在完全没有时才补 —— 不干扰人工登记的选择。
+    if not any("trustmrr.com/startup/" in u for u in out):
+        slug, _how = resolve_trustmrr_slug(cand, confirm=True)
+        if slug:
+            add("%s/startup/%s" % (TRUSTMRR_SITE, slug))
+
+    # 兜底 2：反查不出来，就按候选 id 直拼一次（可能 404，404 时抓取层自然跳过）。
     if cid and not out:
         add("%s/startup/%s" % (TRUSTMRR_SITE, cid))
 
@@ -1109,20 +1528,28 @@ def load_json(name):
         return json.load(f)
 
 
-def plan_data(include_small=False, limit=None, index=None):
+def plan_data(include_small=False, limit=None, index=None, cands=None,
+              drafts=None):
     """给后台 GUI 的结构化 plan：每条可选候选的卡点与判定（离线，只读）。
 
     带上前端要显示的初筛结论（档位 / 分数 / 下一步）—— 后台因此能直接告诉人
     「这条为什么排在前面」，而不是只给一个没有排序依据的清单。
+
+    ⚠ `cands` / `drafts` 可注入，别把测试写死成读真实data/。
+    候选池里ready 档的条目会被pick_candidates 跳过 —— 一旦真跑过一轮AI 核实
+    （草稿落进 verifications.json），可选集可能变成空，依赖真实数据的测试
+    会随数据状态漂移而失败。固件自带数据 ⇒ 不受数据变化影响。
     """
-    cands = load_json("candidates")
+    if cands is None:
+        cands = load_json("candidates")
     index = index if index is not None else triage_index()
     selected = pick_candidates(cands, limit=limit, include_small=include_small,
                                index=index)
-    try:
-        drafts = load_json("verifications")
-    except Exception:
-        drafts = {}
+    if drafts is None:
+        try:
+            drafts = load_json("verifications")
+        except Exception:
+            drafts = {}
     items = []
     for c in selected:
         blockers, r = current_blockers(drafts.get(c["id"]))
@@ -1185,6 +1612,16 @@ def main():
     g.add_argument("--all", action="store_true", help="全部可选候选（跳过占位/太小）")
     g.add_argument("--id", action="append", default=[], help="指定候选 id，可多次")
     ap.add_argument("--limit", type=int, default=None, help="最多处理几条（默认 5）")
+    # 换模型：CLI 优先于环境变量，不传就用CASE_LIB_AI_* 的默认值。
+    # 换端点只需 --ai-base + --ai-model；--ai-key 单独给时沿用原 base/model。
+    ap.add_argument("--ai-model", default=None,
+                    help="覆盖模型名（如 glm-4-flash / deepseek-chat）")
+    ap.add_argument("--ai-base", default=None,
+                    help="覆盖 API base（如 https://open.bigmodel.cn/api/paas/v4）")
+    ap.add_argument("--ai-key", default=None,
+                    help="覆盖 API key（默认读 CASE_LIB_AI_KEY / secrets.json）")
+    ap.add_argument("--ping", action="store_true",
+                    help="只测当前模型端点通不通（发一个极短请求，不改任何数据）")
     ap.add_argument("--include-small", action="store_true", help="连「体量太小」的也处理")
     ap.add_argument("--publish", action="store_true",
                     help="够格的直接发布成案例（human_read 仍不勾：它只能由人勾，"
@@ -1194,6 +1631,23 @@ def main():
     ap.add_argument("--password", default=os.environ.get("CASE_LIB_ADMIN_PASSWORD"),
                     help="后台密码（默认读 CASE_LIB_ADMIN_PASSWORD）")
     args = ap.parse_args()
+
+    # CLI 覆盖优先于环境变量；configure() 不传的项保持原值。
+    # ⚠ 用 `is not None` 判据：`--ai-key ""` 是「显式清空」的有效用法，
+    #    真值判据会把它当没传 ⇒ 旧 key 沿用 ⇒ 免 key 端点必401。
+    if any(v is not None for v in (args.ai_key, args.ai_base, args.ai_model)):
+        # 切到免 key 端点却还留着旧付费 key = 必 401（端点只认空 Bearer）。
+        # 这里主动清掉并说明，不让用户撞 401 才发现。
+        if (args.ai_base and is_no_key_endpoint(args.ai_base)
+                and args.ai_key is None and AI_KEY):
+            print("已切到免 key 端点，自动清掉旧 key"
+                  "（免 key 端点只认空 Bearer，带旧 key 必定 401）")
+            args.ai_key = ""
+        configure(api_key=args.ai_key, base=args.ai_base, model=args.ai_model)
+        print("AI 已切换 → %s @ %s\n" % (AI_MODEL, AI_BASE))
+
+    if args.ping:
+        return ping_llm()
 
     cands = load_json("candidates")
     index = triage_index()
@@ -1232,9 +1686,13 @@ def main():
             print("   判定：%s" % r["verdict"])
         return 0
 
-    if not AI_KEY:
-        raise SystemExit("[!] 缺 CASE_LIB_AI_KEY 环境变量（LLM 接口密钥）。"
-                         "只想看卡点请用 --plan。")
+    #免鉴权端点压根没有 key，别在这里挡住（判据是 ai_ready 而不是「有没有 key」）。
+    if not ai_ready():
+        raise SystemExit("[!] 缺 LLM key：设 CASE_LIB_AI_KEY 环境变量，"
+                         "或写进 data/secrets.json 的 ai_key。"
+                         "只想看卡点请用--plan。\n"
+                         "    免 key 端点例外：--ai-base <免key端点> "
+                         "--ai-model <模型> 不用给key。")
     if not args.password:
         raise SystemExit("[!] 缺后台密码：--password 或 CASE_LIB_ADMIN_PASSWORD。"
                          "密码忘了跑 python scripts/auth.py --reset")

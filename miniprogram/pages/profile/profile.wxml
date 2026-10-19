@@ -1,0 +1,77 @@
+<view class="page">
+
+  <!-- 身份区 -->
+  <view class="card me">
+    <view class="row">
+      <view class="avatar">{{openid ? '✓' : '?'}}</view>
+      <view class="gap">
+        <view class="me-name" wx:if="{{openid}}">已登录</view>
+        <view class="me-name" wx:else>游客模式</view>
+        <view class="me-sub" wx:if="{{openid}}">ID {{openid.slice(0, 8)}}…</view>
+        <view class="me-sub" wx:else>免费内容可正常浏览，购买时自动登录</view>
+      </view>
+      <text class="me-rules" bindtap="showRules">规则</text>
+    </view>
+  </view>
+
+  <!-- 会员状态 -->
+  <view class="card ent" wx:if="{{isMember}}">
+    <view class="row">
+      <view class="gap">
+        <view class="ent-h">月度会员生效中</view>
+        <view class="ent-sub">有效期至 {{memberUntilText}} · 到期后已解锁的报告仍可看</view>
+      </view>
+      <text class="ent-badge">会员</text>
+    </view>
+  </view>
+
+  <!-- 付费功能购买区 -->
+  <view class="sec-h">付费功能</view>
+
+  <view class="card fn">
+    <view class="row">
+      <view class="gap">
+        <view class="fn-h">全站案例导出</view>
+        <view class="fn-sub">全部案例 + 双轴评分 + 口径标签，一份 CSV</view>
+      </view>
+      <text class="fn-price">¥19.90</text>
+    </view>
+    <button class="btn-primary" wx:if="{{!hasExport}}" bindtap="buy" data-key="export_all"
+            disabled="{{buying === 'export_all'}}">
+      {{buying === 'export_all' ? '支付中…' : '购买导出'}}
+    </button>
+    <button class="btn-ghost" wx:else bindtap="doExport" disabled="{{exporting}}">
+      {{exporting ? '生成中…' : '导出 CSV'}}
+    </button>
+  </view>
+
+  <view class="card fn">
+    <view class="row">
+      <view class="gap">
+        <view class="fn-h">月度会员</view>
+        <view class="fn-sub">30 天内全部深度报告免费看（含新上架）</view>
+      </view>
+      <text class="fn-price">¥12.00<text class="fn-unit">/月</text></text>
+    </view>
+    <button class="btn-primary" wx:if="{{!isMember}}" bindtap="buy" data-key="member_month"
+            disabled="{{buying === 'member_month'}}">
+      {{buying === 'member_month' ? '支付中…' : '开通会员'}}
+    </button>
+    <view class="fn-owned" wx:else>已开通</view>
+  </view>
+
+  <!-- 已购报告 -->
+  <view class="sec-h" wx:if="{{reports.length}}">已解锁的报告（{{reports.length}}）</view>
+  <view class="card rp-item" wx:for="{{reports}}" wx:key="id" bindtap="goReport" data-id="{{item.id}}">
+    <text class="rp-name">{{item.name}}</text>
+    <text class="rp-go">→</text>
+  </view>
+  <view class="empty" wx:if="{{!reports.length && !hasExport && !isMember}}">
+    还没有购买记录。案例内容全站免费，深度报告/导出为付费功能。
+  </view>
+
+  <view class="foot muted">
+    <view>内容免费是本库的底线；付费只为功能与便捷付费</view>
+    <view>相同内容可在 case.ydtgo.top 免费阅读</view>
+  </view>
+</view>

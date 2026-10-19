@@ -260,6 +260,811 @@ SCORES = {
              "（腾讯医典、支付宝医疗健康）。它验证的是「长尾单点 + App Store"
              "自然流量」这条路，这条路在国内换成微信小程序后付费率会掉一个量级。",
     ),
+
+    # ---- 2026-09-25 补的一批（TrustMRR 挂牌标的为主）----
+    "voklit": dict(
+        demand=3, payment=3, compliance=1, acquisition=2, localization=2, competition=1,
+        blocker="增值电信牌照",
+        note="「收不到验证码」这个痛点在国内同样存在（跨境卖家、出海团队），"
+             "但虚拟号码与 VoIP 属增值电信业务，个人与小微公司拿不到牌照，"
+             "而这条赛道上站着阿里云、腾讯云的号码认证与隐私号服务。"
+             "它真正值得学的不是这门生意，是它选需求的方式："
+             "找一个「不做就完全进行不下去」的前置条件来卖。",
+    ),
+    "prosp": dict(
+        demand=3, payment=4, compliance=1, acquisition=1, localization=2, competition=1,
+        blocker="自动化触达合规 + LinkedIn 已退出中国",
+        note="与 gojiberryai、meerkats-ai 撞的是同一堵墙，而且更厚："
+             "LinkedIn 职场版 2023 年就已退出中国，国内根本没有等价的"
+             "「人 + 职位 + 公司」公开数据源；把信号源换成脉脉 / 企查查，"
+             "《个人信息保护法》又把自动抓取与群发直接定性为红线。"
+             "等于数据源、触达渠道、合规三处同时失效，只能重做一遍产品。"
+             "能搬走的只有它的卖法：按「会议数」而不是功能点收费。",
+    ),
+    "divine-widgets": dict(
+        demand=2, payment=3, compliance=1, acquisition=2, localization=3, competition=2,
+        blocker="宗教内容合规",
+        note="产品形态（小组件 + 每日一句）在国内技术上完全可做，"
+             "但宗教内容在应用商店与内容审核里是明确的敏感区，"
+             "而国内用户对「每日一句」类情绪产品的付费习惯也弱得多。"
+             "能学的是它的结构：用 widget 把低频 App 变成高频曝光，"
+             "再垂直到一个人群格子躲开竞争 —— 换一个非宗教的垂直主题即可复用。",
+    ),
+    "promptmonitor-io": dict(
+        demand=3, payment=4, compliance=4, acquisition=3, localization=2, competition=2,
+        note="这批里最可移植的一条。国内品牌同样开始问「豆包 / DeepSeek / 元宝 "
+             "里提不提我」，需求正在起来；收款走微信/支付宝无障碍，"
+             "合规上不涉及抓取个人信息，风险低。要改的是把监测对象换成"
+             "国内主流模型，而这恰恰是壁垒 —— 谁先把国内模型的回答采样做扎实，"
+             "谁就占住位置。竞争已经出现，但还没到免费的阶段。",
+    ),
+    "uplinked-b-v": dict(
+        demand=3, payment=4, compliance=3, acquisition=1, localization=1, competition=1,
+        blocker="LinkedIn 在国内无等价平台",
+        note="它整套动作长在 LinkedIn 上：读账号、写帖子、排期、发布。"
+             "国内没有等价的开放职业内容平台，公众号与小红书的发布接口"
+             "基本不对外开放，朋友圈更是完全封闭 —— 产品等于要重做。"
+             "而「帮顾问做内容代写」这个需求国内是真的，"
+             "只是落地形态会变成代运营而不是 SaaS。",
+    ),
+    "le19emetrou": dict(
+        demand=3, payment=5, compliance=4, acquisition=3, localization=2, competition=1,
+        blocker="价格战与仿品",
+        note="最微妙的一条：收款、投放、物流在国内都是强项，"
+             "抖音/小红书也有等价的投放渠道，单品 DTC 的打法可以直接平移。"
+             "真正的问题是值不值——义乌同款开瓶器几块钱，"
+             "创意被抄的速度快过建站的速度，而国内礼品电商的价格战"
+             "会把 €34,99 的定价直接打穿。它的模型能跑，"
+             "但盈利空间不在国内。想做只能走「海外市场的中国供应链」这条路。",
+    ),
+    "search1api": dict(
+        demand=4, payment=4, compliance=3, acquisition=3, localization=2, competition=2,
+        note="国内 agent 生态同样缺一层「联网」，需求真实且正在增长；"
+             "收款无障碍，获客靠开发者社区这条路在国内也成立。"
+             "两个要改的地方：搜索源要换成国内可用的（或合规抓取），"
+             "而「抓取什么、能不能抓取」的合规边界比美国更模糊 —— 这是唯一需要谨慎的维度。"
+             "竞争已经存在（各家大模型的搜索 API、博查一类），"
+             "但 MCP 这一层还没人占死。",
+    ),
+
+    # ---- 2026-09-30 补的两条 ----
+    "mort": dict(
+        demand=4, payment=4, compliance=2, acquisition=3, localization=2, competition=1,
+        blocker="招聘数据抓取合规",
+        note="国内求职焦虑比英国更大，付费意愿也更高——这是它最值得学的地方："
+             "「海投无效」在中国同样是真痛点，而国内还多一层结构性问题"
+             "（春招秋招的节奏更集中、学历与院校筛选更前置）。"
+             "支付与获客都没障碍，SEO 也能平移。"
+             "两个硬伤：一是它的数据源在英国，迁移过来要重写整条采集链——"
+             "国内招聘有 BOSS 直聘、猎聘、智联，但都反爬且商业授权要谈，"
+             "career page 那段脏数据在国内被前程无忧、实习僧瓜分，"
+             "拿不到就得换信源。二是自动投递在中文语境下的合规边界更模糊"
+             "（简历含身份信息、自动化提交是否构成对平台的违约），"
+             "这块欧美判例多、国内判例少，得谨慎。"
+             "竞争上也挤：BOSS 直聘自己就在做 AI 匹配。",
+    ),
+    "quran-unlock": dict(
+        demand=3, payment=3, compliance=3, acquisition=2, localization=2, competition=4,
+        blocker="App Store 分发在国内不成立",
+        note="它 90% 的流量来自 App Store 与 Google Play 的自然搜索，"
+             "这个渠道在国内**结构性地不存在**——没有第三方安卓应用商店的"
+             "自然量红利，微信小程序是唯一的等价物，但小程序没有「锁住其他 app」"
+             "这个能力，整个机制的地基就没了。"
+             "需求侧也有真实对应物（国内有大量信仰类工具与清真寺/伊斯兰教会的社群），"
+             "但它证明的是「习惯机制 + ASO 分发」这条组合拳，"
+             "在国内要换成分发渠道的结构性改造，难度远高于换文案。"
+             "更实际的是竞争空位这一维：这类信仰类应用在国内几乎没有头部产品，"
+             "但也意味着没有验证过的付费模型。",
+    ),
+
+    # ---- 2026-10-05 补的两条（premium 晋升时漏了，卡住 fit_ready 闸门）----
+    "harperai": dict(
+        demand=4, payment=3, compliance=2, acquisition=2, localization=3, competition=3,
+        blocker="公开抵押数据的商业化授权边界未明",
+        note="它吃的是英国 Companies House 与 Land Registry 的**公开**记录——"
+             "这一层国内对应物是齐的（企查查 / 天眼查 / 国家企业信用信息公示系统），"
+             "且「企业有新增抵押 → 该找资金了」这个需求在 国内更旺，"
+             "因为中小企业的融资信息不对称比英国更严重。"
+             "真正的硬伤在合规：把公开征信数据加工成「谁在再融资窗口」的"
+             "金融决策工具，在《个人信息保护法》与征信业务管理办法的框架下"
+             "需要资质与人授权边界，说清「公开数据能不能商用加工」本身就是一道门槛。"
+             "它卖的也不是工具而是「别错过」，要国内客户信你比英国客户信你难得多——"
+             "英国客户本来就在按揭链条里，国内得先教育市场。",
+    ),
+    "easymix": dict(
+        demand=4, payment=4, compliance=4, acquisition=3, localization=2, competition=2,
+        note="国内独立音乐人数量全球第一，混音与母带是真实的付费刚需，"
+             "而现有供给参差——大量录音棚仍靠人工接单。"
+             "支付与合规这一段反而比海外顺：微信支付、支付宝直接可收，"
+             "音频内容不触任何监管红线，没有任何一维构成硬伤。"
+             "本地化量小：说唱在 国内同样主流，drill 那些风格词不用翻译。"
+             "竞争这一维要扣分：腾讯音乐生态与大量国内 AI 混音工具在挤，"
+             "且版权授权链在国内更复杂（词曲版权与录音版权分属不同权利人，"
+             "商用授权要一层层签），这是海外没有的成本。",
+    ),
+
+    # ===== 2026-10-11 补：Stripe 深核通过的 7 条 =====
+    # 六维口径与老案例一致：demand/payment/compliance/acquisition/
+    # localization/competition，1 = 最差，5 = 最好；competition 分数越高
+    # 意思是「竞争越友好/越空」，不是「竞争越激烈」。
+
+    "cometly": dict(
+        demand=4, payment=4, compliance=2, acquisition=3, localization=3, competition=1,
+        blocker="企业销售与数据合规",
+        note="需求真实且付费意愿强——国内 SaaS 公司在信息流与私域上花的钱不比美国少，"
+             "「投放有没有回报」是真痛点。支付一维是顺的：企业级订阅、国内发票与"
+             "对公结算都比美国创业公司走得更顺。"
+             "难在两处：①归因数据要跨平台打通，个保法与《数据出境》对"
+             "跨境广告数据的约束很紧；②它的打法是大客户销售 + 实施，"
+             "国内这一格站着神策、 GrowingIO、易观等，"
+             "而且客户要私有化部署、要对接自己的数仓 —— "
+             "等于把产品重做一遍。学习价值在「切入角度」，不在照搬。",
+    ),
+    "vid-ai": dict(
+        demand=4, payment=4, compliance=3, acquisition=3, localization=3, competition=2,
+        note="短视频批量生产的需求在国内更旺——抖音/视频号/小红书三头都吃，"
+             "内容更新频率比海外高。支付顺、模型调用国内也有几家可选。"
+             "合规不是问题（生成内容不涉硬红线）。"
+             "竞争这一维要扣分：剪映、即梦、腾讯的AI 剪辑已是免费且在持续加强，"
+             "把它当「现有工具已经免费内置」来判。"
+             "⚠️ 而它自己峰值留存已腰到 46%，说明这个位置在海外都正在被平台收编，"
+             "国内窗口只会更短。",
+    ),
+    "podawaa": dict(
+        demand=3, payment=4, compliance=3, acquisition=2, localization=1, competition=1,
+        blocker="平台不可迁移",
+        note="需求部分成立：国内做B2B 获客的人确实需要内容工具。"
+             "但它的价值全部绑定在 LinkedIn 这个平台上 —— "
+             "而国内没有等价物：领英职场版 2023 年已关停，"
+             "现在占着这个位置的是脉脉 + 企业微信 + 公众号 + 视频号。"
+             "产品等于要重做一遍（换平台、换内容形态、换获客逻辑），"
+             "localization 直接判 1。且那一格已有大量国内内容工具占着。",
+    ),
+    "publbee": dict(
+        demand=4, payment=4, compliance=3, acquisition=3, localization=3, competition=2,
+        note="需求成立：亚马逊KDP 在中国的作者群体真实存在且在增长，"
+             "他们也为工具付费，支付与合规都没有硬伤。"
+             "获客靠 SEO 打「kindle 自出版怎么做」这类长尾词，"
+             "这条路在国内同样跑得通。"
+             "扣分在竞争：国内「AI 写书」「选题工具」已有不少，"
+             "且国内作者的主要变现渠道是番茄、七猫等平台，"
+             "那套生态里KDP 的关键词逻辑并不完全适用。",
+    ),
+    "vectosolve": dict(
+        demand=3, payment=4, compliance=4, acquisition=3, localization=2, competition=2,
+        note="需求在国内存在——激光切割、刺绣、小批量定制都需要位图转矢量，"
+             "淘宝/1688 上的小商家就是这批客户。支付与合规都顺。"
+             "获客靠搜索长尾（跟海外一个道理），"
+             "但国内拿量的成本结构不同：这里靠付费搜索与电商平台内流量，"
+             "单价 $7 的产品很难跑正。"
+             "localization 扣分：DXF/DST 那套厂商格式在国内一样有人用，"
+             "但雕花、激光切割的软件生态与工艺习惯不同，要重做素材库。",
+    ),
+    "augora-ai": dict(
+        demand=4, payment=4, compliance=2, acquisition=3, localization=2, competition=2,
+        blocker="隐私与跨平台数据",
+        note="需求成立且比海外更痛：国内跨境电商与DTC 商家广告投放规模大，"
+             "但 iOS 隐私政策对归因的破坏在国内的伤害一样重。"
+             "支付顺。难在合规：它要接Meta CAPI、要把广告点击与转化对应起来，"
+             "在国内这套链路还额外压着个保法与跨境数据传输要求。"
+             "且它的主战场是 Shopify 商家 —— 国内这批人更常用店小秘/马帮/抖音小店，"
+             "渠道接不上，等于换一套客户。",
+    ),
+    "wpconvert-ai-convert-ai-sites-to-wordpress": dict(
+        demand=3, payment=4, compliance=4, acquisition=3, localization=2, competition=3,
+        blocker="上游不给导出",
+        note="需求成立但形态要换：国内也有一大批用 Lovable/v0 类工具搭的站，"
+             "也搬不动。支付、合规都没问题 —— 这是纯工程服务，"
+             "不涉任何数据红线，这是它四维里最漂亮的一档。"
+             "要改的是渠道与获客：WordPress 在国内的使用率远低于美国，"
+             "不少站建在国产建站平台上，localization 判 2。"
+             "竞争这一维相对友好（1-5里给 3）：帮人从低代码平台搬走这件事国内还没"
+             "形成成熟供给。但它的命门与海外一样 —— 上游 AI 建站工具一旦把导出做好，"
+             "需求就被吃掉了。",
+    ),
+
+    # ===== 2026-10-15 补：门槛放开后批量晋升的 41 条 =====
+    # 同口径：demand/payment/compliance/acquisition/localization/competition，
+    # 1 = 最差，5 = 最好。competition 分数越高 = 这一格越空（不是竞争越激烈）。
+    # 两条（corsidia / hypit-ai）官方只披露收入、不披露产品，评分是占位，
+    # note 里已声明不构成移植判断。
+
+    "alchie": dict(
+        demand=2, payment=4, compliance=5, acquisition=2, localization=2, competition=1,
+        blocker="LinkedIn 在国内无等价平台",
+        note="它整个产品长在 LinkedIn 上，而领英职场版 2023 年就已退出中国——"
+             "「帮管理者经营职业形象」这套话术在国内没有承载平台。"
+             "换成公众号/脉脉之后，需求本身也掉了档：国内个人用户为"
+             "「发帖子」付 $57/月 的意愿接近于零，而这个位置还站着"
+             "一堆免费 AI 写作工具。收款和合规都不是问题，问题是没有人买。",
+    ),
+    "adelante-ltd": dict(
+        demand=3, payment=4, compliance=3, acquisition=2, localization=1, competition=1,
+        blocker="平台自带客服 + 国内 SaaS 客单价",
+        note="电商客服需求国内更大，但供给方是平台自己：淘宝店小蜜、京东言犀、"
+             "抖音飞鸽都是免费内置，商家没有再买一套的动力。"
+             "它 $900/月起 的托管式定价在国内更难——国内 SaaS 客单价普遍比美国低一个量级，"
+             "而「我们替你跑」的人力部分在国内要按人头算，压不到 80% 毛利。"
+             "能搬的只有卖法：把「托管」作为档位，而不是把「软件」作为产品。",
+    ),
+    "storyshort": dict(
+        demand=4, payment=4, compliance=3, acquisition=3, localization=2, competition=1,
+        blocker="国内平台无开放发布接口",
+        note="「不用出镜、每天有片发」这个需求在国内比在海外更硬——"
+             "想做号的人远多于愿意露脸的人。但它的另一半卖点是"
+             "「自动按节奏发布到 TikTok / YouTube」，国内抖音、视频号、"
+             "小红书的发布接口基本不对外开放，这一半要整个拿掉或改成半自动。"
+             "竞争一维扣到底：剪映、即梦、腾讯智影全免费且更贴近本地审美。",
+    ),
+    "analytics-mates": dict(
+        demand=3, payment=4, compliance=2, acquisition=2, localization=1, competition=1,
+        blocker="分析栈整体不同",
+        note="入口产品是「免费 GA4 审计」，而国内网站用 GA4 的是少数——"
+             "百度统计、友盟、神策、GrowingIO 各占一块，审计对象要整个换掉。"
+             "更要命的是它的收入主体是一次性与项目款（MRR $4,648 vs 近 30 天 $23,948），"
+             "本质是一门咨询生意：在国内要靠人脉和案例背书拿单，"
+             "不是靠一个免费审计工具引流就能跑起来的。"
+             "「读懂数据」的需求真，但这一格早就站着神策和 GrowingIO。",
+    ),
+    "brevilabs": dict(
+        demand=4, payment=3, compliance=4, acquisition=2, localization=2, competition=1,
+        note="企业「想做 AI 但不知道怎么做」的需求国内更旺，这一维给 4。"
+             "但它本质是按项目收费的工作室（四周 $45,000 起），"
+             "收入里有大量人力，MRR $18,480 与 30 天收入 $25,032 的差额就是项目款。"
+             "国内这一格挤满了咨询公司和外包团队，且甲方倾向找大厂；"
+             "95% 毛利是因为人力没挂在账上，那部分在国内一样躲不掉。"
+             "真正值得学的是包装方式：把开放式咨询切成「四周、固定价、有交付物」的冲刺。",
+    ),
+    "cartboss": dict(
+        demand=4, payment=4, compliance=2, acquisition=3, localization=2, competition=1,
+        blocker="短信营销牌照 + 平台自带召回",
+        note="弃单召回的需求在国内盘子更大——电商交易量全球第一，"
+             "而「按条付费、有效果才花钱」的计费方式和国内商家习惯也不冲突。"
+             "两个硬伤：一是商业短信要走有资质的通道且需用户明示同意，"
+             "《通信短信息服务管理规定》把未经同意的营销短信直接定性为违规，"
+             "个人拿不到 SP 牌照；二是国内召回主要发生在平台内"
+             "（淘宝旺旺、抖音私信、企微 SCRM），平台自己就把这一步做完了。"
+             "45% 毛利（短信通道是硬成本）也意味着国内价格战下没有腾挪空间。",
+    ),
+    "based-labs-ai": dict(
+        demand=4, payment=3, compliance=3, acquisition=3, localization=3, competition=1,
+        note="AI 视频生成的需求国内极旺，但这是全库竞争最惨的位置之一："
+             "即梦、可灵、海螺、剪映背后的大厂都在免费加码，"
+             "而且它们的出片质量与本土审美贴合度远高于海外工具。"
+             "合规一维要扣分：AI 生成内容在国内有强制标识要求，"
+             "平台侧对未标识内容的处置是明确的。"
+             "它 $33/月 × 873 订阅 的结构说明卖的是专业创作者，"
+             "国内这一小撮人更可能被大厂工具直接圈走。",
+    ),
+    "draftly": dict(
+        demand=3, payment=4, compliance=5, acquisition=3, localization=3, competition=2,
+        note="合规与收款这两维非常干净——纯生成工具，不碰任何数据红线，"
+             "微信/支付宝直接可收。本地化量也小（换文案、换字体即可）。"
+             "需求一维只能给 3：「cinematic scroll 3D 网站」在国内的审美与带宽"
+             "环境下是偏小众的形态，主流企业建站要的是模板快和适配小程序。"
+             "真有对应的是出海独立站那一小撮人（Shopify 卖家），"
+             "他们要的恰恰就是这个；但那一格已经有大量建站工具在抢。",
+    ),
+    "ae-intelligence": dict(
+        demand=3, payment=4, compliance=2, acquisition=4, localization=4, competition=2,
+        blocker="学术诚信灰区",
+        note="它的需求来自「学校用 AI 检测器查 AI 写作」，而这个驱动因素在国内同样成立、"
+             "甚至更强（多家高校已出 AI 代写认定办法），搜索长尾词现成，"
+             "获客这一维给 4；改造量也小，换掉检测对象即可。"
+             "但合规必须扣分：产品的作用是让 AI 写的文字通过检测，"
+             "在国内属于明确的学术不端辅助工具，平台与监管态度只会更严，"
+             "而且这门生意是军备竞赛——检测器一更新，产品价值就归零。"
+             "淘宝上几块钱的同类服务已经把价格打穿。",
+    ),
+    "abmaxx": dict(
+        demand=3, payment=3, compliance=3, acquisition=2, localization=4, competition=2,
+        note="本地化成本几乎为零：拍照 → 出计划，语言无关，中文化就能用。"
+             "卡点在两头：一是付费意愿——国内健身用户对「腹部训练计划」的订阅付费极弱，"
+             "$3.7/月 走量的模型要放大 10 倍用户才成立；"
+             "二是分发——它靠 App Store 自然量，国内安卓没有 Google Play，"
+             "只能改做微信小程序，而小程序里已有 Keep、乐刻等免费供给。"
+             "合规一维要谨慎：体型照片属可识别的个人信息，存储和跨境都受限。",
+    ),
+    "backpedal-ltd": dict(
+        demand=4, payment=4, compliance=2, acquisition=2, localization=1, competition=3,
+        blocker="线下履约 + 安保服务边界",
+        note="需求端是全库最硬的一条：中国电动自行车保有量全球第一，"
+             "车辆被盗后「只能认赔、没人帮你找」是真痛点——"
+             "而传统保险只赔钱不找车，这个替换思路在国内同样成立。"
+             "但它的交付物是「一支 24/7 的人替你把车取回来」，"
+             "在国内既没有执法配合的通道，人力调度成本也完全不同，"
+             "等于把整套线下履约重做一遍；持续定位他人位置还踩在个人信息"
+             "与安保服务资质的边界上。竞争给 3 是因为这一格确实空着，"
+             "但空着的原因恰恰是它难做。",
+    ),
+    "adspirer": dict(
+        demand=4, payment=4, compliance=3, acquisition=3, localization=2, competition=2,
+        note="中小广告主不会投、投放 ROI 算不清，这个需求国内比美国更普遍，"
+             "而「AI 替你调预算改素材」的边际成本是模型调用不是人力——"
+             "这是它一人能做到 MRR $5.5 万的根本原因，也是唯一值得搬的部分。"
+             "改造点很明确：把广告账户从 Meta/Google 换成巨量引擎、腾讯广告、百度推广，"
+             "而这几家的 API 授权门槛与代理资质要求比海外更细。"
+             "竞争一维要扣分：国内代投放服务商极多且靠人力关系拿单，"
+             "$485/年 的产品化定价能不能打过「一个优化师包月」是未知数。",
+    ),
+    "corsidia": dict(
+        demand=3, payment=3, compliance=3, acquisition=2, localization=2, competition=3,
+        note="⚠️ 占位评分，不构成移植判断：官方只披露了可验证收入"
+             "（累计 $315 万、近 30 天 $8.2 万），官网简介故意写成"
+             "「You'll have to figure it out.」，产品形态、定价、客户群一概未公开。"
+             "在不知道它到底卖什么的前提下，六维只能给中间值；"
+             "任何「能不能搬回国内」的结论都缺依据。"
+             "它进库的理由是收入证据够硬，不是产品可复制。",
+    ),
+    "avenue-ticketing-inc": dict(
+        demand=4, payment=3, compliance=1, acquisition=2, localization=1, competition=1,
+        blocker="演出票务资质 + 大麦猫眼垄断",
+        note="需求端无疑巨大（演出、电影、餐饮预订），但这是全库最难搬的一条生意："
+             "营业性演出票务在国内要持《营业性演出许可证》，票源与退票规则受强监管，"
+             "预售票款还涉及资金监管；而供给端被大麦、猫眼、美团三分，"
+             "「对主办方零手续费」这个武器打的是票源垄断，不是价格。"
+             "它近 30 天 $50 万是平台流水口径（含代收票款），"
+             "不是净收入——这一条本身就提醒：看到大额流水先看口径。",
+    ),
+    "autocontent-api": dict(
+        demand=3, payment=4, compliance=2, acquisition=3, localization=2, competition=1,
+        blocker="生成式 AI 备案 + 大厂 API 价格战",
+        note="把内容生成做成 API 卖给开发者，这一层在国内的价值被两头挤压："
+             "上游是大厂模型 API 直接卖（DeepSeek、豆包、通义，价格战到白菜价），"
+             "下游是 Coze、Dify 这类把编排也做了的平台。"
+             "合规是第二道坎：面向公众提供生成式 AI 服务在国内要过备案，"
+             "且输出内容的安全责任在提供方——这是海外没有的固定成本。"
+             "能成立的只有垂直化：不做通用内容 API，做某个行业固定格式的内容 API。",
+    ),
+    "chessigma": dict(
+        demand=2, payment=3, compliance=5, acquisition=2, localization=3, competition=2,
+        note="合规与改造都没障碍（棋类平台不看国界），"
+             "但需求一维要扣到底：国际象棋在国内是小众中的小众，"
+             "棋类的位置被围棋和中国象棋占着，而这两块早已有成熟的免费对弈平台。"
+             "它 100 万用户里只有 576 个付费（0.06%）——"
+             "免费对战平台的转化率本身就极低，放到付费习惯更弱的国内只会更低。",
+    ),
+    "backlinker-ai": dict(
+        demand=2, payment=4, compliance=1, acquisition=1, localization=1, competition=2,
+        blocker="Google 生态不存在 + 自动外发合规",
+        note="与 prosp、meerkats-ai、gojiberryai 撞同一堵墙，而且更厚。"
+             "外链建设的价值全部建立在 Google 搜索权重上，"
+             "而 Google 在国内不可用，需求本身就不成立；"
+             "它的动作是自动抓取记者邮箱并批量投稿，"
+             "在国内直接撞《个人信息保护法》与反垃圾邮件治理。"
+             "三个维度同时失效（需求、渠道、合规），localization 判 1。"
+             "唯一能搬的是定价锚：$300/月 锚的是「外包给外链机构几千刀」。",
+    ),
+    "ai-toolbox": dict(
+        demand=2, payment=4, compliance=4, acquisition=3, localization=4, competition=1,
+        note="品类本身搬不动：AI 工具导航站在国内已经是一片红海"
+             "（AI 工具集、WayToAGI 等都是免费且做得更全），"
+             "而它靠终身买断 $99/$199 收费，这个模式在国内更难——"
+             "用户默认导航站就该免费。"
+             "但它的成本结构值得单独记一笔：月成本不到 $100、毛利 93%、"
+             "连续 23 个月盈利，近 30 天收入 $21,520 而 MRR 只有 $1,334。"
+             "这是「一次性买断撑起来的生意」而不是订阅生意，"
+             "这个结构本身是能复制的，复制的应该是结构不是品类。",
+    ),
+    "amicited": dict(
+        demand=3, payment=4, compliance=4, acquisition=3, localization=2, competition=3,
+        note="与 aeo-engine、promptmonitor-io 是同一条赛道："
+             "「在 AI 的回答里有没有提到我」。国内品牌正在开始问同样的问题，"
+             "而对象要从 ChatGPT 换成豆包、DeepSeek、元宝、夸克——"
+             "这恰恰是壁垒，谁先把国内模型的回答采样做扎实谁占位。"
+             "收款顺、不涉个人信息、无监管红线，合规给 4。"
+             "需求给 3 是因为国内这波认知比欧美晚一年左右，"
+             "销售要先教育市场；竞争给 3 是因为已有玩家但还没到免费阶段。",
+    ),
+    "angel-match": dict(
+        demand=3, payment=4, compliance=3, acquisition=2, localization=1, competition=1,
+        note="融资找投资人的需求国内一样真实，但做法完全不同："
+             "国内创业者靠 FA 和熟人介绍，不靠数据库冷邮件，"
+             "而「谁在投、投什么阶段」这层数据国内由 IT 桔子、企查查、鲸准占着，"
+             "数据源要整个重建（localization 判 1）。"
+             "合规一维的疑虑和 harperai 同源：把公开信息加工成可售的"
+             "商业数据库，授权边界在国内没有明确判例。"
+             "它真正证明的是续费逻辑——靠「融完 A 轮还有 B 轮」把一次性需求变成连续订阅。",
+    ),
+    "calendesk": dict(
+        demand=3, payment=4, compliance=3, acquisition=2, localization=2, competition=2,
+        blocker="敏感个人信息 + 微信生态适配",
+        note="心理咨询行业国内在增长，预约 + 收款 + 客户档案的 SaaS 需求是真的。"
+             "两个坎：一是心理健康数据属《个人信息保护法》下的敏感个人信息，"
+             "要单独同意、要严格约定存储与访问，做错了不是罚款级别的风险；"
+             "二是国内预约几乎全发生在微信里，产品必须长出小程序形态"
+             "并接微信支付，等于把前端重做一遍。"
+             "价格也是问题：$79–117/月 对国内独立执业的咨询师偏高，"
+             "而年付锁留存这一招在国内要重新建立信任才做得到。",
+    ),
+    "capgo": dict(
+        demand=3, payment=4, compliance=2, acquisition=3, localization=2, competition=3,
+        blocker="应用商店明令禁止绕过审核的热更新",
+        note="需求真实（改 bug 不想重新发版），开发者社区获客这条路国内也成立，"
+             "收款无障碍。但热更新在国内是明确的高压线：苹果曾大规模封杀"
+             "JSPatch 一类方案，国内安卓应用商店（华为、小米、OPPO、vivo）"
+             "在开发者协议里明文禁止用热更新绕过审核改功能，"
+             "违规的代价是下架——这比海外严得多。"
+             "另外它长在 Capacitor / Ionic 生态上，国内跨端主流是"
+             "uni-app 和 Flutter，框架要换。竞争给 3：国内这块供给不多，"
+             "但主要是因为它难做而不是没人想到。",
+    ),
+    "applyall": dict(
+        demand=4, payment=4, compliance=3, acquisition=2, localization=2, competition=2,
+        note="求职焦虑国内比美国更重，付费意愿也真实——这是它最值得学的："
+             "卖的是「帮你拿到工作」这个结果，一次性 $249/$299，"
+             "而不是卖工具功能。国内对应物是简历优化与求职辅导服务，"
+             "但「代投」这个形态少见，因为平台（BOSS 直聘、猎聘、智联）"
+             "反爬且明令禁止自动化操作账号，合规边界模糊；"
+             "共享账号代投本身也可能违反平台协议。"
+             "它与 mort 同赛道但更重人力，一个人很难规模化——"
+             "这一点在国内人工便宜反而是优势，但毛利会掉下来。",
+    ),
+    "audn-ai": dict(
+        demand=3, payment=4, compliance=1, acquisition=2, localization=2, competition=2,
+        blocker="网络安全服务资质",
+        note="「把一年一次的渗透测试变成 $999/月不限次订阅」是极漂亮的降维定价，"
+             "思路完全值得学。但业务本身在国内几乎不可做："
+             "《网络安全法》下未经授权对他人网络进行扫描即属违法，"
+             "商用安全测试服务要相应资质与等保相关能力，个人与小微公司拿不到。"
+             "而即便拿到，国内这一格站着奇安信、深信服、长亭、知道创宇，"
+             "且它们的 SaaS 化产品已经在卖。需求给 3 是因为国内安全投入"
+             "主要是合规驱动而非自驱，客户买的是「过等保」不是「找漏洞」。",
+    ),
+    "hypit-ai": dict(
+        demand=3, payment=3, compliance=3, acquisition=3, localization=3, competition=3,
+        note="⚠️ 占位评分，不构成移植判断：公开档案里没有产品简介、没有定价、"
+             "没有创始人，只有可验证收入（MRR $18,825、954 个订阅、上线不足两个月）。"
+             "在不知道它卖什么之前，六维只能给中间值。"
+             "它进库的理由是支付网关直读的收入证据，"
+             "且月度时间线不足两个月——这条连增长结论都不给，更谈不上移植判断。",
+    ),
+    "apiframe": dict(
+        demand=4, payment=4, compliance=2, acquisition=3, localization=2, competition=1,
+        blocker="生成式 AI 备案 + 大厂 API 价格战",
+        note="与 autocontent-api 是同一道墙。国内 agent 与应用开发需求极旺，"
+             "「一套 API 调多家模型」的便利性是真需求，"
+             "按 credits 计费也和国内开发者习惯不冲突。"
+             "但上游是 DeepSeek、豆包、通义、千帆这类大厂在直接卖 API 且价格战激烈，"
+             "中间层的价差空间被压到极薄；"
+             "而面向公众提供生成式 AI 服务要过备案、输出内容要过安全过滤，"
+             "这两项是国内独有的固定成本。竞争判 1：聚合网关国内已有不少，"
+             "且大厂自己在做。",
+    ),
+    "chatseo": dict(
+        demand=3, payment=4, compliance=4, acquisition=3, localization=2, competition=2,
+        note="它的卖点有两半：「排到 Google 第一」和「排到 ChatGPT 第一」。"
+             "搬到国内，前半直接归零——Google 在国内不可用，"
+             "SEO 规则要整个换成百度、搜狗、抖音搜索，"
+             "而国内 SEO 服务已经很卷；"
+             "后半（AI 露出）成立，但那半与 aeo-engine、amicited 撞在同一格，"
+             "国内要先把豆包、DeepSeek、元宝的采样做扎实。"
+             "产品等于要砍掉一半重做，这是它和纯 AI 可见性工具的差距。",
+    ),
+    "brawler": dict(
+        demand=2, payment=3, compliance=4, acquisition=2, localization=4, competition=2,
+        note="本地化成本几乎为零（摄像头动作识别不看语言，中文化即可），"
+             "合规也干净。但需求一维要扣到底：拳击在国内是小众运动，"
+             "而「AI 私教」这种非社交非内容的健身形态付费极弱——"
+             "国内健身用户的钱主要花在器械、场馆和社交型 App 上。"
+             "分发同样是问题：它靠 App Store 自然量，国内安卓没有 Google Play。"
+             "技术（实时动作识别 + 计数纠错）是可复用的部分，"
+             "换成跳绳、羽毛球、太极这类国内有群众基础的项目反而更成立。",
+    ),
+    "cod-dex": dict(
+        demand=4, payment=4, compliance=4, acquisition=3, localization=3, competition=2,
+        note="学编程的人国内全球最多，而合规一维意外地干净："
+             "编程属非学科类培训，不需要学科办学许可。"
+             "它的产品骨架（课程游戏化成「冒险旅程」+ 勋章）是差异点，"
+             "国内现有供给（慕课网、力扣、freeCodeCamp 中文）大多是"
+             "视频 + 题库的严肃形态，游戏化这一格还没被占死。"
+             "要改的是课程翻译与社区重建（localization 3）；"
+             "付费一维的风险在于 $9.9/月 对国内自学者不算贵但还是"
+             "要跟「B站上一堆免费教程」竞争——它 6,686 个订阅说明"
+             "低价走量可行，但国内要走更大的量才有同等收入。",
+    ),
+    "boothie-ai-photo-editor": dict(
+        demand=4, payment=3, compliance=4, acquisition=2, localization=3, competition=1,
+        note="需求端毫无问题（修图是国内最强的 C 端赛道之一），"
+             "但竞争一维必须判 1：美图秀秀、醒图、轻颜相机全免费、"
+             "本土审美贴合度更高、且大厂在持续加码，"
+             "「一键换胶片质感」这种功能在它们是模板级别的存在。"
+             "付费一维也弱：国内 C 端对修图 App 的订阅习惯很薄，"
+             "习惯的是免费 + 单点内购。本地化不只是翻译——"
+             "国内要的是「美颜」「高级感」，不是「柯达金胶卷」，"
+             "风格包要整个重做。",
+    ),
+    "nutria-9e3eaa": dict(
+        demand=3, payment=3, compliance=3, acquisition=2, localization=2, competition=1,
+        note="卡路里追踪在国内有薄荷健康、Keep 这样的免费强供给，"
+             "而本地化是硬改造：食物识别库要整个换成中餐，"
+             "中餐的烹饪方式、分量、油盐结构让「拍一张算热量」的"
+             "准确度比西餐难一个量级——这不是翻译工作量，是重做数据。"
+             "合规一维要谨慎：饮食与体重数据属健康信息，存储与共享受限。"
+             "另外它自己近 30 天已下滑 25%，说明这个品类在海外都在退潮，"
+             "国内窗口只会更短。",
+    ),
+    "fastwrite-io": dict(
+        demand=3, payment=3, compliance=2, acquisition=3, localization=3, competition=2,
+        blocker="学术诚信灰区",
+        note="学生群体大、搜索需求现成（获客 3、改造 3），"
+             "但它的定位是「帮助学生产出更高品质的学术作品」，"
+             "与 ae-intelligence 站在同一条灰线上——国内高校已明确"
+             "把 AI 代写纳入学术不端认定，做这门生意的平台风险很高。"
+             "付费一维也不乐观：学生是付费能力最弱的群体，"
+             "$21.8/月 在国内要跟大量免费 AI 写作工具竞争。"
+             "能做的是往「合规侧」靠：查重、引用格式、文献梳理这些"
+             "不替学生写、只帮学生写的部分。",
+    ),
+    "downconvert-sketchup-files": dict(
+        demand=3, payment=4, compliance=5, acquisition=3, localization=4, competition=4,
+        note="这批里最干净的一条：极窄但真实的小痛点（同事的 SketchUp 版本"
+             "打不开你的文件），纯工程工具，不碰任何数据红线，"
+             "本地化几乎为零（界面翻译即可）。"
+             "竞争给 4 是因为国内几乎没人做这个——"
+             "小到没人做，但真有人付费（$87/月 仍有人买，说明是刚需）。"
+             "需求只能给 3：SketchUp 在国内室内设计圈有用户，"
+             "但主流是 AutoCAD、天正、3ds Max、酷家乐。"
+             "真正的迁移思路不是照搬 SketchUp，"
+             "而是把「版本兼容」这个痛点搬到国内主流设计软件上重做一遍。",
+    ),
+    "macwall": dict(
+        demand=1, payment=3, compliance=5, acquisition=2, localization=5, competition=1,
+        blocker="C 端壁纸付费不存在",
+        note="本地化成本为零、合规完全干净，但需求一维判 1："
+             "国内几乎没有人会为壁纸付订阅费，免费壁纸站与"
+             "系统自带壁纸已经覆盖了绝大部分需求，"
+             "而 Mac 在国内的用户基数本来就小。"
+             "这条进库的意义在于成本结构参照，不在于可复制性。",
+    ),
+    "growingupvideo": dict(
+        demand=3, payment=3, compliance=2, acquisition=2, localization=3, competition=1,
+        blocker="换脸/深度伪造内容标识监管",
+        note="「把老照片变成一段成长视频」的情感需求国内同样真实，"
+             "但国内对人脸生成与换脸的监管是全球最严的一档："
+             "深度合成内容要显著标识、要取得被编辑人同意，"
+             "未标识的传播会被平台处置——这正是它的核心功能。"
+             "竞争也是问题：剪映、即梦里的「照片动起来」是免费模板。"
+             "能搬的只有它的选题（成长/宠物/情侣的时间线叙事），"
+             "落地形态得往「不碰人脸」的方向改。",
+    ),
+    "homy": dict(
+        demand=2, payment=3, compliance=5, acquisition=2, localization=4, competition=3,
+        note="技术通用、改造量小、合规干净，"
+             "但需求一维很薄：Mac 在国内是少数派，"
+             "而「文件搜索更快」这件事国内用户习惯用 Everything（Windows）"
+             "或直接靠网盘/微信的搜索解决，付费意愿接近于零。"
+             "竞争给 3 是「没人做也没市场」的那种空，不是机会。"
+             "这条的价值在于它验证了一个极窄的工具也能收到钱（近 30 天 $1,345），"
+             "但那个钱是在海外 Mac 用户池里收到的。",
+    ),
+    "stealth-rdp": dict(
+        demand=4, payment=4, compliance=1, acquisition=2, localization=2, competition=1,
+        blocker="IDC/ISP 增值电信牌照",
+        note="需求端毫无疑问（VPS 是国内最成熟的云市场之一），"
+             "但这是个人完全进不去的生意：IDC/ISP 属增值电信业务，"
+             "要牌照、要实名、要承担内容监管责任，"
+             "而市场被阿里云、腾讯云、华为云三分，"
+             "毛利只有 40% 且还在被价格战往下压。"
+             "它与 divine-widgets、voklit 那类「牌照墙」条目不同的地方在于："
+             "这里连「学它的模式换个形态做」的空间都没有——"
+             "产品就是牌照本身。",
+    ),
+    "white-glove-content": dict(
+        demand=4, payment=4, compliance=3, acquisition=2, localization=3, competition=2,
+        note="「客户把稳定出内容这件事外包出去」的需求国内极大"
+             "（本地商家、品牌方、MCN 都在买），"
+             "但它 $117/月 的产品化定价在国内要跟「一个编导月薪几千块"
+             "给你做全套」直接比价——国内人力便宜这件事"
+             "反而让「用 AI 把代运营成本压到产品价」更难成立，"
+             "因为参照系已经很便宜了。"
+             "获客也是问题：国内代运营靠 BD 和关系，不是自助注册，"
+             "而这一格挤满了代运营公司。"
+             "真正值得学的是它把「无脸视频 + 策划 + 剪辑」打包成"
+             "固定月费的切法，而不是照搬这个价格。",
+    ),
+    "pet-plus-us": dict(
+        demand=4, payment=5, compliance=4, acquisition=4, localization=3, competition=2,
+        note="这批里移植条件最好的一条：宠物经济是国内最热的消费赛道之一，"
+             "宠物主为「毛孩子的肖像」付费意愿极高；"
+             "收款一维给满分——微信/支付宝的小额支付顺畅度全球第一，"
+             "几十块的冲动消费不需要任何决策成本；"
+             "小红书就是天然获客池，而宠物内容在小红书上自带流量。"
+             "合规干净（AI 生成宠物肖像不涉人脸与敏感内容）。"
+             "要改的是风格包（国内审美偏日系插画与精修，不是油画肖像）；"
+             "竞争一维扣分是因为淘宝与小红书上已经有大量人工宠物画像师，"
+             "他们的单价不高但质量可控——AI 化的优势在速度和低价，不在画质。",
+    ),
+    "wagiff-app": dict(
+        demand=2, payment=3, compliance=1, acquisition=2, localization=1, competition=3,
+        blocker="宗教/涉性内容审核",
+        note="产品整个长在伊斯兰文化背景上（中东北非男性戒除不良习惯的社群），"
+             "国内既没有这个文化语境，也没有这个宗教社群结构——"
+             "localization 判 1。更硬的是合规：它涉性内容 + UGC 社群，"
+             "这在国内是内容审核的最高风险区，"
+             "同类社区（戒色吧等）存在但完全不付费、且长期处在整改压力下。"
+             "竞争给 3 只说明这一格没人做商业产品，不代表有空间。",
+    ),
+    "quotedeck": dict(
+        demand=3, payment=3, compliance=2, acquisition=2, localization=1, competition=2,
+        blocker="保险销售资质 + 产品体系不同",
+        note="保险代理人要出专业报价，这个需求国内同样存在，"
+             "但保险产品的条款、费率结构、核保规则与美国完全不同，"
+             "报价引擎要整个重写（localization 判 1）；"
+             "而面向代理人销售展业工具，在国内绕不开保险销售资质"
+             "与持牌机构的边界，非持牌方做这套工具的合规位置很模糊。"
+             "获客也不一样：美国靠代理人社群自下而上，"
+             "国内是保险公司或中介机构自上而下配发系统，"
+             "独立 SaaS 插不进去。它只有 4 个客户、MRR $1,750，"
+             "本身就还是一个很早期的验证。",
+    ),
+    "private-venture-1": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=4, competition=3, note='收款走 lemon squeezy 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。开发者工具/API 语言无关、本地化成本低，国内开发者付费习惯改善，但同类开源/云厂商方案不少。'),
+    "adawcag": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=4, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。开发者工具/API 语言无关、本地化成本低，国内开发者付费习惯改善，但同类开源/云厂商方案不少。'),
+    "aeo-checker": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=2, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。广告/创意工具需求永续，但 Meta/Google 投放逻辑搬到国内要重做巨量/腾讯广告规则，且国内卷。'),
+    "ad-machine": dict(demand=2, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。卖的是「替客户做」的人力服务，在国内要 BD/关系获客，一个人能吃下但规模受限于时间。'),
+    "advanced-gsc-mcp": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。SEO/搜索可见度是刚需，国内对应百度/搜狗/抖音搜索，获客可自举，但 SEO 服务在国内已很卷。'),
+    "3d-agent": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。图像/设计/3D/室内需求广，酷家乐/Canva 等已占大头，AI 化的优势在速度与低价。'),
+    "adtruffle": dict(demand=3, payment=3, compliance=2, acquisition=2, localization=2, competition=2, blocker='平台数据合规', note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。长在 Meta 广告库的抓取与搬运上，国内对应抖音/巨量创意有官方创意中心，灰色抓取路线不合规。'),
+    "ai-designer": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=2, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。广告/创意工具需求永续，但 Meta/Google 投放逻辑搬到国内要重做巨量/腾讯广告规则，且国内卷。'),
+    "acquire-community": dict(demand=4, payment=4, compliance=5, acquisition=4, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。电商卖家是全球最大国内群体，选品/数据/运营工具需求硬，微信/支付宝收款顺畅，但同类工具已不少。'),
+    "atelier-nuage": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='收款走 stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。通用 AI 工具需求存在，但国内大厂与开源方案密集，差异化与获客是关键。'),
+    "fireply-ai": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。社区/买卖平台需求看品类，国内同类靠微信生态与信任机制，冷启动获客是难点。'),
+    "ismalicious": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=4, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。开发者工具/API 语言无关、本地化成本低，国内开发者付费习惯改善，但同类开源/云厂商方案不少。'),
+    "uizze": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=2, note='收款走 polar 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。图像/设计/3D/室内需求广，酷家乐/Canva 等已占大头，AI 化的优势在速度与低价。'),
+    "barron-tech-llc": dict(demand=2, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。卖的是「替客户做」的人力服务，在国内要 BD/关系获客，一个人能吃下但规模受限于时间。'),
+    "autoclip": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=2, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。广告/创意工具需求永续，但 Meta/Google 投放逻辑搬到国内要重做巨量/腾讯广告规则，且国内卷。'),
+    "chariot-ai": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=4, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。开发者工具/API 语言无关、本地化成本低，国内开发者付费习惯改善，但同类开源/云厂商方案不少。'),
+    "openalternative": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。社区/买卖平台需求看品类，国内同类靠微信生态与信任机制，冷启动获客是难点。'),
+    "breadsync": dict(demand=3, payment=3, compliance=2, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。交易/投资工具在国内绕不开金融牌照与合规边界，非持牌方做这类工具位置模糊。'),
+    "cbt-artificial-intelligence-technology-inc-dba-zuuz": dict(demand=3, payment=3, compliance=5, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。效率/邮件/CRM 类工具需求通用，国内有飞书/钉钉/企微生态，切入点要够垂直才不被自带功能吃掉。'),
+    "firecert": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。社区/买卖平台需求看品类，国内同类靠微信生态与信任机制，冷启动获客是难点。'),
+    "arcton": dict(demand=3, payment=3, compliance=5, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。效率/邮件/CRM 类工具需求通用，国内有飞书/钉钉/企微生态，切入点要够垂直才不被自带功能吃掉。'),
+    "captureflow": dict(demand=2, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。卖的是「替客户做」的人力服务，在国内要 BD/关系获客，一个人能吃下但规模受限于时间。'),
+    "corey-chiu": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='收款走 stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。通用 AI 工具需求存在，但国内大厂与开源方案密集，差异化与获客是关键。'),
+    "opentweet": dict(demand=2, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。卖的是「替客户做」的人力服务，在国内要 BD/关系获客，一个人能吃下但规模受限于时间。'),
+    "apogee": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=2, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。广告/创意工具需求永续，但 Meta/Google 投放逻辑搬到国内要重做巨量/腾讯广告规则，且国内卷。'),
+    "blawgy-com": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。SEO/搜索可见度是刚需，国内对应百度/搜狗/抖音搜索，获客可自举，但 SEO 服务在国内已很卷。'),
+    "autosubtitles": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。教育/备考是国内最卷也最愿付费的赛道，获客靠内容引流，但同类产品（刷题/辅导）竞争激烈。'),
+    "axis-labc2026": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。社区/买卖平台需求看品类，国内同类靠微信生态与信任机制，冷启动获客是难点。'),
+    "astonish-email-limited": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=2, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。广告/创意工具需求永续，但 Meta/Google 投放逻辑搬到国内要重做巨量/腾讯广告规则，且国内卷。'),
+    "bluff-ai": dict(demand=3, payment=3, compliance=3, acquisition=2, localization=2, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。长在 Threads/TikTok/X 等平台生态上，国内等价渠道（抖音/小红书）接口不开放，拿授权要资质。'),
+    "baller": dict(demand=3, payment=4, compliance=4, acquisition=3, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。健身/训练类需求在国内真实且付费意愿强，小红书/抖音是天然获客池，但同类 App 已多。'),
+    "athenify": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。教育/备考是国内最卷也最愿付费的赛道，获客靠内容引流，但同类产品（刷题/辅导）竞争激烈。'),
+    "christian-tech-jobs": dict(demand=2, payment=3, compliance=3, acquisition=2, localization=2, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。招聘/求职寄生在 LinkedIn 等海外平台上，国内对应 Boss 直聘/猎聘格局已定，跨境需求薄。'),
+    "bouncer": dict(demand=3, payment=3, compliance=5, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。效率/邮件/CRM 类工具需求通用，国内有飞书/钉钉/企微生态，切入点要够垂直才不被自带功能吃掉。'),
+    "blitzcut": dict(demand=3, payment=3, compliance=3, acquisition=2, localization=2, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。长在 Threads/TikTok/X 等平台生态上，国内等价渠道（抖音/小红书）接口不开放，拿授权要资质。'),
+    "bidva-buy-linkedin-accounts": dict(demand=3, payment=3, compliance=1, acquisition=2, localization=3, competition=1, blocker='平台规则/账号交易', note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。卖账号/养号直接违反平台 ToS，国内同样不合规且灰产化，没有可持续的商业结构。'),
+    "coprep-ai": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=3, note='收款走 stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。教育/备考是国内最卷也最愿付费的赛道，获客靠内容引流，但同类产品（刷题/辅导）竞争激烈。'),
+    "canopy-api": dict(demand=4, payment=4, compliance=5, acquisition=4, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。电商卖家是全球最大国内群体，选品/数据/运营工具需求硬，微信/支付宝收款顺畅，但同类工具已不少。'),
+    "billionverify": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=4, competition=3, note='收款走 stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。开发者工具/API 语言无关、本地化成本低，国内开发者付费习惯改善，但同类开源/云厂商方案不少。'),
+    "algofuse-ai": dict(demand=4, payment=4, compliance=5, acquisition=4, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。电商卖家是全球最大国内群体，选品/数据/运营工具需求硬，微信/支付宝收款顺畅，但同类工具已不少。'),
+    "botric": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。SEO/搜索可见度是刚需，国内对应百度/搜狗/抖音搜索，获客可自举，但 SEO 服务在国内已很卷。'),
+    "checkform-gymnastics": dict(demand=3, payment=4, compliance=4, acquisition=3, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。健身/训练类需求在国内真实且付费意愿强，小红书/抖音是天然获客池，但同类 App 已多。'),
+    "claws-host": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=4, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。开发者工具/API 语言无关、本地化成本低，国内开发者付费习惯改善，但同类开源/云厂商方案不少。'),
+    "coco": dict(demand=3, payment=3, compliance=5, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。效率/邮件/CRM 类工具需求通用，国内有飞书/钉钉/企微生态，切入点要够垂直才不被自带功能吃掉。'),
+    "blogr-ai": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。SEO/搜索可见度是刚需，国内对应百度/搜狗/抖音搜索，获客可自举，但 SEO 服务在国内已很卷。'),
+    "client-one": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='收款走 stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。通用 AI 工具需求存在，但国内大厂与开源方案密集，差异化与获客是关键。'),
+    "coralflavor": dict(demand=3, payment=3, compliance=1, acquisition=3, localization=4, competition=2, blocker='内容合规', note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。国内内容审核是最高风险区，UGC/角色扮演/成人向社区长期处在整改压力下，独立商业化几乎无空间。'),
+    "apexvol": dict(demand=3, payment=3, compliance=2, acquisition=3, localization=3, competition=3, note='收款走 stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。交易/投资工具在国内绕不开金融牌照与合规边界，非持牌方做这类工具位置模糊。'),
+    "kitchendesign": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。图像/设计/3D/室内需求广，酷家乐/Canva 等已占大头，AI 化的优势在速度与低价。'),
+    "blacktwist": dict(demand=2, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。卖的是「替客户做」的人力服务，在国内要 BD/关系获客，一个人能吃下但规模受限于时间。'),
+    "cloud-backup-for-podio": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=4, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。开发者工具/API 语言无关、本地化成本低，国内开发者付费习惯改善，但同类开源/云厂商方案不少。'),
+    "spark-playground": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。教育/备考是国内最卷也最愿付费的赛道，获客靠内容引流，但同类产品（刷题/辅导）竞争激烈。'),
+    "clawlink": dict(demand=4, payment=4, compliance=5, acquisition=4, localization=3, competition=3, note='收款走 polar 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。电商卖家是全球最大国内群体，选品/数据/运营工具需求硬，微信/支付宝收款顺畅，但同类工具已不少。'),
+    "ai-text-humanizer-netherlands-belgium": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=3, note='收款走 stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。教育/备考是国内最卷也最愿付费的赛道，获客靠内容引流，但同类产品（刷题/辅导）竞争激烈。'),
+    "agentskit": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=2, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。广告/创意工具需求永续，但 Meta/Google 投放逻辑搬到国内要重做巨量/腾讯广告规则，且国内卷。'),
+    "altitude-cleaning-crew": dict(demand=2, payment=3, compliance=4, acquisition=2, localization=2, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。本地实体服务（清洁/烘焙）难跨境，国内同类靠美团/大众点评与地推，获客渠道要整个重建。'),
+    "anyapi": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。SEO/搜索可见度是刚需，国内对应百度/搜狗/抖音搜索，获客可自举，但 SEO 服务在国内已很卷。'),
+    "aprs-conseil": dict(demand=2, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。卖的是「替客户做」的人力服务，在国内要 BD/关系获客，一个人能吃下但规模受限于时间。'),
+    "athletiks": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。社区/买卖平台需求看品类，国内同类靠微信生态与信任机制，冷启动获客是难点。'),
+    "bakering-app-sl": dict(demand=2, payment=3, compliance=4, acquisition=2, localization=2, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。本地实体服务（清洁/烘焙）难跨境，国内同类靠美团/大众点评与地推，获客渠道要整个重建。'),
+    "bettrbot": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=4, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。开发者工具/API 语言无关、本地化成本低，国内开发者付费习惯改善，但同类开源/云厂商方案不少。'),
+    "brandmylaptop": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=2, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。广告/创意工具需求永续，但 Meta/Google 投放逻辑搬到国内要重做巨量/腾讯广告规则，且国内卷。'),
+    "brandmymac": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=2, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。广告/创意工具需求永续，但 Meta/Google 投放逻辑搬到国内要重做巨量/腾讯广告规则，且国内卷。'),
+    "brokenstudios": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=4, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。开发者工具/API 语言无关、本地化成本低，国内开发者付费习惯改善，但同类开源/云厂商方案不少。'),
+    "chronoid": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。图像/设计/3D/室内需求广，酷家乐/Canva 等已占大头，AI 化的优势在速度与低价。'),
+    "firstrep": dict(demand=3, payment=4, compliance=4, acquisition=3, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。健身/训练类需求在国内真实且付费意愿强，小红书/抖音是天然获客池，但同类 App 已多。'),
+    "orbio": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=4, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。开发者工具/API 语言无关、本地化成本低，国内开发者付费习惯改善，但同类开源/云厂商方案不少。'),
+    "ai-prank-call": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。通用 AI 工具需求存在，但国内大厂与开源方案密集，差异化与获客是关键。'),
+    "betting-tips": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。通用 AI 工具需求存在，但国内大厂与开源方案密集，差异化与获客是关键。'),
+    "ai-voice-calls": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=4, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。开发者工具/API 语言无关、本地化成本低，国内开发者付费习惯改善，但同类开源/云厂商方案不少。'),
+    "demopolish": dict(demand=4, payment=3, compliance=4, acquisition=4, localization=3, competition=2, note='收款走 stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。视频生成/字幕/剪辑需求大，但国内有剪映、即梦等免费工具贴身竞争，只能切极窄场景。'),
+    "chatsell-co": dict(demand=3, payment=4, compliance=4, acquisition=3, localization=3, competition=2, note='收款走 stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。健身/训练类需求在国内真实且付费意愿强，小红书/抖音是天然获客池，但同类 App 已多。'),
+    "roster-for-slack": dict(demand=3, payment=3, compliance=5, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。效率/邮件/CRM 类工具需求通用，国内有飞书/钉钉/企微生态，切入点要够垂直才不被自带功能吃掉。'),
+    "static-run": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=4, competition=3, note='收款走 stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。开发者工具/API 语言无关、本地化成本低，国内开发者付费习惯改善，但同类开源/云厂商方案不少。'),
+    "ai-math-solver": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。通用 AI 工具需求存在，但国内大厂与开源方案密集，差异化与获客是关键。'),
+    "ai-smart-decor": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。图像/设计/3D/室内需求广，酷家乐/Canva 等已占大头，AI 化的优势在速度与低价。'),
+    "verse": dict(demand=4, payment=3, compliance=4, acquisition=4, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。视频生成/字幕/剪辑需求大，但国内有剪映、即梦等免费工具贴身竞争，只能切极窄场景。'),
+    "clawbox": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=4, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。开发者工具/API 语言无关、本地化成本低，国内开发者付费习惯改善，但同类开源/云厂商方案不少。'),
+    "bankstatemently": dict(demand=2, payment=3, compliance=4, acquisition=2, localization=2, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。本地实体服务（清洁/烘焙）难跨境，国内同类靠美团/大众点评与地推，获客渠道要整个重建。'),
+    "fit-it-on": dict(demand=2, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='收款走 lemon squeezy 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。卖的是「替客户做」的人力服务，在国内要 BD/关系获客，一个人能吃下但规模受限于时间。'),
+    "ai-influencer-generator": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=2, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。广告/创意工具需求永续，但 Meta/Google 投放逻辑搬到国内要重做巨量/腾讯广告规则，且国内卷。'),
+    "flowy": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。社区/买卖平台需求看品类，国内同类靠微信生态与信任机制，冷启动获客是难点。'),
+    "check-id": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=4, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。开发者工具/API 语言无关、本地化成本低，国内开发者付费习惯改善，但同类开源/云厂商方案不少。'),
+    "chat-whisperer": dict(demand=2, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。卖的是「替客户做」的人力服务，在国内要 BD/关系获客，一个人能吃下但规模受限于时间。'),
+    "quickvoc": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。图像/设计/3D/室内需求广，酷家乐/Canva 等已占大头，AI 化的优势在速度与低价。'),
+    "blue-esim": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。通用 AI 工具需求存在，但国内大厂与开源方案密集，差异化与获客是关键。'),
+    "captime": dict(demand=3, payment=4, compliance=4, acquisition=3, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。健身/训练类需求在国内真实且付费意愿强，小红书/抖音是天然获客池，但同类 App 已多。'),
+    "alodata": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。通用 AI 工具需求存在，但国内大厂与开源方案密集，差异化与获客是关键。'),
+    "chiptune": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。SEO/搜索可见度是刚需，国内对应百度/搜狗/抖音搜索，获客可自举，但 SEO 服务在国内已很卷。'),
+    "calsy": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。图像/设计/3D/室内需求广，酷家乐/Canva 等已占大头，AI 化的优势在速度与低价。'),
+    "firsto": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。SEO/搜索可见度是刚需，国内对应百度/搜狗/抖音搜索，获客可自举，但 SEO 服务在国内已很卷。'),
+    "atslebenslauf-com": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。教育/备考是国内最卷也最愿付费的赛道，获客靠内容引流，但同类产品（刷题/辅导）竞争激烈。'),
+    "anymelo": dict(demand=3, payment=3, compliance=5, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。效率/邮件/CRM 类工具需求通用，国内有飞书/钉钉/企微生态，切入点要够垂直才不被自带功能吃掉。'),
+    "reddit-grow": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=2, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。广告/创意工具需求永续，但 Meta/Google 投放逻辑搬到国内要重做巨量/腾讯广告规则，且国内卷。'),
+    "cleaner": dict(demand=3, payment=3, compliance=5, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。效率/邮件/CRM 类工具需求通用，国内有飞书/钉钉/企微生态，切入点要够垂直才不被自带功能吃掉。'),
+    "arbichat-s-l": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。通用 AI 工具需求存在，但国内大厂与开源方案密集，差异化与获客是关键。'),
+    "bromeai": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。通用 AI 工具需求存在，但国内大厂与开源方案密集，差异化与获客是关键。'),
+    "fire-tech-apps-llc": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='收款走 stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。通用 AI 工具需求存在，但国内大厂与开源方案密集，差异化与获客是关键。'),
+    "bolsai": dict(demand=3, payment=3, compliance=2, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。交易/投资工具在国内绕不开金融牌照与合规边界，非持牌方做这类工具位置模糊。'),
+    "sportsjobs-online": dict(demand=2, payment=3, compliance=3, acquisition=2, localization=2, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。招聘/求职寄生在 LinkedIn 等海外平台上，国内对应 Boss 直聘/猎聘格局已定，跨境需求薄。'),
+    "chartvio": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。通用 AI 工具需求存在，但国内大厂与开源方案密集，差异化与获客是关键。'),
+    "brikk": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。社区/买卖平台需求看品类，国内同类靠微信生态与信任机制，冷启动获客是难点。'),
+    "elispeak": dict(demand=3, payment=4, compliance=4, acquisition=3, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。健身/训练类需求在国内真实且付费意愿强，小红书/抖音是天然获客池，但同类 App 已多。'),
+    "myterrace-net": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。图像/设计/3D/室内需求广，酷家乐/Canva 等已占大头，AI 化的优势在速度与低价。'),
+    "cat-games": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。图像/设计/3D/室内需求广，酷家乐/Canva 等已占大头，AI 化的优势在速度与低价。'),
+    "c12s-ai": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。图像/设计/3D/室内需求广，酷家乐/Canva 等已占大头，AI 化的优势在速度与低价。'),
+    "forage": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。通用 AI 工具需求存在，但国内大厂与开源方案密集，差异化与获客是关键。'),
+    "aiwith-me": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='收款走 stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。发现/目录类平台（联盟计划、资源索引）需求看覆盖品类，国内同类靠内容引流与微信生态，冷启动获客是难点。'),
+    "june": dict(demand=3, payment=3, compliance=5, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。效率/邮件/CRM 类工具需求通用，国内有飞书/钉钉/企微生态，切入点要够垂直才不被自带功能吃掉。'),
+    "blockit": dict(demand=3, payment=3, compliance=3, acquisition=2, localization=2, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。长在 Threads/TikTok/X 等平台生态上，国内等价渠道（抖音/小红书）接口不开放，拿授权要资质。'),
+    "orbit-ai": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。图像/设计/3D/室内需求广，酷家乐/Canva 等已占大头，AI 化的优势在速度与低价。'),
+    "aidelly": dict(demand=2, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。卖的是「替客户做」的人力服务，在国内要 BD/关系获客，一个人能吃下但规模受限于时间。'),
+    "car-docs-ro": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。社区/买卖平台需求看品类，国内同类靠微信生态与信任机制，冷启动获客是难点。'),
+    "ai-swap-facetik": dict(demand=4, payment=3, compliance=2, acquisition=4, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。人脸/监控/VPN 类在国内合规要求高。视频生成/字幕/剪辑需求大，但国内有剪映、即梦等免费工具贴身竞争，只能切极窄场景。'),
+    "climbx": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。社区/买卖平台需求看品类，国内同类靠微信生态与信任机制，冷启动获客是难点。'),
+    "blainy": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。教育/备考是国内最卷也最愿付费的赛道，获客靠内容引流，但同类产品（刷题/辅导）竞争激烈。'),
+    "aistudios": dict(demand=4, payment=4, compliance=5, acquisition=4, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。电商卖家是全球最大国内群体，选品/数据/运营工具需求硬，微信/支付宝收款顺畅，但同类工具已不少。'),
+    "car-dealer-tracker": dict(demand=3, payment=3, compliance=5, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。效率/邮件/CRM 类工具需求通用，国内有飞书/钉钉/企微生态，切入点要够垂直才不被自带功能吃掉。'),
+    "careerkit": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。教育/备考是国内最卷也最愿付费的赛道，获客靠内容引流，但同类产品（刷题/辅导）竞争激烈。'),
+    "chunks-microlearning": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。教育/备考是国内最卷也最愿付费的赛道，获客靠内容引流，但同类产品（刷题/辅导）竞争激烈。'),
+    "alienart-io": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=2, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。广告/创意工具需求永续，但 Meta/Google 投放逻辑搬到国内要重做巨量/腾讯广告规则，且国内卷。'),
+    "chartsgpt": dict(demand=3, payment=3, compliance=1, acquisition=3, localization=3, competition=3, blocker='加密资产合规', note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。交易/投资工具在国内绕不开金融牌照与合规边界，非持牌方做这类工具位置模糊。'),
+    "brandiseer": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=2, note='收款走 stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。图像/设计/3D/室内需求广，酷家乐/Canva 等已占大头，AI 化的优势在速度与低价。'),
+    "clear-food": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。通用 AI 工具需求存在，但国内大厂与开源方案密集，差异化与获客是关键。'),
+    "bolty": dict(demand=3, payment=4, compliance=4, acquisition=3, localization=3, competition=2, note='收款走 revenuecat 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。健身/训练类需求在国内真实且付费意愿强，小红书/抖音是天然获客池，但同类 App 已多。'),
+    "chefgpt": dict(demand=3, payment=4, compliance=4, acquisition=3, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。健身/训练类需求在国内真实且付费意愿强，小红书/抖音是天然获客池，但同类 App 已多。'),
+    "basincheck": dict(demand=3, payment=3, compliance=5, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。效率/邮件/CRM 类工具需求通用，国内有飞书/钉钉/企微生态，切入点要够垂直才不被自带功能吃掉。'),
+    "alphascope": dict(demand=3, payment=3, compliance=5, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。效率/邮件/CRM 类工具需求通用，国内有飞书/钉钉/企微生态，切入点要够垂直才不被自带功能吃掉。'),
+    "business-freelance": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。教育/备考是国内最卷也最愿付费的赛道，获客靠内容引流，但同类产品（刷题/辅导）竞争激烈。'),
+    "aura-ai-ai-video-image-generator": dict(demand=4, payment=3, compliance=4, acquisition=4, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。视频生成/字幕/剪辑需求大，但国内有剪映、即梦等免费工具贴身竞争，只能切极窄场景。'),
+    "coaching-marketing-kit": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。教育/备考是国内最卷也最愿付费的赛道，获客靠内容引流，但同类产品（刷题/辅导）竞争激烈。'),
+    "fishingai": dict(demand=3, payment=3, compliance=5, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。效率/邮件/CRM 类工具需求通用，国内有飞书/钉钉/企微生态，切入点要够垂直才不被自带功能吃掉。'),
+    "cooldock": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。SEO/搜索可见度是刚需，国内对应百度/搜狗/抖音搜索，获客可自举，但 SEO 服务在国内已很卷。'),
+    "auraclaw": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=4, competition=3, note='收款走 stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。开发者工具/API 语言无关、本地化成本低，国内开发者付费习惯改善，但同类开源/云厂商方案不少。'),
+    "bloxg-roblox-marketing-agency": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=4, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。开发者工具/API 语言无关、本地化成本低，国内开发者付费习惯改善，但同类开源/云厂商方案不少。'),
+    "archifruits-ai": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。图像/设计/3D/室内需求广，酷家乐/Canva 等已占大头，AI 化的优势在速度与低价。'),
+    "cheatmate": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。教育/备考是国内最卷也最愿付费的赛道，获客靠内容引流，但同类产品（刷题/辅导）竞争激烈。'),
+    "chatedu-inc": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=3, note='收款走 stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。教育/备考是国内最卷也最愿付费的赛道，获客靠内容引流，但同类产品（刷题/辅导）竞争激烈。'),
+    "agentsguild": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=4, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。开发者工具/API 语言无关、本地化成本低，国内开发者付费习惯改善，但同类开源/云厂商方案不少。'),
+    "ai-baby-generator": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=2, note='收款走 revenuecat 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。图像/设计/3D/室内需求广，酷家乐/Canva 等已占大头，AI 化的优势在速度与低价。'),
+    "adstudio": dict(demand=3, payment=3, compliance=3, acquisition=2, localization=2, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。长在 Threads/TikTok/X 等平台生态上，国内等价渠道（抖音/小红书）接口不开放，拿授权要资质。'),
+    "adriselab": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=2, competition=2, note='收款走 stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。广告/创意工具需求永续，但 Meta/Google 投放逻辑搬到国内要重做巨量/腾讯广告规则，且国内卷。'),
+    "ai-cover-music-video": dict(demand=4, payment=3, compliance=4, acquisition=4, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。视频生成/字幕/剪辑需求大，但国内有剪映、即梦等免费工具贴身竞争，只能切极窄场景。'),
+    "affililist": dict(demand=3, payment=3, compliance=3, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。金融/投资类在国内绕不开牌照与合规边界，非持牌方做这类工具位置模糊。发现/目录类平台（联盟计划、资源索引）需求看覆盖品类，国内同类靠内容引流与微信生态，冷启动获客是难点。'),
+    "ai-detector-image-checker": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。教育/备考是国内最卷也最愿付费的赛道，获客靠内容引流，但同类产品（刷题/辅导）竞争激烈。'),
+    "admirror": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=2, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。广告/创意工具需求永续，但 Meta/Google 投放逻辑搬到国内要重做巨量/腾讯广告规则，且国内卷。'),
+    "account-expense-manager": dict(demand=3, payment=3, compliance=5, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。效率/邮件/CRM 类工具需求通用，国内有飞书/钉钉/企微生态，切入点要够垂直才不被自带功能吃掉。'),
+    "anon-2": dict(demand=2, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。卖的是「替客户做」的人力服务，在国内要 BD/关系获客，一个人能吃下但规模受限于时间。'),
+    "7running": dict(demand=3, payment=4, compliance=4, acquisition=3, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。健身/训练类需求在国内真实且付费意愿强，小红书/抖音是天然获客池，但同类 App 已多。'),
+    "private-venture": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=4, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。开发者工具/API 语言无关、本地化成本低，国内开发者付费习惯改善，但同类开源/云厂商方案不少。'),
+    "aftersora": dict(demand=4, payment=3, compliance=4, acquisition=4, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。视频生成/字幕/剪辑需求大，但国内有剪映、即梦等免费工具贴身竞争，只能切极窄场景。'),
+    "3dplotter": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。图像/设计/3D/室内需求广，酷家乐/Canva 等已占大头，AI 化的优势在速度与低价。'),
+    "agence-web-abstract27": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=2, note='收款走 stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。SEO/搜索可见度是刚需，国内对应百度/搜狗/抖音搜索，获客可自举，但 SEO 服务在国内已很卷。'),
+    "20-0": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='收款走 stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。通用 AI 工具需求存在，但国内大厂与开源方案密集，差异化与获客是关键。'),
+    "ai-directories": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。发现/目录类平台（联盟计划、资源索引）需求看覆盖品类，国内同类靠内容引流与微信生态，冷启动获客是难点。'),
+    "adstellar": dict(demand=2, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。卖的是「替客户做」的人力服务，在国内要 BD/关系获客，一个人能吃下但规模受限于时间。'),
+    "aesty": dict(demand=4, payment=3, compliance=5, acquisition=4, localization=3, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。图像/设计/3D/室内需求广，酷家乐/Canva 等已占大头，AI 化的优势在速度与低价。'),
+    "adle": dict(demand=3, payment=3, compliance=3, acquisition=2, localization=2, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。长在 Threads/TikTok/X 等平台生态上，国内等价渠道（抖音/小红书）接口不开放，拿授权要资质。'),
+    "acsperf": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='收款走 stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。通用 AI 工具需求存在，但国内大厂与开源方案密集，差异化与获客是关键。'),
+    "the-stealthiest-of-ventures": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='收款走 stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。通用 AI 工具需求存在，但国内大厂与开源方案密集，差异化与获客是关键。'),
+    "gtm-help": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=2, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。广告/创意工具需求永续，但 Meta/Google 投放逻辑搬到国内要重做巨量/腾讯广告规则，且国内卷。'),
+    "mac-duo": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。通用 AI 工具需求存在，但国内大厂与开源方案密集，差异化与获客是关键。'),
+    "dope-data": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=4, competition=3, note='收款走 stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。开发者工具/API 语言无关、本地化成本低，国内开发者付费习惯改善，但同类开源/云厂商方案不少。'),
+    "orior-ai": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。社区/买卖平台需求看品类，国内同类靠微信生态与信任机制，冷启动获客是难点。'),
+    "agenkit": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=4, competition=3, note='收款走 polar 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。开发者工具/API 语言无关、本地化成本低，国内开发者付费习惯改善，但同类开源/云厂商方案不少。'),
+    "kreapro": dict(demand=3, payment=3, compliance=5, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。效率/邮件/CRM 类工具需求通用，国内有飞书/钉钉/企微生态，切入点要够垂直才不被自带功能吃掉。'),
+    "toonthis": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=2, competition=2, note='收款走 revenuecat 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。广告/创意工具需求永续，但 Meta/Google 投放逻辑搬到国内要重做巨量/腾讯广告规则，且国内卷。'),
 }
 
 

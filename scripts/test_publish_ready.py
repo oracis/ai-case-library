@@ -29,6 +29,8 @@ import contentpack_ready as CP      # noqa: E402
 import publish_ready as PR          # noqa: E402
 
 
+LONG_A = "这是一条刻意写得很长很长以便通过二十字下限校验的理由文案"
+
 FULL = {
     "id": "demo",
     "what_it_does": "做一件事",
@@ -123,9 +125,47 @@ class TestContentPacks(unittest.TestCase):
                     "%s 的 metric_note 没说清口径：%s" % (cid, note[:40]))
 
     def test_packs_cover_the_ready_set(self):
-        """今天这 5 条是 triage 判定的 ready 集合；内容包不能漏人。"""
-        expect = {"1lookup", "stan", "magicslides-app", "autoreels-ai", "insect-bite-id"}
-        self.assertEqual(set(CP.PACKS), expect)
+        """每个内容包都要**对得上一个真实案例或候选**，不能有写错的 id。
+
+        ⚠️ 原断言硬编码 `set(PACKS) == {5条}`，方向是反的：
+        每新增一批内容包它就红一次，而红的原因与代码质量无关 ——
+        于是人会习惯性忽略它，等它真报警时也不信了。
+
+        ⚠️ 第二版用「候选池里不存在的 id」当判据，也踩了同一个坑：
+        promote 会把候选**移出**候选池，于是内容包一被用掉、
+        断言就红。内容包的寿命横跨「候选期」与「已发布期」两个状态，
+        判据必须横跨两者都成立。
+        """
+        with open(CP.CAND_PATH, encoding="utf-8") as f:
+            pool = {c.get("id") for c in json.load(f)}
+        with open(os.path.join(ROOT, "data", "cases.json"), encoding="utf-8") as f:
+            published = {c.get("id") for c in json.load(f)}
+
+        # 内容包可以对应「还在候选池」或「已晋升成案例」——两者都算对得上。
+        dangling = set(CP.PACKS) - pool - published
+        self.assertEqual(dangling, set(),
+                         "这些内容包既没有对应候选也没有对应案例（id 写错了？）")
+
+        # 本轮 7 条 Stripe 深核通过的候选，内容包必须都在
+        expect = {"cometly", "vid-ai", "podawaa", "publbee",
+                  "vectosolve", "augora-ai",
+                  "wpconvert-ai-convert-ai-sites-to-wordpress"}
+        self.assertEqual(expect - set(CP.PACKS), set(),
+                         "本轮 Stripe 深核通过的候选缺内容包")
+
+    def test_new_batch_declares_caliber_is_mrr(self):
+        """🚨 7 条新内容包统一声明 MRR 口径（红线 1：收入口径不许混用）。
+
+        候选池里`caliber` 一律是 "mrr"，而内容包的 metric_note 是读者看到的
+        唯一口径说明 —— 两者若不一致，案例页上会出现「标 MRR、讲累计」的矛盾。
+        """
+        for cid in ("cometly", "vid-ai", "podawaa", "publbee",
+                    "vectosolve", "augora-ai",
+                    "wpconvert-ai-convert-ai-sites-to-wordpress"):
+            with self.subTest(cid=cid):
+                note = CP.PACKS[cid]["metrics"]["metric_note"]
+                self.assertIn("口径统一用", note)
+                self.assertIn("MRR", note)
 
     def test_no_stale_marketplace_price_in_headlines(self):
         """核实过的错数不能留在 headline 里。
@@ -191,6 +231,181 @@ class TestApplyRoundTrip(unittest.TestCase):
 
     def test_apply_refuses_unknown_id(self):
         self.assertEqual(CP.cmd_apply(["does-not-exist"]), 1)
+
+    def test_apply_preserves_caliber_keys(self):
+        """🚨 钉住「整体替换 metrics 不许抹掉口径字段」（2026-10-11 修的实质缺陷）。
+
+        `cmd_apply` 原本 `c["metrics"] = dict(pack["metrics"])` 整个换掉，
+        而内容包只带展示字段 ⇒ 深核流程产出的 `caliber` / `mrr_growth_30d` /
+        `revenue_growth_30d` / `customers` 全被抹掉。
+
+        为什么这不是洁癖：
+          · `caliber` 是红线「收入口径不许混用」的落点，promote 读它写进案例 ——
+            抹掉后案例只剩一个裸数字，没有任何口径声明；
+          · cometly 的 MRR -4.9% vs 收入 +35.4% 那个背离，全靠这两个增速字段
+            才看得见 —— 抹掉之后案例页会印出一个自相矛盾的增长故事。
+        """
+        cands = json.loads(self.orig)
+        probe = {
+            "id": "_test_probe2", "name": "Probe2",
+            "metrics": {
+                "headline": "MRR $1,234（采集时的旧快照）", "mrr": 1234,
+                "caliber": "mrr", "growth_30d": -4.9,
+                "mrr_growth_30d": -4.9, "revenue_growth_30d": 35.4,
+                "customers": 288,
+            },
+        }
+        cands.insert(0, probe)
+        with open(self.path, "w", encoding="utf-8", newline="\n") as f:
+            json.dump(cands, f, ensure_ascii=False, indent=1)
+            f.write("\n")
+
+        CP.PACKS["_test_probe2"] = {
+            "metrics": {"headline": "MRR $999（核实后）", "mrr": 999,
+                        "metric_note": "口径统一用 MRR，累计 $0 不可年化。"},
+            "what_it_does": "做一件事", "verdict": "一句话判断",
+            "how_it_makes_money": "按月订阅",
+            "why_it_works": [LONG_A, LONG_A, LONG_A],
+            "playbook": [LONG_A, LONG_A, LONG_A],
+            "signals": ["信号一", "信号二"],
+        }
+        try:
+            self.assertEqual(CP.cmd_apply(["_test_probe2"]), 0)
+            with open(self.path, encoding="utf-8") as f:
+                after = [c for c in json.load(f) if c["id"] == "_test_probe2"][0]
+        finally:
+            CP.PACKS.pop("_test_probe2", None)
+
+        m = after["metrics"]
+        # 展示字段：内容包的值必须赢（采集时的旧快照要被替换掉）
+        self.assertEqual(m["headline"], "MRR $999（核实后）")
+        self.assertEqual(m["mrr"], 999)
+        # 口径字段：内容包没提到 ⇒ 必须原样活下来
+        self.assertEqual(m["caliber"], "mrr")
+        self.assertEqual(m["mrr_growth_30d"], -4.9)
+        self.assertEqual(m["revenue_growth_30d"], 35.4)
+        self.assertEqual(m["growth_30d"], -4.9)
+        self.assertEqual(m["customers"], 288)
+
+    def test_pack_can_override_reserved_if_explicit(self):
+        """内容包**显式**写了口径字段时，允许覆盖 —— 保留不是封锁。"""
+        cands = json.loads(self.orig)
+        probe = {"id": "_test_probe3", "name": "P3",
+                 "metrics": {"headline": "旧", "mrr": 1, "caliber": "mrr"}}
+        cands.insert(0, probe)
+        with open(self.path, "w", encoding="utf-8", newline="\n") as f:
+            json.dump(cands, f, ensure_ascii=False, indent=1)
+            f.write("\n")
+
+        CP.PACKS["_test_probe3"] = {
+            "metrics": {"headline": "新", "mrr": 2, "caliber": "lifetime",
+                        "metric_note": "口径改成累计收入，不可年化。"},
+            "what_it_does": "做一件事", "verdict": "一句话判断",
+            "how_it_makes_money": "按月订阅",
+            "why_it_works": [LONG_A, LONG_A, LONG_A],
+            "playbook": [LONG_A, LONG_A, LONG_A],
+            "signals": ["信号一", "信号二"],
+        }
+        try:
+            self.assertEqual(CP.cmd_apply(["_test_probe3"]), 0)
+            with open(self.path, encoding="utf-8") as f:
+                after = [c for c in json.load(f) if c["id"] == "_test_probe3"][0]
+        finally:
+            CP.PACKS.pop("_test_probe3", None)
+        self.assertEqual(after["metrics"]["caliber"], "lifetime")
+
+
+class TestSegmentCarry(unittest.TestCase):
+    """钉住「赛道标记必须跟着晋升一起搬」（2026-10-11）。
+
+    背景：cometly 的 `solo_possible` 被官网证伪（9 人团队、公开扩编、
+    Enterprise 配专属 solutions engineer）⇒ 被标成 `segment="赛道样本"` +
+    `exclude_from_solo_cases=true`，口径是「写赛道体量，不写一个人怎么做」。
+
+    🚨 而 promote 里的 `new_case` 是**白名单**构造：候选上没列的字段一律不带。
+    这个标记全库只有 promote 一处读 —— 不显式透传，它就在晋升那一刻蒸发，
+    cometly 得以「一个人怎么做」的身份进 cases.json。
+    这类静默丢字段最难发现：晋升返回 201、案例页正常渲染，只是口径反了。
+
+    另外钉住反向：白名单**不能**开成「全字段透传」。promote 上游是 HTTP
+    请求体，无条件透传等于让调用方往对外案例页注入任意字段。
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        sys.path.insert(0, ROOT)
+        import server                                                   # noqa: E402
+        cls.server = server
+
+    def test_carries_all_three_segment_fields(self):
+        out = self.server._carry_segment({
+            "id": "cometly",
+            "segment": "赛道样本",
+            "segment_reason": "体量够证明赛道有 $20 万/月的生意，但 solo_possible 被官网证伪",
+            "exclude_from_solo_cases": True,
+        })
+        self.assertEqual(out, {
+            "segment": "赛道样本",
+            "segment_reason": "体量够证明赛道有 $20 万/月的生意，但 solo_possible 被官网证伪",
+            "exclude_from_solo_cases": True,
+        })
+
+    def test_carries_partial(self):
+        """只有 segment 没有 reason 也要搬 —— 半截标记仍是有意义的信号。"""
+        out = self.server._carry_segment({"segment": "赛道样本"})
+        self.assertEqual(out, {"segment": "赛道样本"})
+
+    def test_ordinary_candidate_carries_nothing(self):
+        """普通个人案例不该被塞进任何赛道标记。"""
+        out = self.server._carry_segment({
+            "id": "publbee", "name": "Publbee", "mrr": 3010,
+            "segment": None, "exclude_from_solo_cases": False,
+        })
+        self.assertEqual(out, {})
+
+    def test_does_not_leak_unrelated_fields(self):
+        """🚨 反向断言：不能变成「所有字段都搬」。"""
+        out = self.server._carry_segment({
+            "segment": "赛道样本",
+            "evil_injected": "x",
+            "_internal": "y",
+            "note": "内部备注",
+        })
+        self.assertEqual(out, {"segment": "赛道样本"})
+
+    def test_real_cometly_is_marked_after_promote(self):
+        """cometly 的赛道标记必须**最终落在 cases.json 里**。
+
+        ⚠️ 判据不能写「在 candidates.json 里」—— cometly 已于 2026-10-11
+        正式晋升，不再留在候选池。这条断言最初就钉在候选池上，
+        结果晋升当天它立刻变红，而红的原因跟代码质量无关。
+        标记的**最终归宿是案例**（promote 之后），所以断言就钉在那里 ——
+        这才是「标记有没有被丢掉」唯一有意义的地方。
+        """
+        with open(os.path.join(ROOT, "data", "cases.json"), encoding="utf-8") as f:
+            raw = f.read()
+        cases = json.loads(raw)
+        cometly = [c for c in cases if c.get("id") == "cometly"]
+        self.assertEqual(len(cometly), 1, "cometly 应已晋升为案例")
+        out = self.server._carry_segment(cometly[0])
+        self.assertEqual(out.get("segment"), "赛道样本")
+        self.assertIs(out.get("exclude_from_solo_cases"), True)
+
+    def test_no_case_lost_its_segment_mark(self):
+        """反向断言：标了赛道的案例，标记必须还在。
+
+        防止将来有人「为了简化 new_case」把 _carry_segment 删掉 ——
+        那种改动不会让任何单条测试变红，只会安静地让 cometly
+        以「一个人怎么做」的口径对外展示。
+        """
+        with open(os.path.join(ROOT, "data", "cases.json"), encoding="utf-8") as f:
+            cases = json.load(f)
+        marked = [c["id"] for c in cases if c.get("segment") == "赛道样本"]
+        self.assertTrue(marked, "没有任何案例带赛道标记 —— 标记可能被丢了")
+        for cid in marked:
+            c = [x for x in cases if x["id"] == cid][0]
+            self.assertIs(c.get("exclude_from_solo_cases"), True,
+                          "%s 标了赛道样本却没标 exclude_from_solo_cases" % cid)
 
 
 class TestPublishScriptWiring(unittest.TestCase):

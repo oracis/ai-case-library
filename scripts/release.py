@@ -115,7 +115,6 @@ STEPS = (
 )
 
 STEP_KEYS = tuple(s["key"] for s in STEPS)
-STEP_INDEX = {k: i for i, k in enumerate(STEP_KEYS)}
 
 # 唯一的例外：publish 还额外需要后台 server 活着。
 # 这不是「顺序依赖」而是「外部前提」，所以单独列出来 ——
