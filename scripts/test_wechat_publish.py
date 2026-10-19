@@ -517,3 +517,476 @@ class TestTokenEntry(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
+
+# ======================================================================
+# 「发表」自动化（2026-10-19）：判定纯函数 + CLI 计划 + 记账约定
+# ======================================================================
+class TestEvaluateSend(unittest.TestCase):
+    """发表结果的判定。守的是「两条证据同时成立才落账」这条纪律。"""
+
+    def test_新记录且标题一致_ok(self):
+        st, nid, why = W.evaluate_send(
+            set(), [{"appmsg_id": "2247484064",
+                     "title": "Bustem：帮电商品牌全网打假"}],
+            True, "Bustem：帮电商品牌全网打假")
+        self.assertEqual(st, "ok")
+        self.assertEqual(nid, "2247484064")
+        self.assertIn("标题一致", why)
+
+    def test_新记录但草稿还在_不记published(self):
+        st, nid, why = W.evaluate_send(
+            set(), [{"appmsg_id": "2247484064", "title": "别的稿"}],
+            False, "Bustem：帮电商品牌全网打假")
+        self.assertEqual(st, "unverified")
+        self.assertIn("草稿还在", why)
+
+    def test_草稿没了但列表没新记录_不记published(self):
+        st, _, why = W.evaluate_send(set(), [], True, "任何标题")
+        self.assertEqual(st, "unverified")
+        self.assertIn("没读到新记录", why)
+
+    def test_两边都没动_pending(self):
+        st, _, _ = W.evaluate_send({"1"}, [{"appmsg_id": "1", "title": "x"}],
+                                   False, "y")
+        self.assertEqual(st, "pending")
+
+    def test_标题含全角空格也能比上(self):
+        """远端标题常带全角/不间断空格，归一化后必须仍算一致。"""
+        st, _, _ = W.evaluate_send(
+            set(), [{"appmsg_id": "9", "title": "Bustem：帮电商品牌　全网打假"}],
+            True, "Bustem：帮电商品牌 全网打假")
+        self.assertEqual(st, "ok")
+
+    def test_没有期望标题时草稿消失即ok(self):
+        st, _, _ = W.evaluate_send(set(), [{"appmsg_id": "9", "title": "?"}],
+                                   True, "")
+        self.assertEqual(st, "ok")
+
+
+class _SendArgs(object):
+    def __init__(self, **kw):
+        self.case = ""
+        self.appmsgid = ""
+        self.all = False
+        self.limit = 0
+        self.notify = False
+        self.timeout = 180
+        self.dry = True
+        self.port = 9222
+        for k, v in kw.items():
+            setattr(self, k, v)
+
+
+class TestSendCli(unittest.TestCase):
+    """send 子命令的计划与记账。全部离线：CDP / 台账 / ledger 都打桩。"""
+
+    def setUp(self):
+        self.pub = {"bustem": {"title": "T", "status": "draft",
+                               "appmsgid": "100000546", "file": "f.html"}}
+        self.cases = [{"id": "bustem", "name": "Bustem"}]
+        self.saved = {}
+        self._orig = (W.load_published, W.save_published, W.load_cases,
+                      W.make_wechat_title)
+        W.load_published = lambda: self.pub
+        W.load_cases = lambda: self.cases
+        W.make_wechat_title = lambda c: "T:%s" % c.get("id", "")
+        W.save_published = lambda p: self.saved.update(p)
+        # ledger 是在 cmd_send 里 `import ledger as ld` 的 ⇒ 塞 sys.modules 才拦得住。
+        # 不拦的话测试会写真实的 data/wechat_published.json（wechat_sync.save_local
+        # 的注释里记着同类事故：测试覆盖真实台账，靠 git show 才恢复）。
+        import types
+        stub = types.ModuleType("ledger")
+        stub.PUBLISHED = "published"
+        stub.mark_calls = []
+        stub.mark = lambda *a, **k: stub.mark_calls.append((a, k))
+        self._ledger_stub = stub
+        self._real_ledger = sys.modules.get("ledger")
+        sys.modules["ledger"] = stub
+
+    def tearDown(self):
+        (W.load_published, W.save_published, W.load_cases,
+         W.make_wechat_title) = self._orig
+        if self._real_ledger is None:
+            sys.modules.pop("ledger", None)
+        else:
+            sys.modules["ledger"] = self._real_ledger
+
+    def _out(self, **kw):
+        import io
+        import contextlib
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            W.cmd_send(_SendArgs(**kw))
+        return buf.getvalue()
+
+    # ---- 计划（dry） ----
+    def test_dry按case找到草稿id(self):
+        out = self._out(case="bustem")
+        self.assertIn("100000546", out)
+        self.assertIn("发布（不推送", out)
+        self.assertEqual(self.saved, {}, "dry 不许写台账")
+
+    def test_notify模式文案不同(self):
+        out = self._out(case="bustem", notify=True)
+        self.assertIn("群发（推送粉丝", out)
+        self.assertIn("需管理员扫码", out)
+
+    def test_case没有appmsgid时报错(self):
+        self.pub["bustem"].pop("appmsgid")
+        out = self._out(case="bustem")
+        self.assertIn("先跑 publish", out)
+
+    def test_appmsgid台账查不到时报错(self):
+        out = self._out(appmsgid="999999")
+        self.assertIn("找不到 appmsgid=999999", out)
+
+    def test_all只收draft和partial(self):
+        self.pub["done"] = {"status": "published", "appmsgid": "1"}
+        self.pub["gone"] = {"status": "draft", "appmsgid": "2", "missing": True}
+        self.pub["noid"] = {"status": "draft"}
+        out = self._out()
+        self.assertIn("bustem", out)
+        self.assertNotIn("done", out)
+        self.assertNotIn("gone", out)
+
+    def test_limit截断(self):
+        for i in range(3):
+            self.pub["c%d" % i] = {"status": "draft", "appmsgid": str(i)}
+        out = self._out(limit=2)
+        self.assertIn("待发表 2 条", out)
+
+    # ---- 记账（mock 掉浏览器三件套） ----
+    def _mock_send(self, status="ok", new_id="2247484064"):
+        self.sent = []
+
+        def fake_send_one(cdp, c, appmsgid, tok, home_tid=None, notify=False,
+                          timeout=180):
+            self.sent.append((c["id"], appmsgid, notify))
+            return {"status": status, "appmsgid": new_id,
+                    "publish_type": "群发" if notify else "发布",
+                    "reason": "测试"}
+
+        class FakeCDP(object):
+            def __init__(self, *a, **k):
+                pass
+        W.send_one = fake_send_one
+        W.CDP = FakeCDP
+        W._connect_mp = lambda cdp, debug=False: ("tid", "tok")
+
+    def test_成功后不覆盖草稿appmsgid(self):
+        self._mock_send()
+        out = self._out(case="bustem", dry=False)
+        rec = self.saved["bustem"]
+        self.assertEqual(rec["appmsgid"], "100000546",
+                         "草稿 id 不能覆盖 —— refresh/fix-cover 靠它定位草稿")
+        self.assertEqual(rec["published_appmsgid"], "2247484064",
+                         "发表后的新 id 必须单独记（群发/发布后 id 必变）")
+        self.assertEqual(rec["status"], "published")
+        self.assertEqual(rec["publish_type"], "publish")
+        self.assertEqual(rec["sent_via"], "send")
+        self.assertIn("✓ 已发表", out)
+
+    def test_群发模式记masssend(self):
+        self._mock_send()
+        self._out(case="bustem", dry=False, notify=True)
+        self.assertEqual(self.saved["bustem"]["publish_type"], "masssend")
+        self.assertEqual(self.sent[0][2], True, "notify 要传到 send_one")
+
+    def test_没判定ok就不记published(self):
+        self._mock_send(status="timeout")
+        out = self._out(case="bustem", dry=False)
+        self.assertNotIn("bustem", self.saved,
+                         "没判定 ok 就一次都不该写台账")
+        self.assertIn("没敢记 published", out)
+
+    def test_ledger用草稿id提升状态(self):
+        self._mock_send()
+        self._out(case="bustem", dry=False)
+        calls = sys.modules["ledger"].mark_calls
+        self.assertTrue(calls)
+        a, k = calls[0]
+        self.assertEqual(a[0], "wechat")
+        self.assertEqual(a[1], "bustem")
+        self.assertEqual(a[2], "published")
+        self.assertEqual(k.get("remote_id"), "100000546")
+
+
+class TestSendDialogHelpers(unittest.TestCase):
+    """弹窗辅助函数的 JS 必须钉在实测出来的选择器上（防 regression 成猜的）。"""
+
+    def test_弹窗选择器是实测那个(self):
+        self.assertEqual(W.SEND_DIALOG_SEL, ".new_mass_send_dialog")
+
+    def test_开关读取按label文本定位(self):
+        src = inspect.getsource(W._notify_switch_state)
+        self.assertIn("群发通知", src)
+        self.assertIn("weui-desktop-form__label", src)
+
+    def test_关弹窗判可见看内层wrp(self):
+        """外层容器关弹窗后仍在 DOM 里，只看它会把关着的当开着的。"""
+        src = inspect.getsource(W._send_dialog_text)
+        self.assertIn("weui-desktop-dialog__wrp", src)
+        self.assertIn("display==='none'", src)
+
+
+class _FakeEditorCdp(object):
+    """按脚本演「草稿编辑页」：ready 判据 + 页面 HTML 都由测试给定。"""
+
+    def __init__(self, html="", ready=False):
+        self.html = html
+        self.ready = ready
+        self.closed = []
+        self.opened = []
+
+    def new_target(self, url):
+        self.opened.append(url)
+        return {"id": "t1"}
+
+    def connect_target(self, tid):
+        return True
+
+    def close_target(self, tid):
+        self.closed.append(tid)
+        return True
+
+    def eval(self, expr, refresh_context=False, **kw):
+        if "querySelector('#title')" in expr:
+            return self.ready
+        if "outerHTML" in expr:
+            return self.html
+        return None
+
+
+class TestDraftEditorState(unittest.TestCase):
+    """「打不开编辑器」必须分已发表/已删除——处理方式完全不同。
+
+    2026-10-19 实测（用户截图 + 页面 HTML）：appmsgid=100000783 的页面
+    写着「此草稿已被删除／此草稿已发表，可前往发表记录查看」，
+    已发表列表里确实有它（appmsg_id=2247484219）⇒ 是后台发过，
+    不是损坏。此前共用一个「编辑器未就绪」错误，导向了错误的结论。
+    """
+
+    def test_已发表优先于已删除(self):
+        """真实页面两句话都有，必须先判已发表（顺序反了会误判成删除）。"""
+        cdp = _FakeEditorCdp("<div>此草稿已被删除</div>"
+                             "<div>此草稿已发表，可前往发表记录查看</div>")
+        state, _tid, page = W._open_draft_editor_for_send(
+            cdp, "100000783", "tok", timeout=3)
+        self.assertEqual(state, "published")
+        self.assertIn("已发表", page)
+        self.assertEqual(cdp.closed, [], "published 由调用方决定何时关")
+
+    def test_纯删除页面判deleted(self):
+        cdp = _FakeEditorCdp("<div>此草稿已被删除</div>")
+        state, _, _ = W._open_draft_editor_for_send(cdp, "1", "tok", timeout=3)
+        self.assertEqual(state, "deleted")
+
+    def test_编辑器就绪(self):
+        cdp = _FakeEditorCdp("", ready=True)
+        state, _, _ = W._open_draft_editor_for_send(cdp, "1", "tok", timeout=3)
+        self.assertEqual(state, "ready")
+
+    def test_两者都没有超时(self):
+        cdp = _FakeEditorCdp("<div> loading </div>")
+        state, _, _ = W._open_draft_editor_for_send(cdp, "1", "tok", timeout=2)
+        self.assertEqual(state, "timeout")
+
+
+class TestSendAlreadyPublished(unittest.TestCase):
+    """send_one 发现「后台已发表」时的行为：不重发 + 尽量关联新 id。"""
+
+    PUB_JSON = {
+        "publish_page": json.dumps({
+            "publish_list": [{
+                "publish_type": 101,
+                "publish_info": json.dumps({"appmsg_info": [
+                    {"appmsgid": 2247484219,
+                     "title": "Visualizee.ai：给建筑师和室内设计师做效果图渲染，"
+                              "两年卡在 $150/月，一次转型跳到 $8.6K"}]}),
+            }],
+        }),
+    }
+
+    def _run(self, case, patch_state="published"):
+        cdp = _FakeEditorCdp("<div>此草稿已发表，可前往发表记录查看</div>")
+        orig_open = W._open_draft_editor_for_send
+        orig_list = W._list_from_home
+        W._open_draft_editor_for_send = (
+            lambda cdp, aid, tok, timeout=30: (patch_state, "t1", "page"))
+        W._list_from_home = lambda cdp, home_tid, url: self.PUB_JSON
+        try:
+            return W.send_one(cdp, case, "100000783", "tok")
+        finally:
+            W._open_draft_editor_for_send = orig_open
+            W._list_from_home = orig_list
+
+    def test_已发表时不重发(self):
+        r = self._run({"id": "visualizee-ai", "name": "Visualizee.ai"})
+        self.assertEqual(r["status"], "already_published")
+        self.assertIn("已发表", r["reason"])
+        self.assertNotIn("ok", r["status"], "不能当成新发成功")
+
+    def test_标题被后台改过靠产品名兜住(self):
+        """本地标题对不上（后台改过），产品名包含仍能关联到新 id。"""
+        r = self._run({"id": "visualizee-ai", "name": "Visualizee.ai"})
+        self.assertEqual(r["appmsgid"], "2247484219")
+        self.assertIn("需人工确认", r["reason"])
+
+    def test_标题精确相等时置信度高(self):
+        case = {"id": "x", "name": "别的"}
+        orig_title = W.make_wechat_title
+        W.make_wechat_title = lambda c: ("Visualizee.ai：给建筑师和室内设计师"
+                                         "做效果图渲染，两年卡在 $150/月，"
+                                         "一次转型跳到 $8.6K")
+        try:
+            r = self._run(case)
+        finally:
+            W.make_wechat_title = orig_title
+        self.assertEqual(r["appmsgid"], "2247484219")
+        self.assertIn("标题精确", r["reason"])
+        self.assertNotIn("需人工确认", r["reason"])
+
+
+class TestSendCliAlreadyPublished(unittest.TestCase):
+    """cmd_send 对 already_published 的记账：修 status，绝不重发。"""
+
+    def test_后台已发表则修台账且不当新发(self):
+        pub = {"bustem": {"title": "T", "status": "draft",
+                          "appmsgid": "100000546", "file": "f.html"}}
+        saved = {}
+        orig = (W.load_published, W.save_published, W.load_cases,
+                W.make_wechat_title, W.send_one, W.CDP, W._connect_mp)
+        W.load_published = lambda: pub
+        W.load_cases = lambda: [{"id": "bustem", "name": "Bustem"}]
+        W.make_wechat_title = lambda c: "T:%s" % c.get("id", "")
+        W.save_published = lambda p: saved.update(p)
+        W.send_one = lambda *a, **k: {
+            "status": "already_published", "appmsgid": "2247484064",
+            "publish_type": "unknown",
+            "reason": "远端编辑器显示此草稿已发表；关联到已发表记录 2247484064（标题精确）"}
+
+        class FakeCDP(object):
+            def __init__(self, *a, **k):
+                pass
+        W.CDP = FakeCDP
+        W._connect_mp = lambda cdp, debug=False: ("tid", "tok")
+        import io
+        import contextlib
+        import types
+        stub = types.ModuleType("ledger")
+        stub.PUBLISHED = "published"
+        stub.mark_calls = []
+        stub.mark = lambda *a, **k: stub.mark_calls.append((a, k))
+        real = sys.modules.get("ledger")
+        sys.modules["ledger"] = stub
+        buf = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(buf):
+                W.cmd_send(_SendArgs(case="bustem", dry=False))
+        finally:
+            (W.load_published, W.save_published, W.load_cases,
+             W.make_wechat_title, W.send_one, W.CDP, W._connect_mp) = orig
+            if real is None:
+                sys.modules.pop("ledger", None)
+            else:
+                sys.modules["ledger"] = real
+        rec = saved["bustem"]
+        self.assertEqual(rec["status"], "published")
+        self.assertEqual(rec["sent_via"], "backend_manual")
+        self.assertEqual(rec["published_appmsgid"], "2247484064")
+        self.assertEqual(rec["appmsgid"], "100000546", "草稿 id 仍不动")
+        out = buf.getvalue()
+        self.assertIn("后台早已发表", out)
+        self.assertIn("未重发", out)
+        self.assertIn("新发表 0 条", out)
+
+
+class TestScanDialogWait(unittest.TestCase):
+    """扫码框（.dialog_wrp）出现时必须「停下来等」，绝不能去点它。
+
+    2026-10-19 实测：发布模式也要管理员扫码。扫码框是第三种弹窗容器，
+    轮询只认 `.new_mass_send_dialog` 时会完全错过它，报一个莫名的 timeout。
+    """
+
+    def test_扫码文本被识别(self):
+        cdp = _FakeEditorCdp()
+        cdp.eval = lambda expr, **kw: "微信验证 扫码后，请联系管理员进行验证"
+        self.assertIn("扫码", W._scan_dialog_text(cdp))
+
+    def test_没有扫码框返回None(self):
+        cdp = _FakeEditorCdp()
+        cdp.eval = lambda expr, **kw: None
+        self.assertIsNone(W._scan_dialog_text(cdp))
+
+    def test_空串也返回None(self):
+        cdp = _FakeEditorCdp()
+        cdp.eval = lambda expr, **kw: ""
+        self.assertIsNone(W._scan_dialog_text(cdp))
+
+    def test_扫码时只等待不乱点(self):
+        """轮询循环见到扫码框：提示 + 等，绝不点弹窗里的任何按钮。"""
+        import json as _json
+        clicks = []
+        phase = {"n": 0}          # _click_in_dialog 点了几次
+
+        def fake_list(cdp, home_tid, url):
+            if "appmsgpublish" in url:
+                return {"publish_page": _json.dumps({"publish_list": []})}
+            return {"app_msg_list": [{"appmsgid": 100000526,
+                                      "title": "Meerkats"}]}
+
+        class FakeCdp(object):
+            def close_target(self, tid):
+                return True
+
+        def fake_click(cdp, t):
+            clicks.append(t)
+            phase["n"] += 1
+            return "CLICKED"
+
+        def fake_send_dlg(cdp):
+            # 前两层确认都在 .new_mass_send_dialog 里；点过两次之后它让位给扫码框
+            return "发表 群发通知 发表 取消" if phase["n"] < 2 else None
+
+        def fake_scan(cdp):
+            return ("微信验证 扫码后，请联系管理员进行验证"
+                    if phase["n"] >= 2 else None)
+
+        class _FakeTime(object):
+            """假时钟：每次调用 +5s，sleep 空转 ⇒ 轮询循环快速确定性地跑完。"""
+
+            def __init__(self):
+                self.t = 1000.0
+
+            def time(self):
+                self.t += 5
+                return self.t
+
+            def sleep(self, _s):
+                pass
+
+        orig = (W._open_draft_editor_for_send, W._click_by_text, W._set_notify,
+                W._click_in_dialog, W._scan_dialog_text, W._send_dialog_text,
+                W._list_from_home, W.make_wechat_title, W.time)
+        W._open_draft_editor_for_send = (
+            lambda cdp, aid, tok, timeout=30: ("ready", "t1", ""))
+        W._click_by_text = lambda cdp, t: "CLICKED"
+        W._set_notify = lambda cdp, on: (True, on)
+        W._click_in_dialog = fake_click
+        W._scan_dialog_text = fake_scan
+        W._send_dialog_text = fake_send_dlg
+        W._list_from_home = fake_list
+        W.make_wechat_title = lambda c: "T"
+        W.time = _FakeTime()
+        try:
+            r = W.send_one(FakeCdp(), {"id": "meerkats-ai"}, "100000526",
+                           "tok", timeout=30)
+        finally:
+            (W._open_draft_editor_for_send, W._click_by_text, W._set_notify,
+             W._click_in_dialog, W._scan_dialog_text, W._send_dialog_text,
+             W._list_from_home, W.make_wechat_title, W.time) = orig
+        self.assertEqual(r["status"], "timeout")
+        self.assertIn("一直在等扫码", r["reason"])
+        self.assertEqual(clicks, ["发表", "继续发表"],
+                         "两层确认各点一次；扫码框不能被点上")

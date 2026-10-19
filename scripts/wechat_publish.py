@@ -4,9 +4,18 @@
 wechat_publish.py — 公众号「万物解释者 · 拆解海外」自动发布管线
 ================================================================
 
-背景：个人订阅号（未认证）没有 freepublish API 权限，无法 API 群发。
-只能走「浏览器自动化」：复用本机已登录 Chrome 的登录态，用 CDP 把图文
-存成草稿，最后那一下「群发」在后台点一下即可。
+背景：个人订阅号（未认证）没有 freepublish API 权限，无法 API 群发
+（probe_wechat_openapi.py 有完整记录）。所以走「浏览器自动化」：复用本机
+已登录 Chrome 的登录态，用 CDP 把图文存成草稿，再自动点「发表」。
+
+「发表」有两种模式（2026-10-19 实测，probe_wechat_send.py）：
+  · 发布（群发通知开关关）：不推送、不占每日额度
+  · 群发（群发通知开关开）：推送粉丝、占订阅号每日 1 次额度
+  ⚠⚠ **两种模式都要管理员/运营者扫码**（曾据「探针里发布链路没弹二维码」
+  误判发布不扫码 —— 那是探针拦掉了 check 请求的 send()，流程根本没走到
+  扫码那一步）。扫码是物理动作，`send` 自动化的是它之前（开草稿、设开关、
+  两层确认、check）和之后（判定、回读校验、记账）的所有步骤。
+`publish` 子命令负责存草稿，`send` 子命令负责发表（默认发布模式）。
 
 设计要点：发布队列不手写，每次运行从 data/cases.json 实时算。新案例入库
 （今天进了好几个、扫描持续跑）→ 重跑 build → 队列自动变长，永不手改计划表。
@@ -20,7 +29,10 @@ wechat_publish.py — 公众号「万物解释者 · 拆解海外」自动发布
   plan      生成 发布队列-自动生成.md（动态，永不手改）。
   inspect   校验单文件抽取（标题 / 摘要 / 正文长度）。
   discover  连 Chrome CDP，打开草稿编辑器，导出 DOM 供锁定选择器。
-  publish   连 Chrome CDP，把队列逐条存成草稿（最终群发需后台手动点）。
+  publish   连 Chrome CDP，把队列逐条存成草稿。
+  send      连 Chrome CDP，把草稿箱里的稿子**发表**出去（默认发布模式，
+            不推送不占额度；--notify 走群发。**两种模式都要管理员扫码**，
+            脚本在扫码前全自动、扫码时停下等待、扫码后自动校验落账）。
 
 依赖：纯标准库。Chrome 需本机已装，且以远程调试端口启动（见 discover 提示）。
 """
@@ -4028,6 +4040,580 @@ def cmd_sync(args):
           % (n_pub, n_missing))
 
 
+# ======================================================================
+# 「发表」自动化（2026-10-19 首次实现）
+# ======================================================================
+# 这条链路此前是人工的：`publish_one` 只把稿子存进草稿箱，「发表」那一下
+# 由人去后台点。订阅号没有 freepublish API 权限（`probe_wechat_openapi.py`
+# 有完整记录：未认证个人订阅号一律 48001），所以只能走 UI。
+#
+# 2026-10-19 用 `scripts/probe_wechat_send.py` 实测出的完整链路
+# （所有选择器都是抓来的，不是猜的）：
+#   ① 顶栏 #js_send「发表」→ 弹出 `.new_mass_send_dialog`
+#      表单：群发通知(开关，默认开) / 分组通知(仅群发时出现) / 定时发表(开关)
+#      按钮：[发表][取消]
+#   ② 点「发表」→ 第二层确认弹窗（文案随开关状态变）：
+#      群发开：「已开启群发通知，内容将展示在用户的公众号列表…」
+#      群发关：「未开启群发通知，内容将展示在公众号主页…」
+#      按钮：[继续发表][取消]
+#   ③ 点「继续发表」→ 页面先跑一串 check（masssend?for_check=1、
+#      check_same_material、check_ad、check_music…），全过才会弹
+#   ④ 「微信验证」扫码框（容器 `.dialog_wrp`，老版弹窗组件）：
+#      「扫码后，请联系管理员进行验证」⇒ **管理员/运营者微信扫码**。
+#      扫完发布自己继续。
+#   ⑤ 成功后：草稿从 type=77 列表消失；已发表列表
+#      （`appmsgpublish?sub=list`）多一条，且 **appmsg_id 是新的**
+#      （草稿 100000546 → 发表后 2247484064；群发后 id 必变）。
+#
+# 两种模式的分界（2026-10-19 实测**修正**过一次，别再搞反）：
+#   · 群发通知 ON  = **群发**：推送粉丝、占订阅号每日 1 次通知额度
+#   · 群发通知 OFF = **发布**：不推送、不占额度
+#   **两种都要管理员扫码** —— 曾据「探针里发布链路没弹二维码」断定发布
+#   不扫码，那是错的：探针拦掉了 check 请求的 send()，流程根本没走到
+#   扫码那一步。扫码是物理动作，`send` 能自动化的是它之前的所有步骤
+#   （开草稿、设开关、过两层确认）和之后的所有步骤（校验落库、记账）。
+
+SEND_DIALOG_SEL = ".new_mass_send_dialog"
+
+
+def _send_dialog_text(cdp):
+    """发表弹窗的全文；没打开返回 None。
+
+    ⚠ 判可见要看里面那层 `.weui-desktop-dialog__wrp` 的 display：
+    关掉的弹窗只是 wrp 被藏起来，外层容器还在 DOM 里（实测）。
+    """
+    js = (
+        "(function(){"
+        "var d=document.querySelector('%s');"
+        "if(!d)return null;"
+        "var w=d.querySelector('.weui-desktop-dialog__wrp');"
+        "if(w&&getComputedStyle(w).display==='none')return null;"
+        "return d.innerText||'';"
+        "})()" % SEND_DIALOG_SEL)
+    raw = cdp.eval(js, refresh_context=True)
+    return raw if isinstance(raw, str) and raw.strip() else None
+
+
+def _notify_switch_state(cdp):
+    """「群发通知」开关状态：True=群发 / False=发布 / None=弹窗没开。"""
+    js = (
+        "(function(){"
+        "var d=document.querySelector('%s');"
+        "if(!d)return null;"
+        "var bs=d.querySelectorAll('input[type=checkbox]');"
+        "for(var i=0;i<bs.length;i++){"
+        "  var row=bs[i].closest('.weui-desktop-form__control-group')"
+        "          ||bs[i].parentElement;"
+        "  var lab=row.querySelector('.weui-desktop-form__label');"
+        "  if(lab&&(lab.innerText||'').indexOf('群发通知')>=0)"
+        "    return bs[i].checked;"
+        "} return null;})()" % SEND_DIALOG_SEL)
+    return cdp.eval(js, refresh_context=True)
+
+
+def _set_notify(cdp, on):
+    """把开关设成目标态。返回 (改前, 改后)；弹窗没开返回 (None, None)。"""
+    before = _notify_switch_state(cdp)
+    if before is None:
+        return None, None
+    if before != on:
+        js = (
+            "(function(){"
+            "var d=document.querySelector('%s');"
+            "var bs=d.querySelectorAll('input[type=checkbox]');"
+            "for(var i=0;i<bs.length;i++){"
+            "  var row=bs[i].closest('.weui-desktop-form__control-group')"
+            "          ||bs[i].parentElement;"
+            "  var lab=row.querySelector('.weui-desktop-form__label');"
+            "  if(lab&&(lab.innerText||'').indexOf('群发通知')>=0){"
+            "    var box=row.querySelector('.weui-desktop-switch__box')||bs[i];"
+            "    box.click(); return true;"
+            "  }} return false;})()" % SEND_DIALOG_SEL)
+        cdp.eval(js, refresh_context=True)
+        time.sleep(1)
+    after = _notify_switch_state(cdp)
+    return before, after
+
+
+def _wait_send_dialog(cdp, timeout=15):
+    """等发表弹窗出现，返回是否等到。"""
+    for _ in range(timeout):
+        if _send_dialog_text(cdp) is not None:
+            return True
+        time.sleep(1)
+    return False
+
+
+def _scan_dialog_text(cdp):
+    """「微信验证」扫码框的文本；没出现返回 None。
+
+    ⚠⚠ 容器是 `.dialog_wrp`（老版弹窗组件），**不是** `.new_mass_send_dialog`，
+    也不是 `.weui-desktop-dialog__wrp` —— 2026-10-19 实测这三种容器在同一个
+    页面同时存在。只认发表那两个容器会**完全错过**扫码框，现象是
+    「点了继续发表，然后什么都没发生」，轮询 180s 后报 timeout。
+
+    ⚠⚠ 另一个被实测推翻的判断：**发布模式也要扫码**。
+    曾据「探针里发布链路没弹二维码」断定发布不扫码 —— 那是错的：探针把
+    check 系列请求的 send() 拦掉了，流程根本没走到扫码那一步。
+    真实流程是 check 全过（can_mass_send=1）之后才弹「微信验证」。
+    群发与发布的区别只有「推不推送粉丝、占不占每日额度」，**扫码都要**。
+    """
+    js = (
+        "(function(){"
+        "var ds=document.querySelectorAll('.dialog_wrp');"
+        "for(var i=0;i<ds.length;i++){"
+        "  if(getComputedStyle(ds[i]).display==='none')continue;"
+        "  var t=(ds[i].innerText||'').trim();"
+        "  if(t.indexOf('扫码')>=0)return t.slice(0,200);"
+        "} return null;})()")
+    raw = cdp.eval(js, refresh_context=True)
+    return raw if isinstance(raw, str) and raw.strip() else None
+
+
+def _list_from_home(cdp, home_tid, url):
+    """在 home tab 里发同步 XHR 拉列表，返回解析后的 JSON 或 None。
+
+    ⚠ 为什么不在编辑器 tab 里拉（2026-10-19 实测）：编辑器页的同步 XHR
+    返回空字符串（页面把同步请求拦了），`wechat_sync._xhr_json` 解析失败
+    返回 None ⇒ 草稿箱被读成空的 ⇒ 「草稿已消失」永远为假 ⇒
+    发表结果永远判不出来。home tab 里同样的请求正常返回。
+    """
+    if home_tid:
+        try:
+            cdp.connect_target(home_tid)
+        except Exception:
+            pass
+    import wechat_sync as ws
+    return ws._xhr_json(cdp, url)
+
+
+def evaluate_send(before_ids, after_items, draft_gone, want_title, norm=None):
+    """判定「发表」有没有落库。**纯函数**，所有输入都可造假，便于回归。
+
+    before_ids   发表前已发表列表里的 appmsg_id 集合
+    after_items  发表后的条目 [{appmsg_id,title,publish_type}]
+    draft_gone   草稿箱里那条草稿是否已消失
+    want_title   期望标题（归一化后精确比对）
+    norm         标题归一化函数（默认 wechat_sync.norm_title）
+
+    返回 (status, new_id, reason)：
+      ok          已发表列表出现新记录（标题对得上，或草稿已消失）
+      unverified  有新记录但草稿还在 / 草稿没了但列表没读到
+                  —— 两种都**不敢**记 published，交给人看
+      pending     两边都还没有变化，继续等
+
+    为什么两条证据都要看：只信「草稿消失」不够（列表接口被限流时会
+    误判）；只信「有新记录」也不够（万一是别人刚发的一篇）。两条同时
+    成立才落账 —— 和 wechat_sync 「远端是唯一真相源」是同一条纪律。
+    """
+    if norm is None:
+        import wechat_sync as ws
+        norm = ws.norm_title
+    before = {str(x) for x in (before_ids or set())}
+    new = [it for it in (after_items or [])
+           if str(it.get("appmsg_id") or it.get("appmsgid") or "") not in before]
+    want = norm(want_title or "")
+    if new:
+        hit = [it for it in new if want and norm(it.get("title") or "") == want]
+        if hit:
+            return ("ok", str(hit[0].get("appmsg_id") or ""),
+                    "已发表列表出现新记录，标题一致")
+        if draft_gone:
+            return ("ok", str(new[0].get("appmsg_id") or ""),
+                    "草稿已消失且出现新记录（标题未比上，以新记录为准）")
+        return ("unverified", str(new[0].get("appmsg_id") or ""),
+                "已发表列表有新记录，但草稿还在 —— 可能没发对，不敢记 published")
+    if draft_gone:
+        return ("unverified", "",
+                "草稿消失了但已发表列表没读到新记录（列表可能被限流/截断）")
+    return ("pending", "", "两边都还没有变化")
+
+
+def _open_draft_editor_for_send(cdp, appmsgid, tok, timeout=30):
+    """打开发表用的草稿编辑页，并把「打不开」的**两种原因**分开返回。
+
+    为什么不能直接用 `_open_draft_editor(strict=True)`（2026-10-19 实测）：
+    它超时就把 tab 关掉抛异常，于是「此草稿已发表」和「此草稿已被删除」
+    两种处理方式完全不同的情况，共享同一句「编辑器未就绪」。
+      · 已发表 ⇒ **后台已经发过**（台账该修 status，绝不该重发）
+      · 已删除 ⇒ 台账记的是历史残留（该跑 sync 对账）
+    页面原文（用户截图 + 页面 HTML 双重确认）：
+      「此草稿已被删除」+「此草稿已发表，可前往发表记录查看」
+
+    返回 (state, tid, page_html)：
+      ready / published / deleted / timeout
+    """
+    url = ("https://mp.weixin.qq.com/cgi-bin/appmsg?t=media/appmsg_edit"
+           "&action=edit&reprint_confirm=0&type=77&appmsgid=%s&token=%s"
+           "&lang=zh_CN" % (appmsgid, tok))
+    tid = cdp.new_target(url)["id"]
+    cdp.connect_target(tid)
+    text = ""
+    for _ in range(timeout):
+        time.sleep(1)
+        if _editor_ready(cdp):
+            return "ready", tid, ""
+        try:
+            text = str(cdp.eval(
+                "document.documentElement?document.documentElement.outerHTML:''",
+                refresh_context=True) or "")
+        except Exception:
+            text = ""
+        # ⚠ 顺序不能反：「已发表」那句里也含「已被删除」四个字
+        #   （原文是「此草稿已被删除／此草稿已发表，可前往发表记录查看」），
+        #   先判删除会把已发表的误判成删除。
+        if "已发表" in text:
+            return "published", tid, text
+        if "已被删除" in text:
+            return "deleted", tid, text
+    return "timeout", tid, text
+
+
+def send_one(cdp, c, appmsgid, tok, home_tid=None, dry=False, notify=False,
+             timeout=300):
+    """把一条草稿发表出去。返回 {status, appmsgid(新), publish_type, reason}。
+
+    完整链路见本节开头的注释。status：
+      ok / unverified / timeout / dry / already_published
+      （error 由调用方接异常）
+    already_published：编辑器页面显示「此草稿已发表」⇒ 后台发过，
+      **不重发**，返回该状态让调用方修台账（重发会造出重复文章）。
+    """
+    import wechat_sync as ws
+    title = make_wechat_title(c)
+    mode = "群发" if notify else "发布"
+    print("\n→ %s — 《%s》[%s模式] 草稿 appmsgid=%s"
+          % (c["id"], title, mode, appmsgid))
+    if dry:
+        print("  [dry] 不打开浏览器。将走：顶栏发表 → %s两层确认 → "
+              "check → 弹「微信验证」二维码（等你扫）→ 轮询落库"
+              % ("群发通知(开) + " if notify else "群发通知(关) + "))
+        return {"status": "dry", "appmsgid": "", "publish_type": mode}
+
+    # 发表前快照：已发表列表的 appmsg_id 集合（判定「有没有多发一条」的基线）
+    def _pub_list():
+        out, ok = [], False
+        for begin in range(0, ws.PAGE * ws.MAX_PAGES, ws.PAGE):
+            url = ("https://mp.weixin.qq.com/cgi-bin/appmsgpublish?sub=list"
+                   "&search_field=null&begin=%d&count=%d&token=%s"
+                   "&lang=zh_CN&f=json&ajax=1" % (begin, ws.PAGE, tok))
+            d = _list_from_home(cdp, home_tid, url)
+            if not isinstance(d, dict):
+                if begin == 0:
+                    return [], False
+                break
+            pp = d.get("publish_page")
+            if isinstance(pp, str):
+                try:
+                    pp = json.loads(pp)
+                except ValueError:
+                    return [], False
+            if not isinstance(pp, dict):
+                if begin == 0:
+                    return [], False
+                break
+            lst = pp.get("publish_list") or []
+            if not lst:
+                break
+            for it in lst:
+                out.extend(ws._flatten_publish_item(it))
+            if len(lst) < ws.PAGE:
+                break
+        return out, True
+
+    def _draft_ids():
+        out, ok = {}, False
+        for begin in range(0, ws.PAGE * ws.MAX_PAGES, ws.PAGE):
+            url = ("https://mp.weixin.qq.com/cgi-bin/appmsg?action=list_ex"
+                   "&type=77&sub=all&begin=%d&count=%d&token=%s&lang=zh_CN"
+                   "&f=json&ajax=1&random=0.7" % (begin, ws.PAGE, tok))
+            d = _list_from_home(cdp, home_tid, url)
+            if not isinstance(d, dict):
+                if begin == 0:
+                    return {}, False
+                break
+            items = d.get("app_msg_list") or []
+            if not items:
+                break
+            for it in items:
+                aid = it.get("appmsgid")
+                if aid is not None and str(aid) != "":
+                    out[str(aid)] = it
+            if len(items) < ws.PAGE:
+                break
+        return out, True
+
+    before, bok = _pub_list()
+    if not bok:
+        raise RuntimeError("发表前读不到已发表列表，没有基线就没法判定发没发成功")
+    before_ids = {str(it.get("appmsg_id") or "") for it in before}
+
+    state, tid, page = _open_draft_editor_for_send(cdp, appmsgid, tok)
+    if state == "published":
+        # 后台已经发表过这篇（用户在后台点过「发表」）。**绝不重发** ——
+        # 重发会制造一篇重复文章。正确动作：把台账修成 published。
+        # 关联新 id：先试标题精确相等；标题被后台改过就退产品名包含，
+        # 并在 note 里标明是模糊关联（2026-10-19 visualizee-ai 实测：
+        # 后台把标题从「…效果图渲染工具」改成了「…一次转型跳到 $8.6K」，
+        # 精确匹配必败，所以这条退路不是摆设）。
+        try:
+            cdp.close_target(tid)
+        except Exception:
+            pass
+        after, aok = _pub_list()
+        new_id, how = "", ""
+        if aok:
+            want = ws.norm_title(title)
+            for it in after:
+                if ws.norm_title(it.get("title") or "") == want:
+                    new_id, how = str(it.get("appmsg_id") or ""), "标题精确"
+                    break
+            if not new_id:
+                name = ws.norm_title(c.get("name") or c["id"])
+                if len(name) >= 4:
+                    for it in after:
+                        if name and name in ws.norm_title(it.get("title") or ""):
+                            new_id = str(it.get("appmsg_id") or "")
+                            how = "产品名包含（标题被后台改过，需人工确认）"
+                            break
+        print("  ⚠ 后台已发表过这篇（编辑器页面：「此草稿已发表，"
+              "可前往发表记录查看」）。不重发，改为修正台账。")
+        return {"status": "already_published", "appmsgid": new_id,
+                "publish_type": "unknown", "reason":
+                    "远端编辑器显示此草稿已发表%s" % (
+                        "；关联到已发表记录 %s（%s）" % (new_id, how) if new_id
+                        else "；已发表列表里没关联上（标题可能被改过）")}
+    if state != "ready":
+        try:
+            cdp.close_target(tid)
+        except Exception:
+            pass
+        raise RuntimeError(
+            "打不开草稿编辑页（appmsgid=%s，页面状态=%s）。最常见的原因："
+            "这条草稿在远端已被删掉，台账里记的是历史残留 —— 先跑 "
+            "`wechat_publish.py sync` 对账" % (appmsgid, state))
+    try:
+        # ① 顶栏「发表」
+        r = _click_by_text(cdp, "发表")
+        if not (isinstance(r, str) and r.startswith("CLICKED")):
+            raise RuntimeError("点顶栏「发表」失败：%s" % r)
+        if not _wait_send_dialog(cdp):
+            raise RuntimeError("点了发表但弹窗没出来（%ds）" % 15)
+        # ② 设开关 + 点弹窗里的「发表」
+        b, a = _set_notify(cdp, on=notify)
+        print("  群发通知开关：%s → %s" % (b, a))
+        if a != notify:
+            raise RuntimeError("开关没设成目标态（要 %s，实际 %s）" % (notify, a))
+        r = _click_in_dialog(cdp, "发表")
+        if not (isinstance(r, str) and r.startswith("CLICKED")):
+            raise RuntimeError("点弹窗「发表」失败：%s" % r)
+        print("  已确认：%s" % r)
+
+        # ③ 轮询等落库。途中只可能有这两种弹窗：
+        #   · 第二层确认（.new_mass_send_dialog 换文案）⇒ 点它的主按钮；
+        #   · 「微信验证」扫码框（.dialog_wrp）⇒ **打印提示然后等**。
+        #     扫码是物理动作，自动化只能到这儿；扫完发布会自己继续。
+        deadline = time.time() + timeout
+        clicks, hinted, last_nag = 0, False, 0.0
+        last = "还没动静"
+        while time.time() < deadline:
+            time.sleep(4)
+            scan = _scan_dialog_text(cdp)
+            if scan:
+                now = time.time()
+                if not hinted:
+                    hinted = True
+                    print("  [等待扫码] 页面弹出「微信验证」：%s"
+                          % scan.replace("\n", " "))
+                    print("  ⇒ 请用**管理员/运营者微信**扫页面上的二维码；"
+                          "非管理员微信扫了还要管理员那边通过。"
+                          "扫完发布自动继续，我在这儿等着。")
+                if now - last_nag > 60:              # 每分钟提醒一次还剩多久
+                    last_nag = now
+                    print("    …还在等扫码（还剩 %ds）"
+                          % int(deadline - now))
+                continue
+            if _send_dialog_text(cdp) is not None and clicks < 2:
+                for txt in ("继续发表", "发表", "确认"):
+                    rr = _click_in_dialog(cdp, txt)
+                    if isinstance(rr, str) and rr.startswith("CLICKED"):
+                        clicks += 1
+                        print("  确认链第 %d 环：%s" % (clicks, rr))
+                        break
+                continue
+            drafts, dok = _draft_ids()
+            after, aok = _pub_list()
+            if not aok:
+                last = "已发表列表读取失败，继续重试"
+                continue
+            draft_gone = dok and str(appmsgid) not in drafts
+            status, new_id, reason = evaluate_send(
+                before_ids, after, draft_gone, title)
+            last = reason
+            if status in ("ok", "unverified"):
+                return {"status": status, "appmsgid": new_id,
+                        "publish_type": mode, "reason": reason}
+        return {"status": "timeout", "appmsgid": "", "publish_type": mode,
+                "reason": "%ds 内没判定出来：%s%s"
+                          % (timeout, last,
+                             "（一直在等扫码？）" if hinted else "")}
+    finally:
+        try:
+            cdp.close_target(tid)
+        except Exception:
+            pass
+
+
+def cmd_send(args):
+    """把草稿箱里的稿子**发表**出去。**两种模式都要管理员扫码**。
+
+    模式区别只在推送与额度（2026-10-19 实测）：
+      · 默认「发布」：不推送粉丝、不占订阅号每日 1 次群发额度
+      · `--notify`「群发」：推送粉丝、占额度
+    扫码逃不掉：点完两层确认、check 全过之后，页面弹「微信验证」二维码，
+    必须管理员/运营者微信扫。`send` 自动化的是扫码之前（开草稿、设开关、
+    过确认）和之后（校验落库、记账）的所有步骤；扫码时它会停下来提示并等待。
+
+    用法：
+        python wechat_publish.py send --case bustem      # 发表单条（发布模式）
+        python wechat_publish.py send --appmsgid 100000546
+        python wechat_publish.py send --all --limit 3    # 台账里 draft 的前 3 条
+        python wechat_publish.py send --case bustem --notify   # 群发（也需扫码）
+        python wechat_publish.py send --case bustem --dry
+    """
+    all_cases = load_cases()
+    by_id = {c["id"]: c for c in all_cases}
+    published = load_published()
+
+    todo = []                       # [(cid, draft_appmsgid)]
+    if args.appmsgid:
+        by_aid = {}
+        for cid, rec in published.items():
+            if rec.get("appmsgid"):
+                by_aid[str(rec["appmsgid"])] = cid
+        for aid in (x.strip() for x in args.appmsgid.split(",") if x.strip()):
+            cid = by_aid.get(aid)
+            if not cid:
+                print("✗ 台账里找不到 appmsgid=%s 的记录" % aid)
+                return
+            todo.append((cid, aid))
+    elif args.case:
+        for cid in (x.strip() for x in args.case.split(",") if x.strip()):
+            rec = published.get(cid) or {}
+            if not rec.get("appmsgid"):
+                print("✗ %s 没有 appmsgid（从没存过草稿？先跑 publish）" % cid)
+                return
+            todo.append((cid, str(rec["appmsgid"])))
+    else:
+        for cid, rec in published.items():
+            if rec.get("status") not in ("draft", "partial"):
+                continue                     # 已发表的不重复发
+            if rec.get("missing"):
+                continue                     # 远端都没了，发了也白发
+            if not rec.get("appmsgid"):
+                continue
+            todo.append((cid, str(rec["appmsgid"])))
+        if args.limit:
+            todo = todo[:args.limit]
+
+    if not todo:
+        print("没有可发表的草稿（台账里没有 status=draft 且带 appmsgid 的记录）")
+        return
+    mode = "群发（推送粉丝、占每日 1 次额度）" if args.notify \
+        else "发布（不推送、不占每日群发额度）"
+    print("模式：%s（两者都需管理员扫码，见下）" % mode)
+    print("待发表 %d 条：%s" % (len(todo), "、".join(c for c, _ in todo)))
+    if args.dry:
+        for cid, aid in todo:
+            t = make_wechat_title(by_id[cid]) if cid in by_id else "?"
+            print("  [dry] %s ← 草稿 %s《%s》" % (cid, aid, t))
+        return
+
+    cdp = CDP(args.port)
+    home_tid, tok = _connect_mp(cdp)
+    if not tok:
+        raise SystemExit("✗ 拿不到 token：确认调试窗口里 mp.weixin.qq.com 已登录")
+
+    ok_n = 0
+    sent_n = already_n = 0
+    for cid, aid in todo:
+        c = by_id.get(cid)
+        if not c:
+            print("  [skip] %s 不在 cases.json 里" % cid)
+            continue
+        rec = published.get(cid) or {}
+        if rec.get("status") == "partial":
+            print("  [注意] %s 是 partial（封面/原创可能没做完），照样发表" % cid)
+        try:
+            r = send_one(cdp, c, aid, tok, home_tid=home_tid,
+                         notify=args.notify, timeout=args.timeout)
+        except Exception as e:
+            print("  [error] %s 发表失败：%s" % (cid, e))
+            continue
+        if r["status"] == "already_published":
+            # 后台已经发表过（用户在后台点过）。绝不重发；把台账修成
+            # published —— 远端是唯一真相源，本地记着 draft 会让下次
+            # refresh 去刷一条已不在草稿箱的文章（wechat_sync 模块头
+            # 记着这个坑）。
+            rec = published.get(cid) or {}
+            rec["status"] = "published"
+            rec.setdefault("published_at", time.strftime("%Y-%m-%d %H:%M"))
+            rec["publish_type"] = "unknown_backend"
+            rec["sent_via"] = "backend_manual"     # 不是本脚本发的
+            rec["send_reason"] = r.get("reason", "")
+            if r.get("appmsgid"):
+                rec["published_appmsgid"] = r["appmsgid"]
+            rec.setdefault("title", make_wechat_title(c))
+            published[cid] = rec
+            save_published(published)
+            try:
+                import ledger as ld
+                ld.mark("wechat", cid, ld.PUBLISHED,
+                        remote_id=rec.get("appmsgid") or "",
+                        title=make_wechat_title(c),
+                        evidence="editor_says_published",
+                        note="｜后台已发表（编辑器页面确认），本地由 send 修正")
+            except Exception as e:                              # noqa: BLE001
+                print("    ⚠ 统一台账写入失败（不影响发布记录）：%s" % str(e)[:80])
+            print("  ✓ %s 后台早已发表，台账已修正为 published"
+                  "（未重发）%s" % (cid, r.get("reason", "")))
+            ok_n += 1
+            already_n += 1
+            continue
+        if r["status"] != "ok":
+            print("  [warn] %s 没敢记 published：%s（%s）"
+                  % (cid, r["status"], r.get("reason", "")))
+            continue
+        # ---- 记账：follow wechat_sync 的约定 ----
+        # appmsgid **不覆盖**（那是草稿 id，refresh/fix-cover 靠它定位草稿）；
+        # 发表后的新 id 记到 published_appmsgid。群发/发布后 id 必变。
+        rec["status"] = "published"
+        rec["published_at"] = time.strftime("%Y-%m-%d %H:%M")
+        rec["publish_type"] = "masssend" if args.notify else "publish"
+        rec["published_appmsgid"] = r["appmsgid"]
+        rec["sent_via"] = "send"            # 留痕：自动发表，区别于后台手点
+        rec["send_reason"] = r.get("reason", "")
+        rec.setdefault("title", make_wechat_title(c))
+        published[cid] = rec
+        save_published(published)           # 逐篇落库，中途被杀也不丢
+        try:
+            import ledger as ld
+            ld.mark("wechat", cid, ld.PUBLISHED, remote_id=aid,
+                    title=make_wechat_title(c), evidence="send_readback",
+                    note="｜%s模式自动发表，新 appmsgid=%s"
+                         % (rec["publish_type"], r["appmsgid"]))
+        except Exception as e:                              # noqa: BLE001
+            print("    ⚠ 统一台账写入失败（不影响发布记录）：%s" % str(e)[:80])
+        print("  ✓ 已发表：%s（新 appmsgid=%s，%s）"
+              % (cid, r["appmsgid"], r.get("reason", "")))
+        ok_n += 1
+        sent_n += 1
+    print("\n完成：新发表 %d 条、后台早已发表（仅修台账）%d 条，共 %d/%d"
+          % (sent_n, already_n, sent_n + already_n, len(todo)))
+    if sent_n + already_n < len(todo):
+        print("⚠ 没成功的**没有**被记成 published，重跑 send 会再试它们")
+
+
 BROKEN_DRAFTS = os.path.join(ROOT, "data", "wechat_broken_drafts.json")
 
 
@@ -4540,6 +5126,25 @@ def main():
     ps.add_argument("--apply", action="store_true",
                     help="**回写** data/wechat_published.json（默认只读报告）。"
                          "自动先备份 .bak。WARN/UNKNOWN 一律不动")
+    psend = sub.add_parser(
+        "send",
+        help="把草稿箱里的稿子**发表**出去（默认发布模式：不推送、不占额度；"
+             "--notify 走群发。两种模式都要管理员扫码，脚本扫码前全自动、"
+             "扫码时等待、扫码后自动校验落账）")
+    psend.add_argument("--port", type=int, default=CDP_PORT)
+    psend.add_argument("--case", help="只发表指定 case id（逗号分隔）")
+    psend.add_argument("--appmsgid", help="只发表指定草稿 appmsgid（逗号分隔）")
+    psend.add_argument("--all", action="store_true",
+                       help="台账里 status=draft/partial 且带 appmsgid 的全发")
+    psend.add_argument("--limit", type=int, default=0, help="只发前 N 条")
+    psend.add_argument("--notify", action="store_true",
+                       help="群发模式：推送粉丝、占每日 1 次额度。不加就是发布模式。"
+                            "⚠ 两种模式都要管理员扫码")
+    psend.add_argument("--timeout", type=int, default=300,
+                       help="单条等待落库的秒数。扫码是人工动作，默认给 300s；"
+                            "扫码框出现后会每分钟提醒剩余时间")
+    psend.add_argument("--dry", action="store_true",
+                       help="只打印将发表哪些，不打开浏览器")
     args = ap.parse_args()
 
     # 127.0.0.1 必须绕开系统代理，否则 websocket 连 Chrome 调试端口会被掐（WinError 10053）
@@ -4552,7 +5157,7 @@ def main():
     # ⚠ 本机 Chrome 不带 `--no-sandbox` 会在 2 秒内自杀（exit code 3 =
     # Chromium RESULT_CODE_KILLED_BAD_MESSAGE），端口根本不开，故统一代劳。
     if args.cmd in ("publish", "refresh", "delete", "fix-cover", "inspect",
-                    "sync"):
+                    "sync", "send"):
         try:
             _autostart_chrome_if_needed()
         except SystemExit:
@@ -4583,6 +5188,8 @@ def main():
         cmd_delete(args)
     elif args.cmd == "sync":
         cmd_sync(args)
+    elif args.cmd == "send":
+        cmd_send(args)
 
 
 if __name__ == "__main__":

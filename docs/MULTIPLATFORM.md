@@ -79,7 +79,7 @@ B站这种「一条草稿要 1 分钟」的平台代价很高。所以 `Adapter.
 
 | 平台 | 幂等来源 | 真发布 | 特殊约束 |
 |---|---|---|---|
-| 公众号 | `data/wechat_published.json` | ❌ 只能存草稿 | 个人订阅号无群发 API；build 是 `make_article` + `wechat build` 两段 |
+| 公众号 | `data/wechat_published.json` | ⚠️ 扫码前全自动、扫码后自动校验，但两种模式都要管理员扫码 | 个人订阅号无群发 API；build 是 `make_article` + `wechat build` 两段；「发表」用 `wechat_publish.py send` |
 | 小红书 | `data/xhs_drafts.json` | ✅ `--yes` | **绝不能透传 `--dry`**：它的 `--dry` 会照常填表，只是不点发布（污染过 bustem 草稿） |
 | 今日头条 | `data/toutiao_drafts.json` + `_published.json` | ✅ `--yes` | 封面是硬要求，`cover.png` 缺了就当产物不完整 |
 | B站专栏 | **只有清单** | ❌ 只存草稿 | 草稿只存在远端，本地无从判断；LV1–3 每天 1 篇，LV4–6 5 篇 |
@@ -363,8 +363,17 @@ python scripts/agnes_cover.py gen --case bustem
 |---|---|---|---|---|
 | 今日头条 | API（`draft/add`） | ✅ API `save=1`+`entrance=main` | 20–27s | 要有头 Chrome 供 `tt-anti-token` |
 | 小红书 | UI | ✅ UI 点「发布」 | 1–2min | 创建走 UI；API 创建被 461 风控 |
-| 公众号 | UI 存草稿 | ❌ 只到草稿 | — | 个人订阅号无 `freepublish` 权限；「发表」在**编辑页**顶栏，草稿箱列表只有「编辑/删除」 |
+| 公众号 | UI 存草稿 | ✅ UI「发表」（2026-10-19） | ~30s/条 + 等扫码 | **两种模式都要管理员/运营者扫码**（物理动作，脚本检测到二维码就停下等）；API 无权限（个人订阅号 `freepublish` 48001） |
 | B站专栏 | API（`draft/add`） | ❌ 只到草稿 | — | 代码只点了「保存为草稿」，从没点过「发布」（见下） |
+
+**公众号的「发表」已自动化到扫码前最后一步 + 扫码后自动校验**（`wechat_publish.py send`，默认发布模式）：
+开编辑器 → 设「群发通知」开关 → 确认两层 → check 全过后弹出「微信验证」二维码 ⇒
+脚本停下来等，管理员/运营者扫码后流程继续，脚本自动判定结果、回读校验、落账。
+**发布和群发两种模式都要扫码**（2026-10-19 实测：模式区别只在推不推送粉丝、
+占不占每日 1 次群发额度；曾据「探针里发布链路没弹二维码」误判发布不扫码 ——
+那是探针拦掉了 check 请求，流程根本没走到扫码那步）。`--notify` 走群发模式，
+扫码框 5 分钟内没扫就记 `timeout` 而不谎报成功。实测链路与选择器见
+`scripts/wechat_publish.py`「发表自动化」一节与 `scripts/probe_wechat_send.py`。
 
 ```bash
 python scripts/publish_multi.py run --case <id>          # 只存草稿（默认）

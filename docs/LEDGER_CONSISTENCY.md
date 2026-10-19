@@ -136,7 +136,7 @@ B站     草稿 49 / 已发布 11   → ✓ 干净（草稿账当天新建，49 
 | `toutiao_publish.py:1514` | `mark_published(c["id"])`，而上一行手里就有 `pgcid` | `mark_published(c["id"], remote_id=pgcid)` ⚠ 落地前先拿一篇已知文章验证 `pgcid == gid`（头条这两个 ID 通常相同，但没实测过，别直接信） |
 | `xhs_publish.py:1371` | 发布成功后只标 id | 发布页/接口能拿 `note_id`，一并传 |
 | `bili_draft_api` 存草稿 | ✅ **已接（2026-10-19）**：`save_via_api` 拿到 `new_aid` 后调 `ledger.set_draft_id` | 用 **`article_id`**（数字 cv 号）⚠ 不是 `bvid`（那是视频的 BV 号），也不是 `id`（list 布局里 `id` 是 **case id**，撞过一次） |
-| `wechat_*` | 已有 `appmsgid` | 保持 |
+| `wechat_*` | 已有 `appmsgid` | 保持。⚠ 但要知道：**群发/发布后 appmsgid 会变**（草稿 100000546 → 发表后 2247484064）。所以 `wechat_publish.py send` 成功后的记账口径是：`appmsgid` **保留草稿 id 不动**（`refresh`/`fix-cover` 靠它定位草稿），新 id 记到 `published_appmsgid`。`wechat_sync` 的 id 认亲对已发表侧注定 miss，靠标题兜住 —— 这是已知取舍，不是 bug |
 
 配套：`toutiao_publish.mark_published(cid, remote_id="")` 内部改调
 `ledger.promote("toutiao", cid, remote_id=...)`，顺手把草稿台账那条删掉
@@ -172,6 +172,7 @@ B站     草稿 49 / 已发布 11   → ✓ 干净（草稿账当天新建，49 
 | **每次发车前**（`publish_multi run` 自动带） | 本地账本体检 | 毫秒，不联网 | 别往一本已经坏了的账上继续写。ERROR 拦车，WARN 只提示，`--no-preflight` 可绕 |
 | **每次发布成功那一刻** | 记账 + 回读校验（各平台脚本内） | 0 | 发布即落账，别等事后补 |
 | 每次往 B站存完草稿 | （自动，`save_via_api` 里已记） | 0 | 不再攒无主草稿 |
+| 公众号要把草稿**发表**出去 | `python wechat_publish.py send --case <id>` | ~30s/条（+等扫码） | 扫码前的开编辑器、设开关、两层确认和扫码后的校验落账全自动，**发布和群发两种模式都要管理员/运营者扫码**（物理动作，脚本检测到二维码就停下等，最多 5 分钟） |
 | **怀疑漏了 / 要重发前 / 做决定前** | `python ledger_health.py --platform <p> --online` | 20-40s/平台 | 给写入路径当回归测试。历史上 7 条漏登、49 条无主草稿都是**写入路径写错了**，不是漂移 —— 「发布时记一次」治不了这个，因为它只会忠实地把错误也记进账 |
 | B站攒了一批没归属的草稿 | `python bili_draft_sync.py` → 看报告无误再 `--apply` | 30s | 认领 case。**先看报告，别直接 apply** |
 | 台账文件可疑（半截/乱码） | 体检会拦；人工看 `data/*.json` | 0 | 坏文件会被静默读成空账，然后按「没发过」重发一遍 |
