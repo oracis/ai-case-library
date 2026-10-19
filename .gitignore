@@ -27,6 +27,16 @@ data/secrets.json
 # 属派生数据：默认通道走列表页，不需要它；提交进来只会变成会长期增长的噪音。
 data/ih_slugs.json
 
+# TrustMRR sitemap 档案缓存（scripts/harvest.py 的 trustmrr_sitemap 通道生成）
+# 同 ih_slugs——纯派生数据：sitemap 快照（1.1 万条 slug）+ 档案池 + 游标，
+# 每跑一次采集就重写。而且 CI 每次都是全新 runner、缓存更新随 runner 消亡，
+# 跨 run 连续性本来就是零，提交它换不来任何东西。
+# ⚠ 它曾被 main 追踪（早一次误提交，全库只有那一个 commit 碰过它），后果：
+# harvest 一跑，daily_harvest.py 就把这坨机器数据 commit 到本地 main
+# （2026-10-19 实跑日志里的 a3052bf）——既脏了 main，又把「校验」步骤的
+# data/ 干净断言洗成假绿。取消追踪后本地已有缓存文件保留在磁盘上继续用。
+data/trustmrr_profiles.json
+
 # 编辑器 / 系统
 .vscode/
 .idea/
