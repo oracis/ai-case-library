@@ -277,6 +277,7 @@ def seed_fixtures():
         "models": [],
         "note": "selftest fixture",
     }
+    added = []
     for fid, nm in ((FIXTURE_A, "自测固件A（供发布闸门消费）"),
                     (FIXTURE_B, "自测固件B（供写接口与 plan 使用）")):
         if fid in have:
@@ -285,9 +286,11 @@ def seed_fixtures():
         rec["id"] = fid
         rec["name"] = nm
         cands.insert(0, rec)
-    with open(p, "w", encoding="utf-8") as f:
-        json.dump(cands, f, ensure_ascii=False, indent=2)
-    print("已注入自测固件候选：%s / %s" % (FIXTURE_A, FIXTURE_B))
+        added.append(fid)
+    if added:
+        with open(p, "w", encoding="utf-8") as f:
+            json.dump(cands, f, ensure_ascii=False, indent=2)
+        print("已注入自测固件候选：%s" % " / ".join(added))
 
 
 def main():
@@ -619,6 +622,12 @@ def main():
         # ---------- 8 后台鉴权 ----------
         # 上面那台服务关了鉴权，这里另起一台「带鉴权」的，验证闸门真的关得上：
         # 游客碰不到任何写接口，登录后才放行，登出后立刻失效。
+        # 补种固件：[5] 节连发三次 promote 是会把池子抽干的 —— 真实候选只有
+        # 几条的时候（2026-10 后的常态），[8] 的写接口与 [10] 的 plan 都要靠
+        # 固件续命。CI 的干净 checkout 没有 inbox.json 来挡这一下，曾为此连红
+        # 一个月而本地全绿（本地数据文件制造的假象）。seed_fixtures 幂等，
+        # 毫秒级、纯本地，跑完随 data/ 一起还原。
+        seed_fixtures()
         run_auth_section()
 
         # ---------- 9 双站点隔离 ----------
