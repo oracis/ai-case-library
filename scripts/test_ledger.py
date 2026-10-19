@@ -138,6 +138,78 @@ class TestPlatformIdField(_TmpData):
         self.assertEqual(v["status"], "published")
 
 
+class TestDraftLedger(_TmpData):
+    """B站草稿账（2026-10-19 建）—— 线上 49 条草稿曾经一条本地记录都没有。"""
+
+    def _blank(self):
+        self.write("bili_published.json", [])
+        self.write("bili_drafts.json", [])
+
+    def test_set_draft_id_writes_draft_file(self):
+        self._blank()
+        L.set_draft_id("bilibili", "bustem", "342372", title="Bustem：打假")
+        row = self.read("bili_drafts.json")[0]
+        self.assertEqual(row["id"], "bustem")
+        self.assertEqual(row["article_id"], "342372",
+                         "B站文章的远端 ID 字段名是 article_id（不是 bvid）")
+        self.assertEqual(self.read("bili_published.json"), [])
+        self.assertEqual(L.load("bilibili")["bustem"]["state"], L.DRAFT)
+
+    def test_no_internal_names_leak_to_disk(self):
+        self._blank()
+        L.set_draft_id("bilibili", "x", "1")
+        L.promote("bilibili", "x", remote_id="53460777", title="T")
+        for name in ("bili_drafts.json", "bili_published.json"):
+            for row in self.read(name):
+                self.assertNotIn("remote_id", row)
+                self.assertNotIn("draft_remote_id", row,
+                                 "内部字段名漏到盘上 ⇒ 下次 round-trip 多一个字段")
+
+    def test_draft_and_published_coexist(self):
+        """发过文的 case 又存了一条草稿 ⇒ 两个 ID 都在，状态不被拉回去。
+
+        这是 set_draft_id 存在的理由：`mark(..., DRAFT)` 会把已发布记成草稿，
+        等于宣布一篇发出去的文章没发。
+        """
+        self._blank()
+        L.promote("bilibili", "trustmrr", remote_id="53460777", title="T")
+        L.set_draft_id("bilibili", "trustmrr", "342372")
+        rec = L.load("bilibili")["trustmrr"]
+        self.assertEqual(rec["state"], L.PUBLISHED)
+        self.assertEqual(rec["remote_id"], "53460777")
+        self.assertEqual(rec["draft_remote_id"], "342372")
+        self.assertEqual(self.read("bili_published.json")[0]["article_id"],
+                         "53460777")
+        self.assertEqual(self.read("bili_drafts.json")[0]["article_id"],
+                         "342372")
+
+    def test_draft_row_survives_repeated_save(self):
+        """反复 save 不能把「已发布 + 草稿还在」那一行吃掉。
+
+        旧规则是 `state != DRAFT ⇒ 不写草稿文件`，那样下次任何一次 save
+        都会静默删掉线上真实存在的一条草稿 —— 账本凭空少一行，且不可恢复。
+        """
+        self._blank()
+        L.promote("bilibili", "mort", remote_id="53280245")
+        L.set_draft_id("bilibili", "mort", "342369")
+        for _ in range(3):
+            L.save("bilibili", L.load("bilibili"))
+        drafts = self.read("bili_drafts.json")
+        self.assertEqual(len(drafts), 1, "草稿行被 save 弄丢了")
+        self.assertEqual(drafts[0]["article_id"], "342369")
+        rec = L.load("bilibili")["mort"]
+        self.assertEqual(rec["state"], L.PUBLISHED)
+        self.assertEqual(rec["draft_remote_id"], "342369")
+
+    def test_promote_preserves_draft_id(self):
+        self._blank()
+        L.set_draft_id("bilibili", "voklit", "342350")
+        L.promote("bilibili", "voklit", remote_id="53375028")
+        rec = L.load("bilibili")["voklit"]
+        self.assertEqual(rec["draft_remote_id"], "342350",
+                         "升已发布后草稿 ID 必须留着（线上那条草稿还在）")
+
+
 class TestDuplicates(_TmpData):
     def test_same_case_in_both_files(self):
         self.write("toutiao_published.json", [{"id": "dup", "at": "t"}])
@@ -147,7 +219,8 @@ class TestDuplicates(_TmpData):
         self.assertEqual(len(L.load("toutiao")), 2, "统一视图里只算一条")
 
     def test_no_draft_file_platform(self):
-        self.assertEqual(L.duplicates("bilibili"), [])
+        # 公众号是 dict 布局、状态在 value 里，天然没有第二本账
+        self.assertEqual(L.duplicates("wechat"), [])
 
 
 class TestMissingRemoteId(_TmpData):

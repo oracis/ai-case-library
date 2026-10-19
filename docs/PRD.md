@@ -91,7 +91,7 @@ cases.json     精写库   人工核   255 条 ← 唯一写入口是 /api/candi
 
 `inbox.json` `inbox_archive.json` `candidates.json` `cases.json` `verifications.json`（草稿库）`sources.json`（源元数据 + 过滤词表 + 字段契约）`site.json`（外显配置）`ih_slugs.json`（IH 分片游标）`issue_numbers.json`（篇号注册表）`admin.json`（口令 hash/token secret）`last_harvest.json`（采集简报）`secrets.json`（AI key）`arrclub.json`（校对参照，不进候选池）`wechat_broken_drafts.json`（320003 损坏草稿黑名单）。
 
-**四平台台账**：`wechat_published.json`（60）/ `toutiao_published.json`（**21，2026-10-19 三方对账后**；线上 23 篇，另 3 条幽灵记在 `toutiao_ghost.json`）/ `bili_published.json`（6）/ `xhs_published.json`（**8 条，2026-10-18 按远端接口对账回填**；对账工具 `xhs_sync_ledger.py`，删除工具 `xhs_delete.py`）；另有 `toutiao_drafts.json` / `xhs_drafts.json` / `xhs_note_overrides.json` / `xhs_title_overrides.json`（头条与小红书共用）。
+**四平台台账**：`wechat_published.json`（60）/ `toutiao_published.json`（**21，2026-10-19 三方对账后**；线上 23 篇，另 3 条幽灵记在 `toutiao_ghost.json`）/ `bili_published.json`（**11，2026-10-19 补登 7 条漏登**）/ `xhs_published.json`（**8 条，2026-10-18 按远端接口对账回填**；对账工具 `xhs_sync_ledger.py`，删除工具 `xhs_delete.py`）；另有 `toutiao_drafts.json` / `xhs_drafts.json` / **`bili_drafts.json`（49，2026-10-19 新建，见 `docs/LEDGER_CONSISTENCY.md`）** / `xhs_note_overrides.json` / `xhs_title_overrides.json`（头条与小红书共用）。
 
 ---
 

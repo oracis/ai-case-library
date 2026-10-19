@@ -1277,6 +1277,10 @@ def save_via_api(cid, replace=False, cdp=None, title=None, body=None,
             print("  ✓ API %s草稿 aid=%s《%s》正文 %d 字 / %d 段"
                   % (tag, new_aid, title, len(got),
                      len(arg["opus"]["content"]["paragraphs"])))
+            # 存完必须落账。2026-10-19 之前这一层根本没有：线上攒了 49 条
+            # 草稿，本地一条记录都没有 ⇒ "这条存过没有"只能开浏览器去数，
+            # 补登时发现漏了 7 条。ID 是接口刚亲口给的，没有不记的道理。
+            _record_draft(cid, new_aid, title)
             if after.get("image_urls"):
                 print("    封面: %s" % after["image_urls"][0][:70])
             else:
@@ -1292,6 +1296,21 @@ def save_via_api(cid, replace=False, cdp=None, title=None, body=None,
                 cdp.close_target(tid)
             except Exception:                # noqa: BLE001
                 pass
+
+
+def _record_draft(cid, aid, title=""):
+    """存草稿成功后写台账。**写失败不能连累主流程** —— 账本是用来发现问题的，
+    不该变成发布的阻塞点；漏记了下次 `bili_draft_sync` 会从线上捞回来。
+    """
+    try:
+        import ledger as ld
+        # 用 set_draft_id 而不是 mark(DRAFT)：后者会把已经发过的 case 拉回
+        # 草稿态。这里要的是"多一个 ID"，不是"改判状态"。
+        ld.set_draft_id("bilibili", cid, aid, title=title,
+                        note="｜%s草稿 aid=%s（draft/add 回读校验通过）"
+                             % ("更新" if title else "", aid))
+    except Exception as e:                              # noqa: BLE001
+        print("    ⚠ 台账写入失败（不影响已存的草稿）：%s" % str(e)[:80])
 
 
 def _cover_present(cdp, tid):

@@ -155,6 +155,14 @@ def check_online(platform, recs, remote):
     pub_remote = remote.get("pub") or {}
     draft_remote = remote.get("draft") or {}
     for cid, r in recs.items():
+        # 草稿侧：本地登记了草稿 ID，线上草稿箱里却没了 ⇒ 不是"线上没操作"
+        # 就是"已经发了/删了"。只报告，不自动清 —— 删账比留着脏一行贵。
+        drid = r.get("draft_remote_id")
+        if drid and remote.get("draft_ok") and drid not in draft_remote:
+            out.append(issue("WARN", platform, cid, "STALE_DRAFT",
+                             "登记的草稿 id=%s 不在线上草稿箱（已删？已发布？）"
+                             % drid,
+                             fix="人工确认后再动；发过文的草稿删掉是正常的"))
         rid = r.get("remote_id")
         if r["state"] == L.PUBLISHED:
             # 🚨 「读不到」≠「线上没有」：pub_ok=False 时远端列表是空的，
@@ -179,8 +187,13 @@ def check_online(platform, recs, remote):
     # 台账 note 里写过的别名视为「已知的第二篇」——bustem/cometly 都是
     # 新旧口径各发一篇，不是漏登，别拿它当 ERROR。
     if remote.get("pub_ok"):
+        # 🚨 只拿**已发布状态**的 remote_id 去认领。草稿和正文在 B站是两个
+        #    不同的 article_id（草稿 342372 / 正文 53460777），把草稿侧的
+        #    ID 混进 claimed，等于让一篇真文章被别人的草稿"认领"掉，
+        #    ORPHAN 就漏报了。
         claimed = {r.get("remote_id") for r in recs.values()
-                   if r.get("remote_id")}
+                   if r.get("remote_id") and r["state"] in (L.PUBLISHED,
+                                                            L.UNVERIFIED)}
         known = {a for r in recs.values() for a in _alias_titles(r)}
         for gid, title in pub_remote.items():
             if gid in claimed or (title and title in known):

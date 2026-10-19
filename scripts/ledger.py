@@ -10,7 +10,7 @@
 |---|---|---|---|---|
 | 公众号 | `wechat_published.json` | **dict**（key=case_id） | value 里的 `status` | `appmsgid`（59/60） |
 | 头条 | `toutiao_drafts.json` + `_published.json` | 两个 list | **在哪个文件里** | ❌ 只写在 note 文本里 |
-| B站 | `bili_published.json` | list | 在哪个文件里 | ❌ 只写在 note 文本里 |
+| B站 | `bili_drafts.json` + `bili_published.json` | 两个 list | 在哪个文件里 | ✅ `article_id` |
 | 小红书 | `xhs_drafts.json` + `_published.json` | 两个 list | 在哪个文件里 | ✅ `note_id` |
 
 两个结构性毛病：
@@ -39,6 +39,9 @@ ledger.mark("toutiao", "vid-ai", "published",
             evidence="feed_api")
 rows = ledger.load("toutiao")          # {case_id: rec}，rec["state"] ∈ draft/published/unverified
 ledger.ids("toutiao", "published")     # set(case_id)
+
+# 草稿侧单独登记一个 ID（B站发了文草稿箱那条还留着 ⇒ 两个 ID 并存）
+ledger.set_draft_id("bilibili", "bustem", "342372", title="Bustem：...")
 ```
 
 ## `unverified` 是什么
@@ -77,7 +80,11 @@ _SPEC = {
     "bilibili": {
         "layout": "list",
         "published": "bili_published.json",
-        "draft": None,                       # 本地没有 B 站草稿台账
+        # 2026-10-19 才建。之前 B站只有已发一侧 —— 线上 49 条草稿在本地
+        # 一条记录都没有（"这条存过没有？"只能靠开浏览器数），漏登 7 条
+        # 就是这么来的。B站草稿**有服务端 API**（不像小红书存在 IndexedDB），
+        # 所以这一侧能做成真账本，不是"我记得存过"。
+        "draft": "bili_drafts.json",
     },
     "xiaohongshu": {
         "layout": "list",
@@ -169,16 +176,21 @@ def _rec_from_wechat(cid, v):
     return rec
 
 
-def _rec_from_item(item, platform):
+def _rec_from_item(item, platform, state=PUBLISHED):
     rec = dict(item)
     rec["id"] = item.get("id") or ""
-    rec["state"] = item.get("state") or PUBLISHED     # list 布局默认已发布
+    rec["state"] = item.get("state") or state
     rec["at"] = item.get("at") or ""
     rid = str(item.get("remote_id") or "")
     for k in REMOTE_ID_FIELD.get(platform, ()):
         if not rid and item.get(k):
             rid = str(item[k])
     rec["remote_id"] = rid
+    # 草稿侧那个远端对象要单独留字段：对已发布的稿子再存一次草稿就有了
+    # （线上两个对象并存，ID 不同）。没这个字段，case 一旦升成 published，
+    # 草稿 ID 就被同名的 remote_id 盖掉，"草稿箱里还有一条"这个事实当场消失。
+    dra = str(item.get("draft_remote_id") or "")
+    rec["draft_remote_id"] = dra or (rid if rec["state"] == DRAFT else "")
     rec["title"] = item.get("title") or item.get("remote_title") or ""
     return rec
 
@@ -213,8 +225,15 @@ def load(platform, state=None):
                         it = {"id": it}
                     if not isinstance(it, dict) or not it.get("id"):
                         continue
-                    rec = _rec_from_item(it, platform)
+                    rec = _rec_from_item(it, platform, st)
                     rec["state"] = st          # 文件位置即状态，覆盖默认
+                    prev = out.get(rec["id"])
+                    # 草稿 → 已发布是覆盖，但**草稿侧的远端 ID 要带过来**：
+                    # 线上两个对象都真实存在（草稿 342372 / 正文 53460777），
+                    # 视图里也该两个都在。
+                    if prev and prev.get("draft_remote_id") \
+                            and not rec.get("draft_remote_id"):
+                        rec["draft_remote_id"] = prev["draft_remote_id"]
                     out[rec["id"]] = rec
     if state:
         return {k: v for k, v in out.items() if v["state"] == state}
@@ -266,35 +285,68 @@ def _serialize(platform, recs):
                 continue
             seen.add(cid)
             r = recs.get(cid)
-            if not r or r["state"] != st:
+            if not r:
                 continue
-            buckets[st].append(_item_out(r, platform))
+            item = _bucket_item(r, platform, st)
+            if item is None:
+                continue
+            buckets[st].append(item)
         for cid, r in recs.items():           # 新记录追加
-            if cid in seen or r["state"] != st:
+            if cid in seen:
                 continue
-            buckets[st].append(_item_out(r, platform))
+            item = _bucket_item(r, platform, st)
+            if item is None:
+                continue
+            buckets[st].append(item)
     return buckets
 
 
-def _item_out(r, platform):
+def _bucket_item(r, platform, st):
+    """这条记录要不要进 st 这个文件？要的话落成什么形态。
+
+    以前是 `r["state"] != st ⇒ 不写`。B站加上草稿账后这条不成立：只要一个
+    case 同时带着草稿 ID 和正文 ID（已发布后再存一次草稿就出现），
+    按旧规则下次 save 就会悄悄删掉草稿那行 —— 账本凭空少一行，而且少的
+    是「线上确实存在」的一行。所以判据改成：
+      · 已发布文件：state 是 published/unverified 才写；
+      · 草稿文件：**state 是 draft，或者手上有一个独立于正文的草稿 ID**。
+    """
+    if st == PUBLISHED:
+        if r["state"] not in (PUBLISHED, UNVERIFIED):
+            return None
+        return _item_out(r, platform)
+    if r["state"] == DRAFT:
+        return _item_out(r, platform,
+                         id_value=r.get("draft_remote_id") or r.get("remote_id"))
+    if r.get("draft_remote_id"):
+        # 已发布但草稿仍在：原样留着，别替线上决定它没了
+        return _item_out(r, platform, id_value=r["draft_remote_id"])
+    return None
+
+
+def _item_out(r, platform, id_value=None):
     """list 布局的落盘形态：id/at 在最前（diff 稳定），其余字段照留。
 
     🚨 远端 ID 要写回**该平台自己的字段名**（小红书 `note_id`、头条 `gid`、
-       B站 `bvid`），不能写内部名 `remote_id` —— 否则 round-trip 一趟
+       B站 `article_id`），不能写内部名 `remote_id` —— 否则 round-trip 一趟
        整个文件字段全变，git diff 型同数据搬家。
+       `draft_remote_id` 同理：**它是同一个字段落在另一个文件里的值**，
+       落到草稿文件就写成平台的 ID 字段，不另存一份（不然每次 round-trip
+       都多一个字段）。
     """
     out = {"id": r["id"], "at": r.get("at") or ""}
     id_field = (REMOTE_ID_FIELD.get(platform) or ("remote_id",))[0]
-    rid = r.get("remote_id") or ""
+    rid = id_value or r.get("remote_id") or ""
     if rid:
         out[id_field] = rid
+    skip = ("id", "at", "state", "remote_id", "draft_remote_id",
+            "remote_title", "title")
     for k in ("remote_title", "title", "verified_at", "evidence", "note"):
         v = r.get(k)
         if v:
             out["title" if k == "remote_title" else k] = v
     for k, v in r.items():
-        if k in out or k in ("id", "at", "state", "remote_id",
-                             "remote_title", "title"):
+        if k in out or k in skip:
             continue
         out[k] = v
     return out
@@ -344,6 +396,9 @@ def mark(platform, cid, state, remote_id="", title="", evidence="",
         rec["evidence"] = evidence
     if note:
         rec["note"] = note
+    if state == DRAFT and remote_id:
+        # 存草稿也要留远端 ID —— B站草稿有服务端 API，拿得到，就没理由不记
+        rec["draft_remote_id"] = str(remote_id)
     if state == PUBLISHED and not rec.get("remote_id"):
         rec["state"] = UNVERIFIED
         rec["note"] = (rec.get("note") or "") + \
@@ -361,6 +416,38 @@ def promote(platform, cid, remote_id, title="", evidence="", note=""):
     """草稿 → 已发布（一次原子写，不再有「两个文件各改一次」的中间态）。"""
     return mark(platform, cid, PUBLISHED, remote_id=remote_id, title=title,
                 evidence=evidence or "remote_readback", note=note)
+
+
+def set_draft_id(platform, cid, remote_id, title="", at=None, note=""):
+    """只记「草稿侧那个远端对象」，**绝不改状态**。
+
+    为什么要有这么个专门入口：同一个 case 在线上可能是**两个对象** ——
+    草稿箱里一条 + 已发布一篇，两个 `article_id` 不同。`mark(..., DRAFT)`
+    会把状态拉回草稿，那等于把已经发出去的文章记成没发。同步草稿箱时要的
+    是「多登记一个 ID」，不是「推翻状态」。
+
+    2026-10-19 首次建账的快照：49 条草稿 × 11 篇已发布，**零交集**
+    （发过的那些草稿已经不在草稿箱里了）。但双 ID 形态随时会重现 ——
+    对一篇已发布的 case 再跑一次 `publish`（= 存草稿），草稿箱里立刻多一条。
+    所以账本必须能同时装两个 ID，不能靠"现在没有交集"赌它永远没有。
+
+    state 为空的记录（全新 case）按草稿对待。
+    """
+    recs = load(platform)
+    rec = recs.get(cid) or {"id": cid}
+    rec.setdefault("state", DRAFT)
+    if not rec.get("at"):
+        rec["at"] = at or time.strftime("%Y-%m-%d %H:%M")
+    rec["draft_remote_id"] = str(remote_id)
+    if rec["state"] == DRAFT and not rec.get("remote_id"):
+        rec["remote_id"] = str(remote_id)     # 草稿态：主 ID 就是它
+    if title:
+        rec["title"] = title
+    if note:
+        rec["note"] = (rec.get("note") or "") + note
+    recs[cid] = rec
+    save(platform, recs)
+    return rec
 
 
 def remove(platform, cid):
