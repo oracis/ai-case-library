@@ -24,6 +24,7 @@ sys.path.insert(0, os.path.join(ROOT, "scripts"))
 from multiplatform import state as S                    # noqa: E402
 from multiplatform.adapters import REGISTRY, get as get_ad   # noqa: E402
 from multiplatform.runner import Runner, bootstrap_manifest   # noqa: E402
+import ledger as L                                       # noqa: E402
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -101,8 +102,100 @@ def _resolve(case):
     return case
 
 
+# publish_multi 的平台键和 ledger 的**不一致**（这里叫 xhs，ledger 叫
+# xiaohongshu）。2026-10-19 体检第一次跑就是在这儿炸的 KeyError ——
+# 别的模块习惯用自己的简称，跨模块调 ledger 必须先过这一层。
+PLAT_KEY = {"xhs": "xiaohongshu"}
+
+
+def _file_health(plat):
+    """台账文件本身是不是合法 JSON。
+
+    🚨 这是本体检**唯一真能拦车的结构性故障**：`ledger._read_file` 解析失败时
+       返回 `entries=None`，`load()` 再把它当成空账 —— 一个写坏的文件不会报错，
+       只会让台账凭空归零，然后按「这条没发过」重发一遍。
+       （`check_offline` 里 BAD_STATE/EMPTY_ID 那两类 ERROR 其实到不了：
+        `load()` 会用文件位置覆盖 state、跳过没 id 的记录。别指望它们。）
+    """
+    bad = []
+    key = PLAT_KEY.get(plat, plat)
+    for st in (L.DRAFT, L.PUBLISHED):
+        try:
+            p = L._path(key, st)
+        except ValueError:
+            continue                       # 该平台没有这一侧（如公众号）
+        except KeyError:
+            bad.append("%s：ledger 里没有这个平台" % plat)
+            return bad
+        if not os.path.isfile(p):
+            continue
+        try:
+            _, entries, _, _ = L._read_file(p)
+        except Exception as e:                          # noqa: BLE001
+            bad.append("%s：%s 读不了（%s）" % (plat, os.path.basename(p),
+                                               str(e)[:40]))
+            continue
+        if entries is None:
+            bad.append("%s：%s 不是合法 JSON（现在会被静默读成空账）"
+                       % (plat, os.path.basename(p)))
+    return bad
+
+
+def _preflight(plats):
+    """发车前的账本体检。**纯本地、毫秒级、不开浏览器。**
+
+    为什么发车前要查一次：往一本已经坏了的账上继续写，只会让「哪条真发了」
+    更说不清。而离线档只读本地 json —— 一次文件 IO，比 `status` 还便宜，
+    没理由不跑。
+
+    拦截口径分两级，别混：
+      · ERROR（文件坏、读不了）⇒ **拦车**。再写只会把错误固化进去；
+      · WARN（重复、没远端 ID）⇒ 只提示。这些是历史欠账（比如某条老记录
+        缺 appmsgid），拿它当拦车条件会让新车永远发不出去。
+    """
+    import ledger_health as H
+    errs, warns, infos, total = [], [], 0, 0
+    for p in plats:
+        errs.extend(_file_health(p))
+        try:
+            recs = L.load(PLAT_KEY.get(p, p))
+        except Exception as e:                          # noqa: BLE001
+            errs.append("%s：台账读不了（%s）" % (p, str(e)[:60]))
+            continue
+        total += len(recs)
+        for i in H.check_offline(PLAT_KEY.get(p, p), recs):
+            line = "%s / %s %s：%s" % (p, i["id"] or "(空id)",
+                                       i["code"], i["detail"])
+            if i["level"] == "ERROR":
+                errs.append(line)
+            elif i["level"] == "WARN":
+                warns.append(line)
+            else:
+                infos += 1        # 产物缺失之类，发车前用不着占版面
+    print("[体检] %d 个平台本地台账，%d 条记录" % (len(plats), total))
+    if not errs and not warns:
+        print("  ✓ 账本结构正常%s" % ("（另 %d 条 INFO：产物缺失等）" % infos
+                                      if infos else ""))
+        return True
+    for w in warns[:8]:
+        print("  ⚠ %s" % w)
+    if len(warns) > 8:
+        print("    …另 %d 条 WARN（ledger_health --verbose 看全）"
+              % (len(warns) - 8))
+    for e in errs:
+        print("  ✗ %s" % e)
+    if errs:
+        print("  ✗ %d 个 ERROR：账本结构坏了，先修再发"
+              "（确认历史欠账可加 --no-preflight 强行发）" % len(errs))
+        return False
+    return True
+
+
 def cmd_run(args):
     plats = parse_plats(args.platforms)
+    if not getattr(args, "no_preflight", False):
+        if not _preflight(plats):
+            return 1
     r = Runner(plats, dry=args.dry, yes=args.yes, retries=args.retries,
                replace=args.replace)
     r.run(only=_resolve(args.case), limit=args.near or 0,
@@ -210,6 +303,8 @@ def main(argv=None):
     p.add_argument("--retries", type=int, default=1)
     p.add_argument("--replace", action="store_true",
                    help="改文案后覆盖重存（已 draft_saved 的也重发）")
+    p.add_argument("--no-preflight", action="store_true",
+                   help="跳过发车前的本地账本体检（默认跑，毫秒级）")
     p.set_defaults(fn=cmd_run)
 
     p = _add_plats(sub.add_parser("status", help="各平台状态统计"))
@@ -227,6 +322,8 @@ def main(argv=None):
     p.add_argument("--retries", type=int, default=2)
     p.add_argument("--replace", action="store_true",
                    help="改文案后覆盖重存（已 draft_saved 的也重发）")
+    p.add_argument("--no-preflight", action="store_true",
+                   help="跳过发车前的本地账本体检（默认跑，毫秒级）")
     p.set_defaults(fn=cmd_retry)
 
     p = _add_plats(sub.add_parser("reset", help="清除清单记录（强制重发）"))

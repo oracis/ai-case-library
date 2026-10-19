@@ -373,6 +373,10 @@ python scripts/publish_multi.py run --near 3 --yes       # 接下来 3 条
 python scripts/publish_multi.py run --case <id> --dry    # 只看计划
 ```
 
+**发车前会自动跑一次本地账本体检**（毫秒级、不开浏览器）：账本文件坏 ⇒ 拦车；
+重复/缺远端 ID这类历史欠账 ⇒ 只提示不拦。明知有欠账还要发就加
+`--no-preflight`。详见 `docs/LEDGER_CONSISTENCY.md` 第五节。
+
 `--yes` 撞上只能存草稿的平台时，状态记 `draft_saved` 并在结尾**点名**
 （`⚠ 公众号、B站专栏 只到草稿`），不会安静降级成「都成功了」。
 

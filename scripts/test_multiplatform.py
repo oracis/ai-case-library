@@ -27,6 +27,8 @@ from multiplatform import state as S                # noqa: E402
 from multiplatform.adapters import REGISTRY         # noqa: E402
 from multiplatform.adapters import base             # noqa: E402
 from multiplatform import runner                    # noqa: E402
+import types                                          # noqa: E402
+import ledger as L                                      # noqa: E402
 
 
 class TmpManifest(unittest.TestCase):
@@ -571,6 +573,99 @@ class TestSubprocessEncoding(unittest.TestCase):
         done, failed = REGISTRY["bilibili"].parse_batch(mojibake)
         self.assertEqual(done, set(), "乱码流不该被判成功")
         self.assertEqual(failed, {"mort"}, "会被误标 failed → 下次重发建重复")
+
+
+class TestPreflight(unittest.TestCase):
+    """发车前的本地账本体检（2026-10-19 加）。
+
+    口径必须钉死，否则这个门禁要么形同虚设、要么被一条老记录永久卡死：
+      · ERROR（账本结构坏）⇒ 拦车；
+      · WARN（历史欠账：重复、缺远端 ID）⇒ 只提示，不拦；
+      · INFO（产物缺失）⇒ 连提示都不占版面；
+      · --no-preflight ⇒ 明确绕过（明知有欠账还要发的时候）。
+    """
+
+    def setUp(self):
+        self._old = L.DATA
+        self.dir = tempfile.mkdtemp(prefix="preflight_")
+        L.DATA = self.dir
+        self.addCleanup(shutil.rmtree, self.dir, ignore_errors=True)
+        self.addCleanup(setattr, L, "DATA", self._old)
+        for name in ("toutiao_published.json", "toutiao_drafts.json",
+                     "bili_published.json", "bili_drafts.json",
+                     "xhs_published.json", "xhs_drafts.json",
+                     "wechat_published.json"):
+            with open(os.path.join(self.dir, name), "w",
+                      encoding="utf-8") as f:
+                f.write("[]" if "wechat" not in name else "{}")
+
+    def _write(self, name, obj):
+        with open(os.path.join(self.dir, name), "w", encoding="utf-8") as f:
+            json.dump(obj, f, ensure_ascii=False)
+
+    def test_clean_passes(self):
+        import publish_multi as PM
+        self._write("toutiao_published.json",
+                    [{"id": "a", "at": "t", "gid": "1"}])
+        self._write("toutiao_drafts.json", [])
+        self.assertTrue(PM._preflight(["toutiao"]))
+
+    def test_warn_does_not_block(self):
+        """缺远端 ID 是历史欠账 —— 拿它拦车，新车永远发不出去。"""
+        import publish_multi as PM
+        self._write("toutiao_published.json", [{"id": "a", "at": "t"}])
+        self.assertTrue(PM._preflight(["toutiao"]))
+
+    def test_error_blocks(self):
+        """台账文件坏 ⇒ 拦车。
+
+        别拿「状态非法」当用例：`load()` 会用文件位置覆盖 state，BAD_STATE 那类
+        ERROR 根本到不了（见 publish_multi._file_health 的注释）。真会发生的是
+        文件写坏 —— 而 `_read_file` 解析失败时静默返回空账，比崩掉危险得多。
+        """
+        import publish_multi as PM
+        with open(os.path.join(self.dir, "toutiao_published.json"),
+                  "w", encoding="utf-8") as f:
+            f.write('[{"id": "a", "at": ')          # 写了一半
+        self.assertFalse(PM._preflight(["toutiao"]))
+
+    def test_broken_file_silently_reads_as_empty(self):
+        """顺手钉住那个危险本身：坏文件 load 出来是空的，不是异常。"""
+        import publish_multi as PM
+        with open(os.path.join(self.dir, "toutiao_published.json"),
+                  "w", encoding="utf-8") as f:
+            f.write('[{"id": "a", "at": ')
+        self.assertEqual(L.load("toutiao"), {},
+                         "坏文件被读成空账 ⇒ 台账归零 ⇒ 会按『没发过』重发")
+        self.assertFalse(PM._preflight(["toutiao"]))
+
+    def test_run_aborts_on_error(self):
+        import publish_multi as PM
+        from unittest import mock
+        with open(os.path.join(self.dir, "toutiao_published.json"),
+                  "w", encoding="utf-8") as f:
+            f.write('[{"id": "a", "at": ')
+        args = types.SimpleNamespace(platforms="toutiao", dry=True, yes=False,
+                                     retries=0, replace=False, case=None,
+                                     near=0, no_preflight=False)
+        with mock.patch.object(PM, "Runner") as R:
+            rc = PM.cmd_run(args)
+        self.assertEqual(rc, 1, "体检不过就不该去建 Runner")
+        R.assert_not_called()
+
+    def test_no_preflight_bypasses(self):
+        import publish_multi as PM
+        from unittest import mock
+        with open(os.path.join(self.dir, "toutiao_published.json"),
+                  "w", encoding="utf-8") as f:
+            f.write('[{"id": "a", "at": ')
+        args = types.SimpleNamespace(platforms="toutiao", dry=True, yes=False,
+                                     retries=0, replace=False, case=None,
+                                     near=0, no_preflight=True)
+        with mock.patch.object(PM, "Runner") as R:
+            rc = PM.cmd_run(args)
+        self.assertEqual(rc, 0)
+        R.assert_called_once()
 
 
 class TestPublishMultiCli(unittest.TestCase):
