@@ -151,7 +151,16 @@ const errors = [];const sandbox = {
     },
   CSS: { escape: (s) => String(s).replace(/[^a-zA-Z0-9_-]/g, '\\$&') },
   setTimeout, clearTimeout, confirm: () => false, alert: () => {},
-  window: {},
+  // 浏览器全局桩：app.js 的 PWA 注册（registerSW）在**顶层**读 navigator，
+  // 视图路由读 location.hash / history.replaceState、hashchange 挂在 window 上。
+  // 桩里缺哪个，app.js 求值就炸在哪里，后面一百多项冒烟一起殉葬
+  //（2026-10-14 加 PWA 后 CI 就是这样全红的）。navigator 故意留空：
+  // 没有 serviceWorker 字段，registerSW 第一行就 return，和 file:// 下行为一致。
+  navigator: {},
+  location: { hash: '', protocol: 'https:', reload: () => {} },
+  history: { replaceState: () => {} },
+  window: { addEventListener: () => {}, removeEventListener: () => {},
+            matchMedia: () => ({ matches: false }) },
 };
 sandbox.globalThis = sandbox;
 
@@ -219,14 +228,17 @@ function section(title, fn) {
   await new Promise((r) => setTimeout(r, 600));
 
   const checks = [
-    ['stat-strip', '统计条', '精写案例'],
+    // 2026-10-14 改版后统计条只留「候选池 / 口径待核 / 覆盖分类」三项，
+    // 「精写案例」挪进了侧栏漏斗（funnel 那项检查盯的是它）
+    ['stat-strip', '统计条', '候选池'],
     ['funnel', '三级漏斗', '原始素材'],
     ['chips', '模式芯片', 'chip'],
     ['grid-cases', '案例卡片网格', 'class="card"'],
     ['grid-cands', '候选池网格', 'class="cand"'],
-    // 精简构建（--no-inbox）里队列是故意不带的，此时应显示「不含采集队列」的说明，
-    // 而不是一排卡片 —— 两种都算通过
-    ['grid-inbox', '采集队列网格', /class="cand"|不含采集队列/],
+    // 精简构建（--no-inbox）里队列是故意不带的，此时应显示「不含采集队列」的说明；
+    // 队列真的空着（CI 的干净 checkout 就是）则是「采集队列是空的」—— 三种都算对，
+    // 不加第三种的话，CI 上这项永远红，红到没人再看它
+    ['grid-inbox', '采集队列网格', /class="cand"|不含采集队列|采集队列是空的/],
     ['src-list', '信息源卡片', 'src-card'],
     ['filterbox', '采集过滤规则', 'rule-tag'],
     ['method', '方法论', 'm-step'],
@@ -637,7 +649,7 @@ function section(title, fn) {
     ck('页面里没有后台入口按钮', !get('admin-btn')._html);
     ck('抽屉里没被塞过登录框', !(get('drawer-body')._html || '').includes('login-pw'));
     ck('统计条正常渲染（说明页面本身是好的）',
-      (get('stat-strip')._html || '').includes('精写案例'));
+      (get('stat-strip')._html || '').includes('候选池'));
   })();
 
   console.log('\n[L] 分档展示（默认视图按档位分三块，筛选后退回平铺）');
