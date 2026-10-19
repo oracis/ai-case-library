@@ -12,7 +12,15 @@ import os
 import sys
 import unittest
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+# Windows 控制台默认 GBK，中文 traceback 会 UnicodeEncodeError。
+# ⚠ 必须用 reconfigure **就地改**，不能 `sys.stdout = io.TextIOWrapper(sys.stdout.buffer, …)`：
+# 新包装器和原 stdout **共享同一个底层 buffer**，等它被后续替换/回收时，
+# TextIOWrapper.__del__ 会把那个 buffer 一并关掉 —— 整池测试的 stdout 当场
+# 死掉（2026-10-19 实测：discover 全量跑由此产生 50 个
+# "I/O operation on closed file" 假错误，还连带 test_wechat_publish
+# 导入 make_article 失败、66 项测试被静默跳过）。
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, ROOT)
 
