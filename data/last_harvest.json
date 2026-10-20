@@ -1,78 +1,78 @@
 {
-  "ran_at": "2026-09-24 05:44:16",
-  "added": 82,
+  "ran_at": "2026-10-20 05:38:09",
+  "added": 153,
   "by_source": {
-    "hn": 48,
+    "hn": 74,
     "indiehackers": 18,
-    "trustmrr": 16
+    "trustmrr": 61
   },
   "inbox_total": 400,
-  "archived_this_run": 82,
-  "archive_total": 600,
+  "archived_this_run": 153,
+  "archive_total": 753,
   "top": [
     {
-      "name": "Car Catcher",
-      "headline": "MRR $336",
+      "name": "Supascribe",
+      "headline": "MRR $2,376，TrustMRR 第 1190 名",
       "heat": 0,
-      "category": "Mobile Apps",
+      "category": "营销工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/car-catcher"
+      "url": "https://trustmrr.com/startup/supascribe"
     },
     {
-      "name": "Wheel of Life",
-      "headline": "MRR $186，TrustMRR 第 1819 名",
+      "name": "Skinmaxx",
+      "headline": "MRR $639，TrustMRR 第 1951 名",
       "heat": 0,
-      "category": "Mobile Apps",
+      "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/wheel-of-life"
+      "url": "https://trustmrr.com/startup/skinmaxx"
     },
     {
-      "name": "CheckForm Gymnastics",
-      "headline": "MRR $1,184，TrustMRR 第 1782 名",
+      "name": "Linkerflow",
+      "headline": "MRR $964，TrustMRR 第 1510 名",
       "heat": 0,
-      "category": "Artificial Intelligence",
+      "category": "营销工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/checkform-gymnastics"
+      "url": "https://trustmrr.com/startup/linkerflow"
     },
     {
-      "name": "Boothie: AI Photo Editor",
-      "headline": "MRR $37,554，TrustMRR 第 521 名",
+      "name": "Salah Lock: Prayer Habit",
+      "headline": "MRR $163，TrustMRR 第 3399 名",
       "heat": 0,
-      "category": "Mobile Apps",
+      "category": "未分类",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/boothie"
+      "url": "https://trustmrr.com/startup/salah-lock-prayer-habit"
     },
     {
-      "name": "CalBox AI Calorie Tracker",
-      "headline": "MRR $538，TrustMRR 第 2149 名",
+      "name": "Lista: AI Crosslisting & Tools",
+      "headline": "MRR $1,036，TrustMRR 第 1332 名",
       "heat": 0,
-      "category": "Artificial Intelligence",
+      "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/sr-apps"
+      "url": "https://trustmrr.com/startup/lista"
     },
     {
-      "name": "KOTrol",
-      "headline": "MRR $54，TrustMRR 第 3804 名",
+      "name": "ZeroGPT Plus",
+      "headline": "MRR $5,370，TrustMRR 第 732 名",
       "heat": 0,
-      "category": "Health & Fitness",
+      "category": "垂直行业 SaaS",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/kotrol"
+      "url": "https://trustmrr.com/startup/zerogpt-plus"
     },
     {
-      "name": "gtm.help",
-      "headline": "MRR $329，TrustMRR 第 4578 名",
+      "name": "FLEART AI",
+      "headline": "MRR $302，TrustMRR 第 3284 名",
       "heat": 0,
-      "category": "Artificial Intelligence",
+      "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/gtm-help"
+      "url": "https://trustmrr.com/startup/appfleart"
     },
     {
-      "name": "RePho: Restore Old Photos",
-      "headline": "MRR $274，TrustMRR 第 2547 名",
+      "name": "Static Forms",
+      "headline": "MRR $978，TrustMRR 第 1902 名",
       "heat": 0,
-      "category": "Mobile Apps",
+      "category": "开发者工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/repho"
+      "url": "https://trustmrr.com/startup/static-forms"
     }
   ]
 }
