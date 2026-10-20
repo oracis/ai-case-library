@@ -87,9 +87,10 @@
  },
  "autoreels-ai": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-20 同步（用户手动发布，已通过列表回读命中）",
    "attempt": 0,
-   "state": "draft_saved",
+   "remote_id": 342371,
+   "state": "published",
    "title": "月收$1.4K：一键把素材剪成短视频"
   },
   "toutiao": {
@@ -191,9 +192,10 @@
  },
  "checkvibe": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-20 同步（用户手动发布，已通过列表回读命中）",
    "attempt": 0,
-   "state": "draft_saved",
+   "remote_id": 342374,
+   "state": "published",
    "title": "月收$3.4K：给 AI 写的应用查漏洞"
   },
   "toutiao": {

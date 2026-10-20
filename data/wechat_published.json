@@ -210,7 +210,7 @@
   "visualizee-ai": {
     "title": "Visualizee.ai：建筑与室内设计的效果图渲染工具",
     "published_at": "2026-10-16 20:18",
-    "status": "draft",
+    "status": "published",
     "appmsgid": "100000783",
     "file": "公众号-visualizee-ai拆解.html",
     "prev_published": {
@@ -219,39 +219,60 @@
       "title": "Visualizee.ai：给建筑师和室内设计师做效果图渲染，两年卡在 $150/月，一次转型跳到 $8.6K",
       "found_by": "sync 2026-10-16：远端已发表列表最新一条（群发后自动离开草稿箱）。2026-10-16 曾据用户记忆误判为「误删」并重建（100000783），实际是旧版早已群发；status=draft 指的是这份更新版草稿。"
     },
-    "refreshed_at": "2026-10-17 17:02"
+    "refreshed_at": "2026-10-17 17:02",
+    "publish_type": "unknown_backend",
+    "sent_via": "backend_manual",
+    "send_reason": "远端编辑器显示此草稿已发表；关联到已发表记录 2247484219（产品名包含（标题被后台改过，需人工确认））",
+    "published_appmsgid": "2247484219",
+    "note": "｜后台已发表（编辑器页面确认），本地由 send 修正",
+    "verified_at": "2026-10-20 22:04"
   },
   "checkvibe": {
     "title": "CheckVibe：扫描 vibe-coded 应用的安全漏洞——转换率翻三倍靠的不是产品，是付费墙的写法",
     "published_at": "2026-09-21 23:19",
-    "status": "draft",
+    "status": "published",
     "appmsgid": "100000196",
     "file": "公众号-checkvibe拆解.html",
-    "refreshed_at": "2026-10-17 17:04"
+    "refreshed_at": "2026-10-17 17:04",
+    "group_sent": true,
+    "synced_at": "2026-10-20 22:17",
+    "sync_note": "远端已发表列表里存在，本地由 sync 回写"
   },
   "storyshort-ai": {
     "title": "StoryShort.ai：自动生成无露脸短视频，靠 TikTok 图文轮播拿到 100+ 付费用户",
     "published_at": "2026-09-21 23:25",
-    "status": "draft",
+    "status": "published",
     "appmsgid": "100000200",
     "file": "公众号-storyshort-ai拆解.html",
-    "refreshed_at": "2026-10-17 17:06"
+    "refreshed_at": "2026-10-17 17:06",
+    "group_sent": true,
+    "synced_at": "2026-10-20 22:17",
+    "sync_note": "远端已发表列表里存在，本地由 sync 回写"
   },
   "meerkats-ai": {
     "title": "Meerkats：替营销公司跑获客",
     "published_at": "2026-10-16 08:02",
-    "status": "draft",
+    "status": "published",
     "appmsgid": "100000526",
     "file": "公众号-meerkats-ai拆解.html",
-    "refreshed_at": "2026-10-16 09:36"
+    "refreshed_at": "2026-10-16 09:36",
+    "group_sent": true,
+    "synced_at": "2026-10-20 22:17",
+    "sync_note": "远端已发表列表里存在，本地由 sync 回写"
   },
   "coral": {
     "title": "Coral：托管你的开源 AI 助手",
-    "published_at": "2026-10-16 08:14",
-    "status": "draft",
+    "published_at": "2026-10-20 22:32",
+    "status": "published",
     "appmsgid": "100000534",
     "file": "公众号-coral拆解.html",
-    "refreshed_at": "2026-10-16 09:40"
+    "refreshed_at": "2026-10-16 09:40",
+    "publish_type": "publish",
+    "published_appmsgid": "2247484557",
+    "sent_via": "send",
+    "send_reason": "已发表列表出现新记录，标题一致",
+    "note": "｜publish模式自动发表，新 appmsgid=2247484557",
+    "verified_at": "2026-10-20 22:32"
   },
   "startclaw": {
     "title": "StartClaw：零配置跑 AI 助手",
