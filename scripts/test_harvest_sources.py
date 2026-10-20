@@ -123,7 +123,7 @@ def test_indiehackers():
     # 有收入才提口径：否则会写出一句自相矛盾的假话
     chk("有收入时给出 caliber", "mo" in rec["_ih"]["caliber"], rec["_ih"]["caliber"])
     norev = H.parse_ih_product(
-        '<html><title>No Rev - Indie Hackers</title>'
+        "<html><title>No Rev - Indie Hackers</title>"
         '<a class="product-metrics__stat product-metrics__stat--posts" href="/x">'
         '<span class="product-metrics__stat-number">2</span></a></html>', "no-rev")
     chk("无收入时不提口径", norev["_ih"]["caliber"] == "", norev["_ih"]["caliber"])
@@ -132,14 +132,14 @@ def test_indiehackers():
 
     print()
     print("[4] Indie Hackers：sitemap 只留干净产品页")
-    xml = ('<urlset>'
-           '<loc>https://www.indiehackers.com/product/userguiding</loc>'
-           '<loc>https://www.indiehackers.com/product/userguiding/new-interface-234</loc>'
-           '<loc>https://www.indiehackers.com/product/visalist/launch-website-3079</loc>'
-           '<loc>https://www.indiehackers.com/product/page-lens-ai</loc>'
-           '<loc>https://www.indiehackers.com/post/12345</loc>'
-           '<loc>https://www.indiehackers.com/product/userguiding</loc>'
-           '</urlset>')
+    xml = ("<urlset>"
+           "<loc>https://www.indiehackers.com/product/userguiding</loc>"
+           "<loc>https://www.indiehackers.com/product/userguiding/new-interface-234</loc>"
+           "<loc>https://www.indiehackers.com/product/visalist/launch-website-3079</loc>"
+           "<loc>https://www.indiehackers.com/product/page-lens-ai</loc>"
+           "<loc>https://www.indiehackers.com/post/12345</loc>"
+           "<loc>https://www.indiehackers.com/product/userguiding</loc>"
+           "</urlset>")
     slugs = H.ih_slugs_from_xml(xml, 100)
     chk("里程碑 URL 被丢掉（含 /）",
         "userguiding/new-interface-234" not in slugs, slugs)
@@ -163,7 +163,7 @@ def test_indiehackers():
     chk("narrative/arrow 里的 arr 不误命中（词边界）",
         H._ih_story("<p>The narrative arrow points left for $5,000.</p>") == "")
     chk("metrics 挂件 $100/mo 不算 milestone",
-        H._ih_story('<a><span>Revenue</span><span>$100</span><span>/</span><span>mo</span></a>')
+        H._ih_story("<a><span>Revenue</span><span>$100</span><span>/</span><span>mo</span></a>")
         == "")
     chk("夹带导航文案的整句被丢弃（宁缺勿脏）",
         H._ih_story("<nav>Sign in Join Visit Website</nav><p>We hit $9K MRR last month.</p>") == "")
@@ -541,13 +541,13 @@ def test_ih_cursor():
     def fake_fetch(url, timeout=30):
         calls.append(url)
         if url == H.IH_SITEMAP:
-            return ('<sitemapindex>'
-                    '<loc>https://x/shard1.xml</loc>'
-                    '<loc>https://x/shard2.xml</loc>'
-                    '<loc>https://x/shard3.xml</loc>'
-                    '</sitemapindex>')
+            return ("<sitemapindex>"
+                    "<loc>https://x/shard1.xml</loc>"
+                    "<loc>https://x/shard2.xml</loc>"
+                    "<loc>https://x/shard3.xml</loc>"
+                    "</sitemapindex>")
         if "shard" not in url:                     # 产品详情页
-            return ('<html><title>%s - Indie Hackers</title>'
+            return ("<html><title>%s - Indie Hackers</title>"
                     '<a class="product-metrics__stat product-metrics__stat--revenue" href="/x">'
                     '<span class="product-metrics__stat-label">Revenue</span>'
                     '<div class="product-metrics__stat-value">'
@@ -556,11 +556,11 @@ def test_ih_cursor():
                     % url.rsplit("/", 1)[-1])
         # 每个分片给 3 个不同的产品 slug
         n = url.split("shard")[1].split(".")[0]
-        return ('<urlset>'
-                + "".join('<loc>https://www.indiehackers.com/product/p%s-%d</loc>' % (n, k)
+        return ("<urlset>"
+                + "".join("<loc>https://www.indiehackers.com/product/p%s-%d</loc>" % (n, k)
                           for k in range(3))
-                + '<loc>https://www.indiehackers.com/product/p%s-0/milestone-1</loc>' % n
-                + '</urlset>')
+                + "<loc>https://www.indiehackers.com/product/p%s-0/milestone-1</loc>" % n
+                + "</urlset>")
 
     try:
         H._fetch_html = fake_fetch
@@ -601,8 +601,8 @@ def test_ih_cursor():
         def empty_shard_fetch(url, timeout=30):
             calls.append(url)
             if url == H.IH_SITEMAP:
-                return '<sitemapindex><loc>https://x/shard9.xml</loc></sitemapindex>'
-            return '<urlset><loc>https://www.indiehackers.com/post/1</loc></urlset>'
+                return "<sitemapindex><loc>https://x/shard9.xml</loc></sitemapindex>"
+            return "<urlset><loc>https://www.indiehackers.com/post/1</loc></urlset>"
 
         H._fetch_html = empty_shard_fetch
         H._fetch_html_bounded = lambda url, **kw: empty_shard_fetch(url)

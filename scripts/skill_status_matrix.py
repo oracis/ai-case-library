@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """汇总本地已安装 skill 在 SkillHub / ClawHub 的发布状态。
 
 SkillHub 判据： signature 端点 200 = 该版本已公开。

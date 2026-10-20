@@ -264,7 +264,7 @@ def check_growth_claims(data, s):
         return []
     # 文案里含字面量百分号，用 % 格式化会炸
     # TypeError: not enough arguments for format string —— 改用 f-string
-    return [f"写了素材没给的增速（{'、'.join(bad[:5])}）—— 素材没给增速"
+    return [f"写了素材没给的增速（{"、".join(bad[:5])}）—— 素材没给增速"
             f"就一个字都别写；毛利率要写成「毛利率 80%」这种明确说法，"
             f"不要写成增长"]
 

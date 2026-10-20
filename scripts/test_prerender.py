@@ -268,7 +268,7 @@ def main():
     # ---------------------------------------------------------- 5 转义
     print("\n[5] 转义与注入防护")
     evil = {
-        "id": "evil", "name": '<script>alert(1)</script>', "one_liner": 'a & b <i>x</i>',
+        "id": "evil", "name": "<script>alert(1)</script>", "one_liner": "a & b <i>x</i>",
         "verdict": '"><img src=x onerror=alert(1)>',
         "what_it_does": "5 > 3 && 2 < 4", "why_it_works": ["<b>不加粗</b>"],
         "corrections": [{"claim": "<svg onload=alert(1)>", "truth": "x", "source": 'a"b'}],
@@ -289,7 +289,7 @@ def main():
     # ---------------------------------------------------------- 6 索引与 sitemap
     print("\n[6] 索引页与 sitemap")
     idx = m.render_index_page(cases, {"site": site})
-    miss = [c["id"] for c in cases if './%s.html' % c["id"] not in idx]
+    miss = [c["id"] for c in cases if "./%s.html" % c["id"] not in idx]
     chk("索引页含全部案例链接", not miss, ",".join(miss[:3]))
     chk("索引页有正文（非空壳）", len(plain_text(idx)) > 400)
 
@@ -324,7 +324,7 @@ def main():
         victim = os.path.join(tmp, "case", "%s.html" % cases[0]["id"])
         with open(victim, "w", encoding="utf-8") as f:
             f.write("<!DOCTYPE html><html><head><title>x</title></head>"
-                    '<body><article>太短</article></body></html>')
+                    "<body><article>太短</article></body></html>")
         chk("自检能抓出空壳页面", bool(m.check_pages(tmp, cases, verbose=False)))
         os.remove(victim)
         chk("删掉一页后自检报缺页", bool(m.check_pages(tmp, cases, verbose=False)))

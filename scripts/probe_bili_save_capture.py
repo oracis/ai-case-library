@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """**抓 B站「保存为草稿」的真实请求体**（2026-10-01 定案脚本）。
 
 为什么需要这个：`draft/add` 的 `arg` 用 `URLSearchParams` 拼回去一律

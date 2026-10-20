@@ -39,17 +39,17 @@ CALIBERS = [
 
 # 该搜的关键组合
 SEARCH_TEMPLATES = [
-    ('"{c}" 融资 / 收入 官方披露', 'https://www.bing.com/search?q={q}'),
-    ('"{c}" ARR revenue verified', 'https://www.google.com/search?q={q}'),
-    ('"{c}" on TrustMRR', 'https://trustmrr.com/search?q={q}'),
-    ('"{c}" site:indiehackers.com', 'https://www.bing.com/search?q={q}'),
-    ('"{c}" site:news.ycombinator.com', 'https://hn.algolia.com/?q={q}'),
+    ('"{c}" 融资 / 收入 官方披露', "https://www.bing.com/search?q={q}"),
+    ('"{c}" ARR revenue verified', "https://www.google.com/search?q={q}"),
+    ('"{c}" on TrustMRR', "https://trustmrr.com/search?q={q}"),
+    ('"{c}" site:indiehackers.com', "https://www.bing.com/search?q={q}"),
+    ('"{c}" site:news.ycombinator.com', "https://hn.algolia.com/?q={q}"),
 ]
 
 DIRECT_ENTRIES = [
-    ('官网首页', 'https://{d}'),
-    ('定价页（判断客单价与计费模式）', 'https://{d}/pricing'),
-    ('关于 / 团队页', 'https://{d}/about'),
+    ("官网首页", "https://{d}"),
+    ("定价页（判断客单价与计费模式）", "https://{d}/pricing"),
+    ("关于 / 团队页", "https://{d}/about"),
 ]
 
 

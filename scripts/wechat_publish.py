@@ -636,14 +636,14 @@ def cover_html(c, no, w=1080, h=460):
     # 好：空 div 靠 margin-top:20px 撑出一道无意义的空隙。
     line_block = (
         '<div id="t-line" style="font-size:%dpx;font-weight:500;color:%s;'
-        'line-height:1.45;margin-top:20px;overflow:hidden;'
+        "line-height:1.45;margin-top:20px;overflow:hidden;"
         'text-overflow:ellipsis;white-space:nowrap;">%s</div>' % (f_line, ac, esc(line))
         if line else ""
     )
 
     body = (
         '<div style="position:relative;width:%dpx;height:%dpx;'
-        'background:linear-gradient(100deg,%s 0%%,%s 63%%,%s 63%%,%s 100%%);'
+        "background:linear-gradient(100deg,%s 0%%,%s 63%%,%s 63%%,%s 100%%);"
         "font-family:'PingFang SC','Microsoft YaHei','Noto Sans CJK SC',sans-serif;"
         'box-sizing:border-box;overflow:hidden;">'
         # 左侧强调竖条
@@ -659,13 +659,13 @@ def cover_html(c, no, w=1080, h=460):
         '<div style="font-size:17px;font-weight:700;color:%s;'
         'letter-spacing:6px;">CASE STUDY</div>'
         '<div id="t-name" style="font-size:%dpx;font-weight:800;color:#ffffff;'
-        'line-height:1.1;margin-top:20px;overflow:hidden;'
+        "line-height:1.1;margin-top:20px;overflow:hidden;"
         'text-overflow:ellipsis;white-space:nowrap;">%s</div>'
         "%s"
-        '</div>'
+        "</div>"
         '<div style="position:absolute;right:56px;bottom:38px;font-size:17px;'
         'color:rgba(255,255,255,.72);letter-spacing:2px;">%s</div>'
-        '</div>'
+        "</div>"
         % (w, h, base, band, band, band, ac, ac, ac,
            _COVER_TEXT_W, ac, f_name, esc(name), line_block, tag)
     )

@@ -759,7 +759,7 @@ def harvest_trustmrr_html(limit):
     items = []
 
     # --- 1) JSON-LD 里的 Top startups by verified revenue ---
-    for block in re.findall(r'<script[^>]*application/ld\+json[^>]*>(.*?)</script>', page, re.S):
+    for block in re.findall(r"<script[^>]*application/ld\+json[^>]*>(.*?)</script>", page, re.S):
         try:
             data = json.loads(block)
         except Exception:                                      # noqa: BLE001
@@ -786,7 +786,7 @@ def harvest_trustmrr_html(limit):
             })
 
     # --- 2) 市场挂牌卡片 ---
-    cards = re.split(r'FOR SALE', page)
+    cards = re.split(r"FOR SALE", page)
     seen = set()
     for c in cards[1:]:
         card = c[:2200]                     # 只看卡片内部，避免串到下一张
@@ -798,11 +798,11 @@ def harvest_trustmrr_html(limit):
             continue
 
         # Price / Multiple
-        price_m = re.search(r'Price</p>\s*<p[^>]*>\s*\$?([\d\.]+)\s*([km])?', card)
-        mult_m = re.search(r'Multiple</p>\s*<p[^>]*>\s*([\d\.]+)x', card)
-        rev_m = re.search(r'Revenue</p>\s*<p[^>]*>\s*\$?([\d\.]+)\s*([km])?', card)
+        price_m = re.search(r"Price</p>\s*<p[^>]*>\s*\$?([\d\.]+)\s*([km])?", card)
+        mult_m = re.search(r"Multiple</p>\s*<p[^>]*>\s*([\d\.]+)x", card)
+        rev_m = re.search(r"Revenue</p>\s*<p[^>]*>\s*\$?([\d\.]+)\s*([km])?", card)
         # 分类：卡片里第一个 uppercase 小标签
-        cat_m = re.search(r'uppercase[^>]*>([A-Za-z &\-]{3,30})</', card)
+        cat_m = re.search(r"uppercase[^>]*>([A-Za-z &\-]{3,30})</", card)
 
         def fmt(m):
             if not m:

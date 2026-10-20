@@ -453,12 +453,12 @@ class MetaFallbackTest(unittest.TestCase):
     服务端渲染的，不含收入数字但能说明「这家是做什么的」，比空手强。
     """
 
-    STAN = ('<!doctype html><html><head>'
+    STAN = ("<!doctype html><html><head>"
             '<meta hid="og:title" property="og:title" content="Stan - Your Creator Store"/>'
             '<meta hid="description" ame="description" content="Mak Money Creating Stan profile"/>'
-            '<title>Stan - Your Creator Store</title>'
+            "<title>Stan - Your Creator Store</title>"
             '</head><body><div id="app"></div>'
-            '<noscript>enable JavaScript</noscript></body></html>')
+            "<noscript>enable JavaScript</noscript></body></html>")
 
     def test_从meta抠摘要_含拼错的name(self):
         vals = A.page_meta(self.STAN)
@@ -490,9 +490,9 @@ class MetaFallbackTest(unittest.TestCase):
         # SPA 兜底那段「JS 渲染」话术不能出现（正文明明抓到了）。
         orig = A.http_get
         try:
-            body = ('<html><head>'
+            body = ("<html><head>"
                     '<meta property="og:title" content="结构化标题"/>'
-                    '</head><body>' + ("真正的正文。" * 40) + "</body></html>")
+                    "</head><body>" + ("真正的正文。" * 40) + "</body></html>")
             A.http_get = lambda u, **kw: body
             t = A.fetch_text("https://x.example/")
             self.assertIn("真正的正文", t)
