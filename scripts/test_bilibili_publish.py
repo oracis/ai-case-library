@@ -813,5 +813,169 @@ class TestCoverForce(unittest.TestCase):
                         "应是无条件调用（返回值丢弃）")
 
 
+class TestPublishVerdict(unittest.TestCase):
+    """`publish_verdict`：发布按钮能不能点，以及**为什么**不能点。
+
+    判据的顺序本身是重点 —— 2026-10-20 之前就是因为先看 disabled 后看提示，
+    把「当日投稿额度用完」误诊成了「headless 封面校验」，白绕了一整天。
+    """
+
+    READY = {"found": True, "disabled": False, "cls": "vui_button vui_button--blue",
+             "x": 1064, "y": 801, "w": 88, "h": 36}
+
+    def _st(self, **kw):
+        s = dict(self.READY)
+        s.update(kw)
+        return s
+
+    def test_可点时返回True(self):
+        ok, why = bp.publish_verdict(self.READY)
+        self.assertTrue(ok, why)
+        self.assertIn("可点", why)
+
+    def test_额度用完优先于disabled(self):
+        """灰按钮 + 额度提示 ⇒ 必须报额度，不许报「封面/正文没过校验」。"""
+        ok, why = bp.publish_verdict(self._st(
+            disabled=True, cls="vui_button vui_button--blue vui_button--disabled",
+            quota=True, hint="已达到当日投稿上限"))
+        self.assertFalse(ok)
+        self.assertIn("投稿上限", why)
+        self.assertNotIn("封面", why, "别再把额度问题栽赃给封面：%s" % why)
+
+    def test_灰按钮但不是额度_报未知原因(self):
+        ok, why = bp.publish_verdict(self._st(disabled=True))
+        self.assertFalse(ok)
+        self.assertIn("灰", why)
+        # 「B站限 N 篇/天」是额度分支独有的话术；没走那条分支就不许出现
+        self.assertNotIn("B站限", why, "别误导成额度问题：%s" % why)
+
+    def test_找不到按钮(self):
+        ok, why = bp.publish_verdict({"found": False, "quota": False})
+        self.assertFalse(ok)
+        self.assertIn("没找到", why)
+
+    def test_空状态不是可点(self):
+        """读不到状态 ≠ 可以点。静默放行是假绿的另一种写法。"""
+        for st in ({}, None):
+            ok, why = bp.publish_verdict(st)
+            self.assertFalse(ok, repr(st))
+            self.assertTrue(why)
+
+    def test_额度用完按钮都没渲染(self):
+        ok, why = bp.publish_verdict({"found": False, "quota": True,
+                                      "hint": "已达到当日投稿上限"})
+        self.assertFalse(ok)
+        self.assertIn("投稿上限", why)
+
+    def test_额度报错用页面原话_不自己编数字(self):
+        """额度几篇/天跟账号等级有关（LV1–3 是 1 篇、LV4–6 5 篇），本账号
+        今天发 1 篇就到顶了 → 脚本不猜数字，直接把编辑器顶上的原话搬过来。
+        """
+        ok, why = bp.publish_verdict(self._st(
+            disabled=True, quota=True, hint="已达到当日投稿上限"))
+        self.assertFalse(ok)
+        self.assertIn("已达到当日投稿上限", why)
+        self.assertNotIn("5 篇", why, "别替平台编额度：%s" % why)
+
+
+class TestPickTargetDraft(unittest.TestCase):
+    """`send-draft --case X` 必须发 X 自己的草稿。
+
+    早期版本：--case 只用来反查 cid，**实际发的是最久那条**，还把发布结果
+    记到 X 头上 —— 指定 A、发出 B、账写 A。这条用例就是钉死这个 bug 的。
+    """
+
+    POOL = [
+        {"article_id": 111, "title": "Aaa：最早的", "mtime": 100},
+        {"article_id": 222, "title": "Bbb：中间的", "mtime": 200},
+        {"article_id": 333, "title": "Ccc：最晚的", "mtime": 300},
+    ]
+
+    def test_不给cid就挑最久的(self):
+        d, why = bp._pick_target_draft(self.POOL)
+        self.assertEqual(d["article_id"], 111, why)
+        self.assertIn("最久", why)
+
+    def test_给了cid就挑它的_不是最久的(self):
+        def _html(cid):
+            return "<h1>x</h1>"
+
+        def _title(cid, html):
+            return "Ccc：最晚的"
+
+        old, oldt = bp.load_article_html, bp.make_title
+        try:
+            bp.load_article_html, bp.make_title = _html, _title
+            d, why = bp._pick_target_draft(self.POOL, "ccc")
+        finally:
+            bp.load_article_html, bp.make_title = old, oldt
+        self.assertEqual(d["article_id"], 333, why)
+        self.assertNotEqual(d["article_id"], 111, "不许发最久那条凑数")
+
+    def test_标题被改过就退到含case名(self):
+        d, why = bp._match_case_draft(
+            self.POOL, "bbb", "Bbb：线上改过标题（不等于预期）")
+        self.assertEqual(d["article_id"], 222, why)
+        self.assertIn("case 名", why)
+
+    def test_匹配不上要报不知道(self):
+        d, why = bp._match_case_draft(self.POOL, "zzz", "无关标题")
+        self.assertIsNone(d)
+        self.assertIn("zzz", why)
+
+    def test_send_draft用_pick而不是直接取第一条(self):
+        import inspect
+        src = inspect.getsource(bp.send_draft)
+        self.assertIn("_pick_target_draft", src)
+        self.assertNotIn("oldest = pool[0]", src)
+
+
+class TestPublishStateJs(unittest.TestCase):
+    """挖状态/点击的三段 JS 必须真的查 iframe、真的判 disabled。
+
+    不做 CSS 选择器层面的「橡皮图章」断言，只验它们含关键语义；形变=no-op
+    的坑已经在 `TestCoverHelpers` 里交过学费了。
+    """
+
+    def test_状态JS先找按钮再看文案(self):
+        self.assertIn("read-editor", bp.JS_PUBLISH_STATE)
+        self.assertIn("contentDocument", bp.JS_PUBLISH_STATE)
+        self.assertIn("已达到当日投稿上限", bp.JS_PUBLISH_STATE)
+        self.assertIn("disabled", bp.JS_PUBLISH_STATE)
+
+    def test_点击JS灰按钮不许点(self):
+        """disabled 时返回 'disabled' 而不是照样 click 一下假装点过。"""
+        self.assertIn("if(b.disabled) return 'disabled';", bp.JS_CLICK_PUBLISH)
+
+    def test_确认弹窗只点发布相关的(self):
+        """别对着任意弹窗点「确定」—— 旁边就是不可逆的删除类按钮。"""
+        self.assertIn("发布|投稿|专栏", bp.JS_CONFIRM_DIALOG)
+        self.assertIn("not-publish-dialog", bp.JS_CONFIRM_DIALOG)
+
+    def test_成功提示认toast文案(self):
+        self.assertIn("提交成功", bp.JS_SUCCESS_HINT)
+
+    def test_send_draft走UI发布(self):
+        """send-draft 必须是真发布：不许再拿 submit=1 糊弄。
+
+        ⚠ 只看**可执行代码**，不看 docstring —— 文档里引用历史结论
+        （「submit=1 不发布」）是应当的，拿它当断言素材会把「写清楚了」
+        判成「还在干」（`Ut f(col)` 那条老规矩：量执行载体，不量字面叙述）。
+        """
+        import ast
+        import inspect
+        src = inspect.getsource(bp.send_draft)
+        tree = ast.parse(src.lstrip())
+        fn = tree.body[0]
+        if (fn.body and isinstance(fn.body[0], ast.Expr)
+                and isinstance(fn.body[0].value, ast.Constant)):
+            fn.body = fn.body[1:]            # 剥掉 docstring
+        code = ast.unparse(fn)
+        self.assertIn("ui_publish_draft", code)
+        self.assertNotIn("submit", code,
+                         "submit=1 只存草稿不发布，不能当发布出口：\n%s" % code)
+        self.assertNotIn("save_via_api", code)
+
+
 if __name__ == "__main__":
     unittest.main()

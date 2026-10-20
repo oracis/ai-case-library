@@ -141,9 +141,32 @@ class TestRegistry(unittest.TestCase):
         self.assertFalse(REGISTRY["bilibili"].has_state_file,
                          "B站草稿只在远端，本地无状态文件")
 
-    def test_bilibili_cannot_publish(self):
-        """脚本只点「保存为草稿」，没有 --yes。"""
-        self.assertFalse(REGISTRY["bilibili"].supports_publish)
+    def test_bilibili_can_publish_but_via_send_draft(self):
+        """B站的发布入口是 `send-draft`，**不是** `publish`。
+
+        `bilibili_publish.py publish` 是存草稿（`draft/add`），而且**没有
+        `--yes`** 这个参数 —— 按基类的写法拼 `publish --case X --yes`
+        会直接被 argparse 拒（unrecognized arguments，退出 2）。
+        """
+        ad = REGISTRY["bilibili"]
+        self.assertTrue(ad.supports_publish)
+        seen = []
+
+        def fake_run(args, enabled=True, timeout=1800, full=False):
+            seen.append(list(args))
+            return base.Result(True, "published", "ok")
+
+        old = ad.run
+        try:
+            ad.run = fake_run
+            ad.publish(A.Article("prosp", "PROSP"), yes=True)
+            ad.publish(A.Article("prosp", "PROSP"), yes=False)
+        finally:
+            ad.run = old
+        self.assertEqual(seen[0], ["send-draft", "--case", "prosp"])
+        self.assertNotIn("--yes", seen[0])
+        self.assertNotIn("--yes", seen[1], "基类也不许给 B站 publish 加 --yes")
+        self.assertEqual(seen[1][:2], ["publish", "--case"])
 
     def test_dry_result_not_executed(self):
         r = base.Result(True, "pending", "dry")
@@ -242,20 +265,27 @@ class TestRunnerLogic(unittest.TestCase):
 
         为什么钉这条：默认「发出去」是用户的意图，平台却只能到草稿。
         安静降级 ⇒ 用户以为四条都发了，回头发现两个平台还躺在草稿箱。
+
+        ⚠ B站 2026-10-20 起 `send-draft` 能真发布，`supports_publish` 已经是
+        True，**走不到这条分支**。所以这里把它临时伪装成草稿平台
+        （patch `supports_publish=False`）—— 要钉的是 runner 那条守卫，
+        不是 B站的能力。换成公众号会撞上「prosp 在公众号已登记 → skip」，
+        那条路与「安静降级」无关，别混在一起。
         """
         from unittest import mock
         r = runner.Runner(["bilibili"], dry=False, yes=True,
                           manifest=self.m, verbose=False)
         ad = REGISTRY["bilibili"]
-        self.assertFalse(ad.supports_publish)
         ok = base.Result(True, "draft_saved", "已存草稿")
-        with mock.patch.object(ad, "missing_artifacts", return_value=[]), \
+        with mock.patch.object(ad, "supports_publish", False), \
+                mock.patch.object(ad, "missing_artifacts", return_value=[]), \
                 mock.patch.object(ad, "build", return_value=ok), \
                 mock.patch.object(ad, "publish", return_value=ok):
+            self.assertFalse(ad.supports_publish, "伪装必须真的生效")
             self.assertEqual(r.run_one(A.Article("prosp", "PROSP"),
                                        "bilibili"), "ok")
         self.assertEqual(self.m.state("prosp", "bilibili"), "draft_saved")
-        self.assertIn("B站专栏", r._draft_only)
+        self.assertIn(ad.label, r._draft_only, "降级必须当场点名是哪个平台")
 
 
 class TestBilibiliReader(unittest.TestCase):

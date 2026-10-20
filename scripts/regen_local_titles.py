@@ -53,7 +53,11 @@ def main():
             if plat in entry and isinstance(entry[plat], dict):
                 entry[plat]["title"] = fn(c)
                 n_man += 1
-    text = json.dumps(man, ensure_ascii=False, indent=2)
+    # ⚠ 缩进必须是 1 + sort_keys：publish_manifest.json 的规范格式在
+    #   `multiplatform/state.py` 的 `Manifest.save`（indent=1, sort_keys=True）。
+    #   2026-10-20 之前这里是 indent=2，每次跑完 git diff 多出三千行
+    #   纯格式噪音（与 `bilibili_publish._mark_manifest_published` 同病）。
+    text = json.dumps(man, ensure_ascii=False, indent=1, sort_keys=True)
     text = text.replace("\n", eol)    # 保留原行尾
     with open(mp, "w", encoding="utf-8", newline="") as f:
         f.write(text)
