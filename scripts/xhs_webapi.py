@@ -49,6 +49,13 @@ window._webmsxyw(<签名对象>, <data>)   // → {X-s, X-t, X-s-Common}
   CORS 预检其实是放行的（`Access-Control-Allow-Headers: content-type,x-s,x-t,x-s-common`），
   失败发生在**签名不匹配**时服务端返回的响应不带 CORS 头。⇒ 优先用
   `creator.xiaohongshu.com/api/...` 同源接口。
+- ⚠ **`user/posted` 只返回最老的一小撮，不是全量**（2026-10-20 实测）：
+  笔记管理页「全部 18」，`posted` 恒返回固定 8 条（2026-09-30 ~ 10-06 那批），
+  `page`/`page_size` 怎么调都是这 8 条（page=2 直接 0 条）——10-08 之后的
+  10 篇（含 PROSP 10-20、Meerkats、Boothie…）它一条都没有。
+  ⇒ **「接口里查不到」不等于「线上没有」**：判某篇在不在，要以
+  `creator.xiaohongshu.com/new/note-manager` 的卡片为准（滚容器 + `.note-card__title`）。
+  反过来也别拿「接口列表 N→N-1」当全量对账，它只是那 8 条里少了一条。
 - 这是**读**为主的能力。**创建**笔记（`web_api/sns/v2/note`）仍被 461 拦死；
   但**删除**已打通（`capa/postgw` 另一个网关），用 `scripts/xhs_delete.py`，
   别在这里直接拼写请求。
