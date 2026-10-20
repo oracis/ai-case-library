@@ -272,7 +272,8 @@ def main():
         "verdict": '"><img src=x onerror=alert(1)>',
         "what_it_does": "5 > 3 && 2 < 4", "why_it_works": ["<b>不加粗</b>"],
         "corrections": [{"claim": "<svg onload=alert(1)>", "truth": "x", "source": 'a"b'}],
-        "sources": [{"label": "<script>x</script>", "url": "https://e.com/?a=1&b=2", "kind": "official"}],
+        "sources": [{"label": "<script>x</script>", "url": "https://e.com/?a=1&b=2",
+                     "kind": "official"}],
         "metrics": {"headline": "<b>nope</b>"}, "tags": ["<script>"],
     }
     he = m.render_case_page(evil, {"site": site})

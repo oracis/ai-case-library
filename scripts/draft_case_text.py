@@ -381,7 +381,8 @@ def facts_card(slug, s, md):
     lines.append("近 30 天已验证收入：%s" % (s.get("rev_30d") or "未公开"))
     lines.append("累计：%s" % (s.get("all_time") or "未公开"))
     lines.append("活跃订阅数：%s" % (s.get("active_subs") if s.get("active_subs") else "未公开/非订阅制"))
-    lines.append("毛利率：%s" % (s.get("profit_margin") if s.get("profit_margin") is not None else "未公开"))
+    lines.append("毛利率：%s"
+                 % (s.get("profit_margin") if s.get("profit_margin") is not None else "未公开"))
     lines.append("近 30 天增速：%s" % (s.get("growth_30d") if s.get("growth_30d") is not None else "未给"))
     lines.append("MRR 增速：%s" % (s.get("mrr_growth") if s.get("mrr_growth") is not None else "未给"))
 

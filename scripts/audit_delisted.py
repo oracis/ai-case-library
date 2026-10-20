@@ -166,7 +166,8 @@ def probe(slug, retries=3):
         "mrr_growth_30d": g(r"Last 30 days MRR growth:\s*\*{0,2}([\-\+\d\.]+)%"),
         "revenue_growth_30d": g(r"Last 30 days revenue growth:\s*\*{0,2}([\-\+\d\.]+)%"),
         "all_time": g(r"All-time revenue snapshot:\s*\$([\d,\.]+)"),
-        "subscriptions": g(r"Current active subscriptions:\s*([\d,]+)", lambda s: int(s.replace(",", ""))),
+        "subscriptions": g(r"Current active subscriptions:\s*([\d,]+)",
+                           lambda s: int(s.replace(",", ""))),
         "profit_margin": g(r"Last 30 days profit margin:\s*([\d\.]+)%"),
     }
     # 兼容旧字段名：本项目主口径是 MRR（红线 1），所以 `growth_30d`
@@ -307,9 +308,11 @@ def main():
             for rid, name, live in gone:
                 rec = results[rid][0]
                 mm = rec.get("metrics") or {}
+                # ⚠ 2026-10-21 % 无千分位说明符，format(v, ",.0f") 补上后仍走 %（§2.2）
                 cache = "MRR $%s / 累计 $%s" % (
-                    "{:,.0f}".format(mm["mrr"]) if isinstance(mm.get("mrr"), (int, float)) else "?",
-                    "{:,.0f}".format(mm["all_time"]) if isinstance(mm.get("all_time"), (int, float)) else "?")
+                    format(mm["mrr"], ",.0f") if isinstance(mm.get("mrr"), (int, float)) else "?",
+                    format(mm["all_time"], ",.0f")
+                    if isinstance(mm.get("all_time"), (int, float)) else "?")
                 print("   %-32s %-20s %s" % (rid[:32], str(name)[:20], cache))
         if unknown:
             print("\n? 无法判定 %d 条（网络/超时，不等于下架）：%s"

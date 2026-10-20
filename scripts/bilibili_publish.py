@@ -541,17 +541,20 @@ def probe():
     ctxs = sub.collect_contexts(timeout=15)
     print("=== contexts ===")
     for c in ctxs:
-        print("  ctx %s %s name=%s" % (c["id"], "default" if c["isDefault"] else "iframe", c.get("name")))
+        print("  ctx %s %s name=%s"
+              % (c["id"], "default" if c["isDefault"] else "iframe", c.get("name")))
     for c in ctxs:
         cid = c["id"]
         try:
             d = sub.eval("""(function(){
               function cls(e){ return (e.className||'').toString().slice(0,60); }
               return {
-                edits: [].slice.call(document.querySelectorAll('[contenteditable]')).map(function(e){
+                edits: [].slice.call(document.querySelectorAll('[contenteditable]'))
+                  .map(function(e){
                   return {cls:cls(e), tag:e.tagName};
                 }).slice(0,8),
-                inputs: [].slice.call(document.querySelectorAll('textarea,input')).map(function(e){
+                inputs: [].slice.call(document.querySelectorAll('textarea,input'))
+                  .map(function(e){
                   return {ph:(e.getAttribute('placeholder')||''), cls:cls(e)};
                 }).slice(0,8),
                 btns: [].slice.call(document.querySelectorAll('button')).map(function(e){

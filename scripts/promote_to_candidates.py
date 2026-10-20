@@ -171,7 +171,8 @@ OVERRIDE_RETAIN = {
 def fmt_money(v):
     if not isinstance(v, (int, float)) or isinstance(v, bool):
         return "?"
-    return "${:,.0f}".format(v)
+    # ⚠ 2026-10-21 % 无千分位说明符，format(v, ",.0f") 补上后仍走 %（§2.2）
+    return "$%s" % format(v, ",.0f")
 
 
 def calendar_month_growth(monthly, synced_at):

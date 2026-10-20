@@ -120,7 +120,7 @@ def print_entries(company, domain=None):
     links = []
     for label, tmpl in SEARCH_TEMPLATES:
         url = tmpl.replace("{q}", q)
-        links.append((label.format(c=company), url))
+        links.append((label.replace("{c}", company), url))
     for label, url in links:
         print("  · %s\n    %s" % (label, url))
 

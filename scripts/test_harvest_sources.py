@@ -153,7 +153,8 @@ def test_indiehackers():
     print("[5] Indie Hackers：story 抽取（唯一拿得到「怎么做到的」的地方）")
     chk("passed $20K MRR 句式",
         H._ih_story("<p>Firstly, we've passed $20K MRR today!</p>")
-        == "Firstly, we've passed $20K MRR today!", H._ih_story("<p>Firstly, we've passed $20K MRR today!</p>"))
+        == "Firstly, we've passed $20K MRR today!",
+        H._ih_story("<p>Firstly, we've passed $20K MRR today!</p>"))
     chk("reached $150,000 ARR 句式",
         "$150,000 ARR" in H._ih_story("<p>We reached $150,000 ARR in about eight months.</p>"))
     chk("MRR is $4,200 句式",
@@ -162,7 +163,8 @@ def test_indiehackers():
     chk("narrative/arrow 里的 arr 不误命中（词边界）",
         H._ih_story("<p>The narrative arrow points left for $5,000.</p>") == "")
     chk("metrics 挂件 $100/mo 不算 milestone",
-        H._ih_story('<a><span>Revenue</span><span>$100</span><span>/</span><span>mo</span></a>') == "")
+        H._ih_story('<a><span>Revenue</span><span>$100</span><span>/</span><span>mo</span></a>')
+        == "")
     chk("夹带导航文案的整句被丢弃（宁缺勿脏）",
         H._ih_story("<nav>Sign in Join Visit Website</nav><p>We hit $9K MRR last month.</p>") == "")
     chk("内联 JS 不会污染摘要",
@@ -316,7 +318,8 @@ def test_integration():
                              "note": "自报，需交叉核对。"}}]
 
         def fake_tm(limit):
-            return [{"name": "TM Thing", "one_liner": "verified", "url": "https://trustmrr.com/startup/tm",
+            return [{"name": "TM Thing", "one_liner": "verified",
+                     "url": "https://trustmrr.com/startup/tm",
                      "website": "https://tm.example", "points": 0, "comments": 0,
                      "created_at": "2026-09-01", "_blob": "TM Thing mrr revenue verified",
                      "_origin": "trustmrr", "_verified_rank": True}]

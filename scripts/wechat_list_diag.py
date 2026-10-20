@@ -78,7 +78,8 @@ def pager_info(cdp):
       var info={};
       // 分页按钮：weui 分页
       var pager=document.querySelector('.weui-desktop-pagination,.weui-pagination');
-      info.pager_text = pager ? (pager.innerText||'').replace(/\\s+/g,' ').trim().slice(0,300) : null;
+      info.pager_text = pager
+        ? (pager.innerText||'').replace(/\\s+/g,' ').trim().slice(0,300) : null;
       // 每页条数下拉
       var sel=document.querySelector('select');
       info.selects=[];

@@ -231,7 +231,8 @@ class MapTest(unittest.TestCase):
 
     def test_有修正表_corrections_found自动给分(self):
         ai = good_ai(corrections=[
-            {"claim": "累计收入 $424K", "truth": "是 MRR", "source": "https://trustmrr.com/company/gojiberryai"}])
+            {"claim": "累计收入 $424K", "truth": "是 MRR",
+             "source": "https://trustmrr.com/company/gojiberryai"}])
         draft = A.map_ai_to_draft(CAND, ai, publish_mode=False)
         self.assertIn("corrections_found", draft["bonus"])
 

@@ -206,7 +206,8 @@ class Basics(unittest.TestCase):
         # 评论原文里的数字不算
         self.assertFalse(T.has_numbers(rec(metrics={
             "headline": "未获取",
-            "hn_discussion": "Java client for TypeSafe AI's System One API (POST /v1/systemone)."})),
+            "hn_discussion": "Java client for TypeSafe AI's System One API "
+                             "(POST /v1/systemone)."})),
             "评论里的 v1 被当成了项目的数字")
         self.assertFalse(T.has_numbers(rec(metrics={
             "headline": "未获取",
@@ -269,17 +270,22 @@ class Basics(unittest.TestCase):
         self.assertEqual(got, 84)
 
     def test_关注度(self):
-        self.assertEqual(T.attention_of(rec(note="自动采集（Hacker News，发布于 2026-09-11，3531 分 / 42 条讨论）")),
-                         (3531, 42))
+        self.assertEqual(
+            T.attention_of(rec(note="自动采集（Hacker News，发布于 2026-09-11，3531 分 / 42 条讨论）")),
+            (3531, 42))
         self.assertEqual(T.attention_of(rec(note="无此项")), (None, None))
 
     def test_来源推断(self):
-        self.assertEqual(T.source_of(rec(harvest_source="", source_url="https://trustmrr.com/startup/x")),
-                         "trustmrr")
-        self.assertEqual(T.source_kind_of(rec(harvest_source="trustmrr", source_kind="")), "verified")
-        self.assertEqual(T.source_kind_of(rec(harvest_source="hn", source_kind="")), "self_reported")
+        self.assertEqual(
+            T.source_of(rec(harvest_source="", source_url="https://trustmrr.com/startup/x")),
+            "trustmrr")
+        self.assertEqual(T.source_kind_of(rec(harvest_source="trustmrr", source_kind="")),
+                         "verified")
+        self.assertEqual(T.source_kind_of(rec(harvest_source="hn", source_kind="")),
+                         "self_reported")
         # 认不出来的按最低档，宁可保守
-        self.assertEqual(T.source_kind_of(rec(harvest_source="unknown", source_kind="")), "discovery")
+        self.assertEqual(T.source_kind_of(rec(harvest_source="unknown", source_kind="")),
+                         "discovery")
 
 
 # ---------------------------------------------------------------------------

@@ -259,7 +259,8 @@ def harvest_hn(limit, keywords):
             body = clean(hit.get("story_text") or "")
             raw_item = {
                 "title": title,
-                "url": hit.get("url") or ("https://news.ycombinator.com/item?id=%s" % hit.get("objectID")),
+                "url": hit.get("url")
+                       or ("https://news.ycombinator.com/item?id=%s" % hit.get("objectID")),
             }
             ok, _why = looks_like_product(raw_item)
             if not ok:
@@ -827,7 +828,8 @@ def harvest_trustmrr_html(limit):
             "url": "https://trustmrr.com/marketplace",
             "points": 0, "comments": 0,
             "created_at": datetime.now().strftime("%Y-%m-%d"),
-            "_blob": "for sale %s %s %s" % (name, (cat_m.group(1) if cat_m else ""), " ".join(bits)),
+            "_blob": "for sale %s %s %s" % (
+                name, (cat_m.group(1) if cat_m else ""), " ".join(bits)),
             "_origin": "trustmrr",
             "_listing": {
                 "revenue": fmt(rev_m), "price": fmt(price_m),

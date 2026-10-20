@@ -67,7 +67,9 @@ HOOK = r"""
       const url = (typeof u === 'string') ? u : (u && u.url);
       if (String(url).includes('/draft/')) {
         push('fetch', url, (o && o.method) || 'GET',
-             (o && o.body) || null, (o && o.headers && (o.headers['Content-Type'] || o.headers.get?.('Content-Type'))) || '');
+             (o && o.body) || null,
+             (o && o.headers && (o.headers['Content-Type'] || o.headers.get?.('Content-Type')))
+             || '');
       }
     } catch (e) {}
     return OF.apply(this, arguments);

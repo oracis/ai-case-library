@@ -121,7 +121,8 @@ def main():
           str(len(data["cases"])))
     check("inbox = %d（公开版不含未核实队列）" % args.expect_inbox,
           len(data["inbox"]) == args.expect_inbox, str(len(data["inbox"])))
-    check("site.title = %s" % args.brand, data["site"]["title"] == args.brand, data["site"]["title"])
+    check("site.title = %s" % args.brand,
+          data["site"]["title"] == args.brand, data["site"]["title"])
     check("site.url 指向本域名", data["site"]["url"] == base, data["site"]["url"])
     if len(slugs) == len(data["cases"]):
         check("页面数与数据条数一致", True, "%d 页 / %d 条" % (len(slugs), len(data["cases"])))
@@ -139,7 +140,8 @@ def main():
     check("robots 含 Sitemap 行", ("Sitemap: %s/sitemap.xml" % base) in robots)
 
     print("7) 静态资源")
-    for path, want in [("/style.css", "text/css"), ("/app.js", "javascript"), ("/data.js", "javascript")]:
+    for path, want in [("/style.css", "text/css"), ("/app.js", "javascript"),
+                       ("/data.js", "javascript")]:
         st, body, heads = get(path)
         check("%s 200 且类型正确" % path, st == 200 and want in heads.get("Content-Type", ""),
               heads.get("Content-Type", ""))

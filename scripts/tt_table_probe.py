@@ -38,7 +38,8 @@ _SCAN_TOOLBAR = r"""(function(){
   var seen = {};
   all.forEach(function(e){
     var txt = ((e.innerText||'') + ' ' + (e.getAttribute('title')||'') + ' ' +
-               (e.getAttribute('aria-label')||'') + ' ' + (e.getAttribute('data-tooltip')||'')).trim();
+               (e.getAttribute('aria-label')||'') + ' ' +
+               (e.getAttribute('data-tooltip')||'')).trim();
     var cls = (e.className||'').toString();
     if (KEY.test(txt) || KEY.test(cls)){
       var k = txt + '|' + cls;
