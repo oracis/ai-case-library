@@ -1657,7 +1657,8 @@ def match_drafts(drafts, cases=None):
 def pick_draft(drafts, title=None, keyword=None):
     """从草稿箱挑一条。返回 (draft|None, reason)。
 
-    默认取**存入最久**的那条（和头条/B站口径一致）。
+    默认取**存入最久**的那条（与头条/B站统一口径：三平台都发草稿箱里
+    存入最久的草稿；公众号例外，按编号顺序）。
     """
     if not drafts:
         return None, "草稿箱是空的"
@@ -2134,12 +2135,20 @@ def _send_draft_on(sub, args):
     if bad:
         print("  裂图样例：%s" % bad[0])
     if verdict == "abort":
-        raise SystemExit("[err] 有裂图，发裂图笔记是事故。加 --fix-images "
-                         "用本地卡片图重传，或去浏览器手动换图。")
+        if getattr(args, "force", False):
+            print("[force] 已知 ORB 跨域拦截会让编辑器里图显示为裂图（图片本体在"
+                  "服务端、走 fileId，发布不受影响，见 2026-10-20 排障）。按 "
+                  "--force 跳过图片体检直接发。")
+        else:
+            raise SystemExit("[err] 有裂图，发裂图笔记是事故。加 --fix-images "
+                             "用本地卡片图重传，或去浏览器手动换图。")
     if verdict == "fix":
-        print("[warn] 裂图修复**未实现**（今天 PROSP 是手工删裂图+重传的），"
-              "请先去浏览器手动处理。")
-        raise SystemExit(2)
+        if getattr(args, "force", False):
+            print("[force] --fix-images 尚未实现，按 --force 跳过图片体检直接发。")
+        else:
+            print("[warn] 裂图修复**未实现**（今天 PROSP 是手工删裂图+重传的），"
+                  "请先去浏览器手动处理。")
+            raise SystemExit(2)
 
     if getattr(args, "dry", False):
         print("DRY：编辑器已就位、图片正常，未点发布。")
@@ -2552,11 +2561,21 @@ def _load_ledger(p):
 
 def _write_ledger(p, entries, nl, was_dict=False):
     """⚠ `newline=""` 必须显式给：Windows 文本模式会把 \n 翻成 \r\n，
-    行尾控制权就没了。"""
+    行尾控制权就没了。
+    ⚠ 2026-10-20 补末尾换行保留：`json.dumps` 的产物不带末尾 \\n，而
+       `xhs_published.json` 历来以换行结尾（判据同
+       `ledger._write_file`）。不判就平白丢一个换行，git diff 里
+       显示 "No newline at end of file"。
+    """
     obj = ({e["id"]: e.get("at") for e in entries} if was_dict else entries)
     text = json.dumps(obj, ensure_ascii=False, indent=2)
+    tail = ""
+    if os.path.isfile(p):
+        with open(p, "rb") as f:
+            if f.read().endswith(b"\n"):
+                tail = nl
     with open(p, "w", encoding="utf-8", newline="") as f:
-        f.write(text.replace("\n", nl))
+        f.write(text.replace("\n", nl) + tail)
 
 
 def _mark(p, cid):
@@ -2686,8 +2705,13 @@ def main():
     sd.add_argument("--title", help="草稿标题（精确/包含匹配）")
     sd.add_argument("--fix-images", action="store_true",
                     help="有裂图时用本地卡片图重传（⚠ 未实现，当前只提示）")
+    sd.add_argument("--force", action="store_true",
+                    help="跳过图片体检直接发。⚠ 仅限已知安全的场景：2026-10-20 "
+                         "已实锤小红书草稿图「裂」是 ORB 跨域拦截的**显示假象**"
+                         "（图片本体在服务端、走 fileId，发布不受影响）。不要拿它"
+                         "去盖真裂图。发完用 drafts/笔记管理核对一下。")
     sd.add_argument("--dry", action="store_true",
-                    help="只开到编辑器并体检图片，不点发布")
+                   help="只开到编辑器并体检图片，不点发布")
     sd.add_argument("--keep-tab", action="store_true",
                     help="跑完别关标签页（默认关掉自己开的那个，避免 tab 堆积）")
     sd.set_defaults(fn=cmd_send_draft)

@@ -2238,39 +2238,76 @@ def cmd_cover(args):
     print("\n完成：%d/%d" % (ok, len(cases)))
 
 
-def cmd_send_draft(args):
-    """把草稿箱里**已有**的一篇正式发表（不新建、不留孤儿草稿）。"""
-    c = find_case_fuzzy(args.case)
-    if not c:
-        raise SystemExit("找不到案例：%s" % args.case)
-    print("发表草稿箱里已有的：《%s》（%s）%s"
-          % (c.get("name", ""), c["id"], "（dry-run）" if args.dry else ""), flush=True)
-    if args.dry:
-        # dry 也要走 API 定位 gid，否则预演看不到真实目标
-        sess = open_api_session()
-        if not sess:
-            raise SystemExit("编辑器页开不了（Chrome 没起/掉登录）")
-        cdp, tid = sess
+def oldest_unpublished_draft_case(cdp):
+    """从草稿箱挑**存入最久**的未发布草稿，反查对应 case。
+
+    与小红书/B站口径一致（默认发最久的一条）。返回 (case_or_None, 说明)。
+    """
+    raw = fetch_draft_api_raw(cdp) or []
+    if not raw:
+        return None, "草稿箱是空的/读不到（Chrome 没起或掉登录）"
+    published_titles = set()
+    try:
+        mp = os.path.join(ROOT, "data", "publish_manifest.json")
+        m = json.load(open(mp, encoding="utf-8"))
+        for _c, d in m.items():
+            b = d.get("toutiao") or {}
+            if b.get("state") == "published" and b.get("title"):
+                published_titles.add(re.sub(r"\s+", "", b["title"]))
+    except Exception:                              # noqa: BLE001
+        pass
+    pool = [x for x in raw
+            if re.sub(r"\s+", "", x.get("title") or "") not in published_titles]
+    if not pool:
+        return None, "草稿箱里没有未发布的草稿了（全 published）"
+    pool.sort(key=lambda x: x.get("update_time") or 0)
+    oldest = pool[0]
+    title = (oldest.get("title") or "").strip()
+    gid = oldest.get("gid")
+    for c in load_cases():
+        mp = os.path.join(OUT, c["id"], "meta.json")
+        if not os.path.isfile(mp):
+            continue
         try:
-            raw = fetch_draft_api_raw(cdp) or []
-            import json as _j
-            with open(os.path.join(OUT, c["id"], "meta.json"), encoding="utf-8") as f:
-                title = _j.load(f)["title"]
-            hit = [x for x in raw if (x.get("title") or "").strip() == title.strip()]
-            if not hit:
-                raise SystemExit("草稿箱里没有《%s》" % title)
-            print("  → ok[dry] 将发表 gid=%s" % hit[0].get("gid"))
-        finally:
-            try:
-                cdp.close_target(tid)
-            except Exception:                          # noqa: BLE001
-                pass
-        return
+            t = json.load(open(mp, encoding="utf-8")).get("title", "")
+        except Exception:                           # noqa: BLE001
+            t = ""
+        if re.sub(r"\s+", "", t) == re.sub(r"\s+", "", title):
+            return c, ("最久未发布：《%s》(gid=%s, update_time=%s)"
+                       % (title, gid, oldest.get("update_time")))
+    return None, "反查不到《%s》对应的 case（请用 --case 指定）" % title
+
+
+def cmd_send_draft(args):
+    """把草稿箱里**已有**的一篇正式发表（不新建、不留孤儿草稿）。
+
+    默认取**存入最久**的未发布草稿（与小红书/B站口径一致）；--case 指定。
+    """
     sess = open_api_session()
     if not sess:
         raise SystemExit("编辑器页开不了（Chrome 没起/掉登录）")
     cdp, tid = sess
     try:
+        if args.case:
+            c = find_case_fuzzy(args.case)
+            if not c:
+                raise SystemExit("找不到案例：%s" % args.case)
+        else:
+            c, why = oldest_unpublished_draft_case(cdp)
+            print(why, flush=True)
+            if not c:
+                raise SystemExit(1)
+        print("发表草稿箱里已有的：《%s》（%s）%s"
+              % (c.get("name", ""), c["id"], "（dry-run）" if args.dry else ""), flush=True)
+        if args.dry:
+            raw = fetch_draft_api_raw(cdp) or []
+            with open(os.path.join(OUT, c["id"], "meta.json"), encoding="utf-8") as f:
+                title = json.load(f)["title"]
+            hit = [x for x in raw if (x.get("title") or "").strip() == title.strip()]
+            if not hit:
+                raise SystemExit("草稿箱里没有《%s》" % title)
+            print("  → ok[dry] 将发表 gid=%s" % hit[0].get("gid"))
+            return
         token = grab_anti_token(cdp)
         print("  tt-anti-token：%s"
               % (("已取（%d 字符）" % len(token)) if token else "没取到"), flush=True)
@@ -2285,6 +2322,7 @@ def cmd_send_draft(args):
             cdp.close_target(tid)
         except Exception:                              # noqa: BLE001
             pass
+
 
 
 def find_title(c):
@@ -3934,10 +3972,10 @@ def main():
     p.set_defaults(fn=cmd_publish)
     sd = sub.add_parser(
         "send-draft",
-        help="把草稿箱里**已有**的一篇正式发表（按标题认亲，不新建、"
-             "不留孤儿草稿）。与 `publish --api --send` 的区别：那条路"
-             "不经草稿箱、直接发一篇新的")
-    sd.add_argument("--case", required=True, help="案例 id 或标题片段")
+        help="从草稿箱挑一篇正式发表（默认取存入最久的未发布稿，与小红书/B站"
+             "口径一致；--case 指定）。按标题认亲，不新建、不留孤儿草稿。"
+             "与 `publish --api --send` 的区别：那条路不经草稿箱、直接发一篇新的")
+    sd.add_argument("--case", default=None, help="案例 id 或标题片段（覆盖自动选最久）")
     sd.add_argument("--dry", action="store_true",
                     help="只找到 gid 就停，不发表")
     sd.set_defaults(fn=cmd_send_draft)
