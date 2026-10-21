@@ -30,6 +30,9 @@
     python scripts/promote_to_candidates.py --write --ids podawaa,vid-ai
     python scripts/promote_to_candidates.py --write --all  # 所有核通过的
 
+自动挑（不给 `--ids`）的顺序是 **triage 分数降序**，同分按 id —— 不是
+`inbox.json` 的文件顺序（那是采集追加顺序，见 pick_targets 的注释）。
+
 ⚠️ 写入前后必须核对换行格式（红线 7）：`candidates.json` 是 LF，
 `inbox.json` 是 CRLF，两者不同。本脚本按各文件原生格式写回。
 """
@@ -548,10 +551,56 @@ def refresh_in_pool(args, cands):
     return 0
 
 
+def index_for(inbox, cands):
+    """用**真实**池子建 triage.Index（重复检测必须看真实数据）。
+
+    🚨 2026-10-21 修：此前 `T.score_record(i, "inbox")` 不传 index，默认
+    落到**空索引** —— `duplicate_of` 的「已在候选池 / 与候选池同名 /
+    官网与已发布案例相同」三条判据全部拿空集合比，永远返回 None，成了
+    死代码。当前队列里有 5 条与已发布案例同官网（flow、concorde-one、
+    portable-kokoro 等），这次复核它们恰好因 0 分被别的规则拦住了 ——
+    「碰巧没漏」不是判据，换个数据就漏。
+    """
+    d = T.load_all()
+    return T.Index(d["cases"], cands, inbox, d["verifications"])
+
+
+def pick_targets(inbox, have, index=None):
+    """自动挑「值得核」的 inbox 条目，按 triage 分数降序。
+
+    ⚠ 2026-10-21 修：此前直接按 `inbox` 的**文件顺序**取 —— 那是采集追加
+    顺序，和「哪条更值得核」毫无关系。实测 135 条自动待办里分数 55/65
+    交错出现（clawrapid 65 → copykitten 55 → appmockupgenerator 65…），
+    于是 AI 深核预算先花在谁身上，取决于哪条先被采到。
+
+    现在：三个硬条件（deep / 未进池 / trustmrr 来源）之后按 score 降序，
+    同分按 id 兜底 —— 显式兜底是为了不把「文件顺序」偷渡成第二排序键
+    （同 make_article.rank_key 的理由）。返回 [(id, score)]。
+    """
+    index = index if index is not None else T.Index()
+    rows = []
+    for i in inbox:
+        rid = i.get("id")
+        if not rid or rid in have:
+            continue
+        if str(i.get("harvest_source") or "") != "trustmrr":
+            continue
+        if not str(i.get("trustmrr_slug") or "").strip():
+            continue                      # 没有 slug 就没法实拉，进不来
+        s = T.score_record(i, "inbox", index)
+        if s["grade"] != "deep":
+            continue
+        rows.append((rid, s["score"]))
+    rows.sort(key=lambda r: (-r[1], r[0]))
+    return rows
+
+
 def main():
     ap = argparse.ArgumentParser(description="核通过的 inbox 条目晋升到候选池")
     ap.add_argument("--ids", default="", help="逗号分隔的 id；留空 = 自动挑")
-    ap.add_argument("--all", action="store_true", help="对所有 deep 条目尝试晋升")
+    ap.add_argument("--all", action="store_true",
+                    help="对所有 deep 条目尝试晋升（这是**默认**行为，"
+                         "保留开关只为兼容旧命令）")
     ap.add_argument("--dry-run", action="store_true", default=True)
     ap.add_argument("--write", action="store_true", help="实际写入（默认只读）")
     ap.add_argument("--refresh-in-pool", default="",
@@ -578,43 +627,53 @@ def main():
 
     if args.ids:
         targets = [i.strip() for i in args.ids.split(",") if i.strip()]
-    elif args.all:
-        targets = [i["id"] for i in inbox
-                   if T.score_record(i, "inbox")["grade"] == "deep"
-                   and i["id"] not in have
-                   and str(i.get("harvest_source") or "") == "trustmrr"]
+        picked = {}
     else:
-        targets = [i["id"] for i in inbox
-                   if T.score_record(i, "inbox")["grade"] == "deep"
-                   and i["id"] not in have
-                   and str(i.get("harvest_source") or "") == "trustmrr"]
+        # `--all` 与不带参数的语义本来就一样（都是「所有值得核的」），
+        # 此前两条分支各写了一遍同样的推导，改一处忘一处就是口径分叉。
+        p = pick_targets(inbox, have, index_for(inbox, cands))
+        targets = [rid for rid, _s in p]
+        picked = dict(p)
 
     if not targets:
         print("没有待晋升的条目。")
         return
 
-    print("待核 %d 条\n" % len(targets))
+    print("待核 %d 条%s\n"
+          % (len(targets),
+             "（按 triage 分数降序）" if picked else ""))
+    if picked:
+        print("  分数区间 %d~%d；首条 %s(%d)"
+              % (min(picked.values()), max(picked.values()),
+                 targets[0], picked[targets[0]]))
     live_by_id = {}
     # 并发 6 → 2（2026-10-15）：240 条批量跑时 6 并发把 TrustMRR 打回 429，
     # 203 条集体读不到。官方 .md 是免 key 通道，人家限流是合理的，
     # 我们该做的是放慢，而不是把限流读成下架。
     WORKERS = 2
     with cf.ThreadPoolExecutor(max_workers=WORKERS) as ex:
-        futs = {ex.submit(AD.probe, inbox_idx[i]["trustmrr_slug"]): i for i in targets}
+        # `.get(...) or ""`：`--ids` 点名的条目未必带 slug（人工补录的），
+        # 用下标取值会直接 KeyError 把整批探针掀掉 —— 空 slug 让 probe
+        # 自己给出 unknown，落进「未判定」而不是崩。
+        futs = {ex.submit(AD.probe, inbox_idx[i].get("trustmrr_slug") or ""): i
+                for i in targets}
         for fut in cf.as_completed(futs):
             rid = futs[fut]
             try:
                 live_by_id[rid] = fut.result()
             except Exception as e:
-                live_by_id[rid] = {"slug": inbox_idx[rid]["trustmrr_slug"],
-                                   "state": "unknown", "err": type(e).__name__,
-                                   "metrics": {}}
+                live_by_id[rid] = {
+                    "slug": inbox_idx[rid].get("trustmrr_slug") or "",
+                    "state": "unknown", "err": type(e).__name__,
+                    "metrics": {}}
 
     passed, rejected, pending = [], [], []
     for rid in targets:
         rec, live = inbox_idx[rid], live_by_id.get(rid) or {}
         ok, why, m, extra = check_one(rec, live)
-        line = "  %-22s %s" % (rid[:22], why)
+        # 自动挑的条目带上分数：不然「为什么先核这条」在输出里看不出来。
+        tag = "[%2d] " % picked[rid] if rid in picked else ""
+        line = "  %s%-22s %s" % (tag, rid[:22], why)
         if m and m.get("mrr"):
             line += "  (实测 MRR %s)" % fmt_money(m.get("mrr"))
         if extra.get("override"):
