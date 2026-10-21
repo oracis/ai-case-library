@@ -82,7 +82,7 @@ B站这种「一条草稿要 1 分钟」的平台代价很高。所以 `Adapter.
 | 公众号 | `data/wechat_published.json` | ⚠️ 扫码前全自动、扫码后自动校验，但两种模式都要管理员扫码 | 个人订阅号无群发 API；build 是 `make_article` + `wechat build` 两段；「发表」用 `wechat_publish.py send` |
 | 小红书 | `data/xhs_drafts.json` | ✅ `--yes` | **绝不能透传 `--dry`**：它的 `--dry` 会照常填表，只是不点发布（污染过 bustem 草稿） |
 | 今日头条 | `data/toutiao_drafts.json` + `_published.json` | ✅ `--yes` | 封面是硬要求，`cover.png` 缺了就当产物不完整 |
-| B站专栏 | **只有清单** | ❌ 只存草稿 | 草稿只存在远端，本地无从判断；LV1–3 每天 1 篇，LV4–6 5 篇 |
+| B站专栏 | **只有清单** | ✅ `--yes`（`send-draft` 走编辑器 UI 点「发布」，2026-10-20） | 草稿只存在远端，本地无从判断；**每天限 1 篇**（本账号 lv0~lv3 档，lv4+ 才 5 篇），额度用完发布按钮变灰，脚本明确报失败 |
 
 ## 为什么串行不并发
 
@@ -362,9 +362,9 @@ python scripts/agnes_cover.py gen --case bustem
 | 平台 | 建稿 | 真发布 | 单条耗时 | 卡在哪 |
 |---|---|---|---|---|
 | 今日头条 | API（`draft/add`） | ✅ API `save=1`+`entrance=main` | 20–27s | 要有头 Chrome 供 `tt-anti-token` |
-| 小红书 | UI | ✅ UI 点「发布」 | 1–2min | 创建走 UI；API 创建被 461 风控 |
+| 小红书 | UI | ⚠️ `send-draft` 已能定位发布按钮（2026-10-20：closed shadow DOM 里的 `ce-btn bg-red`）；**真点一次仍需人拍板** | 1–2min | 创建走 UI；API 创建被 461 风控。草稿箱**不分页**（一次读全 43 条）。真发的实际拦路虎是**草稿图 CDN 签名过期全裂** |
 | 公众号 | UI 存草稿 | ✅ UI「发表」（2026-10-19） | ~30s/条 + 等扫码 | **两种模式都要管理员/运营者扫码**（物理动作，脚本检测到二维码就停下等）；API 无权限（个人订阅号 `freepublish` 48001） |
-| B站专栏 | API（`draft/add`） | ❌ 只到草稿 | — | 代码只点了「保存为草稿」，从没点过「发布」（见下） |
+| B站专栏 | API（`draft/add`） | ✅ UI「发布」（2026-10-20，`send-draft`） | ~1min | 草稿 47 条随便发，但**每天最多 1 篇**（本账号 lv0~lv3 档，lv4+ 才 5 篇），额度用完发布按钮直接变灰 |
 
 **公众号的「发表」已自动化到扫码前最后一步 + 扫码后自动校验**（`wechat_publish.py send`，默认发布模式）：
 开编辑器 → 设「群发通知」开关 → 确认两层 → check 全过后弹出「微信验证」二维码 ⇒
@@ -374,6 +374,80 @@ python scripts/agnes_cover.py gen --case bustem
 那是探针拦掉了 check 请求，流程根本没走到扫码那步）。`--notify` 走群发模式，
 扫码框 5 分钟内没扫就记 `timeout` 而不谎报成功。实测链路与选择器见
 `scripts/wechat_publish.py`「发表自动化」一节与 `scripts/probe_wechat_send.py`。
+
+**小红书从草稿箱发布**（`xhs_publish.py send-draft`，2026-10-20）：
+开草稿箱 → 挑一条（默认**存入最久**的）→ 点「编辑」进编辑器 → 图片体检 →
+点发布 → 回读笔记管理校验 → 记账。已实测跑通的部分：草稿箱**不是分页**
+（一次读全 43 条，B站 opus 才是分页）、点「编辑」能稳定打开编辑器。
+
+**发布按钮在 closed shadow DOM 里**（2026-10-20 定位到）：
+
+```html
+<xhs-publish-btn is-publish="true" is-save-draft="true" submit-text="发布"
+  save-text="暂存离开" submit-disabled="false" submit-loading="false">
+  #shadow-root (closed)
+    <button type="button" class="ce-btn white">暂存离开</button>
+    <button type="button" class="ce-btn bg-red" aria-busy="false"
+            aria-disabled="false">发布</button>
+</xhs-publish-btn>
+```
+
+`element.shadowRoot` 是 **null**，所以 `document.querySelectorAll('button.ce-btn.bg-red')`
+**永远返回空** —— 这就是之前三套兜底全扑空的真正原因（整页 1.48MB 的
+`outerHTML` 里 `ce-btn` 出现 0 次，不是按钮不存在、不是页面改版）。
+只有 CDP 协议层能穿透：`DOM.getDocument({pierce:true})`。
+
+因此 `_click_publish` 的主策略：
+1. **读能不能点**看宿主属性（light DOM 就能读）—— `is-publish` /
+   `submit-disabled` / `submit-loading`，两个开关缺一个就**不敢点**；
+2. **点**走 CDP —— pierce 找 nodeId → `DOM.getContentQuads` 取坐标 →
+   真实鼠标事件。禁用时直接返回未点到，**不许**退到坐标兜底（旁边就是
+   「暂存离开」，戳错了草稿就白改了）。
+
+`--dry` 会把组件属性 + 穿透拿到的按钮坐标打出来，确认对得上再真点。
+`publish_component_state()` / `find_shadow_button()` / `quad_center()`
+都是纯函数，用 node + fake DOM 单测，见 `test_xhs_send_draft.py`。
+
+两个踩过的坑记在这里：
+· 判定编辑器开了没有，**必须**看标题输入框有没有值 —— 左侧导航常驻
+  「发布笔记」，用「页面含『发布』」判定会 100% 假阳性（第一次探针被骗过）
+· 草稿图片会**裂**：CDN 签名过期（实测那条 URL 直接 403），今天多篇草稿
+  10/15 张裂。所以发布前强制体检，有裂图默认拦下 —— 发裂图笔记是事故
+
+```bash
+python scripts/xhs_publish.py send-draft --dry              # 开到编辑器并体检，不点发布
+python scripts/xhs_publish.py send-draft --case CheckVibe   # 按标题关键词挑一条发
+```
+
+**B站「发布」按钮：之前整整误诊了一轮**（2026-10-20 晚翻案）。
+
+之前这里写的是「headless 下恒 disabled（封面校验过不了）」，于是得出结论
+「B站不能自动发布，只能人工点」。实测拆开一看：草稿封面早就设好了
+（`.selected-cover` 在 DOM 里、`origin_image_urls` 有值），按钮照样灰 ——
+编辑器顶部那行橙字写的是：
+
+> **已达到当日投稿上限，只能保存草稿哦~**
+
+真正拦路的是**每日投稿额度**（本账号 lv0~lv3 档 = 1 篇/天；lv4+ 5 篇/天，官方公告只写面上的 5），跟封面、跟 headless 都没
+关系。当时是在同一天连发数篇的语境下顺手归因，把「今天额度用完了」记成了
+「B站这条路走不通」。
+
+现在 `bilibili_publish.py send-draft` 走真发布（`ui_publish_draft`）：
+补封面（没有才补）→ 开编辑器 → `publish_btn_state` 读按钮 → `publish_verdict`
+判能不能点 → 点发布 → 等「提交成功」→ **回读已发表列表查 aid** → 记账。
+
+⚠ **判据顺序是有讲究的**：先看「投稿上限」提示再看 `disabled`。反过来看就会
+得出「封面/正文没过校验」的错误结论，重蹈上面那次误诊。`publish_verdict`
+是纯函数，这条顺序 `test_bilibili_publish.py` 有用例盯着。
+
+```bash
+python scripts/bilibili_publish.py send-draft --dry     # 只问「今天还能发吗」，不点
+python scripts/bilibili_publish.py send-draft           # 发最久那条
+python scripts/bilibili_publish.py send-draft --case genius-ai
+```
+
+额度用完时它**明确报失败**（退出码 1），绝不写清单、绝不假装成功
+—— `--dry` 例外，那是问询，退出 0。
 
 ```bash
 python scripts/publish_multi.py run --case <id>          # 只存草稿（默认）

@@ -646,7 +646,7 @@ def _ids(path):
     return [x.get("id") for x in d if isinstance(x, dict) and x.get("id")]
 
 
-def _mark(path, cid):
+def _mark(path, cid, extra=None):
     """把案例追加进台账（草稿 / 已发布共用）。
 
     ⚠⚠ 2026-10-14 修「台账历史被毁」：旧实现 `_ids()` 只取 id、
@@ -692,7 +692,10 @@ def _mark(path, cid):
             norm.append({"id": e, "at": now})
     if any(e["id"] == cid for e in norm):
         return
-    norm.append({"id": cid, "at": now})
+    row = {"id": cid, "at": now}
+    if extra:                        # gid / evidence 等（voklit 条早有先例）
+        row.update(extra)
+    norm.append(row)
     text = json.dumps(norm, ensure_ascii=False, indent=2)
     with open(path, "w", encoding="utf-8", newline="") as f:
         f.write(text.replace("\n", nl))
@@ -704,6 +707,22 @@ def mark_drafted(cid):
 
 def mark_published(cid):
     _mark(PUB_FILE, cid)
+
+
+def mark_published_remote(cid, gid, evidence):
+    """发表并**带 gid** 记台账（`send-draft` 用）。
+
+    为什么不全盘走 `scripts/ledger.py`：头条这两个文件是 2019 年以来的
+    存量格式（LF/CRLF 行尾、note 历史字段），`ledger.mark` 那套统一层
+    还没接头条的 gid 主键（见 LEDGER_CONSISTENCY.md 的 TODO）。这里只
+    在既有约定上补 `gid`/`evidence`/`verified_at` 三个键，与 voklit
+    那条 health_backfill 记录同构。
+    """
+    _mark(PUB_FILE, cid, extra={
+        "gid": str(gid),
+        "evidence": evidence,
+        "verified_at": time.strftime("%Y-%m-%d %H:%M"),
+    })
 
 
 def pending_cases(need_built=True):
@@ -2073,6 +2092,79 @@ def cover_one_api(c, cdp, anti_token, force=False, dry=False):
     return "ok 换封面 gid=%s（%s）" % (gid, os.path.basename(cp))
 
 
+def publish_existing_draft(c, cdp, anti_token, dry=False):
+    """把草稿箱里**已有**的一篇正式发表（save=1 + 带上它的 pgc_id）。
+
+    与 `publish_api_one(send=True)` 的差别：那条路**不带 pgc_id**，
+    等于新建一篇直接发表，草稿箱里那篇会留下当孤儿（2026-10-18
+    `--api --send` 的口径就是「一步发出、不经草稿箱」）。这条路带上
+    pgc_id，发表的就是箱里那篇 —— 更新与发布是同一个端点，只差
+    `save`/`entrance` 两个字段（依据见 `_publish_draft_body`）。
+
+    做法同 `cover_one_api`：按标题在 draft_list 里认亲拿 gid → 把
+    「标题+正文+封面」原样重提一次但 `save=1` → 回读**已发表列表**
+    核对 → 写台账（带 gid）。
+
+    ⚠ 两条前提：
+      1. **正文取本地 `out/<id>/article.html`**：draft_list 只回标题/
+         封面/时间，读不到线上正文；本项目草稿全由脚本生成 ⇒ 本地即
+         真源。若那篇被人工改过，这一步会把正文覆盖回本地版本。
+      2. **封面必须重传**：`save_draft_api` 的 body 是全量提交，
+         `pgc_feed_covers` 留空会把草稿原有的封面冲掉。所以封面上传
+         失败时**直接放弃**（返回原因），不裸发。
+
+    返回 `ok…` 表示成功并已回读核对；其余为原因。
+    """
+    meta_path = os.path.join(OUT, c["id"], "meta.json")
+    if not os.path.isfile(meta_path):
+        return "缺 meta.json（先跑 build）"
+    with open(meta_path, encoding="utf-8") as f:
+        meta = json.load(f)
+    html_path = os.path.join(OUT, c["id"], "article.html")
+    if not os.path.isfile(html_path):
+        return "缺 article.html（先跑 build）"
+    with open(html_path, encoding="utf-8") as f:
+        full = f.read()
+    body_html = full.split("\n", 1)[1] if full.startswith("<h1>") else full
+
+    raw = fetch_draft_api_raw(cdp) or []
+    hit = [x for x in raw if (x.get("title") or "").strip() == meta["title"].strip()]
+    if not hit:
+        return "草稿箱里没有《%s》（已发表？已删？标题被改过？）" % meta["title"]
+    gid = str(hit[0].get("gid"))
+    if dry:
+        return "ok[dry] 将发表 gid=%s《%s》（正文取本地 article.html）" % (gid, meta["title"])
+
+    cp = cover_path(c["id"])
+    if not cp or not os.path.isfile(cp):
+        return "没有本地封面图（%s）—— 裸发会冲掉草稿原有封面，放弃" % (cp or "未生成")
+    cu, curi, cmsg, wh = upload_cover_api(cdp, cp, anti_token)
+    if not cu:
+        return "封面上传失败：%s（放弃，不裸发）" % cmsg
+    pid, msg = save_draft_api(cdp, meta["title"], body_html, pgc_id=gid,
+                              anti_token=anti_token, cover=(cu, curi, cmsg, wh),
+                              send=True)
+    if str(msg).startswith("code="):
+        return "发表被拒：%s" % msg
+    if not pid:
+        return "发表没回 pgc_id（%s），无法确认落到哪篇" % msg
+    if str(pid) != str(gid):
+        return "发表落到了别的稿上（期望 %s，实际 %s）" % (gid, pid)
+    # 回读：发表后稿件不在草稿箱，核对已发表列表
+    try:
+        arts = fetch_published_articles(cdp, max_page=2) or []
+        hit2 = [a for a in arts
+                if (a.get("title") or "").strip() == meta["title"].strip()]
+        if not hit2:
+            return ("已返 pgc_id=%s，但已发表列表里还没见到这篇"
+                    "（可能还在审核队列）⇒ 不写台账，请稍后人工核对" % gid)
+    except Exception as e:                                  # noqa: BLE001
+        return ("[warn] 已发表列表回读异常（%s）；服务端已返 code:0 + "
+                "pgc_id=%s，但不写台账，请人工核对" % (str(e)[:60], gid))
+    mark_published_remote(c["id"], gid, "send_existing_draft")
+    return "ok 已发表 gid=%s《%s》（回读已发表列表命中，台账已记）" % (gid, meta["title"])
+
+
 def cmd_cover(args):
     """给已有的头条草稿补封面（原地改，不重发）。"""
     cases = []
@@ -2144,6 +2236,93 @@ def cmd_cover(args):
         except Exception:                              # noqa: BLE001
             pass
     print("\n完成：%d/%d" % (ok, len(cases)))
+
+
+def oldest_unpublished_draft_case(cdp):
+    """从草稿箱挑**存入最久**的未发布草稿，反查对应 case。
+
+    与小红书/B站口径一致（默认发最久的一条）。返回 (case_or_None, 说明)。
+    """
+    raw = fetch_draft_api_raw(cdp) or []
+    if not raw:
+        return None, "草稿箱是空的/读不到（Chrome 没起或掉登录）"
+    published_titles = set()
+    try:
+        mp = os.path.join(ROOT, "data", "publish_manifest.json")
+        m = json.load(open(mp, encoding="utf-8"))
+        for _c, d in m.items():
+            b = d.get("toutiao") or {}
+            if b.get("state") == "published" and b.get("title"):
+                published_titles.add(re.sub(r"\s+", "", b["title"]))
+    except Exception:                              # noqa: BLE001
+        pass
+    pool = [x for x in raw
+            if re.sub(r"\s+", "", x.get("title") or "") not in published_titles]
+    if not pool:
+        return None, "草稿箱里没有未发布的草稿了（全 published）"
+    pool.sort(key=lambda x: x.get("update_time") or 0)
+    oldest = pool[0]
+    title = (oldest.get("title") or "").strip()
+    gid = oldest.get("gid")
+    for c in load_cases():
+        mp = os.path.join(OUT, c["id"], "meta.json")
+        if not os.path.isfile(mp):
+            continue
+        try:
+            t = json.load(open(mp, encoding="utf-8")).get("title", "")
+        except Exception:                           # noqa: BLE001
+            t = ""
+        if re.sub(r"\s+", "", t) == re.sub(r"\s+", "", title):
+            return c, ("最久未发布：《%s》(gid=%s, update_time=%s)"
+                       % (title, gid, oldest.get("update_time")))
+    return None, "反查不到《%s》对应的 case（请用 --case 指定）" % title
+
+
+def cmd_send_draft(args):
+    """把草稿箱里**已有**的一篇正式发表（不新建、不留孤儿草稿）。
+
+    默认取**存入最久**的未发布草稿（与小红书/B站口径一致）；--case 指定。
+    """
+    sess = open_api_session()
+    if not sess:
+        raise SystemExit("编辑器页开不了（Chrome 没起/掉登录）")
+    cdp, tid = sess
+    try:
+        if args.case:
+            c = find_case_fuzzy(args.case)
+            if not c:
+                raise SystemExit("找不到案例：%s" % args.case)
+        else:
+            c, why = oldest_unpublished_draft_case(cdp)
+            print(why, flush=True)
+            if not c:
+                raise SystemExit(1)
+        print("发表草稿箱里已有的：《%s》（%s）%s"
+              % (c.get("name", ""), c["id"], "（dry-run）" if args.dry else ""), flush=True)
+        if args.dry:
+            raw = fetch_draft_api_raw(cdp) or []
+            with open(os.path.join(OUT, c["id"], "meta.json"), encoding="utf-8") as f:
+                title = json.load(f)["title"]
+            hit = [x for x in raw if (x.get("title") or "").strip() == title.strip()]
+            if not hit:
+                raise SystemExit("草稿箱里没有《%s》" % title)
+            print("  → ok[dry] 将发表 gid=%s" % hit[0].get("gid"))
+            return
+        token = grab_anti_token(cdp)
+        print("  tt-anti-token：%s"
+              % (("已取（%d 字符）" % len(token)) if token else "没取到"), flush=True)
+        if not token:
+            raise SystemExit("没拿到 token（掉登录或无头不触发自动保存）")
+        r = publish_existing_draft(c, cdp, token, dry=False)
+        print("  → %s" % r, flush=True)
+        if not r.startswith("ok"):
+            raise SystemExit(1)
+    finally:
+        try:
+            cdp.close_target(tid)
+        except Exception:                              # noqa: BLE001
+            pass
+
 
 
 def find_title(c):
@@ -3791,6 +3970,15 @@ def main():
                         "entrance=main，一步发出、不经草稿箱（2026-10-18 实测）；"
                         "不配 --api 则退 UI 路线点「预览并发布」")
     p.set_defaults(fn=cmd_publish)
+    sd = sub.add_parser(
+        "send-draft",
+        help="从草稿箱挑一篇正式发表（默认取存入最久的未发布稿，与小红书/B站"
+             "口径一致；--case 指定）。按标题认亲，不新建、不留孤儿草稿。"
+             "与 `publish --api --send` 的区别：那条路不经草稿箱、直接发一篇新的")
+    sd.add_argument("--case", default=None, help="案例 id 或标题片段（覆盖自动选最久）")
+    sd.add_argument("--dry", action="store_true",
+                    help="只找到 gid 就停，不发表")
+    sd.set_defaults(fn=cmd_send_draft)
     rf = sub.add_parser("refresh",
                         help="按最新逻辑刷新存量草稿（重建 meta→删旧→建新，"
                              "用于标题逻辑/override 变过之后的批量重刷）")

@@ -168,10 +168,14 @@ cases.json     精写库   人工核   255 条 ← 唯一写入口是 /api/candi
 
 | 平台 | 通道 | 读 | 写 | 删 | 已发台账（另有草稿） |
 |---|---|---|---|---|---|
-| **B站** | **纯 API** | ✅ `x/space/article?mid=` 已投稿 | ✅ `draft/add`（带 id 即更新） | ✅ `draft/delete` | **11**（线上 13 篇；⚠ 草稿无台账文件） |
+| **B站** | API 读写 + **UI 发布** | ✅ `x/space/article?mid=` 已投稿 | ✅ `draft/add`（带 id 即更新；`submit=1` 也**只存草稿不发布**） | ✅ `draft/delete` | **11**（线上 13 篇；⚠ 草稿无台账文件） |
+
+> B站真发布走编辑器 UI 的「发布」按钮（`bilibili_publish.py send-draft`，
+> 2026-10-20）。此前认为「headless 下恒 disabled（封面校验）」是**误诊** ——
+> 实测封面设好了按钮照样灰，真正原因是**当日投稿额度用完**（限 5 篇/天）。
 | **头条** | **纯 API**（写操作需活着的编辑器页 + **有头** Chrome 供 `tt-anti-token`） | ✅ `draft_list` + `mp_provider` | ✅ `article/publish`（`--api`，21 字段 form；**`--send` = save=1 群发**）+ 封面 `/spice/image` 两级 | ✅ `delete_draft` / `unpublish`（删已发布） | **21**（另有草稿 38） |
 | **公众号** | **CDP**（9222 有头 Chrome） | ✅ `app_msg_list` + `appmsgpublish?sub=list` | ✅ `mp_editor_set_content` / `mp_editor_change_cover` | ✅ `operate_appmsg?sub=del` | **19**（另有草稿 41） |
-| **小红书** | **CDP**（9223）；**读侧已接口化** | ✅ `note/user/posted` 页面内 fetch（秒级，`scripts/xhs_webapi.py`） | ⚠ 编辑器 UI（`POST /web_api/sns/v2/note` 返回 **461 风控 + verifytype**，创建发不出去） | ✅ `capa/postgw/note/delete`（纯 API） | **8**（另有草稿 44；台账已回填、重复已清理） |
+| **小红书** | **CDP**（9223）；**读侧已接口化** | ✅ `note/user/posted` 页面内 fetch（秒级，`scripts/xhs_webapi.py`） | ⚠ 编辑器 UI（`POST /web_api/sns/v2/note` 返回 **461 风控 + verifytype**，创建发不出去）；`send-draft` 可开草稿箱→挑最久的→开编辑器→图片体检，发布按钮 DOM 已知 = `button.ce-btn bg-red` 但**在抽屉编辑器里没实测到** | ✅ `capa/postgw/note/delete`（纯 API） | **8**（另有草稿 44；台账已回填、重复已清理） |
 
 > 2026-10-18 修正：小红书「无服务端接口」只说对了**草稿**那一半（页面原文：
 > 「草稿存储于当前使用的浏览器本地」）。已发布列表 / 用户信息有服务端接口，

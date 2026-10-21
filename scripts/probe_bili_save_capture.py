@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """**抓 B站「保存为草稿」的真实请求体**（2026-10-01 定案脚本）。
 
 为什么需要这个：`draft/add` 的 `arg` 用 `URLSearchParams` 拼回去一律
@@ -67,7 +69,9 @@ HOOK = r"""
       const url = (typeof u === 'string') ? u : (u && u.url);
       if (String(url).includes('/draft/')) {
         push('fetch', url, (o && o.method) || 'GET',
-             (o && o.body) || null, (o && o.headers && (o.headers['Content-Type'] || o.headers.get?.('Content-Type'))) || '');
+             (o && o.body) || null,
+             (o && o.headers && (o.headers['Content-Type'] || o.headers.get?.('Content-Type')))
+             || '');
       }
     } catch (e) {}
     return OF.apply(this, arguments);

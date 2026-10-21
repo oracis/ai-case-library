@@ -311,7 +311,7 @@ _BLOCK_RE = _re.compile(
 
 def build_arg(title, body_html, article_id=None, image_urls=None,
               summary=None, category_id=CATEGORY_ID,
-              private_pub=2, original=0, reprint=1):
+              private_pub=2, original=0, reprint=1, submit=0):
     """把编辑器 HTML 造出 draft/add 需要的 arg。
 
     `body_html`：走 `clean_body` 之后的正文 HTML。
@@ -399,6 +399,27 @@ def build_arg(title, body_html, article_id=None, image_urls=None,
         arg["article_id"] = article_id
     if image_urls:
         arg["image_urls"] = list(image_urls)[:1]     # B站只认首图作封面
+    # ⚠ submit=1 **并不能发布**（2026-10-20 实测定案，且晚间隔夜**双重证伪**）：
+    # ① 白天：自己拼的 arg + submit=1 → code:0，草稿仍留箱、不进已发表列表；
+    # ② 晚间：把**编辑器自己发出去的真实 arg 原样回传**（hook XHR 抓的，含
+    #    opus.content 全量段落）+ submit=1 → 依旧 code:0，草稿还在箱里、
+    #    已发表列表没命中。⇒ 与 arg 拼得真不真无关，submit=1 就是纯草稿参数。
+    # B站专栏**没有可用的发布接口**（draft/publish 等全是真 404；用户猜的
+    # 「另一个 add 换参数即发布」也不成立——发布请求前端压根发不出来：
+    # 额度用完时发布按钮的 handler 自己退化成「保存草稿」，抓包只见
+    # draft/add）。真发只能走编辑器 UI 的「发布」按钮，见 bilibili_publish
+    # 的 `ui_publish_draft`。
+    #
+    # 2026-10-20 晚翻案：早前「headless 下恒 disabled（封面校验）」的结论是
+    # **错的**。实测拆开看：草稿封面已经设好（`.selected-cover` 在、接口
+    # origin_image_urls 有值），发布按钮照样是灰的 —— 编辑器顶部那行小字写的
+    # 是「已达到当日投稿上限，只能保存草稿哦~」。真正拦路的是**每日投稿上限**，
+    # 不是封面、也不是 headless。当时把「同一天里第二篇之后点不动」误记成了
+    # headless/封面问题。额度规则分账号等级（lv0~lv3 每天 1 篇、lv4+ 每天 5 篇，
+    # B站官方专栏公告只写面上的 5），本账号是 lv0~lv3 档。submit 参数保留仅作
+    # 向后兼容（无副作用，但**不会发布**）。
+    if submit:
+        arg["submit"] = submit
     return arg
 
 

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """四平台内容合规自查器。
 
 用法：
@@ -168,7 +170,7 @@ def main():
 
     print("=" * 60)
     if args.platform:
-        print("目标平台：{}".format(args.platform))
+        print("目标平台：%s" % args.platform)
     else:
         print("目标平台：未指定（禁售类目不会升为高危，建议用 --platform 指定）")
     print("=" * 60)
@@ -180,9 +182,9 @@ def main():
     if fatal:
         print("\n🔴 高危（命中明确禁售类目）")
         for w in fatal:
-            print("  【{}】{}".format(w["cat"], w["note"]))
-            print("     四平台判定：{}".format(
-                " / ".join("{}={}".format(k, v) for k, v in w["verdicts"].items())))
+            print("  【%s】%s" % (w["cat"], w["note"]))
+            print("     四平台判定：%s" %
+                  " / ".join("%s=%s" % (k, v) for k, v in w["verdicts"].items()))
             if not args.platform:
                 print("     ⚠ 未指定平台：请逐个平台确认后再发")
         print("\n  处置：换平台 > 改整段意图。替换个别词无效。")
@@ -190,11 +192,11 @@ def main():
     if warns:
         print("\n🟡 需人工复核")
         for w in warns:
-            print("  [{}] {}".format(w["level"], w["cat"]))
+            print("  [%s] %s" % (w["level"], w["cat"]))
             if w.get("note"):
-                print("      {}".format(w["note"]))
+                print("      %s" % w["note"])
             for c in w.get("context", []):
-                print("      …{}…".format(c[:70]))
+                print("      …%s…" % c[:70])
             if w.get("likely_false_positive"):
                 print("      （上下文含技术术语，可能是误报）")
 

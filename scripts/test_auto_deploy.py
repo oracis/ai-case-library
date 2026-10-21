@@ -175,12 +175,18 @@ class TestRealBuildsNormalizeEqual(unittest.TestCase):
     """决定性断言：用**真实构建**的两份产物验证归一化够不够。
 
     同一份数据连续构建两次，本来就该判定为「无差异」。
-    实测 39 个产物里只有 data.json / data.js 会变 —— 这个测试把
-    「只有这两个」和「这两个归一化后一致」同时钉死：
+    实测 39 个产物里只有 data.json / data.js **可能**变（含秒级时间戳）——
+    这个测试把「白名单之外不许不稳定」和「这两个归一化后一致」同时钉死：
 
-      · 如果哪天 build_static 往别的产物里塞了时间戳，第一条会红
+      · 如果哪天 build_static 往**别的**产物里塞了时间戳，第一条会红
         （表现会是每天空转部署一次，不红的话根本发现不了）
       · 如果 data.json 里新增了别的易变字段，第二条会红
+
+    ⚠ 2026-10-20 CI 实测教训：data.json/data.js 的时间戳是**秒级**精度，
+      两次构建落在同一秒内时它们逐字节相同，raw_diff 就是空集 ——
+      所以白名单必须是**子集断言**（raw_diff ⊆ {data.js, data.json}），
+      不能断言「恰好相等」：把「同秒构建」当失败是假红，2026-10-20
+      在 CI 上真实炸过一次（Python 3.11 job，raw_diff=[]）。
 
     慢（要构建两次），但这是整个脚本正确性的地基。
     """
@@ -215,10 +221,14 @@ class TestRealBuildsNormalizeEqual(unittest.TestCase):
             if ra != rb:
                 raw_diff.append(rel)
 
-        # 允许且只允许 data.json / data.js 不稳定
-        self.assertEqual(sorted(raw_diff), ["data.js", "data.json"],
-                         "有别的产物不稳定（含时间戳？）—— 那会让兜底部署每天空转。"
-                         "把它们加进 auto_deploy._TIMESTAMPY 或查清原因。")
+        # 白名单之外**不许有任何**产物不稳定；data.json/data.js 里的秒级
+        # 时间戳「可能变也可能不变」（两次构建同秒则逐字节相同），那是
+        # 正常现象 —— 归一化逻辑存在的意义就是抹掉它。
+        stray = sorted(set(raw_diff) - {"data.js", "data.json"})
+        self.assertEqual(stray, [],
+                         "有白名单之外的产物不稳定（含时间戳？）—— 那会让"
+                         "兜底部署每天空转。把它们加进 auto_deploy._TIMESTAMPY"
+                         " 或查清原因。")
 
         # 2) 归一化之后，全清单必须一致
         self.assertEqual(ma, mb,

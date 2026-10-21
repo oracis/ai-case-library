@@ -1,78 +1,78 @@
 {
-  "ran_at": "2026-10-20 05:38:09",
-  "added": 153,
+  "ran_at": "2026-10-21 05:39:01",
+  "added": 88,
   "by_source": {
-    "hn": 74,
-    "indiehackers": 18,
-    "trustmrr": 61
+    "hn": 71,
+    "indiehackers": 3,
+    "trustmrr": 14
   },
   "inbox_total": 400,
-  "archived_this_run": 153,
-  "archive_total": 753,
+  "archived_this_run": 88,
+  "archive_total": 841,
   "top": [
     {
-      "name": "Supascribe",
-      "headline": "MRR $2,376，TrustMRR 第 1190 名",
-      "heat": 0,
-      "category": "营销工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/supascribe"
-    },
-    {
-      "name": "Skinmaxx",
-      "headline": "MRR $639，TrustMRR 第 1951 名",
+      "name": "NotFair",
+      "headline": "近 30 天收入 $12,842",
       "heat": 0,
       "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/skinmaxx"
+      "url": "https://trustmrr.com/startup/notfair"
     },
     {
-      "name": "Linkerflow",
-      "headline": "MRR $964，TrustMRR 第 1510 名",
-      "heat": 0,
-      "category": "营销工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/linkerflow"
-    },
-    {
-      "name": "Salah Lock: Prayer Habit",
-      "headline": "MRR $163，TrustMRR 第 3399 名",
-      "heat": 0,
-      "category": "未分类",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/salah-lock-prayer-habit"
-    },
-    {
-      "name": "Lista: AI Crosslisting & Tools",
-      "headline": "MRR $1,036，TrustMRR 第 1332 名",
-      "heat": 0,
-      "category": "AI 工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/lista"
-    },
-    {
-      "name": "ZeroGPT Plus",
-      "headline": "MRR $5,370，TrustMRR 第 732 名",
+      "name": "ScripTrade AI",
+      "headline": "MRR $457，TrustMRR 第 4597 名",
       "heat": 0,
       "category": "垂直行业 SaaS",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/zerogpt-plus"
+      "url": "https://trustmrr.com/startup/scriptrade-ai"
     },
     {
-      "name": "FLEART AI",
-      "headline": "MRR $302，TrustMRR 第 3284 名",
-      "heat": 0,
-      "category": "AI 工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/appfleart"
-    },
-    {
-      "name": "Static Forms",
-      "headline": "MRR $978，TrustMRR 第 1902 名",
+      "name": "Thyonix",
+      "headline": "MRR $126，TrustMRR 第 6057 名",
       "heat": 0,
       "category": "开发者工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/static-forms"
+      "url": "https://trustmrr.com/startup/thyonix"
+    },
+    {
+      "name": "Refs",
+      "headline": "近 30 天收入 $343",
+      "heat": 0,
+      "category": "创作者经济",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/refs"
+    },
+    {
+      "name": "Wave → Instagram Outreach",
+      "headline": "近 30 天收入 $5,494",
+      "heat": 0,
+      "category": "营销工具",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/wave"
+    },
+    {
+      "name": "Serena Healthcare",
+      "headline": "近 30 天收入 $145",
+      "heat": 0,
+      "category": "企业服务",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/serena"
+    },
+    {
+      "name": "Clamshell",
+      "headline": "近 30 天收入 $415",
+      "heat": 0,
+      "category": "开发者工具",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/clamshell"
+    },
+    {
+      "name": "Burn",
+      "headline": "累计收入 $24（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
+      "heat": 0,
+      "category": "移动应用",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/burn"
     }
   ]
 }

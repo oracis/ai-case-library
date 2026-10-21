@@ -903,6 +903,8 @@ def cmd_preview(_args):
 
 PUB_URL = "https://creator.xiaohongshu.com/publish/publish?source=official"
 DRAFT_URL = "https://creator.xiaohongshu.com/publish/publish?target=draft"
+# 发布后回读用：已发布笔记列表（草稿发完不在草稿箱了，只能来这儿找）
+NOTE_MANAGER_URL = "https://creator.xiaohongshu.com/new/note-manager"
 
 # 2026-09-25 实测 DOM（小红书 creator 网页版，图文流程）：
 #   默认停在「上传视频」tab，必须先切到「上传图文」才会出现编辑表单；
@@ -1446,23 +1448,83 @@ JS_CARDS = "(function(){%s\n" % JS_CLICK_CHAIN + """
 })()"""
 
 
-def _draft_cdp():
-    """连上 9222 里已登录的小红书创作中心，停在草稿箱页。"""
+#: 右上角「草稿箱(43)」入口。**页面刚 navigate 完，元素存在但 width 可能
+#: 还是 0**（Vue 还没布局完）—— 这时候去 jclick 是点了个寂寞，抽屉不开。
+#: 所以等的不只是"文本出现"，而是"入口真的有尺寸"。
+JS_DRAFT_ENTRY_W = """(function(){
+  var es=[].slice.call(document.querySelectorAll('*')).filter(function(x){
+    return /^草稿箱\\(\\d+\\)$/.test((x.innerText||'').trim()); });
+  if(!es.length) return 0;
+  return Math.round(es[es.length-1].getBoundingClientRect().width);})()"""
+
+
+def _wait_draft_entry(sub, timeout=30):
+    """等草稿箱入口渲染出尺寸。返回等了多少秒（None = 超时）。"""
+    for i in range(int(timeout / 2) or 1):
+        try:
+            if int(_js(sub, JS_DRAFT_ENTRY_W) or 0) > 0:
+                return i * 2
+        except (TypeError, ValueError):
+            pass
+        time.sleep(2)
+    return None
+
+
+def _draft_cdp(fresh=True):
+    """连上 9223 里已登录的小红书创作中心。
+
+    ⚠ **默认新开标签页**。复用一个开久了的 publish 页会「CDP 连得上、点了
+      没反应」—— 修图脚本 `xhs_draft_fix_images` 卡过半小时才靠新 tab 解掉；
+      2026-10-20 `send-draft` 抽屉死活点不开（jclick 和真实鼠标都没用）也是
+      同一个原因。旧 tab 里 Vue 的抽屉/编辑器 DOM 已经进入点不动的状态。
+    ⚠ 顺带：别直接 navigate 到 `?target=draft`，那个 URL 会把抽屉卡在半开
+      状态（有入口、点了没反应）。从干净的 `?source=official` 进，再点入口。
+    """
     cdp = wp.CDP(PUB_PORT)
     tid = None
-    for t in cdp.list_targets():
-        if t.get("type") == "page" and "creator.xiaohongshu.com" in (t.get("url") or ""):
-            tid = t["id"]
-            break
+    if not fresh:
+        for t in cdp.list_targets():
+            if t.get("type") == "page" and "creator.xiaohongshu.com" in (
+                    t.get("url") or ""):
+                tid = t["id"]
+                break
     if not tid:
         tid = cdp.new_target(PUB_URL)["id"]
-        time.sleep(4)
     sub = wp.CDP(PUB_PORT)
     sub.connect_target(tid)
-    sub.send("Page.navigate", {"url": DRAFT_URL})
-    time.sleep(8)
+    sub._own_tid = tid if fresh else None
+    # 2026-10-21：headless Chrome 不传 --window-size 时视口只有 784x449，
+    # 而小红书发布页左侧有侧边栏，「草稿箱(N)」入口被推到 x≈965（宽布局下
+    # x≈1260）—— **点击坐标落在视口外**，真实鼠标点的是空气，抽屉死活不开
+    # （症状：入口能找到、'clicked' 照常返回、抽屉纹丝不动；fetch_drafts 的
+    # DRAWER_UP 判据永远不亮，连炸三次「打不开草稿箱抽屉」）。
+    # 加宽视口后入口落入视口内，实测一次就开。1440x900 也覆盖编辑器内控件。
+    try:
+        sub.send("Emulation.setDeviceMetricsOverride",
+                 {"width": 1440, "height": 900, "deviceScaleFactor": 1,
+                  "mobile": False})
+    except Exception as e:
+        print("[warn] setDeviceMetricsOverride 失败：%s: %s"
+              % (type(e).__name__, e))
+    time.sleep(6)
     sub.eval("1", refresh_context=True)
+    waited = _wait_draft_entry(sub)
+    if waited is None:
+        print("[warn] 等 30 秒草稿箱入口还没渲染出尺寸，后面的点击可能落空。")
     return sub
+
+
+def close_own_tab(sub):
+    """关掉 `_draft_cdp(fresh=True)` 自己开的那个标签页（别让 tab 堆积）。"""
+    tid = getattr(sub, "_own_tid", None)
+    if not tid:
+        return
+    try:
+        op = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+        op.open("http://127.0.0.1:%d/json/close/%s" % (PUB_PORT, tid),
+                timeout=3).read()
+    except Exception:
+        pass
 
 
 def _js(sub, expr):
@@ -1486,21 +1548,23 @@ def fetch_drafts(sub=None):
     def js(e):
         return _js(sub, e)
 
-    if js("""(function(){
-      return [].slice.call(document.querySelectorAll('*')).filter(function(x){
-        return (x.innerText||'').indexOf('保存于')>=0;}).length>0 ? 'open' : 'closed';
-    })()""") != "open":                       # 抽屉可能开着，省一次点击
-        if js("(function(){%s\n" % JS_CLICK_CHAIN + """
-          var es=[].slice.call(document.querySelectorAll('*')).filter(function(x){
-            return /^草稿箱\\(\\d+\\)$/.test((x.innerText||'').trim()) &&
-                   x.getBoundingClientRect().width>0; });
-          if(!es.length) return 'notfound';
-          jclick(es[es.length-1]);
-          return 'clicked';
-        })()""") != "clicked":
-            raise SystemExit("打不开草稿箱抽屉")
-        time.sleep(3)
-    if js("(function(){%s\n" % JS_CLICK_CHAIN + """
+    HAS_CARDS = ("[].slice.call(document.querySelectorAll('*'))"
+                 ".filter(function(x){"
+                 "return (x.innerText||'').indexOf('保存于')>=0;}).length")
+    DRAWER_UP = ("(function(){return (document.body.innerText||'')"
+                 ".indexOf('图文笔记(')>=0 ? 1 : 0;})()")
+    #: 抽屉入口的坐标。**必须真实鼠标点** —— 合成事件（jclick）在这个
+    #: Vue 抽屉上点了没反应（2026-10-20 实测：'clicked' 照常返回，抽屉纹丝不动）。
+    #: 抽屉**内部**的按钮（图文笔记 tab、卡片「编辑」）jclick 是有效的。
+    DRAWER_BOX = """(function(){
+      var es=[].slice.call(document.querySelectorAll('*')).filter(function(x){
+        return /^草稿箱\\(\\d+\\)$/.test((x.innerText||'').trim()) &&
+               x.getBoundingClientRect().width>0; });
+      if(!es.length) return null;
+      var e=es[es.length-1], r=e.getBoundingClientRect();
+      return JSON.stringify({x:Math.round(r.x+r.width/2),
+                             y:Math.round(r.y+r.height/2)});})()"""
+    CLICK_TAB = "(function(){%s\n" % JS_CLICK_CHAIN + """
       var es=[].slice.call(document.querySelectorAll('*')).filter(function(x){
         return /图文笔记\\(\\d+\\)/.test((x.innerText||'').trim()) &&
                (x.innerText||'').trim().length<12 &&
@@ -1508,13 +1572,36 @@ def fetch_drafts(sub=None):
       if(!es.length) return 'notfound';
       jclick(es[es.length-1]);
       return 'clicked';
-    })()""") != "clicked":
-        raise SystemExit("没找到「图文笔记」tab")
-    for _ in range(6):
-        time.sleep(2.5)
-        if js("[].slice.call(document.querySelectorAll('*')).filter(function(x){\n"
-              "return (x.innerText||'').indexOf('保存于')>=0;}).length"):
+    })()"""
+
+    # 抽屉：真实鼠标点，给 3 次机会（入口要等它渲染出尺寸才点得动，
+    # 见 `_wait_draft_entry`；抽屉还有展开动画）。
+    opened = False
+    for attempt in range(3):
+        if js(DRAWER_UP):
+            opened = True
             break
+        box = js(DRAWER_BOX)
+        if not box:
+            print("[warn] 抽屉入口没找到（第 %d 次），等 3 秒重来" % (attempt + 1))
+            time.sleep(3)
+            continue
+        _real_click(sub, box)
+        time.sleep(4)
+        if js(DRAWER_UP):
+            opened = True
+    if not opened:
+        raise SystemExit("打不开草稿箱抽屉（真实鼠标点了 3 次都没开）")
+
+    # 「图文笔记」tab：抽屉打开后**可能默认就在这页**（那就没有 tab 可点），
+    # 也可能还在动画里。判据是"卡片出来了没有"，不是"点没点到 tab"。
+    for _ in range(4):
+        if js(HAS_CARDS):
+            break
+        js(CLICK_TAB)
+        time.sleep(2.5)
+    else:
+        raise SystemExit("草稿箱里卡片一直没出来（图文笔记 tab 点了也没用）")
     return js(JS_CARDS) or []
 
 
@@ -1554,6 +1641,579 @@ def match_drafts(drafts, cases=None):
             {"id": cid or "", "title": d.get("title", ""),
              "saved": d.get("saved", ""), "raw": d.get("raw", "")})
     return matched, orphans
+
+
+# ------------------------------------------------------- 草稿箱 → 发布
+#
+# 2026-10-20 实测进度（_probe_xhs_send.py / _probe_xhs_bottom*.py）：
+#   ✅ 开草稿箱抽屉、读全部卡片 —— fetch_drafts 一次调用就返回 43 条，
+#      **不是分页**。B站 opus 才是分页（「共 5 页 / 48 个」，要点「下一页」）；
+#      小红书抽屉是**一次性渲染全部条目**，只滚图片、不做卡片懒加载，
+#      所以不用操作分页，一次 JS_CARDS 就拿全。
+#   ✅ 点卡片「编辑」→ 打开编辑器 —— 三次不同草稿都成功
+#   ⚠ 判定编辑器**必须**看标题输入框（SEL_TITLE 有值）。左侧导航常驻
+#      「发布笔记」，用 `innerText 含「发布」` 判定会 100% 假阳性 ——
+#      第一次探针就是这么被骗的，以为开了其实没开。
+#   ✅ 图片体检：img.naturalWidth===0 即裂图。今天多篇草稿 10/15 张裂
+#      （CDN 签名过期，实测那条 URL 直接 403），发裂图笔记是事故 ⇒ 默认拦下。
+#   ✅ **发布按钮已定位**（2026-10-20 用户从 devtools 拍的真实 DOM）：
+#        <button type="button" class="ce-btn bg-red" aria-busy="false"
+#                aria-disabled="false">发布</button>
+#      之前三套兜底全扑空的原因：编辑器里按「innerText 含『发布』」搜出来的
+#      32 个元素**全是左侧导航**（「发布笔记」），真正的按钮是 `ce-btn bg-red`。
+#      `aria-disabled="true"` 表示内容不合规/没填完，按钮是灰的 —— 这时候
+#      **不许再落坐标兜底**，点了也是点空，还会误伤旁边的按钮。
+#      ⚠ 整体链路（点完 → `?published=true` → 回读）仍未端到端跑过一次，
+#        第一次用请 --dry 或开着浏览器盯一眼。
+
+
+def pick_draft(drafts, title=None, keyword=None):
+    """从草稿箱挑一条。返回 (draft|None, reason)。
+
+    默认取**存入最久**的那条（与头条/B站统一口径：三平台都发草稿箱里
+    存入最久的草稿；公众号例外，按编号顺序）。
+    """
+    if not drafts:
+        return None, "草稿箱是空的"
+    pool = drafts
+    if keyword:
+        hit = [d for d in pool if keyword in (d.get("raw") or "")]
+        if not hit:
+            return None, "草稿箱里没有标题含「%s」的" % keyword
+        pool = hit
+    if title:
+        want = norm_title(title)
+        for d in pool:
+            if norm_title(d.get("title")) == want:
+                return d, "标题精确匹配"
+        for d in pool:
+            if want and want in norm_title(d.get("title")):
+                return d, "标题包含匹配"
+        return None, "草稿箱里标题对不上「%s」" % title
+    return sorted(pool, key=lambda d: d.get("saved") or "")[0], "取存入最久的一条"
+
+
+def img_verdict(total, broken, fix=False):
+    """图片体检结论。裂图默认拦下 —— 发出去就是事故。"""
+    if broken == 0:
+        return "ok", "图片 %d 张全部加载正常" % total
+    if fix:
+        return "fix", "%d/%d 张裂图（CDN 签名过期），将用本地卡片图重传" % (
+            broken, total)
+    return "abort", "%d/%d 张裂图（CDN 签名过期）" % (broken, total)
+
+
+def url_published(url):
+    """URL 判据：手动发布实测落在 `?published=true`，不是 /publish/success。
+
+    旧代码只认 /publish/success —— 那是**新建发布**的落点，从草稿箱发
+    不走那条路。两个都认。
+    """
+    u = url or ""
+    return "published=true" in u or "/publish/success" in u
+
+
+def evaluate_send(clicked, url_changed, readback_hit):
+    """发布结果判定（纯函数）。
+
+    **回读优先**：URL 判据只是旁证（SPA 时不时会弹回默认视图），
+    note-manager 里真找得到才算数。
+    """
+    if not clicked:
+        return {"status": "failed", "reason": "没点到发布按钮"}
+    if readback_hit:
+        return {"status": "published",
+                "reason": "回读命中已发布列表" +
+                          ("（URL 也已变）" if url_changed else
+                           "（URL 没变，但回读为准）")}
+    if url_changed:
+        return {"status": "unverified",
+                "reason": "URL 变了但回读没找到，需人工核对"}
+    return {"status": "unverified", "reason": "点了但没拿到任何成功信号"}
+
+
+#: 笔记图 = 编辑区缩略图 `img.preview` + 手机预览区 `img.preivew-image`
+#: （小红书自己的拼写，少个 e）。**同一张图会出现两次**（左边缩略图 + 右边
+#: 手机预览），所以按 src 去重。别再 `querySelectorAll('img')` 通吃 ——
+#: 那会把头像（.d-topbar）、活动卡片封面（.activity-cover）全数进来，
+#: 6 条草稿数出来一模一样的「15 张裂 10 张」，整齐得像常量，其实全是噪声。
+JS_IMG_HEALTH = """(function(){
+  var seen={}, t=0, b=0, bad=[];
+  var ims=[].slice.call(
+    document.querySelectorAll('img.preview, img.preivew-image'));
+  ims.forEach(function(im){
+    var rc=im.getBoundingClientRect();
+    if(rc.width<20) return;
+    var k=im.src||'';
+    if(seen[k]) return;
+    seen[k]=1;
+    t++;
+    if(im.naturalWidth===0){ b++; if(bad.length<3) bad.push(k.slice(0,60)); }
+  });
+  return JSON.stringify({total:t, broken:b, bad:bad});})()"""
+
+
+def _wait_publish_ready(sub, timeout=30, gap=1.5):
+    """等编辑器**真的就位**：`<xhs-publish-btn>` 组件渲染出来。
+
+    `_open_draft_editor` 只看到标题输入框有值就返回了 —— 那会儿编辑器还是个
+    空壳（实测：图片 0 张、发布组件压根不在 DOM 里），后面体检和找按钮全是
+    在空气里比划。这个组件才是「内容加载完了、可以谈发布」的标志。
+
+    返回等了多少秒（None = 超时）。
+    """
+    for i in range(int(timeout / gap) or 1):
+        if publish_btn_state(sub).get("host"):
+            return i * gap
+        time.sleep(gap)
+    return None
+
+
+def _wait_imgs_settled(sub, stable=3, gap=1.2, tries=15):
+    """等编辑器里的图片**数量稳定**再体检。返回 (张数, 是否稳定)。
+
+    草稿一打开，图是**一张一张填进来**的（实测：先看到 1 张，3 秒后变 6 张）。
+    不等就数会数出「1/1 张裂图」这种鬼数字 —— 2026-10-20 就是被它骗的：
+    以为这条草稿只剩 1 张图，去删它删不动（列表还在长），白卡半天。
+    """
+    last, same = None, 0
+    for _ in range(tries):
+        n = len(_img_slots(sub))
+        same = same + 1 if n == last else 0
+        if same >= stable:
+            return n, True
+        last = n
+        time.sleep(gap)
+    return (last or 0), False
+
+
+def _img_slots(sub):
+    """编辑器里的图片槽位（`.img-container`）列表，删图要按坐标点。"""
+    r = _js(sub, """(function(){
+      return JSON.stringify([].slice.call(
+        document.querySelectorAll('.img-container')).map(function(it){
+          var r=it.getBoundingClientRect();
+          var im=it.querySelector('img.preview');
+          return {x:Math.round(r.x+r.width/2), y:Math.round(r.y+r.height/2),
+                  nw: im ? im.naturalWidth : -1};
+        }));})()""")
+    return r if isinstance(r, list) else []
+
+
+def _img_health(sub):
+    """编辑器里的笔记图体检：返回 (total, broken, bad_srcs)。
+
+    只数**笔记内容图**并按 src 去重。纯文字笔记 total 会是 0 —— 那是没数据，
+    不是"图没问题"，所以调用方要自己说清楚。
+    """
+    r = _js(sub, JS_IMG_HEALTH)
+    if isinstance(r, dict):
+        return (int(r.get("total") or 0), int(r.get("broken") or 0),
+                list(r.get("bad") or []))
+    return 0, 0, []
+
+
+def _open_draft_editor(sub, title, timeout=40):
+    """点草稿卡片的「编辑」→ 等编辑器就绪。返回 (ok, 编辑器标题)。
+
+    判据是标题输入框有值 —— 别再用「页面含『发布』」（左侧导航干扰）。
+    """
+    _js(sub, "(function(){%s\n" % JS_CLICK_CHAIN + """
+      var cards=[].slice.call(document.querySelectorAll('*')).filter(function(x){
+        var t=(x.innerText||'');
+        return t.indexOf('保存于')>=0 && t.indexOf('编辑')>=0 && t.indexOf('删除')>=0;});
+      cards=cards.filter(function(c){
+        return !cards.some(function(o){ return o!==c && c.contains(o); });});
+      for (var i=0;i<cards.length;i++){
+        var c=cards[i];
+        if ((c.innerText||'').indexOf(%s)<0) continue;
+        var btns=[].slice.call(c.querySelectorAll('*')).filter(function(b){
+          return (b.innerText||'').trim()==='编辑' && b.getBoundingClientRect().width>0;});
+        if(!btns.length) return 'no-edit-btn';
+        btns[btns.length-1].scrollIntoView({block:'center'});
+        jclick(btns[btns.length-1]); return 'clicked';}
+      return 'notfound';})()""" % json.dumps((title or "")[:20]))
+    js_up = ("(function(){var e=document.querySelector(%s);"
+             "return e&&(e.value||'').trim().length>0 ? (e.value||'').trim() : '';})()"
+             % json.dumps(SEL_TITLE))
+    for _ in range(int(timeout / 1.5) or 1):
+        time.sleep(1.5)
+        v = _js(sub, js_up)
+        if v:
+            return True, v
+    return False, ""
+
+
+#: 发布按钮的宿主组件（2026-10-20 实测 DOM）：
+#:   <xhs-publish-btn is-publish="true" is-save-draft="true" submit-text="发布"
+#:     save-text="暂存离开" submit-disabled="false" submit-loading="false"
+#:     save-disabled="false">
+#:     #shadow-root (closed)
+#:       <button type="button" class="ce-btn white">暂存离开</button>
+#:       <button type="button" class="ce-btn bg-red" aria-busy="false"
+#:               aria-disabled="false">发布</button>
+#:
+#: ⚠ **按钮在 closed shadow DOM 里** —— `element.shadowRoot` 是 null，
+#:   `document.querySelectorAll` 永远搜不到（`ce-btn` 在整页 HTML 里出现 0 次）。
+#:   这是之前三套兜底全扑空的真正原因，不是"页面改版"也不是"按钮不存在"。
+#:   只有 CDP 协议层能穿透：`DOM.getDocument({pierce:true})` 看得到整棵树。
+#: ⇒ 读**能不能点**看宿主属性（light DOM 就可读，`submit-disabled` /
+#:   `submit-loading` 比 shadow 里的 aria-* 更权威）；
+#:   **点**走 CDP：pierce 找 nodeId → `getContentQuads` 取坐标 → 真实鼠标事件。
+SEL_PUBLISH_HOST = "xhs-publish-btn"
+SEL_PUBLISH_BTN = "button.ce-btn.bg-red"
+
+#: 自包含（内部带上 jclick），可直接喂给 `_js()`，也能单独用 node 跑测试。
+#: 返回值：ok / busy / disabled / none / not-publish
+JS_PUBLISH_BTN = "(function(){%s\n" % JS_CLICK_CHAIN + """
+  var bs=[].slice.call(document.querySelectorAll('button.ce-btn.bg-red'))
+          .filter(function(b){
+            var rc=b.getBoundingClientRect();
+            return rc.width>0 && rc.height>0;
+          });
+  if(!bs.length) return 'none';
+  var b=null;
+  bs.forEach(function(x){
+    if(!b && (x.innerText||'').trim().indexOf('发布')>=0) b=x;});
+  if(!b) return 'not-publish';
+  if(b.getAttribute('aria-disabled')==='true') return 'disabled';
+  if(b.getAttribute('aria-busy')==='true') return 'busy';
+  b.scrollIntoView({block:'center'});
+  jclick(b);
+  return 'ok';})()"""
+
+
+def publish_component_state(attrs):
+    """看宿主组件的属性判断「发布」能不能点。返回 (状态, 人话)。
+
+    状态：ok / disabled / busy / no-publish / unknown
+    判据用**宿主属性**而不是 shadow 里的 aria-*：属性在 light DOM 就能读到，
+    是组件自己往外暴露的事实，不用穿透 shadow。
+    """
+    if not attrs:
+        return "unknown", "页面上没有 <%s>，发布按钮的宿主组件不在" % SEL_PUBLISH_HOST
+    if str(attrs.get("is-publish") or "false").lower() != "true":
+        return "no-publish", "组件没开 is-publish（%s），这条草稿不给发" % (
+            attrs.get("is-publish") or "空")
+    # 两个开关缺一个就**不敢点**：属性不全说明组件还没渲染完整（或改版了），
+    # 这时候"没说禁用"不等于"可以点" —— 宁可停下来让人看一眼。
+    for k in ("submit-disabled", "submit-loading"):
+        if k not in attrs:
+            return "unknown", "组件属性里没有 %s，状态不明，不敢点" % k
+    if str(attrs.get("submit-loading")).lower() == "true":
+        return "busy", "正在提交中（submit-loading=true），别重复点"
+    if str(attrs.get("submit-disabled")).lower() == "true":
+        return "disabled", ("发布按钮是禁用的（submit-disabled=true）—— "
+                            "多半是标题/正文/图片有没过校验的项")
+    return "ok", "可点（%s）" % (attrs.get("submit-text") or "发布")
+
+
+def find_shadow_button(tree, host=SEL_PUBLISH_HOST, cls="bg-red"):
+    """从 `DOM.getDocument(pierce=True)` 的树里找 shadow DOM 里的按钮。
+
+    返回 nodeId（找不到返回 None）。**纯函数**，可直接单测 ——
+    CDP 返回的树就是一堆嵌套 dict，不用真的连浏览器。
+    """
+    def in_btn(node):
+        if (node.get("nodeName") or "").upper() != "BUTTON":
+            return None
+        blob = " ".join(str(a) for a in (node.get("attributes") or []))
+        if cls in blob:
+            return node.get("nodeId")
+        return None
+
+    def walk(node):
+        hit = in_btn(node)
+        if hit:
+            return hit
+        for c in node.get("children") or []:
+            hit = walk(c)
+            if hit:
+                return hit
+        return None
+
+    def walk_shadow(node):
+        """先找宿主，进了 shadow root 再找按钮（shadow 优先于 light DOM）。"""
+        if (node.get("nodeName") or "").upper() == host.upper():
+            for sr in node.get("shadowRoots") or []:
+                hit = walk(sr)
+                if hit:
+                    return hit
+        for c in node.get("children") or []:
+            hit = walk_shadow(c)
+            if hit:
+                return hit
+        return None
+
+    return walk_shadow(tree or {})
+
+
+def quad_center(quad):
+    """CDP `getContentQuads` 的一个 quad（8 个数）→ 中心点 + 尺寸。
+
+    quad 是四个角依次排开的 [x1,y1, x2,y2, x3,y3, x4,y4]，取包围盒中心。
+    """
+    if not quad or len(quad) < 8:
+        return None
+    xs = [quad[0], quad[2], quad[4], quad[6]]
+    ys = [quad[1], quad[3], quad[5], quad[7]]
+    return {"x": (min(xs) + max(xs)) / 2.0,
+            "y": (min(ys) + max(ys)) / 2.0,
+            "w": max(xs) - min(xs), "h": max(ys) - min(ys)}
+
+
+def shadow_publish_btn(sub, cls="bg-red"):
+    """穿透 closed shadow DOM 找发布按钮。返回 (nodeId, 中心点/None)。"""
+    doc = sub.send("DOM.getDocument", {"depth": -1, "pierce": True})
+    tree = (doc.get("result") or {}).get("root") or {}
+    nid = find_shadow_button(tree, cls=cls)
+    if not nid:
+        return None, None
+    try:
+        sub.send("DOM.scrollIntoViewIfNeeded", {"nodeId": nid})
+        time.sleep(0.4)
+    except Exception:
+        pass
+    r = sub.send("DOM.getContentQuads", {"nodeId": nid})
+    quads = (r.get("result") or {}).get("quads") or []
+    return nid, (quad_center(quads[0]) if quads else None)
+
+
+#: 只读体检：编辑器里现在有几个红按钮、各自能不能点。不给 JS_PUBLISH_BTN
+#: 用（它要 jclick），单独一份，方便 --dry 时先探一眼再决定要不要真点。
+JS_PUBLISH_BTN_STATE = """(function(){
+  var c=document.querySelector('%s');
+  if(!c) return JSON.stringify({host:null});
+  var o={host:{}, shadow: c.shadowRoot ? 'open' : 'closed',
+         rect:(function(){var r=c.getBoundingClientRect();
+               return {x:Math.round(r.x), y:Math.round(r.y),
+                       w:Math.round(r.width), h:Math.round(r.height)};})()};
+  [].slice.call(c.attributes).forEach(function(a){ o.host[a.name]=a.value; });
+  return JSON.stringify(o);})()""" % SEL_PUBLISH_HOST
+
+
+def publish_btn_state(sub):
+    """发布按钮宿主组件的当前状态（只读，不点）。返回 dict。
+
+    看宿主属性就够了 —— 按钮本体在 closed shadow DOM 里，JS 读不到，但组件
+    把「能不能点」明明白白写在 `submit-disabled` / `submit-loading` 上了。
+    """
+    r = _js(sub, JS_PUBLISH_BTN_STATE)
+    return r if isinstance(r, dict) else {}
+
+
+def _click_shadow_btn(sub, coord):
+    """按坐标真实点击（CDP Input）。shadow DOM 里的按钮只能这么点。"""
+    x, y = coord["x"], coord["y"]
+    for typ in ("mouseMoved", "mousePressed", "mouseReleased"):
+        p = {"type": typ, "x": x, "y": y, "button": "left", "clickCount": 1}
+        if typ == "mousePressed":
+            p["buttons"] = 1
+        sub.send("Input.dispatchMouseEvent", p)
+        time.sleep(0.15)
+
+
+def _click_publish(sub):
+    """点编辑器里的「发布」。返回 (策略名, 是否点到)。
+
+    策略 0（2026-10-20 实测可用）：按钮在 `<xhs-publish-btn>` 的 **closed
+    shadow DOM** 里，JS 摸不到，只能走 CDP —— 先看宿主属性判能不能点，
+    再 `DOM.getDocument(pierce)` 拿 nodeId → `getContentQuads` 取坐标 →
+    真实鼠标事件。
+    只有这条路彻底不通（页面改版、组件没了）才退到 1/2/3 的老兜底。
+
+    ⚠ `disabled` / `no-publish` 直接返回 clicked=False —— 按钮灰着说明内容
+      没过校验，这时**不许**再拿坐标去戳，戳到的可能是旁边的「暂存离开」。
+    """
+    # 0) 宿主组件 + 穿透 closed shadow DOM（唯一实测有效的路）
+    st = publish_btn_state(sub)
+    host = st.get("host") or {}
+    verdict, why = publish_component_state(host)
+    print("  发布按钮：%s（%s）" % (verdict, why))
+    if verdict == "ok":
+        nid, coord = shadow_publish_btn(sub)
+        if nid and coord:
+            _click_shadow_btn(sub, coord)
+            return "shadow-publish-btn@(%d,%d)" % (coord["x"], coord["y"]), True
+        print("[warn] 组件说能点，但 pierce 进去没拿到按钮坐标，退到老兜底。")
+    elif verdict in ("disabled", "no-publish"):
+        return "btn-%s" % verdict, False
+    elif verdict == "busy":
+        return "btn-busy(已在提交中)", True
+    # 1) DOM：文本精确「发布」，排除左侧导航（x<300 一律是菜单）
+    r = _js(sub, "(function(){%s\n" % JS_CLICK_CHAIN + """
+      var hit=null;
+      [].slice.call(document.querySelectorAll('*')).forEach(function(e){
+        if (hit) return;
+        var t=(e.innerText||'').trim();
+        var rc=e.getBoundingClientRect();
+        if (rc.width<=0||rc.height<=0) return;
+        if (rc.x < 300) return;                 // 左侧导航区
+        if (t==='发布' || t==='发布笔记' && rc.x>300){
+          if (!e.querySelector('*')) hit=e;
+          else if ((e.innerText||'').trim().length<=4) hit=e;
+        }});
+      if(!hit) return 'none';
+      hit.scrollIntoView({block:'center'});
+      jclick(hit);
+      return 'ok';})()""")
+    if r == "ok":
+        return "dom-text", True
+    # 2) class 含 publish 且可点
+    r = _js(sub, "(function(){%s\n" % JS_CLICK_CHAIN + """
+      var hit=null;
+      [].slice.call(document.querySelectorAll('[class*=publish],[class*=submit]'))
+        .forEach(function(e){
+          if (hit) return;
+          var t=(e.innerText||'').trim();
+          var rc=e.getBoundingClientRect();
+          if (rc.width<=0||rc.x<300) return;
+          if (t.indexOf('发布')>=0 && t.length<=8) hit=e;});
+      if(!hit) return 'none';
+      hit.scrollIntoView({block:'center'});
+      jclick(hit);
+      return 'ok';})()""")
+    if r == "ok":
+        return "dom-class", True
+    # 3) 坐标兜底（新建发布页实测比例；草稿编辑器未验证）
+    iw = int(sub.eval("window.innerWidth") or 1080)
+    ih = int(sub.eval("window.innerHeight") or 676)
+    x = round(iw * 556.0 / 1080.0)
+    y = round(ih * 644.0 / 676.0)
+    for typ in ("mouseMoved", "mousePressed", "mouseReleased"):
+        sub.send("Input.dispatchMouseEvent",
+                 {"type": typ, "x": x, "y": y, "button": "left", "clickCount": 1})
+        time.sleep(0.15)
+    return "coord(%d,%d)" % (x, y), True
+
+
+def _readback_published(sub, title, timeout=40):
+    """去笔记管理页回读：已发布列表里找不找得到这条标题。"""
+    sub.send("Page.navigate", {"url": NOTE_MANAGER_URL})
+    key = norm_title(title)[:12]
+    for _ in range(int(timeout / 2) or 1):
+        time.sleep(2)
+        try:
+            txt = sub.eval("document.body.innerText", refresh_context=True) or ""
+        except Exception:
+            continue
+        if key and key in norm_title(txt):
+            return True
+    return False
+
+
+def cmd_send_draft(args):
+    """从草稿箱挑一条正式发布（默认取存入最久的那条）。"""
+    if not _port_up(PUB_PORT):
+        raise SystemExit("没找到 %d 调试 Chrome，先起浏览器。" % PUB_PORT)
+    sub = _draft_cdp()
+    close_tab = getattr(args, "keep_tab", False) is False
+    try:
+        return _send_draft_on(sub, args)
+    finally:
+        if close_tab:
+            close_own_tab(sub)
+
+
+def _send_draft_on(sub, args):
+    drafts = fetch_drafts(sub)
+    d, why = pick_draft(drafts, title=getattr(args, "title", None),
+                        keyword=getattr(args, "case", None))
+    if d is None:
+        raise SystemExit("[err] %s" % why)
+    print("目标草稿：%s | %s（%s）" % (d.get("saved"), d.get("title"), why))
+
+    ok, got = _open_draft_editor(sub, d.get("title"))
+    if not ok:
+        raise SystemExit("[err] 编辑器没打开（%s），去浏览器看一眼" % d.get("title"))
+    print("编辑器已开：%s" % got)
+    ready = _wait_publish_ready(sub)
+    if ready is None:
+        raise SystemExit(
+            "[err] 等 30 秒 <%s> 还没渲染出来 —— 编辑器是个空壳，内容没加载完。"
+            "后面的图片体检和找发布按钮都不作数，去浏览器看一眼。" % SEL_PUBLISH_HOST)
+    print("编辑器就位（发布组件 %d 秒后出现）" % ready)
+
+    n, settled = _wait_imgs_settled(sub)
+    if not settled:
+        print("[warn] 图片数量一直没稳定（最后数到 %d 张），体检可能不准 —— "
+              "草稿的图是一张张填进来的，去浏览器核对再决定。" % n)
+    total, broken, bad = _img_health(sub)
+    verdict, msg = img_verdict(total, broken, fix=getattr(args, "fix_images", False))
+    print("图片体检：%s" % msg)
+    if total == 0:
+        print("[warn] 一张笔记图都没数到 —— 要么这条本来就是纯文字笔记，"
+              "要么页面改版了（选择器 `img.preview` 失联）。体检**不可信**，"
+              "去浏览器看一眼再决定。")
+    if bad:
+        print("  裂图样例：%s" % bad[0])
+    if verdict == "abort":
+        if getattr(args, "force", False):
+            print("[force] 已知 ORB 跨域拦截会让编辑器里图显示为裂图（图片本体在"
+                  "服务端、走 fileId，发布不受影响，见 2026-10-20 排障）。按 "
+                  "--force 跳过图片体检直接发。")
+        else:
+            raise SystemExit("[err] 有裂图，发裂图笔记是事故。加 --fix-images "
+                             "用本地卡片图重传，或去浏览器手动换图。")
+    if verdict == "fix":
+        if getattr(args, "force", False):
+            print("[force] --fix-images 尚未实现，按 --force 跳过图片体检直接发。")
+        else:
+            print("[warn] 裂图修复**未实现**（今天 PROSP 是手工删裂图+重传的），"
+                  "请先去浏览器手动处理。")
+            raise SystemExit(2)
+
+    if getattr(args, "dry", False):
+        print("DRY：编辑器已就位、图片正常，未点发布。")
+        st = publish_btn_state(sub)
+        host = st.get("host")
+        if not host:
+            print("  ⚠ 页面上没有 <%s> —— 发布按钮的宿主组件不在，"
+                  "去 devtools 确认是不是改版了。" % SEL_PUBLISH_HOST)
+        else:
+            v, why = publish_component_state(host)
+            rect = st.get("rect") or {}
+            print("  <%s>：%s（%s）| shadow=%s | 位置 %sx%s @(%s,%s)"
+                  % (SEL_PUBLISH_HOST, v, why, st.get("shadow"),
+                     rect.get("w"), rect.get("h"),
+                     rect.get("x"), rect.get("y")))
+            print("  属性：%s" % json.dumps(host, ensure_ascii=False))
+            if v == "ok":
+                nid, coord = shadow_publish_btn(sub)
+                print("  穿透 shadow DOM：按钮 %s，坐标 %s"
+                      % ("找到了" if nid else "没找到",
+                         "(%.0f,%.0f)" % (coord["x"], coord["y"])
+                         if coord else "—"))
+        return
+
+    strategy, clicked = _click_publish(sub)
+    print("点发布（策略=%s）" % strategy)
+    if not clicked and (strategy.startswith("btn-disabled")
+                        or strategy.startswith("btn-no-publish")):
+        raise SystemExit(
+            "[err] 发布按钮点不了（%s）—— 多半是标题/正文/图片有没过校验的项，"
+            "或这条草稿不给发。去浏览器看红色提示，别盲点。" % strategy)
+    url_changed = False
+    for _ in range(20):
+        time.sleep(1.5)
+        try:
+            if url_published(sub.eval("location.href") or ""):
+                url_changed = True
+                break
+        except Exception:
+            pass
+    hit = _readback_published(sub, d.get("title"))
+    r = evaluate_send(clicked, url_changed, hit)
+    print("判定：%s —— %s" % (r["status"], r["reason"]))
+    if r["status"] == "published":
+        cid = (match_drafts([d])[0] or [{}])[0].get("id") or ""
+        if cid:
+            mark_published(cid)
+            print("已记账：%s" % cid)
+        else:
+            print("[warn] 没对上案例 id，未记账（去 data/xhs_published.json 手动补）")
+    else:
+        print("[warn] 没确认发布成功，**没记账**。去浏览器核对。")
 
 
 def cmd_drafts(args):
@@ -1914,11 +2574,21 @@ def _load_ledger(p):
 
 def _write_ledger(p, entries, nl, was_dict=False):
     """⚠ `newline=""` 必须显式给：Windows 文本模式会把 \n 翻成 \r\n，
-    行尾控制权就没了。"""
+    行尾控制权就没了。
+    ⚠ 2026-10-20 补末尾换行保留：`json.dumps` 的产物不带末尾 \\n，而
+       `xhs_published.json` 历来以换行结尾（判据同
+       `ledger._write_file`）。不判就平白丢一个换行，git diff 里
+       显示 "No newline at end of file"。
+    """
     obj = ({e["id"]: e.get("at") for e in entries} if was_dict else entries)
     text = json.dumps(obj, ensure_ascii=False, indent=2)
+    tail = ""
+    if os.path.isfile(p):
+        with open(p, "rb") as f:
+            if f.read().endswith(b"\n"):
+                tail = nl
     with open(p, "w", encoding="utf-8", newline="") as f:
-        f.write(text.replace("\n", nl))
+        f.write(text.replace("\n", nl) + tail)
 
 
 def _mark(p, cid):
@@ -2041,6 +2711,23 @@ def main():
     q.add_argument("--keep", action="store_true",
                    help="沿用当前编辑页状态（默认重新导航，避免图/字叠加）")
     q.set_defaults(fn=cmd_publish)
+    sd = sub.add_parser(
+        "send-draft",
+        help="从草稿箱挑一条**正式发布**（默认取存入最久的一条）")
+    sd.add_argument("--case", help="草稿标题里的关键词（也认案例 id/名字片段）")
+    sd.add_argument("--title", help="草稿标题（精确/包含匹配）")
+    sd.add_argument("--fix-images", action="store_true",
+                    help="有裂图时用本地卡片图重传（⚠ 未实现，当前只提示）")
+    sd.add_argument("--force", action="store_true",
+                    help="跳过图片体检直接发。⚠ 仅限已知安全的场景：2026-10-20 "
+                         "已实锤小红书草稿图「裂」是 ORB 跨域拦截的**显示假象**"
+                         "（图片本体在服务端、走 fileId，发布不受影响）。不要拿它"
+                         "去盖真裂图。发完用 drafts/笔记管理核对一下。")
+    sd.add_argument("--dry", action="store_true",
+                   help="只开到编辑器并体检图片，不点发布")
+    sd.add_argument("--keep-tab", action="store_true",
+                    help="跑完别关标签页（默认关掉自己开的那个，避免 tab 堆积）")
+    sd.set_defaults(fn=cmd_send_draft)
     args = ap.parse_args()
     # ⚠ 走 CDP 的子命令共用这一个自动启动入口（清代理 → 删 LOCK →
     # 带 --no-sandbox 起 Chrome for Testing → 轮询端口）。

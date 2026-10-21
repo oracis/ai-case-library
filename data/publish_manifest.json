@@ -25,6 +25,14 @@
    "title": ""
   }
  },
+ "aeo-checker": {
+  "toutiao": {
+   "at": "2026-10-19 22:46",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "AEO Checker：为营销人员提供网站SEO AEO检查"
+  }
+ },
  "aeo-engine": {
   "bilibili": {
    "at": "2026-09-29 22:06",
@@ -79,9 +87,10 @@
  },
  "autoreels-ai": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-20 同步（用户手动发布，已通过列表回读命中）",
    "attempt": 0,
-   "state": "draft_saved",
+   "remote_id": 342371,
+   "state": "published",
    "title": "月收$1.4K：一键把素材剪成短视频"
   },
   "toutiao": {
@@ -183,9 +192,10 @@
  },
  "checkvibe": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-20 同步（用户手动发布，已通过列表回读命中）",
    "attempt": 0,
-   "state": "draft_saved",
+   "remote_id": 342374,
+   "state": "published",
    "title": "月收$3.4K：给 AI 写的应用查漏洞"
   },
   "toutiao": {
@@ -521,10 +531,11 @@
  },
  "insect-bite-id": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-21 12:35 草稿箱→发布（send-draft；回读滞后，人工核实空间公开列表 id=53536366 后补账）",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": "月收$2.9K：拍张照认出被什么咬"
+   "remote_id": "342403",
+   "state": "published",
+   "title": "Insect Bite ID：拍张照认出被什么咬"
   },
   "toutiao": {
    "at": "2026-09-29 21:17",
@@ -1273,6 +1284,14 @@
    "title": "Stealth RDP：提供跨美欧的Windows/Linu"
   }
  },
+ "storyshort": {
+  "toutiao": {
+   "at": "2026-10-19 22:46",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "StoryShort：输入文字自动生成「无脸视频」并定时发布"
+  }
+ },
  "storyshort-ai": {
   "bilibili": {
    "at": "2026-09-29 22:06",
@@ -1509,11 +1528,11 @@
  },
  "white-glove-content": {
   "bilibili": {
+   "article_id": "343875",
    "at": "2026-10-13 22:48",
    "attempt": 1,
    "state": "draft_saved",
-   "title": "White Glove：社媒内容外包代运营",
-   "article_id": "343875"
+   "title": "White Glove：社媒内容外包代运营"
   },
   "toutiao": {
    "at": "2026-10-13 23:09",
@@ -1536,11 +1555,11 @@
  },
  "wpconvert-ai-convert-ai-sites-to-wordpress": {
   "bilibili": {
+   "article_id": "343876",
    "at": "2026-10-10 19:39",
    "attempt": 2,
    "state": "draft_saved",
-   "title": "把 AI 建站工具生成的网站，转成 WordPress——一个工程师的生意",
-   "article_id": "343876"
+   "title": "把 AI 建站工具生成的网站，转成 WordPress——一个工程师的生意"
   },
   "toutiao": {
    "at": "2026-10-10 15:46",

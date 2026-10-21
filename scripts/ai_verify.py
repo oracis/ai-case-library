@@ -428,7 +428,8 @@ def map_ai_to_draft(cand, ai, publish_mode, model_name=""):
     elif "official" in kinds:
         verification = "official"
     else:
-        verification = ai.get("verification") if ai.get("verification") in VR.VERIFICATION_KEYS else "partial"
+        verification = (ai.get("verification")
+                        if ai.get("verification") in VR.VERIFICATION_KEYS else "partial")
     if verification == "stripe" and "stripe" not in kinds:
         verification = "partial"
 
@@ -1247,7 +1248,8 @@ def resolve_trustmrr_slug(cand, index=None, slugs=None, confirm=False):
             continue
         if confirm:
             title = trustmrr_md_title(g)
-            if not title or (_norm_key(title) != key and _norm_key(title) != _norm_key(cand.get("name"))):
+            if not title or (_norm_key(title) != key
+                             and _norm_key(title) != _norm_key(cand.get("name"))):
                 continue
         return g, "站点索引"
     return "", ""

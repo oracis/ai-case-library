@@ -155,7 +155,11 @@ def main():
         notes, _ = X.posted_notes(pages=3, cdp=cdp)
         note = find_note(notes, args.note_id)
         if not note:
-            print("✗ 线上找不到 %s（可能已删除，或 ID 拼错）" % args.note_id)
+            # ⚠ posted_notes 只覆盖最老的一小撮（见 xhs_webapi 模块注释），
+            # 这里的「找不到」可能是假阴性 —— 真要判在不在，去
+            # creator.xiaohongshu.com/new/note-manager 看卡片。
+            print("✗ posted 接口里找不到 %s（可能已删除、ID 拼错，"
+                  "或它不在接口覆盖的那批里 —— 去笔记管理页核对）" % args.note_id)
             return 2
 
         hits = ledger_hits(args.note_id)

@@ -91,5 +91,23 @@
   "verified_at": "2026-10-19 01:53",
   "evidence": "read_page_verify",
   "note": "对账补登: 读公开页正文确认(cv53298456) → Viktor：住进 Slack 的 AI 同事"
+ },
+ {
+  "id": "checkvibe",
+  "at": "2026-10-10 01:15",
+  "article_id": "342374",
+  "title": "CheckVibe：扫描 vibe-coded 应用漏洞",
+  "verified_at": "2026-10-20 01:01",
+  "evidence": "remote_readback",
+  "note": "2026-10-20 00:52 编辑器点「发布」→「你的专栏已提交成功」→ 已通过列表回读命中（草稿箱最老，10-10 01:15）"
+ },
+ {
+  "id": "autoreels-ai",
+  "at": "2026-10-10 01:12",
+  "article_id": "342371",
+  "title": "AutoReels.AI：一键把素材剪成短视频",
+  "verified_at": "2026-10-20 01:01",
+  "evidence": "remote_readback",
+  "note": "2026-10-20 00:55 发现已在已通过列表（非本次自动发布，应为 10-19 深夜编辑器打开后的人工点击，具体时间未知）"
  }
 ]

@@ -7,8 +7,15 @@
 1. **没有状态文件**。草稿只存在 B站草稿箱里，本地无从判断哪条发过。
    所以清单（`data/publish_manifest.json`）是唯一的幂等依据 —— 这也是
    必须有 state 层的原因，不是为了架构好看。
-2. **publish 不支持 --yes**：脚本只点「保存为草稿」，公开发布留给人。
-3. **LV1–3 每天只能发 1 篇**，LV4–6 5 篇。批量前留意草稿箱别一天清空。
+2. **发布分两步**：默认 `publish` 只**存草稿**（`draft/add`）；给 `--yes`
+   才是**真发布**，走 `send-draft --case <cid>` 点编辑器里的「发布」按钮
+   （2026-10-20 实测可行，见 bilibili_publish.ui_publish_draft）。
+   注意 B站发布走的是**草稿箱**而不是本地产物，所以 yes 分支传的是 cid，
+   脚本按 cid 反查属于它的那条草稿（早期版本在这里只看「最久那条」）。
+3. **LV1–3 每天只能发 1 篇**，LV4–6 5 篇 —— 额度用完发布按钮直接变灰，
+   编辑器顶上写「已达到当日投稿上限，只能保存草稿哦~」。此时脚本明确报失败、
+   不记账。⚠ 之前的错误结论是「headless 下恒 disabled（封面校验）」，实测
+   封面设好了照样灰，真原因是额度（详见 bilibili_publish 的注释）。
 4. **封面要单独一步**（`bilibili_publish.py cover`）。它复用头条的
    `out/toutiao/<id>/cover.png`，走「发布设置 → 自定义封面」开关 →
    hidden input + DataTransfer → 裁剪弹窗确定 → 存草稿。
@@ -32,7 +39,7 @@ class Bilibili(Adapter):
     script = "bilibili_publish.py"
     title_from = "bili"
     requires = ("out/bili/<id>/article.html", "out/toutiao/<id>/cover.png")
-    supports_publish = False          # 只存草稿，脚本无 --yes
+    supports_publish = True           # 有 --yes 才真发（走 send-draft，见下）
     supports_replace = True
     supports_cover = True
     supports_only = True
@@ -41,6 +48,19 @@ class Bilibili(Adapter):
     def done_ids(self):
         """B站侧只能靠清单；这里刻意返回空，让 runner 用 manifest 判幂等。"""
         return set()
+
+    def publish(self, art, dry=False, replace=False, yes=False):
+        """B站的发布入口与存草稿入口**不是同一个子命令**。
+
+        基类把发布实现成 `publish --case X [--yes]`，但 `bilibili_publish.py`
+        的 `publish` 是**存草稿**（`draft/add`），且**没有 `--yes` 这个参数**
+        —— 硬拼上去的结果是 argparse 直接「unrecognized arguments」退出 2。
+        真发布必须走 `send-draft --case X`（编辑器 UI 点「发布」）。
+        """
+        if yes:
+            return self.run(["send-draft", "--case", art.cid], not dry,
+                            timeout=420)
+        return super().publish(art, dry=dry, replace=replace, yes=False)
 
     def cover(self, art, dry=False, force=False):
         """给已存草稿补封面。幂等：远端已有封面的会自己跳过。"""

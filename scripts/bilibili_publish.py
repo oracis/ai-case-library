@@ -541,17 +541,20 @@ def probe():
     ctxs = sub.collect_contexts(timeout=15)
     print("=== contexts ===")
     for c in ctxs:
-        print("  ctx %s %s name=%s" % (c["id"], "default" if c["isDefault"] else "iframe", c.get("name")))
+        print("  ctx %s %s name=%s"
+              % (c["id"], "default" if c["isDefault"] else "iframe", c.get("name")))
     for c in ctxs:
         cid = c["id"]
         try:
             d = sub.eval("""(function(){
               function cls(e){ return (e.className||'').toString().slice(0,60); }
               return {
-                edits: [].slice.call(document.querySelectorAll('[contenteditable]')).map(function(e){
+                edits: [].slice.call(document.querySelectorAll('[contenteditable]'))
+                  .map(function(e){
                   return {cls:cls(e), tag:e.tagName};
                 }).slice(0,8),
-                inputs: [].slice.call(document.querySelectorAll('textarea,input')).map(function(e){
+                inputs: [].slice.call(document.querySelectorAll('textarea,input'))
+                  .map(function(e){
                   return {ph:(e.getAttribute('placeholder')||''), cls:cls(e)};
                 }).slice(0,8),
                 btns: [].slice.call(document.querySelectorAll('button')).map(function(e){
@@ -1172,7 +1175,7 @@ def _api_tab(cdp):
 
 
 def save_via_api(cid, replace=False, cdp=None, title=None, body=None,
-                 refresh_cover=False, force=False):
+                 refresh_cover=False, force=False, submit=0):
     """用 draft/add 存一条草稿（新建或按标题覆盖）。返回 True/False。
 
     这是 `publish_one` 的默认路径。流程全程不开编辑器：
@@ -1257,7 +1260,8 @@ def save_via_api(cid, replace=False, cdp=None, title=None, body=None,
             image_urls=image_urls,
             private_pub=old.get("private_pub", 2),
             original=old.get("original", 0),
-            reprint=old.get("reprint", 1))
+            reprint=old.get("reprint", 1),
+            submit=submit)
         out = bili_api.save_draft(cdp, arg)
         if not isinstance(out, dict) or out.get("code") != 0:
             print("  ✗ draft/add 失败：%s"
@@ -1311,6 +1315,401 @@ def _record_draft(cid, aid, title=""):
                              % ("更新" if title else "", aid))
     except Exception as e:                              # noqa: BLE001
         print("    ⚠ 台账写入失败（不影响已存的草稿）：%s" % str(e)[:80])
+
+
+def _load_manifest():
+    """读发布清单（publish_manifest.json）。B站幂等只认清单，不看 ledger 层。"""
+    p = os.path.join(ROOT, "data", "publish_manifest.json")
+    try:
+        with open(p, encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:                              # noqa: BLE001
+        return {}
+
+
+def _mark_manifest_published(cid, remote_id, title=""):
+    """B站真发成功后写清单：state=published + remote_id（幂等真值）。
+
+    ⚠ 2026-10-20 修格式回归：旧实现 `indent=2` + 默认文本模式重写整个
+       清单，而本仓库的规范格式是 `indent=1, sort_keys=True`（范式在
+       `multiplatform/state.py` 的 `Manifest.save`）——缩进乱改一次，
+       git diff 就多出 3156 行纯格式噪音。现在与 `Manifest.save` 同构：
+       临时文件 + `os.replace` 原子替换（半截 JSON = 整本清单失效），
+       显式 `newline="\n"` 免得 Windows 文本模式把行尾翻成 CRLF。
+    """
+    p = os.path.join(ROOT, "data", "publish_manifest.json")
+    try:
+        m = _load_manifest()
+        b = m.setdefault(cid, {}).setdefault("bilibili", {})
+        b["state"] = "published"
+        b["remote_id"] = remote_id
+        if title:
+            b["title"] = title
+        b["at"] = (time.strftime("%Y-%m-%d %H:%M")
+                   + " 草稿箱→发布（send-draft）")
+        tmp = p + ".tmp"
+        with open(tmp, "w", encoding="utf-8", newline="\n") as f:
+            json.dump(m, f, ensure_ascii=False, indent=1, sort_keys=True)
+        os.replace(tmp, p)
+    except Exception as e:                         # noqa: BLE001
+        print("    ⚠ 清单写入失败（不影响已发布的草稿）：%s" % str(e)[:80])
+
+
+# --------------------------------------------------------------------------
+# 编辑器 UI 真发布（2026-10-20 实测定案：这才是 B站唯一的发布通道）
+# --------------------------------------------------------------------------
+# 接口层没有发布端点（`build_arg` 注释），唯一入口是编辑器 iframe 底部那枚
+# `vui_button--blue`「发布」按钮。它能不能点，判据全在页面上：
+#
+#   · class 带 `vui_button--disabled` / `btn.disabled === true` → 灰的
+#   · 灰的**唯一常见原因**是「已达到当日投稿上限，只能保存草稿哦~」
+#     —— 编辑器顶部一行橙字。
+#     额度规则（2026-10-20 查证，B站官方专栏公告 cv17041071 + 等级规则）：
+#       · lv0~lv3：**1 篇/天**；lv4 及以上：5 篇/天（公告只写 5 篇，是上限）
+#       · 被审核退回的文章再投不占额度
+#     **本账号是 lv0~lv3 档**（2026-10-20 实测：当天只发 1 篇即被拦），
+#     所以对本账号有效的数字是 1，不是公告面上的 5。别把上限当本账号额度。
+#
+# ⚠ 2026-10-20 之前这里写着「headless 下恒 disabled（封面校验）」——**错的**。
+#   实测：草稿封面设好了（`.selected-cover` 在 DOM 里、`origin_image_urls`
+#   有值），按钮照样灰；真正的原因是当天额度用完了。抄就和封面都没关系。
+JS_PUBLISH_STATE = _iframe_js("""
+      var btn=[].slice.call(d.querySelectorAll('button,[role=button]'))
+               .find(function(b){return (b.innerText||'').trim()==='发布';});
+      var txt=d.body.innerText||'';
+      var hint='';
+      ['已达到当日投稿上限','当日投稿上限'].forEach(function(k){
+        if(!hint && txt.indexOf(k)>=0) hint=k;});
+      if(!btn) return JSON.stringify({found:false, quota:!!hint, hint:hint});
+      var rc=btn.getBoundingClientRect();
+      return JSON.stringify({
+        found:true, quota:!!hint, hint:hint,
+        disabled: btn.disabled===true,
+        cls:String(btn.className),
+        x:Math.round(rc.x), y:Math.round(rc.y),
+        w:Math.round(rc.width), h:Math.round(rc.height)});
+""")
+
+JS_CLICK_PUBLISH = _iframe_js("""
+      var b=[].slice.call(d.querySelectorAll('button,[role=button]'))
+            .find(function(x){return (x.innerText||'').trim()==='发布';});
+      if(!b) return 'no-btn';
+      if(b.disabled) return 'disabled';
+      b.scrollIntoView({block:'center'});
+      b.click();
+      return 'clicked';
+""")
+
+#: 发布后可能弹二次确认。只在弹窗**确实在说发布这件事**时才点「确定」——
+#: 宁可漏点也不能乱点（旁边就有「删除」「清空」之类不可逆的按钮）。
+JS_CONFIRM_DIALOG = _iframe_js("""
+      var dlg=d.querySelector('.vui-dialog, .vui-modal, [class*=dialog]');
+      if(!dlg) return 'no-dialog';
+      var t=dlg.innerText||'';
+      if(!/发布|投稿|专栏/.test(t)) return 'not-publish-dialog';
+      var b=[].slice.call(dlg.querySelectorAll('button'))
+             .find(function(x){return ['确定','确认','确认发布'].indexOf(
+                                 (x.innerText||'').trim())>=0;});
+      if(!b) return 'no-btn';
+      b.click();
+      return 'confirmed';
+""")
+
+JS_SUCCESS_HINT = _iframe_js("""
+      var t=d.body.innerText||'';
+      if(t.indexOf('提交成功')>=0) return 'toast:提交成功';
+      if(t.indexOf('发布成功')>=0) return 'toast:发布成功';
+      return '';
+""")
+
+QUOTA_HINT_RE = ("已达到当日投稿上限", "当日投稿上限")
+
+
+def publish_btn_state(cdp):
+    """读编辑器里「发布」按钮的当前状态。返回 dict（读不到返回 {}）。"""
+    r = cdp.eval(JS_PUBLISH_STATE, refresh_context=True)
+    if isinstance(r, str):
+        try:
+            r = json.loads(r)
+        except ValueError:
+            return {}
+    return r if isinstance(r, dict) else {}
+
+
+def publish_verdict(st):
+    """纯函数：把 `publish_btn_state` 的结果翻成 (能不能点, 原因)。
+
+    ⚠ **顺序是有讲究的**：先看投稿上限，再看 disabled。反过来写会得出
+    「封面/正文校验没过」的错误结论 —— 这正是 2026-10-20 之前把额度问题
+    误诊成「headless 封面校验」的原因。
+    """
+    if not st:
+        return False, "读不到发布按钮状态（编辑器 iframe 可能没就位）"
+    if not st.get("found"):
+        if st.get("quota"):
+            return False, "今日投稿上限已到（%s），按钮都没渲染出来" % st.get("hint")
+        return False, "编辑器里没找到「发布」按钮（页面改版？去 devtools 核一眼）"
+    if st.get("quota"):
+        return False, ("今日投稿额度用完了（编辑器顶上的原话：「%s」）—— "
+                       "别的都是白试，明天额度刷新再来"
+                       % (st.get("hint") or QUOTA_HINT_RE[0]))
+    if st.get("disabled"):
+        return False, ("发布按钮是灰的（class=%s），页面上也没有投稿上限提示 "
+                       "—— 多半是标题/正文/封面有没过校验的项，去浏览器看红色提示"
+                       % st.get("cls"))
+    return True, "可点（@%s,%s %sx%s）" % (st.get("x"), st.get("y"),
+                                       st.get("w"), st.get("h"))
+
+
+def _open_editor_tab(cdp, aid, tries=2):
+    """开/重启 aid 的编辑器 tab 并等 iframe 就绪。返回 tab_id 或 None。"""
+    tid = None
+    for attempt in range(1, tries + 1):
+        tid = cdp.new_target(BILI_EDIT_URL % aid)["id"]
+        cdp.connect_target(tid)
+        time.sleep(7 if attempt == 1 else 4)
+        if _wait_iframe_ready(cdp, "read-editor", SEL["body"], 30):
+            return tid
+        print("    iframe 未就绪（第 %d 次），换 tab 重来" % attempt)
+        try:
+            cdp.close_target(tid)
+        except Exception:                          # noqa: BLE001
+            pass
+        time.sleep(2)
+    return None
+
+
+def _ensure_cover_remote(cdp, cid, draft):
+    """这条草稿远端有没有封面；没有就用 upcover + draft/add 补一张。
+
+    封面不是发布的前置校验（实测有封面也照样可能因额度被拦），但发不设封面
+    的文章属于自己给自己找麻烦，所以还是补一下。返回 True/False/null（未知）。
+    """
+    if _cover_of(draft):
+        return True
+    print("    远端无封面 → upcover 补一张")
+    return save_via_api(cid, replace=True, cdp=cdp, refresh_cover=True)
+
+
+def _match_case_draft(pool, cid, want_title):
+    """纯函数：在草稿池里挑属于 cid 的那条。返回 (draft, 为什么挑它)。
+
+    两级匹配：标题**精确等于**预期标题 → 标题里**含 case 名**。
+    线上草稿标题可能被改过（如 divine-widgets），所以第二级不是多余的。
+    """
+    want = _norm_title(want_title)
+    if want:
+        for d in pool:
+            if _norm_title(d.get("title")) == want:
+                return d, "标题精确命中"
+    key = _norm_title(cid)
+    for d in pool:
+        if key and key in _norm_title(d.get("title")):
+            return d, "标题含 case 名"
+    return None, ("草稿箱里没有属于 %s 的草稿（标题既不等于《%s》，也不含 "
+                  "case 名）" % (cid, want_title or cid))
+
+
+def _pick_target_draft(pool, cid=None):
+    """挑一条草稿：给了 cid 就挑它的，否则挑**存入最久**的（与小红书/头条同口径）。"""
+    if not cid:
+        return sorted(pool, key=lambda d: d.get("mtime") or 0)[0], "最久未发布草稿"
+    html = load_article_html(cid)
+    d, why = _match_case_draft(pool, cid, make_title(cid, html) if html else "")
+    return (d, "--case %s（%s）" % (cid, why)) if d else (None, why)
+
+
+def ui_publish_draft(cdp=None, aid=None, cid=None, title="", dry=False,
+                     keep_tab=False):
+    """**真发布**一条已有草稿（编辑器 UI 点「发布」）。返回 (ok, 说明)。
+
+    这是 B站唯一的发布通道。全流程：
+      1. 补封面（没有的话）
+      2. 开编辑器 tab → 等 read-editor iframe
+      3. `publish_btn_state` + `publish_verdict` 判能不能点
+         （投稿上限 / 按钮灰 都在这里中止，**不假装成功**）
+      4. 点发布 → 可能有二次确认 → 等「提交成功」toast
+      5. **回读已发表列表**确认 aid 真出现了，才记账（清单 + ledger）
+
+    ok=True 只在第 5 步命中时返回。返回 False 时说明里会写清卡在哪一步。
+    """
+    own = cdp is None
+    cdp = cdp or wp.CDP(PUB_PORT)
+    tid = None
+    try:
+        # 1) 远端草稿信息（封面判据用）
+        _api_tab(cdp)
+        drafts = bili_api.list_drafts(cdp) or []
+        draft = next((d for d in drafts if str(d.get("article_id")) == str(aid)),
+                     {})
+        if cid and not dry:
+            if not _ensure_cover_remote(cdp, cid, draft):
+                return False, "封面没补上（不影响额度判断，但本次中止）"
+
+        # 2) 开编辑器
+        tid = _open_editor_tab(cdp, aid)
+        if not tid:
+            return False, "编辑器 iframe 两次都没就绪"
+        time.sleep(2)
+
+        # 3) 能不能点
+        st = publish_btn_state(cdp)
+        ok, why = publish_verdict(st)
+        print("    发布按钮：%s" % why)
+        if dry:
+            return ok, "DRY：" + why
+        if not ok:
+            return False, why
+
+        # 4) 点
+        r = cdp.eval(JS_CLICK_PUBLISH, refresh_context=True)
+        print("    点发布：%s" % r)
+        if r != "clicked":
+            return False, "发布按钮没点动（%s）" % r
+        time.sleep(2.5)
+        dlg = cdp.eval(JS_CONFIRM_DIALOG, refresh_context=True)
+        if dlg == "confirmed":
+            print("    二次确认已点")
+        elif dlg != "no-dialog":
+            print("    有弹窗但不是发布确认（%s），不动它" % dlg)
+
+        hint = ""
+        end = time.time() + 20
+        while time.time() < end and not hint:
+            hint = cdp.eval(JS_SUCCESS_HINT, refresh_context=True) or ""
+            if hint:
+                break
+            time.sleep(1.5)
+        if hint:
+            print("    编辑器提示：%s" % hint)
+
+        # 5) 回读：只有「已发表列表里真的有这个 aid」才算成功
+        _api_tab(cdp)
+        found = False
+        end = time.time() + 40
+        while time.time() < end:
+            try:
+                pub = bili_api.list_published_articles(cdp, max_page=3)
+            except Exception:                      # noqa: BLE001
+                pub = []
+            if any(str(a.get("id")) == str(aid) for a in pub):
+                found = True
+                break
+            time.sleep(4)
+        if not found:
+            return False, ("点了发布但已发表列表里没找到 aid=%s —— "
+                           "**不记账**，去浏览器确认（可能撞了当日额度）" % aid)
+
+        _mark_manifest_published(cid, aid, title)
+        try:
+            import ledger as ld
+            ld.promote("bilibili", cid, aid, title=title,
+                       evidence="editor-ui-publish")
+        except Exception as e:                     # noqa: BLE001
+            print("    ⚠ ledger 层同步失败（清单已记 published）：%s" % str(e)[:80])
+        return True, "已发布并记账 aid=%s" % aid
+    finally:
+        if not keep_tab and tid:
+            try:
+                cdp.close_target(tid)
+            except Exception:                      # noqa: BLE001
+                pass
+        if own:
+            try:
+                cdp.close()
+            except Exception:                      # noqa: BLE001
+                pass
+
+
+def send_draft(cdp=None, dry=False, cid=None):
+    """从草稿箱挑**存入最久**的一条（与小红书/头条口径一致）**真发布**。
+
+    2026-10-20 实测定案：`draft/add submit=1` 只是保存草稿，**不会发布**；
+    真发只有一条路 —— 编辑器 UI 的「发布」按钮（`ui_publish_draft`）。
+    这条路能不能走通取决于**当日投稿额度**（5 篇/天），额度用完按钮是灰的，
+    此时本函数**明确报失败**，不会写进清单、也不会假装成功。
+
+    返回 (ok, cid, aid, title)：ok=True 表示已在已发表列表回读命中。
+    """
+    own = cdp is None
+    cdp = cdp or wp.CDP(PUB_PORT)
+    # ⚠ 别在这里 `_close_stale_bili_tabs(cdp)`：那样会把 `_api_tab` 接下来要复用
+    #   的 bilibili 页面 target 关掉，而 list_targets 可能有延迟还看得到它 ⇒
+    #   连上一个正在关闭的 target，第一次 eval 就 WinError 10053
+    #   （2026-10-20 实测）。UI 发布开的编辑器 tab 由 ui_publish_draft 自己收。
+    try:
+        _api_tab(cdp)
+        drafts = bili_api.list_drafts(cdp)
+        if not drafts:
+            print("  ✗ 草稿箱是空的")
+            return (False, None, None, None)
+        # 过滤已在清单标 published 的（按 remote_id 或标题），避免重复发
+        m = _load_manifest()
+        published_ids, published_titles = set(), set()
+        for _c, d in m.items():
+            b = d.get("bilibili") or {}
+            if b.get("state") == "published":
+                if b.get("remote_id"):
+                    published_ids.add(str(b["remote_id"]))
+                if b.get("title"):
+                    published_titles.add(re.sub(r"\s+", "", b["title"]))
+        pool = [d for d in drafts
+                if str(d.get("article_id")) not in published_ids
+                and re.sub(r"\s+", "", d.get("title") or "") not in published_titles]
+        if not pool:
+            print("  ✗ 草稿箱里没有未发布的草稿了（全 published）")
+            return (False, None, None, None)
+        # 挑哪条：给了 cid 就挑**属于它**的那条，否则挑存入最久的。
+        # ⚠ 早期版本不管 --case 取什么都发最久那条，cid 只用来反查 ——
+        #   `send-draft --case foo` 实际发的是别人的草稿，还把账记到 foo 头上。
+        pool.sort(key=lambda d: d.get("mtime") or 0)
+        oldest, why = _pick_target_draft(pool, cid)
+        if not oldest:
+            print("  ✗ %s" % why)
+            return (False, None, None, None)
+        aid = oldest.get("article_id")
+        title = oldest.get("title") or ""
+        print("  → %s：aid=%s《%s》mtime=%s（候选 %d 条）"
+              % (why, aid, title, oldest.get("mtime"), len(pool)))
+        if dry:
+            print("  [dry] 开到编辑器看发布按钮能不能点（不补封面、不点发布）")
+            ok, why = ui_publish_draft(cdp=cdp, aid=aid, cid=None, title=title,
+                                       dry=True)
+            print("  → %s" % why)
+            return (ok, None, aid, title)
+        # 反查 cid：先按清单 bilibili.title 精确匹配；失败则退化用案例名匹配
+        # （线上草稿标题可能被改过，与清单记录不一致，如 divine-widgets）
+        target = cid
+        if not target:
+            nw = re.sub(r"\s+", "", title)
+            for _c, d in m.items():
+                b = d.get("bilibili") or {}
+                if re.sub(r"\s+", "", b.get("title") or "") == nw:
+                    target = _c
+                    break
+        if not target:
+            for c in load_cases():
+                nm = re.sub(r"\s+", "", c.get("name") or "")
+                if nm and (nm in nw or nw in nm):
+                    target = c["id"]
+                    break
+        if not target:
+            print("  ✗ 反查不到《%s》对应的 case（清单/案例名都匹配不上），"
+                  "请用 --case 指定" % title)
+            return (False, None, aid, title)
+        # 真发布：编辑器 UI 点「发布」→ 回读已发表列表
+        ok, why = ui_publish_draft(cdp=cdp, aid=aid, cid=target, title=title)
+        if ok:
+            print("  ✓ 《%s》已发布 aid=%s" % (title, aid))
+        else:
+            print("  ✗ 《%s》没发出去：%s" % (title, why))
+        return (ok, target, aid, title)
+    finally:
+        if own:
+            try:
+                cdp.close()
+            except Exception:                      # noqa: BLE001
+                pass
 
 
 def _cover_present(cdp, tid):
@@ -1963,6 +2362,14 @@ def main():
     d.add_argument("--keep", type=int, default=1,
                    help="同标题保留几条（默认 1，即删到只剩一条）")
     d.add_argument("--max-del", type=int, default=20)
+    s = sub.add_parser("send-draft",
+                       help="从草稿箱挑存入最久的一条公开发布（默认最久；"
+                            "--case 指定）。B站每天限 5 篇、发布后不可编辑")
+    s.add_argument("--case", default=None,
+                   help="指定 case id（覆盖自动选最久）")
+    s.add_argument("--dry", action="store_true",
+                   help="只开到编辑器看发布按钮能不能点（补不补封面、点不点发布"
+                        "都不做）")
     args = ap.parse_args()
 
     # 127.0.0.1 必须绕开系统代理，否则 websocket 连 Chrome 调试端口会被掐
@@ -2025,6 +2432,13 @@ def main():
         # 2026-09-30 用户授权：删重复不用再问，默认直接删。--dry 仍保留
         # 用来「先看清单再删」，--delete 变成兼容旧调用的冗余开关。
         dedup(keep=args.keep, dry=args.dry, max_del=args.max_del)
+    elif args.cmd == "send-draft":
+        ok, _c, aid, title = send_draft(
+            dry=args.dry, cid=getattr(args, "case", None))
+        # --dry 是「问今天能不能发」，不是一次尝试 —— 答案已经在打印里了，
+        # 再退 1 会把「额度用完」和「脚本崩了」混成一回事。
+        if not ok and not args.dry:
+            sys.exit(1)
     else:
         ap.print_help()
 
