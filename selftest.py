@@ -49,6 +49,8 @@ ADMIN_BASE = "http://127.0.0.1:%d" % ADMIN_PORT
 # 数据解耦：A 供 [5] 的 promote 消费，B 只用于写接口与 plan，不会被提走。
 FIXTURE_A = "_selftest_promote_fixture"
 FIXTURE_B = "_selftest_write_fixture"
+# 采集队列固件：让 [4] 转候选的测试不再消费真实队列的第一条
+FIXTURE_INBOX = "_selftest_inbox_fixture"
 
 opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 fails = []
@@ -264,11 +266,16 @@ def run_auth_section():
 
 
 def seed_fixtures():
-    """往候选池插两条合成候选，避免断言依赖真实候选池的状态。
+    """往候选池插两条合成候选、往采集队列插一条合成素材，避免断言依赖真实数据。
 
     候选池会被日常晋升抽空（2026-10-15 全量晋升后只剩 1 条），而 [5] 节又会
     把它提走 —— 之后「登录后写接口放行」「后台 plan」就都成了测空气。
     固件注入在备份之后，跑完随 data/ 一起还原，不留痕。
+
+    🚨 采集队列那条固件是 2026-10-21 补的：[4] 节原本直接拿
+    `data["inbox"][0]["id"]` 往候选池转 —— 消费的是**真实队列的第一条**。
+    还原一旦失败（SIGTERM/中断）就永久少一条真素材，而 `inbox.json` 不受
+    git 管辖、git checkout 救不回来（已实测丢了一条，找不回）。
     """
     p = os.path.join(DATA, "candidates.json")
     with open(p, encoding="utf-8") as f:
@@ -305,6 +312,34 @@ def seed_fixtures():
         atomicio.write_json(p, cands, indent=2,
                             newline=atomicio.detect_newline(p))
         print("已注入自测固件候选：%s" % " / ".join(added))
+
+    # ---- 采集队列固件（让 [4] 不再消费真实素材）----
+    ip = os.path.join(DATA, "inbox.json")
+    if not os.path.isfile(ip):
+        return                    # CI 干净 checkout 没有队列文件，[4] 会自己跳过
+    with open(ip, encoding="utf-8") as f:
+        inbox = json.load(f)
+    if any(i.get("id") == FIXTURE_INBOX for i in inbox):
+        return
+    inbox.insert(0, {
+        "id": FIXTURE_INBOX,
+        "name": "自测固件（采集队列）",
+        "name_en": "Selftest Inbox Fixture",
+        "one_liner": "自测固件：仅供 [4] 转候选测试消费，跑完随 data/ 还原。",
+        "category": "自测固件",
+        "verification": "unverified",
+        "source_kind": "selftest",
+        "harvest_source": "selftest",
+        "metrics": {},
+        "models": [],
+        "note": "selftest fixture",
+        "blocking": "自测固件",
+        "source_url": "",
+        "website": "",
+        "added_at": "2026-10-15",
+    })
+    atomicio.write_json(ip, inbox, indent=2, newline=atomicio.detect_newline(ip))
+    print("已注入自测固件到采集队列：%s" % FIXTURE_INBOX)
 
 
 def restore_file(src, dst, attempts=6):
@@ -495,8 +530,15 @@ def main():
         print("\n[4] 写操作 · 采集队列转入候选池")
         inbox_before = len(data["inbox"])
         cand_before = len(data["candidates"])
-        if inbox_before:
-            tid = data["inbox"][0]["id"]
+        inbox_ids = [i.get("id") for i in data["inbox"]]
+        # ⚠ 只吃固件，**绝不拿真实队列的第一条**去转（2026-10-21 修）：
+        # 那一步会真的把一条真实素材转进候选池，还原一旦失败就永久少一条
+        # （inbox.json 不在 git 里，救不回来 —— 已经这样丢过一条）。
+        tid = FIXTURE_INBOX if FIXTURE_INBOX in inbox_ids else None
+        if inbox_ids and not tid:
+            check("采集队列固件已注入", False, "队列非空但没找到 %s，跳过本步是为了不碰真实数据"
+                  % FIXTURE_INBOX)
+        elif tid:
             st, body = areq("POST", "/api/inbox/%s/to-candidates" % urllib.parse.quote(tid), {})
             check("POST /api/inbox/<id>/to-candidates", st == 201,
                   "-> %s" % (json.loads(body)["candidate"]["id"] if st == 201 else body[:80]))
