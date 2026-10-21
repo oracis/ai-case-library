@@ -225,6 +225,25 @@ def end_sentences(obj, fields=SENTENCE_LISTS):
     return obj
 
 
+# ---------------------------------------------------------------- 名称归一化
+# 判「是不是同一条」时的唯一口径。triage 的重复检测、harvest 的采集去重
+# 都必须用同一个函数 —— 两处各写一套，就会出现「分诊说重复、采集说新的」
+# 这种谁也查不出来的分叉（2026-10-21 统一到这里）。
+_NORM_NAME_PREFIX = re.compile(r"^(show|ask|tell)\s+hn\s*[:\-–—]?\s*")
+_NORM_NAME_KEEP = re.compile(r"[^a-z0-9\u4e00-\u9fff]+")
+
+
+def norm_name(s):
+    """归一化名称，用于跨条目比「同一条」。
+
+    去掉论坛前缀、标点与大小写 —— 「Show HN: Foo」和「Foo」是同一条。
+    中文保留，否则纯中文名会被归一化成空串而互相撞上。
+    """
+    s = (s or "").lower()
+    s = _NORM_NAME_PREFIX.sub("", s)
+    return _NORM_NAME_KEEP.sub("", s)
+
+
 if __name__ == "__main__":
     # 自测（python scripts/text_clean.py）：把真实语料和边界都过一遍
     W = strip_snapshot_marks

@@ -61,6 +61,9 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
 import verify_rules as VR                                          # noqa: E402
+# 「是不是同一条」的归一化口径与采集去重共用同一个函数，避免两处各写一套
+# 之后出现「分诊说重复、采集说新的」这种查不出来的分叉。
+from text_clean import norm_name                                   # noqa: E402,F401
 
 
 # ---------------------------------------------------------------------------
@@ -291,18 +294,6 @@ def host_of(url):
     if host.startswith("www."):
         host = host[4:]
     return host.split(":")[0]
-
-
-def norm_name(s):
-    """归一化名称，用于跨条目比同一条目。
-
-    去掉论坛前缀、标点与大小写 —— 「Show HN: Foo」和「Foo」是同一条。
-    中文保留，否则纯中文名会被归一化成空串而互相撞上。
-    """
-    s = (s or "").lower()
-    s = re.sub(r"^(show|ask|tell)\s+hn\s*[:\-–—]?\s*", "", s)
-    s = re.sub(r"[^a-z0-9\u4e00-\u9fff]+", "", s)
-    return s
 
 
 def name_prefix(name):
