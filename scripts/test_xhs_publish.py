@@ -192,7 +192,18 @@ class TestDraft(unittest.TestCase):
 
 
 class TestPickNext(unittest.TestCase):
-    """「发最近的 n 条没发过的」：待发队列与模糊找案例。"""
+    """「发最近的 n 条没发过的」：待发队列与模糊找案例。
+
+    ⚠ 打桩一律走 `_patch()` 登记还原（2026-10-21 修）：`x.load_cases` 是
+    **模块级全局**，此前几个用例直接赋值不还原 —— 全量跑时污染同进程后续
+    模块（实测让 `test_multiplatform` 的 replace 队列断言假失败，单跑全绿）。
+    """
+
+    def _patch(self, **kw):
+        for name, fn in kw.items():
+            old = getattr(x, name)
+            setattr(x, name, fn)
+            self.addCleanup(setattr, x, name, old)
 
     def _with_cards(self, tmp, ids):
         """在 tmp 下造 note.json，让 pending_cases 认它们是「已建卡片」。"""
@@ -206,16 +217,17 @@ class TestPickNext(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             old = x.OUT
             x.OUT = tmp
-            try:
-                self._with_cards(tmp, ["a", "b", "c"])
-                cases = [{"id": "a"}, {"id": "b"}, {"id": "c"}]
-                x.load_cases = lambda: cases
-                x._published_ids = lambda: ["b"]
-                x._drafted_ids = lambda: []
-                # 默认只要已建卡片的，且排除已发布/已进草稿的
-                self.assertEqual([c["id"] for c in x.pending_cases()], ["c", "a"])
-            finally:
-                x.OUT = old
+            self.addCleanup(setattr, x, "OUT", old)
+            self._with_cards(tmp, ["a", "b", "c"])
+            # 队列口径：最新录入的排最前（见 multiplatform/queue.py）
+            cases = [{"id": "a", "updated_at": "2026-10-15"},
+                     {"id": "b", "updated_at": "2026-10-10"},
+                     {"id": "c", "updated_at": "2026-10-01"}]
+            self._patch(load_cases=lambda: cases,
+                        _published_ids=lambda: ["b"],
+                        _drafted_ids=lambda: [])
+            # 默认只要已建卡片的，且排除已发布/已进草稿的 ⇒ 剩 a、c，新的在前
+            self.assertEqual([c["id"] for c in x.pending_cases()], ["a", "c"])
 
     def test_pending_has_no_hardcoded_case_id(self):
         """待发判定只能看 published/drafted 两个台账，不能硬编码任何案例 id。
@@ -227,50 +239,49 @@ class TestPickNext(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             old = x.OUT
             x.OUT = tmp
-            try:
-                self._with_cards(tmp, ["a", "voklit"])
-                cases = [{"id": "a"}, {"id": "voklit"}]
-                x.load_cases = lambda: cases
-                x._published_ids = lambda: []
-                x._drafted_ids = lambda: ["a"]
-                # voklit 没进过草稿台账 → 必须出现在待发队列里
-                self.assertEqual([c["id"] for c in x.pending_cases()], ["voklit"])
-            finally:
-                x.OUT = old
+            self.addCleanup(setattr, x, "OUT", old)
+            self._with_cards(tmp, ["a", "voklit"])
+            cases = [{"id": "a"}, {"id": "voklit"}]
+            self._patch(load_cases=lambda: cases,
+                        _published_ids=lambda: [],
+                        _drafted_ids=lambda: ["a"])
+            # voklit 没进过草稿台账 → 必须出现在待发队列里
+            self.assertEqual([c["id"] for c in x.pending_cases()], ["voklit"])
 
     def test_pending_fresh_ignores_missing_cards(self):
-        cases = [{"id": "a"}, {"id": "b"}]
-        x.load_cases = lambda: cases
-        x._published_ids = lambda: []
-        x._drafted_ids = lambda: []
-        # need_cards=False：没 note.json 也算，交给出发前现造
+        cases = [{"id": "a", "updated_at": "2026-09-01"},
+                 {"id": "b", "updated_at": "2026-10-01"}]
+        self._patch(load_cases=lambda: cases,
+                    _published_ids=lambda: [],
+                    _drafted_ids=lambda: [])
+        # need_cards=False：没 note.json 也算，交给出发前现造；b 更新，排最前
         self.assertEqual([c["id"] for c in x.pending_cases(need_cards=False)],
                          ["b", "a"])
 
     def test_fuzzy_by_exact_id(self):
         cases = [{"id": "bustem", "name": "Bustem"}]
-        x.load_cases = lambda: cases
+        self._patch(load_cases=lambda: cases)
         self.assertEqual(x.find_case_fuzzy("bustem")["id"], "bustem")
 
     def test_fuzzy_by_name_fragment(self):
         cases = [{"id": "kibu", "name": "Kibu"},
                  {"id": "bustem", "name": "Bustem"}]
-        x.load_cases = lambda: cases
+        self._patch(load_cases=lambda: cases)
         self.assertEqual(x.find_case_fuzzy("buste")["id"], "bustem")
 
     def test_fuzzy_case_insensitive(self):
         cases = [{"id": "kibu", "name": "Kibu"}]
-        x.load_cases = lambda: cases
+        self._patch(load_cases=lambda: cases)
         self.assertEqual(x.find_case_fuzzy("KIBU")["id"], "kibu")
 
     def test_fuzzy_ambiguous_raises(self):
         cases = [{"id": "aa-x", "name": "A x"}, {"id": "aa-y", "name": "A y"}]
-        x.load_cases = lambda: cases
+        self._patch(load_cases=lambda: cases)
         with self.assertRaises(SystemExit):
             x.find_case_fuzzy("aa")
 
     def test_fuzzy_no_match_raises(self):
-        x.load_cases = lambda: [{"id": "kibu", "name": "Kibu"}]
+        self._patch(load_cases=lambda: [{"id": "kibu", "name": "Kibu"}])
         with self.assertRaises(SystemExit):
             x.find_case_fuzzy("不存在的东西")
 

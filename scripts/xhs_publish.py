@@ -38,6 +38,7 @@ import urllib.request
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import wechat_publish as wp  # noqa: E402  复用 CDP / 色板 / 案例加载
+from multiplatform import queue as Q  # noqa: E402  待发队列排序口径（最新在前）
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "out", "xhs")
@@ -2654,6 +2655,10 @@ def pending_cases(need_cards=True):
 
     need_cards=True 时只算已 build 过（有 note.json）的；
     False 则连没生成卡片的也算，交给出发前自动 build。
+
+    ⚠ 排序口径见 `multiplatform/queue.py`（2026-10-21 修）：此前是
+    `todo[::-1]`，而 `cases.json` 本来就是新的在前 —— 取反之后实际发的是
+    **最旧的那批**，与注释和 `queue` 打印全都相反。
     """
     skip = set(_published_ids()) | set(_drafted_ids())
     built = set()
@@ -2664,7 +2669,7 @@ def pending_cases(need_cards=True):
     todo = [c for c in load_cases() if c["id"] not in skip]
     if need_cards:
         todo = [c for c in todo if c["id"] in built]
-    return todo[::-1]          # 倒序：最近录入的案例排最前
+    return Q.newest_first(todo)
 
 
 # ---- build -----------------------------------------------------------------

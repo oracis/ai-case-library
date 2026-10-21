@@ -21,4 +21,4 @@
 零第三方依赖，和项目其余部分一致。
 """
 
-__all__ = ["article", "state", "runner", "adapters"]
+__all__ = ["article", "queue", "state", "runner", "adapters"]
