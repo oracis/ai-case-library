@@ -238,5 +238,51 @@ class FactsCard(unittest.TestCase):
         self.assertIn("创始人：未公开", card)
 
 
+class FragmentWarning(unittest.TestCase):
+    """档案残片要**点名**，不许静默当素材（2026-10-21 补）。
+
+    fetch_tm_md 抓到一半被打断会留下半截 .md；draft_one 照样读得进来，
+    素材少一半而模型不自知。fetch 侧已改成重抓 + 原子覆盖，这里守消费侧：
+    残片要打印告警（告诉用户先重抓），不许闷声写正文。
+    """
+
+    def setUp(self):
+        import tempfile
+        self.d = tempfile.mkdtemp()
+        self._old = D.TM_DIR, D.ai_verify.llm
+        D.TM_DIR = self.d
+        # 模型侧打桩：只要被调到就返回空 JSON（不联网、不花钱）
+        D.ai_verify.llm = lambda *a, **kw: "{}"
+
+    def tearDown(self):
+        import shutil
+        D.TM_DIR, D.ai_verify.llm = self._old
+        shutil.rmtree(self.d, ignore_errors=True)
+
+    def _run(self, name, text, out):
+        import contextlib
+        import io
+        with open(os.path.join(self.d, name + ".md"), "w",
+                  encoding="utf-8") as f:
+            f.write(text)
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            D.draft_one(name, name, {}, retries=0)
+        out.append(buf.getvalue())
+
+    def test_残片会告警(self):
+        out = []
+        self._run("demo", "# Demo\n\n只有开头的一小段，页脚没有。\n" * 20, out)
+        self.assertIn("残片", out[0])
+        self.assertIn("fetch_tm_md", out[0])
+
+    def test_完整档案不告警(self):
+        out = []
+        body = "# Demo\n\n" + ("- Insight: 正常内容一行。\n" * 40)
+        self._run("demo2", body + "\n## Related TrustMRR Pages\n"
+                  "- [llms.txt](https://trustmrr.com/llms.txt)\n\n", out)
+        self.assertNotIn("残片", out[0])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

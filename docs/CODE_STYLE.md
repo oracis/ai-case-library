@@ -177,7 +177,9 @@ import wechat_publish as wp  # noqa: E402  复用 CDP / 案例加载
    `newline=""`（或 `newline="\n"`）。
 5. **原子写**：临时文件 + `os.replace`。半截 JSON = 整本台账失效。
    范式：`multiplatform/state.py` 的 `Manifest.save`、
-   `ledger._write_file`。
+   `ledger._write_file`。**新代码统一用 `scripts/atomicio.py`**
+   （2026-10-21 收口：此前 20 处各写各的 tmp+replace，`fetch_tm_md` 的缓存
+   写盘干脆没做原子写，抓取被打断就留下半截档案当有效缓存）。
 6. `ensure_ascii=False`（中文可读）；清单类文件加 `sort_keys=True`。
 
 **改任何「写 data/*.json」的代码前，先读 `multiplatform/state.py` 和

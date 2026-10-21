@@ -54,6 +54,9 @@ import os
 import sys
 from datetime import datetime
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import atomicio  # noqa: E402  原子写盘：半截 candidates.json = 整个候选池失效
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CAND_PATH = os.path.join(ROOT, "data", "candidates.json")
 
@@ -880,12 +883,16 @@ def load_candidates():
 
 
 def save_candidates(cands):
-    """按原格式写回（缩进/换行/末尾换行都跟原文件一致）。"""
+    """按原格式写回（缩进/换行/末尾换行都跟原文件一致）。
+
+    ⚠ 写盘走 `atomicio`（2026-10-21 修）：此前是原地截断写，写到一半被打断
+    就留下半截 JSON —— 候选池当场读不出来，而被 `except` 吞掉时会被当成空池，
+    `--apply` 再来一次就把整本重写。格式探测照旧（见 `detect_fmt`）。
+    """
     ind, nl, tail_nl = detect_fmt(CAND_PATH)
     body = json.dumps(cands, ensure_ascii=False, indent=ind)
     text = (body + ("\n" if tail_nl else "")).replace("\n", nl)
-    with open(CAND_PATH, "w", encoding="utf-8", newline="") as f:
-        f.write(text)
+    atomicio.write_text(CAND_PATH, text)
     return ind, nl, tail_nl
 
 

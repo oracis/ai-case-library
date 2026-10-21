@@ -46,6 +46,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
 import ai_verify  # noqa: E402  —— 复用它的 LLM 配置链与 llm()
+import atomicio   # noqa: E402  原子写盘：半截 stage 会让「续跑」重花 AI 额度
+import fetch_tm_md as F  # noqa: E402  档案完整性判据（残片不许当素材用）
 
 TM_DIR = os.path.join(ROOT, "tmp", "tm_md")
 STAGE = os.path.join(ROOT, "tmp", "draft_text.json")
@@ -440,8 +442,13 @@ def lookup_summary(summ, slug, cid):
 
 
 def save_stage(obj):
-    with open(STAGE, "w", encoding="utf-8") as f:
-        json.dump(obj, f, ensure_ascii=False, indent=2)
+    """落盘进度（续跑用）。
+
+    ⚠ 原子写（2026-10-21 补）：这是「跑到第 N 条被掐断也不丢已写的」的
+    唯一凭据；原地截断写被打断就成了半截 JSON，下次续跑读不出来会从头重写，
+    白花 AI 额度。
+    """
+    atomicio.write_json(STAGE, obj, indent=2)
 
 
 def draft_one(cid, slug, summ, retries=2):
@@ -451,6 +458,12 @@ def draft_one(cid, slug, summ, retries=2):
     if os.path.exists(md_path):
         with open(md_path, "r", encoding="utf-8") as f:
             md = f.read()
+        # ⚠ 残片也要点名（2026-10-21 补）：抓取被掐断留下的半截档案照样读得
+        #    进来，素材会静默少一半，模型拿残片照样写。fetch_tm_md 现在会重抓
+        #    并原子覆盖，这里只负责把「还没修好」这件事喊出来。
+        if not F.is_complete(md):
+            print("    ⚠ %s 的档案是残片（缺页脚），素材可能不全 —— "
+                  "先跑 python scripts/fetch_tm_md.py 重抓" % slug)
     if not s and not md:
         return None, "无素材"
 
