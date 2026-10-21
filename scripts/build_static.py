@@ -34,6 +34,7 @@
 """
 
 import argparse
+import collections
 import json
 import os
 import shutil
@@ -194,14 +195,21 @@ def prune_stale_cases(out_dir, case_ids):
     return len(stale)
 
 
-def build(out_dir, include_inbox=True, pretty=False, site_url=""):
+def build(out_dir, include_inbox=True, pretty=False, site_url="", allow_empty=False):
     abs_out = prepare_out(out_dir)
     if not abs_out:
         return 1
 
     # ---- 1. 取数据（复用服务端那套聚合逻辑，保证线上线下结构完全一致）
     print("[1/5] 聚合数据…")
-    payload = server.build_payload()
+    try:
+        payload = server.build_payload()
+    except ValueError as e:
+        # 某个 data/*.json 被写坏（半截 JSON）。这里必须说清楚是数据的问题，
+        # 而不是甩一段 json.decoder 的栈 —— 否则下一个人会去改构建脚本。
+        print("    [!] 读不出数据：%s" % e)
+        print("        多半是某个 data/*.json 写坏了（半截 JSON）。先修数据再构建。")
+        return 1
     if not include_inbox:
         payload["inbox"] = []
         st = payload.get("stats") or {}
@@ -215,8 +223,17 @@ def build(out_dir, include_inbox=True, pretty=False, site_url=""):
         payload["stats"] = st
 
     cases = payload.get("cases") or []
-    if not cases:
-        print("    [!] cases.json 是空的，构建出来会是个空站")
+    if not cases and not allow_empty:
+        # 🚨 空库**不是警告，是硬拦**（2026-10-21）：构建是「覆盖写」，
+        # 空 cases 会产出一个只有壳的站点；而 auto_deploy 的判据恰恰是
+        # 「本地与线上不一致」—— 它会认为这就是要上线的新版本，把 255 条
+        # 案例的线上站点覆盖成空站。真正想建空站（首次搭架子）时显式加
+        # --allow-empty。
+        print("    [!] cases.json 是空的 —— 拒绝构建。")
+        print("        构建是覆盖写：空库会做出一个空站，而 auto_deploy 会把它当")
+        print("        「本地更新了」直接推上线，把现有案例全盖掉。")
+        print("        确认要建空站才加 --allow-empty。")
+        return 1
     # 列表项补结尾句号：站点和公众号共用同一份数据，不给「卖的是…而不是服务」这类
     # 半截句补句号，两个渲染面都会读着很涩（2026-09-24）。就地改，data.json / data.js
     # 与预渲染页一起生效。
@@ -311,7 +328,8 @@ def build(out_dir, include_inbox=True, pretty=False, site_url=""):
     print("[5/5] 自检…")
     problems = []
 
-    built = open(os.path.join(abs_out, "index.html"), encoding="utf-8").read()
+    with open(os.path.join(abs_out, "index.html"), encoding="utf-8") as f:
+        built = f.read()
     if "window.__STATIC__ = true" not in built:
         problems.append("index.html 里没有静态标记")
     for asset in ("./style.css", "./app.js", "data.js"):
@@ -322,11 +340,22 @@ def build(out_dir, include_inbox=True, pretty=False, site_url=""):
         if bad in built:
             problems.append("index.html 里还有根路径引用（%s），子目录部署会 404" % bad)
 
-    js = open(os.path.join(abs_out, "data.js"), encoding="utf-8").read()
+    with open(os.path.join(abs_out, "data.js"), encoding="utf-8") as f:
+        js = f.read()
     if "window.__CASE_LIB_DATA__" not in js:
         problems.append("data.js 里没有赋值 __CASE_LIB_DATA__")
     if "__STATIC__" in js:
         problems.append("data.js 被写脏了")
+
+    # 案例 id 必须非空且唯一：预渲染按 `<id>.html` 写文件，两条撞 id 就是
+    # 后者覆盖前者 —— 最终产物少一条案例，而「页面数 = 案例数」这条自检
+    # 反而会同时成立（两边一起少），属于查不出来的静默丢数据。
+    ids = [c.get("id") or "" for c in cases]
+    if any(not i for i in ids):
+        problems.append("有 %d 条案例缺 id" % sum(1 for i in ids if not i))
+    dup = sorted(k for k, n in collections.Counter(ids).items() if n > 1 and k)
+    if dup:
+        problems.append("案例 id 重复（页面会互相覆盖）：%s" % "、".join(dup))
 
     try:
         back = json.loads(body)
@@ -399,13 +428,15 @@ def main():
     ap.add_argument("--site-url", default="", metavar="URL",
                     help="站点域名（如 https://abc.com），用来生成 sitemap 和 canonical；"
                          "也可以写进 data/site.json 的 url 字段，命令行优先")
+    ap.add_argument("--allow-empty", action="store_true",
+                    help="cases 为空时也构建（只给首次搭站点用；正常构建会硬拦）")
     args = ap.parse_args()
 
     print("=" * 54)
     print("  构建静态站点%s" % ("（精简版，不含采集队列）" if args.no_inbox else ""))
     print("=" * 54)
     return build(args.out, include_inbox=not args.no_inbox, pretty=args.pretty,
-                 site_url=args.site_url)
+                 site_url=args.site_url, allow_empty=args.allow_empty)
 
 
 if __name__ == "__main__":
