@@ -909,6 +909,45 @@ def publish_one(cid, dry=False, replace=False, keep_tabs=False, use_api=True,
                 pass
 
 
+def _local_done_ids():
+    """本地幂等源：发布清单 + B站草稿账 + 已发表账。
+
+    ⚠ 为什么直跑入口也要查（2026-10-21 修）：适配器层
+    `has_state_file=False`，`data/publish_manifest.json` 是**唯一**
+    幂等源，而脚本自己的入口以前不查它 —— `publish --all` 跑第二次
+    就是全量重复草稿，正是 adapters/bilibili.py 注释里记录的
+    「远端 38→101 条副本」事故的配方。runner 路径一向安全（batch
+    恒传 `--only`），危险的是人手边这条直跑命令。
+
+    两个本地账（bili_drafts.json / bili_published.json）都带远端
+    article_id，是「草稿确实在箱里」的证据；清单的 draft_saved /
+    published 是终态。任一命中即跳过 —— 宁可漏发也别重复发：
+    真要强制重发用 `--only <id,...>`，要更新已有草稿用 `--replace`，
+    远端真有重复了还有 `dedup` 收尾。
+    """
+    done = set()
+    try:
+        from multiplatform import state as S
+        m = S.Manifest()
+        for cid, plats in (m.data or {}).items():
+            if isinstance(plats, dict) and \
+                    (plats.get("bilibili") or {}).get("state") in S.DONE_STATES:
+                done.add(cid)
+    except Exception:                                  # noqa: BLE001
+        pass
+    for fname in ("bili_drafts.json", "bili_published.json"):
+        try:
+            with open(os.path.join(os.path.dirname(
+                    os.path.dirname(os.path.abspath(__file__))),
+                    "data", fname), encoding="utf-8") as fh:
+                rows = json.load(fh)
+            done |= {r.get("id") for r in rows
+                     if isinstance(r, dict) and r.get("id")}
+        except (OSError, ValueError):
+            pass
+    return done
+
+
 def publish_all(replace=False, retries=1, only=None, use_api=True):
     ids = list_ids()
     if only:
@@ -917,6 +956,22 @@ def publish_all(replace=False, retries=1, only=None, use_api=True):
         want = set(only)
         ids = [c for c in ids if c in want]
         print("仅处理指定 %d 条" % len(ids))
+    elif not replace:
+        # ⚠ 无 --only 也无 --replace 时过滤本地已存的（2026-10-21 修）：
+        #    「全量再发一遍」此前是静默的重复草稿，清理代价全平台最高
+        #    （dedup 按标题删、不可逆、max_del=20 上限还会漏）。
+        done = _local_done_ids()
+        skip = [c for c in ids if c in done]
+        if skip:
+            print("跳过本地已存草稿 %d 条：%s%s"
+                  % (len(skip), " ".join(skip[:8]),
+                     " …" if len(skip) > 8 else ""))
+            ids = [c for c in ids if c not in done]
+        if not ids:
+            print("全部 %d 条本地都记过草稿了，没有要发的。"
+                  "（确需重发：publish --only <id,…>；更新已有草稿：--replace）"
+                  % len(skip))
+            return 0, []
     print("publish %d 篇 → B站草稿箱%s%s%s"
           % (len(ids), "（覆盖已有草稿）" if replace else "",
              "（每条重试 %d 次）" % retries if retries else "",
