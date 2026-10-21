@@ -46,6 +46,7 @@ ADMIN_PORT = int(os.environ.get("CASE_LIB_ADMIN_PORT", str(PORT + 1)))
 # 核实规则引擎：门槛 / 硬性必填 / 质量分三层判定。
 # 前端从 /api/verify-schema 取同一份规则渲染界面，两边不可能算出不同结论。
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
+import atomicio                                                  # noqa: E402
 import verify_rules as VRULES                                     # noqa: E402
 # 管理员鉴权：核实功能是后台功能，写接口全部要过这一关
 import auth as AUTH                                               # noqa: E402
@@ -106,12 +107,18 @@ def load_json(name):
 
 
 def save_json(name, payload):
+    """写 data/<name>.json —— 原子写 + **保留原文件的换行格式**。
+
+    换行这条不是洁癖：`data/` 下两种格式并存（inbox.json 是 CRLF，
+    cases/candidates/graveyard 是 LF）。文本模式 `open(path, "w")` 在
+    Windows 上会把 LF 全译成 CRLF，一次后台操作就让 1.4MB 的 cases.json
+    整个文件 diff 全红 —— 数据没变，只是行尾变了，而排查的人会先怀疑
+    「是不是把库写坏了」。同类事故 2026-10-10 在 harvest 上真踩过一次。
+    """
     os.makedirs(DATA_DIR, exist_ok=True)
     path = data_path(name)
-    tmp = path + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(payload, f, ensure_ascii=False, indent=2)
-    os.replace(tmp, path)
+    atomicio.write_json(path, payload, indent=2,
+                        newline=atomicio.detect_newline(path))
 
 
 # ---------------------------------------------------------------------------
@@ -132,12 +139,16 @@ def load_secrets():
 
 
 def save_secrets(payload):
+    """写 data/secrets.json（LLM key 等）。
+
+    ⚠ 这个文件写坏比别的更疼：key 丢了后台「AI 核实」直接失效，而且文件被
+    gitignore 排除、`git restore` 救不回来。所以走 atomicio（tmp + fsync +
+    replace），别留在原地截断写的路上。
+    """
     os.makedirs(DATA_DIR, exist_ok=True)
     path = data_path("secrets")
-    tmp = path + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(payload, f, ensure_ascii=False, indent=2)
-    os.replace(tmp, path)
+    atomicio.write_json(path, payload, indent=2,
+                        newline=atomicio.detect_newline(path))
 
 
 def resolve_ai_settings():

@@ -112,6 +112,25 @@ class TestDataWritersUseAtomicIO(unittest.TestCase):
         self.assertIn("atomicio.write_text(CASES_PATH, text)", src)
         self.assertNotIn('open(CASES_PATH, "w"', src)
 
+    def test_采集与后台写盘也走原子写(self):
+        """harvest.save_json 与 server.save_json 曾各自手写 tmp+replace。
+
+        手写版少两样东西：fsync（断电半截）和换行探测（Windows 上把 LF
+        悄悄译成 CRLF）。都已改成 atomicio。这里钉住调用点，防止改回去 ——
+        这类退化不会报错，只会在某次断电后留下半截 JSON。
+        """
+        base = os.path.dirname(os.path.abspath(__file__))
+        cases = [
+            (os.path.join(base, "harvest.py"), "atomicio.write_json(path, payload"),
+            (os.path.join(base, "..", "server.py"), "atomicio.write_json(path, payload"),
+        ]
+        for path, call in cases:
+            with open(path, encoding="utf-8") as f:
+                src = f.read()
+            self.assertIn(call, src, "%s 应走 atomicio.write_json" % path)
+            self.assertNotIn('open(tmp, "w"', src,
+                             "%s 里还有手写的 tmp 写盘" % path)
+
 
 if __name__ == "__main__":
     unittest.main()
