@@ -171,6 +171,57 @@ class TestFetchRemoteThreeStates(unittest.TestCase):
         self.assertEqual(op.calls, 1)
 
 
+class TestFetchManifest(unittest.TestCase):
+    """并发比对（fetch_manifest）：语义必须与逐个调用 fetch_remote 等价。
+
+    并发本身没什么可测的，能测的是**它没改变结论**：每个文件都得有
+    三态之一、线程里炸出来的异常不能被吞成「ok」或丢条目。
+    """
+
+    def setUp(self):
+        self.orig_fetch = AD.fetch_remote
+        self.orig_opener = AD.no_proxy_opener
+        AD.no_proxy_opener = lambda: object()
+        self.addCleanup(self._restore)
+
+    def _restore(self):
+        AD.fetch_remote = self.orig_fetch
+        AD.no_proxy_opener = self.orig_opener
+
+    def _fake(self, table):
+        def fetch(base, rel, opener):
+            v = table.get(rel, ("error", None))
+            if isinstance(v, Exception):
+                raise v
+            return v
+        return fetch
+
+    def test_每个文件都拿到三态之一(self):
+        AD.fetch_remote = self._fake({"a": ("ok", "h1"),
+                                      "b": ("missing", None),
+                                      "c": TimeoutError("炸")})
+        got = AD.fetch_manifest("https://x.test", ["a", "b", "c"])
+        self.assertEqual(got["a"], ("ok", "h1"))
+        self.assertEqual(got["b"], ("missing", None))
+        self.assertEqual(got["c"], ("error", None),
+                         "线程里抛的异常要落成 error，不能丢条目")
+
+    def test_空清单直接返回(self):
+        self.assertEqual(AD.fetch_manifest("https://x.test", []), {})
+
+    def test_进度回调覆盖到最后一个(self):
+        AD.fetch_remote = self._fake({"a": ("ok", "h"), "b": ("ok", "h")})
+        seen = []
+        AD.fetch_manifest("https://x.test", ["a", "b"],
+                          on_progress=lambda d, t: seen.append((d, t)))
+        self.assertEqual(seen[-1], (2, 2))
+        self.assertEqual(len(seen), 2, "每个文件都应报一次进度")
+
+    def test_只有一个文件也别建多余线程(self):
+        AD.fetch_remote = self._fake({"a": ("ok", "h")})
+        self.assertEqual(AD.fetch_manifest("https://x.test", ["a"])["a"][0], "ok")
+
+
 class TestRealBuildsNormalizeEqual(unittest.TestCase):
     """决定性断言：用**真实构建**的两份产物验证归一化够不够。
 

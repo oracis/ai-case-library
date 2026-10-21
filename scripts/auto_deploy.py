@@ -38,6 +38,7 @@ import re
 import sys
 import urllib.error
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
@@ -137,6 +138,43 @@ def fetch_remote(base, rel, opener, timeout=45, retries=2):
     return "error", None
 
 
+REMOTE_WORKERS = 8
+
+
+def fetch_manifest(base, rels, workers=REMOTE_WORKERS, on_progress=None):
+    """并发取线上清单，返回 {rel: ("ok"|"missing"|"error", sha)}。
+
+    🚨 **必须并发**（2026-10-21）：串行时 271 个产物文件 × 实测单文件
+    3.7~8.6 秒 = 20~40 分钟。等这么久，人就懒得跑它 —— 而这一步存在的
+    全部意义就是「补上人会忘的那次部署」。并发 8 后 3~5 分钟。
+
+    每个任务自己建一个 opener：OpenerDirector 本身是无状态的，但它下面的
+    HTTPConnection 在异常/重试路径上没有线程安全保证，隔离的代价只是一个对象。
+
+    `on_progress(done, total)` 可选，用来打进度（串行时日志是逐行冒的，
+    并发后就没了，不给进度会看起来像卡住）。
+    """
+    rels = list(rels)
+    out = {}
+    if not rels:
+        return out
+    done = 0
+    with ThreadPoolExecutor(max_workers=max(1, min(workers, len(rels)))) as ex:
+        futs = {ex.submit(fetch_remote, base, rel, no_proxy_opener()): rel
+                for rel in rels}
+        for fut in as_completed(futs):
+            rel = futs[fut]
+            try:
+                out[rel] = fut.result()
+            except Exception:                                  # noqa: BLE001
+                # fetch_remote 内部已吞掉请求异常，这里兜的是意料之外的崩
+                out[rel] = ("error", None)
+            done += 1
+            if on_progress:
+                on_progress(done, len(rels))
+    return out
+
+
 def diff_manifest(local, remote):
     """比两份清单。返回 (changed, missing, unreadable, extra)。
 
@@ -208,9 +246,14 @@ def main():
     local = local_manifest(PUBLIC)
     print("  本地 %d 个文件" % len(local))
 
-    opener = no_proxy_opener()
-    print("  比对线上（逐文件 GET，约 %d 个请求）…" % len(local))
-    remote = {rel: fetch_remote(base, rel, opener) for rel in local}
+    print("  比对线上（逐文件 GET，%d 个，%d 并发）…" % (len(local), REMOTE_WORKERS))
+
+    def progress(done, total):
+        # 每 40 个打一行：不打会像卡住，每个都打会刷屏
+        if done == total or done % 40 == 0:
+            print("    %d/%d" % (done, total))
+
+    remote = fetch_manifest(base, local, on_progress=progress)
 
     changed, missing, unreadable, extra = diff_manifest(local, remote)
 

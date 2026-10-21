@@ -24,8 +24,10 @@ import json
 import os
 import re
 import sys
+import time
 import urllib.error
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 DEFAULT_BASE = "https://case.ydtgo.top"
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -46,6 +48,59 @@ def build_opener():
     return urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
 
+def fetch_one(base, path, timeout=25, retries=1):
+    """取一个路径，返回 (status, body, headers)。
+
+    取不到（超时 / 连接被掐 / TLS 报错）给 (0, b"", {})，**不抛异常**：
+    这是部署后的校验，网络抖一下应该报一条 FAIL，而不是让整轮校验
+    带着栈崩掉 —— 崩掉时人只看到「脚本挂了」，看不出是哪一项没过。
+
+    `retries` 默认 1：255 个页面并发跑下来，实测每次都有 3 个左右栽在
+    瞬时抖动上（单独重取全部 200）。**不重试就会把网络抖动报成内容坏了**，
+    而「假警报」是校验脚本最不该干的事 —— 一旦开始误报，人就不看了。
+
+    每次调用建一个 opener：单次开销是微秒级，换来的是可以直接在多线程里
+    并发调用（HTTPConnection 在异常路径上没有共享保证）。
+    """
+    last = (0, b"", {})
+    for attempt in range(retries + 1):
+        op = build_opener()
+        try:
+            r = op.open(base + path, timeout=timeout)
+            return r.status, r.read(), dict(r.headers)
+        except urllib.error.HTTPError as e:
+            # HTTP 层有明确答复（404/500…）—— 这是**内容/服务端**的结论，
+            # 重试不会变，直接返回
+            return e.code, e.read(), dict(e.headers)
+        except Exception as e:                                # noqa: BLE001
+            last = (0, ("%s: %s" % (type(e).__name__, e)).encode("utf-8"), {})
+            if attempt < retries:
+                time.sleep(0.6 * (attempt + 1))
+    return last
+
+
+def fetch_many(base, paths, workers=8, timeout=25):
+    """并发取多个路径，返回 {path: (status, body, headers)}。
+
+    🚨 **必须并发**（2026-10-21）：案例页有 255 个，实测单页响应数秒，
+    串行十几分钟。而这是部署后唯一「内容对不对」的判据 —— 慢到没人愿意跑，
+    就等于没有这道关。
+    """
+    paths = list(paths)
+    out = {}
+    if not paths:
+        return out
+    with ThreadPoolExecutor(max_workers=max(1, min(workers, len(paths)))) as ex:
+        futs = {ex.submit(fetch_one, base, p, timeout): p for p in paths}
+        for fut in as_completed(futs):
+            p = futs[fut]
+            try:
+                out[p] = fut.result()
+            except Exception:                                 # noqa: BLE001
+                out[p] = (0, b"", {})
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser(description="部署后线上语义校验")
     ap.add_argument("--base", default=DEFAULT_BASE, help="站点根地址，默认 " + DEFAULT_BASE)
@@ -57,15 +112,10 @@ def main():
     args = ap.parse_args()
 
     base = args.base.rstrip("/")
-    op = build_opener()
     fails = []
 
     def get(path):
-        try:
-            r = op.open(base + path, timeout=25)
-            return r.status, r.read(), dict(r.headers)
-        except urllib.error.HTTPError as e:
-            return e.code, e.read(), dict(e.headers)
+        return fetch_one(base, path)
 
     def check(name, ok, detail=""):
         print(("  [OK] " if ok else "  [FAIL] ") + name + ("  " + detail if detail else ""))
@@ -94,12 +144,17 @@ def main():
     check("列出 %d 个案例链接" % args.expect_cases, len(slugs) == args.expect_cases, str(len(slugs)))
 
     print("3) %d 个案例页逐个访问" % len(slugs))
+    # 并发取回再顺序断言：失败清单的**顺序**要和 slugs 一致，所以判断不并发做
+    pages = fetch_many(base, ["/case/%s.html" % s for s in slugs])
     bad = []
     for slug in slugs:
-        st, body, heads = get("/case/%s.html" % slug)
+        st, body, heads = pages.get("/case/%s.html" % slug, (0, b"", {}))
         page = body.decode("utf-8", "replace")
         if not (st == 200 and args.brand in page and len(body) > 20000):
-            bad.append("%s(%s,%dB)" % (slug, st, len(body)))
+            # status=0 是「取不到」，body 里是异常摘要 —— 带上它，
+            # 否则只看到 (0,72B) 根本判断不出是超时还是 DNS
+            why = ("  " + page[:60]) if st == 0 else ""
+            bad.append("%s(%s,%dB%s)" % (slug, st, len(body), why))
     check("全部 200 且正文内联", not bad, ",".join(bad) if bad else "%d/%d" % (len(slugs), len(slugs)))
     if slugs:
         st, body, heads = get("/case/%s.html" % slugs[0])
