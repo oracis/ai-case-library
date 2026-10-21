@@ -1626,8 +1626,9 @@ def send_draft(cdp=None, dry=False, cid=None):
 
     2026-10-20 实测定案：`draft/add submit=1` 只是保存草稿，**不会发布**；
     真发只有一条路 —— 编辑器 UI 的「发布」按钮（`ui_publish_draft`）。
-    这条路能不能走通取决于**当日投稿额度**（5 篇/天），额度用完按钮是灰的，
-    此时本函数**明确报失败**，不会写进清单、也不会假装成功。
+    这条路能不能走通取决于**当日投稿额度**（本账号 lv0~lv3 档 = 1 篇/天，
+    2026-10-20 实测当天只发 1 篇即被拦；公告面的 5 篇是 lv4+ 的上限，别抄），
+    额度用完按钮是灰的，此时本函数**明确报失败**，不会写进清单、也不会假装成功。
 
     返回 (ok, cid, aid, title)：ok=True 表示已在已发表列表回读命中。
     """
@@ -2364,7 +2365,8 @@ def main():
     d.add_argument("--max-del", type=int, default=20)
     s = sub.add_parser("send-draft",
                        help="从草稿箱挑存入最久的一条公开发布（默认最久；"
-                            "--case 指定）。B站每天限 5 篇、发布后不可编辑")
+                            "--case 指定）。本账号额度 1 篇/天（lv0~lv3 档，"
+                            "公告面的 5 篇是 lv4+ 上限）、发布后不可编辑")
     s.add_argument("--case", default=None,
                    help="指定 case id（覆盖自动选最久）")
     s.add_argument("--dry", action="store_true",
@@ -2409,8 +2411,12 @@ def main():
     elif args.cmd == "publish":
         use_api = not args.ui
         if args.case:
-            publish_one(args.case, dry=args.dry, replace=args.replace,
-                        keep_tabs=args.keep_tabs, use_api=use_api)
+            # ⚠ 失败必须退非零（2026-10-21 修）：此前返回值被丢弃，
+            #    单条存草稿失败也退 0，直跑脚本/上游只会把它当成功。
+            #    批量分支（下面 else）早有 sys.exit(1)，单条同步口径。
+            if not publish_one(args.case, dry=args.dry, replace=args.replace,
+                               keep_tabs=args.keep_tabs, use_api=use_api):
+                sys.exit(1)
         else:
             only = ([x.strip() for x in args.only.split(",") if x.strip()]
                     if args.only else None)

@@ -990,3 +990,91 @@ class TestScanDialogWait(unittest.TestCase):
         self.assertIn("一直在等扫码", r["reason"])
         self.assertEqual(clicks, ["发表", "继续发表"],
                          "两层确认各点一次；扫码框不能被点上")
+
+
+class TestSendTodoOrder(unittest.TestCase):
+    """`send --all` 的待办必须按**篇号**升序（2026-10-21 修）。
+
+    账本 wechat_published.json 是**只追加**的：后补/重存的草稿会被追加到
+    尾部。此前 cmd_send 直接迭代账本，编号顺序口径靠「碰巧升序」维持 ——
+    任何一次后补都让「续发下一条」悄悄换人。判据固化在 build_send_todo。
+    """
+
+    def test_按篇号升序而非账本顺序(self):
+        published = {
+            "zz-new": {"status": "draft", "appmsgid": "900"},   # 篇号最小却在最后
+            "aa-old": {"status": "draft", "appmsgid": "100"},
+            "mm-mid": {"status": "draft", "appmsgid": "500"},
+        }
+        issues = {"aa-old": 10, "mm-mid": 20, "zz-new": 30}
+        todo = W.build_send_todo(published, issues=issues)
+        self.assertEqual([c for c, _ in todo], ["aa-old", "mm-mid", "zz-new"])
+
+    def test_没篇号的沉到最后且保持账本原序(self):
+        published = {
+            "a": {"status": "draft", "appmsgid": "1"},
+            "b": {"status": "draft", "appmsgid": "2"},
+            "c": {"status": "draft", "appmsgid": "3"},
+        }
+        issues = {"c": 5}
+        todo = W.build_send_todo(published, issues=issues)
+        self.assertEqual([c for c, _ in todo], ["c", "a", "b"])
+
+    def test_已发表_缺失_无appmsgid都被剔除(self):
+        published = {
+            "ok": {"status": "draft", "appmsgid": "1"},
+            "pub": {"status": "published", "appmsgid": "2"},
+            "gone": {"status": "draft", "appmsgid": "3", "missing": True},
+            "noaid": {"status": "draft"},
+            "part": {"status": "partial", "appmsgid": "5"},      # 半成品要捞回
+        }
+        todo = W.build_send_todo(published, issues={})
+        self.assertEqual([c for c, _ in todo], ["ok", "part"])
+
+    def test_limit截断按篇号后的前N条(self):
+        published = {c: {"status": "draft", "appmsgid": c} for c in "cba"}
+        issues = {"a": 1, "b": 2, "c": 3}
+        todo = W.build_send_todo(published, issues=issues, limit=2)
+        self.assertEqual([c for c, _ in todo], ["a", "b"])
+
+
+class TestFindArticle(unittest.TestCase):
+    """find_article 只认精确文件名（2026-10-21 修）。
+
+    修的洞：子串命中即返回，find_article("storyshort") 实测领走
+    公众号-storyshort-ai拆解.html（storyshort-ai 是另一个已发表 case）——
+    标题正文张冠李戴，账还记到 storyshort 名下。「发错」比「没发」恶劣。
+    """
+
+    def setUp(self):
+        self._root = W.ROOT
+        self.tmp = tempfile.mkdtemp()
+        W.ROOT = self.tmp
+
+    def tearDown(self):
+        W.ROOT = self._root
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def _mk(self, fname):
+        open(os.path.join(self.tmp, fname), "w", encoding="utf-8").close()
+
+    def test_精确名命中(self):
+        self._mk("公众号-bustem拆解.html")
+        p = W.find_article("bustem")
+        self.assertTrue(p and p.endswith("公众号-bustem拆解.html"))
+
+    def test_子串近名不许认领(self):
+        # 只有 storyshort-ai 存在时，storyshort 必须拿 None 走 build，
+        # 而不是领走别的 case 的文章。
+        self._mk("公众号-storyshort-ai拆解.html")
+        self.assertIsNone(W.find_article("storyshort"))
+        # storyshort-ai 自己仍然找得到
+        self.assertTrue(W.find_article("storyshort-ai"))
+
+    def test_name兜底也走精确(self):
+        self._mk("公众号-coral拆解.html")
+        self.assertTrue(W.find_article("no-such-id", name="coral"))
+        self.assertIsNone(W.find_article("no-such-id", name="coralflavor"))
+
+    def test_什么都没有返回None(self):
+        self.assertIsNone(W.find_article("ghost"))

@@ -1138,13 +1138,22 @@ def _save_draft(sub, note):
             pass
     # 导航换了 JS context，这里每次都要带 refresh_context（否则拿的是
     # 已销毁的旧 context，会一直重试）。自动暂存有几秒延迟，轮询几轮。
+    # ⚠ 判据必须是**计数增长**（2026-10-21 修）：此前只看「n>0 或有 hint」，
+    #    而本号草稿箱常态 40+ 条 ⇒ 恒真 —— 图没传上/暂存没触发也记成功，
+    #    mark_drafted 一写，这条就永远不再发了。docstring 里「计数 +1 即
+    #    暂存成功」才是设计判据，代码却退化成了全局信号。
+    bn = before.get("n") if isinstance(before.get("n"), int) else None
     for _ in range(8):
         time.sleep(1.5)
         s = _draft_signal(sub)
-        if s and (s.get("hint") or (isinstance(s.get("n"), int) and s["n"] > 0)):
-            print("  ✅ 已存草稿（首页显示「草稿箱中有未发布的作品」）")
+        if not s:
+            continue
+        n = s.get("n") if isinstance(s.get("n"), int) else None
+        if (n is not None and bn is not None and n > bn) or \
+                (s.get("hint") and not before.get("hint")):
+            print("  ✅ 已存草稿（草稿箱计数 %s → %s）" % (bn, n))
             return True, s
-    print("[warn] 离开编辑页后没读到草稿信号%s，请去草稿箱核对：《%s》"
+    print("[warn] 离开编辑页后没确认到草稿箱计数增长%s，请去草稿箱核对：《%s》"
           % ("" if left else "（页面没真的离开）", note["title"]))
     return False, before
 
@@ -1156,10 +1165,11 @@ def cmd_publish(args):
     c = find_case_fuzzy(args.case)
     d = os.path.join(OUT, c["id"])
     nj = os.path.join(d, "note.json")
+    # 没生成过卡片就现造一张（2026-10-21 修）：此处此前是 raise
+    # SystemExit —— 紧跟其后的 build_case 成了死代码，与 docstring
+    # 「缺卡片的案例会在发之前现造」相反，--case 指定未 build 案例直接崩。
     if not os.path.isfile(nj):
-        raise SystemExit("先 build：out/xhs/%s/note.json 不存在" % args.case)
-    if not os.path.isfile(nj):
-        build_case(BUILD_PORT, c)          # 没生成过卡片就现造一张
+        build_case(BUILD_PORT, c)
     note = json.load(open(nj, encoding="utf-8"))
     if not _port_up(PUB_PORT):
         raise SystemExit(
@@ -1333,10 +1343,15 @@ def cmd_publish(args):
     if not args.yes:
         # 页面没有「存草稿」按钮：离开编辑页小红书会自动暂存（2026-09-26 实测）。
         ok, _ = _save_draft(sub, note)
+        if not ok:
+            # ⚠ 没确认到就不许记账（2026-10-21 修）：此前 mark_drafted
+            #    无条件执行，这条从此永远进不了待发队列，草稿箱缺稿只能
+            #    靠人工对账发现。宁可退非零让人重试/核对。
+            print("[warn] 没确认到草稿。可手动关掉发布页暂存，或加 --yes 直接发。")
+            raise SystemExit(2)
         mark_drafted(c["id"])
-        print(("已存为草稿，去创作中心「草稿箱」里审核后再发"
-               "（草稿是浏览器本地的，换设备/清缓存就没了）。") if ok else
-              ("[warn] 没确认到草稿。可手动关掉发布页暂存，或加 --yes 直接发。"))
+        print("已存为草稿，去创作中心「草稿箱」里审核后再发"
+              "（草稿是浏览器本地的，换设备/清缓存就没了）。")
         return
     # 真发布：底部红色「发布」按钮查不到常规 DOM（探针 2026-09-26：
     # 全元素搜文本「发布」只有左上角导航按钮），按 viewport 比例坐标
@@ -1373,6 +1388,10 @@ def cmd_publish(args):
             mark_published(c["id"])
             return
     print("[warn] 点击后 30 秒没跳 success 页，请回浏览器确认是否成稿。")
+    # ⚠ 未确认成功不许静默通过（2026-10-21 修）：此前退码 0，runner 的
+    #    --yes 路径会照记 published（比 draft_saved 更糟 —— 幂等永久跳过）。
+    #    可能是发布按钮点空/风控拦截/跳转没完成，一律标失败让人核对。
+    raise SystemExit(2)
 
 
 def _publish_batch(args):
@@ -1384,6 +1403,12 @@ def _publish_batch(args):
         todo = [c for c in pending_cases(need_cards=True)]
     else:
         todo = pending_cases(need_cards=False)[: max(1, args.near)]
+    # ⚠ --skip 必须真生效（2026-10-21 修）：此前参数被解析却没人读，
+    #    `publish --near 3 --skip voklit` 照发 voklit —— 与头条的 skip
+    #    实现不同步，纯静默无效。
+    if getattr(args, "skip", None):
+        skip = {s.strip() for s in args.skip.split(",") if s.strip()}
+        todo = [c for c in todo if c["id"] not in skip]
     if not todo:
         print("没有待发的案例了（库里 %d 条都已进过小红书）。" % len(load_cases()))
         return
@@ -1398,7 +1423,7 @@ def _publish_batch(args):
         # 每条都重新导航，图/字才是干净的（2026-09-26 实测）。
         a = argparse.Namespace(
             case=c["id"], dry=args.dry, yes=args.yes, tags=args.tags,
-            no_original=args.no_original, keep=False,
+            no_original=args.no_original, keep=False, skip=args.skip,
         )
         try:
             cmd_publish(a)
@@ -2206,7 +2231,10 @@ def _send_draft_on(sub, args):
     r = evaluate_send(clicked, url_changed, hit)
     print("判定：%s —— %s" % (r["status"], r["reason"]))
     if r["status"] == "published":
-        cid = (match_drafts([d])[0] or [{}])[0].get("id") or ""
+        # match_drafts 返回 (matched, orphans)；对不上就是空列表，
+        # 宁可不记账也不错记（错记会让已发过的案例被重复发布）。
+        matched, _orphans = match_drafts([d])
+        cid = (matched[0].get("id") or "") if matched else ""
         if cid:
             mark_published(cid)
             print("已记账：%s" % cid)

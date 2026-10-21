@@ -1371,15 +1371,21 @@ def issue_registry(cases, save=True):
 
 
 def find_article(cid, name=None):
-    """在 ROOT 下找 公众号-<id|name>拆解.html（大小写不敏感）。"""
-    want = [cid.lower()]
-    if name:
-        want.append(name.lower())
-    for p in glob.glob(os.path.join(ROOT, "公众号-*.html")):
-        base = os.path.basename(p).lower()
-        for w in want:
-            if w and w in base:
-                return p
+    """在 ROOT 下找 公众号-<id|name>拆解.html（大小写不敏感）。
+
+    ⚠ 只认**精确**文件名（2026-10-21 修）：此前子串命中即返回，
+    `find_article("storyshort")` 实测拿到 `公众号-storyshort-ai拆解.html`
+    —— 标题正文都是 storyshort-ai 的，账却记到 storyshort 名下，比
+    「没发」恶劣得多。实测根目录 60 个母版全部严格按 `公众号-<id>拆解.html`
+    命名，子串兜底没有收益只有风险；精确不中返回 None，让调用方走
+    build 生成（找不到不该赌一个「长得像」的）。
+    """
+    for w in (cid, name):
+        if not w:
+            continue
+        hits = glob.glob(os.path.join(ROOT, "公众号-%s拆解.html" % w.lower()))
+        if hits:
+            return hits[0]
     return None
 
 
@@ -4472,6 +4478,34 @@ def send_one(cdp, c, appmsgid, tok, home_tid=None, dry=False, notify=False,
             pass
 
 
+def build_send_todo(published, issues=None, limit=0):
+    """`send --all` 的待办清单：[(cid, appmsgid)]，按**篇号**升序。
+
+    ⚠ 按篇号排，不是账本插入顺序（2026-10-21 修）：账本是只追加的，任何
+    后补/重存的草稿都会被追加到尾部，「续发下一条」的编号顺序口径就悄悄
+    失效（当前数据碰巧升序是运气，不是保证）。没有篇号的沉到最后，彼此
+    之间保持账本原序。
+
+    `issues` 可注入篇号表（测试用）；默认读注册表。
+    """
+    if issues is None:
+        issues = load_issue_numbers()
+    pool = []
+    for i, (cid, rec) in enumerate(published.items()):
+        rec = rec or {}
+        if rec.get("status") not in ("draft", "partial"):
+            continue                     # 已发表的不重复发
+        if rec.get("missing"):
+            continue                     # 远端都没了，发了也白发
+        if not rec.get("appmsgid"):
+            continue
+        pool.append((issues.get(cid), i, cid, str(rec["appmsgid"])))
+    pool.sort(key=lambda t: (t[0] is None,
+                             t[0] if t[0] is not None else 0, t[1]))
+    todo = [(cid, aid) for _n, _i, cid, aid in pool]
+    return todo[:limit] if limit else todo
+
+
 def cmd_send(args):
     """把草稿箱里的稿子**发表**出去。**两种模式都要管理员扫码**。
 
@@ -4513,16 +4547,7 @@ def cmd_send(args):
                 return
             todo.append((cid, str(rec["appmsgid"])))
     else:
-        for cid, rec in published.items():
-            if rec.get("status") not in ("draft", "partial"):
-                continue                     # 已发表的不重复发
-            if rec.get("missing"):
-                continue                     # 远端都没了，发了也白发
-            if not rec.get("appmsgid"):
-                continue
-            todo.append((cid, str(rec["appmsgid"])))
-        if args.limit:
-            todo = todo[:args.limit]
+        todo = build_send_todo(published, limit=args.limit)
 
     if not todo:
         print("没有可发表的草稿（台账里没有 status=draft 且带 appmsgid 的记录）")

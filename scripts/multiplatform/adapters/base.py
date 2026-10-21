@@ -49,6 +49,11 @@ class Adapter:
     supports_cover = False
     # 批量支持「只跑指定 id」吗（子类覆盖 batch()）
     supports_only = False
+    # ⚠ publish()/子类契约里会读这两个开关（2026-10-21 补默认值）：
+    #    此前只在各子类上声明，新适配器漏写一个就是 AttributeError
+    #    炸在 publish 路径上。默认 False = 最保守（不透传 --replace/--yes）。
+    supports_replace = False
+    supports_publish = False
 
     # ---- 子进程 -----------------------------------------------------------
     def run(self, args, enabled=True, timeout=1800, full=False):

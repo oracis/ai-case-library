@@ -2535,6 +2535,11 @@ def cmd_publish(args):
     if failed and not args.dry:
         print("\n失败 %d 条：%s" % (len(failed), " ".join(failed)))
         print("（每条的四态结论见上；MISSING 只能重建，RATE_LIMIT 等几分钟重跑）")
+        # ⚠ 失败必须退非零（2026-10-21 修）：此前失败只打印，进程退码 0，
+        #    publish_multi 的 runner 只认退出码 ⇒ 什么都没存成也记
+        #    draft_saved，队列永不再发，只能靠远端对账才能发现。
+        #    与 B站 main 的 sys.exit(1)、公众号的 SystemExit(3) 同口径。
+        raise SystemExit(2)
 
 
 def _refresh_plan(box, only_case=None):

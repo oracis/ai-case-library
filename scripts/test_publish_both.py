@@ -24,6 +24,13 @@ class TestArticleHtml(unittest.TestCase):
         self.assertFalse(pb.article_html("zzz-nonexistent-case-xyz"))
 
     def test_root_article_wins(self):
+        # ⚠ 打桩必须 addCleanup 还原（本文件自己的铁律，2026-09-26 踩过）。
+        #    此前这个用例漏了 —— pb.wp 与 test_wechat_publish 里的 W 是
+        #    **同一个模块对象**，全量跑时 find_article 永远返回伪造路径，
+        #    后面的 TestFindArticle 三个 assertIsNone 全军覆没
+        #    （2026-10-21 实测复现：Ran 1273, FAILED (failures=3)）。
+        old = pb.wp.find_article
+        self.addCleanup(setattr, pb.wp, "find_article", old)
         pb.wp.find_article = lambda cid, name=None: "真实/公众号-%s拆解.html" % cid
         self.assertTrue(pb.article_html("nitra"))
 

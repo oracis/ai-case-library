@@ -32,7 +32,13 @@ class Wechat(Adapter):
         import wechat_publish as wp
         d = wp.load_published() or {}
         if isinstance(d, dict):
-            return set(d.keys())
+            # ⚠ partial 不是 done（2026-10-21 修）：partial = 封面/原创
+            #    声明没收完的半成品，脚本自己会把它拉回 todo 就地补完；
+            #    这里把它当 done 的话，runner 永远跳过，半成品躺平 ——
+            #    只能靠人记得直跑脚本才捞得回来。
+            return {k for k, v in d.items()
+                    if not (isinstance(v, dict) and v.get("status")
+                            in ("partial",))}
         if isinstance(d, list):
             return {x_.get("id") for x_ in d
                     if isinstance(x_, dict) and x_.get("id")}

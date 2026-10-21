@@ -107,7 +107,11 @@ class Toutiao(Adapter):
             args += ["--api", "--send", "--yes"]
         r = self.run(args, not dry, full=True)
         blob = r.out or ""
-        if r.ok and ("没找到卡片图" in blob or "正文偏短" in blob):
+        # ⚠ 退出码之外的兜底（2026-10-21 修）：脚本失败路径曾退码 0
+        #    （已改 SystemExit(2)，但老版本/意外路径仍可能溜过），这两类
+        #    字样出现在 stdout 就说明有确凿失败，别记成功。
+        if r.ok and ("没找到卡片图" in blob or "正文偏短" in blob
+                     or "\n失败 " in blob or blob.startswith("失败 ")):
             r = Result(False, "failed",
                        (blob.strip().splitlines() or ["空输出"])[-1][:200],
                        r.rc, blob)
