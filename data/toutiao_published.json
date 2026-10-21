@@ -180,5 +180,12 @@
     "gid": "7693147331377611299",
     "evidence": "send_existing_draft",
     "verified_at": "2026-10-20 15:31"
+  },
+  {
+    "id": "autoreels-ai",
+    "at": "2026-10-21 12:38",
+    "gid": "7693146865831657999",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-21 12:38"
   }
 ]

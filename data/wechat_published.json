@@ -276,11 +276,17 @@
   },
   "startclaw": {
     "title": "StartClaw：零配置跑 AI 助手",
-    "published_at": "2026-10-16 08:20",
-    "status": "draft",
+    "published_at": "2026-10-21 12:47",
+    "status": "published",
     "appmsgid": "100000538",
     "file": "公众号-startclaw拆解.html",
-    "refreshed_at": "2026-10-16 09:45"
+    "refreshed_at": "2026-10-16 09:45",
+    "publish_type": "publish",
+    "published_appmsgid": "2247484558",
+    "sent_via": "send",
+    "send_reason": "已发表列表出现新记录，标题一致",
+    "note": "｜publish模式自动发表，新 appmsgid=2247484558",
+    "verified_at": "2026-10-21 12:47"
   },
   "outrank": {
     "title": "Outrank：从 AI 博客生成器到自动化 SEO 引擎",
