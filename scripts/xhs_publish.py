@@ -1493,6 +1493,19 @@ def _draft_cdp(fresh=True):
     sub = wp.CDP(PUB_PORT)
     sub.connect_target(tid)
     sub._own_tid = tid if fresh else None
+    # 2026-10-21：headless Chrome 不传 --window-size 时视口只有 784x449，
+    # 而小红书发布页左侧有侧边栏，「草稿箱(N)」入口被推到 x≈965（宽布局下
+    # x≈1260）—— **点击坐标落在视口外**，真实鼠标点的是空气，抽屉死活不开
+    # （症状：入口能找到、'clicked' 照常返回、抽屉纹丝不动；fetch_drafts 的
+    # DRAWER_UP 判据永远不亮，连炸三次「打不开草稿箱抽屉」）。
+    # 加宽视口后入口落入视口内，实测一次就开。1440x900 也覆盖编辑器内控件。
+    try:
+        sub.send("Emulation.setDeviceMetricsOverride",
+                 {"width": 1440, "height": 900, "deviceScaleFactor": 1,
+                  "mobile": False})
+    except Exception as e:
+        print("[warn] setDeviceMetricsOverride 失败：%s: %s"
+              % (type(e).__name__, e))
     time.sleep(6)
     sub.eval("1", refresh_context=True)
     waited = _wait_draft_entry(sub)
