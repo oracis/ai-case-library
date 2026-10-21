@@ -643,3 +643,31 @@ class AiVerifyIntegration(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestRevenueOfCumulative(unittest.TestCase):
+    """「累计收入」不得当月收入（2026-10-21 修）。
+
+    修的洞：harvest 对 MRR=0 且 last30=0 的条目写 headline
+    「累计收入 $924（当前 MRR 与近 30 天均为 0…）」做口径声明，
+    REV_PREFIX 却照样命中「收入 $924」⇒ 58/58 条零收入死项目全被
+    洗成 deep，违反「last30Days==0 是零收入假阳性」红线。
+    """
+
+    def test_累计口径不认(self):
+        r = rec(metrics={"mrr": 0, "last_30d_revenue": 0,
+                           "headline": "累计收入 $924（当前 MRR 与近 30 天均为 0，"
+                                       "口径见 metric_note）"})
+        self.assertIsNone(T.revenue_of(r))
+
+    def test_正常月收入headline仍认(self):
+        r = rec(metrics={"mrr": 0, "headline": "月收入 $924，售价 $99"})
+        self.assertEqual(T.revenue_of(r), 924.0)
+
+    def test_累计在前正常收入在后取后者(self):
+        r = rec(metrics={"headline": "累计收入 $900；近 30 天收入 $300"})
+        self.assertEqual(T.revenue_of(r), 300.0)
+
+    def test_结构化字段仍然优先(self):
+        r = rec(metrics={"mrr": 500, "headline": "累计收入 $90000"})
+        self.assertEqual(T.revenue_of(r), 500.0)
