@@ -266,6 +266,18 @@ def verdict_for(p, cid, case=None, title_maker=None):
     # 公众号特例：wechat_sync 已产出 diffs，直接按 code 判（口径更细，
     # 里面还区分了「群发」与「远端删除」的历史成因）。
     if p.get("diffs") is not None:
+        # ⚠ **先查双侧读没读成，再翻 diffs**（2026-10-21 修，与
+        #    wechat_publish._verdict_for 原口径对齐）：此前这里直接翻 diffs，
+        #    classify 在读取失败时发的 UNKNOWN 级行（DRAFT_LIST_UNREADABLE /
+        #    PUB_LIST_UNREADABLE）不在下面两个 code 里，被跳过之后
+        #    fallthrough 成 RATE_LIMIT「草稿箱里还有这条」—— 把「没读到」
+        #    说成「草稿还在」，正是本模块铁律「双侧都读成功才下结论」
+        #    要防的误判（比不判更坏）。
+        meta = p.get("meta") or {}
+        if not (meta.get("draft_ok") and meta.get("pub_ok")):
+            side = "草稿箱" if not meta.get("draft_ok") else "已发表列表"
+            return "UNKNOWN", ("%s没读到 ⇒ 无法区分「真没了」和「没读到」，"
+                               "不下结论" % side)
         for row in p["diffs"]:
             lvl, code, c, detail = (list(row) + [None] * 4)[:4]
             if c != cid:
@@ -274,6 +286,10 @@ def verdict_for(p, cid, case=None, title_maker=None):
                 return "PUBLISHED", detail
             if code == "REMOTE_MISSING":
                 return "MISSING", detail
+            if lvl == "UNKNOWN":
+                # 如 TITLE_COLLISION：认亲不可靠，原样透传不下结论
+                return "UNKNOWN", detail or ("对账行 %s：不下结论" % code)
+        # 没有这条的 diff ⇒ classify 认为草稿还在箱里（编辑器打不开是另一回事）
         return "RATE_LIMIT", "草稿箱里还有这条 ⇒ 限流或记录级损坏"
 
     why = p.get("why") or ""

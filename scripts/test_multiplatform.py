@@ -442,6 +442,92 @@ class TestBatchScheduling(unittest.TestCase):
         self.assertIsNone(REGISTRY["bilibili"].batch([]))
 
 
+class TestYesRouting(unittest.TestCase):
+    """`--yes`（真发布）的路由：批量只能存草稿，必须逐条发布。
+
+    2026-10-21 修的洞：`_run_batch` 不接收 yes，B站（supports_only=True）
+    的 batch 是 `publish --only`（draft/add）。同一条 `run --yes` 走批量
+    只存草稿、走逐条才真发，且无任何提示 —— 用户以为发了，回头还在
+    草稿箱里躺着。现在 yes + supports_publish 一律走逐条。
+    """
+
+    def setUp(self):
+        self.ad = REGISTRY["bilibili"]
+        self.dir = tempfile.mkdtemp(prefix="mp_yes_")
+        self.addCleanup(shutil.rmtree, self.dir, ignore_errors=True)
+        self.m = S.Manifest(os.path.join(self.dir, "m.json"))
+
+    def _run_platform_with(self, yes, cids=("x", "y")):
+        """跑 _run_platform，把 run_one / batch 换成记录型假件。"""
+        r = runner.Runner(["bilibili"], dry=False, yes=yes,
+                          manifest=self.m, verbose=False)
+        seen = []
+
+        def fake_one(art, plat):
+            seen.append(("one", art.cid))
+            return "ok"
+
+        def fake_batch(ids, **kw):
+            seen.append(("batch", tuple(ids)))
+            return base.Result(True, "draft_saved", "ok", 0, "")
+
+        def fake_parse(out):
+            return set(cids), set()
+
+        old_one, old_batch = r.run_one, self.ad.batch
+        old_parse = self.ad.parse_batch
+        try:
+            r.run_one, self.ad.batch = fake_one, fake_batch
+            self.ad.parse_batch = fake_parse
+            arts = {c: A.Article(c, c) for c in cids}
+            tally = {}
+            r._run_platform(self.ad, "bilibili", list(cids), arts, tally)
+        finally:
+            r.run_one, self.ad.batch = old_one, old_batch
+            self.ad.parse_batch = old_parse
+        return seen, tally
+
+    def test_yes时逐条发布不走批量(self):
+        seen, tally = self._run_platform_with(yes=True)
+        self.assertEqual([s[0] for s in seen], ["one", "one"],
+                         "--yes 必须逐条发布（send-draft），不许走批量存草稿")
+        self.assertEqual(tally, {"x": True, "y": True})
+
+    def test_无yes时仍走批量存草稿(self):
+        """存草稿语义下批量的性能优化必须保留（一次进程跑完 N 条）。"""
+        seen, tally = self._run_platform_with(yes=False)
+        self.assertEqual(seen, [("batch", ("x", "y"))])
+        self.assertEqual(tally, {"x": True, "y": True})
+
+    def test_yes撞上批量且无发布接口的平台仍点名(self):
+        """draft-only + 批量平台（今天不存在，防御未来的）也要点名。
+
+        安静降级会让人以为发了，回头发现还在草稿箱里躺着 —— 与
+        run_one 的 _draft_only 同口径。
+        """
+
+        class FakeDraftOnly(base.Adapter):
+            key = "fake-draft-only"
+            label = "假平台"
+            script = "x.py"
+            supports_only = True
+            supports_publish = False
+
+            def batch(self, cids, dry=False, replace=False, retries=1):
+                return base.Result(True, "draft_saved", "ok", 0, "")
+
+            def parse_batch(self, out):
+                return {"x"}, set()
+
+        r = runner.Runner(["bilibili"], dry=False, yes=True,
+                          manifest=self.m, verbose=False)
+        arts = {"x": A.Article("x", "x")}
+        # plat 传已注册的 key（_run_batch 内部按它回注册表取标题来源），
+        # 路由行为由传入的假适配器驱动
+        r._run_platform(FakeDraftOnly(), "bilibili", ["x"], arts, {})
+        self.assertIn("假平台", r._draft_only)
+
+
 class TestParseBatch(unittest.TestCase):
     """批量结果必须**逐条**判定，不能只看退出码。
 

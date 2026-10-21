@@ -199,19 +199,9 @@ class Runner:
 
         tally = {}                      # cid → 该 case 是否全平台都过
         for p in self.plats:
-            cids = per[p]
-            if not cids:
+            if not per[p]:
                 continue
-            ad = get_ad(p)
-            self.log("\n—— %s：%d 条 ——" % (ad.label, len(cids)))
-            if getattr(ad, "supports_only", False):
-                self._run_batch(ad, p, cids, arts, tally)
-            else:
-                for cid in cids:
-                    art = arts[cid]
-                    self.log("  %s" % cid)
-                    r = self.run_one(art, p)
-                    tally[cid] = tally.get(cid, True) and (r != "failed")
+            self._run_platform(get_ad(p), p, per[p], arts, tally)
 
         done = [c for c, v in tally.items() if v]
         bad = [c for c, v in tally.items() if not v]
@@ -225,6 +215,29 @@ class Runner:
             self.log("有问题 %d 条：%s" % (len(bad), ", ".join(bad)))
             self.log("（重试：publish_multi.py retry --case <id>）")
         return done + bad
+
+    def _run_platform(self, ad, plat, cids, arts, tally):
+        """跑完一个平台的待办清单：能批量的走批量，其余逐条。
+
+        ⚠ `--yes`（真发布）**不走批量**（2026-10-21 修）：平台的 batch
+        全是「存草稿」语义（B站 batch = `publish --only` 即 draft/add）。
+        真发布必须逐条走 run_one → send-draft —— 额度墙判段、回读落账
+        都在那条路上。此前 yes 在批量路径被静默丢弃：同一条 `run --yes`
+        走批量只存草稿、走逐条才真发，且没有任何提示，用户以为发了，
+        回头还在草稿箱里躺着。
+        """
+        self.log("\n—— %s：%d 条 ——" % (ad.label, len(cids)))
+        batchable = getattr(ad, "supports_only", False)
+        if batchable and self.yes and getattr(ad, "supports_publish", False):
+            self.log("  （--yes 真发布：批量只能存草稿，改逐条发布）")
+            batchable = False
+        if batchable:
+            self._run_batch(ad, plat, cids, arts, tally)
+            return
+        for cid in cids:
+            self.log("  %s" % cid)
+            r = self.run_one(arts[cid], plat)
+            tally[cid] = tally.get(cid, True) and (r != "failed")
 
     def _run_batch(self, ad, plat, cids, arts, tally):
         """一次提交整个平台的多条，再按脚本输出逐条回写状态。
@@ -243,6 +256,11 @@ class Runner:
         if self.dry:
             self.log("    [dry] %s" % r.note[:100])
             return
+        # --yes 撞上只能存草稿的平台：与 run_one 同口径，安静降级会让人
+        # 以为发了，回头发现还在草稿箱里躺着。
+        if self.yes and not getattr(ad, "supports_publish", False):
+            self._draft_only.add(ad.label)
+            self.log("    △ 只到草稿（该平台无发布接口）")
         done, failed = ad.parse_batch(r.out)
         for cid in cids:
             art = arts[cid]
