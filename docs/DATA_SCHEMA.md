@@ -111,7 +111,7 @@ guaranteed present; everything else may be `null`, `""` or `[]`.
 | `updated_at` | string | `YYYY-MM-DD` — last edit of any kind. |
 | `tags` | string[] | Free-text tags. |
 | `needs_review` | bool | Optional. Present and `true` when promoted without verification. |
-| `caliber` | enum \| "" | Which revenue definition the headline figure uses: `arr` \| `mrr` \| `run_rate` \| `lifetime` \| `gmv` \| `gross`. |
+| `caliber` | enum \| "" | Which revenue definition the headline figure uses: `arr` \| `mrr` \| `run_rate` \| `lifetime` \| `annual` \| `last_30d` \| `gmv` \| `gross`. `annual` is a **completed calendar-year sum actually earned** — not ARR (forward-looking), not `lifetime` (multi-year cumulative), not `run_rate` (one month × 12). |
 | `quality_score` | number \| null | Bonus score (0–100) at publish time. 60 is the publish threshold. |
 | `tier` | enum | `premium` \| `standard` \| `backup` — where the case sits in the library. See below. |
 | `tier_reason` | string | Why it got that tier. Always present when `tier` is. |

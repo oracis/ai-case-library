@@ -1,0 +1,578 @@
+{
+ "generated_at": "2026-10-21 17:30",
+ "method": "entity-anchor: iTunes sellerUrl / GitHub homepage 必须与官网同域",
+ "summary": {
+  "third_party": 9,
+  "self_only": 16,
+  "unreachable": 11
+ },
+ "items": [
+  {
+   "id": "3d-agent",
+   "name": "3D-AGENT",
+   "site": {
+    "url": "https://www.3d-agent.com/",
+    "status": 200,
+    "title": "3D-Agent | Blender AI Plugin for 3D Modeling",
+    "bytes": 299659,
+    "pricing": true,
+    "attempts": 1
+   },
+   "confirmed": [],
+   "errors": [
+    "github: HTTP Error 403: rate limit exceeded"
+   ],
+   "verdict": "self_only"
+  },
+  {
+   "id": "abmaxx",
+   "name": "AbMaxx",
+   "carried_over": true,
+   "site": {
+    "url": "https://apps.apple.com/app/id6757769125",
+    "status": 200,
+    "title": "‎iPhone 版“Today” - App Store",
+    "pricing": false
+   },
+   "confirmed": [
+    {
+     "kind": "appstore",
+     "url": "https://apps.apple.com/app/id6757769125",
+     "evidence": "TrustMRR 登记的官网即 App Store 在架页（apps.apple.com）"
+    }
+   ],
+   "verdict": "third_party"
+  },
+  {
+   "id": "acquire-community",
+   "name": "Acquire Community",
+   "site": {
+    "url": "https://acquirecommunity.com/",
+    "status": 200,
+    "title": "Acquire Community | Private community acquisitions",
+    "bytes": 26490,
+    "pricing": false,
+    "attempts": 1
+   },
+   "confirmed": [],
+   "errors": [
+    "github: HTTP Error 403: rate limit exceeded"
+   ],
+   "verdict": "self_only"
+  },
+  {
+   "id": "acsperf",
+   "name": "ACSPerf'",
+   "site": {
+    "url": "",
+    "status": 0,
+    "err": "无官网"
+   },
+   "confirmed": [],
+   "verdict": "unreachable"
+  },
+  {
+   "id": "ad-machine",
+   "name": "Ad Machine",
+   "carried_over": true,
+   "site": {
+    "url": "https://admachine.xyz/",
+    "status": 200,
+    "title": "The Ad Machine | Infinite Creative Studio",
+    "pricing": true
+   },
+   "confirmed": [
+    {
+     "kind": "appstore",
+     "url": "https://apps.apple.com/us/app/ad-machine/id6774393889?uo=4",
+     "evidence": "App Store 在架：Ad Machine 由 Sparky Art House, LLC 发布，版本 1.0.1，更新于 2026-10-13"
+    }
+   ],
+   "verdict": "third_party"
+  },
+  {
+   "id": "adelante-ltd",
+   "name": "ADELANTE LTD",
+   "site": {
+    "url": "https://www.getadelante.com/",
+    "status": 0,
+    "err": "HTTPError: HTTP Error 429: Too Many Requests"
+   },
+   "confirmed": [],
+   "errors": [
+    "github: HTTP Error 403: rate limit exceeded"
+   ],
+   "verdict": "unreachable"
+  },
+  {
+   "id": "adtruffle",
+   "name": "AdTruffle",
+   "site": {
+    "url": "",
+    "status": 0,
+    "err": "无官网"
+   },
+   "confirmed": [],
+   "verdict": "unreachable"
+  },
+  {
+   "id": "advanced-gsc-mcp",
+   "name": "Advanced GSC MCP",
+   "site": {
+    "url": "https://www.advancedgsc.com/mcp",
+    "status": 200,
+    "title": "Google Search Console &amp; Google Analytics MCP Server: No Install, Always On",
+    "bytes": 102863,
+    "pricing": true,
+    "attempts": 1
+   },
+   "confirmed": [],
+   "errors": [
+    "github: HTTP Error 403: rate limit exceeded"
+   ],
+   "verdict": "self_only"
+  },
+  {
+   "id": "ae-intelligence",
+   "name": "AE-intelligence",
+   "site": {
+    "url": "https://humanizeaitext.ai/",
+    "status": 200,
+    "title": "Humanize AI: Guaranteed 100% Human Score &amp; Unlimited Free Words",
+    "bytes": 299505,
+    "pricing": true,
+    "attempts": 1
+   },
+   "confirmed": [],
+   "errors": [
+    "github: HTTP Error 403: rate limit exceeded"
+   ],
+   "verdict": "self_only"
+  },
+  {
+   "id": "aeo-checker",
+   "name": "AEO Checker",
+   "site": {
+    "url": "https://www.aeochecker.ai/",
+    "status": 200,
+    "title": "AEO Checker - Free Answer Engine Optimization and Generative Engine Optimization",
+    "bytes": 99638,
+    "pricing": true,
+    "attempts": 1
+   },
+   "confirmed": [],
+   "errors": [
+    "github: HTTP Error 403: rate limit exceeded"
+   ],
+   "verdict": "self_only"
+  },
+  {
+   "id": "ai-designer",
+   "name": "AI Designer",
+   "site": {
+    "url": "https://www.aidesigner.ai/",
+    "status": 200,
+    "title": "AIDesigner | AI Designer for UI, Brands &amp; Visual Assets",
+    "bytes": 299987,
+    "pricing": true,
+    "attempts": 1
+   },
+   "confirmed": [],
+   "errors": [
+    "github: HTTP Error 403: rate limit exceeded"
+   ],
+   "verdict": "self_only"
+  },
+  {
+   "id": "ai-toolbox",
+   "name": "AI Toolbox",
+   "site": {
+    "url": "https://ai-toolbox.co/",
+    "status": 200,
+    "title": "AI Toolbox, One Extension for ChatGPT, Claude, Gemini, Grok",
+    "bytes": 299982,
+    "pricing": true,
+    "attempts": 1
+   },
+   "confirmed": [],
+   "errors": [
+    "github: HTTP Error 403: rate limit exceeded"
+   ],
+   "verdict": "self_only"
+  },
+  {
+   "id": "analytics-mates",
+   "name": "Analytics Mates",
+   "site": {
+    "url": "https://www.analyticsmates.com/",
+    "status": 200,
+    "title": "Analytics Mates | Measurement Operations for GA4 &amp; Paid Media",
+    "bytes": 133364,
+    "pricing": true,
+    "attempts": 2
+   },
+   "confirmed": [],
+   "verdict": "self_only"
+  },
+  {
+   "id": "angel-match",
+   "name": "Angel Match",
+   "site": {
+    "url": "https://angelmatch.io/",
+    "status": 0,
+    "err": "HTTPError: HTTP Error 403: Forbidden"
+   },
+   "confirmed": [],
+   "errors": [
+    "github: HTTP Error 403: rate limit exceeded"
+   ],
+   "verdict": "unreachable"
+  },
+  {
+   "id": "anon-2",
+   "name": "anon-2",
+   "site": {
+    "url": "https://trustmrr.com/founder/piprocket",
+    "status": 200,
+    "title": "Aby (@piprocket) - 7 startups · $2,461,748 revenue | TrustMRR",
+    "bytes": 150680,
+    "pricing": false,
+    "attempts": 1
+   },
+   "confirmed": [],
+   "errors": [
+    "github: HTTP Error 403: rate limit exceeded"
+   ],
+   "verdict": "self_only"
+  },
+  {
+   "id": "apiframe",
+   "name": "Apiframe",
+   "site": {
+    "url": "https://apiframe.ai/",
+    "status": 200,
+    "title": "AI Image, Music & Video Generation API – Apiframe",
+    "bytes": 219319,
+    "pricing": true,
+    "attempts": 1
+   },
+   "confirmed": [],
+   "verdict": "self_only"
+  },
+  {
+   "id": "applyall",
+   "name": "ApplyAll",
+   "site": {
+    "url": "https://www.applyall.com/",
+    "status": 200,
+    "title": "ApplyAll | Real Interviews or Your Money Back",
+    "bytes": 91030,
+    "pricing": true,
+    "attempts": 1
+   },
+   "confirmed": [],
+   "errors": [
+    "github: HTTP Error 403: rate limit exceeded"
+   ],
+   "verdict": "self_only"
+  },
+  {
+   "id": "atelier-nuage",
+   "name": "ATELIER NUAGE",
+   "site": {
+    "url": "https://www.linkedin.com/company/42827803",
+    "status": 0,
+    "err": "HTTPError: HTTP Error 451: Unavailable_For_Legal_Reasons"
+   },
+   "confirmed": [],
+   "errors": [
+    "github: HTTP Error 403: rate limit exceeded"
+   ],
+   "verdict": "unreachable"
+  },
+  {
+   "id": "audn-ai",
+   "name": "Audn.AI",
+   "site": {
+    "url": "https://www.audn.ai/",
+    "status": 200,
+    "title": "Audn.AI",
+    "bytes": 135724,
+    "pricing": true,
+    "attempts": 1
+   },
+   "confirmed": [
+    {
+     "kind": "github",
+     "url": "https://github.com/audn-ai/skills",
+     "evidence": "GitHub 仓库 audn-ai/skills（★8，最近推送 2026-04-13，仓库主页指向 https://audn.ai）",
+     "anchor": "homepage=https://audn.ai"
+    }
+   ],
+   "verdict": "third_party"
+  },
+  {
+   "id": "autocontent-api",
+   "name": "AutoContent API",
+   "site": {
+    "url": "https://autocontentapi.com/",
+    "status": 200,
+    "title": "Content Generation API for Audio, Video &amp; Visuals | AutoContent API",
+    "bytes": 299711,
+    "pricing": true,
+    "attempts": 1
+   },
+   "confirmed": [],
+   "errors": [
+    "github: HTTP Error 403: rate limit exceeded"
+   ],
+   "verdict": "self_only"
+  },
+  {
+   "id": "avenue-ticketing-inc",
+   "name": "Avenue Ticketing, Inc.",
+   "site": {
+    "url": "https://avenueticket.com/",
+    "status": 200,
+    "title": "Avenue Ticketing | Discover Events Near You",
+    "bytes": 299643,
+    "pricing": false,
+    "attempts": 1
+   },
+   "confirmed": [],
+   "errors": [
+    "github: HTTP Error 403: rate limit exceeded"
+   ],
+   "verdict": "self_only"
+  },
+  {
+   "id": "bidva-buy-linkedin-accounts",
+   "name": "BIDVA - Buy LinkedIn Accounts",
+   "site": {
+    "url": "https://www.buy-id-verified-account/",
+    "status": 0,
+    "err": "URLError: <urlopen error Tunnel connection failed: 502 Bad Gateway>"
+   },
+   "confirmed": [],
+   "errors": [
+    "github: HTTP Error 403: rate limit exceeded"
+   ],
+   "verdict": "unreachable"
+  },
+  {
+   "id": "brawler",
+   "name": "Brawler",
+   "carried_over": true,
+   "site": {
+    "url": "https://apps.apple.com/app/id6760366949",
+    "status": 200,
+    "title": "‎iPhone 版“Today” - App Store",
+    "pricing": false
+   },
+   "confirmed": [
+    {
+     "kind": "appstore",
+     "url": "https://apps.apple.com/app/id6760366949",
+     "evidence": "TrustMRR 登记的官网即 App Store 在架页（apps.apple.com）"
+    }
+   ],
+   "verdict": "third_party"
+  },
+  {
+   "id": "bustem",
+   "name": "Bustem",
+   "site": {
+    "url": "",
+    "status": 0,
+    "err": "无官网"
+   },
+   "confirmed": [],
+   "verdict": "unreachable"
+  },
+  {
+   "id": "chessigma",
+   "name": "Chessigma",
+   "carried_over": true,
+   "site": {
+    "url": "https://www.chessigma.com/",
+    "status": 200,
+    "title": "Chessigma – Free Unlimited Chess Game Analysis &amp; Reports",
+    "pricing": true
+   },
+   "confirmed": [
+    {
+     "kind": "appstore",
+     "url": "https://apps.apple.com/us/app/chessigma/id6791621546?uo=4",
+     "evidence": "App Store 在架：Chessigma 由 ARCHE LABS LTD 发布，版本 2.0.0，更新于 2026-10-05"
+    },
+    {
+     "kind": "github",
+     "url": "https://github.com/mehdi-bh/chessigma-mcp",
+     "evidence": "GitHub 仓库 mehdi-bh/chessigma-mcp（★0，最近推送 2026-10-02，仓库主页指向 https://www.chessigma.com/developers/mcp）"
+    }
+   ],
+   "verdict": "third_party"
+  },
+  {
+   "id": "corsidia",
+   "name": "Corsidia",
+   "carried_over": true,
+   "site": {
+    "url": "https://corsidia.com/",
+    "status": 0,
+    "title": null,
+    "pricing": null
+   },
+   "confirmed": [
+    {
+     "kind": "github",
+     "url": "https://github.com/Corsidia/it_cookie_law",
+     "evidence": "GitHub 仓库 Corsidia/it_cookie_law（★14，最近推送 2021-10-14，仓库主页指向 https://corsidia.com/materia/web-design/webmaster-tutorial/privacy-e-cookie-law）"
+    }
+   ],
+   "verdict": "third_party"
+  },
+  {
+   "id": "downconvert-sketchup-files",
+   "name": "DOWNCONVERT SKETCHUP FILES",
+   "site": {
+    "url": "https://downconvert-sketchup-files.com/",
+    "status": 200,
+    "title": "SketchUp Converter Online – Open Newer .SKP Files Free",
+    "bytes": 93726,
+    "pricing": true,
+    "attempts": 1
+   },
+   "confirmed": [],
+   "verdict": "self_only"
+  },
+  {
+   "id": "growingupvideo",
+   "name": "GrowingUpVideo",
+   "site": {
+    "url": "https://growingupvideo.com/",
+    "status": 0,
+    "err": "TimeoutError: The read operation timed out"
+   },
+   "confirmed": [
+    {
+     "kind": "github",
+     "url": "https://github.com/GrowingUpVideo/growingupvideo-mcp",
+     "evidence": "GitHub 仓库 GrowingUpVideo/growingupvideo-mcp（★0，最近推送 2026-09-28，仓库主页指向 https://growingupvideo.com）",
+     "anchor": "homepage=https://growingupvideo.com"
+    }
+   ],
+   "verdict": "third_party"
+  },
+  {
+   "id": "gtm-help",
+   "name": "gtm.help",
+   "site": {
+    "url": "https://gtm.help/",
+    "status": 200,
+    "title": "gtm.help: AI Go-To-Market &amp; Daily Growth for Startups",
+    "bytes": 73046,
+    "pricing": true,
+    "attempts": 1
+   },
+   "confirmed": [],
+   "verdict": "self_only"
+  },
+  {
+   "id": "kibu",
+   "name": "Kibu",
+   "carried_over": true,
+   "site": {
+    "url": "https://kibu.com/",
+    "status": 200,
+    "title": "Kibu - Focus on Excellent Service. We Handle The Rest.",
+    "pricing": false
+   },
+   "confirmed": [
+    {
+     "kind": "appstore",
+     "url": "https://apps.apple.com/us/app/kibu-mobile/id6739316079?uo=4",
+     "evidence": "App Store 在架：Kibu Mobile 由 HomeField US Inc 发布，版本 5.6.0，更新于 2026-10-08"
+    }
+   ],
+   "verdict": "third_party"
+  },
+  {
+   "id": "mort",
+   "name": "MORT",
+   "site": {
+    "url": "https://mortit.com/",
+    "status": 200,
+    "title": "MORT - AI Job Search: Tailored Resumes, Matching &amp; Interview Prep",
+    "bytes": 100973,
+    "pricing": true,
+    "attempts": 1
+   },
+   "confirmed": [],
+   "verdict": "self_only"
+  },
+  {
+   "id": "nutria-9e3eaa",
+   "name": "Nutria (9e3eaa)",
+   "carried_over": true,
+   "site": {
+    "url": "https://apps.apple.com/us/app/calyra-ai-calorie-tracker/id6748324995?uo=4",
+    "status": 200,
+    "title": "‎iPhone 版“Today” - App Store",
+    "pricing": false
+   },
+   "confirmed": [
+    {
+     "kind": "appstore",
+     "url": "https://apps.apple.com/us/app/calyra-ai-calorie-tracker/id6748324995?uo=4",
+     "evidence": "TrustMRR 登记的官网即 App Store 在架页（apps.apple.com）"
+    }
+   ],
+   "verdict": "third_party"
+  },
+  {
+   "id": "private-venture",
+   "name": "Private Venture",
+   "site": {
+    "url": "",
+    "status": 0,
+    "err": "无官网"
+   },
+   "confirmed": [],
+   "verdict": "unreachable"
+  },
+  {
+   "id": "quotedeck",
+   "name": "QuoteDeck",
+   "site": {
+    "url": "https://quotedeck.app/",
+    "status": 0,
+    "err": "TimeoutError: The read operation timed out"
+   },
+   "confirmed": [],
+   "verdict": "unreachable"
+  },
+  {
+   "id": "the-stealthiest-of-ventures",
+   "name": "The Stealthiest of Ventures",
+   "site": {
+    "url": "",
+    "status": 0,
+    "err": "无官网"
+   },
+   "confirmed": [],
+   "verdict": "unreachable"
+  },
+  {
+   "id": "wagiff-app",
+   "name": "Wagiff App",
+   "site": {
+    "url": "",
+    "status": 0,
+    "err": "无官网"
+   },
+   "confirmed": [],
+   "verdict": "unreachable"
+  }
+ ]
+}

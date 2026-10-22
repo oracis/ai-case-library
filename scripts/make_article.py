@@ -25,6 +25,7 @@
 
 import argparse
 import json
+import math
 import os
 import re
 import sys
@@ -420,16 +421,50 @@ def scan_warn(text):
     return out
 
 
+# 「金额量级」只认**当前口径**的收入字段，并统一年化成 run-rate（USD/年）。
+#   mrr               月度经常性收入 × 12
+#   last_30d_revenue  滚动 30 天 × 12（TrustMRR 对非订阅制只给这个）
+#   arr               年化，直接可用
+MONEY_TO_ANNUAL = (("mrr", 12.0), ("last_30d_revenue", 12.0), ("arr", 1.0))
+
+
 def money_scale(case):
-    """取 metrics 里最大的数字，用作「金额量级」分。"""
+    """当前口径的收入量级（年化成 USD/年），供 virality_base 加分。
+
+    ⚠ 2026-10-21 修：此前是 `max(metrics 里所有数字)`，三种口径混在一个
+    刻度上，实测 215/255 条的「最大数字」来自 `all_time`（累计）：
+
+      ① 累计当月/年收入 —— 一个两年攒下 $57 万、如今 MRR 为 0 的死项目
+         （bakering-app-sl）会被排到活着的 $7K/月 前面；README 与
+         DATA_SCHEMA:211 都写明 all_time **不是** ARR，这里却拿它当量级。
+      ② 计数当金额 —— `visitors: 37800` 曾按 $37,800 收入计分（macwall）。
+      ③ 百分比当金额 —— `growth_30d: 73638.6` 曾按 $73,638 计分
+         （the-stealthiest-of-ventures）。
+
+    现在只读上面三个**同轴**字段（都年化到 run-rate），`all_time` /
+    `all_time_revenue`（累计）、`subscriptions`/`visitors`/`customers`
+    （计数）、`growth_30d` 一类的百分比一律不计入。没有当前口径的数字
+    就不给钱的分 —— 「只有累计数」说明这条现在挣多少不知道，人工判断
+    走 EDITORIAL_WEIGHT，别用累计数冒充现值。
+    """
     m = case.get("metrics") or {}
-    vals = [v for v in m.values()
-            if isinstance(v, (int, float)) and not isinstance(v, bool)]
+    vals = []
+    for key, factor in MONEY_TO_ANNUAL:
+        v = m.get(key)
+        if isinstance(v, bool) or not isinstance(v, (int, float)):
+            continue
+        if not math.isfinite(v) or v <= 0:        # NaN / inf / 0 / 负数都不算
+            continue
+        vals.append(v * factor)
     return max(vals) if vals else 0
 
 
 def virality_base(case):
-    """可计算的基础分。透明、可复现，但它算不出「哪条更值得讲」。"""
+    """可计算的基础分。透明、可复现，但它算不出「哪条更值得讲」。
+
+    金额档位的刻度是**年化收入**（money_scale 的返回值就是 USD/年）：
+    $10 万/年、$100 万/年、$1000 万/年、$1 亿/年 各一档。
+    """
     score = 2.0 * len(case.get("corrections") or [])
     v = money_scale(case)
     if v >= 1e8:

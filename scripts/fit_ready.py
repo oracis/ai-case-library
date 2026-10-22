@@ -47,6 +47,7 @@ sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
 import score_china_fit as CF          # noqa: E402
 import score_solo_fit as SF           # noqa: E402
+import atomicio                       # noqa: E402  原子写盘：半截 cases.json 整库失效
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -287,8 +288,9 @@ def cmd_apply(dry_run=False):
         tail_nl = raw.endswith(b"\n")
         body = json.dumps(cases, ensure_ascii=False, indent=2)
         text = (body + ("\n" if tail_nl else "")).replace("\n", nl)
-        with open(CASES_PATH, "w", encoding="utf-8", newline="") as f:
-            f.write(text)
+        # ⚠ 原子写（2026-10-21 补）：cases.json 四万行，原地截断写被 Ctrl-C
+        #    打断就留下半截 JSON —— 此时 triage 之类读到的是空库，重复检测失效。
+        atomicio.write_text(CASES_PATH, text)
         print("\n已写入 data/cases.json（%s，格式保持 %s /末尾换行=%s）"
               % (today, "CRLF" if nl == "\r\n" else "LF", tail_nl))
 

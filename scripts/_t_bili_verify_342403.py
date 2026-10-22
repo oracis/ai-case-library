@@ -31,9 +31,9 @@ def main():
     print("mid =", mid)
     arts = api.list_published_articles(cdp, mid=mid, max_page=5)
     print("已发表专栏总数(前5页):", len(arts))
-    hit = [a for a in arts if "Insect" in (a.get("title") or "")
-           or "咬" in (a.get("title") or "")]
-    print("命中 Insect Bite ID:", hit if hit else "未找到")
+    hit = [a for a in arts if "Kibu" in (a.get("title") or "")
+           or "智障" in (a.get("title") or "") or "发育障碍" in (a.get("title") or "")]
+    print("命中 Kibu:", hit if hit else "未找到")
     print("== 最新 8 篇 ==")
     for a in arts[:8]:
         print("  id=%s %s" % (a.get("id"), (a.get("title") or "")[:50]))

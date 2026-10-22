@@ -6,7 +6,17 @@
 --source trustmrr_sitemap 同一入口；每 slug 只抓一次，落盘 tmp/tm_md/。
 抽出来的字段是 candidates.json 里没有、但写「它为什么能成」用得上的：
 创始人 X 粉丝数（分发信号）、客户/订阅数、挂牌信息（并购视角）。
+
+用法::
+
+    python scripts/fetch_tm_md.py        # 增量：缓存可用的跳过，只抓缺的/坏的
+
+⚠ 缓存判据（2026-10-21 修）：此前只看「文件存在且 > 200 字节」—— 抓取被
+  掐断留下的**半截档案**照样当有效缓存，于是摘要里一半字段是 None，写正文
+  的模型就在空素材上发挥。现在两条一起判：长度 + 官方页脚（`is_complete`），
+  且写盘走原子替换（`atomicio`），自己不会再产出残片。
 """
+
 import json
 import os
 import re
@@ -18,15 +28,47 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "tmp", "tm_md")
 UA = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"}
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import atomicio  # noqa: E402  原子写盘（半截档案 = 后面的摘要全空）
+
+MIN_MD_BYTES = 200
+# 完整档案的**页脚**（2026-10-21 抓 private-venture.md 实测的结尾）：
+#     ## Related TrustMRR Pages
+#     - [Acquire startups](...)  …  - [llms.txt](https://trustmrr.com/llms.txt)
+# 下载被掐断的残片不可能带这段页脚 —— 这是「完整」的唯一硬判据。
+# 若站点改版去掉这段，本脚本会**每条都失败并点名原因**（响亮），
+# 而不是把残片当档案用（静默）—— 那时改这个常量即可。
+FOOTER_MARK = "## Related TrustMRR Pages"
+FOOTER_WINDOW = 2000        # 页脚必在文末这一段里
+
 
 def fetch(slug):
+    """抓一份档案。返回 `(text, 失败原因)`：成功时原因为空串。"""
     url = "https://trustmrr.com/startup/%s.md" % slug
     req = urllib.request.Request(url, headers=UA)
     try:
         with urllib.request.urlopen(req, timeout=25) as r:
-            return r.read().decode("utf-8", "replace")
+            return r.read().decode("utf-8", "replace"), ""
     except Exception as e:                                  # noqa: BLE001
+        # 原因要带出来：404（slug 不存在）和 timeout（网络/限流）处置完全不同
+        return None, "%s: %s" % (type(e).__name__, str(e)[:90])
+
+
+def is_complete(md):
+    """这份 .md 是不是一份**完整**档案（不是写了一半的残片）。"""
+    if not md or len(md) < MIN_MD_BYTES:
+        return False
+    return FOOTER_MARK in md[-FOOTER_WINDOW:]
+
+
+def load_cached(path):
+    """读缓存；残片/读失败一律返回 None（当作没缓存，重新抓）。"""
+    try:
+        with open(path, encoding="utf-8") as f:
+            md = f.read()
+    except OSError:
         return None
+    return md if is_complete(md) else None
 
 
 def grab(pat, text, cast=str):
@@ -85,10 +127,11 @@ def summarize(slug, md):
 
 def main():
     os.makedirs(OUT, exist_ok=True)
-    cands = json.load(open(os.path.join(ROOT, "data", "candidates.json"),
-                           encoding="utf-8"))
-    cases = json.load(open(os.path.join(ROOT, "data", "cases.json"),
-                           encoding="utf-8"))
+    with open(os.path.join(ROOT, "data", "candidates.json"),
+              encoding="utf-8") as f:
+        cands = json.load(f)
+    with open(os.path.join(ROOT, "data", "cases.json"), encoding="utf-8") as f:
+        cases = json.load(f)
     done_ids = {c.get("published_from") for c in cases}
     todo = [c for c in cands if c.get("id") not in done_ids]
     print("待抓候选 %d 条" % len(todo))
@@ -98,18 +141,19 @@ def main():
     for i, c in enumerate(todo, 1):
         slug = c.get("trustmrr_slug") or c.get("id")
         path = os.path.join(OUT, slug + ".md")
-        if os.path.exists(path) and os.path.getsize(path) > 200:
-            md = open(path, encoding="utf-8").read()
+        md = load_cached(path)
+        if md is not None:
             skip += 1
         else:
-            md = fetch(slug)
-            if not md or len(md) < 200:
+            md, why = fetch(slug)
+            if not is_complete(md):
                 fail += 1
-                print("  [%d/%d] %-38s 抓取失败" % (i, len(todo), slug))
+                print("  [%d/%d] %-38s 抓取失败：%s"
+                      % (i, len(todo), slug,
+                         why or "内容不完整（缺 %s 页脚）" % FOOTER_MARK))
                 time.sleep(0.4)
                 continue
-            with open(path, "w", encoding="utf-8") as f:
-                f.write(md)
+            atomicio.write_text(path, md)
             ok += 1
             time.sleep(0.35)
         summary[c["id"]] = summarize(slug, md)
@@ -117,15 +161,13 @@ def main():
             print("  [%d/%d] 进度（新抓 %d / 缓存 %d / 失败 %d）"
                   % (i, len(todo), ok, skip, fail))
 
-    with open(os.path.join(OUT, "summary.json"), "w", encoding="utf-8") as f:
-        json.dump(summary, f, ensure_ascii=False, indent=1)
+    atomicio.write_json(os.path.join(OUT, "summary.json"), summary, indent=1)
     print("\n完成：新抓 %d，缓存 %d，失败 %d，素材 -> tmp/tm_md/summary.json"
           % (ok, skip, fail))
     # 失败清单单独落盘，方便重试
     bad = [c["id"] for c in todo if c["id"] not in summary]
     if bad:
-        with open(os.path.join(OUT, "failed.txt"), "w", encoding="utf-8") as f:
-            f.write("\n".join(bad))
+        atomicio.write_text(os.path.join(OUT, "failed.txt"), "\n".join(bad))
         print("抓取失败 %d 条：%s" % (len(bad), ", ".join(bad[:10])))
 
 

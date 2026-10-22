@@ -38,6 +38,9 @@ import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 
+import atomicio
+import text_clean as TC
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(ROOT, "data")
 UA = "Mozilla/5.0 (compatible; CaseLibraryHarvester/1.0)"
@@ -61,40 +64,32 @@ def save_json(name, payload):
 
     🚨 **必须保留原文件的换行格式**（红线 23，2026-10-10 实测踩到）。
     `open(path, "w")` 在 Windows 上是文本模式，会把 json 里的 `\n`
-    翻译成 `\r\n` —— 而`data/` 下两种格式**并存**：
-        inbox.json / cases.json          = CRLF
-        candidates.json / inbox_archive.json = LF
+    翻译成 `\r\n` —— 而`data/` 下两种格式**并存**（2026-10-21 复核）：
+        inbox.json                            = CRLF
+        cases.json / candidates.json / inbox_archive.json = LF
     实测后果：跑一次 harvest 就把 623 条的 `inbox_archive.json`
     从 LF 悄悄改成 CRLF，13286 行全变、diff 全红，但**数据一个字没变**
     ⇒ 极易误判成「采集把队列搞乱了」，白排查半小时。
 
     所以先探原文件字节形态（不存在时按 LF 新建），再用对应 `newline`
     写。`newline=""` 会让 json 的 `\n` 原样落盘，不做任何翻译。
+
+    原子性由 atomicio 保证（tmp + fsync + os.replace）：原地截断写在被
+    Ctrl-C / 断电打断时会留下半截 JSON，而半截 JSON 会被上层当成空库。
     """
     path = os.path.join(DATA_DIR, name + ".json")
-    nl = detect_newline(path)
-    tmp = path + ".tmp"
-    with open(tmp, "w", encoding="utf-8", newline=nl) as f:
-        json.dump(payload, f, ensure_ascii=False, indent=2)
-    os.replace(tmp, path)
+    atomicio.write_json(path, payload, indent=2, newline=detect_newline(path))
 
 
 def detect_newline(path, default="\n"):
-    """读文件头几百字节判断换行风格；文件不存在/没线索时返回 default。
+    """读文件头几百字节判断换行风格（实现已移到 atomicio，这里保留入口）。
 
-    只看开头几百字节就够：JSON 前几十行必然有换行，不会碰上
-    「整个文件挤在一行」这种极端情况；而读全文在大文件上纯属浪费。
+    harvest 自己也要按原格式写盘：`open(path, "w")` 在 Windows 上会把
+    `\n` 译成 `\r\n`，而 `data/` 下两种格式并存（inbox.json 是 CRLF，
+    inbox_archive.json 是 LF）—— 换错格式的后果是整文件 diff 全红、
+    数据却一个字没变，极易误判成「采集把队列搞乱了」。
     """
-    try:
-        with open(path, "rb") as f:
-            head = f.read(4096)
-    except OSError:
-        return default
-    if b"\r\n" in head:
-        return "\r\n"
-    if b"\n" in head:
-        return "\n"
-    return default
+    return atomicio.detect_newline(path, default)
 
 
 def http_json(url, timeout=25, headers=None, data=None):
@@ -134,6 +129,40 @@ def slugify(text, taken):
     while "%s-%d" % (base, i) in taken:
         i += 1
     return "%s-%d" % (base, i)
+
+
+# 去重名单覆盖的四张表。**inbox_archive 必须在里面**（2026-10-21 修）：
+# archive 装的是「队列满了溢出的」和「已晋升的」两类留底，两者都不该再被采回来。
+# 漏掉它时，溢出归档的条目下一轮又会被原样采进队列 —— 实测 19 条 id 同时在
+# inbox 与 archive（archive.archived_at 2026-09-17、inbox.added_at 2026-10-13），
+# 另有 35 条仅大小写 / 标点不同。净效果是队列被老条目反复占满、新素材挤不进来，
+# 而 last_harvest 的 added 数字虚高。
+DEDUP_FILES = ("inbox", "inbox_archive", "candidates", "cases")
+
+
+def seen_keys(inbox=None):
+    """已有的条目，返回 {"ids", "names", "slugs"} 三个集合。
+
+    `inbox` 传已读进来的列表可以省一次 IO（调用方本来就要用它）。
+    名称走 text_clean.norm_name —— 与 triage 的重复检测同一个口径。
+
+    `slugs` 专给 TrustMRR sitemap 通道：那条通道按 slug 判重（比名称准，
+    同名不同 slug 的两个项目不该互相拦）。
+    """
+    if inbox is None:
+        inbox = load_json("inbox", []) or []
+    out = {"ids": set(), "names": set(), "slugs": set()}
+    rows = [inbox] + [load_json(n, []) or [] for n in DEDUP_FILES[1:]]
+    for group in rows:
+        for c in group:
+            if c.get("id"):
+                out["ids"].add(c["id"])
+            if c.get("trustmrr_slug"):
+                out["slugs"].add(c["trustmrr_slug"])
+            k = TC.norm_name(c.get("name"))
+            if k:
+                out["names"].add(k)
+    return out
 
 
 def clean(text):
@@ -1225,13 +1254,11 @@ def harvest_trustmrr_sitemap(limit, budget=TM_ROUND_BUDGET, dry_run=False,
           % (len(got), len(batch) - len(got) - len(gone)))
 
     # ---- 选拔：已在库的、隐身的、全零收入的不占位 ----
-    taken_slugs, taken_names = set(), set()
-    for fn in ("inbox", "candidates", "cases", "inbox_archive"):
-        for c in (load_json(fn, []) or []):
-            if c.get("trustmrr_slug"):
-                taken_slugs.add(c["trustmrr_slug"])
-            if c.get("name"):
-                taken_names.add(c["name"].lower())
+    # 判重口径与主流程同源（seen_keys 覆盖 inbox / archive / candidates / cases），
+    # 名称归一化也共用 text_clean.norm_name —— 此前这里单独写了一套 .lower()，
+    # 与主流程的「后缀/标点差异」判定不一致。
+    seen = seen_keys()
+    taken_slugs, taken_names = seen["slugs"], seen["names"]
 
     pool, skipped = [], {"dup": 0, "stealth": 0, "zero": 0, "floor": 0}
     seed_set = set(seeds)
@@ -1240,7 +1267,7 @@ def harvest_trustmrr_sitemap(limit, budget=TM_ROUND_BUDGET, dry_run=False,
             continue                      # 种子模式：只从本线索源的档案里选拔
         if p.get("gone"):
             continue
-        if slug in taken_slugs or (p.get("name") or "").lower() in taken_names:
+        if slug in taken_slugs or TC.norm_name(p.get("name")) in taken_names:
             skipped["dup"] += 1
             continue
         if p.get("stealth"):
@@ -2100,6 +2127,243 @@ def write_report(added_pairs, by_source, inbox_total, archived_now,
     return payload
 
 
+# ---------------------------------------------------------------- 入队条目组装
+# 四种来源（TrustMRR API / IndieHackers / TrustMRR 榜单 / 一般列表）各自一套
+# 字段，但骨架只有一份。2026-10-21 重构：此前这四个分支并排写在 main() 里
+# 约 200 行，每个分支各抄一遍 id/name/name_en/origin/one_liner/source_url/
+# website/harvest_source/added_at —— 加一个字段要改四处，漏一处就是「某类
+# 来源静默少一个字段」，而这类缺失不会报错，只会让前端某一列空着。
+#
+# 等价性用 tmp/snap_harvest.py 做过前后 diff（五源 fixture → inbox.json
+# 逐字节一致），不是靠肉眼比对。
+
+
+def _entry_skeleton(it, taken, **over):
+    """四种来源共用的骨架字段，`over` 里的差异字段覆盖上去。"""
+    name = (it.get("name") or "").strip()
+    cand = {
+        "id": slugify(name, taken),
+        "name": name, "name_en": name,
+        "origin": "",
+        "one_liner": it.get("one_liner") or "",
+        "category": "未分类",
+        "verification": "unverified",
+        "metrics": {"headline": "未获取"},
+        "models": [],
+        "note": "",
+        "blocking": "",
+        "source_url": it.get("url") or "",
+        "website": it.get("website") or "",
+        "harvest_source": it.get("_origin") or "",
+        "added_at": datetime.now().strftime("%Y-%m-%d"),
+    }
+    cand.update(over)
+    return cand
+
+
+def _metric_note_api(api):
+    """TrustMRR 口径说明。三个口径（MRR / 近 30 天 / 累计）必须一起讲清楚。"""
+    return (
+        "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。"
+        "口径：MRR = 当前月经常性收入；"
+        "近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——"
+        "实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；"
+        "累计 = all-time。"
+        "注意页面标注的同步时间可能已过期。"
+        + ("排名来自 TrustMRR 榜单，随榜单实时变动。" if api.get("rank") else "")
+    )
+
+
+def _headline_api(api, mrr):
+    """门面指标：MRR 与近 30 天取较大的那个。
+
+    只写 MRR 会把佣金/流水型业务显示成个位数（实测 MRR $63 / 近 30 天 $2k+
+    的真实条目），看着像没在运营 —— 与 _unwrap_api_item 同一口径。
+    """
+    if mrr and mrr >= (api.get("revenue_last30d") or 0):
+        headline = "MRR " + _money_cell(mrr)
+        if api.get("rank"):
+            headline += "，TrustMRR 第 %s 名" % api["rank"]
+        return headline
+    if api.get("revenue_last30d"):
+        return "近 30 天收入 " + _money_cell(api["revenue_last30d"])
+    if api.get("revenue_total"):
+        return ("累计收入 %s（当前 MRR 与近 30 天均为 0，口径见 metric_note）"
+                % _money_cell(api["revenue_total"]))
+    return "TrustMRR 收录（收入未公开）"
+
+
+def _entry_from_api(it, api, taken):
+    """TrustMRR 官方 API：字段齐全，直接落盘，不再写「待补」。"""
+    mrr = api.get("mrr") or 0
+    metrics = {}
+    if api.get("mrr"):
+        metrics["mrr"] = api["mrr"]
+    if api.get("revenue_total"):
+        metrics["all_time"] = api["revenue_total"]
+    # 近 30 天收入落盘用契约名 last_30d_revenue（见 data/sources.json 的 fields
+    # 清单）。内部暂存 _api 里叫 revenue_last30d，那只是原样转发；对外一律用
+    # 契约名，否则 triage.revenue_of() 取不到数。
+    # 漏写这一格的代价：TrustMRR 的 Current MRR 对非订阅制项目恒为 0，
+    # 于是「月流水几万、MRR 为零」的条目全被当成没有收入数据。
+    if api.get("revenue_last30d"):
+        metrics["last_30d_revenue"] = api["revenue_last30d"]
+    if api.get("customers"):
+        metrics["customers"] = api["customers"]
+    if api.get("subscriptions"):
+        metrics["customers"] = metrics.get("customers") or api["subscriptions"]
+    g = api.get("growth")
+    if g not in (None, ""):
+        metrics["growth"] = _pct_cell(g) + "（近 30 天）"
+    if api.get("visitors"):
+        metrics["visitors"] = api["visitors"]
+    if api.get("asking_price"):
+        metrics["price_point"] = _money_cell(api["asking_price"])
+    if api.get("profit_margin") is not None:
+        metrics["margin"] = "%s%%" % api["profit_margin"]
+    metrics["headline"] = _headline_api(api, mrr)
+    metrics["metric_note"] = _metric_note_api(api)
+
+    cand = _entry_skeleton(
+        it, taken,
+        origin=api.get("country") or "",
+        category=api.get("category") or "未分类",
+        verification="partial",
+        metrics=metrics,
+        # sitemap 通道带 _models（买断制/订阅制从 Pricing model 推断），
+        # 没有时沿用旧口径；_freshness/_monthly 同理（.md 才有）
+        models=it.get("_models") or (["订阅制"] if mrr else []),
+        note=api.get("note") or "",
+        blocking="需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+        website=api.get("website") or "",
+        harvest_source=it.get("_origin") or "trustmrr",
+    )
+    if api.get("founded"):
+        cand["founded_at"] = api["founded"]
+    if api.get("x_handle"):
+        cand["founder_x"] = api["x_handle"]
+    if api.get("x_founder"):
+        cand["founder_name"] = api["x_founder"]
+    if api.get("on_sale"):
+        cand["models"] = ["交易市场"]
+        cand["trade"] = {
+            "price": _money_cell(api.get("asking_price")) or None,
+            "multiple": ("%.2fx" % float(api["multiple"])) if api.get("multiple") else None,
+            "revenue": _money_cell(api.get("revenue_last30d")) or None,
+        }
+    return cand
+
+
+def _entry_from_ih(it, ih, taken):
+    """Indie Hackers：数字是自报的，但「怎么做到的」只有这里有。"""
+    metrics = {"headline": ih.get("headline") or "Indie Hackers 收录"}
+    if ih.get("revenue"):
+        metrics["mrr"] = ih["revenue"]
+        metrics["self_reported"] = True
+    if ih.get("posts"):
+        metrics["posts"] = ih["posts"]
+    if ih.get("story"):
+        metrics["story_excerpt"] = ih["story"]
+    metrics["metric_note"] = (
+        "收入为创始人在 Indie Hackers 上自报，未经支付网关验证。"
+        + (ih.get("caliber") or "")
+        + "本条的复用价值在过程描述（story_excerpt），不在数字。")
+
+    cand = _entry_skeleton(
+        it, taken,
+        verification="unverified",
+        metrics=metrics,
+        note=ih.get("note") or "",
+        blocking="自报数字，需与 TrustMRR 或公司官方口径交叉核对后才可进精写库",
+        website=ih.get("website") or "",
+        harvest_source=it.get("_origin") or "indiehackers",
+    )
+    if ih.get("slug"):
+        cand["indiehackers_slug"] = ih["slug"]
+    return cand
+
+
+def _entry_from_rank(it, taken):
+    """TrustMRR 首页「按已验证收入排行」的结构化数据：有名字没金额。"""
+    return _entry_skeleton(
+        it, taken,
+        verification="partial",
+        metrics={"headline": "TrustMRR 验证收入榜条目（具体数字待补）"},
+        note="来自 TrustMRR 首页的「Top startups by verified revenue」结构化数据。"
+             "收入本身由支付网关验证，但榜单未直接给出金额，需打开公司页取数。"
+             "注意区分 MRR 与 all-time 两个口径。",
+        blocking="需打开公司详情页取 MRR 与 all-time，并确认口径",
+        website="",
+        harvest_source=it.get("_origin") or "trustmrr",
+    )
+
+
+def _entry_from_listing(it, taken, frag, listing, default_source):
+    """一般列表（HN / PH / 交易市场）：只有一个可能骗人的「疑似金额」。"""
+    return _entry_skeleton(
+        it, taken,
+        category=(listing or {}).get("category") or "未分类",
+        verification="unverified",
+        metrics={"headline": ("疑似金额 " + frag) if frag else "未获取"},
+        note="自动采集于 %s（来源 %s，发布于 %s，%s 分 / %s 条讨论）。"
+             "自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。"
+             % (datetime.now().strftime("%Y-%m-%d"), it.get("_origin") or "unknown",
+                it.get("created_at") or "—", it.get("points", 0), it.get("comments", 0)),
+        blocking="尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+        harvest_source=it.get("_origin") or default_source,
+    )
+
+
+def build_entry(it, taken, frag, default_source):
+    """一条原始素材 → 一条采集队列条目（纯函数：不写盘、不碰 args）。
+
+    `taken` 是已占用的 id 集合，用于 slug 去重（只读，调用方自己 add）。
+    """
+    api = it.get("_api") or {}
+    ih = it.get("_ih") or {}
+    listing = it.get("_listing")
+
+    if api:
+        cand = _entry_from_api(it, api, taken)
+    elif ih:
+        cand = _entry_from_ih(it, ih, taken)
+    elif it.get("_verified_rank"):
+        cand = _entry_from_rank(it, taken)
+    else:
+        cand = _entry_from_listing(it, taken, frag, listing, default_source)
+
+    # 来源性质：每条都必须带，且是唯一权威赋值点。
+    # 前端据此显示徽章——「支付网关验过的收入」和「二手转述」不能混进同一列。
+    cand["source_kind"] = cand.get("source_kind") or source_kind_of(cand.get("harvest_source"))
+    # 给 enrich_added 用的句柄：HN 要 objectID 才能抓评论；TrustMRR 要 slug 才能抓 .md
+    if it.get("object_id"):
+        cand["hn_id"] = it["object_id"]
+    if api.get("slug"):
+        cand["trustmrr_slug"] = api["slug"]
+    # .md 档案独有的两样：收入同步时间（数据时效）+ 12 个月流水（红线 2 判据）。
+    # monthly_timeline 是 list，triage.has_numbers() 的 isinstance 守卫会跳过它，
+    # 不会把「历史月度收入」误判成「当前有收入」。
+    if it.get("_freshness"):
+        cand["data_freshness"] = it["_freshness"]
+    if it.get("_monthly"):
+        # 写 cand["metrics"] 而不是分支里的局部变量 —— 旧写法在「榜单」分支上
+        # 根本没有 metrics 变量（只有 ih 分支定义了它），靠「那个分支不会带
+        # _monthly」才没炸，属于变量泄漏到分支外的隐性依赖。
+        cand["metrics"]["monthly_timeline"] = it["_monthly"]
+
+    if listing:
+        cand["metrics"] = {"headline": " · ".join(
+            x for x in [("月收入 " + listing["revenue"]) if listing.get("revenue") else None,
+                        ("要价 " + listing["price"]) if listing.get("price") else None,
+                        ("倍数 " + listing["multiple"]) if listing.get("multiple") else None]
+            if x)}
+        cand["models"] = ["交易市场"]
+        cand["trade"] = listing
+        cand["verification"] = "partial"
+        cand["blocking"] = "挂牌数据来自 TrustMRR 市场，收入由支付网关验证但口径需确认（月收入 or 30 天）"
+    return cand
+
+
 # ---------------------------------------------------------------- 主流程
 
 def main():
@@ -2258,213 +2522,25 @@ def main():
     # 组装候选 —— 写入「采集队列」(inbox)，不是候选池。
     # 三级漏斗：原始素材(inbox) → 候选池(candidates，人工筛过) → 精写案例(cases，核过数字)
     cands = load_json("inbox", []) or []
-    taken = {c.get("id") for c in cands}
-    taken_names = {(c.get("name") or "").lower() for c in cands}
-    # 已经进过候选池或精写库的，不再重复采
-    for other in ("candidates", "cases"):
-        for c in (load_json(other, []) or []):
-            taken.add(c.get("id"))
-            if c.get("name"):
-                taken_names.add(c["name"].lower())
+    # 已经采过 / 进过候选池 / 已发布 / 已归档留底的，一律不再重复采
+    # （含 inbox_archive 的理由见 DEDUP_FILES 的注释）
+    seen = seen_keys(cands)
+    taken, taken_names = seen["ids"], seen["names"]
 
     added = 0
     added_pairs = []                     # (条目, 热度) 供简报排序
     by_source_added = {}
     for it in kept:
         name = (it.get("name") or "").strip()
-        if not name or name.lower() in taken_names:
+        if not name or TC.norm_name(name) in taken_names:
             continue
-        amt, frag = extract_money(it.get("_blob", ""))
-        listing = it.get("_listing")
-        verified_rank = it.get("_verified_rank")
-        api = it.get("_api") or {}
-        ih = it.get("_ih") or {}
-
-        if api:
-            # TrustMRR 官方 API：字段齐全，直接落盘，不再写「待补」
-            mrr = api.get("mrr") or 0
-            metrics = {}
-            if api.get("mrr"):
-                metrics["mrr"] = api["mrr"]
-            if api.get("revenue_total"):
-                metrics["all_time"] = api["revenue_total"]
-            # 近 30 天收入落盘用契约名 last_30d_revenue（见 data/sources.json 的
-            # fields 清单）。内部暂存 _api 里叫 revenue_last30d，那只是原样转发；
-            # 对外一律用契约名，否则 triage.revenue_of() 取不到数。
-            # 漏写这一格的代价：TrustMRR 的 Current MRR 对非订阅制项目恒为 0，
-            # 于是「月流水几万、MRR 为零」的条目全被当成没有收入数据。
-            if api.get("revenue_last30d"):
-                metrics["last_30d_revenue"] = api["revenue_last30d"]
-            if api.get("customers"):
-                metrics["customers"] = api["customers"]
-            if api.get("subscriptions"):
-                metrics["customers"] = metrics.get("customers") or api["subscriptions"]
-            g = api.get("growth")
-            if g not in (None, ""):
-                metrics["growth"] = _pct_cell(g) + "（近 30 天）"
-            if api.get("visitors"):
-                metrics["visitors"] = api["visitors"]
-            if api.get("asking_price"):
-                metrics["price_point"] = _money_cell(api["asking_price"])
-            if api.get("profit_margin") is not None:
-                metrics["margin"] = "%s%%" % api["profit_margin"]
-
-            if mrr and mrr >= (api.get("revenue_last30d") or 0):
-                headline = "MRR " + _money_cell(mrr)
-                if api.get("rank"):
-                    headline += "，TrustMRR 第 %s 名" % api["rank"]
-            elif api.get("revenue_last30d"):
-                # 门面指标取 MRR 与近 30 天中较大的那个（与 _unwrap_api_item
-                # 同一口径）：只写 MRR 会把佣金/流水型业务显示成个位数
-                # （实测 MRR $63 / 近 30 天 $2k+ 的真实条目），看着像没在运营。
-                headline = "近 30 天收入 " + _money_cell(api["revenue_last30d"])
-            elif api.get("revenue_total"):
-                headline = ("累计收入 %s（当前 MRR 与近 30 天均为 0，口径见 metric_note）"
-                            % _money_cell(api["revenue_total"]))
-            else:
-                headline = "TrustMRR 收录（收入未公开）"
-            metrics["headline"] = headline
-            metrics["metric_note"] = (
-                "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。"
-                "口径：MRR = 当前月经常性收入；"
-                "近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——"
-                "实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；"
-                "累计 = all-time。"
-                "注意页面标注的同步时间可能已过期。"
-                + ("排名来自 TrustMRR 榜单，随榜单实时变动。" if api.get("rank") else "")
-            )
-
-            cand = {
-                "id": slugify(name, taken),
-                "name": name, "name_en": name,
-                "origin": api.get("country") or "",
-                "one_liner": it.get("one_liner") or "",
-                "category": api.get("category") or "未分类",
-                "verification": "partial",
-                "metrics": metrics,
-                # sitemap 通道带 _models（买断制/订阅制从 Pricing model 推断），
-                # 没有时沿用旧口径；_freshness/_monthly 同理（.md 才有）
-                "models": it.get("_models") or (["订阅制"] if mrr else []),
-                "note": api.get("note") or "",
-                "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
-                "source_url": it.get("url") or "",
-                "website": api.get("website") or "",
-                "harvest_source": it.get("_origin") or "trustmrr",
-                "added_at": datetime.now().strftime("%Y-%m-%d"),
-            }
-            if api.get("founded"):
-                cand["founded_at"] = api["founded"]
-            if api.get("x_handle"):
-                cand["founder_x"] = api["x_handle"]
-            if api.get("x_founder"):
-                cand["founder_name"] = api["x_founder"]
-            if api.get("on_sale"):
-                cand["models"] = ["交易市场"]
-                cand["trade"] = {
-                    "price": _money_cell(api.get("asking_price")) or None,
-                    "multiple": ("%.2fx" % float(api["multiple"])) if api.get("multiple") else None,
-                    "revenue": _money_cell(api.get("revenue_last30d")) or None,
-                }
-        elif ih:
-            # Indie Hackers：数字是自报的，但「怎么做到的」只有这里有。
-            metrics = {"headline": ih.get("headline") or "Indie Hackers 收录"}
-            if ih.get("revenue"):
-                metrics["mrr"] = ih["revenue"]
-                metrics["self_reported"] = True
-            if ih.get("posts"):
-                metrics["posts"] = ih["posts"]
-            if ih.get("story"):
-                metrics["story_excerpt"] = ih["story"]
-            metrics["metric_note"] = (
-                "收入为创始人在 Indie Hackers 上自报，未经支付网关验证。"
-                + (ih.get("caliber") or "")
-                + "本条的复用价值在过程描述（story_excerpt），不在数字。")
-
-            cand = {
-                "id": slugify(name, taken),
-                "name": name, "name_en": name, "origin": "",
-                "one_liner": it.get("one_liner") or "",
-                "category": "未分类",
-                "verification": "unverified",
-                "metrics": metrics,
-                "models": [],
-                "note": ih.get("note") or "",
-                "blocking": "自报数字，需与 TrustMRR 或公司官方口径交叉核对后才可进精写库",
-                "source_url": it.get("url") or "",
-                "website": ih.get("website") or "",
-                "harvest_source": it.get("_origin") or "indiehackers",
-                "added_at": datetime.now().strftime("%Y-%m-%d"),
-            }
-            if ih.get("slug"):
-                cand["indiehackers_slug"] = ih["slug"]
-
-        elif verified_rank:
-            cand = {
-                "id": slugify(name, taken),
-                "name": name, "name_en": name, "origin": "",
-                "one_liner": it.get("one_liner") or "",
-                "category": "未分类",
-                "verification": "partial",
-                "metrics": {"headline": "TrustMRR 验证收入榜条目（具体数字待补）"},
-                "models": [],
-                "note": "来自 TrustMRR 首页的「Top startups by verified revenue」结构化数据。"
-                        "收入本身由支付网关验证，但榜单未直接给出金额，需打开公司页取数。"
-                        "注意区分 MRR 与 all-time 两个口径。",
-                "blocking": "需打开公司详情页取 MRR 与 all-time，并确认口径",
-                "source_url": it.get("url") or "",
-                "website": "",
-                "harvest_source": it.get("_origin") or "trustmrr",
-                "added_at": datetime.now().strftime("%Y-%m-%d"),
-            }
-        else:
-            cand = {
-                "id": slugify(name, taken),
-                "name": name, "name_en": name, "origin": "",
-                "one_liner": it.get("one_liner") or "",
-                "category": (listing or {}).get("category") or "未分类",
-                "verification": "unverified",
-                "metrics": {"headline": ("疑似金额 " + frag) if frag else "未获取"},
-                "models": [],
-                "note": "自动采集于 %s（来源 %s，发布于 %s，%s 分 / %s 条讨论）。"
-                        "自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。"
-                        % (datetime.now().strftime("%Y-%m-%d"), it.get("_origin") or "unknown",
-                           it.get("created_at") or "—", it.get("points", 0), it.get("comments", 0)),
-                "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
-                "source_url": it.get("url") or "",
-                "website": it.get("website") or "",
-                "harvest_source": it.get("_origin") or args.source,
-                "added_at": datetime.now().strftime("%Y-%m-%d"),
-            }
-
-        # 来源性质：每条都必须带，且是唯一权威赋值点。
-        # 前端据此显示徽章——「支付网关验过的收入」和「二手转述」不能混进同一列。
-        cand["source_kind"] = cand.get("source_kind") or source_kind_of(cand.get("harvest_source"))
-        # 给 enrich_added 用的句柄：HN 要 objectID 才能抓评论；TrustMRR 要 slug 才能抓 .md
-        if it.get("object_id"):
-            cand["hn_id"] = it["object_id"]
-        if api.get("slug"):
-            cand["trustmrr_slug"] = api["slug"]
-        # .md 档案独有的两样：收入同步时间（数据时效）+ 12 个月流水（红线 2 判据）。
-        # monthly_timeline 是 list，triage.has_numbers() 的 isinstance 守卫会跳过它，
-        # 不会把「历史月度收入」误判成「当前有收入」。
-        if it.get("_freshness"):
-            cand["data_freshness"] = it["_freshness"]
-        if it.get("_monthly"):
-            metrics["monthly_timeline"] = it["_monthly"]
-
-        if listing:
-            cand["metrics"] = {"headline": " · ".join(
-                x for x in [("月收入 " + listing["revenue"]) if listing.get("revenue") else None,
-                            ("要价 " + listing["price"]) if listing.get("price") else None,
-                            ("倍数 " + listing["multiple"]) if listing.get("multiple") else None]
-                if x)}
-            cand["models"] = ["交易市场"]
-            cand["trade"] = listing
-            cand["verification"] = "partial"
-            cand["blocking"] = "挂牌数据来自 TrustMRR 市场，收入由支付网关验证但口径需确认（月收入 or 30 天）"
+        # 组装全在 build_entry 里（四种来源的字段差异都在那儿）。
+        # main 只负责去重、计数、排序。
+        frag = extract_money(it.get("_blob", ""))[1]
+        cand = build_entry(it, taken, frag, args.source)
 
         taken.add(cand["id"])
-        taken_names.add(name.lower())
+        taken_names.add(TC.norm_name(name))
         cands.insert(0, cand)
         added += 1
         added_pairs.append((cand, it.get("points") or 0))

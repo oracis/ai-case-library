@@ -26,8 +26,13 @@ const CALIBER_LABEL = {
 /** 案例自带的口径标记（metrics.caliber / top-level caliber） */
 const CASE_CALIBER = {
   mrr: 'MRR 口径',
+  arr: 'ARR 口径',
   run_rate: '年化口径',
+  annual: '年度口径',
+  last_30d: '近30天口径',
   lifetime: '累计口径',
+  gmv: '平台流水口径',
+  gross: '毛利口径',
   unknown: '口径未标注'
 };
 

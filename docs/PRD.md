@@ -1,10 +1,13 @@
 # 拆解海外 · Overseas Teardowns — 产品设计文档（PRD）
 
-> 版本：**v3.0**　日期：**2026-10-18**　状态：**现行**（上一版 v2.0 / 2026-09-25）
+> 版本：**v3.2**　日期：**2026-10-21**　状态：**现行**（上一版 v3.1 / 2026-10-21）
 > 适用仓库：`oracis/ai-case-library`　线上：https://case.ydtgo.top
 > 配套图：`docs/产品流程图.html`（同一份事实的可视化版本）
+> **v3.2 是数据口径与来源补证版**：口径枚举新增第八项 `annual`（按自然年合计的已发生收入），
+> `caliber` 空缺 24 → 1 条；36 条「只有 TrustMRR 一条来源」的案例补了独立第二来源审计。
+> 新增脚本 `fill_caliber.py` / `independent_source.py`，逐项见 §6.1 第 10–12 行。
 > 本文描述的是**代码当前实际实现的状态**，不是设想。数据截至文首日期：
-> **案例 255 条 / 候选 1 条 / 采集队列 280 条**；四平台台账（2026-10-19 按远端逐条核对）：公众号 **60**（草稿 41 / 已发 19）、头条 **59**（草稿 38 / 已发 21）、B站 **11**、小红书 **52**（草稿 44 / 已发 8）。
+> **案例 255 条 / 候选 1 条 / 采集队列 279 条 / 归档 1255 条**；四平台台账（2026-10-19 按远端逐条核对）：公众号 **60**（草稿 41 / 已发 19）、头条 **59**（草稿 38 / 已发 21）、B站 **11**、小红书 **52**（草稿 44 / 已发 8）。
 > 注意「条数 ≠ 篇数」：头条线上 23 篇 = 台账 21 条（bustem / cometly 各发新旧两篇）；B站线上 13 篇 = 台账 11 条（trustmrr / uplinked 各发新旧两篇）。旧篇标题记在 `note` 的『…』里，巡检认这个别名。
 
 ---
@@ -57,7 +60,7 @@
 ### 3.1 三级漏斗（信息架构的骨架）
 
 ```
-inbox.json     采集队列  机器写   原始素材   280 条（上限 400，溢出归档不删）
+inbox.json     采集队列  机器写   原始素材   279 条（上限 400，溢出归档不删，归档留底参与去重）
    ↓ 人工点「转入候选池」
 candidates.json 候选池   人工挑   1 条
    ↓ 过核实闸门 promote
@@ -109,7 +112,9 @@ cases.json     精写库   人工核   255 条 ← 唯一写入口是 /api/candi
 | **Product Hunt** | GraphQL（需 `PH_TOKEN`；**已决策不申请**，维持 Atom feed 雷达定位） | 仅发现，不含收入 |
 | **ARR Club** | sitemap + FAQPage JSON-LD | **只写 `arrclub.json`，不进候选池**，仅供校对 |
 
-保护与取舍：跨 `inbox/candidates/cases` 三层去重（id + 归一化名）；`http_json` 重试 3 次 + `1.5×(n+1)` 退避 + 显式绕过系统代理；IH 1.5s / ARR 2.0s 节流；单页抓取有 16 MB / 150 s 双重兜底；`inbox` 容量 400，溢出进 `inbox_archive.json`（**只进不出、永不删除**）；金额 < $50 当行价丢；MRR 低于 100 的 TrustMRR 条目丢；提问帖/Ask-Tell 类 HN 丢；`--tm-seeds` 可把外部线索站当发现面。
+保护与取舍：跨**四张表**去重（`inbox / candidates / cases / inbox_archive`，单一入口 `harvest.seen_keys()`，同时比 id、归一化名、`trustmrr_slug`；名称归一化统一走 `text_clean.norm_name`，triage 同名导入 —— **漏了 archive 就会「溢出归档 → 下一轮原样采回」**，实测 19 条 id 回流）；`http_json` 重试 3 次 + `1.5×(n+1)` 退避 + 显式绕过系统代理；IH 1.5s / ARR 2.0s 节流；单页抓取有 16 MB / 150 s 双重兜底；`inbox` 容量 400，溢出进 `inbox_archive.json`（**只进不出、永不删除**）；金额 < $50 当行价丢；MRR 低于 100 的 TrustMRR 条目丢；提问帖/Ask-Tell 类 HN 丢；`--tm-seeds` 可把外部线索站当发现面。
+
+> 组装口径单一化（v3.1）：四路来源的条目字段由 `_entry_skeleton` + 四个 builder 统一产出，`main()` 只负责去重、计数、排序。等价性用前后快照 diff 验证（五源 fixture 逐字段 + 简报全等），不靠肉眼比对。
 
 ### 4.2 零成本初筛（`triage.py`）
 
@@ -245,7 +250,9 @@ cases.json     精写库   人工核   255 条 ← 唯一写入口是 /api/candi
 | `data.json` | 863 KB | **1.23 MB** |
 | 文件数 / 体积 | — | **271 个 / 24 MB** |
 
-`data.json`/`data.js` 双写（后者为了 `file://` 双击能看）；每案例一个预渲染静态页 `case/<id>.html`（**共 256 页**：255 案例 + 索引；内联样式、不引 app.js、正文 ≥600 字、CI 独立复检）；`sitemap.xml` 只在配了域名时生成；自检包含「无绝对路径引用」。
+`data.json`/`data.js` 双写（后者为了 `file://` 双击能看）；每案例一个预渲染静态页 `case/<id>.html`（**共 256 页**：255 案例 + 索引；内联样式、不引 app.js、正文 ≥600 字、CI 独立复检）；`sitemap.xml` 只在配了域名时生成；自检包含「无绝对路径引用」「**案例 id 非空且唯一**」（预渲染按 `<id>.html` 落文件，撞 id 是后者覆盖前者，而「页面数 = 案例数」两边一起少，事后查不出来）。
+
+**两道路径护栏（v3.1）**：`cases` 为空时 `build` **直接 return 1**（首次搭架子显式加 `--allow-empty`）。原因是覆盖写 + `auto_deploy` 的判据就是「本地与线上不一致」——空站会被当成「本地有新版本」推上线，把 255 条案例的线上站点盖成空壳，而整轮没人报错。`data/*.json` 半截时 `build_payload` 抛出的 `ValueError` 也转成人话（「多半是某个 data/*.json 写坏了」）并同样返回 1。
 
 ### 4.10 部署
 
@@ -257,10 +264,12 @@ cases.json     精写库   人工核   255 条 ← 唯一写入口是 /api/candi
 - 缓存：`data.json/index/case/*` → `no-cache`；`app.js/style.css` → `max-age=300`。
 - **全量覆盖、无 `?v=` 版本化、远端孤儿文件需手动删**；失败即停，返回步骤序号作为退出码。
 - **日常部署走 `auto_deploy.py`**（每日 21:00 自动任务）：SHA256 逐文件比对 `public/` 与线上，`generated_at`/`stats.inbox` 归一化后再比；有差异才构建+部署，之后跑 `verify_deploy.py` 语义校验。**它不是发布主路径，但它是唯一带观测的路径。**
+- **比对与校验并发 8（v3.1）**：实测线上单文件 GET **3.7~8.6 s** ⇒ 271 个产物串行要 20~40 min、255 个案例页串行十几分钟。**慢到没人愿意跑，这道关等于没有。** 并发后 auto_deploy 全链路（构建+比对）**2 m 28 s**、verify_deploy **2 m 59 s**。三态语义（`ok / missing / error`）不变：取不到**不当作差异**（判不了就别猜），线上多出来的 `extra` 只报不部署。
+- ⚠ 并发**必须配 1 次重试**（404/500 不重试）：首跑有 3 个页面 `status=0`，单独重取全部 200 —— 并发把瞬时抖动暴露成「内容坏了」，**假警报比不报更坏**。`fetch_one` 另需捕获非 HTTPError 异常（原先超时会带栈崩掉，看不出哪项没过）。
 
 ### 4.11 CI 与分支拓扑
 
-- `ci.yml`（`contents: read`）：PR + push main，多版本 Python/Node 矩阵，`selftest`（**当前 122 项全绿**）→ 单测 → `release --selfcheck` → 构建静态站 → `prerender --check` → 断言 `data/` 干净。不部署。
+- `ci.yml`（`contents: read`）：PR + push main，多版本 Python/Node 矩阵，`selftest`（**当前 122 项全绿**）→ 单测（**1333 项**）→ `release --selfcheck` → 构建静态站 → `prerender --check` → 断言 `data/` 干净。不部署。
 - `harvest.yml`（`contents: write`）：每天 UTC 01:00（北京 09:00）+ 手动，「采集 → 内联校验 → 推 `refs/heads/data` → `git reset origin/main`」。不部署。
 - **为什么独立的 data 分支**：机器提交直接进 main 会让本地每次 push 都要 rebase；分分支后 main 只承载人工改动。
 
@@ -298,8 +307,8 @@ cases.json     精写库   人工核   255 条 ← 唯一写入口是 /api/candi
 | 端口 | 公开站 127.0.0.1:5052；后台 127.0.0.1:5053（**只绑回环**）；公众号 CDP 9222；头条/小红书 CDP 9223 |
 | 安全 | 后台口令 PBKDF2 + HttpOnly cookie + HMAC token + 连错 5 次锁 5 分钟；公开站 API 用 **404 而非 401**；`human_read` 时间戳由服务端铸；**没有 do_DELETE** |
 | 幂等 | harvest / build / deploy / publish 皆可重复跑；Promote 是唯一非幂等写入，失败在写盘前返 409 |
-| 性能 | 公众号全量发布数小时（每篇封面开销，`--cover-api` 后单篇省约 3 分钟）；255 案例 → 256 页预渲染，`public/` 271 文件 / 24 MB |
-| 运维 | 每日 21:00 自动部署检查；255 案例时 auto_deploy ≈25 min、verify_deploy ≈12 min，**必须走受管后台任务**（前台 120 s 会被 SIGTERM） |
+| 性能 | 公众号全量发布数小时（每篇封面开销，`--cover-api` 后单篇省约 3 分钟）；255 案例 → 256 页预渲染，`public/` 271 文件 / 24 MB；**线上比对/校验 8 并发后 2.5~3 min**（串行 20~40 min） |
+| 运维 | 每日 21:00 自动部署检查；255 案例时 auto_deploy **≈2.5 min**、verify_deploy **≈3 min**（2026-10-21 并发化前为 25 min / 12 min）。⚠ 仍需走受管后台任务：前台 120 s 会被 SIGTERM 砍，且 stdout 缓冲看起来像卡死 |
 | 浏览器 | 自动化 Chrome 必须有头（头条 token 靠编辑器自动保存触发；公众号封面裁剪弹窗无头点不着）；**必须用「启动器 + 长驻」保活**，否则父进程退出即被回收 |
 
 ---
@@ -317,8 +326,28 @@ cases.json     精写库   人工核   255 条 ← 唯一写入口是 /api/candi
 | 7 | **已发布残留草稿扫描** `scan_pub_dupes.py`，四平台一键清 6 条 | 群发后稿件离箱，草稿箱残留没人管 |
 | 8 | **小程序「远镜拆解」**：内容收费 + 付费墙双层白名单 + 虚拟支付签名 + 三项守卫 | 新增移动端收入面 |
 | 9 | **标题截断残渣修复**（`——一` 事故）+ override 一律带产品名 | 服务端不会帮你收拾截断残渣 |
-| 10 | 案例 39 → **255**，候选 19 → 1，采集队列 400 → 280；`tier` 分布 premium 238 / standard 11 / backup 6 | 采集层五源改造 + 批量晋升 |
+| 10 | 案例 39 → **255**，候选 19 → 1，采集队列 400 → 280（v3.1 时 279）；`tier` 分布 premium 238 / standard 11 / backup 6 | 采集层五源改造 + 批量晋升 |
 | 11 | **公众号 API 结论复核**（2026-10-18）：订阅号文档区实测，草稿箱接口文档标 ✔ 但未认证个人号实测 48001；发布/群发仅认证企业主体 | 用户要求「再探测一次」；结论：CDP 仍是唯一通道 |
+
+### 6.1 v3.0 → v3.2（2026-10-21，工程加固 + 口径/来源补证）
+
+v3.1 的八条落在「拿数据 → 核 → 入库 → 建站 → 上线」这条线的正确性与速度上；v3.2 的四条落在**数字本身可不可引用**上。每一条都在真实数据上复现过才动手。
+
+| # | 变更 | 复现证据 / 动机 |
+|---|---|---|
+| 1 | **采集去重补上 `inbox_archive`**（`seen_keys()` 单点） | 19 条 id 同时在 inbox 与 archive（`archived_at` 09-17、`added_at` 10-13），另 35 条只是大小写/标点差异。队列 279/400，再采几轮就进「溢出 → 重采 → 再溢出」，新素材被老条目挤出去，`last_harvest.added` 还虚高 |
+| 2 | **采集组装抽成 `build_entry`** | 四路来源各抄一遍 14 个公共字段共 200 行；顺手消掉隐性依赖（`metrics` 是分支内局部变量，「榜单」分支根本没定义） |
+| 3 | **线上比对 / 案例页校验并发 8**（+1 次重试） | 单文件 GET 3.7~8.6 s ⇒ 20~40 min / 十几分钟，慢到没人跑等于没有这道关。并发后 2 m 28 s / 2 m 59 s |
+| 4 | **`build_static` 空 cases 硬拦** + 案例 id 唯一性自检 | 空站会被 auto_deploy 当「本地更新」推上线，把 255 条案例全盖掉 |
+| 5 | **自检与真实数据隔离**（四条连环坑） | ① `rmtree` 撞沙箱批量删除门禁 + 抛在结果汇总前 ⇒ 每轮 `exit=1` 且吞掉结论；② 前台超时 SIGTERM 让 `finally` 不执行 ⇒ 固件留进真实 `data/`，下一轮把脏状态当基线备份，污染永久固化；③ 假 key（`sk-selftest-*` / `test-model`）同路径顶掉真实智谱 key，全量红在 `test_ai_verify`；④ `[4]` 节直接拿 `inbox[0]` 转候选 ⇒ **实测丢过一条真素材且救不回**（`inbox.json` 不进 git）。修法：常驻备份目录 + `.running` 标记 + 信号转 SystemExit + `ORIG_SECRETS` 原字节还原 + 队列固件 |
+| 6 | **写盘统一 `scripts/atomicio.py`** | 此前 4 处各写各的 tmp+replace 且无 fsync；`fetch_tm_md` 缓存干脆没做原子写，抓取被打断就留半截档案当有效缓存（判据改为「长度 + 官方页脚 `## Related TrustMRR Pages`」） |
+| 7 | **队列顺序统一**（`multiplatform/queue.py` 的 `newest_first`） | 头条/小红书 `pending_cases()` 用 `[::-1]` 而注释写「最新在前」，实际语义是反的；抽成单函数后两平台共用一套口径 |
+| 8 | **`make_article.money_scale` 口径修正** | 原取「所有 metrics 数字的最大值」，实测 215/255 条的最大数来自 `all_time`（累计），影响 `--top` 排序。改为只读 `mrr / last_30d_revenue / arr` 并统一年化 |
+| 9 | **`promote_to_candidates` 按分数选稿** | 空索引让 `duplicate_of` 三条判据成死代码（潜在洞，当前数据无行为差异）；`pick_targets()` 三个硬条件后按 score 降序、同分按 id 兜底 |
+| 10 | **`fill_caliber.py`：口径按证据补，不按猜** | 24 条缺 `caliber` 一直挂着 must。判据四级（note 明写 run-rate → headline 口径词 → 数字与 metrics/TrustMRR 档案互证 → note 措辞），否定句排除（checkvibe 的「不宜换算成 ARR」曾被误读成 arr）。写回 22 条：mrr +13、arr +4、last_30d +2、lifetime +2、run_rate +1；`test_fill_caliber.py` 19 项 |
+| 11 | **新增第八个口径 `annual`**（数据契约变更） | `marc-lou-portfolio` 门面数字是「2025 全年 $1,032,000」—— 按自然年合计的已发生收入，装不进 arr（前瞻）/ lifetime（跨年累计）/ run_rate（某月×12 的估计），硬塞等于把「已发生」写成「预计」。补齐后 `caliber` 空缺 24 → **1**（仅剩 bustem：榜单快照 + 档案 404，两解都成立）。同步改 `verify_rules.CALIBERS`、`verify.py` 清单、AI prompt 枚举、`miniprogram/utils/fmt.js`、`DATA_SCHEMA.md` |
+| 12 | **`independent_source.py`：36 条单来源案例补第二来源审计** | 全库 188/255 只有 2 条来源、其中 36 条只有 TrustMRR 一条。判据只用**实体锚点**（App Store `sellerUrl` / GitHub 仓库 `homepage` 与官网同域），关键词匹配不可用（实测 `mort`→真人快打、`angel-match`→猫咪消消乐）。结果：第三方确认 **9** / 仅自述 16 / 连不上 11，写回 10 条 `sources` + 36 条 `independent_check` |
+| 13 | **CSE 检索通道可配**（secrets.json + 独立代理） | cn.bing 对这批目标（海外小体量 SaaS）是负收益：`gtm.help` → 知乎/MC 百科/搜狐，`AEO Checker` → 百度百科「AEO 认证」+ 海关总署。改为 HN Algolia → Google CSE → DDG → cn.bing（默认关）。⚠ 2026-10-21 实测本机出口：`www.googleapis.com` 直连 000、走 1792 代理 000、走 Shadowsocks 10808 也 000 —— **key 齐了还需能出 Google 的代理**，故另设 `google_proxy` 单通道代理，不动全局 `HTTPS_PROXY`（那层一改，cn.bing 与官网抓取反而断） |
 
 ---
 
@@ -346,7 +375,8 @@ cases.json     精写库   人工核   255 条 ← 唯一写入口是 /api/candi
 | P2 | 小红书**草稿**只在浏览器 IndexedDB，换机器即丢；**创建笔记**被风控拦死（461/verifytype=124） | 草稿只能同 profile；创建只能走 UI；读列表已改用 `xhs_webapi.py`（秒级）；**删除已可纯 API**（`xhs_delete.py`） |
 | ✅ 已解决 | 小红书台账滞后（线上 9 vs 本地 2） | 2026-10-18 `xhs_sync_ledger.py --apply` 回填，重复发布已标注 |
 | ✅ 已解决 | 小红书 prosp 重复发布两篇（12:09 / 22:14） | 2026-10-18 `xhs_delete.py --apply` 删 22:14 一篇，留原发；线上 9→8，台账同步 |
-| P3 | `README.md` / `公众号-发布计划.md` 数字过期（写 24 条案例） | 文档误导 |
+| P3 | `README.md` / `公众号-发布计划.md` 数字过期（2026-10-21 复核：仍写「当前 24 条案例」） | 文档误导 |
+| P2 | **采集队列积压：135 条 `deep` 级素材长期卡在 inbox**（候选池只剩 1 条） | 不是代码问题，是运营节奏。`promote_to_candidates.py --write` 已按 triage 分数降序选稿、2 并发防风控；队列 279/400，不推进就会撞上限开始溢出 |
 
 ---
 
@@ -357,7 +387,8 @@ cases.json     精写库   人工核   255 条 ← 唯一写入口是 /api/candi
 3. **台账自动化**：四平台发布后自动回写 `status/group_sent`，把 `reconcile_verdict` 从「事后诊断」变成「发布后自检」。
 4. **公众号窗口修复**：`appmsgid` 全量回填 + 草稿列表分页拉取，消除 `refresh`/`fix-cover` 的静默跳过。
 5. **主体升级后再谈 API**：若将来有企业/个体工商户主体，优先认证**服务号**——这才是 `draft/add + freepublish` 全链路 API 化的唯一路径；届时先跑 `scripts/probe_wechat_openapi.py` 自检。
-6. **README 与 PRD 同步**：以本文数据为准刷新 README 条形数字与发布计划模板。
+6. **README 与 PRD 同步**：以本文数据为准刷新 README 条形数字与发布计划模板（2026-10-21 复核：README 仍写 24 条案例）。
+7. **消化采集积压**：135 条 `deep` 卡在 inbox，按分数降序批量晋升；顺带确认 `pick_targets` 的「只挑 trustmrr」硬条件是安全阀（实测 deep 135 条全部来自 trustmrr，HN/IH 的 41 条全是 drop/later，当前 0 漏判）。
 
 ---
 
@@ -377,6 +408,9 @@ cases.json     精写库   人工核   255 条 ← 唯一写入口是 /api/candi
 | `tt-anti-token` | 头条写操作的 header 级凭证；只需新鲜、不绑 body |
 | 48001 | 微信「api unauthorized」；未认证账号调草稿箱/发布接口的返回 |
 | partial | 公众号草稿已建但收尾（封面/原创）没完成 |
+| `seen_keys()` | 采集去重的**单一入口**：ids / 归一化名 / slug 三套键，覆盖 inbox、archive、candidates、cases 四张表 |
+| 固件（fixture） | 自检/单测专用的合成条目（`_selftest_*`）。真实队列与候选池**不许被测试消费**，否则还原失败即永久少数据 |
+| `atomicio` | 统一原子写（tmp + `os.replace` + fsync，含换行探测）。半截 JSON = 整本台账失效 |
 | 远镜拆解 | 小程序注册名；内容收费形态 |
 
 ---

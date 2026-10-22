@@ -897,25 +897,120 @@ class HNAlgoliaSearchTest(unittest.TestCase):
         finally:
             A.http_get = orig
 
-    def test_search把HN排最前且不挤掉bing(self):
-        """HN 最多贡献 3 条，给 cn.bing 留名额（HN 查不到官网）。"""
-        orig = (A.search_hn_algolia, A.search_bing, A.search_ddg)
+    def test_search把HN排最前且不挤掉通用搜索(self):
+        """HN 最多贡献 3 条，给通用搜索留名额（HN 查不到官网）。
+
+        2026-10-21 起通用搜索第一路是 Google CSE，cn.bing 默认关闭
+        （实测对海外小体量 SaaS 只返回中文垃圾）。这里把 bing 打开来测
+        「HN 不挤掉后面的引擎」这条**顺序约束**，与默认开关无关。
+        """
+        orig = (A.search_hn_algolia, A.search_bing, A.search_ddg, A.ALLOW_BING)
         A.search_hn_algolia = lambda q, n=5: [
             "https://news.ycombinator.com/item?id=%d" % i for i in range(1, 6)]
         A.search_bing = lambda q: ["https://bing-hit.example/report"]
         A.search_ddg = lambda q: []
+        A.ALLOW_BING = True
         try:
             out = A.search("some product", per_query=6)
         finally:
-            (A.search_hn_algolia, A.search_bing, A.search_ddg) = orig
+            (A.search_hn_algolia, A.search_bing, A.search_ddg, A.ALLOW_BING) = orig
         # HN 在前且不超过 3 条
         self.assertEqual(out[:3],
                          ["https://news.ycombinator.com/item?id=1",
                           "https://news.ycombinator.com/item?id=2",
                           "https://news.ycombinator.com/item?id=3"])
-        # bing 仍被纳入 —— HN 没有把通用搜索挤掉
+        # 通用搜索仍被纳入 —— HN 没有把它挤掉
         self.assertIn("https://bing-hit.example/report", out)
         self.assertLessEqual(len(out), 6)
+
+
+class GoogleCseTest(unittest.TestCase):
+    """Google CSE 检索通道（2026-10-21 接入，通用搜索的第一路）。
+
+    要守住的三件事：
+      1. 缺 key 或缺 cx 时**不发请求**（别拿半截凭据去打 401，白烧一次配额）；
+      2. 凭据可以放 data/secrets.json（google_key / google_cx），不必每次写环境变量
+         —— 这台机器的抓取多是后台任务，环境变量容易漏；
+      3. 单独给 CSE 用的代理（google_proxy）要真的透传到 http_get，
+         因为本机全局代理恰恰是把 Google 挡掉的那一层（2026-10-21 实测：
+         直连 000、1792 代理 000、SS 10808 也 000）。
+    """
+
+    ENV_KEYS = ("CASE_LIB_GOOGLE_KEY", "CASE_LIB_GOOGLE_CX", "CASE_LIB_GOOGLE_PROXY")
+
+    def setUp(self):
+        self._env = {k: os.environ.pop(k) for k in self.ENV_KEYS if k in os.environ}
+        self._sec = A._SEC
+        self._get = A.http_get
+
+    def tearDown(self):
+        A._SEC = self._sec
+        A.http_get = self._get
+        os.environ.pop("CASE_LIB_GOOGLE_KEY", None)
+        os.environ.pop("CASE_LIB_GOOGLE_CX", None)
+        os.environ.pop("CASE_LIB_GOOGLE_PROXY", None)
+        os.environ.update(self._env)
+
+    JSON = json.dumps({"items": [{"link": "https://thirdparty.example/review"},
+                                 {"link": "https://trustmrr.com/startup/x"},
+                                 {"link": ""}]})
+
+    def test_缺key不发请求(self):
+        A._SEC = {}
+        calls = []
+        A.http_get = lambda u, **kw: calls.append(u) or self.JSON
+        self.assertEqual(A.search_google("kibu"), [])
+        self.assertEqual(calls, [], "缺凭据时不该发出任何请求")
+
+    def test_缺cx也不发请求(self):
+        A._SEC = {"google_key": "k"}
+        calls = []
+        A.http_get = lambda u, **kw: calls.append(u) or self.JSON
+        self.assertEqual(A.search_google("kibu"), [])
+        self.assertEqual(calls, [])
+
+    def test_secrets回退并解析结果(self):
+        A._SEC = {"google_key": "KEY123", "google_cx": "CX456"}
+        seen = {}
+
+        def fake(u, **kw):
+            seen["url"] = u
+            seen.update(kw)
+            return self.JSON
+
+        A.http_get = fake
+        out = A.search_google("kibu", limit=3)
+        self.assertEqual(out, ["https://thirdparty.example/review",
+                              "https://trustmrr.com/startup/x"])
+        self.assertIn("key=KEY123", seen["url"])
+        self.assertIn("cx=CX456", seen["url"])
+        self.assertIn("num=3", seen["url"])
+        self.assertIsNone(seen.get("proxy"), "没配 google_proxy 时不能塞代理")
+
+    def test_环境变量赢过secrets(self):
+        A._SEC = {"google_key": "FROM_SECRETS", "google_cx": "CX456"}
+        os.environ["CASE_LIB_GOOGLE_KEY"] = "FROM_ENV"
+        seen = {}
+
+        def fake(u, **kw):
+            seen["url"] = u
+            return self.JSON
+
+        A.http_get = fake
+        A.search_google("kibu")
+        self.assertIn("key=FROM_ENV", seen["url"])
+
+    def test_google_proxy透传(self):
+        A._SEC = {"google_key": "k", "google_cx": "c", "google_proxy": "socks5h://127.0.0.1:10808"}
+        seen = {}
+
+        def fake(u, **kw):
+            seen.update(kw)
+            return self.JSON
+
+        A.http_get = fake
+        A.search_google("kibu")
+        self.assertEqual(seen.get("proxy"), "socks5h://127.0.0.1:10808")
 
 
 class LlmEndpointTest(unittest.TestCase):

@@ -880,6 +880,63 @@ def test_trustmrr_discovery():
     print()
 
 
+def test_archive_not_reharvested():
+    print("[15] 去重名单必须含 inbox_archive（老条目不得回流）")
+    tmp = tempfile.mkdtemp(prefix="harvest_dedup_")
+    orig_dir = H.DATA_DIR
+    orig = (H.harvest_hn, H.harvest_trustmrr)
+    try:
+        H.DATA_DIR = tmp
+        # 队列满时溢出的留底：id 与名称都在这儿，但**不在 inbox 里**
+        H.save_json("inbox_archive", [
+            {"id": "old-thing", "name": "Old Thing", "archived_at": "2026-09-17"},
+            {"id": "second-thing", "name": "Show HN: Second Thing",
+             "archived_at": "2026-09-17"},
+        ])
+        k = H.seen_keys()
+        chk("archive 的 id 进名单", "old-thing" in k["ids"])
+        chk("archive 的名称进名单", H.TC.norm_name("Old Thing") in k["names"])
+        chk("名称归一化能认出论坛前缀",
+            H.TC.norm_name("Second Thing") in k["names"],
+            "「Show HN: X」与「X」必须判成同一条")
+
+        # 端到端：源又采到这两条 → 一条都不该进队列
+        def fake_hn(limit, keywords):
+            return [{"name": "Old Thing", "one_liner": "again", "url": "https://x.com/a",
+                     "points": 1, "comments": 0, "created_at": "2026-10-13",
+                     "_blob": "Old Thing mrr revenue", "_origin": "hn"},
+                    {"name": "Second Thing", "one_liner": "again too",
+                     "url": "https://x.com/b", "points": 1, "comments": 0,
+                     "created_at": "2026-10-13", "_blob": "Second Thing mrr",
+                     "_origin": "hn"},
+                    {"name": "Fresh Thing", "one_liner": "brand new",
+                     "url": "https://x.com/c", "points": 1, "comments": 0,
+                     "created_at": "2026-10-13", "_blob": "Fresh Thing mrr",
+                     "_origin": "hn"}]
+
+        H.harvest_hn = fake_hn
+        argv = sys.argv
+        sys.argv = ["harvest.py", "--source", "hn", "--limit", "5",
+                    "--hn-comments", "0", "--trustmrr-md", "0"]
+        buf = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(buf):
+                rc = H.main()
+        finally:
+            sys.argv = argv
+        chk("main() 正常退出", rc == 0, "rc=%s" % rc)
+
+        names = [c.get("name") for c in
+                 json.load(open(os.path.join(tmp, "inbox.json"), encoding="utf-8"))]
+        chk("归档过的两条没被重新采进来", names == ["Fresh Thing"], names)
+    finally:
+        H.DATA_DIR = orig_dir
+        (H.harvest_hn, H.harvest_trustmrr) = orig
+        import shutil
+        shutil.rmtree(tmp, ignore_errors=True)
+    print()
+
+
 def main():
     print("=" * 62)
     print("  harvest 五源解析 + source_kind 测试（离线）")
@@ -899,6 +956,7 @@ def main():
     section("TrustMRR discovery 通道", test_trustmrr_discovery)
     section("save_json 保留换行格式", test_save_json_preserves_newline)
     section("category_cn 英文分类归一", test_category_cn_normalizes_english)
+    section("归档条目不回流", test_archive_not_reharvested)
 
     print("=" * 62)
     if fails:

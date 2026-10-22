@@ -4,7 +4,7 @@
 核实助手：写进案例库之前，先把一个公司的数字搜一遍。
 
 这一步不能交给工具。工具不会因为「数字看起来合理」而警觉，但你会。
-这个脚本只做一件事：把该查的东西、该问的六个口径，摊在你面前。
+这个脚本只做一件事：把该查的东西、该问的八个口径，摊在你面前。
 
 用法：
     python scripts/verify.py "Nitra"                  # 打印核查清单与搜索入口
@@ -27,12 +27,17 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(ROOT, "data")
 LOG_FILE = os.path.join(DATA_DIR, "verification_log.json")
 
-# 六个口径 —— 混一个就差十倍
+# 八个口径 —— 混一个就差十倍。与 verify_rules.CALIBERS 同序同名（那边才是
+# 机器可读的唯一来源，这里只是人工核实的打印清单，2026-10-21 补齐 annual 与
+# last_30d 两项，此前这份清单一直停在最初的六个）。
 CALIBERS = [
     ("ARR", "年化经常性收入。是「如果客户不变，一年会收到多少」，不是已经收到的现金。"),
     ("MRR", "月度经常性收入。ARR ≈ MRR × 12，但一次性收入不进来。"),
     ("run-rate", "把某个月或某季度乘以 12 得来的估计值。是估计，不是已发生。"),
     ("累计收入", "lifetime revenue。跟「年收入」完全是两回事——Chatbase 就栽在这。"),
+    ("年度收入", "按自然年合计的已发生收入（12 个月实际之和）。不是 ARR（前瞻），"
+                "也不是 lifetime（跨年累计）。"),
+    ("近 30 天流水", "非订阅制业务的近 30 天已验证收入，含一次性与用量收入；不能乘 12 当年化。"),
     ("平台流水 / GMV", "客户通过平台过的钱，不是平台自己的收入。Nitra 的「$10 亿」是处理量。"),
     ("毛利 / 净利", "91% 毛利不等于 91% 利润。扣掉人力、算力、支付通道之后才是净利。"),
 ]
@@ -75,7 +80,7 @@ def print_checklist(company=None):
     print("  核实清单" + (" · %s" % company if company else ""))
     print(bar)
 
-    print("\n【第 1 步】六个口径，逐个问一遍这个数字是哪个\n")
+    print("\n【第 1 步】八个口径，逐个问一遍这个数字是哪个\n")
     for i, (name, desc) in enumerate(CALIBERS, 1):
         print("  %d. %-14s %s" % (i, name, desc))
 

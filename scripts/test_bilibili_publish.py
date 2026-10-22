@@ -977,5 +977,99 @@ class TestPublishStateJs(unittest.TestCase):
         self.assertNotIn("save_via_api", code)
 
 
+class TestPublishAllIdempotent(unittest.TestCase):
+    """直跑 `publish --all` 必须过本地幂等（2026-10-21 修）。
+
+    修的洞：适配器 has_state_file=False，清单是唯一幂等源，而脚本
+    入口不查它 —— 第二次 `publish --all` = 全量重复草稿（适配器注释
+    里「远端 38→101 条副本」事故的配方）。runner 路径一向安全
+    （batch 恒传 --only），危险的是人手边这条直跑命令。
+    """
+
+    def _run(self, ids, done, replace=False, only=None):
+        """用假 list_ids/done 跑 publish_all，任何 CDP 触碰都会炸。"""
+        old_ids, old_done = bp.list_ids, bp._local_done_ids
+        bp.list_ids = lambda: list(ids)
+        bp._local_done_ids = lambda: set(done)
+        try:
+            return bp.publish_all(replace=replace, only=only,
+                                  use_api=False)
+        finally:
+            bp.list_ids, bp._local_done_ids = old_ids, old_done
+
+    def test_全量已存时直接返回不建重复(self):
+        ok, failed = self._run(["a", "b"], done=["a", "b"])
+        self.assertEqual((ok, failed), (0, []),
+                         "全部已存还往下跑就是重复草稿")
+
+    def test_只发没存过的(self):
+        # done 里只有 a ⇒ publish_all 应继续处理 b/c。这里不断言它真发
+        # （要连 CDP），只断言过滤后的待办集：用一个会在 use_api=False
+        # 前打印的探针拿不到，改为直接验证 _local_done_ids 被用于过滤。
+        ids, done = ["a", "b", "c"], ["a"]
+        old_ids, old_done = bp.list_ids, bp._local_done_ids
+        bp.list_ids = lambda: list(ids)
+        bp._local_done_ids = lambda: set(done)
+        seen = {}
+        old_publish_one = bp.publish_one
+
+        def fake_one(cid, **kw):
+            seen[cid] = True
+            return True
+        try:
+            bp.publish_one = fake_one
+            ok, failed = bp.publish_all(replace=False, only=None,
+                                        use_api=False)
+        finally:
+            bp.publish_one = old_publish_one
+            bp.list_ids, bp._local_done_ids = old_ids, old_done
+        self.assertEqual(sorted(seen), ["b", "c"],
+                         "已存的 a 必须被跳过，没存过的照发")
+        self.assertEqual(failed, [])
+
+    def test_only显式指定不过滤(self):
+        # 断点续传语义：--only 点名就要跑，哪怕本地记过
+        seen = []
+        old_ids, old_done = bp.list_ids, bp._local_done_ids
+        bp.list_ids = lambda: ["a", "b"]
+        bp._local_done_ids = lambda: {"a"}
+        old_one = bp.publish_one
+
+        def fake_one(cid, **kw):
+            seen.append(cid)
+            return True
+        try:
+            bp.publish_one = fake_one
+            bp.publish_all(replace=False, only=["a"], use_api=False)
+        finally:
+            bp.publish_one = old_one
+            bp.list_ids, bp._local_done_ids = old_ids, old_done
+        self.assertEqual(seen, ["a"], "--only 是逃生门，不该被幂等挡")
+
+    def test_replace不过滤(self):
+        # 更新已有草稿的语义：--replace 全量跑是合理的
+        seen = []
+        old_ids, old_done = bp.list_ids, bp._local_done_ids
+        bp.list_ids = lambda: ["a"]
+        bp._local_done_ids = lambda: {"a"}
+        old_one = bp.publish_one
+
+        def fake_one(cid, **kw):
+            seen.append(cid)
+            return True
+        try:
+            bp.publish_one = fake_one
+            bp.publish_all(replace=True, only=None, use_api=False)
+        finally:
+            bp.publish_one = old_one
+            bp.list_ids, bp._local_done_ids = old_ids, old_done
+        self.assertEqual(seen, ["a"], "--replace 要覆盖更新，不该被跳过")
+
+    def test_local_done_ids读真实两个账(self):
+        """_local_done_ids 对真实数据应返回非空（防读取路径写坏）。"""
+        done = bp._local_done_ids()
+        self.assertIn("bustem", done)
+
+
 if __name__ == "__main__":
     unittest.main()

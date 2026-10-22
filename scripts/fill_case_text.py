@@ -1067,10 +1067,24 @@ def load_json_raw(path):
 
 
 def save_like(raw, obj):
-    """按 candidates.json 的原生格式写回：indent=2 + CRLF + 无末尾换行。"""
-    s = json.dumps(obj, ensure_ascii=False, indent=2).replace("\n", "\r\n")
-    with io.open(CAND, "w", encoding="utf-8", newline="") as f:
+    """按 candidates.json 的**现有**格式写回 + 原子替换。
+
+    ⚠ 2026-10-21 修两处：
+    1. 换行风格不再写死 CRLF —— 实测磁盘是 **LF**（旧 docstring 声称
+       CRLF 与事实相反），写死会把整文件换行风格翻转成 CRLF，格式分裂
+       还会顺着 promote_to_candidates 的探测链路继续传递。以磁盘 raw
+       里有没有 CRLF 为准。
+    2. 不再原地截断写：先写 tmp 再 os.replace。旧的字节级自检比的是
+       自己刚写的输出，永远通过；进程被杀/磁盘满时半截 JSON 就留在
+       磁盘上，triage 那边还会把它静默当空库。
+    """
+    s = json.dumps(obj, ensure_ascii=False, indent=2)
+    if "\r\n" in (raw or ""):
+        s = s.replace("\n", "\r\n")
+    tmp = CAND + ".tmp"
+    with io.open(tmp, "w", encoding="utf-8", newline="") as f:
         f.write(s)
+    os.replace(tmp, CAND)
     # 字节级自检：不还原成原格式就会炸成全量 diff
     back = load_json_raw(CAND)
     if back != s:

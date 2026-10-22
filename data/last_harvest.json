@@ -1,78 +1,78 @@
 {
-  "ran_at": "2026-10-21 05:39:01",
-  "added": 88,
+  "ran_at": "2026-10-22 05:40:26",
+  "added": 59,
   "by_source": {
-    "hn": 71,
-    "indiehackers": 3,
-    "trustmrr": 14
+    "hn": 45,
+    "indiehackers": 1,
+    "trustmrr": 13
   },
   "inbox_total": 400,
-  "archived_this_run": 88,
-  "archive_total": 841,
+  "archived_this_run": 59,
+  "archive_total": 900,
   "top": [
     {
-      "name": "NotFair",
-      "headline": "近 30 天收入 $12,842",
+      "name": "INXANITY Labs — Browser Gaming & AI Modding Platform",
+      "headline": "近 30 天收入 $1,284",
+      "heat": 0,
+      "category": "Community",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/inxanity-labs"
+    },
+    {
+      "name": "Kaja AI",
+      "headline": "MRR $202，TrustMRR 第 5706 名",
       "heat": 0,
       "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/notfair"
+      "url": "https://trustmrr.com/startup/kaja-ai"
     },
     {
-      "name": "ScripTrade AI",
-      "headline": "MRR $457，TrustMRR 第 4597 名",
+      "name": "Aarivi",
+      "headline": "近 30 天收入 $1,515",
       "heat": 0,
-      "category": "垂直行业 SaaS",
+      "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/scriptrade-ai"
+      "url": "https://trustmrr.com/startup/aarivi"
     },
     {
-      "name": "Thyonix",
-      "headline": "MRR $126，TrustMRR 第 6057 名",
+      "name": "kdpbook.io",
+      "headline": "近 30 天收入 $2,751",
       "heat": 0,
-      "category": "开发者工具",
+      "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/thyonix"
+      "url": "https://trustmrr.com/startup/kdpbook"
     },
     {
-      "name": "Refs",
-      "headline": "近 30 天收入 $343",
-      "heat": 0,
-      "category": "创作者经济",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/refs"
-    },
-    {
-      "name": "Wave → Instagram Outreach",
-      "headline": "近 30 天收入 $5,494",
-      "heat": 0,
-      "category": "营销工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/wave"
-    },
-    {
-      "name": "Serena Healthcare",
-      "headline": "近 30 天收入 $145",
+      "name": "SnapHRM",
+      "headline": "近 30 天收入 $478",
       "heat": 0,
       "category": "企业服务",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/serena"
+      "url": "https://trustmrr.com/startup/snaphrm"
     },
     {
-      "name": "Clamshell",
-      "headline": "近 30 天收入 $415",
+      "name": "MediaFast",
+      "headline": "自报收入 $7,000 / mo（Indie Hackers）",
       "heat": 0,
-      "category": "开发者工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/clamshell"
+      "category": "未分类",
+      "source": "indiehackers",
+      "url": "https://www.indiehackers.com/product/mediafast-16"
     },
     {
-      "name": "Burn",
-      "headline": "累计收入 $24（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
+      "name": "Cindy Molchany",
+      "headline": "近 30 天收入 $3,032",
       "heat": 0,
-      "category": "移动应用",
+      "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/burn"
+      "url": "https://trustmrr.com/startup/cindy-molchany"
+    },
+    {
+      "name": "Shame HN",
+      "headline": "未获取",
+      "heat": 2,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://news.ycombinator.com/item?id=50190665"
     }
   ]
 }

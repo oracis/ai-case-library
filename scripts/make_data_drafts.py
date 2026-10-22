@@ -49,19 +49,50 @@ def calibre_reason(cand, cal):
             "已验证收入（含一次性与用量收入），按 last_30d 口径登记。")
 
 
+def _pos_money(cand, *keys):
+    """从 metrics 里取第一个 >0 的数值，字符串型数字也容错。
+
+    ⚠ float(m.get("mrr") or 0) 遇 "244,029" 会 ValueError 崩掉整轮
+    （2026-10-21 修）：candidates.json 的 metrics 偶有字符串型数字。
+    """
+    m = cand.get("metrics") or {}
+    for k in keys:
+        v = m.get(k)
+        if isinstance(v, (int, float)) and not isinstance(v, bool) and v > 0:
+            return float(v)
+        if isinstance(v, str):
+            try:
+                f = float(v.replace(",", "").replace("$", "").strip())
+                if f > 0:
+                    return f
+            except ValueError:
+                continue
+    return 0.0
+
+
 def build_draft(cand):
     m = cand.get("metrics") or {}
-    mrr = float(m.get("mrr") or 0)
+    mrr = _pos_money(cand, "mrr")
     cal = "mrr" if mrr > 0 else "last_30d"
     ver = cand.get("verification") or ""
     if ver not in VR.VERIFICATION_KEYS:
         ver = "partial"
     kinds = ["stripe"]
+    # ⚠ URL 必须真的指向 TrustMRR 档案（2026-10-21 修）：此前
+    #    source_url 兜底 + id 拼 slug 双兜底，HN 自报条目也生成
+    #    「来源=HN 链接、kind=stripe（支付网关 API 直读）」的双重伪造，
+    #    实测能骗过 verify_rules 的 publishable 闸门。本脚本的立身前提
+    #    就是 docstring 写的「TrustMRR 一手档案」—— 没有 slug 就没有
+    #    档案页，宁可跳过也不伪造 provenance。
+    slug = cand.get("trustmrr_slug") or ""
+    if not slug:
+        raise SystemExit(
+            "候选 %s 没有 trustmrr_slug：不是 TrustMRR 一手档案，"
+            "不能自动生成 stripe 来源草稿" % (cand.get("id") or "?"))
+    url = "https://trustmrr.com/startup/%s" % slug
     sources = [{
         "label": "TrustMRR 档案（支付网关 API 直读）",
-        "url": cand.get("source_url")
-                or ("https://trustmrr.com/startup/%s"
-                    % (cand.get("trustmrr_slug") or cand.get("id"))),
+        "url": url,
         "kind": "stripe",
     }]
     if cand.get("website"):
@@ -105,6 +136,15 @@ def main():
     for c in cands:
         cid = c.get("id")
         if not cid or cid in vers:
+            skipped += 1
+            continue
+        # ⚠ 只给 TrustMRR 一手档案的候选建档（2026-10-21 修）：此前对
+        #    **所有**无草稿候选写死 source_kinds=["stripe"]，HN 自报、
+        #    零收入的条目也被盖上「支付网关 API 直读」的章，实测能骗过
+        #    verify_rules 的 publishable 判定 —— 污染「每个数字都核过」
+        #    这条库的立身之本。判定口径：harvest_source=="trustmrr"
+        #    或带 trustmrr_slug（build_draft 里还会再校验一次）。
+        if c.get("harvest_source") != "trustmrr" and not c.get("trustmrr_slug"):
             skipped += 1
             continue
         # 正文都没写的候选也先生成草稿 —— 晋升时两道闸门独立检查，

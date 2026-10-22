@@ -61,6 +61,9 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
 import verify_rules as VR                                          # noqa: E402
+# 「是不是同一条」的归一化口径与采集去重共用同一个函数，避免两处各写一套
+# 之后出现「分诊说重复、采集说新的」这种查不出来的分叉。
+from text_clean import norm_name                                   # noqa: E402,F401
 
 
 # ---------------------------------------------------------------------------
@@ -293,18 +296,6 @@ def host_of(url):
     return host.split(":")[0]
 
 
-def norm_name(s):
-    """归一化名称，用于跨条目比同一条目。
-
-    去掉论坛前缀、标点与大小写 —— 「Show HN: Foo」和「Foo」是同一条。
-    中文保留，否则纯中文名会被归一化成空串而互相撞上。
-    """
-    s = (s or "").lower()
-    s = re.sub(r"^(show|ask|tell)\s+hn\s*[:\-–—]?\s*", "", s)
-    s = re.sub(r"[^a-z0-9\u4e00-\u9fff]+", "", s)
-    return s
-
-
 def name_prefix(name):
     """取名字开头全角括号里的前缀（「（待发现）X」→「待发现」）。没有就返回空串。"""
     m = NAME_PREFIX.match((name or "").strip())
@@ -435,8 +426,16 @@ def revenue_of(rec):
         return float(v) / 12.0
 
     text = str(m.get("headline") or "")
-    mm = REV_PREFIX.search(text)
-    if mm:
+    # ⚠「累计收入 $X」是**累计口径**，不是月收入（2026-10-21 修）：
+    #    harvest 对 MRR=0 且 last30=0 的条目特意写「累计收入 $924（当前
+    #    MRR 与近 30 天均为 0…）」做口径声明，REV_PREFIX 却照样命中
+    #    「收入 $924」—— 58/58 条零收入死项目全被洗成 deep，钱白花在
+    #    AI 深核上，且对外 revenue 字段全不可信。命中位置紧邻「累计」
+    #    二字的 match 一律跳过；找不到正常月收入写法就返回 None
+    #    （本函数的原则：宁可当抽不到，绝不当量级太小）。
+    for mm in REV_PREFIX.finditer(text):
+        if text[max(0, mm.start() - 2):mm.start()] == "累计":
+            continue
         return _amount(mm.group(1), mm.group(2))
     mm = REV_SUFFIX.search(text)
     if mm:
@@ -940,13 +939,26 @@ def load(name):
 
 
 def load_all():
-    """读齐四份数据。缺哪个都不致命（草稿文件可能还不存在），缺了当空。"""
+    """读齐四份数据。缺哪个都不致命（草稿文件可能还不存在），缺了当空。
+
+    ⚠ 但「损坏」不等于「缺失」（2026-10-21 修）：此前 except 一把抓，
+    cases.json 写坏半截会被静默当成空库 —— 重复检测全失效，每条队列
+    条目都显示「新」，报告看起来一切正常。现在区分两种失败：
+    文件不存在 = 合法缺失，当空；JSON 解析失败 = 响亮退出（先去修复，
+    别在坏账本上继续跑）。
+    """
     out = {}
     for name in ("cases", "candidates", "inbox", "verifications"):
+        p = os.path.join(ROOT, "data", name + ".json")
+        if not os.path.isfile(p):
+            out[name] = {} if name == "verifications" else []
+            continue
         try:
             out[name] = load(name)
-        except Exception:
-            out[name] = {} if name == "verifications" else []
+        except ValueError as e:
+            raise SystemExit("[!] data/%s.json 解析失败（%s）—— "
+                             "文件损坏，先修复再跑 triage，"
+                             "别当空库继续" % (name, str(e)[:60]))
     return out
 
 

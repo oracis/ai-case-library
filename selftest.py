@@ -15,6 +15,7 @@ server.py 现在是「一个进程、两个站点」：公开站只读，后台�
 import json
 import os
 import shutil
+import signal
 import subprocess
 import sys
 import time
@@ -23,8 +24,19 @@ import urllib.parse
 import urllib.request
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(ROOT, "scripts"))
+import atomicio                                               # noqa: E402
+
 DATA = os.path.join(ROOT, "data")
 BACKUP = os.path.join(ROOT, ".selftest_backup")
+# 「本轮进行中」标记。备份目录常驻（当下一轮基线，gitignore 已排除），
+# 所以不能靠「目录在不在」判断上次有没有跑完 —— 那会让每轮都误报。
+RUNNING = os.path.join(BACKUP, ".running")
+
+# 本轮开始时 data/secrets.json 的原始字节（None = 原本没有这个文件）。
+# 测试会通过后台接口把假 key 写进去，还原必须用**这一份**覆盖回去 ——
+# 备份目录可能已被上一轮的假 key 污染（见 restore_file 的注释）。
+ORIG_SECRETS = None
 PY = sys.executable
 PORT = int(os.environ.get("CASE_LIB_TEST_PORT", "5087"))
 ADMIN_PORT = PORT + 1                       # server.py 默认后台 = 公开 +1
@@ -37,6 +49,8 @@ ADMIN_BASE = "http://127.0.0.1:%d" % ADMIN_PORT
 # 数据解耦：A 供 [5] 的 promote 消费，B 只用于写接口与 plan，不会被提走。
 FIXTURE_A = "_selftest_promote_fixture"
 FIXTURE_B = "_selftest_write_fixture"
+# 采集队列固件：让 [4] 转候选的测试不再消费真实队列的第一条
+FIXTURE_INBOX = "_selftest_inbox_fixture"
 
 opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 fails = []
@@ -252,11 +266,16 @@ def run_auth_section():
 
 
 def seed_fixtures():
-    """往候选池插两条合成候选，避免断言依赖真实候选池的状态。
+    """往候选池插两条合成候选、往采集队列插一条合成素材，避免断言依赖真实数据。
 
     候选池会被日常晋升抽空（2026-10-15 全量晋升后只剩 1 条），而 [5] 节又会
     把它提走 —— 之后「登录后写接口放行」「后台 plan」就都成了测空气。
     固件注入在备份之后，跑完随 data/ 一起还原，不留痕。
+
+    🚨 采集队列那条固件是 2026-10-21 补的：[4] 节原本直接拿
+    `data["inbox"][0]["id"]` 往候选池转 —— 消费的是**真实队列的第一条**。
+    还原一旦失败（SIGTERM/中断）就永久少一条真素材，而 `inbox.json` 不受
+    git 管辖、git checkout 救不回来（已实测丢了一条，找不回）。
     """
     p = os.path.join(DATA, "candidates.json")
     with open(p, encoding="utf-8") as f:
@@ -288,16 +307,145 @@ def seed_fixtures():
         cands.insert(0, rec)
         added.append(fid)
     if added:
-        with open(p, "w", encoding="utf-8") as f:
-            json.dump(cands, f, ensure_ascii=False, indent=2)
+        # 保留原换行 + 原子写：这一步是**往真实 data/ 里写**，万一最后还原
+        # 失败，至少要保证不会额外把整个文件的 LF 换成 CRLF（2026-10-21）。
+        atomicio.write_json(p, cands, indent=2,
+                            newline=atomicio.detect_newline(p))
         print("已注入自测固件候选：%s" % " / ".join(added))
+
+    # ---- 采集队列固件（让 [4] 不再消费真实素材）----
+    ip = os.path.join(DATA, "inbox.json")
+    if not os.path.isfile(ip):
+        return                    # CI 干净 checkout 没有队列文件，[4] 会自己跳过
+    with open(ip, encoding="utf-8") as f:
+        inbox = json.load(f)
+    if any(i.get("id") == FIXTURE_INBOX for i in inbox):
+        return
+    inbox.insert(0, {
+        "id": FIXTURE_INBOX,
+        "name": "自测固件（采集队列）",
+        "name_en": "Selftest Inbox Fixture",
+        "one_liner": "自测固件：仅供 [4] 转候选测试消费，跑完随 data/ 还原。",
+        "category": "自测固件",
+        "verification": "unverified",
+        "source_kind": "selftest",
+        "harvest_source": "selftest",
+        "metrics": {},
+        "models": [],
+        "note": "selftest fixture",
+        "blocking": "自测固件",
+        "source_url": "",
+        "website": "",
+        "added_at": "2026-10-15",
+    })
+    atomicio.write_json(ip, inbox, indent=2, newline=atomicio.detect_newline(ip))
+    print("已注入自测固件到采集队列：%s" % FIXTURE_INBOX)
+
+
+def restore_file(src, dst, attempts=6):
+    """把备份文件写回 data/。成功返回 True。
+
+    🚨 为什么不直接用 `shutil.copy2`（2026-10-21 实测踩到）：server 子进程
+    刚 terminate 的那几秒里，Windows 上目标文件的句柄还没完全释放，
+    原地覆盖会抛 PermissionError。而这个异常是在 `finally` 里抛的 ——
+    还原循环当场中断，**前面的文件还原了、后面的没还原**，人只看到
+    「[*] 还原 data/」之后进程就结束了，data/ 里静静留着 4 条自测固件。
+
+    改成 tmp + os.replace（换名，不需要写目标文件的句柄）+ 重试：
+    句柄释放有延迟，等上几百毫秒通常就好了。
+    """
+    with open(src, "rb") as f:
+        data = f.read()
+    for i in range(attempts):
+        try:
+            atomicio.write_bytes(dst, data)
+            return True
+        except OSError:
+            time.sleep(0.2 * (i + 1))
+    return False
+
+
+def rollback_stale_backup():
+    """上一次自检没跑完 → 先用备份把 data/ 恢复到那次之前。
+
+    🚨 2026-10-21 实测的污染路径：自检跑到一半被打断（前台 120s 超时、
+    Ctrl-C、机器休眠），`finally` 里的还原没执行，data/ 就留着 4 条自测
+    固件（selftest-widget / selftest-fixture-2 …）。**下一轮自检会把这个脏
+    状态当基线备份下来**，还原时再拷回去 —— 污染就此固化，只能靠
+    `git checkout -- data/` 手工清。
+
+    判据是 `.running` 标记：备份本身每轮都会保留（当下一轮的基线），
+    只有「标记还在」才说明上一轮没走完收尾。
+    """
+    if not os.path.exists(RUNNING):
+        return 0
+    n = 0
+    for name in os.listdir(BACKUP):
+        src = os.path.join(BACKUP, name)
+        if os.path.isfile(src) and restore_file(src, os.path.join(DATA, name)):
+            n += 1
+    return n
+
+
+def make_backup():
+    """把 data/ 备份到 .selftest_backup（**不删目录**，用覆盖写）。
+
+    🚨 为什么不是「先 rmtree 再 copytree」：沙箱把整目录删除判成批量删除
+    （阈值 50 个文件），而 data/ 有 38+ 个文件、实测报
+    `SAFE_DELETE_BULK_CONFIRM_REQUIRED`。那个异常从 finally 里抛出去，
+    **跑在打印结果汇总之前** ⇒ 每轮自检都以 exit=1 收场、看不到结论，
+    看着像自检炸了，其实一条都没失败（2026-10-21 实测两次都这样）。
+
+    改成 `dirs_exist_ok=True` 覆盖：备份目录常驻（gitignore 已排除），
+    清理只剩删一个 `.running` 标记文件 —— 单个文件，不触发任何门禁。
+    """
+    os.makedirs(BACKUP, exist_ok=True)
+    shutil.copytree(DATA, BACKUP, dirs_exist_ok=True)
+    # data/ 里已经没有的文件，备份里也不该留着：`had_secrets_in_backup` 这类
+    # 「备份里有没有」的判断靠它，残留会让测试留下的假 secrets.json 删不掉。
+    # 通常 0~1 个，逐个删不触发任何门禁。
+    keep = set(os.listdir(DATA))
+    for name in os.listdir(BACKUP):
+        p = os.path.join(BACKUP, name)
+        if os.path.isfile(p) and name not in keep and name != os.path.basename(RUNNING):
+            try:
+                os.remove(p)
+            except OSError:
+                pass
+    with open(RUNNING, "w", encoding="ascii") as f:
+        f.write("running\n")
+
+
+def install_restore_on_signal():
+    """被 SIGTERM / Ctrl-C 打断时也要还原 data/。
+
+    Python 的 `finally` 只对**进程内的异常**生效；SIGTERM 默认直接把进程
+    带走，finally 不执行。这里把信号转成 SystemExit，让 finally 有机会跑完。
+    （SIGKILL 拦不住，那种情况由 rollback_stale_backup 在下一轮兜底。）
+    """
+    def handler(signum, frame):                                # noqa: ARG001
+        raise SystemExit(128 + signum)
+    for sig in (signal.SIGTERM, signal.SIGINT):
+        try:
+            signal.signal(sig, handler)
+        except (ValueError, OSError):                          # 非主线程等
+            pass
 
 
 def main():
     # ---------- 先备份 ----------
-    if os.path.isdir(BACKUP):
-        shutil.rmtree(BACKUP)
-    shutil.copytree(DATA, BACKUP)
+    global ORIG_SECRETS
+    install_restore_on_signal()
+    secrets_path = os.path.join(DATA, "secrets.json")
+    if os.path.isfile(secrets_path):
+        with open(secrets_path, "rb") as f:
+            ORIG_SECRETS = f.read()
+    else:
+        ORIG_SECRETS = None
+    n = rollback_stale_backup()
+    if n:
+        print("[!] 上次自检没跑完（.running 标记还在）：已回滚 %d 个文件到 data/" % n)
+    make_backup()
     print("已备份 data/ -> %s" % os.path.basename(BACKUP))
     seed_fixtures()
 
@@ -382,8 +530,15 @@ def main():
         print("\n[4] 写操作 · 采集队列转入候选池")
         inbox_before = len(data["inbox"])
         cand_before = len(data["candidates"])
-        if inbox_before:
-            tid = data["inbox"][0]["id"]
+        inbox_ids = [i.get("id") for i in data["inbox"]]
+        # ⚠ 只吃固件，**绝不拿真实队列的第一条**去转（2026-10-21 修）：
+        # 那一步会真的把一条真实素材转进候选池，还原一旦失败就永久少一条
+        # （inbox.json 不在 git 里，救不回来 —— 已经这样丢过一条）。
+        tid = FIXTURE_INBOX if FIXTURE_INBOX in inbox_ids else None
+        if inbox_ids and not tid:
+            check("采集队列固件已注入", False, "队列非空但没找到 %s，跳过本步是为了不碰真实数据"
+                  % FIXTURE_INBOX)
+        elif tid:
             st, body = areq("POST", "/api/inbox/%s/to-candidates" % urllib.parse.quote(tid), {})
             check("POST /api/inbox/<id>/to-candidates", st == 201,
                   "-> %s" % (json.loads(body)["candidate"]["id"] if st == 201 else body[:80]))
@@ -756,32 +911,57 @@ def main():
 
         # ---------- 还原 ----------
         print("\n[*] 还原 data/")
-        # 备份里有没有 secrets.json 必须在 rmtree 之前判断——
-        # 曾经把判断写在 rmtree 之后，永远为真，结果把用户真实的
-        # secrets.json（里面的真 key）当测试残留删掉了。
-        had_secrets_in_backup = os.path.exists(os.path.join(BACKUP, "secrets.json"))
+        misses = []
         for name in os.listdir(BACKUP):
+            if name == os.path.basename(RUNNING):
+                continue          # 进行中标记不是数据，别拷回 data/
             src = os.path.join(BACKUP, name)
             dst = os.path.join(DATA, name)
-            if os.path.isfile(src):
-                shutil.copy2(src, dst)
-        # ⚠ 清备份目录失败**不能让整轮自检崩掉**（2026-10-14 修）。
-        #   rmtree 在 WorkBuddy 沙箱里被劫持到「丢回收站」，实测会抛
-        #   `OSError: SHFileOperationW 失败: 0x2`。而它跑在**结果汇总之前**，
-        #   于是变成「全部 PASS 却 traceback + 退出码非 0」——
-        #   看输出的人会以为自检炸了，实际上一条测试都没失败。
-        #   残留一个 .selftest_backup 只是脏目录，不影响 data/ 已还原这个事实。
+            if os.path.isfile(src) and not restore_file(src, dst):
+                misses.append(name)
+        if misses:
+            # 🚨 必须吵出来（2026-10-21 实测踩到）：还原失败时 data/ 里留着
+            # 自测固件（4 条 selftest 案例混进真实库），而人只看到
+            # 「[*] 还原 data/」然后进程退出，以为一切正常。
+            print("    [!!] 这些文件没还原成功：%s" % "、".join(sorted(misses)))
+            print("         data/ 里可能留着自测固件。手工兜底：")
+            print("           git checkout -- data/")
+            fails.append("data/ 还原不完整（%d 个文件）" % len(misses))
+        # ⚠ 清理**只删标记文件**，不再整目录 rmtree（2026-10-21 修）：
+        #   rmtree 在 WorkBuddy 沙箱里被判成批量删除（.selftest_backup 有
+        #   38+ 个文件 > 阈值 50 的一半口径），抛 SAFE_DELETE_BULK_CONFIRM_REQUIRED，
+        #   而且抛在打印结果汇总之前 —— 每轮自检都以 exit=1 收场、看不到结论。
+        #   备份目录留着当下一轮的基线（gitignore 已排除），删标记即「本轮已完成」。
         try:
-            shutil.rmtree(BACKUP)
+            os.remove(RUNNING)
         except OSError as e:                                  # noqa: BLE001
-            print("    [warn] 没清掉 %s：%s（data/ 已还原，"
-                  "手动删掉即可，不影响自检结论）"
-                  % (os.path.relpath(BACKUP, ROOT), e))
-        # 测试期间新建的文件不在备份里，还原盖不掉 —— 会把假 key 留给用户
-        if not had_secrets_in_backup \
-                and os.path.exists(os.path.join(DATA, "secrets.json")):
-            os.remove(os.path.join(DATA, "secrets.json"))
-            print("    已清掉测试残留的 data/secrets.json")
+            print("    [warn] 没删掉 .running 标记：%s（下轮会当成没跑完，"
+                  "多回滚一次，不影响数据）" % e)
+        # 测试期间新建的文件不在备份里，还原盖不掉 —— 会把假 key 留给用户。
+        #
+        # 🚨 这里**不能靠「备份里有没有 secrets.json」判断**（2026-10-21 踩到）：
+        # 备份每轮被当前 data/ 覆盖，一旦某轮被中断留下假 key，下一轮就把
+        # 假 key 当基线备份、还原时再拷回去 —— 污染固化成「真实 key」，
+        # 实测把用户智谱 key 覆盖成 sk-selftest-xxx、模型变成 test-model，
+        # 全量测试当场红在 test_ai_verify（'test-model' != 'glm-4-flash'）。
+        # 判据改成**本轮开始时的原始字节**，与备份是否干净无关。
+        secrets_path = os.path.join(DATA, "secrets.json")
+        if ORIG_SECRETS is None:
+            if os.path.exists(secrets_path):
+                os.remove(secrets_path)
+                print("    已清掉测试残留的 data/secrets.json")
+        else:
+            atomicio.write_bytes(secrets_path, ORIG_SECRETS)
+        # 兜底检查：假 key 落到真实配置里必须响，别让它下次再被当基线备份
+        try:
+            with open(secrets_path, encoding="utf-8", errors="ignore") as f:
+                left = f.read()
+        except OSError:
+            left = ""
+        if "sk-selftest" in left:
+            print("    [!!] data/secrets.json 里还留着自测假 key —— 真实 AI key "
+                  "已被覆盖，需要重新填。")
+            fails.append("secrets.json 残留自测假 key")
         print("    已还原")
 
     print("\n" + "=" * 62)

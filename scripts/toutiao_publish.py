@@ -40,6 +40,7 @@ from urllib.parse import urlencode
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import wechat_publish as wp  # noqa: E402  复用 CDP / cases 加载 / 公众号标题
 import xhs_publish as x      # noqa: E402  复用模糊匹配
+from multiplatform import queue as Q  # noqa: E402  待发队列排序口径（最新在前）
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "out", "toutiao")
@@ -726,7 +727,12 @@ def mark_published_remote(cid, gid, evidence):
 
 
 def pending_cases(need_built=True):
-    """待发队列：没进过头条的案例，库里最新的排最前。"""
+    """待发队列：没进过头条的案例，库里最新的排最前。
+
+    ⚠ 排序口径见 `multiplatform/queue.py`（2026-10-21 修）：此前是
+    `todo[::-1]`，而 `cases.json` 本来就是新的在前 —— 取反之后实际发的是
+    **最旧的那批**，与注释和 `queue` 打印全都相反。
+    """
     skip = set(_ids(DRAFT_FILE)) | set(_ids(PUB_FILE)) | {"voklit"}
     built = set()
     if os.path.isdir(OUT):
@@ -736,7 +742,7 @@ def pending_cases(need_built=True):
     todo = [c for c in load_cases() if c["id"] not in skip]
     if need_built:
         todo = [c for c in todo if c["id"] in built]
-    return todo[::-1]
+    return Q.newest_first(todo)
 
 
 # ======================================================================
@@ -2535,6 +2541,11 @@ def cmd_publish(args):
     if failed and not args.dry:
         print("\n失败 %d 条：%s" % (len(failed), " ".join(failed)))
         print("（每条的四态结论见上；MISSING 只能重建，RATE_LIMIT 等几分钟重跑）")
+        # ⚠ 失败必须退非零（2026-10-21 修）：此前失败只打印，进程退码 0，
+        #    publish_multi 的 runner 只认退出码 ⇒ 什么都没存成也记
+        #    draft_saved，队列永不再发，只能靠远端对账才能发现。
+        #    与 B站 main 的 sys.exit(1)、公众号的 SystemExit(3) 同口径。
+        raise SystemExit(2)
 
 
 def _refresh_plan(box, only_case=None):
