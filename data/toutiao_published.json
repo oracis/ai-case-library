@@ -187,5 +187,12 @@
     "gid": "7693146865831657999",
     "evidence": "send_existing_draft",
     "verified_at": "2026-10-21 12:38"
+  },
+  {
+    "id": "magicslides-app",
+    "at": "2026-10-22 11:31",
+    "gid": "7693146329643500066",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-22 11:31"
   }
 ]
