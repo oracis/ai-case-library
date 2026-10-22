@@ -29,6 +29,9 @@
     CASE_LIB_AI_BASE    默认 https://open.bigmodel.cn/api/paas/v4（智谱）
     CASE_LIB_AI_MODEL   默认 glm-4-flash（免费档）
     CASE_LIB_ADMIN_PASSWORD   后台密码（写草稿/发布要登录 5053）
+    CASE_LIB_GOOGLE_KEY       Google CSE 项目 key（也可放 secrets.json 的 google_key）
+    CASE_LIB_GOOGLE_CX        Programmable Search Engine 的 cx（secrets.json: google_cx）
+    CASE_LIB_GOOGLE_PROXY     可选，单独给 CSE 用的代理（secrets.json: google_proxy）
 
     读取优先级：环境变量 > data/secrets.json > 上面这些默认值。
     ⚠ space-bunny-free（opencode.ai/zen）2026-10-11 起被上游封直连，已弃用；
@@ -50,7 +53,8 @@
 
 设计约束
 --------
-- 零依赖：只用标准库。检索用 Bing（国内可达）+ DuckDuckGo 兜底，
+- 零依赖：只用标准库。检索顺序 HN Algolia → Google CSE（需 key，见上）→
+  DuckDuckGo → cn.bing（默认关，`CASE_LIB_ALLOW_BING=1` 才开），
   抓正文用 html.parser 剥标签。
 - 不编造：prompt 只许依据抓回来的原文判断；来源 URL 必须来自检索结果。
 - 不过闸门不发布：发布走 server 的 /promote，规则引擎是唯一闸门，
@@ -514,14 +518,25 @@ def extract_json(text):
 # ---------------------------------------------------------------------------
 # 网络：抓页面 / 搜索（Bing 优先，国内可达；DDG 兜底）
 # ---------------------------------------------------------------------------
-def http_get(url, timeout=15, max_bytes=300000):
+def http_get(url, timeout=15, max_bytes=300000, proxy=None):
+    """GET 一个 URL 返回文本。`proxy` 只给个别通道用（见 search_google）。
+
+    默认走 urllib 的默认 opener，也就是吃环境里的 HTTPS_PROXY；传 proxy 时
+    换成只带这一个代理的 opener，不影响其它请求。
+    """
     req = urllib.request.Request(url, headers={
         "User-Agent": UA,
         "Accept": "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.5",
         "Accept-Language": "en-US,en;q=0.9,zh-CN;q=0.8",
         "Accept-Encoding": "identity",
     })
-    with urllib.request.urlopen(req, timeout=timeout) as r:
+    if proxy:
+        opener = urllib.request.build_opener(
+            urllib.request.ProxyHandler({"http": proxy, "https": proxy}))
+        r = opener.open(req, timeout=timeout)
+    else:
+        r = urllib.request.urlopen(req, timeout=timeout)
+    with r:
         return r.read(max_bytes).decode("utf-8", "replace")
 
 
@@ -591,6 +606,60 @@ def search_hn_algolia(q, n=5):
     return out
 
 
+# cn.bing 兜底开关（默认关）。本机出口对 google.com / googleapis.com 是断的，
+# 没配 CSE key 时它是唯一的通用搜索兜底，临时要用就设 CASE_LIB_ALLOW_BING=1。
+ALLOW_BING = os.environ.get("CASE_LIB_ALLOW_BING") == "1"
+
+
+def _google_cfg():
+    """CSE 凭据与代理：环境变量 > data/secrets.json（google_key / google_cx / google_proxy）。
+
+    为什么不只认环境变量：这台机器上的抓取任务多是后台/定时跑，环境变量得每次
+    手写；secrets.json 已经在用（ai_key 就在里面），key 放一处、不用改启动命令。
+    显式设成空串仍然赢（见 _cfg），方便临时停掉这条通道。
+    """
+    return (_cfg("CASE_LIB_GOOGLE_KEY", "google_key", "").strip(),
+            _cfg("CASE_LIB_GOOGLE_CX", "google_cx", "").strip(),
+            _cfg("CASE_LIB_GOOGLE_PROXY", "google_proxy", "").strip())
+
+
+def search_google(q, limit=6):
+    """Google Custom Search JSON API（需 key + cx）。
+
+    为什么加这一路、为什么它排在通用搜索的第一位：`search_bing` 打的是
+    **cn.bing**，实测对这类小众海外 SaaS 基本无效 —— 查 `gtm.help` 返回的是
+    知乎、MC 百科、搜狐；查 `AEO Checker` 返回百度百科的「AEO 认证」与海关
+    总署页面。也就是说中文区的 Bing 索引里根本没有这些产品，拿它兜底等于
+    没有兜底。
+
+    配置（缺 key/cx 就整条通道停用，不会发半截请求）：
+        CASE_LIB_GOOGLE_KEY / secrets.json 的 google_key   项目 API key
+        CASE_LIB_GOOGLE_CX  / secrets.json 的 google_cx    Programmable Search 的 cx
+        CASE_LIB_GOOGLE_PROXY（可选）                      单独为 CSE 指定代理
+
+    ⚠ 2026-10-21 实测：`www.googleapis.com` 直连 000、走本机 1792 代理 000、
+    走 Shadowsocks 10808（PID 14792，端口在监听）也 000。**key 齐了也要有能
+    出 Google 的代理**，否则这里只会拿到超时。所以留了 google_proxy 这一项：
+    修好节点后把它指过去，不用动全局 HTTPS_PROXY（全局改了会影响 cn.bing /
+    官网抓取——那些本来是通的）。
+
+    免费额度 100 次/日，正好够「每天新增候选 + 少量补证」的用量。
+    """
+    key, cx, proxy = _google_cfg()
+    if not (key and cx):
+        return []
+    url = ("https://www.googleapis.com/customsearch/v1?key=%s&cx=%s&q=%s&num=%d"
+           % (urllib.parse.quote(key), urllib.parse.quote(cx),
+              urllib.parse.quote(q), min(10, max(1, limit))))
+    data = json.loads(http_get(url, timeout=15, proxy=proxy or None))
+    out = []
+    for it in data.get("items") or []:
+        link = (it.get("link") or "").strip()
+        if link.startswith("http"):
+            out.append(link)
+    return out
+
+
 def search_bing(q):
     page = http_get("https://cn.bing.com/search?q=%s&count=15" % urllib.parse.quote(q),
                     timeout=12)
@@ -615,15 +684,27 @@ def search_ddg(q):
 
 
 def search(q, per_query=6):
-    """返回去重后的 URL 列表。HN Algolia 当补充证据源排最前，两个通用引擎挂了就空着走。
+    """返回去重后的 URL 列表。HN Algolia 当补充证据源排最前。
 
-    顺序：HN Algolia（讨论页 + 外链）→ cn.bing → DuckDuckGo。
-    HN 最多贡献 3 条，给后面的通用搜索留名额 —— 它查不到官网，
-    不能把 bing 挤掉（否则小众产品会完全搜不到）。
+    顺序（2026-10-21 改）：HN Algolia → **Google CSE** → DuckDuckGo →
+    cn.bing（默认关闭）。
+
+    改的原因：cn.bing 对这批案例库的目标（海外小体量 SaaS）实测是负收益 ——
+    查 `gtm.help` 回来的是知乎/MC 百科/搜狐，查 `AEO Checker` 回来的是百度
+    百科的「AEO 认证」和海关总署。中文区索引里没这些产品，它占着名额却
+    抓不到东西，还把这些垃圾喂进后续的页面抓取与 AI 判断。
+
+    Bing 仍保留但**默认不调用**：本机出口对 google.com / googleapis.com 是断的，
+    没有 CSE key 时它就是唯一的通用搜索兜底，临时要用设
+    `CASE_LIB_ALLOW_BING=1`。
+
+    HN 最多贡献 3 条，给后面的通用搜索留名额 —— 它查不到官网。
     """
     urls = []
-    for fn, cap in ((search_hn_algolia, 3), (search_bing, per_query),
-                   (search_ddg, per_query)):
+    backends = [(search_hn_algolia, 3), (search_google, per_query), (search_ddg, per_query)]
+    if ALLOW_BING:
+        backends.append((search_bing, per_query))
+    for fn, cap in backends:
         try:
             urls += fn(q)[:cap]
         except Exception:                                     # noqa: BLE001
@@ -896,10 +977,13 @@ SYSTEM_PROMPT = """你是「拆解海外」案例库的核实研究员。给你�
    拿不准就填 "unknown" —— 别填 false，也别为了让候选通过而凑一个 yes。
    "no" 是有分量的：三道里一道都没成立、却有明确反证时，这条会被判不进库。
 3. 来源 URL 只能用原文段里出现的，禁止编造。
-4. 收入口径是重点：分清 MRR / ARR / run-rate / 累计收入 / 平台流水(GMV) / 毛利 / 近30天流水。
+4. 收入口径是重点：分清 MRR / ARR / run-rate / 累计收入 / 年度收入 / 平台流水(GMV) /
+   毛利 / 近30天流水。
    「累计收入被当年化」「平台流水被当收入」是这个库踩过的真实坑。
    非订阅制生意（买断/用量/一次性入账）的门面数字是 TrustMRR 直读的近 30 天
    已验证收入 —— 选 last_30d，不要硬套 MRR（它不是经常性收入）。
+   「按自然年合计的已发生收入」（如「2025 全年 $1.03M」）选 annual：它既不是
+   ARR（前瞻值）、也不是 lifetime（跨年累计）、更不是 run-rate（某月×12 的估计）。
 5. 原文摘录太短、不足以支撑判断的项，一律 unknown 并在 evidence 里说明缺什么。
 6. sources 里的 kind 按「这条来源**凭什么可信**」来填，不要按站点名气：
    stripe    = 支付网关侧的验证数据。**TrustMRR 的收入页就属于这一类** ——
@@ -918,7 +1002,7 @@ SYSTEM_PROMPT = """你是「拆解海外」案例库的核实研究员。给你�
  "is_business": "yes|no|unknown", "is_business_evidence": "str",
  "solo_possible": "yes|no|unknown", "solo_possible_evidence": "str",
  "verification": "stripe|official|partial|founder|disputed",
- "caliber": "arr|mrr|run_rate|lifetime|gmv|gross|last_30d",
+ "caliber": "arr|mrr|run_rate|lifetime|annual|gmv|gross|last_30d",
  "caliber_reason": "str", "caliber_consistent": bool,
  "number": "写进库的那个数字，带 $ 与单位",
  "sources": [{"label":"str","url":"str","kind":"stripe|official|press|review|founder|secondary"}],
