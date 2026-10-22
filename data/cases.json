@@ -7144,6 +7144,17 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
+    },
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "https://gtm.help/",
+        "status": 200,
+        "title": "gtm.help: AI Go-To-Market &amp; Daily Growth for Startups",
+        "pricing": true
+      },
+      "third_party": [],
+      "verdict": "self_only"
     }
   },
   {
@@ -8867,6 +8878,17 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
+    },
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "https://www.aeochecker.ai/",
+        "status": 200,
+        "title": "AEO Checker - Free Answer Engine Optimization and Generative Engine Optimization",
+        "pricing": true
+      },
+      "third_party": [],
+      "verdict": "self_only"
     }
   },
   {
@@ -9386,6 +9408,17 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
+    },
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "",
+        "status": 0,
+        "title": null,
+        "pricing": null
+      },
+      "third_party": [],
+      "verdict": "unreachable"
     }
   },
   {
@@ -13542,6 +13575,11 @@
         "label": "TrustMRR profile",
         "url": "https://trustmrr.com/startup/ad-machine",
         "kind": "official"
+      },
+      {
+        "kind": "official",
+        "label": "App Store 在架：Ad Machine 由 Sparky Art House, LLC 发布，版本 1.0.1，更新于 2026-10-13",
+        "url": "https://apps.apple.com/us/app/ad-machine/id6774393889?uo=4"
       }
     ],
     "published_from": "ad-machine",
@@ -13615,6 +13653,23 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
+    },
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "https://admachine.xyz/",
+        "status": 200,
+        "title": "The Ad Machine | Infinite Creative Studio",
+        "pricing": true
+      },
+      "third_party": [
+        {
+          "kind": "appstore",
+          "url": "https://apps.apple.com/us/app/ad-machine/id6774393889?uo=4",
+          "evidence": "App Store 在架：Ad Machine 由 Sparky Art House, LLC 发布，版本 1.0.1，更新于 2026-10-13"
+        }
+      ],
+      "verdict": "third_party"
     }
   },
   {
@@ -16926,6 +16981,17 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
+    },
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "https://www.advancedgsc.com/mcp",
+        "status": 200,
+        "title": "Google Search Console &amp; Google Analytics MCP Server: No Install, Always On",
+        "pricing": true
+      },
+      "third_party": [],
+      "verdict": "self_only"
     }
   },
   {
@@ -18111,6 +18177,17 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
+    },
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "https://www.3d-agent.com/",
+        "status": 200,
+        "title": "3D-Agent | Blender AI Plugin for 3D Modeling",
+        "pricing": true
+      },
+      "third_party": [],
+      "verdict": "self_only"
     }
   },
   {
@@ -18245,6 +18322,17 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
+    },
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "https://trustmrr.com/founder/piprocket",
+        "status": 200,
+        "title": "Aby (@piprocket) - 7 startups · $2,461,748 revenue | TrustMRR",
+        "pricing": false
+      },
+      "third_party": [],
+      "verdict": "self_only"
     }
   },
   {
@@ -19830,6 +19918,17 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
+    },
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "",
+        "status": 0,
+        "title": null,
+        "pricing": null
+      },
+      "third_party": [],
+      "verdict": "unreachable"
     }
   },
   {
@@ -20621,6 +20720,17 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
+    },
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "https://www.aidesigner.ai/",
+        "status": 200,
+        "title": "AIDesigner | AI Designer for UI, Brands &amp; Visual Assets",
+        "pricing": true
+      },
+      "third_party": [],
+      "verdict": "self_only"
     }
   },
   {
@@ -21282,6 +21392,17 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
+    },
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "https://www.buy-id-verified-account/",
+        "status": 0,
+        "title": null,
+        "pricing": null
+      },
+      "third_party": [],
+      "verdict": "unreachable"
     }
   },
   {
@@ -21407,6 +21528,17 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
+    },
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "",
+        "status": 0,
+        "title": null,
+        "pricing": null
+      },
+      "third_party": [],
+      "verdict": "unreachable"
     }
   },
   {
@@ -21530,6 +21662,17 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
+    },
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "",
+        "status": 0,
+        "title": null,
+        "pricing": null
+      },
+      "third_party": [],
+      "verdict": "unreachable"
     }
   },
   {
@@ -21655,6 +21798,17 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
+    },
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "https://www.linkedin.com/company/42827803",
+        "status": 0,
+        "title": null,
+        "pricing": null
+      },
+      "third_party": [],
+      "verdict": "unreachable"
     }
   },
   {
@@ -21914,6 +22068,17 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
+    },
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "https://acquirecommunity.com/",
+        "status": 200,
+        "title": "Acquire Community | Private community acquisitions",
+        "pricing": false
+      },
+      "third_party": [],
+      "verdict": "self_only"
     }
   },
   {
@@ -22181,6 +22346,17 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
+    },
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "https://www.getadelante.com/",
+        "status": 0,
+        "title": null,
+        "pricing": null
+      },
+      "third_party": [],
+      "verdict": "unreachable"
     }
   },
   {
@@ -22449,6 +22625,17 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
+    },
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "https://www.analyticsmates.com/",
+        "status": 200,
+        "title": "Analytics Mates | Measurement Operations for GA4 &amp; Paid Media",
+        "pricing": true
+      },
+      "third_party": [],
+      "verdict": "self_only"
     }
   },
   {
@@ -23146,6 +23333,17 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
+    },
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "https://humanizeaitext.ai/",
+        "status": 200,
+        "title": "Humanize AI: Guaranteed 100% Human Score &amp; Unlimited Free Words",
+        "pricing": true
+      },
+      "third_party": [],
+      "verdict": "self_only"
     }
   },
   {
@@ -23205,6 +23403,11 @@
         "label": "TrustMRR",
         "url": "https://trustmrr.com/startup/abmaxx.md",
         "kind": "official"
+      },
+      {
+        "kind": "official",
+        "label": "TrustMRR 登记的官网即 App Store 在架页（apps.apple.com）",
+        "url": "https://apps.apple.com/app/id6757769125"
       }
     ],
     "published_from": "abmaxx",
@@ -23278,6 +23481,23 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
+    },
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "https://apps.apple.com/app/id6757769125",
+        "status": 200,
+        "title": "‎iPhone 版“Today” - App Store",
+        "pricing": false
+      },
+      "third_party": [
+        {
+          "kind": "appstore",
+          "url": "https://apps.apple.com/app/id6757769125",
+          "evidence": "TrustMRR 登记的官网即 App Store 在架页（apps.apple.com）"
+        }
+      ],
+      "verdict": "third_party"
     }
   },
   {
@@ -23608,6 +23828,11 @@
         "label": "TrustMRR",
         "url": "https://trustmrr.com/startup/corsidia.md",
         "kind": "official"
+      },
+      {
+        "kind": "secondary",
+        "label": "GitHub 仓库 Corsidia/it_cookie_law（★14，最近推送 2021-10-14，仓库主页指向 https://corsidia.com",
+        "url": "https://github.com/Corsidia/it_cookie_law"
       }
     ],
     "published_from": "corsidia",
@@ -23681,6 +23906,23 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
+    },
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "https://corsidia.com/",
+        "status": 0,
+        "title": null,
+        "pricing": null
+      },
+      "third_party": [
+        {
+          "kind": "github",
+          "url": "https://github.com/Corsidia/it_cookie_law",
+          "evidence": "GitHub 仓库 Corsidia/it_cookie_law（★14，最近推送 2021-10-14，仓库主页指向 https://corsidia.com/materia/web-design/webmaster-tutorial/privacy-e-cookie-law）"
+        }
+      ],
+      "verdict": "third_party"
     }
   },
   {
@@ -23810,6 +24052,17 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
+    },
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "https://avenueticket.com/",
+        "status": 200,
+        "title": "Avenue Ticketing | Discover Events Near You",
+        "pricing": false
+      },
+      "third_party": [],
+      "verdict": "self_only"
     }
   },
   {
@@ -23941,6 +24194,17 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
+    },
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "https://autocontentapi.com/",
+        "status": 200,
+        "title": "Content Generation API for Audio, Video &amp; Visuals | AutoContent API",
+        "pricing": true
+      },
+      "third_party": [],
+      "verdict": "self_only"
     }
   },
   {
@@ -23999,6 +24263,16 @@
         "label": "TrustMRR",
         "url": "https://trustmrr.com/startup/chessigma.md",
         "kind": "official"
+      },
+      {
+        "kind": "official",
+        "label": "App Store 在架：Chessigma 由 ARCHE LABS LTD 发布，版本 2.0.0，更新于 2026-10-05",
+        "url": "https://apps.apple.com/us/app/chessigma/id6791621546?uo=4"
+      },
+      {
+        "kind": "secondary",
+        "label": "GitHub 仓库 mehdi-bh/chessigma-mcp（★0，最近推送 2026-10-02，仓库主页指向 https://www.chessigma",
+        "url": "https://github.com/mehdi-bh/chessigma-mcp"
       }
     ],
     "published_from": "chessigma",
@@ -24072,6 +24346,28 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
+    },
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "https://www.chessigma.com/",
+        "status": 200,
+        "title": "Chessigma – Free Unlimited Chess Game Analysis &amp; Reports",
+        "pricing": true
+      },
+      "third_party": [
+        {
+          "kind": "appstore",
+          "url": "https://apps.apple.com/us/app/chessigma/id6791621546?uo=4",
+          "evidence": "App Store 在架：Chessigma 由 ARCHE LABS LTD 发布，版本 2.0.0，更新于 2026-10-05"
+        },
+        {
+          "kind": "github",
+          "url": "https://github.com/mehdi-bh/chessigma-mcp",
+          "evidence": "GitHub 仓库 mehdi-bh/chessigma-mcp（★0，最近推送 2026-10-02，仓库主页指向 https://www.chessigma.com/developers/mcp）"
+        }
+      ],
+      "verdict": "third_party"
     }
   },
   {
@@ -24339,6 +24635,17 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
+    },
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "https://ai-toolbox.co/",
+        "status": 200,
+        "title": "AI Toolbox, One Extension for ChatGPT, Claude, Gemini, Grok",
+        "pricing": true
+      },
+      "third_party": [],
+      "verdict": "self_only"
     }
   },
   {
@@ -24606,6 +24913,17 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
+    },
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "https://angelmatch.io/",
+        "status": 0,
+        "title": null,
+        "pricing": null
+      },
+      "third_party": [],
+      "verdict": "unreachable"
     }
   },
   {
@@ -25014,6 +25332,17 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
+    },
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "https://www.applyall.com/",
+        "status": 200,
+        "title": "ApplyAll | Real Interviews or Your Money Back",
+        "pricing": true
+      },
+      "third_party": [],
+      "verdict": "self_only"
     }
   },
   {
@@ -25072,6 +25401,11 @@
         "label": "TrustMRR",
         "url": "https://trustmrr.com/startup/audn-ai.md",
         "kind": "official"
+      },
+      {
+        "kind": "secondary",
+        "label": "GitHub 仓库 audn-ai/skills（★8，最近推送 2026-04-13，仓库主页指向 https://audn.ai）",
+        "url": "https://github.com/audn-ai/skills"
       }
     ],
     "published_from": "audn-ai",
@@ -25145,6 +25479,23 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
+    },
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "https://www.audn.ai/",
+        "status": 200,
+        "title": "Audn.AI",
+        "pricing": true
+      },
+      "third_party": [
+        {
+          "kind": "github",
+          "url": "https://github.com/audn-ai/skills",
+          "evidence": "GitHub 仓库 audn-ai/skills（★8，最近推送 2026-04-13，仓库主页指向 https://audn.ai）"
+        }
+      ],
+      "verdict": "third_party"
     }
   },
   {
@@ -25422,6 +25773,17 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
+    },
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "https://apiframe.ai/",
+        "status": 200,
+        "title": "AI Image, Music & Video Generation API – Apiframe",
+        "pricing": true
+      },
+      "third_party": [],
+      "verdict": "self_only"
     }
   },
   {
@@ -25616,6 +25978,11 @@
         "label": "TrustMRR page",
         "url": "https://trustmrr.com/startup/brawler.md",
         "kind": "official"
+      },
+      {
+        "kind": "official",
+        "label": "TrustMRR 登记的官网即 App Store 在架页（apps.apple.com）",
+        "url": "https://apps.apple.com/app/id6760366949"
       }
     ],
     "published_from": "brawler",
@@ -25689,6 +26056,23 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
+    },
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "https://apps.apple.com/app/id6760366949",
+        "status": 200,
+        "title": "‎iPhone 版“Today” - App Store",
+        "pricing": false
+      },
+      "third_party": [
+        {
+          "kind": "appstore",
+          "url": "https://apps.apple.com/app/id6760366949",
+          "evidence": "TrustMRR 登记的官网即 App Store 在架页（apps.apple.com）"
+        }
+      ],
+      "verdict": "third_party"
     }
   },
   {
@@ -26060,6 +26444,11 @@
         "label": "TrustMRR",
         "url": "https://trustmrr.com/startup/nutria-9e3eaa.md",
         "kind": "official"
+      },
+      {
+        "kind": "official",
+        "label": "TrustMRR 登记的官网即 App Store 在架页（apps.apple.com）",
+        "url": "https://apps.apple.com/us/app/calyra-ai-calorie-tracker/id6748324995?uo=4"
       }
     ],
     "published_from": "nutria-9e3eaa",
@@ -26146,7 +26535,24 @@
       "threshold": 70.0,
       "scored_at": "2026-10-15"
     },
-    "cover_desc": "AI 卡路里追踪应用，拍照记录饮食与运动"
+    "cover_desc": "AI 卡路里追踪应用，拍照记录饮食与运动",
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "https://apps.apple.com/us/app/calyra-ai-calorie-tracker/id6748324995?uo=4",
+        "status": 200,
+        "title": "‎iPhone 版“Today” - App Store",
+        "pricing": false
+      },
+      "third_party": [
+        {
+          "kind": "appstore",
+          "url": "https://apps.apple.com/us/app/calyra-ai-calorie-tracker/id6748324995?uo=4",
+          "evidence": "TrustMRR 登记的官网即 App Store 在架页（apps.apple.com）"
+        }
+      ],
+      "verdict": "third_party"
+    }
   },
   {
     "id": "fastwrite-io",
@@ -26444,6 +26850,17 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
+    },
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "https://downconvert-sketchup-files.com/",
+        "status": 200,
+        "title": "SketchUp Converter Online – Open Newer .SKP Files Free",
+        "pricing": true
+      },
+      "third_party": [],
+      "verdict": "self_only"
     }
   },
   {
@@ -26652,6 +27069,11 @@
         "label": "TrustMRR",
         "url": "https://trustmrr.com/startup/growingupvideo.md",
         "kind": "official"
+      },
+      {
+        "kind": "secondary",
+        "label": "GitHub 仓库 GrowingUpVideo/growingupvideo-mcp（★0，最近推送 2026-09-28，仓库主页指向 https://gr",
+        "url": "https://github.com/GrowingUpVideo/growingupvideo-mcp"
       }
     ],
     "published_from": "growingupvideo",
@@ -26737,6 +27159,23 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
+    },
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "https://growingupvideo.com/",
+        "status": 0,
+        "title": null,
+        "pricing": null
+      },
+      "third_party": [
+        {
+          "kind": "github",
+          "url": "https://github.com/GrowingUpVideo/growingupvideo-mcp",
+          "evidence": "GitHub 仓库 GrowingUpVideo/growingupvideo-mcp（★0，最近推送 2026-09-28，仓库主页指向 https://growingupvideo.com）"
+        }
+      ],
+      "verdict": "third_party"
     }
   },
   {
@@ -27484,6 +27923,17 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
+    },
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "",
+        "status": 0,
+        "title": null,
+        "pricing": null
+      },
+      "third_party": [],
+      "verdict": "unreachable"
     }
   },
   {
@@ -27629,6 +28079,17 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-15"
+    },
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "https://quotedeck.app/",
+        "status": 0,
+        "title": null,
+        "pricing": null
+      },
+      "third_party": [],
+      "verdict": "unreachable"
     }
   },
   {
@@ -29395,7 +29856,18 @@
       "用户推荐",
       "在线广告"
     ],
-    "founder": "未公开"
+    "founder": "未公开",
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "https://mortit.com/",
+        "status": 200,
+        "title": "MORT - AI Job Search: Tailored Resumes, Matching &amp; Interview Prep",
+        "pricing": true
+      },
+      "third_party": [],
+      "verdict": "self_only"
+    }
   },
   {
     "caliber": "mrr",
@@ -31571,7 +32043,8 @@
       "合作伙伴推荐",
       "B2B 网络营销"
     ],
-    "founder": "未公开"
+    "founder": "未公开",
+    "caliber": "arr"
   },
   {
     "category": "垂直行业 SaaS",
@@ -31720,7 +32193,8 @@
       "合作伙伴推荐",
       "口碑传播"
     ],
-    "founder": "个人独立开发者"
+    "founder": "个人独立开发者",
+    "caliber": "arr"
   },
   {
     "category": "垂直行业 SaaS",
@@ -31880,7 +32354,8 @@
       "B2B 合作伙伴推荐",
       "专业展会"
     ],
-    "founder": "未公开"
+    "founder": "未公开",
+    "caliber": "arr"
   },
   {
     "category": "企业服务",
@@ -32041,7 +32516,8 @@
       "行业展会"
     ],
     "founder": "未公开",
-    "cover_desc": "Slack/Teams AI同事，跨系统工作助手"
+    "cover_desc": "Slack/Teams AI同事，跨系统工作助手",
+    "caliber": "run_rate"
   },
   {
     "category": "AI 工具",
@@ -32204,7 +32680,8 @@
       "合作伙伴推荐"
     ],
     "founder": "未公开",
-    "cover_desc": "文档变客服，30分钟见效益"
+    "cover_desc": "文档变客服，30分钟见效益",
+    "caliber": "arr"
   },
   {
     "category": "AI 工具",
@@ -32349,7 +32826,8 @@
       "企业采购渠道",
       "行业会议宣传"
     ],
-    "founder": "未公开"
+    "founder": "未公开",
+    "caliber": "mrr"
   },
   {
     "category": "营销工具",
@@ -32501,7 +32979,8 @@
       "月订阅服务",
       "数据分析"
     ],
-    "founder": "未公开"
+    "founder": "未公开",
+    "caliber": "mrr"
   },
   {
     "category": "开发者工具",
@@ -32652,7 +33131,8 @@
       "开发者邮件列表",
       "同行推荐"
     ],
-    "founder": "个人独立开发者"
+    "founder": "个人独立开发者",
+    "caliber": "lifetime"
   },
   {
     "category": "交易市场",
@@ -32801,7 +33281,8 @@
       "Startup Signals 数据库订阅"
     ],
     "founder": "未公开",
-    "cover_desc": "收入数据验证平台，助创业公司交易"
+    "cover_desc": "收入数据验证平台，助创业公司交易",
+    "caliber": "last_30d"
   },
   {
     "category": "企业服务",
@@ -32952,7 +33433,8 @@
       "B2B搜索引擎营销"
     ],
     "founder": "未公开",
-    "cover_desc": "合规审计，六个月流程压到几周"
+    "cover_desc": "合规审计，六个月流程压到几周",
+    "caliber": "last_30d"
   },
   {
     "category": "营销工具",
@@ -33097,7 +33579,8 @@
       "行业会议"
     ],
     "founder": "未公开",
-    "cover_desc": "AI问答营销工具，让品牌在AI答案中被提及"
+    "cover_desc": "AI问答营销工具，让品牌在AI答案中被提及",
+    "caliber": "mrr"
   },
   {
     "category": "AI 工具",
@@ -33244,7 +33727,8 @@
       "专业博客文章"
     ],
     "founder": "未公开",
-    "cover_desc": "AI自动化接单助手，解放自由职业者"
+    "cover_desc": "AI自动化接单助手，解放自由职业者",
+    "caliber": "mrr"
   },
   {
     "category": "AI 工具",
@@ -33394,7 +33878,8 @@
       "B2B 网络研讨会"
     ],
     "founder": "未公开",
-    "cover_desc": "上传商品图，3 分钟出投放广告素材"
+    "cover_desc": "上传商品图，3 分钟出投放广告素材",
+    "caliber": "mrr"
   },
   {
     "category": "AI 工具",
@@ -33530,7 +34015,8 @@
       "行业展会和研讨会",
       "合作伙伴关系"
     ],
-    "founder": "未公开"
+    "founder": "未公开",
+    "caliber": "mrr"
   },
   {
     "category": "开发者工具",
@@ -33666,7 +34152,8 @@
       "开发者博客推荐",
       "技术会议宣传"
     ],
-    "founder": "未公开"
+    "founder": "未公开",
+    "caliber": "lifetime"
   },
   {
     "category": "AI 工具",
@@ -33808,7 +34295,8 @@
       "月订阅模式宣传",
       "行业媒体报道"
     ],
-    "founder": "未公开"
+    "founder": "未公开",
+    "caliber": "mrr"
   },
   {
     "category": "营销工具",
@@ -33952,7 +34440,8 @@
       "AI生成个性化内容吸引"
     ],
     "founder": "未公开",
-    "cover_desc": "AI线索管理，助力营销高效触达"
+    "cover_desc": "AI线索管理，助力营销高效触达",
+    "caliber": "mrr"
   },
   {
     "category": "开发者工具",
@@ -34097,7 +34586,8 @@
       "在线搜索"
     ],
     "founder": "未公开",
-    "cover_desc": "部署托管开源 AI agent，卖配置服务"
+    "cover_desc": "部署托管开源 AI agent，卖配置服务",
+    "caliber": "mrr"
   },
   {
     "category": "开发者工具",
@@ -34241,7 +34731,8 @@
       "开发者社区推荐"
     ],
     "founder": "未公开",
-    "cover_desc": "不配 API key 就托管一个 agent"
+    "cover_desc": "不配 API key 就托管一个 agent",
+    "caliber": "mrr"
   },
   {
     "category": "营销工具",
@@ -34384,7 +34875,8 @@
       "合作伙伴推荐",
       "付费广告"
     ],
-    "founder": "未公开"
+    "founder": "未公开",
+    "caliber": "mrr"
   },
   {
     "category": "组合策略",
@@ -34536,7 +35028,8 @@
       "合作伙伴推荐",
       "搜索引擎优化"
     ],
-    "founder": "未公开"
+    "founder": "未公开",
+    "caliber": "annual"
   },
   {
     "category": "垂直行业 SaaS",
@@ -34678,7 +35171,18 @@
       "专业论坛合作"
     ],
     "founder": "未公开",
-    "cover_desc": "电商打假，全网监控仿货并下架"
+    "cover_desc": "电商打假，全网监控仿货并下架",
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "",
+        "status": 0,
+        "title": null,
+        "pricing": null
+      },
+      "third_party": [],
+      "verdict": "unreachable"
+    }
   },
   {
     "category": "垂直行业 SaaS",
@@ -34792,6 +35296,11 @@
         "kind": "stripe",
         "label": "TrustMRR 榜单快照",
         "url": "http://trustmrr.com/"
+      },
+      {
+        "kind": "official",
+        "label": "App Store 在架：Kibu Mobile 由 HomeField US Inc 发布，版本 5.6.0，更新于 2026-10-08",
+        "url": "https://apps.apple.com/us/app/kibu-mobile/id6739316079?uo=4"
       }
     ],
     "status": "curated",
@@ -34820,7 +35329,25 @@
       "专业论坛",
       "行业合作伙伴推荐"
     ],
-    "founder": "未公开"
+    "founder": "未公开",
+    "caliber": "mrr",
+    "independent_check": {
+      "checked_at": "2026-10-21",
+      "site": {
+        "url": "https://kibu.com/",
+        "status": 200,
+        "title": "Kibu - Focus on Excellent Service. We Handle The Rest.",
+        "pricing": false
+      },
+      "third_party": [
+        {
+          "kind": "appstore",
+          "url": "https://apps.apple.com/us/app/kibu-mobile/id6739316079?uo=4",
+          "evidence": "App Store 在架：Kibu Mobile 由 HomeField US Inc 发布，版本 5.6.0，更新于 2026-10-08"
+        }
+      ],
+      "verdict": "third_party"
+    }
   },
   {
     "category": "组合策略",
@@ -34959,6 +35486,7 @@
       "合作伙伴推荐",
       "社交媒体互动"
     ],
-    "founder": "Pieter Levels"
+    "founder": "Pieter Levels",
+    "caliber": "mrr"
   }
 ]

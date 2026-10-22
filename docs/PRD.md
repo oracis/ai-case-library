@@ -1,10 +1,11 @@
 # 拆解海外 · Overseas Teardowns — 产品设计文档（PRD）
 
-> 版本：**v3.1**　日期：**2026-10-21**　状态：**现行**（上一版 v3.0 / 2026-10-18）
+> 版本：**v3.2**　日期：**2026-10-21**　状态：**现行**（上一版 v3.1 / 2026-10-21）
 > 适用仓库：`oracis/ai-case-library`　线上：https://case.ydtgo.top
 > 配套图：`docs/产品流程图.html`（同一份事实的可视化版本）
-> **v3.1 是工程加固版**：产品面与命令面无变化，改的是「采集→核验→入库→建站→上线」这条线的正确性与速度
-> （去重口径、空库护栏、部署并发、自检隔离），逐项见 §6.1。
+> **v3.2 是数据口径与来源补证版**：口径枚举新增第八项 `annual`（按自然年合计的已发生收入），
+> `caliber` 空缺 24 → 1 条；36 条「只有 TrustMRR 一条来源」的案例补了独立第二来源审计。
+> 新增脚本 `fill_caliber.py` / `independent_source.py`，逐项见 §6.1 第 10–12 行。
 > 本文描述的是**代码当前实际实现的状态**，不是设想。数据截至文首日期：
 > **案例 255 条 / 候选 1 条 / 采集队列 279 条 / 归档 1255 条**；四平台台账（2026-10-19 按远端逐条核对）：公众号 **60**（草稿 41 / 已发 19）、头条 **59**（草稿 38 / 已发 21）、B站 **11**、小红书 **52**（草稿 44 / 已发 8）。
 > 注意「条数 ≠ 篇数」：头条线上 23 篇 = 台账 21 条（bustem / cometly 各发新旧两篇）；B站线上 13 篇 = 台账 11 条（trustmrr / uplinked 各发新旧两篇）。旧篇标题记在 `note` 的『…』里，巡检认这个别名。
@@ -328,9 +329,9 @@ cases.json     精写库   人工核   255 条 ← 唯一写入口是 /api/candi
 | 10 | 案例 39 → **255**，候选 19 → 1，采集队列 400 → 280（v3.1 时 279）；`tier` 分布 premium 238 / standard 11 / backup 6 | 采集层五源改造 + 批量晋升 |
 | 11 | **公众号 API 结论复核**（2026-10-18）：订阅号文档区实测，草稿箱接口文档标 ✔ 但未认证个人号实测 48001；发布/群发仅认证企业主体 | 用户要求「再探测一次」；结论：CDP 仍是唯一通道 |
 
-### 6.1 v3.0 → v3.1（2026-10-21，工程加固）
+### 6.1 v3.0 → v3.2（2026-10-21，工程加固 + 口径/来源补证）
 
-产品面零变化，全部落在「拿数据 → 核 → 入库 → 建站 → 上线」这条线的正确性与速度上。每一条都在真实数据上复现过才动手。
+v3.1 的八条落在「拿数据 → 核 → 入库 → 建站 → 上线」这条线的正确性与速度上；v3.2 的四条落在**数字本身可不可引用**上。每一条都在真实数据上复现过才动手。
 
 | # | 变更 | 复现证据 / 动机 |
 |---|---|---|
@@ -343,6 +344,10 @@ cases.json     精写库   人工核   255 条 ← 唯一写入口是 /api/candi
 | 7 | **队列顺序统一**（`multiplatform/queue.py` 的 `newest_first`） | 头条/小红书 `pending_cases()` 用 `[::-1]` 而注释写「最新在前」，实际语义是反的；抽成单函数后两平台共用一套口径 |
 | 8 | **`make_article.money_scale` 口径修正** | 原取「所有 metrics 数字的最大值」，实测 215/255 条的最大数来自 `all_time`（累计），影响 `--top` 排序。改为只读 `mrr / last_30d_revenue / arr` 并统一年化 |
 | 9 | **`promote_to_candidates` 按分数选稿** | 空索引让 `duplicate_of` 三条判据成死代码（潜在洞，当前数据无行为差异）；`pick_targets()` 三个硬条件后按 score 降序、同分按 id 兜底 |
+| 10 | **`fill_caliber.py`：口径按证据补，不按猜** | 24 条缺 `caliber` 一直挂着 must。判据四级（note 明写 run-rate → headline 口径词 → 数字与 metrics/TrustMRR 档案互证 → note 措辞），否定句排除（checkvibe 的「不宜换算成 ARR」曾被误读成 arr）。写回 22 条：mrr +13、arr +4、last_30d +2、lifetime +2、run_rate +1；`test_fill_caliber.py` 19 项 |
+| 11 | **新增第八个口径 `annual`**（数据契约变更） | `marc-lou-portfolio` 门面数字是「2025 全年 $1,032,000」—— 按自然年合计的已发生收入，装不进 arr（前瞻）/ lifetime（跨年累计）/ run_rate（某月×12 的估计），硬塞等于把「已发生」写成「预计」。补齐后 `caliber` 空缺 24 → **1**（仅剩 bustem：榜单快照 + 档案 404，两解都成立）。同步改 `verify_rules.CALIBERS`、`verify.py` 清单、AI prompt 枚举、`miniprogram/utils/fmt.js`、`DATA_SCHEMA.md` |
+| 12 | **`independent_source.py`：36 条单来源案例补第二来源审计** | 全库 188/255 只有 2 条来源、其中 36 条只有 TrustMRR 一条。判据只用**实体锚点**（App Store `sellerUrl` / GitHub 仓库 `homepage` 与官网同域），关键词匹配不可用（实测 `mort`→真人快打、`angel-match`→猫咪消消乐）。结果：第三方确认 **9** / 仅自述 16 / 连不上 11，写回 10 条 `sources` + 36 条 `independent_check` |
+| 13 | **CSE 检索通道可配**（secrets.json + 独立代理） | cn.bing 对这批目标（海外小体量 SaaS）是负收益：`gtm.help` → 知乎/MC 百科/搜狐，`AEO Checker` → 百度百科「AEO 认证」+ 海关总署。改为 HN Algolia → Google CSE → DDG → cn.bing（默认关）。⚠ 2026-10-21 实测本机出口：`www.googleapis.com` 直连 000、走 1792 代理 000、走 Shadowsocks 10808 也 000 —— **key 齐了还需能出 Google 的代理**，故另设 `google_proxy` 单通道代理，不动全局 `HTTPS_PROXY`（那层一改，cn.bing 与官网抓取反而断） |
 
 ---
 
