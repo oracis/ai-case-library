@@ -7,6 +7,7 @@
  *   { id: 'xxx', full: true }  请求完整内容（付费字段；**服务端校验权益**）
  *   { ver: '123' } / {}        版本比对：相同返回 {changed:false}，
  *                              不同返回全量 FREE 字段（约 40KB，客户端缓存）
+ *   { subscribe: { email } }   M3 周报订阅（Web 落地页；格式校验 + 去重后入库）
  *
  * 🔴🔴 商业模式 2026-10-15 改为**内容收费**（原「内容免费」被证伪）：
  *   原来 34 个字段全在免费白名单里，其中包含 export-cases 要导出的
@@ -57,6 +58,23 @@ const PAID = {
 };
 
 exports.main = async (event) => {
+  // ---- M3 周报订阅（不要求登录态；Web 落地页匿名可调） ----
+  if (event.subscribe && event.subscribe.email) {
+    const email = String(event.subscribe.email).trim().toLowerCase();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || email.length > 200) {
+      return { errcode: 40002, errmsg: '邮箱格式不对' };
+    }
+    const coll = db.collection('subscribers');
+    const dup = await coll.where({ email: email }).count();
+    if (dup.total > 0) return { errcode: 0, subscribed: true, dedup: true };
+    await coll.add({ data: {
+      email: email,
+      source: 'web',            // 来源标记（web / miniprogram / import）
+      created_at: new Date().toISOString()
+    } });
+    return { errcode: 0, subscribed: true };
+  }
+
   // M2 双身份：小程序语境 = OPENID；Web SDK 语境 = CloudBase uid
   const caller = await resolveCaller(cloud);
   const ident = identOf(caller);
