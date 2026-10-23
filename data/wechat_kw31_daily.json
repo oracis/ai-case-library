@@ -1,0 +1,50 @@
+{
+  "2026-10-22": {
+    "keyword": "31",
+    "day": {
+      "present": false,
+      "exp_count": null,
+      "rank": null,
+      "total_keywords": 0
+    },
+    "rolling7": {
+      "present": false,
+      "exp_count": null,
+      "rank": null,
+      "total_keywords": 0
+    },
+    "fetched_at": "2026-10-23T11:13:25+08:00"
+  },
+  "2026-10-21": {
+    "keyword": "31",
+    "day": {
+      "present": false,
+      "exp_count": null,
+      "rank": null,
+      "total_keywords": 0
+    },
+    "rolling7": {
+      "present": false,
+      "exp_count": null,
+      "rank": null,
+      "total_keywords": 0
+    },
+    "fetched_at": "2026-10-23T01:37:01+08:00"
+  },
+  "2026-10-20": {
+    "keyword": "31",
+    "day": {
+      "present": false,
+      "exp_count": null,
+      "rank": null,
+      "total_keywords": 0
+    },
+    "rolling7": {
+      "present": false,
+      "exp_count": null,
+      "rank": null,
+      "total_keywords": 0
+    },
+    "fetched_at": "2026-10-23T01:37:15+08:00"
+  }
+}

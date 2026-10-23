@@ -69,6 +69,16 @@ CDP_PORT = int(os.environ.get("CDP_PORT", 9222))
 #⇒ 任何按appmsgid 找卡片的逻辑都必须先翻页，不能只查第 1 页。
 DRAFT_PAGE = 10
 
+# 独立稿（不属于 cases.json 的任何一篇）台账。与 wechat_published.json 分开记：
+# 那份台账的键是 case id，混进非案例会让 queue/sync/对账都把它当成「已发的案例」。
+STANDALONE_PATH = os.path.join(ROOT, "data", "wechat_standalone.json")
+
+# 封面角标覆盖。默认是「拆解海外 · 第 N 篇」；独立稿不是拆解栏目，用 --tag 换掉
+# （例：「万物解释者 · 数据特辑」）。None = 走原逻辑，case 流程完全不受影响。
+_COVER_TAG = None
+# 封面左上角英文角标。None = 「CASE STUDY」（拆解栏目原样）。
+_COVER_KICKER = None
+
 # ⚠ 代理污染防御：连 127.0.0.1 的 CDP 调试端口时，父进程继承的 http_proxy
 # （如 127.0.0.1:2662）会让 urllib 走代理、把 WS 掐成 10053。本模块被 50+ 脚本
 # import 当库用——import 时【绝不能】pop 掉调用方的 http_proxy（会误伤它们的外网
@@ -298,6 +308,9 @@ def pm_safe_body(html):
     # 表格微信不认，塌成段落
     html = re.sub(r"</?(table|thead|tbody|tr|colgroup)\b[^>]*>",
                   "", html, flags=re.I)
+    # <col> 是自闭合标签，上面那条（要求成对或独占的写法）漏掉它 ⇒ 会以裸标签
+    # 留在正文里被编辑器原样显示。2026-10-22 实测：4 列表格塌完仍剩 4 个 <col>。
+    html = re.sub(r"<col\b[^>]*/?>", "", html, flags=re.I)
     html = re.sub(r"<t[dh]\b[^>]*>", "<span>", html, flags=re.I)
     html = re.sub(r"</t[dh]>", "</span> ", html, flags=re.I)
     # class / id / data-* 微信不认，全清
@@ -618,12 +631,14 @@ def cover_html(c, no, w=1080, h=460):
        避免「大画布设计 + 被微信缩小」导致字号等效变小而发虚。
     4. 字号按实测字宽自适应，任意长度都不截断（截断比小字号更难看）。
     """
-    name = (c.get("name") or c.get("id") or "").strip()
+    # _cover_name 只给独立稿用：标题（64 字）常比封面上限长得多，硬塞会把字号
+    # 压到看不见。case 流程没有这个键，走的还是 c["name"]。
+    name = (c.get("_cover_name") or c.get("name") or c.get("id") or "").strip()
     # 2026-10-02：统一走cover_desc()，不再直接用 one_liner ——
     # one_liner 实测 4/39 内嵌金额（shipfast $199、outrank 月入 30 万…），
     # 且四平台口径必须一致（铁律：封面文案单一真理）。
     line = cover_desc(c)
-    tag = "拆解海外 · 第 %d 篇" % no
+    tag = _COVER_TAG or ("拆解海外 · 第 %d 篇" % no)
     theme = _cover_theme(c.get("id", ""), "wechat")
     base, band, ac = theme
 
@@ -641,6 +656,10 @@ def cover_html(c, no, w=1080, h=460):
         if line else ""
     )
 
+    # 左上角英文角标。默认 CASE STUDY（拆解栏目的既有视觉）；独立稿可用
+    # --cover-kicker 改成 DATA REPORT 之类，免得「数据特辑」顶着 CASE STUDY。
+    kicker = _COVER_KICKER or "CASE STUDY"
+
     body = (
         '<div style="position:relative;width:%dpx;height:%dpx;'
         "background:linear-gradient(100deg,%s 0%%,%s 63%%,%s 63%%,%s 100%%);"
@@ -657,7 +676,7 @@ def cover_html(c, no, w=1080, h=460):
         # 文字区
         '<div style="position:absolute;left:78px;top:104px;width:%dpx;">'
         '<div style="font-size:17px;font-weight:700;color:%s;'
-        'letter-spacing:6px;">CASE STUDY</div>'
+        "letter-spacing:6px;\">%s</div>"
         '<div id="t-name" style="font-size:%dpx;font-weight:800;color:#ffffff;'
         "line-height:1.1;margin-top:20px;overflow:hidden;"
         'text-overflow:ellipsis;white-space:nowrap;">%s</div>'
@@ -667,7 +686,7 @@ def cover_html(c, no, w=1080, h=460):
         'color:rgba(255,255,255,.72);letter-spacing:2px;">%s</div>'
         "</div>"
         % (w, h, base, band, band, band, ac, ac, ac,
-           _COVER_TEXT_W, ac, f_name, esc(name), line_block, tag)
+           _COVER_TEXT_W, ac, esc(kicker), f_name, esc(name), line_block, tag)
     )
     return (
         '<!doctype html><html><head><meta charset="utf-8">'
@@ -3080,11 +3099,11 @@ def _finish_status(cover_ok, declared):
     return "ok" if (cover_ok and declared) else "partial"
 
 
-def publish_one(cdp, c, art, dry=False, no=0):
+def publish_one(cdp, c, art, dry=False, no=0, summary_override=None):
     ex = extract_article(art)
     title = make_wechat_title(c)
     author = "万物解释者"
-    summary = ex["summary"] or c.get("one_liner", "")
+    summary = (summary_override or "").strip() or ex["summary"] or c.get("one_liner", "")
     body_html = pm_safe_body(ex["body_html"])
     print("\n→ %s — %s" % (c["id"], title))
     if dry:
@@ -3319,7 +3338,97 @@ def build_todo(all_cases, published, ready):
     return todo
 
 
+def _publish_standalone(args):
+    """独立稿：直接吃任意 HTML，不走 cases.json。
+
+    为什么单开一条分支而不是塞进 `--case`：`--case` 的语义是「这条案例」，
+    它会去 cases.json 找 id、算篇号、写 wechat_published.json。独立稿三样都
+    没有——硬塞会让 queue/sync 之后把它当成「已发的案例」，静默污染队列。
+
+    复用 publish_one 的全部实测过的步骤（填标题/摘要/正文、生成封面、上传、
+    设封面、保存草稿、原创声明、赞赏），只替换三处入参：
+      title → --title 或正文 h1
+      摘要  → --desc
+      封面角标 → --tag（默认「万物解释者」）
+    台账单独记 data/wechat_standalone.json。
+    """
+    global _COVER_TAG, _COVER_KICKER
+    path = args.file
+    if not os.path.isfile(path):
+        raise SystemExit("✗ 文件不存在：%s" % path)
+
+    ex = extract_article(path)
+    title = (getattr(args, "title", None) or ex.get("title") or "").strip()
+    if not title:
+        raise SystemExit("✗ 抽不到标题（正文里没有 h1），用 --title 指定")
+    if len(title) > 64:
+        print("[注意] 标题 %d 字 > 64 上限，已截断" % len(title))
+        title = title[:64]
+    desc = (getattr(args, "desc", None) or "").strip()
+    slug = getattr(args, "slug", None) or re.sub(
+        r"[^0-9A-Za-z\u4e00-\u9fa5]+", "-",
+        os.path.splitext(os.path.basename(path))[0]).strip("-")
+    _COVER_TAG = getattr(args, "tag", None) or "万物解释者"
+    _COVER_KICKER = (getattr(args, "cover_kicker", None) or "").strip() or None
+
+    cd_ = (getattr(args, "cover_desc", None) or "").strip()
+    c = {"id": slug, "name": title, "one_liner": "", "cover_desc": cd_ or desc}
+    cover_name = (getattr(args, "cover_name", None) or "").strip()
+    if cover_name:
+        c["_cover_name"] = cover_name
+    print("独立稿：%s" % path)
+    print("  slug = %s" % slug)
+    print("  标题 = %s（%d 字）" % (title, len(title)))
+    print("  摘要 = %s" % (desc or "（空，后台留空）"))
+    print("  封面角标 = %s" % _COVER_TAG)
+
+    if args.dry:
+        publish_one(None, c, path, dry=True, no=0, summary_override=desc)
+        return 0
+
+    _need("title")
+    _need("editor")
+    cdp = CDP(args.port)
+    try:
+        st = publish_one(cdp, c, path, dry=False, no=0, summary_override=desc)
+    finally:
+        # 不关整个浏览器：留着用户的登录窗口，方便直接去后台点群发。
+        if cdp.bws is not None:
+            try:
+                cdp.bws.close()
+            except Exception:
+                pass
+
+    status = st.get("status")
+    appmsgid = st.get("appmsgid")
+    if status not in ("ok", "partial"):
+        raise SystemExit(3)
+    sa = {}
+    if os.path.exists(STANDALONE_PATH):
+        with open(STANDALONE_PATH, encoding="utf-8") as f:
+            sa = json.load(f)
+    sa[slug] = {
+        "title": title,
+        "desc": desc,
+        "tag": _COVER_TAG,
+        "published_at": time.strftime("%Y-%m-%d %H:%M"),
+        "status": "draft" if status == "ok" else "partial",
+        "appmsgid": appmsgid,
+        "file": os.path.basename(path),
+    }
+    import atomicio
+    atomicio.write_json(STANDALONE_PATH, sa)
+    print("\n已记录到 %s" % os.path.relpath(STANDALONE_PATH, ROOT))
+    if status == "partial":
+        print("⚠ 草稿已建（appmsgid=%s）但收尾没做完（封面/原创），去后台补一下。" % appmsgid)
+        raise SystemExit(3)
+    print("✓ 草稿就绪 appmsgid=%s —— 群发仍需管理员扫码" % appmsgid)
+    return 0
+
+
 def cmd_publish(args):
+    if getattr(args, "file", None):
+        return _publish_standalone(args)
     all_cases = load_cases()
     issues = issue_registry(all_cases)
     published = load_published() if not args.dry else {}
@@ -5117,6 +5226,14 @@ def main():
     pp.add_argument("--port", type=int, default=CDP_PORT)
     pp.add_argument("--limit", type=int, default=0, help="只发前 N 条")
     pp.add_argument("--case", help="只发指定 case id（可覆盖已发记录重发）")
+    pp.add_argument("--file", help="独立稿模式：直接发这个 HTML（不走 cases.json）")
+    pp.add_argument("--title", help="独立稿标题（默认取正文 h1，上限 64 字）")
+    pp.add_argument("--desc", help="独立稿摘要（后台 120 字上限）")
+    pp.add_argument("--tag", help="独立稿封面角标（默认「万物解释者」）")
+    pp.add_argument("--cover-name", help="独立稿封面上行（默认同标题）")
+    pp.add_argument("--cover-kicker", help="封面左上角英文角标（默认 CASE STUDY）")
+    pp.add_argument("--cover-desc", help="独立稿封面第二行（默认同 --desc，建议压到 20 字内）")
+    pp.add_argument("--slug", help="独立稿台账键名（默认取文件名）")
     pp.add_argument("--dry", action="store_true", help="只打印计划不打开浏览器")
     pf = sub.add_parser("fix-cover", help="给已有草稿补封面（服务端 cover 为空的）")
     pf.add_argument("--port", type=int, default=CDP_PORT)
