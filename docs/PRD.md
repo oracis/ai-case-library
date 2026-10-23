@@ -350,6 +350,7 @@ v3.1 的八条落在「拿数据 → 核 → 入库 → 建站 → 上线」这�
 | 13 | **CSE 检索通道可配**（secrets.json + 独立代理） | cn.bing 对这批目标（海外小体量 SaaS）是负收益：`gtm.help` → 知乎/MC 百科/搜狐，`AEO Checker` → 百度百科「AEO 认证」+ 海关总署。改为 HN Algolia → Google CSE → DDG → cn.bing（默认关）。⚠ 2026-10-21 实测本机出口：`www.googleapis.com` 直连 000、走 1792 代理 000、走 Shadowsocks 10808 也 000 —— **key 齐了还需能出 Google 的代理**，故另设 `google_proxy` 单通道代理，不动全局 `HTTPS_PROXY`（那层一改，cn.bing 与官网抓取反而断） |
 | 14 | **云函数双身份（openid/uid），服务订阅站 Web 壳**（M2，配合新仓 `yuanjing-web`） | Web SDK callFunction 语境没有 OPENID，`getWXContext().OPENID` 为空 ⇒ 云函数无法识别 Web 用户。方案：`deliver.js`（四处同步，`verify_paywall.py` md5 守卫）新增 `resolveCaller()`——OPENID 优先，Web 语境走 `@cloudbase/node-sdk` 的 `getEndUserInfo` 拿 uid（**懒加载**，小程序路径永不 require，pay-order/pay-notify 不加该依赖）；`getEntitlements`/`deliver` 用户查询改 `_openid OR uid` 双查；`get-cases` 新增 `{bind_uid}`（仅小程序语境，把 Web 匿名 uid 绑进 users 文档，两端权益互通）。pay-order/pay-notify **不改**（下单身份来自 code2Session、发货身份来自订单记录）。回归 verify_paywall 13 项全过 |
 | 15 | **get-cases 新增 `{subscribe:{email}}` 周报订阅动作**（M3，配合 `yuanjing-web`） | 落地页表单需要持久化订阅者。**不走集合直写**（要给匿名用户开 subscribers 集合写权限，等于放垃圾注入进来）：云函数侧做格式校验（`^[^@\s]+@[^@\s]+\.[^@\s]+$`，≤200 字符）+ email 去重（where count）后写 `subscribers` 集合，字段 `{email, source, created_at}`。不要求登录态。`subscribers` 集合权限保持默认全关（仅管理端读写），云函数是唯一写入口 |
+| 16 | **export-cases 新增 `{filter:{tier,verification,quadrant}}` 服务端筛选**（M4，配合 `yuanjing-web`） | 订阅站导出页要筛选导出。为避免「下载全量再本地筛」造成筛选口径漂移，筛选放服务端：仅白名单三键，`'all'`/空 = 不过滤，非法值静默忽略；与 Web 端 `yuanjing-web/site/js/csv.js` 的 `applyFilter` 同语义（键变更两边同步）。权益硬校验不变（canReadFull 先于筛选执行，无权益直接 40301） |
 
 ---
 
