@@ -1,78 +1,78 @@
 {
-  "ran_at": "2026-10-22 05:40:26",
-  "added": 59,
+  "ran_at": "2026-10-23 05:39:41",
+  "added": 56,
   "by_source": {
-    "hn": 45,
+    "hn": 46,
     "indiehackers": 1,
-    "trustmrr": 13
+    "trustmrr": 9
   },
   "inbox_total": 400,
-  "archived_this_run": 59,
-  "archive_total": 900,
+  "archived_this_run": 56,
+  "archive_total": 956,
   "top": [
     {
-      "name": "INXANITY Labs — Browser Gaming & AI Modding Platform",
-      "headline": "近 30 天收入 $1,284",
+      "name": "Incoming Call",
+      "headline": "MRR $3,376，TrustMRR 第 1030 名",
       "heat": 0,
-      "category": "Community",
+      "category": "Entertainment",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/inxanity-labs"
+      "url": "https://trustmrr.com/startup/incoming-call"
     },
     {
-      "name": "Kaja AI",
-      "headline": "MRR $202，TrustMRR 第 5706 名",
-      "heat": 0,
-      "category": "AI 工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/kaja-ai"
-    },
-    {
-      "name": "Aarivi",
-      "headline": "近 30 天收入 $1,515",
+      "name": "PreLoved AI",
+      "headline": "近 30 天收入 $3,534",
       "heat": 0,
       "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/aarivi"
+      "url": "https://trustmrr.com/startup/preloved-ai"
     },
     {
-      "name": "kdpbook.io",
-      "headline": "近 30 天收入 $2,751",
+      "name": "Agent Media",
+      "headline": "近 30 天收入 $2,381",
       "heat": 0,
       "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/kdpbook"
+      "url": "https://trustmrr.com/startup/veloris-llc"
     },
     {
-      "name": "SnapHRM",
-      "headline": "近 30 天收入 $478",
+      "name": "Fairmoney: Loan & Debt Tracker",
+      "headline": "近 30 天收入 $127",
       "heat": 0,
-      "category": "企业服务",
+      "category": "垂直行业 SaaS",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/snaphrm"
+      "url": "https://trustmrr.com/startup/fairmoney-loan-debt-tracker"
     },
     {
-      "name": "MediaFast",
-      "headline": "自报收入 $7,000 / mo（Indie Hackers）",
+      "name": "Indiehunt",
+      "headline": "自报收入 $500 / mo（Indie Hackers）",
       "heat": 0,
       "category": "未分类",
       "source": "indiehackers",
-      "url": "https://www.indiehackers.com/product/mediafast-16"
+      "url": "https://www.indiehackers.com/product/indiehunt"
     },
     {
-      "name": "Cindy Molchany",
-      "headline": "近 30 天收入 $3,032",
-      "heat": 0,
-      "category": "AI 工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/cindy-molchany"
-    },
-    {
-      "name": "Shame HN",
+      "name": "From Eyeballs to ARR",
       "headline": "未获取",
       "heat": 2,
       "category": "未分类",
       "source": "hn",
-      "url": "https://news.ycombinator.com/item?id=50190665"
+      "url": "https://aswathdamodaran.substack.com/p/from-eyeballs-to-arr-buzzy-pricing"
+    },
+    {
+      "name": "CATT 0.2.1",
+      "headline": "未获取",
+      "heat": 7,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://github.com/Coverage-Cat/consumer-agent-testing-tool"
+    },
+    {
+      "name": "My vibecoded game got a glow up",
+      "headline": "未获取",
+      "heat": 6,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://tiberava.online"
     }
   ]
 }
