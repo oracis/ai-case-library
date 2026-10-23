@@ -304,11 +304,17 @@
   },
   "marc-lou-portfolio": {
     "title": "Marc Lou 的产品矩阵：三年发 25 个产品、12 个赚钱、1 个大成——靠「组合」而不是「单品」活着",
-    "published_at": "2026-09-21 23:52",
-    "status": "draft",
+    "published_at": "2026-10-23 15:54",
+    "status": "published",
     "appmsgid": "100000218",
     "file": "公众号-marc-lou-portfolio拆解.html",
-    "refreshed_at": "2026-10-17 17:11"
+    "refreshed_at": "2026-10-17 17:11",
+    "publish_type": "publish",
+    "published_appmsgid": "2247484626",
+    "sent_via": "send",
+    "send_reason": "已发表列表出现新记录，标题一致",
+    "note": "｜publish模式自动发表，新 appmsgid=2247484626",
+    "verified_at": "2026-10-23 15:54"
   },
   "bustem": {
     "title": "Bustem：帮电商品牌全网打假",
