@@ -39,5 +39,399 @@
       "capital": 1,
       "timing": 3
     }
+  },
+  {
+    "id": "plausible",
+    "name": "Plausible Analytics",
+    "name_en": "Plausible Analytics",
+    "origin": "爱沙尼亚（欧盟）",
+    "one_liner": "开源隐私友好的轻量网站分析，AGPL + 云托管订阅，自举三年做到 $1M ARR。",
+    "category": "analytics",
+    "models": [
+      "订阅制"
+    ],
+    "verification": "official",
+    "source_kind": "official",
+    "source_url": "https://plausible.io/blog/open-source-saas",
+    "website": "https://plausible.io",
+    "added_at": "2026-10-22",
+    "promoted_from_inbox": null,
+    "metrics": {
+      "headline": "ARR $1M（2022-06，官方口径）",
+      "caliber": "arr_self_disclosed",
+      "arr": 1000000,
+      "mrr": 83637,
+      "metric_note": "口径：ARR 为创始人 2022-06 官方博客披露的里程碑（$83,637 MRR = $1.003M ARR），非订阅快照而是历史时点；7,000+ 付费订阅、50,000+ 网站在用、月 10 亿+ 页面浏览（同源披露）。当前 ARR 未再公开，第三方 2025 年估 $1M+ 仅作参照，不作案例数字。"
+    },
+    "note": "2026-10-22 由 howtomakemi 独有线索核验入库：创始人官方博客含 2019-05 至 2022-06 完整 MRR 时间线（$64→$83,637），官网自述「完全独立、自筹、bootstrapped、盈利、10 人团队、无外部投资人」。howtomakemi 原称「2022 年 ARR 突破 ¥672万」与官方 $1M 口径基本吻合（其 ¥ 为换算口径）。",
+    "what_it_does": "隐私友好的开源网站分析工具：2.5KB 脚本、无 cookie、无需同意横幅，服务端聚合数据，自托管或云托管。",
+    "how_it_makes_money": "云托管订阅（Starter $9/月起，按页面浏览量分档，年付两个月免费）；自托管版本免费（AGPL）。100% 由订阅者供养，无广告无数据变现。",
+    "sources": [
+      {
+        "label": "创始人官方博客：$1M ARR 复盘（含完整 MRR 时间线）",
+        "url": "https://plausible.io/blog/open-source-saas"
+      },
+      {
+        "label": "官网首页：independent / self-funded / bootstrapped / profitable 自述",
+        "url": "https://plausible.io"
+      }
+    ]
+  },
+  {
+    "id": "flodesk",
+    "name": "Flodesk",
+    "name_en": "Flodesk",
+    "origin": "美国（旧金山）",
+    "one_liner": "设计优先的小企业邮件营销平台，上线第二周即盈利，零融资做到 $36M+ ARR。",
+    "category": "营销工具",
+    "models": [
+      "订阅制"
+    ],
+    "verification": "official",
+    "source_kind": "official",
+    "source_url": "https://flodesk.com/ai-information",
+    "website": "https://flodesk.com",
+    "added_at": "2026-10-22",
+    "promoted_from_inbox": null,
+    "metrics": {
+      "headline": "ARR $36M+（2026-01，官方口径）",
+      "caliber": "arr_official",
+      "arr": 36000000,
+      "metric_note": "口径：ARR 为 2026-01-22 官方新闻稿与官网 AI 信息页双源披露（surpassing $36 million in ARR）；100,000+ 小企业客户；2025 年用户经平台发送 130 亿封邮件、新增 3.14 亿订阅者；2019 年创立至今零外部融资；上线第二周即盈利。订阅制（$19/月起），未披露 MRR。"
+    },
+    "note": "2026-10-22 由 howtomakemi 独有线索核验入库：官网 AI 信息页 + AP News/PRNewswire 官方新闻稿 + Inc.com 报道三源一致。howtomakemi 原称「ARR 超 ¥2.42亿（约 $33.6M）」与官方 $36M 同量级（略旧）。创始人 Rebecca Shostak（2026 任 CEO）、Martha Bitar（转任执行主席）、Trong Dong；2018 年融资被 YC 拒绝后自筹起步。",
+    "what_it_does": "面向小企业/个人创业者/创作者的邮件营销平台：品牌优先的邮件设计（自定义字体/配色）、自动化、表单、落地页、电商结账，2026-06 推出 AI 设计应用 Flodesk Studio。",
+    "how_it_makes_money": "订阅制（$19/月起，所有付费档无限发送）；增长靠口碑与小企业用户成功案例（Miss Excel、The Everygirl 等），无销售团队。",
+    "sources": [
+      {
+        "label": "官网 AI 信息页（官方结构化披露）",
+        "url": "https://flodesk.com/ai-information"
+      },
+      {
+        "label": "AP News 官方新闻稿（2026-01-22）",
+        "url": "https://apnews.com/press-release/pr-newswire/small-business-5d29eca1ec1c0546c98c1cc249ccc0e9"
+      },
+      {
+        "label": "Inc.com：YC 拒绝后自筹到 $36M ARR",
+        "url": "https://www.inc.com/jennifer-conrad/she-was-rejected-by-y-combinator-bootstrapped-startup-36-million-arr-flodesk/91278173"
+      }
+    ]
+  },
+  {
+    "id": "sleek-design",
+    "name": "Sleek.design",
+    "name_en": "Sleek",
+    "origin": "意大利（远程）",
+    "one_liner": "AI 移动应用设计工具，3 周搭出、一个月 $10K MRR，零付费营销。",
+    "category": "AI 工具",
+    "models": [
+      "订阅制"
+    ],
+    "verification": "self_reported",
+    "source_kind": "self_reported",
+    "source_url": "https://www.indiehackers.com/post/tech/hitting-10k-mrr-in-six-weeks-with-an-ai-design-tool-pEvmU5qkWS6ny0AR9SUv",
+    "website": "https://sleek.design",
+    "added_at": "2026-10-22",
+    "promoted_from_inbox": null,
+    "metrics": {
+      "headline": "MRR $10K（上线约一个月，创始人自述）",
+      "caliber": "mrr_self_reported",
+      "mrr": 10000,
+      "metric_note": "口径：MRR $10K 为创始人 Mattia Pomelli 2026-01 在 Indie Hackers 的发帖自述（上线一个月内、零付费营销）；60,000+ app makers 使用（官网当前口径）；订阅 $29/$69/$99 三档。第三方称「现 $25K+/月」无创始人确认，不采用。"
+    },
+    "note": "2026-10-22 由 howtomakemi 独有线索核验入库：以创始人 Indie Hackers 原帖为一手依据。howtomakemi 原称「上线约六周达到约 ¥67,200 MRR」即 $10K MRR 的换算口径，数字本身吻合。Mattia Pomelli 与两位朋友（前四个设计工具未起量），复用旧工具 3 周搭出 v1，X 发帖 + 每日 X/Reddit 内容分发起量；免费层限量以控制 AI 成本。",
+    "what_it_does": "AI 移动应用设计工具：自然语言描述 App 创意，生成整套风格一致的 iOS/Android 界面，可编辑、导出 Figma/HTML/React，并通过 API/skill 接入 Claude Code、Cursor 等 coding agent。",
+    "how_it_makes_money": "订阅制（Starter $29/月、Pro $69/月、Team $99/用户/月，按 AI credits 分档）；免费层只允许一次生成，把免费用户成本压到最低的同时筛出真付费意愿。",
+    "sources": [
+      {
+        "label": "创始人 Indie Hackers 原帖（一手自述）",
+        "url": "https://www.indiehackers.com/post/tech/hitting-10k-mrr-in-six-weeks-with-an-ai-design-tool-pEvmU5qkWS6ny0AR9SUv"
+      },
+      {
+        "label": "Startup Founder Stories 深访",
+        "url": "https://startupfounderstories.com/stories/mattia-pomelli-sleek-design-10k-mrr"
+      },
+      {
+        "label": "官网（定价与用户规模）",
+        "url": "https://sleek.design/"
+      }
+    ]
+  },
+  {
+    "id": "pdfai",
+    "name": "PDF.ai",
+    "name_en": "PDF.ai",
+    "origin": "加拿大（华人创始人）",
+    "one_liner": "「跟任何 PDF 对话」，精准域名 + SEO，solo 自举做到几百万美金 ARR。",
+    "category": "AI 工具",
+    "models": [
+      "订阅制",
+      "买断制"
+    ],
+    "verification": "self_reported",
+    "source_kind": "self_reported",
+    "source_url": "https://ttmblog.com/post/241474228215816",
+    "website": "https://pdf.ai",
+    "added_at": "2026-10-22",
+    "promoted_from_inbox": null,
+    "metrics": {
+      "headline": "ARR 几百万美金（创始人自述量级；第三方汇编 2024 年底约 $1.3-1.5M）",
+      "caliber": "arr_self_reported_magnitude",
+      "arr": 1400000,
+      "metric_note": "口径：创始人 Damon Chen 2023 年公开言论自述「几百万美金 ARR」（build in public 长期贴收入截图）；第三方汇编（1810.cn 引 Starter Story 2024 年底报道）约 $1.3-1.5M ARR、50%+ 流量来自「PDF AI」搜索、0 员工 0 融资。精确 ARR 无官方披露，引用时须写「创始人自述量级 + 第三方估算区间」。"
+    },
+    "note": "2026-10-22 由 howtomakemi 独有线索核验入库：创始人公开言论为一手依据。howtomakemi 原称「约 ¥1,008万 ARR（Starter Story 2024 年底报道）」与汇编口径吻合。⚠ 与 Chatbase（Yasser Elsaid，$9M ARR）是两个产品——Chatbase 本库已有精写案例，勿混。Damon Chen 2014 年从中国移民美国、Cisco 网络工程师 9 年后辞职，X 13 万粉丝。",
+    "what_it_does": "上传 PDF 即可与文档对话（RAG 问答），后扩展为面向企业的 AI 客服平台：AI 能执行操作（更新订阅、处理退款、安排会议），接入 Stripe/Slack/Calendly。",
+    "how_it_makes_money": "订阅 + 一次性买断（早期 $99 LTD 验证付费意愿）；精准域名 pdf.ai 带来搜索意图红利，50%+ 流量来自「PDF AI」相关搜索；定价从个人 $10/月转向企业 $500/月后客单价翻 50 倍。",
+    "sources": [
+      {
+        "label": "创始人公开言论（自举盈利+ARR 量级）",
+        "url": "https://ttmblog.com/post/241474228215816"
+      },
+      {
+        "label": "1810.cn 案例档案（第三方汇编，2024 年底口径）",
+        "url": "https://1810.cn/case/pdfai"
+      }
+    ]
+  },
+  {
+    "id": "refactoringui",
+    "name": "Refactoring UI",
+    "name_en": "Refactoring UI",
+    "origin": "加拿大",
+    "one_liner": "写给开发者的界面设计书，一次性买断，出版四年累计超 $2.5M。",
+    "category": "创作者经济",
+    "models": [
+      "买断制"
+    ],
+    "verification": "self_reported",
+    "source_kind": "self_reported",
+    "source_url": "https://www.refactoringui.com/",
+    "website": "https://www.refactoringui.com",
+    "added_at": "2026-10-22",
+    "promoted_from_inbox": null,
+    "metrics": {
+      "headline": "累计营收 $2.5M+（2022-09，创始人 AMA 自述）；2020 全年约 $600K",
+      "caliber": "cumulative_self_reported",
+      "arr": 600000,
+      "metric_note": "口径：买断制信息产品，无 MRR/ARR 概念。2020 全年营收约 $600,000（Adam Wathan 2020-12-29 博客自述，出版两年后仍有的长尾）；截至 2022-09 累计营收超 $2.5M（创始人 Indie Hackers AMA 自述）。两者都是历史时点自述，引用必须带时间。"
+    },
+    "note": "2026-10-22 由 howtomakemi 独有线索核验入库：以 Adam Wathan 本人博客与 AMA 为一手依据。howtomakemi 原称「2020 全年约 ¥4,032,000」即 $600K 的换算口径，吻合。同源生态时间线（均本人披露）：2016 年第一本书首周 $61,392 → Tailwind UI 2020-02 上线首日 $400K → 2020-08 累计约 $2M → 2022-09 年营收七位数。是「内容产品养开源框架」的完整可复制路径。",
+    "what_it_does": "面向开发者的界面设计书+资源包：50 章、200+ 页 PDF，讲「不靠美术直觉也能做出像样 UI」的具体战术（少用边框、对比代替装饰等），附 screencasts 与组件库。",
+    "how_it_makes_money": "一次性买断（高定价信息产品，无订阅）；获客靠作者多年在 Twitter/博客积累的 5 万+ 开发者受众与口碑——先有受众后做产品，发布即转化存量粉丝。",
+    "sources": [
+      {
+        "label": "Adam Wathan 博客年度复盘（2020 年 $600K）",
+        "url": "https://kuaicheku.com/article/tailwind-ui-kaiyuan-fuchanpin-2m"
+      },
+      {
+        "label": "创始人 Indie Hackers AMA（2022-09 累计 $2.5M+）",
+        "url": "https://kuaicheku.com/product/refactoring-ui"
+      },
+      {
+        "label": "官网",
+        "url": "https://www.refactoringui.com/"
+      }
+    ]
+  },
+  {
+    "id": "getdavid",
+    "name": "David AI（getdavid.ai）",
+    "name_en": "David AI",
+    "origin": "美国",
+    "one_liner": "AI agent 批量给没有网站的小店造站，再寄带二维码的纸质明信片获客，一个月实验做到 $8K MRR。",
+    "category": "AI 工具",
+    "models": [
+      "订阅制"
+    ],
+    "verification": "self_reported",
+    "source_kind": "self_reported",
+    "source_url": "https://pod.wave.co/podcast/the-koerner-office-business-ideas-and-small-business-deep-dives-with-entrepreneurs/i-told-an-ai-agent-to-make-me-money-it-did-ep-303",
+    "website": "https://getdavid.ai",
+    "added_at": "2026-10-22",
+    "promoted_from_inbox": null,
+    "metrics": {
+      "headline": "MRR $8K+（上线约一个月，创始人在播客自述）",
+      "caliber": "mrr_self_reported",
+      "mrr": 8000,
+      "metric_note": "口径：$8K+/月 MRR 为创始人 Brandon Doyle 在 The Koerner Office 播客第 303 期（2026-05-25）的官方 show notes 口径（网站业务 $8,000+/月、睡前故事订阅 $300+/月）；单张明信片成本约 $7、一轮 350 张约 $400；350 家名单、341 封妥投、20% 扫码率（同节目披露）。howtomakemi 原称「网站业务 ¥53,760/月」即该数的 ¥ 换算口径（≈$7.5K）。⚠ 与旧金山同名语音数据公司 David AI（Tomer Cohen，累计融资 $80.5M）毫无关系，别混。"
+    },
+    "note": "2026-10-22 由 howtomakemi 独有线索核验入库：创始人在播客的一手披露 + ACCESS Newswire 官方稿（2026-07-29，Brandon Doyle, Founder, DAVID AI）双重确认身份。打法：AI agent 挑出 350 家没有网站的小店→挨个造好站→寄带二维码的纸质明信片（$400/轮）→扫码进站→月费订阅；线下直邮 + 真实来电的组合拳，冷邮件/纯数字外奏效差一个量级。⚠ 产品已转型：现官网定位 applied-AI 咨询（「三周交付生产系统」），postcard 实验是前身。",
+    "what_it_does": "AI agent 批量为本地小店造网站（找名单→建站→寄明信片→转化月费订阅），另有 AI 定制睡前故事邮件订阅副线；现转型为向实体企业嵌入 AI 生产系统的咨询式业务。",
+    "how_it_makes_money": "本地商家网站月费订阅 + 睡前故事邮件订阅；获客靠 AI 批量造站 + 纸质明信片直邮（单张成本约 $7，350 张一轮约 $400），配合真实来电跟进——线上自动化与线下真实动作的组合。",
+    "sources": [
+      {
+        "label": "The Koerner Office 播客 #303 官方 show notes（$8K MRR、明信片打法、单位经济）",
+        "url": "https://pod.wave.co/podcast/the-koerner-office-business-ideas-and-small-business-deep-dives-with-entrepreneurs/i-told-an-ai-agent-to-make-me-money-it-did-ep-303"
+      },
+      {
+        "label": "ACCESS Newswire 官方稿（2026-07-29，创始人身份）",
+        "url": "https://www.accessnewswire.com"
+      },
+      {
+        "label": "飞出国论坛案例档（播客数据整理：350 名单/341 妥投/20% 扫码）",
+        "url": "https://bbs.fcgvisa.com/t/ai-david-ai/56992"
+      }
+    ]
+  },
+  {
+    "id": "klar",
+    "name": "Klar（原 Tentaklar）",
+    "name_en": "Klar",
+    "origin": "瑞典",
+    "one_liner": "三个瑞典大学生辍学做 AI 备考工具，不会写代码靠 Lovable 搭产品，上线 30 天 €130K ARR、零广告费。",
+    "category": "AI 工具",
+    "models": [
+      "订阅制"
+    ],
+    "verification": "official",
+    "source_kind": "official",
+    "source_url": "https://www.arr.club/signal/klar-arr-hit-130k-within-30-days-of-launch-built-with-lovable",
+    "website": "https://klar.app",
+    "added_at": "2026-10-22",
+    "promoted_from_inbox": null,
+    "metrics": {
+      "headline": "ARR €130K（上线 30 天，Lovable 官方创始人档案）",
+      "caliber": "arr_official",
+      "arr": 130000,
+      "metric_note": "口径：€130K ARR/30 天来自 Lovable 官方创始人档案（平台厂商案例研究，数字经创始人方提供）+ ARR Club 信号收录双源；上线两天 2,500 注册、4,000 排队；零付费广告。⚠ €500K ARR（LinkedIn 第三方 Seb Johnson）与 howtomakemi「2026-08-28 ARR ¥336万」均为第三方口径，不作为案例数字；瑞典商科学生联合会合作的「最高 €7.5M 年化」是管线潜力非实际收入，禁止并入。"
+    },
+    "note": "2026-10-22 由 howtomakemi 独有线索核验入库。创始人 Isabel Storgårds（CEO）、Andreas Melander（产品）、Eric Götborg（商务），乌普萨拉大学学生（两人已休学），25 平米公寓日夜干活；官网与大学官网新闻互证。不会写代码，产品全程基于 Lovable 搭建，Claude/GPT/Gemini 多模型；上传课件/历年真题→AI 生成练习题、闪卡、预测卷，欧盟本地存储。曾拒绝收购要约。",
+    "what_it_does": "AI 备考工具：学生上传课程材料与历年真题，AI 生成练习题、闪卡、预测卷与音频播客版；面向大学生，正拓展高校机构合作。",
+    "how_it_makes_money": "学生订阅制；增长全靠自然流量与校园口碑（上线两天 2,500 注册），零广告费；后用大使计划扩量，并签高校合作（管线价值最高 €7.5M 年化，未计入收入）。",
+    "sources": [
+      {
+        "label": "Lovable 官方创始人档案（€130K ARR/30 天、零付费广告）",
+        "url": "https://lovable.dev"
+      },
+      {
+        "label": "ARR Club 信号（€130K ARR、创始人名、拒绝收购）",
+        "url": "https://www.arr.club/signal/klar-arr-hit-130k-within-30-days-of-launch-built-with-lovable"
+      },
+      {
+        "label": "乌普萨拉大学官网新闻（2026-01-16，创始团队与创业过程一手引述）",
+        "url": "https://www.uu.se/en/news/2026/2026-01-16-from-student-challenges-to-a-study-platform"
+      }
+    ]
+  },
+  {
+    "id": "headshotpro",
+    "name": "HeadshotPro",
+    "name_en": "HeadshotPro",
+    "origin": "荷兰",
+    "one_liner": "AI 职业证件照，solo 运营，官宣上线以来累计营收 $10M+、生成 1,700 万张头像。",
+    "category": "AI 工具",
+    "models": [
+      "买断制"
+    ],
+    "verification": "official",
+    "source_kind": "official",
+    "source_url": "https://www.headshotpro.com/about",
+    "website": "https://www.headshotpro.com",
+    "added_at": "2026-10-22",
+    "promoted_from_inbox": null,
+    "metrics": {
+      "headline": "累计营收 $10M+（上线以来，官方 About 页）",
+      "caliber": "cumulative_official",
+      "arr": 10000000,
+      "metric_note": "口径：$10M+ 为官网 About 页官方披露的累计营收（2023 上线至今）；同页披露 17,000,000 张头像生成、200,000+ 次拍摄、Fortune 500 团队在用（含 HubSpot 销售团队）。⚠ 当前月流水 $280-300K（$3.4-3.6M ARR）为第三方估算（lorejump/whoearns/MRR Story），无官方确认，不作案例数字；howtomakemi「¥201.6万 MRR」即该量级的换算口径。"
+    },
+    "note": "2026-10-22 由 howtomakemi 独有线索核验入库：官网 About 页为一手依据。创始人 Danny Postma（@dannypostmaa，X 10 万+ 粉，常驻巴厘岛），solo 零员工，holding 公司 Postcrafts 下 20+ 产品；前作 Headlime（AI 文案）上线 8 个月、$20K MRR 时被 Jasper（原 Conversion.ai）以逾 $1M 收购（2021-03，多方报道）。打法：SEO + 联盟（联盟占收入 15%+，$50K+/月）+ 一次性 $29 低门槛；自建 Stable Diffusion + DreamBooth pipeline，30 小时搭出 v1。",
+    "what_it_does": "上传几张自拍，2 小时内生成数十张工作室级 AI 职业照（LinkedIn/简历/团队页用），基于 Flux 与个性化 diffusion 微调；数据 7-30 天删除。",
+    "how_it_makes_money": "一次性付费（$29 起，非订阅）；获客靠 SEO（「AI headshot」搜索意图）+ 联盟营销（15%+ 收入）+ Fortune 500 团队采购；作者多年积累的开发者/营销受众做发布冷启动。",
+    "sources": [
+      {
+        "label": "官网 About 页（$10M+ 累计营收、1,700 万张、Fortune 500 客户）",
+        "url": "https://www.headshotpro.com/about"
+      },
+      {
+        "label": "AI Wiki（HeadshotPro 与 Headlime 退出史）",
+        "url": "https://ai.miraheze.org/wiki/HeadshotPro"
+      },
+      {
+        "label": "lorejump 案例（$300K/月、SEO+联盟打法，第三方）",
+        "url": "https://lorejump.com/cases/headshot-pro"
+      }
+    ]
+  },
+  {
+    "id": "3ak-track-field",
+    "name": "3AK Track & Field",
+    "name_en": "3AK Track",
+    "origin": "美国",
+    "one_liner": "两个零编程经验的大学田径生，靠 15 万粉受众 + AI 搭 App，上线首月 $10K、六个月 $70K。",
+    "category": "AI 工具",
+    "models": [
+      "订阅制"
+    ],
+    "verification": "self_reported",
+    "source_kind": "self_reported",
+    "source_url": "https://www.mrrstory.com/stories/this-no-code-sports-app-hit-45k-in-2-months",
+    "website": "https://3aktrack.com",
+    "added_at": "2026-10-22",
+    "promoted_from_inbox": null,
+    "metrics": {
+      "headline": "MRR $17-19K（上线数月，创始人访谈自述）；TrustMRR RevenueCat 快照 $10,045",
+      "caliber": "mrr_self_reported",
+      "mrr": 17500,
+      "metric_note": "口径：创始人在 MRR Story 专访（第一人称）自述「上线首月 $10,000，随后 $17K-$19K MRR，两个月进账 $45K+」；Starter Story 播客（Pat Walls）访谈印证约 $20K/月、六个月累计约 $70K、4 万用户、App Store 4.7 星。TrustMRR RevenueCat 验证快照（2026-07-18，$10,045 MRR、2,913 活跃订阅）经第三方转引，创始人注明当时处季节性低谷。howtomakemi「¥79,323/月」与快照吻合。⚠ 上线日期两说：2025-12-16（Pat Walls/BigGo）vs 2026-01（创始人自述），引用需带来源。"
+    },
+    "note": "2026-10-22 由 howtomakemi 独有线索核验入库：以创始人第一人称访谈为一手依据。Christian Rac（@Christianisrac，IG 4.25 万粉，已从 Texas Southern 辍学）+ Braylin Byrd（@Braylin2x，IG 11.2 万粉，Texas State 在校），高中田径队友；此前试过 Shopify 店、日内交易（亏 $3-6K）、剪发、洗车等全部失败。打法核心：先有受众后做产品——数月前就在视频/简介/Shopify 店埋「3AK」伏笔，上线即爆发；零付费广告（后期才试 $50-100/天 Meta）。定价 $10/月 或 $30/年，按青少年零花钱心理定价（对标 V-Bucks/Robux）。技术栈：Rork 搭 App + Claude/Claude Code 验错 + Supabase + RevenueCat，2 周上线、成本 <$500、毛利约 80%。",
+    "what_it_does": "面向田径运动员（短跑/跨栏/跳远）的一站式训练 App：AI 步态与姿势分析（拍摄冲刺即评分）、个性化训练计划、营养扫描、社区与进度分析。",
+    "how_it_makes_money": "iOS 订阅（$10/月 或 $30/年，刻意对标青少年游戏内购定价）；获客全靠两人 15 万+ 粉的田径内容受众（IG/TikTok 短视频）+ 上线前数月的品牌伏笔，另有一条 Shopify 训练计划店（$100-200/天）。",
+    "sources": [
+      {
+        "label": "MRR Story 创始人专访（第一人称：首月 $10K、$17-19K MRR、$45K/两月）",
+        "url": "https://www.mrrstory.com/stories/this-no-code-sports-app-hit-45k-in-2-months"
+      },
+      {
+        "label": "Starter Story 播客（Pat Walls 访谈：$20K/月、6 个月 $70K）",
+        "url": "https://www.profitablefounder.xyz/blog/how-two-college-athletes-built-3ak-to-20k-a-month"
+      },
+      {
+        "label": "Startup Founder Stories（TrustMRR RevenueCat 快照转引）",
+        "url": "https://startupfounderstories.com/stories/christian-rac-braylin-byrd-3ak-track-10k-mrr-athlete-app"
+      }
+    ]
+  },
+  {
+    "id": "upvoty",
+    "name": "Upvoty",
+    "name_en": "Upvoty",
+    "origin": "荷兰（阿姆斯特丹）",
+    "one_liner": "用户反馈投票板 + 公开路线图，bootstrapped 六年，靠落地页验证 + 「Alternatives to」SEO 做到 $40K+ MRR。",
+    "category": "营销工具",
+    "models": [
+      "订阅制"
+    ],
+    "verification": "self_reported",
+    "source_kind": "self_reported",
+    "source_url": "https://baremetrics.com/customers/upvoty-customer-story",
+    "website": "https://upvoty.com",
+    "added_at": "2026-10-22",
+    "promoted_from_inbox": null,
+    "metrics": {
+      "headline": "MRR $40K+（2026 年中，第三方同量级口径）；创始人一手披露：上线数月即 $1K MRR",
+      "caliber": "mrr_self_reported",
+      "mrr": 40000,
+      "metric_note": "口径：创始人一手披露的里程碑——落地页一天搭起、数周 200+ 注册、上线数月 $1K MRR（Baremetrics 客户故事 + Xtartups 专访，均为创始人原话）。当前规模 $40K MRR（硬地骇客）/$52K（Foundershut）/TrustMRR Stripe 授权快照 ¥28.4万≈$40K（2026-07，经 howtomakemi 转引）互为印证同量级；Xtartups 早期专访的 $17K 为旧时点。精确当前数以第三方口径引用并带时间。"
+    },
+    "note": "2026-10-22 由 howtomakemi 独有线索核验入库：以创始人多次一手访谈为依据。创始人 Mike Slaats（Baremetrics 报道中写作 Mike Strives），连续创业者，前作 Vindy（家居改善平台，荷兰/比利时，年收入约 $1M）用盈利养 Upvoty。2018 beta、2019-03 Product Hunt 正式发布；远程小团队（3-9 人，分布比利时/葡萄牙/越南/秘鲁/美国/加拿大）。打法：先验证后写码（落地页 200+ 注册才动手）、上线即收费、「Alternatives to…」内容截流竞品不满用户、按用户要求加 GitHub/Slack/Jira 集成、Baremetrics 管指标、重留存轻虚荣指标。2,000+ 产品团队在用。",
+    "what_it_does": "客户反馈管理：投票板收集反馈、公开路线图、AI 辅助决策下一步做什么；帮产品团队把散落在工单/邮件/表格里的反馈变成可执行的优先级。",
+    "how_it_makes_money": "订阅制 SaaS（低价档切入，2,000+ 团队在用）；获客靠内容营销与 SEO（「Alternatives to」系列）、Product Hunt 发布、集成生态带来的留存，成本 <$500/月。",
+    "sources": [
+      {
+        "label": "Baremetrics 客户故事（创始人一手：验证流程、bootstrapped、系统化增长）",
+        "url": "https://baremetrics.com/customers/upvoty-customer-story"
+      },
+      {
+        "label": "Xtartups 创始人专访（团队、前作 Vindy $1M ARR、$17K MRR 时点）",
+        "url": "https://www.xtartups.com/post/mike-slaats-upvoty"
+      },
+      {
+        "label": "Foundershut 案例（$52K MRR、5,000 客户，第三方）",
+        "url": "https://www.foundershut.com/explore/upvoty-user-feedback-growth"
+      }
+    ]
   }
 ]

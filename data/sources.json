@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-17",
+  "updated_at": "2026-10-23",
   "principle": "一手证据 > 二手转述。凡是能在支付网关或公司官方口径里核到的数字，才允许进精写库；只有创始人自述的，降级标注。",
   "sources": [
     {
@@ -212,6 +212,37 @@
         }
       ],
       "source_kind": "secondary"
+    },
+    {
+      "id": "howtomakemi",
+      "name": "howtomakemi.com（开赛 CaseSite）",
+      "url": "https://howtomakemi.com/",
+      "kind": "clue_index",
+      "tier": "B",
+      "enabled": true,
+      "auth": "公开页面，无鉴权",
+      "how": "只当发现面（线索源），不作正文数据源。首页 HTML 的 data-cards 属性内嵌全量案例索引（2026-10-22 实测 1262 条：收入案例 829 / 国内实践 403 / 开源变现 14 / 插件 16；失败复盘区已从站点移除），一次请求拿全，含 slug/名称/类型/证据等级/收入文案。用法：新增 slug 写成种子清单（每行一个），喂给 TrustMRR sitemap 通道 harvest.py --source trustmrr_sitemap --tm-seeds <file>——命中 TrustMRR 的按官方 .md 一手档案抓取入库（verified），未命中的登记为待独立核验线索（tmp/htm_screen/htm_only_<date>.json）。2026-10-22 首跑：430 种子 → 201 命中（46.7%）→ 120 条入队。",
+      "fields": [
+        "slug",
+        "name",
+        "type",
+        "evKey",
+        "income",
+        "platform"
+      ],
+      "why": "索引面比 TrustMRR /api/ai 榜单宽，能发现库里还没有的产品；与 TrustMRR 重合度约 45~47%，未重合部分是 TrustMRR 没有的线索。",
+      "caveat": "约 45% 是 TrustMRR 二道贩子——抓它等于绕路拿二手，一手就在已有通道里。收入文案自述「Stripe/RevenueCat/Creem 验证」，但本站无法溯源到支付网关一手，未命中 TrustMRR 的条目一律不得直接采信其数字，须逐条独立核验（官网/创始人/评测）后才能入库。其金额为 ¥ 口径（疑由 USD 换算），即便核验也只能作为线索，引用以一手源为准。2026-10-14 曾抓到两个二手错误：Coinbase NFT 关停年份（写 2023，实际 2024-08-01）、iRobot 停运年份（写 2025，实际 2025-12 Chapter 11）——竞品的归纳不可直接采信。国内实践 403 条超范围，仅登记不入库。无 robots.txt / sitemap / llms.txt，但均 200 fallback 回首页，无明令禁爬；仍守「只取索引不取正文、有界批量」纪律。",
+      "endpoints": [
+        {
+          "label": "首页（data-cards 内嵌全量索引，一次请求拿全）",
+          "url": "https://howtomakemi.com/"
+        },
+        {
+          "label": "案例详情页（15KB 静态页，仅线索核验时按需读）",
+          "url": "https://howtomakemi.com/cases/<slug>/"
+        }
+      ],
+      "source_kind": "discovery"
     }
   ],
   "filter_rules": {
@@ -231,10 +262,8 @@
       "acquired by",
       "acquisition of",
       "merger",
-      "hiring",
       "we're hiring",
       "job opening",
-      "recruiting",
       "webinar",
       "ebook",
       "whitepaper",
