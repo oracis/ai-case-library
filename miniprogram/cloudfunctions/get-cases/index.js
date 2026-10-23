@@ -21,7 +21,7 @@
  */
 
 const cloud = require('wx-server-sdk');
-const { getEntitlements, canReadFull } = require('./lib/deliver.js');
+const { getEntitlements, canReadFull, resolveCaller, identOf } = require('./lib/deliver.js');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
@@ -57,20 +57,52 @@ const PAID = {
 };
 
 exports.main = async (event) => {
-  const openid = cloud.getWXContext().OPENID;
+  // M2 双身份：小程序语境 = OPENID；Web SDK 语境 = CloudBase uid
+  const caller = await resolveCaller(cloud);
+  const ident = identOf(caller);
+  const openid = caller.openid;
 
   // ---- 登录态 + 权益 ----
   if (event.me) {
-    const ent = await getEntitlements(db, openid);
+    const ent = await getEntitlements(db, ident);
     return {
-      errcode: 0, openid: openid || '', entitlements: ent,
+      errcode: 0,
+      openid: openid,
+      uid: caller.uid,
+      identity: ident ? 'bound' : 'anonymous',
+      entitlements: ent,
       canReadFull: canReadFull(ent, '')
     };
   }
 
+  // ---- 绑定 Web 会话（M2）----
+  // 仅小程序语境发起：把 Web 端匿名会话的 uid 绑到当前 openid 的 users
+  // 文档。之后 Web 端以 uid 读权益，与小程序共享同一份 reports/export/会员。
+  if (event.bind_uid) {
+    if (!openid) {
+      return { errcode: 40301, errmsg: '绑定仅支持小程序内发起（需要微信登录态）' };
+    }
+    const uid = String(event.bind_uid);
+    if (!/^[\w-]{8,64}$/.test(uid)) {
+      return { errcode: 40011, errmsg: '绑定码格式不合法' };
+    }
+    const now = Date.now();
+    const u = await db.collection('users').where({ _openid: openid }).limit(1).get();
+    if (u.data && u.data.length) {
+      await db.collection('users').doc(u.data[0]._id).update({
+        data: { uid: uid, updated_at: now }
+      });
+    } else {
+      await db.collection('users').add({
+        data: { _openid: openid, uid: uid, reports: [], export_all: false, member_until: 0, created_at: now, updated_at: now }
+      });
+    }
+    return { errcode: 0, bound: true, uid: uid };
+  }
+
   // ---- 单条 ----
   if (event.id) {
-    const ent = await getEntitlements(db, openid);
+    const ent = await getEntitlements(db, ident);
     const unlocked = canReadFull(ent, event.id);
     // full:true 只是「我要看付费层」的请求，能不能给看权益 —— 顺序不能反
     const field = unlocked ? Object.assign({}, FREE, PAID) : FREE;

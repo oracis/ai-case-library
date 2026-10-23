@@ -13,7 +13,7 @@
 
 const cloud = require('wx-server-sdk');
 const { paySig, postJson } = require('./lib/sign.js');
-const { deliver, getEntitlements } = require('./lib/deliver.js');
+const { deliver, getEntitlements, resolveCaller, identOf } = require('./lib/deliver.js');
 const cfg = require('./lib/config.js');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
@@ -45,11 +45,13 @@ function pidOf(key) {
 }
 
 exports.main = async (event) => {
-  const openid = cloud.getWXContext().OPENID;
+  // M2 双身份：小程序语境 = OPENID；Web SDK 语境 = CloudBase uid
+  const caller = await resolveCaller(cloud);
+  const ident = identOf(caller);
 
   // ---- 只取权益 ----
   if (!event.outTradeNo) {
-    const ent = await getEntitlements(db, openid);
+    const ent = await getEntitlements(db, ident);
     return { errcode: 0, entitlements: ent };
   }
 
@@ -65,7 +67,7 @@ exports.main = async (event) => {
 
   // 已发货：不必再调平台，直接返权益
   if (order.status === 2) {
-    const ent = await getEntitlements(db, openid);
+    const ent = await getEntitlements(db, ident);
     return { errcode: 0, entitlements: ent, delivered: true };
   }
 
@@ -94,7 +96,7 @@ exports.main = async (event) => {
         quantity: 1
       });
     }
-    const ent = await getEntitlements(db, openid);
+    const ent = await getEntitlements(db, ident);
     return { errcode: 0, entitlements: ent, order_status: st };
   }
   return {

@@ -4,6 +4,7 @@
   "description": "query_order 查单兜底 + 权益刷新",
   "main": "index.js",
   "dependencies": {
-    "wx-server-sdk": "~4.0.2"
+    "wx-server-sdk": "~4.0.2",
+    "@cloudbase/node-sdk": "^2.6.0"
   }
 }

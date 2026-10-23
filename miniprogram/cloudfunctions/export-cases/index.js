@@ -11,7 +11,7 @@
  */
 
 const cloud = require('wx-server-sdk');
-const { getEntitlements, canReadFull } = require('./lib/deliver.js');
+const { getEntitlements, canReadFull, resolveCaller, identOf } = require('./lib/deliver.js');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
@@ -38,12 +38,14 @@ const COLS = [
 ];
 
 exports.main = async (event) => {
-  const openid = cloud.getWXContext().OPENID;
-  if (!openid) {
-    return { errcode: 40001, errmsg: '未登录，请重新进入小程序' };
+  // M2 双身份：小程序语境 = OPENID；Web SDK 语境 = CloudBase uid
+  const caller = await resolveCaller(cloud);
+  const ident = identOf(caller);
+  if (!ident) {
+    return { errcode: 40001, errmsg: '未登录' };
   }
 
-  const ent = await getEntitlements(db, openid);
+  const ent = await getEntitlements(db, ident);
   if (!canReadFull(ent, '')) {
     return {
       errcode: 40301,
@@ -70,7 +72,7 @@ exports.main = async (event) => {
   let fileId = '';
   try {
     const up = await cloud.uploadFile({
-      cloudPath: 'exports/' + openid.slice(0, 10) + '-' + Date.now() + '.csv',
+      cloudPath: 'exports/' + ident.slice(0, 10) + '-' + Date.now() + '.csv',
       fileContent: Buffer.from(csv, 'utf8')
     });
     fileId = up.fileID || '';

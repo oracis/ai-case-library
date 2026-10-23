@@ -4,6 +4,7 @@
   "description": "案例数据出口：全量/单条/登录态权益，字段白名单收敛",
   "main": "index.js",
   "dependencies": {
-    "wx-server-sdk": "~4.0.2"
+    "wx-server-sdk": "~4.0.2",
+    "@cloudbase/node-sdk": "^2.6.0"
   }
 }
