@@ -81,7 +81,10 @@ import wechat_publish as wp  # noqa: E402
 
 PORT = int(os.environ.get("CDP_XHS_PORT", 9223))
 HOST = "https://creator.xiaohongshu.com"
-POSTED_TPL = HOST + "/api/galaxy/v2/creator/note/user/posted?page=%d&page_size=%d"
+# 🚨 必须 tab=0（= UI「全部笔记」）：不带 tab 时接口只回**最老的一批**（2026-10-23
+#    实测：21 条全量只回 11 条，10-11 之后发的全消失 —— cometly/gojiberryai/
+#    chatbase/prosp 因此被误判「线上查无」）。page 从 0 起；data.page==-1 表示没有下一页。
+POSTED_TPL = HOST + "/api/galaxy/v2/creator/note/user/posted?tab=0&page=%d&page_size=%d"
 USER_INFO = HOST + "/api/galaxy/user/info"
 
 
@@ -233,11 +236,15 @@ def fetch_full(cdp, url, method="GET", body=None, signed=True):
         return int(r["status"]), None, text, headers
 
 
-def posted_notes(pages=2, page_size=30, cdp=None, port=PORT):
-    """拉已发布笔记列表（按发布时间倒序）。
+def posted_notes(pages=5, page_size=30, cdp=None, port=PORT):
+    """拉已发布笔记列表（按发布时间倒序，tab=0 = UI「全部笔记」）。
 
     返回 (notes, raw_first_page)。notes 里每条保留接口原字段，另附
     `title`（= display_title 优先）与 `note_id` 便于对账。
+
+    ⚠ 分页（2026-10-23 实测）：接口把 page_size 钳到 10，一页不满**不是**
+       没数据 —— 终止判据用 `data.page == -1`（还有下一页时返回下一页页号），
+       别再用 `len(batch) < page_size` 判终止（那会丢掉后面所有页）。
     """
     own = cdp is None
     if own:
@@ -255,22 +262,23 @@ def posted_notes(pages=2, page_size=30, cdp=None, port=PORT):
             raise RuntimeError("小红书登录态已失效（落在 %s），需人工扫码" % href[:80])
     notes, first_raw = [], None
     try:
-        for p in range(1, max(1, pages) + 1):
+        for p in range(0, max(1, pages)):          # page 从 0 起（同 UI）
             st, js, raw = fetch_json(cdp, POSTED_TPL % (p, page_size))
-            if p == 1:
+            if p == 0:
                 first_raw = js
             if st != 200 or not isinstance(js, dict) or js.get("code") != 0:
-                if p == 1:
+                if p == 0:
                     raise RuntimeError("接口返回异常：HTTP %s / %s" % (st, raw[:200]))
                 break
-            batch = ((js.get("data") or {}).get("notes") or [])
+            data = js.get("data") or {}
+            batch = (data.get("notes") or [])
             if not batch:
                 break
             for n in batch:
                 n["note_id"] = n.get("id")
                 n["title"] = n.get("display_title") or n.get("title") or ""
                 notes.append(n)
-            if len(batch) < page_size:
+            if data.get("page") in (-1, None):     # -1 = 没有下一页
                 break
     finally:
         if own and cdp is not None:
