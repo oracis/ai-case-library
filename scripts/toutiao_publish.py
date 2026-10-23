@@ -2548,12 +2548,16 @@ def cmd_publish(args):
         raise SystemExit(2)
 
 
-def _refresh_plan(box, only_case=None):
+def _refresh_plan(box, only_case=None, force=False):
     """扫草稿箱，列出「线上标题 ≠ 本地最新标题」的待刷新清单。
 
     返回 [(gid, case, online_title, local_title)]。已发表的跳过
     （群发后稿件离开草稿箱是正常行为，但**草稿箱里若躺着已发表的同篇**
     就是残留，不该刷新——交给 scan_pub_dupes 删）。
+
+    force=True（2026-10-24）：跳过「标题相等」这个触发条件，把草稿箱里
+    所有能认领的案例稿全量列入 —— 用于正文逻辑变了但标题没变的场景
+    （如开头模板改版）。已发表残留排除逻辑照旧。
     """
     raw = fetch_draft_api_raw(box) or []
     try:
@@ -2579,7 +2583,7 @@ def _refresh_plan(box, only_case=None):
             local = make_toutiao_title(c)
         except Exception:                          # noqa: BLE001
             continue
-        if local != t:
+        if force or local != t:
             plan.append((x.get("gid"), c, t, local))
     return plan
 
@@ -2602,7 +2606,8 @@ def cmd_refresh(args):
         print("编辑器页开不了（Chrome 没起来/掉登录）")
         return
     box, tid = sess
-    plan = _refresh_plan(box, only_case=args.case)
+    plan = _refresh_plan(box, only_case=args.case,
+                         force=getattr(args, "force", False))
     if not plan:
         print("没有需要刷新的草稿（线上标题都已等于本地最新逻辑）。")
         return
@@ -3995,6 +4000,9 @@ def main():
                              "用于标题逻辑/override 变过之后的批量重刷）")
     rf.add_argument("--all", action="store_true",
                     help="自动扫草稿箱：线上标题≠本地最新逻辑的全刷")
+    rf.add_argument("--force", action="store_true",
+                    help="不看标题差异，草稿箱里能认领的案例稿全量重刷"
+                         "（正文逻辑变了但标题没变时用，如开头模板改版）")
     rf.add_argument("--case", help="只刷指定 case 对应的草稿")
     rf.add_argument("--dry", action="store_true", help="只列清单不动手")
     rf.set_defaults(fn=cmd_refresh)
