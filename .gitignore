@@ -63,6 +63,12 @@ dist/
 # 对外发布用的构建产物（--no-inbox，正是上传 OSS 的那一份）
 public/
 
+# howtomakemi 增量管线 GUI（gui/）：PyInstaller 中间产物与 spec 不入库。
+# exe 落在 gui/dist/，被上面的 `dist/` 通配挡住；要重建随时
+# `python -X utf8 gui/build_exe.py`（源码 gui/htm_increment_gui.py 入库）。
+gui/build/
+gui/*.spec
+
 # 公众号草稿（scripts/make_article.py 生成，属个人内容，不入库）
 out/
 

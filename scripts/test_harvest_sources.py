@@ -700,15 +700,18 @@ def test_sources_config():
         cfg = json.load(f)
 
     by_id = {s["id"]: s for s in cfg.get("sources", [])}
-    chk("五个源都在", set(by_id) == {"trustmrr", "indiehackers", "producthunt",
-                                     "hackernews", "arrclub"}, sorted(by_id))
+    # 2026-10-22 加 howtomakemi（线索源：只当发现面喂 --tm-seeds，无 harvest_* 通道，
+    # source_kind_of 认不出它 → 落最低档 discovery，与 sources.json 条目一致）。
+    chk("六个源都在", set(by_id) == {"trustmrr", "indiehackers", "producthunt",
+                                     "hackernews", "arrclub", "howtomakemi"},
+        sorted(by_id))
 
     # 这一步是关键：sources.json 是给人看的说明，harvest.py 是真正跑的逻辑。
     # 两边对不上时不会报错，只会让「说明写着 A 级、代码按 discovery 处理」这种
     # 静默不一致一直存在。
     for sid, expect in (("trustmrr", "verified"), ("indiehackers", "self_reported"),
                         ("producthunt", "discovery"), ("hackernews", "self_reported"),
-                        ("arrclub", "secondary")):
+                        ("arrclub", "secondary"), ("howtomakemi", "discovery")):
         chk("%s 在 sources.json 里是 %s" % (sid, expect),
             by_id.get(sid, {}).get("source_kind") == expect,
             by_id.get(sid, {}).get("source_kind"))
@@ -957,6 +960,7 @@ def main():
     section("save_json 保留换行格式", test_save_json_preserves_newline)
     section("category_cn 英文分类归一", test_category_cn_normalizes_english)
     section("归档条目不回流", test_archive_not_reharvested)
+    section("drop_keywords 词边界+否定保护", test_drop_keywords_no_substring_false_positive)
 
     print("=" * 62)
     if fails:
@@ -1093,6 +1097,58 @@ def test_save_json_preserves_newline():
         H.DATA_DIR = orig_dir
         import shutil
         shutil.rmtree(tmp, ignore_errors=True)
+    print()
+
+
+
+def test_drop_keywords_no_substring_false_positive():
+    """🚨 回归钉：drop_keywords 必须词边界 + 否定保护，不许裸子串。
+
+    这条坑真实发生过：2026-10-23 howtomakemi 增量抓取，14 条过 $100 收入
+    门槛的 TrustMRR 一手档案被广告过滤器砍掉 13 条，全是子串误杀——
+      · ebook 藏在 facebook(×5) / notebook(×2) / writebook(×1) 里
+      · ipo 是西语 tipos 的子串（Sprinta.ai）
+      · free trial 命中的是「**no** free trial」否定句（coldcaller.pro）
+      · webinar/recruiting/hiring 是产品功能与领域描述
+        （BlitzReels 把 webinar 转 clips、Agents Metrics 做 real estate
+        recruiting 评估、Candidate Falcon 模拟 hiring assessment）
+    后果：过门槛的一手档案入不了库，队列被误杀清空。
+
+    修法：词边界匹配（(?<![a-z0-9])kw(?![a-z0-9])）+ 否定前缀保护。
+    """
+    print("[15] drop_keywords 词边界 + 否定保护（2026-10-23 误杀回归）")
+    rules = {
+        "drop_keywords": ["ebook", "ipo", "free trial", "webinar"],
+        "keep_signals": [],
+    }
+    flt = H.Filter(rules)
+
+    # ① 子串不再误杀（_blob 尾部按真实格式带 verified revenue mrr）
+    for text, why in [
+        ("comments and dm from facebook, instagram lands in one inbox verified revenue mrr", "facebook"),
+        ("the ultimate ai notebook for students verified revenue mrr", "notebook"),
+        ("aiwritebook is an all-in-one ai book creation platform verified revenue mrr", "writebook"),
+        ("ofrecemos diferentes tipos de saas por suscripcion verified revenue mrr", "tipos"),
+    ]:
+        ok, reason = flt.verdict(text)
+        chk("子串 %s 不误杀" % why, ok, reason)
+
+    # ② 否定前缀保护：no free trial 是正面信号
+    ok, reason = flt.verdict(
+        "subscriptions 19-99/mo, no free trial, 9% visitor-to-paid conversion verified revenue mrr")
+    chk("no free trial 不误杀", ok, reason)
+
+    # ③ 真丢弃词仍然要拦住（词边界内完整出现）
+    ok, reason = flt.verdict("download our free ebook now")
+    chk("真丢弃词 ebook 仍拦截", not ok, reason)
+    ok, reason = flt.verdict("company announced its ipo today")
+    chk("真丢弃词 ipo 仍拦截", not ok, reason)
+    ok, reason = flt.verdict("sign up for our free trial")
+    chk("真丢弃词 free trial 仍拦截", not ok, reason)
+
+    # ④ 收入信号放行（TrustMRR 档案 _blob 自带 verified revenue mrr 尾巴）
+    ok, reason = flt.verdict("blitzreels verified revenue mrr")
+    chk("收入信号放行", ok, reason)
     print()
 
 
