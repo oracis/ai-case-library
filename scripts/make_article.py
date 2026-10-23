@@ -32,6 +32,9 @@ import sys
 import unicodedata
 from datetime import datetime
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import lead_templates  # noqa: E402  四型开头钩子模板库
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 if hasattr(sys.stdout, "reconfigure"):                      # Windows 控制台默认不是 UTF-8
@@ -600,7 +603,11 @@ def build_sections(case):
             "我去核了一遍：%s" % corr[0].get("truth", ""),
         ]))
     else:
-        secs.append((None, [case.get("verdict", "")]))
+        # 2026-10-23：裸 verdict 升级为三段叙事开头（场景 → 判断 → 路线）。
+        # 原来无纠错案例开头就一句 verdict，孤零零没有入戏的台阶；
+        # 有纠错案例不经过这里（引号钩子是实测最高转化，保持不动）。
+        # 模板库 scripts/lead_templates.py，事实全部取自 case 字段。
+        secs.append((None, lead_templates.wechat_lead(case)))
 
     # 它是干什么的
     what = []
