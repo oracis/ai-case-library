@@ -348,6 +348,7 @@ v3.1 的八条落在「拿数据 → 核 → 入库 → 建站 → 上线」这�
 | 11 | **新增第八个口径 `annual`**（数据契约变更） | `marc-lou-portfolio` 门面数字是「2025 全年 $1,032,000」—— 按自然年合计的已发生收入，装不进 arr（前瞻）/ lifetime（跨年累计）/ run_rate（某月×12 的估计），硬塞等于把「已发生」写成「预计」。补齐后 `caliber` 空缺 24 → **1**（仅剩 bustem：榜单快照 + 档案 404，两解都成立）。同步改 `verify_rules.CALIBERS`、`verify.py` 清单、AI prompt 枚举、`miniprogram/utils/fmt.js`、`DATA_SCHEMA.md` |
 | 12 | **`independent_source.py`：36 条单来源案例补第二来源审计** | 全库 188/255 只有 2 条来源、其中 36 条只有 TrustMRR 一条。判据只用**实体锚点**（App Store `sellerUrl` / GitHub 仓库 `homepage` 与官网同域），关键词匹配不可用（实测 `mort`→真人快打、`angel-match`→猫咪消消乐）。结果：第三方确认 **9** / 仅自述 16 / 连不上 11，写回 10 条 `sources` + 36 条 `independent_check` |
 | 13 | **CSE 检索通道可配**（secrets.json + 独立代理） | cn.bing 对这批目标（海外小体量 SaaS）是负收益：`gtm.help` → 知乎/MC 百科/搜狐，`AEO Checker` → 百度百科「AEO 认证」+ 海关总署。改为 HN Algolia → Google CSE → DDG → cn.bing（默认关）。⚠ 2026-10-21 实测本机出口：`www.googleapis.com` 直连 000、走 1792 代理 000、走 Shadowsocks 10808 也 000 —— **key 齐了还需能出 Google 的代理**，故另设 `google_proxy` 单通道代理，不动全局 `HTTPS_PROXY`（那层一改，cn.bing 与官网抓取反而断） |
+| 14 | **云函数双身份（openid/uid），服务订阅站 Web 壳**（M2，配合新仓 `yuanjing-web`） | Web SDK callFunction 语境没有 OPENID，`getWXContext().OPENID` 为空 ⇒ 云函数无法识别 Web 用户。方案：`deliver.js`（四处同步，`verify_paywall.py` md5 守卫）新增 `resolveCaller()`——OPENID 优先，Web 语境走 `@cloudbase/node-sdk` 的 `getEndUserInfo` 拿 uid（**懒加载**，小程序路径永不 require，pay-order/pay-notify 不加该依赖）；`getEntitlements`/`deliver` 用户查询改 `_openid OR uid` 双查；`get-cases` 新增 `{bind_uid}`（仅小程序语境，把 Web 匿名 uid 绑进 users 文档，两端权益互通）。pay-order/pay-notify **不改**（下单身份来自 code2Session、发货身份来自订单记录）。回归 verify_paywall 13 项全过 |
 
 ---
 
