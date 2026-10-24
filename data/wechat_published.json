@@ -512,11 +512,17 @@
   },
   "downconvert-sketchup-files": {
     "title": "DOWNCONVERT SKETCHUP FILES：SketchUp 文件版本转换工具",
-    "published_at": "2026-10-14 01:24",
-    "status": "draft",
+    "published_at": "2026-10-24 21:54",
+    "status": "published",
     "appmsgid": "100000474",
     "file": "公众号-downconvert-sketchup-files拆解.html",
-    "refreshed_at": "2026-10-24 01:30"
+    "refreshed_at": "2026-10-24 01:30",
+    "publish_type": "publish",
+    "published_appmsgid": "2247484627",
+    "sent_via": "send",
+    "send_reason": "已发表列表出现新记录，标题一致",
+    "note": "｜publish模式自动发表，新 appmsgid=2247484627",
+    "verified_at": "2026-10-24 21:54"
   },
   "macwall": {
     "title": "MacWall：为 Mac 用户提供 4K 电影感动态壁纸的订阅产品",
@@ -581,5 +587,75 @@
     "appmsgid": "100000506",
     "file": "公众号-quotedeck拆解.html",
     "refreshed_at": "2026-10-24 01:19"
+  },
+  "ai-prank-call": {
+    "title": "AI Prank Call：AI 语音恶作剧服务，32 活跃订阅数",
+    "published_at": "2026-10-25 00:43",
+    "status": "draft",
+    "appmsgid": "100000991",
+    "file": "公众号-ai-prank-call拆解.html"
+  },
+  "betting-tips": {
+    "title": "Betting Tips：为足球、篮球、网球、美式足球和棒球爱好者提供每日专家投注建议",
+    "published_at": "2026-10-25 00:47",
+    "status": "draft",
+    "appmsgid": "100001002",
+    "file": "公众号-betting-tips拆解.html"
+  },
+  "ai-voice-calls": {
+    "title": "AI voice calls：AI语音平台，支持50+语言",
+    "published_at": "2026-10-25 00:51",
+    "status": "draft",
+    "appmsgid": "100001013",
+    "file": "公众号-ai-voice-calls拆解.html"
+  },
+  "demopolish": {
+    "title": "DemoPolish：Demopolish帮助软件和SaaS创始人60秒内制作专业演示视频",
+    "published_at": "2026-10-25 00:56",
+    "status": "draft",
+    "appmsgid": "100001024",
+    "file": "公众号-demopolish拆解.html"
+  },
+  "chatsell-co": {
+    "title": "Chatsell.co：为WooCommerce店铺提供自然语言产品搜索和即时答案的AI聊天机器人。",
+    "published_at": "2026-10-25 01:00",
+    "status": "draft",
+    "appmsgid": "100001035",
+    "file": "公众号-chatsell-co拆解.html"
+  },
+  "roster-for-slack": {
+    "title": "Roster for Slack：为 Slack 团队提供持续排班，提升生产力。",
+    "published_at": "2026-10-25 01:04",
+    "status": "draft",
+    "appmsgid": "100001046",
+    "file": "公众号-roster-for-slack拆解.html"
+  },
+  "static-run": {
+    "title": "Static.run：静态网站托管服务，免费易用",
+    "published_at": "2026-10-25 01:09",
+    "status": "draft",
+    "appmsgid": "100001057",
+    "file": "公众号-static-run拆解.html"
+  },
+  "ai-math-solver": {
+    "title": "AI Math Solver+：AI数学解题工具，为师生、家长和数学爱好者提供即时解决方案",
+    "published_at": "2026-10-25 01:13",
+    "status": "draft",
+    "appmsgid": "100001068",
+    "file": "公众号-ai-math-solver拆解.html"
+  },
+  "ai-smart-decor": {
+    "title": "AI Smart Decor：AI智能室内设计工具，让用户预览装修效果",
+    "published_at": "2026-10-25 01:17",
+    "status": "draft",
+    "appmsgid": "100001079",
+    "file": "公众号-ai-smart-decor拆解.html"
+  },
+  "verse": {
+    "title": "Verse：Verse 以单次提示构建自主 AI 员工。",
+    "published_at": "2026-10-25 01:21",
+    "status": "draft",
+    "appmsgid": "100001090",
+    "file": "公众号-verse拆解.html"
   }
 }

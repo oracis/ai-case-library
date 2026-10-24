@@ -827,5 +827,62 @@ class TestPublishMultiCli(unittest.TestCase):
         self.assertEqual(m.state("kibu", "xhs"), "pending")
 
 
+class TestVerifyPortAndKeyGuard(unittest.TestCase):
+    """verify.py 端口分流 + 前缀键偷匹配的回归（2026-10-25 实测两个假阴性）。
+
+    ⚠️ 类名**不要**叫 TestVerifyMatching —— 本文件已有同名类，重名会被
+    静默遮蔽（旧测试不跑、新测试报绿，双重假象）。
+    """
+
+    def test_端口按平台分流(self):
+        """真相源是 chrome_cdp_launch.PLATFORMS：wechat 9222，三平台 9223。"""
+        from multiplatform import verify as V
+        self.assertEqual(V._port_for("wechat"), 9222)
+        self.assertEqual(V._port_for("toutiao"), 9223)
+        self.assertEqual(V._port_for("bilibili"), 9223)
+        self.assertEqual(V._port_for("xhs"), 9223)
+
+    def test_读取器默认端口不写死(self):
+        """默认值必须是 None（运行时按平台解析），不能是模块级 9222。"""
+        from multiplatform import verify as V
+        import inspect
+        self.assertIsNone(
+            inspect.signature(V.read_toutiao_drafts).parameters["port"].default)
+        self.assertIsNone(
+            inspect.signature(V.read_bilibili_drafts).parameters["port"].default)
+
+    def test_AI前缀键不偷匹配(self):
+        """`ai-prank-call` 的前缀键 `AI` 不能把 ai-voice-calls 的标题偷走。
+
+        线上事故形态：B站草稿箱回读 53 条，对账却报 40 条 missing，
+        其中包含逐条确认过在箱里的 ai-prank-call 等。
+        这里用 cases.json 里的案例名当标题（keys_for 的候选键之一），
+        不依赖 out/bili 产物。
+        """
+        from multiplatform import verify as V
+        cases = {c.get("id"): c.get("name", "") for c in A.load_cases()}
+        n1, n2 = cases.get("ai-prank-call"), cases.get("ai-voice-calls")
+        if not n1 or not n2:
+            self.skipTest("cases.json 缺这两个案例的 name")
+        m = S.Manifest(os.path.join(tempfile.mkdtemp(), "m.json"))
+        # 偷匹配方先入清单（reconcile 按清单顺序逐个试键）
+        m.mark_draft("ai-prank-call", "bilibili", n1)
+        m.mark_draft("ai-voice-calls", "bilibili", n2)
+        r = V.reconcile("bilibili", [n1, n2], m=m, verbose=False)
+        self.assertEqual(r["missing"], [])
+        self.assertEqual(sorted(r["matched"]),
+                         ["ai-prank-call", "ai-voice-calls"])
+        self.assertEqual(r["unmatched_titles"], [])
+
+    def test_单字符id仍可匹配(self):
+        """前缀键过滤不能误伤 id 本身：合成用例 `a` 要能匹配 `标题A`。"""
+        from multiplatform import verify as V
+        m = S.Manifest(os.path.join(tempfile.mkdtemp(), "m.json"))
+        m.mark_draft("a", "toutiao", "标题A")
+        r = V.reconcile("toutiao", ["标题A"], m=m, verbose=False)
+        self.assertEqual(r["missing"], [])
+        self.assertEqual(r["matched"], {"a": "标题A"})
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

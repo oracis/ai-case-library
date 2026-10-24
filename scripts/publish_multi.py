@@ -271,7 +271,8 @@ def cmd_verify(args):
             titles = V.READERS[p]()
         except Exception as e:                          # noqa: BLE001
             print("读取 %s 草稿箱失败：%s：%s" % (p, type(e).__name__, e))
-            print("（确认调试 Chrome 9222 起着、且已登录该平台）")
+            print("（确认调试 Chrome %d 起着、且已登录该平台）"
+                  % V._port_for(p))
             continue
         V.reconcile(p, titles)
     return 0

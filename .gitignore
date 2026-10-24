@@ -20,6 +20,9 @@ data/verifications.json
 # LLM API Key（后台「AI 核实」面板保存的那份）：绝不入库
 data/secrets.json
 
+# 《31个可复制的AI产品》PDF 买家台账：含第三方微信昵称，属个人数据，绝不入库
+data/pdf31_buyers.csv
+
 # 本地服务日志
 *.log
 
