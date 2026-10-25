@@ -657,5 +657,29 @@
     "status": "draft",
     "appmsgid": "100001090",
     "file": "公众号-verse拆解.html"
+  },
+  "mcdpoints": {
+    "status": "published",
+    "published_at": "2026-10-25 11:16",
+    "publish_type": "publish",
+    "published_appmsgid": "2247484750",
+    "sent_via": "send",
+    "send_reason": "已发表列表出现新记录，标题一致",
+    "title": "用麦当劳官方接口查了一下，我的积分正在悄悄过期",
+    "appmsgid": "100001101",
+    "note": "｜publish模式自动发表，新 appmsgid=2247484750",
+    "verified_at": "2026-10-25 11:16"
+  },
+  "公众号-31个可复制的AI产品-推文": {
+    "status": "published",
+    "published_at": "2026-10-25 22:44",
+    "publish_type": "masssend",
+    "published_appmsgid": "2247484751",
+    "sent_via": "send",
+    "send_reason": "已发表列表出现新记录，标题一致",
+    "title": "我核了 255 个海外 AI 产品的收入，只有 31 个值得抄",
+    "appmsgid": "100000977",
+    "note": "｜masssend模式自动发表，新 appmsgid=2247484751",
+    "verified_at": "2026-10-25 22:44"
   }
 }

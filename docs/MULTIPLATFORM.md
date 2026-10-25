@@ -83,6 +83,7 @@ B站这种「一条草稿要 1 分钟」的平台代价很高。所以 `Adapter.
 | 小红书 | `data/xhs_drafts.json` | ✅ `--yes` | **绝不能透传 `--dry`**：它的 `--dry` 会照常填表，只是不点发布（污染过 bustem 草稿） |
 | 今日头条 | `data/toutiao_drafts.json` + `_published.json` | ✅ `--yes` | 封面是硬要求，`cover.png` 缺了就当产物不完整 |
 | B站专栏 | **只有清单** | ✅ `--yes`（`send-draft` 走编辑器 UI 点「发布」，2026-10-20） | 草稿只存在远端，本地无从判断；**每天限 1 篇**（本账号 lv0~lv3 档，lv4+ 才 5 篇），额度用完发布按钮变灰，脚本明确报失败 |
+| 掘金 | `data/juejin_drafts.json` | ✅ `publish --draft-id/--case` | **唯一纯 REST 的平台**：不开浏览器、不点 DOM，cookie 鉴权；正文吃 **Markdown**（不是 HTML）；普通账号**只能带 1 个标签** |
 
 ## 为什么串行不并发
 
@@ -91,6 +92,87 @@ B站这种「一条草稿要 1 分钟」的平台代价很高。所以 `Adapter.
 草稿箱 tab 挤掉。串行 + 单条重试已经够快（约 70 秒/条）。
 
 并发的正确解法是「一个平台一个 Chrome 实例」，那是以后的事。
+
+## 掘金专章（2026-10-25 新增）
+
+掘金是五家里**唯一不需要浏览器**的：`juejin_publish.py` 全程 REST，
+连 CDP 都不建立（只有首次 `login` 用一次 CDP 抓 cookie）。
+
+### 接口（全部实测，非照抄网文）
+
+| 用途 | 方法 | 路径 | 备注 |
+|---|---|---|---|
+| 验登录 | GET | `/user_api/v1/user/get` | 未登录时 `err_no:0` 但 `data=null` |
+| 分类列表 | POST | `/tag_api/v1/query_category_list` | **免登录** |
+| 标签列表 | POST | `/tag_api/v1/query_tag_list` | **免登录**，须带 `category_id` |
+| 建草稿 | POST | `/content_api/v1/article_draft/create` | `edit_type:10` = Markdown |
+| 更新草稿 | POST | `/content_api/v1/article_draft/update` | |
+| 草稿列表 | POST | `/content_api/v1/article_draft/query_list` | |
+| 删草稿 | POST | `/content_api/v1/article_draft/delete` | |
+| **发布** | POST | **`/content_api/v1/article/publish`** | 带 `draft_id` |
+
+⚠⚠ **网传的 `article_draft/publish` 不存在**（实测 `err_no:2 请求路由不存在`）。
+多篇多平台教程都写的是这个路径，照抄会得到 `err_no:2` —— 而这个错误码
+和「参数不对」长得一样，很容易误判成自己参数写错，一查就是半天。
+
+判定方法：无登录态时打这些路由，返回 `err_no:2` = 路由不存在，
+返回 `403 must login` = 路由真的存在。这样不用登录就能画出接口地图。
+
+### 三个坑
+
+1. **探测写接口别用空体。** 有篇实测用 `{}` 试探 `create`，结果 `err_no:0`
+   —— 真的建出一份空草稿，还得靠 delete 擦屁股。**登录之后，探测只能用只读接口**
+   （`whoami` / `list` / `categories` / `tags`）。
+2. **cookie 是 HttpOnly，读 `document.cookie` 拿到的是空的。**
+   必须用 CDP 的 `Network.getAllCookies`。`login` 里已经这么做了。
+3. **普通账号只能带 1 个标签。** 多传会被截断。脚本检测到 >1 会取第一个并告警。
+
+### 正文是 Markdown，不是 HTML
+
+`mark_content` + `edit_type:10`。所以掘金的稿**不需要 HTML 母版** ——
+`out/articles/<id>.md` 直接喂，独立稿给 `--file xxx.md` 即可。
+这跟公众号/头条/B站三家都不一样（那三家都要 HTML），适配器的
+`requires` 因此声明的是 `.md`。
+
+⚠ 统一 `Article` 模型的 `ok` 只认 `.html`，一篇只有 .md 的 case 会被
+runner 判「缺母版」直接 failed。掘金适配器的 `build()` 会现补 `.md`
+（`make_article --format md`），并且**只补 md、不碰 html** 产物。
+
+### 用法
+
+```bash
+python scripts/juejin_publish.py login                # 首次，轮询到登录成功为止
+python scripts/juejin_publish.py whoami
+python scripts/juejin_publish.py draft --file out/articles/<id>.md --tags GitHub
+python scripts/juejin_publish.py draft --case <id>    # 案例稿
+python scripts/juejin_publish.py list
+python scripts/juejin_publish.py publish --case <id>  # 真发布
+```
+
+### 不在电脑前怎么登录（2026-10-25）
+
+`login` 要开本机 Chrome 抓 cookie，人不在机器旁边就走不通。补一条不依赖
+浏览器的通道：
+
+```bash
+python scripts/juejin_publish.py set-cookie "sessionid=xxx; sid_tt=yyy; ..."
+```
+
+接受三种输入：整条 `Cookie:` 头（可多行、可带前缀）、`a=b; c=d` 片段、
+CDP `Network.getAllCookies` 导出的 JSON 数组。写盘后立刻 `whoami` 验真，
+不是登录态会直接报错（避免拿着游客 cookie 往下走）。
+
+⚠ 手机端**拿不到**这个 cookie：掘金登录票据是 HttpOnly，`document.cookie`
+读不到，手机浏览器也没有 devtools。要拿到只能靠抓包 App（Android: HTTP
+Canary，iOS: Stream）抓一条 `juejin.cn` 的请求，复制它的 `Cookie` 头。
+⛔ 短信验证码登录接口（`passport/web/send_sms_code`）实测返回
+`error_code:16 该应用无权限` —— 那是掘金内部 passport SDK 的口子，
+第三方脚本调不通，别在这条路上耗时间。
+
+cookie 三通道：环境变量 `JUEJIN_COOKIE` > `data/juejin_cookie.json`。
+⚠ cookie 等同密码，`data/juejin_cookie.json` **已加进 .gitignore**
+（不能靠 `data/` 通配——那里头 `cases.json`、`bili_drafts.json`、
+`publish_manifest.json` 都是要跟踪的业务数据）。
 
 ## 用法
 
@@ -365,6 +447,7 @@ python scripts/agnes_cover.py gen --case bustem
 | 小红书 | UI | ⚠️ `send-draft` 已能定位发布按钮（2026-10-20：closed shadow DOM 里的 `ce-btn bg-red`）；**真点一次仍需人拍板** | 1–2min | 创建走 UI；API 创建被 461 风控。草稿箱**不分页**（一次读全 43 条）。真发的实际拦路虎是**草稿图 CDN 签名过期全裂** |
 | 公众号 | UI 存草稿 | ✅ UI「发表」（2026-10-19） | ~30s/条 + 等扫码 | **两种模式都要管理员/运营者扫码**（物理动作，脚本检测到二维码就停下等）；API 无权限（个人订阅号 `freepublish` 48001） |
 | B站专栏 | API（`draft/add`） | ✅ UI「发布」（2026-10-20，`send-draft`） | ~1min | 草稿 47 条随便发，但**每天最多 1 篇**（本账号 lv0~lv3 档，lv4+ 才 5 篇），额度用完发布按钮直接变灰 |
+| 掘金 | API（`article_draft/create`） | ✅ API `article/publish` | 秒级 | 无频次限制；卡点只在**登录态**（cookie 过期后全部接口 403，脚本明确报「未登录」而不假成功） |
 
 **公众号的「发表」已自动化到扫码前最后一步 + 扫码后自动校验**（`wechat_publish.py send`，默认发布模式）：
 开编辑器 → 设「群发通知」开关 → 确认两层 → check 全过后弹出「微信验证」二维码 ⇒

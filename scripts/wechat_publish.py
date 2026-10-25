@@ -4642,6 +4642,14 @@ def cmd_send(args):
         for cid, rec in published.items():
             if rec.get("appmsgid"):
                 by_aid[str(rec["appmsgid"])] = cid
+        # 独立稿记在 STANDALONE_PATH（那份台账的键是 case id，把非案例混进去
+        # 会让 queue/sync 把它当「已发的案例」）。这里补一层回退，
+        # 否则 publish --file 存出来的稿再发表时会报「台账里找不到」。
+        if os.path.exists(STANDALONE_PATH):
+            with open(STANDALONE_PATH, encoding="utf-8") as f:
+                for slug, rec in (json.load(f) or {}).items():
+                    if rec.get("appmsgid"):
+                        by_aid.setdefault(str(rec["appmsgid"]), slug)
         for aid in (x.strip() for x in args.appmsgid.split(",") if x.strip()):
             cid = by_aid.get(aid)
             if not cid:
@@ -4681,8 +4689,22 @@ def cmd_send(args):
     for cid, aid in todo:
         c = by_id.get(cid)
         if not c:
-            print("  [skip] %s 不在 cases.json 里" % cid)
-            continue
+            # 独立稿：本来就不在 cases.json 里（走 publish --file 存的那批），
+            # 从独立稿台账补一个最小 case dict —— send_one 只用它取标题，
+            # 不需要 cases.json 那些全字段。
+            sa_rec = {}
+            if os.path.exists(STANDALONE_PATH):
+                with open(STANDALONE_PATH, encoding="utf-8") as f:
+                    sa_rec = (json.load(f) or {}).get(cid) or {}
+            if sa_rec.get("title"):
+                c = {"id": cid, "name": sa_rec["title"],
+                     "one_liner": sa_rec.get("desc", ""),
+                     "url": "", "tags": []}
+                by_id[cid] = c
+                print("  [独立稿] %s ← %s" % (cid, sa_rec["title"][:34]))
+            else:
+                print("  [skip] %s 不在 cases.json 里，也不在独立稿台账里" % cid)
+                continue
         rec = published.get(cid) or {}
         if rec.get("status") == "partial":
             print("  [注意] %s 是 partial（封面/原创可能没做完），照样发表" % cid)

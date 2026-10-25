@@ -19,6 +19,11 @@ data/admin.json.*
 data/verifications.json
 # LLM API Key（后台「AI 核实」面板保存的那份）：绝不入库
 data/secrets.json
+# 掘金登录凭证（cookie 鉴权，等同密码）—— 绝不能进仓库。
+# 为什么单列而不靠 data/ 通配：项目里 data/*.json 台账（cases/bili_drafts/
+# publish_manifest…）都是**要跟踪**的业务数据，通配一刀切会把它们一起丢掉。
+data/juejin_cookie.json
+data/juejin_cookie.json.*
 
 # 《31个可复制的AI产品》PDF 买家台账：含第三方微信昵称，属个人数据，绝不入库
 data/pdf31_buyers.csv
