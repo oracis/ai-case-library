@@ -125,7 +125,10 @@ def _file_health(plat):
         except ValueError:
             continue                       # 该平台没有这一侧（如公众号）
         except KeyError:
-            bad.append("%s：ledger 里没有这个平台" % plat)
+            # 2026-10-26：juejin 接入后不在 ledger._SPEC 里（自带
+            # data/juejin_drafts.json，slug→draft_id 字典，schema 不同）。
+            # 它的幂等与回读由适配器 verify() 负责（list_drafts 比对
+            # draft_id），本地账体检对它无意义 —— 跳过，不是 ERROR。
             return bad
         if not os.path.isfile(p):
             continue
@@ -156,6 +159,8 @@ def _preflight(plats):
     import ledger_health as H
     errs, warns, infos, total = [], [], 0, 0
     for p in plats:
+        if PLAT_KEY.get(p, p) not in L.PLATFORMS:
+            continue                       # 不进 ledger 体系的平台（juejin），见 _file_health
         errs.extend(_file_health(p))
         try:
             recs = L.load(PLAT_KEY.get(p, p))
