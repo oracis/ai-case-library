@@ -1,4 +1,4 @@
-# AI设计工具Sleek设计3周搭建，月收入10K美元，零付费营销
+# AI 设计工具 Sleek：三周搭建，零付费营销起量
 
 > 平台：toutiao ｜ 案例：Sleek.design（sleek-design）｜ 状态：待推送（本地草稿，未真实发布）
 

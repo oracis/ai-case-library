@@ -1,4 +1,4 @@
-# 【AI工具】HeadshotPro：如何用AI证件照赚$10M+？拆解一个solo运营的爆款案例
+# 【AI工具】拆解一个 solo 运营的 AI 证件照爆款：SEO + 联盟 + 企业采购
 
 > 平台：bilibili ｜ 案例：HeadshotPro（headshotpro）｜ 状态：待推送（本地草稿，未真实发布）
 

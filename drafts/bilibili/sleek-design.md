@@ -1,4 +1,4 @@
-# 【AI 工具】Sleek：3 周搭建，月入 1 万美元，零付费营销的秘诀是什么？
+# 【AI 工具】Sleek：三周搭建，零付费营销，靠 X 和 Reddit 起量
 
 > 平台：bilibili ｜ 案例：Sleek.design（sleek-design）｜ 状态：待推送（本地草稿，未真实发布）
 

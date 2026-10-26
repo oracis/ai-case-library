@@ -1,4 +1,4 @@
-# Klar：AI 备考工具的崛起：如何用 Lovable 搭建产品，30 天内实现 €130K ARR
+# Klar：用 Lovable 搭建的 AI 备考工具，30 天内跑通年化收入
 
 > 平台：juejin ｜ 案例：Klar（原 Tentaklar）（klar）｜ 状态：待推送（本地草稿，未真实发布）
 

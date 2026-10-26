@@ -1,4 +1,4 @@
-# AI Agent助小店低成本建站，一个月实现$8K MRR，揭秘其成功秘诀
+# AI 给小店造站，再寄一张纸质明信片：这套线下获客打法拆解
 
 > 平台：toutiao ｜ 案例：David AI（getdavid.ai）（getdavid）｜ 状态：待推送（本地草稿，未真实发布）
 

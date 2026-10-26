@@ -1,4 +1,4 @@
-# AI赋能小店，月入$8K不是梦！揭秘David AI的赚钱之道
+# AI 造站 + 纸质明信片：一家给小店做网站的公司怎么用线下动作获客
 
 > 平台：wechat ｜ 案例：David AI（getdavid.ai）（getdavid）｜ 状态：待推送（本地草稿，未真实发布）
 

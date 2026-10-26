@@ -1,4 +1,4 @@
-# David AI：AI Agent造站+纸质明信片获客，月入$8K MRR的硬核增长打法
+# David AI：AI Agent 造站 + 纸质明信片获客的硬核增长打法
 
 > 平台：juejin ｜ 案例：David AI（getdavid.ai）（getdavid）｜ 状态：待推送（本地草稿，未真实发布）
 

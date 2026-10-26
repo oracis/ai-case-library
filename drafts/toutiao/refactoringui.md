@@ -1,4 +1,4 @@
-# 开发者界面设计书 Refactoring UI 出版四年累计营收超250万美元
+# 出版四年的开发者设计书：一次性买断，长尾还在卖
 
 > 平台：toutiao ｜ 案例：Refactoring UI（refactoringui）｜ 状态：待推送（本地草稿，未真实发布）
 

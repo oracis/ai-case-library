@@ -1,4 +1,4 @@
-# 从0到1M ARR：Plausible Analytics的隐私友好分析工具之路
+# Plausible Analytics：用 AGPL 开源 + 云托管订阅做起来的隐私分析工具
 
 > 平台：juejin ｜ 案例：Plausible Analytics（plausible）｜ 状态：待推送（本地草稿，未真实发布）
 

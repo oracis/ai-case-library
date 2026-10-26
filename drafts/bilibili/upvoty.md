@@ -1,4 +1,4 @@
-# 今天拆解一个 Bootstrapped 六年的 SaaS 项目：Upvoty，如何用用户反馈投票板和公开路线图做到 $40K+ MRR？
+# 今天拆解一个 bootstrapped 六年的 SaaS：用户反馈投票板 + 公开路线图
 
 > 平台：bilibili ｜ 案例：Upvoty（upvoty）｜ 状态：待推送（本地草稿，未真实发布）
 

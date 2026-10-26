@@ -1,4 +1,4 @@
-# 揭秘开源隐私分析工具如何年入百万：Plausible Analytics的成功之路
+# 开源三年、10 个人、没有投资人：这个隐私分析工具是怎么活下来的？
 
 > 平台：wechat ｜ 案例：Plausible Analytics（plausible）｜ 状态：待推送（本地草稿，未真实发布）
 

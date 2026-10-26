@@ -1,4 +1,4 @@
-# Flodesk：设计优先的邮件营销平台，如何零融资做到 $36M+ ARR？
+# Flodesk：设计优先的邮件营销平台，被 YC 拒绝后自筹做起来
 
 > 平台：juejin ｜ 案例：Flodesk（flodesk）｜ 状态：待推送（本地草稿，未真实发布）
 

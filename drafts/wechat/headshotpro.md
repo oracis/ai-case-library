@@ -1,4 +1,4 @@
-# 从0到10M+，这个AI证件照工具如何solo运营成为爆款？
+# 一个人做的 AI 证件照：Fortune 500 团队也在买
 
 > 平台：wechat ｜ 案例：HeadshotPro（headshotpro）｜ 状态：待推送（本地草稿，未真实发布）
 

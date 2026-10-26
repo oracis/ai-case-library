@@ -1,4 +1,4 @@
-# 🚀 Plausible Analytics：小众神器，3年做到100万美元ARR，隐私分析新选择！
+# 🚀 Plausible Analytics：不追踪用户的分析工具，10 人团队做起来了！
 
 > 平台：xhs ｜ 案例：Plausible Analytics（plausible）｜ 状态：待推送（本地草稿，未真实发布）
 

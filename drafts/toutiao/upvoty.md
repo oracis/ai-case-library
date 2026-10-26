@@ -1,4 +1,4 @@
-# Upvoty：六年bootstrapped，靠投票板和公开路线图实现$40K+ MRR
+# 六年 bootstrapped 的用户反馈工具：靠「Alternatives to」内容截流
 
 > 平台：toutiao ｜ 案例：Upvoty（upvoty）｜ 状态：待推送（本地草稿，未真实发布）
 

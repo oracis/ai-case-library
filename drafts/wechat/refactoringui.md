@@ -1,4 +1,4 @@
-# 从 $2.5M 营收看开发者界面设计书的成功之道：Refactoring UI 的案例解析
+# 先有受众，后做书：一个写给程序员的设计书是怎么卖起来的
 
 > 平台：wechat ｜ 案例：Refactoring UI（refactoringui）｜ 状态：待推送（本地草稿，未真实发布）
 

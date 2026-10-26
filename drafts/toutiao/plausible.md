@@ -1,4 +1,4 @@
-# 开源网站分析工具Plausible Analytics实现100万美元年度收入
+# 不追踪用户的网站分析工具：开源三年，靠订阅者养活
 
 > 平台：toutiao ｜ 案例：Plausible Analytics（plausible）｜ 状态：待推送（本地草稿，未真实发布）
 

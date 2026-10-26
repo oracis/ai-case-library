@@ -1,4 +1,4 @@
-# 【AI赋能】David AI：如何用AI给小店造站，一个月做到$8K MRR？
+# 【AI赋能】用 AI 给小店造站，再用纸质明信片获客：拆解这套组合拳
 
 > 平台：bilibili ｜ 案例：David AI（getdavid.ai）（getdavid）｜ 状态：待推送（本地草稿，未真实发布）
 

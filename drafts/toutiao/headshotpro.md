@@ -1,4 +1,4 @@
-# AI职业证件照神器HeadshotPro：solo运营，累计营收超1000万美元
+# solo 运营的 AI 证件照工具 HeadshotPro：SEO + 联盟怎么打
 
 > 平台：toutiao ｜ 案例：HeadshotPro（headshotpro）｜ 状态：待推送（本地草稿，未真实发布）
 

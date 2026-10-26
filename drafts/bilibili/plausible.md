@@ -1,4 +1,4 @@
-# 今天拆解一个开源网站分析工具：Plausible Analytics，如何用 $1M ARR 的成绩说话？
+# 今天拆解一个不卖数据的网站分析工具：AGPL 开源，收入全靠订阅
 
 > 平台：bilibili ｜ 案例：Plausible Analytics（plausible）｜ 状态：待推送（本地草稿，未真实发布）
 

@@ -1,4 +1,4 @@
-# 从零到几百万美金ARR，PDF.ai如何用AI工具颠覆PDF处理市场？
+# 精准域名就是它的 SEO：PDF.ai 如何靠搜索意图起量
 
 > 平台：toutiao ｜ 案例：PDF.ai（pdfai）｜ 状态：待推送（本地草稿，未真实发布）
 
