@@ -515,10 +515,6 @@ class TestTokenEntry(unittest.TestCase):
             self.assertNotIn("new_target(MP_HOME)", ln)
 
 
-if __name__ == "__main__":
-    unittest.main(verbosity=2)
-
-
 # ======================================================================
 # 「发表」自动化（2026-10-19）：判定纯函数 + CLI 计划 + 记账约定
 # ======================================================================
@@ -1078,3 +1074,52 @@ class TestFindArticle(unittest.TestCase):
 
     def test_什么都没有返回None(self):
         self.assertIsNone(W.find_article("ghost"))
+
+
+# ======================================================================
+# fix_markdown（2026-10-26）：源稿 markdown → 发布就绪 HTML
+# ======================================================================
+class TestFixMarkdown(unittest.TestCase):
+    """守的是「源稿里的标记不能漏到读者眼前」这条线。
+
+    背景：out/articles/*.html 是 **markdown 源**，粗体一律写成 `**x**`，
+    由 build_one 调 fix_markdown 转成 <strong>。所以源稿里出现 `**` 是设计，
+    不是脏数据；真正的坑是**转换本身失效或误配**，那种情况发文时才发现。
+    """
+
+    def test_粗体成对转strong(self):
+        out = W.fix_markdown("<p>**结论**：别碰</p>")
+        self.assertIn("<strong>结论</strong>", out)
+        self.assertNotIn("**", out)
+
+    def test_斜体转em(self):
+        out = W.fix_markdown("<p>非常 *关键* 的一点</p>")
+        self.assertIn("<em>关键</em>", out)
+
+    def test_反引号转书名号(self):
+        # 反引号原先完全没人处理，会带着反引号印在正文里（wpconvert 已发布版如此）
+        out = W.fix_markdown("<p>唯一拿到 `solo_possible` 的</p>")
+        self.assertNotIn("`", out)
+        self.assertIn("「solo_possible」", out)
+
+    def test_不配对的粗体不许跨段吞HTML(self):
+        # 漏一个收尾 **，旧正则会把 </p><p> 一起包进 <strong>（实测复现过）。
+        # 收紧后：不转换，标记原样留着，交给残留检查报出来。
+        bad = "<p>前文 **加粗</p><p>中间正文</p><p>另一处** 收尾</p>"
+        out = W.fix_markdown(bad)
+        self.assertNotIn("<strong>", out)
+        self.assertIn("中间正文", out)
+
+    def test_真实源稿转换后无残留标记(self):
+        # 抽一批真实源稿：转换后不许再有 `**` 或反引号（有就是源稿漏配对了）
+        import glob
+        paths = sorted(glob.glob(os.path.join(W.ARTICLES_DIR, "*.html")))[:40]
+        self.assertTrue(paths, "没找到任何源稿，测试形同虚设")
+        for p in paths:
+            out = W.fix_markdown(open(p, encoding="utf-8").read())
+            self.assertNotIn("**", out, "%s 转换后仍残留 **" % os.path.basename(p))
+            self.assertNotIn("`", out, "%s 转换后仍残留反引号" % os.path.basename(p))
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
