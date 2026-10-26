@@ -1,0 +1,246 @@
+{
+ "_note": "howtomakemi backlog 47 条的页面收入口径（2026-10-26 逐条读 money 段人工核定）。invalid = 那个数不是收入（GMV/融资额/定价）；unknown = 页面没说清月还是年。入库前必须按本表核对；口径表由 scripts/_oneoff/htm_backlog_screen.py 读取。",
+ "_summary": {
+  "annual": 31,
+  "unknown": 3,
+  "invalid": 7,
+  "monthly": 6
+ },
+ "items": {
+  "higgsfield": {
+   "caliber": "annual",
+   "page_raw": "¥47.04亿",
+   "name": "Higgsfield"
+  },
+  "medvi": {
+   "caliber": "annual",
+   "page_raw": "¥26.95亿",
+   "name": "MEDVi"
+  },
+  "huntress": {
+   "caliber": "annual",
+   "page_raw": "¥16.8亿",
+   "name": "Huntress"
+  },
+  "lovable": {
+   "caliber": "annual",
+   "page_raw": "¥13.44亿",
+   "name": "Lovable"
+  },
+  "bland-ai": {
+   "caliber": "unknown",
+   "page_raw": "¥6.72亿",
+   "name": "Bland AI"
+  },
+  "glean": {
+   "caliber": "annual",
+   "page_raw": "¥6.72亿",
+   "name": "Glean"
+  },
+  "hightouch": {
+   "caliber": "annual",
+   "page_raw": "¥6.72亿",
+   "name": "Hightouch"
+  },
+  "micro1": {
+   "caliber": "annual",
+   "page_raw": "¥6.72亿",
+   "name": "micro1"
+  },
+  "primeintellect": {
+   "caliber": "annual",
+   "page_raw": "¥6.72亿",
+   "name": "Prime Intellect"
+  },
+  "retell": {
+   "caliber": "annual",
+   "page_raw": "¥5.38亿",
+   "name": "Retell AI"
+  },
+  "cognition": {
+   "caliber": "annual",
+   "page_raw": "¥4.91亿",
+   "name": "Cognition"
+  },
+  "skello": {
+   "caliber": "annual",
+   "page_raw": "¥3.77亿",
+   "name": "Skello"
+  },
+  "appliedcompute": {
+   "caliber": "annual",
+   "page_raw": "¥3.36亿",
+   "name": "Applied Compute"
+  },
+  "hello-clever": {
+   "caliber": "annual",
+   "page_raw": "¥3.36亿",
+   "name": "Hello Clever"
+  },
+  "openrouter": {
+   "caliber": "annual",
+   "page_raw": "¥3.36亿",
+   "name": "OpenRouter"
+  },
+  "paraform": {
+   "caliber": "invalid",
+   "page_raw": "¥3.36亿",
+   "name": "Paraform"
+  },
+  "cruva": {
+   "caliber": "invalid",
+   "page_raw": "¥3.16亿",
+   "name": "Cruva"
+  },
+  "decagon": {
+   "caliber": "annual",
+   "page_raw": "¥2.96亿",
+   "name": "Decagon"
+  },
+  "n8n": {
+   "caliber": "annual",
+   "page_raw": "¥2.69亿",
+   "name": "n8n"
+  },
+  "fable-security": {
+   "caliber": "invalid",
+   "page_raw": "¥2.08亿",
+   "name": "Fable Security"
+  },
+  "omnidocs": {
+   "caliber": "annual",
+   "page_raw": "¥2.03亿",
+   "name": "Omnidocs"
+  },
+  "tern-group": {
+   "caliber": "annual",
+   "page_raw": "¥2.02亿",
+   "name": "TERN Group"
+  },
+  "opencode": {
+   "caliber": "unknown",
+   "page_raw": "¥1.68亿",
+   "name": "OpenCode"
+  },
+  "lexroom": {
+   "caliber": "annual",
+   "page_raw": "¥1.57亿",
+   "name": "Lexroom"
+  },
+  "sanas": {
+   "caliber": "annual",
+   "page_raw": "¥1.41亿",
+   "name": "Sanas"
+  },
+  "viverdeia": {
+   "caliber": "annual",
+   "page_raw": "¥1.34亿",
+   "name": "Viver de IA"
+  },
+  "develop-health": {
+   "caliber": "invalid",
+   "page_raw": "¥1.3亿",
+   "name": "Develop Health"
+  },
+  "morph": {
+   "caliber": "invalid",
+   "page_raw": "¥1.28亿",
+   "name": "Morph"
+  },
+  "picturethis": {
+   "caliber": "monthly",
+   "page_raw": "¥1.01亿",
+   "name": "PictureThis（形色）"
+  },
+  "serviceform": {
+   "caliber": "annual",
+   "page_raw": "¥1.01亿",
+   "name": "Serviceform"
+  },
+  "doomers": {
+   "caliber": "annual",
+   "page_raw": "¥6,720万",
+   "name": "Doomers"
+  },
+  "rox": {
+   "caliber": "invalid",
+   "page_raw": "¥5,376万",
+   "name": "Rox"
+  },
+  "stimuler": {
+   "caliber": "annual",
+   "page_raw": "¥3,696万",
+   "name": "Stimuler"
+  },
+  "jobright": {
+   "caliber": "annual",
+   "page_raw": "¥3,360万",
+   "name": "Jobright"
+  },
+  "geviti": {
+   "caliber": "annual",
+   "page_raw": "¥2,016万",
+   "name": "Geviti"
+  },
+  "outward": {
+   "caliber": "unknown",
+   "page_raw": "¥672万",
+   "name": "Outward Intelligence"
+  },
+  "rosie": {
+   "caliber": "annual",
+   "page_raw": "¥672万",
+   "name": "Rosie"
+  },
+  "tjm-labs": {
+   "caliber": "annual",
+   "page_raw": "¥672万",
+   "name": "TJM Labs"
+  },
+  "boredhumans": {
+   "caliber": "monthly",
+   "page_raw": "¥492.6万",
+   "name": "BoredHumans"
+  },
+  "crustdata": {
+   "caliber": "annual",
+   "page_raw": "¥336万",
+   "name": "Crustdata"
+  },
+  "workhero": {
+   "caliber": "annual",
+   "page_raw": "¥336万",
+   "name": "WorkHero"
+  },
+  "sandra-ai": {
+   "caliber": "annual",
+   "page_raw": "¥295.7万",
+   "name": "Sandra AI"
+  },
+  "autoshorts": {
+   "caliber": "monthly",
+   "page_raw": "¥69.2万",
+   "name": "AutoShorts.ai"
+  },
+  "research-match": {
+   "caliber": "monthly",
+   "page_raw": "¥36.4万",
+   "name": "Research Match"
+  },
+  "salesrobot": {
+   "caliber": "monthly",
+   "page_raw": "¥33.6万",
+   "name": "SalesRobot"
+  },
+  "gistly": {
+   "caliber": "monthly",
+   "page_raw": "¥32万",
+   "name": "Gistly"
+  },
+  "crowdreply": {
+   "caliber": "invalid",
+   "page_raw": "¥665",
+   "name": "CrowdReply"
+  }
+ }
+}
