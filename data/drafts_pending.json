@@ -1,0 +1,414 @@
+{
+ "generated_at": "2026-10-26 20:35",
+ "note": "本地待推送草稿台账；非真实平台草稿箱记录，reconcile 不应将其视为已推送。",
+ "cases": 10,
+ "platforms": [
+  "wechat",
+  "toutiao",
+  "xhs",
+  "bilibili",
+  "juejin"
+ ],
+ "drafts": [
+  {
+   "case_id": "upvoty",
+   "name": "Upvoty",
+   "platform": "wechat",
+   "title": "bootstrapped 六年：这个用户反馈工具靠什么活到今天",
+   "file": "drafts/wechat/upvoty.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "upvoty",
+   "name": "Upvoty",
+   "platform": "toutiao",
+   "title": "六年 bootstrapped 的用户反馈工具：靠「Alternatives to」内容截流",
+   "file": "drafts/toutiao/upvoty.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "upvoty",
+   "name": "Upvoty",
+   "platform": "xhs",
+   "title": "🚀 用「用户反馈投票板」做起来的生意，六年没融过资",
+   "file": "drafts/xhs/upvoty.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "upvoty",
+   "name": "Upvoty",
+   "platform": "bilibili",
+   "title": "今天拆解一个 bootstrapped 六年的 SaaS：用户反馈投票板 + 公开路线图",
+   "file": "drafts/bilibili/upvoty.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "upvoty",
+   "name": "Upvoty",
+   "platform": "juejin",
+   "title": "Upvoty：用户反馈投票板的增长之路，六年自举没融过资",
+   "file": "drafts/juejin/upvoty.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "sleek-design",
+   "name": "Sleek.design",
+   "platform": "wechat",
+   "title": "三周搭出来的 AI 设计工具：零付费营销是怎么起量的",
+   "file": "drafts/wechat/sleek-design.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "sleek-design",
+   "name": "Sleek.design",
+   "platform": "toutiao",
+   "title": "AI 设计工具 Sleek：三周搭建，零付费营销起量",
+   "file": "drafts/toutiao/sleek-design.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "sleek-design",
+   "name": "Sleek.design",
+   "platform": "xhs",
+   "title": "🚀 3 周搭出来的 AI 设计工具，零付费营销也起量了！🤯",
+   "file": "drafts/xhs/sleek-design.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "sleek-design",
+   "name": "Sleek.design",
+   "platform": "bilibili",
+   "title": "【AI 工具】Sleek：三周搭建，零付费营销，靠 X 和 Reddit 起量",
+   "file": "drafts/bilibili/sleek-design.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "sleek-design",
+   "name": "Sleek.design",
+   "platform": "juejin",
+   "title": "Sleek.design：AI 移动应用设计工具的硬核增长之路",
+   "file": "drafts/juejin/sleek-design.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "refactoringui",
+   "name": "Refactoring UI",
+   "platform": "wechat",
+   "title": "先有受众，后做书：一个写给程序员的设计书是怎么卖起来的",
+   "file": "drafts/wechat/refactoringui.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "refactoringui",
+   "name": "Refactoring UI",
+   "platform": "toutiao",
+   "title": "出版四年的开发者设计书：一次性买断，长尾还在卖",
+   "file": "drafts/toutiao/refactoringui.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "refactoringui",
+   "name": "Refactoring UI",
+   "platform": "xhs",
+   "title": "🚀 写给程序员的设计书，不靠订阅也能长卖！",
+   "file": "drafts/xhs/refactoringui.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "refactoringui",
+   "name": "Refactoring UI",
+   "platform": "bilibili",
+   "title": "【拆解案例】Refactoring UI：开发者界面设计书的成功之道",
+   "file": "drafts/bilibili/refactoringui.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "refactoringui",
+   "name": "Refactoring UI",
+   "platform": "juejin",
+   "title": "Refactoring UI：开发者界面设计书的成功之道",
+   "file": "drafts/juejin/refactoringui.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "plausible",
+   "name": "Plausible Analytics",
+   "platform": "wechat",
+   "title": "开源三年、10 个人、没有投资人：这个隐私分析工具是怎么活下来的？",
+   "file": "drafts/wechat/plausible.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "plausible",
+   "name": "Plausible Analytics",
+   "platform": "toutiao",
+   "title": "不追踪用户的网站分析工具：开源三年，靠订阅者养活",
+   "file": "drafts/toutiao/plausible.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "plausible",
+   "name": "Plausible Analytics",
+   "platform": "xhs",
+   "title": "🚀 Plausible Analytics：不追踪用户的分析工具，10 人团队做起来了！",
+   "file": "drafts/xhs/plausible.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "plausible",
+   "name": "Plausible Analytics",
+   "platform": "bilibili",
+   "title": "今天拆解一个不卖数据的网站分析工具：AGPL 开源，收入全靠订阅",
+   "file": "drafts/bilibili/plausible.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "plausible",
+   "name": "Plausible Analytics",
+   "platform": "juejin",
+   "title": "Plausible Analytics：用 AGPL 开源 + 云托管订阅做起来的隐私分析工具",
+   "file": "drafts/juejin/plausible.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "pdfai",
+   "name": "PDF.ai",
+   "platform": "wechat",
+   "title": "一个人、0 员工、0 融资：这个「跟 PDF 对话」的工具是怎么做起来的？",
+   "file": "drafts/wechat/pdfai.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "pdfai",
+   "name": "PDF.ai",
+   "platform": "toutiao",
+   "title": "精准域名就是它的 SEO：PDF.ai 如何靠搜索意图起量",
+   "file": "drafts/toutiao/pdfai.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "pdfai",
+   "name": "PDF.ai",
+   "platform": "xhs",
+   "title": "🚀 PDF.ai：跟任何 PDF 对话，一个人的生意也能做大！",
+   "file": "drafts/xhs/pdfai.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "pdfai",
+   "name": "PDF.ai",
+   "platform": "bilibili",
+   "title": "今天拆解一个 solo 做的 AI 工具：域名本身就是它的增长引擎",
+   "file": "drafts/bilibili/pdfai.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "pdfai",
+   "name": "PDF.ai",
+   "platform": "juejin",
+   "title": "PDF.ai 的 AI 工具增长黑客之路：精准域名 + 定价迁移",
+   "file": "drafts/juejin/pdfai.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "klar",
+   "name": "Klar（原 Tentaklar）",
+   "platform": "wechat",
+   "title": "三个不会写代码的大学生：靠 Lovable 做出来的 AI 备考工具",
+   "file": "drafts/wechat/klar.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "klar",
+   "name": "Klar（原 Tentaklar）",
+   "platform": "toutiao",
+   "title": "三个瑞典大学生用 Lovable 搭出 AI 备考工具，零广告费起量",
+   "file": "drafts/toutiao/klar.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "klar",
+   "name": "Klar（原 Tentaklar）",
+   "platform": "xhs",
+   "title": "三个瑞典大学生，不会写代码也做出了 AI 备考工具🤯",
+   "file": "drafts/xhs/klar.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "klar",
+   "name": "Klar（原 Tentaklar）",
+   "platform": "bilibili",
+   "title": "三个瑞典大学生如何用 AI 工具做备考产品？不会写代码，全靠 Lovable",
+   "file": "drafts/bilibili/klar.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "klar",
+   "name": "Klar（原 Tentaklar）",
+   "platform": "juejin",
+   "title": "Klar：用 Lovable 搭建的 AI 备考工具，30 天内跑通年化收入",
+   "file": "drafts/juejin/klar.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "headshotpro",
+   "name": "HeadshotPro",
+   "platform": "wechat",
+   "title": "一个人做的 AI 证件照：Fortune 500 团队也在买",
+   "file": "drafts/wechat/headshotpro.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "headshotpro",
+   "name": "HeadshotPro",
+   "platform": "toutiao",
+   "title": "solo 运营的 AI 证件照工具 HeadshotPro：SEO + 联盟怎么打",
+   "file": "drafts/toutiao/headshotpro.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "headshotpro",
+   "name": "HeadshotPro",
+   "platform": "xhs",
+   "title": "🚀 HeadshotPro：AI 职业证件照神器，一个人做出 Fortune 500 团队都在买的产品",
+   "file": "drafts/xhs/headshotpro.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "headshotpro",
+   "name": "HeadshotPro",
+   "platform": "bilibili",
+   "title": "【AI工具】拆解一个 solo 运营的 AI 证件照爆款：SEO + 联盟 + 企业采购",
+   "file": "drafts/bilibili/headshotpro.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "headshotpro",
+   "name": "HeadshotPro",
+   "platform": "juejin",
+   "title": "HeadshotPro：AI 职业证件照工具的成功之道：SEO+联盟营销的硬核拆解",
+   "file": "drafts/juejin/headshotpro.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "3ak-track-field",
+   "name": "3AK Track & Field",
+   "platform": "wechat",
+   "title": "先有 15 万粉受众，后有产品：两个田径生如何用 AI 做训练 App？",
+   "file": "drafts/wechat/3ak-track-field.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "3ak-track-field",
+   "name": "3AK Track & Field",
+   "platform": "toutiao",
+   "title": "两个零编程经验的田径生：靠 15 万粉受众 + AI 做出训练 App",
+   "file": "drafts/toutiao/3ak-track-field.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "3ak-track-field",
+   "name": "3AK Track & Field",
+   "platform": "xhs",
+   "title": "两个田径生用 AI 搞钱，15 万粉受众是他们的启动器！",
+   "file": "drafts/xhs/3ak-track-field.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "3ak-track-field",
+   "name": "3AK Track & Field",
+   "platform": "bilibili",
+   "title": "两个田径生如何用 15 万粉受众和 AI 打造 App？先受众后产品",
+   "file": "drafts/bilibili/3ak-track-field.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "3ak-track-field",
+   "name": "3AK Track & Field",
+   "platform": "juejin",
+   "title": "两位田径生如何用 AI 和社交媒体打造爆款运动 App",
+   "file": "drafts/juejin/3ak-track-field.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "getdavid",
+   "name": "David AI（getdavid.ai）",
+   "platform": "wechat",
+   "title": "AI 造站 + 纸质明信片：一家给小店做网站的公司怎么用线下动作获客",
+   "file": "drafts/wechat/getdavid.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "getdavid",
+   "name": "David AI（getdavid.ai）",
+   "platform": "toutiao",
+   "title": "AI 给小店造站，再寄一张纸质明信片：这套线下获客打法拆解",
+   "file": "drafts/toutiao/getdavid.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "getdavid",
+   "name": "David AI（getdavid.ai）",
+   "platform": "xhs",
+   "title": "AI 造站 + 一张明信片，这获客方式太酷了！🔥",
+   "file": "drafts/xhs/getdavid.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "getdavid",
+   "name": "David AI（getdavid.ai）",
+   "platform": "bilibili",
+   "title": "【AI赋能】用 AI 给小店造站，再用纸质明信片获客：拆解这套组合拳",
+   "file": "drafts/bilibili/getdavid.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "getdavid",
+   "name": "David AI（getdavid.ai）",
+   "platform": "juejin",
+   "title": "David AI：AI Agent 造站 + 纸质明信片获客的硬核增长打法",
+   "file": "drafts/juejin/getdavid.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "flodesk",
+   "name": "Flodesk",
+   "platform": "wechat",
+   "title": "一个被 YC 拒绝的邮件工具：靠「一口价 + 无限发」做成了大生意",
+   "file": "drafts/wechat/flodesk.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "flodesk",
+   "name": "Flodesk",
+   "platform": "toutiao",
+   "title": "零融资的邮件营销平台 Flodesk：把邮件工具做成了设计工具",
+   "file": "drafts/toutiao/flodesk.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "flodesk",
+   "name": "Flodesk",
+   "platform": "xhs",
+   "title": "🚀 Flodesk：邮件营销里的颜值担当，零融资做成大生意！",
+   "file": "drafts/xhs/flodesk.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "flodesk",
+   "name": "Flodesk",
+   "platform": "bilibili",
+   "title": "【拆解】Flodesk：不按订阅人数涨价，把邮件工具做成设计工具",
+   "file": "drafts/bilibili/flodesk.md",
+   "status": "pending"
+  },
+  {
+   "case_id": "flodesk",
+   "name": "Flodesk",
+   "platform": "juejin",
+   "title": "Flodesk：设计优先的邮件营销平台，被 YC 拒绝后自筹做起来",
+   "file": "drafts/juejin/flodesk.md",
+   "status": "pending"
+  }
+ ]
+}

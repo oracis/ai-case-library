@@ -41,6 +41,61 @@ def md_files():
     return out
 
 
+class TestDraftLedgerSync(unittest.TestCase):
+    """台账 data/drafts_pending.json 的 title 必须与草稿首行一致。
+
+    台账是「这条草稿叫什么」的唯一记录，将来发布脚本大概率直接取它的
+    `title` 字段。而它只在 `gen_platform_drafts.py` 生成时被写入一次——
+    之后任何对草稿首行的改动都不会回写。2026-10-27 实测：标题去金额改了
+    41 条首行，台账里 46 条 title 仍留着带金额的旧版，推上去就是绕过铁律。
+
+    同步用 `scripts/sync_draft_ledger.py`（幂等），这里只锁状态。
+    """
+
+    def setUp(self):
+        self.ledger_path = os.path.join(ROOT, "data", "drafts_pending.json")
+        if not os.path.isfile(self.ledger_path):
+            self.skipTest("没有待推送台账，跳过")
+        import json
+        self.ledger = json.loads(read(self.ledger_path))
+        self.records = self.ledger.get("drafts") or []
+
+    def test_台账非空(self):
+        self.assertTrue(self.records, "台账里一条草稿都没有")
+
+    def test_台账_title_与草稿首行一致(self):
+        bad = []
+        for rec in self.records:
+            rel = (rec.get("file") or "").replace("\\", "/")
+            path = os.path.join(ROOT, rel)
+            if not os.path.isfile(path):
+                bad.append("草稿文件不存在：%s" % rel)
+                continue
+            head = read(path).split("\n")[0].strip()
+            head = head[2:].strip() if head.startswith("# ") else ""
+            if head != (rec.get("title") or "").strip():
+                bad.append("%s\n      台账：%s\n      首行：%s"
+                           % (rel, (rec.get("title") or "")[:50], head[:50]))
+        self.assertFalse(bad, "台账 title 与草稿首行不一致（跑 "
+                              "scripts/sync_draft_ledger.py）：\n  "
+                         + "\n  ".join(bad))
+
+    def test_台账_title_不许带金额(self):
+        import fix_draft_titles as m
+        bad = []
+        for rec in self.records:
+            t = rec.get("title") or ""
+            if m.MONEY_RE.search(t):
+                bad.append("%s  %s" % (rec.get("file"), t[:60]))
+        self.assertFalse(bad, "台账 title 仍带金额：\n  " + "\n  ".join(bad))
+
+    def test_台账_file_用正斜杠(self):
+        # 入库后要能在 Linux 上打开；os.path.relpath 在 Windows 下给反斜杠
+        bad = [rec.get("file") for rec in self.records
+               if "\\" in (rec.get("file") or "")]
+        self.assertFalse(bad, "file 字段含反斜杠：\n  " + "\n  ".join(bad[:5]))
+
+
 class TestDraftTitles(unittest.TestCase):
 
     def setUp(self):
