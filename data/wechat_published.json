@@ -591,9 +591,12 @@
   "ai-prank-call": {
     "title": "AI Prank Call：AI 语音恶作剧服务，32 活跃订阅数",
     "published_at": "2026-10-25 00:43",
-    "status": "draft",
+    "status": "published",
     "appmsgid": "100000991",
-    "file": "公众号-ai-prank-call拆解.html"
+    "file": "公众号-ai-prank-call拆解.html",
+    "group_sent": true,
+    "synced_at": "2026-10-26 15:47",
+    "sync_note": "远端已发表列表里存在，本地由 sync 回写"
   },
   "betting-tips": {
     "title": "Betting Tips：为足球、篮球、网球、美式足球和棒球爱好者提供每日专家投注建议",
@@ -681,5 +684,12 @@
     "appmsgid": "100000977",
     "note": "｜masssend模式自动发表，新 appmsgid=2247484751",
     "verified_at": "2026-10-25 22:44"
+  },
+  "agentsguild": {
+    "title": "AgentsGuild：近 30 天已验证收入 ，为游戏开发者提供 AI 代理和技能工具包",
+    "published_at": "2026-10-26 13:09",
+    "status": "draft",
+    "appmsgid": "100001114",
+    "file": "公众号-agentsguild拆解.html"
   }
 }

@@ -59,6 +59,38 @@
    "title": ""
   }
  },
+ "agentsguild": {
+  "bilibili": {
+   "at": "2026-10-26 13:14",
+   "attempt": 1,
+   "state": "draft_saved",
+   "title": "AgentsGuild：近 30 天已验证收入 ，为游戏开发"
+  },
+  "juejin": {
+   "at": "2026-10-26 12:56",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "AgentsGuild：近 30 天收入 $398，TrustMRR 实时核对（非订阅制，MRR 恒 0）"
+  },
+  "toutiao": {
+   "at": "2026-10-26 13:57",
+   "attempt": 2,
+   "state": "draft_saved",
+   "title": "AgentsGuild：近 30 天已验证收入 ，为游戏开发"
+  },
+  "wechat": {
+   "at": "2026-10-26 13:09",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "AgentsGuild：近 30 天已验证收入 ，为游戏开发"
+  },
+  "xhs": {
+   "at": "2026-10-26 13:12",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "AgentsGuild：近 30 天已验证收入 ，为游戏开发"
+  }
+ },
  "ai-math-solver": {
   "bilibili": {
    "at": "2026-10-25 02:11",
@@ -87,28 +119,34 @@
  },
  "ai-prank-call": {
   "bilibili": {
-   "at": "2026-10-25 02:11",
+   "at": "2026-10-26 14:38",
+   "attempt": 2,
+   "state": "published",
+   "title": "AI Prank Call：AI 语音恶作剧服务，32 活跃"
+  },
+  "juejin": {
+   "at": "2026-10-26 14:18",
    "attempt": 1,
-   "state": "draft_saved",
+   "state": "published",
    "title": "AI Prank Call：AI 语音恶作剧服务，32 活跃"
   },
   "toutiao": {
-   "at": "2026-10-25 00:13",
+   "at": "2026-10-26 14:23",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": "AI Prank Call：MRR $320，TrustMRR 实时核对"
+   "state": "published",
+   "title": "AI Prank Call：AI 语音恶作剧服务，32 活跃"
   },
   "wechat": {
-   "at": "2026-10-25 00:43",
+   "at": "2026-10-26 15:47",
    "attempt": 0,
-   "state": "draft_saved",
+   "state": "published",
    "title": "AI Prank Call：AI 语音恶作剧服务，32 活跃"
   },
   "xhs": {
-   "at": "2026-10-25 01:25",
-   "attempt": 0,
-   "state": "draft_saved",
-   "title": "AI Prank Call：AI 语音恶作剧服务，32 活跃"
+   "at": "2026-10-26 15:28",
+   "attempt": 2,
+   "state": "published",
+   "title": "AI Prank Call"
   }
  },
  "ai-smart-decor": {
