@@ -37096,7 +37096,8 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-26"
-    }
+    },
+    "cover_desc": "不做生成器，做那个帮你把视频发出去的人"
   },
   {
     "status": "curated",
@@ -37830,7 +37831,8 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-26"
-    }
+    },
+    "cover_desc": "把「这家公司办不办签证」做成生意"
   },
   {
     "status": "curated",
