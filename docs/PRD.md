@@ -352,6 +352,7 @@ v3.1 的八条落在「拿数据 → 核 → 入库 → 建站 → 上线」这�
 | 15 | **get-cases 新增 `{subscribe:{email}}` 周报订阅动作**（M3，配合 `yuanjing-web`） | 落地页表单需要持久化订阅者。**不走集合直写**（要给匿名用户开 subscribers 集合写权限，等于放垃圾注入进来）：云函数侧做格式校验（`^[^@\s]+@[^@\s]+\.[^@\s]+$`，≤200 字符）+ email 去重（where count）后写 `subscribers` 集合，字段 `{email, source, created_at}`。不要求登录态。`subscribers` 集合权限保持默认全关（仅管理端读写），云函数是唯一写入口 |
 | 16 | **export-cases 新增 `{filter:{tier,verification,quadrant}}` 服务端筛选**（M4，配合 `yuanjing-web`） | 订阅站导出页要筛选导出。为避免「下载全量再本地筛」造成筛选口径漂移，筛选放服务端：仅白名单三键，`'all'`/空 = 不过滤，非法值静默忽略；与 Web 端 `yuanjing-web/site/js/csv.js` 的 `applyFilter` 同语义（键变更两边同步）。权益硬校验不变（canReadFull 先于筛选执行，无权益直接 40301） |
 | 17 | **新增反向样本表 `data/anti_cases.json` + 选案例手册 `docs/SELECTION_PLAYBOOK.md`**（数据契约变更） | 45 条 backlog 的四道筛子只活在一次对话和一份临时报告里，下一批会推出不同结论；同时 33 条 T3 被措辞成「剔除」，把「剔除出可抄清单」与「剔除出选题池」混成一件事。逐条核完 33 条页面的「💰 月收入」后：**只有 1 条（picturethis）名副其实**，其余 19 条是 ARR、4 条年营收（读成月收入放大 12 倍）、4 条融资额、1 条 GMV、1 条定价、2 条口径对不上、1 条年/月不明。**不进 `cases.json`** 的三个理由：①33 条里 20 多条是活得很好的公司（lovable 估值 ¥443.52亿），进推荐位是事实错误；②`china_fit`/`solo_fit`/`composite` 按「值得做」排序，给它们打低分只是在排行尾部堆 33 条无信息量条目；③`verify_deploy` 拿 `curated` 计数与线上比对、`score_*` 缺表会静默清空评分。落地：`scripts/build_anti_cases.py`（`JUDGE` 表驱动，缺表直接报错不静默跳过）、`scripts/test_anti_cases.py` 17 项（含 id 不许与 cases 相撞、anti 不许进篇号台账）、`wechat_publish.py build --anti --case`（摘要走 `summary` 回退链、不写 `issue_numbers.json`）。顺带复核出 `htm_backlog_caliber.json` 5 条与页面原文不符（rox / crustdata / tjm-labs / bland-ai / sanas），已在新表 `caliber_conflict` 留痕，旧表不回改 |
+| 18 | **反向样本区：按门槛类型分 7 篇 + 上站**（数据契约变更 `anti_cases/1`→`/2`） | 33 条按 `role` 只有三类、`structural` 独占 21 条 —— 一篇一万五千字，读者只记得「他们都很有钱」，正是手册 §2.2 点名的陷阱。改为按**门槛类型**切 7 篇（账单 6 / 人头 4 / 苦力 5 / 社区 3 / 关系 3 / 资格 7 / 数字 5），每条必归篇、篇条数与 `VOLUME_COUNTS` 不符则脚本直接退出（旧的 `report_group` ①②③④ 下线，两份分组并存必然漂移）。上站方式：`/api/data` 加 **`anti` 独立键**（`{cases,volumes,built_at}`）+ `stats.anti`；前端 `#anti` 视图（chips 只放短名，全名留篇头）；预渲染 `anti/index.html` **一页**（进 sitemap、不引 app.js、不落 `case/` —— `verify_deploy` 断言「case 链接数 = curated 数」，塞进去会让「没少案例」这条唯一判据失效）；`build_static` 自检加三道锁（anti id 不混进 cases / 页面缺条目 / 篇条数不符）。顺带改正 `lovable` 的 `caliber`（annual→arr，其 `caliber_note` 原文就是 ARR）与移动端底部 tab 的 `width:100%` 老 bug（每项占满整条栏，9 个 tab 只能一次看到一个）。测试：`test_anti_cases` 17→20、`test_prerender` 54→68、`test_build_static` 49→56 |
 
 ---
 
@@ -370,7 +371,7 @@ v3.1 的八条落在「拿数据 → 核 → 入库 → 建站 → 上线」这�
 
 | 优先级 | 问题 | 影响 |
 |---|---|---|
-| **P1** | 前端不渲染 `verification_downgraded` / `source_kind` / `tier_reason` / `quality_score` / `caliber`（`static/app.js` 中 0 处引用） | 「曾被机器降级」等诚实度卖点对读者不可见，透明度未打满 |
+| **P1** | 案例视图不渲染 `verification_downgraded` / `source_kind` / `tier_reason` / `quality_score`（`caliber` 已在反向样本区渲染，见 §6.1 #18；案例卡仍不显示） | 「曾被机器降级」等诚实度卖点对读者不可见，透明度未打满 |
 | **P1** | 公众号草稿列表窗口只拉最近 50/60 篇，`refresh` 按标题反查 | 老草稿既不能补封面也不能刷新；`appmsgid` 缺失条目只能手工定位 |
 | P2 | 公众号编辑器 DOM 选择器是硬编码实测值（`cover_input`/`save_draft` 仍为 `None`） | 微信改版会全线失效 |
 | P2 | `deploy_oss` 全量覆盖、无版本化、孤儿文件不清理 | 删文件需手动 |

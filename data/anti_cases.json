@@ -1,8 +1,8 @@
 {
-  "_schema": "anti_cases/1",
-  "_note": "反向样本表：可以读、不建议照抄的案例。与 cases.json（推荐位）和 graveyard.json（已停运）并列，三者证据口径不同，不要混。role=structural 护城河在钱/算力/人力/数据/关系；role=license 缺资格而不是缺能力；role=caliber 页面那个数根本不是收入——这一类不许写成「它做不成」。",
+  "_schema": "anti_cases/2",
+  "_note": "反向样本表：可以读、不建议照抄的案例。与 cases.json（推荐位）和 graveyard.json（已停运）并列，三者证据口径不同，不要混。role=structural 护城河在钱/算力/人力/数据/关系；role=license 缺资格而不是缺能力；role=caliber 页面那个数根本不是收入——这一类不许写成「它做不成」。volume=这一批按「门槛类型」合并成 7 篇时它归哪一篇（无 volume 即旧版本数据）。",
   "_source": "howtomakemi.com/cases/<slug>/ 整页快照（2026-10-26 抓，33/33 成功），页面自列媒体的原文未逐条打开，故 verification 一律 aggregator。",
-  "_built_at": "2026-10-26 23:04",
+  "_built_at": "2026-10-26 23:54",
   "_summary": {
     "total": 33,
     "by_role": {
@@ -11,69 +11,150 @@
       "caliber": 5
     },
     "by_caliber": {
-      "arr": 19,
-      "invalid": 2,
-      "funding": 4,
-      "annual": 4,
+      "arr": 20,
+      "annual": 3,
       "mrr": 1,
       "unknown": 1,
+      "invalid": 2,
+      "funding": 4,
       "price": 1,
       "gmv": 1
     },
+    "by_volume": {
+      "bill": 6,
+      "headcount": 4,
+      "grunt": 5,
+      "community": 3,
+      "trust": 3,
+      "license": 7,
+      "caliber": 5
+    },
+    "volumes": 7,
+    "standalone_written": 3,
     "caliber_conflicts": 5,
     "caliber_pending": 5,
     "originals_opened": 0
   },
-  "cases": [
+  "volumes": [
     {
-      "id": "appliedcompute",
-      "name": "Applied Compute",
-      "category": "AI 基础设施",
-      "origin": "美国",
-      "one_liner": "三个前 OpenAI 研究员（o1 / Codex / RL 基建）2025 年创业，帮企业\"用自己的数据训练专属模型\"而不是买通用大模型——\"Specific Intelligence\"，约 ¥3.36亿 年化收入、估值 ¥87.36亿、在谈 ¥201.6亿新一轮",
-      "site": "https://www.appliedcompute.com",
-      "role": "structural",
-      "roles": [
-        "structural",
-        "caliber"
+      "key": "bill",
+      "no": "Ⅰ",
+      "short": "账单",
+      "title": "用钱买来的规模",
+      "judge": "边际成本随用量线性涨，规模是融资垫出来的",
+      "lead": "这几条的产品逻辑大多能抄。抄不动的是一句话：他们先花掉了几亿。要读的是「钱具体花在哪一格」——推理账单、算力垫款、买公司、买下载量，四种花法对应四种完全不同的入场价。",
+      "count": 6,
+      "ids": [
+        "cognition",
+        "higgsfield",
+        "lovable",
+        "omnidocs",
+        "picturethis",
+        "primeintellect"
       ],
-      "report_group": "①",
-      "series_tag": "这些别照着做 · 结构篇",
-      "series_footer": "— 万物解释者 · 这些别照着做 —",
-      "role_note": "三个前 OpenAI 研究员（o1 / Codex / RL 基建）。这条案例的产品是人，不是代码。",
-      "why_not_copy": [
-        "创始履历本身就是获客渠道：企业买的是「OpenAI 原班人马帮我训模型」",
-        "估值 ¥87.36亿，在谈 ¥201.6亿新一轮",
-        "「用客户自己的数据训专属模型」= 每个客户一次交付，本质是咨询+算力的混合体"
-      ],
-      "article_angle": "「Specific Intelligence」这个故事的可抄部分为零，可读部分很大：它说明企业真正想买的是「懂我行业的人」，而不是「更好的模型」。",
-      "page_label": {
-        "key": "月收入",
-        "value": "¥3.36亿",
-        "sub": "2026-Q3"
-      },
-      "caliber": "arr",
-      "caliber_note": "「¥3.36亿」原文是年化收入；数据口径段只复述了估值基准（新轮未关闭，以已披露 ¥87.36亿为准），收入本身没有二次来源。",
-      "verification": "aggregator",
-      "verified_at": "2026-10-26",
-      "sources": [
-        {
-          "label": "howtomakemi.com 案例页（含其自列来源）",
-          "url": "https://howtomakemi.com/cases/appliedcompute/"
-        },
-        {
-          "label": "产品官网",
-          "url": "https://www.appliedcompute.com"
-        }
-      ],
-      "source_check": {
-        "page_read": "2026-10-26",
-        "originals_opened": false,
-        "note": "只读了聚合站整页，页面自列媒体的原文未逐条打开"
-      },
-      "needs_verify": false,
-      "needs_verify_reason": null
+      "role": "structural"
     },
+    {
+      "key": "headcount",
+      "no": "Ⅱ",
+      "short": "人头",
+      "title": "人力就是交付能力",
+      "judge": "交付要有人接电话、有人复核、有人上门，产能不由代码决定",
+      "lead": "有些生意的产能不是代码写的，是人头写的。看这类案例只需要问一句：它敢不敢在合同里承诺响应时间？敢，就说明背后有一排工位。",
+      "count": 4,
+      "ids": [
+        "decagon",
+        "huntress",
+        "micro1",
+        "sanas"
+      ],
+      "role": "structural"
+    },
+    {
+      "key": "grunt",
+      "no": "Ⅲ",
+      "short": "苦力",
+      "title": "每个系统都要重做一遍",
+      "judge": "覆盖面靠逐个适配（连接器 / 国别 / 毫秒），只能拿时间换",
+      "lead": "这类门槛最不性感，也最劝退：它没有技巧，只有数量。400 个连接器、几百个下游、每进一国重写一遍规则——这些活没有捷径，只能一年一年堆。",
+      "count": 5,
+      "ids": [
+        "glean",
+        "hightouch",
+        "openrouter",
+        "retell",
+        "skello"
+      ],
+      "role": "structural"
+    },
+    {
+      "key": "community",
+      "no": "Ⅳ",
+      "short": "社区",
+      "title": "买不到、只能攒的分发",
+      "judge": "星数 / 粉丝 / 月活是时间攒出来的关系资产，不随产品转移",
+      "lead": "「零融资做到几千万」的案例几乎都属于这一篇。它们确实没拿钱，但手里握着一个用钱买不到的东西：二十年攒下的 2500 万粉丝，或者 20 万颗 GitHub 星。",
+      "count": 3,
+      "ids": [
+        "doomers",
+        "n8n",
+        "opencode"
+      ],
+      "role": "structural"
+    },
+    {
+      "key": "trust",
+      "no": "Ⅴ",
+      "short": "关系",
+      "title": "首单靠上一家公司",
+      "judge": "客户信任与数据资产来自创始人履历和长期采购，不是产品功能",
+      "lead": "这一篇最容易被误读成「技术很强」。技术是真的强，但让客户签字的不是技术：是「他上一家公司叫什么」、「这三个人的名字在哪个圈子里」。",
+      "count": 3,
+      "ids": [
+        "appliedcompute",
+        "crustdata",
+        "fable-security"
+      ],
+      "role": "structural"
+    },
+    {
+      "key": "license",
+      "no": "Ⅵ",
+      "short": "资格",
+      "title": "缺的不是能力，是那张证",
+      "judge": "门槛是牌照 / 执业资质 / 专业责任兜底，不是技术难度",
+      "lead": "读者常以为自己做不了是因为技术不够。这一篇要说明的是另一件事：有些生意是**资格**问题——处方权、支付清算、护士执业互认、律师签字。能力到了，证没到，一样进不去。",
+      "count": 7,
+      "ids": [
+        "develop-health",
+        "geviti",
+        "hello-clever",
+        "lexroom",
+        "medvi",
+        "tern-group",
+        "tjm-labs"
+      ],
+      "role": "license"
+    },
+    {
+      "key": "caliber",
+      "no": "Ⅶ",
+      "short": "数字",
+      "title": "那个数根本不是收入",
+      "judge": "页面那个数是融资额 / GMV / 定价，不是收入（⚠ 不许写成「它做不成」）",
+      "lead": "这一篇不评价生意，只评价数字。五条案例被聚合成「月入几亿」，逐条回源之后，这五个数字分别是：一条预估 ARR、一条平台流水、一条定价档位、两条融资额。⚠ 它们大多活得很好，写法见手册 §3。",
+      "count": 5,
+      "ids": [
+        "bland-ai",
+        "crowdreply",
+        "morph",
+        "paraform",
+        "rox"
+      ],
+      "role": "caliber"
+    }
+  ],
+  "cases": [
     {
       "id": "cognition",
       "name": "Cognition",
@@ -85,7 +166,7 @@
       "roles": [
         "structural"
       ],
-      "report_group": "①",
+      "volume": "bill",
       "series_tag": "这些别照着做 · 结构篇",
       "series_footer": "— 万物解释者 · 这些别照着做 —",
       "role_note": "估值 ¥685.44亿；九个月 ARR 涨 70 倍的曲线里，有一大段是收购 Windsurf 并进来的。",
@@ -123,254 +204,6 @@
       "needs_verify_reason": null
     },
     {
-      "id": "crustdata",
-      "name": "Crustdata",
-      "category": "AI 数据基础设施",
-      "origin": "美国",
-      "one_liner": "三个前 Uber / Postmates 工程师，把实时 B2B 数据做成 AI agent 的燃料——7 个月营收从 77 万冲到 400 万+",
-      "site": "https://crustdata.com",
-      "role": "structural",
-      "roles": [
-        "structural",
-        "caliber"
-      ],
-      "report_group": "①",
-      "series_tag": "这些别照着做 · 结构篇",
-      "series_footer": "— 万物解释者 · 这些别照着做 —",
-      "role_note": "6000 万家公司、10 亿人的实时 B2B 数据——数据资产是买来+爬来+清洗出来的。",
-      "why_not_copy": [
-        "数据规模 6000 万公司 / 10 亿人，实时更新；这是持续投入不是一次性采集",
-        "客户是 AI agent 厂商（模型需要实时事实），属于上游供给",
-        "「7 个月营收从 77 万冲到 400 万+」的曲线靠的是数据覆盖度，不是功能"
-      ],
-      "article_angle": "这条本身就是一个数据事故的前排座位：同一条案例，标签取曲线起点、正文写终点。「同一个数在同一个页面上有两个值」是可以单独写一篇的题材。",
-      "page_label": {
-        "key": "月收入",
-        "value": "¥336万",
-        "sub": "公司官网披露「We hit ¥6,720万 ARR! ¥336万 to ¥6,720万 in 1.5 years」"
-      },
-      "caliber": "invalid",
-      "caliber_note": "标签 ¥336万；同卡副标题写的是公司官网原话「We hit ¥6,720万 ARR! ¥336万 to ¥6,720万」，¥336万 是**增长曲线的起点**，不是当前值。取错端点。",
-      "verification": "aggregator",
-      "verified_at": "2026-10-26",
-      "sources": [
-        {
-          "label": "howtomakemi.com 案例页（含其自列来源）",
-          "url": "https://howtomakemi.com/cases/crustdata/"
-        },
-        {
-          "label": "产品官网",
-          "url": "https://crustdata.com"
-        }
-      ],
-      "source_check": {
-        "page_read": "2026-10-26",
-        "originals_opened": false,
-        "note": "只读了聚合站整页，页面自列媒体的原文未逐条打开"
-      },
-      "caliber_conflict": {
-        "table": "data/htm_backlog_caliber.json",
-        "old": "annual",
-        "now": "invalid",
-        "why": "旧表取了标签值对应的「营收曲线」，但页面副标题原文是「We hit ¥6,720万 ARR! ¥336万 to ¥6,720万」——¥336万 是曲线起点，不是当前值。"
-      },
-      "needs_verify": true,
-      "needs_verify_reason": "caliber_undefined"
-    },
-    {
-      "id": "decagon",
-      "name": "Decagon",
-      "category": "AI Agent",
-      "origin": "美国",
-      "one_liner": "给企业做 AI 客服 agent（对话/邮件/语音），按解决量计费，2025 年底 ARR 约 ¥2.96亿、2026 年中冲到 ¥6.72亿，估值 ¥302.4亿",
-      "site": "https://decagon.ai",
-      "role": "structural",
-      "roles": [
-        "structural"
-      ],
-      "report_group": "①",
-      "series_tag": "这些别照着做 · 结构篇",
-      "series_footer": "— 万物解释者 · 这些别照着做 —",
-      "role_note": "按「解决量」计费，意味着要为客户的结果兜底；背后是模型 + 人工复核 + 客户系统集成三层。",
-      "why_not_copy": [
-        "估值 ¥302.4亿，客户是 Eventbrite、Notion 这个量级的企业",
-        "按解决量收费 = 卖结果不卖工具，答错一次要赔的是客户体验",
-        "接一套企业客服系统要动工单、知识库、权限，一个客户三个月起"
-      ],
-      "article_angle": "「按结果收费」听起来比订阅高级，实际是把交付风险接了过来。这条能写「定价模式决定你能不能一个人干」。",
-      "page_label": {
-        "key": "月收入",
-        "value": "¥2.96亿",
-        "sub": "2025 年底"
-      },
-      "caliber": "arr",
-      "caliber_note": "「¥2.96亿」为 2025 年底 ARR，标签写「月收入」。",
-      "verification": "aggregator",
-      "verified_at": "2026-10-26",
-      "sources": [
-        {
-          "label": "howtomakemi.com 案例页（含其自列来源）",
-          "url": "https://howtomakemi.com/cases/decagon/"
-        },
-        {
-          "label": "产品官网",
-          "url": "https://decagon.ai"
-        }
-      ],
-      "source_check": {
-        "page_read": "2026-10-26",
-        "originals_opened": false,
-        "note": "只读了聚合站整页，页面自列媒体的原文未逐条打开"
-      },
-      "needs_verify": false,
-      "needs_verify_reason": null
-    },
-    {
-      "id": "doomers",
-      "name": "Doomers",
-      "category": "AI 营销",
-      "origin": "美国",
-      "one_liner": "「病毒式分发即服务」：左手握 2500 万粉丝的创作者网络，右手接 AI 公司的发布需求，6 个月做到 ¥6,720万 ARR、零融资",
-      "site": "https://doomers.ai",
-      "role": "structural",
-      "roles": [
-        "structural"
-      ],
-      "report_group": "④",
-      "series_tag": "这些别照着做 · 结构篇",
-      "series_footer": "— 万物解释者 · 这些别照着做 —",
-      "role_note": "零融资是真的，但资产是手里 2500 万粉丝的创作者网络——这个资产不能买，只能攒。",
-      "why_not_copy": [
-        "2500 万粉丝的创作者网络是十年攒的关系资产，不随产品转移",
-        "「病毒式分发即服务」的交付是排期与创作者协调，人工密度高",
-        "客户是 AI 公司的发布预算，属于甲方市场，议价权不在它手上"
-      ],
-      "article_angle": "「零融资做到 ¥6,720万 ARR」是最容易被当成「你也能」的一条。这条能写「关系资产算不算护城河」——以及它为什么无法继承。",
-      "page_label": {
-        "key": "月收入",
-        "value": "¥6,720万",
-        "sub": "2026 年 9 月更新口径，非早期「3 个月」说法"
-      },
-      "caliber": "arr",
-      "caliber_note": "「¥6,720万」原文为 ARR，标签写「月收入」；页面自己注明早期有「3 个月」说法、2026-09 更新为「6 个月」，本文取最新口径。",
-      "verification": "aggregator",
-      "verified_at": "2026-10-26",
-      "sources": [
-        {
-          "label": "howtomakemi.com 案例页（含其自列来源）",
-          "url": "https://howtomakemi.com/cases/doomers/"
-        },
-        {
-          "label": "产品官网",
-          "url": "https://doomers.ai"
-        }
-      ],
-      "source_check": {
-        "page_read": "2026-10-26",
-        "originals_opened": false,
-        "note": "只读了聚合站整页，页面自列媒体的原文未逐条打开"
-      },
-      "needs_verify": false,
-      "needs_verify_reason": null
-    },
-    {
-      "id": "fable-security",
-      "name": "Fable Security",
-      "category": "企业安全",
-      "origin": "美国",
-      "one_liner": "两个 Abnormal AI 老兵专攻「人为风险」——不做打勾式安全培训，实时干预员工行为；出 stealth 即拿 ¥2.08亿，钓鱼点击率降 85%",
-      "site": "https://fablesecurity.com",
-      "role": "structural",
-      "roles": [
-        "structural",
-        "caliber"
-      ],
-      "report_group": "②",
-      "series_tag": "这些别照着做 · 结构篇",
-      "series_footer": "— 万物解释者 · 这些别照着做 —",
-      "role_note": "两个 Abnormal AI 老兵做「人为风险」——出 stealth 就有 Pennymac、DNC 这类客户，靠的是创始人上一家公司攒下的企业信任链。",
-      "why_not_copy": [
-        "出 stealth 即拿 ¥2.08亿融资，种子 Greylock、A 轮 Redpoint",
-        "客户是美国民主党全国委员会、Genesys、Pennymac——采购要过安全评审与合规",
-        "「实时干预员工行为」涉及员工隐私，欧洲市场的合法性另算"
-      ],
-      "article_angle": "企业安全的销售本质是「你上一家公司叫什么」。这条能写「信任链资产」——以及为什么安全创业几乎没有第一次创业者。",
-      "page_label": {
-        "key": "月收入",
-        "value": "¥2.08亿",
-        "sub": "月收入"
-      },
-      "caliber": "funding",
-      "caliber_note": "「¥2.08亿」是**出 stealth 时的累计融资**（种子 Greylock 领投、A 轮 Redpoint 领投），标签写「月收入」。页面从头到尾没有披露过收入。",
-      "verification": "aggregator",
-      "verified_at": "2026-10-26",
-      "sources": [
-        {
-          "label": "howtomakemi.com 案例页（含其自列来源）",
-          "url": "https://howtomakemi.com/cases/fable-security/"
-        },
-        {
-          "label": "产品官网",
-          "url": "https://fablesecurity.com"
-        }
-      ],
-      "source_check": {
-        "page_read": "2026-10-26",
-        "originals_opened": false,
-        "note": "只读了聚合站整页，页面自列媒体的原文未逐条打开"
-      },
-      "needs_verify": false,
-      "needs_verify_reason": null
-    },
-    {
-      "id": "glean",
-      "name": "Glean",
-      "category": "企业 AI 搜索",
-      "origin": "美国",
-      "one_liner": "前 Google 杰出工程师 Arvind Jain 做的「企业版 AI 搜索引擎」，把散落在 Slack、Drive、Salesforce 等上百个系统里的知识统一起来，ARR 从 ¥6.72亿（2025 年初）冲到 ¥20.16亿（2026 年中），估值 ¥483.84亿",
-      "site": "https://www.glean.com",
-      "role": "structural",
-      "roles": [
-        "structural"
-      ],
-      "report_group": "①",
-      "series_tag": "这些别照着做 · 结构篇",
-      "series_footer": "— 万物解释者 · 这些别照着做 —",
-      "role_note": "把 Slack、Drive、Salesforce 上百个系统的知识统一起来——连接器数量是苦力活，每个企业系统都要单独谈权限模型。",
-      "why_not_copy": [
-        "估值 ¥483.84亿；创始人 Arvind Jain 是前 Google 杰出工程师，首单靠履历打开",
-        "上百个连接器，每个都涉及权限、增量同步、字段映射",
-        "企业搜索的采购方是 IT 与安全部门，一次上线要过合规评审"
-      ],
-      "article_angle": "「企业版 AI 搜索」这个品类只有一种做法：把连接器铺满。这条能写「连接器数量本身就是护城河」。",
-      "page_label": {
-        "key": "月收入",
-        "value": "¥6.72亿",
-        "sub": "截至 2025 年 1 月 31 日"
-      },
-      "caliber": "arr",
-      "caliber_note": "「¥6.72亿」原文「ARR 官方 2025 财年破 ¥6.72亿」，标签写「月收入」；同段还给了 Sacra 估的 ¥20.16亿（2026-05），两个数相差一倍多。",
-      "verification": "aggregator",
-      "verified_at": "2026-10-26",
-      "sources": [
-        {
-          "label": "howtomakemi.com 案例页（含其自列来源）",
-          "url": "https://howtomakemi.com/cases/glean/"
-        },
-        {
-          "label": "产品官网",
-          "url": "https://www.glean.com"
-        }
-      ],
-      "source_check": {
-        "page_read": "2026-10-26",
-        "originals_opened": false,
-        "note": "只读了聚合站整页，页面自列媒体的原文未逐条打开"
-      },
-      "needs_verify": false,
-      "needs_verify_reason": null
-    },
-    {
       "id": "higgsfield",
       "name": "Higgsfield",
       "category": "AI 应用",
@@ -381,7 +214,7 @@
       "roles": [
         "structural"
       ],
-      "report_group": "①",
+      "volume": "bill",
       "series_tag": "这些别照着做 · 结构篇",
       "series_footer": "— 万物解释者 · 这些别照着做 —",
       "role_note": "「把模型聚合成可用工作流」这层产品逻辑确实可抄，但托着它的是每月数亿元的推理账单和一支能签下 390 家财富 500 强的 BD 队伍。",
@@ -419,102 +252,6 @@
       "needs_verify_reason": null
     },
     {
-      "id": "hightouch",
-      "name": "Hightouch",
-      "category": "企业数据基础设施",
-      "origin": "美国",
-      "one_liner": "三个 Segment 老兵反着做 CDP——不把数据搬到新平台，而是直接从数据仓库同步；7 年做到 ¥184.8亿估值、年经常性收入破 ¥6.72亿",
-      "site": "https://hightouch.com",
-      "role": "structural",
-      "roles": [
-        "structural"
-      ],
-      "report_group": "①",
-      "series_tag": "这些别照着做 · 结构篇",
-      "series_footer": "— 万物解释者 · 这些别照着做 —",
-      "role_note": "「反着做 CDP」这个产品判断很漂亮，但把它卖进 Spotify、DoorDash 的是一支企业销售组织。",
-      "why_not_copy": [
-        "累计融资超 ¥21.64亿，估值 ¥184.8亿（14 个月翻倍）",
-        "同步过 7.3 万亿条记录、覆盖 200 多个下游；每个下游都要单独适配",
-        "客户名单是 Spotify / DoorDash / Domino's——这是靠销售周期换来的信任"
-      ],
-      "article_angle": "「不搬数据、只做同步」是可抄的判断；「怎么让 Spotify 签字」不可抄。这条能写「产品判断与销售组织哪个才是壁垒」。",
-      "page_label": {
-        "key": "月收入",
-        "value": "¥6.72亿",
-        "sub": "月收入"
-      },
-      "caliber": "arr",
-      "caliber_note": "「¥6.72亿」原文「2025 年 ARR 突破 ¥6.72亿」，标签写「月收入」。",
-      "verification": "aggregator",
-      "verified_at": "2026-10-26",
-      "sources": [
-        {
-          "label": "howtomakemi.com 案例页（含其自列来源）",
-          "url": "https://howtomakemi.com/cases/hightouch/"
-        },
-        {
-          "label": "产品官网",
-          "url": "https://hightouch.com"
-        }
-      ],
-      "source_check": {
-        "page_read": "2026-10-26",
-        "originals_opened": false,
-        "note": "只读了聚合站整页，页面自列媒体的原文未逐条打开"
-      },
-      "needs_verify": false,
-      "needs_verify_reason": null
-    },
-    {
-      "id": "huntress",
-      "name": "Huntress",
-      "category": "网络安全",
-      "origin": "哥伦比亚",
-      "one_liner": "所有人都在做「更聪明的 AI」，三个前 NSA 转身做「替你挡 AI 攻击的人」，干到 ¥16.8亿 ARR",
-      "site": "https://huntress.com",
-      "role": "structural",
-      "roles": [
-        "structural"
-      ],
-      "report_group": "②",
-      "series_tag": "这些别照着做 · 结构篇",
-      "series_footer": "— 万物解释者 · 这些别照着做 —",
-      "role_note": "报告把它归在「牌照/合规」，但更准确的卡点是**人力规模**：24×7 托管安全 = 三班倒的 SOC。",
-      "why_not_copy": [
-        "800+ 员工、27 万家企业客户、2 万家渠道伙伴——800 人是产品的一部分",
-        "24×7 值守不能靠 AI 完全替代，出事要有人接电话",
-        "2.5 亿美元 ARR 在安全行业里也属于头部，渠道体系是十年铺的"
-      ],
-      "article_angle": "托管服务型安全公司的人头就是交付能力。这条能写「什么时候人力规模本身就是护城河」——以及为什么它反过来限制了利润率。",
-      "page_label": {
-        "key": "月收入",
-        "value": "¥16.8亿",
-        "sub": "月收入"
-      },
-      "caliber": "arr",
-      "caliber_note": "「¥16.8亿」原文「2.5 亿 ARR」（$250M），标签写「月收入」。",
-      "verification": "aggregator",
-      "verified_at": "2026-10-26",
-      "sources": [
-        {
-          "label": "howtomakemi.com 案例页（含其自列来源）",
-          "url": "https://howtomakemi.com/cases/huntress/"
-        },
-        {
-          "label": "产品官网",
-          "url": "https://huntress.com"
-        }
-      ],
-      "source_check": {
-        "page_read": "2026-10-26",
-        "originals_opened": false,
-        "note": "只读了聚合站整页，页面自列媒体的原文未逐条打开"
-      },
-      "needs_verify": false,
-      "needs_verify_reason": null
-    },
-    {
       "id": "lovable",
       "name": "Lovable",
       "category": "AI 应用",
@@ -525,7 +262,7 @@
       "roles": [
         "structural"
       ],
-      "report_group": "①",
+      "volume": "bill",
       "series_tag": "这些别照着做 · 结构篇",
       "series_footer": "— 万物解释者 · 这些别照着做 —",
       "role_note": "开源前身 GPT Engineer 的社区、两年 ¥36.96亿的融资、以及每个月付给模型厂商的钱，三样都不是一个人能凑齐的。",
@@ -540,7 +277,7 @@
         "value": "¥13.44亿",
         "sub": "2025 年 12 月披露，Bloomberg/Reuters 核实"
       },
-      "caliber": "annual",
+      "caliber": "arr",
       "caliber_note": "「¥13.44亿」原文是「¥13.44亿 ARR」，卡片标签写「月收入」。注意这个数同时等于 2025-07 A 轮融资额 ¥13.44亿——同一个数字被用在两个口径上。",
       "verification": "aggregator",
       "verified_at": "2026-10-26",
@@ -560,102 +297,8 @@
         "note": "只读了聚合站整页，页面自列媒体的原文未逐条打开"
       },
       "summary": "「两个人做出来的」是产出端的事实。投入端的三个事实常被省掉：累计融资、每次生成都要付的推理成本、以及一场免费的分发红利。",
-      "needs_verify": false,
-      "needs_verify_reason": null
-    },
-    {
-      "id": "micro1",
-      "name": "micro1",
-      "category": "AI 数据",
-      "origin": "美国",
-      "one_liner": "给 OpenAI / Anthropic / Google 等前沿实验室供\"筛过的领域专家\"做 RLHF 与数据标注，ARR 从 2025 初 ¥4,704万冲到年底 ¥6.72亿",
-      "site": "https://micro1.com",
-      "role": "structural",
-      "roles": [
-        "structural"
-      ],
-      "report_group": "①",
-      "series_tag": "这些别照着做 · 结构篇",
-      "series_footer": "— 万物解释者 · 这些别照着做 —",
-      "role_note": "它卖的不是软件，是「筛过的领域专家」——给 OpenAI / Anthropic / Google 供人做 RLHF。",
-      "why_not_copy": [
-        "供给端是几万名通过考试的领域专家，这是一张人力网络，不是代码库",
-        "客户是前沿实验室，采购量随它们的训练预算波动，没有留存概念可言",
-        "毛利随专家单价走，规模越大越像人力外包公司"
-      ],
-      "article_angle": "「AI 数据」这门生意最容易被误读成 SaaS。这条能写「看着像软件的人力公司」——以及为什么它的收入曲线会随客户预算断崖。",
-      "page_label": {
-        "key": "月收入",
-        "value": "¥6.72亿",
-        "sub": "2025 年底"
-      },
-      "caliber": "arr",
-      "caliber_note": "「¥6.72亿」为 ARR，标签写「月收入」；一年内从 ¥4,704万 涨到 ¥6.72亿（约 14 倍）。",
-      "verification": "aggregator",
-      "verified_at": "2026-10-26",
-      "sources": [
-        {
-          "label": "howtomakemi.com 案例页（含其自列来源）",
-          "url": "https://howtomakemi.com/cases/micro1/"
-        },
-        {
-          "label": "产品官网",
-          "url": "https://micro1.com"
-        }
-      ],
-      "source_check": {
-        "page_read": "2026-10-26",
-        "originals_opened": false,
-        "note": "只读了聚合站整页，页面自列媒体的原文未逐条打开"
-      },
-      "needs_verify": false,
-      "needs_verify_reason": null
-    },
-    {
-      "id": "n8n",
-      "name": "n8n",
-      "category": "工作流自动化",
-      "origin": "德国",
-      "one_liner": "把 AI 和自动化画在同一张画布上的工作流平台，20.4 万星、ARR 超 ¥2.69亿、估值 ¥168亿",
-      "site": "https://n8n.io",
-      "role": "structural",
-      "roles": [
-        "structural"
-      ],
-      "report_group": "①",
-      "series_tag": "这些别照着做 · 结构篇",
-      "series_footer": "— 万物解释者 · 这些别照着做 —",
-      "role_note": "20.4 万 GitHub 星、23 万活跃用户、估值 ¥168亿——七年攒的社区资产，不是功能堆出来的。",
-      "why_not_copy": [
-        "社区版免费、付费来自企业合规与托管，这是典型 open-core，要先有社区才谈得上付费",
-        "20 万星的积累跨了七个版本周期；同期同类产品大多已经停更",
-        "接 400+ 个第三方系统的连接器，是长期苦力活，不是一次性开发"
-      ],
-      "article_angle": "open-core 的付费转化只在「企业必须合规」时才发生。这条能写「开源项目什么时候才开始赚钱」。",
-      "page_label": {
-        "key": "月收入",
-        "value": "¥2.69亿",
-        "sub": "截至 2025 年 3 月的公司口径"
-      },
-      "caliber": "arr",
-      "caliber_note": "「¥2.69亿」原文「ARR 超 ¥2.69亿」，标签写「月收入」。",
-      "verification": "aggregator",
-      "verified_at": "2026-10-26",
-      "sources": [
-        {
-          "label": "howtomakemi.com 案例页（含其自列来源）",
-          "url": "https://howtomakemi.com/cases/n8n/"
-        },
-        {
-          "label": "产品官网",
-          "url": "https://n8n.io"
-        }
-      ],
-      "source_check": {
-        "page_read": "2026-10-26",
-        "originals_opened": false,
-        "note": "只读了聚合站整页，页面自列媒体的原文未逐条打开"
-      },
+      "standalone": true,
+      "standalone_article": "公众号-lovable拆解.html",
       "needs_verify": false,
       "needs_verify_reason": null
     },
@@ -671,7 +314,7 @@
         "structural",
         "caliber"
       ],
-      "report_group": "④",
+      "volume": "bill",
       "series_tag": "这些别照着做 · 结构篇",
       "series_footer": "— 万物解释者 · 这些别照着做 —",
       "role_note": "2.5 年 6 次收购，6000+ 客户。这家公司的核心能力是并购整合，不是产品开发。",
@@ -709,102 +352,6 @@
       "needs_verify_reason": null
     },
     {
-      "id": "opencode",
-      "name": "OpenCode",
-      "category": "AI 开发者工具",
-      "origin": "加拿大",
-      "one_liner": "不做模型也不绑 IDE，卡在中间做「谁的模型都能接」的终端编程工具，一年做到 800 万月活、GitHub 最受欢迎",
-      "site": "https://opencode.ai",
-      "role": "structural",
-      "roles": [
-        "structural"
-      ],
-      "report_group": "①",
-      "series_tag": "这些别照着做 · 结构篇",
-      "series_footer": "— 万物解释者 · 这些别照着做 —",
-      "role_note": "800 万月活、GitHub 最受欢迎——这个位置是开源社区攒出来的，不是产品做出来的。",
-      "why_not_copy": [
-        "核心工具开源免费，收入来自按 token 收费的 Zen 网关，等于自己开了一家模型分销",
-        "800 万月活的运维成本与社区治理成本，与收入不成比例",
-        "同赛道是 Claude Code / Cursor / Codex，全部有大厂预算在烧"
-      ],
-      "article_angle": "开源编程工具的护城河是贡献者数量，而贡献者只在「你已经是标准」之后才来。这条能写「开源商业化的顺序问题」。",
-      "page_label": {
-        "key": "月收入",
-        "value": "¥1.68亿",
-        "sub": "月收入"
-      },
-      "caliber": "annual",
-      "caliber_note": "「¥1.68亿」原文是「预计年收入」，标签写「月收入」；数据口径段自己也注明「为『预计』而非审计数字」。",
-      "verification": "aggregator",
-      "verified_at": "2026-10-26",
-      "sources": [
-        {
-          "label": "howtomakemi.com 案例页（含其自列来源）",
-          "url": "https://howtomakemi.com/cases/opencode/"
-        },
-        {
-          "label": "产品官网",
-          "url": "https://opencode.ai"
-        }
-      ],
-      "source_check": {
-        "page_read": "2026-10-26",
-        "originals_opened": false,
-        "note": "只读了聚合站整页，页面自列媒体的原文未逐条打开"
-      },
-      "needs_verify": false,
-      "needs_verify_reason": null
-    },
-    {
-      "id": "openrouter",
-      "name": "OpenRouter",
-      "category": "AI 基础设施",
-      "origin": "美国",
-      "one_liner": "不做模型，做「不管谁赢都要经过你这里」的那根管道：一个接口调 400+ 模型，3 年干到 ¥87.36亿估值，Stripe 出手收购",
-      "site": "https://openrouter.ai",
-      "role": "structural",
-      "roles": [
-        "structural"
-      ],
-      "report_group": "①",
-      "series_tag": "这些别照着做 · 结构篇",
-      "series_footer": "— 万物解释者 · 这些别照着做 —",
-      "role_note": "一个接口调 400+ 模型，位置是「不管谁赢都要经过你这里」。这个位置是先用免费额度和开发者口碑抢来的，不是设计出来的。",
-      "why_not_copy": [
-        "估值 ¥87.36亿，报道称 Stripe 出手收购；400+ 模型的接入是逐个谈的",
-        "它的定价能力来自「比价」：要拿到各家模型的批发价，先得有量",
-        "同一条链路上还有 LiteLLM 这类开源替代，护城河是结算与信用，不是代码"
-      ],
-      "article_angle": "「管道生意」看着最稳，实际最难起步：没有量就拿不到批发价，拿不到批发价就没有量。这条适合写「中间商的冷启动死结」。",
-      "page_label": {
-        "key": "月收入",
-        "value": "¥3.36亿",
-        "sub": "较 2025 年 10 月的 ¥6,720万涨 5 倍"
-      },
-      "caliber": "arr",
-      "caliber_note": "「¥3.36亿」数据口径段明写是第三方（Sacra）估算，不是公司披露——标签却记成「月收入」。",
-      "verification": "aggregator",
-      "verified_at": "2026-10-26",
-      "sources": [
-        {
-          "label": "howtomakemi.com 案例页（含其自列来源）",
-          "url": "https://howtomakemi.com/cases/openrouter/"
-        },
-        {
-          "label": "产品官网",
-          "url": "https://openrouter.ai"
-        }
-      ],
-      "source_check": {
-        "page_read": "2026-10-26",
-        "originals_opened": false,
-        "note": "只读了聚合站整页，页面自列媒体的原文未逐条打开"
-      },
-      "needs_verify": false,
-      "needs_verify_reason": null
-    },
-    {
       "id": "picturethis",
       "name": "PictureThis（形色）",
       "category": "AI 工具",
@@ -815,7 +362,7 @@
       "roles": [
         "structural"
       ],
-      "report_group": "④",
+      "volume": "bill",
       "series_tag": "这些别照着做 · 结构篇",
       "series_footer": "— 万物解释者 · 这些别照着做 —",
       "role_note": "1 亿下载 + 40 万物种数据集，两样都是钱堆出来的；而且它是中国产品（形色），出现在一个「出海案例库」里本身就是错位。",
@@ -863,7 +410,7 @@
       "roles": [
         "structural"
       ],
-      "report_group": "①",
+      "volume": "bill",
       "series_tag": "这些别照着做 · 结构篇",
       "series_footer": "— 万物解释者 · 这些别照着做 —",
       "role_note": "「让人人能训自己的模型」听着像工具，实际卖的是分布式训练的算力编排——客户是研究机构和实验室，不是个人开发者。",
@@ -901,43 +448,139 @@
       "needs_verify_reason": null
     },
     {
-      "id": "retell",
-      "name": "Retell AI",
-      "category": "AI 基础设施",
+      "id": "decagon",
+      "name": "Decagon",
+      "category": "AI Agent",
       "origin": "美国",
-      "one_liner": "让开发者自己搭 AI 电话客服，~600ms 实时响应、按分钟计费、0 重资产，从 2023 年 8 月到 2026 年 8 月做到 ¥5.38亿 ARR",
-      "site": "https://www.retellai.com",
+      "one_liner": "给企业做 AI 客服 agent（对话/邮件/语音），按解决量计费，2025 年底 ARR 约 ¥2.96亿、2026 年中冲到 ¥6.72亿，估值 ¥302.4亿",
+      "site": "https://decagon.ai",
       "role": "structural",
       "roles": [
         "structural"
       ],
-      "report_group": "①",
+      "volume": "headcount",
       "series_tag": "这些别照着做 · 结构篇",
       "series_footer": "— 万物解释者 · 这些别照着做 —",
-      "role_note": "护城河是一个数字：约 600ms 的实时响应。功能一天能抄，延迟要一年。",
+      "role_note": "按「解决量」计费，意味着要为客户的结果兜底；背后是模型 + 人工复核 + 客户系统集成三层。",
       "why_not_copy": [
-        "语音链路是端到端工程：ASR、打断处理、TTS、抖动缓冲，每一段都要压到毫秒",
-        "按分钟计费、0 重资产，但上游模型与线路成本随通话量线性涨",
-        "三年做到 ¥5.38亿 ARR，前两年基本在调延迟——这段投入没有收入支撑"
+        "估值 ¥302.4亿，客户是 Eventbrite、Notion 这个量级的企业",
+        "按解决量收费 = 卖结果不卖工具，答错一次要赔的是客户体验",
+        "接一套企业客服系统要动工单、知识库、权限，一个客户三个月起"
       ],
-      "article_angle": "「600ms」这种数字才是真护城河，因为它不是功能列表上的一项。这条能写「什么样的指标抄不动」：能写进 PPT 的都能抄，能写进 SLO 的抄不动。",
+      "article_angle": "「按结果收费」听起来比订阅高级，实际是把交付风险接了过来。这条能写「定价模式决定你能不能一个人干」。",
       "page_label": {
         "key": "月收入",
-        "value": "¥5.38亿",
-        "sub": "2026 年 8 月披露"
+        "value": "¥2.96亿",
+        "sub": "2025 年底"
       },
       "caliber": "arr",
-      "caliber_note": "「¥5.38亿」为 ARR，标签写「月收入」。",
+      "caliber_note": "「¥2.96亿」为 2025 年底 ARR，标签写「月收入」。",
       "verification": "aggregator",
       "verified_at": "2026-10-26",
       "sources": [
         {
           "label": "howtomakemi.com 案例页（含其自列来源）",
-          "url": "https://howtomakemi.com/cases/retell/"
+          "url": "https://howtomakemi.com/cases/decagon/"
         },
         {
           "label": "产品官网",
-          "url": "https://www.retellai.com"
+          "url": "https://decagon.ai"
+        }
+      ],
+      "source_check": {
+        "page_read": "2026-10-26",
+        "originals_opened": false,
+        "note": "只读了聚合站整页，页面自列媒体的原文未逐条打开"
+      },
+      "needs_verify": false,
+      "needs_verify_reason": null
+    },
+    {
+      "id": "huntress",
+      "name": "Huntress",
+      "category": "网络安全",
+      "origin": "哥伦比亚",
+      "one_liner": "所有人都在做「更聪明的 AI」，三个前 NSA 转身做「替你挡 AI 攻击的人」，干到 ¥16.8亿 ARR",
+      "site": "https://huntress.com",
+      "role": "structural",
+      "roles": [
+        "structural"
+      ],
+      "volume": "headcount",
+      "series_tag": "这些别照着做 · 结构篇",
+      "series_footer": "— 万物解释者 · 这些别照着做 —",
+      "role_note": "报告把它归在「牌照/合规」，但更准确的卡点是**人力规模**：24×7 托管安全 = 三班倒的 SOC。",
+      "why_not_copy": [
+        "800+ 员工、27 万家企业客户、2 万家渠道伙伴——800 人是产品的一部分",
+        "24×7 值守不能靠 AI 完全替代，出事要有人接电话",
+        "2.5 亿美元 ARR 在安全行业里也属于头部，渠道体系是十年铺的"
+      ],
+      "article_angle": "托管服务型安全公司的人头就是交付能力。这条能写「什么时候人力规模本身就是护城河」——以及为什么它反过来限制了利润率。",
+      "page_label": {
+        "key": "月收入",
+        "value": "¥16.8亿",
+        "sub": "月收入"
+      },
+      "caliber": "arr",
+      "caliber_note": "「¥16.8亿」原文「2.5 亿 ARR」（$250M），标签写「月收入」。",
+      "verification": "aggregator",
+      "verified_at": "2026-10-26",
+      "sources": [
+        {
+          "label": "howtomakemi.com 案例页（含其自列来源）",
+          "url": "https://howtomakemi.com/cases/huntress/"
+        },
+        {
+          "label": "产品官网",
+          "url": "https://huntress.com"
+        }
+      ],
+      "source_check": {
+        "page_read": "2026-10-26",
+        "originals_opened": false,
+        "note": "只读了聚合站整页，页面自列媒体的原文未逐条打开"
+      },
+      "needs_verify": false,
+      "needs_verify_reason": null
+    },
+    {
+      "id": "micro1",
+      "name": "micro1",
+      "category": "AI 数据",
+      "origin": "美国",
+      "one_liner": "给 OpenAI / Anthropic / Google 等前沿实验室供\"筛过的领域专家\"做 RLHF 与数据标注，ARR 从 2025 初 ¥4,704万冲到年底 ¥6.72亿",
+      "site": "https://micro1.com",
+      "role": "structural",
+      "roles": [
+        "structural"
+      ],
+      "volume": "headcount",
+      "series_tag": "这些别照着做 · 结构篇",
+      "series_footer": "— 万物解释者 · 这些别照着做 —",
+      "role_note": "它卖的不是软件，是「筛过的领域专家」——给 OpenAI / Anthropic / Google 供人做 RLHF。",
+      "why_not_copy": [
+        "供给端是几万名通过考试的领域专家，这是一张人力网络，不是代码库",
+        "客户是前沿实验室，采购量随它们的训练预算波动，没有留存概念可言",
+        "毛利随专家单价走，规模越大越像人力外包公司"
+      ],
+      "article_angle": "「AI 数据」这门生意最容易被误读成 SaaS。这条能写「看着像软件的人力公司」——以及为什么它的收入曲线会随客户预算断崖。",
+      "page_label": {
+        "key": "月收入",
+        "value": "¥6.72亿",
+        "sub": "2025 年底"
+      },
+      "caliber": "arr",
+      "caliber_note": "「¥6.72亿」为 ARR，标签写「月收入」；一年内从 ¥4,704万 涨到 ¥6.72亿（约 14 倍）。",
+      "verification": "aggregator",
+      "verified_at": "2026-10-26",
+      "sources": [
+        {
+          "label": "howtomakemi.com 案例页（含其自列来源）",
+          "url": "https://howtomakemi.com/cases/micro1/"
+        },
+        {
+          "label": "产品官网",
+          "url": "https://micro1.com"
         }
       ],
       "source_check": {
@@ -960,7 +603,7 @@
         "structural",
         "caliber"
       ],
-      "report_group": "①",
+      "volume": "headcount",
       "series_tag": "这些别照着做 · 结构篇",
       "series_footer": "— 万物解释者 · 这些别照着做 —",
       "role_note": "实时口音转换+降噪，卖给呼叫中心。一个客户几万个坐席，这是电信级工程的生意。",
@@ -1004,6 +647,198 @@
       "needs_verify_reason": "caliber_undefined"
     },
     {
+      "id": "glean",
+      "name": "Glean",
+      "category": "企业 AI 搜索",
+      "origin": "美国",
+      "one_liner": "前 Google 杰出工程师 Arvind Jain 做的「企业版 AI 搜索引擎」，把散落在 Slack、Drive、Salesforce 等上百个系统里的知识统一起来，ARR 从 ¥6.72亿（2025 年初）冲到 ¥20.16亿（2026 年中），估值 ¥483.84亿",
+      "site": "https://www.glean.com",
+      "role": "structural",
+      "roles": [
+        "structural"
+      ],
+      "volume": "grunt",
+      "series_tag": "这些别照着做 · 结构篇",
+      "series_footer": "— 万物解释者 · 这些别照着做 —",
+      "role_note": "把 Slack、Drive、Salesforce 上百个系统的知识统一起来——连接器数量是苦力活，每个企业系统都要单独谈权限模型。",
+      "why_not_copy": [
+        "估值 ¥483.84亿；创始人 Arvind Jain 是前 Google 杰出工程师，首单靠履历打开",
+        "上百个连接器，每个都涉及权限、增量同步、字段映射",
+        "企业搜索的采购方是 IT 与安全部门，一次上线要过合规评审"
+      ],
+      "article_angle": "「企业版 AI 搜索」这个品类只有一种做法：把连接器铺满。这条能写「连接器数量本身就是护城河」。",
+      "page_label": {
+        "key": "月收入",
+        "value": "¥6.72亿",
+        "sub": "截至 2025 年 1 月 31 日"
+      },
+      "caliber": "arr",
+      "caliber_note": "「¥6.72亿」原文「ARR 官方 2025 财年破 ¥6.72亿」，标签写「月收入」；同段还给了 Sacra 估的 ¥20.16亿（2026-05），两个数相差一倍多。",
+      "verification": "aggregator",
+      "verified_at": "2026-10-26",
+      "sources": [
+        {
+          "label": "howtomakemi.com 案例页（含其自列来源）",
+          "url": "https://howtomakemi.com/cases/glean/"
+        },
+        {
+          "label": "产品官网",
+          "url": "https://www.glean.com"
+        }
+      ],
+      "source_check": {
+        "page_read": "2026-10-26",
+        "originals_opened": false,
+        "note": "只读了聚合站整页，页面自列媒体的原文未逐条打开"
+      },
+      "needs_verify": false,
+      "needs_verify_reason": null
+    },
+    {
+      "id": "hightouch",
+      "name": "Hightouch",
+      "category": "企业数据基础设施",
+      "origin": "美国",
+      "one_liner": "三个 Segment 老兵反着做 CDP——不把数据搬到新平台，而是直接从数据仓库同步；7 年做到 ¥184.8亿估值、年经常性收入破 ¥6.72亿",
+      "site": "https://hightouch.com",
+      "role": "structural",
+      "roles": [
+        "structural"
+      ],
+      "volume": "grunt",
+      "series_tag": "这些别照着做 · 结构篇",
+      "series_footer": "— 万物解释者 · 这些别照着做 —",
+      "role_note": "「反着做 CDP」这个产品判断很漂亮，但把它卖进 Spotify、DoorDash 的是一支企业销售组织。",
+      "why_not_copy": [
+        "累计融资超 ¥21.64亿，估值 ¥184.8亿（14 个月翻倍）",
+        "同步过 7.3 万亿条记录、覆盖 200 多个下游；每个下游都要单独适配",
+        "客户名单是 Spotify / DoorDash / Domino's——这是靠销售周期换来的信任"
+      ],
+      "article_angle": "「不搬数据、只做同步」是可抄的判断；「怎么让 Spotify 签字」不可抄。这条能写「产品判断与销售组织哪个才是壁垒」。",
+      "page_label": {
+        "key": "月收入",
+        "value": "¥6.72亿",
+        "sub": "月收入"
+      },
+      "caliber": "arr",
+      "caliber_note": "「¥6.72亿」原文「2025 年 ARR 突破 ¥6.72亿」，标签写「月收入」。",
+      "verification": "aggregator",
+      "verified_at": "2026-10-26",
+      "sources": [
+        {
+          "label": "howtomakemi.com 案例页（含其自列来源）",
+          "url": "https://howtomakemi.com/cases/hightouch/"
+        },
+        {
+          "label": "产品官网",
+          "url": "https://hightouch.com"
+        }
+      ],
+      "source_check": {
+        "page_read": "2026-10-26",
+        "originals_opened": false,
+        "note": "只读了聚合站整页，页面自列媒体的原文未逐条打开"
+      },
+      "needs_verify": false,
+      "needs_verify_reason": null
+    },
+    {
+      "id": "openrouter",
+      "name": "OpenRouter",
+      "category": "AI 基础设施",
+      "origin": "美国",
+      "one_liner": "不做模型，做「不管谁赢都要经过你这里」的那根管道：一个接口调 400+ 模型，3 年干到 ¥87.36亿估值，Stripe 出手收购",
+      "site": "https://openrouter.ai",
+      "role": "structural",
+      "roles": [
+        "structural"
+      ],
+      "volume": "grunt",
+      "series_tag": "这些别照着做 · 结构篇",
+      "series_footer": "— 万物解释者 · 这些别照着做 —",
+      "role_note": "一个接口调 400+ 模型，位置是「不管谁赢都要经过你这里」。这个位置是先用免费额度和开发者口碑抢来的，不是设计出来的。",
+      "why_not_copy": [
+        "估值 ¥87.36亿，报道称 Stripe 出手收购；400+ 模型的接入是逐个谈的",
+        "它的定价能力来自「比价」：要拿到各家模型的批发价，先得有量",
+        "同一条链路上还有 LiteLLM 这类开源替代，护城河是结算与信用，不是代码"
+      ],
+      "article_angle": "「管道生意」看着最稳，实际最难起步：没有量就拿不到批发价，拿不到批发价就没有量。这条适合写「中间商的冷启动死结」。",
+      "page_label": {
+        "key": "月收入",
+        "value": "¥3.36亿",
+        "sub": "较 2025 年 10 月的 ¥6,720万涨 5 倍"
+      },
+      "caliber": "arr",
+      "caliber_note": "「¥3.36亿」数据口径段明写是第三方（Sacra）估算，不是公司披露——标签却记成「月收入」。",
+      "verification": "aggregator",
+      "verified_at": "2026-10-26",
+      "sources": [
+        {
+          "label": "howtomakemi.com 案例页（含其自列来源）",
+          "url": "https://howtomakemi.com/cases/openrouter/"
+        },
+        {
+          "label": "产品官网",
+          "url": "https://openrouter.ai"
+        }
+      ],
+      "source_check": {
+        "page_read": "2026-10-26",
+        "originals_opened": false,
+        "note": "只读了聚合站整页，页面自列媒体的原文未逐条打开"
+      },
+      "needs_verify": false,
+      "needs_verify_reason": null
+    },
+    {
+      "id": "retell",
+      "name": "Retell AI",
+      "category": "AI 基础设施",
+      "origin": "美国",
+      "one_liner": "让开发者自己搭 AI 电话客服，~600ms 实时响应、按分钟计费、0 重资产，从 2023 年 8 月到 2026 年 8 月做到 ¥5.38亿 ARR",
+      "site": "https://www.retellai.com",
+      "role": "structural",
+      "roles": [
+        "structural"
+      ],
+      "volume": "grunt",
+      "series_tag": "这些别照着做 · 结构篇",
+      "series_footer": "— 万物解释者 · 这些别照着做 —",
+      "role_note": "护城河是一个数字：约 600ms 的实时响应。功能一天能抄，延迟要一年。",
+      "why_not_copy": [
+        "语音链路是端到端工程：ASR、打断处理、TTS、抖动缓冲，每一段都要压到毫秒",
+        "按分钟计费、0 重资产，但上游模型与线路成本随通话量线性涨",
+        "三年做到 ¥5.38亿 ARR，前两年基本在调延迟——这段投入没有收入支撑"
+      ],
+      "article_angle": "「600ms」这种数字才是真护城河，因为它不是功能列表上的一项。这条能写「什么样的指标抄不动」：能写进 PPT 的都能抄，能写进 SLO 的抄不动。",
+      "page_label": {
+        "key": "月收入",
+        "value": "¥5.38亿",
+        "sub": "2026 年 8 月披露"
+      },
+      "caliber": "arr",
+      "caliber_note": "「¥5.38亿」为 ARR，标签写「月收入」。",
+      "verification": "aggregator",
+      "verified_at": "2026-10-26",
+      "sources": [
+        {
+          "label": "howtomakemi.com 案例页（含其自列来源）",
+          "url": "https://howtomakemi.com/cases/retell/"
+        },
+        {
+          "label": "产品官网",
+          "url": "https://www.retellai.com"
+        }
+      ],
+      "source_check": {
+        "page_read": "2026-10-26",
+        "originals_opened": false,
+        "note": "只读了聚合站整页，页面自列媒体的原文未逐条打开"
+      },
+      "needs_verify": false,
+      "needs_verify_reason": null
+    },
+    {
       "id": "skello",
       "name": "Skello",
       "category": "垂直 SaaS",
@@ -1014,7 +849,7 @@
       "roles": [
         "structural"
       ],
-      "report_group": "④",
+      "volume": "grunt",
       "series_tag": "这些别照着做 · 结构篇",
       "series_footer": "— 万物解释者 · 这些别照着做 —",
       "role_note": "一线员工排班 SaaS，真正难的不是排班算法，是法国劳动法的合规规则库。",
@@ -1052,6 +887,303 @@
       "needs_verify_reason": null
     },
     {
+      "id": "doomers",
+      "name": "Doomers",
+      "category": "AI 营销",
+      "origin": "美国",
+      "one_liner": "「病毒式分发即服务」：左手握 2500 万粉丝的创作者网络，右手接 AI 公司的发布需求，6 个月做到 ¥6,720万 ARR、零融资",
+      "site": "https://doomers.ai",
+      "role": "structural",
+      "roles": [
+        "structural"
+      ],
+      "volume": "community",
+      "series_tag": "这些别照着做 · 结构篇",
+      "series_footer": "— 万物解释者 · 这些别照着做 —",
+      "role_note": "零融资是真的，但资产是手里 2500 万粉丝的创作者网络——这个资产不能买，只能攒。",
+      "why_not_copy": [
+        "2500 万粉丝的创作者网络是十年攒的关系资产，不随产品转移",
+        "「病毒式分发即服务」的交付是排期与创作者协调，人工密度高",
+        "客户是 AI 公司的发布预算，属于甲方市场，议价权不在它手上"
+      ],
+      "article_angle": "「零融资做到 ¥6,720万 ARR」是最容易被当成「你也能」的一条。这条能写「关系资产算不算护城河」——以及它为什么无法继承。",
+      "page_label": {
+        "key": "月收入",
+        "value": "¥6,720万",
+        "sub": "2026 年 9 月更新口径，非早期「3 个月」说法"
+      },
+      "caliber": "arr",
+      "caliber_note": "「¥6,720万」原文为 ARR，标签写「月收入」；页面自己注明早期有「3 个月」说法、2026-09 更新为「6 个月」，本文取最新口径。",
+      "verification": "aggregator",
+      "verified_at": "2026-10-26",
+      "sources": [
+        {
+          "label": "howtomakemi.com 案例页（含其自列来源）",
+          "url": "https://howtomakemi.com/cases/doomers/"
+        },
+        {
+          "label": "产品官网",
+          "url": "https://doomers.ai"
+        }
+      ],
+      "source_check": {
+        "page_read": "2026-10-26",
+        "originals_opened": false,
+        "note": "只读了聚合站整页，页面自列媒体的原文未逐条打开"
+      },
+      "needs_verify": false,
+      "needs_verify_reason": null
+    },
+    {
+      "id": "n8n",
+      "name": "n8n",
+      "category": "工作流自动化",
+      "origin": "德国",
+      "one_liner": "把 AI 和自动化画在同一张画布上的工作流平台，20.4 万星、ARR 超 ¥2.69亿、估值 ¥168亿",
+      "site": "https://n8n.io",
+      "role": "structural",
+      "roles": [
+        "structural"
+      ],
+      "volume": "community",
+      "series_tag": "这些别照着做 · 结构篇",
+      "series_footer": "— 万物解释者 · 这些别照着做 —",
+      "role_note": "20.4 万 GitHub 星、23 万活跃用户、估值 ¥168亿——七年攒的社区资产，不是功能堆出来的。",
+      "why_not_copy": [
+        "社区版免费、付费来自企业合规与托管，这是典型 open-core，要先有社区才谈得上付费",
+        "20 万星的积累跨了七个版本周期；同期同类产品大多已经停更",
+        "接 400+ 个第三方系统的连接器，是长期苦力活，不是一次性开发"
+      ],
+      "article_angle": "open-core 的付费转化只在「企业必须合规」时才发生。这条能写「开源项目什么时候才开始赚钱」。",
+      "page_label": {
+        "key": "月收入",
+        "value": "¥2.69亿",
+        "sub": "截至 2025 年 3 月的公司口径"
+      },
+      "caliber": "arr",
+      "caliber_note": "「¥2.69亿」原文「ARR 超 ¥2.69亿」，标签写「月收入」。",
+      "verification": "aggregator",
+      "verified_at": "2026-10-26",
+      "sources": [
+        {
+          "label": "howtomakemi.com 案例页（含其自列来源）",
+          "url": "https://howtomakemi.com/cases/n8n/"
+        },
+        {
+          "label": "产品官网",
+          "url": "https://n8n.io"
+        }
+      ],
+      "source_check": {
+        "page_read": "2026-10-26",
+        "originals_opened": false,
+        "note": "只读了聚合站整页，页面自列媒体的原文未逐条打开"
+      },
+      "needs_verify": false,
+      "needs_verify_reason": null
+    },
+    {
+      "id": "opencode",
+      "name": "OpenCode",
+      "category": "AI 开发者工具",
+      "origin": "加拿大",
+      "one_liner": "不做模型也不绑 IDE，卡在中间做「谁的模型都能接」的终端编程工具，一年做到 800 万月活、GitHub 最受欢迎",
+      "site": "https://opencode.ai",
+      "role": "structural",
+      "roles": [
+        "structural"
+      ],
+      "volume": "community",
+      "series_tag": "这些别照着做 · 结构篇",
+      "series_footer": "— 万物解释者 · 这些别照着做 —",
+      "role_note": "800 万月活、GitHub 最受欢迎——这个位置是开源社区攒出来的，不是产品做出来的。",
+      "why_not_copy": [
+        "核心工具开源免费，收入来自按 token 收费的 Zen 网关，等于自己开了一家模型分销",
+        "800 万月活的运维成本与社区治理成本，与收入不成比例",
+        "同赛道是 Claude Code / Cursor / Codex，全部有大厂预算在烧"
+      ],
+      "article_angle": "开源编程工具的护城河是贡献者数量，而贡献者只在「你已经是标准」之后才来。这条能写「开源商业化的顺序问题」。",
+      "page_label": {
+        "key": "月收入",
+        "value": "¥1.68亿",
+        "sub": "月收入"
+      },
+      "caliber": "annual",
+      "caliber_note": "「¥1.68亿」原文是「预计年收入」，标签写「月收入」；数据口径段自己也注明「为『预计』而非审计数字」。",
+      "verification": "aggregator",
+      "verified_at": "2026-10-26",
+      "sources": [
+        {
+          "label": "howtomakemi.com 案例页（含其自列来源）",
+          "url": "https://howtomakemi.com/cases/opencode/"
+        },
+        {
+          "label": "产品官网",
+          "url": "https://opencode.ai"
+        }
+      ],
+      "source_check": {
+        "page_read": "2026-10-26",
+        "originals_opened": false,
+        "note": "只读了聚合站整页，页面自列媒体的原文未逐条打开"
+      },
+      "needs_verify": false,
+      "needs_verify_reason": null
+    },
+    {
+      "id": "appliedcompute",
+      "name": "Applied Compute",
+      "category": "AI 基础设施",
+      "origin": "美国",
+      "one_liner": "三个前 OpenAI 研究员（o1 / Codex / RL 基建）2025 年创业，帮企业\"用自己的数据训练专属模型\"而不是买通用大模型——\"Specific Intelligence\"，约 ¥3.36亿 年化收入、估值 ¥87.36亿、在谈 ¥201.6亿新一轮",
+      "site": "https://www.appliedcompute.com",
+      "role": "structural",
+      "roles": [
+        "structural",
+        "caliber"
+      ],
+      "volume": "trust",
+      "series_tag": "这些别照着做 · 结构篇",
+      "series_footer": "— 万物解释者 · 这些别照着做 —",
+      "role_note": "三个前 OpenAI 研究员（o1 / Codex / RL 基建）。这条案例的产品是人，不是代码。",
+      "why_not_copy": [
+        "创始履历本身就是获客渠道：企业买的是「OpenAI 原班人马帮我训模型」",
+        "估值 ¥87.36亿，在谈 ¥201.6亿新一轮",
+        "「用客户自己的数据训专属模型」= 每个客户一次交付，本质是咨询+算力的混合体"
+      ],
+      "article_angle": "「Specific Intelligence」这个故事的可抄部分为零，可读部分很大：它说明企业真正想买的是「懂我行业的人」，而不是「更好的模型」。",
+      "page_label": {
+        "key": "月收入",
+        "value": "¥3.36亿",
+        "sub": "2026-Q3"
+      },
+      "caliber": "arr",
+      "caliber_note": "「¥3.36亿」原文是年化收入；数据口径段只复述了估值基准（新轮未关闭，以已披露 ¥87.36亿为准），收入本身没有二次来源。",
+      "verification": "aggregator",
+      "verified_at": "2026-10-26",
+      "sources": [
+        {
+          "label": "howtomakemi.com 案例页（含其自列来源）",
+          "url": "https://howtomakemi.com/cases/appliedcompute/"
+        },
+        {
+          "label": "产品官网",
+          "url": "https://www.appliedcompute.com"
+        }
+      ],
+      "source_check": {
+        "page_read": "2026-10-26",
+        "originals_opened": false,
+        "note": "只读了聚合站整页，页面自列媒体的原文未逐条打开"
+      },
+      "needs_verify": false,
+      "needs_verify_reason": null
+    },
+    {
+      "id": "crustdata",
+      "name": "Crustdata",
+      "category": "AI 数据基础设施",
+      "origin": "美国",
+      "one_liner": "三个前 Uber / Postmates 工程师，把实时 B2B 数据做成 AI agent 的燃料——7 个月营收从 77 万冲到 400 万+",
+      "site": "https://crustdata.com",
+      "role": "structural",
+      "roles": [
+        "structural",
+        "caliber"
+      ],
+      "volume": "trust",
+      "series_tag": "这些别照着做 · 结构篇",
+      "series_footer": "— 万物解释者 · 这些别照着做 —",
+      "role_note": "6000 万家公司、10 亿人的实时 B2B 数据——数据资产是买来+爬来+清洗出来的。",
+      "why_not_copy": [
+        "数据规模 6000 万公司 / 10 亿人，实时更新；这是持续投入不是一次性采集",
+        "客户是 AI agent 厂商（模型需要实时事实），属于上游供给",
+        "「7 个月营收从 77 万冲到 400 万+」的曲线靠的是数据覆盖度，不是功能"
+      ],
+      "article_angle": "这条本身就是一个数据事故的前排座位：同一条案例，标签取曲线起点、正文写终点。「同一个数在同一个页面上有两个值」是可以单独写一篇的题材。",
+      "page_label": {
+        "key": "月收入",
+        "value": "¥336万",
+        "sub": "公司官网披露「We hit ¥6,720万 ARR! ¥336万 to ¥6,720万 in 1.5 years」"
+      },
+      "caliber": "invalid",
+      "caliber_note": "标签 ¥336万；同卡副标题写的是公司官网原话「We hit ¥6,720万 ARR! ¥336万 to ¥6,720万」，¥336万 是**增长曲线的起点**，不是当前值。取错端点。",
+      "verification": "aggregator",
+      "verified_at": "2026-10-26",
+      "sources": [
+        {
+          "label": "howtomakemi.com 案例页（含其自列来源）",
+          "url": "https://howtomakemi.com/cases/crustdata/"
+        },
+        {
+          "label": "产品官网",
+          "url": "https://crustdata.com"
+        }
+      ],
+      "source_check": {
+        "page_read": "2026-10-26",
+        "originals_opened": false,
+        "note": "只读了聚合站整页，页面自列媒体的原文未逐条打开"
+      },
+      "caliber_conflict": {
+        "table": "data/htm_backlog_caliber.json",
+        "old": "annual",
+        "now": "invalid",
+        "why": "旧表取了标签值对应的「营收曲线」，但页面副标题原文是「We hit ¥6,720万 ARR! ¥336万 to ¥6,720万」——¥336万 是曲线起点，不是当前值。"
+      },
+      "needs_verify": true,
+      "needs_verify_reason": "caliber_undefined"
+    },
+    {
+      "id": "fable-security",
+      "name": "Fable Security",
+      "category": "企业安全",
+      "origin": "美国",
+      "one_liner": "两个 Abnormal AI 老兵专攻「人为风险」——不做打勾式安全培训，实时干预员工行为；出 stealth 即拿 ¥2.08亿，钓鱼点击率降 85%",
+      "site": "https://fablesecurity.com",
+      "role": "structural",
+      "roles": [
+        "structural",
+        "caliber"
+      ],
+      "volume": "trust",
+      "series_tag": "这些别照着做 · 结构篇",
+      "series_footer": "— 万物解释者 · 这些别照着做 —",
+      "role_note": "两个 Abnormal AI 老兵做「人为风险」——出 stealth 就有 Pennymac、DNC 这类客户，靠的是创始人上一家公司攒下的企业信任链。",
+      "why_not_copy": [
+        "出 stealth 即拿 ¥2.08亿融资，种子 Greylock、A 轮 Redpoint",
+        "客户是美国民主党全国委员会、Genesys、Pennymac——采购要过安全评审与合规",
+        "「实时干预员工行为」涉及员工隐私，欧洲市场的合法性另算"
+      ],
+      "article_angle": "企业安全的销售本质是「你上一家公司叫什么」。这条能写「信任链资产」——以及为什么安全创业几乎没有第一次创业者。",
+      "page_label": {
+        "key": "月收入",
+        "value": "¥2.08亿",
+        "sub": "月收入"
+      },
+      "caliber": "funding",
+      "caliber_note": "「¥2.08亿」是**出 stealth 时的累计融资**（种子 Greylock 领投、A 轮 Redpoint 领投），标签写「月收入」。页面从头到尾没有披露过收入。",
+      "verification": "aggregator",
+      "verified_at": "2026-10-26",
+      "sources": [
+        {
+          "label": "howtomakemi.com 案例页（含其自列来源）",
+          "url": "https://howtomakemi.com/cases/fable-security/"
+        },
+        {
+          "label": "产品官网",
+          "url": "https://fablesecurity.com"
+        }
+      ],
+      "source_check": {
+        "page_read": "2026-10-26",
+        "originals_opened": false,
+        "note": "只读了聚合站整页，页面自列媒体的原文未逐条打开"
+      },
+      "needs_verify": false,
+      "needs_verify_reason": null
+    },
+    {
       "id": "develop-health",
       "name": "Develop Health",
       "category": "医疗 AI",
@@ -1063,7 +1195,7 @@
         "license",
         "caliber"
       ],
-      "report_group": "②",
+      "volume": "license",
       "series_tag": "这些别照着做 · 资格篇",
       "series_footer": "— 万物解释者 · 这些别照着做 —",
       "role_note": "把处方药「预先授权」自动化——它砍的是保险方与药房之间的行政流程，接入的是客户的 EHR 与保险规则，责任在医疗链条里。",
@@ -1111,7 +1243,7 @@
       "roles": [
         "license"
       ],
-      "report_group": "②",
+      "volume": "license",
       "series_tag": "这些别照着做 · 资格篇",
       "series_footer": "— 万物解释者 · 这些别照着做 —",
       "role_note": "「早筛 + AI 解读」的订阅制长寿医疗，覆盖 47 州，卖的是检测与处方——医疗责任是入场券。",
@@ -1159,7 +1291,7 @@
       "roles": [
         "license"
       ],
-      "report_group": "②",
+      "volume": "license",
       "series_tag": "这些别照着做 · 资格篇",
       "series_footer": "— 万物解释者 · 这些别照着做 —",
       "role_note": "把返现做进支付本身，等于自己站到支付机构的位置上：牌照、清算、反洗钱一样不能少。",
@@ -1207,7 +1339,7 @@
       "roles": [
         "license"
       ],
-      "report_group": "②",
+      "volume": "license",
       "series_tag": "这些别照着做 · 资格篇",
       "series_footer": "— 万物解释者 · 这些别照着做 —",
       "role_note": "法律 AI 的产出要由律师签字负责，责任不能外包给模型——这是它的天花板，也是它的门。",
@@ -1255,7 +1387,7 @@
       "roles": [
         "license"
       ],
-      "report_group": "②",
+      "volume": "license",
       "series_tag": "这些别照着做 · 资格篇",
       "series_footer": "— 万物解释者 · 这些别照着做 —",
       "role_note": "两个人、零融资、¥26.95亿营收，看起来是「AI 极致轻公司」的样板；但整条命脉挂在「美国处方药远程医疗」的合规边上，而且已经踩线。",
@@ -1291,6 +1423,8 @@
         "note": "只读了聚合站整页，页面自列媒体的原文未逐条打开"
       },
       "summary": "两个人、零融资、两亿多营收、16% 净利，完全符合「AI 轻公司」的样板。代价是：把医疗链条全外包出去之后，监管责任并没有跟着外包出去。",
+      "standalone": true,
+      "standalone_article": "公众号-medvi拆解.html",
       "needs_verify": false,
       "needs_verify_reason": null
     },
@@ -1305,7 +1439,7 @@
       "roles": [
         "license"
       ],
-      "report_group": "②",
+      "volume": "license",
       "series_tag": "这些别照着做 · 资格篇",
       "series_footer": "— 万物解释者 · 这些别照着做 —",
       "role_note": "把印度护士送到英国和海湾——卡的不是 AI，是执业资格互认与签证配额。",
@@ -1354,7 +1488,7 @@
         "license",
         "caliber"
       ],
-      "report_group": "②",
+      "volume": "license",
       "series_tag": "这些别照着做 · 资格篇",
       "series_footer": "— 万物解释者 · 这些别照着做 —",
       "role_note": "药房机器人「贴在原有系统外面干活」——前提是能进药房，而它是靠收购药房自己当客户的。",
@@ -1409,7 +1543,7 @@
         "caliber",
         "structural"
       ],
-      "report_group": "③",
+      "volume": "caliber",
       "series_tag": "这些别照着做 · 数字篇",
       "series_footer": "— 万物解释者 · 这些别照着做 —",
       "role_note": "自研全栈语音模型，给企业做能打三十分钟长电话的 AI 接线员；112 名员工、每周 350 万通。自研模型的资本消耗与「被 180 家机构拒绝」是同一件事的两面。",
@@ -1463,7 +1597,7 @@
       "roles": [
         "caliber"
       ],
-      "report_group": "③",
+      "volume": "caliber",
       "series_tag": "这些别照着做 · 数字篇",
       "series_footer": "— 万物解释者 · 这些别照着做 —",
       "role_note": "它的形态是 33 条里最可抄的之一（自助订阅 ¥665/月起、两人团队、早期无融资）；它被判「不建议」的原因是**数据**，不是产品。",
@@ -1498,6 +1632,8 @@
         "note": "只读了聚合站整页，页面自列媒体的原文未逐条打开"
       },
       "summary": "同一行数字，读成 665 元、665 万、还是每个席位 665 元，会得出三种完全相反的结论。这条案例的问题不在产品，在它的数字被怎么读。",
+      "standalone": true,
+      "standalone_article": "公众号-crowdreply拆解.html",
       "needs_verify": false,
       "needs_verify_reason": null
     },
@@ -1513,7 +1649,7 @@
         "caliber",
         "structural"
       ],
-      "report_group": "③",
+      "volume": "caliber",
       "series_tag": "这些别照着做 · 数字篇",
       "series_footer": "— 万物解释者 · 这些别照着做 —",
       "role_note": "自研「Fast Apply」代码合并模型（约 10500 tok/s、98% 准确率），YC S23。参数能查，模型训不出来。",
@@ -1561,7 +1697,7 @@
       "roles": [
         "caliber"
       ],
-      "report_group": "③",
+      "volume": "caliber",
       "series_tag": "这些别照着做 · 数字篇",
       "series_footer": "— 万物解释者 · 这些别照着做 —",
       "role_note": "用 AI 武装独立招聘官。它的收入是抽成，而抽成的基数在别人手里。",
@@ -1609,7 +1745,7 @@
       "roles": [
         "caliber"
       ],
-      "report_group": "③",
+      "volume": "caliber",
       "series_tag": "这些别照着做 · 数字篇",
       "series_footer": "— 万物解释者 · 这些别照着做 —",
       "role_note": "骑在 CRM 上面派几百个 AI agent 替销售干杂活。整条案例没有一个可核的数字。",

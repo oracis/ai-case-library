@@ -69,7 +69,7 @@ PAGE = "https://howtomakemi.com/cases/%s/"
 JUDGE = {
     # ── structural：护城河在钱 / 算力 / 人力 / 数据 / 关系上 ──────────────
     "higgsfield": dict(
-        role="structural", roles=["structural"], report_group="①",
+        role="structural", roles=["structural"],
         caliber="arr",
         caliber_note="「¥47.04亿」在数据口径段写的是「年化收入」，卡片标签却是「月收入」——"
                      "按标签读会放大 12 倍。",
@@ -82,8 +82,12 @@ JUDGE = {
                       "「聚合不是壁垒，账单才是」——这条能写成「为什么模型套壳的生意只有头部能活」。",
     ),
     "lovable": dict(
-        role="structural", roles=["structural"], report_group="①",
-        caliber="annual",
+        role="structural", roles=["structural"],
+        # ⚠ 2026-10-26 上站时改：原记 annual，但本条的 caliber_note 原文就是
+        # 「¥13.44亿 ARR」——ARR 是年化经常性收入，不是年营收。上站后卡片会把
+        # 口径标签和这句说明**并排**显示，两者不一致就是当场自相矛盾。
+        # 这一改让 by_caliber 从 arr19/annual4 变成 arr20/annual3（见手册 §1.2）。
+        caliber="arr",
         caliber_note="「¥13.44亿」原文是「¥13.44亿 ARR」，卡片标签写「月收入」。"
                      "注意这个数同时等于 2025-07 A 轮融资额 ¥13.44亿——同一个数字被用在两个口径上。",
         role_note="开源前身 GPT Engineer 的社区、两年 ¥36.96亿的融资、以及每个月付给模型厂商的钱，"
@@ -97,7 +101,7 @@ JUDGE = {
                       "而两个人只是站在 ¥36.96亿上面。",
     ),
     "cognition": dict(
-        role="structural", roles=["structural"], report_group="①",
+        role="structural", roles=["structural"],
         caliber="arr",
         caliber_note="「¥4.91亿」原文是 Devin 的 ARR 公开口径，标签写「月收入」。",
         role_note="估值 ¥685.44亿；九个月 ARR 涨 70 倍的曲线里，有一大段是收购 Windsurf 并进来的。",
@@ -108,7 +112,7 @@ JUDGE = {
                       "这条适合做「增速叙事的成分表」——把并购、口径、时点三件事分离开。",
     ),
     "primeintellect": dict(
-        role="structural", roles=["structural"], report_group="①",
+        role="structural", roles=["structural"],
         caliber="arr",
         caliber_note="「¥6.72亿」为 ARR 公开口径，标签写「月收入」；同卡的副标题给的是估值 ¥67.2亿。",
         role_note="「让人人能训自己的模型」听着像工具，实际卖的是分布式训练的算力编排——"
@@ -120,7 +124,7 @@ JUDGE = {
                       "这条能写「为什么 AI 基础设施不是小团队赛道」。",
     ),
     "appliedcompute": dict(
-        role="structural", roles=["structural", "caliber"], report_group="①",
+        role="structural", roles=["structural", "caliber"],
         caliber="arr",
         caliber_note="「¥3.36亿」原文是年化收入；数据口径段只复述了估值基准（新轮未关闭，"
                      "以已披露 ¥87.36亿为准），收入本身没有二次来源。",
@@ -132,7 +136,7 @@ JUDGE = {
                       "它说明企业真正想买的是「懂我行业的人」，而不是「更好的模型」。",
     ),
     "openrouter": dict(
-        role="structural", roles=["structural"], report_group="①",
+        role="structural", roles=["structural"],
         caliber="arr",
         caliber_note="「¥3.36亿」数据口径段明写是第三方（Sacra）估算，不是公司披露——"
                      "标签却记成「月收入」。",
@@ -145,7 +149,7 @@ JUDGE = {
                       "这条适合写「中间商的冷启动死结」。",
     ),
     "retell": dict(
-        role="structural", roles=["structural"], report_group="①",
+        role="structural", roles=["structural"],
         caliber="arr",
         caliber_note="「¥5.38亿」为 ARR，标签写「月收入」。",
         role_note="护城河是一个数字：约 600ms 的实时响应。功能一天能抄，延迟要一年。",
@@ -156,7 +160,7 @@ JUDGE = {
                       "这条能写「什么样的指标抄不动」：能写进 PPT 的都能抄，能写进 SLO 的抄不动。",
     ),
     "decagon": dict(
-        role="structural", roles=["structural"], report_group="①",
+        role="structural", roles=["structural"],
         caliber="arr",
         caliber_note="「¥2.96亿」为 2025 年底 ARR，标签写「月收入」。",
         role_note="按「解决量」计费，意味着要为客户的结果兜底；背后是模型 + 人工复核 + 客户系统集成三层。",
@@ -167,7 +171,7 @@ JUDGE = {
                       "这条能写「定价模式决定你能不能一个人干」。",
     ),
     "sanas": dict(
-        role="structural", roles=["structural", "caliber"], report_group="①",
+        role="structural", roles=["structural", "caliber"],
         caliber="unknown",
         caliber_note="标签 ¥1.41亿；同卡副标题写「Inc 记 2 年做到 ¥4.17亿、2026 冲 ¥8.74亿」，"
                      "两个数都对不上 ¥1.41亿，数据口径段也只写「Inc. 营收报道」没说年还是月。",
@@ -179,7 +183,7 @@ JUDGE = {
                       "这条能写「为什么 to-呼叫中心的工具轮不到个人做」。",
     ),
     "opencode": dict(
-        role="structural", roles=["structural"], report_group="①",
+        role="structural", roles=["structural"],
         caliber="annual",
         caliber_note="「¥1.68亿」原文是「预计年收入」，标签写「月收入」；数据口径段自己也注明"
                      "「为『预计』而非审计数字」。",
@@ -191,7 +195,7 @@ JUDGE = {
                       "这条能写「开源商业化的顺序问题」。",
     ),
     "n8n": dict(
-        role="structural", roles=["structural"], report_group="①",
+        role="structural", roles=["structural"],
         caliber="arr",
         caliber_note="「¥2.69亿」原文「ARR 超 ¥2.69亿」，标签写「月收入」。",
         role_note="20.4 万 GitHub 星、23 万活跃用户、估值 ¥168亿——七年攒的社区资产，不是功能堆出来的。",
@@ -202,7 +206,7 @@ JUDGE = {
                       "这条能写「开源项目什么时候才开始赚钱」。",
     ),
     "hightouch": dict(
-        role="structural", roles=["structural"], report_group="①",
+        role="structural", roles=["structural"],
         caliber="arr",
         caliber_note="「¥6.72亿」原文「2025 年 ARR 突破 ¥6.72亿」，标签写「月收入」。",
         role_note="「反着做 CDP」这个产品判断很漂亮，但把它卖进 Spotify、DoorDash 的是一支企业销售组织。",
@@ -213,7 +217,7 @@ JUDGE = {
                       "这条能写「产品判断与销售组织哪个才是壁垒」。",
     ),
     "glean": dict(
-        role="structural", roles=["structural"], report_group="①",
+        role="structural", roles=["structural"],
         caliber="arr",
         caliber_note="「¥6.72亿」原文「ARR 官方 2025 财年破 ¥6.72亿」，标签写「月收入」；"
                      "同段还给了 Sacra 估的 ¥20.16亿（2026-05），两个数相差一倍多。",
@@ -226,7 +230,7 @@ JUDGE = {
                       "这条能写「连接器数量本身就是护城河」。",
     ),
     "crustdata": dict(
-        role="structural", roles=["structural", "caliber"], report_group="①",
+        role="structural", roles=["structural", "caliber"],
         caliber="invalid",
         caliber_note="标签 ¥336万；同卡副标题写的是公司官网原话「We hit ¥6,720万 ARR! ¥336万 to ¥6,720万」，"
                      "¥336万 是**增长曲线的起点**，不是当前值。取错端点。",
@@ -238,7 +242,7 @@ JUDGE = {
                       "「同一个数在同一个页面上有两个值」是可以单独写一篇的题材。",
     ),
     "micro1": dict(
-        role="structural", roles=["structural"], report_group="①",
+        role="structural", roles=["structural"],
         caliber="arr",
         caliber_note="「¥6.72亿」为 ARR，标签写「月收入」；一年内从 ¥4,704万 涨到 ¥6.72亿（约 14 倍）。",
         role_note="它卖的不是软件，是「筛过的领域专家」——给 OpenAI / Anthropic / Google 供人做 RLHF。",
@@ -249,7 +253,7 @@ JUDGE = {
                       "这条能写「看着像软件的人力公司」——以及为什么它的收入曲线会随客户预算断崖。",
     ),
     "huntress": dict(
-        role="structural", roles=["structural"], report_group="②",
+        role="structural", roles=["structural"],
         caliber="arr",
         caliber_note="「¥16.8亿」原文「2.5 亿 ARR」（$250M），标签写「月收入」。",
         role_note="报告把它归在「牌照/合规」，但更准确的卡点是**人力规模**：24×7 托管安全 = 三班倒的 SOC。",
@@ -260,7 +264,7 @@ JUDGE = {
                       "这条能写「什么时候人力规模本身就是护城河」——以及为什么它反过来限制了利润率。",
     ),
     "skello": dict(
-        role="structural", roles=["structural"], report_group="④",
+        role="structural", roles=["structural"],
         caliber="arr",
         caliber_note="「¥3.77亿」原文「ARR 超 ¥3.77亿」，标签写「月收入」。",
         role_note="一线员工排班 SaaS，真正难的不是排班算法，是法国劳动法的合规规则库。",
@@ -271,7 +275,7 @@ JUDGE = {
                       "以及为什么这类公司最后都去做并购。",
     ),
     "omnidocs": dict(
-        role="structural", roles=["structural", "caliber"], report_group="④",
+        role="structural", roles=["structural", "caliber"],
         caliber="annual",
         caliber_note="「¥2.03亿」副标题自己标了「含 Xink」——这是**并购合并口径**，不是内生营收；"
                      "数据口径段只列了融资与 6 次收购，没有给营收来源。",
@@ -283,7 +287,7 @@ JUDGE = {
                       "这条能写「并购增长的成分表」——合并口径的收入不该和内生的放在一起比。",
     ),
     "picturethis": dict(
-        role="structural", roles=["structural"], report_group="④",
+        role="structural", roles=["structural"],
         caliber="mrr",
         caliber_note="33 条里**唯一**一条「月收入」标签名副其实的：数据口径段写的就是「FluxBuilder 月收报道」。",
         role_note="1 亿下载 + 40 万物种数据集，两样都是钱堆出来的；而且它是中国产品（形色），"
@@ -295,7 +299,7 @@ JUDGE = {
                       "用它做对照，能反证另外 32 条错在哪。",
     ),
     "doomers": dict(
-        role="structural", roles=["structural"], report_group="④",
+        role="structural", roles=["structural"],
         caliber="arr",
         caliber_note="「¥6,720万」原文为 ARR，标签写「月收入」；页面自己注明早期有「3 个月」说法、"
                      "2026-09 更新为「6 个月」，本文取最新口径。",
@@ -308,7 +312,7 @@ JUDGE = {
     ),
     # ── license：资格门槛 ────────────────────────────────────────────
     "medvi": dict(
-        role="license", roles=["license"], report_group="②",
+        role="license", roles=["license"],
         caliber="annual",
         caliber_note="「¥26.95亿」原文是「2025 年营收」，标签写「月收入」——按标签读会放大 12 倍。",
         role_note="两个人、零融资、¥26.95亿营收，看起来是「AI 极致轻公司」的样板；"
@@ -321,7 +325,7 @@ JUDGE = {
                       "品牌债的形式还回去。落点不是「别做医疗」，而是「合规成本不会消失，只会延后」。",
     ),
     "geviti": dict(
-        role="license", roles=["license"], report_group="②",
+        role="license", roles=["license"],
         caliber="arr",
         caliber_note="「¥2,016万」来自第三方（arr.club）收录；创始人自己的说法只是「开放第一年数百万美金」。",
         role_note="「早筛 + AI 解读」的订阅制长寿医疗，覆盖 47 州，卖的是检测与处方——医疗责任是入场券。",
@@ -332,7 +336,7 @@ JUDGE = {
                       "这条能写「为什么医疗类订阅的规模效应来得特别晚」：合规成本先到，收入后到。",
     ),
     "develop-health": dict(
-        role="license", roles=["license", "caliber"], report_group="②",
+        role="license", roles=["license", "caliber"],
         caliber="funding",
         caliber_note="「¥1.3亿」是**累计融资**（pre-seed ¥1,209.6万 + A 轮约 ¥9,609.6万~¥1.18亿），"
                      "标签写「月收入」。这个数从头到尾不是收入。",
@@ -345,7 +349,7 @@ JUDGE = {
                       "这条能写「B 端医疗 SaaS 的销售周期为什么以年计」。",
     ),
     "hello-clever": dict(
-        role="license", roles=["license"], report_group="②",
+        role="license", roles=["license"],
         caliber="arr",
         caliber_note="「¥3.36亿」为 Sacra 估算的年化收入，标签写「月收入」；"
                      "同段另有「累计处理总价值 ¥336亿」——那是支付流水（GMV），不是收入。",
@@ -357,7 +361,7 @@ JUDGE = {
                       "这条能写「哪些看起来像产品的生意其实是牌照生意」。",
     ),
     "tern-group": dict(
-        role="license", roles=["license"], report_group="②",
+        role="license", roles=["license"],
         caliber="arr",
         caliber_note="「¥2.02亿」为年化收入，标签写「月收入」；同段还给了 ¥1.61亿 A 轮与累计 ¥2.22亿融资。",
         role_note="把印度护士送到英国和海湾——卡的不是 AI，是执业资格互认与签证配额。",
@@ -368,7 +372,7 @@ JUDGE = {
                       "这条能写「哪些环节 AI 永远替不了」——以及为什么这类公司必须重资产落地。",
     ),
     "tjm-labs": dict(
-        role="license", roles=["license", "caliber"], report_group="②",
+        role="license", roles=["license", "caliber"],
         caliber="invalid",
         caliber_note="标签 ¥672万 与页面任何数字都对不上：官方公告给的是 ¥6.72亿融资、450+ 药房、"
                      "每日 ¥336万+ 任务；正文另称 ¥1.68亿 ARR 为第三方估算。这个 ¥672万 来源不明。",
@@ -380,7 +384,7 @@ JUDGE = {
                       "这条能写「垂直 AI 最后为什么都变成行业公司」。",
     ),
     "lexroom": dict(
-        role="license", roles=["license"], report_group="②",
+        role="license", roles=["license"],
         caliber="arr",
         caliber_note="「¥1.57亿」为 Sacra 第三方估算的 ARR，标签写「月收入」；页面自己也标了「属第三方估算」。",
         role_note="法律 AI 的产出要由律师签字负责，责任不能外包给模型——这是它的天花板，也是它的门。",
@@ -391,7 +395,7 @@ JUDGE = {
                       "这条能写「专业服务业为什么愿意为 AI 付高价、却不肯让它签字」。",
     ),
     "fable-security": dict(
-        role="structural", roles=["structural", "caliber"], report_group="②",
+        role="structural", roles=["structural", "caliber"],
         caliber="funding",
         caliber_note="「¥2.08亿」是**出 stealth 时的累计融资**（种子 Greylock 领投、A 轮 Redpoint 领投），"
                      "标签写「月收入」。页面从头到尾没有披露过收入。",
@@ -405,7 +409,7 @@ JUDGE = {
     ),
     # ── caliber：那个数根本不是收入 ──────────────────────────────────
     "morph": dict(
-        role="caliber", roles=["caliber", "structural"], report_group="③",
+        role="caliber", roles=["caliber", "structural"],
         caliber="funding",
         caliber_note="「¥1.28亿」是 2024-03 的**种子轮**（Dragonfly/Pantera/Polychain）；"
                      "另一源（everydev）记同轮为 ¥3,864万（Khosla 领投）——两源相差 3.3 倍。",
@@ -418,7 +422,7 @@ JUDGE = {
                       "这条能写「聚合站的数字是怎么一层层歪掉的」。",
     ),
     "bland-ai": dict(
-        role="caliber", roles=["caliber", "structural"], report_group="③",
+        role="caliber", roles=["caliber", "structural"],
         caliber="funding",
         caliber_note="「¥6.72亿」= 「累计融资超一亿美金」；数据口径段列的四个轮次加起来约 ¥7.12亿，"
                      "**整段没有任何收入数字**。标签写「月收入」。",
@@ -431,7 +435,7 @@ JUDGE = {
                       "这是全批最干净的一个「标签与事实脱钩」标本。",
     ),
     "paraform": dict(
-        role="caliber", roles=["caliber"], report_group="③",
+        role="caliber", roles=["caliber"],
         caliber="gmv",
         caliber_note="「¥3.36亿」原文是「已向平台招聘官支付约 ¥3.36亿」——平台流水（GMV），不是收入。"
                      "标签写「月收入」。",
@@ -443,7 +447,7 @@ JUDGE = {
                       "这条能写「GMV 是最容易被读成收入的一个数」。",
     ),
     "rox": dict(
-        role="caliber", roles=["caliber"], report_group="③",
+        role="caliber", roles=["caliber"],
         caliber="arr",
         caliber_note="「¥5,376万」页面原文是「2025 年『预计』ARR 而非审计数字」——所以它确实是收入口径，"
                      "但是**预估**且未审计。⚠ 与旧口径表冲突：旧表把这条记成 invalid（当成融资额）。"
@@ -456,7 +460,7 @@ JUDGE = {
                       "这条能写「不可核数字的识别方法」——看修饰词，不看数值。",
     ),
     "crowdreply": dict(
-        role="caliber", roles=["caliber"], report_group="③",
+        role="caliber", roles=["caliber"],
         caliber="price",
         caliber_note="「¥665」是 Pro 档**定价**（¥665/月），不是收入。数据口径段全篇没有收入数字，"
                      "只有官网定价档位与「5000+ 品牌在用」。标签写「月收入」。",
@@ -501,6 +505,133 @@ SERIES = {
 }
 SERIES_FOOTER = "— 万物解释者 · 这些别照着做 —"
 
+# ======================================================================
+# 分篇：33 条按「门槛类型」合并成 7 篇
+# ----------------------------------------------------------------------
+# 为什么还要一层「篇」，而不是就按 role 三个栏目发三篇：
+#   role 只有三个值（structural / license / caliber），但 structural 有 21 条。
+#   21 条塞一篇 = 一万五千字，读者看完只记得「他们都很有钱」——这正是
+#   手册 §2.2 点名的那个陷阱（「写成他们有钱所以你不行」）。
+#   所以 structural 必须再按**跨不过去的东西是什么**拆开：
+#     钱/算力（bill）· 人头（headcount）· 逐个适配的苦力（grunt）
+#     · 攒出来的社区（community）· 履历与信任链（trust）
+#   拆开之后每篇只讲一种门槛，落点才是「这个数额/这个人数量级你差多远」。
+#
+# ⚠ 与 series_tag 是**两个轴**，不是重复字段：
+#   series_tag = 栏目身份（三个：结构 / 资格 / 数字），用于公众号栏目标签；
+#   volume     = 这一批要写成几篇、每篇叫什么，用于成稿排期与站点分组。
+#   栏目不会因为篇数变化而变化，篇会。
+#
+# ⚠ 每条必须归篇，且每篇的条数要和下面 counts 一致（main() 硬校验）。
+#   不做「没归篇就跳过」——静默跳过正是 score_china_fit 那个坑。
+VOLUMES = [
+    dict(
+        key="bill", no="Ⅰ", short="账单", title="用钱买来的规模",
+        judge="边际成本随用量线性涨，规模是融资垫出来的",
+        lead="这几条的产品逻辑大多能抄。抄不动的是一句话：他们先花掉了几亿。"
+             "要读的是「钱具体花在哪一格」——推理账单、算力垫款、买公司、买下载量，"
+             "四种花法对应四种完全不同的入场价。",
+    ),
+    dict(
+        key="headcount", no="Ⅱ", short="人头", title="人力就是交付能力",
+        judge="交付要有人接电话、有人复核、有人上门，产能不由代码决定",
+        lead="有些生意的产能不是代码写的，是人头写的。"
+             "看这类案例只需要问一句：它敢不敢在合同里承诺响应时间？"
+             "敢，就说明背后有一排工位。",
+    ),
+    dict(
+        key="grunt", no="Ⅲ", short="苦力", title="每个系统都要重做一遍",
+        judge="覆盖面靠逐个适配（连接器 / 国别 / 毫秒），只能拿时间换",
+        lead="这类门槛最不性感，也最劝退：它没有技巧，只有数量。"
+             "400 个连接器、几百个下游、每进一国重写一遍规则——"
+             "这些活没有捷径，只能一年一年堆。",
+    ),
+    dict(
+        key="community", no="Ⅳ", short="社区", title="买不到、只能攒的分发",
+        judge="星数 / 粉丝 / 月活是时间攒出来的关系资产，不随产品转移",
+        lead="「零融资做到几千万」的案例几乎都属于这一篇。"
+             "它们确实没拿钱，但手里握着一个用钱买不到的东西："
+             "二十年攒下的 2500 万粉丝，或者 20 万颗 GitHub 星。",
+    ),
+    dict(
+        key="trust", no="Ⅴ", short="关系", title="首单靠上一家公司",
+        judge="客户信任与数据资产来自创始人履历和长期采购，不是产品功能",
+        lead="这一篇最容易被误读成「技术很强」。技术是真的强，"
+             "但让客户签字的不是技术：是「他上一家公司叫什么」、"
+             "「这三个人的名字在哪个圈子里」。",
+    ),
+    dict(
+        key="license", no="Ⅵ", short="资格", title="缺的不是能力，是那张证",
+        judge="门槛是牌照 / 执业资质 / 专业责任兜底，不是技术难度",
+        lead="读者常以为自己做不了是因为技术不够。这一篇要说明的是另一件事："
+             "有些生意是**资格**问题——处方权、支付清算、护士执业互认、"
+             "律师签字。能力到了，证没到，一样进不去。",
+    ),
+    dict(
+        key="caliber", no="Ⅶ", short="数字", title="那个数根本不是收入",
+        judge="页面那个数是融资额 / GMV / 定价，不是收入（⚠ 不许写成「它做不成」）",
+        lead="这一篇不评价生意，只评价数字。五条案例被聚合成「月入几亿」，"
+             "逐条回源之后，这五个数字分别是：一条预估 ARR、一条平台流水、"
+             "一条定价档位、两条融资额。⚠ 它们大多活得很好，写法见手册 §3。",
+    ),
+]
+
+# slug -> 篇 key。⚠ 33 条一条都不能漏（main() 会拦）。
+VOLUME_OF = {
+    # Ⅰ 用钱买来的规模：推理账单 / 垫算力 / 买公司 / 买下载量
+    "higgsfield": "bill",        # 每月数亿推理账单 + 390 家财富 500 强 BD
+    "primeintellect": "bill",    # 卖算力 = 替客户垫钱，收入越大垫越多
+    "cognition": "bill",         # 估值 ¥685亿，增长一大段是收购 Windsurf 并来的
+    "omnidocs": "bill",          # 2.5 年 6 次收购，营收是买来的
+    "picturethis": "bill",       # 1 亿下载靠长期买量 + 40 万物种标注
+    "lovable": "bill",           # 累计 ¥36.96亿融资 + 18 万付费背后的推理开销（已单写）
+    # Ⅱ 人力就是交付能力
+    "huntress": "headcount",     # 800 人三班倒的 SOC
+    "micro1": "headcount",       # 几万名通过考试的领域专家
+    "sanas": "headcount",        # 一个客户几万个坐席，电信级工程
+    "decagon": "headcount",      # 按解决量计费 = 为结果兜底，人工复核在链路里
+    # Ⅲ 每个系统都要重做一遍
+    "glean": "grunt",            # 上百个连接器，每个都要单独谈权限模型
+    "hightouch": "grunt",        # 200+ 下游，每个单独适配
+    "skello": "grunt",           # 每进一国重写一遍劳动法规则库
+    "openrouter": "grunt",       # 400+ 模型逐个谈，才拿得到批发价
+    "retell": "grunt",           # 600ms 延迟是一年一年压出来的
+    # Ⅳ 买不到、只能攒的分发
+    "opencode": "community",     # 800 万月活 / GitHub 最受欢迎，开源攒的
+    "n8n": "community",          # 20.4 万星跨七个版本周期
+    "doomers": "community",      # 2500 万粉丝的创作者网络
+    # Ⅴ 首单靠上一家公司
+    "appliedcompute": "trust",   # 三个前 OpenAI 研究员，「产品是人」
+    "fable-security": "trust",   # 出 stealth 即拿融资，客户靠上一家公司的信任链
+    "crustdata": "trust",        # 6000 万公司 / 10 亿人的数据资产，买来+爬来+清洗
+    # Ⅵ 缺的不是能力，是那张证
+    "medvi": "license",          # 处方药远程医疗（已单写）
+    "geviti": "license",         # 47 州远程医疗执业与开方规则
+    "develop-health": "license", # HIPAA + 保险规则 + 客户安全评审
+    "hello-clever": "license",   # 支付/金融服务牌照 + 清算 + 反洗钱
+    "tern-group": "license",     # 护士执业资格互认 + 签证配额
+    "lexroom": "license",        # 律师签字负责，法律数据库按辖区授权
+    "tjm-labs": "license",       # 药房准入靠资历，落地方式是收购药房
+    # Ⅶ 那个数根本不是收入
+    "crowdreply": "caliber",     # ¥665 是 Pro 定价（已单写）
+    "rox": "caliber",            # 预估 ARR，未审计
+    "paraform": "caliber",       # ¥3.36亿 是付给招聘官的 GMV
+    "morph": "caliber",          # ¥1.28亿 是种子轮，两源还差 3.3 倍
+    "bland-ai": "caliber",       # ¥6.72亿 是累计融资，全文没有收入
+}
+
+# 每篇的条数（含已单独成文的）。改 VOLUME_OF 忘了改这里 → main() 直接报错。
+VOLUME_COUNTS = {"bill": 6, "headcount": 4, "grunt": 5, "community": 3,
+                 "trust": 3, "license": 7, "caliber": 5}
+
+# 已经单独成文的 3 条（各 role 一条试点）。占着篇里的位置，但不用再写一次，
+# 成稿时引用即可。文章落在 out/articles/<id>.html（不入库前由 make_article 生成）。
+STANDALONE = {
+    "lovable": "公众号-lovable拆解.html",
+    "medvi": "公众号-medvi拆解.html",
+    "crowdreply": "公众号-crowdreply拆解.html",
+}
+
 # 公众号摘要（≤120 字）。只给要成稿的几条写，其余留空回退 one_liner。
 SUMMARY = {
     "lovable": "「两个人做出来的」是产出端的事实。投入端的三个事实常被省掉："
@@ -529,9 +660,11 @@ def build():
                          % (missing, extra))
 
     cases = []
+    vol_by_key = {v["key"]: v for v in VOLUMES}
     for slug, p in parsed.items():
         j = JUDGE[slug]
         cal = j["caliber"]
+        vk = VOLUME_OF[slug]
         rec = {
             "id": slug,
             "name": p["name"],
@@ -542,7 +675,9 @@ def build():
             "site": p.get("site") or "",
             "role": j["role"],
             "roles": j["roles"],
-            "report_group": j["report_group"],
+            # 篇：这一条归到哪一篇里写。VOLUMES 只是篇的元信息，逐条只存 key，
+            # 免得到时候改篇名要改 33 处（一处没改就是同一篇两个名字）。
+            "volume": vk,
             "series_tag": SERIES[j["role"]],
             "series_footer": SERIES_FOOTER,
             "role_note": j["role_note"],
@@ -571,6 +706,11 @@ def build():
             rec["sources"].append({"label": "产品官网", "url": rec["site"]})
         if slug in SUMMARY:
             rec["summary"] = SUMMARY[slug]
+        # 已单独成文的 3 条：篇里占位，但不用再写一遍。给站点的用处是
+        # 卡片上挂一个「已单独成文」标记 —— 否则读者会以为这 33 条都还是空头支票。
+        if slug in STANDALONE:
+            rec["standalone"] = True
+            rec["standalone_article"] = STANDALONE[slug]
         if slug in CALIBER_CONFLICT:
             c = CALIBER_CONFLICT[slug]
             rec["caliber_conflict"] = {
@@ -592,20 +732,37 @@ def build():
             rec["needs_verify_reason"] = None
         cases.append(rec)
 
+    # 排序 = 篇的顺序 × role × id。JSON 的数组顺序就是站点与成稿的阅读顺序，
+    # 所以这里不用「按 role 排」（那样 Ⅳ/Ⅴ 两篇会和 Ⅰ 混在一起）。
+    vol_order = {v["key"]: i for i, v in enumerate(VOLUMES)}
     order = {"structural": 0, "license": 1, "caliber": 2}
-    cases.sort(key=lambda r: (order[r["role"]], r["id"]))
+    cases.sort(key=lambda r: (vol_order[r["volume"]], order[r["role"]], r["id"]))
 
-    by_role, by_cal = Counter(), Counter()
+    by_role, by_cal, by_vol = Counter(), Counter(), Counter()
     for r in cases:
         by_role[r["role"]] += 1
         by_cal[r["caliber"]] += 1
+        by_vol[r["volume"]] += 1
+
+    # 篇的元信息 + 成员 id。前端直接拿它渲染分组标题，不用自己按 key 聚合
+    # （聚合逻辑一旦前后端各写一份，迟早出现「某条不在任何组里」的空白卡）。
+    volumes = []
+    for v in VOLUMES:
+        ids = [r["id"] for r in cases if r["volume"] == v["key"]]
+        volumes.append({
+            "key": v["key"], "no": v["no"], "short": v["short"], "title": v["title"],
+            "judge": v["judge"], "lead": v["lead"],
+            "count": len(ids), "ids": ids,
+            "role": next((r["role"] for r in cases if r["volume"] == v["key"]), ""),
+        })
 
     return {
-        "_schema": "anti_cases/1",
+        "_schema": "anti_cases/2",
         "_note": "反向样本表：可以读、不建议照抄的案例。与 cases.json（推荐位）和 "
                  "graveyard.json（已停运）并列，三者证据口径不同，不要混。"
                  "role=structural 护城河在钱/算力/人力/数据/关系；role=license 缺资格而不是缺能力；"
-                 "role=caliber 页面那个数根本不是收入——这一类不许写成「它做不成」。",
+                 "role=caliber 页面那个数根本不是收入——这一类不许写成「它做不成」。"
+                 "volume=这一批按「门槛类型」合并成 7 篇时它归哪一篇（无 volume 即旧版本数据）。",
         "_source": "howtomakemi.com/cases/<slug>/ 整页快照（2026-10-26 抓，33/33 成功），"
                    "页面自列媒体的原文未逐条打开，故 verification 一律 aggregator。",
         "_built_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
@@ -613,10 +770,14 @@ def build():
             "total": len(cases),
             "by_role": dict(by_role),
             "by_caliber": dict(by_cal),
+            "by_volume": dict(by_vol),
+            "volumes": len(volumes),
+            "standalone_written": len(STANDALONE),
             "caliber_conflicts": len(CALIBER_CONFLICT),
             "caliber_pending": sum(1 for r in cases if r["needs_verify"]),
             "originals_opened": 0,
         },
+        "volumes": volumes,
         "cases": cases,
     }
 
@@ -633,6 +794,9 @@ def main():
     print("  按 caliber:", s["by_caliber"])
     print("  口径分歧 :", s["caliber_conflicts"], "| 口径待定:", s["caliber_pending"],
           "| 原始媒体已打开:", s["originals_opened"])
+    print("  分篇 %d 篇：" % s["volumes"], " · ".join(
+        "%s%s %d" % (v["no"], v["title"], v["count"]) for v in d["volumes"]))
+    print("  已单独成文:", s["standalone_written"], "条")
 
     # 硬校验：三类都得有，且不许出现「标签写月收入、正文却按年读」这种没记 note 的情况
     for r in d["cases"]:
@@ -647,6 +811,34 @@ def main():
                 r["id"], len(r["summary"]))
     for k in ("structural", "license", "caliber"):
         assert s["by_role"].get(k), "role=%s 一条都没有" % k
+
+    # ── 分篇校验（2026-10-26 加）──────────────────────────────────────
+    # 为什么这些是 assert 而不是 print：分篇是**成稿排期**的依据。
+    # 一条没归篇 = 这篇永远写不到它；一条归错篇 = 读者看到的落点不对。
+    # 两者都不会报错，只会静默产出错误的排期。
+    # ⚠ 用 SystemExit 而不是 assert：python -O 会关掉 assert，而 build 脚本
+    #   恰恰是「跑起来就好」的那种，没人会去看有没有被优化掉。
+    miss = [r["id"] for r in d["cases"] if not r.get("volume")]
+    if miss:
+        raise SystemExit("这些条目没归篇（补 VOLUME_OF）：%s" % miss)
+    stray = [k for k in VOLUME_OF if k not in JUDGE]
+    if stray:
+        raise SystemExit("VOLUME_OF 里有判断表不认识的 slug：%s" % stray)
+    if set(VOLUME_COUNTS) != {v["key"] for v in VOLUMES}:
+        raise SystemExit("VOLUME_COUNTS 的键和 VOLUMES 的 key 对不上")
+    for v in d["volumes"]:
+        if v["count"] != VOLUME_COUNTS[v["key"]]:
+            raise SystemExit("篇「%s」实际 %d 条，声明 %d 条 —— 改了 VOLUME_OF 就要改 VOLUME_COUNTS"
+                             % (v["key"], v["count"], VOLUME_COUNTS[v["key"]]))
+    if sum(v["count"] for v in d["volumes"]) != len(d["cases"]):
+        raise SystemExit("各篇条数加起来 %d ≠ 总条数 %d"
+                         % (sum(v["count"] for v in d["volumes"]), len(d["cases"])))
+    # 篇 key 必须唯一：前端按 key 分组，重名会把两篇并成一篇且吞掉一篇的标题
+    if len({v["key"] for v in VOLUMES}) != len(VOLUMES):
+        raise SystemExit("VOLUMES 里有重复的 key")
+    for slug in STANDALONE:
+        if slug not in JUDGE:
+            raise SystemExit("STANDALONE 里的 %s 不在判断表里" % slug)
 
     if args.check:
         print("--check：不写盘")

@@ -119,6 +119,14 @@ def main():
     chk("SOLO_DIM_LABEL 键一致", js_solo_label == list(m.SOLO_DIM_LABEL.keys()))
     js_quad = js_const("QUAD_META")
     chk("QUAD_META 键一致", js_quad == list(m.QUAD_META.keys()))
+    # 反向样本区（2026-10-26）：口径/角色的中文名在抽屉与静态页各有一份副本，
+    # 不一致就会出现「同一字段两个词」—— 读者会当成两个分类。
+    js_cal = js_const("CAL_LABEL")
+    chk("CAL_LABEL 键一致", js_cal == list(m.CAL_LABEL.keys()),
+        "js=%s py=%s" % (js_cal, list(m.CAL_LABEL.keys())))
+    js_role = js_const("ANTI_ROLE")
+    chk("ANTI_ROLE 键一致", js_role == list(m.ANTI_ROLE.keys()),
+        "js=%s py=%s" % (js_role, list(m.ANTI_ROLE.keys())))
     # 四象限文案要和 server.py 对得上（那边是第 3 份副本）
     sys.path.insert(0, ROOT)
     import server                                                   # noqa: E402
@@ -309,13 +317,51 @@ def main():
     chk("含全部案例链接", all("./case/%s.html" % c["id"] in ns for c in cases))
     chk("不含可执行脚本", "<script" not in ns)
 
+    # ---------------------------------------------------------- 7b 反向样本页
+    # 2026-10-26 上站：33 条「可以读、抄不动」的案例独立成一页放 anti/。
+    # 不放进 case/ 是因为 verify_deploy 断言「case 目录链接数 = curated 案例数」，
+    # 那条判据是部署后确认「没少案例」的唯一依据，不能被另一种条目污染。
+    print("\n[7b] 反向样本页（这些别照着做）")
+    with open(os.path.join(ROOT, "data", "anti_cases.json"), encoding="utf-8") as f:
+        anti_doc = json.load(f)
+    anti = {"cases": anti_doc["cases"], "volumes": anti_doc["volumes"]}
+    ah = m.render_anti_page(anti, {"site": site})
+    chk("是完整页面", ah.startswith("<!DOCTYPE html>") and ah.rstrip().endswith("</html>"))
+    miss = [a["id"] for a in anti["cases"] if m.esc(a["name"]) not in ah]
+    chk("33 条全部出现在页面上", not miss, ",".join(miss[:3]))
+    miss_v = [v["key"] for v in anti["volumes"] if m.esc(v["title"]) not in ah]
+    chk("7 篇标题全部出现", not miss_v, ",".join(miss_v[:3]))
+    chk("不引用 app.js", not re.search(r'<script[^>]*\bsrc=["\'][^"\']*app\.js', ah))
+    chk("无根路径引用（子目录部署不 404）", not re.search(r'(href|src)="/(?!/)', ah))
+    chk("引用来自数据的一律转义",
+        not re.search(r"<(script|img|svg|iframe)\b", ah))
+    # 页首那句「N 条里只有 M 条标签没写错」是硬编码文案里的变量，必须跟着数据走：
+    # 写死一个数字，数据一变页面就在说谎（这条区的主论点就是「标签写错了」）。
+    mrr = sum(1 for a in anti["cases"] if a.get("caliber") == "mrr")
+    chk("页首「N 条里只有 M 条」与实际一致",
+        ("%d 条里只有 %d 条标签没写错" % (len(anti["cases"]), mrr)) in plain_text(ah),
+        "mrr=%d" % mrr)
+    # 口径不是收入就必须在页面上写出来 —— 这是这一区唯一不能省的一句话
+    no_cal = [a["id"] for a in anti["cases"]
+              if a.get("caliber") != "mrr" and m.CAL_LABEL[a["caliber"]] not in ah]
+    chk("非月收入条目都标了真实口径", not no_cal, ",".join(no_cal[:3]))
+    chk("noscript 降级清单里有反向量入口",
+        "./anti/index.html" in m.noscript_block(cases, site, anti=anti))
+    chk("没给 anti 时不输出那行", "./anti/index.html" not in m.noscript_block(cases, site))
+
     # ---------------------------------------------------------- 8 落盘与自检
     print("\n[8] 落盘与产物自检")
     tmp = tempfile.mkdtemp(prefix="prerender_test_")
     try:
-        st = m.build_all(cases, tmp, site, quiet=True)
+        st = m.build_all(cases, tmp, site, quiet=True, anti=anti)
         chk("生成了 24 个案例页", st["pages"] == len(cases), "实际 %d" % st["pages"])
         chk("生成 case/index.html", os.path.isfile(os.path.join(tmp, "case", "index.html")))
+        chk("生成 anti/index.html",
+            os.path.isfile(os.path.join(tmp, "anti", "index.html")))
+        with open(os.path.join(tmp, "sitemap.xml"), encoding="utf-8") as f:
+            n_url = f.read().count("<url>")
+        chk("sitemap 里多了反向量那一条（首页+目录+案例+anti）",
+            n_url == len(cases) + 3, "%d 条" % n_url)
         chk("生成 sitemap.xml", os.path.isfile(os.path.join(tmp, "sitemap.xml")))
         chk("生成 robots.txt", os.path.isfile(os.path.join(tmp, "robots.txt")))
         chk("自检通过", m.check_pages(tmp, cases, verbose=False) == [])

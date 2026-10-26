@@ -61,6 +61,13 @@
         <span class="nav-ico">⚑</span><span class="nav-label">创业墓碑区</span><span class="nav-short">墓碑区</span>
         <span class="nav-count" id="nav-count-graveyard">–</span>
       </button>
+      <!-- 反向样本区（2026-10-26 加上站）：可以读、抄不动的案例。独立数据文件
+           data/anti_cases.json，同样不进 cases.json —— 那 274 条是「你能抄什么」
+           的推荐位，这 33 条恰恰是「你抄不动」，混进去会把排行榜和计数一起污染。 -->
+      <button class="nav-item" data-view="anti">
+        <span class="nav-ico">⊘</span><span class="nav-label">这些别照着做</span><span class="nav-short">别照做</span>
+        <span class="nav-count" id="nav-count-anti">–</span>
+      </button>
       <button class="nav-item" data-view="candidates">
         <span class="nav-ico">◫</span><span class="nav-label">候选池</span><span class="nav-short">候选</span>
         <span class="nav-count" id="nav-count-cands">–</span>
@@ -267,6 +274,26 @@
         <div class="gy-filter" id="gy-filter"></div>
         <div class="grid grid-gy" id="grid-gy"></div>
         <div class="empty" id="empty-gy" hidden>没有匹配的停运项目。</div>
+      </section>
+
+      <!-- 反向样本区（2026-10-26）：可以读、抄不动的 33 条。独立数据文件
+           data/anti_cases.json，刻意不进 cases.json —— 那 274 条是「你能抄什么」
+           的推荐位，这 33 条恰恰是「你抄不动」；混进去要在排行榜尾部堆 33 条
+           低分条目，还会把 curated 计数一起抬高。按「门槛类型」分成 7 篇。 -->
+      <section id="view-anti" class="view" hidden>
+        <div class="sec-head">
+          <h2>这些别照着做 · 读得懂，搬不动</h2>
+          <p><b>「不建议做」不等于「不值得看」。</b>这里 33 条都被聚合站标成了「月入几亿」。
+             逐条回源之后的结论是：产品形态大多能抄，抄不动的是它底下的东西 ——
+             <b>账单、人头、苦力、社区、履历、执照</b>，或者干脆是<b>那个数字被读错了</b>。
+             按门槛类型分成 7 篇，每篇只讲一种「跨不过去」。<br>
+             ⚠ 两件事先说清：① 这一区<b>大半不是失败案例</b>（<code>lovable</code> 估值 ¥443 亿），
+             别当墓碑读；② 卡片上的「月收入」是聚合站原话，真实口径逐条标在下面 ——
+             <b>33 条里只有 1 条标签没写错</b>。</p>
+        </div>
+        <div class="gy-filter" id="anti-filter"></div>
+        <div id="anti-vols"></div>
+        <div class="empty" id="empty-anti" hidden>这一区还没有数据（data/anti_cases.json 为空）。</div>
       </section>
 
       <section id="view-candidates" class="view" hidden>

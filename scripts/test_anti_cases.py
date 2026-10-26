@@ -44,7 +44,8 @@ class TestAntiCasesTable(unittest.TestCase):
 
     # ---- 表本身 ----
     def test_表能读出且条数对得上_summary(self):
-        self.assertEqual(self.raw.get("_schema"), "anti_cases/1")
+        # /2：加了分篇（volume + volumes），字段契约变了，主版本跟着升
+        self.assertEqual(self.raw.get("_schema"), "anti_cases/2")
         self.assertEqual(len(self.cases), self.raw["_summary"]["total"])
 
     def test_id不重复(self):
@@ -70,10 +71,45 @@ class TestAntiCasesTable(unittest.TestCase):
         got = {c["role"] for c in self.cases}
         self.assertEqual(got, ROLES)
 
-    def test_报告分组不被丢掉(self):
-        # 原报告的 ①②③④ 与本次三类不是一一对应，分组必须留着才能追溯
+    def test_每条都归篇且篇是已声明的(self):
+        # 2026-10-26：原报告的 ①②③④ 换成「按门槛类型合并成 7 篇」（volume）。
+        # 一条没归篇 = 这篇永远写不到它；归到不存在的篇 = 站上分组会凭空少一条。
+        vols = {v["key"] for v in self.raw.get("volumes") or []}
+        self.assertTrue(vols, "缺 volumes 元信息")
         for c in self.cases:
-            self.assertIn(c["report_group"], ("①", "②", "③", "④"), c["id"])
+            self.assertIn(c.get("volume"), vols, c["id"])
+
+    def test_每篇条数与声明一致(self):
+        vols = self.raw.get("volumes") or []
+        self.assertEqual(len(vols), 7, "按门槛类型分 7 篇")
+        total = 0
+        for v in vols:
+            ids = [c["id"] for c in self.cases if c["volume"] == v["key"]]
+            self.assertEqual(len(ids), v["count"], "篇「%s」条数与 count 不符" % v["key"])
+            self.assertEqual(sorted(ids), sorted(v["ids"]), v["key"])
+            self.assertTrue(v.get("title") and v.get("judge"), v["key"])
+            # 短名只给 chips 用，太长会把筛选条挤成两行
+            self.assertLessEqual(len(v.get("short") or ""), 4, v["key"])
+            total += v["count"]
+        self.assertEqual(total, len(self.cases))
+
+    def test_分篇不改变role归属(self):
+        # 篇是按「门槛类型」再切一刀，不许趁机改 role（改了等于分类标准漂移）
+        for v in self.raw.get("volumes") or []:
+            if v["key"] in ("license", "caliber"):
+                for c in self.cases:
+                    if c["volume"] == v["key"]:
+                        self.assertEqual(c["role"], v["key"], c["id"])
+
+    def test_已单独成文的标记只给已存在的稿(self):
+        # 3 条试点（各 role 一条）标了 standalone；标记与真实文件必须对得上，
+        # 否则站点会挂一个「已单独成文」但点开没有的徽章。
+        marked = [c for c in self.cases if c.get("standalone")]
+        self.assertEqual(len(marked), 3)
+        self.assertEqual({c["role"] for c in marked}, ROLES)
+        for c in marked:
+            art = os.path.join(ROOT, "out", "articles", "%s.html" % c["id"])
+            self.assertTrue(os.path.isfile(art), "缺成稿 %s（standalone 标记无据）" % art)
 
     # ---- 口径 ----
     def test_caliber在枚举内(self):
