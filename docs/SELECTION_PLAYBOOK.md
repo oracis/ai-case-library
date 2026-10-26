@@ -241,3 +241,5 @@ invalid   上面都不成立的混用（例如融资口径混乱、数字与任�
   预渲染 `anti/index.html`，全部独立于 `cases`；
   ③ 顺手改正 `lovable` 的 `caliber`（`annual`→`arr`，其 `caliber_note` 原文就是 ARR），
   1.2 的分布表随之变（arr 20 / annual 3）。
+
+- **2026-10-27 00:30** 30 条正文按门槛类型落成 7 篇（`out/articles/anti-{i..vii}-*.html`，正文源 `scripts/gen_anti_articles.py`），站点 `anti` 栏目已部署上线（291 对象 / 0 失败，`verify_deploy` 全绿，线上 `/anti/index.html` 200）。七篇的共同结构：摆数据 → 逐条拆 → 共同形状 → 怎么识别 → 不是失败案例 → 落点。**「不是失败案例」段是硬性要求**，不是可选修辞。
