@@ -37535,7 +37535,8 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-26"
-    }
+    },
+    "cover_desc": "把官网那张没人填的表单做成销售"
   },
   {
     "status": "curated",
@@ -37683,7 +37684,8 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-26"
-    }
+    },
+    "cover_desc": "它卖的不是自动化，是账号不会死"
   },
   {
     "status": "curated",
@@ -37978,7 +37980,8 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-26"
-    }
+    },
+    "cover_desc": "给车行接电话的 AI 前台，全年无休"
   },
   {
     "status": "curated",
@@ -38124,7 +38127,8 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-26"
-    }
+    },
+    "cover_desc": "三个人，把民调流程压成一条流水线"
   },
   {
     "status": "curated",
@@ -38271,6 +38275,7 @@
       "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
       "threshold": 70.0,
       "scored_at": "2026-10-26"
-    }
+    },
+    "cover_desc": "AI 干活，行业老手在后面复核"
   }
 ]
