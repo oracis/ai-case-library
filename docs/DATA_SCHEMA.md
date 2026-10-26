@@ -367,6 +367,50 @@ Neither array contains scores.
 
 ---
 
+## `anti_cases.json` — 反向样本区（2026-10-26 新增）
+
+「可以读、不建议照抄」的案例。**不在 `/api/data` 里，也不上站**（详见
+`docs/SELECTION_PLAYBOOK.md` §4）：这一栏的用途是给文章供料，不是给读者推荐。
+三张表的边界：
+
+| 文件 | 装什么 | 证据口径 |
+|---|---|---|
+| `cases.json` | 推荐位，按双轴评分排名 | 一手来源优先 |
+| `graveyard.json` | 已停运项目的复盘 | 死亡与亏损要有一手来源 |
+| `anti_cases.json` | 活得好但你搬不动的案例 | `aggregator`；原始媒体未逐条打开 |
+
+顶层：`_schema`（= `anti_cases/1`）、`_note`、`_source`、`_built_at`、`_summary`、
+`cases[]`。由 `scripts/build_anti_cases.py` 的 `JUDGE` 表驱动生成——**表是主体，JSON 是产物**。
+
+每条字段：
+
+- `id` / `name` / `category` / `origin` / `one_liner` / `site`
+- `role`：`structural`（护城河在钱/算力/人力/数据/关系）｜`license`（缺资格而不是缺能力）｜
+  `caliber`（那个数根本不是收入）
+- `roles[]`：命中的全部类别；`role` 记主因
+- `report_group`：原筛选报告的 ①②③④，保留以便追溯（与 `role` 不是一一对应）
+- `role_note` / `why_not_copy[]` / `article_angle`
+- `page_label{key,value,sub}`：聚合页卡片原样（通常是「月收入」）
+- `caliber`：该值的**真实**口径。枚举比 `cases.caliber` 多四个：
+  `mrr` / `arr` / `annual` / `funding` / `valuation` / `gmv` / `price` / `lifetime` /
+  `unknown` / `invalid`
+- `caliber_note`：`caliber != mrr` 时**必填**，说明那个数其实是什么
+- `caliber_conflict{old,now,why}`：与 `data/htm_backlog_caliber.json` 不一致时留痕两边，
+  **不回改旧表**（旧表是历史判断）
+- `verification`：一律 `aggregator`（原始媒体未打开，不许标 official / stripe）
+- `source_check{page_read,originals_opened,note}`
+- `needs_verify` + `needs_verify_reason`：语义比 graveyard 窄，只指「口径待定」
+  （`caliber_undefined` / `caliber_conflict`），不指「整条没核」
+- `series_tag` / `series_footer`：公众号栏目名（「这些别照着做 · 结构/资格/数字篇」），
+  **不占** `issue_numbers.json` 的拆解篇号
+- `summary`（可选，≤120 字）：公众号摘要；没有则回退 `one_liner`
+
+不变量（`scripts/test_anti_cases.py` 17 项锁住）：id 不与 `cases.json` 相撞；
+`role ∈ roles`；三类都非空；非 `mrr` 必有 `caliber_note`；口径分歧必留两边；
+摘要 ≤120；核实等级不许冒充一手。
+
+---
+
 ## `sources` object
 
 Reproduces `data/sources.json`, the harvesting configuration.

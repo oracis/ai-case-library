@@ -1270,6 +1270,21 @@ def load_cases():
     return cases
 
 
+def load_anti_cases():
+    """反向样本表（data/anti_cases.json）。
+
+    和 load_cases 分开读，原因见 docs/SELECTION_PLAYBOOK.md §4：
+    那 274 条是推荐位，这 33 条是「可以读、别照抄」，两张表的证据口径不同，
+    混在一个 load 里会让 queue / publish 把反面案例当推荐位处理。
+    """
+    p = os.path.join(ROOT, "data", "anti_cases.json")
+    if not os.path.exists(p):
+        return []
+    with open(p, encoding="utf-8") as f:
+        d = json.load(f)
+    return d.get("cases", []) if isinstance(d, dict) else d
+
+
 def load_published():
     if not os.path.exists(PUBLISHED_PATH):
         return {}
@@ -1472,7 +1487,9 @@ def build_one(c, no):
     out = fix_markdown(out)
     m = re.search(r"<h1[^>]*>(.*?)</h1>", out, re.S)
     title = strip_tags(m.group(1)).strip() if m else c.get("name", "")
-    subtitle = c.get("one_liner", "")
+    # 摘要优先用 summary：one_liner 是聚合站的宣传语（常内嵌金额、语气是「值得抄」），
+    # 直接当摘要会与反面案例的论点打架。没有 summary 的（274 条全部）行为不变。
+    subtitle = c.get("summary") or c.get("one_liner", "")
     # 2026-10-01：非「海外小生意」内容不占「拆解海外 · 第 N 篇」这个篇号。
     # 篇号是**栏目身份**，工具推广/使用类文章挂在这个栏目下会让读者以为
     # 这是第 42 个海外小生意案例。所以按 content_kind 换标签。
@@ -1521,14 +1538,22 @@ def build_one(c, no):
 
 
 def cmd_build(args=None):
-    cases = load_cases()
+    use_anti = bool(getattr(args, "anti", False)) if args is not None else False
+    cases = load_anti_cases() if use_anti else load_cases()
     single = getattr(args, "case", None) if args is not None else None
     if single:
         hit = [c for c in cases if c["id"] == single]
         if not hit:
-            raise SystemExit("没有 case id=%s（不回退全量，避免误改已发稿）" % single)
+            raise SystemExit("没有 case id=%s（不回退全量，避免误改已发稿）%s"
+                             % (single, "（--anti 模式查的是 data/anti_cases.json）"
+                                if use_anti else ""))
         cases = hit
-    reg = issue_registry(cases)
+    elif use_anti:
+        raise SystemExit("--anti 必须配 --case：反向样本不走批量重建，"
+                         "避免把 33 条一起生成出没人读的空稿")
+    # --anti 时**不能**走篇号注册表：反向样本不占「拆解海外」的序号（series_tag 已改写），
+    # 走一遍会打印一个假篇号（第 260 篇），容易被人当成真发了号。
+    reg = {} if use_anti else issue_registry(cases, save=True)
     built = updated = same = nosrc = 0
     for c in cases:
         r = build_one(c, reg.get(c["id"], 0))
@@ -5249,8 +5274,12 @@ def _autostart_chrome_if_needed(port=CDP_PORT, profile=None):
 def main():
     ap = argparse.ArgumentParser(description="公众号拆解自动发布管线")
     sub = ap.add_subparsers(dest="cmd", required=True)
-    sub.add_parser("build", help="生成缺的发布就绪 HTML").add_argument(
+    bd = sub.add_parser("build", help="生成缺的发布就绪 HTML")
+    bd.add_argument(
         "--case", help="只重建这一条（避免全量重写，用于刚发过稿的场景）")
+    bd.add_argument(
+        "--anti", action="store_true",
+        help="改从 data/anti_cases.json 取案例（「这些别照着做」栏目，不占拆解篇号）")
     sub.add_parser("queue", help="打印实时待发队列")
     sub.add_parser("plan", help="生成动态发布队列 md")
     pi = sub.add_parser("inspect", help="校验单文件抽取")
