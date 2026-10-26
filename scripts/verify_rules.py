@@ -159,6 +159,18 @@ SOURCE_TIERS = [
     # 它早就在用 —— ai_verify 的 kind 白名单里有、cases.json 里有十几条都标着它，
     # 唯独这张表没登记，于是「这个来源属于哪一档」一直没有被规则承认过。
     ("review", "第三方评测/核查站", "B", False),
+    # aggregator = 案例聚合/导航站（howtomakemi.com 这类）。它自己也在转述
+    # GetLatka / 创始人 LinkedIn / 官方通稿，所以只能算 B 级：撑得起「口径待核」，
+    # 撑不起 official。2026-10-26 入库的 10 条 howtomakemi 案例已经在用这个 kind，
+    # 但当时**没登记** —— 未登记的 kind 在规则眼里等于不存在，撑不起任何等级。
+    ("aggregator", "案例聚合/导航站（转述他处来源）", "B", False),
+    # homepage = 官网首页/产品页。它只证明「产品存在」，**不证明收入数字**：
+    # arcads / ahron 官网没有收入披露，gistly 官网连定价都不公开。
+    # 2026-10-26 AI 核验里 verify_case 就把「抓到了官网」当成「数字来自官方」，
+    # 给 7 条只有二手转述的案例标了 official —— 那等于把 A 级证据借给了只有
+    # D 级事实的条目。所以官网首页单列 C 级、不算一手来源；要标 official，
+    # 得有一个**写着这个数字**的官方页面。
+    ("homepage", "官网首页/产品页（仅证产品存在）", "C", False),
     # revenuecat = 订阅数据商（App 收入估算模型）。它读的是苹果/谷歌的账单再
     # 建模外推，不是直连商户后台 —— 所以刻意不给 A 级：标成「支付网关验证」
     # 会让读者以为我们看过商户自己的 Stripe 面板，而那是我们没做的事。
@@ -206,7 +218,7 @@ def best_supported_level(kinds):
         return "stripe"
     if "official" in ks:
         return "official"
-    if ks & {"press", "review", "revenuecat"}:
+    if ks & {"press", "review", "revenuecat", "aggregator"}:
         return "partial"
     if "founder" in ks:
         return "founder"
@@ -563,6 +575,10 @@ def evaluate(v, metric_value=None):
         "threshold": TIER_THRESHOLD,
         "tier": tier,
         "tier_label": TIER_LABEL.get(tier, ""),
+        # 为什么是这个档 —— 档位**不是**分数决定的（有一手来源就直接进精品池，
+        # 15 分也进），所以判定理由必须一起返回，否则下游只能瞎猜、印出
+        # 「够精品档（15 ≥ 60）」这种自相矛盾的话（2026-10-26 实测踩过）。
+        "tier_reason": _tier_why if tier else "",
         "verdict": _verdict(publishable, failed_gates, missing_musts,
                             unverified_gates, warnings, tier, got, flagged_denied),
     }
