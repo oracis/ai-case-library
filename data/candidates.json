@@ -75,47 +75,30 @@
         "label": "官网首页：independent / self-funded / bootstrapped / profitable 自述",
         "url": "https://plausible.io"
       }
-    ]
-  },
-  {
-    "id": "flodesk",
-    "name": "Flodesk",
-    "name_en": "Flodesk",
-    "origin": "美国（旧金山）",
-    "one_liner": "设计优先的小企业邮件营销平台，上线第二周即盈利，零融资做到 $36M+ ARR。",
-    "category": "营销工具",
-    "models": [
-      "订阅制"
     ],
-    "verification": "official",
-    "source_kind": "official",
-    "source_url": "https://flodesk.com/ai-information",
-    "website": "https://flodesk.com",
-    "added_at": "2026-10-22",
-    "promoted_from_inbox": null,
-    "metrics": {
-      "headline": "ARR $36M+（2026-01，官方口径）",
-      "caliber": "arr_official",
-      "arr": 36000000,
-      "metric_note": "口径：ARR 为 2026-01-22 官方新闻稿与官网 AI 信息页双源披露（surpassing $36 million in ARR）；100,000+ 小企业客户；2025 年用户经平台发送 130 亿封邮件、新增 3.14 亿订阅者；2019 年创立至今零外部融资；上线第二周即盈利。订阅制（$19/月起），未披露 MRR。"
+    "verdict": "用开源换信任、用隐私换差异：2.5KB 无 cookie 的网站分析工具，云托管订阅 100% 由用户供养，自举三年做到 $1M ARR（2022-06）、10 人团队盈利、零外部投资人。",
+    "why_it_works": [
+      "差异化是架构不是口号：无 cookie、不需要合规横幅、脚本只有 2.5KB，隐私直接做进产品；",
+      "开源（AGPL）当获客与信任杠杆：自托管免费吸引开发者，云托管把懒得运维的人转化成订阅；",
+      "成本结构轻：10 人团队、无销售无广告，收入全部来自订阅者；",
+      "透明本身是增长素材：创始人公开 2019-2022 完整 MRR 时间线（$64 → $83,637）。"
+    ],
+    "playbook": [
+      "拿「竞品的合规负担」当卖点：对手越重（cookie/横幅/GDPR），你越轻；",
+      "开源核心 + 托管收费的双层结构：代码换传播，托管换钱；",
+      "公开收入时间线做内容，把增长过程本身变成获客渠道。"
+    ],
+    "replicability": {
+      "tech": 3,
+      "distribution": 3,
+      "capital": 2,
+      "timing": 2
     },
-    "note": "2026-10-22 由 howtomakemi 独有线索核验入库：官网 AI 信息页 + AP News/PRNewswire 官方新闻稿 + Inc.com 报道三源一致。howtomakemi 原称「ARR 超 ¥2.42亿（约 $33.6M）」与官方 $36M 同量级（略旧）。创始人 Rebecca Shostak（2026 任 CEO）、Martha Bitar（转任执行主席）、Trong Dong；2018 年融资被 YC 拒绝后自筹起步。",
-    "what_it_does": "面向小企业/个人创业者/创作者的邮件营销平台：品牌优先的邮件设计（自定义字体/配色）、自动化、表单、落地页、电商结账，2026-06 推出 AI 设计应用 Flodesk Studio。",
-    "how_it_makes_money": "订阅制（$19/月起，所有付费档无限发送）；增长靠口碑与小企业用户成功案例（Miss Excel、The Everygirl 等），无销售团队。",
-    "sources": [
-      {
-        "label": "官网 AI 信息页（官方结构化披露）",
-        "url": "https://flodesk.com/ai-information"
-      },
-      {
-        "label": "AP News 官方新闻稿（2026-01-22）",
-        "url": "https://apnews.com/press-release/pr-newswire/small-business-5d29eca1ec1c0546c98c1cc249ccc0e9"
-      },
-      {
-        "label": "Inc.com：YC 拒绝后自筹到 $36M ARR",
-        "url": "https://www.inc.com/jennifer-conrad/she-was-rejected-by-y-combinator-bootstrapped-startup-36-million-arr-flodesk/91278173"
-      }
-    ]
+    "traffic_sources": [
+      "开源社区与开发者口碑（GitHub / 自托管用户）；",
+      "透明增长内容：创始人公开 MRR 复盘带来的自然流量。"
+    ],
+    "founder": "候选未记录创始人姓名；官网自述完全独立、自筹（bootstrapped）、盈利、10 人团队，公司起步于爱沙尼亚（欧盟）。"
   },
   {
     "id": "sleek-design",
@@ -155,7 +138,29 @@
         "label": "官网（定价与用户规模）",
         "url": "https://sleek.design/"
       }
-    ]
+    ],
+    "verdict": "连做四个设计工具都没起量的团队，复用旧代码 3 周搭出 AI 界面生成器，纯 X/Reddit 内容分发、零付费营销，上线约一个月做到 $10K MRR（创始人 2026-01 自述）。",
+    "why_it_works": [
+      "接住 coding agent 浪潮：生成结果可导出 Figma/HTML/React，并通过 API/skill 接入 Claude Code、Cursor，做 agent 的上游；",
+      "免费层只允许一次生成：AI 成本被锁死在最低，同时筛出真付费意愿；",
+      "三档订阅（$29/$69/$99）按 AI credits 分档，成本与收入同向变动；",
+      "创始人本身是分发渠道：每日 X/Reddit 发帖，获客成本≈0。"
+    ],
+    "playbook": [
+      "AI 成本前置控制：免费层限一次，别等烧钱才想起限额；",
+      "做 AI 编程工具生态的上游：让你的输出被 agent 引用，吃到整条浪潮；",
+      "连续创业者复用旧代码 3 周出 v1 —— 资产往往藏在上一次失败里。"
+    ],
+    "replicability": {
+      "tech": 3,
+      "distribution": 2,
+      "capital": 2,
+      "timing": 3
+    },
+    "traffic_sources": [
+      "X 与 Reddit 每日内容分发（零付费营销，创始人自述）。"
+    ],
+    "founder": "Mattia Pomelli，与两位朋友合伙远程开发（意大利）；此前做过四个设计工具均未起量，此次复用旧工具 3 周搭出 v1。"
   },
   {
     "id": "pdfai",
@@ -192,7 +197,29 @@
         "label": "1810.cn 案例档案（第三方汇编，2024 年底口径）",
         "url": "https://1810.cn/case/pdfai"
       }
-    ]
+    ],
+    "verdict": "精准域名 + 搜索意图的教科书案例：pdf.ai 一个域名吃下「PDF AI」相关搜索的一半流量（50%+ 获客来自搜索），0 员工 0 融资，创始人自述做到几百万美金 ARR 量级。",
+    "why_it_works": [
+      "域名即渠道：pdf.ai 精准匹配搜索意图，50%+ 流量来自「PDF AI」相关搜索（第三方汇编口径）；",
+      "先便宜验证再涨价：早期 $99 一次性买断验证付费意愿，后转向企业 $500/月，客单价翻 50 倍；",
+      "从工具到平台：RAG 问答升级为能执行操作的 AI 客服（更新订阅/处理退款/安排会议，接 Stripe/Slack/Calendly），从个人订阅切进企业预算。"
+    ],
+    "playbook": [
+      "好域名是永恒的 SEO：买下用户搜索时会打的那个词；",
+      "用低价买断测需求，用企业订阅收钱 —— 客单价能翻 50 倍；",
+      "build in public：长期贴收入截图，既是信任资产也是分发渠道。"
+    ],
+    "replicability": {
+      "tech": 3,
+      "distribution": 4,
+      "capital": 2,
+      "timing": 2
+    },
+    "traffic_sources": [
+      "SEO：50%+ 流量来自「PDF AI」相关搜索（第三方汇编口径）；",
+      "创始人 build in public 的 X 受众（13 万粉）。"
+    ],
+    "founder": "Damon Chen：2014 年从中国移民美国，Cisco 网络工程师 9 年后辞职创业，X 13 万粉丝，0 员工 0 融资 solo 运营。⚠ 与 Chatbase（Yasser Elsaid，$9M ARR）是两个产品，勿混。"
   },
   {
     "id": "refactoringui",
@@ -232,7 +259,29 @@
         "label": "官网",
         "url": "https://www.refactoringui.com/"
       }
-    ]
+    ],
+    "verdict": "「先有受众后做产品」的样本：5 万+ 开发者受众先养多年，一本高定价买断的设计书出版四年累计超 $2.5M（2022-09 自述）、2020 单年约 $600K，无订阅无广告。",
+    "why_it_works": [
+      "受众先行：作者多年 Twitter/博客积累 5 万+ 开发者粉丝，发布即转化存量信任，冷启动成本≈0；",
+      "内容有真差异化：不教审美，教「少用边框、对比代替装饰」这类可执行战术，正中「会写代码不会做 UI」的痛点；",
+      "买断制信息产品毛利极高：一次制作、长尾销售，出版两年后 2020 年仍进账约 $600K。"
+    ],
+    "playbook": [
+      "先写免费内容养受众，做产品是最后一步而不是第一步；",
+      "高定价买断 + 组件库/screencasts 打包，把一本书卖成工具箱；",
+      "同一套打法可迭代：内容产品养开源框架（Tailwind），框架再反哺内容销售。"
+    ],
+    "replicability": {
+      "tech": 4,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 2
+    },
+    "traffic_sources": [
+      "作者自有受众（Twitter/博客 5 万+ 开发者粉丝）与口碑；",
+      "Tailwind 生态的交叉曝光（同作者体系，生态时间线均本人披露）。"
+    ],
+    "founder": "Adam Wathan：开发者/作者，先靠博客与开源（Tailwind CSS）积累受众，Refactoring UI 是其内容产品矩阵的一环；生态时间线（首本书首周 $61,392 → Tailwind UI 首日 $400K → 累计 $2.5M+）均为本人披露。"
   },
   {
     "id": "getdavid",
@@ -272,7 +321,29 @@
         "label": "飞出国论坛案例档（播客数据整理：350 名单/341 妥投/20% 扫码）",
         "url": "https://bbs.fcgvisa.com/t/ai-david-ai/56992"
       }
-    ]
+    ],
+    "verdict": "AI 批量造站 + 纸质明信片的混合打法：350 家没有网站的本地小店、$400 一轮直邮、20% 扫码率，一个月实验做到 $8K+ MRR（创始人播客自述）—— 线下真实动作比纯数字外联有效一个量级。",
+    "why_it_works": [
+      "选对客群：没有网站的本地小店本来就缺线上入口，AI 让「挨个造站」的成本几乎归零；",
+      "明信片是物理触点：单张约 $7、一轮 350 张约 $400，341 封妥投、20% 扫码率，比冷邮件/纯数字外联奏效好一个量级；",
+      "收的是月费订阅（持续服务钱）而不是一次性建站钱，配合真实来电跟进完成转化。"
+    ],
+    "playbook": [
+      "AI 负责规模，人负责信任：批量自动化之后，补一个「真实来电」的动作；",
+      "直邮预算小到可以试错：$400 一轮就能验证一整条获客路径；",
+      "实验可以毕业：postcard 实验跑通后，团队已转向 applied-AI 咨询（现官网定位「三周交付生产系统」）。"
+    ],
+    "replicability": {
+      "tech": 3,
+      "distribution": 2,
+      "capital": 2,
+      "timing": 3
+    },
+    "traffic_sources": [
+      "纸质明信片直邮（带二维码：350 家名单、341 封妥投、20% 扫码率，单轮约 $400）；",
+      "真实电话跟进转化。"
+    ],
+    "founder": "Brandon Doyle：打法与收入在 The Koerner Office 播客 #303（2026-05-25）自述；ACCESS Newswire 官方稿（2026-07-29）确认创始人身份。⚠ 与旧金山同名语音数据公司 David AI（Tomer Cohen，累计融资 $80.5M）毫无关系，勿混。"
   },
   {
     "id": "klar",
@@ -312,7 +383,29 @@
         "label": "乌普萨拉大学官网新闻（2026-01-16，创始团队与创业过程一手引述）",
         "url": "https://www.uu.se/en/news/2026/2026-01-16-from-student-challenges-to-a-study-platform"
       }
-    ]
+    ],
+    "verdict": "不会写代码的三个瑞典大学生，全程用 Lovable 搭产品，上线 30 天 €130K ARR、两天 2,500 注册，零广告费 —— 「AI 时代产品开发不再卡人」的实证。",
+    "why_it_works": [
+      "客群即作者：大学生做大学生备考工具，上传课程材料与历年真题生成练习题、闪卡、预测卷，痛点自己天天经历；",
+      "AI 抹平开发门槛：产品基于 Lovable + Claude/GPT/Gemini 多模型，两人休学在 25 平米公寓里做出来；",
+      "校园口碑天然密集：上线两天 2,500 注册、4,000 排队，全靠自然流量；大使计划 + 高校合作（管线最高 €7.5M 年化）接着扩量。"
+    ],
+    "playbook": [
+      "用 Lovable/Claude 这类工具把「不会写代码」从否决项变成成本项；",
+      "从最密集的社群起步（同校学生），口碑密度决定冷启动速度；",
+      "管线≠收入：高校合作「最高 €7.5M 年化」是潜力，禁止并入收入宣传。"
+    ],
+    "replicability": {
+      "tech": 4,
+      "distribution": 2,
+      "capital": 3,
+      "timing": 3
+    },
+    "traffic_sources": [
+      "校园口碑与自然流量（零付费广告，上线两天 2,500 注册）；",
+      "大使计划与高校合作扩量。"
+    ],
+    "founder": "Isabel Storgårds（CEO）、Andreas Melander（产品）、Eric Götborg（商务），乌普萨拉大学学生（两人已休学）；曾拒绝收购要约。"
   },
   {
     "id": "headshotpro",
@@ -352,7 +445,31 @@
         "label": "lorejump 案例（$300K/月、SEO+联盟打法，第三方）",
         "url": "https://lorejump.com/cases/headshot-pro"
       }
-    ]
+    ],
+    "verdict": "solo 运营的 AI 职业照生意：SEO + 联盟（占收入 15%+）+ $29 一次性付费，官网官宣上线以来累计营收 $10M+、生成 1,700 万张头像，零员工零融资。",
+    "why_it_works": [
+      "SEO 卡死搜索意图：「AI headshot」需求爆发期，搜索位次直接等于收入；",
+      "一次性 $29 低门槛买断：不需要养订阅关系，转化路径极短；",
+      "联盟营销占收入 15%+（约 $50K+/月）：让别人的流量替你获客；",
+      "自建 Stable Diffusion + DreamBooth pipeline、30 小时搭出 v1，交付成本极低、毛利极高。"
+    ],
+    "playbook": [
+      "搜索意图 + 一次性定价是 AI 工具的黄金组合：需求一波流就不必做订阅；",
+      "把分销外包给联盟（15% 佣金换约 $50K+/月增量），solo 也能撑大分发；",
+      "Fortune 500 团队采购（含 HubSpot 销售团队）把 C 端工具卖成 B 端订单。"
+    ],
+    "replicability": {
+      "tech": 3,
+      "distribution": 4,
+      "capital": 2,
+      "timing": 2
+    },
+    "traffic_sources": [
+      "SEO（「AI headshot」等搜索意图词）；",
+      "联盟营销（占收入 15%+）；",
+      "作者自有受众（X 10 万+ 粉）做发布冷启动。"
+    ],
+    "founder": "Danny Postma（@dannypostmaa，X 10 万+ 粉，常驻巴厘岛），solo 零员工，holding 公司 Postcrafts 旗下 20+ 产品；前作 Headlime（AI 文案）$20K MRR 时被 Jasper 以逾 $1M 收购（2021-03，多方报道）。"
   },
   {
     "id": "3ak-track-field",
@@ -392,46 +509,28 @@
         "label": "Startup Founder Stories（TrustMRR RevenueCat 快照转引）",
         "url": "https://startupfounderstories.com/stories/christian-rac-braylin-byrd-3ak-track-10k-mrr-athlete-app"
       }
-    ]
-  },
-  {
-    "id": "upvoty",
-    "name": "Upvoty",
-    "name_en": "Upvoty",
-    "origin": "荷兰（阿姆斯特丹）",
-    "one_liner": "用户反馈投票板 + 公开路线图，bootstrapped 六年，靠落地页验证 + 「Alternatives to」SEO 做到 $40K+ MRR。",
-    "category": "营销工具",
-    "models": [
-      "订阅制"
     ],
-    "verification": "self_reported",
-    "source_kind": "self_reported",
-    "source_url": "https://baremetrics.com/customers/upvoty-customer-story",
-    "website": "https://upvoty.com",
-    "added_at": "2026-10-22",
-    "promoted_from_inbox": null,
-    "metrics": {
-      "headline": "MRR $40K+（2026 年中，第三方同量级口径）；创始人一手披露：上线数月即 $1K MRR",
-      "caliber": "mrr_self_reported",
-      "mrr": 40000,
-      "metric_note": "口径：创始人一手披露的里程碑——落地页一天搭起、数周 200+ 注册、上线数月 $1K MRR（Baremetrics 客户故事 + Xtartups 专访，均为创始人原话）。当前规模 $40K MRR（硬地骇客）/$52K（Foundershut）/TrustMRR Stripe 授权快照 ¥28.4万≈$40K（2026-07，经 howtomakemi 转引）互为印证同量级；Xtartups 早期专访的 $17K 为旧时点。精确当前数以第三方口径引用并带时间。"
+    "verdict": "「先有受众后做产品」的运动版：两位田径内容作者合计 15 万+ 粉，上线前数月埋品牌伏笔，上线首月 $10K、六个月累计约 $70K（创始人访谈自述）；Rork+Supabase 2 周上线、成本 <$500、零编程经验。",
+    "why_it_works": [
+      "受众即渠道：IG/TikTok 合计 15 万+ 粉，上线前数月就在视频/简介/Shopify 店埋「3AK」伏笔，上线即爆发、零付费广告；",
+      "定价按用户钱包设计：$10/月 或 $30/年，刻意对标青少年游戏内购（V-Bucks/Robux）的心理价位；",
+      "AI 抹平开发门槛：Rork 搭 App + Claude 验错 + Supabase + RevenueCat，2 周上线、成本 <$500、毛利约 80%。"
+    ],
+    "playbook": [
+      "产品发布前先做「品牌伏笔」：让受众在上线前就已经在等它；",
+      "按目标用户的消费心理定价，而不是按竞品定价；",
+      "无代码栈（Rork + Supabase + RevenueCat）把试错成本压到 $500 级。"
+    ],
+    "replicability": {
+      "tech": 3,
+      "distribution": 3,
+      "capital": 2,
+      "timing": 3
     },
-    "note": "2026-10-22 由 howtomakemi 独有线索核验入库：以创始人多次一手访谈为依据。创始人 Mike Slaats（Baremetrics 报道中写作 Mike Strives），连续创业者，前作 Vindy（家居改善平台，荷兰/比利时，年收入约 $1M）用盈利养 Upvoty。2018 beta、2019-03 Product Hunt 正式发布；远程小团队（3-9 人，分布比利时/葡萄牙/越南/秘鲁/美国/加拿大）。打法：先验证后写码（落地页 200+ 注册才动手）、上线即收费、「Alternatives to…」内容截流竞品不满用户、按用户要求加 GitHub/Slack/Jira 集成、Baremetrics 管指标、重留存轻虚荣指标。2,000+ 产品团队在用。",
-    "what_it_does": "客户反馈管理：投票板收集反馈、公开路线图、AI 辅助决策下一步做什么；帮产品团队把散落在工单/邮件/表格里的反馈变成可执行的优先级。",
-    "how_it_makes_money": "订阅制 SaaS（低价档切入，2,000+ 团队在用）；获客靠内容营销与 SEO（「Alternatives to」系列）、Product Hunt 发布、集成生态带来的留存，成本 <$500/月。",
-    "sources": [
-      {
-        "label": "Baremetrics 客户故事（创始人一手：验证流程、bootstrapped、系统化增长）",
-        "url": "https://baremetrics.com/customers/upvoty-customer-story"
-      },
-      {
-        "label": "Xtartups 创始人专访（团队、前作 Vindy $1M ARR、$17K MRR 时点）",
-        "url": "https://www.xtartups.com/post/mike-slaats-upvoty"
-      },
-      {
-        "label": "Foundershut 案例（$52K MRR、5,000 客户，第三方）",
-        "url": "https://www.foundershut.com/explore/upvoty-user-feedback-growth"
-      }
-    ]
+    "traffic_sources": [
+      "自有短视频受众（IG/TikTok 合计 15 万+ 粉）；",
+      "后期才试投 Meta $50-100/天（小额）。"
+    ],
+    "founder": "Christian Rac（@Christianisrac，IG 4.25 万粉，已从 Texas Southern 辍学）与 Braylin Byrd（@Braylin2x，IG 11.2 万粉，Texas State 在校），高中田径队友；此前试过 Shopify 店、日内交易（亏 $3-6K）、剪发、洗车等均失败。"
   }
 ]

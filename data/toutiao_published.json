@@ -216,5 +216,12 @@
   {
     "id": "ai-prank-call",
     "at": "2026-10-26 14:23"
+  },
+  {
+    "id": "agentsguild",
+    "at": "2026-10-27 12:46",
+    "gid": "7700851215516664362",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-27 12:46"
   }
 ]

@@ -1,5 +1,153 @@
 [
   {
+    "id": "upvoty",
+    "name": "Upvoty",
+    "name_en": "Upvoty",
+    "origin": "荷兰（阿姆斯特丹）",
+    "one_liner": "用户反馈投票板 + 公开路线图，bootstrapped 六年，靠落地页验证 + 「Alternatives to」SEO 做到 $40K+ MRR。",
+    "category": "营销工具",
+    "industry": "",
+    "status": "curated",
+    "verification": "official",
+    "caliber": "arr",
+    "metrics": {
+      "headline": "MRR $40K+（2026 年中，第三方同量级口径）；创始人一手披露：上线数月即 $1K MRR",
+      "caliber": "mrr_self_reported",
+      "mrr": 40000,
+      "metric_note": "口径：创始人一手披露的里程碑——落地页一天搭起、数周 200+ 注册、上线数月 $1K MRR（Baremetrics 客户故事 + Xtartups 专访，均为创始人原话）。当前规模 $40K MRR（硬地骇客）/$52K（Foundershut）/TrustMRR Stripe 授权快照 ¥28.4万≈$40K（2026-07，经 howtomakemi 转引）互为印证同量级；Xtartups 早期专访的 $17K 为旧时点。精确当前数以第三方口径引用并带时间。"
+    },
+    "models": [
+      "订阅制"
+    ],
+    "replicability": {
+      "tech": 3,
+      "distribution": 3,
+      "capital": 2,
+      "timing": 2
+    },
+    "verdict": "不性感但扎实的 bootstrapped 样本：用户反馈投票板 SaaS，先验证后写码（落地页 200+ 注册才动手），「Alternatives to」SEO 截流竞品的不满用户，六年做到 $40K+ MRR（2026 年中第三方同量级口径）、获客成本 <$500/月。",
+    "what_it_does": "客户反馈管理：投票板收集反馈、公开路线图、AI 辅助决策下一步做什么；帮产品团队把散落在工单/邮件/表格里的反馈变成可执行的优先级。",
+    "how_it_makes_money": "订阅制 SaaS（低价档切入，2,000+ 团队在用）；获客靠内容营销与 SEO（「Alternatives to」系列）、Product Hunt 发布、集成生态带来的留存，成本 <$500/月。 现定价三档：Power $15/月（官网明写「For solo founders validating product ideas」）、Super $25/月、Hyper $49/月（2026-10-27 官网 /pricing 实测）。",
+    "why_it_works": [
+      "先验证后开发：落地页一天搭起、数周 200+ 注册、上线即收费、数月 $1K MRR（创始人一手披露）—— 每一步都先证明再投入；",
+      "「Alternatives to X」内容系列精准截流竞品的不满用户，获客成本 <$500/月；",
+      "按用户要求加集成（GitHub/Slack/Jira）+ 重留存轻虚荣指标，2,000+ 团队续费养着生意；",
+      "前作 Vindy（荷兰/比利时，年收入约 $1M）的盈利养着公司，不需要融资喘息。"
+    ],
+    "playbook": [
+      "落地页验证 + 上线即收费：200 个注册之前一行产品代码都不写；",
+      "写「Alternatives to 竞品」的 SEO 文章，接住别人的流失用户；",
+      "低价档切入 + 集成生态做留存，小众 B2B 工具不需要性感。"
+    ],
+    "signals": [],
+    "founder": "Mike Slaats：荷兰（阿姆斯特丹）连续创业者，前作 Vindy（家居改善平台，年收入约 $1M）用盈利养 Upvoty；远程小团队（3-9 人，分布比利时/葡萄牙/越南/秘鲁/美国/加拿大）。",
+    "traffic_sources": [
+      "内容营销与 SEO（「Alternatives to」系列）；",
+      "Product Hunt 发布；",
+      "集成生态带来的长期留存。"
+    ],
+    "corrections": [],
+    "sources": [
+      {
+        "label": "Baremetrics 客户故事（创始人一手：验证流程、bootstrapped、系统化增长）",
+        "url": "https://baremetrics.com/customers/upvoty-customer-story"
+      },
+      {
+        "label": "Xtartups 创始人专访（团队、前作 Vindy $1M ARR、$17K MRR 时点）",
+        "url": "https://www.xtartups.com/post/mike-slaats-upvoty"
+      },
+      {
+        "label": "Foundershut 案例（$52K MRR、5,000 客户，第三方）",
+        "url": "https://www.foundershut.com/explore/upvoty-user-feedback-growth"
+      }
+    ],
+    "published_from": "upvoty",
+    "verified_at": "2026-10-27",
+    "updated_at": "2026-10-27",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（stripe），按默认政策进精品池",
+    "quality_score": 10,
+    "needs_review": false,
+    "human_read": true,
+    "human_read_at": "2026-10-27 12:13"
+  },
+  {
+    "id": "flodesk",
+    "name": "Flodesk",
+    "name_en": "Flodesk",
+    "origin": "美国（旧金山）",
+    "one_liner": "设计优先的小企业邮件营销平台，上线第二周即盈利，零融资做到 $36M+ ARR。",
+    "category": "营销工具",
+    "industry": "",
+    "status": "curated",
+    "verification": "official",
+    "caliber": "arr",
+    "metrics": {
+      "headline": "ARR $36M+（2026-01，官方口径）",
+      "caliber": "arr_official",
+      "arr": 36000000,
+      "metric_note": "口径：ARR 为 2026-01-22 官方新闻稿与官网 AI 信息页双源披露（surpassing $36 million in ARR）；100,000+ 小企业客户；2025 年用户经平台发送 130 亿封邮件、新增 3.14 亿订阅者；2019 年创立至今零外部融资；上线第二周即盈利。订阅制（$19/月起），未披露 MRR。"
+    },
+    "models": [
+      "订阅制"
+    ],
+    "replicability": {
+      "tech": 3,
+      "distribution": 2,
+      "capital": 4,
+      "timing": 2
+    },
+    "verdict": "把邮件营销做成设计工具，用一个 $19/月的固定订阅价接住被大厂看不上的小企业与创作者：零外部融资、上线第二周即盈利、口碑代替销售团队，长到 $36M+ ARR。",
+    "what_it_does": "面向小企业/个人创业者/创作者的邮件营销平台：品牌优先的邮件设计（自定义字体/配色）、自动化、表单、落地页、电商结账，2026-06 推出 AI 设计应用 Flodesk Studio。",
+    "how_it_makes_money": "订阅制（$19/月起，所有付费档无限发送）；增长靠口碑与小企业用户成功案例（Miss Excel、The Everygirl 等），无销售团队。",
+    "why_it_works": [
+      "产品差异化落在「设计优先」：自定义字体/配色的品牌级邮件设计，外加自动化、表单与落地页，面向小企业与个人创作者；",
+      "定价简单：订阅制 $19/月起，所有付费档无限发送，小客户不用研究报价单；",
+      "增长几乎零成本：没有销售团队，靠口碑与小企业用户成功案例（Miss Excel、The Everygirl）传播；",
+      "自筹起步倒逼健康模型：2018 年被 YC 拒绝后零外部融资起步，上线第二周即盈利，$36M+ ARR 全部来自自身现金流。"
+    ],
+    "playbook": [
+      "把报价做简单：一个固定订阅价包住全部功能，让用户 10 秒内做决定；",
+      "把用户的成功变成获客素材：认真运营几个标杆用户案例，让他们替你传播；",
+      "进拥挤赛道不拼功能清单，拼一个对手不做的单点（这里是设计）；",
+      "用「第二周就收费」验证定价，而不是用融资烧规模。"
+    ],
+    "signals": [],
+    "founder": "Rebecca Shostak（2026 年起任 CEO）、Martha Bitar（转任执行主席）、Trong Dong；2018 年被 YC 拒绝后自筹起步，至今零外部融资。",
+    "traffic_sources": [
+      "口碑推荐与小企业用户成功案例传播（官方口径：无销售团队）。"
+    ],
+    "corrections": [],
+    "sources": [
+      {
+        "label": "官网 AI 信息页（官方结构化披露）",
+        "url": "https://flodesk.com/ai-information",
+        "kind": "official"
+      },
+      {
+        "label": "AP News 官方新闻稿（2026-01-22）",
+        "url": "https://apnews.com/press-release/pr-newswire/small-business-5d29eca1ec1c0546c98c1cc249ccc0e9",
+        "kind": "official"
+      },
+      {
+        "label": "Inc.com：YC 拒绝后自筹到 $36M ARR",
+        "url": "https://www.inc.com/jennifer-conrad/she-was-rejected-by-y-combinator-bootstrapped-startup-36-million-arr-flodesk/91278173",
+        "kind": "press"
+      }
+    ],
+    "published_from": "flodesk",
+    "verified_at": "2026-10-27",
+    "updated_at": "2026-10-27",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 80,
+    "needs_review": false,
+    "human_read": true,
+    "human_read_at": "2026-10-27 11:27"
+  },
+  {
     "id": "ai-prank-call",
     "name": "AI Prank Call",
     "name_en": "AI Prank Call",

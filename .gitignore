@@ -176,3 +176,8 @@ data/*.bak-*
 # (error: invalid path 'NUL').
 NUL
 miniprogram/project.private.config.json
+
+# 根目录临时产物：筛选项中间文件（tmp_htm_* / tmp_howtomakemi_* 等，权威口径
+# 在 data/htm_backlog_caliber.json）+ 运行日志目录（*.log 已忽略，txt 同理）。
+/tmp_*
+logs/

@@ -61,10 +61,11 @@
  },
  "agentsguild": {
   "bilibili": {
-   "at": "2026-10-26 13:14",
+   "at": "2026-10-27 13:01 草稿箱→发布（send-draft）",
    "attempt": 1,
-   "state": "draft_saved",
-   "title": "AgentsGuild：近 30 天已验证收入 ，为游戏开发"
+   "remote_id": "53628187",
+   "state": "published",
+   "title": "AgentsGuild：卖给游戏开发者的 AI 技能工具包，靠一次性付费赚钱"
   },
   "juejin": {
    "at": "2026-10-26 12:56",
@@ -76,19 +77,19 @@
    "at": "2026-10-26 13:57",
    "attempt": 2,
    "state": "draft_saved",
-   "title": "AgentsGuild：近 30 天已验证收入 ，为游戏开发"
+   "title": "AgentsGuild：卖给游戏开发者的 AI 技能工具包，靠一次性付费赚钱"
   },
   "wechat": {
    "at": "2026-10-26 13:09",
    "attempt": 0,
    "state": "draft_saved",
-   "title": "AgentsGuild：近 30 天已验证收入 ，为游戏开发"
+   "title": "AgentsGuild：卖给游戏开发者的 AI 技能工具包，靠一次性付费赚钱"
   },
   "xhs": {
    "at": "2026-10-26 13:12",
    "attempt": 0,
    "state": "draft_saved",
-   "title": "AgentsGuild：近 30 天已验证收入 ，为游戏开发"
+   "title": "AgentsGuild：卖给游戏开发者的 AI 技能工具包，靠一次性付费赚钱"
   }
  },
  "ai-math-solver": {

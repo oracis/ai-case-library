@@ -221,7 +221,12 @@ def split_md(md, default_title=""):
 
 
 def brief_of(body, limit=100):
-    """摘要。掘金建议 50–100 字，取正文首个自然语言段落。"""
+    """摘要。掘金建议 50–100 字，取正文首个自然语言段落。
+
+    HTML 注释（如 `<!-- 备选标题 2：… -->`）是给人看的工作注释，不是摘要素材：
+    2026-10-27 实测掘金摘要抓到过注释行 → 先整体剥掉再取段。
+    """
+    body = re.sub(r"<!--.*?-->", "", body, flags=re.S)
     for p in body.splitlines():
         p = p.strip()
         if not p or p.startswith(("#", ">", "|", "-", "*", "```")):

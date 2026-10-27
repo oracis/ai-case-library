@@ -118,5 +118,14 @@
     "verified_at": "2026-10-24 21:30",
     "evidence": "remote_readback",
     "note": "2026-10-24 21:2x 编辑器点「发布」→ toast「提交成功」→ 草稿箱 44→43（aid=343827 消失）→ 已发表列表按标题命中 cv53590385《DownConvert：SketchUp 文件转旧版》。⚠ 脚本按 aid 回读未命中是判据缺陷：B站发布后 read id 会变（343827→53590385），已发表列表回读必须按标题匹配。"
+  },
+  {
+    "id": "agentsguild",
+    "at": "2026-10-26 13:14",
+    "article_id": "53628187",
+    "title": "AgentsGuild：近 30 天已验证收入 ，为游戏开发",
+    "verified_at": "2026-10-27 13:01",
+    "evidence": "editor-ui-publish",
+    "note": "｜更新草稿 aid=344958（draft/add 回读校验通过）"
   }
 ]

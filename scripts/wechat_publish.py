@@ -490,6 +490,98 @@ def _strip_name_prefix(text, name):
     return rest if len(re.sub(r"[^\w\u4e00-\u9fff]", "", rest)) >= 3 else t
 
 
+# ---- 摘要 AI 生成层（2026-10-27 新增）--------------------------------------
+# 用户要求：摘要兜底不要「正文首段/数据腔 one_liner」当门面，用 AI 生成；
+# AI 失败才退首段，one_liner 只作最后兜底。
+_AI_DIGEST_SYS = (
+    "你是公众号「万物解释者」的摘要编辑。把给出的文章素材压缩成一段中文摘要，"
+    "以 JSON 输出：{\"digest\": \"<摘要文本>\"}，除该 JSON 外不输出任何内容。"
+    "摘要的硬性规则：1) 只用素材里出现过的数字、金额与事实，禁止新增、换算或推算任何数字；"
+    "2) 禁止第一人称业绩（不许出现「我赚了」「我做了一个」这类把事实说成自己的话）；"
+    "3) digest 值内不用 markdown、引号、emoji，纯文本一两句；4) ≤100 字，信息密度高、能独立成读。"
+)
+
+
+def _first_para(body_text, min_len=20, limit=120):
+    """正文首段兜底（剥 HTML 注释与 markdown 标记；取首个 ≥20 字的自然语言段）。"""
+    t = re.sub(r"<!--.*?-->", "", body_text or "", flags=re.S)
+    for p in t.splitlines():
+        p = p.strip()
+        if not p or p.startswith(("#", ">", "|", "-", "*", "```", "![", "<")):
+            continue
+        p = re.sub(r"\*\*|`|\[|\]\([^)]*\)", "", p).strip()
+        if len(p) >= min_len:
+            return p[:limit]
+    return ""
+
+
+def ai_digest(title, body_text, limit=120):
+    """AI 生成公众号摘要；失败或校验不过返回 None（调用方走兜底）。
+
+    校验（红线，2026-10-27）：输出里出现的每个数字必须能在素材原文里找到
+    （防编数/防除法）；长度 ≤ limit。短生成不走 JSON，无 glm-4-flash 的
+    response_format 500 风险。环境变量 CASE_LIB_AI_DIGEST=0 可整体关闭。
+    """
+    if os.environ.get("CASE_LIB_AI_DIGEST") == "0":
+        return None
+    src = re.sub(r"<!--.*?-->", "", body_text or "", flags=re.S)
+    src = re.sub(r"\s+", " ", src).strip()[:1800]
+    if len(src) < 60:
+        return None
+    try:
+        import ai_verify as A                      # noqa: PLC0415
+        sec = {}
+        _p = os.path.join(ROOT, "data", "secrets.json")
+        if os.path.exists(_p):
+            sec = json.load(open(_p, encoding="utf-8"))
+        A.configure(api_key=os.environ.get("CASE_LIB_AI_KEY") or sec.get("ai_key"),
+                    base=os.environ.get("CASE_LIB_AI_BASE") or sec.get("ai_base"),
+                    model=os.environ.get("CASE_LIB_AI_MODEL") or sec.get("ai_model"))
+        raw = A.llm([{"role": "system", "content": _AI_DIGEST_SYS},
+                     {"role": "user", "content": "标题：%s\n\n素材：%s" % (title, src)}],
+                    temperature=0.4)
+    except Exception as e:                         # noqa: BLE001
+        print("  [!] AI 摘要失败：%s" % str(e)[:80])
+        return None
+    raw = (raw or "").strip()
+    d = ""
+    try:
+        d = (json.loads(raw).get("digest") or "").strip()
+    except Exception:                              # noqa: BLE001
+        m = re.search(r'"digest"\s*:\s*"([^"]+)"', raw)
+        if m:
+            d = m.group(1).strip()
+    d = d.strip("\"'“”‘’「」")
+    d = re.sub(r"\s+", " ", d).strip()
+    if not d or len(d) > limit:
+        return None
+    for n in re.findall(r"\d+(?:\.\d+)?", d):
+        if n not in src:
+            print("  [!] AI 摘要含素材外数字 %r，弃用" % n)
+            return None
+    return d
+
+
+def digest_for(c, ex=None, body_html=None):
+    """摘要选择链（2026-10-27 定稿）：
+    显式 summary → AI 生成 → 正文首段 → one_liner（数据腔，只作最后兜底）。
+    """
+    s = ((ex or {}).get("summary") or "").strip()
+    if s:
+        return s
+    body_text = strip_tags(body_html) if body_html else ""
+    if body_text:
+        d = ai_digest((c.get("name") or c.get("id") or ""), body_text)
+        if d:
+            print("  摘要(AI): %s" % d[:40])
+            return d
+        p = _first_para(body_text)
+        if p:
+            print("  摘要(首段兜底): %s" % p[:40])
+            return p
+    return (c.get("one_liner") or "").strip()
+
+
 def cover_desc(c):
     """封面第二行：项目的一句话介绍。**不含任何金额**。
 
@@ -3142,8 +3234,11 @@ def publish_one(cdp, c, art, dry=False, no=0, summary_override=None):
     ex = extract_article(art)
     title = make_wechat_title(c)
     author = "万物解释者"
-    summary = (summary_override or "").strip() or ex["summary"] or c.get("one_liner", "")
+    summary = (summary_override or "").strip()
     body_html = pm_safe_body(ex["body_html"])
+    if not summary:
+        # 2026-10-27：AI 摘要 → 首段 → one_liner（数据腔只作最后兜底）
+        summary = digest_for(c, ex, body_html)
     print("\n→ %s — %s" % (c["id"], title))
     if dry:
         print("  [dry] 标题=%s 摘要=%d字 正文=%d字（不打开浏览器）" %
@@ -5086,7 +5181,8 @@ def cmd_refresh(args):
                 rt = _set_editor(cdp, 0, t, mode="text") or ""
                 print("  标题: %s [%s]" % (t[:34], rt.split("(")[0]))
                 _fill_input(cdp, "#author", "万物解释者")
-                summ = ex["summary"] or c.get("one_liner", "")
+                # 2026-10-27：AI 摘要 → 首段 → one_liner（数据腔只作最后兜底）
+                summ = digest_for(c, ex, body)
                 if summ:
                     _fill_input(cdp, "#js_description", summ[:120])
                 time.sleep(1)

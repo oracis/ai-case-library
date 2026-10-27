@@ -686,10 +686,17 @@
     "verified_at": "2026-10-25 22:44"
   },
   "agentsguild": {
-    "title": "AgentsGuild：近 30 天已验证收入 ，为游戏开发者提供 AI 代理和技能工具包",
-    "published_at": "2026-10-26 13:09",
-    "status": "draft",
+    "title": "AgentsGuild：卖给游戏开发者的 AI 技能工具包，靠一次性付费赚钱",
+    "published_at": "2026-10-27 13:24",
+    "status": "published",
     "appmsgid": "100001114",
-    "file": "公众号-agentsguild拆解.html"
+    "file": "公众号-agentsguild拆解.html",
+    "refreshed_at": "2026-10-27 13:18",
+    "publish_type": "publish",
+    "published_appmsgid": "2247484764",
+    "sent_via": "send",
+    "send_reason": "已发表列表出现新记录，标题一致",
+    "note": "｜publish模式自动发表，新 appmsgid=2247484764",
+    "verified_at": "2026-10-27 13:24"
   }
 }
