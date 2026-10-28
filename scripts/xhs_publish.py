@@ -1188,6 +1188,17 @@ def cmd_publish(args):
         time.sleep(4)
     sub = wp.CDP(PUB_PORT)
     sub.connect_target(tid)
+    # 2026-10-28 修：headless 不传 --window-size 时视口只有 784x449，底部
+    # 「发布」按钮按 viewport 比例坐标点击会落空（实测连炸两次 rc=2：
+    # 点击无反应、30s 不跳 success，草稿仍留在 IndexedDB）。与 _draft_cdp
+    # 同款：把视口钉到 1440x900，比例坐标才落回真实按钮（有头模式
+    # 1918x908 实测一次点中）。必须在导航前设，布局按宽视口渲染。
+    try:
+        sub.send("Emulation.setDeviceMetricsOverride",
+                 {"width": 1440, "height": 900, "deviceScaleFactor": 1,
+                  "mobile": False})
+    except Exception as e:                                # noqa: BLE001
+        print("[warn] setDeviceMetricsOverride 失败：%s" % str(e)[:80])
     url = sub.eval("location.href")
     if "publish" not in url:
         sub.send("Page.navigate", {"url": PUB_URL})
@@ -1386,6 +1397,8 @@ def cmd_publish(args):
             mark_published(c["id"])
             return
     print("[warn] 点击后 30 秒没跳 success 页，请回浏览器确认是否成稿。")
+    print("       视口诊断：inner=%sx%s 点击点=(%d,%d) —— 若宽 <1000 说明视口覆盖没生效"
+          % (sub.eval("window.innerWidth"), sub.eval("window.innerHeight"), x, y))
     # ⚠ 未确认成功不许静默通过（2026-10-21 修）：此前退码 0，runner 的
     #    --yes 路径会照记 published（比 draft_saved 更糟 —— 幂等永久跳过）。
     #    可能是发布按钮点空/风控拦截/跳转没完成，一律标失败让人核对。
