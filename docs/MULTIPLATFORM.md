@@ -66,6 +66,25 @@ B站这种「一条草稿要 1 分钟」的平台代价很高。所以 `Adapter.
 | `draft_saved` | 远端草稿箱已确认有它 | 是 | |
 | `published` | 已公开发布 | 是 | |
 | `failed` | 上次失败 | 是 | 需 `--retry` 才重跑 |
+| `blocked` | 平台拦/封，改一版仍不过 | 是 | **终止态**，`--retry`/`--replace` 都不放行，只能 `reset` |
+
+`blocked` 的处置规则（2026-10-28 用户口径）：被拦 → 按平台给的改进意见改一版
+重发 → **仍然被拦**就顺延发下一篇补上、并把被拦的稿从该平台草稿箱剔除。
+一条命令干完三件事：
+
+```bash
+# 先预览（不写清单、不删稿）：会记什么、会删什么、下一篇是谁
+python scripts/publish_multi.py block toutiao --case quran-unlock \
+    --reason "机审不通过：内容涉及宗教" --next --dry
+
+# 确认后真执行（真删草稿 + 真补发下一篇）
+python scripts/publish_multi.py block toutiao --case quran-unlock \
+    --reason "机审不通过：内容涉及宗教" --next --yes
+```
+
+顺延谁，沿用既有两条口径：公众号按 `data/issue_numbers.json` 编号从小到大，
+其余四平台按草稿台账 `at` 最早（存得最久）。实现见
+`scripts/multiplatform/blocked.py`。
 
 写盘用「临时文件 + `os.replace`」原子替换。批量跑到第 20 条被 Ctrl-C，
 前 19 条的状态不会因为半个 JSON 全丢。

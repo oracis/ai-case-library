@@ -884,5 +884,80 @@ class TestVerifyPortAndKeyGuard(unittest.TestCase):
         self.assertEqual(r["matched"], {"a": "标题A"})
 
 
+class TestBlockedRule(TmpManifest):
+    """被拦/封的处置规则（2026-10-28 用户口径）。
+
+    被拦 → 改一版仍无效 → 记 blocked（终止态）→ 顺延下一篇 + 剔除草稿。
+    """
+
+    def test_blocked_is_terminal_and_keeps_reason(self):
+        self.m.mark_blocked("a", "toutiao", "审核不通过：内容涉及宗教",
+                            "标题A")
+        self.assertTrue(self.m.is_blocked("a", "toutiao"))
+        self.assertFalse(self.m.is_published("a", "toutiao"))
+        # 不能算 done：verify 的「清单说发了」不能把被拦的算进去
+        self.assertFalse(self.m.is_done("a", "toutiao"))
+        self.assertIn("宗教", self.m.blocked_reason("a", "toutiao"))
+        # 落盘后仍然是 blocked 且原因还在（不能像 failed 那样被 --retry 洗掉）
+        again = S.Manifest(self.path)
+        self.assertTrue(again.is_blocked("a", "toutiao"))
+        self.assertIn("宗教", again.blocked_reason("a", "toutiao"))
+
+    def test_blocked_not_requeued_even_with_replace(self):
+        """--replace 也不该把 blocked 的稿重新捡起来 —— 重发还是被拦。"""
+        self.m.mark_blocked("ai-prank-call", "toutiao", "违规")
+        r = runner.Runner(["toutiao"], dry=True, manifest=self.m,
+                          verbose=False, replace=True)
+        queue = r.queue(only="ai-prank-call")
+        self.assertEqual(queue, [], "blocked 的 case 必须完全不在队列里")
+
+    def test_reset_can_revive_blocked(self):
+        """确实改好了要重试时，唯一入口是 reset（人工确认的动作）。"""
+        self.m.mark_blocked("a", "toutiao", "违规")
+        self.m.remove("a", "toutiao")
+        self.assertEqual(self.m.state("a", "toutiao"), "pending")
+
+
+class TestBlockedNextTarget(unittest.TestCase):
+    """顺延口径：公众号按编号、其余按草稿存得最久；都要跳过 blocked。"""
+
+    def setUp(self):
+        from multiplatform import blocked as B
+        self.B = B
+        self.dir = tempfile.mkdtemp(prefix="mp_blk_")
+        self.m = S.Manifest(os.path.join(self.dir, "m.json"))
+
+    def tearDown(self):
+        shutil.rmtree(self.dir, ignore_errors=True)
+
+    def test_wechat_target_has_issue_number(self):
+        cid, title, why = self.B.next_target("wechat", self.m)
+        if not cid:
+            self.skipTest("公众号草稿箱为空，跳过")
+        self.assertIn("编号", why)
+
+    def test_others_target_is_oldest(self):
+        for plat in ("toutiao", "xhs", "bilibili", "juejin"):
+            cid, title, why = self.B.next_target(plat, self.m)
+            if not cid:
+                continue
+            self.assertIn("存得最久", why, "%s 的顺延口径应是草稿最久" % plat)
+
+    def test_blocked_is_skipped_when_picking_next(self):
+        cid, _, _ = self.B.next_target("toutiao", self.m)
+        if not cid:
+            self.skipTest("头条草稿箱为空，跳过")
+        self.m.mark_blocked(cid, "toutiao", "被拦")
+        nxt, _, _ = self.B.next_target("toutiao", self.m)
+        self.assertNotEqual(nxt, cid, "被拦的那条不能再被选中")
+
+    def test_match_key_is_stable_product_name(self):
+        """删草稿的匹配键要用产品名（标题后半截会变，产品名不变）。"""
+        key = self.B.match_key("quran-unlock", "toutiao")
+        self.assertEqual(key, "Quran Unlock")
+        # 产物标题确实变了也不影响匹配键
+        self.assertNotEqual(key, self.B.title_of("quran-unlock", "toutiao"))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
