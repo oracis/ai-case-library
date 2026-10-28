@@ -329,10 +329,10 @@
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-28 14:54",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "state": "published",
+   "title": "Bustem：帮电商品牌全网打假，找仿品、窜货、下架链接"
   },
   "xhs": {
    "at": "2026-09-29 21:17",
@@ -526,10 +526,11 @@
  },
  "divine-widgets": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-28 14:37 草稿箱→发布（send-draft）",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": "月收$6.2K：卖网站小挂件给站长"
+   "remote_id": "53645998",
+   "state": "published",
+   "title": "Divine Widgets：圣经小组件，每日经文祷告上锁屏"
   },
   "toutiao": {
    "at": "2026-09-29 21:17",
@@ -1196,10 +1197,10 @@
    "title": ""
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-28 14:54",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "state": "published",
+   "title": "PromptMon：盯 AI 里的品牌"
   }
  },
  "prosp": {
@@ -1288,10 +1289,10 @@
    "title": "Quran Unlock：移动 app"
   },
   "toutiao": {
-   "at": "2026-09-30 20:15",
+   "at": "2026-10-28 14:54",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": "Quran Unlock：移动 app"
+   "state": "published",
+   "title": "Quran Unlock：古兰经习惯打卡"
   },
   "wechat": {
    "at": "2026-10-01 23:00",
@@ -1650,6 +1651,14 @@
    "attempt": 0,
    "state": "draft_saved",
    "title": "月收$2.4K：在领英上自动加客户"
+  }
+ },
+ "upvoty": {
+  "juejin": {
+   "at": "2026-10-28 14:54",
+   "attempt": 0,
+   "state": "published",
+   "title": "Upvoty拆解：先收200个注册再写代码，六年做到$40K MRR"
   }
  },
  "vectosolve": {

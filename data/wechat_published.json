@@ -319,10 +319,13 @@
   "bustem": {
     "title": "Bustem：帮电商品牌全网打假",
     "published_at": "2026-10-16 08:35",
-    "status": "draft",
+    "status": "published",
     "appmsgid": "100000546",
     "file": "公众号-bustem拆解.html",
-    "refreshed_at": "2026-10-24 01:43"
+    "refreshed_at": "2026-10-24 01:43",
+    "group_sent": true,
+    "synced_at": "2026-10-28 14:22",
+    "sync_note": "远端已发表列表里存在，本地由 sync 回写"
   },
   "kibu": {
     "title": "Kibu：专给智障与发育障碍（I/DD）服务机构做的内容、合规与电子病历系统",
