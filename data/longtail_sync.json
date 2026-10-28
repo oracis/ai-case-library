@@ -1,0 +1,36 @@
+{
+ "upvoty-tc-ali-20261028-02": {
+  "case": "upvoty",
+  "title": "bootstrapped 六年：这个用户反馈工具靠什么活到今天",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1696290",
+    "url": "https://developer.aliyun.com/article/new?edit=1696290#/"
+   },
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "337075",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=337075"
+   }
+  },
+  "category": "人工智能",
+  "cover": "out/toutiao/upvoty/cover.png",
+  "note": "首次带 cover(dataURI)+category 实测",
+  "ts": "2026-10-28 15:52:00"
+ },
+ "upvoty-2026-10-28-1": {
+  "case": "upvoty",
+  "title": "bootstrapped 六年：这个用户反馈工具靠什么活到今天",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "337119",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=337119"
+   }
+  },
+  "category": "人工智能",
+  "cover": "D:\\ai-case-library\\out\\toutiao\\upvoty\\cover.png",
+  "ts": "2026-10-28 16:50:59"
+ }
+}
