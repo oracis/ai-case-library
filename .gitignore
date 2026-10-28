@@ -24,6 +24,14 @@ data/secrets.json
 # publish_manifest…）都是**要跟踪**的业务数据，通配一刀切会把它们一起丢掉。
 data/juejin_cookie.json
 data/juejin_cookie.json.*
+# CSDN 登录凭证（cookie 鉴权，等同密码）—— 2026-10-28 接入第六平台时补的规则。
+# ⚠ 这条规则**晚于文件出现**：`data/csdn_cookie.json` 先落了盘才想起来加。
+# 只要它没被 add 过就还干净，但每次提交前仍要 `git check-ignore -v` 复核。
+data/csdn_cookie.json
+data/csdn_cookie.json.*
+# 博客园 MetaWeblog 访问令牌（同上，等同密码）
+data/cnblogs_config.json
+data/cnblogs_config.json.*
 
 # 《31个可复制的AI产品》PDF 买家台账：含第三方微信昵称，属个人数据，绝不入库
 data/pdf31_buyers.csv
