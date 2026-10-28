@@ -189,3 +189,8 @@ miniprogram/project.private.config.json
 # 在 data/htm_backlog_caliber.json）+ 运行日志目录（*.log 已忽略，txt 同理）。
 /tmp_*
 logs/
+
+# 知乎登录凭证（cookie 鉴权，等同密码）—— 2026-10-28 接入知乎时补的规则。
+# 与 juejin/csdn 同款：宁可多一条规则也不能让 cookie 进仓库。
+data/zhihu_cookie.json
+data/zhihu_cookie.json.*
