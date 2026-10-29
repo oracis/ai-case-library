@@ -80,7 +80,69 @@
     "quality_score": 50,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 60.6,
+      "raw": 20.9,
+      "max_raw": 34.5,
+      "rank": 161,
+      "medal": null,
+      "dims": {
+        "demand": 3,
+        "payment": 3,
+        "compliance": 4,
+        "acquisition": 3,
+        "localization": 3,
+        "competition": 2
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "模板本身不碰红线，合规给 4。真正的问题是生态：它卖的是 Webflow、Framer、Figma 三个站的模板，国内对应的是即时设计、稿定，格式与组件体系都不同，等于把货架拆了重建。需求 3：小团队确实愿意为「省一次设计」付钱，但模板品类国内免费资源极多，竞争只给 2。获客 3：模板靠长尾关键词，这条路国内也成立，只是搜索盘子小一档。",
+      "blocker": "模板生态不对应",
+      "scored_at": "2026-10-29"
+    },
+    "solo_fit": {
+      "score": 79.3,
+      "raw": 23.0,
+      "max_raw": 29.0,
+      "rank": 11,
+      "medal": null,
+      "dims": {
+        "build": 4,
+        "reach": 3,
+        "capital": 5,
+        "window": 4,
+        "delivery": 4
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "卖的是模板与区块文件，付款即下载，没有实施环节。负担在持续出新品：模板库一停更，长尾关键词带来的订单立刻变少，属于长期小修而不是一次性上线。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-10-29"
+    },
+    "composite": {
+      "score": 64.3,
+      "solo": 79.3,
+      "china": 60.6,
+      "rank": 131,
+      "medal": null,
+      "quadrant": "export",
+      "quadrant_label": "能做，但别在国内卖",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-10-29"
+    }
   },
   {
     "id": "neoscene",
@@ -163,7 +225,69 @@
     "quality_score": 30,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 47.8,
+      "raw": 16.5,
+      "max_raw": 34.5,
+      "rank": 269,
+      "medal": null,
+      "dims": {
+        "demand": 3,
+        "payment": 3,
+        "compliance": 2,
+        "acquisition": 2,
+        "localization": 2,
+        "competition": 2
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "图生视频的需求在国内是真的，剪映、即梦已经把它做成了大众功能，说明市场在，但也说明空位很小。合规 2：AI 生成视频要过深度合成标识与内容审核，出问题要能溯源。本地化 2：支付、短信、分发全要重接。获客 2：流量被抖音与剪映把住，独立 App 买量极贵。成本侧还有个硬约束——它自述毛利率只有 10%，算力一涨价就没有缓冲。",
+      "blocker": "深度合成合规 + 算力成本",
+      "scored_at": "2026-10-29"
+    },
+    "solo_fit": {
+      "score": 64.5,
+      "raw": 18.7,
+      "max_raw": 29.0,
+      "rank": 197,
+      "medal": null,
+      "dims": {
+        "build": 4,
+        "reach": 3,
+        "capital": 2,
+        "window": 3,
+        "delivery": 4
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "iOS 自助订阅，开通零人工。负担在推理成本与模型迭代——图生视频按次烧算力，模型换代后效果落后就掉订，而档案自述毛利率只有 10%，这块成本没有缓冲空间。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-10-29"
+    },
+    "composite": {
+      "score": 51.1,
+      "solo": 64.5,
+      "china": 47.8,
+      "rank": 257,
+      "medal": null,
+      "quadrant": "skip",
+      "quadrant_label": "别碰",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-10-29"
+    }
   },
   {
     "id": "boxer-ai",
@@ -252,7 +376,69 @@
     "quality_score": 60,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 51.3,
+      "raw": 17.7,
+      "max_raw": 34.5,
+      "rank": 243,
+      "medal": null,
+      "dims": {
+        "demand": 3,
+        "payment": 3,
+        "compliance": 3,
+        "acquisition": 2,
+        "localization": 2,
+        "competition": 2
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "健身与拳击在国内有付费人群，Keep 这类产品已经教育过市场，付费意愿给 3。难点在交付侧而不是需求侧：靠摄像头做动作识别，iOS 尚可，安卓机型与摄像头差异会把适配成本吃光毛利。合规 3：只做动作识别、不采集人脸特征，风险可控。获客 2：健身 App 靠内容平台导流，成本高。竞争 2：Keep 与一批拳击课程 App 已经把位置占了。",
+      "blocker": "安卓机型碎片化",
+      "scored_at": "2026-10-29"
+    },
+    "solo_fit": {
+      "score": 73.1,
+      "raw": 21.2,
+      "max_raw": 29.0,
+      "rank": 80,
+      "medal": null,
+      "dims": {
+        "build": 3,
+        "reach": 4,
+        "capital": 4,
+        "window": 3,
+        "delivery": 4
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "下载即用，没有交付团队。负担在机型适配：靠 iPhone 摄像头做动作识别，每代新机型的摄像头与算力都要重测，安卓碎片化会更重，所以它只做 iOS不是保守而是必然。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-10-29"
+    },
+    "composite": {
+      "score": 55.7,
+      "solo": 73.1,
+      "china": 51.3,
+      "rank": 223,
+      "medal": null,
+      "quadrant": "export",
+      "quadrant_label": "能做，但别在国内卖",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-10-29"
+    }
   },
   {
     "id": "kori",
@@ -340,7 +526,69 @@
     "quality_score": 55,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 44.1,
+      "raw": 15.2,
+      "max_raw": 34.5,
+      "rank": 283,
+      "medal": null,
+      "dims": {
+        "demand": 2,
+        "payment": 2,
+        "compliance": 4,
+        "acquisition": 2,
+        "localization": 1,
+        "competition": 2
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "韩语学习在国内是小盘子，且被多邻国、沪江这类成熟产品占住，付费意愿给 2。最重的是改造：课程、例句、发音示范全是按英语母语者做的，换到中文用户要整本重写，本地化只能给 1。好消息是它不碰任何合规红线（4），且走 App Store 收付费倒是现成的。这类案子可借的是「极简订阅 + 单一动作」的产品形态，不是内容本身。",
+      "blocker": "内容要重做（韩语教材）",
+      "scored_at": "2026-10-29"
+    },
+    "solo_fit": {
+      "score": 72.1,
+      "raw": 20.9,
+      "max_raw": 29.0,
+      "rank": 99,
+      "medal": null,
+      "dims": {
+        "build": 4,
+        "reach": 3,
+        "capital": 4,
+        "window": 3,
+        "delivery": 4
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "自助订阅，零交付。负担在内容：口语课要按场景一节节写，停更就是产品贬值，但一个人一天写一节是可持续的节奏，不需要团队。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-10-29"
+    },
+    "composite": {
+      "score": 49.7,
+      "solo": 72.1,
+      "china": 44.1,
+      "rank": 264,
+      "medal": null,
+      "quadrant": "export",
+      "quadrant_label": "能做，但别在国内卖",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-10-29"
+    }
   },
   {
     "id": "admitodds-ai-college-admissions-platform",
@@ -419,7 +667,69 @@
     "quality_score": 30,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 37.1,
+      "raw": 12.8,
+      "max_raw": 34.5,
+      "rank": 300,
+      "medal": null,
+      "dims": {
+        "demand": 2,
+        "payment": 2,
+        "compliance": 2,
+        "acquisition": 2,
+        "localization": 1,
+        "competition": 2
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "它吃的是 Common App 这套美国申请数据，国内对应的是高考志愿填报，数据在各省考试院、规则按年变，产品逻辑搬不过来，本地化 1。合规 2：「录取概率评估」在国内容易被认定为教育咨询甚至志愿填报服务，属于要资质且有纠纷风险的品类。需求 2：家长愿意付钱，但付给的是「一对一规划」这种人力服务，不是自助工具。",
+      "blocker": "升学体系不同 + 咨询资质",
+      "scored_at": "2026-10-29"
+    },
+    "solo_fit": {
+      "score": 66.6,
+      "raw": 19.3,
+      "max_raw": 29.0,
+      "rank": 184,
+      "medal": null,
+      "dims": {
+        "build": 4,
+        "reach": 2,
+        "capital": 5,
+        "window": 3,
+        "delivery": 3
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "自助上传、自助出结果，但有两块躲不掉的人工负担：一是录取数据与判断规则要按年更新，二是判断错了家长会来追问，这是要背后果的售后，不能当成纯工具。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-10-29"
+    },
+    "composite": {
+      "score": 43.0,
+      "solo": 66.6,
+      "china": 37.1,
+      "rank": 291,
+      "medal": null,
+      "quadrant": "skip",
+      "quadrant_label": "别碰",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-10-29"
+    }
   },
   {
     "id": "clamshell",
@@ -502,7 +812,69 @@
     "quality_score": 80,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 54.2,
+      "raw": 18.7,
+      "max_raw": 34.5,
+      "rank": 226,
+      "medal": null,
+      "dims": {
+        "demand": 3,
+        "payment": 2,
+        "compliance": 4,
+        "acquisition": 3,
+        "localization": 1,
+        "competition": 3
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "合盖不休眠是跨平台的通用痛点，macOS 全球一致，本地化几乎为零（1 分是给「中文说明与客服」留的）。合规 4：不碰数据、不碰内容。真正要改的是收钱方式：$9.99 一次买断在国内转化率很低，得改成订阅或加增值。竞争 3：同类免费工具（Amphetamine 那类）已经把位置占住，做得比它好才有机会。",
+      "blocker": "无（唯一障碍是定价模式）",
+      "scored_at": "2026-10-29"
+    },
+    "solo_fit": {
+      "score": 84.1,
+      "raw": 24.4,
+      "max_raw": 29.0,
+      "rank": 5,
+      "medal": null,
+      "dims": {
+        "build": 4,
+        "reach": 3,
+        "capital": 5,
+        "window": 4,
+        "delivery": 5
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "卖的是一个二进制文件，$9.99 一次买断，交付成本为零。唯一负担是macOS 大版本升级后重测一次，一年几次，一个人完全扛得住。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-10-29"
+    },
+    "composite": {
+      "score": 60.2,
+      "solo": 84.1,
+      "china": 54.2,
+      "rank": 168,
+      "medal": null,
+      "quadrant": "export",
+      "quadrant_label": "能做，但别在国内卖",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-10-29"
+    }
   },
   {
     "id": "colorcraft",
@@ -585,7 +957,69 @@
     "quality_score": 60,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 50.7,
+      "raw": 17.5,
+      "max_raw": 34.5,
+      "rank": 245,
+      "medal": null,
+      "dims": {
+        "demand": 3,
+        "payment": 2,
+        "compliance": 3,
+        "acquisition": 3,
+        "localization": 2,
+        "competition": 2
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "它的卖点是「一句话做成过 KDP 检查的 PDF」，而 KDP 是亚马逊的自出版体系，国内对应的是微信读书、番茄这类平台，排版与审核规则完全不同，卖点直接失效，本地化 2。需求 3：自出版人群在国内也在增长。支付 2：一次性小额付费在国内要走小程序或支付平台，转化不如海外的信用卡。",
+      "blocker": "KDP 生态不在国内",
+      "scored_at": "2026-10-29"
+    },
+    "solo_fit": {
+      "score": 80.3,
+      "raw": 23.3,
+      "max_raw": 29.0,
+      "rank": 8,
+      "medal": null,
+      "dims": {
+        "build": 4,
+        "reach": 4,
+        "capital": 5,
+        "window": 3,
+        "delivery": 4
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "一句话进、PDF 出，全自助。负担在模板与规则：KDP 的排版校验规则会变，PDF 内嵌字体与出血也要跟着调，属长期小修。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-10-29"
+    },
+    "composite": {
+      "score": 56.6,
+      "solo": 80.3,
+      "china": 50.7,
+      "rank": 218,
+      "medal": null,
+      "quadrant": "export",
+      "quadrant_label": "能做，但别在国内卖",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-10-29"
+    }
   },
   {
     "id": "kodo",
@@ -661,7 +1095,69 @@
     "quality_score": 15,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 48.4,
+      "raw": 16.7,
+      "max_raw": 34.5,
+      "rank": 263,
+      "medal": null,
+      "dims": {
+        "demand": 3,
+        "payment": 3,
+        "compliance": 3,
+        "acquisition": 2,
+        "localization": 2,
+        "competition": 1
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "AI 设计在国内是最挤的赛道之一：即时设计、MasterGo、稿定都在做生成式设计，而且对个人免费，竞争只能给 1。需求本身是实的（3），付款方式也现成（3），但「对话生成可编辑元素」这个能力已经没有差异化，新入局只能往垂直场景钻（比如只做电商详情页）。获客 2：这个品类的投放成本被大厂抬得很高。",
+      "blocker": "设计工具红海",
+      "scored_at": "2026-10-29"
+    },
+    "solo_fit": {
+      "score": 76.9,
+      "raw": 22.3,
+      "max_raw": 29.0,
+      "rank": 31,
+      "medal": null,
+      "dims": {
+        "build": 3,
+        "reach": 4,
+        "capital": 5,
+        "window": 3,
+        "delivery": 4
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "浏览器里自助使用，没有实施环节。负担在算力与生成质量——AI 生成要持续调模型与提示词，成本按 credits 走，量一上来毛利就被压。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-10-29"
+    },
+    "composite": {
+      "score": 54.1,
+      "solo": 76.9,
+      "china": 48.4,
+      "rank": 236,
+      "medal": null,
+      "quadrant": "export",
+      "quadrant_label": "能做，但别在国内卖",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-10-29"
+    }
   },
   {
     "id": "freelance-writing-club",
@@ -744,7 +1240,69 @@
     "quality_score": 40,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 40.6,
+      "raw": 14.0,
+      "max_raw": 34.5,
+      "rank": 294,
+      "medal": null,
+      "dims": {
+        "demand": 2,
+        "payment": 2,
+        "compliance": 3,
+        "acquisition": 2,
+        "localization": 1,
+        "competition": 2
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "它卖的是「每个工作日一封人工筛过的约稿线索」，国内对应的形态是接单群、稿费平台与自媒体联盟，这些都不向写手收费，所以付费意愿给 2，本地化给 1——不是改造成本高，而是这个业态本身不存在。合规 3：转发公开约稿信息不违规，但要小心把媒体联系信息当商品卖。可借的是「人工筛选本身就是价值」这个定位。",
+      "blocker": "业态不存在（付费约稿情报）",
+      "scored_at": "2026-10-29"
+    },
+    "solo_fit": {
+      "score": 73.1,
+      "raw": 21.2,
+      "max_raw": 29.0,
+      "rank": 81,
+      "medal": null,
+      "dims": {
+        "build": 5,
+        "reach": 3,
+        "capital": 5,
+        "window": 4,
+        "delivery": 2
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "本质是人工编辑：每个工作日都要有人真读一遍稿、筛出值得写的约稿线索，再写成一封邮件。这个「人肉筛选」就是产品本身，自动化掉之后订阅理由也就没了，一个人最多撑到几千订。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-10-29"
+    },
+    "composite": {
+      "score": 47.1,
+      "solo": 73.1,
+      "china": 40.6,
+      "rank": 279,
+      "medal": null,
+      "quadrant": "export",
+      "quadrant_label": "能做，但别在国内卖",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-10-29"
+    }
   },
   {
     "id": "lapsula",
@@ -837,7 +1395,69 @@
     "quality_score": 35,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 44.9,
+      "raw": 15.5,
+      "max_raw": 34.5,
+      "rank": 277,
+      "medal": null,
+      "dims": {
+        "demand": 3,
+        "payment": 3,
+        "compliance": 2,
+        "acquisition": 2,
+        "localization": 1,
+        "competition": 2
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "诊所管理在国内是成熟市场（领健、牙医管家等），需求与付费都真实，但两块难：一是涉及病患数据，要过等保与个人信息保护，合规 2；二是各家诊所的排班、收费、医保结算差异极大，本地化只能给 1。竞争 2：已有产品覆盖了大部分功能，空位只在很细的专科。可借的是「只做诊所、不做全院 HIS」的切口。",
+      "blocker": "病患数据与行业 Know-how",
+      "scored_at": "2026-10-29"
+    },
+    "solo_fit": {
+      "score": 74.5,
+      "raw": 21.6,
+      "max_raw": 29.0,
+      "rank": 39,
+      "medal": null,
+      "dims": {
+        "build": 4,
+        "reach": 3,
+        "capital": 5,
+        "window": 4,
+        "delivery": 3
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "诊所自助开户，但两处要人：一是各家诊所的排班与流程差异要陪客户配一遍，二是涉及病患数据，出事要有人负责合规。比纯 SaaS 重，比定制项目轻。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-10-29"
+    },
+    "composite": {
+      "score": 50.8,
+      "solo": 74.5,
+      "china": 44.9,
+      "rank": 258,
+      "medal": null,
+      "quadrant": "export",
+      "quadrant_label": "能做，但别在国内卖",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-10-29"
+    }
   },
   {
     "id": "agent-media",
@@ -925,7 +1545,69 @@
     "quality_score": 80,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 44.3,
+      "raw": 15.3,
+      "max_raw": 34.5,
+      "rank": 279,
+      "medal": null,
+      "dims": {
+        "demand": 3,
+        "payment": 3,
+        "compliance": 1,
+        "acquisition": 2,
+        "localization": 2,
+        "competition": 2
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "AI 短剧在国内需求很旺（红果、抖音都在推），付费也有，但合规是最硬的一堵墙：生成式内容要备案、要加深度合成标识，平台对 AI 剧集另有一套审核口径，合规只能给 1。竞争 2：平台自己在做同类内容，独立订阅很难留住人。真正能借的是「固定演员阵容 + 连载」这个降低生成成本的做法，而不是这门生意。",
+      "blocker": "AI 内容备案与平台审核",
+      "scored_at": "2026-10-29"
+    },
+    "solo_fit": {
+      "score": 70.7,
+      "raw": 20.5,
+      "max_raw": 29.0,
+      "rank": 106,
+      "medal": null,
+      "dims": {
+        "build": 4,
+        "reach": 4,
+        "capital": 5,
+        "window": 3,
+        "delivery": 2
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "订阅卖的是连续更新的剧集，不是工具。固定演员阵容的短剧要一集集写、一集集生成，停更就掉订；这是内容生产的活，不是软件交付，一个人做不成一门订阅生意。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-10-29"
+    },
+    "composite": {
+      "score": 49.6,
+      "solo": 70.7,
+      "china": 44.3,
+      "rank": 266,
+      "medal": null,
+      "quadrant": "export",
+      "quadrant_label": "能做，但别在国内卖",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-10-29"
+    }
   },
   {
     "id": "lyro",
@@ -1013,7 +1695,69 @@
     "quality_score": 50,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 47.8,
+      "raw": 16.5,
+      "max_raw": 34.5,
+      "rank": 268,
+      "medal": null,
+      "dims": {
+        "demand": 3,
+        "payment": 3,
+        "compliance": 2,
+        "acquisition": 2,
+        "localization": 2,
+        "competition": 2
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "AI 音乐国内已有网易天音、昆仑万维这类玩家，需求被验证过（3），订阅收款也现成（3）。难点在版权：生成物的权利归属、平台分账规则、以及「成品能不能商用」都要逐条写清楚，合规 2。成本侧同样是算力按次烧。可借的是它的定价结构——按月给 credits，把重度用户和尝鲜用户分开。",
+      "blocker": "音乐版权与分账",
+      "scored_at": "2026-10-29"
+    },
+    "solo_fit": {
+      "score": 73.1,
+      "raw": 21.2,
+      "max_raw": 29.0,
+      "rank": 82,
+      "medal": null,
+      "dims": {
+        "build": 3,
+        "reach": 4,
+        "capital": 4,
+        "window": 3,
+        "delivery": 4
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "自助订阅，交付零人工。负担在算力与版权边界：歌曲生成按次烧算力，生成内容的版权归属要盯平台规则，但都不需要团队。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-10-29"
+    },
+    "composite": {
+      "score": 52.9,
+      "solo": 73.1,
+      "china": 47.8,
+      "rank": 241,
+      "medal": null,
+      "quadrant": "export",
+      "quadrant_label": "能做，但别在国内卖",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-10-29"
+    }
   },
   {
     "id": "flint",
@@ -1093,7 +1837,69 @@
     "quality_score": 60,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 40.6,
+      "raw": 14.0,
+      "max_raw": 34.5,
+      "rank": 295,
+      "medal": null,
+      "dims": {
+        "demand": 2,
+        "payment": 2,
+        "compliance": 3,
+        "acquisition": 2,
+        "localization": 1,
+        "competition": 2
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "它的分发是整个产品的一部分：不下载 App，直接在 iMessage 里聊天。国内没有iMessage 生态，改成微信服务号又要过主体与内容审核，等于重做，本地化 1。宗教内容在国内也属于要谨慎处理的题材（合规 3 是因为它只做灵修文本、不涉及组织活动）。可借的是「用现有聊天工具当产品壳」这个思路，国内对应微信/企微。",
+      "blocker": "iMessage 渠道在国内不存在",
+      "scored_at": "2026-10-29"
+    },
+    "solo_fit": {
+      "score": 74.5,
+      "raw": 21.6,
+      "max_raw": 29.0,
+      "rank": 41,
+      "medal": null,
+      "dims": {
+        "build": 4,
+        "reach": 3,
+        "capital": 5,
+        "window": 4,
+        "delivery": 3
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "订阅自助，走 iMessage 分发省掉了 App 发行那一整套。负担在内容与通道：灵修内容要持续写，iMessage 通道的投递与 Apple 的政策变动不归自己管。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-10-29"
+    },
+    "composite": {
+      "score": 47.4,
+      "solo": 74.5,
+      "china": 40.6,
+      "rank": 277,
+      "medal": null,
+      "quadrant": "export",
+      "quadrant_label": "能做，但别在国内卖",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-10-29"
+    }
   },
   {
     "id": "pdf-vault",
@@ -1176,7 +1982,69 @@
     "quality_score": 60,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 43.5,
+      "raw": 15.0,
+      "max_raw": 34.5,
+      "rank": 285,
+      "medal": null,
+      "dims": {
+        "demand": 2,
+        "payment": 2,
+        "compliance": 3,
+        "acquisition": 2,
+        "localization": 2,
+        "competition": 2
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "卖「可转售的 PDF 授权」在国内几乎没有对应市场——知识付费更认课程与会员，不认转售权，付费意愿 2。法律边界也模糊：数字商品的分销授权在合同上要写得很清楚，否则一有纠纷就说不清（合规 3）。可借的是它的定价结构：一次性授权 + 月费托管，把「买断」和「持续服务」拆成两条收入。",
+      "blocker": "可转售授权业态不存在",
+      "scored_at": "2026-10-29"
+    },
+    "solo_fit": {
+      "score": 66.6,
+      "raw": 19.3,
+      "max_raw": 29.0,
+      "rank": 186,
+      "medal": null,
+      "dims": {
+        "build": 4,
+        "reach": 2,
+        "capital": 5,
+        "window": 3,
+        "delivery": 3
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "交付是授权文件 + 托管销售页，自助完成。负担在授权纠纷与被转售滥用：卖「可转售授权」意味着要处理买家之间转手带来的客服与追责，这块没法完全自动化。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-10-29"
+    },
+    "composite": {
+      "score": 48.1,
+      "solo": 66.6,
+      "china": 43.5,
+      "rank": 272,
+      "medal": null,
+      "quadrant": "skip",
+      "quadrant_label": "别碰",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-10-29"
+    }
   },
   {
     "id": "coldcaller-pro",
@@ -1264,7 +2132,69 @@
     "quality_score": 80,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 41.4,
+      "raw": 14.3,
+      "max_raw": 34.5,
+      "rank": 293,
+      "medal": null,
+      "dims": {
+        "demand": 3,
+        "payment": 3,
+        "compliance": 1,
+        "acquisition": 2,
+        "localization": 1,
+        "competition": 2
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "它的产品就是一本 B2B 联系人/电话线索库，并鼓励按名单外呼。这套在国内直接撞《个人信息保护法》与商业外呼的管理规定，合规只能给 1，且数据源要全部重建，本地化也 1。需求 3：B2B 销售确实缺线索。可借的只有「按行业切线索包」的产品结构，数据来源必须换成公开渠道并做授权留痕。",
+      "blocker": "个人信息保护法 + 外呼治理",
+      "scored_at": "2026-10-29"
+    },
+    "solo_fit": {
+      "score": 74.5,
+      "raw": 21.6,
+      "max_raw": 29.0,
+      "rank": 40,
+      "medal": null,
+      "dims": {
+        "build": 4,
+        "reach": 3,
+        "capital": 5,
+        "window": 4,
+        "delivery": 3
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "订阅自助，但产品就是线索库——数据要持续抓、持续清洗，过期数据等于产品失效。这是长期的运营负担，不需要团队但需要天天干。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-10-29"
+    },
+    "composite": {
+      "score": 48.0,
+      "solo": 74.5,
+      "china": 41.4,
+      "rank": 273,
+      "medal": null,
+      "quadrant": "export",
+      "quadrant_label": "能做，但别在国内卖",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-10-29"
+    }
   },
   {
     "id": "coldsire",
@@ -1352,7 +2282,69 @@
     "quality_score": 55,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 44.9,
+      "raw": 15.5,
+      "max_raw": 34.5,
+      "rank": 276,
+      "medal": null,
+      "dims": {
+        "demand": 3,
+        "payment": 3,
+        "compliance": 2,
+        "acquisition": 2,
+        "localization": 1,
+        "competition": 2
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "它卖的是「把 Google Workspace 的 DNS 配好、接上 Instantly 就能发冷邮件」。国内这套工具链整个不存在：邮箱是企业微信、阿里邮箱，冷邮件本身也不成气候，本地化 1。需求 3：国内对应的是「企业邮箱批量开通 + 送达率调优」这类需求，确实有人愿意付钱。可借的是「把配置这件脏活做成订阅」的思路。",
+      "blocker": "工具链不同（Workspace / Instantly）",
+      "scored_at": "2026-10-29"
+    },
+    "solo_fit": {
+      "score": 60.0,
+      "raw": 17.4,
+      "max_raw": 29.0,
+      "rank": 247,
+      "medal": null,
+      "dims": {
+        "build": 4,
+        "reach": 3,
+        "capital": 3,
+        "window": 2,
+        "delivery": 3
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "技术上是自动开通（配 DNS、接 Instantly），但邮箱商与反垃圾规则一变，客户当天就收不到信、就来找你。运维式交付，比纯 SaaS 重。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-10-29"
+    },
+    "composite": {
+      "score": 47.9,
+      "solo": 60.0,
+      "china": 44.9,
+      "rank": 274,
+      "medal": null,
+      "quadrant": "skip",
+      "quadrant_label": "别碰",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-10-29"
+    }
   },
   {
     "id": "knightvision",
@@ -1435,7 +2427,69 @@
     "quality_score": 30,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 52.2,
+      "raw": 18.0,
+      "max_raw": 34.5,
+      "rank": 236,
+      "medal": null,
+      "dims": {
+        "demand": 4,
+        "payment": 3,
+        "compliance": 2,
+        "acquisition": 2,
+        "localization": 2,
+        "competition": 2
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "电商与投放素材在国内是最大的付费场景之一，需求给 4，付款路径也现成。难点在合规 2：生成的广告图要过平台审核，极限词、虚假宣传、人物肖像都要盯，出事是品牌背。竞争 2：阿里妈妈、巨量都在把生成能力免费塞给广告主，第三方工具只能靠「更懂某个品类」活。",
+      "blocker": "广告素材合规",
+      "scored_at": "2026-10-29"
+    },
+    "solo_fit": {
+      "score": 76.6,
+      "raw": 22.2,
+      "max_raw": 29.0,
+      "rank": 34,
+      "medal": null,
+      "dims": {
+        "build": 4,
+        "reach": 4,
+        "capital": 4,
+        "window": 3,
+        "delivery": 4
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "自助上传需求出素材，没有实施环节。负担在算力成本与素材合规：广告素材要过平台审核，违规词与虚假宣传的风险由你兜。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-10-29"
+    },
+    "composite": {
+      "score": 57.1,
+      "solo": 76.6,
+      "china": 52.2,
+      "rank": 210,
+      "medal": null,
+      "quadrant": "export",
+      "quadrant_label": "能做，但别在国内卖",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-10-29"
+    }
   },
   {
     "id": "conductor",
@@ -1514,7 +2568,69 @@
     "quality_score": 25,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 54.8,
+      "raw": 18.9,
+      "max_raw": 34.5,
+      "rank": 223,
+      "medal": null,
+      "dims": {
+        "demand": 3,
+        "payment": 3,
+        "compliance": 4,
+        "acquisition": 2,
+        "localization": 1,
+        "competition": 3
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "它是 QuickBooks 的 API 中间层：帮公司把财务数据接出来、接进别的系统。国内对应的是用友、金蝶，生态不通，本地化只能给 1。但它不碰内容合规（4），竞争 3——国内做「老系统 API 化」的厂商不多，空位比想象中大。真正可以照搬的是这个形态：找一个装在几十万家公司里的老系统，给它在外面套一层干净的 API。",
+      "blocker": "QuickBooks 生态不对应",
+      "scored_at": "2026-10-29"
+    },
+    "solo_fit": {
+      "score": 52.1,
+      "raw": 15.1,
+      "max_raw": 29.0,
+      "rank": 284,
+      "medal": null,
+      "dims": {
+        "build": 2,
+        "reach": 2,
+        "capital": 3,
+        "window": 3,
+        "delivery": 3
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "面向公司客户，接入要文档与技术支持，但不需要实施团队——API 产品的交付是「文档写好 + 出问题能定位」。比 C 端工具重，比项目制轻。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-10-29"
+    },
+    "composite": {
+      "score": 52.6,
+      "solo": 52.1,
+      "china": 54.8,
+      "rank": 243,
+      "medal": null,
+      "quadrant": "skip",
+      "quadrant_label": "别碰",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-10-29"
+    }
   },
   {
     "id": "headshotpro",
@@ -1590,7 +2706,69 @@
     "quality_score": 0,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 42.0,
+      "raw": 14.5,
+      "max_raw": 34.5,
+      "rank": 288,
+      "medal": null,
+      "dims": {
+        "demand": 3,
+        "payment": 3,
+        "compliance": 2,
+        "acquisition": 2,
+        "localization": 1,
+        "competition": 1
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "证件照在国内是彻头彻尾的红海：智能证件照类小程序遍地，且大多很便宜甚至免费，竞争只能给 1。人脸属于敏感个人信息，要单独同意、要能删（合规 2）。它的启动靠的是英文 SEO 加作者存量受众，国内 SEO 盘子小（获客 2）。唯一能借的是「只做一张图、做到比照相馆好」的极致单点。",
+      "blocker": "人脸数据 + 红海竞争",
+      "scored_at": "2026-10-29"
+    },
+    "solo_fit": {
+      "score": 67.6,
+      "raw": 19.6,
+      "max_raw": 29.0,
+      "rank": 176,
+      "medal": null,
+      "dims": {
+        "build": 3,
+        "reach": 2,
+        "capital": 4,
+        "window": 4,
+        "delivery": 4
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "全自助：上传照片、出图、下载，没有人工环节。负担在模型效果与退款——证件照对「像不像」极敏感，不满意就退，这是长期的效果调优工作。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-10-29"
+    },
+    "composite": {
+      "score": 47.1,
+      "solo": 67.6,
+      "china": 42.0,
+      "rank": 280,
+      "medal": null,
+      "quadrant": "skip",
+      "quadrant_label": "别碰",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-10-29"
+    }
   },
   {
     "id": "klar",
@@ -1664,7 +2842,69 @@
     "quality_score": 0,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 48.7,
+      "raw": 16.8,
+      "max_raw": 34.5,
+      "rank": 260,
+      "medal": null,
+      "dims": {
+        "demand": 4,
+        "payment": 2,
+        "compliance": 2,
+        "acquisition": 3,
+        "localization": 1,
+        "competition": 2
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "备考在国内是最刚性的需求之一，付费意愿给 4。但内容必须按国内考纲重做（高考、考研、公考各有各的题库与命题习惯），本地化只能给 1，这是整条路里最重的一块。合规 2：涉及教育内容，要小心「押题」「保过」这类表述。获客 3：校园口碑这条路国内同样成立。可借的是「三个不懂代码的人用 Lovable 把产品搭出来」的路径本身。",
+      "blocker": "考纲本地化",
+      "scored_at": "2026-10-29"
+    },
+    "solo_fit": {
+      "score": 61.0,
+      "raw": 17.7,
+      "max_raw": 29.0,
+      "rank": 238,
+      "medal": null,
+      "dims": {
+        "build": 2,
+        "reach": 4,
+        "capital": 3,
+        "window": 3,
+        "delivery": 3
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "学生自助订阅，没有交付团队。负担在题库：要按本地考试大纲持续补题、跟着考纲改版重做，内容量比代码重。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-10-29"
+    },
+    "composite": {
+      "score": 51.2,
+      "solo": 61.0,
+      "china": 48.7,
+      "rank": 254,
+      "medal": null,
+      "quadrant": "skip",
+      "quadrant_label": "别碰",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-10-29"
+    }
   },
   {
     "id": "refactoring-ui",
@@ -1738,7 +2978,69 @@
     "quality_score": 0,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 49.9,
+      "raw": 17.2,
+      "max_raw": 34.5,
+      "rank": 253,
+      "medal": null,
+      "dims": {
+        "demand": 2,
+        "payment": 2,
+        "compliance": 4,
+        "acquisition": 3,
+        "localization": 2,
+        "competition": 2
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "内容本身跨语言通用，合规上什么都不碰（4）。真正的问题是人不在：它一上线就卖爆，是因为作者在 Twitter 有 5 万开发者听众，这套人情账在国内要重新攒（获客 3，靠内容社区是可行的，但要时间）。国内对应的是极客时间、掘金小册，分发渠道换了，定价也要按国内习惯压（付费 2）。",
+      "blocker": "买家在英文社区",
+      "scored_at": "2026-10-29"
+    },
+    "solo_fit": {
+      "score": 77.2,
+      "raw": 22.4,
+      "max_raw": 29.0,
+      "rank": 23,
+      "medal": null,
+      "dims": {
+        "build": 2,
+        "reach": 3,
+        "capital": 5,
+        "window": 4,
+        "delivery": 5
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "一本电子书，卖文件，交付成本为零，也不需要维护。极端地说：写完之后可以十年不管。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-10-29"
+    },
+    "composite": {
+      "score": 55.4,
+      "solo": 77.2,
+      "china": 49.9,
+      "rank": 227,
+      "medal": null,
+      "quadrant": "export",
+      "quadrant_label": "能做，但别在国内卖",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-10-29"
+    }
   },
   {
     "id": "pdf-ai",
@@ -1808,7 +3110,69 @@
     "quality_score": 0,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 51.3,
+      "raw": 17.7,
+      "max_raw": 34.5,
+      "rank": 244,
+      "medal": null,
+      "dims": {
+        "demand": 3,
+        "payment": 3,
+        "compliance": 3,
+        "acquisition": 2,
+        "localization": 2,
+        "competition": 2
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "它起量的一大半功劳属于 pdf.ai 这个域名带来的搜索意图，这一条在国内无法复制——百度已把这类词喂给自己的产品（获客 2）。产品能力（跟 PDF 对话）国内免费替代很多，竞争 2。但需求是真的（3），按月订阅也被接受（3），合规上只涉及用户上传文档的存储，注意告知与删除即可（3）。",
+      "blocker": "域名红利不可复制",
+      "scored_at": "2026-10-29"
+    },
+    "solo_fit": {
+      "score": 67.6,
+      "raw": 19.6,
+      "max_raw": 29.0,
+      "rank": 177,
+      "medal": null,
+      "dims": {
+        "build": 3,
+        "reach": 2,
+        "capital": 4,
+        "window": 4,
+        "delivery": 4
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "自助上传、自助问答。负担在解析质量与成本：文档格式千奇百怪，解析出错用户立刻感知，模型调用又按量计费，两头都要长期盯。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-10-29"
+    },
+    "composite": {
+      "score": 54.6,
+      "solo": 67.6,
+      "china": 51.3,
+      "rank": 232,
+      "medal": null,
+      "quadrant": "skip",
+      "quadrant_label": "别碰",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-10-29"
+    }
   },
   {
     "id": "david-ai",
@@ -1882,7 +3246,69 @@
     "quality_score": 0,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 35.1,
+      "raw": 12.1,
+      "max_raw": 34.5,
+      "rank": 302,
+      "medal": null,
+      "dims": {
+        "demand": 3,
+        "payment": 2,
+        "compliance": 1,
+        "acquisition": 1,
+        "localization": 1,
+        "competition": 2
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "它的获客是「AI 批量给没网站的小店建站，再寄带二维码的明信片」。明信片要用商家地址与经营者姓名，这些属于个人信息，来源不合法就是硬伤，合规只能给 1；线下直邮搬到国内还要重新摸一遍投递与转化（获客 1）。本地化 1：建站本身国内有微盟、有赞，改造成本不高但空位也没了。可借的是「先做出成品再去敲门」这个动作顺序，不依赖平台流量。",
+      "blocker": "直邮触达与个人信息",
+      "scored_at": "2026-10-29"
+    },
+    "solo_fit": {
+      "score": 63.4,
+      "raw": 18.4,
+      "max_raw": 29.0,
+      "rank": 225,
+      "medal": null,
+      "dims": {
+        "build": 3,
+        "reach": 4,
+        "capital": 4,
+        "window": 3,
+        "delivery": 2
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "有线下人工环节：AI 批量造站只是前半段，后半段是寄明信片、接来电、真跟进。这条路本质是本地 BD，一个人只能覆盖极窄的一片区域，扩不了量。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-10-29"
+    },
+    "composite": {
+      "score": 40.8,
+      "solo": 63.4,
+      "china": 35.1,
+      "rank": 297,
+      "medal": null,
+      "quadrant": "skip",
+      "quadrant_label": "别碰",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-10-29"
+    }
   },
   {
     "id": "sleek",
@@ -1956,7 +3382,69 @@
     "quality_score": 0,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 48.4,
+      "raw": 16.7,
+      "max_raw": 34.5,
+      "rank": 264,
+      "medal": null,
+      "dims": {
+        "demand": 3,
+        "payment": 3,
+        "compliance": 3,
+        "acquisition": 2,
+        "localization": 2,
+        "competition": 1
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "判断与 kodo 基本一致：即时设计、MasterGo 对个人免费且都在做 AI 生成，竞争给 1。它的差异化是「3 周做完、一个月起量」，这个速度值得学，但产品本身在国内没有位置。获客 2：这类工具的投放成本被大厂抬高。",
+      "blocker": "设计工具红海（与 kodo 同因）",
+      "scored_at": "2026-10-29"
+    },
+    "solo_fit": {
+      "score": 73.1,
+      "raw": 21.2,
+      "max_raw": 29.0,
+      "rank": 83,
+      "medal": null,
+      "dims": {
+        "build": 3,
+        "reach": 4,
+        "capital": 4,
+        "window": 3,
+        "delivery": 4
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "自助使用，没有实施。负担在 credits 成本与生成质量，与 kodo 同类，一个人可以维持，但量大了算力账单要先算清楚。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-10-29"
+    },
+    "composite": {
+      "score": 53.3,
+      "solo": 73.1,
+      "china": 48.4,
+      "rank": 239,
+      "medal": null,
+      "quadrant": "export",
+      "quadrant_label": "能做，但别在国内卖",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-10-29"
+    }
   },
   {
     "id": "3ak-track",
@@ -2030,7 +3518,69 @@
     "quality_score": 0,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 44.1,
+      "raw": 15.2,
+      "max_raw": 34.5,
+      "rank": 282,
+      "medal": null,
+      "dims": {
+        "demand": 2,
+        "payment": 2,
+        "compliance": 4,
+        "acquisition": 2,
+        "localization": 1,
+        "competition": 2
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "它卖的是校队田径训练计划。国内对应的是体育中考与校队训练，需求其实更刚性，但内容得按国内考试项目与评分标准重写（本地化 1）。合规 4：只涉及训练数据，不碰医疗也不碰内容。它的启动几乎不可复制——两个人在 IG/TikTok 有 15 万粉，产品是「粉丝变现」而不是「找到需求」（获客 2）。",
+      "blocker": "训练内容要按国内体考重写",
+      "scored_at": "2026-10-29"
+    },
+    "solo_fit": {
+      "score": 68.6,
+      "raw": 19.9,
+      "max_raw": 29.0,
+      "rank": 120,
+      "medal": null,
+      "dims": {
+        "build": 3,
+        "reach": 3,
+        "capital": 4,
+        "window": 3,
+        "delivery": 4
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "学生自助订阅。负担在训练计划内容：田径项目多、周期长，计划要按赛季写，一个人能写但会占掉大部分时间。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-10-29"
+    },
+    "composite": {
+      "score": 49.0,
+      "solo": 68.6,
+      "china": 44.1,
+      "rank": 268,
+      "medal": null,
+      "quadrant": "skip",
+      "quadrant_label": "别碰",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-10-29"
+    }
   },
   {
     "id": "plausible-analytics",
@@ -2101,7 +3651,69 @@
     "quality_score": 0,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 44.3,
+      "raw": 15.3,
+      "max_raw": 34.5,
+      "rank": 281,
+      "medal": null,
+      "dims": {
+        "demand": 3,
+        "payment": 2,
+        "compliance": 2,
+        "acquisition": 2,
+        "localization": 2,
+        "competition": 2
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "网站统计在国内被百度统计、CNZZ 这类免费产品占满，「隐私友好、不收集个人数据」这个卖点在国内的付费意愿很弱（付费 2）。合规 2：统计本身要注意数据出境与等保要求。可借的是它的开源 + 云托管双轨：代码公开换信任，托管收费换收入，这个结构在任何市场都能用。",
+      "blocker": "免费替代太强",
+      "scored_at": "2026-10-29"
+    },
+    "solo_fit": {
+      "score": 67.2,
+      "raw": 19.5,
+      "max_raw": 29.0,
+      "rank": 182,
+      "medal": null,
+      "dims": {
+        "build": 3,
+        "reach": 3,
+        "capital": 4,
+        "window": 4,
+        "delivery": 3
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "云托管是自助订阅，但开源这一层带来躲不掉的负担：issue、PR、自托管用户的提问都来找你，还要跟浏览器与 CMS 的兼容性变化。长期小修，且没有上限。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-10-29"
+    },
+    "composite": {
+      "score": 48.9,
+      "solo": 67.2,
+      "china": 44.3,
+      "rank": 271,
+      "medal": null,
+      "quadrant": "skip",
+      "quadrant_label": "别碰",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-10-29"
+    }
   },
   {
     "id": "upvoty",
@@ -2179,7 +3791,7 @@
       "score": 72.1,
       "raw": 20.9,
       "max_raw": 29.0,
-      "rank": 88,
+      "rank": 102,
       "medal": null,
       "dims": {
         "build": 3,
@@ -2195,7 +3807,7 @@
         "build": 1.0,
         "window": 1.0
       },
-      "delivery_note": "自助订阅，开通零实施：用户在页面里自己贴脚本、装集成，投票板与路线图开箱即用。负担在**集成与 AI 辅助的长期小修** —— GitHub/Slack/Jira 的授权与接口会变，推荐规则要跟着用户反馈调，属「长期小修」而非「一次性上线」；不需要交付团队，也不需要值守。",
+      "delivery_note": "自助订阅，开通零实施：用户在页面里自己贴脚本、装集成，投票板与路线图开箱即用。负担在集成与 AI 辅助的长期小修 —— GitHub/Slack/Jira 的授权与接口会变，推荐规则要跟着用户反馈调，属「长期小修」而非「一次性上线」；不需要交付团队，也不需要值守。",
       "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
       "scored_at": "2026-10-29"
     },
@@ -2221,7 +3833,7 @@
         "localization": 1.0,
         "competition": 1.0
       },
-      "note": "需求是有的：国内做 B 端产品的团队同样被「反馈散在工单/群聊/表格里」折磨，但**付费意愿被免费品压着** —— 腾讯兔小巢免费且自带微信生态，Worktile / PingCode / TAPD 把「需求池」当附属功能送，愿意单买投票板的只剩重视公开路线图的团队，故需求 3、竞争 2。支付 4：订阅制走支付宝/微信顺畅，不涉及虚拟币或跨境结算。合规 4：只存用户自己提交的反馈，不碰内容审核红线；做政企要大客户等保，属可选不是必须。获客 2 是真正的坎：它的增长全压在「Alternatives to 竞品」的英文 SEO 和 Product Hunt 上，这两样在国内没有等价物（百度对独立站不友好、PH 无对应场），换知乎/公众号/小红书要重新攒。本地化 3：投票板本身通用，要换的是集成那一层（企业微信、飞书、钉钉）。",
+      "note": "需求是有的：国内做 B 端产品的团队同样被「反馈散在工单/群聊/表格里」折磨，但付费意愿被免费品压着 —— 腾讯兔小巢免费且自带微信生态，Worktile / PingCode / TAPD 把「需求池」当附属功能送，愿意单买投票板的只剩重视公开路线图的团队，故需求 3、竞争 2。支付 4：订阅制走支付宝/微信顺畅，不涉及虚拟币或跨境结算。合规 4：只存用户自己提交的反馈，不碰内容审核红线；做政企要大客户等保，属可选不是必须。获客 2 是真正的坎：它的增长全压在「Alternatives to 竞品」的英文 SEO 和 Product Hunt 上，这两样在国内没有等价物（百度对独立站不友好、PH 无对应场），换知乎/公众号/小红书要重新攒。本地化 3：投票板本身通用，要换的是集成那一层（企业微信、飞书、钉钉）。",
       "blocker": "免费替代与获客渠道",
       "scored_at": "2026-10-29"
     },
@@ -2229,7 +3841,7 @@
       "score": 63.4,
       "solo": 72.1,
       "china": 61.2,
-      "rank": 147,
+      "rank": 148,
       "medal": null,
       "quadrant": "export",
       "quadrant_label": "能做，但别在国内卖",
@@ -2316,7 +3928,7 @@
       "score": 64.1,
       "raw": 18.6,
       "max_raw": 29.0,
-      "rank": 177,
+      "rank": 199,
       "medal": null,
       "dims": {
         "build": 3,
@@ -2332,7 +3944,7 @@
         "build": 1.0,
         "window": 1.0
       },
-      "delivery_note": "自助上手，设计器与模板库本来就是让用户自己动手的；但它有一块躲不掉的交付负担 —— **送达率**。发信 IP 信誉、退信与投诉率、各大邮箱服务商的过滤规则都要长期盯着，掉进垃圾箱客户当天就来，而它没有销售团队可以分担这层售后。比纯工具重，比项目制轻。",
+      "delivery_note": "自助上手，设计器与模板库本来就是让用户自己动手的；但它有一块躲不掉的交付负担 —— 送达率。发信 IP 信誉、退信与投诉率、各大邮箱服务商的过滤规则都要长期盯着，掉进垃圾箱客户当天就来，而它没有销售团队可以分担这层售后。比纯工具重，比项目制轻。",
       "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
       "scored_at": "2026-10-29"
     },
@@ -2340,7 +3952,7 @@
       "score": 53.3,
       "raw": 18.4,
       "max_raw": 34.5,
-      "rank": 227,
+      "rank": 230,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -2358,7 +3970,7 @@
         "localization": 1.0,
         "competition": 1.0
       },
-      "note": "这条的硬伤不在执行而在**客群**：国内小企业做客户触达走的是微信/企微/短信，邮件营销是外贸、跨境电商和出海 SaaS 的工具，盘子比美国小一个量级，需求给 2。支付 4：订阅制收款无障碍。合规 3：邮件营销在国内受反垃圾邮件规则约束，要退订链路、发信资质与备案，营销邮件里的用户数据也归个人信息保护法管，不致命但得逐项做对。获客 3：它靠「标杆用户案例 + 口碑」起量，这一套能平移到小红书/公众号，但要换成中国客户的故事，且没有销售团队意味着冷启动全靠内容。本地化 2：模板排版、中文断行、送达与退订合规、SMTP 通道都要重做一遍。竞争 2：国内这块已萎缩，微信生态把「触达」吃掉了，剩下的小众工具价格被压得低。",
+      "note": "这条的硬伤不在执行而在客群：国内小企业做客户触达走的是微信/企微/短信，邮件营销是外贸、跨境电商和出海 SaaS 的工具，盘子比美国小一个量级，需求给 2。支付 4：订阅制收款无障碍。合规 3：邮件营销在国内受反垃圾邮件规则约束，要退订链路、发信资质与备案，营销邮件里的用户数据也归个人信息保护法管，不致命但得逐项做对。获客 3：它靠「标杆用户案例 + 口碑」起量，这一套能平移到小红书/公众号，但要换成中国客户的故事，且没有销售团队意味着冷启动全靠内容。本地化 2：模板排版、中文断行、送达与退订合规、SMTP 通道都要重做一遍。竞争 2：国内这块已萎缩，微信生态把「触达」吃掉了，剩下的小众工具价格被压得低。",
       "blocker": "渠道错位 —— 国内没有邮件文化",
       "scored_at": "2026-10-29"
     },
@@ -2366,7 +3978,7 @@
       "score": 55.5,
       "solo": 64.1,
       "china": 53.3,
-      "rank": 221,
+      "rank": 226,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -2472,7 +4084,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 39,
+      "rank": 48,
       "medal": null,
       "dims": {
         "build": 3,
@@ -2606,7 +4218,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 49,
+      "rank": 58,
       "medal": null,
       "dims": {
         "build": 3,
@@ -2740,7 +4352,7 @@
       "score": 60.0,
       "raw": 17.4,
       "max_raw": 29.0,
-      "rank": 221,
+      "rank": 245,
       "medal": null,
       "dims": {
         "build": 3,
@@ -2764,7 +4376,7 @@
       "score": 61.3,
       "solo": 60.0,
       "china": 66.4,
-      "rank": 157,
+      "rank": 158,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -2874,7 +4486,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 139,
+      "rank": 155,
       "medal": null,
       "dims": {
         "build": 3,
@@ -3008,7 +4620,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 132,
+      "rank": 148,
       "medal": null,
       "dims": {
         "build": 2,
@@ -3142,7 +4754,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 148,
+      "rank": 164,
       "medal": null,
       "dims": {
         "build": 3,
@@ -3272,7 +4884,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 20,
+      "rank": 24,
       "medal": null,
       "dims": {
         "build": 3,
@@ -3402,7 +5014,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 38,
+      "rank": 47,
       "medal": null,
       "dims": {
         "build": 3,
@@ -3536,7 +5148,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 40,
+      "rank": 49,
       "medal": null,
       "dims": {
         "build": 3,
@@ -3670,7 +5282,7 @@
       "score": 65.2,
       "raw": 18.9,
       "max_raw": 29.0,
-      "rank": 173,
+      "rank": 194,
       "medal": null,
       "dims": {
         "build": 2,
@@ -3800,7 +5412,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 11,
+      "rank": 14,
       "medal": null,
       "dims": {
         "build": 3,
@@ -3934,7 +5546,7 @@
       "score": 70.0,
       "raw": 20.3,
       "max_raw": 29.0,
-      "rank": 93,
+      "rank": 108,
       "medal": null,
       "dims": {
         "build": 2,
@@ -4064,7 +5676,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 37,
+      "rank": 46,
       "medal": null,
       "dims": {
         "build": 3,
@@ -4172,7 +5784,7 @@
       "score": 50.4,
       "raw": 17.4,
       "max_raw": 34.5,
-      "rank": 244,
+      "rank": 251,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -4198,7 +5810,7 @@
       "score": 54.1,
       "raw": 15.7,
       "max_raw": 29.0,
-      "rank": 253,
+      "rank": 278,
       "medal": null,
       "dims": {
         "build": 3,
@@ -4222,7 +5834,7 @@
       "score": 51.1,
       "solo": 54.1,
       "china": 50.4,
-      "rank": 244,
+      "rank": 256,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -4306,7 +5918,7 @@
       "score": 59.1,
       "raw": 20.4,
       "max_raw": 34.5,
-      "rank": 176,
+      "rank": 177,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -4332,7 +5944,7 @@
       "score": 59.0,
       "raw": 17.1,
       "max_raw": 29.0,
-      "rank": 237,
+      "rank": 262,
       "medal": null,
       "dims": {
         "build": 3,
@@ -4356,7 +5968,7 @@
       "score": 59.0,
       "solo": 59.0,
       "china": 59.1,
-      "rank": 192,
+      "rank": 194,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -4466,7 +6078,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 106,
+      "rank": 122,
       "medal": null,
       "dims": {
         "build": 3,
@@ -4600,7 +6212,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 193,
+      "rank": 215,
       "medal": null,
       "dims": {
         "build": 3,
@@ -4624,7 +6236,7 @@
       "score": 63.6,
       "solo": 63.8,
       "china": 63.5,
-      "rank": 139,
+      "rank": 140,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -4730,7 +6342,7 @@
       "score": 69.7,
       "raw": 20.2,
       "max_raw": 29.0,
-      "rank": 100,
+      "rank": 115,
       "medal": null,
       "dims": {
         "build": 3,
@@ -4860,7 +6472,7 @@
       "score": 76.9,
       "raw": 22.3,
       "max_raw": 29.0,
-      "rank": 23,
+      "rank": 27,
       "medal": null,
       "dims": {
         "build": 3,
@@ -4964,7 +6576,7 @@
       "score": 59.1,
       "raw": 20.4,
       "max_raw": 34.5,
-      "rank": 175,
+      "rank": 176,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -4990,7 +6602,7 @@
       "score": 59.0,
       "raw": 17.1,
       "max_raw": 29.0,
-      "rank": 236,
+      "rank": 261,
       "medal": null,
       "dims": {
         "build": 3,
@@ -5014,7 +6626,7 @@
       "score": 59.0,
       "solo": 59.0,
       "china": 59.1,
-      "rank": 191,
+      "rank": 193,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -5098,7 +6710,7 @@
       "score": 57.7,
       "raw": 19.9,
       "max_raw": 34.5,
-      "rank": 190,
+      "rank": 191,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -5124,7 +6736,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 182,
+      "rank": 204,
       "medal": null,
       "dims": {
         "build": 3,
@@ -5148,7 +6760,7 @@
       "score": 58.9,
       "solo": 63.8,
       "china": 57.7,
-      "rank": 195,
+      "rank": 197,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -5232,7 +6844,7 @@
       "score": 60.0,
       "raw": 20.7,
       "max_raw": 34.5,
-      "rank": 162,
+      "rank": 163,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -5258,7 +6870,7 @@
       "score": 67.6,
       "raw": 19.6,
       "max_raw": 29.0,
-      "rank": 153,
+      "rank": 169,
       "medal": null,
       "dims": {
         "build": 3,
@@ -5282,7 +6894,7 @@
       "score": 61.5,
       "solo": 67.6,
       "china": 60.0,
-      "rank": 155,
+      "rank": 156,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -5392,7 +7004,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 197,
+      "rank": 219,
       "medal": null,
       "dims": {
         "build": 3,
@@ -5520,7 +7132,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 13,
+      "rank": 16,
       "medal": null,
       "dims": {
         "build": 3,
@@ -5652,7 +7264,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 67,
+      "rank": 76,
       "medal": null,
       "dims": {
         "build": 3,
@@ -5786,7 +7398,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 130,
+      "rank": 146,
       "medal": null,
       "dims": {
         "build": 3,
@@ -5916,7 +7528,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 107,
+      "rank": 123,
       "medal": null,
       "dims": {
         "build": 3,
@@ -6050,7 +7662,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 55,
+      "rank": 64,
       "medal": null,
       "dims": {
         "build": 3,
@@ -6158,7 +7770,7 @@
       "score": 57.7,
       "raw": 19.9,
       "max_raw": 34.5,
-      "rank": 191,
+      "rank": 192,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -6184,7 +7796,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 183,
+      "rank": 205,
       "medal": null,
       "dims": {
         "build": 3,
@@ -6208,7 +7820,7 @@
       "score": 58.9,
       "solo": 63.8,
       "china": 57.7,
-      "rank": 196,
+      "rank": 198,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -6290,7 +7902,7 @@
       "score": 57.7,
       "raw": 19.9,
       "max_raw": 34.5,
-      "rank": 192,
+      "rank": 193,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -6316,7 +7928,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 184,
+      "rank": 206,
       "medal": null,
       "dims": {
         "build": 3,
@@ -6340,7 +7952,7 @@
       "score": 58.9,
       "solo": 63.8,
       "china": 57.7,
-      "rank": 197,
+      "rank": 199,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -6446,7 +8058,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 56,
+      "rank": 65,
       "medal": null,
       "dims": {
         "build": 3,
@@ -6580,7 +8192,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 150,
+      "rank": 166,
       "medal": null,
       "dims": {
         "build": 3,
@@ -6712,7 +8324,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 62,
+      "rank": 71,
       "medal": null,
       "dims": {
         "build": 3,
@@ -6846,7 +8458,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 116,
+      "rank": 132,
       "medal": null,
       "dims": {
         "build": 3,
@@ -6950,7 +8562,7 @@
       "score": 57.7,
       "raw": 19.9,
       "max_raw": 34.5,
-      "rank": 202,
+      "rank": 203,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -6976,7 +8588,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 202,
+      "rank": 224,
       "medal": null,
       "dims": {
         "build": 3,
@@ -7000,7 +8612,7 @@
       "score": 58.9,
       "solo": 63.8,
       "china": 57.7,
-      "rank": 199,
+      "rank": 201,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -7080,7 +8692,7 @@
       "score": 57.7,
       "raw": 19.9,
       "max_raw": 34.5,
-      "rank": 200,
+      "rank": 201,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -7106,7 +8718,7 @@
       "score": 71.0,
       "raw": 20.6,
       "max_raw": 29.0,
-      "rank": 91,
+      "rank": 105,
       "medal": null,
       "dims": {
         "build": 3,
@@ -7130,7 +8742,7 @@
       "score": 60.4,
       "solo": 71.0,
       "china": 57.7,
-      "rank": 166,
+      "rank": 167,
       "medal": null,
       "quadrant": "export",
       "quadrant_label": "能做，但别在国内卖",
@@ -7240,7 +8852,7 @@
       "score": 69.7,
       "raw": 20.2,
       "max_raw": 29.0,
-      "rank": 96,
+      "rank": 111,
       "medal": null,
       "dims": {
         "build": 3,
@@ -7370,7 +8982,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 136,
+      "rank": 152,
       "medal": null,
       "dims": {
         "build": 3,
@@ -7500,7 +9112,7 @@
       "score": 69.7,
       "raw": 20.2,
       "max_raw": 29.0,
-      "rank": 101,
+      "rank": 116,
       "medal": null,
       "dims": {
         "build": 3,
@@ -7634,7 +9246,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 54,
+      "rank": 63,
       "medal": null,
       "dims": {
         "build": 3,
@@ -7742,7 +9354,7 @@
       "score": 56.5,
       "raw": 19.5,
       "max_raw": 34.5,
-      "rank": 210,
+      "rank": 211,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -7768,7 +9380,7 @@
       "score": 59.0,
       "raw": 17.1,
       "max_raw": 29.0,
-      "rank": 232,
+      "rank": 257,
       "medal": null,
       "dims": {
         "build": 3,
@@ -7792,7 +9404,7 @@
       "score": 57.0,
       "solo": 59.0,
       "china": 56.5,
-      "rank": 210,
+      "rank": 213,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -7898,7 +9510,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 59,
+      "rank": 68,
       "medal": null,
       "dims": {
         "build": 3,
@@ -8006,7 +9618,7 @@
       "score": 47.0,
       "raw": 16.2,
       "max_raw": 34.5,
-      "rank": 259,
+      "rank": 272,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -8032,7 +9644,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 199,
+      "rank": 221,
       "medal": null,
       "dims": {
         "build": 3,
@@ -8056,7 +9668,7 @@
       "score": 50.4,
       "solo": 63.8,
       "china": 47.0,
-      "rank": 246,
+      "rank": 260,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -8166,7 +9778,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 187,
+      "rank": 209,
       "medal": null,
       "dims": {
         "build": 3,
@@ -8190,7 +9802,7 @@
       "score": 63.6,
       "solo": 63.8,
       "china": 63.5,
-      "rank": 136,
+      "rank": 137,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -8300,7 +9912,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 109,
+      "rank": 125,
       "medal": null,
       "dims": {
         "build": 3,
@@ -8434,7 +10046,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 140,
+      "rank": 156,
       "medal": null,
       "dims": {
         "build": 3,
@@ -8568,7 +10180,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 22,
+      "rank": 26,
       "medal": null,
       "dims": {
         "build": 3,
@@ -8702,7 +10314,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 188,
+      "rank": 210,
       "medal": null,
       "dims": {
         "build": 3,
@@ -8832,7 +10444,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 57,
+      "rank": 66,
       "medal": null,
       "dims": {
         "build": 3,
@@ -8936,7 +10548,7 @@
       "score": 51.3,
       "raw": 17.7,
       "max_raw": 34.5,
-      "rank": 236,
+      "rank": 240,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -8962,7 +10574,7 @@
       "score": 72.4,
       "raw": 21.0,
       "max_raw": 29.0,
-      "rank": 76,
+      "rank": 89,
       "medal": null,
       "dims": {
         "build": 3,
@@ -8986,7 +10598,7 @@
       "score": 55.5,
       "solo": 72.4,
       "china": 51.3,
-      "rank": 219,
+      "rank": 224,
       "medal": null,
       "quadrant": "export",
       "quadrant_label": "能做，但别在国内卖",
@@ -9070,7 +10682,7 @@
       "score": 59.1,
       "raw": 20.4,
       "max_raw": 34.5,
-      "rank": 169,
+      "rank": 170,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -9096,7 +10708,7 @@
       "score": 59.0,
       "raw": 17.1,
       "max_raw": 29.0,
-      "rank": 228,
+      "rank": 253,
       "medal": null,
       "dims": {
         "build": 3,
@@ -9120,7 +10732,7 @@
       "score": 59.0,
       "solo": 59.0,
       "china": 59.1,
-      "rank": 188,
+      "rank": 190,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -9230,7 +10842,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 63,
+      "rank": 72,
       "medal": null,
       "dims": {
         "build": 3,
@@ -9364,7 +10976,7 @@
       "score": 67.6,
       "raw": 19.6,
       "max_raw": 29.0,
-      "rank": 152,
+      "rank": 168,
       "medal": null,
       "dims": {
         "build": 3,
@@ -9463,7 +11075,7 @@
       "score": 57.7,
       "raw": 19.9,
       "max_raw": 34.5,
-      "rank": 201,
+      "rank": 202,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -9489,7 +11101,7 @@
       "score": 67.6,
       "raw": 19.6,
       "max_raw": 29.0,
-      "rank": 160,
+      "rank": 178,
       "medal": null,
       "dims": {
         "build": 3,
@@ -9513,7 +11125,7 @@
       "score": 59.7,
       "solo": 67.6,
       "china": 57.7,
-      "rank": 177,
+      "rank": 179,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -9634,7 +11246,7 @@
       "score": 61.7,
       "raw": 17.9,
       "max_raw": 29.0,
-      "rank": 209,
+      "rank": 232,
       "medal": null,
       "dims": {
         "build": 2,
@@ -9658,7 +11270,7 @@
       "score": 63.6,
       "solo": 61.7,
       "china": 71.3,
-      "rank": 141,
+      "rank": 142,
       "medal": null,
       "quadrant": "partner",
       "quadrant_label": "有市场，但一个人啃不动",
@@ -9766,7 +11378,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 201,
+      "rank": 223,
       "medal": null,
       "dims": {
         "build": 3,
@@ -9790,7 +11402,7 @@
       "score": 63.6,
       "solo": 63.8,
       "china": 63.5,
-      "rank": 144,
+      "rank": 145,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -9900,7 +11512,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 112,
+      "rank": 128,
       "medal": null,
       "dims": {
         "build": 3,
@@ -9924,7 +11536,7 @@
       "score": 62.4,
       "solo": 68.6,
       "china": 60.9,
-      "rank": 153,
+      "rank": 154,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -10034,7 +11646,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 143,
+      "rank": 159,
       "medal": null,
       "dims": {
         "build": 3,
@@ -10168,7 +11780,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 144,
+      "rank": 160,
       "medal": null,
       "dims": {
         "build": 3,
@@ -10302,7 +11914,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 105,
+      "rank": 121,
       "medal": null,
       "dims": {
         "build": 3,
@@ -10436,7 +12048,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 191,
+      "rank": 213,
       "medal": null,
       "dims": {
         "build": 3,
@@ -10460,7 +12072,7 @@
       "score": 63.6,
       "solo": 63.8,
       "china": 63.5,
-      "rank": 137,
+      "rank": 138,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -10544,7 +12156,7 @@
       "score": 57.7,
       "raw": 19.9,
       "max_raw": 34.5,
-      "rank": 193,
+      "rank": 194,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -10570,7 +12182,7 @@
       "score": 67.6,
       "raw": 19.6,
       "max_raw": 29.0,
-      "rank": 154,
+      "rank": 170,
       "medal": null,
       "dims": {
         "build": 3,
@@ -10594,7 +12206,7 @@
       "score": 59.7,
       "solo": 67.6,
       "china": 57.7,
-      "rank": 173,
+      "rank": 175,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -10700,7 +12312,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 52,
+      "rank": 61,
       "medal": null,
       "dims": {
         "build": 3,
@@ -10834,7 +12446,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 192,
+      "rank": 214,
       "medal": null,
       "dims": {
         "build": 3,
@@ -10858,7 +12470,7 @@
       "score": 63.6,
       "solo": 63.8,
       "china": 63.5,
-      "rank": 138,
+      "rank": 139,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -10964,7 +12576,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 124,
+      "rank": 140,
       "medal": null,
       "dims": {
         "build": 3,
@@ -11094,7 +12706,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 36,
+      "rank": 45,
       "medal": null,
       "dims": {
         "build": 3,
@@ -11197,7 +12809,7 @@
       "score": 57.7,
       "raw": 19.9,
       "max_raw": 34.5,
-      "rank": 188,
+      "rank": 189,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -11223,7 +12835,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 180,
+      "rank": 202,
       "medal": null,
       "dims": {
         "build": 3,
@@ -11247,7 +12859,7 @@
       "score": 58.9,
       "solo": 63.8,
       "china": 57.7,
-      "rank": 193,
+      "rank": 195,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -11364,7 +12976,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 113,
+      "rank": 129,
       "medal": null,
       "dims": {
         "build": 3,
@@ -11496,7 +13108,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 16,
+      "rank": 19,
       "medal": null,
       "dims": {
         "build": 3,
@@ -11630,7 +13242,7 @@
       "score": 72.1,
       "raw": 20.9,
       "max_raw": 29.0,
-      "rank": 84,
+      "rank": 97,
       "medal": null,
       "dims": {
         "build": 3,
@@ -11753,7 +13365,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 19,
+      "rank": 22,
       "medal": null,
       "dims": {
         "build": 3,
@@ -11866,7 +13478,7 @@
       "score": 59.1,
       "raw": 20.4,
       "max_raw": 34.5,
-      "rank": 166,
+      "rank": 167,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -11892,7 +13504,7 @@
       "score": 62.8,
       "raw": 18.2,
       "max_raw": 29.0,
-      "rank": 204,
+      "rank": 227,
       "medal": null,
       "dims": {
         "build": 3,
@@ -11916,7 +13528,7 @@
       "score": 59.8,
       "solo": 62.8,
       "china": 59.1,
-      "rank": 171,
+      "rank": 173,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -12026,7 +13638,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 135,
+      "rank": 151,
       "medal": null,
       "dims": {
         "build": 3,
@@ -12132,7 +13744,7 @@
       "score": 57.7,
       "raw": 19.9,
       "max_raw": 34.5,
-      "rank": 198,
+      "rank": 199,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -12158,7 +13770,7 @@
       "score": 67.6,
       "raw": 19.6,
       "max_raw": 29.0,
-      "rank": 157,
+      "rank": 173,
       "medal": null,
       "dims": {
         "build": 3,
@@ -12182,7 +13794,7 @@
       "score": 59.7,
       "solo": 67.6,
       "china": 57.7,
-      "rank": 175,
+      "rank": 177,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -12288,7 +13900,7 @@
       "score": 72.4,
       "raw": 21.0,
       "max_raw": 29.0,
-      "rank": 79,
+      "rank": 92,
       "medal": null,
       "dims": {
         "build": 2,
@@ -12396,7 +14008,7 @@
       "score": 57.7,
       "raw": 19.9,
       "max_raw": 34.5,
-      "rank": 194,
+      "rank": 195,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -12422,7 +14034,7 @@
       "score": 67.6,
       "raw": 19.6,
       "max_raw": 29.0,
-      "rank": 155,
+      "rank": 171,
       "medal": null,
       "dims": {
         "build": 3,
@@ -12446,7 +14058,7 @@
       "score": 59.7,
       "solo": 67.6,
       "china": 57.7,
-      "rank": 174,
+      "rank": 176,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -12554,7 +14166,7 @@
       "score": 64.8,
       "raw": 18.8,
       "max_raw": 29.0,
-      "rank": 175,
+      "rank": 196,
       "medal": null,
       "dims": {
         "build": 3,
@@ -12662,7 +14274,7 @@
       "score": 53.0,
       "raw": 18.3,
       "max_raw": 34.5,
-      "rank": 228,
+      "rank": 231,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -12688,7 +14300,7 @@
       "score": 59.0,
       "raw": 17.1,
       "max_raw": 29.0,
-      "rank": 235,
+      "rank": 260,
       "medal": null,
       "dims": {
         "build": 3,
@@ -12712,7 +14324,7 @@
       "score": 54.2,
       "solo": 59.0,
       "china": 53.0,
-      "rank": 228,
+      "rank": 235,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -12822,7 +14434,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 48,
+      "rank": 57,
       "medal": null,
       "dims": {
         "build": 3,
@@ -12956,7 +14568,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 131,
+      "rank": 147,
       "medal": null,
       "dims": {
         "build": 3,
@@ -13086,7 +14698,7 @@
       "score": 69.7,
       "raw": 20.2,
       "max_raw": 29.0,
-      "rank": 98,
+      "rank": 113,
       "medal": null,
       "dims": {
         "build": 3,
@@ -13216,7 +14828,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 15,
+      "rank": 18,
       "medal": null,
       "dims": {
         "build": 3,
@@ -13350,7 +14962,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 138,
+      "rank": 154,
       "medal": null,
       "dims": {
         "build": 3,
@@ -13484,7 +15096,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 68,
+      "rank": 77,
       "medal": null,
       "dims": {
         "build": 3,
@@ -13614,7 +15226,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 69,
+      "rank": 78,
       "medal": null,
       "dims": {
         "build": 3,
@@ -13744,7 +15356,7 @@
       "score": 69.7,
       "raw": 20.2,
       "max_raw": 29.0,
-      "rank": 99,
+      "rank": 114,
       "medal": null,
       "dims": {
         "build": 3,
@@ -13852,7 +15464,7 @@
       "score": 53.0,
       "raw": 18.3,
       "max_raw": 34.5,
-      "rank": 229,
+      "rank": 232,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -13878,7 +15490,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 60,
+      "rank": 69,
       "medal": null,
       "dims": {
         "build": 3,
@@ -13902,7 +15514,7 @@
       "score": 57.1,
       "solo": 73.4,
       "china": 53.0,
-      "rank": 207,
+      "rank": 209,
       "medal": null,
       "quadrant": "export",
       "quadrant_label": "能做，但别在国内卖",
@@ -13986,7 +15598,7 @@
       "score": 56.5,
       "raw": 19.5,
       "max_raw": 34.5,
-      "rank": 209,
+      "rank": 210,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -14012,7 +15624,7 @@
       "score": 59.0,
       "raw": 17.1,
       "max_raw": 29.0,
-      "rank": 229,
+      "rank": 254,
       "medal": null,
       "dims": {
         "build": 3,
@@ -14036,7 +15648,7 @@
       "score": 57.0,
       "solo": 59.0,
       "china": 56.5,
-      "rank": 209,
+      "rank": 212,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -14146,7 +15758,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 134,
+      "rank": 150,
       "medal": null,
       "dims": {
         "build": 3,
@@ -14276,7 +15888,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 10,
+      "rank": 13,
       "medal": null,
       "dims": {
         "build": 3,
@@ -14406,7 +16018,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 64,
+      "rank": 73,
       "medal": null,
       "dims": {
         "build": 3,
@@ -14540,7 +16152,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 123,
+      "rank": 139,
       "medal": null,
       "dims": {
         "build": 3,
@@ -14670,7 +16282,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 125,
+      "rank": 141,
       "medal": null,
       "dims": {
         "build": 3,
@@ -14778,7 +16390,7 @@
       "score": 59.1,
       "raw": 20.4,
       "max_raw": 34.5,
-      "rank": 172,
+      "rank": 173,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -14804,7 +16416,7 @@
       "score": 59.0,
       "raw": 17.1,
       "max_raw": 29.0,
-      "rank": 231,
+      "rank": 256,
       "medal": null,
       "dims": {
         "build": 3,
@@ -14828,7 +16440,7 @@
       "score": 59.0,
       "solo": 59.0,
       "china": 59.1,
-      "rank": 189,
+      "rank": 191,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -14938,7 +16550,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 115,
+      "rank": 131,
       "medal": null,
       "dims": {
         "build": 3,
@@ -15068,7 +16680,7 @@
       "score": 76.9,
       "raw": 22.3,
       "max_raw": 29.0,
-      "rank": 25,
+      "rank": 29,
       "medal": null,
       "dims": {
         "build": 3,
@@ -15202,7 +16814,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 44,
+      "rank": 53,
       "medal": null,
       "dims": {
         "build": 3,
@@ -15336,7 +16948,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 149,
+      "rank": 165,
       "medal": null,
       "dims": {
         "build": 3,
@@ -15466,7 +17078,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 9,
+      "rank": 12,
       "medal": null,
       "dims": {
         "build": 3,
@@ -15596,7 +17208,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 141,
+      "rank": 157,
       "medal": null,
       "dims": {
         "build": 3,
@@ -15730,7 +17342,7 @@
       "score": 72.4,
       "raw": 21.0,
       "max_raw": 29.0,
-      "rank": 80,
+      "rank": 93,
       "medal": null,
       "dims": {
         "build": 3,
@@ -15864,7 +17476,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 108,
+      "rank": 124,
       "medal": null,
       "dims": {
         "build": 3,
@@ -15972,7 +17584,7 @@
       "score": 59.1,
       "raw": 20.4,
       "max_raw": 34.5,
-      "rank": 167,
+      "rank": 168,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -15998,7 +17610,7 @@
       "score": 59.0,
       "raw": 17.1,
       "max_raw": 29.0,
-      "rank": 227,
+      "rank": 252,
       "medal": null,
       "dims": {
         "build": 3,
@@ -16022,7 +17634,7 @@
       "score": 59.0,
       "solo": 59.0,
       "china": 59.1,
-      "rank": 187,
+      "rank": 189,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -16147,7 +17759,7 @@
       "score": 72.4,
       "raw": 21.0,
       "max_raw": 29.0,
-      "rank": 78,
+      "rank": 91,
       "medal": null,
       "dims": {
         "build": 3,
@@ -16281,7 +17893,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 14,
+      "rank": 17,
       "medal": null,
       "dims": {
         "build": 3,
@@ -16415,7 +18027,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 121,
+      "rank": 137,
       "medal": null,
       "dims": {
         "build": 3,
@@ -16547,7 +18159,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 53,
+      "rank": 62,
       "medal": null,
       "dims": {
         "build": 3,
@@ -16655,7 +18267,7 @@
       "score": 51.3,
       "raw": 17.7,
       "max_raw": 34.5,
-      "rank": 235,
+      "rank": 239,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -16681,7 +18293,7 @@
       "score": 56.9,
       "raw": 16.5,
       "max_raw": 29.0,
-      "rank": 243,
+      "rank": 268,
       "medal": null,
       "dims": {
         "build": 2,
@@ -16705,7 +18317,7 @@
       "score": 52.4,
       "solo": 56.9,
       "china": 51.3,
-      "rank": 236,
+      "rank": 247,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -16815,7 +18427,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 196,
+      "rank": 218,
       "medal": null,
       "dims": {
         "build": 3,
@@ -16839,7 +18451,7 @@
       "score": 63.6,
       "solo": 63.8,
       "china": 63.5,
-      "rank": 142,
+      "rank": 143,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -16945,7 +18557,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 21,
+      "rank": 25,
       "medal": null,
       "dims": {
         "build": 3,
@@ -17053,7 +18665,7 @@
       "score": 57.7,
       "raw": 19.9,
       "max_raw": 34.5,
-      "rank": 196,
+      "rank": 197,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -17079,7 +18691,7 @@
       "score": 67.2,
       "raw": 19.5,
       "max_raw": 29.0,
-      "rank": 162,
+      "rank": 180,
       "medal": null,
       "dims": {
         "build": 3,
@@ -17103,7 +18715,7 @@
       "score": 59.6,
       "solo": 67.2,
       "china": 57.7,
-      "rank": 179,
+      "rank": 181,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -17211,7 +18823,7 @@
       "score": 72.4,
       "raw": 21.0,
       "max_raw": 29.0,
-      "rank": 81,
+      "rank": 94,
       "medal": null,
       "dims": {
         "build": 3,
@@ -17345,7 +18957,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 119,
+      "rank": 135,
       "medal": null,
       "dims": {
         "build": 3,
@@ -17478,7 +19090,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 126,
+      "rank": 142,
       "medal": null,
       "dims": {
         "build": 3,
@@ -17612,7 +19224,7 @@
       "score": 69.0,
       "raw": 20.0,
       "max_raw": 29.0,
-      "rank": 103,
+      "rank": 118,
       "medal": null,
       "dims": {
         "build": 2,
@@ -17746,7 +19358,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 122,
+      "rank": 138,
       "medal": null,
       "dims": {
         "build": 3,
@@ -17880,7 +19492,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 200,
+      "rank": 222,
       "medal": null,
       "dims": {
         "build": 3,
@@ -17904,7 +19516,7 @@
       "score": 63.6,
       "solo": 63.8,
       "china": 63.5,
-      "rank": 143,
+      "rank": 144,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -18014,7 +19626,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 142,
+      "rank": 158,
       "medal": null,
       "dims": {
         "build": 3,
@@ -18118,7 +19730,7 @@
       "score": 47.0,
       "raw": 16.2,
       "max_raw": 34.5,
-      "rank": 258,
+      "rank": 271,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -18144,7 +19756,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 190,
+      "rank": 212,
       "medal": null,
       "dims": {
         "build": 3,
@@ -18168,7 +19780,7 @@
       "score": 50.4,
       "solo": 63.8,
       "china": 47.0,
-      "rank": 245,
+      "rank": 259,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -18278,7 +19890,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 51,
+      "rank": 60,
       "medal": null,
       "dims": {
         "build": 3,
@@ -18408,7 +20020,7 @@
       "score": 76.9,
       "raw": 22.3,
       "max_raw": 29.0,
-      "rank": 26,
+      "rank": 30,
       "medal": null,
       "dims": {
         "build": 3,
@@ -18510,7 +20122,7 @@
       "score": 57.7,
       "raw": 19.9,
       "max_raw": 34.5,
-      "rank": 199,
+      "rank": 200,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -18536,7 +20148,7 @@
       "score": 67.6,
       "raw": 19.6,
       "max_raw": 29.0,
-      "rank": 158,
+      "rank": 174,
       "medal": null,
       "dims": {
         "build": 3,
@@ -18560,7 +20172,7 @@
       "score": 59.7,
       "solo": 67.6,
       "china": 57.7,
-      "rank": 176,
+      "rank": 178,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -18666,7 +20278,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 50,
+      "rank": 59,
       "medal": null,
       "dims": {
         "build": 3,
@@ -18772,7 +20384,7 @@
       "score": 57.7,
       "raw": 19.9,
       "max_raw": 34.5,
-      "rank": 195,
+      "rank": 196,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -18798,7 +20410,7 @@
       "score": 60.0,
       "raw": 17.4,
       "max_raw": 29.0,
-      "rank": 222,
+      "rank": 246,
       "medal": null,
       "dims": {
         "build": 3,
@@ -18822,7 +20434,7 @@
       "score": 58.2,
       "solo": 60.0,
       "china": 57.7,
-      "rank": 201,
+      "rank": 203,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -18932,7 +20544,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 128,
+      "rank": 144,
       "medal": null,
       "dims": {
         "build": 3,
@@ -19066,7 +20678,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 61,
+      "rank": 70,
       "medal": null,
       "dims": {
         "build": 3,
@@ -19170,7 +20782,7 @@
       "score": 59.1,
       "raw": 20.4,
       "max_raw": 34.5,
-      "rank": 178,
+      "rank": 179,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -19196,7 +20808,7 @@
       "score": 66.2,
       "raw": 19.2,
       "max_raw": 29.0,
-      "rank": 166,
+      "rank": 187,
       "medal": null,
       "dims": {
         "build": 3,
@@ -19220,7 +20832,7 @@
       "score": 60.5,
       "solo": 66.2,
       "china": 59.1,
-      "rank": 165,
+      "rank": 166,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -19326,7 +20938,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 43,
+      "rank": 52,
       "medal": null,
       "dims": {
         "build": 3,
@@ -19471,7 +21083,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 46,
+      "rank": 55,
       "medal": null,
       "dims": {
         "build": 3,
@@ -19601,7 +21213,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 47,
+      "rank": 56,
       "medal": null,
       "dims": {
         "build": 3,
@@ -19709,7 +21321,7 @@
       "score": 59.1,
       "raw": 20.4,
       "max_raw": 34.5,
-      "rank": 174,
+      "rank": 175,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -19735,7 +21347,7 @@
       "score": 59.0,
       "raw": 17.1,
       "max_raw": 29.0,
-      "rank": 234,
+      "rank": 259,
       "medal": null,
       "dims": {
         "build": 3,
@@ -19759,7 +21371,7 @@
       "score": 59.0,
       "solo": 59.0,
       "china": 59.1,
-      "rank": 190,
+      "rank": 192,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -19843,7 +21455,7 @@
       "score": 51.3,
       "raw": 17.7,
       "max_raw": 34.5,
-      "rank": 237,
+      "rank": 241,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -19869,7 +21481,7 @@
       "score": 72.4,
       "raw": 21.0,
       "max_raw": 29.0,
-      "rank": 77,
+      "rank": 90,
       "medal": null,
       "dims": {
         "build": 3,
@@ -19893,7 +21505,7 @@
       "score": 55.5,
       "solo": 72.4,
       "china": 51.3,
-      "rank": 220,
+      "rank": 225,
       "medal": null,
       "quadrant": "export",
       "quadrant_label": "能做，但别在国内卖",
@@ -19999,7 +21611,7 @@
       "score": 73.8,
       "raw": 21.4,
       "max_raw": 29.0,
-      "rank": 33,
+      "rank": 42,
       "medal": null,
       "dims": {
         "build": 2,
@@ -20129,7 +21741,7 @@
       "score": 60.0,
       "raw": 17.4,
       "max_raw": 29.0,
-      "rank": 223,
+      "rank": 248,
       "medal": null,
       "dims": {
         "build": 3,
@@ -20153,7 +21765,7 @@
       "score": 60.7,
       "solo": 60.0,
       "china": 63.5,
-      "rank": 162,
+      "rank": 163,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -20263,7 +21875,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 127,
+      "rank": 143,
       "medal": null,
       "dims": {
         "build": 3,
@@ -20397,7 +22009,7 @@
       "score": 69.7,
       "raw": 20.2,
       "max_raw": 29.0,
-      "rank": 97,
+      "rank": 112,
       "medal": null,
       "dims": {
         "build": 3,
@@ -20522,7 +22134,7 @@
       "score": 69.7,
       "raw": 20.2,
       "max_raw": 29.0,
-      "rank": 95,
+      "rank": 110,
       "medal": null,
       "dims": {
         "build": 3,
@@ -20641,7 +22253,7 @@
       "score": 59.1,
       "raw": 20.4,
       "max_raw": 34.5,
-      "rank": 180,
+      "rank": 181,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -20667,7 +22279,7 @@
       "score": 55.2,
       "raw": 16.0,
       "max_raw": 29.0,
-      "rank": 251,
+      "rank": 276,
       "medal": null,
       "dims": {
         "build": 3,
@@ -20691,7 +22303,7 @@
       "score": 56.0,
       "solo": 55.2,
       "china": 59.1,
-      "rank": 217,
+      "rank": 221,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -20812,7 +22424,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 195,
+      "rank": 217,
       "medal": null,
       "dims": {
         "build": 3,
@@ -20836,7 +22448,7 @@
       "score": 63.6,
       "solo": 63.8,
       "china": 63.5,
-      "rank": 140,
+      "rank": 141,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -20946,7 +22558,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 137,
+      "rank": 153,
       "medal": null,
       "dims": {
         "build": 3,
@@ -21076,7 +22688,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 133,
+      "rank": 149,
       "medal": null,
       "dims": {
         "build": 3,
@@ -21208,7 +22820,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 12,
+      "rank": 15,
       "medal": null,
       "dims": {
         "build": 3,
@@ -21340,7 +22952,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 185,
+      "rank": 207,
       "medal": null,
       "dims": {
         "build": 3,
@@ -21364,7 +22976,7 @@
       "score": 63.6,
       "solo": 63.8,
       "china": 63.5,
-      "rank": 135,
+      "rank": 136,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -21474,7 +23086,7 @@
       "score": 61.4,
       "raw": 17.8,
       "max_raw": 29.0,
-      "rank": 213,
+      "rank": 236,
       "medal": null,
       "dims": {
         "build": 2,
@@ -21498,7 +23110,7 @@
       "score": 64.0,
       "solo": 61.4,
       "china": 74.2,
-      "rank": 132,
+      "rank": 133,
       "medal": null,
       "quadrant": "partner",
       "quadrant_label": "有市场，但一个人啃不动",
@@ -21580,7 +23192,7 @@
       "score": 50.4,
       "raw": 17.4,
       "max_raw": 34.5,
-      "rank": 243,
+      "rank": 250,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -21606,7 +23218,7 @@
       "score": 50.3,
       "raw": 14.6,
       "max_raw": 29.0,
-      "rank": 262,
+      "rank": 288,
       "medal": null,
       "dims": {
         "build": 3,
@@ -21630,7 +23242,7 @@
       "score": 50.3,
       "solo": 50.3,
       "china": 50.4,
-      "rank": 247,
+      "rank": 261,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -21736,7 +23348,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 58,
+      "rank": 67,
       "medal": null,
       "dims": {
         "build": 3,
@@ -21870,7 +23482,7 @@
       "score": 67.2,
       "raw": 19.5,
       "max_raw": 29.0,
-      "rank": 161,
+      "rank": 179,
       "medal": null,
       "dims": {
         "build": 3,
@@ -21894,7 +23506,7 @@
       "score": 64.2,
       "solo": 67.2,
       "china": 63.5,
-      "rank": 131,
+      "rank": 132,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -22004,7 +23616,7 @@
       "score": 73.8,
       "raw": 21.4,
       "max_raw": 29.0,
-      "rank": 34,
+      "rank": 43,
       "medal": null,
       "dims": {
         "build": 2,
@@ -22134,7 +23746,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 118,
+      "rank": 134,
       "medal": null,
       "dims": {
         "build": 3,
@@ -22237,7 +23849,7 @@
       "score": 47.8,
       "raw": 16.5,
       "max_raw": 34.5,
-      "rank": 254,
+      "rank": 265,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -22263,7 +23875,7 @@
       "score": 65.2,
       "raw": 18.9,
       "max_raw": 29.0,
-      "rank": 169,
+      "rank": 190,
       "medal": null,
       "dims": {
         "build": 2,
@@ -22287,7 +23899,7 @@
       "score": 51.3,
       "solo": 65.2,
       "china": 47.8,
-      "rank": 242,
+      "rank": 253,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -22382,7 +23994,7 @@
       "score": 59.1,
       "raw": 20.4,
       "max_raw": 34.5,
-      "rank": 168,
+      "rank": 169,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -22408,7 +24020,7 @@
       "score": 55.5,
       "raw": 16.1,
       "max_raw": 29.0,
-      "rank": 248,
+      "rank": 273,
       "medal": null,
       "dims": {
         "build": 2,
@@ -22432,7 +24044,7 @@
       "score": 56.2,
       "solo": 55.5,
       "china": 59.1,
-      "rank": 215,
+      "rank": 219,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -22542,7 +24154,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 114,
+      "rank": 130,
       "medal": null,
       "dims": {
         "build": 3,
@@ -22672,7 +24284,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 18,
+      "rank": 21,
       "medal": null,
       "dims": {
         "build": 3,
@@ -22806,7 +24418,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 66,
+      "rank": 75,
       "medal": null,
       "dims": {
         "build": 3,
@@ -22910,7 +24522,7 @@
       "score": 51.3,
       "raw": 17.7,
       "max_raw": 34.5,
-      "rank": 233,
+      "rank": 237,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -22936,7 +24548,7 @@
       "score": 56.9,
       "raw": 16.5,
       "max_raw": 29.0,
-      "rank": 242,
+      "rank": 267,
       "medal": null,
       "dims": {
         "build": 2,
@@ -22960,7 +24572,7 @@
       "score": 52.4,
       "solo": 56.9,
       "china": 51.3,
-      "rank": 235,
+      "rank": 246,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -23039,7 +24651,7 @@
       "score": 57.7,
       "raw": 19.9,
       "max_raw": 34.5,
-      "rank": 189,
+      "rank": 190,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -23065,7 +24677,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 181,
+      "rank": 203,
       "medal": null,
       "dims": {
         "build": 3,
@@ -23089,7 +24701,7 @@
       "score": 58.9,
       "solo": 63.8,
       "china": 57.7,
-      "rank": 194,
+      "rank": 196,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -23184,7 +24796,7 @@
       "score": 57.7,
       "raw": 19.9,
       "max_raw": 34.5,
-      "rank": 197,
+      "rank": 198,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -23210,7 +24822,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 186,
+      "rank": 208,
       "medal": null,
       "dims": {
         "build": 3,
@@ -23234,7 +24846,7 @@
       "score": 58.9,
       "solo": 63.8,
       "china": 57.7,
-      "rank": 198,
+      "rank": 200,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -23314,7 +24926,7 @@
       "score": 59.1,
       "raw": 20.4,
       "max_raw": 34.5,
-      "rank": 171,
+      "rank": 172,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -23340,7 +24952,7 @@
       "score": 55.2,
       "raw": 16.0,
       "max_raw": 29.0,
-      "rank": 249,
+      "rank": 274,
       "medal": null,
       "dims": {
         "build": 3,
@@ -23364,7 +24976,7 @@
       "score": 56.0,
       "solo": 55.2,
       "china": 59.1,
-      "rank": 216,
+      "rank": 220,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -23448,7 +25060,7 @@
       "score": 56.5,
       "raw": 19.5,
       "max_raw": 34.5,
-      "rank": 211,
+      "rank": 212,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -23474,7 +25086,7 @@
       "score": 59.0,
       "raw": 17.1,
       "max_raw": 29.0,
-      "rank": 233,
+      "rank": 258,
       "medal": null,
       "dims": {
         "build": 3,
@@ -23498,7 +25110,7 @@
       "score": 57.0,
       "solo": 59.0,
       "china": 56.5,
-      "rank": 211,
+      "rank": 214,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -23582,7 +25194,7 @@
       "score": 50.4,
       "raw": 17.4,
       "max_raw": 34.5,
-      "rank": 242,
+      "rank": 249,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -23608,7 +25220,7 @@
       "score": 54.1,
       "raw": 15.7,
       "max_raw": 29.0,
-      "rank": 252,
+      "rank": 277,
       "medal": null,
       "dims": {
         "build": 3,
@@ -23632,7 +25244,7 @@
       "score": 51.1,
       "solo": 54.1,
       "china": 50.4,
-      "rank": 243,
+      "rank": 255,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -23711,7 +25323,7 @@
       "score": 44.3,
       "raw": 15.3,
       "max_raw": 34.5,
-      "rank": 264,
+      "rank": 280,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -23737,7 +25349,7 @@
       "score": 73.1,
       "raw": 21.2,
       "max_raw": 29.0,
-      "rank": 70,
+      "rank": 79,
       "medal": null,
       "dims": {
         "build": 3,
@@ -23761,7 +25373,7 @@
       "score": 50.1,
       "solo": 73.1,
       "china": 44.3,
-      "rank": 248,
+      "rank": 262,
       "medal": null,
       "quadrant": "export",
       "quadrant_label": "能做，但别在国内卖",
@@ -23873,7 +25485,7 @@
       "score": 69.3,
       "raw": 20.1,
       "max_raw": 29.0,
-      "rank": 102,
+      "rank": 117,
       "medal": null,
       "dims": {
         "build": 2,
@@ -24007,7 +25619,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 35,
+      "rank": 44,
       "medal": null,
       "dims": {
         "build": 3,
@@ -24143,7 +25755,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 42,
+      "rank": 51,
       "medal": null,
       "dims": {
         "build": 3,
@@ -24262,7 +25874,7 @@
       "score": 51.3,
       "raw": 17.7,
       "max_raw": 34.5,
-      "rank": 234,
+      "rank": 238,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -24288,7 +25900,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 111,
+      "rank": 127,
       "medal": null,
       "dims": {
         "build": 3,
@@ -24312,7 +25924,7 @@
       "score": 54.8,
       "solo": 68.6,
       "china": 51.3,
-      "rank": 225,
+      "rank": 231,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -24413,7 +26025,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 110,
+      "rank": 126,
       "medal": null,
       "dims": {
         "build": 3,
@@ -24534,7 +26146,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 45,
+      "rank": 54,
       "medal": null,
       "dims": {
         "build": 4,
@@ -24558,7 +26170,7 @@
       "score": 54.5,
       "raw": 18.8,
       "max_raw": 34.5,
-      "rank": 222,
+      "rank": 224,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -24584,7 +26196,7 @@
       "score": 58.3,
       "solo": 73.4,
       "china": 54.5,
-      "rank": 200,
+      "rank": 202,
       "medal": null,
       "quadrant": "export",
       "quadrant_label": "能做，但别在国内卖",
@@ -24665,7 +26277,7 @@
       "score": 46.6,
       "raw": 13.5,
       "max_raw": 29.0,
-      "rank": 266,
+      "rank": 292,
       "medal": null,
       "dims": {
         "build": 3,
@@ -24689,7 +26301,7 @@
       "score": 49.0,
       "raw": 16.9,
       "max_raw": 34.5,
-      "rank": 250,
+      "rank": 258,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -24715,7 +26327,7 @@
       "score": 47.1,
       "solo": 46.6,
       "china": 49.0,
-      "rank": 256,
+      "rank": 278,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -24813,7 +26425,7 @@
       "score": 61.4,
       "raw": 17.8,
       "max_raw": 29.0,
-      "rank": 214,
+      "rank": 237,
       "medal": null,
       "dims": {
         "build": 3,
@@ -24837,7 +26449,7 @@
       "score": 59.1,
       "raw": 20.4,
       "max_raw": 34.5,
-      "rank": 182,
+      "rank": 183,
       "medal": null,
       "dims": {
         "demand": 4,
@@ -24863,7 +26475,7 @@
       "score": 59.6,
       "solo": 61.4,
       "china": 59.1,
-      "rank": 181,
+      "rank": 183,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -24944,7 +26556,7 @@
       "score": 47.6,
       "raw": 13.8,
       "max_raw": 29.0,
-      "rank": 264,
+      "rank": 290,
       "medal": null,
       "dims": {
         "build": 3,
@@ -24968,7 +26580,7 @@
       "score": 45.5,
       "raw": 15.7,
       "max_raw": 34.5,
-      "rank": 261,
+      "rank": 274,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -24994,7 +26606,7 @@
       "score": 45.9,
       "solo": 47.6,
       "china": 45.5,
-      "rank": 260,
+      "rank": 284,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -25091,7 +26703,7 @@
       "score": 34.8,
       "raw": 10.1,
       "max_raw": 29.0,
-      "rank": 272,
+      "rank": 298,
       "medal": null,
       "dims": {
         "build": 2,
@@ -25115,7 +26727,7 @@
       "score": 56.2,
       "raw": 19.4,
       "max_raw": 34.5,
-      "rank": 214,
+      "rank": 215,
       "medal": null,
       "dims": {
         "demand": 4,
@@ -25141,7 +26753,7 @@
       "score": 39.1,
       "solo": 34.8,
       "china": 56.2,
-      "rank": 272,
+      "rank": 298,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -25226,7 +26838,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 189,
+      "rank": 211,
       "medal": null,
       "dims": {
         "build": 3,
@@ -25250,7 +26862,7 @@
       "score": 55.7,
       "raw": 19.2,
       "max_raw": 34.5,
-      "rank": 217,
+      "rank": 218,
       "medal": null,
       "dims": {
         "demand": 4,
@@ -25276,7 +26888,7 @@
       "score": 57.3,
       "solo": 63.8,
       "china": 55.7,
-      "rank": 204,
+      "rank": 206,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -25363,7 +26975,7 @@
       "score": 61.4,
       "raw": 17.8,
       "max_raw": 29.0,
-      "rank": 211,
+      "rank": 234,
       "medal": null,
       "dims": {
         "build": 3,
@@ -25387,7 +26999,7 @@
       "score": 58.6,
       "raw": 20.2,
       "max_raw": 34.5,
-      "rank": 184,
+      "rank": 185,
       "medal": null,
       "dims": {
         "demand": 4,
@@ -25413,7 +27025,7 @@
       "score": 59.2,
       "solo": 61.4,
       "china": 58.6,
-      "rank": 186,
+      "rank": 188,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -25520,7 +27132,7 @@
       "score": 61.7,
       "raw": 17.9,
       "max_raw": 29.0,
-      "rank": 208,
+      "rank": 231,
       "medal": null,
       "dims": {
         "build": 2,
@@ -25570,7 +27182,7 @@
       "score": 62.9,
       "solo": 61.7,
       "china": 67.5,
-      "rank": 151,
+      "rank": 152,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -25652,7 +27264,7 @@
       "score": 70.0,
       "raw": 20.3,
       "max_raw": 29.0,
-      "rank": 92,
+      "rank": 107,
       "medal": null,
       "dims": {
         "build": 4,
@@ -25800,7 +27412,7 @@
       "score": 81.4,
       "raw": 23.6,
       "max_raw": 29.0,
-      "rank": 6,
+      "rank": 7,
       "medal": null,
       "dims": {
         "build": 4,
@@ -25824,7 +27436,7 @@
       "score": 57.1,
       "raw": 19.7,
       "max_raw": 34.5,
-      "rank": 203,
+      "rank": 204,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -25850,7 +27462,7 @@
       "score": 62.0,
       "solo": 81.4,
       "china": 57.1,
-      "rank": 154,
+      "rank": 155,
       "medal": null,
       "quadrant": "export",
       "quadrant_label": "能做，但别在国内卖",
@@ -25954,7 +27566,7 @@
       "score": 53.4,
       "raw": 15.5,
       "max_raw": 29.0,
-      "rank": 256,
+      "rank": 281,
       "medal": null,
       "dims": {
         "build": 4,
@@ -25978,7 +27590,7 @@
       "score": 55.7,
       "raw": 19.2,
       "max_raw": 34.5,
-      "rank": 216,
+      "rank": 217,
       "medal": null,
       "dims": {
         "demand": 4,
@@ -26004,7 +27616,7 @@
       "score": 53.9,
       "solo": 53.4,
       "china": 55.7,
-      "rank": 229,
+      "rank": 237,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -26091,7 +27703,7 @@
       "score": 60.3,
       "raw": 17.5,
       "max_raw": 29.0,
-      "rank": 219,
+      "rank": 243,
       "medal": null,
       "dims": {
         "build": 3,
@@ -26141,7 +27753,7 @@
       "score": 60.6,
       "solo": 60.3,
       "china": 62.0,
-      "rank": 163,
+      "rank": 164,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -26225,7 +27837,7 @@
       "score": 67.2,
       "raw": 19.5,
       "max_raw": 29.0,
-      "rank": 163,
+      "rank": 181,
       "medal": null,
       "dims": {
         "build": 3,
@@ -26249,7 +27861,7 @@
       "score": 54.2,
       "raw": 18.7,
       "max_raw": 34.5,
-      "rank": 223,
+      "rank": 225,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -26275,7 +27887,7 @@
       "score": 56.8,
       "solo": 67.2,
       "china": 54.2,
-      "rank": 214,
+      "rank": 217,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -26371,7 +27983,7 @@
       "score": 59.0,
       "raw": 17.1,
       "max_raw": 29.0,
-      "rank": 230,
+      "rank": 255,
       "medal": null,
       "dims": {
         "build": 3,
@@ -26395,7 +28007,7 @@
       "score": 42.9,
       "raw": 14.8,
       "max_raw": 34.5,
-      "rank": 266,
+      "rank": 286,
       "medal": null,
       "dims": {
         "demand": 4,
@@ -26421,7 +28033,7 @@
       "score": 46.1,
       "solo": 59.0,
       "china": 42.9,
-      "rank": 259,
+      "rank": 283,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -26513,7 +28125,7 @@
       "score": 66.6,
       "raw": 19.3,
       "max_raw": 29.0,
-      "rank": 165,
+      "rank": 185,
       "medal": null,
       "dims": {
         "build": 2,
@@ -26537,7 +28149,7 @@
       "score": 51.3,
       "raw": 17.7,
       "max_raw": 34.5,
-      "rank": 238,
+      "rank": 242,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -26563,7 +28175,7 @@
       "score": 54.4,
       "solo": 66.6,
       "china": 51.3,
-      "rank": 226,
+      "rank": 233,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -26665,7 +28277,7 @@
       "score": 76.9,
       "raw": 22.3,
       "max_raw": 29.0,
-      "rank": 24,
+      "rank": 28,
       "medal": null,
       "dims": {
         "build": 3,
@@ -26689,7 +28301,7 @@
       "score": 56.8,
       "raw": 19.6,
       "max_raw": 34.5,
-      "rank": 207,
+      "rank": 208,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -26715,7 +28327,7 @@
       "score": 60.8,
       "solo": 76.9,
       "china": 56.8,
-      "rank": 159,
+      "rank": 160,
       "medal": null,
       "quadrant": "export",
       "quadrant_label": "能做，但别在国内卖",
@@ -26823,7 +28435,7 @@
       "score": 64.1,
       "raw": 18.6,
       "max_raw": 29.0,
-      "rank": 176,
+      "rank": 198,
       "medal": null,
       "dims": {
         "build": 3,
@@ -26847,7 +28459,7 @@
       "score": 37.7,
       "raw": 13.0,
       "max_raw": 34.5,
-      "rank": 275,
+      "rank": 299,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -26873,7 +28485,7 @@
       "score": 43.0,
       "solo": 64.1,
       "china": 37.7,
-      "rank": 267,
+      "rank": 292,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -26954,7 +28566,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 41,
+      "rank": 50,
       "medal": null,
       "dims": {
         "build": 4,
@@ -26978,7 +28590,7 @@
       "score": 59.7,
       "raw": 20.6,
       "max_raw": 34.5,
-      "rank": 164,
+      "rank": 165,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -27004,7 +28616,7 @@
       "score": 62.4,
       "solo": 73.4,
       "china": 59.7,
-      "rank": 152,
+      "rank": 153,
       "medal": null,
       "quadrant": "export",
       "quadrant_label": "能做，但别在国内卖",
@@ -27101,7 +28713,7 @@
       "score": 60.7,
       "raw": 17.6,
       "max_raw": 29.0,
-      "rank": 215,
+      "rank": 239,
       "medal": null,
       "dims": {
         "build": 3,
@@ -27151,7 +28763,7 @@
       "score": 61.4,
       "solo": 60.7,
       "china": 64.1,
-      "rank": 156,
+      "rank": 157,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -27232,7 +28844,7 @@
       "score": 67.6,
       "raw": 19.6,
       "max_raw": 29.0,
-      "rank": 156,
+      "rank": 172,
       "medal": null,
       "dims": {
         "build": 4,
@@ -27256,7 +28868,7 @@
       "score": 49.0,
       "raw": 16.9,
       "max_raw": 34.5,
-      "rank": 249,
+      "rank": 257,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -27282,7 +28894,7 @@
       "score": 52.7,
       "solo": 67.6,
       "china": 49.0,
-      "rank": 232,
+      "rank": 242,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -27379,7 +28991,7 @@
       "score": 67.6,
       "raw": 19.6,
       "max_raw": 29.0,
-      "rank": 159,
+      "rank": 175,
       "medal": null,
       "dims": {
         "build": 3,
@@ -27403,7 +29015,7 @@
       "score": 54.8,
       "raw": 18.9,
       "max_raw": 34.5,
-      "rank": 221,
+      "rank": 222,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -27429,7 +29041,7 @@
       "score": 57.4,
       "solo": 67.6,
       "china": 54.8,
-      "rank": 203,
+      "rank": 205,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -27520,7 +29132,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 129,
+      "rank": 145,
       "medal": null,
       "dims": {
         "build": 2,
@@ -27544,7 +29156,7 @@
       "score": 57.1,
       "raw": 19.7,
       "max_raw": 34.5,
-      "rank": 205,
+      "rank": 206,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -27570,7 +29182,7 @@
       "score": 59.4,
       "solo": 68.6,
       "china": 57.1,
-      "rank": 185,
+      "rank": 187,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -27651,7 +29263,7 @@
       "score": 61.4,
       "raw": 17.8,
       "max_raw": 29.0,
-      "rank": 210,
+      "rank": 233,
       "medal": null,
       "dims": {
         "build": 4,
@@ -27667,7 +29279,7 @@
         "build": 1.0,
         "window": 1.0
       },
-      "delivery_note": "代投服务是**替用户做一件有后果的事**：投错公司、投到已关闭岗位都要有人兜，与 mort 同型。$249–299 一次性买断对应的是人工交付，不是软件。",
+      "delivery_note": "代投服务是替用户做一件有后果的事：投错公司、投到已关闭岗位都要有人兜，与 mort 同型。$249–299 一次性买断对应的是人工交付，不是软件。",
       "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
       "scored_at": "2026-10-29"
     },
@@ -27675,7 +29287,7 @@
       "score": 59.1,
       "raw": 20.4,
       "max_raw": 34.5,
-      "rank": 170,
+      "rank": 171,
       "medal": null,
       "dims": {
         "demand": 4,
@@ -27701,7 +29313,7 @@
       "score": 59.6,
       "solo": 61.4,
       "china": 59.1,
-      "rank": 178,
+      "rank": 180,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -27798,7 +29410,7 @@
       "score": 53.4,
       "raw": 15.5,
       "max_raw": 29.0,
-      "rank": 255,
+      "rank": 280,
       "medal": null,
       "dims": {
         "build": 2,
@@ -27822,7 +29434,7 @@
       "score": 47.8,
       "raw": 16.5,
       "max_raw": 34.5,
-      "rank": 255,
+      "rank": 266,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -27848,7 +29460,7 @@
       "score": 48.9,
       "solo": 53.4,
       "china": 47.8,
-      "rank": 253,
+      "rank": 270,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -27961,7 +29573,7 @@
       "score": 64.1,
       "raw": 18.6,
       "max_raw": 29.0,
-      "rank": 178,
+      "rank": 200,
       "medal": null,
       "dims": {
         "build": 4,
@@ -27985,7 +29597,7 @@
       "score": 60.0,
       "raw": 20.7,
       "max_raw": 34.5,
-      "rank": 163,
+      "rank": 164,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -28011,7 +29623,7 @@
       "score": 60.8,
       "solo": 64.1,
       "china": 60.0,
-      "rank": 160,
+      "rank": 161,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -28092,7 +29704,7 @@
       "score": 62.8,
       "raw": 18.2,
       "max_raw": 29.0,
-      "rank": 205,
+      "rank": 228,
       "medal": null,
       "dims": {
         "build": 2,
@@ -28116,7 +29728,7 @@
       "score": 55.7,
       "raw": 19.2,
       "max_raw": 34.5,
-      "rank": 215,
+      "rank": 216,
       "medal": null,
       "dims": {
         "demand": 4,
@@ -28142,7 +29754,7 @@
       "score": 57.1,
       "solo": 62.8,
       "china": 55.7,
-      "rank": 205,
+      "rank": 207,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -28239,7 +29851,7 @@
       "score": 60.7,
       "raw": 17.6,
       "max_raw": 29.0,
-      "rank": 218,
+      "rank": 242,
       "medal": null,
       "dims": {
         "build": 3,
@@ -28289,7 +29901,7 @@
       "score": 60.8,
       "solo": 60.7,
       "china": 61.2,
-      "rank": 158,
+      "rank": 159,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -28375,7 +29987,7 @@
       "score": 60.7,
       "raw": 17.6,
       "max_raw": 29.0,
-      "rank": 217,
+      "rank": 241,
       "medal": null,
       "dims": {
         "build": 3,
@@ -28399,7 +30011,7 @@
       "score": 56.2,
       "raw": 19.4,
       "max_raw": 34.5,
-      "rank": 213,
+      "rank": 214,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -28425,7 +30037,7 @@
       "score": 57.1,
       "solo": 60.7,
       "china": 56.2,
-      "rank": 206,
+      "rank": 208,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -28538,7 +30150,7 @@
       "score": 72.1,
       "raw": 20.9,
       "max_raw": 29.0,
-      "rank": 85,
+      "rank": 98,
       "medal": null,
       "dims": {
         "build": 3,
@@ -28702,7 +30314,7 @@
       "score": 59.1,
       "raw": 20.4,
       "max_raw": 34.5,
-      "rank": 173,
+      "rank": 174,
       "medal": null,
       "dims": {
         "demand": 4,
@@ -28728,7 +30340,7 @@
       "score": 61.4,
       "raw": 17.8,
       "max_raw": 29.0,
-      "rank": 212,
+      "rank": 235,
       "medal": null,
       "dims": {
         "build": 3,
@@ -28752,7 +30364,7 @@
       "score": 59.6,
       "solo": 61.4,
       "china": 59.1,
-      "rank": 180,
+      "rank": 182,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -28853,7 +30465,7 @@
       "score": 48.4,
       "raw": 16.7,
       "max_raw": 34.5,
-      "rank": 252,
+      "rank": 261,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -28879,7 +30491,7 @@
       "score": 65.2,
       "raw": 18.9,
       "max_raw": 29.0,
-      "rank": 172,
+      "rank": 193,
       "medal": null,
       "dims": {
         "build": 3,
@@ -28903,7 +30515,7 @@
       "score": 51.8,
       "solo": 65.2,
       "china": 48.4,
-      "rank": 238,
+      "rank": 249,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -29022,7 +30634,7 @@
       "score": 53.6,
       "raw": 18.5,
       "max_raw": 34.5,
-      "rank": 225,
+      "rank": 228,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -29048,7 +30660,7 @@
       "score": 70.0,
       "raw": 20.3,
       "max_raw": 29.0,
-      "rank": 94,
+      "rank": 109,
       "medal": null,
       "dims": {
         "build": 4,
@@ -29072,7 +30684,7 @@
       "score": 56.9,
       "solo": 70.0,
       "china": 53.6,
-      "rank": 213,
+      "rank": 216,
       "medal": null,
       "quadrant": "export",
       "quadrant_label": "能做，但别在国内卖",
@@ -29329,7 +30941,7 @@
       "score": 55.4,
       "raw": 19.1,
       "max_raw": 34.5,
-      "rank": 219,
+      "rank": 220,
       "medal": null,
       "dims": {
         "demand": 1,
@@ -29355,7 +30967,7 @@
       "score": 75.9,
       "raw": 22.0,
       "max_raw": 29.0,
-      "rank": 31,
+      "rank": 37,
       "medal": null,
       "dims": {
         "build": 4,
@@ -29379,7 +30991,7 @@
       "score": 59.5,
       "solo": 75.9,
       "china": 55.4,
-      "rank": 183,
+      "rank": 185,
       "medal": null,
       "quadrant": "export",
       "quadrant_label": "能做，但别在国内卖",
@@ -29478,7 +31090,7 @@
       "score": 47.8,
       "raw": 16.5,
       "max_raw": 34.5,
-      "rank": 256,
+      "rank": 267,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -29504,7 +31116,7 @@
       "score": 56.9,
       "raw": 16.5,
       "max_raw": 29.0,
-      "rank": 244,
+      "rank": 269,
       "medal": null,
       "dims": {
         "build": 3,
@@ -29528,7 +31140,7 @@
       "score": 49.6,
       "solo": 56.9,
       "china": 47.8,
-      "rank": 251,
+      "rank": 267,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -29670,7 +31282,7 @@
       "score": 72.8,
       "raw": 21.1,
       "max_raw": 29.0,
-      "rank": 72,
+      "rank": 85,
       "medal": null,
       "dims": {
         "build": 2,
@@ -29793,7 +31405,7 @@
       "score": 49.3,
       "raw": 17.0,
       "max_raw": 34.5,
-      "rank": 248,
+      "rank": 256,
       "medal": null,
       "dims": {
         "demand": 4,
@@ -29819,7 +31431,7 @@
       "score": 46.6,
       "raw": 13.5,
       "max_raw": 29.0,
-      "rank": 267,
+      "rank": 293,
       "medal": null,
       "dims": {
         "build": 3,
@@ -29843,7 +31455,7 @@
       "score": 47.1,
       "solo": 46.6,
       "china": 49.3,
-      "rank": 257,
+      "rank": 281,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -29975,7 +31587,7 @@
       "score": 59.0,
       "raw": 17.1,
       "max_raw": 29.0,
-      "rank": 238,
+      "rank": 263,
       "medal": null,
       "dims": {
         "build": 4,
@@ -29999,7 +31611,7 @@
       "score": 59.6,
       "solo": 59.0,
       "china": 62.0,
-      "rank": 182,
+      "rank": 184,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -30123,7 +31735,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 145,
+      "rank": 161,
       "medal": null,
       "dims": {
         "build": 4,
@@ -30242,7 +31854,7 @@
       "score": 40.0,
       "raw": 13.8,
       "max_raw": 34.5,
-      "rank": 272,
+      "rank": 296,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -30268,7 +31880,7 @@
       "score": 75.2,
       "raw": 21.8,
       "max_raw": 29.0,
-      "rank": 32,
+      "rank": 38,
       "medal": null,
       "dims": {
         "build": 4,
@@ -30292,7 +31904,7 @@
       "score": 47.0,
       "solo": 75.2,
       "china": 40.0,
-      "rank": 258,
+      "rank": 282,
       "medal": null,
       "quadrant": "export",
       "quadrant_label": "能做，但别在国内卖",
@@ -30398,7 +32010,7 @@
       "score": 44.9,
       "raw": 15.5,
       "max_raw": 34.5,
-      "rank": 263,
+      "rank": 278,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -30424,7 +32036,7 @@
       "score": 58.3,
       "raw": 16.9,
       "max_raw": 29.0,
-      "rank": 240,
+      "rank": 265,
       "medal": null,
       "dims": {
         "build": 3,
@@ -30448,7 +32060,7 @@
       "score": 47.6,
       "solo": 58.3,
       "china": 44.9,
-      "rank": 255,
+      "rank": 276,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -30570,7 +32182,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 65,
+      "rank": 74,
       "medal": null,
       "dims": {
         "build": 4,
@@ -30727,7 +32339,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 120,
+      "rank": 136,
       "medal": null,
       "dims": {
         "build": 3,
@@ -30751,7 +32363,7 @@
       "score": 58.6,
       "raw": 20.2,
       "max_raw": 34.5,
-      "rank": 185,
+      "rank": 186,
       "medal": null,
       "dims": {
         "demand": 4,
@@ -30777,7 +32389,7 @@
       "score": 60.6,
       "solo": 68.6,
       "china": 58.6,
-      "rank": 164,
+      "rank": 165,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -30884,7 +32496,7 @@
       "score": 84.1,
       "raw": 24.4,
       "max_raw": 29.0,
-      "rank": 5,
+      "rank": 6,
       "medal": null,
       "dims": {
         "build": 4,
@@ -31034,7 +32646,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 147,
+      "rank": 163,
       "medal": null,
       "dims": {
         "build": 4,
@@ -31184,7 +32796,7 @@
       "score": 52.8,
       "raw": 15.3,
       "max_raw": 29.0,
-      "rank": 257,
+      "rank": 282,
       "medal": null,
       "dims": {
         "build": 3,
@@ -31208,7 +32820,7 @@
       "score": 49.0,
       "raw": 16.9,
       "max_raw": 34.5,
-      "rank": 251,
+      "rank": 259,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -31234,7 +32846,7 @@
       "score": 49.8,
       "solo": 52.8,
       "china": 49.0,
-      "rank": 249,
+      "rank": 263,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -31341,7 +32953,7 @@
       "score": 52.4,
       "raw": 15.2,
       "max_raw": 29.0,
-      "rank": 258,
+      "rank": 283,
       "medal": null,
       "dims": {
         "build": 3,
@@ -31391,7 +33003,7 @@
       "score": 54.9,
       "solo": 52.4,
       "china": 64.9,
-      "rank": 224,
+      "rank": 230,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -31517,7 +33129,7 @@
       "score": 37.2,
       "raw": 10.8,
       "max_raw": 29.0,
-      "rank": 271,
+      "rank": 297,
       "medal": null,
       "dims": {
         "build": 3,
@@ -31541,7 +33153,7 @@
       "score": 58.6,
       "raw": 20.2,
       "max_raw": 34.5,
-      "rank": 186,
+      "rank": 187,
       "medal": null,
       "dims": {
         "demand": 4,
@@ -31567,7 +33179,7 @@
       "score": 41.5,
       "solo": 37.2,
       "china": 58.6,
-      "rank": 270,
+      "rank": 295,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -31709,7 +33321,7 @@
       "score": 62.4,
       "raw": 18.1,
       "max_raw": 29.0,
-      "rank": 207,
+      "rank": 230,
       "medal": null,
       "dims": {
         "build": 3,
@@ -31733,7 +33345,7 @@
       "score": 63.0,
       "solo": 62.4,
       "china": 65.5,
-      "rank": 150,
+      "rank": 151,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -31845,7 +33457,7 @@
       "score": 58.0,
       "raw": 20.0,
       "max_raw": 34.5,
-      "rank": 187,
+      "rank": 188,
       "medal": null,
       "dims": {
         "demand": 4,
@@ -31863,7 +33475,7 @@
         "localization": 1.0,
         "competition": 1.0
       },
-      "note": "它吃的是英国 Companies House 与 Land Registry 的**公开**记录——这一层国内对应物是齐的（企查查 / 天眼查 / 国家企业信用信息公示系统），且「企业有新增抵押 → 该找资金了」这个需求在 国内更旺，因为中小企业的融资信息不对称比英国更严重。真正的硬伤在合规：把公开征信数据加工成「谁在再融资窗口」的金融决策工具，在《个人信息保护法》与征信业务管理办法的框架下需要资质与人授权边界，说清「公开数据能不能商用加工」本身就是一道门槛。它卖的也不是工具而是「别错过」，要国内客户信你比英国客户信你难得多——英国客户本来就在按揭链条里，国内得先教育市场。",
+      "note": "它吃的是英国 Companies House 与 Land Registry 的公开记录——这一层国内对应物是齐的（企查查 / 天眼查 / 国家企业信用信息公示系统），且「企业有新增抵押 → 该找资金了」这个需求在 国内更旺，因为中小企业的融资信息不对称比英国更严重。真正的硬伤在合规：把公开征信数据加工成「谁在再融资窗口」的金融决策工具，在《个人信息保护法》与征信业务管理办法的框架下需要资质与人授权边界，说清「公开数据能不能商用加工」本身就是一道门槛。它卖的也不是工具而是「别错过」，要国内客户信你比英国客户信你难得多——英国客户本来就在按揭链条里，国内得先教育市场。",
       "blocker": "公开抵押数据的商业化授权边界未明",
       "scored_at": "2026-10-29"
     },
@@ -31871,7 +33483,7 @@
       "score": 54.1,
       "raw": 15.7,
       "max_raw": 29.0,
-      "rank": 254,
+      "rank": 279,
       "medal": null,
       "dims": {
         "build": 3,
@@ -31895,7 +33507,7 @@
       "score": 54.9,
       "solo": 54.1,
       "china": 58.0,
-      "rank": 223,
+      "rank": 229,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -31918,7 +33530,7 @@
       "score": 57.1,
       "raw": 19.7,
       "max_raw": 34.5,
-      "rank": 206,
+      "rank": 207,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -31936,7 +33548,7 @@
         "localization": 1.0,
         "competition": 1.0
       },
-      "note": "它 90% 的流量来自 App Store 与 Google Play 的自然搜索，这个渠道在国内**结构性地不存在**——没有第三方安卓应用商店的自然量红利，微信小程序是唯一的等价物，但小程序没有「锁住其他 app」这个能力，整个机制的地基就没了。需求侧也有真实对应物（国内有大量信仰类工具与清真寺/伊斯兰教会的社群），但它证明的是「习惯机制 + ASO 分发」这条组合拳，在国内要换成分发渠道的结构性改造，难度远高于换文案。更实际的是竞争空位这一维：这类信仰类应用在国内几乎没有头部产品，但也意味着没有验证过的付费模型。",
+      "note": "它 90% 的流量来自 App Store 与 Google Play 的自然搜索，这个渠道在国内结构性地不存在——没有第三方安卓应用商店的自然量红利，微信小程序是唯一的等价物，但小程序没有「锁住其他 app」这个能力，整个机制的地基就没了。需求侧也有真实对应物（国内有大量信仰类工具与清真寺/伊斯兰教会的社群），但它证明的是「习惯机制 + ASO 分发」这条组合拳，在国内要换成分发渠道的结构性改造，难度远高于换文案。更实际的是竞争空位这一维：这类信仰类应用在国内几乎没有头部产品，但也意味着没有验证过的付费模型。",
       "blocker": "App Store 分发在国内不成立",
       "scored_at": "2026-10-29"
     },
@@ -31944,7 +33556,7 @@
       "score": 63.4,
       "solo": 88.6,
       "china": 57.1,
-      "rank": 146,
+      "rank": 147,
       "medal": null,
       "quadrant": "export",
       "quadrant_label": "能做，但别在国内卖",
@@ -32082,7 +33694,7 @@
       "score": 55.7,
       "raw": 19.2,
       "max_raw": 34.5,
-      "rank": 218,
+      "rank": 219,
       "medal": null,
       "dims": {
         "demand": 4,
@@ -32108,7 +33720,7 @@
       "score": 57.6,
       "solo": 65.2,
       "china": 55.7,
-      "rank": 202,
+      "rank": 204,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -32176,7 +33788,7 @@
       "score": 65.2,
       "raw": 18.9,
       "max_raw": 29.0,
-      "rank": 171,
+      "rank": 192,
       "medal": null,
       "dims": {
         "build": 3,
@@ -32252,7 +33864,7 @@
       "score": 41.4,
       "raw": 14.3,
       "max_raw": 34.5,
-      "rank": 271,
+      "rank": 292,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -32278,7 +33890,7 @@
       "score": 44.2,
       "solo": 55.2,
       "china": 41.4,
-      "rank": 266,
+      "rank": 290,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -32339,7 +33951,7 @@
       "score": 55.2,
       "raw": 16.0,
       "max_raw": 29.0,
-      "rank": 250,
+      "rank": 275,
       "medal": null,
       "dims": {
         "build": 2,
@@ -32397,7 +34009,7 @@
       "score": 42.0,
       "raw": 14.5,
       "max_raw": 34.5,
-      "rank": 268,
+      "rank": 289,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -32423,7 +34035,7 @@
       "score": 45.7,
       "solo": 60.3,
       "china": 42.0,
-      "rank": 263,
+      "rank": 287,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -32481,7 +34093,7 @@
       "score": 60.3,
       "raw": 17.5,
       "max_raw": 29.0,
-      "rank": 220,
+      "rank": 244,
       "medal": null,
       "dims": {
         "build": 3,
@@ -32549,7 +34161,7 @@
       "score": 42.9,
       "raw": 14.8,
       "max_raw": 34.5,
-      "rank": 267,
+      "rank": 287,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -32575,7 +34187,7 @@
       "score": 51.4,
       "solo": 85.2,
       "china": 42.9,
-      "rank": 240,
+      "rank": 251,
       "medal": null,
       "quadrant": "export",
       "quadrant_label": "能做，但别在国内卖",
@@ -32729,7 +34341,7 @@
       "score": 63.4,
       "solo": 72.1,
       "china": 61.2,
-      "rank": 145,
+      "rank": 146,
       "medal": null,
       "quadrant": "export",
       "quadrant_label": "能做，但别在国内卖",
@@ -32780,7 +34392,7 @@
       "score": 72.1,
       "raw": 20.9,
       "max_raw": 29.0,
-      "rank": 86,
+      "rank": 100,
       "medal": null,
       "dims": {
         "build": 3,
@@ -32838,7 +34450,7 @@
       "score": 46.1,
       "raw": 15.9,
       "max_raw": 34.5,
-      "rank": 260,
+      "rank": 273,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -32864,7 +34476,7 @@
       "score": 44.3,
       "solo": 43.8,
       "china": 46.1,
-      "rank": 265,
+      "rank": 289,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -32915,7 +34527,7 @@
       "score": 43.8,
       "raw": 12.7,
       "max_raw": 29.0,
-      "rank": 269,
+      "rank": 295,
       "medal": null,
       "dims": {
         "build": 2,
@@ -33060,7 +34672,7 @@
       "score": 76.9,
       "raw": 22.3,
       "max_raw": 29.0,
-      "rank": 28,
+      "rank": 33,
       "medal": null,
       "dims": {
         "build": 4,
@@ -33148,7 +34760,7 @@
       "score": 64.0,
       "solo": 72.1,
       "china": 62.0,
-      "rank": 133,
+      "rank": 134,
       "medal": null,
       "quadrant": "export",
       "quadrant_label": "能做，但别在国内卖",
@@ -33205,7 +34817,7 @@
       "score": 72.1,
       "raw": 20.9,
       "max_raw": 29.0,
-      "rank": 87,
+      "rank": 101,
       "medal": null,
       "dims": {
         "build": 3,
@@ -33277,7 +34889,7 @@
       "score": 59.1,
       "raw": 20.4,
       "max_raw": 34.5,
-      "rank": 177,
+      "rank": 178,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -33459,7 +35071,7 @@
       "score": 59.1,
       "raw": 20.4,
       "max_raw": 34.5,
-      "rank": 181,
+      "rank": 182,
       "medal": null,
       "dims": {
         "demand": 4,
@@ -33485,7 +35097,7 @@
       "score": 59.4,
       "solo": 60.7,
       "china": 59.1,
-      "rank": 184,
+      "rank": 186,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -33554,7 +35166,7 @@
       "score": 60.7,
       "raw": 17.6,
       "max_raw": 29.0,
-      "rank": 216,
+      "rank": 240,
       "medal": null,
       "dims": {
         "build": 3,
@@ -33710,7 +35322,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 17,
+      "rank": 20,
       "medal": null,
       "dims": {
         "build": 4,
@@ -33782,7 +35394,7 @@
       "score": 39.1,
       "raw": 13.5,
       "max_raw": 34.5,
-      "rank": 273,
+      "rank": 297,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -33808,7 +35420,7 @@
       "score": 33.2,
       "solo": 31.7,
       "china": 39.1,
-      "rank": 276,
+      "rank": 302,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -33870,7 +35482,7 @@
       "score": 31.7,
       "raw": 9.2,
       "max_raw": 29.0,
-      "rank": 273,
+      "rank": 299,
       "medal": null,
       "dims": {
         "build": 2,
@@ -34025,7 +35637,7 @@
       "score": 68.3,
       "raw": 19.8,
       "max_raw": 29.0,
-      "rank": 151,
+      "rank": 167,
       "medal": null,
       "dims": {
         "build": 3,
@@ -34092,7 +35704,7 @@
       "score": 38.6,
       "raw": 13.3,
       "max_raw": 34.5,
-      "rank": 274,
+      "rank": 298,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -34118,7 +35730,7 @@
       "score": 42.1,
       "solo": 55.9,
       "china": 38.6,
-      "rank": 268,
+      "rank": 293,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -34183,7 +35795,7 @@
       "score": 55.9,
       "raw": 16.2,
       "max_raw": 29.0,
-      "rank": 246,
+      "rank": 271,
       "medal": null,
       "dims": {
         "build": 3,
@@ -34261,7 +35873,7 @@
       "score": 53.3,
       "raw": 18.4,
       "max_raw": 34.5,
-      "rank": 226,
+      "rank": 229,
       "medal": null,
       "dims": {
         "demand": 4,
@@ -34287,7 +35899,7 @@
       "score": 34.9,
       "solo": 30.3,
       "china": 53.3,
-      "rank": 274,
+      "rank": 300,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -34344,7 +35956,7 @@
       "score": 30.3,
       "raw": 8.8,
       "max_raw": 29.0,
-      "rank": 276,
+      "rank": 302,
       "medal": null,
       "dims": {
         "build": 1,
@@ -34454,7 +36066,7 @@
       "score": 51.7,
       "solo": 48.3,
       "china": 65.5,
-      "rank": 239,
+      "rank": 250,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -34506,7 +36118,7 @@
       "score": 48.3,
       "raw": 14.0,
       "max_raw": 29.0,
-      "rank": 263,
+      "rank": 289,
       "medal": null,
       "dims": {
         "build": 3,
@@ -34578,7 +36190,7 @@
       "score": 49.3,
       "raw": 17.0,
       "max_raw": 34.5,
-      "rank": 247,
+      "rank": 255,
       "medal": null,
       "dims": {
         "demand": 4,
@@ -34604,7 +36216,7 @@
       "score": 34.1,
       "solo": 30.3,
       "china": 49.3,
-      "rank": 275,
+      "rank": 301,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -34667,7 +36279,7 @@
       "score": 30.3,
       "raw": 8.8,
       "max_raw": 29.0,
-      "rank": 275,
+      "rank": 301,
       "medal": null,
       "dims": {
         "build": 2,
@@ -34739,7 +36351,7 @@
       "score": 48.4,
       "raw": 16.7,
       "max_raw": 34.5,
-      "rank": 253,
+      "rank": 262,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -34765,7 +36377,7 @@
       "score": 45.5,
       "solo": 44.8,
       "china": 48.4,
-      "rank": 264,
+      "rank": 288,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -34821,7 +36433,7 @@
       "score": 44.8,
       "raw": 13.0,
       "max_raw": 29.0,
-      "rank": 268,
+      "rank": 294,
       "medal": null,
       "dims": {
         "build": 2,
@@ -34985,7 +36597,7 @@
       "score": 65.5,
       "raw": 19.0,
       "max_raw": 29.0,
-      "rank": 168,
+      "rank": 189,
       "medal": null,
       "dims": {
         "build": 3,
@@ -35065,7 +36677,7 @@
       "score": 59.7,
       "raw": 20.6,
       "max_raw": 34.5,
-      "rank": 165,
+      "rank": 166,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -35091,7 +36703,7 @@
       "score": 63.8,
       "solo": 80.3,
       "china": 59.7,
-      "rank": 134,
+      "rank": 135,
       "medal": null,
       "quadrant": "export",
       "quadrant_label": "能做，但别在国内卖",
@@ -35142,7 +36754,7 @@
       "score": 80.3,
       "raw": 23.3,
       "max_raw": 29.0,
-      "rank": 7,
+      "rank": 9,
       "medal": null,
       "dims": {
         "build": 4,
@@ -35294,7 +36906,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 146,
+      "rank": 162,
       "medal": null,
       "dims": {
         "build": 3,
@@ -35447,7 +37059,7 @@
       "score": 72.8,
       "raw": 21.1,
       "max_raw": 29.0,
-      "rank": 75,
+      "rank": 88,
       "medal": null,
       "dims": {
         "build": 4,
@@ -35516,7 +37128,7 @@
       "score": 50.7,
       "raw": 17.5,
       "max_raw": 34.5,
-      "rank": 240,
+      "rank": 247,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -35542,7 +37154,7 @@
       "score": 55.8,
       "solo": 76.2,
       "china": 50.7,
-      "rank": 218,
+      "rank": 222,
       "medal": null,
       "quadrant": "export",
       "quadrant_label": "能做，但别在国内卖",
@@ -35593,7 +37205,7 @@
       "score": 76.2,
       "raw": 22.1,
       "max_raw": 29.0,
-      "rank": 30,
+      "rank": 36,
       "medal": null,
       "dims": {
         "build": 3,
@@ -35666,7 +37278,7 @@
       "score": 52.8,
       "raw": 18.2,
       "max_raw": 34.5,
-      "rank": 230,
+      "rank": 233,
       "medal": null,
       "dims": {
         "demand": 4,
@@ -35692,7 +37304,7 @@
       "score": 53.9,
       "solo": 58.3,
       "china": 52.8,
-      "rank": 230,
+      "rank": 238,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -35749,7 +37361,7 @@
       "score": 58.3,
       "raw": 16.9,
       "max_raw": 29.0,
-      "rank": 239,
+      "rank": 264,
       "medal": null,
       "dims": {
         "build": 3,
@@ -35894,7 +37506,7 @@
       "score": 66.6,
       "raw": 19.3,
       "max_raw": 29.0,
-      "rank": 164,
+      "rank": 183,
       "medal": null,
       "dims": {
         "build": 3,
@@ -35964,7 +37576,7 @@
       "score": 56.8,
       "raw": 19.6,
       "max_raw": 34.5,
-      "rank": 208,
+      "rank": 209,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -35990,7 +37602,7 @@
       "score": 60.8,
       "solo": 76.9,
       "china": 56.8,
-      "rank": 161,
+      "rank": 162,
       "medal": null,
       "quadrant": "export",
       "quadrant_label": "能做，但别在国内卖",
@@ -36041,7 +37653,7 @@
       "score": 76.9,
       "raw": 22.3,
       "max_raw": 29.0,
-      "rank": 27,
+      "rank": 32,
       "medal": null,
       "dims": {
         "build": 3,
@@ -36138,7 +37750,7 @@
       "score": 60.1,
       "solo": 56.2,
       "china": 75.7,
-      "rank": 169,
+      "rank": 171,
       "medal": null,
       "quadrant": "partner",
       "quadrant_label": "有市场，但一个人啃不动",
@@ -36193,7 +37805,7 @@
       "score": 56.2,
       "raw": 16.3,
       "max_raw": 29.0,
-      "rank": 245,
+      "rank": 270,
       "medal": null,
       "dims": {
         "build": 3,
@@ -36338,7 +37950,7 @@
       "score": 80.3,
       "raw": 23.3,
       "max_raw": 29.0,
-      "rank": 8,
+      "rank": 10,
       "medal": null,
       "dims": {
         "build": 3,
@@ -36475,7 +38087,7 @@
       "score": 65.9,
       "raw": 19.1,
       "max_raw": 29.0,
-      "rank": 167,
+      "rank": 188,
       "medal": null,
       "dims": {
         "build": 2,
@@ -36618,7 +38230,7 @@
       "score": 73.1,
       "raw": 21.2,
       "max_raw": 29.0,
-      "rank": 71,
+      "rank": 84,
       "medal": null,
       "dims": {
         "build": 3,
@@ -36680,7 +38292,7 @@
       "score": 50.7,
       "raw": 17.5,
       "max_raw": 34.5,
-      "rank": 239,
+      "rank": 246,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -36706,7 +38318,7 @@
       "score": 47.9,
       "solo": 47.2,
       "china": 50.7,
-      "rank": 254,
+      "rank": 275,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -36758,7 +38370,7 @@
       "score": 47.2,
       "raw": 13.7,
       "max_raw": 29.0,
-      "rank": 265,
+      "rank": 291,
       "medal": null,
       "dims": {
         "build": 2,
@@ -36901,7 +38513,7 @@
       "score": 72.4,
       "raw": 21.0,
       "max_raw": 29.0,
-      "rank": 82,
+      "rank": 95,
       "medal": null,
       "dims": {
         "build": 3,
@@ -36971,7 +38583,7 @@
       "score": 57.1,
       "raw": 19.7,
       "max_raw": 34.5,
-      "rank": 204,
+      "rank": 205,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -36997,7 +38609,7 @@
       "score": 60.2,
       "solo": 72.4,
       "china": 57.1,
-      "rank": 168,
+      "rank": 170,
       "medal": null,
       "quadrant": "export",
       "quadrant_label": "能做，但别在国内卖",
@@ -37046,7 +38658,7 @@
       "score": 72.4,
       "raw": 21.0,
       "max_raw": 29.0,
-      "rank": 83,
+      "rank": 96,
       "medal": null,
       "dims": {
         "build": 3,
@@ -37197,7 +38809,7 @@
       "score": 69.0,
       "raw": 20.0,
       "max_raw": 29.0,
-      "rank": 104,
+      "rank": 119,
       "medal": null,
       "dims": {
         "build": 3,
@@ -37340,7 +38952,7 @@
       "score": 76.2,
       "raw": 22.1,
       "max_raw": 29.0,
-      "rank": 29,
+      "rank": 35,
       "medal": null,
       "dims": {
         "build": 4,
@@ -37493,7 +39105,7 @@
       "score": 71.0,
       "raw": 20.6,
       "max_raw": 29.0,
-      "rank": 90,
+      "rank": 104,
       "medal": null,
       "dims": {
         "build": 3,
@@ -37566,7 +39178,7 @@
       "score": 44.9,
       "raw": 15.5,
       "max_raw": 34.5,
-      "rank": 262,
+      "rank": 275,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -37592,7 +39204,7 @@
       "score": 42.1,
       "solo": 41.4,
       "china": 44.9,
-      "rank": 269,
+      "rank": 294,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -37647,7 +39259,7 @@
       "score": 41.4,
       "raw": 12.0,
       "max_raw": 29.0,
-      "rank": 270,
+      "rank": 296,
       "medal": null,
       "dims": {
         "build": 2,
@@ -37731,7 +39343,7 @@
       "score": 60.6,
       "raw": 20.9,
       "max_raw": 34.5,
-      "rank": 161,
+      "rank": 162,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -37757,7 +39369,7 @@
       "score": 63.0,
       "solo": 72.8,
       "china": 60.6,
-      "rank": 149,
+      "rank": 150,
       "medal": null,
       "quadrant": "export",
       "quadrant_label": "能做，但别在国内卖",
@@ -37808,7 +39420,7 @@
       "score": 72.8,
       "raw": 21.1,
       "max_raw": 29.0,
-      "rank": 74,
+      "rank": 87,
       "medal": null,
       "dims": {
         "build": 4,
@@ -37882,7 +39494,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 117,
+      "rank": 133,
       "medal": null,
       "dims": {
         "build": 3,
@@ -38001,7 +39613,7 @@
       "score": 63.3,
       "solo": 68.6,
       "china": 62.0,
-      "rank": 148,
+      "rank": 149,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -38027,7 +39639,7 @@
       "score": 65.2,
       "raw": 18.9,
       "max_raw": 29.0,
-      "rank": 170,
+      "rank": 191,
       "medal": null,
       "dims": {
         "build": 3,
@@ -38122,7 +39734,7 @@
       "score": 49.3,
       "raw": 17.0,
       "max_raw": 34.5,
-      "rank": 246,
+      "rank": 254,
       "medal": null,
       "dims": {
         "demand": 4,
@@ -38148,7 +39760,7 @@
       "score": 52.5,
       "solo": 65.2,
       "china": 49.3,
-      "rank": 234,
+      "rank": 245,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -38174,7 +39786,7 @@
       "score": 51.0,
       "raw": 14.8,
       "max_raw": 29.0,
-      "rank": 260,
+      "rank": 286,
       "medal": null,
       "dims": {
         "build": 2,
@@ -38265,7 +39877,7 @@
       "score": 59.1,
       "raw": 20.4,
       "max_raw": 34.5,
-      "rank": 179,
+      "rank": 180,
       "medal": null,
       "dims": {
         "demand": 4,
@@ -38291,7 +39903,7 @@
       "score": 52.6,
       "solo": 51.0,
       "china": 59.1,
-      "rank": 233,
+      "rank": 244,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -38317,7 +39929,7 @@
       "score": 60.0,
       "raw": 17.4,
       "max_raw": 29.0,
-      "rank": 224,
+      "rank": 249,
       "medal": null,
       "dims": {
         "build": 3,
@@ -38437,7 +40049,7 @@
       "score": 60.2,
       "solo": 60.0,
       "china": 61.2,
-      "rank": 167,
+      "rank": 169,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -38463,7 +40075,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 194,
+      "rank": 216,
       "medal": null,
       "dims": {
         "build": 3,
@@ -38557,7 +40169,7 @@
       "score": 35.7,
       "raw": 12.3,
       "max_raw": 34.5,
-      "rank": 276,
+      "rank": 301,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -38583,7 +40195,7 @@
       "score": 41.3,
       "solo": 63.8,
       "china": 35.7,
-      "rank": 271,
+      "rank": 296,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -38609,7 +40221,7 @@
       "score": 31.4,
       "raw": 9.1,
       "max_raw": 29.0,
-      "rank": 274,
+      "rank": 300,
       "medal": null,
       "dims": {
         "build": 1,
@@ -38697,7 +40309,7 @@
       "score": 50.4,
       "raw": 17.4,
       "max_raw": 34.5,
-      "rank": 245,
+      "rank": 252,
       "medal": null,
       "dims": {
         "demand": 4,
@@ -38723,7 +40335,7 @@
       "score": 35.2,
       "solo": 31.4,
       "china": 50.4,
-      "rank": 273,
+      "rank": 299,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -38749,7 +40361,7 @@
       "score": 63.4,
       "raw": 18.4,
       "max_raw": 29.0,
-      "rank": 203,
+      "rank": 226,
       "medal": null,
       "dims": {
         "build": 1,
@@ -38839,7 +40451,7 @@
       "score": 59.1,
       "raw": 20.4,
       "max_raw": 34.5,
-      "rank": 183,
+      "rank": 184,
       "medal": null,
       "dims": {
         "demand": 4,
@@ -38865,7 +40477,7 @@
       "score": 60.0,
       "solo": 63.4,
       "china": 59.1,
-      "rank": 170,
+      "rank": 172,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -38891,7 +40503,7 @@
       "score": 50.7,
       "raw": 14.7,
       "max_raw": 29.0,
-      "rank": 261,
+      "rank": 287,
       "medal": null,
       "dims": {
         "build": 3,
@@ -39007,7 +40619,7 @@
       "score": 53.1,
       "solo": 50.7,
       "china": 62.6,
-      "rank": 231,
+      "rank": 240,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -39033,7 +40645,7 @@
       "score": 52.8,
       "raw": 18.2,
       "max_raw": 34.5,
-      "rank": 231,
+      "rank": 234,
       "medal": null,
       "dims": {
         "demand": 4,
@@ -39059,7 +40671,7 @@
       "score": 51.0,
       "raw": 14.8,
       "max_raw": 29.0,
-      "rank": 259,
+      "rank": 285,
       "medal": null,
       "dims": {
         "build": 2,
@@ -39162,7 +40774,7 @@
       "score": 51.4,
       "solo": 51.0,
       "china": 52.8,
-      "rank": 241,
+      "rank": 252,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -39188,7 +40800,7 @@
       "score": 41.4,
       "raw": 14.3,
       "max_raw": 34.5,
-      "rank": 269,
+      "rank": 290,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -39214,7 +40826,7 @@
       "score": 64.1,
       "raw": 18.6,
       "max_raw": 29.0,
-      "rank": 179,
+      "rank": 201,
       "medal": null,
       "dims": {
         "build": 3,
@@ -39318,7 +40930,7 @@
       "score": 45.9,
       "solo": 64.1,
       "china": 41.4,
-      "rank": 261,
+      "rank": 285,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -39344,7 +40956,7 @@
       "score": 52.2,
       "raw": 18.0,
       "max_raw": 34.5,
-      "rank": 232,
+      "rank": 235,
       "medal": null,
       "dims": {
         "demand": 4,
@@ -39370,7 +40982,7 @@
       "score": 62.8,
       "raw": 18.2,
       "max_raw": 29.0,
-      "rank": 206,
+      "rank": 229,
       "medal": null,
       "dims": {
         "build": 3,
@@ -39465,7 +41077,7 @@
       "score": 54.3,
       "solo": 62.8,
       "china": 52.2,
-      "rank": 227,
+      "rank": 234,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -39492,7 +41104,7 @@
       "score": 55.1,
       "raw": 19.0,
       "max_raw": 34.5,
-      "rank": 220,
+      "rank": 221,
       "medal": null,
       "dims": {
         "demand": 4,
@@ -39510,7 +41122,7 @@
         "localization": 1.0,
         "competition": 1.0
       },
-      "note": "本地小生意漏接电话 = 直接丢单，这个痛点在国内一模一样（美团/抖音本地生活的商家同样靠电话接单），付费意愿给 4。合规要小心：**接听侧**相对安全，但产品一旦从「接电话」扩到「回拨/外呼」，就落进骚扰电话治理与电信实名那一套，这是国内与海外最大的分岔。本地化量不小——要接 400/固话、要对接微信/美团预约、要给老板发微信而不是短信。竞争 3：国内有 AI 客服，但「按门店卖 ¥300 级自助语音前台」这个位置还没被占死。",
+      "note": "本地小生意漏接电话 = 直接丢单，这个痛点在国内一模一样（美团/抖音本地生活的商家同样靠电话接单），付费意愿给 4。合规要小心：接听侧相对安全，但产品一旦从「接电话」扩到「回拨/外呼」，就落进骚扰电话治理与电信实名那一套，这是国内与海外最大的分岔。本地化量不小——要接 400/固话、要对接微信/美团预约、要给老板发微信而不是短信。竞争 3：国内有 AI 客服，但「按门店卖 ¥300 级自助语音前台」这个位置还没被占死。",
       "blocker": "电信实名与外呼治理",
       "scored_at": "2026-10-29"
     },
@@ -39518,7 +41130,7 @@
       "score": 64.8,
       "raw": 18.8,
       "max_raw": 29.0,
-      "rank": 174,
+      "rank": 195,
       "medal": null,
       "dims": {
         "build": 3,
@@ -39613,7 +41225,7 @@
       "score": 57.0,
       "solo": 64.8,
       "china": 55.1,
-      "rank": 212,
+      "rank": 215,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -39639,7 +41251,7 @@
       "score": 43.5,
       "raw": 15.0,
       "max_raw": 34.5,
-      "rank": 265,
+      "rank": 284,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -39657,7 +41269,7 @@
         "localization": 1.0,
         "competition": 1.0
       },
-      "note": "工具本身最通用（改语言就能跑），但它的天花板建在**Google 自然流量 + 全球分发 + Stripe 廉价收款**这三件事上，国内三件全不同：百度与微信生态 SEO 权重逻辑完全不同、小工具站变现主要靠广告联盟且单价低、海外订阅收款渠道也没有。所以获客迁移只给 1、付费意愿 2——这套模型在国内能跑通的是「工具矩阵」这个形态，不是它的收入量级。",
+      "note": "工具本身最通用（改语言就能跑），但它的天花板建在Google 自然流量 + 全球分发 + Stripe 廉价收款这三件事上，国内三件全不同：百度与微信生态 SEO 权重逻辑完全不同、小工具站变现主要靠广告联盟且单价低、海外订阅收款渠道也没有。所以获客迁移只给 1、付费意愿 2——这套模型在国内能跑通的是「工具矩阵」这个形态，不是它的收入量级。",
       "blocker": null,
       "scored_at": "2026-10-29"
     },
@@ -39665,7 +41277,7 @@
       "score": 71.0,
       "raw": 20.6,
       "max_raw": 29.0,
-      "rank": 89,
+      "rank": 103,
       "medal": null,
       "dims": {
         "build": 4,
@@ -39681,7 +41293,7 @@
         "build": 1.0,
         "window": 1.0
       },
-      "delivery_note": "零交付：工具即开即用，没有 onboarding。真正的负担在**持续上新与 SEO 维护**——100+ 个页面要跟着搜索规则改，停更就开始掉流量，这是慢性的活。",
+      "delivery_note": "零交付：工具即开即用，没有 onboarding。真正的负担在持续上新与 SEO 维护——100+ 个页面要跟着搜索规则改，停更就开始掉流量，这是慢性的活。",
       "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
       "scored_at": "2026-10-29"
     },
@@ -39757,7 +41369,7 @@
       "score": 49.0,
       "solo": 71.0,
       "china": 43.5,
-      "rank": 252,
+      "rank": 269,
       "medal": null,
       "quadrant": "export",
       "quadrant_label": "能做，但别在国内卖",
@@ -39801,7 +41413,7 @@
         "localization": 1.0,
         "competition": 1.0
       },
-      "note": "需求与预算都是现成的：「官网多抓一个客户」在国内是成熟采购项（在线客服、SCRM、表单工具都在卖），而且预算从销售口出，天花板比客服口高，付费意愿给 4。真正难搬的是它的**渠道结构**——145+ 家代理商把交付外包出去才覆盖 20+ 国家，国内这套要么自建地推、要么重找集成商，获客迁移只给 2。本地化 3：要接企业微信、400 电话、国内 CRM，表单与预约的链路都得重做。竞争 2：智齿、网易七鱼、纷享销客已经把「官网对话获客」这个位置占住，空位只在「对话直接推进到成交」这一层。",
+      "note": "需求与预算都是现成的：「官网多抓一个客户」在国内是成熟采购项（在线客服、SCRM、表单工具都在卖），而且预算从销售口出，天花板比客服口高，付费意愿给 4。真正难搬的是它的渠道结构——145+ 家代理商把交付外包出去才覆盖 20+ 国家，国内这套要么自建地推、要么重找集成商，获客迁移只给 2。本地化 3：要接企业微信、400 电话、国内 CRM，表单与预约的链路都得重做。竞争 2：智齿、网易七鱼、纷享销客已经把「官网对话获客」这个位置占住，空位只在「对话直接推进到成交」这一层。",
       "blocker": "渠道与本地生态对接",
       "scored_at": "2026-10-29"
     },
@@ -39809,7 +41421,7 @@
       "score": 55.9,
       "raw": 16.2,
       "max_raw": 29.0,
-      "rank": 247,
+      "rank": 272,
       "medal": null,
       "dims": {
         "build": 3,
@@ -39904,7 +41516,7 @@
       "score": 57.1,
       "solo": 55.9,
       "china": 62.0,
-      "rank": 208,
+      "rank": 211,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -39931,7 +41543,7 @@
       "score": 41.4,
       "raw": 14.3,
       "max_raw": 34.5,
-      "rank": 270,
+      "rank": 291,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -39957,7 +41569,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 198,
+      "rank": 220,
       "medal": null,
       "dims": {
         "build": 3,
@@ -39973,7 +41585,7 @@
         "build": 1.0,
         "window": 1.0
       },
-      "delivery_note": "开通是自助的，负担在**天天处理封号与限速**：平台风控一变，用户发不出去就来找你，申诉、换 IP、调节奏都得做，没法外包也不能排期。",
+      "delivery_note": "开通是自助的，负担在天天处理封号与限速：平台风控一变，用户发不出去就来找你，申诉、换 IP、调节奏都得做，没法外包也不能排期。",
       "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
       "scored_at": "2026-10-29"
     },
@@ -40053,7 +41665,7 @@
       "score": 45.9,
       "solo": 63.8,
       "china": 41.4,
-      "rank": 262,
+      "rank": 286,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -40080,7 +41692,7 @@
       "score": 56.5,
       "raw": 19.5,
       "max_raw": 34.5,
-      "rank": 212,
+      "rank": 213,
       "medal": null,
       "dims": {
         "demand": 5,
@@ -40098,7 +41710,7 @@
         "localization": 1.0,
         "competition": 1.0
       },
-      "note": "需求端国内比美国更凶（求职内卷、海投更普遍），5 分站得住。但两个硬伤：一是**数据源**——它的钩子是 H-1B 担保查询，国内对应的是「这家公司落不落户、社保基数、有没有裁员史」，而这些数据散在 BOSS 直聘/脉脉/企查查手里且不开放 API，职位数据也拿不到；二是合规，简历属个人信息，招聘类平台在国内实际需要相应资质，且抓取第三方职位数据有明确法律风险。C 端付费意愿只给 3（国内求职者为工具付费的习惯弱于美国）。可借的是「创始人 IP + 一个信息鸿沟当钩子」这套冷启动方式。",
+      "note": "需求端国内比美国更凶（求职内卷、海投更普遍），5 分站得住。但两个硬伤：一是数据源——它的钩子是 H-1B 担保查询，国内对应的是「这家公司落不落户、社保基数、有没有裁员史」，而这些数据散在 BOSS 直聘/脉脉/企查查手里且不开放 API，职位数据也拿不到；二是合规，简历属个人信息，招聘类平台在国内实际需要相应资质，且抓取第三方职位数据有明确法律风险。C 端付费意愿只给 3（国内求职者为工具付费的习惯弱于美国）。可借的是「创始人 IP + 一个信息鸿沟当钩子」这套冷启动方式。",
       "blocker": "招聘平台数据不开放",
       "scored_at": "2026-10-29"
     },
@@ -40106,7 +41718,7 @@
       "score": 72.8,
       "raw": 21.1,
       "max_raw": 29.0,
-      "rank": 73,
+      "rank": 86,
       "medal": null,
       "dims": {
         "build": 3,
@@ -40202,7 +41814,7 @@
       "score": 59.8,
       "solo": 72.8,
       "china": 56.5,
-      "rank": 172,
+      "rank": 174,
       "medal": null,
       "quadrant": "export",
       "quadrant_label": "能做，但别在国内卖",
@@ -40229,7 +41841,7 @@
       "score": 54.2,
       "raw": 18.7,
       "max_raw": 34.5,
-      "rank": 224,
+      "rank": 227,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -40255,7 +41867,7 @@
       "score": 60.0,
       "raw": 17.4,
       "max_raw": 29.0,
-      "rank": 225,
+      "rank": 250,
       "medal": null,
       "dims": {
         "build": 3,
@@ -40349,7 +41961,7 @@
       "score": 55.4,
       "solo": 60.0,
       "china": 54.2,
-      "rank": 222,
+      "rank": 228,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -40376,7 +41988,7 @@
       "score": 47.2,
       "raw": 16.3,
       "max_raw": 34.5,
-      "rank": 257,
+      "rank": 270,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -40394,7 +42006,7 @@
         "localization": 1.0,
         "competition": 1.0
       },
-      "note": "**民意调查在国内不是普通生意**：涉外民调、公开发布民调结果都有明确管理要求，这一条决定了合规只能给 1，也是它最不可能整体搬过来的原因。能搬的是纯商业侧——品牌方的新品测试、广告效果调研、用户满意度，这块国内有问卷网、腾讯问卷等成熟玩家，需求给 3、竞争 2。它的方法论护城河（前 Harris Poll 的人把关抽样与质控）在国内对应的是「有调研公司背景的合伙人」，不是一个人能补的。替代路径是把 AI 压在「交付周期」上做一家调研工作室，而不是做一个平台。",
+      "note": "民意调查在国内不是普通生意：涉外民调、公开发布民调结果都有明确管理要求，这一条决定了合规只能给 1，也是它最不可能整体搬过来的原因。能搬的是纯商业侧——品牌方的新品测试、广告效果调研、用户满意度，这块国内有问卷网、腾讯问卷等成熟玩家，需求给 3、竞争 2。它的方法论护城河（前 Harris Poll 的人把关抽样与质控）在国内对应的是「有调研公司背景的合伙人」，不是一个人能补的。替代路径是把 AI 压在「交付周期」上做一家调研工作室，而不是做一个平台。",
       "blocker": "民调资质与数据合规",
       "scored_at": "2026-10-29"
     },
@@ -40402,7 +42014,7 @@
       "score": 59.7,
       "raw": 17.3,
       "max_raw": 29.0,
-      "rank": 226,
+      "rank": 251,
       "medal": null,
       "dims": {
         "build": 3,
@@ -40496,7 +42108,7 @@
       "score": 49.7,
       "solo": 59.7,
       "china": 47.2,
-      "rank": 250,
+      "rank": 265,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -40523,7 +42135,7 @@
       "score": 50.7,
       "raw": 17.5,
       "max_raw": 34.5,
-      "rank": 241,
+      "rank": 248,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -40549,7 +42161,7 @@
       "score": 58.3,
       "raw": 16.9,
       "max_raw": 29.0,
-      "rank": 241,
+      "rank": 266,
       "medal": null,
       "dims": {
         "build": 4,
@@ -40565,7 +42177,7 @@
         "build": 1.0,
         "window": 1.0
       },
-      "delivery_note": "本质是**服务外包**：AI 执行 + 真人办公室经理复核，每个客户都要一个懂 HVAC 的人盯着。它的 11 人团队就是交付能力本身，不是可选项。",
+      "delivery_note": "本质是服务外包：AI 执行 + 真人办公室经理复核，每个客户都要一个懂 HVAC 的人盯着。它的 11 人团队就是交付能力本身，不是可选项。",
       "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
       "scored_at": "2026-10-29"
     },
@@ -40644,7 +42256,7 @@
       "score": 52.2,
       "solo": 58.3,
       "china": 50.7,
-      "rank": 237,
+      "rank": 248,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
