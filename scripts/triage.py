@@ -317,13 +317,19 @@ def product_hosts(rec):
     两个来源都要看：案例的官网写在 sources[].url 里（未必有 source_url 字段），
     队列条目则只有 source_url。采集站自己的域名不算 —— 那是我们的来源页，
     不是这个产品的门牌号。
+
+    ⚠ 2026-10-29 补：`CODE_HOSTS` 也要排除，否则**开源项目一律互相判重**。
+    实测 `screenshot-to-code-whimsyworks-inc` 的 source_url 是 github 仓库，
+    域名集合只有 `{github.com}`，与任何一个同样托管在 github 的已发布案例
+    求交都非空 ⇒ 被盖上「官网与已发布案例相同」⇒ grade=drop。
+    这不是重复，是「两家都用了同一个代码托管站」。
     """
     urls = [rec.get("source_url")]
     urls += [s.get("url") for s in (rec.get("sources") or []) if isinstance(s, dict)]
     out = set()
     for u in urls:
         h = host_of(u)
-        if h and h not in AGG_HOSTS:
+        if h and h not in AGG_HOSTS and h not in CODE_HOSTS:
             out.add(h)
     return out
 
