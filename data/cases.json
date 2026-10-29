@@ -1,5 +1,1179 @@
 [
   {
+    "id": "admitodds-ai-college-admissions-platform",
+    "name": "AdmitOdds - AI College Admissions Platform",
+    "name_en": "AdmitOdds - AI College Admissions Platform",
+    "origin": "美国",
+    "one_liner": "AdmitOdds 让高中生上传 Common App 换录取判断与改进清单，MRR $402，22 个活跃订阅，客单价 $18.27。",
+    "category": "垂直行业 SaaS",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 402.0,
+      "last_30d_revenue": 380.0,
+      "all_time": 2844.0,
+      "subscriptions": 22,
+      "growth_30d": -4.7,
+      "mrr_growth_30d": -4.7,
+      "revenue_growth_30d": -15.6,
+      "headline": "MRR $402，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $402（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $380、累计 $2,844、付费订阅 22 户。最近完整月环比 +70.0%（已剔除当月残月）。近 30 天 MRR 增速 -4.7%。⚠ 同期收入增速为 -15.6%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $600 → 最近完整月 $510，留存 85%。挂牌 $15,000、倍数 3.29x（要价不等于收入）。⚠ 队列缓存值是 2026-10-26 采集时的快照（当时 $402），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 4,
+      "capital": 1,
+      "timing": 3
+    },
+    "verdict": "学生以为买的是“我能不能录”的答案，实际买的是付款当天就能拿到的那份改写清单——录取结果要几个月后才被验证，$19.99 在验证之前就已经收完。",
+    "what_it_does": "产品形态为网页端加 iOS App：学生上传自己的 Common App，系统给出一份录取判断和一份改进路线图。创始人为 Tommy Wall，成立时间 2026-01-07，注册地美国，收款走 Stripe，收入数字由支付网关 API 直读。当前 MRR $402，活跃订阅 22 个，累计已验证收入 $2,844。档案自述团队 2–5 人、Bootstrapped、用户数 1000，这三项均未经二次核实。",
+    "how_it_makes_money": "两档定价：$20/月 或 $149/年（档案自述）。客单价引用素材已算好的 $18.27（MRR $402 ÷ 22 个活跃订阅），低于 $20 挂牌月价，与年付 $149 摊薄单月实收一致。近 30 天日收入表里的进账额全是 $19.99 的整数倍（$19.99、$39.98、$59.97），说明结账端实扣 $19.99 而非 $20。近 30 天已验证收入 $320，累计 $2,844，毛利率 71%（档案自述）。",
+    "why_it_works": [
+      "结账端实扣 $19.99，落在高中生自己或家长当场能拍板的额度内，所以档案自述的 2–5 人团队不设销售也能进账：近 30 天日收入表里有成交的日子，进账额是 $19.99、$39.98、$59.97，全是同一档位的小额自付，没有一笔像要走审批流程的采购单。",
+      "年付 $149 把客单价压到 $18.27（低于 $20 月价），换来的是全额一次性到账：近 30 天日收入表里有 22 天进账为 $0，收款呈脉冲状，预付档正好把这些空档填平，比纯月付更抗这种时有时无的现金流。",
+      "毛利率 71%（档案自述）说明 AI 推理与支付成本合计不到收入的三成，因此不必按用量分层定价，只需要 $20 月付和 $149 年付两档：结账页只有一个选择点，这是它靠 22 个订阅、$402 MRR 就能跑起来的直接原因。"
+    ],
+    "playbook": [
+      "把定价压进“一个人当场能决定”的额度，同时挂一个年付一次性档：小额月付负责降低决策门槛，高价年付负责在收款脉冲之间填空档，两档之间只留一个选择点。",
+      "交付物拆成两段：先出一份当天就能拿到、能截图转发的结论，再附一份改动清单。结论负责成交，清单负责让人觉得钱没白花——因为结论本身要等几个月才被验证。",
+      "把用户已有的原始材料当唯一输入（上传 Common App），不做问卷、不做手工填表：输入即交付，把一次会话里的摩擦点压缩到一个上传动作。",
+      "用支付网关 API 直读收入并公开：X 粉丝只有 157 个的团队没有品牌背书，就把 $402 MRR、22 个订阅这种可核验的实数摆出来，用可查的账本替代品牌信用。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "把 $2,844 当作 ARR / 年化经常性收入",
+        "truth": "它是自 2026-01-07 成立以来的累计已发生收入（All time = Last 12 months = $2,844），不是前瞻性的 ARR；当前 MRR 仅 $402。",
+        "source": "https://trustmrr.com/startup/admitscore.md"
+      },
+      {
+        "claim": "把近 30 天收入 $380 与 MRR $402 当成同一口径谈增长",
+        "truth": "两者口径不同：$380 是近 30 天已发生流水（增速 -15.6%），$402 是当前 MRR 快照（增速 -4.7%）；一次性入账会造成背离，讲增长应统一用 MRR。",
+        "source": "https://trustmrr.com/startup/admitscore.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 公开档案页 admitscore（Stripe API key 直读收入，2026-10-28 同步）",
+        "url": "https://trustmrr.com/startup/admitscore.md",
+        "kind": "stripe"
+      }
+    ],
+    "published_from": "admitodds-ai-college-admissions-platform",
+    "verified_at": "2026-10-29",
+    "updated_at": "2026-10-29",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（stripe），按默认政策进精品池",
+    "quality_score": 30,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "clamshell",
+    "name": "Clamshell",
+    "name_en": "Clamshell",
+    "origin": "匈牙利",
+    "one_liner": "Mac 菜单栏工具 Clamshell：合盖后机器继续运行、免管理员密码，近 30 天已验证收入 $588（支付网关直读），一次性定价 $9.99。",
+    "category": "开发者工具",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "last_30d",
+    "metrics": {
+      "mrr": 0.0,
+      "last_30d_revenue": 558.0,
+      "all_time": 904.0,
+      "subscriptions": 0,
+      "growth_30d": 0.0,
+      "mrr_growth_30d": 0.0,
+      "revenue_growth_30d": 198.1,
+      "headline": "近 30 天收入 $558，TrustMRR 实时核对（非订阅制，MRR 恒 0）",
+      "metric_note": "实测口径：近 30 天已验证收入 $558（非订阅制/买断制业务，MRR 恒 0，本条门面口径为近 30 天流水，含一次性与用量收入，别当经常性收入引用；TrustMRR 从支付网关 API 直读，2026-10-28 同步，Lemon Squeezy (API key)）。近 30 天收入 $558、累计 $904、付费订阅 0 户。最近完整月环比 +29.7%（已剔除当月残月）。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 +198.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $188 → 最近完整月 $188，留存 100%。挂牌 $15,000、倍数 2.69x（要价不等于收入）。⚠ 刷新前该条目没有任何收入数字（早期入库时收入未公开），本次首次补齐。",
+      "caliber": "last_30d"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 2
+    },
+    "verdict": "它真正卖的是「任务不中断」，并非「合盖也能用」：客户以为买的是一个盖子开关，实际买的是 agent 与下载不会因合盖被掐断，$9.99 只是这份保险的标价。",
+    "what_it_does": "一个用原生 Swift 写的 macOS 14+ 菜单栏小工具：合上 MacBook 盖子后机器继续运行，屏幕保持黑屏但仍可用，既不需要外接显示器，也不需要管理员密码或特权 helper，因此能撑住跑在本机上的 computer-use agent 与远程会话。开发方是布达佩斯的 Clamshell Kft.，创始人为 Matyas，档案里的成立时间是 2026-05-28。分发有两条渠道：官网 clamshell.dev 直售（档案自述 90+ 份授权）与 Setapp（档案自述约 600 月度活跃用户）。档案自述用户数 650。",
+    "how_it_makes_money": "一次性买断，两档：$9.99 终身 1 台、$19.99 终身 3 台；另有 Setapp 渠道分成，档案自述约 600 月度活跃用户、属经常性收入，分成金额未公开。该产品非订阅制（MRR 为 0），因此只按支付网关直读口径记录：近 30 天已验证收入 $588、近 24 小时 $40.38、累计 $944。素材给的口径是「订阅数未公开」，客单价无法推算，不做硬算。",
+    "why_it_works": [
+      "档案自述里，Clamshell 两样都不要：管理员密码与特权 helper；而同类的合盖工具往往两样都需要。安装摩擦因此从「改系统权限」降到「拖进应用程序」，对 $9.99 这种冲动价来说，一个权限弹窗就足以让人放弃购买。",
+      "逐日流水（支付网关直读）里反复出现 $9.99、$19.98 这样的单笔与双笔金额，2026-10-26 单日 $69.44。一次性低价的决策成本低于用户自己查教程、装内核扩展的时间成本，用户买的是省事而不是功能。",
+      "X 粉丝只有 18，档案自述用户数 650，收入来自 Setapp 这个有付费用户的平台池（档案自述约 600 月度活跃用户）与搜索，不依赖创始人个人流量，因此单人团队不需要自建获客。"
+    ],
+    "playbook": [
+      "先把竞品安装流程里的权限弹窗逐个列出来，能省掉一个，就把「不需要管理员密码」写成落地页第一句，因为权限摩擦是可以量化并从产品里删掉的一项成本。",
+      "定价时采用 $10 量级的一次性买断，促使客户冲动下单；同时把同一款产品上架到有付费用户基数的订阅平台，获得经常性收入。两条收入口径分开记账，不要把平台分成折算成 MRR。",
+      "按支付网关的逐日流水反推卖出去的是哪一档（$9.99 单机档还是 $19.99 三机档），调整价格参照点，不要用后台的总用户数去猜。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "历史峰值 $188，最近完整月 $188，留存 100%",
+        "truth": "原文月度表显示 2026-10 已验证收入已达 $547（当月尚未结束，属残月），已明显超过 $188；$188 只是 2026-09 的完整月数字，不能当作‘历史峰值’。",
+        "source": "https://trustmrr.com/startup/clamshell.md"
+      },
+      {
+        "claim": "近 30 天收入增速 +198.1%（可与 MRR 增速并列解读为增长）",
+        "truth": "原文 Current MRR 为 $0.00、active subscriptions 为 0，MRR 增速是 0% 的空值口径；+198.1% 只是近 30 天一次性流水的环比，不是经常性收入增长，两者不可混用。",
+        "source": "https://trustmrr.com/startup/clamshell.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 收入页（Lemon Squeezy API 直读，含日/月流水表与定价信息）",
+        "url": "https://trustmrr.com/startup/clamshell.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "clamshell.lemonsqueezy.com 官方售卖页（渲染后正文缺失，仅存 meta 摘要）",
+        "url": "https://clamshell.lemonsqueezy.com",
+        "kind": "official"
+      }
+    ],
+    "published_from": "clamshell",
+    "verified_at": "2026-10-29",
+    "updated_at": "2026-10-29",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 80,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "colorcraft",
+    "name": "ColorCraft",
+    "name_en": "ColorCraft",
+    "origin": "美国",
+    "one_liner": "ColorCraft 把一句话做成过 KDP 检查的 PDF，MRR $1,483，77 个订阅，一人运营。",
+    "category": "AI 工具",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 1332.0,
+      "last_30d_revenue": 1348.0,
+      "all_time": 5791.0,
+      "subscriptions": 69,
+      "growth_30d": 18.8,
+      "mrr_growth_30d": 18.8,
+      "revenue_growth_30d": 23.8,
+      "headline": "MRR $1,332，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $1,332（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $1,348、累计 $5,791、付费订阅 69 户。最近完整月环比 +77.1%（已剔除当月残月）。近 30 天 MRR 增速 +18.8%。⚠ 同期收入增速为 +23.8%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $1,130 → 最近完整月 $1,130，留存 100%。挂牌 $55,000、倍数 3.30x（要价不等于收入）。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $1,329），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 2,
+      "capital": 1,
+      "timing": 3
+    },
+    "verdict": "客户以为买的是 AI 出图，实际买的是「导出即过审」：封面展开尺寸按页数算好、文件过得了 KDP 检查。图可以换任何一家生成，过审那一步换不掉。",
+    "what_it_does": "自助出版者输入一句话，它就生成涂色书、角色前后一致的故事书、带字漫画书或解谜书；每一页都可以改，然后导出 KDP 可直接提交的 PDF。封面展开尺寸按最终页数自动算好，也可以直接下单印实体书，或上架到 ColorCraft Bookstore 由读者购买。创始人 John Kirby，2025-05-05 成立，注册地美国。档案自述团队 1 人、用户数 3500（未经二次核实）。当前 77 个活跃订阅，MRR $1,483，收入数字由 Stripe API 直读。",
+    "how_it_makes_money": "7 天免费试用需绑卡，试用结束后按月订阅，档案自述价位从 $9 到 $119。客单价 $19.26 由素材直接给出（MRR ÷ 活跃订阅数，支付网关直读），77 个活跃订阅对应 MRR $1,483。近 30 天已验证收入 $1,490，与 MRR 只差 $7。累计 $5,933，约为当前 MRR 的 4 倍。$9 与 $119 之间具体分几档、各档差在哪里，未公开。",
+    "why_it_works": [
+      "近 30 天日收入里 2026-10-01、10-03、10-08 三天为 $0，单日最高 $174（10-28），最低 $9：成交与续费集中在少数日子，不是每天都有新客进来。订阅制让 77 个订阅把现金流摊到整月，挂零的那三天不影响 MRR $1,483 的存在——这是月付结构对脉冲式获客的缓冲。",
+      "$9 在近 30 天里单独出现 5 次（10-10、10-20、10-22、10-26、10-29），是最低档；而客单价 $19.26 比 $9 高约一倍，说明成交没有全部停在入口价。$9 到 $119 跨 13 倍，入口价负责让人越过「绑卡试用」这道门，需要批量出书的用户被产量顶到更高档。",
+      "7 天免费试用必须绑卡，试用结束就走自动扣款；档案自述团队 1 人、毛利率 90%。没有销售、没有客服团队还能持续收款，是因为「能不能用」被压缩在 7 天试用里自己验证完，而不是靠售前沟通说服。"
+    ],
+    "playbook": [
+      "把行业里被搜得最多的那个规格问题做成产品的默认输出，而不是写成一篇博客。ColorCraft 把封面展开尺寸按页数算进导出流程，档案里唯一接通的流量工具是 Google Search Console，Google Analytics 与 DataFast 都未连接。",
+      "试用期设 7 天并要求绑卡，把转化动作挂在试用结束的自动扣款上，不挂在销售对话上。结果是 77 个订阅由一个人维护，近 30 天已验证收入 $1,490。",
+      "让交付物对齐客户下游渠道的验收标准，而不是留在自家平台里当成品。产出是能过 KDP 检查的 PDF 和按页数算好的封面展开，客户拿到手就能直接提交，产品不需要替客户做最终分发。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "ColorCraft 收入是「近 30 天 $1,348」或「累计 $5,791」",
+        "truth": "这是订阅制生意，门面数字应取 Current MRR $1,332；$1,348 是近 30 天已验证流水、$5,791 是 all-time 累计，两者都不是 MRR，更不是 ARR",
+        "source": "https://trustmrr.com/startup/colorcraft.md"
+      },
+      {
+        "claim": "累计收入 $5,791 可年化为 ARR 约 $5.8K",
+        "truth": "$5,791 是自 2025-11 起的全部历史流水（月度时间线 2025-11 $90 至 2026-10 $1,247 之和），属 lifetime 口径；页面未给出任何 ARR 字段",
+        "source": "https://trustmrr.com/startup/colorcraft.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 官方 Markdown 档案（Stripe API 直读收入、订阅数、MRR 快照）",
+        "url": "https://trustmrr.com/startup/colorcraft.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "ColorCraft 官网（功能、定价 $9/月起、7 天试用、40,000+ 页 / 1,400+ 创作者）",
+        "url": "https://colorcraft.ai/",
+        "kind": "official"
+      }
+    ],
+    "published_from": "colorcraft",
+    "verified_at": "2026-10-29",
+    "updated_at": "2026-10-29",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 60,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "kodo",
+    "name": "Kodo",
+    "name_en": "Kodo",
+    "origin": "加拿大",
+    "one_liner": "Kodo 是浏览器端的 AI 设计工作区，把对话生成的设计做成可改的元素，MRR $1,604，107 个活跃订阅，客单价 $14.99。",
+    "category": "AI 工具",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 1553.0,
+      "last_30d_revenue": 1491.0,
+      "all_time": 11128.0,
+      "subscriptions": 105,
+      "growth_30d": -2.8,
+      "mrr_growth_30d": -2.8,
+      "revenue_growth_30d": -4.9,
+      "headline": "MRR $1,553，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $1,553（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $1,491、累计 $11,128、付费订阅 105 户。最近完整月环比 +4.3%（已剔除当月残月）。近 30 天 MRR 增速 -2.8%。⚠ 历史峰值 $1,739 → 最近完整月 $1,622，留存 93%。挂牌 $100,000、倍数 5.54x（要价不等于收入）。⚠ 队列缓存值是 2026-10-26 采集时的快照（当时 $1,566），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 3,
+      "distribution": 2,
+      "capital": 1,
+      "timing": 3
+    },
+    "verdict": "客户以为自己买的是「AI 出图更快」，实际买的是「出完还能改」：一次性生成的平面图改不动就只能重做，Kodo 把文字、图片、布局拆成可替换的元素，客户付的是不用重做的钱。",
+    "what_it_does": "Kodo 是一个在浏览器里运行的设计工作区：用户以对话方式生成演示文稿、社交帖、海报和菜单，生成之后能自己改文字、换图、调布局，把字体、颜色和 logo 存进品牌套件，再导出为 PDF、PowerPoint 或图片文件。创始人 Michael Goldstein，上线时间 2025-10-11，登记地加拿大，自筹资金，团队规模未公开。收入由支付网关 Stripe 接口直读：当前 MRR $1,604，活跃订阅 107 个，累计 $11,200。档案自述用户数 30,000、毛利率 69%，这两项未经二次核实。",
+    "how_it_makes_money": "免费增值模式分三档：免费档给 30 额度；付费每月 $12、$39、$99，分别对应 100、350、1000 额度，年付省 17%，这套定价为档案自述。客单价 $14.99 由素材算好，高于最低付费档 $12，说明付费并不全部集中最便宜的那一档；各档具体人数素材未披露。当前 MRR $1,604 由 107 个活跃订阅支撑，近 30 天已验证收入 $1,523，累计 $11,200，毛利率 69% 为档案自述。",
+    "why_it_works": [
+      "客单价 $14.99 高于最低付费档 $12（定价为档案自述），说明 107 个订阅不全压在最便宜那档；机制是品牌套件把字体、颜色、logo 存成工作区里的持久资产，客户第二次做物料时启动成本低于第一次，迁移成本上升后对价格的敏感度下降。",
+      "导出格式里有 PowerPoint 而不只是图片；机制是 PPT 是职场里要交给别人继续改的格式，产出能被下游接手才算可复用，所以「可编辑」对这类买家不是加分项，而是入场条件。",
+      "免费档只给 30 额度、付费按 100、350、1000 额度分三档、$12 到 $99 跨 8 倍；机制是付费墙卡在「量」而不是「功能」上，试用者跑完的是一次完整交付，升级动机来自用完了，而不是来自解锁被锁住的功能。",
+      "月度已验证收入 2026-05 $1,493、2026-06 $1,739、2026-07 $1,469、2026-08 $1,555，四个月落在同一区间；机制是这笔收入由订阅的月度续费构成底盘，月度值不随单次活动大起大落，稳定性来自订阅基数而非新增，反过来任何续费波动也会直接落到 MRR 上。"
+    ],
+    "playbook": [
+      "把 AI 的产出拆成可单独替换的三层，即文案、图片、布局，导出时保留分层格式（PPT、PDF）。客户改一个字不必重跑一次生成，返工成本从「重做」降到「编辑」。",
+      "用用量而不是功能做付费墙：免费给一个固定的 30 额度，付费按 100、350、1000 分档，价格 $12、$39、$99。让免费用户完整跑完一次交付，付费发生在额度耗尽时。",
+      "让客户把品牌资产（字体、颜色、logo）存进工作区并跨项目调用。第二次使用的启动成本低于第一次，续订来自省事，而不是来自合同锁定。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [],
+    "sources": [
+      {
+        "label": "TrustMRR 官方 startup 页（Stripe API 直读收入）",
+        "url": "https://trustmrr.com/startup/kodo.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "平台发布页（自荐，非独立评测） ｜ Product Hunt 2026-03-04 发布：#3 Product of the Day、387 upvotes、36 评论；mak",
+        "url": "https://www.producthunt.com/products/kodo-3/launches/kodo-3",
+        "kind": "producthunt"
+      }
+    ],
+    "sources_from_candidate": [
+      "https://www.producthunt.com/products/kodo-3/launches/kodo-3"
+    ],
+    "published_from": "kodo",
+    "verified_at": "2026-10-29",
+    "updated_at": "2026-10-29",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（stripe），按默认政策进精品池",
+    "quality_score": 15,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "freelance-writing-club",
+    "name": "Freelance Writing Club",
+    "name_en": "Freelance Writing Club",
+    "origin": "美国",
+    "one_liner": "Freelance Writing Club 用工作日每日一封人工筛选的约稿邮件，做到 MRR $1,469、304 个活跃订阅。",
+    "category": "news magazines",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 1474.0,
+      "last_30d_revenue": 1726.0,
+      "all_time": 7341.0,
+      "subscriptions": 305,
+      "growth_30d": 12.0,
+      "mrr_growth_30d": 12.0,
+      "revenue_growth_30d": 4.6,
+      "headline": "MRR $1,474，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $1,474（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $1,726、累计 $7,341、付费订阅 305 户。最近完整月环比 +8.9%（已剔除当月残月）。近 30 天 MRR 增速 +12.0%。⚠ 同期收入增速为 +4.6%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $1,645 → 最近完整月 $1,645，留存 100%。挂牌 $20,000、倍数 1.10x（要价不等于收入）。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $1,408），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 1,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 2
+    },
+    "verdict": "它卖的不是约稿信息，是「不用自己筛」：$4.83 的月费买的是别人替你把骗稿和低价单剔掉；客户以为在买更多活源，实际在买筛选后的可信度。",
+    "what_it_does": "产品形态是一封在工作日发送的邮件通讯：人工挑选并核实的自由撰稿约稿按天汇总，订阅者不必自己翻招聘板。免费版可看部分内容，付费版 $5/月或 $50/年解锁全部。档案记录的成立时间为 2026-04-07，注册地美国，创始人未公开；团队规模 1 人、用户数 12,500、毛利率 87% 均为档案自述，未经二次核实。当前活跃订阅 304 个，X 粉丝数为 0，收入口径全部来自 Stripe API 直读。",
+    "how_it_makes_money": "两档定价：免费版，付费版 $5/月或 $50/年。当前活跃订阅 304 个，MRR $1,469，MRR 较上月 +12.4%（支付网关直读），客单价按素材已算好的 $4.83 直接引用（MRR ÷ 活跃订阅数）。年付 $50 等于 10 个月月费，比按月付满 12 个月少 $10。近 30 天已验证收入 $1,731，累计 $7,376，均来自 Stripe API 直读。",
+    "why_it_works": [
+      "客单价 $4.83、活跃订阅 304 个：这个价位低于用户每次评估「要不要退订」的决策成本，续订成为默认动作；MRR $1,469 由 304 份小额订阅分摊，单用户流失只影响 $4.83，收入曲线因此抗抖动。",
+      "年付 $50 对比月付 $5 连付 12 个月：年付把 12 个月现金一次性收进，锁定期内这批用户不进入月度流失池；2026-04 的 $110 到 2026-09 的 $1,645 的月度收入爬升，说明预付档在早期就承担了现金流。",
+      "团队 1 人、毛利率 87%（均为档案自述）：付费墙后卖的是编辑的人工筛选时间，不是服务器或算力，成本随订阅数增长的速度低于收入，所以 304 个订阅就能支撑单人运营并维持高毛利。"
+    ],
+    "playbook": [
+      "把收费点放在「已剔除」而不是「已聚合」：免费档给数量，$5/月的付费档卖人工筛过的那一份。任何信息过载行业都可照搬——聚合免费，剔除收费。",
+      "定价设成 $5/月加 $50/年，年付刚好等于 10 个月月费：给出两个月价差，把一部分用户的付款周期从月拉到年，现金前置并减少月度续订决策次数。",
+      "把支付网关收入数据接到第三方验证页公开（本案 MRR $1,469、累计 $7,376 均为 API 直读）：对一个卖「可信筛选」的产品，收入可核本身就是筛选能力的证据，可替代案例与口碑素材。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "近 12 个月 $7,341 可当作 ARR 或年化收入",
+        "truth": "这是成立以来（2026-04 起）的累计已验证收入，All time 与 Last 12 months 同为 $7,341，只是恰好不足一年，不是前瞻性 ARR",
+        "source": "https://trustmrr.com/startup/freelance-writing-club.md"
+      },
+      {
+        "claim": "MRR $1,474 就是近 30 天赚到的钱",
+        "truth": "近 30 天已验证收入为 $1,721（另有快照 $1,726），MRR 是按活跃订阅折算的经常性口径，两者相差约 $250，不能互相替代",
+        "source": "https://trustmrr.com/startup/freelance-writing-club.md"
+      },
+      {
+        "claim": "付费订阅数为 265",
+        "truth": "『Additional info』里写 265 paid subscribers，是创始人自述的旧值；同一页面 Metric Snapshots 的实测值为『Current active subscriptions: 305』，应以 305 为准",
+        "source": "https://trustmrr.com/startup/freelance-writing-club.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 收入页（Stripe API key 直读）",
+        "url": "https://trustmrr.com/startup/freelance-writing-club.md",
+        "kind": "stripe"
+      }
+    ],
+    "published_from": "freelance-writing-club",
+    "verified_at": "2026-10-29",
+    "updated_at": "2026-10-29",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（stripe），按默认政策进精品池",
+    "quality_score": 40,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "lapsula",
+    "name": "Lapsula",
+    "name_en": "Lapsula",
+    "origin": "西班牙",
+    "one_liner": "西班牙诊所管理 SaaS，Stripe 直读 MRR $1,429，60 个活跃订阅，客单价 $23.82。",
+    "category": "Health & Fitness",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 1426.0,
+      "last_30d_revenue": 2450.0,
+      "all_time": 19098.0,
+      "subscriptions": 60,
+      "growth_30d": -73.9,
+      "mrr_growth_30d": -73.9,
+      "revenue_growth_30d": 23.9,
+      "headline": "MRR $1,426，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $1,426（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $2,450、累计 $19,098、付费订阅 60 户。最近完整月环比 +73.6%（已剔除当月残月）。近 30 天 MRR 增速 -73.9%。⚠ 同期收入增速为 +23.9%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $2,273 → 最近完整月 $2,273，留存 100%。挂牌 $65,000、倍数 4.66x（要价不等于收入）。⚠ 队列缓存值是 2026-10-26 采集时的快照（当时 $1,437），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 2
+    },
+    "verdict": "它卖的不是诊所管理软件，是「一个空时段值多少钱」的算术：€14.99 一个月，拦下一次爽约就回本；但撑着 $19,098 累计收入的，不是这份只有 $1,429 的月费。",
+    "what_it_does": "Lapsula 是面向西班牙心理学与物理治疗诊所的预约与诊所管理 SaaS，功能含在线预约、减少爽约、在线收款与客户留存（档案自述）。官网自述 2023 年起运营、覆盖 50 余家诊所，而 TrustMRR 档案记录的成立时间为 2024-06-27，两个时间口径不一致。技术栈为 TypeScript（档案自述）。当前活跃订阅 60 个、MRR $1,429，均来自 Stripe API 直读；创始人未公开，团队规模 2–5 人（档案自述），档案自述还提到做过一次国际 AppSumo 推广活动，未披露成交条款。",
+    "how_it_makes_money": "定价分四档（档案自述，欧元计价）：Free €0、Starter €14.99 每月 + VAT、Pro €34.99 每月 + VAT、Enterprise 需联系。按素材已算好的口径，MRR $1,429 ÷ 60 个活跃订阅 = 客单价 $23.82，落在 Starter 与 Pro 之间。但近 30 天已验证收入 $2,450 高于当前 MRR $1,429，且 MRR 增速为 -73.9%，说明当期收款里有相当部分不是按月订阅。毛利率 79%（档案自述，未经二次核实）。",
+    "why_it_works": [
+      "客单价 $23.82 对应 Starter €14.99 与 Pro €34.99 两档（档案自述），意味着大部分订单由诊所前台自己就能签，不必走机构采购与比价流程；销售环节被省掉，2–5 人的团队（档案自述）才有可能同时服务 60 个订阅。",
+      "2026-10-18 单日收入 $1,188，而 10-19 至 10-24 连续 6 天为 $0：收入集中在少数几笔一次性收款上，而不是按月摊平。同月近 30 天收入 $2,450 高于当前 MRR $1,429、MRR 增速为 -73.9%，正是同一件事的两面——一次性收款先把钱收了，后续月份就不再计入 MRR。",
+      "月度时间线从 2025-11 的 $766 到 2026-10 的 $2,094，12 个月里最低 $701、最高 $2,273，没有归零的月份：诊所把患者档案和预约记录搬进系统后，更换成本落在迁移动作上而不是价格上，因此低价档也没有出现整批退订。",
+      "客群被语言锁在西班牙语诊所内，50 余家同行（档案自述）构成一个彼此可打听的圈子：同行之间能直接问「你在用哪个」，获客靠推荐而不是投放，这也是 X 粉丝为 0 仍能有 60 个活跃订阅的原因之一。"
+    ],
+    "playbook": [
+      "定价先切一条「使用者本人就能决定」的线：€14.99 这一档不需要老板签字，试用转付费的摩擦就只剩填写诊所信息；客单价 $23.82 说明低价档同样能撑起 60 个订阅。",
+      "把「收入」和「MRR」两张表分开记：素材里近 30 天 $2,450 与 MRR $1,429、MRR 增速 -73.9% 同时存在，若只看一张表就会误判生意在涨还是在缩。",
+      "先在一个语言边界清楚的市场做满几十家同行，再谈跨语言扩张：50 余家诊所（档案自述）集中的是同一个语种，推荐链条短，翻译成本为零。",
+      "做一次性促销活动时，把后续月份的 MRR 下滑提前写进预期：一次性收款会占用未来月费，账面 MRR 下滑不等于客户流失，但需要提前向自己和投资人解释清楚。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "近 30 天已验证收入 $2,450 可以当经常性收入基数（≈$29.4k ARR）来报价",
+        "truth": "这 $2,450 里含 2026-10-18 单日 $1,188 的一次性/预付入账（对应简介里的 AppSumo campaign），MRR 只有 $1,426，两者不能混用",
+        "source": "https://trustmrr.com/startup/lapsula.md"
+      },
+      {
+        "claim": "近 30 天 MRR 增速 -73.9%（据此讲『大幅下滑』）",
+        "truth": "若 -73.9% 成立，一个月前 MRR 需约 $5,463，而月度已验证收入峰值仅 $2,273（2026-09），该增速与收入序列矛盾，不可用于增长叙事；同期收入增速反而是 +23.9%",
+        "source": "https://trustmrr.com/startup/lapsula.md"
+      },
+      {
+        "claim": "平台自 2023 年起运营（Description 自述）",
+        "truth": "同一页 Profile 的 Founded date 为 2024-06-27，与『since 2023』不一致，成立年份存疑",
+        "source": "https://trustmrr.com/startup/lapsula.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 收入页（Stripe API 直读，2026-10-28 同步）",
+        "url": "https://trustmrr.com/startup/lapsula.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "平台在架页（sellerUrl 缺失，非严格锚点） ｜ App Store 在架：id6502221157，开发者法定名 Lapsula, SL（西班牙），官网 Pricing 页亦写明提供 iO",
+        "url": "https://apps.apple.com/es/app/lapsula/id6502221157",
+        "kind": "appstore"
+      }
+    ],
+    "sources_from_candidate": [
+      "https://apps.apple.com/es/app/lapsula/id6502221157"
+    ],
+    "published_from": "lapsula",
+    "verified_at": "2026-10-29",
+    "updated_at": "2026-10-29",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（stripe），按默认政策进精品池",
+    "quality_score": 35,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "agent-media",
+    "name": "Agent Media",
+    "name_en": "Agent Media",
+    "origin": "美国",
+    "one_liner": "Agent Media 用 Claude、ChatGPT 或 Codex 生成固定演员阵容的 AI 短剧系列，MRR $2,116，活跃订阅 184 个。",
+    "category": "AI 工具",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 2110.0,
+      "last_30d_revenue": 2859.0,
+      "all_time": 3026.0,
+      "subscriptions": 182,
+      "growth_30d": 1422.6,
+      "mrr_growth_30d": 1422.6,
+      "revenue_growth_30d": 1730.4,
+      "headline": "MRR $2,110，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $2,110（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $2,859、累计 $3,026、付费订阅 182 户。最近完整月环比 +1872.0%（已剔除当月残月）。近 30 天 MRR 增速 +1422.6%。⚠ 同期收入增速为 +1730.4%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $197 → 最近完整月 $197，留存 100%。挂牌 $50,000、倍数 1.60x（要价不等于收入）。⚠ 队列缓存值是 2026-10-26 采集时的快照（当时 $1,821），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 2,
+      "capital": 1,
+      "timing": 3
+    },
+    "verdict": "它卖的不是「生成一条短剧」，是「角色不出戏」：客户以为在买片子，实际在为跨集不换脸的连续性付费，而 $11.5 的客单价说明这仍是一次小额试探。",
+    "what_it_does": "Agent Media（档案 slug：veloris-llc）是一个订阅制网页产品，官网一句话是「Short drama series from Claude, ChatGPT or Codex. Same cast every episode.」：用户在与模型的一次对话里产出一整季短剧，每一集沿用同一批角色；档案自述称不需要真人拍摄与剪辑。创始人 Yuval Suede，注册地美国，成立日期 2025-04-03。支付网关 Stripe（API key 直读），同步时间 2026-10-29。当前活跃订阅 184 个，X 粉丝 77。收入记录最早出现在 2026-08，金额 $9.99。",
+    "how_it_makes_money": "订阅制。档案自述定价为 starting $49/month，但实际计费口径不同：当前 MRR $2,116（Stripe API 直读）÷ 184 个活跃订阅，素材已算好客单价 $11.5。也就是说，184 个订阅中的多数并非按 $49 起价付费，档位分布未公开。近 30 天已验证收入 $2,850，累计 $3,041。毛利率 70%（档案自述，未经二次核实）。",
+    "why_it_works": [
+      "官方定位只承诺一件事——「Same cast every episode」，把卖点压在跨集角色一致而非画质或时长上；机制是客户一旦开了一个系列，换工具等于角色重铸，迁移成本随集数累积，所以 184 个活跃订阅对应的是持续生成需求，不是一次性导出。",
+      "客单价 $11.5 远低于档案自述的 $49/月起价：低门槛档位降低了「先试一集」的决策摩擦，订阅数先于收入规模建立；机制是内容工具的付费意愿取决于第一次产出是否可用，小额档把这次试错的成本压到接近零。",
+      "MRR 近 30 天 +1361.7%，但月度收入时间线只有 3 段（2026-08 $9.99、2026-09 $197、2026-10 $2,834），首个完整收入月基数极低；机制是分母太小时任何单日波动都会被放大成三位数百分比，因此这个数字只能读作「刚开卖」，不能读作增长曲线。"
+    ],
+    "playbook": [
+      "把交付物做成「可复用的实体」而不是「可复用的模板」：像这个产品只承诺同一批演员每集出场一样，在你的品类里锁定一个跨次不变的要素（角色 ID／风格 ID／客户品牌资产），让客户每多做一次，离开的成本就高一分。",
+      "定价拆两层：对外标一个高位起价（档案自述 $49/月）作为锚，实际用远低于锚的档位（实测客单价 $11.5）先换订阅数；升级路径挂在用量上而不是功能上，这样早期收入低但订阅基数能起来。",
+      "把分发挂在宿主平台的关键词上：产品名与官网一句话里直接写入 Claude、ChatGPT、Codex 三个模型名，等于借用别人的搜索词获客；对照指标是自有社媒只有 77 个 X 粉丝，说明它没在自建流量池上投入。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "付费订阅 182 户，可与 MRR $2,110 并列作为规模信号",
+        "truth": "182 户 × 官网最低档 $49/mo ≥ $8,918/月，与同页 Stripe 直读的 Current MRR $2,110、2026-10 当月已验证收入 $2,819 相差约 4 倍，二者不可能同时为真；以流水为准，$2,110 MRR 与当月收入自洽，182 户这个数字不应引用。",
+        "source": "https://trustmrr.com/startup/veloris-llc.md"
+      },
+      {
+        "claim": "MRR 近 30 天增速 +1422.6%、收入增速 +1730.4% 可作为增长故事",
+        "truth": "增速建立在极小基数上：月度已验证收入 2026-08 为 $9.99、2026-09 为 $197、2026-10 为 $2,819，累计总收入仅 $3,026，属上线首月级别的爬坡，不是稳态增长率。",
+        "source": "https://trustmrr.com/startup/veloris-llc.md"
+      },
+      {
+        "claim": "可用 MRR 推算 ARR / 把累计 $3,026 或近 30 天 $2,859 当作经常性收入",
+        "truth": "累计 $3,026 是 all-time 已发生收入，近 30 天 $2,859 是滚动 30 天已发生收入（其中含 $1 试看单集等一次性入账），都不能当 MRR/ARR；该生意门面数字用 Stripe 直读的 Current MRR $2,110。",
+        "source": "https://trustmrr.com/startup/veloris-llc.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 公开档案页（Stripe API key 直读的已验证收入 / MRR / 流水）",
+        "url": "https://trustmrr.com/startup/veloris-llc.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "agent-media 官网（定价、订阅条款、退款政策、产品流程）",
+        "url": "https://agent-media.ai",
+        "kind": "official"
+      }
+    ],
+    "published_from": "agent-media",
+    "verified_at": "2026-10-29",
+    "updated_at": "2026-10-29",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 80,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "lyro",
+    "name": "Lyro",
+    "name_en": "Lyro",
+    "origin": "英国",
+    "one_liner": "AI 歌曲生成器 Lyro Music：把文字描述、人声或伴奏做成混音母带成品，支付网关直读 MRR $3,142，活跃订阅 179 份。",
+    "category": "AI 工具",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 2924.0,
+      "last_30d_revenue": 2172.0,
+      "all_time": 2286.0,
+      "subscriptions": 169,
+      "growth_30d": 3113.2,
+      "mrr_growth_30d": 3113.2,
+      "revenue_growth_30d": 1805.3,
+      "headline": "MRR $2,924，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $2,924（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $2,172、累计 $2,286、付费订阅 169 户。月度时间线不足两个月，不给环比结论。近 30 天 MRR 增速 +3113.2%。⚠ 同期收入增速为 +1805.3%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。挂牌 $50,000、倍数 2.06x（要价不等于收入）。⚠ 队列缓存值是 2026-10-26 采集时的快照（当时 $2,738），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 3,
+      "distribution": 2,
+      "capital": 2,
+      "timing": 3
+    },
+    "verdict": "它卖的是一段能直接发布的成品，不是 AI 作曲能力：客户按 $14/$24 买 credits 名额，实际付钱买的是省掉歌手、制作人、录音棚这条链路的交付确定性。",
+    "what_it_does": "Lyro Music 是一个网页端 AI 歌曲生成器，用户输入一段文字描述、上传自己的人声或一段伴奏，几分钟内拿到一首已完成混音与母带的歌曲。档案记录的成立时间为 2026 年 9 月 21 日，注册地英国，创始人与团队规模均未公开。截至 2026 年 10 月 29 日支付网关同步，活跃订阅 179 份，当前 MRR $3,142。档案自述用户数 1,075，未经二次核实；X 粉丝数为 0。",
+    "how_it_makes_money": "订阅分两档：Starter $14/月含 80 credits，Creator $24/月含 300 credits、支持分轨导出并同时生成 3 首歌；另有 $15、$25、$58 的 credits 包与区域价 Starter $9/月（定价均为档案自述）。客单价素材已算好：MRR $3,142 ÷ 179 份活跃订阅 = $17.55，落在 $14 与 $24 两档之间。",
+    "why_it_works": [
+      "额度写进档位而不是无限量：Starter $14/月只给 80 credits，Creator $24/月给 300 credits，另外单卖 $15、$25、$58 的 credits 包。第三方音频模型的调用成本随生成次数线性上升，把次数做成明码额度等于把边际成本转给重度用户，这是档案自述 95% 毛利率能成立的结构原因（毛利率为档案自述，未经二次核实）。",
+      "Creator 档卖的不是更快，是分轨导出与同时生成 3 首：分轨是二次编曲和上架前的必要工序，把这道工序锁在 $24 档，有发布需求的用户就没有理由停在 $14；支付网关直读的客单价 $17.55 落在两档之间，说明确有一部分用户上探到高价档。",
+      "入口是搜索不是社媒：X 粉丝数为 0，近 30 天 Google Search 展示 8,427 次、访客 751 人（Search Console 接口直读），却跑出 179 份活跃订阅与 MRR $3,142。「AI song generator」这类查询本身带购买意图，搜索来的访客不需要先被内容教育，所以零粉丝也能成交。"
+    ],
+    "playbook": [
+      "把可变成本做成明码额度：最低档只给固定 credits，重度用户另外买 $15、$25、$58 的加量包。任何调用第三方 API 的产品都能这样把毛利结构锁死，而不是用「无限量」把成本风险留给自己。",
+      "高价档卖可交付格式，不卖速度：把分轨导出、批量并发生成这类「能不能直接拿去用」的能力单独放进 $24 档。换行业同理——升级理由应该是导出格式、批量、商用授权，而不是快几秒。",
+      "冷启动先押意图词，不押社媒粉丝：X 粉丝为 0、近 30 天搜索展示 8,427 次，仍跑出 179 份订阅。资源优先给能直接表达购买意图的搜索落地页，而不是先攒内容资产。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "MRR $2,924 就是已经到手的收入规模",
+        "truth": "MRR 是活跃订阅（169 户）折出的经常性口径；实际已发生收入为累计 $2,286、近 30 天 $2,172，MRR 高于累计已收现金",
+        "source": "https://trustmrr.com/startup/lyro.md"
+      },
+      {
+        "claim": "近 30 天增长 +3113.2% 可当作收入增长来讲",
+        "truth": "该数字是 'Last 30 days MRR growth'；同期 'Last 30 days revenue growth' 为 +1805.3%，两者背离，增长只能按 MRR 口径表述，不能混称收入增长",
+        "source": "https://trustmrr.com/startup/lyro.md"
+      },
+      {
+        "claim": "队列缓存快照 MRR $2,738 即为当前值",
+        "truth": "以 2026-10-28 同步的实测为准：Current MRR $2,924",
+        "source": "https://trustmrr.com/startup/lyro.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 官方公开档案页（收入经 Stripe API 直读验证）",
+        "url": "https://trustmrr.com/startup/lyro.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "Lyro Music 官网首页",
+        "url": "https://lyromusic.com",
+        "kind": "official"
+      }
+    ],
+    "published_from": "lyro",
+    "verified_at": "2026-10-29",
+    "updated_at": "2026-10-29",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 50,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "flint",
+    "name": "flint",
+    "name_en": "flint",
+    "origin": "美国",
+    "one_liner": "Flint 把基督教灵修做成 iMessage 里的聊天对象，无需下载 App，当前 MRR $1,671、139 个活跃订阅。",
+    "category": "AI 工具",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 1740.0,
+      "last_30d_revenue": 4421.0,
+      "all_time": 6946.0,
+      "subscriptions": 141,
+      "growth_30d": 3.9,
+      "mrr_growth_30d": 3.9,
+      "revenue_growth_30d": 87.3,
+      "headline": "MRR $1,740，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $1,740（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $4,421、累计 $6,946、付费订阅 141 户。最近完整月环比 +1866.2%（已剔除当月残月）。近 30 天 MRR 增速 +3.9%。⚠ 同期收入增速为 +87.3%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $2,969 → 最近完整月 $2,969，留存 100%。挂牌 $60,000、倍数 1.00x（要价不等于收入）。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $1,814），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 2
+    },
+    "verdict": "它卖的不是圣经内容，是「有人先想起你」——客户以为自己在买每日灵修习惯，实际付的是那条不用自己发起的问候。",
+    "what_it_does": "Flint 是一个跑在 iMessage 里的基督教信仰陪伴产品：用户像给朋友发消息一样给它发短信，它主动问候、发经文、一起祷告，并记住用户生活中的细节，不需要下载 App（档案自述）。成立时间 2026-05-02，创始人未公开。档案自述用户数 2000 人，支付网关直读的活跃订阅为 139 个。档案原文写明原运营者将全职投入另一个项目，正在为 Flint 寻找能全职投入的接手人。收入数据同步时间为 2026-10-29。",
+    "how_it_makes_money": "按订阅收费：当前 MRR $1,671（支付网关直读），139 个活跃订阅，素材已算好的客单价为 $12.02/月，即全部订阅按同一月付价位计；具体定价档位档案标为「未公开」。累计已验证收入 $6,988，近 30 天 $4,082（均为支付网关直读）。近 30 天收入高于当前一个月的 MRR，差额部分的构成素材未说明。",
+    "why_it_works": [
+      "档案自述「没有 App 可下载」，首次使用的动作被压到发一条短消息，漏斗里没有安装与注册两步；对应数字是档案自述 2000 用户与支付网关直读的 139 个活跃订阅（约 7% 转化），转化发生在用户本来就每天打开的消息列表里，而不是一个需要被想起的图标上。",
+      "档案自述的产品第一行为是「主动问候」，即每日习惯的触发者从用户变成系统，用户只需回复；对 $12.02 的月客单价（MRR $1,671 ÷ 139，素材已算好）而言，一个月被问候三十次的感知价值足以支撑续订，所以订阅能停在 139 个而不是首月后散掉。",
+      "当前 MRR $1,671 对应 139 个订阅，近 30 天 MRR 增速 +1.2%（支付网关直读），订阅存量几乎持平；素材只给出 2026-07 至 2026-10 四个月的月度时间线，不足以判断趋势。在这种存量不动的状态下，近 30 天已验证收入 $4,082（支付网关直读）高于一个月的 MRR，说明订阅之外还有别的收款在贡献流水，而档案自述毛利率 78%（未经二次核实）显示交付成本没有随之抬升。",
+      "客单价落在 $12.02 这种「不需要年度承诺」的区间，用户每月重新决定一次是否续费，收入因此对交付质量高度敏感；这正是产品把力气放在「每天准时发一条」而不是功能清单上的原因——留存就是收入本身，没有合同可以藏。"
+    ],
+    "playbook": [
+      "把入口放进用户今天已经在打字的界面，而不是新建一个需要被打开的 App：Flint 的 139 个活跃订阅（支付网关直读）对应档案自述 2000 用户，约 7% 的付费是在「发一条消息」这个动作上完成的；换行业时先问用户今天在哪个界面打字，再把产品塞进去。",
+      "把「用户想起来才用」改成「系统先开口」：Flint 档案自述的第一条产品行为是主动问候。任何习惯类订阅都可以把触发权交给系统定时消息，让用户的每日任务从「发起」降级为「回复」，这是低月费产品能不能活过第三个月的分界线。",
+      "用月付而不是年付收款，让流失暴露在明面上：$12.02 的客单价（MRR $1,671 ÷ 139）意味着收入每月被重新决定一次，MRR 增速 +1.2% 就是这种结构的读数；做订阅的人应把留存当产品指标，而不是用年付把流失藏进现金流。",
+      "准备退出时，把计费跑在可授权读取的支付网关上：这个项目挂牌时能拿出的是累计 $6,988、近 30 天 $4,082、139 个订阅，全部为 Stripe API 直读而非截图；任何打算卖掉的订阅生意，越早把收款放在可被第三方读取的网关，退出时的定价依据越硬。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "挂牌要价 $60,000，倍数为 1.00x",
+        "truth": "原文 Acquisition 区块写的是 'Asking price: $60,000'、'Revenue multiple: 1.1x'，倍数是 1.1x 而不是 1.00x。",
+        "source": "https://trustmrr.com/startup/flint.md"
+      },
+      {
+        "claim": "近 30 天收入 $4,421 可以代表这门生意的经常性规模",
+        "truth": "$4,421 是近 30 天已发生的支付流水（含一次性、非经常性入账），经常性口径是 Current MRR $1,740（141 个订阅）；两者相差约 2.5 倍，原文的近 30 天收入增速 +87.3% 与 MRR 增速 +3.9% 明显不一致，正说明这一点。",
+        "source": "https://trustmrr.com/startup/flint.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR · flint 收入与订阅页（Revenue 由 Stripe API key 直读，非自报）",
+        "url": "https://trustmrr.com/startup/flint.md",
+        "kind": "stripe"
+      }
+    ],
+    "published_from": "flint",
+    "verified_at": "2026-10-29",
+    "updated_at": "2026-10-29",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（stripe），按默认政策进精品池",
+    "quality_score": 60,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "pdf-vault",
+    "name": "PDF Vault",
+    "name_en": "PDF Vault",
+    "origin": "美国",
+    "one_liner": "卖可转售 PDF 加托管销售页的授权生意：$29 一次性授权 + $9/月托管，当前 MRR $2,214，活跃订阅 246 个。",
+    "category": "交易市场",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "last_30d",
+    "metrics": {
+      "mrr": 2133.0,
+      "last_30d_revenue": 8060.0,
+      "all_time": 63736.0,
+      "subscriptions": 237,
+      "growth_30d": -6.3,
+      "mrr_growth_30d": -6.3,
+      "revenue_growth_30d": -7.6,
+      "headline": "MRR $2,133，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $2,133（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $8,060、累计 $63,736、付费订阅 237 户。最近完整月环比 +25.0%（已剔除当月残月）。近 30 天 MRR 增速 -6.3%。⚠ 历史峰值 $10,942 → 最近完整月 $9,799，留存 90%。挂牌 $150,000、倍数 1.53x（要价不等于收入）。⚠ 队列缓存值是 2026-10-26 采集时的快照（当时 $2,214），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 4,
+      "capital": 1,
+      "timing": 3
+    },
+    "verdict": "它卖的不是 PDF 文件，是「已经搭好收银台的一份可售商品」：买家付 $29 买的是省掉做产品和做销售页这两道工序，而它自己真正收的是每月 $9 的场地费。",
+    "what_it_does": "PDF Vault 是一个数字商品转授权站点：会员付费取得可直接上架销售的 PDF，并附带一个已托管好的销售页，销售所得 100% 归会员（档案自述）。收入因此分成一次性授权费与月度托管费两条。站点 2026-03-06 上线，注册地美国，创始人未公开；档案自述团队规模 1 人、融资状态为自筹、用户数 200。截至 2026-10-29 同步，Stripe API 直读的活跃订阅数为 246，累计已验证收入 $65,218。",
+    "how_it_makes_money": "定价分三层：$29 一次性授权（或 $67 打包）、$9/月托管；Pro 产品用 $49 到 $69 的阶梯价，随销量上调。246 个活跃订阅对应 MRR $2,214，素材已算好客单价 $9，与 $9/月托管档位一致，说明当前 MRR 主要由托管费构成（素材未拆分两者，此为推算）。另一口径：近 30 天已验证收入 $9,515，与 MRR 不混用、不年化。档案自述毛利率 95%。",
+    "why_it_works": [
+      "MRR $2,214 除以活跃订阅 246 得到的客单价正好是 $9，与托管费档位一致，意味着订阅收入锚在持续性交付上而非重复卖 $29 授权。机制：销售页必须一直在线才有成交，这项交付天然按月计费，所以一次性成交之后仍留有月度收入。",
+      "30 天日收入表里 2026-10-15 是 $1,148，2026-10-11 只有 $9；$923、$988、$782 也集中在少数几天。机制：每周一次的 drop 把所有购买动作压到开门那一刻，其余日子的低流水正好是托管费的底盘，发售节奏决定了收入的形状。",
+      "档案自述毛利率 95%，交付物是 PDF 文件加一个托管销售页。机制：复制成本接近零，每多卖一份 $29 授权几乎全是毛利，所以 1 人团队（档案自述）也能把累计已验证收入做到 $65,218。"
+    ],
+    "playbook": [
+      "把一次成交拆成两段收费：素材在 $29 一次性授权之外再加 $9/月托管，结果是 246 个活跃订阅撑起 $2,214 MRR。可搬的做法是找出交付后仍需持续在线的那个环节（托管、更新、库存同步），单独按月收费，让收入不完全依赖下一次发售。",
+      "把上架改成固定节奏：素材写的是每周 drop、license 有上限，30 天日收入表因此出现 $1,148 与 $9 的落差。可搬的做法是选定一周中的一天集中上新，其余时间关闭购买入口，用日历而不是文案制造截止时间。",
+      "用阶梯涨价代替打折：Pro 产品从 $49 涨到 $69，价格随销量上行。可搬的做法是给每个批次标一个随售出比例上调的价格，让早买的人赚到价差而不是拿到优惠券，价格本身成为催促。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "PDF Vault 的门面收入是 MRR $2,133（据此年化约 $25.6k）",
+        "truth": "MRR $2,133 只对应 $9/月的托管订阅部分（237 订阅 × $9 ≈ $2,133），而近 30 天 Stripe 已验证总收入为 $8,060，其中约四分之三来自 $29/$67 一次性授权费；应记 last_30d $8,060，硬套 MRR 会低估约 4 倍",
+        "source": "https://trustmrr.com/startup/pdf-vault.md"
+      },
+      {
+        "claim": "累计收入 $63,736 可作为 ARR / 年化收入",
+        "truth": "$63,736 是 all-time 累计（页面 Last 12 months 与 All time 同值，因 2026-03-06 才成立），属已发生的历史收入，既不是 ARR 也不是 run-rate；页面另有月度时间线显示月度收入在 $2,295–$10,942 间波动，2026-10 当月为 $6,830",
+        "source": "https://trustmrr.com/startup/pdf-vault.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 官方 startup 页（收入由 Stripe API key 直读）",
+        "url": "https://trustmrr.com/startup/pdf-vault.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "PDF Vault 官网",
+        "url": "https://pdfvault.so",
+        "kind": "official"
+      }
+    ],
+    "published_from": "pdf-vault",
+    "verified_at": "2026-10-29",
+    "updated_at": "2026-10-29",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 60,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "coldcaller-pro",
+    "name": "coldcaller.pro",
+    "name_en": "coldcaller.pro",
+    "origin": "法国",
+    "one_liner": "法国 B2B 外呼线索库 coldcaller.pro：€19–99/月订阅，88 个活跃订阅，MRR $2,817，一人运营。",
+    "category": "企业服务",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "last_30d",
+    "metrics": {
+      "mrr": 2810.0,
+      "last_30d_revenue": 14439.0,
+      "all_time": 92499.0,
+      "subscriptions": 88,
+      "growth_30d": -15.1,
+      "mrr_growth_30d": -15.1,
+      "revenue_growth_30d": -21.1,
+      "headline": "MRR $2,810，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $2,810（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $14,439、累计 $92,499、付费订阅 88 户。最近完整月环比 +5.2%（已剔除当月残月）。近 30 天 MRR 增速 -15.1%。⚠ 同期收入增速为 -21.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $18,573 → 最近完整月 $18,573，留存 100%。挂牌 $70,000、倍数 0.40x（要价不等于收入）。⚠ 队列缓存值是 2026-10-23 采集时的快照（当时 $2,778），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 2
+    },
+    "verdict": "它卖的不是线索数据库，是「今天下午就能开拨」：客户以为买的是联系方式，实际买的是省掉爬取、清洗、找决策人这几小时的前置工序。",
+    "what_it_does": "一个法国 B2B 外呼线索库：用户在界面里按条件搜索企业，返回的不是公司总机，而是企业主的直拨手机与邮箱，同一界面用来记录拨打与结果。创始人 Aboubakr，档案记录的成立日为 2026-04-01，档案自述为一人运营、bootstrapped（未融资，档案自述）。当前活跃订阅 88 个（支付网关直读），档案自述累计用户 600（未经二次核实）。不提供免费试用，创始人 X 粉丝 53。",
+    "how_it_makes_money": "三档月付：€19 Starter、€49 Pro、€99 Agency，无免费试用（档案自述）。当前 MRR $2,817、活跃订阅 88 个（支付网关直读），客单价 $32.01——该数字为素材按 MRR ÷ 活跃订阅算好，直接引用，不再自行除法。近 30 天已验证收入 $14,457、累计 $92,731（支付网关直读）。近 30 天收入与 MRR 是两个口径，不可互换，也不可年化。MRR 环比 -14.9%。",
+    "why_it_works": [
+      "最低档 €19 且不设免费试用（档案自述），把付费决策压到不需要任何人审批的金额线以下；档案自述访客到付费转化约 9%，这个分母里没有免费用户，也没有免费层占用数据与算力成本，93% 毛利率（档案自述）由此成立。",
+      "交付的是企业主直拨手机加邮箱，而不是公司总机：外呼的瓶颈在接电话的人是不是决策人，用户拿到名单当天就能拨，交付即产出，所以留存不依赖功能迭代——88 个订阅对应 MRR $2,817、客单价 $32.01，单笔金额小到用户不会因为「功能不够多」而退订。",
+      "获客 100% 靠社区口碑（档案自述），创始人 X 粉丝只有 53：分发不来自个人流量，而来自使用者向同行转述，93% 毛利不必被广告费吃掉；代价是传播速度决定天花板——MRR 环比 -14.9% 时，手上没有任何投放杠杆可以把曲线拉回来。"
+    ],
+    "playbook": [
+      "把交付物做成「明天早上就能用」的状态：不做 CSV 导出让客户自己清洗，直接给到决策人的手机号与邮箱，界面只保留拨打与结果记录。换到任何线索型生意都成立——客户付钱买的是开工，不是数据集。",
+      "最低档定在 €19 这种「不用向谁报备」的金额线，并且不设免费试用：把付费决策压缩成一个人一次点击，同时不让免费用户消耗数据与算力成本，毛利才有 93%（档案自述）的空间。",
+      "只信支付网关直读的数：88 个订阅、$32.01 客单价、MRR $2,817、环比 -14.9% 每天可见，用来判断该加码还是该停手；「600 用户」这类档案自述数字不能承担这个判断。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "门面数字应是 MRR $2,810（可年化约 $33.7k）",
+        "truth": "MRR $2,810 只覆盖 88 个在订订阅；同期近 30 天已验证收入 $14,418，约为 MRR 的 5 倍，主体是一次性点数消耗入账（1 crédit = 1 portable），属用量/一次性口径，应取 last_30d。",
+        "source": "https://trustmrr.com/startup/coldcallerpro.md"
+      },
+      {
+        "claim": "最近完整月 $18,573，留存 100%，生意持平/向上",
+        "truth": "2026-09 为 $18,573，但 2026-10 已发生 $13,105（当月未完整），近 30 天收入增速为 -21.1%、MRR 增速 -15.1%，并非持平；『留存 100%』在原文中无对应字段支持。",
+        "source": "https://trustmrr.com/startup/coldcallerpro.md"
+      },
+      {
+        "claim": "累计收入 $92,499 属于多年跨年累计，不可与年收入混用",
+        "truth": "All time $92,499 与 Last 12 months $92,499 相同，且等于 2026-01 至 2026-10 各月之和（$977+…+$13,105=$92,499），实为自 2026 年初上线以来约 10 个月的已发生收入合计。",
+        "source": "https://trustmrr.com/startup/coldcallerpro.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 公开档案 coldcaller.pro（收入经 Stripe API 直读，2026-10-28 同步）",
+        "url": "https://trustmrr.com/startup/coldcallerpro.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "coldcaller.pro 官网（定价、产品说明、公司信息）",
+        "url": "https://coldcaller.pro/",
+        "kind": "official"
+      }
+    ],
+    "published_from": "coldcaller-pro",
+    "verified_at": "2026-10-29",
+    "updated_at": "2026-10-29",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 80,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "coldsire",
+    "name": "ColdSire",
+    "name_en": "ColdSire",
+    "origin": "美国",
+    "one_liner": "MRR $14,526 的 ColdSire，把 Google Workspace 与 Microsoft 365 邮箱配好 DNS、接上 Instantly 后，按账号月费卖给冷邮件代理机构。",
+    "category": "垂直行业 SaaS",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 14533.0,
+      "last_30d_revenue": 13244.0,
+      "all_time": 1049685.0,
+      "subscriptions": 866,
+      "growth_30d": -8.0,
+      "mrr_growth_30d": -8.0,
+      "revenue_growth_30d": -14.2,
+      "headline": "MRR $14,533，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $14,533（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $13,244、累计 $1,049,685、付费订阅 866 户。最近完整月环比 +0.8%（已剔除当月残月）。近 30 天 MRR 增速 -8.0%。⚠ 同期收入增速为 -14.2%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $29,830 → 最近完整月 $15,258，留存 51%。挂牌 $215,000、倍数 1.30x（要价不等于收入）。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $14,743），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 3,
+      "timing": 4
+    },
+    "verdict": "客户以为自己买的是 Google 和 Microsoft 的邮箱账号，实际买的是「开出来就能发、不被封」——四项 DNS 记录和 Instantly 接入才是收费点，邮箱本身只是耗材。",
+    "what_it_does": "ColdSire 向冷邮件代理机构出售已经配置完成的 Google Workspace 与 Microsoft 365 邮箱：域名、DNS、SPF、DKIM、DMARC 记录、账号 profile 全部自动设置，并接入 Instantly 和 Smartlead 两个发信工具。创始人 Imad Bouziani，成立日期 2023-05-18。档案描述称近 12 个月净收入 $253,549，运营者为两名承包商。Stripe 直读数据显示活跃订阅 863 个、当前 MRR $14,526；TrustMRR 档案自述用户数为 180，与订阅数的统计方式不同。",
+    "how_it_makes_money": "档案自述定价为每账号每月 $6，按邮箱账号数量计费。Stripe 直读的当前 MRR 为 $14,526，活跃订阅 863 个，素材已算好的客单价为 $16.83——高于单个账号的 $6，说明一个订阅里包含多个账号，客户按发件规模下单而非按席位。近 30 天已验证收入 $13,217，累计 $1,049,839。档案自述毛利率 38%。",
+    "why_it_works": [
+      "客单价 $16.83 与档案自述的每账号每月 $6 之间存在落差，说明客户一次买多个账号：冷邮件发件量越大，账号被封与替换越频繁，订阅金额随用量而不是随套餐层级上涨，863 个活跃订阅因此能撑起 $14,526 MRR。",
+      "交付清单包含域名、DNS、SPF、DKIM、DMARC 五项配置和 Instantly、Smartlead 两个工具的接入；这些动作每开一个新域名都要重做一遍，把它自动化之后，机构扩张的瓶颈从人手操作变成下单数量，这是账号型生意能累积到 863 个订阅的前提。",
+      "档案自述毛利率 38%，成本大头是 Google 和 Microsoft 的官方席位费，价格压不过上游；所以它把差异放在档案自述的「与真实企业混池、避免账号被标记封禁」上，卖的是账号存活率。MRR 增速为 -7% 时，客户是否更换供应商，看的就是这条差异。"
+    ],
+    "playbook": [
+      "按消耗品数量计价：$6/账号/月让收入随客户业务量走，客户账号被封就要补货，续费不需要谈折扣，客单价自然被用量推上去。",
+      "把客户已经在用的工具接进自己的交付流程：直接把账号接到 Instantly 和 Smartlead，客户不必更换工具栈，更换供应商的成本因此落在自己这一侧。",
+      "专门承接别人不愿碰、但完成标准明确且出错后果严重的配置工作（DNS、SPF、DKIM、DMARC），把它做成默认包含而不是加价项，差异体现在这里，而不体现在价格表上。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "把累计收入 $1,049,685 当作年收入 / ARR 使用",
+        "truth": "这是 2023-05-18 创立以来的累计已验证收款；最近 12 个月收入为 $254,144（近 30 天 $13,196），年化要用 12 个月这一档，不能用 all-time",
+        "source": "https://trustmrr.com/startup/coldsire.md"
+      },
+      {
+        "claim": "MRR $14,533 与近 30 天收入 $13,244 是同一口径，可互相替代或相加",
+        "truth": "MRR $14,533 是当前订阅快照（Stripe 直读），近 30 天收入 $13,196/$13,244 是区间流水，含一次性域名等入账与退款，二者背离（MRR -8.0%、收入 -14.2%），讲增长只能用 MRR 口径",
+        "source": "https://trustmrr.com/startup/coldsire.md"
+      },
+      {
+        "claim": "档案描述里的「$252k net revenue over the last 12 months」等于平台核验的 12 个月收入",
+        "truth": "描述是卖方自述的净额说法；TrustMRR 表内 Last 12 months 为 $254,144，是支付网关口径的已验证收款（未扣成本的收入），两者口径不同，引用时以表内验证值为准",
+        "source": "https://trustmrr.com/startup/coldsire.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 公开档案页（Stripe API 直读收入 + 月度/日度流水 + 指标快照）",
+        "url": "https://trustmrr.com/startup/coldsire.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "ColdSire 官网（定价 $6/mo per account、$15/year per domain、产品说明与 FAQ）",
+        "url": "https://coldsire.com/",
+        "kind": "official"
+      }
+    ],
+    "published_from": "coldsire",
+    "verified_at": "2026-10-29",
+    "updated_at": "2026-10-29",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 55,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "knightvision",
+    "name": "Knightvision",
+    "name_en": "Knightvision",
+    "origin": "",
+    "one_liner": "AI 图片与视频广告素材生成平台 Knightvision，MRR $7,978，活跃订阅 200 个，客单价 $39.89。",
+    "category": "AI 工具",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "last_30d",
+    "metrics": {
+      "mrr": 8018.0,
+      "last_30d_revenue": 34197.0,
+      "all_time": 167118.0,
+      "subscriptions": 201,
+      "growth_30d": 2270.3,
+      "mrr_growth_30d": 2270.3,
+      "revenue_growth_30d": 3.9,
+      "headline": "MRR $8,018，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $8,018（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Whop (API key), Stripe (API key)）。近 30 天收入 $34,197、累计 $167,118、付费订阅 201 户。最近完整月环比 +42.2%（已剔除当月残月）。近 30 天 MRR 增速 +2270.3%。⚠ 同期收入增速为 +3.9%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $32,696 → 最近完整月 $32,696，留存 100%。挂牌 $250,000、倍数 0.58x（要价不等于收入）。⚠ 队列缓存值是 2026-10-26 采集时的快照（当时 $8,177），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 2,
+      "capital": 2,
+      "timing": 3
+    },
+    "verdict": "客户以为买的是 AI 出图出片，实际买的是不用组制作团队的产能：200 个订阅、$39.89 的月付，买的是广告素材的持续供给，不是画质。",
+    "what_it_does": "Knightvision 是一个 AI 图片与视频生成平台，档案自述的用法是把想法和产品照片变成广告图与广告视频，可以直接在站内创建，也可以走 API 把素材生产自动化。产品建在 Whop 上，入口是 whop.com/knightvision，收入由 Whop 与 Stripe 两个支付网关 API 直读。档案成立时间 2026-03-20，创始人未公开，团队规模未公开。截至 2026-10-29 同步时点，活跃订阅 200 个，档案自述用户数 326，X 粉丝数为 0。",
+    "how_it_makes_money": "定价档位未公开，只能按支付网关直读的订阅数据反推：当前 MRR $7,978，活跃订阅 200 个，素材已算好的客单价为 $39.89。近 30 天已验证收入 $34,641，累计 $167,837，均来自 Whop 与 Stripe 的 API 直读。近 30 天收入与 MRR 两个口径同时存在，差额的构成是月付、按次还是一次性充值，档案未拆分。毛利率 50% 为档案自述，未经二次核实。",
+    "why_it_works": [
+      "客单价 $39.89（素材已算好）落在单个人或小团队不用走采购审批的额度内，结账在 Whop 页面一次完成。这个金额既不够养活一个销售，也不值得客户为它开一次会，所以 200 个订阅是在没有销售环节的情况下攒出来的。",
+      "档案自述里除了站内创建，还写明可以用 API 自动化内容创作。API 一旦接入，客户的素材生成就挂在自家流水线上，替换成本从换一个工具变成改一次代码，这是订阅能留住的原因，而不是界面或模板。",
+      "近 30 天单日收入在 $409（2026-10-28）到 $2,027（2026-10-06）之间来回摆动，没有月度订阅该有的平滑曲线；同期近 30 天收入 $34,641 与 MRR $7,978 两个口径并存。收入里有一部分是跟着客户投放节奏走的按次支出（构成档案未拆分），不是纯席位费。"
+    ],
+    "playbook": [
+      "先把价格定在一个人能自己签字的额度（本案 $39.89），再用托管结账页收款。换任何行业都成立：售价低于采购审批门槛，就不需要配销售团队。",
+      "同一套能力开两个入口，一个给人手动用，一个给系统调用。API 入口把产品嵌进客户的流水线，续费理由从「好不好用」变成「改起来麻不麻烦」。",
+      "收入不自己报，接支付网关 API 让第三方直读。对外获客时省掉自证成本，对内也逼着按同一口径看数，本案 $167,837 的累计收入就是这种口径下的数字。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "门面数字为 MRR $8,018（TrustMRR 实时核对）",
+        "truth": "同页由支付网关 API 直读的已验证收入为：近 30 天 $34,072、最近完整月 2026-10 $32,402、2026-09 $32,696。$8,018 的“MRR”与月流水相差约 4 倍，且其近 30 天 +2270.3% 的增速与同期收入增速 +3.9% 背离，不能作为该生意的收入门面数字，应按近 30 天已验证收入口径记 $34,072。",
+        "source": "https://trustmrr.com/startup/knightvision.md"
+      },
+      {
+        "claim": "累计收入 $167,118 可视为年化/年度收入规模",
+        "truth": "$167,118 同时是 All time 与 Last 12 months 的数值——因为公司 Founded date 为 2026-03-20，全部经营史约 7 个月（月度流水从 2026-03 的 $1,848 递增到 2026-10 的 $32,402），所以它只是“成立至今累计已发生收入”，既不是 ARR 也不是 run-rate。",
+        "source": "https://trustmrr.com/startup/knightvision.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR — Knightvision 公开 Markdown 档案（含 Revenue / Metric Snapshots / Acquisitio",
+        "url": "https://trustmrr.com/startup/knightvision.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "Knightvision 在 Whop 的官方店铺页",
+        "url": "https://whop.com/knightvision",
+        "kind": "official"
+      }
+    ],
+    "published_from": "knightvision",
+    "verified_at": "2026-10-29",
+    "updated_at": "2026-10-29",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 30,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "conductor",
+    "name": "Conductor",
+    "name_en": "Conductor",
+    "origin": "美国",
+    "one_liner": "MRR $45,034，为QuickBooks提供API接口服务",
+    "category": "开发者工具",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 44887.0,
+      "last_30d_revenue": 43758.0,
+      "all_time": 502978.0,
+      "subscriptions": 299,
+      "growth_30d": 11.8,
+      "mrr_growth_30d": 11.8,
+      "revenue_growth_30d": 14.2,
+      "headline": "MRR $44,887，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $44,887（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $43,758、累计 $502,978、付费订阅 299 户。最近完整月环比 +6.2%（已剔除当月残月）。近 30 天 MRR 增速 +11.8%。⚠ 历史峰值 $38,814 → 最近完整月 $38,814，留存 100%。挂牌 $1,250,000、倍数 3.40x（要价不等于收入）。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $44,163），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 4,
+      "distribution": 4,
+      "capital": 3,
+      "timing": 3
+    },
+    "verdict": "它卖的不是API接口，是简化QuickBooks集成的解决方案",
+    "what_it_does": "Conductor是一个提供QuickBooks Desktop & Enterprise API服务的平台，成立于2022年7月31日，旨在为开发者提供实时访问QuickBooks对象的接口，简化与QuickBooks的集成过程，目前拥有299个活跃订阅数。",
+    "how_it_makes_money": "Conductor提供免费试用和付费版本，付费版本每月每公司文件收费$49，企业版定价定制。根据活跃订阅数和MRR计算，客单价为$150.62。",
+    "why_it_works": [
+      "MRR $45,034，近30天增速13.8%，表明其解决方案在市场上受到认可；95%的毛利率说明其定价策略合理且产品具有高附加值。"
+    ],
+    "playbook": [
+      "提供免费试用吸引用户，降低用户进入门槛；针对不同规模的企业提供定制化解决方案，满足多样化需求；通过API接口提供实时数据访问，增强产品竞争力。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "近 30 天收入为 $43,758",
+        "truth": "Revenue 表的「Last 30 days」是 $43,709；$43,758 是另一处 last-30-day revenue snapshot 值，两者相差 $49，引用时应说明取的是哪一个",
+        "source": "https://trustmrr.com/startup/conductor.md"
+      },
+      {
+        "claim": "历史峰值 $38,814",
+        "truth": "2026-09 为 $38,814，但 2026-10（当月尚未结束）已达 $42,778，因此峰值不是 $38,814；$38,814 只是最近一个完整月的收入",
+        "source": "https://trustmrr.com/startup/conductor.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR: Conductor 公开档案（收入由 Stripe API key 直读）",
+        "url": "https://trustmrr.com/startup/conductor.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "Conductor 官网（仅抓到 meta 摘要，未含定价页正文）",
+        "url": "https://conductor.is/",
+        "kind": "official"
+      }
+    ],
+    "published_from": "conductor",
+    "verified_at": "2026-10-29",
+    "updated_at": "2026-10-29",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 25,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
     "id": "headshotpro",
     "name": "HeadshotPro",
     "name_en": "HeadshotPro",
