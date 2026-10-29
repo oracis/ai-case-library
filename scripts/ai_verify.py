@@ -858,8 +858,13 @@ def llm(messages, temperature=0.2, max_tokens=None):
     """调一次模型。**截断了会自动加大预算重试**（见下方注释）。
 
     `max_tokens=None` 表示用默认 `AI_MAX_TOKENS`。
-    另有自动降级：端点 429 限流 → 顺次切下一个端点（主 → 备1 → 备2；
-    限流**不**消耗截断重试次数）；整条链都限流才最终报错。
+    另有自动降级：端点不可用 → 顺次切下一个端点（主 → 备1 → 备2）。
+    「不可用」的三种情形（2026-10-29 扩）：
+      · HTTP 429 限流 —— 不消耗截断重试次数；
+      · HTTP 402/403 额度耗尽或权限被挡（魔粒用完、账户欠费）；
+      · HTTP 5xx 或连不上（DNS/拒绝连接/TLS 失败）。
+    **400/401 仍是硬错误**：请求形状不合法或 key 不对，换端点同样错，
+    降级只会把配置问题藏起来。整条链都不可用才最终报错。
     没配备端点则行为同旧版。
     """
     # 端点表：主端点用全局 AI_*（--ai-* CLI 覆盖照常生效）；
@@ -881,13 +886,15 @@ def llm(messages, temperature=0.2, max_tokens=None):
         try:
             return _llm_once(messages, temperature, budget,
                              ep["base"], ep["key"], ep["model"])
-        except _RateLimited as e:
+        except (_RateLimited, _QuotaBlocked, _EndpointDown) as e:
             last_err = e
             if ei + 1 >= len(eps):
                 break
             ei += 1
-            print("   ⇄ %s端点限流(HTTP 429)，自动切下一级 %s：%s (%s)"
-                  % (ep["tag"], eps[ei]["tag"],
+            # 文案要把**原因**带出来：原来写死「限流(HTTP 429)」，
+            # 402/5xx 也印成 429 会把人往错方向带（去查限流，实际是欠费）。
+            print("   ⇄ %s端点不可用（%s），自动切下一级 %s：%s (%s)"
+                  % (ep["tag"], type(e).__name__, eps[ei]["tag"],
                      eps[ei]["base"], eps[ei]["model"]))
             continue
         except _Truncated as e:
@@ -919,6 +926,18 @@ def llm(messages, temperature=0.2, max_tokens=None):
 
 class _RateLimited(RuntimeError):
     """端点限流（HTTP 429），可降级到备端点（可重试）。"""
+
+
+class _QuotaBlocked(RuntimeError):
+    """端点额度/权限被挡（HTTP 402/403），可降级到备端点。
+
+    🚨 2026-10-29 实测：魔搭魔粒耗尽、硅基流动余额不足都返回 402，
+    原来这类错误直接抛 RuntimeError，整批中断 —— 后备端点配了也永远轮不到。
+    """
+
+
+class _EndpointDown(RuntimeError):
+    """端点自身故障（HTTP 5xx / 连不上），可降级到备端点。"""
 
 
 class _Truncated(RuntimeError):
@@ -983,6 +1002,19 @@ def _llm_once(messages, temperature, max_tokens,
         if e.code == 429:
             raise _RateLimited("LLM 端点限流 HTTP 429%s%s" % (
                 ("：" + detail) if detail else "", "（%s）" % base)) from e
+        # 🚨 2026-10-29 补：402/403 = 额度耗尽 / 权限被挡（魔粒耗尽、硅基流动
+        # 余额不足都走这条），5xx = 端点自己挂了。这两类**换端点有可能好**，
+        # 所以与限流一样要降级 —— 否则备端点配了也是摆设，整批白断一次。
+        # ⚠ 400（参数不合法）和 401（key 错）**故意不降级**：那是请求形状或
+        #   凭据问题，换端点只会把配置错误藏起来，必须原样炸出来。
+        if e.code in (402, 403):
+            raise _QuotaBlocked("LLM 端点额度/权限被挡 HTTP %s%s%s" % (
+                e.code, ("：" + detail) if detail else "",
+                "（%s）" % base)) from e
+        if 500 <= e.code < 600:
+            raise _EndpointDown("LLM 端点故障 HTTP %s%s%s" % (
+                e.code, ("：" + detail) if detail else "",
+                "（%s）" % base)) from e
         hint = ""
         if e.code == 401 and not key:
             hint = ("（当前是免 key 模式：这个模型不支持空 Bearer，"
@@ -991,8 +1023,10 @@ def _llm_once(messages, temperature, max_tokens,
         raise RuntimeError("LLM 接口 HTTP %s%s%s" % (
             e.code, ("：" + detail) if detail else "", hint)) from e
     except urllib.error.URLError as e:
-        raise RuntimeError("LLM 端点连不上（%s）：%s"
-                           % (base, e.reason)) from e
+        # 连不上（DNS / 拒绝连接 / TLS 握手失败）也属于「这个端点此刻不可用」，
+        # 与 5xx 同类处理：降级。原因保留在消息里，别把排障线索丢了。
+        raise _EndpointDown("LLM 端点连不上（%s）：%s"
+                            % (base, e.reason)) from e
     with resp:
         data = json.loads(resp.read().decode("utf-8"))
     ch = (data.get("choices") or [{}])[0]
