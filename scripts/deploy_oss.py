@@ -48,6 +48,7 @@ import hmac
 import json
 import os
 import sys
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -315,7 +316,38 @@ def verify_public(bucket, region, prefix=""):
         return -1, 0, url, str(e)[:220]
 
 
-def upload(oss, bucket, src_dir, prefix="", dry_run=False):
+def _hdr(headers, name):
+    """大小写不敏感地取响应头。OSS 回的头名大小写不固定。"""
+    low = name.lower()
+    for k, v in (headers or {}).items():
+        if k.lower() == low:
+            return v
+    return None
+
+
+def _put_with_retry(oss, bucket, key, data, headers, tries=3):
+    """PUT 一个对象，遇到传输层失败就退避重试。
+
+    ⚠ 2026-10-29 实测背景：本机到香港 OSS 的链路会中途抽风 —— 一次性传 319 个
+    文件，前 130 个正常，之后**连续 189 个**都是 `getaddrinfo failed`（DNS 抖了）
+    和一次 `WinError 10054`（对端重置）。原实现只试一次，一次抖动就丢掉整批尾部，
+    而脚本没有断点续传，重跑要从头再传 319 个 —— 在弱网下这等于永远传不完。
+    所以：传输层错误（status == -1）与 5xx 退避重试；4xx 是请求本身有问题，不重试。
+    """
+    last = (-1, b"", {})
+    for i in range(tries):
+        st, body, hd = oss.request("PUT", bucket, key, body=data, headers=headers)
+        if st in (200, 201):
+            return st, body, hd
+        last = (st, body, hd)
+        if st >= 0 and st < 500:                 # 4xx：重试也没用
+            return last
+        if i + 1 < tries:
+            time.sleep(1.5 * (i + 1))
+    return last
+
+
+def upload(oss, bucket, src_dir, prefix="", dry_run=False, resume=False):
     files = []
     for root, _dirs, names in os.walk(src_dir):
         for n in sorted(names):
@@ -350,7 +382,17 @@ def upload(oss, bucket, src_dir, prefix="", dry_run=False):
             ok += 1
             continue
 
-        st, body, _ = oss.request("PUT", bucket, key, body=data, headers={
+        # --resume：远端已有同尺寸对象就跳过。弱网下重跑不用把 300 个文件再传一遍。
+        # 只比大小不比 ETag：本脚本上传的是生成产物，尺寸相同基本就是同一份；
+        # 真要强一致就加 --no-resume 全量重传。
+        if resume:
+            st, _b, hd = oss.request("HEAD", bucket, key)
+            if st == 200 and str(_hdr(hd, "Content-Length")) == str(len(data)):
+                print("  %-22s %10s  [SKIP] 远端同尺寸" % (key, human(len(data))))
+                skip += 1
+                continue
+
+        st, body, _hd = _put_with_retry(oss, bucket, key, data, {
             "Content-Type": ctype,
             "Cache-Control": cache,
             "Content-Length": str(len(data)),
@@ -370,7 +412,8 @@ def upload(oss, bucket, src_dir, prefix="", dry_run=False):
     if dry_run:
         print("  dry-run：共 %d 个文件 / %s，未上传" % (ok, human(total_bytes)))
     else:
-        print("  上传完成：成功 %d · 失败 %d · 合计 %s" % (ok, fail, human(total_bytes)))
+        print("  上传完成：成功 %d · 跳过 %d · 失败 %d · 合计 %s"
+              % (ok, skip, fail, human(total_bytes)))
     return 1 if fail else 0
 
 
@@ -419,6 +462,8 @@ def main(argv=None):
     ap.add_argument("--dir", default="dist", help="要上传的本地目录（默认 dist）")
     ap.add_argument("--allow-inbox", action="store_true",
                     help="允许上传带未核实队列的预览版（dist）。对外发布不要加这个")
+    ap.add_argument("--resume", action="store_true",
+                    help="远端已有同尺寸对象就跳过（弱网重跑用，不必从头再传一遍）")
     ap.add_argument("--prefix", default="", help="传到 Bucket 下的子路径，如 ai-cases")
     ap.add_argument("--env-file", help="从指定的 .env 读凭证")
     ap.add_argument("--check", action="store_true", help="只验证凭证并列出 Bucket，不写任何东西")
@@ -573,7 +618,8 @@ def main(argv=None):
 
     # ---- 上传
     print()
-    rc = upload(oss, args.bucket, src, prefix=args.prefix, dry_run=args.dry_run)
+    rc = upload(oss, args.bucket, src, prefix=args.prefix, dry_run=args.dry_run,
+                resume=args.resume)
     if rc or args.dry_run:
         return rc
 
