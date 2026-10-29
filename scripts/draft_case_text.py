@@ -477,9 +477,18 @@ def draft_one(cid, slug, summ, retries=2):
                  {"role": "user", "content": card}],
                 temperature=0.3,
                 # 智谱 glm-4-flash 怪癖：response_format=json_object + 长生成
-                # 会 HTTP 500 或读超时（小 JSON 正常）。所以这里**主动限流输出**，
-                # 而不是出问题再加预算。
-                max_tokens=2200,
+                # 会 HTTP 500 或读超时（小 JSON 正常）。
+                #
+                # ⚠ 2026-10-29 实测后把起点从 2200 提到 6200：
+                #   抽检 3 条时**每一次**首轮调用都被截断（2200 只够写一半 JSON），
+                #   靠 llm() 的自动加预算重试才落地，平均 2.3 次调用/条。
+                #   截断那一轮生成的 token 全白花，而主端点是 ModelScope
+                #   旗舰档（2 粒/次）：按这个速率 78 条要烧掉约 366 粒，
+                #   余额只有 252 粒 —— 会跑到一半断粮。
+                #   6200 覆盖了实测里的多数条目（只剩最长的一档还要再加一次），
+                #   相当于用「少一次浪费的完整生成」换预算；自动加预算的老机制
+                #   原样保留（2200 → 6200 → 10200 的三段路变成 6200 → 10200）。
+                max_tokens=6200,
             )
         except Exception as e:  # noqa: BLE001
             last = "LLM 失败：%s" % e
@@ -588,8 +597,12 @@ def main():
             stage[cid] = data
             print("  [%d/%d] ✓ %-32s %s" % (
                 i, len(targets), cid[:32], (data.get("one_liner") or "")[:44]))
-        # 每 10 条落一次盘：中途挂掉不丢全部
-        if i % 10 == 0:
+        # 🚨 2026-10-29 改成**每条都落盘**（原来是每 10 条）。
+        # 为什么必须改：当天那次 78 条的全量跑在第 1 条之后被掐死，而这 10 条
+        # 队列里唯一跑完的 private-venture-1 只活在内存里 —— 续跑时又要重调一次
+        # LLM（主端点是 2 粒/次的旗舰档），钱和 3 分钟一起白扔。
+        # 一条草稿才几 KB，原子写一次不到 1ms，没有任何理由攒 10 条再存。
+        if not err:
             save_stage(stage)
         if args.sleep and i < len(targets):
             time.sleep(args.sleep)

@@ -99,8 +99,14 @@ def summarize(slug, md):
                         ("Last 30 days", "rev_30d"), ("All time", "all_time")):
         d[key] = grab(r"^\| %s \| \$?([\d,\.]+) \|$" % re.escape(period), md, float)
     # 指标快照
+    # 增速的两个字段带上正负号。
+    # ⚠ 2026-10-29 修：原正则第一组是 `([\d\.]+)`、第二组是 `\+?([\d\.]+)`,
+    # 只要档案写成 `+1361.7%` 这种带正号的，MRR 增速就**静默抽成 None**
+    # —— 而增速正是写正文时最容易被编出来的字段：素材里写着「未给」，
+    # 模型只能从 .md 原文里捡，捡错标签（把收入增速写成 MRR 增速）也没人拦。
+    # 实测 veloris-llc 就是这样：档案原文有 `+1361.7%`，summary 里却是 None。
     d["cur_mrr"] = grab(r"^- Current MRR: \$([\d,\.]+)", md, float)
-    d["mrr_growth"] = grab(r"^- Last 30 days MRR growth: ([\d\.]+)%", md, float)
+    d["mrr_growth"] = grab(r"^- Last 30 days MRR growth: ([+-]?[\d\.]+)%", md, float)
     d["active_subs"] = grab(r"^- Current active subscriptions: ([\d,]+)", md, int)
     d["profit_margin"] = grab(r"^- Last 30 days profit margin: ([\d\.]+)%", md, float)
     # Startup Insights —— 写正文的硬素材
@@ -117,8 +123,8 @@ def summarize(slug, md):
     # 「相似项目」列表，第一条往往不是本条目 —— 2026-10-15 实测 orbio 的挂牌价
     # 就是这么从别人身上抓来的（$220K 属于列表中另一家公司）。归属分不清，
     # 宁可不要，也不能把别人的挂牌价写进本条案例。
-    # 增长
-    d["growth_30d"] = grab(r"^- Last 30 days revenue growth: \+?([\d\.]+)%", md, float)
+    # 增长（正负号都要留：档案里有 `+185.8%` 也有 `-7.3%`）
+    d["growth_30d"] = grab(r"^- Last 30 days revenue growth: ([+-]?[\d\.]+)%", md, float)
     # 分类/标签
     d["category"] = grab(r"^- Category: (.+)$", md)
     d["tags"] = grab(r"^- Tags?: (.+)$", md)
