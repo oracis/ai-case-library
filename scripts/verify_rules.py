@@ -525,32 +525,40 @@ def evaluate(v, metric_value=None):
             "label": "未选择收入口径",
             "why": "ARR / MRR / 累计 / 流水……选错一个数字就差十倍。",
         })
-    # AI 明确说「口径与候选数字不一致」时，必填不算齐。
+    # AI 明确说「口径与候选数字不一致」时，只提示、不拦。
     #
-    # 为什么必须是硬性 must 而不是 warning：本条流水线最大的假绿就在这里。
-    # 2026-10-05 实测private-venture-1 —— AI 核验白纸黑字写下「候选 headline 的
+    # 【历史：这条曾经是硬性 must，不是 warning】
+    # 2026-10-05 实测 private-venture-1 —— AI 核验白纸黑字写下「候选 headline 的
     # $34K 与原文任何口径都不吻合，$1M 售价根本不存在，且署名 david 的那条
     # Private Venture 是另一个实体」，caliber_consistent_ai 存成 False。
-    # 但 publishable只看「勾齐了没」（见下），musts 里 caliber_consistent 照样
-    # 留着勾 —— 于是规则引擎判它 publishable，triage 催「去后台点发布」。
-    # 一条被 AI 证伪的数字，靠一个没人看的字段，就这么走到了发布按钮前。
+    # 但 publishable 只看「勾齐了没」，musts 里 caliber_consistent 照样留着勾 —
+    # 于是规则引擎判它 publishable，triage 催「去后台点发布」，一条被 AI 证伪的
+    # 数字就这么走到了发布按钮前。当时把这道闸门改成硬的，是对的。
     #
-    # 注意与denied_gates 的区别：门槛反证在「另有门槛成立」时是放行+ 挂警告
-    # （策略是「一道成立就进库」）。口径不同 —— 口径就是那个数字本身，
-    # 数字被否了还发，等于把错的收入印在文章里。必须回到人。
+    # 【2026-10-29 用户决定改回 warning】
+    # 原因不是事故不重要，而是**判据的输入没了**：这条检查的语义是「第三方页面
+    # 与候选数字对不上」，而唯一能抓到第三方页面的通道（Google CSE）已按要求
+    # 取消，剩下的 HN Algolia / DDG 对这批小众海外 SaaS 基本召回 0。
+    # 输入拿不到时继续硬拦，等于把所有条目一起堵死 —— 那不是更严，是更瞎。
+    # 所以降级为警告：数字照旧标出来交给人看，但不再阻断入库。
+    # ⚠ 这意味着「错误数字进库」的防线从「机器拦」退到「人工看 warnings」，
+    #   发布前请自己过一眼 warnings，别指望规则引擎兜底。
     if v.get("caliber_consistent_ai") is False:
-        missing_musts.append({
+        warnings.append({
             "key": "caliber_consistent_ai",
             "label": "AI 已否掉候选的收入口径/数字",
             "why": (v.get("caliber_reason")
                     or "AI 核验认为候选资料的收入数字与一手来源对不上。"
-                       "必须人工裁定：改正数字，或放弃这条。"),
+                       "已不再阻断入库，但发布前请人工裁定数字。"),
         })
+    # 「没有来源」同理降级为警告（2026-10-29）：CSE 取消后，很多条目确实
+    # 找不到可点回的第三方页面；要求每条都能回原文，会让它们永远进不了库。
+    # 代价是读者无法自行复核，所以这条警告必须保留、不能被静默吞掉。
     if not sources:
-        missing_musts.append({
+        warnings.append({
             "key": "source_kinds",
             "label": "未登记任何来源",
-            "why": "每条案例都要能点回原文，否则读者无法自己复核。",
+            "why": "读者无法点回原文复核，建议补来源，但不再阻断入库。",
         })
     else:
         # 没有一手来源 / 只有中文二手转述：不再一票否决（用户明确要求放开），

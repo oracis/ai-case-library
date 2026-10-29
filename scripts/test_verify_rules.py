@@ -199,8 +199,12 @@ class Musts(unittest.TestCase):
         for k in R.VERIFICATION_KEYS:
             self.assertTrue(R.evaluate(full(verification=k))["publishable"], k)
 
-    def test_no_source_blocks(self):
-        self.assertFalse(R.evaluate(full(source_kinds=[]))["publishable"])
+    def test_no_source_不再拦但必须挂警告(self):
+        """2026-10-29 起「没来源」不再阻断入库（CSE 取消后很多条目确实抓不到
+        可点回的第三方页面），但警告必须留着——读者没法复核这件事得让人看见。"""
+        r = R.evaluate(full(source_kinds=[]))
+        self.assertTrue(r["publishable"])
+        self.assertIn("source_kinds", [w["key"] for w in r["warnings"]])
 
 
 class SourceTiers(unittest.TestCase):
@@ -700,25 +704,31 @@ class TestContentGate(unittest.TestCase):
 
 
 class CaliberDeniedByAI(unittest.TestCase):
-    """AI 明确否掉候选数字 ⇒ 必须回到人，不得判publishable。
+    """AI 否掉候选数字 ⇒ 必须挂出理由，但 2026-10-29 起不再阻断入库。
 
-    这是本库最大的一条假绿（2026-10-05 实测）：
-    private-venture-1 的 AI 核验白纸黑字写下「候选的 $34K 与原文任何收入口径
-    都不吻合，$1M 售价根本不存在，署名 david 的那条是另一个实体」，
-    caliber_consistent_ai 存成 False —— 但 musts 里 caliber_consistent 照样
-    留着粘勾，publishable 只看「勾齐没」，于是它被判可发布、triage 催
-    「去后台点发布」。数字被证伪了，却靠一个没人看的字段走到了发布按钮前。
+    历史（为什么这条曾经是硬拦）：2026-10-05 实测 private-venture-1，AI 核验
+    白纸黑字写下「候选的 $34K 与原文任何收入口径都不吻合，$1M 售价根本不存在，
+    署名 david 的那条是另一个实体」，caliber_consistent_ai 存成 False —— 但
+    musts 里 caliber_consistent 照样留着粘勾，publishable 只看「勾齐没」，于是
+    它被判可发布、triage 催「去后台点发布」。数字被证伪了，却靠一个没人看的
+    字段走到了发布按钮前。
 
-    与门槛反证的处理刻意不同：门槛反证是「一道成立就进库 + 挂警告」；
-    口径反证必须拦 —— 口径就是那个数字本身，数字错了还发，等于把错的
-    收入印在文章里。
+    2026-10-29 用户决定降级为警告，原因是**判据的输入没了**：这条检查的语义是
+    「第三方页面与候选数字对不上」，而唯一能抓第三方页面的 Google CSE 通道已
+    整条移除，剩下的 HN / DDG 对小众海外 SaaS 召回接近 0。输入拿不到还硬拦，
+    等于把条目一起堵死。
+
+    所以这组测试守的东西变了：不再守「拦不拦」，而是守**警告必须存在、理由
+    必须带出来**——防线从「机器拦」退到「人看 warnings」，如果连 warning 都没
+    挂，那就真的没人知道了。
     """
 
-    def test_AI否掉口径_不可发布(self):
+    def test_AI否掉口径_不再拦但必须挂警告(self):
         r = R.evaluate(full(caliber_consistent_ai=False))
-        self.assertFalse(r["publishable"])
+        self.assertTrue(r["publishable"], "2026-10-29 起这条件不再阻断入库")
         self.assertIn("caliber_consistent_ai",
-                      [m["key"] for m in r["missing"]])
+                      [w["key"] for w in r["warnings"]],
+                      "不拦可以，但必须挂在 warnings 里提醒人")
 
     def test_缺省与None_不拦(self):
         """没这项、或AI 没表态(None) ≠ 被否掉。不能误伤正常条目。"""
@@ -729,11 +739,11 @@ class CaliberDeniedByAI(unittest.TestCase):
         self.assertTrue(R.evaluate(full(caliber_consistent_ai=True))["publishable"])
 
     def test_提示语要带AI给的理由(self):
-        """人被拦下时必须看到为什么 —— 理由在caliber_reason 里，别丢。"""
+        """警告里必须看到为什么 —— 理由在 caliber_reason 里，别丢。"""
         v = full(caliber_consistent_ai=False,
                  caliber_reason="原文 All time 仅 $1,197，$34K 无对应")
         r = R.evaluate(v)
-        hit = [m for m in r["missing"] if m["key"] == "caliber_consistent_ai"]
+        hit = [w for w in r["warnings"] if w["key"] == "caliber_consistent_ai"]
         self.assertEqual(len(hit), 1)
         self.assertIn("1,197", hit[0]["why"])
 
@@ -741,8 +751,8 @@ class CaliberDeniedByAI(unittest.TestCase):
         v = full(caliber_consistent_ai=False)
         v.pop("caliber_reason", None)
         r = R.evaluate(v)
-        hit = [m for m in r["missing"] if m["key"] == "caliber_consistent_ai"]
-        self.assertTrue(hit[0]["why"].strip(), "不能给一条空理由把人拦下")
+        hit = [w for w in r["warnings"] if w["key"] == "caliber_consistent_ai"]
+        self.assertTrue(hit[0]["why"].strip(), "不能给一条空理由提醒人")
 
 
 class MergeSources(unittest.TestCase):
