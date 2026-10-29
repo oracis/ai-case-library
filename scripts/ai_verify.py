@@ -29,9 +29,6 @@
     CASE_LIB_AI_BASE    默认 https://open.bigmodel.cn/api/paas/v4（智谱）
     CASE_LIB_AI_MODEL   默认 glm-4-flash（免费档）
     CASE_LIB_ADMIN_PASSWORD   后台密码（写草稿/发布要登录 5053）
-    CASE_LIB_GOOGLE_KEY       Google CSE 项目 key（也可放 secrets.json 的 google_key）
-    CASE_LIB_GOOGLE_CX        Programmable Search Engine 的 cx（secrets.json: google_cx）
-    CASE_LIB_GOOGLE_PROXY     可选，单独给 CSE 用的代理（secrets.json: google_proxy）
 
     读取优先级：环境变量 > data/secrets.json > 上面这些默认值。
     ⚠ space-bunny-free（opencode.ai/zen）2026-10-11 起被上游封直连，已弃用；
@@ -53,9 +50,9 @@
 
 设计约束
 --------
-- 零依赖：只用标准库。检索顺序 HN Algolia → Google CSE（需 key，见上）→
-  DuckDuckGo → cn.bing（默认关，`CASE_LIB_ALLOW_BING=1` 才开），
-  抓正文用 html.parser 剥标签。
+- 零依赖：只用标准库。检索顺序 HN Algolia → DuckDuckGo → cn.bing（默认关，
+  `CASE_LIB_ALLOW_BING=1` 才开）。Google CSE 通道 2026-10-29 已整条移除
+  （见 `search()` 的说明），抓正文用 html.parser 剥标签。
 - 不编造：prompt 只许依据抓回来的原文判断；来源 URL 必须来自检索结果。
 - 不过闸门不发布：发布走 server 的 /promote，规则引擎是唯一闸门，
   本脚本不自己写 cases.json。
@@ -539,7 +536,7 @@ def extract_json(text):
 # 网络：抓页面 / 搜索（Bing 优先，国内可达；DDG 兜底）
 # ---------------------------------------------------------------------------
 def http_get(url, timeout=15, max_bytes=300000, proxy=None):
-    """GET 一个 URL 返回文本。`proxy` 只给个别通道用（见 search_google）。
+    """GET 一个 URL 返回文本。`proxy` 只给个别通道用（需要单独指定出口时）。
 
     默认走 urllib 的默认 opener，也就是吃环境里的 HTTPS_PROXY；传 proxy 时
     换成只带这一个代理的 opener，不影响其它请求。
@@ -626,75 +623,9 @@ def search_hn_algolia(q, n=5):
     return out
 
 
-# cn.bing 兜底开关（默认关）。本机出口对 google.com / googleapis.com 是断的，
-# 没配 CSE key 时它是唯一的通用搜索兜底，临时要用就设 CASE_LIB_ALLOW_BING=1。
+# cn.bing 兜底开关（默认关）。核验链路的通用搜索现在只剩 DuckDuckGo 一路，
+# 它被限流或改版时 Bing 是临时替补，所以留这个开关而不是直接删掉。
 ALLOW_BING = os.environ.get("CASE_LIB_ALLOW_BING") == "1"
-
-
-def _google_cfg():
-    """CSE 凭据与代理：环境变量 > data/secrets.json（google_key / google_cx / google_proxy）。
-
-    为什么不只认环境变量：这台机器上的抓取任务多是后台/定时跑，环境变量得每次
-    手写；secrets.json 已经在用（ai_key 就在里面），key 放一处、不用改启动命令。
-    显式设成空串仍然赢（见 _cfg），方便临时停掉这条通道。
-    """
-    return (_cfg("CASE_LIB_GOOGLE_KEY", "google_key", "").strip(),
-            _cfg("CASE_LIB_GOOGLE_CX", "google_cx", "").strip(),
-            _cfg("CASE_LIB_GOOGLE_PROXY", "google_proxy", "").strip())
-
-
-def search_google(q, limit=6):
-    """Google Custom Search JSON API（需 key + cx）。
-
-    为什么加这一路、为什么它排在通用搜索的第一位：`search_bing` 打的是
-    **cn.bing**，实测对这类小众海外 SaaS 基本无效 —— 查 `gtm.help` 返回的是
-    知乎、MC 百科、搜狐；查 `AEO Checker` 返回百度百科的「AEO 认证」与海关
-    总署页面。也就是说中文区的 Bing 索引里根本没有这些产品，拿它兜底等于
-    没有兜底。
-
-    配置（缺 key/cx 就整条通道停用，不会发半截请求）：
-        CASE_LIB_GOOGLE_KEY / secrets.json 的 google_key   项目 API key
-        CASE_LIB_GOOGLE_CX  / secrets.json 的 google_cx    Programmable Search 的 cx
-        CASE_LIB_GOOGLE_PROXY（可选）                      单独为 CSE 指定代理
-
-    ⚠ 出口实测（**2026-10-29 复核，结论与 10-21 不同，别再照旧抄**）：
-      · 直连                     → 超时
-      · 系统代理 127.0.0.1:12690 → 超时
-      · Shadowsocks 127.0.0.1:10808 → **通**（用无效 key 打端点能拿到 Google
-        官方 JSON `API key not valid / INVALID_ARGUMENT`，即链路是好的）
-    所以：key/cx 齐了还要把 `google_proxy` 指到 10808（已写进
-    data/secrets.json），不用动全局 HTTPS_PROXY —— 全局改了会影响 cn.bing
-    与官网抓取，那些本来是通的。想确认当前通不通：跑
-    `python scripts/check_google_cse.py`，它会逐条列出每条出口的状态。
-
-    免费额度 100 次/日，正好够「每天新增候选 + 少量补证」的用量。
-    """
-    key, cx, proxy = _google_cfg()
-    if not (key and cx):
-        return []
-    url = ("https://www.googleapis.com/customsearch/v1?key=%s&cx=%s&q=%s&num=%d"
-           % (urllib.parse.quote(key), urllib.parse.quote(cx),
-              urllib.parse.quote(q), min(10, max(1, limit))))
-    # 重试（2026-10-29 实测）：10808 到 googleapis 的成功率只有 2/5，
-    # 失败形态是 TLS 握手失败 / 远端断连，成功时却只要 0.8~1.3s ——
-    # 典型的「代理节点不稳」而不是「地址不通」。重试 3 次把单次成功率
-    # 40% 抬到 ~78%，且失败的请求不会计入 100 次/日的免费额度。
-    data = None
-    for i in range(3):
-        try:
-            data = json.loads(http_get(url, timeout=20, proxy=proxy or None))
-            break
-        except Exception:                                    # noqa: BLE001
-            if i < 2:
-                time.sleep(1.5 * (i + 1))
-    if data is None:
-        return []
-    out = []
-    for it in data.get("items") or []:
-        link = (it.get("link") or "").strip()
-        if link.startswith("http"):
-            out.append(link)
-    return out
 
 
 def search_bing(q):
@@ -723,22 +654,27 @@ def search_ddg(q):
 def search(q, per_query=6):
     """返回去重后的 URL 列表。HN Algolia 当补充证据源排最前。
 
-    顺序（2026-10-21 改）：HN Algolia → **Google CSE** → DuckDuckGo →
-    cn.bing（默认关闭）。
+    顺序（2026-10-29 改）：HN Algolia → DuckDuckGo → cn.bing（默认关闭）。
 
-    改的原因：cn.bing 对这批案例库的目标（海外小体量 SaaS）实测是负收益 ——
-    查 `gtm.help` 回来的是知乎/MC 百科/搜狐，查 `AEO Checker` 回来的是百度
-    百科的「AEO 认证」和海关总署。中文区索引里没这些产品，它占着名额却
-    抓不到东西，还把这些垃圾喂进后续的页面抓取与 AI 判断。
+    为什么不再是「HN → Google CSE → DDG」：CSE 这条通道已于 2026-10-29
+    按要求整条移除 —— 它需要 Google Cloud 项目结算 + 给 key 单独授权，
+    实测该 key 打 `/customsearch/v1` 返回 403「This project does not have
+    the access to Custom Search JSON API」，即使 API 在项目里显示 Enabled
+    （key 的 API 限制没放开同样报这句）。留下来的 `search_google` 只能是
+    一条永远返回空列表的死路，不如删掉 —— 保留它会让「搜不到」和「通道坏
+    了」长得一模一样。
 
-    Bing 仍保留但**默认不调用**：本机出口对 google.com / googleapis.com 是断的，
-    没有 CSE key 时它就是唯一的通用搜索兜底，临时要用设
-    `CASE_LIB_ALLOW_BING=1`。
+    为什么要保留 DDG：CSE 走了以后它是唯一的通用搜索，虽然对这批小众海外
+    SaaS 召回一般，但免 key、免注册，至少不会因为账户问题整体失效。
+
+    cn.bing 仍然是负收益（查 `gtm.help` 回来知乎/MC 百科/搜狐，查
+    `AEO Checker` 回来百度百科「AEO 认证」+ 海关总署），所以默认不调用，
+    临时要用设 `CASE_LIB_ALLOW_BING=1`。
 
     HN 最多贡献 3 条，给后面的通用搜索留名额 —— 它查不到官网。
     """
     urls = []
-    backends = [(search_hn_algolia, 3), (search_google, per_query), (search_ddg, per_query)]
+    backends = [(search_hn_algolia, 3), (search_ddg, per_query)]
     if ALLOW_BING:
         backends.append((search_bing, per_query))
     for fn, cap in backends:

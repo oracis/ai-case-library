@@ -27,13 +27,12 @@
     python scripts/independent_source.py             # 跑一遍，落 data/source_audit.json
     python scripts/independent_source.py --write     # 把确认过的写回 cases.json
 
-Google 检索（2026-10-29 实测更新）：`www.googleapis.com` **直连与系统代理
-（127.0.0.1:12690）都超时**，但走 Shadowsocks 10808 是通的 —— 用无效 key 打
-CSE 端点能拿到 Google 官方 JSON「API key not valid / INVALID_ARGUMENT」。
-所以接进来要两样：① `CASE_LIB_GOOGLE_KEY` + `CASE_LIB_GOOGLE_CX`
-（Custom Search JSON API，免费 100 次/日，也可写进 data/secrets.json 的
-google_key / google_cx）；② 把 `google_proxy` 指到 10808。
-配完跑 `python scripts/check_google_cse.py` 自检，它会逐条告诉你缺哪一样。
+补源通道（2026-10-29 现状）：itunes / github 两路，都是免 key 的官方接口。
+⚠ Google CSE 通道已按要求整条移除：它要 Google Cloud 项目结算 + 给 key 单独
+授权，实测该 key 打 `/customsearch/v1` 恒返 403「This project does not have
+the access to Custom Search JSON API」（API 显示 Enabled 也一样，key 的 API
+限制没放开同报这句），且 10808 出口成功率只有 2/5。留着一个永远返回 None 的
+通道，只会让「这个产品没有第三方报道」和「通道根本不通」混成同一个结论。
 """
 import argparse
 import json
@@ -96,17 +95,6 @@ def jget(url, timeout=15):
     req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "application/json"})
     with OPENER.open(req, timeout=timeout) as r:
         return json.loads(r.read(400000).decode("utf-8", "replace"))
-
-
-_WARNED = set()
-
-
-def _warn_once(msg):
-    """同一条提醒只说一次 —— 扫 89 条候选时不该刷出 89 行同样的提示。"""
-    if msg in _WARNED:
-        return
-    _WARNED.add(msg)
-    sys.stderr.write("[i] %s\n" % msg)
 
 
 # ------------------------------------------------------------------ 目标筛选
@@ -215,42 +203,6 @@ def probe_github(name, domain):
     return None
 
 
-def probe_google(name, domain):
-    """Google Custom Search（需 key+cx）。判据：结果的 host 与官网同域，或标题含产品名。
-
-    凭据与代理统一走 `ai_verify._google_cfg()`（环境变量 > secrets.json 的
-    google_key / google_cx / google_proxy）。
-
-    ⚠ 2026-10-29 改：这里曾经只认环境变量 —— 配在 secrets.json 里的 key
-    在核验通道生效、在**补源通道不生效**，同一个 key 两条路一个通一个不通，
-    排查时只会以为「Google 不认识这个产品」。
-    """
-    key, cx, proxy = A._google_cfg()
-    if not (key and cx):
-        _warn_once("Google CSE 没配（缺 key/cx），补源少一路；"
-                   "配法与自检：python scripts/check_google_cse.py")
-        return None
-    q = urllib.parse.urlencode({"key": key, "cx": cx, "q": '"%s" review' % name, "num": 10})
-    try:
-        # 单独给 CSE 指定代理：本机直连与系统代理都到不了 googleapis
-        data = json.loads(A.http_get(
-            "https://www.googleapis.com/customsearch/v1?" + q,
-            timeout=25, proxy=proxy or None))
-    except Exception:                                        # noqa: BLE001
-        return None
-    for it in data.get("items") or []:
-        link = it.get("link") or ""
-        h = host_of(link)
-        if not h or any(h == t or h.endswith("." + t) for t in TM_HOSTS):
-            continue
-        if same_host(link, domain):                          # 自家域名不算第三方
-            continue
-        return {"kind": "press", "url": link,
-                "evidence": "Google CSE 命中第三方页面：%s" % (it.get("title") or "")[:60],
-                "anchor": "q=%s" % name}
-    return None
-
-
 # HN 命中里这几类不算独立来源：
 #   · news.ycombinator.com 是讨论页本身（UGC，不是报道）
 #   · 社交/视频/创始人自述平台 —— 谁都能发，不构成第三方核实
@@ -267,9 +219,8 @@ def probe_hn(name, domain):
     """HN Algolia 检索（免 key、直连可达）。
 
     为什么加这一路：itunes / github 只在「产品恰好上了应用商店或开源」时命中，
-    覆盖率低；Google CSE 要 key 且本机出口不稳（10808 成功率 2/5）。而 HN
-    Algolia 是**免费、免鉴权、直连 200** 的 —— 小众海外 SaaS 上过 HN 的比例
-    远高于上过应用商店的比例，是唯一能立刻用起来的通用检索通道。
+    覆盖率低；而 HN Algolia 是**免费、免鉴权、直连 200** 的 —— 小众海外 SaaS
+    上过 HN 的比例远高于上过应用商店的比例，是唯一能立刻用起来的通用检索通道。
 
     判据（照抄其它通道的口径）：结果的 host 必须**不是自家域名**、不是 trustmrr、
     不是社交/UGC 站；命中聚合站则降级标 aggregator，不冒充 press。
@@ -342,7 +293,7 @@ def mentions_domain(url, domain):
     return False
 
 
-# 顺序：免 key 的先跑，Google 需要凭据放最后。
+# 顺序：免 key 的先跑（itunes / github 都是公开接口，不需要任何凭据）。
 #
 # ⚠ probe_hn **刻意不在默认链路里**（2026-10-29 实测）：拿 43 条「已人工登记过
 # press/review 第三方来源」的案例做正对照回测，**召回 0** —— 这些产品多数
@@ -358,8 +309,7 @@ def mentions_domain(url, domain):
 #   以后要提这条，只写「43 条样本、锚定后 0 命中」+ 上面这条分母说明，别单写分数。
 # 函数和测试都留着：等哪天产品上过 HN 且有第三方讨论，它是免 key 的现成通道；
 # 但在召回率被证明 > 0 之前，不把它算进「补源通道已接通」。
-CHANNELS = (("itunes", probe_itunes), ("github", probe_github),
-            ("google", probe_google))
+CHANNELS = (("itunes", probe_itunes), ("github", probe_github))
 
 
 def audit_one(case, cache):

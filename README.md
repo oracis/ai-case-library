@@ -650,16 +650,12 @@ App-Bound 加密，DPAPI 解不开；Chrome 136+ 也不给默认 profile 开调�
 流水写 `data/ms_checkin_log.json`，**已 gitignore** —— 它记的是「这台机器今天有没有
 领到」，换台机器就不成立，也不是能回放的业务台账。
 
-Google CSE 是补第三方来源的通道，要 key + cx（免费 100 次/日）：
-
-```bash
-python scripts/check_google_cse.py              # 凭据 / 每条出口 / 可用出口，一次查完
-python scripts/check_google_cse.py --q Nitra    # 真发一次查询（省配额，别天天打）
-```
-
-凭据填 `data/secrets.json` 的 `google_key` / `google_cx`，出口不稳再填
-`google_proxy`。退出码：**0** 可用 / **1** 出口通但缺 key/cx / **2** 没有一条出口
-能到 `googleapis`（这时 key 配齐了也只会超时）。
+补第三方来源的通道（2026-10-29 调整）：只剩 **HN Algolia** 与 **DuckDuckGo** 两路
+通用检索，都免 key、免注册。原 Google CSE 通道已整条移除 —— 它要求 Google Cloud
+项目开通结算并给 key 单独授权，实测恒返 403（`This project does not have the
+access to Custom Search JSON API`），且本机到 `googleapis` 的出口成功率只有 2/5。
+留一个永远返回空的通道，会让「这个产品确实没有第三方报道」和「通道根本不通」
+变成同一个结论，比没有更糟。
 
 ### 发布是一条六步链路，用 release.py 串起来
 
