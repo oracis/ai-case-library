@@ -65,6 +65,12 @@ desktop.ini
 # 提交进来只会变成一份很快过期的噪音。
 data/triage.json
 
+# 魔搭签到流水（scripts/ms_checkin.py 每天写一条，见 scripts/ms_checkin.py）
+# 属**本机运行态**，不是台账：它记的是「这台机器今天有没有签到成功」，
+# 换台机器、换个 profile 都不成立，也无法据此回放任何业务事实。
+# 且它每天新增一条、永远只增不减 —— 提交进来就是纯噪音。
+data/ms_checkin_log.json
+
 # 采集队列（data/inbox.json 等）—— 机器数据，每天高频变动
 # 注意：这些文件**只在独立的 `data` 分支**里被 GitHub Actions 的 harvest.yml
 # 提交/累积，main 分支永不追踪它们。这样 main 只承载人工的代码/案例改动，
