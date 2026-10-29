@@ -90,18 +90,23 @@ class TestDraftPlaceholders(unittest.TestCase):
         self.assertFalse(bad, "首行不是 # 开头：\n  " + "\n  ".join(bad))
 
     def test_草稿里的金额都能在候选数据里找到出处(self):
-        """所有 $/€/¥ 数字必须能在 candidates.json 的原文里找到同形数字。
+        """所有 $/€/¥ 数字必须能在库里找到同形数字。
 
         这是从反向样本七篇那边搬过来的判据（PRD §6.1 #19）。草稿是模型写的，
         最容易出的事就是「顺手编一个更像的数」。
+
+        ⚠ 2026-10-29 补 `cases.json` 一起查：原判据只查 candidates.json，
+        但**候选一旦晋升就离开候选池**，它的草稿金额立刻「查无出处」——
+        这不是编造，是查错了地方。现在按「候选 + 已发布案例」合成出处池，
+        判据的本意（这个数是不是凭空来的）不变，只是不再把已发布的案例
+        误判成编造。
         """
         import json
         import re
-        path = os.path.join(ROOT, "data", "candidates.json")
-        if not os.path.isfile(path):
-            self.skipTest("没有 data/candidates.json")
-        d = json.loads(read(path))
-        cs = d["cases"] if isinstance(d, dict) else d
+        cand_p = os.path.join(ROOT, "data", "candidates.json")
+        case_p = os.path.join(ROOT, "data", "cases.json")
+        if not os.path.isfile(cand_p) and not os.path.isfile(case_p):
+            self.skipTest("没有 data/candidates.json 也没有 data/cases.json")
         pool = []
 
         def walk(x):
@@ -113,7 +118,11 @@ class TestDraftPlaceholders(unittest.TestCase):
             elif isinstance(x, dict):
                 for v in x.values():
                     walk(v)
-        walk(cs)
+
+        for p in (cand_p, case_p):
+            if os.path.isfile(p):
+                d = json.loads(read(p))
+                walk(d["cases"] if isinstance(d, dict) and "cases" in d else d)
         pool = "\n".join(pool)
 
         bad = []
