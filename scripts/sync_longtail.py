@@ -43,7 +43,9 @@ from _probe_csdn_sync import MCP          # noqa: E402
 from csdn_publish import split_md         # noqa: E402
 
 LEDGER = os.path.join(ROOT, "data", "longtail_sync.json")
-DEFAULT_PLATFORMS = ["aliyun", "tencentcloud"]
+# 长尾池默认平台：两朵云（有 finalize 收尾）+ 思否（2026-10-28 用户定案先进
+# 长尾池，id 实测 = segmentfault）。未登录平台自动软降级踢出本批，不拖死整批。
+DEFAULT_PLATFORMS = ["aliyun", "tencentcloud", "segmentfault"]
 DEFAULT_TAGS = ["人工智能", "AI产品", "独立开发"]
 
 
@@ -113,7 +115,10 @@ def oss_put_cover(case, cover_path, cover_bytes):
             base = (json.load(f).get("url") or "").rstrip("/")
     except Exception:                                       # noqa: BLE001
         pass
-    url = "%s/%s" % (base, key) if base else "https://%s.oss-%s.aliyuncs.com/%s" % (bucket, region, key)
+    if base:
+        url = "%s/%s" % (base, key)
+    else:
+        url = "https://%s.oss-%s.aliyuncs.com/%s" % (bucket, region, key)
     return url
 
 
@@ -306,7 +311,12 @@ def main():
         authed = {p["id"] for p in platforms if p.get("authenticated")}
         missing = [x for x in args.platforms if x not in authed]
         if missing:
-            raise SystemExit("平台未登录: %s（登录后重试，或从 --platforms 去掉）" % missing)
+            # 软降级：缺登录的平台踢出本批并记进台账 note（思否等长尾平台
+            # 登录时效各不相同，不该拖死整批）。全都没登录才硬退。
+            if len(missing) == len(args.platforms):
+                raise SystemExit("请求的平台全部未登录: %s（先登录再跑）" % missing)
+            print("⚠ 平台未登录，本批跳过: %s（补登录后下批自动带上）" % missing)
+        args.platforms = [x for x in args.platforms if x in authed]
         print("平台登录态 OK:", args.platforms)
 
         payload = {
