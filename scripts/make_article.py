@@ -115,6 +115,10 @@ TITLE_OVERRIDES = {
     "agentsguild": [
         "AgentsGuild：卖给游戏开发者的 AI 技能工具包，靠一次性付费赚钱",
         "AgentsGuild：帮游戏开发者提效的 AI 技能工具包",
+        # 2026-10-29 补第三条：537b443 入库时只写了两条，test_make_article 的
+        # 「至少 3 条备选」判红（少于 3 条 build_titles() 会拿模板补，等于机器编标题）。
+        # 角度取「只做两款引擎 + 覆盖发布 QA」，避开前两条都在说的「提效」。
+        "AgentsGuild：只做 Unity 和浏览器游戏的调优、测试与发布",
     ],
     "voklit": [
         "卖海外虚拟号码这门生意，最后为什么停机挂牌",
