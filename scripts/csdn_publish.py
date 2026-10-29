@@ -327,8 +327,8 @@ def save_article(title, md_body, pub=True, tags="人工智能", article_id=None)
 
 
 LIST_API = ("https://blog.csdn.net/community/home-api/v1/get-business-list"
-            "?page={page}&size=20&businessType=blog&orderby=&noMore=false"
-            "&year=&month=&username={username}")
+            "?page=%(page)s&size=20&businessType=blog&orderby=&noMore=false"
+            "&year=&month=&username=%(username)s")
 # blog 域接口不签名、纯 Cookie；但请求过密会被边缘 WAF 521，串行加间隔
 USERNAME = ""                                   # 留空则从 cookie 里取 UserName
 
@@ -350,7 +350,7 @@ def list_published(cookie=None, pages=1):
     out = []
     op = _opener()
     for page in range(1, pages + 1):
-        url = LIST_API.format(page=page, username=username)
+        url = LIST_API % {"page": page, "username": username}
         req = urllib.request.Request(url)
         req.add_header("User-Agent", UA)
         req.add_header("Accept", "application/json, text/plain, */*")

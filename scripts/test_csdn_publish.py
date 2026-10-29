@@ -21,9 +21,9 @@ def test_sign_shape():
     h2, ts2 = C.csdn_sign("POST", "/blog-console-api/v3/mdeditor/saveArticle")
     # 形状（nonce 是随机占位，替换后比对）
     expect = ("POST\n*/*\n\napplication/json;charset=UTF-8\n\n"
-              "x-ca-key:203803574\nx-ca-nonce:{n}\n/blog-console-api/v3/mdeditor/saveArticle")
+              "x-ca-key:203803574\nx-ca-nonce:%s\n/blog-console-api/v3/mdeditor/saveArticle")
     n1 = h1["x-ca-nonce"]
-    assert ts1 == expect.format(n=n1), "to_sign 形状漂移: %r" % ts1
+    assert ts1 == (expect % n1), "to_sign 形状漂移: %r" % ts1
     # nonce 每次新（防重放）
     assert h1["x-ca-nonce"] != h2["x-ca-nonce"], "nonce 未变，会被判重放"
     # 四件套齐全
