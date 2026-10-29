@@ -1,5 +1,348 @@
 [
   {
+    "id": "flowmance-templates",
+    "name": "Flowmance Templates",
+    "name_en": "Flowmance Templates",
+    "origin": "阿尔巴尼亚",
+    "one_liner": "Webflow、Framer、Figma 模板库，420+ 模板与 12,500+ sections，MRR $395，24 个活跃订阅，创始人 Deni。",
+    "category": "创作者经济",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "last_30d",
+    "metrics": {
+      "mrr": 395.0,
+      "last_30d_revenue": 1238.0,
+      "all_time": 73514.0,
+      "subscriptions": 24,
+      "growth_30d": -4.0,
+      "mrr_growth_30d": -4.0,
+      "revenue_growth_30d": -76.8,
+      "headline": "MRR $395，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $395（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Lemon Squeezy (API key)）。近 30 天收入 $1,238、累计 $73,514、付费订阅 24 户。最近完整月环比 -7.1%（已剔除当月残月）。近 30 天 MRR 增速 -4.0%。⚠ 同期收入增速为 -76.8%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $9,383 → 最近完整月 $4,370，留存 47%。挂牌 $130,000、倍数 7.42x（要价不等于收入）。⚠ 队列缓存值是 2026-10-26 采集时的快照（当时 $395），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 2
+    },
+    "verdict": "客户以为买的是 420 个模板，实际买的是「12 个月内不再做选型决策」的许可：12,500 个 section 早已超出任何人能用完的量，值钱的不是单个模板质量，是不用再挑。",
+    "what_it_does": "Flowmance Templates 是一个模板与区块素材库，档案自述含 420+ 个 Webflow、Framer、Figma 模板和 12,500+ 个现成 section，官网定位是给代理商、自由职业者、工作室和 SaaS 团队直接用。创始人 Deni，成立日期 2025-01-01，档案国家字段标注为 AL。收入由 Lemon Squeezy 的 API key 直读，同步时间 2026-10-29。当前 MRR $395，活跃订阅 24 个。档案自述用户数 70,000、团队 6–10 人、毛利率 95%，这三项未经二次核实。X 粉丝 516。",
+    "how_it_makes_money": "档案自述定价为 $199/年 或 $499 终身买断，两档并列。按素材已算好的客单价 $16.46（MRR $395 ÷ 24 个活跃订阅）看，它与 $199 年付按月摊销的量级一致，说明 MRR 主要来自年付订阅按月摊销，而不是每月扣款；$499 终身档的一次性付款不进订阅数与 MRR。累计已验证收入 $73,612，其中近 12 个月 $52,684、近 30 天 $1,156，均由支付网关直读。",
+    "why_it_works": [
+      "420+ 模板、12,500+ sections 的内容库配上档案自述 95% 的毛利率，意味着多一个订阅者的交付成本接近零：24 个活跃订阅就撑起 $395 MRR，近 30 天收入只有 $1,156 时也不需要削减任何交付支出来保毛利，小基数可以长期存活。",
+      "近 30 天已验证收入 $1,156 里，10-06 的 $248 和 10-13 的 $313 这两天占约 49%，30 天里有 19 天收入为 $0——成交是脉冲式的，靠单次曝光事件而非连续获客管道，日流水因此比月流水更早暴露获客停摆。",
+      "按 MRR $395 年化后，与累计已验证收入 $73,612 相差约 15 倍，说明历史收入大部分不是订阅摊销而是单次成交；档案自述的 $499 终身档正好是这种单次成交的载体，它抬高单笔现金但不产生后续 MRR。"
+    ],
+    "playbook": [
+      "同时挂年付与终身两档：$199/年 把单笔现金从月付拉到 12 个月规模，$499 终身把重度用户的一次性支付上限抬到年付的两倍半，两档各接一类人，而不是只留月付。",
+      "把 SKU 数量本身做成货架密度：420+ 模板、12,500+ sections 让任何一个具体页面或区块的长尾关键词都能落到一个已有条目上，获客不必依赖品牌词。",
+      "把「零成交天数」当一级指标而不是月流水：这份档案近 30 天里有 19 天为 $0，日成交天数比月总额更早、更清楚地显示获客是否停了。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "门面收入是 MRR $395，可用 MRR 口径描述这门生意",
+        "truth": "MRR $395 只对应 24 个年订阅的月度折算（$199/12×24≈$395）；实际收入以终身买断 $499 和单模板 $39–$99 的一次性入账为主，应按近 30 天已验证收入 $1,238 记账，且近 30 天收入增速 -76.8% 与 MRR 增速 -4.0% 不可混用",
+        "source": "https://trustmrr.com/startup/flowmance-templates.md"
+      },
+      {
+        "claim": "420+ polished templates",
+        "truth": "官网首页实际写的是「390+ premium templates and 12,500+ ready-made sections」，与 TrustMRR 简介的 420+ 不一致，对外描述应以官网现值为准",
+        "source": "https://flowmance.com"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 公开 Markdown 主页（收入由 Lemon Squeezy API key 直读）",
+        "url": "https://trustmrr.com/startup/flowmance-templates.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "Flowmance 官网首页（模板列表、单模板定价、All Access 入口）",
+        "url": "https://flowmance.com",
+        "kind": "official"
+      }
+    ],
+    "published_from": "flowmance-templates",
+    "verified_at": "2026-10-29",
+    "updated_at": "2026-10-29",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 50,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "neoscene",
+    "name": "NeoScene",
+    "name_en": "NeoScene",
+    "origin": "",
+    "one_liner": "iOS 端 AI 图生视频应用 NeoScene，MRR $3,236，134 个活跃订阅，客单价 $24.15，毛利率 10%（档案自述）。",
+    "category": "创作者经济",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 3157.0,
+      "last_30d_revenue": 4086.0,
+      "all_time": 7691.0,
+      "subscriptions": 136,
+      "growth_30d": 659.1,
+      "mrr_growth_30d": 659.1,
+      "revenue_growth_30d": 716.5,
+      "headline": "MRR $3,157，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $3,157（TrustMRR 从支付网关 API 直读，2026-10-28 同步，RevenueCat (API key)）。近 30 天收入 $4,086、累计 $7,691、付费订阅 136 户。最近完整月环比 +15.8%（已剔除当月残月）。近 30 天 MRR 增速 +659.1%。⚠ 同期收入增速为 +716.5%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $766 → 最近完整月 $513，留存 67%。挂牌 $40,000、倍数 1.00x（要价不等于收入）。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $3,106），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 4,
+      "timing": 3
+    },
+    "verdict": "它卖的不是视频画质，是「免拍摄」：用户用 $24.15 买的是一次不用开机就能把相册里已有的照片变成可发布内容的动作，不是一台剪辑工具。",
+    "what_it_does": "NeoScene 是一款 iOS 端 AI 图生视频应用，档案显示它在 Google Play 也有 listing（包名 com.seedance.ai.app，档案原文），做的事是把用户相册里的静态照片转成短视频。收入与订阅数据由 RevenueCat 的 API key 直读，不是截图或自述。当前活跃订阅 134 个，MRR $3,236，累计收入 $7,773。创始人姓名、成立时间、团队规模、用户数四项在档案里均标注为未公开，因此无法判断它是几个人在做、做了多久。",
+    "how_it_makes_money": "定价档位未公开：档案只写 Free 加内购（In-App Purchases），没有给出各档价格与订阅周期。客单价 $24.15 是素材已算好的值，即 MRR $3,236 除以 134 个活跃订阅，直接引用。近 30 天已验证收入 $4,155 高于 MRR $3,236，说明除订阅外还存在一次性内购，收入结构不是纯订阅制。毛利率 10%（档案自述，未经二次核实），意味着收入里能留下的部分很薄。",
+    "why_it_works": [
+      "客单价 $24.15 乘以 134 个活跃订阅正好等于 $3,236 的 MRR——这个价位在 App Store 内购里属于无需比价即可下单的量级，用户不必走试用或询价流程，所以它的收入单元是「一个人的一次冲动」，而不是「一个团队的采购决策」，订阅数才能以个位数的百量级支撑起这份 MRR。",
+      "毛利率只有 10%（档案自述），即每 $1 收入里约九成要付给视频生成的推理成本：这解释了它为什么用订阅预收而不是按次后付，先用 RevenueCat 把钱收进来、再逐步消耗算力，现金流入早于成本流出，10% 的毛利才不至于把现金流压死。",
+      "月度时间线里 2026-03 只有 $14.48，2026-04 到 2026-09 一直在 $443 至 $766 之间横盘，2026-10 才跳到 $4,155：前面八个月的低基数说明近 30 天的 +709.2% 是单月跳升，不是复利曲线，这个百分比必须和它此前没有抬升这件事一起看。"
+    ],
+    "playbook": [
+      "把付费墙放进 App Store 内购而不是自建网页结账：NeoScene 的 $3,236 MRR 与 134 个订阅由 RevenueCat 的 API key 直读，任何第三方都能复核——同一门生意，走可被外部审计的收款通道，收入就从「自己填的数字」变成可交易的资产。",
+      "验证需求阶段租模型、不建模型：毛利率 10%（档案自述）不是失败，是把固定投入换成了变动成本，代价是利润薄，收益是不用预先垫算力钱就能上线收钱，适合现金少、只想过验证这一关的团队。",
+      "把产品输入锚在用户已经拥有的存量素材上：它吃的是相册里的照片，用户不需要先生产内容才能开始用，首次使用的准备成本接近零——这是 134 个订阅就能撑起 $3,236 MRR 的前提，换成需要用户先上传专业素材的工具，同量级订阅撑不住。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "近 30 天收入 $4,086 / 增速 +716.5% 可以当作 MRR 与 MRR 增速来讲",
+        "truth": "两者口径不同：MRR 快照是 $3,157、近 30 天 MRR 增速 +659.1%；$4,086 与 +716.5% 是近 30 天已发生收入及其增速，含一次性入账，讲增长要用 MRR 口径。",
+        "source": "https://trustmrr.com/startup/neoscene.md"
+      },
+      {
+        "claim": "All time $7,691 是跨年累计的长期收入",
+        "truth": "月度流水从 2026-02（$254）才开始，Last 12 months 与 All time 都是 $7,691，说明经营期不足 12 个月，这其实只是约 8 个月的累计收入。",
+        "source": "https://trustmrr.com/startup/neoscene.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 公开档案页（RevenueCat API 直读收入，含 MRR 快照与逐日流水）",
+        "url": "https://trustmrr.com/startup/neoscene.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "App Store 商品页（NeoScene 上架链接）",
+        "url": "https://apps.apple.com/us/app/image-to-video-ai-neoscene/id6757112022?uo=4",
+        "kind": "official"
+      }
+    ],
+    "published_from": "neoscene",
+    "verified_at": "2026-10-29",
+    "updated_at": "2026-10-29",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 30,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "boxer-ai",
+    "name": "Boxer AI",
+    "name_en": "Boxer AI",
+    "origin": "美国",
+    "one_liner": "Boxer AI 是一款用 iPhone 摄像头在本地识别拳击动作并实时反馈的 iOS 订阅应用，当前 MRR $5,373、活跃订阅 750 个、客单价 $7.16。",
+    "category": "AI 工具",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 5372.0,
+      "last_30d_revenue": 5558.0,
+      "all_time": 44899.0,
+      "subscriptions": 747,
+      "growth_30d": -23.7,
+      "mrr_growth_30d": -23.7,
+      "revenue_growth_30d": -33.7,
+      "headline": "MRR $5,372，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $5,372（TrustMRR 从支付网关 API 直读，2026-10-28 同步，RevenueCat (API key)）。近 30 天收入 $5,558、累计 $44,899、付费订阅 747 户。最近完整月环比 -15.5%（已剔除当月残月）。近 30 天 MRR 增速 -23.7%。⚠ 同期收入增速为 -33.7%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $10,155 → 最近完整月 $8,585，留存 85%。挂牌 $35,000、倍数 0.50x（要价不等于收入）。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $5,514），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 3,
+      "distribution": 2,
+      "capital": 2,
+      "timing": 3
+    },
+    "verdict": "它卖的不是拳击教学，而是「一个人练也有人盯着」的即时反馈；$7.16 的月费买不到教练，只买到可截图的数字，8 月 $10,155 到 10 月 $4,994 就是这个差价的折旧。",
+    "what_it_does": "Boxer AI 是一款 iOS 应用，用 iPhone 摄像头追踪出拳、判断动作并给出实时反馈；同时提供引导式训练、出拳统计、卡路里与进度记录，以及和其他用户的对战排名（以上为档案自述）。上线日期 2026-03-08，创始人姓名未公开；档案标注团队规模 1 人、Bootstrapped，两项均为档案自述、未经二次核实。截至 2026-10-29，活跃订阅 750 个，当前 MRR $5,373，累计已验证收入 $45,100，收入数据由 RevenueCat API key 直读。",
+    "how_it_makes_money": "变现形式是「免费下载 + 应用内购买」，素材只标注 Free · In-App Purchases，未公开具体的月付、年付或周付档位金额，因此无法列出价格表。按素材已算好的客单价：MRR $5,373 对应 750 个活跃订阅，即每个订阅每月贡献 $7.16。近 30 天已验证收入 $5,370，与当前 MRR $5,373 基本重合，说明收入几乎全部来自订阅续费，没有一次性付费支撑。毛利率 50%（档案自述，未经二次核实）。",
+    "why_it_works": [
+      "客单价 $7.16 把购买决策压到不需要比价的区间：750 个订阅撑起 MRR $5,373，用户不会为了每月 $7.16 去对比同类产品。代价在成本侧——每收 $1 要付出一半（毛利率 50%，档案自述未经二次核实），这个价位必须靠订阅数量摊薄成本，数量停在 750 就没有任何利润缓冲。",
+      "档案未接入 Google Analytics、DataFast、Google Search Console（三项均标记为 No），X 粉丝 0，团队 1 人（档案自述）：750 个订阅不是靠内容运营或销售团队拿到的，官网字段也直接指向 App Store 商品页（apps.apple.com/app/id6759840821）。这种结构能零人力起量，但流量开关不在自己手里，8 月 $10,155 到 10 月 $4,994 的下落与「没有自有流量入口」是一致的。",
+      "MRR $5,373 正好等于 750 个订阅 × $7.16，没有任何单价缓冲：每流失一个订阅，MRR 就少 $7.16，缺口只能靠新增订阅补，不能靠提价补（定价为应用内购买档位，素材未披露任何调价记录）。9 月 $8,585 到 10 月 $4,994（10 月为未完整月），同期近 30 天 -36.8%、MRR -24.8% 两个口径同向下行。"
+    ],
+    "playbook": [
+      "把月费定在用户不需要比价的区间，用订阅数量而不是单价撑收入：本案 $7.16 的客单价对应 750 个订阅、MRR $5,373。但同一份档案显示毛利率只有 50%（档案自述），所以这个打法必须配一个随规模下降的成本结构，否则数量越多越亏。",
+      "只复用用户已经持有设备的传感器：产品靠 iPhone 摄像头做追踪，素材未披露任何外接硬件，1 人团队因此不需要备货资金。换到任何需要采集动作或声音的品类，优先用摄像头、麦克风、陀螺仪，把硬件成本留在用户侧，把开发成本留给自己。",
+      "把原本要靠人给的判断，换成能截图对比的数字：产品输出的是出拳统计、卡路里、进度对比（档案自述），用户自己就能验证有没有进步。替人指导的产品如果只输出「不错」「再练练」这类评价，用户就没有理由续费。",
+      "一个人运营时，把商店页当唯一落地页：该产品的官网字段直接指向 App Store 商品页，没有独立站点，转化全部压在商品页的截图与文案上。人手不足时，先把这个页面的转化率做上去，再考虑分散做官网和内容。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "MRR $5,372 与近 30 天收入 $5,558 是同一个数、可以互相替代",
+        "truth": "两者口径不同：Current MRR $5,372 是快照口径，近 30 天已验证流水是 $5,558；页面同时给出近 30 天收入增速 -33.7% 与 MRR 增速 -23.7%，二者明显背离，讲增长只能用 MRR 口径",
+        "source": "https://trustmrr.com/startup/boxer-ai.md"
+      },
+      {
+        "claim": "累计收入 $44,899 可以当 ARR / 年化收入使用",
+        "truth": "月收入时间线 2026-03 至 2026-10 合计约 $44,900，与 Last 12 months、All time 同为 $44,899，即自 2026-03-08 上线以来约 8 个月的累计已发生收入；它既不是前瞻性 ARR，也不是某月×12 的 run-rate",
+        "source": "https://trustmrr.com/startup/boxer-ai.md"
+      },
+      {
+        "claim": "挂牌 $35,000 / 0.50x 倍数反映这门生意的收入规模",
+        "truth": "挂牌价与倍数是资产交易要价，页面收入字段独立以支付网关直读为准；$35,000 是要价，不是收入",
+        "source": "https://trustmrr.com/startup/boxer-ai.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR Startup 公开 Markdown 页（收入经 RevenueCat API key 直读的已验证数据）",
+        "url": "https://trustmrr.com/startup/boxer-ai.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "Apple App Store 上架页链接（本次抓取返回的是 App Store 通用首页，未渲染 Boxer AI 的 App 详情，仅用于确认上架入口存在）",
+        "url": "https://apps.apple.com/app/id6759840821",
+        "kind": "official"
+      }
+    ],
+    "published_from": "boxer-ai",
+    "verified_at": "2026-10-29",
+    "updated_at": "2026-10-29",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 60,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "kori",
+    "name": "Kori",
+    "name_en": "Kori",
+    "origin": "",
+    "one_liner": "韩语口语练习 iOS 应用 Kori，当前 MRR $5,460，活跃订阅 1,191 个，客单价 $4.58。",
+    "category": "垂直行业 SaaS",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 5468.0,
+      "last_30d_revenue": 29152.0,
+      "all_time": 68769.0,
+      "subscriptions": 1187,
+      "growth_30d": 54.2,
+      "mrr_growth_30d": 54.2,
+      "revenue_growth_30d": 14.8,
+      "headline": "MRR $5,468，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $5,468（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Superwall (API key)）。近 30 天收入 $29,152、累计 $68,769、付费订阅 1187 户。最近完整月环比 +62.8%（已剔除当月残月）。近 30 天 MRR 增速 +54.2%。⚠ 同期收入增速为 +14.8%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $25,229 → 最近完整月 $25,229，留存 100%。挂牌 $230,000、倍数 0.60x（要价不等于收入）。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $5,254），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 2,
+      "timing": 3
+    },
+    "verdict": "它卖的不是韩语知识，是「今天就开口」这个五分钟动作：$4.58 的月费把决策成本压到一杯饮料的量级，1,191 个订阅说明用户续的是练习节奏，不是课程库。",
+    "what_it_does": "Kori 是一款 iOS 韩语学习应用，官网 learnkori.com，App Store 编号 id6784963791，档案里的产品描述只有一句「Superwall ios application」。创始人 rishi，成立时间 2026-06-27。产品做的是碎片化短课、真实短语和开口练习，档案自述的价值主张是让用户在第一节就开口说韩语，而不是在心里翻译。目标用户是完全初学者，以及对韩国旅行、K-pop 文化或日常聊天感兴趣的人。当前活跃订阅 1,191 个。团队规模、融资、用户数均未公开。",
+    "how_it_makes_money": "档案自述的定价只有「Download it free」一句，即免费下载，具体订阅档位与计费周期均未公开。收入全部来自应用内订阅，支付走 Superwall 的 API key，属支付网关直读。当前 MRR $5,460，活跃订阅 1,191 个，素材已算好的客单价为 $4.58。近 30 天已验证收入 $28,991，累计 $69,508。毛利率 60% 为档案自述，未经二次核实。",
+    "why_it_works": [
+      "客单价 $4.58、活跃订阅 1,191 个（Superwall API 直读）：单价落在用户不用比较课程大纲就能下单的区间，于是收入规模由订阅人数而不是单价决定——1,191 个订阅只撑起 $5,460 的 MRR，任何提价动作会先压转化，而不是先抬客单。",
+      "月度已验证收入 $498（2026-07）→ $15,497（08）→ $25,229（09）→ $28,283（10），四个月连续递增（支付网关直读）：订阅制下月收入等于上月存量加新增再减流失，连续递增意味着新增一直大于流失，钱是滚存的，不是每月重卖一遍。",
+      "近 30 天日收入在 $487 到 $1,597 之间摆动，而月度收入线仍在抬升（支付网关直读）：日口径的噪声远大于信号，考核周期放在月上，才不会因为某天跌到 $487 就去改定价或加投放。"
+    ],
+    "playbook": [
+      "把支付与付费墙交给 Superwall 这类第三方（素材里支付网关即 Superwall API key），产品代码不承载定价逻辑，改价格和付费墙文案不必走发版——换任何 B2C 订阅应用都能照搬。",
+      "定位句写成用户第一次使用就能做成的那件事（档案自述：第一节课就开口说韩语），不要写成品类名「韩语学习」——品类名把用户推去比价，动作描述让用户当场判断要不要现在做。",
+      "对外披露时把「MRR」和「近 30 天已验证收入」分开标注并写清来源（素材里同为支付网关直读，却分别是 $5,460 与 $28,991）：两个数并列而不标口径，读者会误判规模，标了口径才可横向比较。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "累计收入 $68,769 可当年化收入 / ARR 使用",
+        "truth": "All time $68,769 是 2026-07（$498）至 2026-10（$27,544）的跨月累计流水；因上线不足一年，Last 12 months 也是 $68,769，它是已发生的累计值，不是前瞻 ARR，也不是某月 ×12 的 run-rate。",
+        "source": "https://trustmrr.com/startup/kori.md"
+      },
+      {
+        "claim": "Kori 收入增长 +54.2%",
+        "truth": "+54.2% 是近 30 天 MRR 增速；近 30 天已验证收入增速为 +14.8%。两者背离（一次性入账/按年预收会造成），讲增长必须显式标注是 MRR 口径。",
+        "source": "https://trustmrr.com/startup/kori.md"
+      },
+      {
+        "claim": "MRR $5,468 ≈ 月收入规模",
+        "truth": "近 30 天实际已验证流水为 $29,152，约为 MRR 的 5.3 倍；MRR 只反映订阅的经常性部分，不能用来代表当月现金收入规模。",
+        "source": "https://trustmrr.com/startup/kori.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 档案 kori.md（收入由 Superwall 支付 API 直读）",
+        "url": "https://trustmrr.com/startup/kori.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "Kori 官网 learnkori.com",
+        "url": "https://learnkori.com/",
+        "kind": "official"
+      }
+    ],
+    "published_from": "kori",
+    "verified_at": "2026-10-29",
+    "updated_at": "2026-10-29",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 55,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
     "id": "admitodds-ai-college-admissions-platform",
     "name": "AdmitOdds - AI College Admissions Platform",
     "name_en": "AdmitOdds - AI College Admissions Platform",
