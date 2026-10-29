@@ -621,11 +621,26 @@ def load_json(name, default=None):
         return json.load(f)
 
 
+def _orig_newline(path):
+    """原文件用哪种换行就写回哪种（红线 23，详见 score_china_fit 同名函数）。
+
+    cases.json 是 LF；这里原来没给 `newline=""`，Windows 文本模式会把它整份
+    翻成 CRLF，42268 行全变而数据没变。
+    """
+    try:
+        with open(path, "rb") as f:
+            return "\r\n" if b"\r\n" in f.read(4096) else "\n"
+    except OSError:
+        return "\n"
+
+
 def save_json(name, payload):
     path = os.path.join(DATA_DIR, name + ".json")
+    nl = _orig_newline(path)
     tmp = path + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(payload, f, ensure_ascii=False, indent=2)
+    text = json.dumps(payload, ensure_ascii=False, indent=2)
+    with open(tmp, "w", encoding="utf-8", newline="") as f:
+        f.write(text.replace("\n", nl))
     os.replace(tmp, path)
 
 

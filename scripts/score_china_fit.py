@@ -1519,11 +1519,28 @@ def load_json(name, default=None):
         return json.load(f)
 
 
+def _orig_newline(path):
+    """原文件用哪种换行就写回哪种（红线 23）。
+
+    2026-10-29 实测：`cases.json` 本来是 LF，这里原来的 `open(..., "w")` 没给
+    `newline=""`，Windows 文本模式把每一个 `\\n` 翻成 `\\r\\n` —— 42268 行全变、
+    diff 全红，而数据一个字没改，极易误判成「算分把案例库搞乱了」。
+    harvest.save_json 早就踩过同一个坑并写了长注释，这两个脚本漏了。
+    """
+    try:
+        with open(path, "rb") as f:
+            return "\r\n" if b"\r\n" in f.read(4096) else "\n"
+    except OSError:
+        return "\n"
+
+
 def save_json(name, payload):
     path = os.path.join(DATA_DIR, name + ".json")
+    nl = _orig_newline(path)
     tmp = path + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(payload, f, ensure_ascii=False, indent=2)
+    text = json.dumps(payload, ensure_ascii=False, indent=2)
+    with open(tmp, "w", encoding="utf-8", newline="") as f:
+        f.write(text.replace("\n", nl))
     os.replace(tmp, path)
 
 
