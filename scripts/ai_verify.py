@@ -122,15 +122,25 @@ AI_KEY = _cfg("CASE_LIB_AI_KEY", "ai_key", "")
 AI_MODEL = _cfg("CASE_LIB_AI_MODEL", "ai_model", "glm-4-flash")
 # 这些base 走本机代理会超时/403，LLM 请求时绕过代理（仅 LLM，不影响其他）
 AI_BASE_NO_PROXY = ("opencode.ai/zen",)
-# 🚨 备端点（429 自动降级，2026-10-26）。
-# ModelScope 免费推理限 2000 次/天（**账号级总量**，单模型另有 ~500 动态限流），
-# 跑大批量必撞 429 —— 撞了自动切备端点继续，整批不再半途而废。
-# 读 secrets.json 的 ai_fallback_base / ai_fallback_key / ai_fallback_model
-# （env CASE_LIB_AI_FALLBACK_* 优先）。没配 = 无备端点，行为同旧版。
-# 当前配置：主 = ModelScope DeepSeek-V4.1-Flash，备 = 智谱 glm-4-flash（回退键 zhipu_ai_*）。
+# 🚨 备端点链（429 自动降级，2026-10-26 起；2026-10-29 扩成两级）。
+#
+# ModelScope 按**魔粒**计费（每天登录发 200 粒，做任务最多 500 粒/天）：
+# 旗舰 2 粒/次、主流 1 粒/次、轻量 0.5 粒/次；另有账号级 2000 次/天
+# 和单模型 ~200 次/天两道动态限流。跑大批量必撞 429 —— 撞了自动往下切，
+# 整批不再半途而废。
+#
+# 端点优先级（越往下越便宜、越不容易撞限）：
+#   主   = ModelScope DeepSeek-V4.1-Flash（旗舰 2 粒，质量最好）
+#   备 1 = ModelScope Qwen3.8-Flash-Next（主流 1 粒，500 次/天）
+#   备 2 = 智谱 glm-4-flash（真免费，最后兜底）
+# 读 secrets.json 的 ai_fallback_* / ai_fallback2_*（env CASE_LIB_AI_FALLBACK*
+# 优先）。没配 = 链短一级，行为同旧版。
 AI_FB_BASE = (_cfg("CASE_LIB_AI_FALLBACK_BASE", "ai_fallback_base", "") or "").rstrip("/")
 AI_FB_KEY = _cfg("CASE_LIB_AI_FALLBACK_KEY", "ai_fallback_key", "")
 AI_FB_MODEL = _cfg("CASE_LIB_AI_FALLBACK_MODEL", "ai_fallback_model", "")
+AI_FB2_BASE = (_cfg("CASE_LIB_AI_FALLBACK2_BASE", "ai_fallback2_base", "") or "").rstrip("/")
+AI_FB2_KEY = _cfg("CASE_LIB_AI_FALLBACK2_KEY", "ai_fallback2_key", "")
+AI_FB2_MODEL = _cfg("CASE_LIB_AI_FALLBACK2_MODEL", "ai_fallback2_model", "")
 # 🚨 **截断自动重试**（2026-10-10）。
 # 推理模型把思考 token 也算进 max_tokens，核一条要烧 4000+（思考约 3600），
 # 16000 仍偶发被吃光 —— `publbee`、`vectosolve` 都因此失败过，而同批里
@@ -647,11 +657,15 @@ def search_google(q, limit=6):
         CASE_LIB_GOOGLE_CX  / secrets.json 的 google_cx    Programmable Search 的 cx
         CASE_LIB_GOOGLE_PROXY（可选）                      单独为 CSE 指定代理
 
-    ⚠ 2026-10-21 实测：`www.googleapis.com` 直连 000、走本机 1792 代理 000、
-    走 Shadowsocks 10808（PID 14792，端口在监听）也 000。**key 齐了也要有能
-    出 Google 的代理**，否则这里只会拿到超时。所以留了 google_proxy 这一项：
-    修好节点后把它指过去，不用动全局 HTTPS_PROXY（全局改了会影响 cn.bing /
-    官网抓取——那些本来是通的）。
+    ⚠ 出口实测（**2026-10-29 复核，结论与 10-21 不同，别再照旧抄**）：
+      · 直连                     → 超时
+      · 系统代理 127.0.0.1:12690 → 超时
+      · Shadowsocks 127.0.0.1:10808 → **通**（用无效 key 打端点能拿到 Google
+        官方 JSON `API key not valid / INVALID_ARGUMENT`，即链路是好的）
+    所以：key/cx 齐了还要把 `google_proxy` 指到 10808（已写进
+    data/secrets.json），不用动全局 HTTPS_PROXY —— 全局改了会影响 cn.bing
+    与官网抓取，那些本来是通的。想确认当前通不通：跑
+    `python scripts/check_google_cse.py`，它会逐条列出每条出口的状态。
 
     免费额度 100 次/日，正好够「每天新增候选 + 少量补证」的用量。
     """
@@ -661,7 +675,20 @@ def search_google(q, limit=6):
     url = ("https://www.googleapis.com/customsearch/v1?key=%s&cx=%s&q=%s&num=%d"
            % (urllib.parse.quote(key), urllib.parse.quote(cx),
               urllib.parse.quote(q), min(10, max(1, limit))))
-    data = json.loads(http_get(url, timeout=15, proxy=proxy or None))
+    # 重试（2026-10-29 实测）：10808 到 googleapis 的成功率只有 2/5，
+    # 失败形态是 TLS 握手失败 / 远端断连，成功时却只要 0.8~1.3s ——
+    # 典型的「代理节点不稳」而不是「地址不通」。重试 3 次把单次成功率
+    # 40% 抬到 ~78%，且失败的请求不会计入 100 次/日的免费额度。
+    data = None
+    for i in range(3):
+        try:
+            data = json.loads(http_get(url, timeout=20, proxy=proxy or None))
+            break
+        except Exception:                                    # noqa: BLE001
+            if i < 2:
+                time.sleep(1.5 * (i + 1))
+    if data is None:
+        return []
     out = []
     for it in data.get("items") or []:
         link = (it.get("link") or "").strip()
@@ -831,15 +858,20 @@ def llm(messages, temperature=0.2, max_tokens=None):
     """调一次模型。**截断了会自动加大预算重试**（见下方注释）。
 
     `max_tokens=None` 表示用默认 `AI_MAX_TOKENS`。
-    另有两级自动恢复：主端点 429 限流 → 切备端点（限流**不**消耗截断
-    重试次数）；备端点也限流才最终报错。没配备端点则行为同旧版。
+    另有自动降级：端点 429 限流 → 顺次切下一个端点（主 → 备1 → 备2；
+    限流**不**消耗截断重试次数）；整条链都限流才最终报错。
+    没配备端点则行为同旧版。
     """
     # 端点表：主端点用全局 AI_*（--ai-* CLI 覆盖照常生效）；
-    # 备端点与主端点同 base+model 时跳过（切过去等于没切）。
+    # 备端点与已登记端点同 base+model 时跳过（切过去等于没切）。
     eps = [{"base": AI_BASE, "key": AI_KEY, "model": AI_MODEL, "tag": "主"}]
-    if AI_FB_BASE and (AI_FB_BASE, AI_FB_MODEL) != (AI_BASE, AI_MODEL):
-        eps.append({"base": AI_FB_BASE, "key": AI_FB_KEY,
-                    "model": AI_FB_MODEL, "tag": "备"})
+    for tag, b, k, m in (("备1", AI_FB_BASE, AI_FB_KEY, AI_FB_MODEL),
+                         ("备2", AI_FB2_BASE, AI_FB2_KEY, AI_FB2_MODEL)):
+        if not b:
+            continue
+        if any((b, m) == (e["base"], e["model"]) for e in eps):
+            continue
+        eps.append({"base": b, "key": k, "model": m, "tag": tag})
     last_err = None
     budget = max_tokens or AI_MAX_TOKENS
     ei = 0
@@ -854,8 +886,9 @@ def llm(messages, temperature=0.2, max_tokens=None):
             if ei + 1 >= len(eps):
                 break
             ei += 1
-            print("   ⇄ %s端点限流(HTTP 429)，自动切备端点 %s (%s)"
-                  % (ep["tag"], eps[ei]["base"], eps[ei]["model"]))
+            print("   ⇄ %s端点限流(HTTP 429)，自动切下一级 %s：%s (%s)"
+                  % (ep["tag"], eps[ei]["tag"],
+                     eps[ei]["base"], eps[ei]["model"]))
             continue
         except _Truncated as e:
             last_err = e
@@ -871,7 +904,13 @@ def llm(messages, temperature=0.2, max_tokens=None):
             truncates += 1
             if truncates > LLM_TRUNCATE_RETRIES:
                 break
-            grown = AI_MAX_TOKENS + truncates * LLM_TRUNCATE_STEP
+            # 🚨 2026-10-29 修：这里原来写 `AI_MAX_TOKENS + truncates * STEP`，
+            # 把调用方传的 `max_tokens` 直接扔掉 —— `llm(max_tokens=900)`
+            # （backfill_narrative）或 2200（draft_case_text）一旦截断，
+            # 预算会跳到 20000，一次重试烧掉 20 倍的额度，还违背调用方
+            # 「这一问只要一句话」的本意。改为在**当前预算**上加步长，
+            # `max_tokens=None` 的老路径数值不变（16000 → 20000 → 24000）。
+            grown = budget + LLM_TRUNCATE_STEP
             print("   ↻ LLM 输出被截断，自动加预算重试"
                   "（%d → %d）" % (budget, grown))
             budget = grown

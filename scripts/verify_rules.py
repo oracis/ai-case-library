@@ -371,6 +371,55 @@ def first_hand_kinds(rec):
     return out
 
 
+def _source_key(s):
+    """来源的去重键：只看 url，scheme / www / 尾斜杠 / 大小写的差异算同一条。
+
+    query 刻意保留 —— ?a=1 与 ?b=2 通常是两个页面，合并掉会真丢一条来源；
+    而采集来的链接几乎不带 utm，不会因此产生假重复。
+    元素既接受 {url: ...} 也接受裸字符串（老数据里两种都有）。
+    """
+    u = str((s.get("url") if isinstance(s, dict) else s) or "").strip().lower()
+    if not u:
+        return ""
+    for pre in ("https://", "http://"):
+        if u.startswith(pre):
+            u = u[len(pre):]
+            break
+    u = u.split("#", 1)[0]
+    host, _, rest = u.partition("/")
+    if "@" in host:
+        host = host.rsplit("@", 1)[1]
+    if ":" in host:
+        host = host.split(":", 1)[0]
+    if host.startswith("www."):
+        host = host[4:]
+    return host + ("/" + rest.rstrip("/") if rest.strip("/") else "")
+
+
+def merge_sources(draft_sources, candidate_sources):
+    """合并草稿与候选自带的来源。返回 (合并后的列表, 从候选补进来的列表)。
+
+    promote 曾经写成 `draft.get("sources") or hit.get("sources", [])` ——
+    草稿里只要有来源，候选自带的就整段被丢掉。后补的独立第二来源
+    （GitHub 仓库 homepage、App Store 在架页这类人工锚点）晋升完凭空消失，
+    案例重新退回「只有一个来源」的状态。
+
+    顺序：草稿在前，候选在后。同 url 保留草稿那一条 —— 那是人工核过的版本，
+    它的 kind/label 比采集时自动标的可靠。
+    """
+    merged, added, seen = [], [], set()
+    for group, is_add in ((draft_sources, False), (candidate_sources, True)):
+        for s in (group or []):
+            k = _source_key(s)
+            if not k or k in seen:
+                continue
+            seen.add(k)
+            merged.append(s)
+            if is_add:
+                added.append(s)
+    return merged, added
+
+
 def default_case_tier(rec):
     """给一个已发布案例定默认档位。返回 (tier, 理由)。
 

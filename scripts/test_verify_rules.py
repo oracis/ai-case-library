@@ -745,5 +745,75 @@ class CaliberDeniedByAI(unittest.TestCase):
         self.assertTrue(hit[0]["why"].strip(), "不能给一条空理由把人拦下")
 
 
+class MergeSources(unittest.TestCase):
+    """promote 的来源合并。
+
+    守的历史 bug：`draft.get("sources") or hit.get("sources", [])` ——
+    草稿里只要有来源，候选自带的就整段被丢。人工后补的独立第二来源
+    （GitHub homepage、App Store 在架页）晋升完就没了，案例退回单来源。
+    """
+
+    D = [{"label": "TrustMRR 收入页", "url": "https://trustmrr.com/startup/foo",
+          "kind": "stripe"}]
+    C = [{"label": "官网", "url": "https://foo.dev", "kind": "official"},
+         {"label": "GitHub 仓库（homepage=foo.dev）",
+          "url": "https://github.com/a/foo", "kind": "github"}]
+
+    def test_候选来源不再被整段丢掉(self):
+        merged, added = R.merge_sources(self.D, self.C)
+        self.assertEqual(len(merged), 3)
+        self.assertEqual([s["url"] for s in added],
+                         ["https://foo.dev", "https://github.com/a/foo"])
+        # 草稿那一份排在前面：它是人工核过的版本
+        self.assertEqual(merged[0]["url"], "https://trustmrr.com/startup/foo")
+
+    def test_同url只留一条_且草稿胜出(self):
+        """同 url 保留草稿的 kind —— 候选的 kind 是采集时自动标的，不可靠。"""
+        dup = [{"label": "官网（采集）", "url": "http://www.foo.dev/", "kind": "official"}]
+        merged, added = R.merge_sources(
+            [{"label": "官网", "url": "https://foo.dev", "kind": "homepage"}], dup)
+        self.assertEqual(len(merged), 1)
+        self.assertEqual(merged[0]["kind"], "homepage", "同 url 应以草稿的 kind 为准")
+        self.assertEqual(added, [], "重复项不该算作补进来的")
+
+    def test_草稿为空时等价回落(self):
+        """旧写法在草稿为空时会取候选；合并后行为必须一致，不能变成空列表。"""
+        merged, added = R.merge_sources([], self.C)
+        self.assertEqual(merged, self.C)
+        self.assertEqual(len(added), 2)
+
+    def test_候选为空时只留草稿(self):
+        merged, added = R.merge_sources(self.D, [])
+        self.assertEqual(merged, self.D)
+        self.assertEqual(added, [])
+
+    def test_两边都空(self):
+        self.assertEqual(R.merge_sources(None, None), ([], []))
+
+    def test_草稿内部重复也去重(self):
+        d = self.D + [{"label": "同上", "url": "https://trustmrr.com/startup/foo/",
+                       "kind": "stripe"}]
+        merged, _ = R.merge_sources(d, [])
+        self.assertEqual(len(merged), 1)
+
+    def test_无url的条目跳过而不是塞进案例(self):
+        merged, added = R.merge_sources([{"label": "没链接", "kind": "official"}], self.C)
+        self.assertEqual(len(merged), 2, "无 url 的来源既不该进案例也不该挡住别人")
+        self.assertEqual(len(added), 2)
+
+    def test_幂等_合并两次结果不变(self):
+        merged, _ = R.merge_sources(self.D, self.C)
+        again, added2 = R.merge_sources(merged, self.C)
+        self.assertEqual(again, merged)
+        self.assertEqual(added2, [])
+
+    def test_不同query不算同一条(self):
+        """?a=1 与 ?b=2 通常是两个页面，合并掉会真丢一条来源。"""
+        d = [{"url": "https://x.dev/p?a=1", "kind": "official"}]
+        c = [{"url": "https://x.dev/p?b=2", "kind": "official"}]
+        merged, added = R.merge_sources(d, c)
+        self.assertEqual(len(merged), 2)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

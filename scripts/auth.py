@@ -125,13 +125,32 @@ def ensure_admin(env_password=None):
 
 
 def get_secret(cfg):
+    """取 token 签名密钥。
+
+    ⚠️ 2026-10-29 事故：这里曾经是 `cfg["secret"] = ...; _write_json(cfg)`。
+    当调用方传入的是空 dict（server 的 `_ADMIN_CFG` 就是 `{}` —— 它只在
+    真正登录后才被填成完整配置），函数会**生成一个新 secret 并整文件覆盖**，
+    于是：① 所有已登录的后台会话当场失效；② password_hash 等字段被一起抹掉
+    （实测 301 字节 → 82 字节）。一次「读密钥」的调用把凭据换了，这是最坏的
+    那类副作用 —— 调用方没有任何迹象。
+
+    两条护栏：
+      1. 传入的配置里没有 secret 时，先回磁盘再读一次，不凭空造；
+      2. 真的得补（比如文件本身缺字段）时，以**磁盘上现有的配置**为底子合并，
+         只补 secret 一个键，不碰 password_hash / 时间戳。
+    """
     secret = (cfg or {}).get("secret")
     if secret:
         return secret
-    # 老配置没有 secret（理论上不会），补一个并落盘
-    cfg["secret"] = secrets.token_hex(32)
-    _write_json(ADMIN_FILE, cfg)
-    return cfg["secret"]
+    # 传入的是空配置（{} 或 None）不代表文件里没有 —— 先回磁盘问一次
+    disk = load_admin()
+    if isinstance(disk, dict) and disk.get("secret"):
+        return disk["secret"]
+    base = disk if isinstance(disk, dict) else (cfg if isinstance(cfg, dict) else {})
+    base = dict(base)
+    base["secret"] = secrets.token_hex(32)
+    _write_json(ADMIN_FILE, base)
+    return base["secret"]
 
 
 def make_token(secret, ttl=TOKEN_TTL):
