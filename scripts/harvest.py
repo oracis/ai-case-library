@@ -967,7 +967,8 @@ def tm_cache_load():
     st = load_json(TM_CACHE, {}) or {}
     st.setdefault("sitemap", {})        # slug -> lastmod（sitemap 快照）
     st.setdefault("profiles", {})       # slug -> 精简档案（.md 解析结果）
-    st.setdefault("gone", [])           # 抓过但确认不存在的 slug，别反复抓
+    st.setdefault("gone", [])           # sitemap 里列着但 .md 404：真下架，别反复抓
+    st.setdefault("unlisted", [])       # 线索源给的 slug 本站没有：名称未对齐，非下架
     st.setdefault("cursor", 0)          # 未抓池的轮换游标
     st.setdefault("fetched_at", "")
     return st
@@ -1128,6 +1129,13 @@ def tm_pick_batch(st, budget, seeds=None):
     seeds：外部线索源给的 slug 清单（如 howtomakemi 索引与 TrustMRR 的交叉集）。
     它们只是「排队优先级」，不改变抓取边界——仍受 budget 有界约束，
     已抓过/已 gone 的自动跳过。种子本身不进 st，避免污染轮换池。
+
+    🚨 种子必须**先与 sitemap 求交**再排队。线索站（howtomakemi）的 slug 是
+    别的站的命名，跨站不一定对齐（`cursor` / `ollama` / `openrouter` 这类在
+    TrustMRR 根本没有同名条目）。若拿未收录的 slug 去请求 .md，服务端同样
+    回 404，会被误判成「档案下架」写进 gone —— 2026-10-28 实测 233 条 gone
+    全是这样攒出来的（与 profiles、sitemap 零交集，无一真下架）。
+    「不存在这个 slug」≠「档案下架」，两者必须分开记。
     """
     slugs = list(st["sitemap"].keys())
     if not slugs:
@@ -1135,7 +1143,8 @@ def tm_pick_batch(st, budget, seeds=None):
     gone = set(st.get("gone") or [])
     seed_fresh = []
     for s in (seeds or []):
-        if s not in st["profiles"] and s not in gone and s not in seed_fresh:
+        if (s in st["sitemap"] and s not in st["profiles"]
+                and s not in gone and s not in seed_fresh):
             seed_fresh.append(s)
     if seed_fresh:
         batch = seed_fresh[:budget]
@@ -1248,6 +1257,15 @@ def harvest_trustmrr_sitemap(limit, budget=TM_ROUND_BUDGET, dry_run=False,
         return []
 
     batch = tm_pick_batch(st, budget, seeds=seeds)
+    # 种子未对齐：线索源有、TrustMRR 没这个 slug（跨站命名差异）。单独记账，
+    # 绝不能进 gone —— 那语义是「档案下架」，会把诊断和一键清库带偏。
+    if seeds:
+        unlisted_now = [s for s in seeds if s not in st["sitemap"]]
+        if unlisted_now:
+            st["unlisted"] = sorted(set(st.get("unlisted") or [])
+                                    | set(unlisted_now))
+            print("    [i] 种子中 %d 个 slug 未收录于 TrustMRR sitemap"
+                  "（名称未对齐，非下架，跳过）" % len(unlisted_now))
     if not batch:
         # 种子已抓完：档案池里可能还有上轮被 limit 截断、没进队列的，
         # 直接走选拔（不抓取）。种子全进过库时才真没事干。

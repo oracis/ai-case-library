@@ -940,6 +940,58 @@ def test_archive_not_reharvested():
     print()
 
 
+def test_tm_seed_unlisted_not_gone():
+    """🚨 回归钉：线索站 slug 在 TrustMRR 未收录 ≠ 档案下架。
+
+    2026-10-28 实测：howtomakemi 的 254 个种子里 187 个 TrustMRR sitemap 里
+    根本没有同名 slug（`cursor` / `ollama` / `openrouter` 这类明显还活着的也
+    在内）——线索站的 slug 是它自己的命名，跨站不一定对齐。此前种子不做
+    sitemap 求交就排队，请求 .md 一律回 404，被 tm_fetch_profiles 判成 gone。
+    攒下来的 233 条 gone 与 profiles、sitemap **零交集**，等于把「名字没对上」
+    整批记成了「产品下架」。
+
+    后果不只是脏数据：以后任何「这条是不是下架了」的诊断（audit_delisted、
+    人工核查）都会被这张表带偏，而且这些 slug 永远不会再被重试。
+    """
+    print("[20] 种子未收录 ≠ 档案下架")
+    st = {"sitemap": {"listed": "", "listed2": ""}, "profiles": {},
+          "gone": [], "unlisted": [], "cursor": 0}
+    batch = H.tm_pick_batch(st, 10, seeds=["listed", "cursor", "ollama"])
+    chk("只排队 sitemap 里有的种子", batch == ["listed"], batch)
+    chk("未收录的种子不被记成 gone", st["gone"] == [], st["gone"])
+
+    # gone 的本义仍然生效：sitemap 列着但 .md 404 的真下架条目不该反复抓
+    st2 = {"sitemap": {"listed": "", "dead": ""}, "profiles": {},
+           "gone": ["dead"], "unlisted": [], "cursor": 0}
+    chk("真下架的 sitemap 成员仍被跳过",
+        H.tm_pick_batch(st2, 10, seeds=["dead", "listed"]) == ["listed"])
+
+    # 采集主流程要把未收录的种子落在 unlisted 里，而不是 gone
+    tmpd = tempfile.mkdtemp(prefix="tm_seed_")
+    seeds_path = os.path.join(tmpd, "seeds.txt")
+    with open(seeds_path, "w", encoding="utf-8") as f:
+        f.write("# 注释行\naligned\nnot-there\n")
+    st3 = {"sitemap": {"aligned": ""}, "profiles": {}, "gone": [],
+           "unlisted": [], "cursor": 0, "fetched_at": ""}
+    orig = (H.tm_cache_load, H.tm_sitemap_slugs, H.tm_fetch_profiles,
+            H.save_json, H.seen_keys)
+    try:
+        H.tm_cache_load = lambda: st3
+        H.tm_sitemap_slugs = lambda: {}
+        H.tm_fetch_profiles = lambda slugs, checkpoint=None: ({}, set())
+        H.save_json = lambda name, obj: None
+        H.seen_keys = lambda: {"slugs": set(), "names": set(), "ids": set()}
+        H.harvest_trustmrr_sitemap(50, budget=10, seeds_file=seeds_path)
+    finally:
+        (H.tm_cache_load, H.tm_sitemap_slugs, H.tm_fetch_profiles,
+         H.save_json, H.seen_keys) = orig
+        import shutil
+        shutil.rmtree(tmpd, ignore_errors=True)
+    chk("未收录种子里落 unlisted", st3["unlisted"] == ["not-there"], st3["unlisted"])
+    chk("未收录种子没进 gone", st3["gone"] == [], st3["gone"])
+    print()
+
+
 def main():
     print("=" * 62)
     print("  harvest 五源解析 + source_kind 测试（离线）")
@@ -961,6 +1013,7 @@ def main():
     section("category_cn 英文分类归一", test_category_cn_normalizes_english)
     section("归档条目不回流", test_archive_not_reharvested)
     section("drop_keywords 词边界+否定保护", test_drop_keywords_no_substring_false_positive)
+    section("种子未收录 ≠ 档案下架", test_tm_seed_unlisted_not_gone)
 
     print("=" * 62)
     if fails:
