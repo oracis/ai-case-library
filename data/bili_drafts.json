@@ -284,7 +284,9 @@
   "at": "2026-10-10 01:23",
   "article_id": "342411",
   "title": "MagicSlides.app：输入主题自动做 PPT",
-  "note": "｜草稿同步(2026-10-10 01:23): title 认领 aid=342411"
+  "verified_at": "2026-10-29 11:46",
+  "evidence": "editor-ui-publish + 重分配 aid 回读",
+  "note": "2026-10-29 发布时 B站重分配 aid：342411 → 53660838；脚本按旧 aid 回读误报失败，已人工回读已发表列表命中补账"
  },
  {
   "id": "le19emetrou",

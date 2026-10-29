@@ -298,8 +298,14 @@ def publish_draft(draft_id, cookie=None):
 
 
 def delete_draft(draft_id, cookie=None):
+    """删草稿。
+
+    ⚠ 2026-10-29 实测：这个端点的参数名是 `draft_id`（字符串），不是 `id`
+    —— 旧的 `{"id": ...}` 一律返 `err_no=2 参数错误`，且报错文本不含字段名，
+    很容易误判成「没权限/接口下线」。改完原样重放同一条 draft_id 即 `err_no=0`。
+    """
     return api("/content_api/v1/article_draft/delete",
-               {"id": str(draft_id)}, cookie)
+               {"draft_id": str(draft_id)}, cookie)
 
 
 def remember(slug, draft_id, title):
