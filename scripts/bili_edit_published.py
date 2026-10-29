@@ -169,7 +169,8 @@ def main():
     cdp = wp.CDP(9223)
     ba._member_tab(cdp)
     view = article_view(cdp, a.aid)
-    print("aid=%s | edit_times=%s | editable=%s" % (a.aid, view.get("edit_times"), view.get("editable")))
+    print("aid=%s | edit_times=%s | editable=%s"
+          % (a.aid, view.get("edit_times"), view.get("editable")))
     print("dyn_id_str:", view.get("dyn_id_str"))
     print("现标题:", (view.get("opus") or {}).get("title"))
     try:

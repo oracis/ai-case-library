@@ -1178,9 +1178,11 @@ def test_drop_keywords_no_substring_false_positive():
 
     # ① 子串不再误杀（_blob 尾部按真实格式带 verified revenue mrr）
     for text, why in [
-        ("comments and dm from facebook, instagram lands in one inbox verified revenue mrr", "facebook"),
+        ("comments and dm from facebook, instagram lands in one inbox verified revenue mrr",
+         "facebook"),
         ("the ultimate ai notebook for students verified revenue mrr", "notebook"),
-        ("aiwritebook is an all-in-one ai book creation platform verified revenue mrr", "writebook"),
+        ("aiwritebook is an all-in-one ai book creation platform verified revenue mrr",
+         "writebook"),
         ("ofrecemos diferentes tipos de saas por suscripcion verified revenue mrr", "tipos"),
     ]:
         ok, reason = flt.verdict(text)
