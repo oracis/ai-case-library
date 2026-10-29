@@ -166,6 +166,23 @@ def main():
             "%d vs %d" % (len(data.get("cases") or []), len(src)))
         for k in ("candidates", "inbox", "sources", "stats", "generated_at"):
             chk("含字段 %s" % k, k in data)
+
+        # 反向样本区（2026-10-26 上站）：与 cases 平级、单独成键。
+        # 最容易出的错是「混进 cases」—— 那会同时抬高 curated 计数（verify_deploy
+        # 拿它比对线上）和在「值得做」的排行榜尾部堆 33 条低分条目。
+        anti = data.get("anti") or {}
+        ac = anti.get("cases") or []
+        chk("含 anti 键（33 条）", len(ac) == 33, "%d" % len(ac))
+        chk("  带 7 篇的元信息", len(anti.get("volumes") or []) == 7)
+        chk("  anti 的 id 没混进 cases",
+            not (set(a.get("id") for a in ac) & set(c.get("id") for c in data["cases"])))
+        chk("  stats.anti 与条数一致", (data.get("stats") or {}).get("anti") == len(ac))
+        chk("  每条都归了篇（否则某篇永远写不到它）",
+            all(a.get("volume") for a in ac))
+        chk("  curated 计数没被抬高",
+            (data.get("stats") or {}).get("curated") == len(src))
+        chk("生成了 anti/index.html",
+            os.path.isfile(os.path.join(site, "anti", "index.html")))
         j = json.load(open(os.path.join(site, "data.json"), encoding="utf-8"))
         chk("data.json 与 data.js 内容一致", j == data)
 

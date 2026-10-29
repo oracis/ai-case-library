@@ -19,6 +19,22 @@ data/admin.json.*
 data/verifications.json
 # LLM API Key（后台「AI 核实」面板保存的那份）：绝不入库
 data/secrets.json
+# 掘金登录凭证（cookie 鉴权，等同密码）—— 绝不能进仓库。
+# 为什么单列而不靠 data/ 通配：项目里 data/*.json 台账（cases/bili_drafts/
+# publish_manifest…）都是**要跟踪**的业务数据，通配一刀切会把它们一起丢掉。
+data/juejin_cookie.json
+data/juejin_cookie.json.*
+# CSDN 登录凭证（cookie 鉴权，等同密码）—— 2026-10-28 接入第六平台时补的规则。
+# ⚠ 这条规则**晚于文件出现**：`data/csdn_cookie.json` 先落了盘才想起来加。
+# 只要它没被 add 过就还干净，但每次提交前仍要 `git check-ignore -v` 复核。
+data/csdn_cookie.json
+data/csdn_cookie.json.*
+# 博客园 MetaWeblog 访问令牌（同上，等同密码）
+data/cnblogs_config.json
+data/cnblogs_config.json.*
+
+# 《31个可复制的AI产品》PDF 买家台账：含第三方微信昵称，属个人数据，绝不入库
+data/pdf31_buyers.csv
 
 # 本地服务日志
 *.log
@@ -63,8 +79,23 @@ dist/
 # 对外发布用的构建产物（--no-inbox，正是上传 OSS 的那一份）
 public/
 
-# 公众号草稿（scripts/make_article.py 生成，属个人内容，不入库）
-out/
+# howtomakemi 增量管线 GUI（gui/）：PyInstaller 中间产物与 spec 不入库。
+# exe 落在 gui/dist/，被上面的 `dist/` 通配挡住；要重建随时
+# `python -X utf8 gui/build_exe.py`（源码 gui/htm_increment_gui.py 入库）。
+gui/build/
+gui/*.spec
+
+# 公众号草稿（scripts/make_article.py 生成）
+# 默认整目录不入库：out/xhs 里是 176MB 封面图，out/toutiao / out/bili / out/preview
+# 是各平台的可再生中间产物，重跑脚本就能再生成一遍。
+# ⚠ 用 `out/*` 而不是 `out/`：git 的规则是「父目录被排除时，子文件无法再被单独
+# 放行」，整目录一刀切会让下面的例外失效。
+out/*
+# 例外：out/articles/ 是**唯一无法重建的资产** —— 每条案例一份 .md（原稿）+
+# 一份 .html（公众号粘贴用）。重跑脚本能生成「草稿」，但生成不出当时定稿的措辞；
+# 已经写过 500 多个文件、发过几十篇，把它们挡在库外等于把这一年的东西押在
+# 本地磁盘上（换机 / 误删即永久丢失）。2026-10-26 按要求摘出来入库。
+!out/articles/
 
 # 公众号成品（根目录的「公众号-XXX拆解.html」与发布计划）
 # 与 out/ 同理：是给公众号后台粘贴的内容产物，不是这个库的代码或数据。
@@ -153,3 +184,13 @@ data/*.bak-*
 # (error: invalid path 'NUL').
 NUL
 miniprogram/project.private.config.json
+
+# 根目录临时产物：筛选项中间文件（tmp_htm_* / tmp_howtomakemi_* 等，权威口径
+# 在 data/htm_backlog_caliber.json）+ 运行日志目录（*.log 已忽略，txt 同理）。
+/tmp_*
+logs/
+
+# 知乎登录凭证（cookie 鉴权，等同密码）—— 2026-10-28 接入知乎时补的规则。
+# 与 juejin/csdn 同款：宁可多一条规则也不能让 cookie 进仓库。
+data/zhihu_cookie.json
+data/zhihu_cookie.json.*

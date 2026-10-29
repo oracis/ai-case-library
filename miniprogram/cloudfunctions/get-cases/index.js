@@ -7,6 +7,7 @@
  *   { id: 'xxx', full: true }  请求完整内容（付费字段；**服务端校验权益**）
  *   { ver: '123' } / {}        版本比对：相同返回 {changed:false}，
  *                              不同返回全量 FREE 字段（约 40KB，客户端缓存）
+ *   { subscribe: { email } }   M3 周报订阅（Web 落地页；格式校验 + 去重后入库）
  *
  * 🔴🔴 商业模式 2026-10-15 改为**内容收费**（原「内容免费」被证伪）：
  *   原来 34 个字段全在免费白名单里，其中包含 export-cases 要导出的
@@ -21,7 +22,7 @@
  */
 
 const cloud = require('wx-server-sdk');
-const { getEntitlements, canReadFull } = require('./lib/deliver.js');
+const { getEntitlements, canReadFull, resolveCaller, identOf } = require('./lib/deliver.js');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
@@ -57,20 +58,69 @@ const PAID = {
 };
 
 exports.main = async (event) => {
-  const openid = cloud.getWXContext().OPENID;
+  // ---- M3 周报订阅（不要求登录态；Web 落地页匿名可调） ----
+  if (event.subscribe && event.subscribe.email) {
+    const email = String(event.subscribe.email).trim().toLowerCase();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || email.length > 200) {
+      return { errcode: 40002, errmsg: '邮箱格式不对' };
+    }
+    const coll = db.collection('subscribers');
+    const dup = await coll.where({ email: email }).count();
+    if (dup.total > 0) return { errcode: 0, subscribed: true, dedup: true };
+    await coll.add({ data: {
+      email: email,
+      source: 'web',            // 来源标记（web / miniprogram / import）
+      created_at: new Date().toISOString()
+    } });
+    return { errcode: 0, subscribed: true };
+  }
+
+  // M2 双身份：小程序语境 = OPENID；Web SDK 语境 = CloudBase uid
+  const caller = await resolveCaller(cloud);
+  const ident = identOf(caller);
+  const openid = caller.openid;
 
   // ---- 登录态 + 权益 ----
   if (event.me) {
-    const ent = await getEntitlements(db, openid);
+    const ent = await getEntitlements(db, ident);
     return {
-      errcode: 0, openid: openid || '', entitlements: ent,
+      errcode: 0,
+      openid: openid,
+      uid: caller.uid,
+      identity: ident ? 'bound' : 'anonymous',
+      entitlements: ent,
       canReadFull: canReadFull(ent, '')
     };
   }
 
+  // ---- 绑定 Web 会话（M2）----
+  // 仅小程序语境发起：把 Web 端匿名会话的 uid 绑到当前 openid 的 users
+  // 文档。之后 Web 端以 uid 读权益，与小程序共享同一份 reports/export/会员。
+  if (event.bind_uid) {
+    if (!openid) {
+      return { errcode: 40301, errmsg: '绑定仅支持小程序内发起（需要微信登录态）' };
+    }
+    const uid = String(event.bind_uid);
+    if (!/^[\w-]{8,64}$/.test(uid)) {
+      return { errcode: 40011, errmsg: '绑定码格式不合法' };
+    }
+    const now = Date.now();
+    const u = await db.collection('users').where({ _openid: openid }).limit(1).get();
+    if (u.data && u.data.length) {
+      await db.collection('users').doc(u.data[0]._id).update({
+        data: { uid: uid, updated_at: now }
+      });
+    } else {
+      await db.collection('users').add({
+        data: { _openid: openid, uid: uid, reports: [], export_all: false, member_until: 0, created_at: now, updated_at: now }
+      });
+    }
+    return { errcode: 0, bound: true, uid: uid };
+  }
+
   // ---- 单条 ----
   if (event.id) {
-    const ent = await getEntitlements(db, openid);
+    const ent = await getEntitlements(db, ident);
     const unlocked = canReadFull(ent, event.id);
     // full:true 只是「我要看付费层」的请求，能不能给看权益 —— 顺序不能反
     const field = unlocked ? Object.assign({}, FREE, PAID) : FREE;

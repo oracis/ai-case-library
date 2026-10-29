@@ -1073,6 +1073,12 @@ body { display: flex; flex-direction: column; }
   .nav-item {
     flex: 0 0 auto; flex-direction: column; gap: 3px;
     align-items: center; justify-content: center;
+    /* ⚠ 必须显式 width:auto：基础规则里 .nav-item 是 width:100%（侧栏里占满一行），
+       底部 tab 是 flex 横排，100% 会解析成「每项 = 整条栏宽」——
+       实测只有一个 tab 可见，其余全靠横向滚动才翻得到（9 项时要翻 8 次）。
+       2026-10-26 加第 9 个 tab（这些别照着做）时量到 innerWidth=500 而
+       nav-item 宽 500，才发现这一条从底部 tab 重构那天起就是坏的。 */
+    width: auto;
     min-width: 54px; padding: 7px 11px 6px; border-radius: 0;
   }
   .nav-item .nav-ico { font-size: 16px; width: auto; }
@@ -1361,6 +1367,56 @@ body { display: flex; flex-direction: column; }
 @media (max-width: 900px) {
   .gy-filter { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; }
   .gy-loss b { font-size: 16px; }
+}
+
+/* ============================================================
+   反向样本区 ·「这些别照着做」（2026-10-26）
+   ------------------------------------------------------------
+   复用墓碑卡的骨架（.gy-card / .gy-head / .gy-loss），只换三处语义：
+     1. 标签从「死因」变成「抄不动的原因」（role）；
+     2. 左边条颜色 = 门槛类型，而不是死因；
+     3. 金额**不染成钱色** —— 那个数是聚合站的说法，不是核实过的收入，
+        染成 --money 绿等于替它背书（这一区一半的内容就是「这个数不是收入」）。
+   ============================================================ */
+.gy-reason[data-k="structural"] { --rc: var(--v-disputed); }
+.gy-reason[data-k="license"]    { --rc: var(--v-partial); }
+.gy-reason[data-k="caliber"]    { --rc: var(--accent); }
+.anti-card:has(.gy-reason[data-k="structural"]) { --gc: var(--v-disputed); }
+.anti-card:has(.gy-reason[data-k="license"])    { --gc: var(--v-partial); }
+.anti-card:has(.gy-reason[data-k="caliber"])    { --gc: var(--accent); }
+
+.anti-card .gy-loss b { color: var(--text-2); font-size: 16px; }
+/* 33 条里唯一一条标签没写错 —— 反过来夸一句，它是最好的口径教材 */
+.anti-ok {
+  font-size: 10.5px; padding: 1px 7px; border-radius: 20px;
+  color: var(--money); background: color-mix(in srgb, var(--money) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--money) 38%, transparent);
+}
+.anti-done, .anti-pending {
+  font-size: 10.5px; padding: 1px 7px; border-radius: 20px;
+  border: 1px solid var(--border-2); color: var(--text-3);
+}
+.anti-pending { border-style: dashed; color: var(--v-partial); }
+
+/* 每一篇的开头：篇号 + 篇名 + 判据 + 导语。
+   判据必须写在卡片之前 —— 读者得先知道「这一篇在比什么」，
+   否则 6 张卡堆在一起又变成「他们有钱所以你不行」。 */
+.anti-vol { margin-bottom: 28px; }
+.anti-volhead {
+  padding: 2px 0 2px 14px; margin-bottom: 13px;
+  border-left: 2px solid var(--border-2);
+}
+.anti-voltitle { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; }
+.anti-no { font-family: var(--mono); font-size: 15px; color: var(--accent); line-height: 1; }
+.anti-voltitle h3 { margin: 0; font-size: 15.5px; font-weight: 650; letter-spacing: .1px; }
+.anti-voltitle em { font-style: normal; font-size: 11.5px; color: var(--text-3); }
+.anti-judge { margin: 5px 0 0; font-size: 12px; color: var(--text-3); }
+.anti-lead { margin: 6px 0 0; font-size: 13px; color: var(--text-2); line-height: 1.72; max-width: 74ch; }
+
+@media (max-width: 900px) {
+  .anti-voltitle h3 { font-size: 14.5px; }
+  .anti-lead { font-size: 12.5px; }
+  .anti-vol { margin-bottom: 22px; }
 }
 
 /* ============================================================

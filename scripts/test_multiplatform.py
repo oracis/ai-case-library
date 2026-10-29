@@ -827,5 +827,137 @@ class TestPublishMultiCli(unittest.TestCase):
         self.assertEqual(m.state("kibu", "xhs"), "pending")
 
 
+class TestVerifyPortAndKeyGuard(unittest.TestCase):
+    """verify.py 端口分流 + 前缀键偷匹配的回归（2026-10-25 实测两个假阴性）。
+
+    ⚠️ 类名**不要**叫 TestVerifyMatching —— 本文件已有同名类，重名会被
+    静默遮蔽（旧测试不跑、新测试报绿，双重假象）。
+    """
+
+    def test_端口按平台分流(self):
+        """真相源是 chrome_cdp_launch.PLATFORMS：wechat 9222，三平台 9223。"""
+        from multiplatform import verify as V
+        self.assertEqual(V._port_for("wechat"), 9222)
+        self.assertEqual(V._port_for("toutiao"), 9223)
+        self.assertEqual(V._port_for("bilibili"), 9223)
+        self.assertEqual(V._port_for("xhs"), 9223)
+
+    def test_读取器默认端口不写死(self):
+        """默认值必须是 None（运行时按平台解析），不能是模块级 9222。"""
+        from multiplatform import verify as V
+        import inspect
+        self.assertIsNone(
+            inspect.signature(V.read_toutiao_drafts).parameters["port"].default)
+        self.assertIsNone(
+            inspect.signature(V.read_bilibili_drafts).parameters["port"].default)
+
+    def test_AI前缀键不偷匹配(self):
+        """`ai-prank-call` 的前缀键 `AI` 不能把 ai-voice-calls 的标题偷走。
+
+        线上事故形态：B站草稿箱回读 53 条，对账却报 40 条 missing，
+        其中包含逐条确认过在箱里的 ai-prank-call 等。
+        这里用 cases.json 里的案例名当标题（keys_for 的候选键之一），
+        不依赖 out/bili 产物。
+        """
+        from multiplatform import verify as V
+        cases = {c.get("id"): c.get("name", "") for c in A.load_cases()}
+        n1, n2 = cases.get("ai-prank-call"), cases.get("ai-voice-calls")
+        if not n1 or not n2:
+            self.skipTest("cases.json 缺这两个案例的 name")
+        m = S.Manifest(os.path.join(tempfile.mkdtemp(), "m.json"))
+        # 偷匹配方先入清单（reconcile 按清单顺序逐个试键）
+        m.mark_draft("ai-prank-call", "bilibili", n1)
+        m.mark_draft("ai-voice-calls", "bilibili", n2)
+        r = V.reconcile("bilibili", [n1, n2], m=m, verbose=False)
+        self.assertEqual(r["missing"], [])
+        self.assertEqual(sorted(r["matched"]),
+                         ["ai-prank-call", "ai-voice-calls"])
+        self.assertEqual(r["unmatched_titles"], [])
+
+    def test_单字符id仍可匹配(self):
+        """前缀键过滤不能误伤 id 本身：合成用例 `a` 要能匹配 `标题A`。"""
+        from multiplatform import verify as V
+        m = S.Manifest(os.path.join(tempfile.mkdtemp(), "m.json"))
+        m.mark_draft("a", "toutiao", "标题A")
+        r = V.reconcile("toutiao", ["标题A"], m=m, verbose=False)
+        self.assertEqual(r["missing"], [])
+        self.assertEqual(r["matched"], {"a": "标题A"})
+
+
+class TestBlockedRule(TmpManifest):
+    """被拦/封的处置规则（2026-10-28 用户口径）。
+
+    被拦 → 改一版仍无效 → 记 blocked（终止态）→ 顺延下一篇 + 剔除草稿。
+    """
+
+    def test_blocked_is_terminal_and_keeps_reason(self):
+        self.m.mark_blocked("a", "toutiao", "审核不通过：内容涉及宗教",
+                            "标题A")
+        self.assertTrue(self.m.is_blocked("a", "toutiao"))
+        self.assertFalse(self.m.is_published("a", "toutiao"))
+        # 不能算 done：verify 的「清单说发了」不能把被拦的算进去
+        self.assertFalse(self.m.is_done("a", "toutiao"))
+        self.assertIn("宗教", self.m.blocked_reason("a", "toutiao"))
+        # 落盘后仍然是 blocked 且原因还在（不能像 failed 那样被 --retry 洗掉）
+        again = S.Manifest(self.path)
+        self.assertTrue(again.is_blocked("a", "toutiao"))
+        self.assertIn("宗教", again.blocked_reason("a", "toutiao"))
+
+    def test_blocked_not_requeued_even_with_replace(self):
+        """--replace 也不该把 blocked 的稿重新捡起来 —— 重发还是被拦。"""
+        self.m.mark_blocked("ai-prank-call", "toutiao", "违规")
+        r = runner.Runner(["toutiao"], dry=True, manifest=self.m,
+                          verbose=False, replace=True)
+        queue = r.queue(only="ai-prank-call")
+        self.assertEqual(queue, [], "blocked 的 case 必须完全不在队列里")
+
+    def test_reset_can_revive_blocked(self):
+        """确实改好了要重试时，唯一入口是 reset（人工确认的动作）。"""
+        self.m.mark_blocked("a", "toutiao", "违规")
+        self.m.remove("a", "toutiao")
+        self.assertEqual(self.m.state("a", "toutiao"), "pending")
+
+
+class TestBlockedNextTarget(unittest.TestCase):
+    """顺延口径：公众号按编号、其余按草稿存得最久；都要跳过 blocked。"""
+
+    def setUp(self):
+        from multiplatform import blocked as B
+        self.B = B
+        self.dir = tempfile.mkdtemp(prefix="mp_blk_")
+        self.m = S.Manifest(os.path.join(self.dir, "m.json"))
+
+    def tearDown(self):
+        shutil.rmtree(self.dir, ignore_errors=True)
+
+    def test_wechat_target_has_issue_number(self):
+        cid, title, why = self.B.next_target("wechat", self.m)
+        if not cid:
+            self.skipTest("公众号草稿箱为空，跳过")
+        self.assertIn("编号", why)
+
+    def test_others_target_is_oldest(self):
+        for plat in ("toutiao", "xhs", "bilibili", "juejin"):
+            cid, title, why = self.B.next_target(plat, self.m)
+            if not cid:
+                continue
+            self.assertIn("存得最久", why, "%s 的顺延口径应是草稿最久" % plat)
+
+    def test_blocked_is_skipped_when_picking_next(self):
+        cid, _, _ = self.B.next_target("toutiao", self.m)
+        if not cid:
+            self.skipTest("头条草稿箱为空，跳过")
+        self.m.mark_blocked(cid, "toutiao", "被拦")
+        nxt, _, _ = self.B.next_target("toutiao", self.m)
+        self.assertNotEqual(nxt, cid, "被拦的那条不能再被选中")
+
+    def test_match_key_is_stable_product_name(self):
+        """删草稿的匹配键要用产品名（标题后半截会变，产品名不变）。"""
+        key = self.B.match_key("quran-unlock", "toutiao")
+        self.assertEqual(key, "Quran Unlock")
+        # 产物标题确实变了也不影响匹配键
+        self.assertNotEqual(key, self.B.title_of("quran-unlock", "toutiao"))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

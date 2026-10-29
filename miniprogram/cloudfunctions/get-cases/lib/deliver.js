@@ -10,6 +10,14 @@
  * 幂等（官方硬要求）：以平台单号 wx_order_id 判重 —— 同一订单重复通知只发一次货。
  * 订单表 orders 是事实来源：case_id 等下单时写好的信息从库里读，
  * 不依赖推送是否透传 attach（官方字段表未承诺 attach 必达）。
+ *
+ * M2 2026-10-23 双身份：小程序语境身份 = OPENID（users._openid）；
+ * Web SDK callFunction 语境 = CloudBase uid（users.uid，由 get-cases
+ * {bind_uid} 在小程序语境下绑定写入）。getEntitlements / deliver 的
+ * 用户查询一律走 _openid OR uid 双查，命中同一份权益。
+ * resolveCaller() 解析当前调用者：OPENID 优先；Web 语境用
+ * @cloudbase/node-sdk 的 getEndUserInfo 拿 uid（懒加载，小程序路径
+ * 永不触发 require，未安装也不影响现有函数）。
  */
 
 const cfg = require('./config.js');
@@ -23,11 +31,53 @@ function goodsByPid(pid) {
 }
 
 /**
+ * 解析当前调用者身份。
+ * @returns {{openid: string, uid: string}} 二者至多一个非空；都空 = 未登录
+ */
+async function resolveCaller(cloud) {
+  let wx = {};
+  try {
+    wx = (cloud && cloud.getWXContext) ? cloud.getWXContext() : {};
+  } catch (e) { /* 非微信语境（HTTP 触发等） */ }
+  if (wx && wx.OPENID) return { openid: wx.OPENID, uid: '' };
+  try {
+    // 懒加载：只有 Web SDK 调用语境才走到这里；未安装也不抛到调用方
+    const tcb = require('@cloudbase/node-sdk');
+    const app = tcb.init({
+      env: tcb.SYMBOL_CURRENT_ENV || (cloud && cloud.DYNAMIC_CURRENT_ENV) || undefined
+    });
+    const r = await app.auth().getEndUserInfo();
+    const uid = r && r.userInfo && r.userInfo.uid;
+    if (uid) return { openid: '', uid: String(uid) };
+  } catch (e) { /* node-sdk 未安装 / 无登录态 → 视为未登录 */ }
+  return { openid: '', uid: '' };
+}
+
+/** caller → users 表身份串（openid 或 uid，二选一非空；都空返回 ''） */
+function identOf(caller) {
+  return (caller && (caller.openid || caller.uid)) || '';
+}
+
+/**
+ * 按身份串查 users 文档（_openid OR uid 双查，M2 双身份核心）。
+ * @returns 文档对象或 null
+ */
+async function userByIdent(db, ident) {
+  if (!ident) return null;
+  const _ = db.command;
+  const r = await db.collection('users')
+    .where(_.or([{ _openid: ident }, { uid: ident }]))
+    .limit(1)
+    .get();
+  return (r.data && r.data[0]) || null;
+}
+
+/**
  * 发货。
  * @returns {ok, skipped, errmsg} skipped=true 表示已发货过（幂等命中）
  */
 async function deliver(db, params) {
-  const openid = params.openid;
+  const openid = params.openid; // 语义 = 身份串（openid 或 uid，订单里存的那个）
   const outTradeNo = params.outTradeNo;
   const wxOrderId = params.wxOrderId || '';
   const pid = params.pid;
@@ -54,7 +104,7 @@ async function deliver(db, params) {
   }
 
   // ---- 2. 按 kind 发货（users 集合） ----
-  const u = await db.collection('users').where({ _openid: openid }).limit(1).get();
+  const u = await userByIdent(db, openid);
   const now = Date.now();
   const _ = db.command;
 
@@ -63,36 +113,35 @@ async function deliver(db, params) {
     const order = hit.data && hit.data[0];
     const caseId = (order && order.case_id) || '';
     if (!caseId) return { ok: false, errmsg: 'order has no case_id' };
-    const patch = u.data && u.data.length
+    const patch = u
       ? { reports: _.addToSet(caseId), updated_at: now }
-      : { _openid: openid, reports: [caseId], export_all: false, member_until: 0, created_at: now, updated_at: now };
-    if (u.data && u.data.length) {
-      await db.collection('users').doc(u.data[0]._id).update({ data: patch });
+      : { _openid: openid, uid: '', reports: [caseId], export_all: false, member_until: 0, created_at: now, updated_at: now };
+    if (u) {
+      await db.collection('users').doc(u._id).update({ data: patch });
     } else {
       await db.collection('users').add({ data: patch });
     }
   } else if (goods.kind === 'export') {
-    if (u.data && u.data.length) {
-      await db.collection('users').doc(u.data[0]._id).update({
+    if (u) {
+      await db.collection('users').doc(u._id).update({
         data: { export_all: true, updated_at: now }
       });
     } else {
       await db.collection('users').add({
-        data: { _openid: openid, reports: [], export_all: true, member_until: 0, created_at: now, updated_at: now }
+        data: { _openid: openid, uid: '', reports: [], export_all: true, member_until: 0, created_at: now, updated_at: now }
       });
     }
   } else if (goods.kind === 'member') {
     // 会员：在「现有到期时间」与「现在」之间取晚者续期，买多久加多久
-    const base = (u.data && u.data[0] && u.data[0].member_until > now)
-      ? u.data[0].member_until : now;
+    const base = (u && u.member_until > now) ? u.member_until : now;
     const until = base + (goods.days || 30) * 86400000;
-    if (u.data && u.data.length) {
-      await db.collection('users').doc(u.data[0]._id).update({
+    if (u) {
+      await db.collection('users').doc(u._id).update({
         data: { member_until: until, updated_at: now }
       });
     } else {
       await db.collection('users').add({
-        data: { _openid: openid, reports: [], export_all: false, member_until: until, created_at: now, updated_at: now }
+        data: { _openid: openid, uid: '', reports: [], export_all: false, member_until: until, created_at: now, updated_at: now }
       });
     }
   } else {
@@ -108,11 +157,13 @@ async function deliver(db, params) {
   return { ok: true, skipped: false };
 }
 
-/** 读权益（get-cases / query-order / export-cases 共用） */
-async function getEntitlements(db, openid) {
-  if (!openid) return { reports: [], export_all: false, member_until: 0 };
-  const u = await db.collection('users').where({ _openid: openid }).limit(1).get();
-  const d = u.data && u.data[0];
+/**
+ * 读权益（get-cases / query-order / export-cases 共用）。
+ * @param ident 身份串（openid 或 uid，M2 双身份：_openid OR uid 双查）
+ */
+async function getEntitlements(db, ident) {
+  if (!ident) return { reports: [], export_all: false, member_until: 0 };
+  const d = await userByIdent(db, ident);
   if (!d) return { reports: [], export_all: false, member_until: 0 };
   return {
     reports: Array.isArray(d.reports) ? d.reports : [],
@@ -124,9 +175,10 @@ async function getEntitlements(db, openid) {
 /**
  * 能不能看某条案例的完整内容（含收入数据与深度报告正文）。
  *
- * 2026-10-15 商业模式改为**内容收费**（原来「内容免费」被证明收不到钱 ——
- * 免费接口把 17 个付费导出列全给了，用户三行代码自己拼 CSV，导出门形同虚设，
- * 见 scripts/verify_paywall.py）。
+ * 2026-10-15 商业模式改为**内容收费**（原「内容免费」被证伪）：
+ *   原来 34 个字段全在免费白名单里，其中包含 export-cases 要导出的
+ *   全部 17 列 ⇒ 用户一次 get-cases 调用 + 三行代码就能自己拼出 CSV，
+ *   ¥19.90 的导出门形同虚设（scripts/verify_paywall.py 会持续守这条）。
  *
  * 判定只看服务端 users 表：买了单篇报告、或有导出权、或会员未过期。
  * 前端不参与判定 —— 前端只是展示门，抓包改按钮没有任何意义。
@@ -139,4 +191,4 @@ function canReadFull(ent, caseId, now) {
   return false;
 }
 
-module.exports = { deliver, getEntitlements, goodsByPid, canReadFull };
+module.exports = { deliver, getEntitlements, goodsByPid, canReadFull, resolveCaller, identOf, userByIdent };

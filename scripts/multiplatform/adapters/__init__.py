@@ -5,6 +5,7 @@
 刻意做成**薄壳**：所有 CDP 选择器、封面上传、草稿箱点击都留在既有的
 `toutiao_publish.py` / `bilibili_publish.py` / `xhs_publish.py` /
 `wechat_publish.py` 里（那是几个月的踩坑沉淀，不能为了架构好看重写）。
+掘金是唯一的例外：`juejin_publish.py` 不走 CDP，纯 REST，见该脚本头部说明。
 适配器只负责四件事：
 
 1. 声明自己是谁（key、显示名、需要什么产物、标题去哪个平台取精修版）；
@@ -16,5 +17,5 @@
 换成本项目的「CDP + 已登录 Chrome」。
 """
 
-from . import toutiao, bilibili, xiaohongshu, wechat       # noqa: F401
+from . import toutiao, bilibili, xiaohongshu, wechat, juejin  # noqa: F401
 from .base import REGISTRY, Adapter, get, all_adapters     # noqa: F401

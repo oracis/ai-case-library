@@ -66,7 +66,7 @@ ANCHOR = '<script src="./app.js"></script>'
 # manifest.webmanifest / sw.js 必须列进来：prepare_out() 会删掉所有「不认识的顶层文件」，
 # 漏列就会被下一轮构建当孤儿删掉，PWA 静默失效（而且线上看不出异常）。
 OUR_FILES = ("index.html", "style.css", "app.js", "data.js", "data.json",
-             "404.html", "sitemap.xml", "robots.txt", "case",
+             "404.html", "sitemap.xml", "robots.txt", "case", "anti",
              "manifest.webmanifest", "sw.js")
 
 NOT_FOUND_HTML = """<!DOCTYPE html>
@@ -301,7 +301,7 @@ def build(out_dir, include_inbox=True, pretty=False, site_url="", allow_empty=Fa
     site = prerender.load_site(ROOT)
     if site_url:
         site["url"] = site_url.rstrip("/")
-    noscript = prerender.noscript_block(cases, site)
+    noscript = prerender.noscript_block(cases, site, anti=payload.get("anti"))
     if "</body>" in html:
         html = html.replace("</body>", noscript + "</body>", 1)
     else:
@@ -315,7 +315,7 @@ def build(out_dir, include_inbox=True, pretty=False, site_url="", allow_empty=Fa
 
     # ---- 4. 预渲染每条案例的独立页面
     print("[4/5] 预渲染案例独立页…")
-    pr = prerender.build_all(cases, abs_out, site)
+    pr = prerender.build_all(cases, abs_out, site, anti=payload.get("anti"))
 
     # ---- 4b. 剪掉过期案例页
     # ⚠ 以前靠prepare_out() 的 rmtree 顺手清掉，现在改成显式剪枝。
@@ -372,6 +372,41 @@ def build(out_dir, include_inbox=True, pretty=False, site_url="", allow_empty=Fa
     if pr and pr.get("pages") != len(cases):
         problems.append("预渲染页面数 %s 与案例数 %d 不一致" % (pr.get("pages"), len(cases)))
 
+    # 反向样本区（2026-10-26 上站）：
+    # 这一区最容易出的错不是排版，是**混进 cases**、或者**整区静默没生成**。
+    # 前者会让 curated 计数与排行榜被污染（verify_deploy 拿它比对线上），
+    # 后者读者根本看不出来（SPA 那边数据在、静态页没有）。
+    anti = payload.get("anti") or {}
+    anti_cases = anti.get("cases") or []
+    if anti_cases:
+        overlap = sorted(set(a.get("id") for a in anti_cases) & set(ids))
+        if overlap:
+            problems.append("反向样本的 id 混进了 cases：%s" % "、".join(overlap))
+        anti_ids = [a.get("id") or "" for a in anti_cases]
+        if any(not i for i in anti_ids):
+            problems.append("有 %d 条反向样本缺 id" % sum(1 for i in anti_ids if not i))
+        adup = sorted(k for k, n in collections.Counter(anti_ids).items() if n > 1 and k)
+        if adup:
+            problems.append("反向样本 id 重复：%s" % "、".join(adup))
+        apath = os.path.join(abs_out, prerender.ANTI_DIR, "index.html")
+        if not os.path.isfile(apath):
+            problems.append("反向样本页没生成（%s/index.html）" % prerender.ANTI_DIR)
+        else:
+            with open(apath, encoding="utf-8") as f:
+                ah = f.read()
+            lacking = [a.get("id") for a in anti_cases
+                       if a.get("name") and a["name"] not in ah]
+            if lacking:
+                problems.append("反向样本页里缺少这些条目：%s" % "、".join(lacking))
+        # 分篇：条数要对得上，否则页面上会出现「Ⅰ 篇 6 条」却只列了 5 条的错位
+        for v in anti.get("volumes") or []:
+            n = sum(1 for a in anti_cases if a.get("volume") == v.get("key"))
+            if n != v.get("count"):
+                problems.append("篇「%s」声明 %s 条、实际 %d 条"
+                                % (v.get("key"), v.get("count"), n))
+        if pr and not pr.get("anti_page"):
+            problems.append("prerender 报告没出反向样本页")
+
     if problems:
         for p in problems:
             print("    [FAIL] %s" % p)
@@ -394,12 +429,19 @@ def build(out_dir, include_inbox=True, pretty=False, site_url="", allow_empty=Fa
             sz = sum(os.path.getsize(os.path.join(p, f)) for f in os.listdir(p))
             total += sz
             print("  %-16s %10s   （%d 个静态页面）" % (name + "/", human(sz), n))
+        elif os.path.isdir(p) and name == prerender.ANTI_DIR:
+            sz = sum(os.path.getsize(os.path.join(p, f)) for f in os.listdir(p))
+            total += sz
+            print("  %-16s %10s   （反向样本 %d 条 / %d 篇）"
+                  % (name + "/", human(sz), len(anti_cases),
+                     len(payload.get("anti", {}).get("volumes") or [])))
     print("-" * 54)
     print("  %-16s %10s" % ("合计", human(total)))
     print()
-    print("数据：案例 %s · 候选 %s · 采集队列 %s%s" % (
+    print("数据：案例 %s · 候选 %s · 采集队列 %s%s · 反向样本 %s" % (
         stats.get("curated", len(cases)), stats.get("candidates", "?"),
-        stats.get("inbox", "?"), "" if include_inbox else "（本次未包含）"))
+        stats.get("inbox", "?"), "" if include_inbox else "（本次未包含）",
+        len(anti_cases)))
     print("静态页：case/<id>.html × %d · case/index.html · %s · %s" % (
         pr.get("pages", 0) if pr else 0,
         "sitemap.xml" if (pr or {}).get("sitemap") else "无 sitemap（没配站点域名）",

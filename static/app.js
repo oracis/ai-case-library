@@ -17,7 +17,12 @@ const V_LABEL = {
   partial:    '口径待核',
   founder:    '创始人自报',
   disputed:   '数字有出入',
-  unverified: '未核实'
+  unverified: '未核实',
+  /* 案例聚合/导航站（howtomakemi.com 这类）。⚠ 它不在 verify_rules.VERIFICATIONS
+     的五个值里 —— 这里补的是**显示用**的标签，不是把枚举扩了一档：
+     「这些别照着做」那 33 条的 verification 全是 aggregator，没有这一项就会
+     在抽屉里原样打印出英文单词。与 scripts/prerender.py 的同名常量逐键一致。 */
+  aggregator: '聚合站转述'
 };
 const V_COLOR = {
   stripe:     'var(--v-stripe)',
@@ -365,6 +370,7 @@ if (!statEl.hidden) {
   $('nav-count-china').textContent = s.china_scored || 0;
   $('nav-count-dual').textContent = s.dual_scored || 0;
   $('nav-count-graveyard').textContent = s.graveyard || 0;
+  $('nav-count-anti').textContent = s.anti || 0;
 
   $('side-meta').innerHTML =
     `<div>案例 <b>${s.curated || 0}</b> · 候选 <b>${s.candidates || 0}</b></div>` +
@@ -1787,10 +1793,220 @@ function openGrave(id) {
   $('drawer').scrollTop = 0;
 }
 
+/* ============================================================
+   反向样本区 ·「这些别照着做」（2026-10-26 上站）
+   ------------------------------------------------------------
+   这 33 条**不是失败案例**，也不该进 cases.json：
+   大半活得好好的（lovable 估值 ¥443 亿），进墓碑区是事实错误；
+   进案例库又会被当成推荐位，还要在排行榜尾部堆 33 条低分。
+   所以单独一个视图 + 单独一个数据键（DATA.anti），按「门槛类型」分成 7 篇。
+
+   ⚠ 三条纪律（与 docs/SELECTION_PLAYBOOK.md §3 一致）：
+     1. 标题/文案里不出现「失败 / 做不成」，除非有停运的一手证据；
+     2. role=caliber 的必须显式写「它的产品没问题，是数字被读错了」；
+     3. 页面「月收入」是聚合站原话，真实口径逐条标出来，不许反推收入。
+   ============================================================ */
+
+/* role → 人话。与 data/anti_cases.json 的 role 闭集一一对应。 */
+const ANTI_ROLE = {
+  structural: '抄不动 · 结构',
+  license:    '抄不动 · 资格',
+  caliber:    '别误读 · 数字'
+};
+const ANTI_ROLE_DESC = {
+  structural: '护城河是钱 / 算力 / 人力 / 数据 / 关系，门槛有具体数额',
+  license:    '缺的不是能力，是牌照 / 执业资质 / 专业责任',
+  caliber:    '页面那个数不是收入；⚠ 这类大多活得好，别当失败案例读'
+};
+
+/* caliber → 人话。枚举见 docs/SELECTION_PLAYBOOK.md §1.1。
+   ⚠ 与 scripts/prerender.py 的 CAL_LABEL **逐键一致**（test_prerender 会对照）。 */
+const CAL_LABEL = {
+  mrr:       '真·月收入',
+  arr:       '年化收入（ARR）',
+  annual:    '年营收',
+  funding:   '融资额',
+  valuation: '估值',
+  gmv:       '平台流水（GMV）',
+  price:     '定价档位',
+  lifetime:  '累计收入',
+  unknown:   '年 / 月不明',
+  invalid:   '口径对不上'
+};
+
+let antiFilter = '';       // '' = 全部；否则是篇 key
+
+function anti() { return (DATA && DATA.anti) || { cases: [], volumes: [] }; }
+function antiCases() { return anti().cases || []; }
+function antiVolumes() { return anti().volumes || []; }
+function antiRoleLabel(k) { return ANTI_ROLE[k] || k || ''; }
+function calLabel(k) { return CAL_LABEL[k] || k || '未标口径'; }
+
+/** 口径不是「真·月收入」时，卡片上那句提醒。mrr 那一条要反过来夸一句：
+    33 条里只有它标签没写错，这本身是这一区最好的教材。 */
+function caliberWarn(a) {
+  if (a.caliber === 'mrr') {
+    return '<span class="anti-ok" title="33 条里唯一一条标签名副其实">标签没写错</span>';
+  }
+  return `<span class="gy-pending" title="聚合站的「月收入」是个自由文本框，这里标的是回源后的真实口径">实际：${esc(calLabel(a.caliber))}</span>`;
+}
+
+function renderAntiFilter() {
+  const el = $('anti-filter');
+  if (!el) return;
+  const vols = antiVolumes();
+  const all = antiCases().length;
+  let html = `<button class="gy-chip${antiFilter ? '' : ' on'}" data-k="">全部 <b>${all}</b></button>`;
+  vols.forEach((v) => {
+    const on = antiFilter === v.key;
+    // chip 上用短名（Ⅰ 账单 6），全名留给篇头与 tooltip ——
+    // 7 个全名 chip 在 1440 宽下正好排满并溢出成"7+1"两行，短名一行放得下。
+    html += `<button class="gy-chip${on ? ' on' : ''}" data-k="${esc(v.key)}"
+      title="${esc(v.title)} — ${esc(v.judge)}">${esc(v.no)} ${esc(v.short || v.title)} <b>${v.count}</b></button>`;
+  });
+  el.innerHTML = html;
+  el.querySelectorAll('.gy-chip').forEach((b) => {
+    b.onclick = () => { antiFilter = b.dataset.k; renderAntiFilter(); renderAnti(); };
+  });
+}
+
+function antiCardHTML(a) {
+  const lab = a.page_label || {};
+  return `<article class="gy-card anti-card" data-id="${esc(a.id)}" data-role="${esc(a.role || '')}">
+    <div class="gy-head">
+      <span class="gy-reason" data-k="${esc(a.role || '')}">${esc(antiRoleLabel(a.role))}</span>
+      <span class="gy-years">${esc(a.origin || '')}</span>
+    </div>
+    <h3 class="gy-name">${esc(a.name)}
+      ${a.category ? `<small>${esc(a.category)}</small>` : ''}
+    </h3>
+    <p class="gy-sum">${esc(a.role_note || a.one_liner || '')}</p>
+    <div class="gy-loss">
+      <b>${esc(lab.value || '')}</b>
+      <span class="gy-kind">页面写「${esc(lab.key || '月收入')}」</span>
+      ${caliberWarn(a)}
+    </div>
+    <div class="gy-meta">
+      ${a.standalone ? '<span class="anti-done">已单独成文</span>' : ''}
+      ${a.needs_verify ? '<span class="anti-pending">口径待定</span>' : ''}
+    </div>
+  </article>`;
+}
+
+function renderAnti() {
+  const wrap = $('anti-vols');
+  if (!wrap) return;
+  const vols = antiVolumes();
+  const all = antiCases();
+  $('empty-anti').hidden = all.length > 0;
+
+  if (!vols.length) {
+    // 旧数据（没有分篇信息）的降级：平铺，不假装有分组
+    wrap.innerHTML = `<div class="grid grid-gy">${all.map(antiCardHTML).join('')}</div>`;
+    bindAntiCards(wrap);
+    return;
+  }
+
+  const shown = antiFilter ? vols.filter((v) => v.key === antiFilter) : vols;
+  wrap.innerHTML = shown.map((v) => {
+    const items = all.filter((a) => a.volume === v.key);
+    if (!items.length) return '';
+    return `<section class="anti-vol">
+      <div class="anti-volhead">
+        <div class="anti-voltitle">
+          <span class="anti-no">${esc(v.no)}</span>
+          <h3>${esc(v.title)}</h3>
+          <em>${items.length} 条</em>
+        </div>
+        <p class="anti-judge">判据 · ${esc(v.judge || '')}</p>
+        <p class="anti-lead">${esc(v.lead || '')}</p>
+      </div>
+      <div class="grid grid-gy">${items.map(antiCardHTML).join('')}</div>
+    </section>`;
+  }).join('');
+  bindAntiCards(wrap);
+}
+
+function bindAntiCards(wrap) {
+  wrap.querySelectorAll('.anti-card').forEach((el) => {
+    el.onclick = () => openAnti(el.dataset.id);
+  });
+}
+
+function antiDetailHTML(a) {
+  const out = [];
+  const lab = a.page_label || {};
+  const vol = antiVolumes().find((v) => v.key === a.volume) || {};
+  out.push(`<div class="d-head">
+    <div class="d-title">${esc(a.name)}</div>
+    <div class="d-badges">
+      <span class="gy-reason big" data-k="${esc(a.role || '')}">${esc(antiRoleLabel(a.role))}</span>
+      ${a.verification ? `<span class="badge" data-v="${esc(a.verification)}">${esc(V_LABEL[a.verification] || a.verification)}</span>` : ''}
+      ${a.standalone ? '<span class="badge">已单独成文</span>' : ''}
+    </div>
+  </div>`);
+
+  if (vol.title) {
+    out.push(`<div class="d-verdict">第 ${esc(vol.no)} 篇 · ${esc(vol.title)} — ${esc(vol.judge || '')}</div>`);
+  }
+  if (ANTI_ROLE_DESC[a.role]) {
+    out.push(`<p class="d-p">${esc(ANTI_ROLE_DESC[a.role])}</p>`);
+  }
+  out.push(`<div class="d-h">它是做什么的</div><p class="d-p">${esc(a.one_liner || '')}</p>`);
+  out.push(`<div class="d-h">门槛在哪</div><p class="d-p">${esc(a.role_note || '')}</p>`);
+
+  // 数字这一块单独摆：这是 33 条里最容易被读错的地方
+  const rows = [];
+  rows.push(['页面标签', lab.key || '月收入', false]);
+  rows.push(['页面数值', `${lab.value || ''}${lab.sub ? '（' + lab.sub + '）' : ''}`, true]);
+  rows.push(['真实口径', calLabel(a.caliber) + (a.caliber === 'mrr' ? ' ✔ 唯一没写错的' : ''), true]);
+  out.push('<div class="d-h">那个数字到底是什么</div><div class="metrics">' +
+    rows.map((r) => `<div class="k">${esc(r[0])}</div><div class="v${r[2] ? ' mono' : ''}">${esc(r[1])}</div>`).join('') +
+    '</div>');
+  if (a.caliber_note) {
+    out.push(`<div class="metric-warn"><b>口径说明：</b>${esc(a.caliber_note)}</div>`);
+  }
+  if (a.caliber_conflict) {
+    out.push(`<div class="metric-warn"><b>与旧口径表冲突：</b>` +
+      `旧表记「${esc(a.caliber_conflict.old || '')}」，现记「${esc(a.caliber_conflict.now || '')}」。` +
+      `${esc(a.caliber_conflict.why || '')}</div>`);
+  }
+
+  if ((a.why_not_copy || []).length) {
+    out.push('<div class="d-h">为什么抄不动</div><ul class="d-list why">' +
+      a.why_not_copy.map((x) => `<li>${esc(x)}</li>`).join('') + '</ul>');
+  }
+  if (a.article_angle) {
+    out.push(`<div class="d-h">如果要写，落点在哪</div><p class="d-p">${esc(a.article_angle)}</p>`);
+  }
+  if ((a.sources || []).length) {
+    out.push('<div class="d-h">来源</div><ul class="d-list sig">' + a.sources.map((s) =>
+      `<li>${s.url ? `<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.label || s.url)}</a>`
+                    : esc(s.label || '')}</li>`
+    ).join('') + '</ul>');
+  }
+  // 证据边界必须写在自己身上：33 条的原始媒体一条都没打开过
+  out.push(`<div class="metric-warn"><b>证据边界：</b>${esc((a.source_check || {}).note ||
+    '只读了聚合站整页，页面自列来源的原文未逐条打开')}。</div>`);
+  if (a.site) {
+    out.push(`<p class="d-p"><a href="${esc(a.site)}" target="_blank" rel="noopener">打开产品官网 →</a></p>`);
+  }
+  return out.join('');
+}
+
+function openAnti(id) {
+  const a = antiCases().find((x) => x.id === id);
+  if (!a) return;
+  $('drawer-body').innerHTML = antiDetailHTML(a);
+  $('drawer').hidden = false;
+  $('drawer-mask').hidden = false;
+  $('drawer').scrollTop = 0;
+}
+
 /* ---------------- 视图切换 ---------------- */
 function switchView(v) {
   view = v;
-  ['cases', 'dual', 'china', 'graveyard', 'candidates', 'inbox', 'sources', 'method'].forEach((name) => {
+  ['cases', 'dual', 'china', 'graveyard', 'anti', 'candidates', 'inbox', 'sources', 'method'].forEach((name) => {
     const el = $('view-' + name);
     if (el) el.hidden = (name !== v);
   });
@@ -1858,6 +2074,8 @@ async function load() {
   renderHero();
   renderGraveyardFilter();
   renderGraveyard();
+  renderAntiFilter();
+  renderAnti();
   renderCandidates();
   renderInbox();
   renderSources();
@@ -1922,7 +2140,8 @@ function bind() {
    #graveyard / #china 这类深链可以直接落到对应视图 —— 公众号文里
    「看这条墓碑区案例」这类引用也能真的落到位置上。
    非法 hash 静默回落到 cases（不报错：手打错一个字母不该白屏）。 */
-const VIEWS = ['cases', 'dual', 'china', 'graveyard', 'candidates', 'inbox', 'sources', 'method'];
+const VIEWS = ['cases', 'dual', 'china', 'graveyard', 'anti',
+               'candidates', 'inbox', 'sources', 'method'];
 
 function viewFromHash() {
   const h = (location.hash || '').replace(/^#/, '');

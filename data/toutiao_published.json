@@ -194,5 +194,45 @@
     "gid": "7693146329643500066",
     "evidence": "send_existing_draft",
     "verified_at": "2026-10-22 11:31"
+  },
+  {
+    "id": "1lookup",
+    "at": "2026-10-23 15:01",
+    "gid": "7693145848108024354",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-23 15:01"
+  },
+  {
+    "id": "downconvert-sketchup-files",
+    "at": "2026-10-24 21:32",
+    "gid": "7699903206700139046",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-24 21:32"
+  },
+  {
+    "id": "mcdpoints",
+    "at": "2026-10-25 09:57"
+  },
+  {
+    "id": "ai-prank-call",
+    "at": "2026-10-26 14:23"
+  },
+  {
+    "id": "agentsguild",
+    "at": "2026-10-27 12:46",
+    "gid": "7700851215516664362",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-27 12:46"
+  },
+  {
+    "id": "quran-unlock",
+    "at": "2026-10-28 14:00"
+  },
+  {
+    "id": "genius-ai",
+    "at": "2026-10-29 11:39",
+    "gid": "7693144739603890722",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-29 11:39"
   }
 ]

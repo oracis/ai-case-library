@@ -1,113 +1,149 @@
 [
- {
-  "id": "rezi",
-  "at": "2026-10-17 10:10",
-  "article_id": "53385991",
-  "verified_at": "2026-10-19 00:44",
-  "evidence": "health_backfill",
-  "note": "P1对账: 标题直接命中(cv53385991) → Rezi：AI 简历生成器，最不酷却验证收入最高"
- },
- {
-  "id": "visualizee-ai",
-  "at": "2026-10-17 10:10",
-  "article_id": "53283349",
-  "verified_at": "2026-10-19 00:44",
-  "evidence": "health_backfill",
-  "note": "P1对账: 标题直接命中(cv53283349) → Visualizee.ai：给建筑师做效果图云渲染"
- },
- {
-  "id": "trustmrr",
-  "at": "2026-10-17 10:10",
-  "article_id": "53460777",
-  "verified_at": "2026-10-19 01:53",
-  "evidence": "health_backfill",
-  "note": "P1对账: 标题直接命中(cv53460777) → TrustMRR：验证过的创业公司收入数据库｜同案例另有一条旧稿『TrustMRR：验证过的创业公司收入数据库』(cv53352783, 2026-10-09 12:58，正文与新篇相同)"
- },
- {
-  "id": "mort",
-  "at": "2026-10-17 10:10",
-  "article_id": "53280245",
-  "verified_at": "2026-10-19 00:44",
-  "evidence": "health_backfill",
-  "note": "P1对账: 标题直接命中(cv53280245) → MORT：AI 求职代理，自动投遍企业招聘页"
- },
- {
-  "id": "voklit",
-  "at": "2026-10-17 10:10",
-  "article_id": "53375028",
-  "verified_at": "2026-10-19 00:44",
-  "evidence": "health_backfill",
-  "note": "P1对账: 标题直接命中(cv53375028) → Voklit：给跨境团队搭的云通信"
- },
- {
-  "id": "easymix",
-  "at": "2026-10-17 10:10",
-  "article_id": "53335667",
-  "verified_at": "2026-10-19 00:44",
-  "evidence": "health_backfill",
-  "note": "P1对账: 语义匹配(混音订阅, cv53335667) → 法国录音棚收 250 欧一单，有人把混音做成了订阅"
- },
- {
-  "id": "chatbase",
-  "at": "2026-10-18 14:59",
-  "article_id": "53490089",
-  "title": "Chatbase：上传文档就得到一个客服机器人",
-  "verified_at": "2026-10-19 01:53",
-  "evidence": "read_page_verify",
-  "note": "对账补登: 读公开页正文确认(cv53490089) → Chatbase：上传文档就得到一个客服机器人"
- },
- {
-  "id": "1lookup",
-  "at": "2026-10-17 22:06",
-  "article_id": "53482719",
-  "title": "1Lookup：一个 API 查电话、邮箱、IP 实时数据",
-  "verified_at": "2026-10-19 01:53",
-  "evidence": "read_page_verify",
-  "note": "对账补登: 读公开页正文确认(cv53482719) → 1Lookup：一个 API 查电话、邮箱、IP 实时数据"
- },
- {
-  "id": "uplinked-b-v",
-  "at": "2026-10-07 00:05",
-  "article_id": "53315883",
-  "title": "UpLinked B.V.：在领英上自动加客户",
-  "verified_at": "2026-10-19 01:53",
-  "evidence": "read_page_verify",
-  "note": "对账补登: 读公开页正文确认(cv53315883) → UpLinked B.V.：在领英上自动加客户｜同案例另有一条旧标题稿『月收$2.4K：在领英上自动加客户』(cv53245351, 2026-09-30 15:19)"
- },
- {
-  "id": "harperai",
-  "at": "2026-10-06 00:17",
-  "article_id": "53304680",
-  "title": "把英国公开抵押记录连成一张网，然后卖给贷款经纪",
-  "verified_at": "2026-10-19 01:53",
-  "evidence": "read_page_verify",
-  "note": "对账补登: 读公开页正文确认(cv53304680) → 正文首句『Harper 把英国公开的公司抵押记录…』 ⇒ HarperAI"
- },
- {
-  "id": "viktor",
-  "at": "2026-10-05 12:11",
-  "article_id": "53298456",
-  "title": "Viktor：住进 Slack 的 AI 同事",
-  "verified_at": "2026-10-19 01:53",
-  "evidence": "read_page_verify",
-  "note": "对账补登: 读公开页正文确认(cv53298456) → Viktor：住进 Slack 的 AI 同事"
- },
- {
-  "id": "checkvibe",
-  "at": "2026-10-10 01:15",
-  "article_id": "342374",
-  "title": "CheckVibe：扫描 vibe-coded 应用漏洞",
-  "verified_at": "2026-10-20 01:01",
-  "evidence": "remote_readback",
-  "note": "2026-10-20 00:52 编辑器点「发布」→「你的专栏已提交成功」→ 已通过列表回读命中（草稿箱最老，10-10 01:15）"
- },
- {
-  "id": "autoreels-ai",
-  "at": "2026-10-10 01:12",
-  "article_id": "342371",
-  "title": "AutoReels.AI：一键把素材剪成短视频",
-  "verified_at": "2026-10-20 01:01",
-  "evidence": "remote_readback",
-  "note": "2026-10-20 00:55 发现已在已通过列表（非本次自动发布，应为 10-19 深夜编辑器打开后的人工点击，具体时间未知）"
- }
+  {
+    "id": "rezi",
+    "at": "2026-10-17 10:10",
+    "article_id": "53385991",
+    "verified_at": "2026-10-19 00:44",
+    "evidence": "health_backfill",
+    "note": "P1对账: 标题直接命中(cv53385991) → Rezi：AI 简历生成器，最不酷却验证收入最高"
+  },
+  {
+    "id": "visualizee-ai",
+    "at": "2026-10-17 10:10",
+    "article_id": "53283349",
+    "verified_at": "2026-10-19 00:44",
+    "evidence": "health_backfill",
+    "note": "P1对账: 标题直接命中(cv53283349) → Visualizee.ai：给建筑师做效果图云渲染"
+  },
+  {
+    "id": "trustmrr",
+    "at": "2026-10-17 10:10",
+    "article_id": "53460777",
+    "verified_at": "2026-10-19 01:53",
+    "evidence": "health_backfill",
+    "note": "P1对账: 标题直接命中(cv53460777) → TrustMRR：验证过的创业公司收入数据库｜同案例另有一条旧稿『TrustMRR：验证过的创业公司收入数据库』(cv53352783, 2026-10-09 12:58，正文与新篇相同)"
+  },
+  {
+    "id": "mort",
+    "at": "2026-10-17 10:10",
+    "article_id": "53280245",
+    "verified_at": "2026-10-19 00:44",
+    "evidence": "health_backfill",
+    "note": "P1对账: 标题直接命中(cv53280245) → MORT：AI 求职代理，自动投遍企业招聘页"
+  },
+  {
+    "id": "voklit",
+    "at": "2026-10-17 10:10",
+    "article_id": "53375028",
+    "verified_at": "2026-10-19 00:44",
+    "evidence": "health_backfill",
+    "note": "P1对账: 标题直接命中(cv53375028) → Voklit：给跨境团队搭的云通信"
+  },
+  {
+    "id": "easymix",
+    "at": "2026-10-17 10:10",
+    "article_id": "53335667",
+    "verified_at": "2026-10-19 00:44",
+    "evidence": "health_backfill",
+    "note": "P1对账: 语义匹配(混音订阅, cv53335667) → 法国录音棚收 250 欧一单，有人把混音做成了订阅"
+  },
+  {
+    "id": "chatbase",
+    "at": "2026-10-18 14:59",
+    "article_id": "53490089",
+    "title": "Chatbase：上传文档就得到一个客服机器人",
+    "verified_at": "2026-10-19 01:53",
+    "evidence": "read_page_verify",
+    "note": "对账补登: 读公开页正文确认(cv53490089) → Chatbase：上传文档就得到一个客服机器人"
+  },
+  {
+    "id": "1lookup",
+    "at": "2026-10-17 22:06",
+    "article_id": "53482719",
+    "title": "1Lookup：一个 API 查电话、邮箱、IP 实时数据",
+    "verified_at": "2026-10-19 01:53",
+    "evidence": "read_page_verify",
+    "note": "对账补登: 读公开页正文确认(cv53482719) → 1Lookup：一个 API 查电话、邮箱、IP 实时数据"
+  },
+  {
+    "id": "uplinked-b-v",
+    "at": "2026-10-07 00:05",
+    "article_id": "53315883",
+    "title": "UpLinked B.V.：在领英上自动加客户",
+    "verified_at": "2026-10-19 01:53",
+    "evidence": "read_page_verify",
+    "note": "对账补登: 读公开页正文确认(cv53315883) → UpLinked B.V.：在领英上自动加客户｜同案例另有一条旧标题稿『月收$2.4K：在领英上自动加客户』(cv53245351, 2026-09-30 15:19)"
+  },
+  {
+    "id": "harperai",
+    "at": "2026-10-06 00:17",
+    "article_id": "53304680",
+    "title": "把英国公开抵押记录连成一张网，然后卖给贷款经纪",
+    "verified_at": "2026-10-19 01:53",
+    "evidence": "read_page_verify",
+    "note": "对账补登: 读公开页正文确认(cv53304680) → 正文首句『Harper 把英国公开的公司抵押记录…』 ⇒ HarperAI"
+  },
+  {
+    "id": "viktor",
+    "at": "2026-10-05 12:11",
+    "article_id": "53298456",
+    "title": "Viktor：住进 Slack 的 AI 同事",
+    "verified_at": "2026-10-19 01:53",
+    "evidence": "read_page_verify",
+    "note": "对账补登: 读公开页正文确认(cv53298456) → Viktor：住进 Slack 的 AI 同事"
+  },
+  {
+    "id": "checkvibe",
+    "at": "2026-10-10 01:15",
+    "article_id": "342374",
+    "title": "CheckVibe：扫描 vibe-coded 应用漏洞",
+    "verified_at": "2026-10-20 01:01",
+    "evidence": "remote_readback",
+    "note": "2026-10-20 00:52 编辑器点「发布」→「你的专栏已提交成功」→ 已通过列表回读命中（草稿箱最老，10-10 01:15）"
+  },
+  {
+    "id": "autoreels-ai",
+    "at": "2026-10-10 01:12",
+    "article_id": "342371",
+    "title": "AutoReels.AI：一键把素材剪成短视频",
+    "verified_at": "2026-10-20 01:01",
+    "evidence": "remote_readback",
+    "note": "2026-10-20 00:55 发现已在已通过列表（非本次自动发布，应为 10-19 深夜编辑器打开后的人工点击，具体时间未知）"
+  },
+  {
+    "id": "downconvert-sketchup-files",
+    "at": "2026-10-14 13:25",
+    "article_id": "343827",
+    "title": "DownConvert：SketchUp 文件转旧版",
+    "verified_at": "2026-10-24 21:30",
+    "evidence": "remote_readback",
+    "note": "2026-10-24 21:2x 编辑器点「发布」→ toast「提交成功」→ 草稿箱 44→43（aid=343827 消失）→ 已发表列表按标题命中 cv53590385《DownConvert：SketchUp 文件转旧版》。⚠ 脚本按 aid 回读未命中是判据缺陷：B站发布后 read id 会变（343827→53590385），已发表列表回读必须按标题匹配。"
+  },
+  {
+    "id": "agentsguild",
+    "at": "2026-10-26 13:14",
+    "article_id": "53628187",
+    "title": "AgentsGuild：近 30 天已验证收入 ，为游戏开发",
+    "verified_at": "2026-10-27 13:01",
+    "evidence": "editor-ui-publish",
+    "note": "｜更新草稿 aid=344958（draft/add 回读校验通过）"
+  },
+  {
+    "id": "divine-widgets",
+    "at": "2026-10-10 01:17",
+    "article_id": "53645998",
+    "title": "Divine Widgets：圣经小组件，每日经文祷告上锁屏",
+    "verified_at": "2026-10-28 14:37",
+    "evidence": "editor-ui-publish + manual recheck (new aid assigned on publish)",
+    "note": "｜草稿同步(2026-10-10 01:17): title 认领 aid=342399｜更新草稿 aid=342399（draft/add 回读校验通过）｜更新草稿 aid=342399（draft/add 回读校验通过）"
+  },
+  {
+    "id": "magicslides-app",
+    "at": "2026-10-10 01:23",
+    "article_id": "53660838",
+    "title": "MagicSlides.app：输入主题自动做 PPT",
+    "verified_at": "2026-10-29 11:46",
+    "evidence": "editor-ui-publish + 重分配 aid 回读",
+    "note": "2026-10-29 发布时 B站重分配 aid：342411 → 53660838；脚本按旧 aid 回读误报失败，已人工回读已发表列表命中补账"
+  }
 ]

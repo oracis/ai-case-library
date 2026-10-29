@@ -1,0 +1,96 @@
+<!-- [!] 手工精修版（2026-10-26）· 栏目「这些别照着做 · 数字篇」第 2 篇；勿让 make_article 覆盖 -->
+<section style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;">
+<h1 style="font-size:22px;font-weight:700;line-height:1.4;margin:0 0 18px;">「月收入」这一栏，四条里没有一条是收入</h1>
+<blockquote style="font-size:17px;line-height:1.8;margin:0 0 18px;padding:12px 14px;background:#f6f8fa;border-left:3px solid #d0d7de;color:#57606a;">这是「这些别照着做 · 数字篇」的第 2 篇。第 1 篇写了 CrowdReply——那条案例的形态其实很适合一个人做，它被打进「不建议」只是因为一个数字被读错了。这一篇把同类的四条放在一起看。</blockquote>
+<blockquote style="font-size:17px;line-height:1.8;margin:0 0 18px;padding:12px 14px;background:#f6f8fa;border-left:3px solid #d0d7de;color:#57606a;">四张卡片上，字段名一模一样，都叫「💰 月收入」。四条我全部回源读了原页，四个数的真实身份分别是：累计融资额、种子轮融资额、付给第三方的流水、以及一个带「预计」二字的年化收入。</blockquote>
+<blockquote style="font-size:17px;line-height:1.8;margin:0 0 18px;padding:12px 14px;background:#f6f8fa;border-left:3px solid #d0d7de;color:#57606a;">先把话说在前面：这四家大多活得很好，它们的生意没有问题。<strong>出问题的那个数是聚合页的字段，不是公司的收入。</strong>这一篇要写的不是「它们不行」，是「我们怎么差点看错」。</blockquote>
+<blockquote style="font-size:17px;line-height:1.8;margin:0 0 18px;padding:12px 14px;background:#f6f8fa;border-left:3px solid #d0d7de;color:#57606a;">还有一个先写它的理由：这一栏一共 33 条，逐条回源之后，标签值和真实口径一致的<strong>只有 1 条</strong>。也就是说，「字段名写错」不是这四条的意外，是这一批的常态。先把常态讲清楚，后面六篇讲「搬不动」的时候，才不会有人顺手把那些数也当成收入。</blockquote>
+<h2 style="font-size:17px;font-weight:700;margin:26px 0 12px;padding-left:10px;border-left:3px solid #e5b567;">先把四行原话摆出来</h2>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">不转述，直接照抄卡片上的三行（字段名 / 值 / 副标题），四条都一样地摆：</p>
+<p style="margin:0 0 10px;background:#f6f8fa;border-left:3px solid #e5b567;padding:8px 12px;font-size:15px;line-height:1.7;"><span style="color:#57606a;">字段名</span>：<span style="color:#24292f;">💰 月收入</span></p>
+<p style="margin:0 0 10px;background:#f6f8fa;border-left:3px solid #e5b567;padding:8px 12px;font-size:15px;line-height:1.7;"><span style="color:#57606a;">Bland AI</span>：<span style="color:#24292f;">¥6.72亿 · 副标题「YC，2023-06」</span></p>
+<p style="margin:0 0 10px;background:#f6f8fa;border-left:3px solid #e5b567;padding:8px 12px;font-size:15px;line-height:1.7;"><span style="color:#57606a;">Morph</span>：<span style="color:#24292f;">¥1.28亿 · 副标题「见数据口径」</span></p>
+<p style="margin:0 0 10px;background:#f6f8fa;border-left:3px solid #e5b567;padding:8px 12px;font-size:15px;line-height:1.7;"><span style="color:#57606a;">Paraform</span>：<span style="color:#24292f;">¥3.36亿 · 副标题「未披露绝对值」</span></p>
+<p style="margin:0 0 18px;background:#f6f8fa;border-left:3px solid #e5b567;padding:8px 12px;font-size:15px;line-height:1.7;"><span style="color:#57606a;">Rox</span>：<span style="color:#24292f;">¥5,376万 · 副标题「General Catalyst 领投」</span></p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">四行摆在一起，问题自己就出来了：如果它们真是月收入，那 Rox 一个月赚五千多万，Bland AI 一个月赚六亿多——后者比前者多十几倍。可 Rox 成立不到两年、估值 ¥80.64亿，Bland AI 累计融资才 ¥7.12亿。这个排序对一个「月收入」榜单来说是反的。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;"><strong>当同一张表里的数字排序违背常识，先怀疑字段，不要怀疑公司。</strong>这是这一篇唯一想让人记住的操作。</p>
+<h2 style="font-size:17px;font-weight:700;margin:26px 0 12px;padding-left:10px;border-left:3px solid #e5b567;">第一条：Bland AI，整段没有收入数字</h2>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">Bland AI 做 AI 电话接线员。自研全栈语音模型，能打三十分钟的长电话，每周处理三百五十万通，112 名员工。客户是 Samsara、Better.com、克利夫兰骑士队这类企业。它最有名的那件事是：被 180 家投资机构拒绝过。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">卡片上的数是 ¥6.72亿。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">把原页的「数据口径」那一段读完，它列的是 YC 种子轮、以及到 C 轮（Dell Technologies Capital 领投）的几个轮次，加起来约 ¥7.12亿；此外是每周三百五十万通电话、112 名员工这些运营数据。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;"><strong>整段没有任何一个收入数字。</strong>而 ¥6.72亿 恰好等于页面另一处的说法「累计融资超一亿美金」。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">所以这个数的身份很清楚：它是融资额，不是月收入。这是四条里最干净的一个标本——不是「可能读错」，是「页面上根本没有别的候选数」。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">顺便说清它为什么同时挂在结构那一类：自研语音模型、112 人、每周三百五十万通的推理开销，和「被 180 家机构拒绝」是同一件事的两面——<strong>资本消耗大到机构不敢接</strong>。这一条说的不是「你做不了这个功能」，是「你垫不起这笔钱」。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">「被 180 家机构拒绝」这个数字本身也值得一读。它通常被讲成毅力故事：创始人坚持下来，最后拿到了钱。但换一个读法，它是一条成本信号——<strong>一百八十家专业机构看过同一份材料，给出的结论是一致的</strong>。这种一致很少是因为看不懂，多数是因为算得清。把这类故事当励志读，会漏掉它唯一有用的那部分信息：这门生意的现金消耗率，大到会把绝大多数投资人吓退。</p>
+<h2 style="font-size:17px;font-weight:700;margin:26px 0 12px;padding-left:10px;border-left:3px solid #e5b567;">第二条：Morph，同一轮融资，两个源差 3.3 倍</h2>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">Morph 做 Fast Apply，一个专门把 AI 生成的代码合并进代码库的模型，约 10500 tok/s、98% 准确率。YC S23，客户里有 AWS 和 Binance。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">卡片上的数是 ¥1.28亿。它的副标题比别的诚实一点，写的是「见数据口径」。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">数据口径段说：这是 2024-03 的种子轮，投资方 Dragonfly / Pantera / Polychain。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">但同一页引的另一个源（every.dev）把同一轮记成 ¥3,864万，领投方写成 Khosla。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">两个数相差约 3.3 倍，投资方也对不上。<strong>我没有办法判断哪个对，也不打算猜</strong>——这里要说的恰恰是这一点：当一个数需要靠两个二手来源互相印证时，你拿到的不是事实，是两份转述。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">把它和 Bland AI 放一起看会更清楚。Bland AI 那条是「标签错了，但数字本身只有一个版本」；Morph 这条是「标签错了，而且数字本身还有两个版本」。<strong>错误是分层的</strong>，第二层比第一层更难发现，因为你会以为自己在核对，其实只是在两个转述之间挑一个。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">至于 Morph 为什么同时挂在结构那一类：它的护城河是一个模型的吞吐指标。10500 tok/s 可以查得到，但训不出来——<strong>参数能抄，指标抄不走</strong>。</p>
+<h2 style="font-size:17px;font-weight:700;margin:26px 0 12px;padding-left:10px;border-left:3px solid #e5b567;">第三条：Paraform，¥3.36亿 是付出去的钱</h2>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">在所有人都用 AI 替代招聘官的时候，Paraform 反过来用 AI 武装独立招聘官。2025 年收入涨了 10 倍，累计融资约 ¥4.37亿（Felicis、Scale Venture Partners）。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">卡片上的数是 ¥3.36亿，副标题写「未披露绝对值」——这个副标题其实已经在提示了，只是字段名没有跟着改。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">数据口径段的原文是：<strong>已向平台上的招聘官支付约 ¥3.36亿</strong>。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">这是平台流水（GMV），不是收入。平台型生意的营收和 GMV 之间隔着一个抽成率，而 Paraform 的抽成率<strong>没有披露</strong>。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">所以这里能确定的只有一件事：这个数<strong>不是</strong>收入。至于它真实收入是多少，用这个数推不出来——往上推要假设抽成率，往下推也要假设抽成率，而假设出来的数一旦进了文章，就变成了假事实。<strong>推不出来的时候，正确的写法是写「推不出来」。</strong></p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">还有一处混用值得单独点出来：页面同时说「收入增长 10 倍」和「GMV 增长 10 倍」。如果抽成率没动过，两句话恰好相等；但只要抽成率动过，它们就是两个数。<strong>把增长率和数字混着说，是口径问题里最容易滑过去的一种</strong>，因为它不产生一个错的数字，只产生一个错觉。</p>
+<h2 style="font-size:17px;font-weight:700;margin:26px 0 12px;padding-left:10px;border-left:3px solid #e5b567;">第四条：Rox，唯一一条真是收入，但带着「预计」</h2>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">Rox 不抢 CRM 的地盘，它骑在 CRM 上面，派几百个 AI agent 替销售干杂活。成立不到两年，估值 ¥80.64亿（TechCrunch 援引知情人士，公司未确认）。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">卡片上的数是 ¥5,376万。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">这一条是四条里唯一一个<strong>真是收入口径</strong>的——页面原文写得很清楚：「¥5,376万 是 2025 年的<strong>预计</strong> ARR，而非审计数字」。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">注意它仍然是年化收入（ARR），不是月收入。把它当「月收入」读，等于放大 12 倍。但跟前三条比，它至少<strong>是收入</strong>。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">麻烦在于它的修饰词。这一条里三个关键数字全部带限定：</p>
+<p style="margin:0 0 10px;background:#f6f8fa;border-left:3px solid #e5b567;padding:8px 12px;font-size:15px;line-height:1.7;"><span style="color:#57606a;">收入</span>：<span style="color:#24292f;">¥5,376万 · 原文标注「预计」，非审计</span></p>
+<p style="margin:0 0 10px;background:#f6f8fa;border-left:3px solid #e5b567;padding:8px 12px;font-size:15px;line-height:1.7;"><span style="color:#57606a;">估值</span>：<span style="color:#24292f;">¥80.64亿 · TechCrunch「援引知情人士」，公司未确认</span></p>
+<p style="margin:0 0 18px;background:#f6f8fa;border-left:3px solid #e5b567;padding:8px 12px;font-size:15px;line-height:1.7;"><span style="color:#57606a;">融资</span>：<span style="color:#24292f;">General Catalyst 领投 · 金额未披露</span></p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;"><strong>看一个数可不可信，先看它的修饰词，不看它的数值。</strong>「预计」「援引知情人士」「未确认」这三个词一旦出现，这个数就不能当事实引用，只能当「有人说」。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">Rox 还有一个跟数字无关、但更值得说的风险：几百个 agent 并发跑在客户的 CRM 上，等于替客户承担数据与稳定性风险。这类「骑在别人平台上」的形态，平台一次接口调整就能让它归零。<strong>这跟数字无关，但它决定了这条案例值不值得花时间研究。</strong></p>
+<h2 style="font-size:17px;font-weight:700;margin:26px 0 12px;padding-left:10px;border-left:3px solid #e5b567;">四类错法，并排放一次</h2>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">四条读完，把「标签」和「真值」并排：</p>
+<p style="margin:0 0 10px;background:#f6f8fa;border-left:3px solid #e5b567;padding:8px 12px;font-size:15px;line-height:1.7;"><span style="color:#57606a;">Bland AI</span>：<span style="color:#24292f;">标签「月收入 ¥6.72亿」→ 实际：累计融资额（页面无收入数字）</span></p>
+<p style="margin:0 0 10px;background:#f6f8fa;border-left:3px solid #e5b567;padding:8px 12px;font-size:15px;line-height:1.7;"><span style="color:#57606a;">Morph</span>：<span style="color:#24292f;">标签「月收入 ¥1.28亿」→ 实际：种子轮融资额（另一源 ¥3,864万）</span></p>
+<p style="margin:0 0 10px;background:#f6f8fa;border-left:3px solid #e5b567;padding:8px 12px;font-size:15px;line-height:1.7;"><span style="color:#57606a;">Paraform</span>：<span style="color:#24292f;">标签「月收入 ¥3.36亿」→ 实际：付给招聘官的平台流水（GMV），抽成率未披露</span></p>
+<p style="margin:0 0 18px;background:#f6f8fa;border-left:3px solid #e5b567;padding:8px 12px;font-size:15px;line-height:1.7;"><span style="color:#57606a;">Rox</span>：<span style="color:#24292f;">标签「月收入 ¥5,376万」→ 实际：2025 年预计 ARR（未审计；是年收入不是月收入）</span></p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">四种错法，<strong>没有一种是「四舍五入不准」这种程度的问题</strong>。它们是四个不同的东西被塞进了同一个字段。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">而字段名是统一的。这才是关键——<strong>统一字段名制造了一种它们可比的假象。</strong>读者会自然地排序、比较、取平均，而排出来的序毫无意义。</p>
+<h2 style="font-size:17px;font-weight:700;margin:26px 0 12px;padding-left:10px;border-left:3px solid #e5b567;">放到 33 条里看：只有一条名副其实</h2>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">这四条不是挑出来的极端样本。同一批 33 条我全部回源读过，按「那个数其实是什么」分完类，结果是这样：</p>
+<p style="margin:0 0 10px;background:#f6f8fa;border-left:3px solid #e5b567;padding:8px 12px;font-size:15px;line-height:1.7;"><span style="color:#57606a;">arr 年化收入</span>：<span style="color:#24292f;">19 条 · 按标签读成月收入，放大 12 倍</span></p>
+<p style="margin:0 0 10px;background:#f6f8fa;border-left:3px solid #e5b567;padding:8px 12px;font-size:15px;line-height:1.7;"><span style="color:#57606a;">annual 年营收</span>：<span style="color:#24292f;">4 条 · 同上，放大 12 倍</span></p>
+<p style="margin:0 0 10px;background:#f6f8fa;border-left:3px solid #e5b567;padding:8px 12px;font-size:15px;line-height:1.7;"><span style="color:#57606a;">funding 融资额</span>：<span style="color:#24292f;">4 条 · 那个数跟收入无关（本篇占 2 条）</span></p>
+<p style="margin:0 0 10px;background:#f6f8fa;border-left:3px solid #e5b567;padding:8px 12px;font-size:15px;line-height:1.7;"><span style="color:#57606a;">invalid 口径对不上</span>：<span style="color:#24292f;">2 条 · 取错曲线端点 / 来源不明</span></p>
+<p style="margin:0 0 10px;background:#f6f8fa;border-left:3px solid #e5b567;padding:8px 12px;font-size:15px;line-height:1.7;"><span style="color:#57606a;">gmv 平台流水</span>：<span style="color:#24292f;">1 条 · 本篇的 Paraform</span></p>
+<p style="margin:0 0 10px;background:#f6f8fa;border-left:3px solid #e5b567;padding:8px 12px;font-size:15px;line-height:1.7;"><span style="color:#57606a;">price 定价</span>：<span style="color:#24292f;">1 条 · 第 1 篇的 CrowdReply</span></p>
+<p style="margin:0 0 10px;background:#f6f8fa;border-left:3px solid #e5b567;padding:8px 12px;font-size:15px;line-height:1.7;"><span style="color:#57606a;">unknown 年/月不明</span>：<span style="color:#24292f;">1 条 · 无法判定</span></p>
+<p style="margin:0 0 18px;background:#f6f8fa;border-left:3px solid #e5b567;padding:8px 12px;font-size:15px;line-height:1.7;"><span style="color:#57606a;">mrr 真月收入</span>：<span style="color:#24292f;">1 条 · 只有这一条名副其实</span></p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">33 条里，只有 1 条标签没写错。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">这个分布有个特点值得单独说：<strong>错得最多的是单位，不是来源。</strong>23 条（arr + annual）是把一年的数当成了一个月的数——它们多半来源可靠，只是没做那一次除法。而真正「那个数根本不是收入」的只有 6 条（funding 4 + gmv 1 + price 1）。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">这两种错的处理方式不一样。单位错，改个除法就对了；口径错，改不了——因为页面上压根没有收入。<strong>前者是计算问题，后者是信息缺失。</strong>把它们当成同一种「数字不准」，就会做出两种相反的错误动作：对单位错的那 23 条直接放弃（其实能用），对口径错的那 6 条去换算（其实算不出来）。</p>
+<h2 style="font-size:17px;font-weight:700;margin:26px 0 12px;padding-left:10px;border-left:3px solid #e5b567;">两分钟怎么识破</h2>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">不需要回源，看三处就够。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;"><strong>第一处，看动词。</strong>融资额的上下文里会有「融资 / 领投 / 轮次 / 累计」；GMV 的上下文里会有「支付给 / 平台上成交 / 流水」；定价的上下文里会有「/月 / 起 / 每席位」。字段名说它是收入，动词说它是别的——<strong>信动词，不信字段名。</strong></p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;"><strong>第二处，看单位和量级。</strong>一个月的收入不会比累计融资还大。Rox 估值 ¥80.64亿、Bland AI 累计融资 ¥7.12亿，如果后者真「月入六亿」，那它一年就能融出十个自己。排序违背常识时，先怀疑字段。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;"><strong>第三处，看修饰词。</strong>「预计」「援引」「未确认」「约」出现时，这个数是转述不是事实。CrowdReply 那一篇里还有一个更隐蔽的版本：「$7-10」被换算成「¥47-10」——区间只换了一半。<strong>这种错不会报错，它会安静地待在那儿，直到有人拿它做决策。</strong></p>
+<h2 style="font-size:17px;font-weight:700;margin:26px 0 12px;padding-left:10px;border-left:3px solid #e5b567;">这次加的一道工序</h2>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">既然错是常态，就得有一道拦它的工序，而不是靠每次记得小心。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">这一批之后，候选表加了一列必填的 <strong>caliber</strong>：每一条被记进表的时候，必须同时写下「那个数的真实口径是什么」；只要 caliber 不是 mrr，就必须再写一句 caliber_note，说明它其实是什么。空着不让入库。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">加这一列的理由不是「严谨」，是它改变了提问的顺序。以前是先看到一个数，再判断它是不是收入；现在是先问这个数是什么，再决定要不要用。<strong>顺序换一下，那一栏就填不进去了。</strong></p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">还有一条配套规则：这次有 5 条的口径判断和旧口径表不一致。我没有回改旧表，而是在新表里把两边都记下来（old / now / why）。旧表是当时的判断，改掉它等于抹掉一次自我修正的证据；留着两边，将来谁都看得出「这里改过，理由是这条」。</p>
+<h2 style="font-size:17px;font-weight:700;margin:26px 0 12px;padding-left:10px;border-left:3px solid #e5b567;">这一篇为什么不说「它们做不成」</h2>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">必须写这一段，因为这是这一栏最容易写错的地方。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">Bland AI 每周三百五十万通电话、112 名员工、客户里有 Samsara 和克利夫兰骑士队；Morph 的客户里有 AWS 和 Binance；Paraform 2025 年收入涨 10 倍、累计融资 ¥4.37亿；Rox 成立不到两年估值 ¥80.64亿。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;"><strong>这四条没有一条是失败案例。</strong>把它们写成「做不成」，是事实错误，不是角度不同。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">它们进这一栏的理由只有一个：那个被当成收入的数，不是收入。换句话说，<strong>被否掉的是数据，不是公司</strong>。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">这也解释了为什么这一栏不进推荐位。不是因为它们不好，是因为<strong>拿一个口径不明的数去给读者排名，等于替读者做了一个他自己不会做的判断</strong>。宁可少推荐几条，也不能让一个错数替读者做决定。</p>
+<h2 style="font-size:17px;font-weight:700;margin:26px 0 12px;padding-left:10px;border-left:3px solid #e5b567;">落点：一个人该从这四条里拿走什么</h2>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">这四条没有一条可以直接抄形态——但这不是重点。重点是它们示范了四件事。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;"><strong>一、别在卡片上比大小。</strong>同一个字段名下的数字不一定同类。要比，就把原文打开，把每个数的动词读一遍。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;"><strong>二、融资额不是收入。</strong>这话看起来简单，实践里却最容易犯——因为融资额常常是页面上唯一一个大数字，而卡片需要一个数字。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;"><strong>三、平台型生意的 GMV 永远比收入好看。</strong>抽成率不披露时，唯一诚实的写法是「营收未披露」。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;"><strong>四、增长率和数字混着说，是合法的错觉。</strong>「收入涨 10 倍」和「流水涨 10 倍」在页面上只差两个字，在小标题里完全一样。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">最后一句留给方法论本身：<strong>一个字段读错，污染的不是一行表格，是后面所有基于它的判断——写不写、写哪篇、给谁看。</strong>所以这一栏存在的意义，不是多几篇稿子，是让「读错」这件事发生一次之后，不再发生第二次。</p>
+<p style="font-size:15px;line-height:1.8;margin:30px 0 0;padding:14px 0 0;border-top:1px solid #e5e7eb;color:#8b949e;text-align:center;">— 万物解释者 · 这些别照着做 · 数字篇 —</p>
+</section>

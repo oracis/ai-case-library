@@ -13,6 +13,14 @@
 let VDRAFT = {};               // 草稿：candidate_id -> 已填条件
 let VRESULT = null;            // 最近一次判定结果
 
+/** 缺哪一项 → 点它该跳到界面的哪个控件。键是后端 missing[].key。 */
+const MISSING_GO = {
+  caliber: 'v-caliber',
+  verification: 'v-verif',
+  source_kinds: 'v-sec-musts',
+  primary_source: 'v-sec-musts',
+};
+
 /** 拉规则表。拉过一次就缓存 —— 规则不可能在一轮会话里变。 */
 async function ensureSchema() {
   if (VSCHEMA) return VSCHEMA;
@@ -123,15 +131,60 @@ async function refreshVerdict(c) {
     VRESULT = j.result;
     if (p) p.innerHTML = verdictHTML(VRESULT);
     const btn = $('v-publish');
+    const box = $('v-blockers');
+    const items = blockersOf(VRESULT);
+    if (box) {
+      box.innerHTML = blockersHTML(items);
+      box.querySelectorAll('.v-bl').forEach((b) => {
+        b.onclick = () => jumpToUnit(b.dataset.go);
+      });
+    }
     if (btn) {
       btn.disabled = !VRESULT.publishable;
-      btn.textContent = VRESULT.publishable
-        ? ('发布到' + (TIER_POOL[VRESULT.tier] || '备选池'))
-        : '还差条件，不能发布';
+      if (VRESULT.publishable) {
+        btn.textContent = '发布到' + (TIER_POOL[VRESULT.tier] || '备选池');
+        btn.title = '';
+      } else {
+        // 按钮上直接写差几条，别让人为了知道差什么而上下翻
+        btn.textContent = items.length
+          ? `还差 ${items.length} 项，不能发布` : '还差条件，不能发布';
+        btn.title = items.map((x) => `${x.kind} · ${x.text}`).join('\n');
+      }
     }
   } catch (err) {
     if (p) p.innerHTML = `<span class="v-bad">判定失败：${esc(err.message)}</span>`;
   }
+}
+
+/** 缺什么就列什么：门槛没过的和必填没齐的，按后端给的顺序原样端出来。 */
+function blockersOf(r) {
+  if (!r) return [];
+  const items = [];
+  (r.gates_failed || []).forEach((g) => items.push({
+    kind: '门槛', go: 'v-sec-gates', text: g.label, why: g.why || '' }));
+  (r.missing || []).forEach((m) => items.push({
+    kind: '必填', go: MISSING_GO[m.key] || 'v-sec-musts',
+    text: m.label, why: m.why || '' }));
+  return items;
+}
+
+function blockersHTML(items) {
+  if (!items.length) return '';
+  return items.map((x) => `
+    <button type="button" class="v-bl" data-go="${esc(x.go)}"
+            title="${esc(x.why || ('点一下跳到该填的地方：' + x.text))}">
+      <em>${esc(x.kind)}</em>${esc(x.text)}
+    </button>`).join('');
+}
+
+/** 点缺口条目 → 滚到那一项并闪一下，省得在长抽屉里找。 */
+function jumpToUnit(id) {
+  const el = $(id);
+  if (!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  el.classList.add('v-flash');
+  setTimeout(() => el.classList.remove('v-flash'), 1200);
+  if (el.tagName === 'SELECT') el.focus();
 }
 
 function verdictHTML(r) {
@@ -243,12 +296,12 @@ function verifyHTML(c, sch, draft, result) {
     <div class="v-verdict" id="v-verdict"></div>
   </div>
 
-  <section class="v-sec">
+  <section class="v-sec" id="v-sec-gates">
     <h3 class="v-h"><span class="v-n">1</span>门槛 <em>一道成立就进库；一道都没成立且有反证才不进</em></h3>
     <div class="v-list">${gateRows}</div>
   </section>
 
-  <section class="v-sec">
+  <section class="v-sec" id="v-sec-musts">
     <h3 class="v-h"><span class="v-n">2</span>必填 <em>不带「不拦发布」的必须齐全；口径 / 等级 / 来源另算</em></h3>
     <div class="v-list">${mustRows}</div>
     <div class="v-fields">
@@ -289,8 +342,11 @@ function verifyHTML(c, sch, draft, result) {
   </section>
 
   <div class="v-actions">
-    <button class="v-btn" id="v-save" type="button">存草稿</button>
-    <button class="v-btn primary" id="v-publish" type="button" disabled>还差条件，不能发布</button>
+    <div class="v-blockers" id="v-blockers"></div>
+    <div class="v-act-row">
+      <button class="v-btn" id="v-save" type="button">存草稿</button>
+      <button class="v-btn primary" id="v-publish" type="button" disabled>还差条件，不能发布</button>
+    </div>
   </div>`;
 }
 

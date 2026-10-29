@@ -63,8 +63,11 @@ class Runner:
                 continue
             art = A.load_article(cid, c.get("name", ""))
             force = force or self.replace
+            # blocked 是终止态：平台拦了、改一版仍不过，重发还是被拦。
+            # 连 --replace 也不放行，要重试必须先 `publish_multi.py reset`。
             todo = [p for p in self.plats
-                    if force or not self._is_done(cid, p, art)]
+                    if not self.m.is_blocked(cid, p)
+                    and (force or not self._is_done(cid, p, art))]
             if not todo:
                 continue
             out.append((art, todo))

@@ -425,6 +425,19 @@ def build_payload(include_private=False):
     # 混在一张表里会让 case 的入库闸门（content_gate）失去意义。
     # 缺文件返回 []（load_json 容错），所以这条路径在补数据前也是安全的。
     graveyard = load_json("graveyard")
+    # 「这些别照着做」反向样本表（2026-10-26 加上站）：可以读、不建议照抄的案例。
+    # ⚠ 单独一个键，**绝不并进 cases**：那 274 条是「你能抄什么」的推荐位，
+    #   这 33 条恰恰是「你抄不动」的——混进去要打低分，等于在排行榜尾部堆
+    #   33 条无信息量条目，还会把 verify_deploy 依赖的 curated 计数一起抬高。
+    #   详见 docs/SELECTION_PLAYBOOK.md §4.1。
+    anti_doc = load_json("anti_cases")
+    if isinstance(anti_doc, dict):
+        anti = {"cases": anti_doc.get("cases") or [],
+                "volumes": anti_doc.get("volumes") or [],
+                "built_at": anti_doc.get("_built_at") or ""}
+    else:
+        # 兼容更早期「裸数组」的形态：那种数据没有分篇信息，前端会退化成不分组的平铺
+        anti = {"cases": anti_doc or [], "volumes": [], "built_at": ""}
 
     # 精写案例和候选池都要进前端（站点/后台），所以在这里统一过一遍文本清理：
     # 写稿时顺手记的核对备注（「（Stripe 直连验证，2026-09-17 快照）」）对读者没用、
@@ -511,6 +524,8 @@ def build_payload(include_private=False):
         "dual_scored": len(dual_ranked),
         "dual_top3": dual_top3,
         "graveyard": len(graveyard),
+        "anti": len(anti["cases"]),
+        "anti_volumes": len(anti["volumes"]),
         "quadrants": quadrants,
         "flagged": sum(
             len(c.get("corrections", [])) for c in cases
@@ -534,6 +549,9 @@ def build_payload(include_private=False):
         "sources": sources,
         # 创业墓碑区：已停运项目的死因复盘。与 cases 平级，独立数据文件。
         "graveyard": graveyard,
+        # 反向样本区：可以读、不建议照抄的案例，按「门槛类型」分成 7 篇。
+        # 与 cases / graveyard 三者证据口径不同，不要混着消费。
+        "anti": anti,
         # 展示配置（公众号 / 社群 / 仓库）。前端用它渲染引流位，别在页面里写死。
         "site": load_site(),
         # 核实草稿（候选 id -> 已填条件）。界面打开工作台时直接读它回填。

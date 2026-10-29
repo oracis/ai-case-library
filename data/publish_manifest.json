@@ -7,9 +7,9 @@
    "title": "月收$244K：一个接口验电话和邮箱"
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-23 15:56",
    "attempt": 0,
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   },
   "wechat": {
@@ -57,6 +57,149 @@
    "attempt": 0,
    "state": "draft_saved",
    "title": ""
+  }
+ },
+ "agentsguild": {
+  "bilibili": {
+   "at": "2026-10-27 13:01 草稿箱→发布（send-draft）",
+   "attempt": 1,
+   "remote_id": "53628187",
+   "state": "published",
+   "title": "AgentsGuild：卖给游戏开发者的 AI 技能工具包，靠一次性付费赚钱"
+  },
+  "juejin": {
+   "at": "2026-10-26 12:56",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "AgentsGuild：近 30 天收入 $398，TrustMRR 实时核对（非订阅制，MRR 恒 0）"
+  },
+  "toutiao": {
+   "at": "2026-10-26 13:57",
+   "attempt": 2,
+   "state": "draft_saved",
+   "title": "AgentsGuild：卖给游戏开发者的 AI 技能工具包，靠一次性付费赚钱"
+  },
+  "wechat": {
+   "at": "2026-10-26 13:09",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "AgentsGuild：卖给游戏开发者的 AI 技能工具包，靠一次性付费赚钱"
+  },
+  "xhs": {
+   "at": "2026-10-26 13:12",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "AgentsGuild：卖给游戏开发者的 AI 技能工具包，靠一次性付费赚钱"
+  }
+ },
+ "ai-math-solver": {
+  "bilibili": {
+   "at": "2026-10-25 02:11",
+   "attempt": 1,
+   "state": "draft_saved",
+   "title": "AI Math Solver+：AI数学解题工具，为师生、家"
+  },
+  "toutiao": {
+   "at": "2026-10-25 00:33",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "AI Math Solver+：MRR $365，TrustMRR 实时核对"
+  },
+  "wechat": {
+   "at": "2026-10-25 01:13",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "AI Math Solver+：AI数学解题工具，为师生、家"
+  },
+  "xhs": {
+   "at": "2026-10-25 01:52",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "AI Math Solver+：AI数学解题工具，为师生、家"
+  }
+ },
+ "ai-prank-call": {
+  "bilibili": {
+   "at": "2026-10-26 14:38",
+   "attempt": 2,
+   "state": "published",
+   "title": "AI Prank Call：AI 语音恶作剧服务，32 活跃"
+  },
+  "juejin": {
+   "at": "2026-10-26 14:18",
+   "attempt": 1,
+   "state": "published",
+   "title": "AI Prank Call：AI 语音恶作剧服务，32 活跃"
+  },
+  "toutiao": {
+   "at": "2026-10-26 14:23",
+   "attempt": 0,
+   "state": "published",
+   "title": "AI Prank Call：AI 语音恶作剧服务，32 活跃"
+  },
+  "wechat": {
+   "at": "2026-10-26 15:47",
+   "attempt": 0,
+   "state": "published",
+   "title": "AI Prank Call：AI 语音恶作剧服务，32 活跃"
+  },
+  "xhs": {
+   "at": "2026-10-26 15:28",
+   "attempt": 2,
+   "state": "published",
+   "title": "AI Prank Call"
+  }
+ },
+ "ai-smart-decor": {
+  "bilibili": {
+   "at": "2026-10-25 02:11",
+   "attempt": 1,
+   "state": "draft_saved",
+   "title": "AI Smart Decor：AI智能室内设计工具，让用户预"
+  },
+  "toutiao": {
+   "at": "2026-10-25 00:35",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "AI Smart Decor：MRR $376，TrustMRR 实时核对"
+  },
+  "wechat": {
+   "at": "2026-10-25 01:17",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "AI Smart Decor：AI智能室内设计工具，让用户预"
+  },
+  "xhs": {
+   "at": "2026-10-25 01:55",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "AI Smart Decor：AI智能室内设计工具，让用户预"
+  }
+ },
+ "ai-voice-calls": {
+  "bilibili": {
+   "at": "2026-10-25 02:11",
+   "attempt": 1,
+   "state": "draft_saved",
+   "title": "AI voice calls：AI语音平台，支持50+语言"
+  },
+  "toutiao": {
+   "at": "2026-10-25 00:18",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "AI voice calls：MRR $335，TrustMRR 实时核对"
+  },
+  "wechat": {
+   "at": "2026-10-25 00:51",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "AI voice calls：AI语音平台，支持50+语言"
+  },
+  "xhs": {
+   "at": "2026-10-25 01:33",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "AI voice calls：AI语音平台，支持50+语言"
   }
  },
  "augora-ai": {
@@ -112,6 +255,46 @@
    "title": ""
   }
  },
+ "betting-tips": {
+  "bilibili": {
+   "at": "2026-10-25 02:11",
+   "attempt": 1,
+   "state": "draft_saved",
+   "title": "Betting Tips：为足球、篮球、网球、美式足球和棒球"
+  },
+  "juejin": {
+   "at": "2026-10-29 11:49",
+   "attempt": 0,
+   "state": "published",
+   "title": ""
+  },
+  "toutiao": {
+   "at": "2026-10-25 00:16",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "Betting Tips：MRR $337，TrustMRR 实时核对"
+  },
+  "wechat": {
+   "at": "2026-10-25 00:47",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "Betting Tips：为足球、篮球、网球、美式足球和棒球"
+  },
+  "xhs": {
+   "at": "2026-10-25 01:29",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "Betting Tips：为足球、篮球、网球、美式足球和棒球"
+  }
+ },
+ "bettrbot": {
+  "xhs": {
+   "at": "2026-10-23 15:56",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": ""
+  }
+ },
  "boothie-ai-photo-editor": {
   "bilibili": {
    "at": "2026-10-13 22:48",
@@ -152,10 +335,10 @@
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-28 14:54",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "state": "published",
+   "title": "Bustem：帮电商品牌全网打假，找仿品、窜货、下架链接"
   },
   "xhs": {
    "at": "2026-09-29 21:17",
@@ -188,6 +371,32 @@
    "attempt": 0,
    "state": "draft_saved",
    "title": ""
+  }
+ },
+ "chatsell-co": {
+  "bilibili": {
+   "at": "2026-10-25 02:11",
+   "attempt": 1,
+   "state": "draft_saved",
+   "title": "Chatsell.co：为WooCommerce店铺提供自然"
+  },
+  "toutiao": {
+   "at": "2026-10-25 00:22",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "Chatsell.co：MRR $349，TrustMRR 实时核对"
+  },
+  "wechat": {
+   "at": "2026-10-25 01:00",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "Chatsell.co：为WooCommerce店铺提供自然"
+  },
+  "xhs": {
+   "at": "2026-10-25 01:40",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "Chatsell.co：为WooCommerce店铺提供自然"
   }
  },
  "checkvibe": {
@@ -263,9 +472,9 @@
    "title": ""
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-23 15:56",
    "attempt": 0,
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   }
  },
@@ -295,12 +504,39 @@
    "title": ""
   }
  },
- "divine-widgets": {
+ "demopolish": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-25 02:11",
+   "attempt": 1,
+   "state": "draft_saved",
+   "title": "DemoPolish：Demopolish帮助软件和SaaS"
+  },
+  "toutiao": {
+   "at": "2026-10-25 00:20",
    "attempt": 0,
    "state": "draft_saved",
-   "title": "月收$6.2K：卖网站小挂件给站长"
+   "title": "DemoPolish：MRR $318，TrustMRR 实时核对"
+  },
+  "wechat": {
+   "at": "2026-10-25 00:56",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "DemoPolish：Demopolish帮助软件和SaaS"
+  },
+  "xhs": {
+   "at": "2026-10-25 01:37",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "DemoPolish：Demopolish帮助软件和SaaS"
+  }
+ },
+ "divine-widgets": {
+  "bilibili": {
+   "at": "2026-10-28 14:37 草稿箱→发布（send-draft）",
+   "attempt": 0,
+   "remote_id": "53645998",
+   "state": "published",
+   "title": "Divine Widgets：圣经小组件，每日经文祷告上锁屏"
   },
   "toutiao": {
    "at": "2026-09-29 21:17",
@@ -407,9 +643,9 @@
    "title": "年收$200M：美发店的预约收银后台"
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-29 11:46",
    "attempt": 0,
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   },
   "wechat": {
@@ -571,9 +807,9 @@
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-29 12:10",
    "attempt": 0,
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   },
   "xhs": {
@@ -603,17 +839,17 @@
    "title": ""
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-29 11:46",
    "attempt": 0,
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   }
  },
  "le19emetrou": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-23 15:05",
    "attempt": 0,
-   "state": "draft_saved",
+   "state": "published",
    "title": "月收$842：高尔夫造型的开瓶器"
   },
   "toutiao": {
@@ -663,9 +899,9 @@
  },
  "magicslides-app": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-29 11:46",
    "attempt": 0,
-   "state": "draft_saved",
+   "state": "published",
    "title": "月收$11K：输入主题自动做 PPT"
   },
   "toutiao": {
@@ -701,9 +937,9 @@
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-23 15:56",
    "attempt": 0,
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   },
   "xhs": {
@@ -967,10 +1203,10 @@
    "title": ""
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-28 14:54",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "state": "published",
+   "title": "PromptMon：盯 AI 里的品牌"
   }
  },
  "prosp": {
@@ -1059,10 +1295,10 @@
    "title": "Quran Unlock：移动 app"
   },
   "toutiao": {
-   "at": "2026-09-30 20:15",
+   "at": "2026-10-28 14:54",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": "Quran Unlock：移动 app"
+   "state": "published",
+   "title": "Quran Unlock：古兰经习惯打卡"
   },
   "wechat": {
    "at": "2026-10-01 23:00",
@@ -1101,6 +1337,32 @@
    "attempt": 0,
    "state": "draft_saved",
    "title": ""
+  }
+ },
+ "roster-for-slack": {
+  "bilibili": {
+   "at": "2026-10-25 02:11",
+   "attempt": 1,
+   "state": "draft_saved",
+   "title": "Roster for Slack：为 Slack 团队提供持"
+  },
+  "toutiao": {
+   "at": "2026-10-25 00:27",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "Roster for Slack：MRR $351，TrustMRR 实时核对"
+  },
+  "wechat": {
+   "at": "2026-10-25 01:04",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "Roster for Slack：为 Slack 团队提供持"
+  },
+  "xhs": {
+   "at": "2026-10-25 01:44",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "Roster for Slack：为 Slack 团队提供持"
   }
  },
  "search1api": {
@@ -1259,6 +1521,32 @@
    "title": ""
   }
  },
+ "static-run": {
+  "bilibili": {
+   "at": "2026-10-25 02:11",
+   "attempt": 1,
+   "state": "draft_saved",
+   "title": "Static.run：静态网站托管服务，免费易用"
+  },
+  "toutiao": {
+   "at": "2026-10-25 00:29",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "Static.run：MRR $358，TrustMRR 实时核对"
+  },
+  "wechat": {
+   "at": "2026-10-25 01:09",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "Static.run：静态网站托管服务，免费易用"
+  },
+  "xhs": {
+   "at": "2026-10-25 01:48",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "Static.run：静态网站托管服务，免费易用"
+  }
+ },
  "stealth-rdp": {
   "bilibili": {
    "at": "2026-10-13 22:48",
@@ -1371,6 +1659,14 @@
    "title": "月收$2.4K：在领英上自动加客户"
   }
  },
+ "upvoty": {
+  "juejin": {
+   "at": "2026-10-28 14:54",
+   "attempt": 0,
+   "state": "published",
+   "title": "Upvoty拆解：先收200个注册再写代码，六年做到$40K MRR"
+  }
+ },
  "vectosolve": {
   "bilibili": {
    "at": "2026-10-10 19:39",
@@ -1395,6 +1691,32 @@
    "attempt": 2,
    "state": "draft_saved",
    "title": "月收 $1,808 但唯一在增长：把 PNG 转成可编辑的"
+  }
+ },
+ "verse": {
+  "bilibili": {
+   "at": "2026-10-25 02:11",
+   "attempt": 1,
+   "state": "draft_saved",
+   "title": "Verse：Verse 以单次提示构建自主 AI 员工"
+  },
+  "toutiao": {
+   "at": "2026-10-25 00:39",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "Verse：MRR $396，TrustMRR 实时核对"
+  },
+  "wechat": {
+   "at": "2026-10-25 01:21",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "Verse：Verse 以单次提示构建自主 AI 员工"
+  },
+  "xhs": {
+   "at": "2026-10-25 01:59",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "Verse：Verse 以单次提示构建自主 AI 员工"
   }
  },
  "vid-ai": {

@@ -1,0 +1,31 @@
+{
+  "公众号-31个可复制的AI产品-推文": {
+    "title": "我核了 255 个海外 AI 产品的收入，只有 31 个值得抄",
+    "desc": "255 条真实收入数据里，四维全绿的只有 31 条，其中 10 条正在退坡。这份 20 页清单逐条给了收入、可复制性评分和最大风险。",
+    "tag": "万物解释者 · 数据特辑",
+    "published_at": "2026-10-23 00:14",
+    "status": "published",
+    "appmsgid": "100000977",
+    "file": "公众号-31个可复制的AI产品-推文.html",
+    "scheduled_at": "2026-10-25 20:30",
+    "cover_file": "tmp/covers/公众号-31个可复制的AI产品-推文.png",
+    "published_appmsgid": "2247484751",
+    "content_url": "https://mp.weixin.qq.com/s/Kd8uLR9GxQejpK0oZn4rmw",
+    "mass_sent_at": "2026-10-25 22:44",
+    "publish_type": "masssend",
+    "batch_msgid": "1000000030",
+    "note": "2026-10-25 群发发送（send --notify），脚本轮询确认"
+  },
+  "mcdpoints": {
+    "title": "用麦当劳官方接口查了一下，我的积分正在悄悄过期",
+    "desc": "麦当劳积分会过期，官方从不提醒。我用官方 MCP 接口查了自己的账号：2938 分已经白白作废。于是写了两个零依赖开源工具：一个查临期积分并给出过期前最优兑换，一个枚举套餐可替换项生成隐藏菜单。",
+    "tag": "万物解释者",
+    "published_at": "2026-10-25 03:30",
+    "status": "published",
+    "appmsgid": "100001101",
+    "file": "mcdpoints-wx.html",
+    "published_appmsgid": "2247484750",
+    "content_url": "https://mp.weixin.qq.com/s/BeIyHtnhcQBOVlvTx1Cj0A",
+    "note": "2026-10-25 核对远端已发表列表补登（本机发送流程未落账）"
+  }
+}

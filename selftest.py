@@ -518,8 +518,13 @@ def main():
         c0 = data["cases"][0]
         for f in ("id", "name", "one_liner", "category", "verification", "metrics", "sources"):
             check("case 字段 %s" % f, f in c0)
-        check("信息源 5 个", len(data["sources"].get("sources", [])) == 5,
-              "实际 %d" % len(data["sources"].get("sources", [])))
+        # ⚠ 2026-10-29：这条原先写死 `== 5`，而 e2bd46b 把 howtomakemi 线索源
+        # 入库后 sources.json 变 6 个，基线就红了 —— 信息源数量是会长的事实，
+        # 不该当断言常量。改成「≥ 5 且每条 id/name 齐全」，守的才是真东西。
+        _src = data["sources"].get("sources", [])
+        check("信息源 ≥ 5 且字段齐全",
+              len(_src) >= 5 and all(s.get("id") and s.get("name") for s in _src),
+              "实际 %d" % len(_src))
         check("filter_rules 存在", "filter_rules" in data["sources"])
         n_corr = sum(len(c.get("corrections", [])) for c in data["cases"])
         check("修正记录 > 0", n_corr > 0, "共 %d 处" % n_corr)

@@ -177,7 +177,20 @@ def clean(text):
 # ---------------------------------------------------------------- 过滤器
 
 class Filter:
-    """照 sources.json 里的 filter_rules 去掉广告与新闻稿。"""
+    """照 sources.json 里的 filter_rules 去掉广告与新闻稿。
+
+    2026-10-23 修（howtomakemi 增量暴露的误杀）：
+    - 词边界匹配：裸子串会把 facebook/notebook/writebook 里的 "ebook"、
+      西语 tipos 里的 "ipo" 当成丢弃词——TrustMRR 一手档案里 14 条过门槛的
+      被砍 13 条，全是这么死的。
+    - 否定前缀保护："no free trial" 说的是「没有试用」，恰是正面信号，
+      不能反过来把它当广告词毙掉。
+    """
+
+    # 否定前缀：出现在丢弃词前面时，说明该词被否定，不算命中
+    NEG_PREFIX = re.compile(
+        r"(?:\bno|\bnot|\bwithout|\bnever|\bzero)\s+$"
+    )
 
     def __init__(self, rules):
         self.drop = [k.lower() for k in rules.get("drop_keywords", [])]
@@ -186,14 +199,25 @@ class Filter:
         self.keep_re = re.compile(
             "|".join(r"(?<![a-z0-9])%s(?![a-z0-9])" % re.escape(k) for k in keep), re.I
         ) if keep else None
+        # drop 词同样按词边界编译（修子串误杀；"we're hiring" 这类含空格的
+        # 句式词整串匹配）
+        self.drop_re = re.compile(
+            "|".join(r"(?<![a-z0-9])%s(?![a-z0-9])" % re.escape(k) for k in self.drop),
+            re.I,
+        ) if self.drop else None
 
     def verdict(self, text):
         if not text:
             return False, "空文本"
         low = text.lower()
-        for k in self.drop:
-            if k in low:
-                return False, "命中丢弃词: %s" % k
+        if self.drop_re:
+            for m in self.drop_re.finditer(low):
+                kw = m.group(0)
+                # 否定前缀保护：往前看几个词是不是 "no/without/never" 等
+                head = low[max(0, m.start() - 24):m.start()]
+                if self.NEG_PREFIX.search(head):
+                    continue
+                return False, "命中丢弃词: %s" % kw
         if self.keep_re and self.keep_re.search(low):
             return True, ""
         # 含收入信号也放行
@@ -2398,6 +2422,9 @@ def main():
                     help="外部线索源的 slug 清单文件（每行一个，# 注释）。"
                          "命中 TrustMRR 的 slug 优先抓一手 .md 档案——"
                          "用来把别的站点的索引当发现面（如 howtomakemi）")
+    ap.add_argument("--empty-ok", action="store_true",
+                    help="无素材时退出码 0 而非 1。种子复查模式下「无新增」是"
+                         "正常结果（如 htm_increment.py 的重跑），不是故障")
     ap.add_argument("--fix-source-kind", action="store_true",
                     help="给存量数据（采集队列 + 候选池）补 source_kind 后退出，不采集")
     args = ap.parse_args()
@@ -2500,6 +2527,10 @@ def main():
                 print("\n--dry-run：ARR Club 参照表未写入（它不进采集队列，不算空跑）。")
             else:
                 print("\nARR Club 参照表已更新（它不进采集队列，所以这里不算「空跑」）。")
+            return 0
+        if args.empty_ok:
+            # 种子复查模式：没新素材是正常结果（种子已全部处置过、选拔无斩获）
+            print("\n本次无新增素材（--empty-ok：按正常结果处理）。")
             return 0
         print("\n没有拿到任何素材。检查网络，或换个源试试。")
         return 1

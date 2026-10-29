@@ -25,6 +25,14 @@
 红线，`out/xhs/*/note.json` 里现在的标题是新口径，而线上老笔记还是旧标题。
 这类只能靠第 3 层或 `data/xhs_aliases.json` 人工固化。
 
+## 数据回流（2026-10-23）
+
+`--apply` 除了回填「线上已发布」事实，还把每条笔记的**互动指标**
+（赞 likes / 看 view_count）随对账写进台账条目的 `metrics` 字段：
+    {"synced_at": "2026-10-23 15:00", "likes": 12, "views": 340}
+每次对账覆盖为最新快照（不做历史累计，历史靠 git/备份）。台账的
+幂等判据 `_published_ids()` 只读 `id` 键，新增字段不影响发布去重。
+
 ## 用法
 
     python -X utf8 scripts/xhs_sync_ledger.py            # 只对账，不改文件
@@ -46,6 +54,7 @@ ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 
 LEDGER = os.path.join(ROOT, "data", "xhs_published.json")
+HISTORY = os.path.join(ROOT, "data", "xhs_metrics_history.json")
 ALIASES = os.path.join(ROOT, "data", "xhs_aliases.json")
 OVERRIDES = os.path.join(ROOT, "data", "xhs_title_overrides.json")
 CARDS = os.path.join(ROOT, "out", "xhs")
@@ -177,6 +186,14 @@ def top_candidates(title, ctx, k=3):
     return rows[:k]
 
 
+def _num(v):
+    """接口给的赞/看是字符串（"12"/"345"），落盘前转 int，便于后续直接算 ROI。"""
+    try:
+        return int(str(v).replace(",", "").strip())
+    except (TypeError, ValueError):
+        return v
+
+
 def local_entries():
     d = _read_json(LEDGER, [])
     if isinstance(d, dict):
@@ -238,15 +255,21 @@ def main():
                          ensure_ascii=False, indent=1))
     else:
         print("线上 %d 条 / 台账 %d 条" % (len(notes), len(local)))
+        tot_likes = sum(_num(r["likes"] or 0) for r in rows if r["cid"])
+        tot_views = sum(_num(r["views"] or 0) for r in rows if r["cid"])
+        print("互动合计：赞 %s · 看 %s（仅已认领 case）" % (tot_likes, tot_views))
         print("-" * 66)
         for r in sorted(rows, key=lambda x: x["time"] or ""):
             tag = r["cid"] or "??"
             flag = " ⚠重复" if r.get("dup_of") else ""
+            met = "赞%-4s 看%-6s" % (r.get("likes", "-"), r.get("views", "-"))
             if args.verbose:
-                print("  %s  %-24s %-22s %s(%s)%s"
-                      % (r["time"], tag, (r["title"] or "")[:22], r["how"], r["score"], flag))
+                print("  %s  %-24s %s %-22s %s(%s)%s"
+                      % (r["time"], tag, met, (r["title"] or "")[:20],
+                         r["how"], r["score"], flag))
             else:
-                print("  %s  %-24s %s%s" % (r["time"], tag, (r["title"] or "")[:34], flag))
+                print("  %s  %-24s %s %s%s"
+                      % (r["time"], tag, met, (r["title"] or "")[:30], flag))
         if unresolved:
             print("\n认不出的标题（不会写进台账，需人工确认）：")
             for r in unresolved:
@@ -270,12 +293,20 @@ def main():
         return 3
 
     now = time.strftime("%Y-%m-%d %H:%M")
+    today = now[:10]
     old_by_id = {e["id"]: e for e in local}
     out = []
+    # 历史快照：同 cid 取最早一条（与重复检测语义一致），同日重跑整块覆盖＝幂等
+    snap = {}
     for r in sorted(rows, key=lambda x: x["time"] or ""):
+        if not r["cid"]:
+            continue
         prev = old_by_id.get(r["cid"]) or {}
         e = {"id": r["cid"], "at": r["time"], "note_id": r["note_id"],
              "title": r["title"]}
+        # 数据回流：互动指标随对账落台账（最新快照，历史进 metrics_history）
+        e["metrics"] = {"synced_at": now, "likes": _num(r.get("likes")),
+                        "views": _num(r.get("views"))}
         if r.get("dup_of"):
             e["note"] = "%s 接口对账回填；⚠ 与 %s 重复发布" % (now, r["dup_of"][:8])
         elif prev.get("note"):
@@ -283,11 +314,24 @@ def main():
         else:
             e["note"] = "%s 接口对账回填（线上已发布）" % now
         out.append(e)
+        snap.setdefault(r["cid"], {"likes": _num(r.get("likes")),
+                                   "views": _num(r.get("views")),
+                                   "note_id": r["note_id"], "title": r["title"]})
+
+    hist = _read_json(HISTORY, {})
+    if not isinstance(hist, dict):
+        hist = {}
+    # 当日块 = 本次线上快照（同日重跑整块覆盖＝幂等；笔记被删当日块会如实变小）
+    hist[today] = snap
+    # 历史只增不减（按日期序输出）
+    hist = {k: hist[k] for k in sorted(hist)}
 
     shutil.copy2(LEDGER, "%s.bak-%s" % (LEDGER, time.strftime("%Y%m%d-%H%M%S")))
-    with open(LEDGER, "w", encoding="utf-8", newline="") as f:
-        f.write(json.dumps(out, ensure_ascii=False, indent=2))
+    import atomicio
+    atomicio.write_text(LEDGER, json.dumps(out, ensure_ascii=False, indent=2))
+    atomicio.write_json(HISTORY, hist)
     print("\n✓ 已写回 %s：%d 条（备份在同目录 .bak-*）" % (LEDGER, len(out)))
+    print("✓ 指标快照 → %s（%s：%d case）" % (HISTORY, today, len(snap)))
     return 0
 
 

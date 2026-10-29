@@ -4,6 +4,10 @@
  * 与深度报告同属付费内容，但**导出必须硬校验**：
  * CSV 拿到就能扩散，前端按钮只是入口，不是边界。
  *
+ * M4 2026-10-23：新增可选 {filter:{tier,verification,quadrant}} 服务端筛选
+ *（'all'/空 = 不过滤，仅白名单键，非法值忽略）；与 Web 端 csv.js 的
+ * applyFilter 同语义，键变更两边同步。
+ *
  * 2026-10-15：内容收费后，导出的每一列都在 get-cases 的 PAID 层里
  * （mrr / last_30d_revenue / arr / all_time / caliber 等），
  * 所以这道门是唯一入口 —— 判定必须与 get-cases 的 canReadFull 同一套规则，
@@ -11,7 +15,7 @@
  */
 
 const cloud = require('wx-server-sdk');
-const { getEntitlements, canReadFull } = require('./lib/deliver.js');
+const { getEntitlements, canReadFull, resolveCaller, identOf } = require('./lib/deliver.js');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
@@ -38,12 +42,14 @@ const COLS = [
 ];
 
 exports.main = async (event) => {
-  const openid = cloud.getWXContext().OPENID;
-  if (!openid) {
-    return { errcode: 40001, errmsg: '未登录，请重新进入小程序' };
+  // M2 双身份：小程序语境 = OPENID；Web SDK 语境 = CloudBase uid
+  const caller = await resolveCaller(cloud);
+  const ident = identOf(caller);
+  if (!ident) {
+    return { errcode: 40001, errmsg: '未登录' };
   }
 
-  const ent = await getEntitlements(db, openid);
+  const ent = await getEntitlements(db, ident);
   if (!canReadFull(ent, '')) {
     return {
       errcode: 40301,
@@ -52,7 +58,16 @@ exports.main = async (event) => {
   }
 
   const r = await db.collection('cases').limit(1000).get();
-  const list = r.data || [];
+  let list = r.data || [];
+
+  // ---- M4 筛选（服务端过滤；与 Web 端 CSV.applyFilter 同一套键与语义） ----
+  // 仅白名单键，'all'/空 = 不过滤；非法值静默忽略（不报错，宽容处理）
+  const FILTER_KEYS = ['tier', 'verification', 'quadrant'];
+  const f = (event && event.filter) || {};
+  const active = FILTER_KEYS.filter((k) => f[k] && f[k] !== 'all');
+  if (active.length) {
+    list = list.filter((c) => active.every((k) => String(c[k] || '') === String(f[k])));
+  }
 
   // ---- 组 CSV ----
   const esc = (v) => {
@@ -70,7 +85,7 @@ exports.main = async (event) => {
   let fileId = '';
   try {
     const up = await cloud.uploadFile({
-      cloudPath: 'exports/' + openid.slice(0, 10) + '-' + Date.now() + '.csv',
+      cloudPath: 'exports/' + ident.slice(0, 10) + '-' + Date.now() + '.csv',
       fileContent: Buffer.from(csv, 'utf8')
     });
     fileId = up.fileID || '';

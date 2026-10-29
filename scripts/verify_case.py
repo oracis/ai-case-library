@@ -165,11 +165,18 @@ def main():
             print("  %-12s : %s" % (label, "；".join(str(v) for v in vals)))
     print()
     score = out.get("score") or 0
-    if out.get("tier") == VR.TIER_PREMIUM:
-        print("  → 够精品档（%d ≥ %d）" % (score, VR.TIER_THRESHOLD))
+    reason = out.get("tier_reason") or ""
+    # 🚨 档位**不是**分数定的：有一手来源就进精品池，15 分也进（verify_rules.py
+    # default_case_tier）。所以这里不能印「分数 vs 阈值」，只能说档位 + 真实理由，
+    # 否则会出现「够精品档（15 ≥ 60）」这种自相矛盾的结论（2026-10-26 实测）。
+    if not out.get("tier"):
+        print("  → 不判档位：门槛未过，这条不进库")
     else:
-        print("  → 不够精品档：%d < %d，差 %d 分"
-              % (score, VR.TIER_THRESHOLD, VR.TIER_THRESHOLD - score))
+        print("  → 档位：%s —— %s"
+              % (out.get("tier_label") or out.get("tier"), reason or "未给理由"))
+        if (out.get("tier") != VR.TIER_PREMIUM and score < VR.TIER_THRESHOLD):
+            print("     质量分 %d < %d，差 %d 分"
+                  % (score, VR.TIER_THRESHOLD, VR.TIER_THRESHOLD - score))
     print()
     print("注：本轮没有 publish（未改 cases.json）。草稿在 data/verifications.json。")
 

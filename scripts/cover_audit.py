@@ -16,6 +16,7 @@
 import os
 import re
 import sys
+from html import escape as html_escape
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -129,8 +130,16 @@ def audit_html(c):
         if 'class="desc' in html:
             problems.append("DESC_SHOULD_BE_ABSENT(空简介却渲染了)")
     # 3) 项目名必须在
-    if c.get("name") and c["name"] not in html:
-        problems.append("NAME_MISSING")
+    # ⚠ 2026-10-26：必须拿 **HTML 转义后** 的形态比对。品牌名里带 & 的
+    # （"Account & Expense Manager"、"Aura AI - AI Video & Image Generator"）
+    # 会被模板正确转成 &amp;，此时原文 never in html ⇒ 三条恒报 NAME_MISSING
+    # 假阳性。封面其实是好的，别照着这个告警去改数据（我曾据此误判成
+    # 「封面无中文」，差点把英文品牌名全改成中文）。
+    name = c.get("name") or ""
+    if name:
+        esc = html_escape(name)
+        if name not in html and esc not in html:
+            problems.append("NAME_MISSING(%s)" % name[:24])
     return problems
 
 

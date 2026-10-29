@@ -122,6 +122,15 @@ AI_KEY = _cfg("CASE_LIB_AI_KEY", "ai_key", "")
 AI_MODEL = _cfg("CASE_LIB_AI_MODEL", "ai_model", "glm-4-flash")
 # 这些base 走本机代理会超时/403，LLM 请求时绕过代理（仅 LLM，不影响其他）
 AI_BASE_NO_PROXY = ("opencode.ai/zen",)
+# 🚨 备端点（429 自动降级，2026-10-26）。
+# ModelScope 免费推理限 2000 次/天（**账号级总量**，单模型另有 ~500 动态限流），
+# 跑大批量必撞 429 —— 撞了自动切备端点继续，整批不再半途而废。
+# 读 secrets.json 的 ai_fallback_base / ai_fallback_key / ai_fallback_model
+# （env CASE_LIB_AI_FALLBACK_* 优先）。没配 = 无备端点，行为同旧版。
+# 当前配置：主 = ModelScope DeepSeek-V4.1-Flash，备 = 智谱 glm-4-flash（回退键 zhipu_ai_*）。
+AI_FB_BASE = (_cfg("CASE_LIB_AI_FALLBACK_BASE", "ai_fallback_base", "") or "").rstrip("/")
+AI_FB_KEY = _cfg("CASE_LIB_AI_FALLBACK_KEY", "ai_fallback_key", "")
+AI_FB_MODEL = _cfg("CASE_LIB_AI_FALLBACK_MODEL", "ai_fallback_model", "")
 # 🚨 **截断自动重试**（2026-10-10）。
 # 推理模型把思考 token 也算进 max_tokens，核一条要烧 4000+（思考约 3600），
 # 16000 仍偶发被吃光 —— `publbee`、`vectosolve` 都因此失败过，而同批里
@@ -381,7 +390,8 @@ def map_ai_to_draft(cand, ai, publish_mode, model_name=""):
             irrelevant_dropped += 1
             continue
         kind = s.get("kind") if s.get("kind") in (
-            "stripe", "official", "press", "review", "founder", "secondary") else "press"
+            "stripe", "official", "press", "review", "founder", "secondary",
+            "aggregator", "homepage") else "press"
         sources.append({"label": str(s.get("label") or "")[:80],
                         "url": url, "kind": kind})
         if len(sources) >= 6:
@@ -821,12 +831,32 @@ def llm(messages, temperature=0.2, max_tokens=None):
     """调一次模型。**截断了会自动加大预算重试**（见下方注释）。
 
     `max_tokens=None` 表示用默认 `AI_MAX_TOKENS`。
+    另有两级自动恢复：主端点 429 限流 → 切备端点（限流**不**消耗截断
+    重试次数）；备端点也限流才最终报错。没配备端点则行为同旧版。
     """
+    # 端点表：主端点用全局 AI_*（--ai-* CLI 覆盖照常生效）；
+    # 备端点与主端点同 base+model 时跳过（切过去等于没切）。
+    eps = [{"base": AI_BASE, "key": AI_KEY, "model": AI_MODEL, "tag": "主"}]
+    if AI_FB_BASE and (AI_FB_BASE, AI_FB_MODEL) != (AI_BASE, AI_MODEL):
+        eps.append({"base": AI_FB_BASE, "key": AI_FB_KEY,
+                    "model": AI_FB_MODEL, "tag": "备"})
     last_err = None
     budget = max_tokens or AI_MAX_TOKENS
-    for attempt in range(LLM_TRUNCATE_RETRIES + 1):
+    ei = 0
+    truncates = 0
+    while truncates <= LLM_TRUNCATE_RETRIES:
+        ep = eps[ei]
         try:
-            return _llm_once(messages, temperature, budget)
+            return _llm_once(messages, temperature, budget,
+                             ep["base"], ep["key"], ep["model"])
+        except _RateLimited as e:
+            last_err = e
+            if ei + 1 >= len(eps):
+                break
+            ei += 1
+            print("   ⇄ %s端点限流(HTTP 429)，自动切备端点 %s (%s)"
+                  % (ep["tag"], eps[ei]["base"], eps[ei]["model"]))
+            continue
         except _Truncated as e:
             last_err = e
             # 🚨 截断是**可重试**的失败，不该让人手动重跑（2026-10-10）。
@@ -838,22 +868,31 @@ def llm(messages, temperature=0.2, max_tokens=None):
             # 也算进 max_tokens，16000 仍会被吃光。
             # 正确解法是让模型**别再想那么久**：显式要求
             # 直接输出 JSON 决策、压缩思考过程，而不是无限加预算。
-            if attempt >= LLM_TRUNCATE_RETRIES:
+            truncates += 1
+            if truncates > LLM_TRUNCATE_RETRIES:
                 break
-            grown = AI_MAX_TOKENS + (attempt + 1) * LLM_TRUNCATE_STEP
+            grown = AI_MAX_TOKENS + truncates * LLM_TRUNCATE_STEP
             print("   ↻ LLM 输出被截断，自动加预算重试"
                   "（%d → %d）" % (budget, grown))
             budget = grown
     raise RuntimeError(str(last_err))
 
 
+class _RateLimited(RuntimeError):
+    """端点限流（HTTP 429），可降级到备端点（可重试）。"""
+
+
 class _Truncated(RuntimeError):
     """内部信号：回答被 max_tokens 截断（可重试）。"""
 
 
-def _llm_once(messages, temperature, max_tokens):
+def _llm_once(messages, temperature, max_tokens,
+              base=None, key=None, model=None):
+    base = base if base is not None else AI_BASE
+    key = key if key is not None else AI_KEY
+    model = model if model is not None else AI_MODEL
     body = json.dumps({
-        "model": AI_MODEL,
+        "model": model,
         "messages": messages,
         "temperature": temperature,
         "response_format": {"type": "json_object"},
@@ -863,7 +902,7 @@ def _llm_once(messages, temperature, max_tokens):
         "max_tokens": max_tokens,
     }).encode("utf-8")
     req = urllib.request.Request(
-        AI_BASE + "/chat/completions", data=body,
+        base + "/chat/completions", data=body,
         headers={"Content-Type": "application/json",
                  # ⚠ key 为空时必须发「空 Bearer」（等号后什么都不给），
                  # 不能省略这个头、也不能填占位串：
@@ -872,7 +911,7 @@ def _llm_once(messages, temperature, max_tokens):
                  #     因为服务端会校验 key 是否真实存在。
                  # 空值才走「免鉴权/ 隐身模型」分支。
                  # 2026-10-01 实测：space-bunny-free 只有这样才能免 key 调通。
-                 "Authorization": "Bearer " + (AI_KEY or ""),
+                 "Authorization": "Bearer " + (key or ""),
                  # ⚠ 必须带 UA：OpenCode Zen（Space Bunny）这类端点前面挂
                  # Cloudflare，urllib 默认 UA 会被 403「error code: 1010」拦掉
                  # —— 那是 WAF 拦截，不是 key 或参数问题，换真 key 也照样403。
@@ -882,7 +921,7 @@ def _llm_once(messages, temperature, max_tokens):
     # 免鉴权端点（opencode.ai/zen）走本机代理会超时/403，直接绕过。
     # 只对 LLM 请求生效，不动其他网络行为。
     opener = _direct_opener() if any(
-        h in AI_BASE for h in AI_BASE_NO_PROXY) else None
+        h in base for h in AI_BASE_NO_PROXY) else None
     # ⚠ OpenerDirector 的方法叫 .open()，没有 .urlopen() —— 两者接口不同，
     #   不能简单互换（写错会AttributeError）。
     try:
@@ -900,8 +939,13 @@ def _llm_once(messages, temperature, max_tokens):
             detail = e.read().decode("utf-8", "replace")[:300]
         except Exception:                                    # noqa: BLE001
             pass
+        # 🚨 429 = 限流（ModelScope 2000 次/天账号级、单模型 ~500 动态），
+        # 抛专用异常让 llm() 切备端点，别混进普通 RuntimeError。
+        if e.code == 429:
+            raise _RateLimited("LLM 端点限流 HTTP 429%s%s" % (
+                ("：" + detail) if detail else "", "（%s）" % base)) from e
         hint = ""
-        if e.code == 401 and not AI_KEY:
+        if e.code == 401 and not key:
             hint = ("（当前是免 key 模式：这个模型不支持空 Bearer，"
                     "多半是「限时免费但锁客户端」或需要真 key，"
                     "换 --ai-model 试别的）")
@@ -909,7 +953,7 @@ def _llm_once(messages, temperature, max_tokens):
             e.code, ("：" + detail) if detail else "", hint)) from e
     except urllib.error.URLError as e:
         raise RuntimeError("LLM 端点连不上（%s）：%s"
-                           % (AI_BASE, e.reason)) from e
+                           % (base, e.reason)) from e
     with resp:
         data = json.loads(resp.read().decode("utf-8"))
     ch = (data.get("choices") or [{}])[0]
@@ -1574,6 +1618,7 @@ def verify_one(cand, admin, publish=False, min_score=0, log=None):
            "verdict": result.get("verdict"),
            "tier": result.get("tier"),
            "tier_label": result.get("tier_label"),
+           "tier_reason": result.get("tier_reason"),
            "score": result.get("bonus_score"),
            "caliber": draft.get("caliber") or "",
            "verification": draft.get("verification") or "",

@@ -1,0 +1,73 @@
+{
+ "upvoty-tc-ali-20261028-02": {
+  "case": "upvoty",
+  "title": "bootstrapped 六年：这个用户反馈工具靠什么活到今天",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1696290",
+    "url": "https://developer.aliyun.com/article/new?edit=1696290#/"
+   },
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "337075",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=337075"
+   }
+  },
+  "category": "人工智能",
+  "cover": "out/toutiao/upvoty/cover.png",
+  "note": "首次带 cover(dataURI)+category 实测",
+  "ts": "2026-10-28 15:52:00"
+ },
+ "upvoty-2026-10-28-1": {
+  "case": "upvoty",
+  "title": "bootstrapped 六年：这个用户反馈工具靠什么活到今天",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "337119",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=337119"
+   }
+  },
+  "category": "人工智能",
+  "cover": "D:\\ai-case-library\\out\\toutiao\\upvoty\\cover.png",
+  "ts": "2026-10-28 16:50:59"
+ },
+ "markdown-structure-2026-10-29-1": {
+  "case": "markdown-structure",
+  "title": "同一份 Markdown 分发到 4 个技术社区，标题层级为什么只在一处丢失",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "articleId": "1776574",
+    "url": "https://developer.aliyun.com/article/1776574",
+    "state": "auditing",
+    "community": "云原生",
+    "cover": "out/longtail/markdown-structure-cover.png",
+    "abstract_chars": 103,
+    "body_chars": 5037
+   }
+  },
+  "note": "mditor 实测：H2x9/PREX4/TABLEX1 渲染正常；需人工过拼图滑块",
+  "ts": "2026-10-29 13:52:21"
+ },
+ "upvoty-tc-republish-2026-10-29-1": {
+  "case": "upvoty",
+  "title": "bootstrapped 六年：这个用户反馈工具靠什么活到今天",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "articleId": "2771439",
+    "url": "https://cloud.tencent.com/developer/article/2771439",
+    "state": "published",
+    "draftId": "337119",
+    "abstract_chars": 102,
+    "body_chars": 1123,
+    "note": "驳回（内容包含广告/引流信息）后走「立即修改」重投无导流版",
+    "published_at": "2026-10-29 14:06:20"
+   }
+  },
+  "note": "CodesMirror6 Markdown 源码编辑器整段写入；首图保留作封面",
+  "ts": "2026-10-29 14:01:57"
+ }
+}

@@ -161,13 +161,6 @@
   "note": "｜草稿同步(2026-10-14 13:25): title 认领 aid=343828"
  },
  {
-  "id": "downconvert-sketchup-files",
-  "at": "2026-10-14 13:25",
-  "article_id": "343827",
-  "title": "DownConvert：SketchUp 文件转旧版",
-  "note": "｜草稿同步(2026-10-14 13:25): title 认领 aid=343827"
- },
- {
   "id": "vid-ai",
   "at": "2026-10-14 12:16",
   "article_id": "343502",
@@ -291,7 +284,9 @@
   "at": "2026-10-10 01:23",
   "article_id": "342411",
   "title": "MagicSlides.app：输入主题自动做 PPT",
-  "note": "｜草稿同步(2026-10-10 01:23): title 认领 aid=342411"
+  "verified_at": "2026-10-29 11:46",
+  "evidence": "editor-ui-publish + 重分配 aid 回读",
+  "note": "2026-10-29 发布时 B站重分配 aid：342411 → 53660838；脚本按旧 aid 回读误报失败，已人工回读已发表列表命中补账"
  },
  {
   "id": "le19emetrou",
@@ -326,7 +321,9 @@
   "at": "2026-10-10 01:17",
   "article_id": "342399",
   "title": "Divine Widgets：圣经小组件，每日经文祷告上锁屏",
-  "note": "｜草稿同步(2026-10-10 01:17): title 认领 aid=342399｜更新草稿 aid=342399（draft/add 回读校验通过）"
+  "verified_at": "2026-10-28 14:37",
+  "evidence": "editor-ui-publish + manual recheck (new aid assigned on publish)",
+  "note": "｜草稿同步(2026-10-10 01:17): title 认领 aid=342399｜更新草稿 aid=342399（draft/add 回读校验通过）｜更新草稿 aid=342399（draft/add 回读校验通过）"
  },
  {
   "id": "checkvibe",
@@ -345,5 +342,91 @@
   "verified_at": "2026-10-20 01:01",
   "evidence": "remote_readback",
   "note": "2026-10-20 00:55 发现已在已通过列表（非本次自动发布，应为 10-19 深夜编辑器打开后的人工点击，具体时间未知）"
+ },
+ {
+  "id": "ai-math-solver",
+  "at": "2026-10-25 02:04",
+  "article_id": "344829",
+  "title": "AI Math Solver+：AI数学解题工具，为师生、家",
+  "note": "｜更新草稿 aid=344829（draft/add 回读校验通过）"
+ },
+ {
+  "id": "ai-prank-call",
+  "at": "2026-10-25 02:05",
+  "article_id": "344830",
+  "title": "AI Prank Call：AI 语音恶作剧服务，32 活跃",
+  "note": "｜更新草稿 aid=344830（draft/add 回读校验通过）"
+ },
+ {
+  "id": "ai-smart-decor",
+  "at": "2026-10-25 02:06",
+  "article_id": "344831",
+  "title": "AI Smart Decor：AI智能室内设计工具，让用户预",
+  "note": "｜更新草稿 aid=344831（draft/add 回读校验通过）"
+ },
+ {
+  "id": "ai-voice-calls",
+  "at": "2026-10-25 02:06",
+  "article_id": "344832",
+  "title": "AI voice calls：AI语音平台，支持50+语言",
+  "note": "｜更新草稿 aid=344832（draft/add 回读校验通过）"
+ },
+ {
+  "id": "betting-tips",
+  "at": "2026-10-25 02:07",
+  "article_id": "344833",
+  "title": "Betting Tips：为足球、篮球、网球、美式足球和棒球",
+  "note": "｜更新草稿 aid=344833（draft/add 回读校验通过）"
+ },
+ {
+  "id": "chatsell-co",
+  "at": "2026-10-25 02:08",
+  "article_id": "344834",
+  "title": "Chatsell.co：为WooCommerce店铺提供自然",
+  "note": "｜更新草稿 aid=344834（draft/add 回读校验通过）"
+ },
+ {
+  "id": "demopolish",
+  "at": "2026-10-25 02:09",
+  "article_id": "344835",
+  "title": "DemoPolish：Demopolish帮助软件和SaaS",
+  "note": "｜更新草稿 aid=344835（draft/add 回读校验通过）"
+ },
+ {
+  "id": "roster-for-slack",
+  "at": "2026-10-25 02:09",
+  "article_id": "344836",
+  "title": "Roster for Slack：为 Slack 团队提供持",
+  "note": "｜更新草稿 aid=344836（draft/add 回读校验通过）"
+ },
+ {
+  "id": "static-run",
+  "at": "2026-10-25 02:10",
+  "article_id": "344837",
+  "title": "Static.run：静态网站托管服务，免费易用",
+  "note": "｜更新草稿 aid=344837（draft/add 回读校验通过）"
+ },
+ {
+  "id": "verse",
+  "at": "2026-10-25 02:11",
+  "article_id": "344838",
+  "title": "Verse：Verse 以单次提示构建自主 AI 员工",
+  "note": "｜更新草稿 aid=344838（draft/add 回读校验通过）"
+ },
+ {
+  "id": "mcdpoints",
+  "at": "2026-10-25 03:16",
+  "article_id": "344840",
+  "title": "用麦当劳官方接口查了一下，我的积分正在悄悄过期",
+  "note": "｜更新草稿 aid=344840（draft/add 回读校验通过）"
+ },
+ {
+  "id": "agentsguild",
+  "at": "2026-10-26 13:14",
+  "article_id": "344958",
+  "title": "AgentsGuild：近 30 天已验证收入 ，为游戏开发",
+  "verified_at": "2026-10-27 13:01",
+  "evidence": "editor-ui-publish",
+  "note": "｜更新草稿 aid=344958（draft/add 回读校验通过）"
  }
 ]

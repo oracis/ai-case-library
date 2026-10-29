@@ -69,6 +69,16 @@ CDP_PORT = int(os.environ.get("CDP_PORT", 9222))
 #⇒ 任何按appmsgid 找卡片的逻辑都必须先翻页，不能只查第 1 页。
 DRAFT_PAGE = 10
 
+# 独立稿（不属于 cases.json 的任何一篇）台账。与 wechat_published.json 分开记：
+# 那份台账的键是 case id，混进非案例会让 queue/sync/对账都把它当成「已发的案例」。
+STANDALONE_PATH = os.path.join(ROOT, "data", "wechat_standalone.json")
+
+# 封面角标覆盖。默认是「拆解海外 · 第 N 篇」；独立稿不是拆解栏目，用 --tag 换掉
+# （例：「万物解释者 · 数据特辑」）。None = 走原逻辑，case 流程完全不受影响。
+_COVER_TAG = None
+# 封面左上角英文角标。None = 「CASE STUDY」（拆解栏目原样）。
+_COVER_KICKER = None
+
 # ⚠ 代理污染防御：连 127.0.0.1 的 CDP 调试端口时，父进程继承的 http_proxy
 # （如 127.0.0.1:2662）会让 urllib 走代理、把 WS 掐成 10053。本模块被 50+ 脚本
 # import 当库用——import 时【绝不能】pop 掉调用方的 http_proxy（会误伤它们的外网
@@ -298,6 +308,9 @@ def pm_safe_body(html):
     # 表格微信不认，塌成段落
     html = re.sub(r"</?(table|thead|tbody|tr|colgroup)\b[^>]*>",
                   "", html, flags=re.I)
+    # <col> 是自闭合标签，上面那条（要求成对或独占的写法）漏掉它 ⇒ 会以裸标签
+    # 留在正文里被编辑器原样显示。2026-10-22 实测：4 列表格塌完仍剩 4 个 <col>。
+    html = re.sub(r"<col\b[^>]*/?>", "", html, flags=re.I)
     html = re.sub(r"<t[dh]\b[^>]*>", "<span>", html, flags=re.I)
     html = re.sub(r"</t[dh]>", "</span> ", html, flags=re.I)
     # class / id / data-* 微信不认，全清
@@ -477,6 +490,98 @@ def _strip_name_prefix(text, name):
     return rest if len(re.sub(r"[^\w\u4e00-\u9fff]", "", rest)) >= 3 else t
 
 
+# ---- 摘要 AI 生成层（2026-10-27 新增）--------------------------------------
+# 用户要求：摘要兜底不要「正文首段/数据腔 one_liner」当门面，用 AI 生成；
+# AI 失败才退首段，one_liner 只作最后兜底。
+_AI_DIGEST_SYS = (
+    "你是公众号「万物解释者」的摘要编辑。把给出的文章素材压缩成一段中文摘要，"
+    "以 JSON 输出：{\"digest\": \"<摘要文本>\"}，除该 JSON 外不输出任何内容。"
+    "摘要的硬性规则：1) 只用素材里出现过的数字、金额与事实，禁止新增、换算或推算任何数字；"
+    "2) 禁止第一人称业绩（不许出现「我赚了」「我做了一个」这类把事实说成自己的话）；"
+    "3) digest 值内不用 markdown、引号、emoji，纯文本一两句；4) ≤100 字，信息密度高、能独立成读。"
+)
+
+
+def _first_para(body_text, min_len=20, limit=120):
+    """正文首段兜底（剥 HTML 注释与 markdown 标记；取首个 ≥20 字的自然语言段）。"""
+    t = re.sub(r"<!--.*?-->", "", body_text or "", flags=re.S)
+    for p in t.splitlines():
+        p = p.strip()
+        if not p or p.startswith(("#", ">", "|", "-", "*", "```", "![", "<")):
+            continue
+        p = re.sub(r"\*\*|`|\[|\]\([^)]*\)", "", p).strip()
+        if len(p) >= min_len:
+            return p[:limit]
+    return ""
+
+
+def ai_digest(title, body_text, limit=120):
+    """AI 生成公众号摘要；失败或校验不过返回 None（调用方走兜底）。
+
+    校验（红线，2026-10-27）：输出里出现的每个数字必须能在素材原文里找到
+    （防编数/防除法）；长度 ≤ limit。短生成不走 JSON，无 glm-4-flash 的
+    response_format 500 风险。环境变量 CASE_LIB_AI_DIGEST=0 可整体关闭。
+    """
+    if os.environ.get("CASE_LIB_AI_DIGEST") == "0":
+        return None
+    src = re.sub(r"<!--.*?-->", "", body_text or "", flags=re.S)
+    src = re.sub(r"\s+", " ", src).strip()[:1800]
+    if len(src) < 60:
+        return None
+    try:
+        import ai_verify as A                      # noqa: PLC0415
+        sec = {}
+        _p = os.path.join(ROOT, "data", "secrets.json")
+        if os.path.exists(_p):
+            sec = json.load(open(_p, encoding="utf-8"))
+        A.configure(api_key=os.environ.get("CASE_LIB_AI_KEY") or sec.get("ai_key"),
+                    base=os.environ.get("CASE_LIB_AI_BASE") or sec.get("ai_base"),
+                    model=os.environ.get("CASE_LIB_AI_MODEL") or sec.get("ai_model"))
+        raw = A.llm([{"role": "system", "content": _AI_DIGEST_SYS},
+                     {"role": "user", "content": "标题：%s\n\n素材：%s" % (title, src)}],
+                    temperature=0.4)
+    except Exception as e:                         # noqa: BLE001
+        print("  [!] AI 摘要失败：%s" % str(e)[:80])
+        return None
+    raw = (raw or "").strip()
+    d = ""
+    try:
+        d = (json.loads(raw).get("digest") or "").strip()
+    except Exception:                              # noqa: BLE001
+        m = re.search(r'"digest"\s*:\s*"([^"]+)"', raw)
+        if m:
+            d = m.group(1).strip()
+    d = d.strip("\"'“”‘’「」")
+    d = re.sub(r"\s+", " ", d).strip()
+    if not d or len(d) > limit:
+        return None
+    for n in re.findall(r"\d+(?:\.\d+)?", d):
+        if n not in src:
+            print("  [!] AI 摘要含素材外数字 %r，弃用" % n)
+            return None
+    return d
+
+
+def digest_for(c, ex=None, body_html=None):
+    """摘要选择链（2026-10-27 定稿）：
+    显式 summary → AI 生成 → 正文首段 → one_liner（数据腔，只作最后兜底）。
+    """
+    s = ((ex or {}).get("summary") or "").strip()
+    if s:
+        return s
+    body_text = strip_tags(body_html) if body_html else ""
+    if body_text:
+        d = ai_digest((c.get("name") or c.get("id") or ""), body_text)
+        if d:
+            print("  摘要(AI): %s" % d[:40])
+            return d
+        p = _first_para(body_text)
+        if p:
+            print("  摘要(首段兜底): %s" % p[:40])
+            return p
+    return (c.get("one_liner") or "").strip()
+
+
 def cover_desc(c):
     """封面第二行：项目的一句话介绍。**不含任何金额**。
 
@@ -618,12 +723,14 @@ def cover_html(c, no, w=1080, h=460):
        避免「大画布设计 + 被微信缩小」导致字号等效变小而发虚。
     4. 字号按实测字宽自适应，任意长度都不截断（截断比小字号更难看）。
     """
-    name = (c.get("name") or c.get("id") or "").strip()
+    # _cover_name 只给独立稿用：标题（64 字）常比封面上限长得多，硬塞会把字号
+    # 压到看不见。case 流程没有这个键，走的还是 c["name"]。
+    name = (c.get("_cover_name") or c.get("name") or c.get("id") or "").strip()
     # 2026-10-02：统一走cover_desc()，不再直接用 one_liner ——
     # one_liner 实测 4/39 内嵌金额（shipfast $199、outrank 月入 30 万…），
     # 且四平台口径必须一致（铁律：封面文案单一真理）。
     line = cover_desc(c)
-    tag = "拆解海外 · 第 %d 篇" % no
+    tag = _COVER_TAG or ("拆解海外 · 第 %d 篇" % no)
     theme = _cover_theme(c.get("id", ""), "wechat")
     base, band, ac = theme
 
@@ -641,6 +748,10 @@ def cover_html(c, no, w=1080, h=460):
         if line else ""
     )
 
+    # 左上角英文角标。默认 CASE STUDY（拆解栏目的既有视觉）；独立稿可用
+    # --cover-kicker 改成 DATA REPORT 之类，免得「数据特辑」顶着 CASE STUDY。
+    kicker = _COVER_KICKER or "CASE STUDY"
+
     body = (
         '<div style="position:relative;width:%dpx;height:%dpx;'
         "background:linear-gradient(100deg,%s 0%%,%s 63%%,%s 63%%,%s 100%%);"
@@ -657,7 +768,7 @@ def cover_html(c, no, w=1080, h=460):
         # 文字区
         '<div style="position:absolute;left:78px;top:104px;width:%dpx;">'
         '<div style="font-size:17px;font-weight:700;color:%s;'
-        'letter-spacing:6px;">CASE STUDY</div>'
+        "letter-spacing:6px;\">%s</div>"
         '<div id="t-name" style="font-size:%dpx;font-weight:800;color:#ffffff;'
         "line-height:1.1;margin-top:20px;overflow:hidden;"
         'text-overflow:ellipsis;white-space:nowrap;">%s</div>'
@@ -667,7 +778,7 @@ def cover_html(c, no, w=1080, h=460):
         'color:rgba(255,255,255,.72);letter-spacing:2px;">%s</div>'
         "</div>"
         % (w, h, base, band, band, band, ac, ac, ac,
-           _COVER_TEXT_W, ac, f_name, esc(name), line_block, tag)
+           _COVER_TEXT_W, ac, esc(kicker), f_name, esc(name), line_block, tag)
     )
     return (
         '<!doctype html><html><head><meta charset="utf-8">'
@@ -1251,6 +1362,21 @@ def load_cases():
     return cases
 
 
+def load_anti_cases():
+    """反向样本表（data/anti_cases.json）。
+
+    和 load_cases 分开读，原因见 docs/SELECTION_PLAYBOOK.md §4：
+    那 274 条是推荐位，这 33 条是「可以读、别照抄」，两张表的证据口径不同，
+    混在一个 load 里会让 queue / publish 把反面案例当推荐位处理。
+    """
+    p = os.path.join(ROOT, "data", "anti_cases.json")
+    if not os.path.exists(p):
+        return []
+    with open(p, encoding="utf-8") as f:
+        d = json.load(f)
+    return d.get("cases", []) if isinstance(d, dict) else d
+
+
 def load_published():
     if not os.path.exists(PUBLISHED_PATH):
         return {}
@@ -1425,8 +1551,22 @@ def extract_article(path):
 # build：把 out/articles/<id>.html 修成发布就绪版
 # ======================================================================
 def fix_markdown(html):
-    html = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", html, flags=re.S)
-    html = re.sub(r"(?<![\*\w])\*(?!\*)([^\*\n]+?)\*(?![\*\w])", r"<em>\1</em>", html)
+    """源稿里的 markdown 标记 → 公众号能显示的 HTML/中文标点。
+
+    ⚠ 三处都不能松（2026-10-26）：
+    1) 粗体/斜体的内容**不许含 `<`**。原先用 `.+?` + re.S，一旦源稿漏了收尾的
+       `**`，正则就会跨过 `</p><p>` 一路吃到下一处 `**`，把半篇文章包进一个
+       <strong> 里（实测：`<p>前文 **加粗</p><p>中间正文</p><p>另一处** 收尾`
+       → 中间正文被吞进 <strong>）。收紧后不配对的标记**原样留着**，
+       交给 test_wechat_publish 的残留检查去报，不会静默毁版式。
+    2) 反引号原先完全没人处理，`solo_possible` 会带着反引号印在正文里
+       （wpconvert 那篇已发布版就是这样）。统一转成「」，与库内标识符写法一致。
+    3) 已有 259 篇源稿核对过：收紧正则后的转换结果与旧版**逐篇一致**（0 篇差异），
+       所以这不是「改变既有行为」，只是把漏网的坏输入挡在外面。
+    """
+    html = re.sub(r"\*\*((?:(?!\*\*)[^<])+?)\*\*", r"<strong>\1</strong>", html, flags=re.S)
+    html = re.sub(r"(?<![\*\w])\*(?!\*)([^\*\n<]+?)\*(?![\*\w])", r"<em>\1</em>", html)
+    html = re.sub(r"[ \t]*`([^`\n]+)`[ \t]*", r"「\1」", html)
     return html
 
 
@@ -1439,7 +1579,9 @@ def build_one(c, no):
     out = fix_markdown(out)
     m = re.search(r"<h1[^>]*>(.*?)</h1>", out, re.S)
     title = strip_tags(m.group(1)).strip() if m else c.get("name", "")
-    subtitle = c.get("one_liner", "")
+    # 摘要优先用 summary：one_liner 是聚合站的宣传语（常内嵌金额、语气是「值得抄」），
+    # 直接当摘要会与反面案例的论点打架。没有 summary 的（274 条全部）行为不变。
+    subtitle = c.get("summary") or c.get("one_liner", "")
     # 2026-10-01：非「海外小生意」内容不占「拆解海外 · 第 N 篇」这个篇号。
     # 篇号是**栏目身份**，工具推广/使用类文章挂在这个栏目下会让读者以为
     # 这是第 42 个海外小生意案例。所以按 content_kind 换标签。
@@ -1488,14 +1630,22 @@ def build_one(c, no):
 
 
 def cmd_build(args=None):
-    cases = load_cases()
+    use_anti = bool(getattr(args, "anti", False)) if args is not None else False
+    cases = load_anti_cases() if use_anti else load_cases()
     single = getattr(args, "case", None) if args is not None else None
     if single:
         hit = [c for c in cases if c["id"] == single]
         if not hit:
-            raise SystemExit("没有 case id=%s（不回退全量，避免误改已发稿）" % single)
+            raise SystemExit("没有 case id=%s（不回退全量，避免误改已发稿）%s"
+                             % (single, "（--anti 模式查的是 data/anti_cases.json）"
+                                if use_anti else ""))
         cases = hit
-    reg = issue_registry(cases)
+    elif use_anti:
+        raise SystemExit("--anti 必须配 --case：反向样本不走批量重建，"
+                         "避免把 33 条一起生成出没人读的空稿")
+    # --anti 时**不能**走篇号注册表：反向样本不占「拆解海外」的序号（series_tag 已改写），
+    # 走一遍会打印一个假篇号（第 260 篇），容易被人当成真发了号。
+    reg = {} if use_anti else issue_registry(cases, save=True)
     built = updated = same = nosrc = 0
     for c in cases:
         r = build_one(c, reg.get(c["id"], 0))
@@ -3080,12 +3230,15 @@ def _finish_status(cover_ok, declared):
     return "ok" if (cover_ok and declared) else "partial"
 
 
-def publish_one(cdp, c, art, dry=False, no=0):
+def publish_one(cdp, c, art, dry=False, no=0, summary_override=None):
     ex = extract_article(art)
     title = make_wechat_title(c)
     author = "万物解释者"
-    summary = ex["summary"] or c.get("one_liner", "")
+    summary = (summary_override or "").strip()
     body_html = pm_safe_body(ex["body_html"])
+    if not summary:
+        # 2026-10-27：AI 摘要 → 首段 → one_liner（数据腔只作最后兜底）
+        summary = digest_for(c, ex, body_html)
     print("\n→ %s — %s" % (c["id"], title))
     if dry:
         print("  [dry] 标题=%s 摘要=%d字 正文=%d字（不打开浏览器）" %
@@ -3319,7 +3472,97 @@ def build_todo(all_cases, published, ready):
     return todo
 
 
+def _publish_standalone(args):
+    """独立稿：直接吃任意 HTML，不走 cases.json。
+
+    为什么单开一条分支而不是塞进 `--case`：`--case` 的语义是「这条案例」，
+    它会去 cases.json 找 id、算篇号、写 wechat_published.json。独立稿三样都
+    没有——硬塞会让 queue/sync 之后把它当成「已发的案例」，静默污染队列。
+
+    复用 publish_one 的全部实测过的步骤（填标题/摘要/正文、生成封面、上传、
+    设封面、保存草稿、原创声明、赞赏），只替换三处入参：
+      title → --title 或正文 h1
+      摘要  → --desc
+      封面角标 → --tag（默认「万物解释者」）
+    台账单独记 data/wechat_standalone.json。
+    """
+    global _COVER_TAG, _COVER_KICKER
+    path = args.file
+    if not os.path.isfile(path):
+        raise SystemExit("✗ 文件不存在：%s" % path)
+
+    ex = extract_article(path)
+    title = (getattr(args, "title", None) or ex.get("title") or "").strip()
+    if not title:
+        raise SystemExit("✗ 抽不到标题（正文里没有 h1），用 --title 指定")
+    if len(title) > 64:
+        print("[注意] 标题 %d 字 > 64 上限，已截断" % len(title))
+        title = title[:64]
+    desc = (getattr(args, "desc", None) or "").strip()
+    slug = getattr(args, "slug", None) or re.sub(
+        r"[^0-9A-Za-z\u4e00-\u9fa5]+", "-",
+        os.path.splitext(os.path.basename(path))[0]).strip("-")
+    _COVER_TAG = getattr(args, "tag", None) or "万物解释者"
+    _COVER_KICKER = (getattr(args, "cover_kicker", None) or "").strip() or None
+
+    cd_ = (getattr(args, "cover_desc", None) or "").strip()
+    c = {"id": slug, "name": title, "one_liner": "", "cover_desc": cd_ or desc}
+    cover_name = (getattr(args, "cover_name", None) or "").strip()
+    if cover_name:
+        c["_cover_name"] = cover_name
+    print("独立稿：%s" % path)
+    print("  slug = %s" % slug)
+    print("  标题 = %s（%d 字）" % (title, len(title)))
+    print("  摘要 = %s" % (desc or "（空，后台留空）"))
+    print("  封面角标 = %s" % _COVER_TAG)
+
+    if args.dry:
+        publish_one(None, c, path, dry=True, no=0, summary_override=desc)
+        return 0
+
+    _need("title")
+    _need("editor")
+    cdp = CDP(args.port)
+    try:
+        st = publish_one(cdp, c, path, dry=False, no=0, summary_override=desc)
+    finally:
+        # 不关整个浏览器：留着用户的登录窗口，方便直接去后台点群发。
+        if cdp.bws is not None:
+            try:
+                cdp.bws.close()
+            except Exception:
+                pass
+
+    status = st.get("status")
+    appmsgid = st.get("appmsgid")
+    if status not in ("ok", "partial"):
+        raise SystemExit(3)
+    sa = {}
+    if os.path.exists(STANDALONE_PATH):
+        with open(STANDALONE_PATH, encoding="utf-8") as f:
+            sa = json.load(f)
+    sa[slug] = {
+        "title": title,
+        "desc": desc,
+        "tag": _COVER_TAG,
+        "published_at": time.strftime("%Y-%m-%d %H:%M"),
+        "status": "draft" if status == "ok" else "partial",
+        "appmsgid": appmsgid,
+        "file": os.path.basename(path),
+    }
+    import atomicio
+    atomicio.write_json(STANDALONE_PATH, sa)
+    print("\n已记录到 %s" % os.path.relpath(STANDALONE_PATH, ROOT))
+    if status == "partial":
+        print("⚠ 草稿已建（appmsgid=%s）但收尾没做完（封面/原创），去后台补一下。" % appmsgid)
+        raise SystemExit(3)
+    print("✓ 草稿就绪 appmsgid=%s —— 群发仍需管理员扫码" % appmsgid)
+    return 0
+
+
 def cmd_publish(args):
+    if getattr(args, "file", None):
+        return _publish_standalone(args)
     all_cases = load_cases()
     issues = issue_registry(all_cases)
     published = load_published() if not args.dry else {}
@@ -4533,6 +4776,14 @@ def cmd_send(args):
         for cid, rec in published.items():
             if rec.get("appmsgid"):
                 by_aid[str(rec["appmsgid"])] = cid
+        # 独立稿记在 STANDALONE_PATH（那份台账的键是 case id，把非案例混进去
+        # 会让 queue/sync 把它当「已发的案例」）。这里补一层回退，
+        # 否则 publish --file 存出来的稿再发表时会报「台账里找不到」。
+        if os.path.exists(STANDALONE_PATH):
+            with open(STANDALONE_PATH, encoding="utf-8") as f:
+                for slug, rec in (json.load(f) or {}).items():
+                    if rec.get("appmsgid"):
+                        by_aid.setdefault(str(rec["appmsgid"]), slug)
         for aid in (x.strip() for x in args.appmsgid.split(",") if x.strip()):
             cid = by_aid.get(aid)
             if not cid:
@@ -4572,8 +4823,22 @@ def cmd_send(args):
     for cid, aid in todo:
         c = by_id.get(cid)
         if not c:
-            print("  [skip] %s 不在 cases.json 里" % cid)
-            continue
+            # 独立稿：本来就不在 cases.json 里（走 publish --file 存的那批），
+            # 从独立稿台账补一个最小 case dict —— send_one 只用它取标题，
+            # 不需要 cases.json 那些全字段。
+            sa_rec = {}
+            if os.path.exists(STANDALONE_PATH):
+                with open(STANDALONE_PATH, encoding="utf-8") as f:
+                    sa_rec = (json.load(f) or {}).get(cid) or {}
+            if sa_rec.get("title"):
+                c = {"id": cid, "name": sa_rec["title"],
+                     "one_liner": sa_rec.get("desc", ""),
+                     "url": "", "tags": []}
+                by_id[cid] = c
+                print("  [独立稿] %s ← %s" % (cid, sa_rec["title"][:34]))
+            else:
+                print("  [skip] %s 不在 cases.json 里，也不在独立稿台账里" % cid)
+                continue
         rec = published.get(cid) or {}
         if rec.get("status") == "partial":
             print("  [注意] %s 是 partial（封面/原创可能没做完），照样发表" % cid)
@@ -4916,7 +5181,8 @@ def cmd_refresh(args):
                 rt = _set_editor(cdp, 0, t, mode="text") or ""
                 print("  标题: %s [%s]" % (t[:34], rt.split("(")[0]))
                 _fill_input(cdp, "#author", "万物解释者")
-                summ = ex["summary"] or c.get("one_liner", "")
+                # 2026-10-27：AI 摘要 → 首段 → one_liner（数据腔只作最后兜底）
+                summ = digest_for(c, ex, body)
                 if summ:
                     _fill_input(cdp, "#js_description", summ[:120])
                 time.sleep(1)
@@ -5104,8 +5370,12 @@ def _autostart_chrome_if_needed(port=CDP_PORT, profile=None):
 def main():
     ap = argparse.ArgumentParser(description="公众号拆解自动发布管线")
     sub = ap.add_subparsers(dest="cmd", required=True)
-    sub.add_parser("build", help="生成缺的发布就绪 HTML").add_argument(
+    bd = sub.add_parser("build", help="生成缺的发布就绪 HTML")
+    bd.add_argument(
         "--case", help="只重建这一条（避免全量重写，用于刚发过稿的场景）")
+    bd.add_argument(
+        "--anti", action="store_true",
+        help="改从 data/anti_cases.json 取案例（「这些别照着做」栏目，不占拆解篇号）")
     sub.add_parser("queue", help="打印实时待发队列")
     sub.add_parser("plan", help="生成动态发布队列 md")
     pi = sub.add_parser("inspect", help="校验单文件抽取")
@@ -5117,6 +5387,14 @@ def main():
     pp.add_argument("--port", type=int, default=CDP_PORT)
     pp.add_argument("--limit", type=int, default=0, help="只发前 N 条")
     pp.add_argument("--case", help="只发指定 case id（可覆盖已发记录重发）")
+    pp.add_argument("--file", help="独立稿模式：直接发这个 HTML（不走 cases.json）")
+    pp.add_argument("--title", help="独立稿标题（默认取正文 h1，上限 64 字）")
+    pp.add_argument("--desc", help="独立稿摘要（后台 120 字上限）")
+    pp.add_argument("--tag", help="独立稿封面角标（默认「万物解释者」）")
+    pp.add_argument("--cover-name", help="独立稿封面上行（默认同标题）")
+    pp.add_argument("--cover-kicker", help="封面左上角英文角标（默认 CASE STUDY）")
+    pp.add_argument("--cover-desc", help="独立稿封面第二行（默认同 --desc，建议压到 20 字内）")
+    pp.add_argument("--slug", help="独立稿台账键名（默认取文件名）")
     pp.add_argument("--dry", action="store_true", help="只打印计划不打开浏览器")
     pf = sub.add_parser("fix-cover", help="给已有草稿补封面（服务端 cover 为空的）")
     pf.add_argument("--port", type=int, default=CDP_PORT)

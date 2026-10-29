@@ -38,6 +38,7 @@ import urllib.request
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import wechat_publish as wp  # noqa: E402  复用 CDP / 色板 / 案例加载
+import lead_templates        # noqa: E402  四型开头钩子模板库
 from multiplatform import queue as Q  # noqa: E402  待发队列排序口径（最新在前）
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -355,13 +356,9 @@ def build_body(c):
     h = (c.get("metrics") or {}).get("headline") or ""
     # 小红书种草口径（薛红笙路数）：第一屏就要有钩子——
     # 反差 / 具体数字 / 一句话痛点，别上来就"拆一个案例"这种叙述腔。
-    hook_pool = [
-        "一个人 + 现成的上游，就能开这门生意，收入是真的👇",
-        "明码标价挂牌出售的海外小生意，我把它的账算给你看👇",
-        "不写代码也能做：这门生意靠的是转售，不是技术👇",
-        "又一个一人公司：收入是真的，成本结构比你想的薄👇",
-    ]
-    hook = hook_pool[sum(ord(x) for x in c.get("id", "")) % len(hook_pool)]
+    # 2026-10-23：钩子池升级为四型模板库（冲突/悬念/利益/场景，按案例特征
+    # 选型），原 4 条全部保留；见 scripts/lead_templates.py。
+    hook = lead_templates.xhs_hook(c)
     why = [x.strip() for x in (c.get("why_it_works") or []) if x.strip()]
     pb = [x.strip() for x in (c.get("playbook") or []) if x.strip()]
     name = c.get("name_en") or c.get("name") or c.get("id")
@@ -1191,6 +1188,17 @@ def cmd_publish(args):
         time.sleep(4)
     sub = wp.CDP(PUB_PORT)
     sub.connect_target(tid)
+    # 2026-10-28 修：headless 不传 --window-size 时视口只有 784x449，底部
+    # 「发布」按钮按 viewport 比例坐标点击会落空（实测连炸两次 rc=2：
+    # 点击无反应、30s 不跳 success，草稿仍留在 IndexedDB）。与 _draft_cdp
+    # 同款：把视口钉到 1440x900，比例坐标才落回真实按钮（有头模式
+    # 1918x908 实测一次点中）。必须在导航前设，布局按宽视口渲染。
+    try:
+        sub.send("Emulation.setDeviceMetricsOverride",
+                 {"width": 1440, "height": 900, "deviceScaleFactor": 1,
+                  "mobile": False})
+    except Exception as e:                                # noqa: BLE001
+        print("[warn] setDeviceMetricsOverride 失败：%s" % str(e)[:80])
     url = sub.eval("location.href")
     if "publish" not in url:
         sub.send("Page.navigate", {"url": PUB_URL})
@@ -1389,6 +1397,8 @@ def cmd_publish(args):
             mark_published(c["id"])
             return
     print("[warn] 点击后 30 秒没跳 success 页，请回浏览器确认是否成稿。")
+    print("       视口诊断：inner=%sx%s 点击点=(%d,%d) —— 若宽 <1000 说明视口覆盖没生效"
+          % (sub.eval("window.innerWidth"), sub.eval("window.innerHeight"), x, y))
     # ⚠ 未确认成功不许静默通过（2026-10-21 修）：此前退码 0，runner 的
     #    --yes 路径会照记 published（比 draft_saved 更糟 —— 幂等永久跳过）。
     #    可能是发布按钮点空/风控拦截/跳转没完成，一律标失败让人核对。

@@ -1,0 +1,89 @@
+<section style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;">
+<!-- [!] 手工精修版（2026-10-26）· 栏目「这些别照着做 · 结构篇」第 1 篇；勿让 make_article 覆盖 -->
+<h1 style="font-size:22px;font-weight:700;line-height:1.4;margin:0 0 18px;">两个瑞典人的奇迹，账不在他们名下</h1>
+<blockquote style="font-size:17px;line-height:1.8;margin:0 0 18px;padding:12px 14px;background:#f6f8fa;border-left:3px solid #d0d7de;color:#57606a;">这是「这些别照着做」的第一篇。这个栏目只做一件事：把那些被讲成「你也能」的案例，拆开看它到底踩在什么上面。不是否定它，是把账补全。</blockquote>
+<blockquote style="font-size:17px;line-height:1.8;margin:0 0 18px;padding:12px 14px;background:#f6f8fa;border-left:3px solid #d0d7de;color:#57606a;">Lovable 的故事被讲成「两个瑞典人两年做出十亿美元估值」。这句话每个字都是真的，但它只描述了产出端。这篇文章补的是投入端的三笔账。</blockquote>
+<blockquote style="font-size:17px;line-height:1.8;margin:0 0 18px;padding:12px 14px;background:#f6f8fa;border-left:3px solid #d0d7de;color:#57606a;">顺便，它也是我用过的最好的「口径教材」——同一条案例、同一个时间点，页面上出现了两个相差 6.72 倍的收入数字。先把这件事讲清楚，因为它是理解后面所有讨论的前提。</blockquote>
+
+<h2 style="font-size:17px;font-weight:700;margin:26px 0 12px;padding-left:10px;border-left:3px solid #e5b567;">先看一个不该出现的除法</h2>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">聚合页的「产品介绍」段写着：2025 年 7 月，约 7500 万 ARR、230 万活跃用户、18 万付费。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">同一页的「数据口径」段写的是：2025-07，¥5.04亿 ARR、230 万活跃用户、¥121万付费。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">同一家公司、同一个月份、同一组事实，两个数字。做一次除法就知道发生了什么：</p>
+<p style="margin:0 0 10px;background:#f6f8fa;border-left:3px solid #e5b567;padding:8px 12px;font-size:15px;line-height:1.7;"><span style="color:#57606a;">¥5.04亿 ÷ 7500万</span>：<span style="color:#24292f;">= 6.72，正好是它自己用的汇率（1 美元 ≈ 6.72 元）</span></p>
+<p style="margin:0 0 18px;background:#f6f8fa;border-left:3px solid #e5b567;padding:8px 12px;font-size:15px;line-height:1.7;"><span style="color:#57606a;">18万 × 6.72</span>：<span style="color:#24292f;">= 120.96 万 ≈ 它写的「¥121万」</span></p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;"><strong>两处是同一个错的两个方向。</strong>「7500 万 ARR」是美元数 $75M，该换算没换算；「18 万付费用户」是个<strong>人数</strong>，不该乘汇率，却被乘了 6.72，变成「¥121万付费」。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">第二处尤其能说明问题：它把一个「人数」换算成了「金额」。你在页面上看到「¥121万付费」，会以为说的是「付费用户贡献了 121 万」，而原文的意思是「18 万个付费用户」。这不是笔误，这是一条自动换算规则在不知道字段含义的情况下执行的结果。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">还有一个更隐蔽的重复：<strong>¥13.44亿</strong> 这个数在同一页上有两个身份——它是 2025 年 12 月的 ARR（$200M），同时也是 2025 年 7 月 A 轮的融资额（$200M）。两个 $200M 撞在一起，写卡片的时候谁也没发现。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">我不是在挑一个聚合站的刺。我是在说一件事：<strong>这类卡片上的数字，默认不能信；要信，得先做一次除法。</strong>下文所有数字，我都按页面「数据口径」段重算过，凡是算不出来的，我直接说算不出来。</p>
+
+<h2 style="font-size:17px;font-weight:700;margin:26px 0 12px;padding-left:10px;border-left:3px solid #e5b567;">它到底是干什么的</h2>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">Lovable 是一个用自然语言生成全栈 Web 应用的工具。你描述想要什么，它生成一个能跑起来的东西——前端 React、后端加数据库用 Supabase，一条龙。做完还能可视化编辑、直接托管上线。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">它的目标用户不是程序员。页面写得很明白：创业者、产品经理、老师、小生意老板。主张就一句：别再学写代码了，描述你想要什么就行。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">2025 年它加了一个「自主代码编辑 Agent」，能读项目文件、改代码、调试；也接进了 Klarna、HubSpot 这类企业客户做内部原型。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">它的前身是一个开源项目 <strong>GPT Engineer</strong>。这一点很关键，后面会回来讲——它意味着 Lovable 不是从零开始的产品，而是从一个已经有用户的社区转过来的。</p>
+
+<h2 style="font-size:17px;font-weight:700;margin:26px 0 12px;padding-left:10px;border-left:3px solid #e5b567;">「两个人」这句话是真的</h2>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">创始人两位：Anton Osika（CEO），之前在 CERN 和 Sana Labs 做过工程师；Fabian Hedin（CTO），之前是 Depict.ai 的前端负责人，还曾为霍金开发辅助技术。公司 2023 年成立在斯德哥尔摩。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">2025 年 12 月 B 轮之后，两个人各持约 24% 股份，身家各约 ¥107.52亿。Hedin 26 岁，被 Forbes 写成「欧洲最年轻的白手起家十亿富豪之一」。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">所以「两个瑞典人」没有任何夸张。这篇文章不会试图证明他们不厉害——他们当然厉害。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">问题是：<strong>「两个人」是这家公司的人数，不是这家公司做成这件事所需要的资源量。</strong>这两件事经常被混为一谈，而混法很有讲究——它每次都只数产出端的人数，不数投入端的东西。下面把这笔账补上。</p>
+
+<h2 style="font-size:17px;font-weight:700;margin:26px 0 12px;padding-left:10px;border-left:3px solid #e5b567;">第一笔账：融资</h2>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">把页面列的轮次按时间摆一遍（美元数是原始口径，人民币是它按 6.72 折算的）：</p>
+<p style="margin:0 0 10px;background:#f6f8fa;border-left:3px solid #e5b567;padding:8px 12px;font-size:15px;line-height:1.7;"><span style="color:#57606a;">2024-10 种子</span>：<span style="color:#24292f;">约 $7.5M（¥5,040万）</span></p>
+<p style="margin:0 0 10px;background:#f6f8fa;border-left:3px solid #e5b567;padding:8px 12px;font-size:15px;line-height:1.7;"><span style="color:#57606a;">2025-02 Pre-A</span>：<span style="color:#24292f;">约 $15M（¥1.01亿），Creandum 领投</span></p>
+<p style="margin:0 0 10px;background:#f6f8fa;border-left:3px solid #e5b567;padding:8px 12px;font-size:15px;line-height:1.7;"><span style="color:#57606a;">2025-07 A 轮</span>：<span style="color:#24292f;">约 $200M（¥13.44亿），Accel 领投，估值 $1.8B</span></p>
+<p style="margin:0 0 10px;background:#f6f8fa;border-left:3px solid #e5b567;padding:8px 12px;font-size:15px;line-height:1.7;"><span style="color:#57606a;">2025-12 B 轮</span>：<span style="color:#24292f;">约 $330M（¥22.18亿），CapitalG、Menlo 领投，估值 $6.6B，Google 与 NVIDIA 参投</span></p>
+<p style="margin:0 0 18px;background:#f6f8fa;border-left:3px solid #e5b567;padding:8px 12px;font-size:15px;line-height:1.7;"><span style="color:#57606a;">累计</span>：<span style="color:#24292f;">约 $550M（¥36.96亿）</span></p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">这里面有一个时间点值得盯住：<strong>A 轮和 B 轮之间只隔了 5 个月，估值从 18 亿美元涨到 66 亿美元，翻了 3.7 倍。</strong>五个月里，ARR 从 $75M 涨到 $200M，涨了 2.7 倍。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">收入涨 2.7 倍、估值涨 3.7 倍——估值涨得比收入还快。这不是说它高估，而是说<strong>它的估值里有一部分不是买「现在的收入」，是买「这条曲线的斜率」</strong>。而斜率这种东西，只在有人愿意为它付钱的时候才存在。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">你要复制的是这家公司，还是这条曲线的叙事？这两个的难度差着一整个数量级。</p>
+
+<h2 style="font-size:17px;font-weight:700;margin:26px 0 12px;padding-left:10px;border-left:3px solid #e5b567;">第二笔账：每一次生成都有成本</h2>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">Lovable 用的是积分制，价目表写在页面上：</p>
+<p style="margin:0 0 10px;background:#f6f8fa;border-left:3px solid #e5b567;padding:8px 12px;font-size:15px;line-height:1.7;"><span style="color:#57606a;">免费层</span>：<span style="color:#24292f;">30 积分/月，但只能建公开项目</span></p>
+<p style="margin:0 0 10px;background:#f6f8fa;border-left:3px solid #e5b567;padding:8px 12px;font-size:15px;line-height:1.7;"><span style="color:#57606a;">Pro</span>：<span style="color:#24292f;">起价 ¥168/月（$25）</span></p>
+<p style="margin:0 0 10px;background:#f6f8fa;border-left:3px solid #e5b567;padding:8px 12px;font-size:15px;line-height:1.7;"><span style="color:#57606a;">Business</span>：<span style="color:#24292f;">¥336/月（$50）</span></p>
+<p style="margin:0 0 18px;background:#f6f8fa;border-left:3px solid #e5b567;padding:8px 12px;font-size:15px;line-height:1.7;"><span style="color:#57606a;">最高档</span>：<span style="color:#24292f;">10,000 积分 ¥15,120/月（$2,250）</span></p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">为什么是积分，不是「每月 X 个席位」？因为<strong>积分是对成本的计量</strong>。每一次「生成一个应用」都要跑模型，跑模型是要付钱的。换成席位制，一个重度用户一个月点两百次，你收他 ¥168，边际成本可能就超过收入了。积分制把这件事翻译成了「用多少扣多少」，等于把成本结构暴露给了用户，也等于保护了自己。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">这不是 Lovable 独有的问题，但它把这个问题写在了价目表上。传统的 SaaS 是「一次开发、无限复制」，边际成本近乎零，所以席位制天然成立。生成类产品不是：它每用一次就产生一次支出，而且是别人（模型厂商）定的价。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;"><strong>这条账对「一个人能不能做」的杀伤力最大。</strong>因为它意味着：你的毛利率不取决于你多聪明，取决于你和上游的议价能力。18 万付费用户是一个议价筹码，1,800 个不是。同样一套代码，同一个功能，站在不同的采购量上，单位成本能差一个数量级——而这个差距不会因为你的产品做得更好而缩小。</p>
+
+<h2 style="font-size:17px;font-weight:700;margin:26px 0 12px;padding-left:10px;border-left:3px solid #e5b567;">第三笔账：分发</h2>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">页面把流量来源列了四条，我按「能不能买」重新排一下：</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;"><strong>一、产品本身是营销。</strong>一个 11 岁小孩用 Lovable 做出学校社交网络、一对瑞典创始人做出年入 ¥470.4万的业务、巴西一家教育公司 48 小时赚到 ¥2,016万——这类故事在社交媒体上自然疯传。这一条不可买，但可以策划：注意这些故事的主角都是「本来不会写代码的人」，精准命中它的目标用户。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;"><strong>二、创始人背景与 YC 网络。</strong>Osika 之前在 Depict.ai（YC S20）做 CTO，那层关系带来了早期投资人和信任。这一条不可买，也不可复制——它是一次性的。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;"><strong>三、企业背书。</strong>Klarna、HubSpot 的合作给产品加了「企业也在用」的可信度。这一条可以谈，但你要先有能谈的东西。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;"><strong>四、媒体轰炸。</strong>Forbes 把 26 岁的 Hedin 写成「欧洲最年轻白手起家十亿富豪之一」。这一条是前三者的结果，不是原因。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">四条里，只有第三条是「可以用钱和时间换」的，其余三条要么不可买（一、二），要么是结果（四）。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">这就是「两个人的奇迹」这个说法最危险的地方：它把<strong>分发能力</strong>这件完全独立、而且往往是决定性的东西，省略成了「他们会讲故事」。</p>
+
+<h2 style="font-size:17px;font-weight:700;margin:26px 0 12px;padding-left:10px;border-left:3px solid #e5b567;">那它真正值得学的是什么</h2>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">上面三笔账说的是「你抄不了它」。但它有一件事是可以抄的，而且我认为是这篇文章唯一值得记住的东西：</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;"><strong>它把门槛从「会写代码」降到了「会描述」。</strong>把一个门槛降一级，服务的不是原来的用户，是一批因为门槛而从未成为用户的人。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">这句话听着像常识，但它有一个不那么常识的推论：<strong>门槛每降一级，市场规模不是增加 10%，是换一个人群。</strong>「会写代码的人」和「有想法但不会写代码的人」之间，隔着的不是一个百分比，而是两个几乎不相交的群体。前者买工具，后者买结果。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">这也解释了为什么它的用户里会出现老师和小生意老板——这些人从来不是开发工具的客户，他们以前买的是「找人做一个网站」这项服务。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">还有一件：<strong>从开源项目起家。</strong>GPT Engineer 在转商业产品之前，已经有一批用户和口碑。这不是「捷径」两个字能概括的——它意味着商业化第一天就有真实用户反馈，不必用现金去买第一批种子用户。这个动作是可复制的：先做一个开源工具，攒到一定用户量，再做云端付费版。n8n 是这么做的，OpenCode 是这么做的。</p>
+
+<h2 style="font-size:17px;font-weight:700;margin:26px 0 12px;padding-left:10px;border-left:3px solid #e5b567;">能不能搬回国内</h2>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">「说句话生成应用」这个需求在国内是真的存在，而且比海外更急——国内中小企业的技术预算是压得更狠的。但把整套形态搬过来，会撞上三堵墙。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;"><strong>第一堵：后端那一层不是你的。</strong>Lovable 生成的是 React + Supabase。Supabase 是托管数据库与认证服务，在国内没有对应物，直接用会涉及数据出境与合规问题。也就是说，你要么自己搭一套后端托管能力，要么把「生成完就能用」降级成「生成完还得自己部署」——而后者恰好是它承诺要消灭的那一步。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;"><strong>第二堵：积分制在国内会被比价。</strong>国内的模型 API 价格战打得很凶，用户对「按 token 计费」已经形成了价格记忆。用积分包一层，用户第一反应是换算成 token 比价。海外用户没有这个心智，国内用户有。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;"><strong>第三堵：交付终点不同。</strong>海外小生意的「上线一个网站」是终态；国内小生意的终态是「微信里能打开、能收款、能发券」。这意味着即使你把生成做出来了，最后一段路仍然要接微信生态——而这一段的接口开放程度，你说了不算。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">所以结论不是「国内做不了」，是<strong>国内做不了「闭环」，只能做「一段」</strong>。</p>
+
+<h2 style="font-size:17px;font-weight:700;margin:26px 0 12px;padding-left:10px;border-left:3px solid #e5b567;">一个人能不能做</h2>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">不能做闭环，但能做其中一段。按「一个人能做到什么程度」排一下：</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;"><strong>完全不可能：做通用生成器。</strong>三笔账一笔都过不去。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;"><strong>很难，但形态存在：做垂直场景的生成器。</strong>不生成「任意 Web 应用」，只生成「带预约表单的门店页」或者「带商品卡的展示页」。范围一窄，模板化程度就上去了，推理成本能压，交付也能标准化。代价是天花板低，且随时可能被通用工具顺手覆盖。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;"><strong>最现实：做交付，不做工具。</strong>客户要的从来不是「一个能生成应用的工具」，是「一个能用的东西」。这两者之间差着部署、域名、备案、内容填充、后续改动。这一段是人力活，通用工具打不进来，因为打进来不划算。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">我自己更倾向第三条，理由不是它更稳，而是它<strong>不跟融资规模成正比</strong>。Lovable 融了 ¥36.96亿，它要的是十万级客户；你做交付，服务几十个客户就能养活自己。这条缝隙是融资规模决定的，不是产品好坏决定的。</p>
+
+<h2 style="font-size:17px;font-weight:700;margin:26px 0 12px;padding-left:10px;border-left:3px solid #e5b567;">我的判断</h2>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">三条结论，一条比一条具体：</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;"><strong>一、「两个人做出来的」这类句子，默认要补一句「另外还有多少钱、多少分发、多少时间」。</strong>不补，它就从一句描述变成了一句承诺。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;"><strong>二、生成类产品的毛利率是买来的，不是做出来的。</strong>看这类案例，先找它的价目表是不是积分制——是积分制，说明它有真实的边际成本，那么它的护城河里至少有一部分是采购规模，不是产品。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;"><strong>三、抄「降门槛」这个判断，不抄「做平台」这个形态。</strong>门槛降一级就换一个人群，这个洞察在任何规模上都成立；而平台形态只在一个特定规模上成立。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">最后说一句这篇的自我约束：我没有说 Lovable 不值那个估值，也没有说它的收入是靠补贴买的——<strong>页面上的证据不支持任何一边的结论</strong>。我只做了两件事：把它的数字按原文重算了一遍，把它的人数账补成了资源账。</p>
+<p style="font-size:17px;line-height:1.8;color:rgba(0,0,0,0.9);margin:0 0 14px;">前者是算术，后者是结构。两个都能被检验，这就够了。</p>
+</section>

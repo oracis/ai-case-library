@@ -63,6 +63,9 @@ Scores, enums and metrics are safe to aggregate, sort and chart anywhere.
   "candidates": [ /* Candidate, 33 items, human-picked     */ ],
   "inbox":      [ /* InboxItem, ~347 items, machine-mined  */ ],
   "sources":    { /* SourcesDoc, see below                  */ },
+  "graveyard":  [ /* GraveyardItem, 22 items, shut down    */ ],
+  "anti":       { /* AntiCases: {cases, volumes, built_at} */ },
+  "site":       { /* SiteDoc: wechat / community / repo    */ },
   "stats":      { /* Stats, see below                       */ }
 }
 ```
@@ -364,6 +367,66 @@ Inbox adds `source_url` and `harvest_source` (`hn` \| `trustmrr` \| `producthunt
 `indiehackers` \| `arrclub` — depends on which collectors ran with credentials).
 
 Neither array contains scores.
+
+---
+
+## `anti_cases.json` — 反向样本区（2026-10-26；同日上站）
+
+「可以读、不建议照抄」的案例。**2026-10-26 起出现在 `/api/data` 的 `anti` 键里**
+（独立键，刻意**不并进 `cases`**，理由见 `docs/SELECTION_PLAYBOOK.md` §4.1）。
+站点表现：`#anti` 视图 + 预渲染的 `anti/index.html`（分组内联，可被收录）。
+
+三张表的边界：
+
+| 文件 | 装什么 | 证据口径 |
+|---|---|---|
+| `cases.json` | 推荐位，按双轴评分排名 | 一手来源优先 |
+| `graveyard.json` | 已停运项目的复盘 | 死亡与亏损要有一手来源 |
+| `anti_cases.json` | 活得好但你搬不动的案例 | `aggregator`；原始媒体未逐条打开 |
+
+顶层：`_schema`（= `anti_cases/2`）、`_note`、`_source`、`_built_at`、`_summary`、
+`volumes[]`、`cases[]`。由 `scripts/build_anti_cases.py` 的 `JUDGE` 表驱动生成——
+**表是主体，JSON 是产物**。
+
+`volumes[]`（每一篇）：`key` / `no`（Ⅰ–Ⅶ）/ `short`（筛选条用的短名）/
+`title` / `judge`（这一篇在比什么）/ `lead`（导语）/ `count` / `ids[]` / `role`。
+按「门槛类型」分 7 篇：账单 · 人头 · 苦力 · 社区 · 关系 · 资格 · 数字。
+
+每条字段：
+
+- `id` / `name` / `category` / `origin` / `one_liner` / `site`
+- `role`：`structural`（护城河在钱/算力/人力/数据/关系）｜`license`（缺资格而不是缺能力）｜
+  `caliber`（那个数根本不是收入）
+- `roles[]`：命中的全部类别；`role` 记主因
+- `volume`：归到哪一篇（= `volumes[].key`）。⚠ `/2` 里**取代**了旧的 `report_group`
+  （①②③④ 是原筛选报告的分组，与 `role`、与篇都不一一对应，两份分组并存必然漂移）
+- `role_note` / `why_not_copy[]` / `article_angle`
+- `page_label{key,value,sub}`：聚合页卡片原样（通常是「月收入」）
+- `caliber`：该值的**真实**口径。枚举比 `cases.caliber` 多四个：
+  `mrr` / `arr` / `annual` / `funding` / `valuation` / `gmv` / `price` / `lifetime` /
+  `unknown` / `invalid`
+- `caliber_note`：`caliber != mrr` 时**必填**，说明那个数其实是什么
+- `caliber_conflict{old,now,why}`：与 `data/htm_backlog_caliber.json` 不一致时留痕两边，
+  **不回改旧表**（旧表是历史判断）
+- `verification`：一律 `aggregator`（原始媒体未打开，不许标 official / stripe）
+- `source_check{page_read,originals_opened,note}`
+- `needs_verify` + `needs_verify_reason`：语义比 graveyard 窄，只指「口径待定」
+  （`caliber_undefined` / `caliber_conflict`），不指「整条没核」
+- `standalone` + `standalone_article`（可选）：已单独成文的那 3 条（各 `role` 一条试点），
+  站点据此挂「已单独成文」徽章；成稿在 `out/articles/<id>.html`
+- `series_tag` / `series_footer`：公众号栏目名（「这些别照着做 · 结构/资格/数字篇」），
+  **不占** `issue_numbers.json` 的拆解篇号。⚠ 与 `volume` 是两个轴：
+  栏目只有三个，篇有七个
+- `summary`（可选，≤120 字）：公众号摘要；没有则回退 `one_liner`
+
+`/api/data.anti` = `{cases: [...], volumes: [...], built_at: "YYYY-MM-DD HH:MM"}`；
+`stats.anti` / `stats.anti_volumes` 是对应的计数。
+
+不变量（`scripts/test_anti_cases.py` 20 项锁住）：id 不与 `cases.json` 相撞；
+`role ∈ roles`；三类都非空；每条都归篇且每篇条数与 `count` 一致；短名 ≤4 字；
+非 `mrr` 必有 `caliber_note`；口径分歧必留两边；摘要 ≤120；核实等级不许冒充一手。
+构建期另一道锁在 `scripts/build_static.py` 的自检里：id 不混进 `cases`、
+页面里缺条目当场报错、篇的条数对不上报错。
 
 ---
 

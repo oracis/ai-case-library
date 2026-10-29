@@ -9,6 +9,9 @@
   `img.src` 才看出来）；
 * 本地记录 37 条、草稿箱只有 35 条，`kibu` / `pieter-levels` 去哪了说不清
   ——最后发现是它们已从草稿箱消失（发布或删除），而 records.json 仍留着。
+* B站回读曾硬连公众号的 9222 浏览器，而三平台登录态在另一个 profile 的
+  9223 上 ⇒ 接口返 -101「未登录」，10/10 明明在箱的草稿被对账成「全丢」
+  （2026-10-25 实测）。端口必须按平台走 `chrome_cdp_launch.PLATFORMS`。
 
 所以这里提供**只读**的远端核对：读草稿箱标题列表，跟清单对账，差异分三类
 报出来（清单说发了但远端没有 / 远端有但清单没记 / 状态矛盾）。
@@ -29,7 +32,17 @@ sys.path.insert(0, os.path.join(ROOT, "scripts"))
 from multiplatform import state as S                # noqa: E402
 from multiplatform import article as A              # noqa: E402
 
-CDP_PORT = 9222
+# ---- 端口 -----------------------------------------------------------------
+# ⚠️ **公众号与三平台的登录态分裂在两个 Chrome profile 里，端口必须分开**：
+# wechat → 9222；toutiao / bilibili / xhs → 9223。
+# 真相源是 `chrome_cdp_launch.PLATFORMS`，这里**不写第二份硬编码** ——
+# 本文件以前模块级 `CDP_PORT = 9222`，B站/头条回读全连到公众号那个浏览器，
+# 头条碰巧有残留 cookie 能读出 43 条，B站直接 -101 假阴性。
+def _port_for(plat):
+    """平台 → CDP 端口。延迟 import：只读路径不该在 import 期依赖 Chrome。"""
+    import chrome_cdp_launch as L
+    key, spec = L.resolve_platform(plat)
+    return spec["port"]
 
 
 def _norm(t):
@@ -97,8 +110,9 @@ def _open_and_eval(c, url, wait, js):
             pass
 
 
-def read_toutiao_drafts(port=CDP_PORT, load_more=True, max_rounds=40):
+def read_toutiao_drafts(port=None, load_more=True, max_rounds=40):
     """返回头条草稿箱的标题列表（只读）。失败抛异常。"""
+    port = _port_for("toutiao") if port is None else port
     import wechat_publish as wp
     c = wp.CDP(port)
     tid = c.new_target(TT_DRAFT)["id"]
@@ -155,11 +169,14 @@ BILI_API_JS = r"""
 """
 
 
-def read_bilibili_drafts(port=CDP_PORT, ps=200):
+def read_bilibili_drafts(port=None, ps=200):
     """返回 B站草稿箱的标题列表（只读，走官方接口所以能拿全）。
 
     在**已登录的页面上下文**里发 fetch —— 直接从 Python 发会缺 CSRF/cookie。
+    ⚠️ port 默认走 9223（三平台 profile）；以前默认 9222 是公众号那个
+    浏览器，B站没登录态，接口必返 -101。
     """
+    port = _port_for("bilibili") if port is None else port
     import wechat_publish as wp
     c = wp.CDP(port)
     url = BILI_API if ps == 200 else BILI_API.replace("ps=200", "ps=%d" % ps)
@@ -186,7 +203,15 @@ def reconcile(plat, remote_titles, m=None, verbose=True):
     # 候选键 = id / 变体 / 平台精修标题 / 案例名
     def keys_for(cid):
         up = cid.upper().replace("_", "-")
-        ks = [cid, up, up.split("-")[0]]
+        ks = [cid, up]
+        # ⚠️ 前缀键（`ai-prank-call` → `AI`）是**启发式**，太短会偷匹配：
+        # 归一后不足 4 字符时它几乎是任何标题的子串 ⇒ 清单里第一个
+        # ai-* 案例偷走全部 AI 类标题，真正的 owner 反被报成「远端丢失」
+        # （2026-10-25 实测：10/10 在箱的草稿被对成 40 条 missing）。
+        # id / 变体本身是精确键，不受此限（合成用例靠 1 字符 id 匹配）。
+        pre = up.split("-")[0]
+        if len(_norm(pre)) >= 4:
+            ks.append(pre)
         for plat2 in ("toutiao", "bili", "xhs", "wechat"):
             t = A.platform_title(cid, plat2)
             if t:
@@ -253,7 +278,8 @@ def main(argv=None):
     except Exception as e:                              # noqa: BLE001
         print("读取 %s 草稿箱失败：%s：%s"
               % (args.platform, type(e).__name__, e))
-        print("（确认调试 Chrome 9222 起着、且已登录该平台）")
+        print("（确认调试 Chrome %d 起着、且已登录该平台）"
+              % _port_for(args.platform))
         return 2
     reconcile(args.platform, titles)
     return 0

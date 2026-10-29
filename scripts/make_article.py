@@ -32,6 +32,9 @@ import sys
 import unicodedata
 from datetime import datetime
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import lead_templates  # noqa: E402  四型开头钩子模板库
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 if hasattr(sys.stdout, "reconfigure"):                      # Windows 控制台默认不是 UTF-8
@@ -107,6 +110,16 @@ EDITORIAL_WEIGHT = {
 # 挂牌数字，模板会把它们当钩子拼进标题（「Dolar App：收入 $1.1K / 售价 $30K」），
 # 既不好读，还会把无法复核的数字放进读者第一眼看到的地方。所以这里全部手改。
 TITLE_OVERRIDES = {
+    # agentsguild 2026-10-27：模板生成的标题被「标题禁金额」剥掉数字后
+    # 留下怪空格（「已验证收入 ，为游戏开发」），人工改写补上应用介绍。
+    "agentsguild": [
+        "AgentsGuild：卖给游戏开发者的 AI 技能工具包，靠一次性付费赚钱",
+        "AgentsGuild：帮游戏开发者提效的 AI 技能工具包",
+        # 2026-10-29 补第三条：537b443 入库时只写了两条，test_make_article 的
+        # 「至少 3 条备选」判红（少于 3 条 build_titles() 会拿模板补，等于机器编标题）。
+        # 角度取「只做两款引擎 + 覆盖发布 QA」，避开前两条都在说的「提效」。
+        "AgentsGuild：只做 Unity 和浏览器游戏的调优、测试与发布",
+    ],
     "voklit": [
         "卖海外虚拟号码这门生意，最后为什么停机挂牌",
         "Voklit：把「收得到验证码」做成订阅，然后卖掉",
@@ -328,6 +341,46 @@ TITLE_OVERRIDES = {
         "Quran Unlock：读古兰经解锁其他 App",
         "Quran Unlock：把信仰变成打卡机制",
         "用完即走的信仰工具，靠内购变现",
+    ],
+    # —— 2026-10-26：新增案例补标题表。jobright / autoshorts 的默认拼接句
+    # 里嵌了「¥3,360万」「¥69.2万」，过 sanitizer 时金额被剥掉，拼出
+    # 「…月访问 500 万、 约 且已盈利」这种半截病句 ⇒ 必须走 override。
+    "jobright": [
+        "婉拒 Meta 百万年薪，他把「查不到」的信息做成了生意",
+        "Jobright：查「这家公司办不办签证」，做成求职平台",
+        "他先把签证数据做成钩子，再去做 AI 求职",
+    ],
+    "autoshorts": [
+        "一个人、每天三小时，他把不露脸短视频做成订阅",
+        "AutoShorts：不用出镜、不用剪，也能日更",
+        "它卖的不是生成视频，是「不用手动发」",
+    ],
+    # —— 2026-10-26：2026-10-26 那批入库剩下 5 条的标题表（这批 one_liner
+    # 全部内嵌金额，默认拼接句过 sanitizer 后只剩品牌名的退化形态）。
+    "serviceform": [
+        "Serviceform：把官网那张没人填的表单，做成 AI 销售 Agent",
+        "它起手的东西小到不像生意：一张没人填的联系表单",
+        "从一张表单做到五个办公室，靠的是一百多家代理商",
+    ],
+    "salesrobot": [
+        "SalesRobot：它卖的不是自动化，是「账号不会死」",
+        "把「封号率 0.00001%」做成唯一卖点的外联工具",
+        "LinkedIn 外联工具都在比功能，它在比谁会被封号",
+    ],
+    "sandra-ai": [
+        "Sandra AI：给车行接电话，四个人做的生意",
+        "它不卖 AI，卖「你漏掉的电话亏了多少钱」",
+        "三个麦肯锡出来的人，去做车行的电话前台",
+    ],
+    "outward": [
+        "Outward：三个拒绝 VC 的人，用 AI 重做民调",
+        "把一整串人的调研流程，压成一条 AI 流水线",
+        "它抄不动的不是 AI，是三个人攒下的方法论",
+    ],
+    "workhero": [
+        "WorkHero：AI 干活、行业老手复核，替暖通小店省下一个人",
+        "定价锚不是软件，是「雇一个人的零头」",
+        "给暖通小店做后台：AI 开票，真人复核",
     ],
 }
 
@@ -600,7 +653,11 @@ def build_sections(case):
             "我去核了一遍：%s" % corr[0].get("truth", ""),
         ]))
     else:
-        secs.append((None, [case.get("verdict", "")]))
+        # 2026-10-23：裸 verdict 升级为三段叙事开头（场景 → 判断 → 路线）。
+        # 原来无纠错案例开头就一句 verdict，孤零零没有入戏的台阶；
+        # 有纠错案例不经过这里（引号钩子是实测最高转化，保持不动）。
+        # 模板库 scripts/lead_templates.py，事实全部取自 case 字段。
+        secs.append((None, lead_templates.wechat_lead(case)))
 
     # 它是干什么的
     what = []

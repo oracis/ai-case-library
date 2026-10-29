@@ -1,78 +1,78 @@
 {
-  "ran_at": "2026-10-23 05:39:41",
-  "added": 56,
+  "ran_at": "2026-10-29 06:43:19",
+  "added": 99,
   "by_source": {
-    "hn": 46,
-    "indiehackers": 1,
-    "trustmrr": 9
+    "hn": 60,
+    "indiehackers": 7,
+    "trustmrr": 32
   },
   "inbox_total": 400,
-  "archived_this_run": 56,
-  "archive_total": 956,
+  "archived_this_run": 99,
+  "archive_total": 1055,
   "top": [
     {
-      "name": "Incoming Call",
-      "headline": "MRR $3,376，TrustMRR 第 1030 名",
-      "heat": 0,
-      "category": "Entertainment",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/incoming-call"
-    },
-    {
-      "name": "PreLoved AI",
-      "headline": "近 30 天收入 $3,534",
+      "name": "AskElliot Consulting",
+      "headline": "MRR $328，TrustMRR 第 2701 名",
       "heat": 0,
       "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/preloved-ai"
+      "url": "https://trustmrr.com/startup/askelliot"
     },
     {
-      "name": "Agent Media",
-      "headline": "近 30 天收入 $2,381",
+      "name": "GoodLads.cc",
+      "headline": "MRR $200，TrustMRR 第 4883 名",
       "heat": 0,
       "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/veloris-llc"
+      "url": "https://trustmrr.com/startup/goodlads"
     },
     {
-      "name": "Fairmoney: Loan & Debt Tracker",
-      "headline": "近 30 天收入 $127",
+      "name": "TimeTuna.com",
+      "headline": "MRR $123，TrustMRR 第 3722 名",
+      "heat": 0,
+      "category": "企业服务",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/timetuna"
+    },
+    {
+      "name": "ReplyCurrent",
+      "headline": "MRR $225，TrustMRR 第 3159 名",
       "heat": 0,
       "category": "垂直行业 SaaS",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/fairmoney-loan-debt-tracker"
+      "url": "https://trustmrr.com/startup/reply-current"
     },
     {
-      "name": "Indiehunt",
-      "headline": "自报收入 $500 / mo（Indie Hackers）",
+      "name": "Get Funneled",
+      "headline": "近 30 天收入 $20,146",
       "heat": 0,
-      "category": "未分类",
-      "source": "indiehackers",
-      "url": "https://www.indiehackers.com/product/indiehunt"
+      "category": "营销工具",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/getfunneled"
     },
     {
-      "name": "From Eyeballs to ARR",
-      "headline": "未获取",
-      "heat": 2,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://aswathdamodaran.substack.com/p/from-eyeballs-to-arr-buzzy-pricing"
+      "name": "Gladia2: Old School Online RPG",
+      "headline": "近 30 天收入 $5,384",
+      "heat": 0,
+      "category": "Games",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/gladia2"
     },
     {
-      "name": "CATT 0.2.1",
-      "headline": "未获取",
-      "heat": 7,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://github.com/Coverage-Cat/consumer-agent-testing-tool"
+      "name": "Store Stock Checker",
+      "headline": "近 30 天收入 $14,670",
+      "heat": 0,
+      "category": "Analytics",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/store-stock-checker"
     },
     {
-      "name": "My vibecoded game got a glow up",
-      "headline": "未获取",
-      "heat": 6,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://tiberava.online"
+      "name": "cove ivf",
+      "headline": "近 30 天收入 $285",
+      "heat": 0,
+      "category": "Health & Fitness",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/cove-ivf"
     }
   ]
 }

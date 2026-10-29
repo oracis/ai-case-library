@@ -80,5 +80,42 @@ class TestVerifyCoverEdge(unittest.TestCase):
         self.assertIn("return 2", VCE)
 
 
+class TestCoverAuditNameEscaping(unittest.TestCase):
+    """封面审计的项目名比对必须认 HTML 转义（2026-10-26）。
+
+    背景：品牌名带 & 的（"Account & Expense Manager"、"Aura AI - AI Video &
+    Image Generator"）被模板正确输出成 &amp;，而审计拿**未转义原文**去比对
+    ⇒ 恒报 NAME_MISSING 假阳性。当时据此误判成「封面无中文」，差点把三条
+    英文品牌名全改成中文（用户明确：英文品牌/应用名不改）。
+
+    锁两条：① 转义形态必须放行；② 名字真的不在时必须还抓得住
+    —— 只测①会掩盖「把判据改没了」这种反向错误。
+    """
+
+    HTML = ('<div class="name">Account &amp; Expense Manager</div>'
+            '<div class="desc">一句话简介</div>')
+    CASE = {"id": "selftest", "name": "Account & Expense Manager",
+            "one_liner": "一句话简介", "metrics": {}}
+
+    def _audit(self, name):
+        import cover_audit
+        import toutiao_publish
+        orig = toutiao_publish.tt_cover_html
+        toutiao_publish.tt_cover_html = lambda c: self.HTML
+        try:
+            case = dict(self.CASE, name=name)
+            return cover_audit.audit_html(case)
+        finally:
+            toutiao_publish.tt_cover_html = orig
+
+    def test_转义后的品牌名不能报缺(self):
+        r = self._audit("Account & Expense Manager")
+        self.assertFalse([x for x in r if x.startswith("NAME_MISSING")], r)
+
+    def test_名字真不在时必须报缺(self):
+        r = self._audit("完全不存在的品牌名")
+        self.assertTrue([x for x in r if x.startswith("NAME_MISSING")], r)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

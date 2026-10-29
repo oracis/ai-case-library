@@ -641,10 +641,6 @@ class AiVerifyIntegration(unittest.TestCase):
             self.assertIn("action", it)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class TestRevenueOfCumulative(unittest.TestCase):
     """「累计收入」不得当月收入（2026-10-21 修）。
 
@@ -671,3 +667,7 @@ class TestRevenueOfCumulative(unittest.TestCase):
     def test_结构化字段仍然优先(self):
         r = rec(metrics={"mrr": 500, "headline": "累计收入 $90000"})
         self.assertEqual(T.revenue_of(r), 500.0)
+
+
+if __name__ == "__main__":
+    unittest.main()

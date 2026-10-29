@@ -16,6 +16,13 @@
 | `draft_saved` | 远端草稿箱已确认有它 | 是 |
 | `published` | 已公开发布 | 是 |
 | `failed` | 上次失败，带 attempt/error | 是（要 --retry 才重试） |
+| `blocked` | 平台拦/封，改一版仍不过 | 是（终止态，需人工 reset 才重试） |
+
+`blocked` 是 **2026-10-28 用户定的规则**落点：某平台把稿子拦下来，按
+改进意见改一版仍然无效时，就该**顺延发下一篇补上**、并把被拦的稿从该
+平台草稿箱剔除。它不能复用 `failed` —— `failed` 会被 `--retry` 自动重
+捡，被拦的稿重捡一次还是被拦，只会把队列拖死。处置流程见
+`multiplatform/blocked.py`。
 
 写盘用「临时文件 + os.replace」原子替换：批量跑到第 20 条被 Ctrl-C 时，
 前 19 条的状态不会因为半个 JSON 而全丢。
@@ -29,8 +36,12 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__))))
 MANIFEST = os.path.join(ROOT, "data", "publish_manifest.json")
 
-STATES = ("pending", "building", "draft_saved", "published", "failed")
+STATES = ("pending", "building", "draft_saved", "published", "failed",
+          "blocked")
 DONE_STATES = ("draft_saved", "published")
+# 终态里「不会再自动进队列」的那些：failed 要 --retry 才回队，blocked 同理
+# 但必须人工 reset —— 见模块头注释。
+TERMINAL_STATES = ("published", "blocked")
 
 
 def _now():
@@ -75,6 +86,12 @@ class Manifest:
     def is_published(self, cid, plat):
         return self.state(cid, plat) == "published"
 
+    def is_blocked(self, cid, plat):
+        return self.state(cid, plat) == "blocked"
+
+    def blocked_reason(self, cid, plat):
+        return self.get(cid, plat).get("error", "")
+
     def attempts(self, cid, plat):
         return int(self.get(cid, plat).get("attempt", 0) or 0)
 
@@ -99,7 +116,7 @@ class Manifest:
         }
         if error:
             rec[plat]["error"] = error[:300]
-        elif state not in ("failed",):
+        elif state not in ("failed", "blocked"):
             rec[plat].pop("error", None)
         self.save()
         return rec[plat]
@@ -118,6 +135,14 @@ class Manifest:
 
     def mark_failed(self, cid, plat, error="", title=""):
         return self.set(cid, plat, "failed", title, error=error, bump=True)
+
+    def mark_blocked(self, cid, plat, reason="", title=""):
+        """被平台拦/封（改一版仍不过）→ 终止态，不再进队列。
+
+        `reason` 必须写清平台给的原话，否则几个月后没人说得清这条为什么
+        停在 blocked。
+        """
+        return self.set(cid, plat, "blocked", title, error=reason, bump=True)
 
     def remove(self, cid, plat=None):
         """--reset 用：清掉一条（或一条的全部平台）记录，强制重发。"""

@@ -9,6 +9,9 @@
     python scripts/publish_multi.py status                # 各平台状态统计
     python scripts/publish_multi.py sync                  # 把既有记录灌进清单
     python scripts/publish_multi.py retry --case kibu     # 重试失败项
+    python scripts/publish_multi.py block toutiao --case X --reason "..." --next --yes
+                                                          # 被拦：记 blocked
+                                                          # + 删草稿 + 补发下一篇
 
 与旧的 `publish_both.py` 的关系：后者仍在用（三平台 + 特殊参数），但**新活
 一律走这里** —— 它多了 B站适配器、清单状态机、单条重试和断点续传。
@@ -125,7 +128,10 @@ def _file_health(plat):
         except ValueError:
             continue                       # 该平台没有这一侧（如公众号）
         except KeyError:
-            bad.append("%s：ledger 里没有这个平台" % plat)
+            # 2026-10-26：juejin 接入后不在 ledger._SPEC 里（自带
+            # data/juejin_drafts.json，slug→draft_id 字典，schema 不同）。
+            # 它的幂等与回读由适配器 verify() 负责（list_drafts 比对
+            # draft_id），本地账体检对它无意义 —— 跳过，不是 ERROR。
             return bad
         if not os.path.isfile(p):
             continue
@@ -156,6 +162,8 @@ def _preflight(plats):
     import ledger_health as H
     errs, warns, infos, total = [], [], 0, 0
     for p in plats:
+        if PLAT_KEY.get(p, p) not in L.PLATFORMS:
+            continue                       # 不进 ledger 体系的平台（juejin），见 _file_health
         errs.extend(_file_health(p))
         try:
             recs = L.load(PLAT_KEY.get(p, p))
@@ -257,6 +265,60 @@ def cmd_mark(args):
     return 0
 
 
+def cmd_block(args):
+    """平台拦/封的处置：标记 blocked → 剔除草稿 → 顺延下一篇。
+
+    规则出处：2026-10-28 用户口径 —— 被拦的稿按改进意见改一版仍无效，
+    就顺延发下一篇补上，并把被拦的从草稿箱剔除。详见
+    `multiplatform/blocked.py` 头注释。
+    """
+    from multiplatform import blocked as B
+    if args.dry:
+        # 演示用：拿清单副本跑，绝不写真清单、绝不碰远端
+        import shutil
+        import tempfile
+        tmp = os.path.join(tempfile.mkdtemp(prefix="blk_"), "m.json")
+        if os.path.exists(S.MANIFEST):
+            shutil.copyfile(S.MANIFEST, tmp)
+        m = S.Manifest(tmp)
+        print("（--dry：不写清单、不删草稿，只演示会发生什么）")
+    else:
+        m = S.Manifest()
+    cid = _resolve(args.case)
+    if not cid:
+        print("--case 必须给一个案例")
+        return 1
+    if args.platform not in B.PLATS:
+        print("平台可选：%s" % "/".join(B.PLATS))
+        return 1
+
+    nxt, ntitle, why = B.handle(
+        args.platform, cid, reason=args.reason,
+        delete=not args.keep_draft,
+        # 删除不可逆：默认只预览，--yes 才真删
+        dry_delete=(not args.yes) or args.dry, manifest=m)
+
+    print("")
+    if not nxt:
+        print("顺延候选：无 —— %s" % why)
+        return 0
+    print("顺延候选：%s《%s》" % (nxt, ntitle))
+    print("  为什么是它：%s" % why)
+    print("  补发命令：python scripts/publish_multi.py run --case %s --yes "
+          "--platforms %s" % (nxt, args.platform))
+
+    if not args.next:
+        return 0
+    if args.dry:
+        return 0                       # 演示模式绝不真发
+    if not args.yes:
+        print("\n（--next 要配 --yes 才会真的补发。先确认上面这条对不对。）")
+        return 0
+
+    print("\n===== 顺延补发 %s → %s =====" % (nxt, LABEL.get(args.platform)))
+    return main(["run", "--case", nxt, "--yes", "--platforms", args.platform])
+
+
 def cmd_verify(args):
     """远端回读校验（只读）：清单 vs 草稿箱。"""
     from multiplatform import verify as V
@@ -271,7 +333,8 @@ def cmd_verify(args):
             titles = V.READERS[p]()
         except Exception as e:                          # noqa: BLE001
             print("读取 %s 草稿箱失败：%s：%s" % (p, type(e).__name__, e))
-            print("（确认调试 Chrome 9222 起着、且已登录该平台）")
+            print("（确认调试 Chrome %d 起着、且已登录该平台）"
+                  % V._port_for(p))
             continue
         V.reconcile(p, titles)
     return 0
@@ -341,6 +404,21 @@ def main(argv=None):
     p.add_argument("--case", required=True)
     p.add_argument("--state", default="published", choices=list(S.STATES))
     p.set_defaults(fn=cmd_mark)
+
+    p = sub.add_parser(
+        "block", help="平台拦/封：记 blocked → 剔除草稿 → 顺延下一篇")
+    p.add_argument("platform", choices=ALL)
+    p.add_argument("--case", required=True, help="被拦的那条案例 id")
+    p.add_argument("--reason", default="", help="平台给的原话（务必记下）")
+    p.add_argument("--keep-draft", action="store_true",
+                   help="保留远端草稿，不剔除")
+    p.add_argument("--next", action="store_true",
+                   help="顺延补发下一篇（要配 --yes 才真跑）")
+    p.add_argument("--yes", action="store_true",
+                   help="真删草稿 / 真补发（默认只预览，删除不可逆）")
+    p.add_argument("--dry", action="store_true",
+                   help="连清单都不写，只演示会发生什么")
+    p.set_defaults(fn=cmd_block)
 
     args = ap.parse_args(argv)
     # 位置参数与 --case 归一化：后续 cmd_* 只认 args.case

@@ -68,10 +68,6 @@ class TestNoSilentFailures(unittest.TestCase):
         self.assertIn("tt.TT_HOME", RV_CODE)
 
 
-if __name__ == "__main__":
-    unittest.main(verbosity=2)
-
-
 class TestVerdictForWechat(unittest.TestCase):
     """公众号分支的行为级判据（2026-10-21 修）。
 
@@ -134,3 +130,7 @@ class TestVerdictForWechat(unittest.TestCase):
         p = {"draft_ok": False, "pub_ok": False, "why": "公众号 token 没拿到"}
         v, _ = RV_MOD.verdict_for(p, "mort")
         self.assertEqual(v, "UNKNOWN")
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
