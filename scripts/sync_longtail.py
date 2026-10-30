@@ -203,11 +203,79 @@ def poll_task(m, key, tries=10, gap=8):
     return None
 
 
+def _run_via_cdp(args, case, title, body, cover_url):
+    """CDP 通道建稿（2026-10-30 新增，**不依赖 CSDN 同步助手扩展**）。
+
+    为什么要有这条路：扩展 WS 会瞬时断开（整篇同步静默失败），且扩展里的
+    阿里云登录态是易失的（要重扫码）。改走 9228 常驻 Chrome 后，登录态磁盘
+    持久，两朵云实测都在线。详见 scripts/yun_draft_cdp.py 模块 docstring。
+
+    台账格式与 MCP 通道一致（data/longtail_sync.json，indent=1 + 原行尾），
+    两条路互相读得懂，收尾/发表命令（--finalize / --publish）完全通用。
+
+    ⚠ CDP 通道只支持两朵云（aliyun / tencentcloud）；思否等长尾平台仍走扩展。
+    """
+    import yun_draft_cdp as C
+    plats = [p for p in args.platforms
+             if p in ("aliyun", "tencentcloud", "tencent")]
+    skipped = [p for p in args.platforms if p not in plats]
+    if skipped:
+        print("⚠ CDP 通道不支持 %s（仍需扩展通道），本批只跑 %s"
+              % (skipped, plats))
+    if not plats:
+        raise SystemExit("CDP 通道没有可用平台（支持 aliyun / tencentcloud）")
+    abstract = args.abstract
+    if not abstract:
+        import yun_finalize as F
+        abstract = F.first_paragraph(body)
+    proc, cdp = C._connect()
+    print("9228 CDP: %s" % ("已连上（复用常驻实例）" if proc is None else "新起"))
+    results = {}
+    try:
+        for plat in plats:
+            print("\n=== %s ===" % plat, flush=True)
+            if plat == "aliyun":
+                aid, err = C.create_aliyun(cdp, title, body, abstract)
+                if aid:
+                    url = "https://developer.aliyun.com/article/new?edit=%s#/" % aid
+                    results[plat] = {"ok": True, "draftId": aid, "url": url}
+                else:
+                    results[plat] = {"ok": False, "err": err or "未知失败"}
+            else:
+                did, err = C.create_tencent(cdp, title, body, abstract)
+                if did:
+                    url = ("https://cloud.tencent.com/developer/article/"
+                           "write-new?draftId=%s" % did)
+                    results[plat] = {"ok": True, "draftId": did, "url": url}
+                else:
+                    results[plat] = {"ok": False, "err": err or "未知失败"}
+    finally:
+        try:
+            cdp.bws.close()
+        except Exception:                                       # noqa: BLE001
+            pass
+    print("\n--- 结果 ---")
+    for plat, info in results.items():
+        print("  %-14s %s %s" % (plat, "✓" if info.get("ok") else "✗",
+                                  info.get("draftId") or info.get("err")))
+    key = next_key(case)
+    remember(key, {"case": case, "title": title, "platforms": results,
+                   "category": args.category, "cover": cover_url or "",
+                   "via": "cdp-9228", "ts": time.strftime("%Y-%m-%d %H:%M:%S")})
+    print("✓ 台账: %s ← %s" % (os.path.relpath(LEDGER, ROOT), key))
+    print("  收尾/发表沿用: python scripts/sync_longtail.py --finalize --case %s "
+          "--al-draft <aid> --tc-draft <did>" % case)
+
+
 def main():
     ap = argparse.ArgumentParser(description="长尾平台草稿同步（自动带封面/分类/标签）")
     ap.add_argument("--case", help="案例 id（对应 drafts/wechat/<case>.md）")
     ap.add_argument("--file", help="或直接指定 markdown 文件")
     ap.add_argument("--platforms", nargs="+", default=DEFAULT_PLATFORMS)
+    ap.add_argument("--via", choices=["mcp", "cdp"], default="mcp",
+                    help="建稿通道：mcp=CSDN 同步助手扩展（旧，默认，依赖扩展"
+                         "在线且各平台登录态没掉）；cdp=9228 常驻 Chrome"
+                         "（不依赖扩展，登录态磁盘持久，推荐）")
     ap.add_argument("--tags", nargs="+", default=DEFAULT_TAGS)
     ap.add_argument("--category", default="人工智能")
     ap.add_argument("--cover", default="", help="封面文件路径（缺省自动找）")
@@ -300,6 +368,10 @@ def main():
     else:
         print("⚠ 没找到封面（out/toutiao/%s/cover.png 或 out/agnes/%s.png），"
               "不带封面同步（发表前可在编辑器补）" % (case, case))
+
+    # ── CDP 通道（2026-10-30 新增）：不依赖 CSDN 扩展 ────────────────
+    if args.via == "cdp":
+        return _run_via_cdp(args, case, title, body, cover_url)
 
     key = next_key(case)
     print("幂等键: %s" % key)
