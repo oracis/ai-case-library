@@ -5,5 +5,12 @@
     "url": "https://www.cnblogs.com/thing-explainer/p/23468183",
     "status": "published",
     "ts": "2026-10-29 12:14:36"
+  },
+  "shipfast": {
+    "post_id": "23493644",
+    "title": "Next.js SaaS 脚手架拆解：认证、支付、邮件、ORM 怎么打包，以及模板产品的技术债与买断制迭代",
+    "url": "https://www.cnblogs.com/thing-explainer/p/23493644",
+    "status": "published",
+    "ts": "2026-10-30 11:59:04"
   }
 }

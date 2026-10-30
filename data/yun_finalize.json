@@ -1,19 +1,35 @@
 {
-  "__community__1696290": {
-    "community": "云原生",
-    "updated": "2026-10-28 20:42:42",
-    "uploaded_img": "https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_a7fe922a8b28491baf232a820a4e4fcb.png"
-  },
-  "upvoty": {
-    "al_draft": "1696290",
-    "tc_draft": "",
-    "community": "云原生",
-    "cover_url": "",
-    "updated": "2026-10-28 20:42:43",
-    "abstract": "在竞争激烈的营销工具市场中，Upvoty以其独特的“用户反馈投票板”和“公开路线图”功能，成功bootstrapped六年，实现了0K+的月收入。那么，它是如何做到的？本篇拆解其增长路径、产品决策与 ",
-    "tc_article": "2771439",
-    "tc_state": "published",
-    "tc_republish_at": "2026-10-29 14:01:57",
-    "tc_published_at": "2026-10-29 14:06:20"
-  }
+ "__community__1696290": {
+  "community": "云原生",
+  "updated": "2026-10-28 20:42:42",
+  "uploaded_img": "https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_a7fe922a8b28491baf232a820a4e4fcb.png"
+ },
+ "upvoty": {
+  "al_draft": "1696290",
+  "tc_draft": "",
+  "community": "云原生",
+  "cover_url": "",
+  "updated": "2026-10-28 20:42:43",
+  "abstract": "在竞争激烈的营销工具市场中，Upvoty以其独特的“用户反馈投票板”和“公开路线图”功能，成功bootstrapped六年，实现了0K+的月收入。那么，它是如何做到的？本篇拆解其增长路径、产品决策与 ",
+  "tc_article": "2771439",
+  "tc_state": "published",
+  "tc_republish_at": "2026-10-29 14:01:57",
+  "tc_published_at": "2026-10-29 14:06:20"
+ },
+ "__community__1698462": {
+  "community": "云原生",
+  "updated": "2026-10-30 12:04:52"
+ },
+ "shipfast": {
+  "al_draft": "1698462",
+  "al_article": "1777090",
+  "al_state": "auditing",
+  "al_published_at": "2026-10-30 12:15:00",
+  "tc_draft": "338031",
+  "tc_state": "published",
+  "tc_article": "2772404",
+  "tc_published_at": "2026-10-30 12:50:00",
+  "note": "阿里云软文换技术稿后发表；tc 338031 已发表（审核中）",
+  "tc_note": "发表被「请选择文章标签」拦 → 用户授权自拟标签 → React value setter + input 事件 + onKeyDown Enter 实际已建 chip（前端框架/next.js/前端/React/Next.js/SaaS 共 6 个，早期判据选择器 tag-item 写错漏检）；确认发布后弹「发布成功！文章正在审核中，审核通过前仅自己可见」，article 2772404"
+ }
 }
