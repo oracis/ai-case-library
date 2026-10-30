@@ -1,0 +1,100 @@
+{
+ "generated_at": "2026-10-28 23:59",
+ "scope": "2026-10-28 首批 20 条中「来源只有 trustmrr 一个域」的 4 条",
+ "method": "实体锚点（iTunes sellerUrl / GitHub repo.homepage 与官网同域）；官网可达性另记 site 字段",
+ "summary": {
+  "anchor": 1,
+  "listing": 1,
+  "listing_no_anchor": 1,
+  "aggregator_only": 1
+ },
+ "items": [
+  {
+   "id": "screenshot-to-code-whimsyworks-inc",
+   "name": "Screenshot to Code (WhimsyWorks, Inc.)",
+   "site": {
+    "url": "https://screenshottocode.com/",
+    "status": 0,
+    "err": "本机 urllib 直连与沙箱代理均失败（Tunnel 502 / read timeout）；WebFetch 通道亦 fetch failed"
+   },
+   "third_party": [
+    {
+     "kind": "github",
+     "url": "https://github.com/abi/screenshot-to-code",
+     "evidence": "GitHub 仓库 abi/screenshot-to-code：★80,842，最近推送 2026-10-27，仓库 homepage 字段 = https://screenshottocode.com",
+     "anchor": "homepage=https://screenshottocode.com",
+     "strength": "anchor"
+    }
+   ],
+   "verdict": "anchor",
+   "note": "唯一拿到实体锚点的一条。官网从本机不可达 ≠ 产品下架：仓库昨日仍有推送、★8 万，反证产品存活。"
+  },
+  {
+   "id": "kodo",
+   "name": "Kodo",
+   "site": {
+    "url": "https://usekodo.ai",
+    "status": 0,
+    "err": "HTTP 403（站点风控拦截本机 UA）；WebFetch 可读，页面与定价正常"
+   },
+   "third_party": [
+    {
+     "kind": "producthunt",
+     "url": "https://www.producthunt.com/products/kodo-3/launches/kodo-3",
+     "evidence": "Product Hunt 2026-03-04 发布：#3 Product of the Day、387 upvotes、36 评论；maker 为 Michael Goldstein（@mg272011，即创始人），发布页访问网址为 usekodo.ai",
+     "anchor": "Product Hunt 发布页的「访问网站」= usekodo.ai",
+     "strength": "listing"
+    }
+   ],
+   "verdict": "listing",
+   "note": "PH 属自荐发布，证明「产品存在 + 创始人身份 + 社区反响」，不构成独立核验收入。另：Kodo 官网 FAQ 里的档位自相矛盾（Free/Starter $12/Operator $39/Agency $99 与 Free/Starter $9/Pro $29 两个版本并存），定价引用前必须挑一个并注明抓取日。"
+  },
+  {
+   "id": "lapsula",
+   "name": "Lapsula",
+   "site": {
+    "url": "https://www.lapsula.com",
+    "status": 0,
+    "err": "TLS handshake 超时（本机直连与代理均失败）；WebFetch 可读"
+   },
+   "third_party": [
+    {
+     "kind": "appstore",
+     "url": "https://apps.apple.com/es/app/lapsula/id6502221157",
+     "evidence": "App Store 在架：id6502221157，开发者法定名 Lapsula, SL（西班牙），官网 Pricing 页亦写明提供 iOS/Android app",
+     "anchor": "sellerName=Lapsula, SL（⚠ sellerUrl 字段为空，URL 锚点不成立）",
+     "strength": "listing_no_anchor"
+    }
+   ],
+   "verdict": "listing_no_anchor",
+   "note": "开发者法定名与产品名一致、且官网自述有移动端，可佐证同一主体；但库里判据是 sellerUrl 同域，此条严格意义上不算锚点。另有 Show HN 帖（1 分），无证伪价值。"
+  },
+  {
+   "id": "supascribe",
+   "name": "Supascribe",
+   "site": {
+    "url": "https://supascribe.com",
+    "status": 0,
+    "err": "read timeout（本机直连与代理均失败）；WebFetch 可读"
+   },
+   "third_party": [
+    {
+     "kind": "aggregator",
+     "url": "https://tg4g.com/en/listing/supascribe-com",
+     "evidence": "第三方目录站收录并拆解定价（Free/$9 Starter/$20 Growth/$249 Pro、$2/万次浏览超额），但自述「compiled from public sources」、提供方标为 Unknown",
+     "anchor": "条目 slug 与域名一致（supascribe.com）",
+     "strength": "aggregator"
+    },
+    {
+     "kind": "review",
+     "url": "https://upvote.club/best-free-substack-growth-tools",
+     "evidence": "第三方清单文列有 Supascribe 免费额度（前 100 订阅 / 1,000 浏览）",
+     "anchor": "文内点名 + 免费额度与官网一致",
+     "strength": "mention"
+    }
+   ],
+   "verdict": "aggregator_only",
+   "note": "没有可锚定的独立页面；聚合站内容是机器汇编，不足以撑「已核实」。⚠ 另发现官网新旧两个版本定价并存（老版 www：$19/$99；新版：$9/$20/$249），引用必须注时点。"
+  }
+ ]
+}

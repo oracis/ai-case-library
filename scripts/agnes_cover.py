@@ -162,6 +162,10 @@ CATEGORY_STYLE = {
     "health fitness": "fitness tracking app screens, workout plans and progress charts",
     "no code": "no-code builder canvas, drag-and-drop blocks and workflow nodes",
     "travel": "travel booking interface, itinerary map and destination cards",
+    # ---- 2026-10-29 补：news magazines（freelance-writing-club 带来的分类）。
+    # 它是「工作日每日一封人工筛选的约稿邮件」，本质是订阅制资讯刊物，
+    # 所以画 newsletter / 邮件排版 / 订阅者列表，而不是报纸头版。
+    "news magazines": "newsletter layout, curated email digest and subscriber list panels",
     "未分类": "generic software product concept illustration",
 }
 DEFAULT_STYLE = "flat geometric editorial illustration, product and workflow concept"
@@ -204,6 +208,8 @@ CATEGORY_THEME = {
     "health fitness": "fitness tracking and workout plans",
     "no code": "no-code app builder and workflows",
     "travel": "travel booking and itinerary",
+    # 与 CATEGORY_STYLE 同批补（2026-10-29）：订阅制资讯刊物
+    "news magazines": "newsletter digest and subscriber list",
     "未分类": "software product",
 }
 

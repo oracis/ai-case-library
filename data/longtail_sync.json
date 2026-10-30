@@ -69,5 +69,42 @@
   },
   "note": "CodesMirror6 Markdown 源码编辑器整段写入；首图保留作封面",
   "ts": "2026-10-29 14:01:57"
+ },
+ "shipfast-al-cdp-2026-10-30-1": {
+  "case": "shipfast",
+  "title": "从模板源码反推工程决策：一份 Next.js SaaS 模板里值得拆开看的四个模块",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1698462",
+    "articleId": "1777090",
+    "url": "https://developer.aliyun.com/article/1777090",
+    "state": "auditing",
+    "published_via": "CDP publish_aliyun + 人工滑块"
+   }
+  },
+  "category": "人工智能",
+  "cover": "out/toutiao/shipfast/cover.png",
+  "note": "CDP putDraft 直建（扩展侧阿里云登录态掉线兜底）；替换已删的 upvoty 软文草稿 1696290",
+  "ts": "2026-10-30 12:18:31"
+ },
+ "shipfast-2026-10-30-1": {
+  "case": "shipfast",
+  "title": "Next.js SaaS 脚手架的工程化边界：认证、支付回调与事务邮件的模块化取舍",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "338031",
+    "articleId": "2772404",
+    "url": "https://cloud.tencent.com/developer/article/2772404",
+    "state": "published",
+    "published_at": "2026-10-30 12:50:00",
+    "tags": ["前端框架", "next.js", "前端", "React", "Next.js", "SaaS"],
+    "note": "tag search 平台侧 404 → 用户授权自拟标签 → React setter+Enter 建 chip 后 UI 发布成功，弹窗「发布成功！文章正在审核中」"
+   }
+  },
+  "category": "人工智能",
+  "cover": "D:\\ai-case-library\\out\\toutiao\\shipfast\\cover.png",
+  "ts": "2026-10-30 12:03:54"
  }
 }

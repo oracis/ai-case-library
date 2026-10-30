@@ -44,7 +44,8 @@ EDITOR_HINT = "/publish/publish"
 # 已知的只读接口（2026-10-18 从页面 resource timing 里捞出来的真实 URL）
 READONLY = [
     ("creator_user_info", "https://creator.xiaohongshu.com/api/galaxy/user/info", "GET"),
-    ("red_app_list", "https://edith.xiaohongshu.com/api/sns/v1/creator/red_app/web/consumer/list", "POST"),
+    ("red_app_list",
+     "https://edith.xiaohongshu.com/api/sns/v1/creator/red_app/web/consumer/list", "POST"),
 ]
 
 

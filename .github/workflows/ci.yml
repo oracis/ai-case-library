@@ -9,6 +9,11 @@ name: CI
 # 以前一个步骤挂掉就挡住后面所有步骤，CI 只报「第 2 步失败」——
 # 后果是 main 连红一个月（9-20 起 87+ 次），后面十几步的结果从来
 # 没人看过，真问题全被埋着。现在每一步都照跑，由末尾的「汇总」统一判红。
+# ⚠️ runner 钉死 ubuntu-24.04，不用 ubuntu-latest（2026-10-29 改）：
+# GitHub 公告 ubuntu-latest 自 10 月 19 日起迁移到 Ubuntu 26。标签一漂，镜像里
+# 预装的 Python / Node / 系统库都跟着变 —— 这套 CI 的版本由 setup-python /
+# setup-node 的 matrix 决定，但「系统级依赖在不在、叫什么名字」取决于镜像本身。
+# 钉大版本，升级变成我们挑时间主动做的事，而不是某天早上 CI 突然红了。
 on:
   push:
     branches: [main]
@@ -21,7 +26,7 @@ permissions:
 jobs:
   backend:
     name: 后端自测 · Python ${{ matrix.python }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -215,7 +220,7 @@ jobs:
 
   frontend:
     name: 前端自测 · Node ${{ matrix.node }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -297,7 +302,7 @@ jobs:
 
   static:
     name: 静态产物 · 构建 + 只读模式测试
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
 

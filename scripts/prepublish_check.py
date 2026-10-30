@@ -244,7 +244,10 @@ def check_bili(cid, items, manual):
     cover = os.path.join(OUT, "toutiao", cid, "cover.png")
     size = png_size(cover) if os.path.isfile(cover) else None
     if size is None:
-        items.append(("FAIL", "封面", "复用头条 cover.png，但它不存在（python scripts/bilibili_publish.py cover --case %s 补）" % cid))
+        items.append(
+            ("FAIL", "封面",
+             "复用头条 cover.png，但它不存在（python scripts/bilibili_publish.py cover --case %s 补）"
+             % cid))
     elif not ratio_ok(size, 16 / 9):
         items.append(("FAIL", "封面比例", "%dx%d 不是 16:9" % size))
     else:

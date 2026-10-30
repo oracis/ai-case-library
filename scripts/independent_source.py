@@ -27,10 +27,12 @@
     python scripts/independent_source.py             # 跑一遍，落 data/source_audit.json
     python scripts/independent_source.py --write     # 把确认过的写回 cases.json
 
-Google 检索：本机出口对 google.com / googleapis.com 是断的（沙箱代理只放行
-白名单域名，用户自己的 SOCKS 10808 能握手上但转发 RST）。要接进来只需在
-环境变量里给 `CASE_LIB_GOOGLE_KEY` 与 `CASE_LIB_GOOGLE_CX`（Custom Search
-JSON API，免费 100 次/日），脚本会自动多跑一路。
+补源通道（2026-10-29 现状）：itunes / github 两路，都是免 key 的官方接口。
+⚠ Google CSE 通道已按要求整条移除：它要 Google Cloud 项目结算 + 给 key 单独
+授权，实测该 key 打 `/customsearch/v1` 恒返 403「This project does not have
+the access to Custom Search JSON API」（API 显示 Enabled 也一样，key 的 API
+限制没放开同报这句），且 10808 出口成功率只有 2/5。留着一个永远返回 None 的
+通道，只会让「这个产品没有第三方报道」和「通道根本不通」混成同一个结论。
 """
 import argparse
 import json
@@ -201,31 +203,113 @@ def probe_github(name, domain):
     return None
 
 
-def probe_google(name, domain):
-    """Google Custom Search（需 key+cx）。判据：结果的 host 与官网同域，或标题含产品名。"""
-    key = os.environ.get("CASE_LIB_GOOGLE_KEY") or ""
-    cx = os.environ.get("CASE_LIB_GOOGLE_CX") or ""
-    if not (key and cx):
+# HN 命中里这几类不算独立来源：
+#   · news.ycombinator.com 是讨论页本身（UGC，不是报道）
+#   · 社交/视频/创始人自述平台 —— 谁都能发，不构成第三方核实
+HN_EXCLUDE_HOSTS = (
+    "news.ycombinator.com", "reddit.com", "twitter.com", "x.com",
+    "youtube.com", "medium.com", "facebook.com", "linkedin.com",
+    "instagram.com", "substack.com",
+)
+# 聚合/导航站：算第三方页面，但它自己也在转述别人，只能到 aggregator（B 级）
+AGG_HOSTS = ("howtomakemi.com", "getlatka.com", "starterstory.com")
+
+
+def probe_hn(name, domain):
+    """HN Algolia 检索（免 key、直连可达）。
+
+    为什么加这一路：itunes / github 只在「产品恰好上了应用商店或开源」时命中，
+    覆盖率低；而 HN Algolia 是**免费、免鉴权、直连 200** 的 —— 小众海外 SaaS
+    上过 HN 的比例远高于上过应用商店的比例，是唯一能立刻用起来的通用检索通道。
+
+    判据（照抄其它通道的口径）：结果的 host 必须**不是自家域名**、不是 trustmrr、
+    不是社交/UGC 站；命中聚合站则降级标 aggregator，不冒充 press。
+    Show HN 帖是创始人自荐（本库里 founder 只能当方向参考），直接跳过。
+    """
+    if not (name or domain):
         return None
-    q = urllib.parse.urlencode({"key": key, "cx": cx, "q": '"%s" review' % name, "num": 10})
-    try:
-        data = jget("https://www.googleapis.com/customsearch/v1?" + q)
-    except Exception:                                        # noqa: BLE001
-        return None
-    for it in data.get("items") or []:
-        link = it.get("link") or ""
-        h = host_of(link)
-        if not h or any(h == t or h.endswith("." + t) for t in TM_HOSTS):
+    hits = []
+    for q in (name, domain):
+        if not q:
             continue
-        if same_host(link, domain):                          # 自家域名不算第三方
+        try:
+            data = jget("https://hn.algolia.com/api/v1/search?" + urllib.parse.urlencode(
+                {"query": q, "tags": "story", "hitsPerPage": 10}))
+        except Exception:                                    # noqa: BLE001
             continue
-        return {"kind": "press", "url": link,
-                "evidence": "Google CSE 命中第三方页面：%s" % (it.get("title") or "")[:60],
-                "anchor": "q=%s" % name}
+        hits.extend(data.get("hits") or [])
+    for h in hits:
+        title = (h.get("title") or "").strip()
+        if title.lower().startswith("show hn"):              # 创始人自荐，跳过
+            continue
+        link = (h.get("url") or "").strip()
+        host = host_of(link)
+        if not host or same_host(link, domain):              # 自家域名不算第三方
+            continue
+        if any(host == t or host.endswith("." + t) for t in TM_HOSTS + HN_EXCLUDE_HOSTS):
+            continue
+        # 名字撞车校验（见下方 mentions_domain）：先过这一关才谈得上「在讲这个产品」
+        if not (domain and mentions_domain(link, domain)):
+            continue
+        kind = ("aggregator" if any(host == t or host.endswith("." + t)
+                                    for t in AGG_HOSTS) else "press")
+        return {
+            "kind": kind,
+            "url": link,
+            "evidence": "HN 检索命中第三方页面：%s（%s 分 / %s 评论，%s）；"
+                        "页面内引用了官网 %s"
+                        % ((h.get("title") or "")[:52], h.get("points"),
+                           h.get("num_comments"), (h.get("created_at") or "")[:10],
+                           domain),
+            "anchor": "HN story %s，页面引用 %s" % (h.get("objectID"), domain),
+        }
     return None
 
 
-CHANNELS = (("itunes", probe_itunes), ("github", probe_github), ("google", probe_google))
+def mentions_domain(url, domain):
+    """第三方页面里有没有出现产品官网域名 —— **这是 HN 通道的实体锚点**。
+
+    ⚠ 2026-10-29 实测：不做这一步，通道全是假阳性，而且假得理直气壮 ——
+      · 查 `kodo` 命中「Koya Bound – Eight Days on the Kumano Kodo」（104 分），
+        那是**日本熊野古道徒步游记**，跟产品 Kodo AI 毫无关系；
+      · 查 `static-forms` 命中一篇「静态表单被滥用」的观点文，讲的是通用概念。
+    这跟 2026-10-21 弃用 cn.bing 是同一个病：通用检索对海外小 SaaS 全是撞名。
+    所以判据照搬库里已有的锚定思想（iTunes sellerUrl / GitHub homepage 同域）：
+    **第三方页面必须真的引用了产品官网**，否则它只是在聊一个同名的东西。
+
+    抓不到页面（直连 + 系统代理都失败）时不采信 —— 拿不到证据 = 没有证据，
+    这比「看标题像是」安全。评论数、点赞数再高也不替代这一条。
+    """
+    if not (url and domain):
+        return False
+    dom = domain.lower()
+    for proxy in (None, os.environ.get("HTTPS_PROXY") or os.environ.get("https_proxy")):
+        try:
+            body = A.http_get(url, timeout=15, proxy=proxy or None)
+        except Exception:                                    # noqa: BLE001
+            continue
+        if dom in body.lower():
+            return True
+    return False
+
+
+# 顺序：免 key 的先跑（itunes / github 都是公开接口，不需要任何凭据）。
+#
+# ⚠ probe_hn **刻意不在默认链路里**（2026-10-29 实测）：拿 43 条「已人工登记过
+# press/review 第三方来源」的案例做正对照回测，**召回 0** —— 这些产品多数
+# 只在 HN 上有 Show HN 自荐帖（自荐不算独立来源，已跳过），没有指向第三方文章的
+# story。也就是说对这类小众海外 SaaS，HN 这条通道基本捞不到东西。
+#
+# 🚨 分母口径历次记录不一致，2026-10-29 复核后统一写法（别再各写各的）：
+#   日志记「0/32」、本注释旧版写「0/14」，差的其实是**能解析出官网域名的样本数**
+#   （取数方式不同：一个现抓 TrustMRR 档案，一个用案例自带 official 来源）。
+#   复测口径与结果：43 条样本 → 26 条能解析出官网域名 → 其中 20 条在 Algolia 里
+#   检索到「非 Show HN / 非自家 / 非黑名单」的候选链接 → 过 mentions_domain
+#   实体锚定后 **0 命中**。结论不变：召回 0，不进默认链路。
+#   以后要提这条，只写「43 条样本、锚定后 0 命中」+ 上面这条分母说明，别单写分数。
+# 函数和测试都留着：等哪天产品上过 HN 且有第三方讨论，它是免 key 的现成通道；
+# 但在召回率被证明 > 0 之前，不把它算进「补源通道已接通」。
+CHANNELS = (("itunes", probe_itunes), ("github", probe_github))
 
 
 def audit_one(case, cache):

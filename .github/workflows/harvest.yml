@@ -72,7 +72,8 @@ concurrency:
 jobs:
   harvest:
     name: 采集 → 校验 → 提交
-    runs-on: ubuntu-latest
+    # 钉死大版本，理由见 ci.yml 顶部注释（ubuntu-latest 会迁到 Ubuntu 26）
+    runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@v7

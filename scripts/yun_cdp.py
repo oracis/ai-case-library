@@ -40,13 +40,13 @@ ALIYUN_HOME = "https://developer.aliyun.com"
 
 # 编辑器候选 URL（draft 占位）；哪个真加载出编辑器，实测后固化
 TENCENT_CANDIDATES = [
-    "https://cloud.tencent.com/developer/article/edit/{draft}",
-    "https://cloud.tencent.com/developer/article/write/{draft}",
-    "https://console.cloud.tencent.com/developer/article/edit/{draft}",
+    "https://cloud.tencent.com/developer/article/edit/%s",
+    "https://cloud.tencent.com/developer/article/write/%s",
+    "https://console.cloud.tencent.com/developer/article/edit/%s",
 ]
 ALIYUN_CANDIDATES = [
-    "https://developer.aliyun.com/article/edit/{draft}",
-    "https://developer.aliyun.com/article/new#/?draftId={draft}",
+    "https://developer.aliyun.com/article/edit/%s",
+    "https://developer.aliyun.com/article/new#/?draftId=%s",
 ]
 
 # 摘要/封面/社区/图片 相关按钮关键词（只在输出里高亮，绝不点击）
@@ -177,13 +177,11 @@ def run_probe(cdp, tencent_draft, aliyun_draft):
     print("\n=== 编辑器发现 ===")
     if tencent_draft:
         for tpl in TENCENT_CANDIDATES:
-            dump_editor(cdp, "tc_" + str(tencent_draft),
-                        tpl.format(draft=tencent_draft))
+            dump_editor(cdp, "tc_" + str(tencent_draft), tpl % tencent_draft)
         dump_links(cdp, "tc_list", TENCENT_HOME)
     if aliyun_draft:
         for tpl in ALIYUN_CANDIDATES:
-            dump_editor(cdp, "al_" + str(aliyun_draft),
-                        tpl.format(draft=aliyun_draft))
+            dump_editor(cdp, "al_" + str(aliyun_draft), tpl % aliyun_draft)
         dump_links(cdp, "al_list", ALIYUN_HOME)
 
 
@@ -640,7 +638,9 @@ def cmd_tc_edit(args):
             print("    %s | %s" % (t.get("url", "")[:90],
                                    (t.get("title") or "")[:30]))
         editor_pages = [t for t in pages
-                        if t.get("url", "") != "https://cloud.tencent.com/developer/creator/article?type=draft"
+                        if t.get("url", "") != (
+                            "https://cloud.tencent.com/developer/creator/"
+                            "article?type=draft")
                         and not t.get("url", "").startswith("chrome://")]
         if len(pages) > 2 and editor_pages:
             new = editor_pages[-1]

@@ -278,6 +278,80 @@ _FLEX_ROW_RE = re.compile(
     r"<p[^>]*display:\s*flex[^>]*justify-content:\s*space-between[^>]*>"
     r"(.*?)</p>", re.S | re.I)
 
+# 真 <table> 的三段式：表 → 行 → 单元格（th/td 都要，表头靠它识别）
+_TABLE_RE = re.compile(r"<table[^>]*>(.*?)</table>", re.S | re.I)
+_TR_RE = re.compile(r"<tr[^>]*>(.*?)</tr>", re.S | re.I)
+_CELL_RE = re.compile(r"<t([hd])(?:\s[^>]*)?>(.*?)</t\1>", re.S | re.I)
+
+
+def _kv_blockquote(kv):
+    """把 [(标签, 值), ...] 拼成 B站能看的键值块。
+
+    flex 伪表格与真 <table> **共用这一套**（2026-10-29 抽出来）：槽位、对齐、
+    包块规则只此一处，改一处两条通道同时生效，不会再各写一份漂移。
+
+    对齐用**表意空格 U+3000 补齐**：它在中文字体里恒为 1em，与一个中文字符
+    完全等宽，是唯一不依赖字体宽度假设的填充物。半角空格会随字体浮动
+    （实测 `造得出来 ｜ 3/5` 与 `够得着客户 ｜ 3/5` 竖线对不齐），全角空格
+    宽度又 ≠ 2 个半角，都试过并淘汰，别往回退。
+
+    ⚠ 补格下限必须是 0 而不是 1 —— 下限 1 会让「标签宽度已经等于槽位」的
+    那一行（每组都至少有一行）凭空多出 1 格，｜ 就比别的行右移一点。
+    """
+    if not kv:
+        return ""
+    # 槽位 = 组内最长标签宽度（半角口径），封顶 12 防超长标签撑爆行宽
+    slot = min(12, max(_display_width(k) for k, _ in kv))
+    if len(kv) == 1:
+        # 只有一行就别包块了（一个 blockquote 包单行没意义）
+        k, v = kv[0]
+        return "<p>%s ｜ <strong>%s</strong></p>" % (k, v) if v \
+            else "<p>%s</p>" % k
+    lines = []
+    for k, v in kv:
+        gap = max(0, slot - _display_width(k))
+        if gap % 2 == 0:
+            # 偶数（纯中文标签的常态）⇒ 整除为 U+3000，宽度确定
+            pad = "\u3000" * (gap // 2)
+        else:
+            # 含半角字符导致除不尽 ⇒ 退回半角空格，并保证至少 1 格间隔
+            pad = "\u3000" * (gap // 2) + " " * (1 + gap % 2)
+        lines.append("<p>%s%s ｜ <strong>%s</strong></p>"
+                     % (k, pad, v) if v else "<p>%s</p>" % k)
+    return "<blockquote>" + "".join(lines) + "</blockquote>"
+
+
+def _tables_to_kv_block(body):
+    """真 `<table>` → 键值块（2026-10-29 补）。
+
+    为什么需要这一步：B站**没有表格**——工具栏无表格按钮、`draft/add` 的
+    `para_type` 枚举里没有表格类型、insertHTML 灌 `<table>` 会被整体降级成
+    一个 `<p>`、单元格粘成一串（详见 `_flex_rows_to_kv_block` docstring）。
+    公众号模板走 flex 伪装，所以 2026-09-30 的版本只认 flex；但**手写稿**
+    （如 `out/articles/mcdpoints.html`）会直接写 `<table>`，不转就等于把一张
+    真表格塞进 B站编辑器，线上表现比不排版还糟。
+
+    表头行（整行都是 `<th>`）直接丢弃：键值块左列已经是标签，表头是冗余的。
+    超过两列时把第 2 列之后的单元格用「·」并进值列，不丢信息。
+    """
+
+    def _one(m):
+        kv = []
+        for rw in _TR_RE.findall(m.group(1)):
+            cells = _CELL_RE.findall(rw)
+            if not cells:
+                continue
+            if all(tag.lower() == "h" for tag, _c in cells):
+                continue                       # 表头行，键值块不需要
+            vals = [re.sub(r"<[^>]+>", "", c).strip() for _tag, c in cells]
+            k = vals[0]
+            v = " · ".join(x for x in vals[1:] if x)
+            if k or v:
+                kv.append((k, v))
+        return _kv_blockquote(kv)
+
+    return _TABLE_RE.sub(_one, body)
+
 
 def _flex_rows_to_kv_block(body):
     """把公众号的「flex 伪表格」转成 B站能看的键值块。
@@ -340,34 +414,7 @@ def _flex_rows_to_kv_block(body):
             v = re.sub(r"<[^>]+>", "", sp[-1]).strip()
             if k or v:
                 kv.append((k, v))
-        if not kv:
-            return ""
-        lines = []
-        # 分隔符：视觉锚点，把标签列和值列切开（正文里很醒目，不喧宾夺主）
-        SEP = "｜"
-        # 槽位 = 组内最长标签宽度（半角口径），封顶 12 防超长标签撑爆行宽
-        slot = min(12, max(_display_width(k) for k, _ in kv))
-        if len(kv) == 1:
-            # 只有一行就别包块了（一个 blockquote 包单行没意义）
-            k, v = kv[0]
-            return "<p>%s ｜ <strong>%s</strong></p>" % (k, v) if v \
-                else "<p>%s</p>" % k
-        for k, v in kv:
-            # 标签**右对齐到槽位**：补表意空格（U+3000，恒 1em）到 slot 宽。
-            # ⚠ 下限必须是 0 而不是 1 —— 下限 1 会让「标签宽度已经等于 slot」
-            #   的那一行（每组都至少有一行）凭空多出 1 格，
-            #   ｜ 就比别的行右移一点，正是要消灭的那种参差。
-            #   最短的一行照样是 slot 宽，分隔符前的那个空格保证还有间隔。
-            gap = max(0, slot - _display_width(k))
-            if gap % 2 == 0:
-                # 偶数（纯中文标签的常态）⇒ 整除为 U+3000，宽度确定
-                pad = "\u3000" * (gap // 2)
-            else:
-                # 含半角字符导致除不尽 ⇒ 退回半角空格，并保证至少 1 格间隔
-                pad = "\u3000" * (gap // 2) + " " * (1 + gap % 2)
-            lines.append("<p>%s%s ｜ <strong>%s</strong></p>"
-                         % (k, pad, v) if v else "<p>%s</p>" % k)
-        return "<blockquote>" + "".join(lines) + "</blockquote>"
+        return _kv_blockquote(kv)
 
     return _FLEX_BLOCK_RE.sub(_one, body)
 
@@ -438,6 +485,9 @@ def clean_body(html):
     # flex 伪表格 → 键值 blockquote（**必须在去 style/剥 span 之前**，
     # 否则识别特征没了。37/37 全有这种表，详见函数 docstring）
     body = _flex_rows_to_kv_block(body)
+    # 真 <table> → 键值块（2026-10-29 补：手写稿会直接写 table，公众号模板
+    # 才用 flex 伪装。两条通道共用 _kv_blockquote，样式天然一致）
+    body = _tables_to_kv_block(body)
     # h2/h3 小标题 → 加粗段落（B站没有标题功能，见 docstring）
     body = _heading_to_bold(body)
     # 去所有 style 属性
@@ -462,6 +512,10 @@ def clean_body(html):
     # 空段（正常段只有 29px）；把标签间空白全压掉后同样的内容只剩
     # 2514px、段落间距回到 B站 统一的 24px。⚠ 只压标签**之间**的空白，
     # 段内文字之间的空白要留着（<p>a b</p> 中间那个空格是正文内容）。
+    # ⚠ 2026-10-29 补：手写稿常见 `<br>\n2. 枚举…` 这种形态——换行夹在
+    # `<br>` 和**文字**之间，`>\s+<` 抓不到（下一个字符不是 `<`），
+    # mcdpoints 一条就是这么漏进来的。先单独把 `<br>` 后的空白压掉。
+    body = re.sub(r"(<br\s*/?>)[ \t\r\n]+", r"\1", body)
     body = re.sub(r">[ \t\r\n]+<", "><", body)
     return body.strip()
 
@@ -1768,6 +1822,108 @@ def send_draft(cdp=None, dry=False, cid=None):
                 pass
 
 
+def cmd_draft(args):
+    """把**外部 markdown**（不走 cases.json 的独立稿）存成 B站专栏草稿。
+
+    为什么加它（2026-10-30）：像 open-source-games 这种外部项目，选题稿在它
+    自己仓库的 `content/` 下，本仓库 `cases.json` 里没有对应 case ⇒
+    `publish --case` 认不到，喂不进去。这里给一条「只吃文件」的最小入口。
+
+    只建草稿，不发布（发布仍走 `send-draft`，额度 1 篇/天）。
+    成功时打印 `ARTICLE_ID=<aid>`，供上游脚本解析。
+
+    ⚠ 刻意**不调 `_record_draft()`**：那份台账记的是本仓库 cases.json 的
+      case，外部稿记进去只会让 `_load_manifest()` 的幂等判断失真。
+
+    md → HTML 复用 `toutiao_publish` 的 `md_to_blocks` / `blocks_to_html`
+    （已经是全库统一的那一套，别另造）；`build_arg` 只做段落级映射，
+    行内粗体会丢，这对外部稿是够的。
+    """
+    md_path = args.file
+    if not os.path.isfile(md_path):
+        raise SystemExit("✗ Markdown 不存在：%s" % md_path)
+    with open(md_path, encoding="utf-8") as f:
+        md = f.read()
+    import toutiao_publish as tt          # 局部 import：避免两个模块互相拉起
+    md, dropped = tt.strip_source_links(md)
+    title = (args.title or tt.md_title(md) or "").strip()
+    if not title:
+        raise SystemExit("✗ 拿不到标题：md 里没有「# 标题」，也没给 --title")
+    if len(title) > 40:
+        print("  [warn] 标题 %d 字 > B站上限 40，已截断" % len(title))
+        title = title[:40]
+    body = tt.blocks_to_html(tt.md_to_blocks(md), footer=False)
+    plain = re.sub(r"<[^>]+>", "", body)
+    print("B站专栏草稿：%s" % os.path.relpath(md_path, ROOT))
+    print("  标题 = %s（%d 字）" % (title, len(title)))
+    print("  正文 = %d 字" % len(plain))
+    if dropped:
+        print("  已剥离 %d 处源码外链：B站对站外导流零容忍" % dropped)
+    risk = risk_check(title + plain)
+    if risk:
+        # ⚠ 只警告、不硬拦（2026-10-30）：外部稿的正文来自**数据原文**，
+        #   实测命中过「小到可完整塞进一个二维码里」（某款游戏的简介），
+        #   那根本不是本项目的导流文案。硬拦会让外部稿永远建不了草稿，
+        #   而文案又不许编造 ⇒ 降级成提示，交人工终审判断。
+        print("  [warn] 命中风险词：%s（外部稿多来自数据原文，发布前人工确认）"
+              % risk)
+    if len(plain) < 200:
+        print("  ✗ 正文仅 %d 字（B站专栏建议 ≥300），跳过" % len(plain))
+        return 1
+    if args.dry:
+        print("  [dry] 不开浏览器、不建草稿")
+        print("  正文前 120 字：%s" % tt.strip_md(plain)[:120].replace("\n", " "))
+        return 0
+    cdp = wp.CDP(PUB_PORT)
+    try:
+        _api_tab(cdp)
+        # --cover（2026-10-30）：建草稿时就传封面图上 B站图床，URL 塞进
+        # image_urls —— `_cover_of()` 认 image_urls/origin_image_urls，
+        # 发布时就不会再走 `save_via_api(refresh_cover=True)` 补封面那条路
+        #（那条路有 risk_check 硬拦，外部稿数据原文可能误中，见 cmd_draft
+        #  上面的 warn 注释）。
+        image_urls = None
+        cov = getattr(args, "cover", None)
+        if cov:
+            if not os.path.isfile(cov):
+                print("  [warn] 封面文件不存在，草稿将无封面：%s" % cov)
+            else:
+                curl = bili_api.upload_cover(cdp, cov)
+                if curl:
+                    image_urls = [curl]
+                    print("  ✓ 封面已传图床：%s" % curl[:72])
+                else:
+                    print("  [warn] 封面上传失败，草稿将无封面（发布时会再补）")
+        arg = bili_api.build_arg(title, body, image_urls=image_urls)
+        out = bili_api.save_draft(cdp, arg)
+        if not isinstance(out, dict) or out.get("code") != 0:
+            print("  ✗ draft/add 失败：%s"
+                  % json.dumps(out, ensure_ascii=False)[:200])
+            return 1
+        aid = (out.get("data") or {}).get("article_id")
+        if not aid:
+            print("  ✗ draft/add 没回 article_id：%s"
+                  % json.dumps(out, ensure_ascii=False)[:200])
+            return 1
+        # 回读校验：「点了保存」≠「存上了」（2026-09-30 UI 路线栽过这个坑）
+        time.sleep(1.5)
+        after = bili_api.view_draft(cdp, aid)
+        got = (after.get("content") or "")
+        if not got.strip():
+            print("  ✗ 回读校验失败：草稿正文是空的（aid=%s）" % aid)
+            return 1
+        paras = len(arg["opus"]["content"]["paragraphs"])
+        print("  ✓ 已存草稿 aid=%s《%s》正文 %d 字 / %d 段"
+              % (aid, title, len(got), paras))
+        print("ARTICLE_ID=%s" % aid)
+        return 0
+    finally:
+        try:
+            cdp.close()
+        except Exception:                      # noqa: BLE001
+            pass
+
+
 def _cover_present(cdp, tid):
     """当前草稿是否已有自定义封面（DOM 层面）。
 
@@ -2427,6 +2583,19 @@ def main():
     s.add_argument("--dry", action="store_true",
                    help="只开到编辑器看发布按钮能不能点（补不补封面、点不点发布"
                         "都不做）")
+    dr = sub.add_parser(
+        "draft",
+        help="把**外部 markdown**（不走 cases.json）存成专栏草稿；成功打印 "
+             "ARTICLE_ID=<aid>。给外部项目（如 open-source-games）用，"
+             "2026-10-30 新增")
+    dr.add_argument("--file", required=True, help="Markdown 路径")
+    dr.add_argument("--title", default=None,
+                    help="覆盖标题（缺省取 md 首个「# 」；超 40 字截断）")
+    dr.add_argument("--cover", default=None,
+                    help="封面图路径（PNG/JPG）；传了就建草稿时上传图床并"
+                         "写进 image_urls，发布时不用再补封面。2026-10-30 新增")
+    dr.add_argument("--dry", action="store_true",
+                    help="只打印将要创建什么，不开浏览器")
     args = ap.parse_args()
 
     # 127.0.0.1 必须绕开系统代理，否则 websocket 连 Chrome 调试端口会被掐
@@ -2444,7 +2613,10 @@ def main():
     # 带 --no-sandbox 起 Chrome for Testing → 轮询端口）。
     # 不做这步的话，Chrome 没起时只会报「连不上 9222」让人自己去开浏览器。
     # `build` 是纯离线（只拼 HTML），不需要浏览器。
-    if args.cmd != "build":
+    # ⚠ `draft --dry` 同理（2026-10-30）：只打印将要建什么，起 Chrome 既慢
+    #    又和「dry 不开浏览器」的承诺不符。
+    if args.cmd != "build" and not (args.cmd == "draft"
+                                   and getattr(args, "dry", False)):
         try:
             # ⚠ B站的登录态在 `chrome-debug-profile`，**不是**公众号那个
             # ChromeCDP。拿错 profile 的症状：CDP 连得上、页面能开，
@@ -2499,6 +2671,11 @@ def main():
         # --dry 是「问今天能不能发」，不是一次尝试 —— 答案已经在打印里了，
         # 再退 1 会把「额度用完」和「脚本崩了」混成一回事。
         if not ok and not args.dry:
+            sys.exit(1)
+    elif args.cmd == "draft":
+        # 外部稿入口（2026-10-30）：只建草稿，不发。失败必须退非零，
+        # 上游 bridge.py 靠它判断「草稿真的建了」。
+        if cmd_draft(args):
             sys.exit(1)
     else:
         ap.print_help()

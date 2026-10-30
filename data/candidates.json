@@ -1,536 +1,2300 @@
 [
   {
-    "id": "private-venture-1",
-    "name": "Private Venture（榜单条目 1）",
-    "name_en": "Private Venture",
-    "origin": "未披露",
-    "one_liner": "近 30 天已验证收入 $1406，提供付费的 Astro + Tailwind 网站模板。",
-    "category": "未分类",
-    "verification": "partial",
-    "metrics": {
-      "headline": "收入 $34K / 售价 $1M / 倍数 2.5x（TrustMRR 市场挂牌）",
-      "all_time": 5162.3
-    },
+    "id": "pluma",
+    "name": "Pluma",
+    "name_en": "Pluma",
+    "origin": "巴西",
+    "one_liner": "Pluma is a modern personal finance app for individuals and founders who want automatic, no-effort money management. It connects to banks, categorizes transactions with AI, tracks subscriptions and credit cards, and provides a clean 360° fin",
+    "category": "垂直行业 SaaS",
     "models": [
       "交易市场"
     ],
-    "note": "挂牌价 $1M，是市场上较大的标的之一。收入 $34K / 2.5x。卖家创始人署名 david（榜单另一处显示 $249,498）。需要先确认这两个「Private Venture」是否同一实体。",
-    "blocking": "需先确认榜单中两条 Private Venture 是否重复",
-    "added_at": "2026-09-11",
-    "source_kind": "discovery",
-    "source_url": "https://trustmrr.com/startup/private-venture",
-    "trustmrr_slug": "private-venture",
-    "what_it_does": "提供付费的 Astro + Tailwind 网站模板，由个人开发者 Claudiu 于 2026 年 6 月 1 日成立，非订阅制，通过 Lemon Squeezy 支付网关进行收入同步。",
-    "how_it_makes_money": "模板定价从 $39 开始，毛利率高达 95%，客单价无法推算。",
-    "verdict": "它卖的不是模板，是快速建站的能力。",
-    "why_it_works": [
-      "模板定价从 $39 开始，满足了用户对快速建站的需求；",
-      "高毛利率保证了盈利空间；",
-      "95% 的毛利率表明产品具有强大的竞争力。"
+    "source_url": "https://trustmrr.com/startup/pluma",
+    "website": "https://pluma.finance/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2025-08-21",
+    "founder_name": "Lucca Cerf",
+    "trustmrr_slug": "pluma",
+    "trade": {
+      "price": "$36,000",
+      "multiple": "2.90x",
+      "revenue": "$1,032"
+    },
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 1400.0,
+      "last_30d_revenue": 1127.0,
+      "all_time": 14372.0,
+      "subscriptions": 213,
+      "growth_30d": 6.7,
+      "mrr_growth_30d": 6.7,
+      "revenue_growth_30d": -3.1,
+      "headline": "MRR $1,400，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $1,400（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $1,127、累计 $14,372、付费订阅 213 户。最近完整月环比 +4.5%（已剔除当月残月）。近 30 天 MRR 增速 +6.7%。⚠ 同期收入增速为 -3.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $2,057 → 最近完整月 $1,209，留存 59%。挂牌 $36,000、倍数 2.90x（要价不等于收入）。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $1,400），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T08:54:25.153Z"
+  },
+  {
+    "id": "screenshot-to-code-whimsyworks-inc",
+    "name": "Screenshot to Code (WhimsyWorks, Inc.)",
+    "name_en": "Screenshot to Code (WhimsyWorks, Inc.)",
+    "origin": "美国",
+    "category": "AI 工具",
+    "models": [
+      "交易市场"
     ],
-    "playbook": [
-      "提供多样化的模板选择，满足不同用户的需求；",
-      "通过社交媒体和内容营销推广产品；",
-      "保持产品更新，确保其与最新技术保持同步。"
+    "source_url": "https://trustmrr.com/startup/screenshot-to-code-whimsyworks-inc",
+    "website": "https://screenshottocode.com/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2023-11-18",
+    "founder_name": "Abi Raja",
+    "trustmrr_slug": "screenshot-to-code-whimsyworks-inc",
+    "trade": {
+      "price": "$32,000",
+      "multiple": "0.60x",
+      "revenue": "$4,451"
+    },
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 4478.0,
+      "last_30d_revenue": 4188.0,
+      "all_time": 261956.0,
+      "subscriptions": 297,
+      "growth_30d": -10.4,
+      "mrr_growth_30d": -10.4,
+      "revenue_growth_30d": -10.4,
+      "headline": "MRR $4,478，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $4,478（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $4,188、累计 $261,956、付费订阅 297 户。最近完整月环比 -5.9%（已剔除当月残月）。近 30 天 MRR 增速 -10.4%。⚠ 历史峰值 $6,478 → 最近完整月 $4,727，留存 73%。挂牌 $32,000、倍数 0.60x（要价不等于收入）。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $4,598），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T12:39:34.470Z",
+    "independent_check": {
+      "checked_at": "2026-10-28",
+      "method": "entity-anchor（iTunes sellerUrl / GitHub repo.homepage 必须与官网同域）+ 手动 WebFetch 复核",
+      "site": {
+        "url": "https://screenshottocode.com/",
+        "status": 0,
+        "err": "本机 urllib 直连与沙箱代理均失败（Tunnel 502 / read timeout）；WebFetch 通道亦 fetch failed"
+      },
+      "third_party": [
+        {
+          "kind": "github",
+          "url": "https://github.com/abi/screenshot-to-code",
+          "evidence": "GitHub 仓库 abi/screenshot-to-code：★80,842，最近推送 2026-10-27，仓库 homepage 字段 = https://screenshottocode.com",
+          "anchor": "homepage=https://screenshottocode.com",
+          "strength": "anchor"
+        }
+      ],
+      "verdict": "anchor",
+      "note": "唯一拿到实体锚点的一条。官网从本机不可达 ≠ 产品下架：仓库昨日仍有推送、★8 万，反证产品存活。"
+    },
+    "sources": [
+      {
+        "label": "独立平台页（实体锚点） ｜ GitHub 仓库 abi/screenshot-to-code：★80,842，最近推送 2026-10-27，仓库 homepage 字",
+        "url": "https://github.com/abi/screenshot-to-code",
+        "kind": "github"
+      }
+    ]
+  },
+  {
+    "id": "selltora",
+    "name": "SELLTORA",
+    "name_en": "SELLTORA",
+    "origin": "英国",
+    "one_liner": "Selltora is an AI growth platform that automates everything from product research to Pinterest traffic for Etsy and e-commerce sellers. It's a traffic engine you don't have to be a \"Pinterest creator\" to use: if your goal is customers for y",
+    "category": "AI 工具",
+    "models": [
+      "交易市场"
     ],
-    "replicability": {
-      "tech": 3,
-      "distribution": 3,
-      "capital": 1,
-      "timing": 3
+    "source_url": "https://trustmrr.com/startup/selltora",
+    "website": "https://www.selltora.com/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2026-03-08",
+    "trustmrr_slug": "selltora",
+    "trade": {
+      "price": "$15,000",
+      "multiple": "2.70x",
+      "revenue": "$468"
+    },
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 537.0,
+      "last_30d_revenue": 418.0,
+      "all_time": 2266.0,
+      "subscriptions": 24,
+      "growth_30d": -26.7,
+      "mrr_growth_30d": -26.7,
+      "revenue_growth_30d": -42.9,
+      "headline": "MRR $537，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $537（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $418、累计 $2,266、付费订阅 24 户。最近完整月环比 +153.3%（已剔除当月残月）。近 30 天 MRR 增速 -26.7%。⚠ 同期收入增速为 -42.9%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $846 → 最近完整月 $846，留存 100%。挂牌 $15,000、倍数 2.70x（要价不等于收入）。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $611），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T11:25:01.738Z"
+  },
+  {
+    "id": "social-genius-text-analyzer",
+    "name": "Social Genius: Text Analyzer",
+    "name_en": "Social Genius: Text Analyzer",
+    "one_liner": "Social Genius is an AI-powered texting coach that helps you understand how your messages really sound before you send them. Whether you're texting your crush, partner, or someone you're interested in,",
+    "category": "AI 工具",
+    "models": [
+      "交易市场"
+    ],
+    "source_url": "https://trustmrr.com/startup/social-genius-text-analyzer",
+    "website": "https://apps.apple.com/us/app/social-genius-text-analyzer/id6776793403?uo=4",
+    "harvest_source": "trustmrr",
+    "founded_at": "2026-08-15",
+    "founder_x": "muhammadxwaqas",
+    "founder_name": "wicky",
+    "trustmrr_slug": "social-genius-text-analyzer",
+    "trade": {
+      "price": "$25,000",
+      "multiple": "2.37x",
+      "revenue": "$879"
+    },
+    "source_kind": "verified",
+    "added_at": "2026-10-26",
+    "metrics": {
+      "mrr": 384.0,
+      "last_30d_revenue": 1008.0,
+      "all_time": 1452.0,
+      "subscriptions": 34,
+      "growth_30d": 248.7,
+      "mrr_growth_30d": 248.7,
+      "revenue_growth_30d": 317.4,
+      "headline": "MRR $384，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $384（TrustMRR 从支付网关 API 直读，2026-10-28 同步，RevenueCat (API key)）。近 30 天收入 $1,008、累计 $1,452、付费订阅 34 户。最近完整月环比 +96.6%（已剔除当月残月）。近 30 天 MRR 增速 +248.7%。⚠ 同期收入增速为 +317.4%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $342 → 最近完整月 $342，留存 100%。挂牌 $25,000、倍数 2.37x（要价不等于收入）。⚠ 队列缓存值是 2026-10-26 采集时的快照（当时 $438），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（RevenueCat (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T12:50:28.389Z"
+  },
+  {
+    "id": "stampsnap",
+    "name": "StampSnap",
+    "name_en": "StampSnap",
+    "origin": "西班牙",
+    "one_liner": "Take one clear photo to get a likely identification, issue details, and an estimated value range. Save the result, ask follow-up questions, and keep your collection searchable.",
+    "category": "移动应用",
+    "models": [
+      "交易市场"
+    ],
+    "source_url": "https://trustmrr.com/startup/stampsnap",
+    "website": "http://stampsnap.app",
+    "harvest_source": "trustmrr",
+    "founder_x": "nitodev91",
+    "founder_name": "Nito",
+    "trustmrr_slug": "stampsnap",
+    "trade": {
+      "price": "$17,000",
+      "multiple": "2.31x",
+      "revenue": "$612"
+    },
+    "source_kind": "verified",
+    "added_at": "2026-10-26",
+    "metrics": {
+      "mrr": 401.0,
+      "last_30d_revenue": 651.0,
+      "all_time": 7336.0,
+      "subscriptions": 105,
+      "growth_30d": 17.5,
+      "mrr_growth_30d": 17.5,
+      "revenue_growth_30d": 56.6,
+      "headline": "MRR $401，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $401（TrustMRR 从支付网关 API 直读，2026-10-28 同步，RevenueCat (API key)）。近 30 天收入 $651、累计 $7,336、付费订阅 105 户。最近完整月环比 -39.6%（已剔除当月残月）。近 30 天 MRR 增速 +17.5%。⚠ 同期收入增速为 +56.6%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $642 → 最近完整月 $346，留存 54%。挂牌 $17,000、倍数 2.31x（要价不等于收入）。⚠ 队列缓存值是 2026-10-26 采集时的快照（当时 $431），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（RevenueCat (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T12:49:57.933Z"
+  },
+  {
+    "id": "static-forms",
+    "name": "Static Forms",
+    "name_en": "Static Forms",
+    "origin": "阿联酋",
+    "one_liner": "The form backend that replies for you. Connect an HTML form to collect submissions without server code. Manage messages in a shared inbox, filter spam, receive files, and route submissions to email, w",
+    "category": "开发者工具",
+    "models": [
+      "交易市场"
+    ],
+    "source_url": "https://trustmrr.com/startup/static-forms",
+    "website": "https://www.staticforms.dev",
+    "harvest_source": "trustmrr",
+    "founded_at": "2020-05-01",
+    "founder_x": "hussainanjar",
+    "founder_name": "Hussain Fakhruddin",
+    "trustmrr_slug": "static-forms",
+    "trade": {
+      "price": "$40,000",
+      "multiple": "3.85x",
+      "revenue": "$866"
+    },
+    "source_kind": "verified",
+    "added_at": "2026-10-26",
+    "metrics": {
+      "mrr": 1005.0,
+      "last_30d_revenue": 1004.0,
+      "all_time": 9487.0,
+      "subscriptions": 126,
+      "growth_30d": 7.7,
+      "mrr_growth_30d": 7.7,
+      "revenue_growth_30d": -11.5,
+      "headline": "MRR $1,005，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $1,005（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $1,004、累计 $9,487、付费订阅 126 户。最近完整月环比 +22.7%（已剔除当月残月）。近 30 天 MRR 增速 +7.7%。⚠ 同期收入增速为 -11.5%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $1,886 → 最近完整月 $1,150，留存 61%。挂牌 $40,000、倍数 3.85x（要价不等于收入）。⚠ 队列缓存值是 2026-10-26 采集时的快照（当时 $994），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T08:07:48.203Z"
+  },
+  {
+    "id": "supascribe",
+    "name": "Supascribe",
+    "name_en": "Supascribe",
+    "origin": "新西兰",
+    "one_liner": "Suite of growth tools for Substack Newsletters",
+    "category": "营销工具",
+    "models": [
+      "交易市场"
+    ],
+    "source_url": "https://trustmrr.com/startup/supascribe",
+    "website": "https://supascribe.com",
+    "harvest_source": "trustmrr",
+    "founded_at": "2025-05-19",
+    "founder_x": "0xgideon",
+    "founder_name": "Gideon Wislang",
+    "trustmrr_slug": "supascribe",
+    "trade": {
+      "price": "$75,000",
+      "multiple": "2.09x",
+      "revenue": "$2,993"
+    },
+    "source_kind": "verified",
+    "added_at": "2026-10-26",
+    "metrics": {
+      "mrr": 2424.0,
+      "last_30d_revenue": 3101.0,
+      "all_time": 29457.0,
+      "subscriptions": 159,
+      "growth_30d": 1.3,
+      "mrr_growth_30d": 1.3,
+      "revenue_growth_30d": 54.8,
+      "headline": "MRR $2,424，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $2,424（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $3,101、累计 $29,457、付费订阅 159 户。最近完整月环比 +40.2%（已剔除当月残月）。近 30 天 MRR 增速 +1.3%。⚠ 同期收入增速为 +54.8%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $4,084 → 最近完整月 $2,267，留存 56%。挂牌 $75,000、倍数 2.09x（要价不等于收入）。⚠ 队列缓存值是 2026-10-26 采集时的快照（当时 $2,415），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T12:44:46.129Z",
+    "independent_check": {
+      "checked_at": "2026-10-28",
+      "method": "entity-anchor（iTunes sellerUrl / GitHub repo.homepage 必须与官网同域）+ 手动 WebFetch 复核",
+      "site": {
+        "url": "https://supascribe.com",
+        "status": 0,
+        "err": "read timeout（本机直连与代理均失败）；WebFetch 可读"
+      },
+      "third_party": [
+        {
+          "kind": "aggregator",
+          "url": "https://tg4g.com/en/listing/supascribe-com",
+          "evidence": "第三方目录站收录并拆解定价（Free/$9 Starter/$20 Growth/$249 Pro、$2/万次浏览超额），但自述「compiled from public sources」、提供方标为 Unknown",
+          "anchor": "条目 slug 与域名一致（supascribe.com）",
+          "strength": "aggregator"
+        },
+        {
+          "kind": "review",
+          "url": "https://upvote.club/best-free-substack-growth-tools",
+          "evidence": "第三方清单文列有 Supascribe 免费额度（前 100 订阅 / 1,000 浏览）",
+          "anchor": "文内点名 + 免费额度与官网一致",
+          "strength": "mention"
+        }
+      ],
+      "verdict": "aggregator_only",
+      "note": "没有可锚定的独立页面；聚合站内容是机器汇编，不足以撑「已核实」。⚠ 另发现官网新旧两个版本定价并存（老版 www：$19/$99；新版：$9/$20/$249），引用必须注时点。"
     }
   },
   {
-    "id": "plausible",
-    "name": "Plausible Analytics",
-    "name_en": "Plausible Analytics",
-    "origin": "爱沙尼亚（欧盟）",
-    "one_liner": "开源隐私友好的轻量网站分析，AGPL + 云托管订阅，自举三年做到 $1M ARR。",
-    "category": "analytics",
+    "id": "videototext",
+    "name": "VideoToText",
+    "name_en": "VideoToText",
+    "origin": "乌克兰",
+    "one_liner": "Android app for transcribing video and audio to text. Organic growth. No ads or marketing.",
+    "category": "AI 工具",
+    "models": [
+      "交易市场"
+    ],
+    "source_url": "https://trustmrr.com/startup/videototext",
+    "website": "https://play.google.com/store/apps/details?id=com.videototexthav.videototext",
+    "harvest_source": "trustmrr",
+    "founded_at": "2025-05-21",
+    "founder_name": "Vladyslav \\| Mobile Apps",
+    "trustmrr_slug": "videototext",
+    "trade": {
+      "price": "$16,000",
+      "multiple": "2.00x",
+      "revenue": "$656"
+    },
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 720.0,
+      "last_30d_revenue": 626.0,
+      "all_time": 11673.0,
+      "subscriptions": 49,
+      "growth_30d": -27.8,
+      "mrr_growth_30d": -27.8,
+      "revenue_growth_30d": -35.0,
+      "headline": "MRR $720，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $720（TrustMRR 从支付网关 API 直读，2026-10-28 同步，RevenueCat (API key)）。近 30 天收入 $626、累计 $11,673、付费订阅 49 户。最近完整月环比 -1.9%（已剔除当月残月）。近 30 天 MRR 增速 -27.8%。⚠ 同期收入增速为 -35.0%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $1,392 → 最近完整月 $926，留存 67%。挂牌 $16,000、倍数 2.00x（要价不等于收入）。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $691），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（RevenueCat (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T10:38:54.066Z"
+  },
+  {
+    "id": "volume-booster-louder-sound",
+    "name": "Volume Booster: Louder Sound",
+    "name_en": "Volume Booster: Louder Sound",
+    "one_liner": "Volume Booster helps you make quiet videos and audio files louder directly on your iPhone or iPad. | About 3,000 downloads a month from App Store search. We have never spent money on ads. | No servers",
+    "category": "企业服务",
+    "models": [
+      "交易市场"
+    ],
+    "source_url": "https://trustmrr.com/startup/volumebooster",
+    "website": "https://apps.apple.com/us/app/volume-booster-louder-sound/id6785146600?uo=4",
+    "harvest_source": "trustmrr",
+    "founded_at": "2025-04-01",
+    "founder_x_followers": "0",
+    "trustmrr_slug": "volumebooster",
+    "trade": {
+      "price": "$7,500",
+      "multiple": "1.22x",
+      "revenue": "$512"
+    },
+    "source_kind": "verified",
+    "added_at": "2026-10-26",
+    "metrics": {
+      "mrr": 321.0,
+      "last_30d_revenue": 452.0,
+      "all_time": 975.0,
+      "subscriptions": 40,
+      "growth_30d": 53.3,
+      "mrr_growth_30d": 53.3,
+      "revenue_growth_30d": 21.5,
+      "headline": "MRR $321，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $321（TrustMRR 从支付网关 API 直读，2026-10-28 同步，RevenueCat (API key)）。近 30 天收入 $452、累计 $975、付费订阅 40 户。最近完整月环比 +157.8%（已剔除当月残月）。近 30 天 MRR 增速 +53.3%。⚠ 同期收入增速为 +21.5%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $428 → 最近完整月 $428，留存 100%。挂牌 $7,500、倍数 1.22x（要价不等于收入）。⚠ 队列缓存值是 2026-10-26 采集时的快照（当时 $369），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（RevenueCat (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T12:52:28.745Z"
+  },
+  {
+    "id": "adverse-monitor",
+    "name": "Adverse Monitor",
+    "name_en": "Adverse Monitor",
+    "origin": "马来西亚",
+    "one_liner": "Real-time Cyber threat intelligence for everyone. Track ransomware, breaches & threat actors in the dark web.",
+    "category": "security",
     "models": [
       "订阅制"
     ],
-    "verification": "official",
-    "source_kind": "official",
-    "source_url": "https://plausible.io/blog/open-source-saas",
-    "website": "https://plausible.io",
+    "source_url": "https://trustmrr.com/startup/adverse-monitor",
+    "website": "https://adversemonitor.com/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2025-08-31",
+    "founder_name": "AdverseMonitor",
+    "trustmrr_slug": "adverse-monitor",
+    "source_kind": "verified",
     "added_at": "2026-10-22",
-    "promoted_from_inbox": null,
     "metrics": {
-      "headline": "ARR $1M（2022-06，官方口径）",
-      "caliber": "arr_self_disclosed",
-      "arr": 1000000,
-      "mrr": 83637,
-      "metric_note": "口径：ARR 为创始人 2022-06 官方博客披露的里程碑（$83,637 MRR = $1.003M ARR），非订阅快照而是历史时点；7,000+ 付费订阅、50,000+ 网站在用、月 10 亿+ 页面浏览（同源披露）。当前 ARR 未再公开，第三方 2025 年估 $1M+ 仅作参照，不作案例数字。"
+      "mrr": 356.0,
+      "last_30d_revenue": 0.0,
+      "all_time": 3985.0,
+      "subscriptions": 2,
+      "growth_30d": 0.0,
+      "mrr_growth_30d": 0.0,
+      "revenue_growth_30d": 0.0,
+      "headline": "MRR $356，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $356（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $0、累计 $3,985、付费订阅 2 户。最近完整月环比 +3908.2%（已剔除当月残月）。近 30 天 MRR 增速 +0.0%。⚠ 历史峰值 $3,888 → 最近完整月 $3,888，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $356），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
     },
-    "note": "2026-10-22 由 howtomakemi 独有线索核验入库：创始人官方博客含 2019-05 至 2022-06 完整 MRR 时间线（$64→$83,637），官网自述「完全独立、自筹、bootstrapped、盈利、10 人团队、无外部投资人」。howtomakemi 原称「2022 年 ARR 突破 ¥672万」与官方 $1M 口径基本吻合（其 ¥ 为换算口径）。",
-    "what_it_does": "隐私友好的开源网站分析工具：2.5KB 脚本、无 cookie、无需同意横幅，服务端聚合数据，自托管或云托管。",
-    "how_it_makes_money": "云托管订阅（Starter $9/月起，按页面浏览量分档，年付两个月免费）；自托管版本免费（AGPL）。100% 由订阅者供养，无广告无数据变现。",
-    "sources": [
-      {
-        "label": "创始人官方博客：$1M ARR 复盘（含完整 MRR 时间线）",
-        "url": "https://plausible.io/blog/open-source-saas"
-      },
-      {
-        "label": "官网首页：independent / self-funded / bootstrapped / profitable 自述",
-        "url": "https://plausible.io"
-      }
-    ],
-    "verdict": "用开源换信任、用隐私换差异：2.5KB 无 cookie 的网站分析工具，云托管订阅 100% 由用户供养，自举三年做到 $1M ARR（2022-06）、10 人团队盈利、零外部投资人。",
-    "why_it_works": [
-      "差异化是架构不是口号：无 cookie、不需要合规横幅、脚本只有 2.5KB，隐私直接做进产品；",
-      "开源（AGPL）当获客与信任杠杆：自托管免费吸引开发者，云托管把懒得运维的人转化成订阅；",
-      "成本结构轻：10 人团队、无销售无广告，收入全部来自订阅者；",
-      "透明本身是增长素材：创始人公开 2019-2022 完整 MRR 时间线（$64 → $83,637）。"
-    ],
-    "playbook": [
-      "拿「竞品的合规负担」当卖点：对手越重（cookie/横幅/GDPR），你越轻；",
-      "开源核心 + 托管收费的双层结构：代码换传播，托管换钱；",
-      "公开收入时间线做内容，把增长过程本身变成获客渠道。"
-    ],
-    "replicability": {
-      "tech": 3,
-      "distribution": 3,
-      "capital": 2,
-      "timing": 2
-    },
-    "traffic_sources": [
-      "开源社区与开发者口碑（GitHub / 自托管用户）；",
-      "透明增长内容：创始人公开 MRR 复盘带来的自然流量。"
-    ],
-    "founder": "候选未记录创始人姓名；官网自述完全独立、自筹（bootstrapped）、盈利、10 人团队，公司起步于爱沙尼亚（欧盟）。"
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T11:44:08.864Z"
   },
   {
-    "id": "sleek-design",
-    "name": "Sleek.design",
-    "name_en": "Sleek",
-    "origin": "意大利（远程）",
-    "one_liner": "AI 移动应用设计工具，3 周搭出、一个月 $10K MRR，零付费营销。",
+    "id": "aicasadesign-com",
+    "name": "AiCasaDesign.com",
+    "name_en": "AiCasaDesign.com",
+    "one_liner": "AiCasaDesign.com helps real estate agents sell faster their properties.",
     "category": "AI 工具",
     "models": [
       "订阅制"
     ],
-    "verification": "self_reported",
-    "source_kind": "self_reported",
-    "source_url": "https://www.indiehackers.com/post/tech/hitting-10k-mrr-in-six-weeks-with-an-ai-design-tool-pEvmU5qkWS6ny0AR9SUv",
-    "website": "https://sleek.design",
+    "source_url": "https://trustmrr.com/startup/aicasadesign-com",
+    "website": "https://www.aicasadesign.com/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2019-01-05",
+    "founder_name": "Cesare D'Adamo",
+    "trustmrr_slug": "aicasadesign-com",
+    "source_kind": "verified",
     "added_at": "2026-10-22",
-    "promoted_from_inbox": null,
     "metrics": {
-      "headline": "MRR $10K（上线约一个月，创始人自述）",
-      "caliber": "mrr_self_reported",
-      "mrr": 10000,
-      "metric_note": "口径：MRR $10K 为创始人 Mattia Pomelli 2026-01 在 Indie Hackers 的发帖自述（上线一个月内、零付费营销）；60,000+ app makers 使用（官网当前口径）；订阅 $29/$69/$99 三档。第三方称「现 $25K+/月」无创始人确认，不采用。"
+      "mrr": 1298.0,
+      "last_30d_revenue": 1426.0,
+      "all_time": 34753.0,
+      "subscriptions": 31,
+      "growth_30d": -8.1,
+      "mrr_growth_30d": -8.1,
+      "revenue_growth_30d": -5.5,
+      "headline": "MRR $1,298，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $1,298（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $1,426、累计 $34,753、付费订阅 31 户。最近完整月环比 +5.8%（已剔除当月残月）。近 30 天 MRR 增速 -8.1%。⚠ 历史峰值 $3,227 → 最近完整月 $1,549，留存 48%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $1,307），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
     },
-    "note": "2026-10-22 由 howtomakemi 独有线索核验入库：以创始人 Indie Hackers 原帖为一手依据。howtomakemi 原称「上线约六周达到约 ¥67,200 MRR」即 $10K MRR 的换算口径，数字本身吻合。Mattia Pomelli 与两位朋友（前四个设计工具未起量），复用旧工具 3 周搭出 v1，X 发帖 + 每日 X/Reddit 内容分发起量；免费层限量以控制 AI 成本。",
-    "what_it_does": "AI 移动应用设计工具：自然语言描述 App 创意，生成整套风格一致的 iOS/Android 界面，可编辑、导出 Figma/HTML/React，并通过 API/skill 接入 Claude Code、Cursor 等 coding agent。",
-    "how_it_makes_money": "订阅制（Starter $29/月、Pro $69/月、Team $99/用户/月，按 AI credits 分档）；免费层只允许一次生成，把免费用户成本压到最低的同时筛出真付费意愿。",
-    "sources": [
-      {
-        "label": "创始人 Indie Hackers 原帖（一手自述）",
-        "url": "https://www.indiehackers.com/post/tech/hitting-10k-mrr-in-six-weeks-with-an-ai-design-tool-pEvmU5qkWS6ny0AR9SUv"
-      },
-      {
-        "label": "Startup Founder Stories 深访",
-        "url": "https://startupfounderstories.com/stories/mattia-pomelli-sleek-design-10k-mrr"
-      },
-      {
-        "label": "官网（定价与用户规模）",
-        "url": "https://sleek.design/"
-      }
-    ],
-    "verdict": "连做四个设计工具都没起量的团队，复用旧代码 3 周搭出 AI 界面生成器，纯 X/Reddit 内容分发、零付费营销，上线约一个月做到 $10K MRR（创始人 2026-01 自述）。",
-    "why_it_works": [
-      "接住 coding agent 浪潮：生成结果可导出 Figma/HTML/React，并通过 API/skill 接入 Claude Code、Cursor，做 agent 的上游；",
-      "免费层只允许一次生成：AI 成本被锁死在最低，同时筛出真付费意愿；",
-      "三档订阅（$29/$69/$99）按 AI credits 分档，成本与收入同向变动；",
-      "创始人本身是分发渠道：每日 X/Reddit 发帖，获客成本≈0。"
-    ],
-    "playbook": [
-      "AI 成本前置控制：免费层限一次，别等烧钱才想起限额；",
-      "做 AI 编程工具生态的上游：让你的输出被 agent 引用，吃到整条浪潮；",
-      "连续创业者复用旧代码 3 周出 v1 —— 资产往往藏在上一次失败里。"
-    ],
-    "replicability": {
-      "tech": 3,
-      "distribution": 2,
-      "capital": 2,
-      "timing": 3
-    },
-    "traffic_sources": [
-      "X 与 Reddit 每日内容分发（零付费营销，创始人自述）。"
-    ],
-    "founder": "Mattia Pomelli，与两位朋友合伙远程开发（意大利）；此前做过四个设计工具均未起量，此次复用旧工具 3 周搭出 v1。"
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T08:42:29.257Z"
   },
   {
-    "id": "pdfai",
-    "name": "PDF.ai",
-    "name_en": "PDF.ai",
-    "origin": "加拿大（华人创始人）",
-    "one_liner": "「跟任何 PDF 对话」，精准域名 + SEO，solo 自举做到几百万美金 ARR。",
-    "category": "AI 工具",
+    "id": "apparelai",
+    "name": "ApparelAI",
+    "name_en": "ApparelAI",
+    "one_liner": "AI model photoshoots for fashion brands: upload a flat lay, hanger or mannequin shot and get studio-quality on-model images in under 30 seconds.",
+    "category": "移动应用",
     "models": [
-      "订阅制",
-      "买断制"
+      "订阅制"
     ],
-    "verification": "self_reported",
-    "source_kind": "self_reported",
-    "source_url": "https://ttmblog.com/post/241474228215816",
-    "website": "https://pdf.ai",
+    "source_url": "https://trustmrr.com/startup/apparelai",
+    "website": "https://www.apparelai.app/",
+    "harvest_source": "trustmrr",
+    "founder_name": "Kevin",
+    "trustmrr_slug": "apparelai",
+    "source_kind": "verified",
     "added_at": "2026-10-22",
-    "promoted_from_inbox": null,
     "metrics": {
-      "headline": "ARR 几百万美金（创始人自述量级；第三方汇编 2024 年底约 $1.3-1.5M）",
-      "caliber": "arr_self_reported_magnitude",
-      "arr": 1400000,
-      "metric_note": "口径：创始人 Damon Chen 2023 年公开言论自述「几百万美金 ARR」（build in public 长期贴收入截图）；第三方汇编（1810.cn 引 Starter Story 2024 年底报道）约 $1.3-1.5M ARR、50%+ 流量来自「PDF AI」搜索、0 员工 0 融资。精确 ARR 无官方披露，引用时须写「创始人自述量级 + 第三方估算区间」。"
+      "mrr": 1021.0,
+      "last_30d_revenue": 1512.0,
+      "all_time": 6225.0,
+      "subscriptions": 34,
+      "growth_30d": 50.7,
+      "mrr_growth_30d": 50.7,
+      "revenue_growth_30d": 32.6,
+      "headline": "MRR $1,021，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $1,021（TrustMRR 从支付网关 API 直读，2026-10-28 同步，RevenueCat (API key), Dodo Payments (API key)）。近 30 天收入 $1,512、累计 $6,225、付费订阅 34 户。最近完整月环比 +5.8%（已剔除当月残月）。近 30 天 MRR 增速 +50.7%。⚠ 同期收入增速为 +32.6%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $1,299 → 最近完整月 $1,145，留存 88%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $904），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
     },
-    "note": "2026-10-22 由 howtomakemi 独有线索核验入库：创始人公开言论为一手依据。howtomakemi 原称「约 ¥1,008万 ARR（Starter Story 2024 年底报道）」与汇编口径吻合。⚠ 与 Chatbase（Yasser Elsaid，$9M ARR）是两个产品——Chatbase 本库已有精写案例，勿混。Damon Chen 2014 年从中国移民美国、Cisco 网络工程师 9 年后辞职，X 13 万粉丝。",
-    "what_it_does": "上传 PDF 即可与文档对话（RAG 问答），后扩展为面向企业的 AI 客服平台：AI 能执行操作（更新订阅、处理退款、安排会议），接入 Stripe/Slack/Calendly。",
-    "how_it_makes_money": "订阅 + 一次性买断（早期 $99 LTD 验证付费意愿）；精准域名 pdf.ai 带来搜索意图红利，50%+ 流量来自「PDF AI」相关搜索；定价从个人 $10/月转向企业 $500/月后客单价翻 50 倍。",
-    "sources": [
-      {
-        "label": "创始人公开言论（自举盈利+ARR 量级）",
-        "url": "https://ttmblog.com/post/241474228215816"
-      },
-      {
-        "label": "1810.cn 案例档案（第三方汇编，2024 年底口径）",
-        "url": "https://1810.cn/case/pdfai"
-      }
-    ],
-    "verdict": "精准域名 + 搜索意图的教科书案例：pdf.ai 一个域名吃下「PDF AI」相关搜索的一半流量（50%+ 获客来自搜索），0 员工 0 融资，创始人自述做到几百万美金 ARR 量级。",
-    "why_it_works": [
-      "域名即渠道：pdf.ai 精准匹配搜索意图，50%+ 流量来自「PDF AI」相关搜索（第三方汇编口径）；",
-      "先便宜验证再涨价：早期 $99 一次性买断验证付费意愿，后转向企业 $500/月，客单价翻 50 倍；",
-      "从工具到平台：RAG 问答升级为能执行操作的 AI 客服（更新订阅/处理退款/安排会议，接 Stripe/Slack/Calendly），从个人订阅切进企业预算。"
-    ],
-    "playbook": [
-      "好域名是永恒的 SEO：买下用户搜索时会打的那个词；",
-      "用低价买断测需求，用企业订阅收钱 —— 客单价能翻 50 倍；",
-      "build in public：长期贴收入截图，既是信任资产也是分发渠道。"
-    ],
-    "replicability": {
-      "tech": 3,
-      "distribution": 4,
-      "capital": 2,
-      "timing": 2
-    },
-    "traffic_sources": [
-      "SEO：50%+ 流量来自「PDF AI」相关搜索（第三方汇编口径）；",
-      "创始人 build in public 的 X 受众（13 万粉）。"
-    ],
-    "founder": "Damon Chen：2014 年从中国移民美国，Cisco 网络工程师 9 年后辞职创业，X 13 万粉丝，0 员工 0 融资 solo 运营。⚠ 与 Chatbase（Yasser Elsaid，$9M ARR）是两个产品，勿混。"
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（RevenueCat (API key), Dodo Payments (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T12:36:27.078Z"
   },
   {
-    "id": "refactoringui",
-    "name": "Refactoring UI",
-    "name_en": "Refactoring UI",
-    "origin": "加拿大",
-    "one_liner": "写给开发者的界面设计书，一次性买断，出版四年累计超 $2.5M。",
+    "id": "asta",
+    "name": "Asta",
+    "name_en": "Asta",
+    "one_liner": "ASTA brings you the world's most studied natural extracts. Formulated at clinical doses, third-party tested, and built for real, lasting results.",
+    "category": "health fitness",
+    "models": [],
+    "source_url": "https://trustmrr.com/startup/asta",
+    "website": "https://tryasta.com/",
+    "harvest_source": "trustmrr",
+    "founder_x_followers": "0",
+    "trustmrr_slug": "asta",
+    "source_kind": "verified",
+    "added_at": "2026-10-23",
+    "metrics": {
+      "mrr": 0.0,
+      "last_30d_revenue": 2148.0,
+      "all_time": 11276.0,
+      "subscriptions": 0,
+      "growth_30d": 0.0,
+      "mrr_growth_30d": 0.0,
+      "revenue_growth_30d": -37.1,
+      "headline": "近 30 天收入 $2,148，TrustMRR 实时核对（非订阅制，MRR 恒 0）",
+      "metric_note": "实测口径：近 30 天已验证收入 $2,148（非订阅制/买断制业务，MRR 恒 0，本条门面口径为近 30 天流水，含一次性与用量收入，别当经常性收入引用；TrustMRR 从支付网关 API 直读，2026-10-28 同步，Shopify (OAuth connection)）。近 30 天收入 $2,148、累计 $11,276、付费订阅 0 户。最近完整月环比 +8.7%（已剔除当月残月）。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 -37.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $3,470 → 最近完整月 $3,470，留存 100%。⚠ 刷新前该条目没有任何收入数字（早期入库时收入未公开），本次首次补齐。",
+      "caliber": "last_30d"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Shopify (OAuth connection)），非截图自报。此前该条目在候选池里没有任何收入数字，本次首次补齐。",
+    "data_freshness": "2026-10-28T07:56:33.629Z"
+  },
+  {
+    "id": "aswati-studio",
+    "name": "Aswati Studio",
+    "name_en": "Aswati Studio",
+    "one_liner": "A growing library of 90+ royalty-free anasheed and background vocals — voice and percussion only. Made for Muslim creators who won't compromise on what they publish. One membership unlocks the full li",
     "category": "创作者经济",
     "models": [
-      "买断制"
+      "订阅制"
     ],
-    "verification": "self_reported",
-    "source_kind": "self_reported",
-    "source_url": "https://www.refactoringui.com/",
-    "website": "https://www.refactoringui.com",
-    "added_at": "2026-10-22",
-    "promoted_from_inbox": null,
+    "source_url": "https://trustmrr.com/startup/aswati-studio",
+    "website": "https://studio.aswati.co/",
+    "harvest_source": "trustmrr",
+    "trustmrr_slug": "aswati-studio",
+    "source_kind": "verified",
+    "added_at": "2026-10-26",
     "metrics": {
-      "headline": "累计营收 $2.5M+（2022-09，创始人 AMA 自述）；2020 全年约 $600K",
-      "caliber": "cumulative_self_reported",
-      "arr": 600000,
-      "metric_note": "口径：买断制信息产品，无 MRR/ARR 概念。2020 全年营收约 $600,000（Adam Wathan 2020-12-29 博客自述，出版两年后仍有的长尾）；截至 2022-09 累计营收超 $2.5M（创始人 Indie Hackers AMA 自述）。两者都是历史时点自述，引用必须带时间。"
+      "mrr": 585.0,
+      "last_30d_revenue": 540.0,
+      "all_time": 2170.0,
+      "subscriptions": 49,
+      "growth_30d": 67.3,
+      "mrr_growth_30d": 67.3,
+      "revenue_growth_30d": -37.1,
+      "headline": "MRR $585，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $585（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Whop (API key)）。近 30 天收入 $540、累计 $2,170、付费订阅 49 户。最近完整月环比 +157.3%（已剔除当月残月）。近 30 天 MRR 增速 +67.3%。⚠ 同期收入增速为 -37.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $777 → 最近完整月 $777，留存 100%。⚠ 队列缓存值是 2026-10-26 采集时的快照（当时 $555），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
     },
-    "note": "2026-10-22 由 howtomakemi 独有线索核验入库：以 Adam Wathan 本人博客与 AMA 为一手依据。howtomakemi 原称「2020 全年约 ¥4,032,000」即 $600K 的换算口径，吻合。同源生态时间线（均本人披露）：2016 年第一本书首周 $61,392 → Tailwind UI 2020-02 上线首日 $400K → 2020-08 累计约 $2M → 2022-09 年营收七位数。是「内容产品养开源框架」的完整可复制路径。",
-    "what_it_does": "面向开发者的界面设计书+资源包：50 章、200+ 页 PDF，讲「不靠美术直觉也能做出像样 UI」的具体战术（少用边框、对比代替装饰等），附 screencasts 与组件库。",
-    "how_it_makes_money": "一次性买断（高定价信息产品，无订阅）；获客靠作者多年在 Twitter/博客积累的 5 万+ 开发者受众与口碑——先有受众后做产品，发布即转化存量粉丝。",
-    "sources": [
-      {
-        "label": "Adam Wathan 博客年度复盘（2020 年 $600K）",
-        "url": "https://kuaicheku.com/article/tailwind-ui-kaiyuan-fuchanpin-2m"
-      },
-      {
-        "label": "创始人 Indie Hackers AMA（2022-09 累计 $2.5M+）",
-        "url": "https://kuaicheku.com/product/refactoring-ui"
-      },
-      {
-        "label": "官网",
-        "url": "https://www.refactoringui.com/"
-      }
-    ],
-    "verdict": "「先有受众后做产品」的样本：5 万+ 开发者受众先养多年，一本高定价买断的设计书出版四年累计超 $2.5M（2022-09 自述）、2020 单年约 $600K，无订阅无广告。",
-    "why_it_works": [
-      "受众先行：作者多年 Twitter/博客积累 5 万+ 开发者粉丝，发布即转化存量信任，冷启动成本≈0；",
-      "内容有真差异化：不教审美，教「少用边框、对比代替装饰」这类可执行战术，正中「会写代码不会做 UI」的痛点；",
-      "买断制信息产品毛利极高：一次制作、长尾销售，出版两年后 2020 年仍进账约 $600K。"
-    ],
-    "playbook": [
-      "先写免费内容养受众，做产品是最后一步而不是第一步；",
-      "高定价买断 + 组件库/screencasts 打包，把一本书卖成工具箱；",
-      "同一套打法可迭代：内容产品养开源框架（Tailwind），框架再反哺内容销售。"
-    ],
-    "replicability": {
-      "tech": 4,
-      "distribution": 3,
-      "capital": 1,
-      "timing": 2
-    },
-    "traffic_sources": [
-      "作者自有受众（Twitter/博客 5 万+ 开发者粉丝）与口碑；",
-      "Tailwind 生态的交叉曝光（同作者体系，生态时间线均本人披露）。"
-    ],
-    "founder": "Adam Wathan：开发者/作者，先靠博客与开源（Tailwind CSS）积累受众，Refactoring UI 是其内容产品矩阵的一环；生态时间线（首本书首周 $61,392 → Tailwind UI 首日 $400K → 累计 $2.5M+）均为本人披露。"
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Whop (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T12:52:30.217Z"
   },
   {
-    "id": "getdavid",
-    "name": "David AI（getdavid.ai）",
-    "name_en": "David AI",
+    "id": "august",
+    "name": "August",
+    "name_en": "August",
     "origin": "美国",
-    "one_liner": "AI agent 批量给没有网站的小店造站，再寄带二维码的纸质明信片获客，一个月实验做到 $8K MRR。",
+    "one_liner": "Your AI coworker for real business work. August is your 24/7 AI coworker. It works in your channels, connects to your tools, learns your company, and helps with research, reports, outreach, follow-up, monitoring, and recurring work.",
     "category": "AI 工具",
     "models": [
       "订阅制"
     ],
-    "verification": "self_reported",
-    "source_kind": "self_reported",
-    "source_url": "https://pod.wave.co/podcast/the-koerner-office-business-ideas-and-small-business-deep-dives-with-entrepreneurs/i-told-an-ai-agent-to-make-me-money-it-did-ep-303",
-    "website": "https://getdavid.ai",
+    "source_url": "https://trustmrr.com/startup/august",
+    "website": "https://august.so/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2026-01-24",
+    "founder_name": "August",
+    "trustmrr_slug": "august",
+    "source_kind": "verified",
     "added_at": "2026-10-22",
-    "promoted_from_inbox": null,
     "metrics": {
-      "headline": "MRR $8K+（上线约一个月，创始人在播客自述）",
-      "caliber": "mrr_self_reported",
-      "mrr": 8000,
-      "metric_note": "口径：$8K+/月 MRR 为创始人 Brandon Doyle 在 The Koerner Office 播客第 303 期（2026-05-25）的官方 show notes 口径（网站业务 $8,000+/月、睡前故事订阅 $300+/月）；单张明信片成本约 $7、一轮 350 张约 $400；350 家名单、341 封妥投、20% 扫码率（同节目披露）。howtomakemi 原称「网站业务 ¥53,760/月」即该数的 ¥ 换算口径（≈$7.5K）。⚠ 与旧金山同名语音数据公司 David AI（Tomer Cohen，累计融资 $80.5M）毫无关系，别混。"
+      "mrr": 332.0,
+      "last_30d_revenue": 0.0,
+      "all_time": 0.0,
+      "subscriptions": 2,
+      "growth_30d": null,
+      "mrr_growth_30d": null,
+      "revenue_growth_30d": 0.0,
+      "headline": "MRR $332，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $332（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $0、累计 $0、付费订阅 2 户。月度时间线不足两个月，不给环比结论。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $332），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
     },
-    "note": "2026-10-22 由 howtomakemi 独有线索核验入库：创始人在播客的一手披露 + ACCESS Newswire 官方稿（2026-07-29，Brandon Doyle, Founder, DAVID AI）双重确认身份。打法：AI agent 挑出 350 家没有网站的小店→挨个造好站→寄带二维码的纸质明信片（$400/轮）→扫码进站→月费订阅；线下直邮 + 真实来电的组合拳，冷邮件/纯数字外奏效差一个量级。⚠ 产品已转型：现官网定位 applied-AI 咨询（「三周交付生产系统」），postcard 实验是前身。",
-    "what_it_does": "AI agent 批量为本地小店造网站（找名单→建站→寄明信片→转化月费订阅），另有 AI 定制睡前故事邮件订阅副线；现转型为向实体企业嵌入 AI 生产系统的咨询式业务。",
-    "how_it_makes_money": "本地商家网站月费订阅 + 睡前故事邮件订阅；获客靠 AI 批量造站 + 纸质明信片直邮（单张成本约 $7，350 张一轮约 $400），配合真实来电跟进——线上自动化与线下真实动作的组合。",
-    "sources": [
-      {
-        "label": "The Koerner Office 播客 #303 官方 show notes（$8K MRR、明信片打法、单位经济）",
-        "url": "https://pod.wave.co/podcast/the-koerner-office-business-ideas-and-small-business-deep-dives-with-entrepreneurs/i-told-an-ai-agent-to-make-me-money-it-did-ep-303"
-      },
-      {
-        "label": "ACCESS Newswire 官方稿（2026-07-29，创始人身份）",
-        "url": "https://www.accessnewswire.com"
-      },
-      {
-        "label": "飞出国论坛案例档（播客数据整理：350 名单/341 妥投/20% 扫码）",
-        "url": "https://bbs.fcgvisa.com/t/ai-david-ai/56992"
-      }
-    ],
-    "verdict": "AI 批量造站 + 纸质明信片的混合打法：350 家没有网站的本地小店、$400 一轮直邮、20% 扫码率，一个月实验做到 $8K+ MRR（创始人播客自述）—— 线下真实动作比纯数字外联有效一个量级。",
-    "why_it_works": [
-      "选对客群：没有网站的本地小店本来就缺线上入口，AI 让「挨个造站」的成本几乎归零；",
-      "明信片是物理触点：单张约 $7、一轮 350 张约 $400，341 封妥投、20% 扫码率，比冷邮件/纯数字外联奏效好一个量级；",
-      "收的是月费订阅（持续服务钱）而不是一次性建站钱，配合真实来电跟进完成转化。"
-    ],
-    "playbook": [
-      "AI 负责规模，人负责信任：批量自动化之后，补一个「真实来电」的动作；",
-      "直邮预算小到可以试错：$400 一轮就能验证一整条获客路径；",
-      "实验可以毕业：postcard 实验跑通后，团队已转向 applied-AI 咨询（现官网定位「三周交付生产系统」）。"
-    ],
-    "replicability": {
-      "tech": 3,
-      "distribution": 2,
-      "capital": 2,
-      "timing": 3
-    },
-    "traffic_sources": [
-      "纸质明信片直邮（带二维码：350 家名单、341 封妥投、20% 扫码率，单轮约 $400）；",
-      "真实电话跟进转化。"
-    ],
-    "founder": "Brandon Doyle：打法与收入在 The Koerner Office 播客 #303（2026-05-25）自述；ACCESS Newswire 官方稿（2026-07-29）确认创始人身份。⚠ 与旧金山同名语音数据公司 David AI（Tomer Cohen，累计融资 $80.5M）毫无关系，勿混。"
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T10:25:58.990Z"
   },
   {
-    "id": "klar",
-    "name": "Klar（原 Tentaklar）",
-    "name_en": "Klar",
-    "origin": "瑞典",
-    "one_liner": "三个瑞典大学生辍学做 AI 备考工具，不会写代码靠 Lovable 搭产品，上线 30 天 €130K ARR、零广告费。",
-    "category": "AI 工具",
+    "id": "autotube",
+    "name": "AutoTube",
+    "name_en": "AutoTube",
+    "origin": "美国",
+    "one_liner": "The company focuses on developing AI-powered software tools, web applications, and automation platforms. These products are delivered online and offered through subscription-based access or digital licensing.",
+    "category": "垂直行业 SaaS",
     "models": [
       "订阅制"
     ],
-    "verification": "official",
-    "source_kind": "official",
-    "source_url": "https://www.arr.club/signal/klar-arr-hit-130k-within-30-days-of-launch-built-with-lovable",
-    "website": "https://klar.app",
+    "source_url": "https://trustmrr.com/startup/autotube",
+    "website": "https://autotube.org/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2026-05-02",
+    "trustmrr_slug": "autotube",
+    "source_kind": "verified",
     "added_at": "2026-10-22",
-    "promoted_from_inbox": null,
     "metrics": {
-      "headline": "ARR €130K（上线 30 天，Lovable 官方创始人档案）",
-      "caliber": "arr_official",
-      "arr": 130000,
-      "metric_note": "口径：€130K ARR/30 天来自 Lovable 官方创始人档案（平台厂商案例研究，数字经创始人方提供）+ ARR Club 信号收录双源；上线两天 2,500 注册、4,000 排队；零付费广告。⚠ €500K ARR（LinkedIn 第三方 Seb Johnson）与 howtomakemi「2026-08-28 ARR ¥336万」均为第三方口径，不作为案例数字；瑞典商科学生联合会合作的「最高 €7.5M 年化」是管线潜力非实际收入，禁止并入。"
+      "mrr": 624.0,
+      "last_30d_revenue": 626.0,
+      "all_time": 1818.0,
+      "subscriptions": 22,
+      "growth_30d": 21.9,
+      "mrr_growth_30d": 21.9,
+      "revenue_growth_30d": 26.4,
+      "headline": "MRR $624，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $624（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $626、累计 $1,818、付费订阅 22 户。最近完整月环比 +38.3%（已剔除当月残月）。近 30 天 MRR 增速 +21.9%。⚠ 历史峰值 $509 → 最近完整月 $509，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $483），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
     },
-    "note": "2026-10-22 由 howtomakemi 独有线索核验入库。创始人 Isabel Storgårds（CEO）、Andreas Melander（产品）、Eric Götborg（商务），乌普萨拉大学学生（两人已休学），25 平米公寓日夜干活；官网与大学官网新闻互证。不会写代码，产品全程基于 Lovable 搭建，Claude/GPT/Gemini 多模型；上传课件/历年真题→AI 生成练习题、闪卡、预测卷，欧盟本地存储。曾拒绝收购要约。",
-    "what_it_does": "AI 备考工具：学生上传课程材料与历年真题，AI 生成练习题、闪卡、预测卷与音频播客版；面向大学生，正拓展高校机构合作。",
-    "how_it_makes_money": "学生订阅制；增长全靠自然流量与校园口碑（上线两天 2,500 注册），零广告费；后用大使计划扩量，并签高校合作（管线价值最高 €7.5M 年化，未计入收入）。",
-    "sources": [
-      {
-        "label": "Lovable 官方创始人档案（€130K ARR/30 天、零付费广告）",
-        "url": "https://lovable.dev"
-      },
-      {
-        "label": "ARR Club 信号（€130K ARR、创始人名、拒绝收购）",
-        "url": "https://www.arr.club/signal/klar-arr-hit-130k-within-30-days-of-launch-built-with-lovable"
-      },
-      {
-        "label": "乌普萨拉大学官网新闻（2026-01-16，创始团队与创业过程一手引述）",
-        "url": "https://www.uu.se/en/news/2026/2026-01-16-from-student-challenges-to-a-study-platform"
-      }
-    ],
-    "verdict": "不会写代码的三个瑞典大学生，全程用 Lovable 搭产品，上线 30 天 €130K ARR、两天 2,500 注册，零广告费 —— 「AI 时代产品开发不再卡人」的实证。",
-    "why_it_works": [
-      "客群即作者：大学生做大学生备考工具，上传课程材料与历年真题生成练习题、闪卡、预测卷，痛点自己天天经历；",
-      "AI 抹平开发门槛：产品基于 Lovable + Claude/GPT/Gemini 多模型，两人休学在 25 平米公寓里做出来；",
-      "校园口碑天然密集：上线两天 2,500 注册、4,000 排队，全靠自然流量；大使计划 + 高校合作（管线最高 €7.5M 年化）接着扩量。"
-    ],
-    "playbook": [
-      "用 Lovable/Claude 这类工具把「不会写代码」从否决项变成成本项；",
-      "从最密集的社群起步（同校学生），口碑密度决定冷启动速度；",
-      "管线≠收入：高校合作「最高 €7.5M 年化」是潜力，禁止并入收入宣传。"
-    ],
-    "replicability": {
-      "tech": 4,
-      "distribution": 2,
-      "capital": 3,
-      "timing": 3
-    },
-    "traffic_sources": [
-      "校园口碑与自然流量（零付费广告，上线两天 2,500 注册）；",
-      "大使计划与高校合作扩量。"
-    ],
-    "founder": "Isabel Storgårds（CEO）、Andreas Melander（产品）、Eric Götborg（商务），乌普萨拉大学学生（两人已休学）；曾拒绝收购要约。"
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T10:31:10.494Z"
   },
   {
-    "id": "headshotpro",
-    "name": "HeadshotPro",
-    "name_en": "HeadshotPro",
+    "id": "babelbot",
+    "name": "Babelbot",
+    "name_en": "Babelbot",
     "origin": "荷兰",
-    "one_liner": "AI 职业证件照，solo 运营，官宣上线以来累计营收 $10M+、生成 1,700 万张头像。",
-    "category": "AI 工具",
-    "models": [
-      "买断制"
-    ],
-    "verification": "official",
-    "source_kind": "official",
-    "source_url": "https://www.headshotpro.com/about",
-    "website": "https://www.headshotpro.com",
-    "added_at": "2026-10-22",
-    "promoted_from_inbox": null,
-    "metrics": {
-      "headline": "累计营收 $10M+（上线以来，官方 About 页）",
-      "caliber": "cumulative_official",
-      "arr": 10000000,
-      "metric_note": "口径：$10M+ 为官网 About 页官方披露的累计营收（2023 上线至今）；同页披露 17,000,000 张头像生成、200,000+ 次拍摄、Fortune 500 团队在用（含 HubSpot 销售团队）。⚠ 当前月流水 $280-300K（$3.4-3.6M ARR）为第三方估算（lorejump/whoearns/MRR Story），无官方确认，不作案例数字；howtomakemi「¥201.6万 MRR」即该量级的换算口径。"
-    },
-    "note": "2026-10-22 由 howtomakemi 独有线索核验入库：官网 About 页为一手依据。创始人 Danny Postma（@dannypostmaa，X 10 万+ 粉，常驻巴厘岛），solo 零员工，holding 公司 Postcrafts 下 20+ 产品；前作 Headlime（AI 文案）上线 8 个月、$20K MRR 时被 Jasper（原 Conversion.ai）以逾 $1M 收购（2021-03，多方报道）。打法：SEO + 联盟（联盟占收入 15%+，$50K+/月）+ 一次性 $29 低门槛；自建 Stable Diffusion + DreamBooth pipeline，30 小时搭出 v1。",
-    "what_it_does": "上传几张自拍，2 小时内生成数十张工作室级 AI 职业照（LinkedIn/简历/团队页用），基于 Flux 与个性化 diffusion 微调；数据 7-30 天删除。",
-    "how_it_makes_money": "一次性付费（$29 起，非订阅）；获客靠 SEO（「AI headshot」搜索意图）+ 联盟营销（15%+ 收入）+ Fortune 500 团队采购；作者多年积累的开发者/营销受众做发布冷启动。",
-    "sources": [
-      {
-        "label": "官网 About 页（$10M+ 累计营收、1,700 万张、Fortune 500 客户）",
-        "url": "https://www.headshotpro.com/about"
-      },
-      {
-        "label": "AI Wiki（HeadshotPro 与 Headlime 退出史）",
-        "url": "https://ai.miraheze.org/wiki/HeadshotPro"
-      },
-      {
-        "label": "lorejump 案例（$300K/月、SEO+联盟打法，第三方）",
-        "url": "https://lorejump.com/cases/headshot-pro"
-      }
-    ],
-    "verdict": "solo 运营的 AI 职业照生意：SEO + 联盟（占收入 15%+）+ $29 一次性付费，官网官宣上线以来累计营收 $10M+、生成 1,700 万张头像，零员工零融资。",
-    "why_it_works": [
-      "SEO 卡死搜索意图：「AI headshot」需求爆发期，搜索位次直接等于收入；",
-      "一次性 $29 低门槛买断：不需要养订阅关系，转化路径极短；",
-      "联盟营销占收入 15%+（约 $50K+/月）：让别人的流量替你获客；",
-      "自建 Stable Diffusion + DreamBooth pipeline、30 小时搭出 v1，交付成本极低、毛利极高。"
-    ],
-    "playbook": [
-      "搜索意图 + 一次性定价是 AI 工具的黄金组合：需求一波流就不必做订阅；",
-      "把分销外包给联盟（15% 佣金换约 $50K+/月增量），solo 也能撑大分发；",
-      "Fortune 500 团队采购（含 HubSpot 销售团队）把 C 端工具卖成 B 端订单。"
-    ],
-    "replicability": {
-      "tech": 3,
-      "distribution": 4,
-      "capital": 2,
-      "timing": 2
-    },
-    "traffic_sources": [
-      "SEO（「AI headshot」等搜索意图词）；",
-      "联盟营销（占收入 15%+）；",
-      "作者自有受众（X 10 万+ 粉）做发布冷启动。"
-    ],
-    "founder": "Danny Postma（@dannypostmaa，X 10 万+ 粉，常驻巴厘岛），solo 零员工，holding 公司 Postcrafts 旗下 20+ 产品；前作 Headlime（AI 文案）$20K MRR 时被 Jasper 以逾 $1M 收购（2021-03，多方报道）。"
-  },
-  {
-    "id": "3ak-track-field",
-    "name": "3AK Track & Field",
-    "name_en": "3AK Track",
-    "origin": "美国",
-    "one_liner": "两个零编程经验的大学田径生，靠 15 万粉受众 + AI 搭 App，上线首月 $10K、六个月 $70K。",
+    "one_liner": "BabelBot is a real-time translation bot for Discord servers, using AI to translate messages instantly.",
     "category": "AI 工具",
     "models": [
       "订阅制"
     ],
-    "verification": "self_reported",
-    "source_kind": "self_reported",
-    "source_url": "https://www.mrrstory.com/stories/this-no-code-sports-app-hit-45k-in-2-months",
-    "website": "https://3aktrack.com",
+    "source_url": "https://trustmrr.com/startup/babelbot",
+    "website": "https://babelbot.app/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2025-05-21",
+    "founder_name": "Bram",
+    "trustmrr_slug": "babelbot",
+    "source_kind": "verified",
     "added_at": "2026-10-22",
-    "promoted_from_inbox": null,
     "metrics": {
-      "headline": "MRR $17-19K（上线数月，创始人访谈自述）；TrustMRR RevenueCat 快照 $10,045",
-      "caliber": "mrr_self_reported",
-      "mrr": 17500,
-      "metric_note": "口径：创始人在 MRR Story 专访（第一人称）自述「上线首月 $10,000，随后 $17K-$19K MRR，两个月进账 $45K+」；Starter Story 播客（Pat Walls）访谈印证约 $20K/月、六个月累计约 $70K、4 万用户、App Store 4.7 星。TrustMRR RevenueCat 验证快照（2026-07-18，$10,045 MRR、2,913 活跃订阅）经第三方转引，创始人注明当时处季节性低谷。howtomakemi「¥79,323/月」与快照吻合。⚠ 上线日期两说：2025-12-16（Pat Walls/BigGo）vs 2026-01（创始人自述），引用需带来源。"
+      "mrr": 779.0,
+      "last_30d_revenue": 2152.0,
+      "all_time": 6610.0,
+      "subscriptions": 60,
+      "growth_30d": 55.5,
+      "mrr_growth_30d": 55.5,
+      "revenue_growth_30d": 126.9,
+      "headline": "MRR $779，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $779（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Polar (API key), Stripe (API key)）。近 30 天收入 $2,152、累计 $6,610、付费订阅 60 户。最近完整月环比 +59.6%（已剔除当月残月）。近 30 天 MRR 增速 +55.5%。⚠ 同期收入增速为 +126.9%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $1,042 → 最近完整月 $1,042，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $748），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
     },
-    "note": "2026-10-22 由 howtomakemi 独有线索核验入库：以创始人第一人称访谈为一手依据。Christian Rac（@Christianisrac，IG 4.25 万粉，已从 Texas Southern 辍学）+ Braylin Byrd（@Braylin2x，IG 11.2 万粉，Texas State 在校），高中田径队友；此前试过 Shopify 店、日内交易（亏 $3-6K）、剪发、洗车等全部失败。打法核心：先有受众后做产品——数月前就在视频/简介/Shopify 店埋「3AK」伏笔，上线即爆发；零付费广告（后期才试 $50-100/天 Meta）。定价 $10/月 或 $30/年，按青少年零花钱心理定价（对标 V-Bucks/Robux）。技术栈：Rork 搭 App + Claude/Claude Code 验错 + Supabase + RevenueCat，2 周上线、成本 <$500、毛利约 80%。",
-    "what_it_does": "面向田径运动员（短跑/跨栏/跳远）的一站式训练 App：AI 步态与姿势分析（拍摄冲刺即评分）、个性化训练计划、营养扫描、社区与进度分析。",
-    "how_it_makes_money": "iOS 订阅（$10/月 或 $30/年，刻意对标青少年游戏内购定价）；获客全靠两人 15 万+ 粉的田径内容受众（IG/TikTok 短视频）+ 上线前数月的品牌伏笔，另有一条 Shopify 训练计划店（$100-200/天）。",
-    "sources": [
-      {
-        "label": "MRR Story 创始人专访（第一人称：首月 $10K、$17-19K MRR、$45K/两月）",
-        "url": "https://www.mrrstory.com/stories/this-no-code-sports-app-hit-45k-in-2-months"
-      },
-      {
-        "label": "Starter Story 播客（Pat Walls 访谈：$20K/月、6 个月 $70K）",
-        "url": "https://www.profitablefounder.xyz/blog/how-two-college-athletes-built-3ak-to-20k-a-month"
-      },
-      {
-        "label": "Startup Founder Stories（TrustMRR RevenueCat 快照转引）",
-        "url": "https://startupfounderstories.com/stories/christian-rac-braylin-byrd-3ak-track-10k-mrr-athlete-app"
-      }
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Polar (API key), Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T08:49:11.032Z"
+  },
+  {
+    "id": "beautyflow",
+    "name": "BeautyFlow",
+    "name_en": "BeautyFlow",
+    "origin": "乌克兰",
+    "one_liner": "BeautyFlow is a simple, modern, and sleek CRM system built specifically for independent beauty professionals: nail technicians, brow artists, lash makers, hair stylists, estheticians, and massage therapists. Forget about heavy tables, paper",
+    "category": "企业服务",
+    "models": [
+      "订阅制"
     ],
-    "verdict": "「先有受众后做产品」的运动版：两位田径内容作者合计 15 万+ 粉，上线前数月埋品牌伏笔，上线首月 $10K、六个月累计约 $70K（创始人访谈自述）；Rork+Supabase 2 周上线、成本 <$500、零编程经验。",
-    "why_it_works": [
-      "受众即渠道：IG/TikTok 合计 15 万+ 粉，上线前数月就在视频/简介/Shopify 店埋「3AK」伏笔，上线即爆发、零付费广告；",
-      "定价按用户钱包设计：$10/月 或 $30/年，刻意对标青少年游戏内购（V-Bucks/Robux）的心理价位；",
-      "AI 抹平开发门槛：Rork 搭 App + Claude 验错 + Supabase + RevenueCat，2 周上线、成本 <$500、毛利约 80%。"
-    ],
-    "playbook": [
-      "产品发布前先做「品牌伏笔」：让受众在上线前就已经在等它；",
-      "按目标用户的消费心理定价，而不是按竞品定价；",
-      "无代码栈（Rork + Supabase + RevenueCat）把试错成本压到 $500 级。"
-    ],
-    "replicability": {
-      "tech": 3,
-      "distribution": 3,
-      "capital": 2,
-      "timing": 3
+    "source_url": "https://trustmrr.com/startup/beautyflow-2",
+    "website": "https://apps.apple.com/us/app/beautyflow-crm-appointments/id6773090959?uo=4",
+    "harvest_source": "trustmrr",
+    "trustmrr_slug": "beautyflow-2",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 441.0,
+      "last_30d_revenue": 486.0,
+      "all_time": 1257.0,
+      "subscriptions": 110,
+      "growth_30d": 36.1,
+      "mrr_growth_30d": 36.1,
+      "revenue_growth_30d": 9.5,
+      "headline": "MRR $441，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $441（TrustMRR 从支付网关 API 直读，2026-10-28 同步，RevenueCat (API key)）。近 30 天收入 $486、累计 $1,257、付费订阅 110 户。最近完整月环比 +33.2%（已剔除当月残月）。近 30 天 MRR 增速 +36.1%。⚠ 同期收入增速为 +9.5%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $449 → 最近完整月 $449，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $428），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
     },
-    "traffic_sources": [
-      "自有短视频受众（IG/TikTok 合计 15 万+ 粉）；",
-      "后期才试投 Meta $50-100/天（小额）。"
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（RevenueCat (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T12:30:47.538Z"
+  },
+  {
+    "id": "blitzreels",
+    "name": "BlitzReels",
+    "name_en": "BlitzReels",
+    "origin": "法国",
+    "one_liner": "BlitzReels turns podcasts, webinars, and long-form videos into ready-to-post clips with captions, speaker-aware reframing, and your visual style.",
+    "category": "营销工具",
+    "models": [
+      "订阅制"
     ],
-    "founder": "Christian Rac（@Christianisrac，IG 4.25 万粉，已从 Texas Southern 辍学）与 Braylin Byrd（@Braylin2x，IG 11.2 万粉，Texas State 在校），高中田径队友；此前试过 Shopify 店、日内交易（亏 $3-6K）、剪发、洗车等均失败。"
+    "source_url": "https://trustmrr.com/startup/blitzreels",
+    "website": "https://www.blitzreels.com/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2025-04-06",
+    "founder_name": "Virgile RIETSCH",
+    "founder_x_followers": "3,320",
+    "trustmrr_slug": "blitzreels",
+    "source_kind": "verified",
+    "added_at": "2026-10-23",
+    "metrics": {
+      "mrr": 1145.0,
+      "last_30d_revenue": 1979.0,
+      "all_time": 8419.0,
+      "subscriptions": 36,
+      "growth_30d": -0.6,
+      "mrr_growth_30d": -0.6,
+      "revenue_growth_30d": -24.7,
+      "headline": "MRR $1,145，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $1,145（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $1,979、累计 $8,419、付费订阅 36 户。最近完整月环比 -19.5%（已剔除当月残月）。近 30 天 MRR 增速 -0.6%。⚠ 同期收入增速为 -24.7%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $3,033 → 最近完整月 $2,441，留存 80%。⚠ 队列缓存值是 2026-10-23 采集时的快照（当时 $1,192），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T08:04:07.752Z"
+  },
+  {
+    "id": "bobby",
+    "name": "Bobby",
+    "name_en": "Bobby",
+    "one_liner": "Bobby helps people think through stock and crypto questions with three AI perspectives: one builds the case, another challenges it, and a third weighs the evidence. Available on the web and iPhone, it",
+    "category": "AI 工具",
+    "models": [],
+    "source_url": "https://trustmrr.com/startup/bobbyprotocol-xyz",
+    "website": "https://bobbyprotocol.xyz/",
+    "harvest_source": "trustmrr",
+    "trustmrr_slug": "bobbyprotocol-xyz",
+    "source_kind": "verified",
+    "added_at": "2026-10-26",
+    "metrics": {
+      "mrr": 0.0,
+      "last_30d_revenue": 1436.0,
+      "all_time": 1436.0,
+      "subscriptions": 0,
+      "growth_30d": null,
+      "mrr_growth_30d": null,
+      "revenue_growth_30d": 0.0,
+      "headline": "近 30 天收入 $1,436，TrustMRR 实时核对（非订阅制，MRR 恒 0）",
+      "metric_note": "实测口径：近 30 天已验证收入 $1,436（非订阅制/买断制业务，MRR 恒 0，本条门面口径为近 30 天流水，含一次性与用量收入，别当经常性收入引用；TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $1,436、累计 $1,436、付费订阅 0 户。月度时间线不足两个月，不给环比结论。⚠ 刷新前该条目没有任何收入数字（早期入库时收入未公开），本次首次补齐。",
+      "caliber": "last_30d"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。此前该条目在候选池里没有任何收入数字，本次首次补齐。",
+    "data_freshness": "2026-10-28T12:52:58.844Z"
+  },
+  {
+    "id": "buma-baby-tracker",
+    "name": "Buma Baby Tracker",
+    "name_en": "Buma Baby Tracker",
+    "one_liner": "Buma is a simple, flexible baby tracker and shared family journal. Log sleep, feeds, diapers, tummy time, and custom activities in one clear timeline. Invite a partner or caregiver so everyone can add and edit updates for the same baby, sta",
+    "category": "移动应用",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/buma-baby-tracker",
+    "website": "https://www.bumababy.app/en",
+    "harvest_source": "trustmrr",
+    "founder_name": "Martynas Nar",
+    "trustmrr_slug": "buma-baby-tracker",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 1139.0,
+      "last_30d_revenue": 2896.0,
+      "all_time": 4761.0,
+      "subscriptions": 147,
+      "growth_30d": 57.2,
+      "mrr_growth_30d": 57.2,
+      "revenue_growth_30d": 56.6,
+      "headline": "MRR $1,139，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $1,139（TrustMRR 从支付网关 API 直读，2026-10-28 同步，RevenueCat (API key)）。近 30 天收入 $2,896、累计 $4,761、付费订阅 147 户。最近完整月环比 +5397.8%（已剔除当月残月）。近 30 天 MRR 增速 +57.2%。⚠ 历史峰值 $2,021 → 最近完整月 $2,021，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $1,307），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（RevenueCat (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T11:30:09.116Z"
+  },
+  {
+    "id": "codowave",
+    "name": "Codowave",
+    "name_en": "Codowave",
+    "origin": "美国",
+    "one_liner": "Codowave is a SaaS platform that gives every GitHub repository an autonomous AI engineer. Connect a repo, label the issues you want shipped, and Codowave plans the change, writes code in an isolated runner, runs tests, and opens pull reques",
+    "category": "AI 工具",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/codowave",
+    "website": "https://www.codowave.com/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2026-03-14",
+    "founder_name": "Codowave",
+    "trustmrr_slug": "codowave",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 498.0,
+      "last_30d_revenue": 0.0,
+      "all_time": 0.0,
+      "subscriptions": 3,
+      "growth_30d": null,
+      "mrr_growth_30d": null,
+      "revenue_growth_30d": 0.0,
+      "headline": "MRR $498，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $498（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $0、累计 $0、付费订阅 3 户。月度时间线不足两个月，不给环比结论。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $498），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T10:27:31.174Z"
+  },
+  {
+    "id": "coloring-book",
+    "name": "Coloring Book",
+    "name_en": "Coloring Book",
+    "origin": "西班牙",
+    "one_liner": "App that converts photos into coloring pages",
+    "category": "创作者经济",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/coloring-book",
+    "website": "https://apps.apple.com/app/id6744273428",
+    "harvest_source": "trustmrr",
+    "founder_name": "Dani Plata",
+    "trustmrr_slug": "coloring-book",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 497.0,
+      "last_30d_revenue": 560.0,
+      "all_time": 6438.0,
+      "subscriptions": 0,
+      "growth_30d": 0.0,
+      "mrr_growth_30d": 0.0,
+      "revenue_growth_30d": 22.1,
+      "headline": "MRR $497，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $497（TrustMRR 从支付网关 API 直读，2026-10-28 同步，RevenueCat (API key)）。近 30 天收入 $560、累计 $6,438、付费订阅 0 户。最近完整月环比 -3.1%（已剔除当月残月）。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 +22.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $796 → 最近完整月 $473，留存 59%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $472），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（RevenueCat (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T08:48:39.155Z"
+  },
+  {
+    "id": "comic-translator",
+    "name": "Comic Translator",
+    "name_en": "Comic Translator",
+    "origin": "越南",
+    "one_liner": "An AI-powered translator to translate comics and manga into any language. It's already stable, growing 10-15% each month and has hundreds of active subscriptions.",
+    "category": "AI 工具",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/comic-translator",
+    "website": "https://comictranslator.com/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2025-03-05",
+    "trustmrr_slug": "comic-translator",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 929.0,
+      "last_30d_revenue": 889.0,
+      "all_time": 7807.0,
+      "subscriptions": 123,
+      "growth_30d": 0.0,
+      "mrr_growth_30d": 0.0,
+      "revenue_growth_30d": -10.9,
+      "headline": "MRR $929，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $929（TrustMRR 从支付网关 API 直读，2026-06-09 同步，Paddle (API key)）。近 30 天收入 $889、累计 $7,807、付费订阅 123 户。最近完整月环比 +3.8%（已剔除当月残月）。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 -10.9%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $1,034 → 最近完整月 $992，留存 96%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $929），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-06-09",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Paddle (API key)），非截图自报。",
+    "data_freshness": "2026-06-09T05:10:40.106Z"
+  },
+  {
+    "id": "comicsai",
+    "name": "ComicsAI",
+    "name_en": "ComicsAI",
+    "origin": "美国",
+    "one_liner": "Create stunning anime comics with the best AI Comic Factory. Free AI Comics Generator that transforms your stories into manga & anime-style art in minutes. No drawing skills required.",
+    "category": "AI 工具",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/comicsai",
+    "website": "http://comicsai.org/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2025-12-18",
+    "trustmrr_slug": "comicsai",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 357.0,
+      "last_30d_revenue": 472.0,
+      "all_time": 2683.0,
+      "subscriptions": 28,
+      "growth_30d": 6.7,
+      "mrr_growth_30d": 6.7,
+      "revenue_growth_30d": 4.9,
+      "headline": "MRR $357，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $357（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $472、累计 $2,683、付费订阅 28 户。最近完整月环比 +58.6%（已剔除当月残月）。近 30 天 MRR 增速 +6.7%。⚠ 历史峰值 $609 → 最近完整月 $482，留存 79%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $333），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T09:04:42.268Z"
+  },
+  {
+    "id": "conecta-fitness",
+    "name": "Conecta Fitness",
+    "name_en": "Conecta Fitness",
+    "origin": "巴西",
+    "one_liner": "Marketplace for Personal Trainers in Brazil",
+    "category": "health fitness",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/conecta-fitness",
+    "website": "https://conecta.fitness/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2025-06-27",
+    "founder_name": "Tiago Santos",
+    "trustmrr_slug": "conecta-fitness",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 710.0,
+      "last_30d_revenue": 757.0,
+      "all_time": 5468.0,
+      "subscriptions": 76,
+      "growth_30d": -24.3,
+      "mrr_growth_30d": -24.3,
+      "revenue_growth_30d": -19.8,
+      "headline": "MRR $710，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $710（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $757、累计 $5,468、付费订阅 76 户。最近完整月环比 +15.4%（已剔除当月残月）。近 30 天 MRR 增速 -24.3%。⚠ 历史峰值 $973 → 最近完整月 $973，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $816），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T10:34:21.230Z"
+  },
+  {
+    "id": "connor-cedro-seo-tampa-seo-consultant",
+    "name": "Connor Cedro SEO | Tampa SEO Consultant",
+    "name_en": "Connor Cedro SEO | Tampa SEO Consultant",
+    "origin": "美国",
+    "one_liner": "Solo SEO consulting practice run by Connor Cedro, a senior SEO consultant in Tampa, FL. Technical SEO, keyword strategy, content, local SEO, and white-hat link building on month-to-month retainers. No contracts, no junior team, no outsource",
+    "category": "AI 工具",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/connor-cedro-seo-ai-writing-tool",
+    "website": "https://connorcedro.com/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2021-01-01",
+    "founder_name": "Connor Cedro",
+    "trustmrr_slug": "connor-cedro-seo-ai-writing-tool",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 6196.0,
+      "last_30d_revenue": 5930.0,
+      "all_time": 44264.0,
+      "subscriptions": 10,
+      "growth_30d": 8.5,
+      "mrr_growth_30d": 8.5,
+      "revenue_growth_30d": 12.4,
+      "headline": "MRR $6,196，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $6,196（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $5,930、累计 $44,264、付费订阅 10 户。最近完整月环比 +1.9%（已剔除当月残月）。近 30 天 MRR 增速 +8.5%。⚠ 历史峰值 $5,377 → 最近完整月 $5,377，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $5,763），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T10:05:48.594Z"
+  },
+  {
+    "id": "contextbolt",
+    "name": "ContextBolt",
+    "name_en": "ContextBolt",
+    "origin": "英国",
+    "one_liner": "Building the toolkit for personal AI agents.",
+    "category": "垂直行业 SaaS",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/contextbolt",
+    "website": "https://contextbolt.com/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2026-04-03",
+    "founder_name": "David",
+    "trustmrr_slug": "contextbolt",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 894.0,
+      "last_30d_revenue": 910.0,
+      "all_time": 3399.0,
+      "subscriptions": 62,
+      "growth_30d": 20.5,
+      "mrr_growth_30d": 20.5,
+      "revenue_growth_30d": 23.2,
+      "headline": "MRR $894，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $894（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Lemon Squeezy (API key)）。近 30 天收入 $910、累计 $3,399、付费订阅 62 户。最近完整月环比 +43.6%（已剔除当月残月）。近 30 天 MRR 增速 +20.5%。⚠ 历史峰值 $853 → 最近完整月 $853，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $900），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Lemon Squeezy (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T10:31:10.186Z"
+  },
+  {
+    "id": "controlresell",
+    "name": "ControlResell",
+    "name_en": "ControlResell",
+    "origin": "法国",
+    "one_liner": "ControlResell is a monthly subscription software that allows resellers to track all their sales and purchases. We have a YouTube channel with tens of thousands of views, a podcast, and a recognized brand image in the industry (France only).",
+    "category": "电商",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/controlresell",
+    "website": "https://controlresell.com/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2025-01-01",
+    "founder_name": "lyes",
+    "founder_x_followers": "438",
+    "trustmrr_slug": "controlresell",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 21681.0,
+      "last_30d_revenue": 25443.0,
+      "all_time": 164864.0,
+      "subscriptions": 450,
+      "growth_30d": -0.6,
+      "mrr_growth_30d": -0.6,
+      "revenue_growth_30d": 7.1,
+      "headline": "MRR $21,681，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $21,681（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $25,443、累计 $164,864、付费订阅 450 户。最近完整月环比 +1.2%（已剔除当月残月）。近 30 天 MRR 增速 -0.6%。⚠ 同期收入增速为 +7.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $24,706 → 最近完整月 $24,706，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $21,904），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T14:05:08.060Z"
+  },
+  {
+    "id": "convertlabs",
+    "name": "ConvertLabs",
+    "name_en": "ConvertLabs",
+    "origin": "美国",
+    "one_liner": "We sell a SaaS product for booking and marketing for local service businesses.",
+    "category": "垂直行业 SaaS",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/convertlabs",
+    "website": "https://convertlabs.io/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2018-04-26",
+    "founder_name": "Rohan Gilkes, CFA",
+    "founder_x_followers": "23,363",
+    "trustmrr_slug": "convertlabs",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 28776.0,
+      "last_30d_revenue": 28154.0,
+      "all_time": 2242430.0,
+      "subscriptions": 474,
+      "growth_30d": 7.4,
+      "mrr_growth_30d": 7.4,
+      "revenue_growth_30d": -2.6,
+      "headline": "MRR $28,776，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $28,776（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $28,154、累计 $2,242,430、付费订阅 474 户。最近完整月环比 -5.4%（已剔除当月残月）。近 30 天 MRR 增速 +7.4%。⚠ 同期收入增速为 -2.6%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $35,645 → 最近完整月 $30,944，留存 87%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $28,116），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T08:08:18.157Z"
+  },
+  {
+    "id": "convitede",
+    "name": "Convitede",
+    "name_en": "Convitede",
+    "origin": "巴西",
+    "one_liner": "At Convitede, you create personalized invitations for any occasion—quickly, easily, and with style. Birthdays, weddings, gender reveals, graduations, and more — your invitation, your way.",
+    "category": "交易市场",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/convitede",
+    "website": "https://convitede.com/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2023-03-09",
+    "trustmrr_slug": "convitede",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 1158.0,
+      "last_30d_revenue": 1876.0,
+      "all_time": 18419.0,
+      "subscriptions": 375,
+      "growth_30d": -7.7,
+      "mrr_growth_30d": -7.7,
+      "revenue_growth_30d": -13.2,
+      "headline": "MRR $1,158，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $1,158（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $1,876、累计 $18,419、付费订阅 375 户。最近完整月环比 +6.3%（已剔除当月残月）。近 30 天 MRR 增速 -7.7%。⚠ 同期收入增速为 -13.2%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $2,172 → 最近完整月 $2,172，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $1,199），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T10:21:53.601Z"
+  },
+  {
+    "id": "cramberry",
+    "name": "Cramberry",
+    "name_en": "Cramberry",
+    "origin": "美国",
+    "one_liner": "A SaaS for students to generate and organize quizzes, flashcards, and notes.",
+    "category": "AI 工具",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/cramberry",
+    "website": "https://cramberry.study/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2025-11-17",
+    "founder_name": "faraaz",
+    "trustmrr_slug": "cramberry",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 917.0,
+      "last_30d_revenue": 1029.0,
+      "all_time": 4680.0,
+      "subscriptions": 63,
+      "growth_30d": 52.6,
+      "mrr_growth_30d": 52.6,
+      "revenue_growth_30d": 80.7,
+      "headline": "MRR $917，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $917（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $1,029、累计 $4,680、付费订阅 63 户。最近完整月环比 +57.6%（已剔除当月残月）。近 30 天 MRR 增速 +52.6%。⚠ 同期收入增速为 +80.7%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $547 → 最近完整月 $547，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $938），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T10:07:55.350Z"
+  },
+  {
+    "id": "crawlbyte",
+    "name": "Crawlbyte",
+    "name_en": "Crawlbyte",
+    "origin": "美国",
+    "one_liner": "Crawlbyte is the easiest way to extract any public web data at scale - without writing code and without the slow, resource-heavy browser sessions that most scrapers rely on.",
+    "category": "开发者工具",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/crawlbyte",
+    "website": "https://crawlbyte.ai/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2025-05-25",
+    "founder_name": "Gunnar",
+    "trustmrr_slug": "crawlbyte",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 1246.0,
+      "last_30d_revenue": 6746.0,
+      "all_time": 91127.0,
+      "subscriptions": 4,
+      "growth_30d": 0.0,
+      "mrr_growth_30d": 0.0,
+      "revenue_growth_30d": -6.9,
+      "headline": "MRR $1,246，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $1,246（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $6,746、累计 $91,127、付费订阅 4 户。最近完整月环比 -6.6%（已剔除当月残月）。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 -6.9%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $11,281 → 最近完整月 $7,246，留存 64%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $1,246），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T08:13:57.557Z"
+  },
+  {
+    "id": "creads",
+    "name": "creads",
+    "name_en": "creads",
+    "origin": "意大利",
+    "one_liner": "Your marketing, running on its own",
+    "category": "AI 工具",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/creads",
+    "website": "https://www.creads.studio/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2026-03-08",
+    "founder_name": "Alberto Ravasini ⚡",
+    "trustmrr_slug": "creads",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 591.0,
+      "last_30d_revenue": 651.0,
+      "all_time": 4931.0,
+      "subscriptions": 17,
+      "growth_30d": -13.9,
+      "mrr_growth_30d": -13.9,
+      "revenue_growth_30d": -12.0,
+      "headline": "MRR $591，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $591（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $651、累计 $4,931、付费订阅 17 户。最近完整月环比 +47.4%（已剔除当月残月）。近 30 天 MRR 增速 -13.9%。⚠ 历史峰值 $1,047 → 最近完整月 $784，留存 75%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $534），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T09:56:59.970Z"
+  },
+  {
+    "id": "creativeclaw",
+    "name": "CreativeClaw",
+    "name_en": "CreativeClaw",
+    "origin": "以色列",
+    "one_liner": "Your Claude has been writing all day. We gave it a creative studio. Every top AI model for images, video, audio & 3D. One MCP. Go. 🎨",
+    "category": "创作者经济",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/creativeclaw",
+    "website": "https://creativeclaw.co/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2026-04-01",
+    "founder_name": "Itay Dressler",
+    "founder_x_followers": "443",
+    "trustmrr_slug": "creativeclaw",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 11590.0,
+      "last_30d_revenue": 104322.0,
+      "all_time": 199634.0,
+      "subscriptions": 220,
+      "growth_30d": 24.6,
+      "mrr_growth_30d": 24.6,
+      "revenue_growth_30d": 21.1,
+      "headline": "MRR $11,590，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $11,590（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Polar (API key)）。近 30 天收入 $104,322、累计 $199,634、付费订阅 220 户。最近完整月环比 +1668.1%（已剔除当月残月）。近 30 天 MRR 增速 +24.6%。⚠ 历史峰值 $92,894 → 最近完整月 $92,894，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $10,390），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Polar (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T05:44:35.629Z"
+  },
+  {
+    "id": "deeplead-io",
+    "name": "Deeplead.io",
+    "name_en": "Deeplead.io",
+    "origin": "德国",
+    "one_liner": "Software access and service payments on deeplead.io",
+    "category": "企业服务",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/deeplead-io",
+    "website": "https://www.deeplead.io/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2026-02-04",
+    "founder_name": "Depp Lead",
+    "founder_x_followers": "6",
+    "trustmrr_slug": "deeplead-io",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 12729.0,
+      "last_30d_revenue": 15283.0,
+      "all_time": 67218.0,
+      "subscriptions": 295,
+      "growth_30d": 101.5,
+      "mrr_growth_30d": 101.5,
+      "revenue_growth_30d": 146.6,
+      "headline": "MRR $12,729，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $12,729（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $15,283、累计 $67,218、付费订阅 295 户。最近完整月环比 -16.4%（已剔除当月残月）。近 30 天 MRR 增速 +101.5%。⚠ 同期收入增速为 +146.6%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $8,139 → 最近完整月 $5,886，留存 72%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $10,127），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T11:55:35.913Z"
+  },
+  {
+    "id": "dreamini-ai",
+    "name": "Dreamini AI",
+    "name_en": "Dreamini AI",
+    "one_liner": "Every AI model worth using, in one place",
+    "category": "AI 工具",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/dreamini-ai",
+    "website": "https://app.dreamini.ai/",
+    "harvest_source": "trustmrr",
+    "trustmrr_slug": "dreamini-ai",
+    "source_kind": "verified",
+    "added_at": "2026-10-26",
+    "metrics": {
+      "mrr": 831.0,
+      "last_30d_revenue": 882.0,
+      "all_time": 955.0,
+      "subscriptions": 28,
+      "growth_30d": 1284.9,
+      "mrr_growth_30d": 1284.9,
+      "revenue_growth_30d": 1108.3,
+      "headline": "MRR $831，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $831（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $882、累计 $955、付费订阅 28 户。月度时间线不足两个月，不给环比结论。近 30 天 MRR 增速 +1284.9%。⚠ 同期收入增速为 +1108.3%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 队列缓存值是 2026-10-26 采集时的快照（当时 $651），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T12:53:04.250Z"
+  },
+  {
+    "id": "dropapost",
+    "name": "Dropapost",
+    "name_en": "Dropapost",
+    "origin": "法国",
+    "one_liner": "Dropapost est la première plateforme d'automatisation du Community Management propulsée par l'IA, conçue pour libérer les agences et les freelances TPE et PME. Compatible avec Instagram, Pinterest, Google, Tiktok et Facebook, cette solution",
+    "category": "营销工具",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/dropapost",
+    "website": "https://dropapost.io/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2025-07-01",
+    "founder_x_followers": "0",
+    "trustmrr_slug": "dropapost",
+    "source_kind": "verified",
+    "added_at": "2026-10-23",
+    "metrics": {
+      "mrr": 1052.0,
+      "last_30d_revenue": 1012.0,
+      "all_time": 5008.0,
+      "subscriptions": 35,
+      "growth_30d": 12.1,
+      "mrr_growth_30d": 12.1,
+      "revenue_growth_30d": 19.8,
+      "headline": "MRR $1,052，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $1,052（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $1,012、累计 $5,008、付费订阅 35 户。最近完整月环比 +13.3%（已剔除当月残月）。近 30 天 MRR 增速 +12.1%。⚠ 同期收入增速为 +19.8%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $977 → 最近完整月 $977，留存 100%。⚠ 队列缓存值是 2026-10-23 采集时的快照（当时 $1,014），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T08:40:26.027Z"
+  },
+  {
+    "id": "elmo",
+    "name": "Elmo",
+    "name_en": "Elmo",
+    "origin": "美国",
+    "one_liner": "Win AI search with open source AEO / GEO. Track prompt, analyze citations, and find opportunities to get your brand into AI responses for ChatGPT/Claude/Gemini/etc.",
+    "category": "AI 工具",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/elmo",
+    "website": "https://www.elmohq.com/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2025-02-28",
+    "founder_name": "Jared Rhizor",
+    "trustmrr_slug": "elmo",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 5349.0,
+      "last_30d_revenue": 5676.0,
+      "all_time": 69176.0,
+      "subscriptions": 17,
+      "growth_30d": 16.7,
+      "mrr_growth_30d": 16.7,
+      "revenue_growth_30d": 8.6,
+      "headline": "MRR $5,349，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $5,349（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $5,676、累计 $69,176、付费订阅 17 户。最近完整月环比 -3.4%（已剔除当月残月）。近 30 天 MRR 增速 +16.7%。⚠ 同期收入增速为 +8.6%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $5,944 → 最近完整月 $5,743，留存 97%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $5,279），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T08:32:04.330Z"
+  },
+  {
+    "id": "esim-panel",
+    "name": "eSIM Panel",
+    "name_en": "eSIM Panel",
+    "origin": "英国",
+    "one_liner": "Start your eSIM marketplace with 200+ countries, 6 providers, up to 200% profit margins. No tech skills needed. Global connectivity made simple. White label eSIM solution.",
+    "category": "电商",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/esim-panel",
+    "website": "https://esimpanel.io/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2025-09-09",
+    "founder_name": "kdrmlhcn",
+    "trustmrr_slug": "esim-panel",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 1008.0,
+      "last_30d_revenue": 1028.0,
+      "all_time": 1592.0,
+      "subscriptions": 8,
+      "growth_30d": null,
+      "mrr_growth_30d": null,
+      "revenue_growth_30d": null,
+      "headline": "MRR $1,008，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $1,008（TrustMRR 从支付网关 API 直读，2025-12-24 同步，Stripe (API key)）。近 30 天收入 $1,028、累计 $1,592、付费订阅 8 户。月度时间线不足两个月，不给环比结论。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $1,008），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2025-12-24",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2025-12-24T07:34:28.835Z"
+  },
+  {
+    "id": "fill",
+    "name": "Fill",
+    "name_en": "Fill",
+    "one_liner": "Answer and ask questions anonymously (or not), Choose whether you want to answer a question privately.",
+    "category": "创作者经济",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/fill",
+    "website": "https://apps.apple.com/app/id1519941074",
+    "harvest_source": "trustmrr",
+    "trustmrr_slug": "fill",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 472.0,
+      "last_30d_revenue": 544.0,
+      "all_time": 732.0,
+      "subscriptions": 49,
+      "growth_30d": null,
+      "mrr_growth_30d": null,
+      "revenue_growth_30d": null,
+      "headline": "MRR $472，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $472（TrustMRR 从支付网关 API 直读，2026-02-03 同步，RevenueCat (API key)）。近 30 天收入 $544、累计 $732、付费订阅 49 户。最近完整月环比 +393.0%（已剔除当月残月）。⚠ 历史峰值 $567 → 最近完整月 $567，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $472），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-02-03",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（RevenueCat (API key)），非截图自报。",
+    "data_freshness": "2026-02-03T15:11:12.920Z"
+  },
+  {
+    "id": "frontrun",
+    "name": "frontrun",
+    "name_en": "frontrun",
+    "origin": "美国",
+    "one_liner": "startup discovery platform",
+    "category": "AI 工具",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/frontrun",
+    "website": "https://frontrun.vc/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2026-02-12",
+    "founder_name": "JG",
+    "founder_x_followers": "3,814",
+    "trustmrr_slug": "frontrun",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 8213.0,
+      "last_30d_revenue": 7991.0,
+      "all_time": 36304.0,
+      "subscriptions": 100,
+      "growth_30d": 27.8,
+      "mrr_growth_30d": 27.8,
+      "revenue_growth_30d": 38.7,
+      "headline": "MRR $8,213，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $8,213（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $7,991、累计 $36,304、付费订阅 100 户。最近完整月环比 +23.0%（已剔除当月残月）。近 30 天 MRR 增速 +27.8%。⚠ 同期收入增速为 +38.7%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $6,403 → 最近完整月 $6,403，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $7,916），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T11:06:55.279Z"
+  },
+  {
+    "id": "garagelab",
+    "name": "GarageLab",
+    "name_en": "GarageLab",
+    "origin": "土耳其",
+    "one_liner": "AI-powered automotive content creation app. Users upload a photo of their vehicle and generate realistic cinematic photos and videos in seconds. Built for car enthusiasts, social media creators, dealerships, and automotive communities. Reve",
+    "category": "移动应用",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/garagelab",
+    "website": "https://apps.apple.com/app/id6761027219",
+    "harvest_source": "trustmrr",
+    "founded_at": "2026-04-04",
+    "founder_name": "Ahmet Hakan Eroğlu",
+    "trustmrr_slug": "garagelab",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 2039.0,
+      "last_30d_revenue": 2193.0,
+      "all_time": 9508.0,
+      "subscriptions": 52,
+      "growth_30d": 20.6,
+      "mrr_growth_30d": 20.6,
+      "revenue_growth_30d": 9.5,
+      "headline": "MRR $2,039，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $2,039（TrustMRR 从支付网关 API 直读，2026-10-28 同步，RevenueCat (API key)）。近 30 天收入 $2,193、累计 $9,508、付费订阅 52 户。最近完整月环比 -3.1%（已剔除当月残月）。近 30 天 MRR 增速 +20.6%。⚠ 同期收入增速为 +9.5%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $2,054 → 最近完整月 $1,991，留存 97%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $2,004），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（RevenueCat (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T10:36:25.822Z"
+  },
+  {
+    "id": "ihatepdf-cv",
+    "name": "ihatepdf.cv",
+    "name_en": "ihatepdf.cv",
+    "one_liner": "Privacy-first PDF toolkit with 60+ powerful tools for editing, converting, compressing, merging, splitting, signing, OCR, and more. All core PDF processing happens locally in the browser, so files never leave the user’s device.",
+    "category": "企业服务",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/ihatepdf-cv",
+    "website": "https://ihatepdf.cv/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2025-12-25",
+    "founder_name": "Pranav Mailarpawar",
+    "founder_x_followers": "20,363",
+    "trustmrr_slug": "ihatepdf-cv",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 1194.0,
+      "last_30d_revenue": 1308.0,
+      "all_time": 1340.0,
+      "subscriptions": 6,
+      "growth_30d": 0.0,
+      "mrr_growth_30d": 0.0,
+      "revenue_growth_30d": 3902.2,
+      "headline": "MRR $1,194，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $1,194（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Dodo Payments (API key)）。近 30 天收入 $1,308、累计 $1,340、付费订阅 6 户。最近完整月环比 +1170.0%（已剔除当月残月）。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 +3902.2%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $31 → 最近完整月 $31，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $895），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Dodo Payments (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T12:29:13.935Z"
+  },
+  {
+    "id": "jarvis-bet",
+    "name": "Jarvis bet",
+    "name_en": "Jarvis bet",
+    "origin": "法国",
+    "one_liner": "Jarvis Bet is your AI sports betting analyst, providing daily sports betting tips and personalized AI coaching.",
+    "category": "AI 工具",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/jarvis-bet",
+    "website": "https://apps.apple.com/us/app/jarvis-bet-ai-picks-coach/id1126740824?uo=4",
+    "harvest_source": "trustmrr",
+    "founded_at": "2026-10-01",
+    "trustmrr_slug": "jarvis-bet",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 1166.0,
+      "last_30d_revenue": 1120.0,
+      "all_time": 11754.0,
+      "subscriptions": 69,
+      "growth_30d": -49.5,
+      "mrr_growth_30d": -49.5,
+      "revenue_growth_30d": -55.1,
+      "headline": "MRR $1,166，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $1,166（TrustMRR 从支付网关 API 直读，2026-10-28 同步，RevenueCat (API key)）。近 30 天收入 $1,120、累计 $11,754、付费订阅 69 户。最近完整月环比 +11.3%（已剔除当月残月）。近 30 天 MRR 增速 -49.5%。⚠ 同期收入增速为 -55.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $2,549 → 最近完整月 $2,481，留存 97%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $1,163），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（RevenueCat (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T12:28:41.435Z"
+  },
+  {
+    "id": "leadmetrics",
+    "name": "LeadMetrics",
+    "name_en": "LeadMetrics",
+    "origin": "奥地利",
+    "one_liner": "B2C & B2B Tracking Marketing Attribution Software",
+    "category": "营销工具",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/leadmetrics",
+    "website": "https://www.lead-metrics.com/en",
+    "harvest_source": "trustmrr",
+    "founded_at": "2024-07-27",
+    "trustmrr_slug": "leadmetrics",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 5170.0,
+      "last_30d_revenue": 5021.0,
+      "all_time": 96750.0,
+      "subscriptions": 33,
+      "growth_30d": -1.5,
+      "mrr_growth_30d": -1.5,
+      "revenue_growth_30d": -2.2,
+      "headline": "MRR $5,170，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $5,170（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $5,021、累计 $96,750、付费订阅 33 户。最近完整月环比 -10.5%（已剔除当月残月）。近 30 天 MRR 增速 -1.5%。⚠ 历史峰值 $12,719 → 最近完整月 $5,132，留存 40%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $5,491），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T12:31:16.564Z"
+  },
+  {
+    "id": "lunarbuild",
+    "name": "LunarBuild",
+    "name_en": "LunarBuild",
+    "origin": "美国",
+    "one_liner": "We help businesses build apps using low code tools",
+    "category": "开发者工具",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/lunarbuild",
+    "website": "https://lunarbuild.io/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2024-11-03",
+    "founder_x_followers": "0",
+    "trustmrr_slug": "lunarbuild",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 6031.0,
+      "last_30d_revenue": 11632.0,
+      "all_time": 223792.0,
+      "subscriptions": 8,
+      "growth_30d": 14.2,
+      "mrr_growth_30d": 14.2,
+      "revenue_growth_30d": -11.0,
+      "headline": "MRR $6,031，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $6,031（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $11,632、累计 $223,792、付费订阅 8 户。最近完整月环比 +27.0%（已剔除当月残月）。近 30 天 MRR 增速 +14.2%。⚠ 同期收入增速为 -11.0%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $20,985 → 最近完整月 $12,815，留存 61%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $5,531），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T12:27:39.538Z"
+  },
+  {
+    "id": "mausbot",
+    "name": "MausBot",
+    "name_en": "MausBot",
+    "one_liner": "MausBot is the open-source alternative to Grok Bot, Muse by Meta, Cue by Manus and OpenAI Dots: a team of AI bots that do real work on a computer for you. Ask in chat and a bot opens a browser, resear",
+    "category": "AI 工具",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/mausbot",
+    "website": "https://www.mausbot.com/",
+    "harvest_source": "trustmrr",
+    "trustmrr_slug": "mausbot",
+    "source_kind": "verified",
+    "added_at": "2026-10-26",
+    "metrics": {
+      "mrr": 7140.0,
+      "last_30d_revenue": 5518.0,
+      "all_time": 5719.0,
+      "subscriptions": 125,
+      "growth_30d": 0.0,
+      "mrr_growth_30d": 0.0,
+      "revenue_growth_30d": 2642.1,
+      "headline": "MRR $7,140，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $7,140（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Dodo Payments (API key)）。近 30 天收入 $5,518、累计 $5,719、付费订阅 125 户。月度时间线不足两个月，不给环比结论。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 +2642.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 队列缓存值是 2026-10-26 采集时的快照（当时 $7,559），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Dodo Payments (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T12:27:43.230Z"
+  },
+  {
+    "id": "mind-reach",
+    "name": "Mind Reach",
+    "name_en": "Mind Reach",
+    "one_liner": "MindReach - autogenic training app",
+    "category": "移动应用",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/mind-reach",
+    "website": "https://www.mindreach-app.com/",
+    "harvest_source": "trustmrr",
+    "founder_name": "Julius Rachor",
+    "trustmrr_slug": "mind-reach",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 2131.0,
+      "last_30d_revenue": 1783.0,
+      "all_time": 77561.0,
+      "subscriptions": 211,
+      "growth_30d": -1.5,
+      "mrr_growth_30d": -1.5,
+      "revenue_growth_30d": -18.3,
+      "headline": "MRR $2,131，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $2,131（TrustMRR 从支付网关 API 直读，2026-10-28 同步，RevenueCat (API key)）。近 30 天收入 $1,783、累计 $77,561、付费订阅 211 户。最近完整月环比 -12.9%（已剔除当月残月）。近 30 天 MRR 增速 -1.5%。⚠ 同期收入增速为 -18.3%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $3,183 → 最近完整月 $2,103，留存 66%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $2,121），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（RevenueCat (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T12:33:20.225Z"
+  },
+  {
+    "id": "picoo",
+    "name": "Picoo",
+    "name_en": "Picoo",
+    "origin": "阿联酋",
+    "one_liner": "Picoo is an AI copilot for Roblox Studio. Describe a game system in plain English — Picoo writes the Luau, generates 3D models, and builds complete systems (combat, shop, pet, tycoon) right inside Studio. Subscriptions and one-time credit p",
+    "category": "AI 工具",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/picoo",
+    "website": "https://picoo.io/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2026-07-01",
+    "founder_name": "Can",
+    "trustmrr_slug": "picoo",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 504.0,
+      "last_30d_revenue": 2121.0,
+      "all_time": 3961.0,
+      "subscriptions": 28,
+      "growth_30d": -2.4,
+      "mrr_growth_30d": -2.4,
+      "revenue_growth_30d": 175.9,
+      "headline": "MRR $504，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $504（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Dodo Payments (API key)）。近 30 天收入 $2,121、累计 $3,961、付费订阅 28 户。最近完整月环比 +74.5%（已剔除当月残月）。近 30 天 MRR 增速 -2.4%。⚠ 同期收入增速为 +175.9%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $939 → 最近完整月 $939，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $486），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Dodo Payments (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T12:34:52.480Z"
+  },
+  {
+    "id": "polyalerthub",
+    "name": "PolyAlertHub",
+    "name_en": "PolyAlertHub",
+    "origin": "加拿大",
+    "one_liner": "Polymarket Alerts, Analytics and Trading Terminal Note on revenue: Most of our revenue comes from affiliate program, subscription is just one small part.",
+    "category": "crypto web3",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/polyalerthub",
+    "website": "https://polyalerthub.com/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2025-01-01",
+    "founder_x_followers": "0",
+    "trustmrr_slug": "polyalerthub",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 906.0,
+      "last_30d_revenue": 904.0,
+      "all_time": 13495.0,
+      "subscriptions": 51,
+      "growth_30d": 4.6,
+      "mrr_growth_30d": 4.6,
+      "revenue_growth_30d": 3.3,
+      "headline": "MRR $906，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $906（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $904、累计 $13,495、付费订阅 51 户。最近完整月环比 -11.5%（已剔除当月残月）。近 30 天 MRR 增速 +4.6%。⚠ 历史峰值 $1,364 → 最近完整月 $875，留存 64%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $891），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T12:39:34.706Z"
+  },
+  {
+    "id": "rareui",
+    "name": "RareUI",
+    "name_en": "RareUI",
+    "one_liner": "Rare UI is a free, open-source collection of rare animated React components.",
+    "category": "开发者工具",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/rareui",
+    "website": "https://rareui.com/",
+    "harvest_source": "trustmrr",
+    "founder_name": "Swami",
+    "trustmrr_slug": "rareui",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 650.0,
+      "last_30d_revenue": 681.0,
+      "all_time": 1108.0,
+      "subscriptions": 3,
+      "growth_30d": 62.5,
+      "mrr_growth_30d": 62.5,
+      "revenue_growth_30d": 59.3,
+      "headline": "MRR $650，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $650（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Dodo Payments (API key)）。近 30 天收入 $681、累计 $1,108、付费订阅 3 户。月度时间线不足两个月，不给环比结论。近 30 天 MRR 增速 +62.5%。⚠ 历史峰值 $427 → 最近完整月 $427，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $650），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Dodo Payments (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T12:36:29.137Z"
+  },
+  {
+    "id": "sbc-crafter",
+    "name": "SBC Crafter",
+    "name_en": "SBC Crafter",
+    "origin": "斯洛文尼亚",
+    "one_liner": "Subscription-based software providing automation and productivity tools for ea fc web app.",
+    "category": "AI 工具",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/sbccrafter",
+    "website": "https://sbccrafter.com/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2026-08-21",
+    "founder_name": "SBC Crafter",
+    "trustmrr_slug": "sbccrafter",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 369.0,
+      "last_30d_revenue": 395.0,
+      "all_time": 701.0,
+      "subscriptions": 111,
+      "growth_30d": 22.4,
+      "mrr_growth_30d": 22.4,
+      "revenue_growth_30d": 29.2,
+      "headline": "MRR $369，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $369（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $395、累计 $701、付费订阅 111 户。最近完整月环比 +10616.4%（已剔除当月残月）。近 30 天 MRR 增速 +22.4%。⚠ 同期收入增速为 +29.2%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $359 → 最近完整月 $359，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $482），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T12:34:23.208Z"
+  },
+  {
+    "id": "social-post-flow",
+    "name": "Social Post Flow",
+    "name_en": "Social Post Flow",
+    "origin": "新加坡",
+    "one_liner": "Automatically publish content from WordPress, Zapier, MCP, CLI or our API to Facebook Pages, X, Instagram, Threads, LinkedIn (Profiles + Pages), Google Business, Pinterest, TikTok, Bluesky, Mastodon and Telegram, from just $49/year.",
+    "category": "营销工具",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/socialpostflow",
+    "website": "https://www.socialpostflow.com/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2025-10-01",
+    "founder_name": "Social Post Flow",
+    "founder_x_followers": "1",
+    "trustmrr_slug": "socialpostflow",
+    "source_kind": "verified",
+    "added_at": "2026-10-23",
+    "metrics": {
+      "mrr": 663.0,
+      "last_30d_revenue": 689.0,
+      "all_time": 8743.0,
+      "subscriptions": 139,
+      "growth_30d": 0.0,
+      "mrr_growth_30d": 0.0,
+      "revenue_growth_30d": -13.0,
+      "headline": "MRR $663，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $663（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $689、累计 $8,743、付费订阅 139 户。最近完整月环比 +30.1%（已剔除当月残月）。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 -13.0%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $1,029 → 最近完整月 $834，留存 81%。⚠ 队列缓存值是 2026-10-23 采集时的快照（当时 $659），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T12:34:26.994Z"
+  },
+  {
+    "id": "sprinta-ai",
+    "name": "Sprinta.ai",
+    "name_en": "Sprinta.ai",
+    "origin": "美国",
+    "one_liner": "Ofrecemos diferentes tipos de Saas por suscripción, como herramientas para crear agentes de IA para whatsapp",
+    "category": "AI 工具",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/sprinta-ai",
+    "website": "https://sprinta.ai/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2020-01-18",
+    "founder_x_followers": "0",
+    "trustmrr_slug": "sprinta-ai",
+    "source_kind": "verified",
+    "added_at": "2026-10-23",
+    "metrics": {
+      "mrr": 5264.0,
+      "last_30d_revenue": 7216.0,
+      "all_time": 53346.0,
+      "subscriptions": 54,
+      "growth_30d": -16.2,
+      "mrr_growth_30d": -16.2,
+      "revenue_growth_30d": 22.7,
+      "headline": "MRR $5,264，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $5,264（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $7,216、累计 $53,346、付费订阅 54 户。最近完整月环比 -4.6%（已剔除当月残月）。近 30 天 MRR 增速 -16.2%。⚠ 同期收入增速为 +22.7%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $7,413 → 最近完整月 $5,991，留存 81%。⚠ 队列缓存值是 2026-10-23 采集时的快照（当时 $5,524），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T10:01:41.697Z"
+  },
+  {
+    "id": "stivio",
+    "name": "Stivio",
+    "name_en": "Stivio",
+    "origin": "中国香港",
+    "one_liner": "Upload floor plans and generate photorealistic 3D renderings in seconds",
+    "category": "AI 工具",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/stivio",
+    "website": "https://stivio.ai/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2026-08-16",
+    "trustmrr_slug": "stivio",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 0.0,
+      "last_30d_revenue": 500.0,
+      "all_time": 519.0,
+      "subscriptions": 0,
+      "growth_30d": 0.0,
+      "mrr_growth_30d": 0.0,
+      "revenue_growth_30d": 0.0,
+      "headline": "近 30 天收入 $500，TrustMRR 实时核对（非订阅制，MRR 恒 0）",
+      "metric_note": "实测口径：近 30 天已验证收入 $500（非订阅制/买断制业务，MRR 恒 0，本条门面口径为近 30 天流水，含一次性与用量收入，别当经常性收入引用；TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $500、累计 $519、付费订阅 0 户。月度时间线不足两个月，不给环比结论。近 30 天 MRR 增速 +0.0%。⚠ 刷新前该条目没有任何收入数字（早期入库时收入未公开），本次首次补齐。",
+      "caliber": "last_30d"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。此前该条目在候选池里没有任何收入数字，本次首次补齐。",
+    "data_freshness": "2026-10-28T11:43:42.049Z"
+  },
+  {
+    "id": "studio-zero",
+    "name": "Studio Zero",
+    "name_en": "Studio Zero",
+    "one_liner": "product photo application",
+    "category": "AI 工具",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/studio-zero",
+    "website": "https://getstudiozero.com/",
+    "harvest_source": "trustmrr",
+    "founder_name": "mete",
+    "trustmrr_slug": "studio-zero",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 372.0,
+      "last_30d_revenue": 816.0,
+      "all_time": 4065.0,
+      "subscriptions": 33,
+      "growth_30d": -4.1,
+      "mrr_growth_30d": -4.1,
+      "revenue_growth_30d": 38.4,
+      "headline": "MRR $372，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $372（TrustMRR 从支付网关 API 直读，2026-10-28 同步，RevenueCat (API key)）。近 30 天收入 $816、累计 $4,065、付费订阅 33 户。最近完整月环比 +24.1%（已剔除当月残月）。近 30 天 MRR 增速 -4.1%。⚠ 同期收入增速为 +38.4%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $652 → 最近完整月 $643，留存 99%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $372），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（RevenueCat (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T12:27:39.006Z"
+  },
+  {
+    "id": "themedrop",
+    "name": "ThemeDrop",
+    "name_en": "ThemeDrop",
+    "origin": "法国",
+    "one_liner": "logiciel permettant de créer un theme shopify en quelque seconde.",
+    "category": "电商",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/themedrop",
+    "website": "https://themedrop.app/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2026-04-16",
+    "trustmrr_slug": "themedrop",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 371.0,
+      "last_30d_revenue": 1402.0,
+      "all_time": 6319.0,
+      "subscriptions": 33,
+      "growth_30d": -0.5,
+      "mrr_growth_30d": -0.5,
+      "revenue_growth_30d": 20.7,
+      "headline": "MRR $371，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $371（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $1,402、累计 $6,319、付费订阅 33 户。最近完整月环比 -20.6%（已剔除当月残月）。近 30 天 MRR 增速 -0.5%。⚠ 同期收入增速为 +20.7%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $1,431 → 最近完整月 $1,136，留存 79%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $371），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T12:28:42.812Z"
+  },
+  {
+    "id": "url2pin",
+    "name": "URL2Pin",
+    "name_en": "URL2Pin",
+    "origin": "希腊",
+    "one_liner": "Pinterest is the cheapest traffic left for affiliates and sellers. The catch: nobody has an hour per pin. URL2Pin fixes that. Paste one product URL and get a full batch of scroll-stopping pins — each with its own image, headline, descriptio",
+    "category": "营销工具",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/url2pin",
+    "website": "https://url2pin.com/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2026-03-10",
+    "founder_name": "Aristomenis Georgiopoulos",
+    "trustmrr_slug": "url2pin",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 797.0,
+      "last_30d_revenue": 2055.0,
+      "all_time": 5377.0,
+      "subscriptions": 51,
+      "growth_30d": 88.2,
+      "mrr_growth_30d": 88.2,
+      "revenue_growth_30d": 131.5,
+      "headline": "MRR $797，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $797（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Dodo Payments (API key)）。近 30 天收入 $2,055、累计 $5,377、付费订阅 51 户。最近完整月环比 +30.6%（已剔除当月残月）。近 30 天 MRR 增速 +88.2%。⚠ 同期收入增速为 +131.5%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $888 → 最近完整月 $888，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $646），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Dodo Payments (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T10:03:43.168Z"
+  },
+  {
+    "id": "velisto",
+    "name": "Velisto",
+    "name_en": "Velisto",
+    "origin": "巴基斯坦",
+    "one_liner": "Velisto is an AI social media and marketing platform for real estate that helps you find ideas, create branded posts and videos, and publish across your channels—without spending your evenings planning, designing and posting.",
+    "category": "创作者经济",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/velisto",
+    "website": "https://velisto.ai/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2026-08-24",
+    "founder_name": "Waqas Riaz",
+    "trustmrr_slug": "velisto",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 361.0,
+      "last_30d_revenue": 601.0,
+      "all_time": 2724.0,
+      "subscriptions": 8,
+      "growth_30d": -47.2,
+      "mrr_growth_30d": -47.2,
+      "revenue_growth_30d": -69.6,
+      "headline": "MRR $361，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $361（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Polar (API key)）。近 30 天收入 $601、累计 $2,724、付费订阅 8 户。最近完整月环比 +1234.5%（已剔除当月残月）。近 30 天 MRR 增速 -47.2%。⚠ 同期收入增速为 -69.6%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $1,975 → 最近完整月 $1,975，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $361），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Polar (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T12:32:51.533Z"
+  },
+  {
+    "id": "vibeling",
+    "name": "VibeLing",
+    "name_en": "VibeLing",
+    "one_liner": "The vocabulary app that helps you never forget new words",
+    "category": "垂直行业 SaaS",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/vibeling",
+    "website": "https://vibeling.app/",
+    "harvest_source": "trustmrr",
+    "founder_name": "Solo Founder / Pavlenko",
+    "trustmrr_slug": "vibeling",
+    "source_kind": "verified",
+    "added_at": "2026-10-22",
+    "metrics": {
+      "mrr": 400.0,
+      "last_30d_revenue": 1099.0,
+      "all_time": 2964.0,
+      "subscriptions": 102,
+      "growth_30d": 4.1,
+      "mrr_growth_30d": 4.1,
+      "revenue_growth_30d": 76.1,
+      "headline": "MRR $400，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $400（TrustMRR 从支付网关 API 直读，2026-10-28 同步，RevenueCat (API key)）。近 30 天收入 $1,099、累计 $2,964、付费订阅 102 户。最近完整月环比 +36.5%（已剔除当月残月）。近 30 天 MRR 增速 +4.1%。⚠ 同期收入增速为 +76.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $699 → 最近完整月 $699，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $414），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（RevenueCat (API key)），非截图自报。",
+    "data_freshness": "2026-10-28T12:35:26.966Z"
+  },
+  {
+    "id": "carry-save-chatgpt-claude-grok-to-markdown-automatically",
+    "name": "Carry: Save ChatGPT, Claude & Grok to Markdown Automatically",
+    "name_en": "Carry: Save ChatGPT, Claude & Grok to Markdown Automatically",
+    "origin": "印度",
+    "one_liner": "Carry automatically saves ChatGPT, Claude & Grok chats, Claude Projects & files to your Obsidian vault as Markdown. 14-day trial.",
+    "category": "Utilities",
+    "models": [
+      "交易市场"
+    ],
+    "source_url": "https://trustmrr.com/startup/carry",
+    "website": "https://carry.md",
+    "harvest_source": "trustmrr",
+    "founded_at": "2026-07-17",
+    "founder_x": "iamankit",
+    "founder_name": "Ankit 🦊",
+    "trustmrr_slug": "carry",
+    "trade": {
+      "price": "$10,000",
+      "multiple": "1.57x",
+      "revenue": "$531"
+    },
+    "source_kind": "verified",
+    "added_at": "2026-10-26",
+    "metrics": {
+      "mrr": 0.0,
+      "last_30d_revenue": 531.0,
+      "all_time": 649.0,
+      "subscriptions": 0,
+      "growth_30d": 0.0,
+      "mrr_growth_30d": 0.0,
+      "revenue_growth_30d": 350.0,
+      "headline": "近 30 天收入 $531，TrustMRR 实时核对（非订阅制，MRR 恒 0）",
+      "metric_note": "实测口径：近 30 天已验证收入 $531（非订阅制/买断制业务，MRR 恒 0，本条门面口径为近 30 天流水，含一次性与用量收入，别当经常性收入引用；TrustMRR 从支付网关 API 直读，2026-10-28 同步，Polar (API key)）。近 30 天收入 $531、累计 $649、付费订阅 0 户。月度时间线不足两个月，不给环比结论。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 +350.0%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $177 → 最近完整月 $177，留存 100%。挂牌 $10,000、倍数 1.57x（要价不等于收入）。⚠ 刷新前该条目没有任何收入数字（早期入库时收入未公开），本次首次补齐。",
+      "caliber": "last_30d"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-10-28",
+    "refreshed_at": "2026-10-28",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Polar (API key)），非截图自报。此前该条目在候选池里没有任何收入数字，本次首次补齐。",
+    "data_freshness": "2026-10-28T11:19:19.157Z"
   }
 ]

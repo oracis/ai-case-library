@@ -619,6 +619,44 @@ export CASE_LIB_ADMIN_PASSWORD=...             # 后台密码（写草稿/发布
 没抓到原文的条目会被明确拒绝而不是硬编（实测 getdavid 一条：检索不到一手
 披露，脚本直接跳过、维持卡点）。
 
+### 额度与检索通道，各有一个自查脚本
+
+AI 核实用的是魔搭（ModelScope）的「魔粒」。**魔粒不会白给**，而且有两个坑：
+
+- **没有官方签到 API**（只有社区逆向的余额查询接口）。所以任何「自动签到」都只能是
+  模拟网页操作 —— `ms_checkin.py` 走 CDP 真点页面，不调逆向接口。
+- **不是「登录即到账」，要在魔粒页点「领取」**；额度官方动态调整（曾 200 粒/天，
+  也会出现「今日已领完」）。而且 `ai_verify.py` 拿 Access Token（`ms-xxx`）直接
+  打 API **不产生登录行为**，光配好 key 一分魔粒都不会多。
+
+由此，脚本的成功判据是「**点到领取且余额真的变了**」，不是「页面读得到余额」——
+后者只证明登录成功，会演成日志天天 OK、魔粒不涨的假绿：
+
+```bash
+python scripts/ms_checkin.py --login   # 首次：起有头 Chrome，人工登录一次（只需一次）
+python scripts/ms_checkin.py           # 每天：无头开站点点「领取」，比对余额前后
+python scripts/ms_checkin.py --probe   # 调试：打印登录判据 / 魔粒文案 / 页面正文，不写日志
+```
+
+四种状态，**别把 UNKNOWN 当失败、也别把 ALREADY 当新领取**：
+`CLAIMED`（点了且余额增加）/ `ALREADY`（页面写着「今日已领」）/
+`NO_LOGIN`（profile 里没有会话，重跑 `--login`）/ `UNKNOWN`（找不到入口或点了没变）。
+退出码：**0** = CLAIMED 或 ALREADY / **2** = NO_LOGIN / **3** = UNKNOWN。
+
+登录态存在独立 profile（默认 `C:\Users\DELL\chrome-ms-profile`，可用
+`MS_CDP_PROFILE` 换）——不能用日常 Chrome 的 cookie：Chrome 127+ 是 v20
+App-Bound 加密，DPAPI 解不开；Chrome 136+ 也不给默认 profile 开调试端口。
+
+流水写 `data/ms_checkin_log.json`，**已 gitignore** —— 它记的是「这台机器今天有没有
+领到」，换台机器就不成立，也不是能回放的业务台账。
+
+补第三方来源的通道（2026-10-29 调整）：只剩 **HN Algolia** 与 **DuckDuckGo** 两路
+通用检索，都免 key、免注册。原 Google CSE 通道已整条移除 —— 它要求 Google Cloud
+项目开通结算并给 key 单独授权，实测恒返 403（`This project does not have the
+access to Custom Search JSON API`），且本机到 `googleapis` 的出口成功率只有 2/5。
+留一个永远返回空的通道，会让「这个产品确实没有第三方报道」和「通道根本不通」
+变成同一个结论，比没有更糟。
+
 ### 发布是一条六步链路，用 release.py 串起来
 
 发布**不是**一个原子动作。它由六步组成，而**少一步不报错，会静默出问题**：

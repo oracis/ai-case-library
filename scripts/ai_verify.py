@@ -29,9 +29,6 @@
     CASE_LIB_AI_BASE    默认 https://open.bigmodel.cn/api/paas/v4（智谱）
     CASE_LIB_AI_MODEL   默认 glm-4-flash（免费档）
     CASE_LIB_ADMIN_PASSWORD   后台密码（写草稿/发布要登录 5053）
-    CASE_LIB_GOOGLE_KEY       Google CSE 项目 key（也可放 secrets.json 的 google_key）
-    CASE_LIB_GOOGLE_CX        Programmable Search Engine 的 cx（secrets.json: google_cx）
-    CASE_LIB_GOOGLE_PROXY     可选，单独给 CSE 用的代理（secrets.json: google_proxy）
 
     读取优先级：环境变量 > data/secrets.json > 上面这些默认值。
     ⚠ space-bunny-free（opencode.ai/zen）2026-10-11 起被上游封直连，已弃用；
@@ -53,9 +50,9 @@
 
 设计约束
 --------
-- 零依赖：只用标准库。检索顺序 HN Algolia → Google CSE（需 key，见上）→
-  DuckDuckGo → cn.bing（默认关，`CASE_LIB_ALLOW_BING=1` 才开），
-  抓正文用 html.parser 剥标签。
+- 零依赖：只用标准库。检索顺序 HN Algolia → DuckDuckGo → cn.bing（默认关，
+  `CASE_LIB_ALLOW_BING=1` 才开）。Google CSE 通道 2026-10-29 已整条移除
+  （见 `search()` 的说明），抓正文用 html.parser 剥标签。
 - 不编造：prompt 只许依据抓回来的原文判断；来源 URL 必须来自检索结果。
 - 不过闸门不发布：发布走 server 的 /promote，规则引擎是唯一闸门，
   本脚本不自己写 cases.json。
@@ -122,15 +119,25 @@ AI_KEY = _cfg("CASE_LIB_AI_KEY", "ai_key", "")
 AI_MODEL = _cfg("CASE_LIB_AI_MODEL", "ai_model", "glm-4-flash")
 # 这些base 走本机代理会超时/403，LLM 请求时绕过代理（仅 LLM，不影响其他）
 AI_BASE_NO_PROXY = ("opencode.ai/zen",)
-# 🚨 备端点（429 自动降级，2026-10-26）。
-# ModelScope 免费推理限 2000 次/天（**账号级总量**，单模型另有 ~500 动态限流），
-# 跑大批量必撞 429 —— 撞了自动切备端点继续，整批不再半途而废。
-# 读 secrets.json 的 ai_fallback_base / ai_fallback_key / ai_fallback_model
-# （env CASE_LIB_AI_FALLBACK_* 优先）。没配 = 无备端点，行为同旧版。
-# 当前配置：主 = ModelScope DeepSeek-V4.1-Flash，备 = 智谱 glm-4-flash（回退键 zhipu_ai_*）。
+# 🚨 备端点链（429 自动降级，2026-10-26 起；2026-10-29 扩成两级）。
+#
+# ModelScope 按**魔粒**计费（每天登录发 200 粒，做任务最多 500 粒/天）：
+# 旗舰 2 粒/次、主流 1 粒/次、轻量 0.5 粒/次；另有账号级 2000 次/天
+# 和单模型 ~200 次/天两道动态限流。跑大批量必撞 429 —— 撞了自动往下切，
+# 整批不再半途而废。
+#
+# 端点优先级（越往下越便宜、越不容易撞限）：
+#   主   = ModelScope DeepSeek-V4.1-Flash（旗舰 2 粒，质量最好）
+#   备 1 = ModelScope Qwen3.8-Flash-Next（主流 1 粒，500 次/天）
+#   备 2 = 智谱 glm-4-flash（真免费，最后兜底）
+# 读 secrets.json 的 ai_fallback_* / ai_fallback2_*（env CASE_LIB_AI_FALLBACK*
+# 优先）。没配 = 链短一级，行为同旧版。
 AI_FB_BASE = (_cfg("CASE_LIB_AI_FALLBACK_BASE", "ai_fallback_base", "") or "").rstrip("/")
 AI_FB_KEY = _cfg("CASE_LIB_AI_FALLBACK_KEY", "ai_fallback_key", "")
 AI_FB_MODEL = _cfg("CASE_LIB_AI_FALLBACK_MODEL", "ai_fallback_model", "")
+AI_FB2_BASE = (_cfg("CASE_LIB_AI_FALLBACK2_BASE", "ai_fallback2_base", "") or "").rstrip("/")
+AI_FB2_KEY = _cfg("CASE_LIB_AI_FALLBACK2_KEY", "ai_fallback2_key", "")
+AI_FB2_MODEL = _cfg("CASE_LIB_AI_FALLBACK2_MODEL", "ai_fallback2_model", "")
 # 🚨 **截断自动重试**（2026-10-10）。
 # 推理模型把思考 token 也算进 max_tokens，核一条要烧 4000+（思考约 3600），
 # 16000 仍偶发被吃光 —— `publbee`、`vectosolve` 都因此失败过，而同批里
@@ -529,7 +536,7 @@ def extract_json(text):
 # 网络：抓页面 / 搜索（Bing 优先，国内可达；DDG 兜底）
 # ---------------------------------------------------------------------------
 def http_get(url, timeout=15, max_bytes=300000, proxy=None):
-    """GET 一个 URL 返回文本。`proxy` 只给个别通道用（见 search_google）。
+    """GET 一个 URL 返回文本。`proxy` 只给个别通道用（需要单独指定出口时）。
 
     默认走 urllib 的默认 opener，也就是吃环境里的 HTTPS_PROXY；传 proxy 时
     换成只带这一个代理的 opener，不影响其它请求。
@@ -616,58 +623,9 @@ def search_hn_algolia(q, n=5):
     return out
 
 
-# cn.bing 兜底开关（默认关）。本机出口对 google.com / googleapis.com 是断的，
-# 没配 CSE key 时它是唯一的通用搜索兜底，临时要用就设 CASE_LIB_ALLOW_BING=1。
+# cn.bing 兜底开关（默认关）。核验链路的通用搜索现在只剩 DuckDuckGo 一路，
+# 它被限流或改版时 Bing 是临时替补，所以留这个开关而不是直接删掉。
 ALLOW_BING = os.environ.get("CASE_LIB_ALLOW_BING") == "1"
-
-
-def _google_cfg():
-    """CSE 凭据与代理：环境变量 > data/secrets.json（google_key / google_cx / google_proxy）。
-
-    为什么不只认环境变量：这台机器上的抓取任务多是后台/定时跑，环境变量得每次
-    手写；secrets.json 已经在用（ai_key 就在里面），key 放一处、不用改启动命令。
-    显式设成空串仍然赢（见 _cfg），方便临时停掉这条通道。
-    """
-    return (_cfg("CASE_LIB_GOOGLE_KEY", "google_key", "").strip(),
-            _cfg("CASE_LIB_GOOGLE_CX", "google_cx", "").strip(),
-            _cfg("CASE_LIB_GOOGLE_PROXY", "google_proxy", "").strip())
-
-
-def search_google(q, limit=6):
-    """Google Custom Search JSON API（需 key + cx）。
-
-    为什么加这一路、为什么它排在通用搜索的第一位：`search_bing` 打的是
-    **cn.bing**，实测对这类小众海外 SaaS 基本无效 —— 查 `gtm.help` 返回的是
-    知乎、MC 百科、搜狐；查 `AEO Checker` 返回百度百科的「AEO 认证」与海关
-    总署页面。也就是说中文区的 Bing 索引里根本没有这些产品，拿它兜底等于
-    没有兜底。
-
-    配置（缺 key/cx 就整条通道停用，不会发半截请求）：
-        CASE_LIB_GOOGLE_KEY / secrets.json 的 google_key   项目 API key
-        CASE_LIB_GOOGLE_CX  / secrets.json 的 google_cx    Programmable Search 的 cx
-        CASE_LIB_GOOGLE_PROXY（可选）                      单独为 CSE 指定代理
-
-    ⚠ 2026-10-21 实测：`www.googleapis.com` 直连 000、走本机 1792 代理 000、
-    走 Shadowsocks 10808（PID 14792，端口在监听）也 000。**key 齐了也要有能
-    出 Google 的代理**，否则这里只会拿到超时。所以留了 google_proxy 这一项：
-    修好节点后把它指过去，不用动全局 HTTPS_PROXY（全局改了会影响 cn.bing /
-    官网抓取——那些本来是通的）。
-
-    免费额度 100 次/日，正好够「每天新增候选 + 少量补证」的用量。
-    """
-    key, cx, proxy = _google_cfg()
-    if not (key and cx):
-        return []
-    url = ("https://www.googleapis.com/customsearch/v1?key=%s&cx=%s&q=%s&num=%d"
-           % (urllib.parse.quote(key), urllib.parse.quote(cx),
-              urllib.parse.quote(q), min(10, max(1, limit))))
-    data = json.loads(http_get(url, timeout=15, proxy=proxy or None))
-    out = []
-    for it in data.get("items") or []:
-        link = (it.get("link") or "").strip()
-        if link.startswith("http"):
-            out.append(link)
-    return out
 
 
 def search_bing(q):
@@ -696,22 +654,27 @@ def search_ddg(q):
 def search(q, per_query=6):
     """返回去重后的 URL 列表。HN Algolia 当补充证据源排最前。
 
-    顺序（2026-10-21 改）：HN Algolia → **Google CSE** → DuckDuckGo →
-    cn.bing（默认关闭）。
+    顺序（2026-10-29 改）：HN Algolia → DuckDuckGo → cn.bing（默认关闭）。
 
-    改的原因：cn.bing 对这批案例库的目标（海外小体量 SaaS）实测是负收益 ——
-    查 `gtm.help` 回来的是知乎/MC 百科/搜狐，查 `AEO Checker` 回来的是百度
-    百科的「AEO 认证」和海关总署。中文区索引里没这些产品，它占着名额却
-    抓不到东西，还把这些垃圾喂进后续的页面抓取与 AI 判断。
+    为什么不再是「HN → Google CSE → DDG」：CSE 这条通道已于 2026-10-29
+    按要求整条移除 —— 它需要 Google Cloud 项目结算 + 给 key 单独授权，
+    实测该 key 打 `/customsearch/v1` 返回 403「This project does not have
+    the access to Custom Search JSON API」，即使 API 在项目里显示 Enabled
+    （key 的 API 限制没放开同样报这句）。留下来的 `search_google` 只能是
+    一条永远返回空列表的死路，不如删掉 —— 保留它会让「搜不到」和「通道坏
+    了」长得一模一样。
 
-    Bing 仍保留但**默认不调用**：本机出口对 google.com / googleapis.com 是断的，
-    没有 CSE key 时它就是唯一的通用搜索兜底，临时要用设
-    `CASE_LIB_ALLOW_BING=1`。
+    为什么要保留 DDG：CSE 走了以后它是唯一的通用搜索，虽然对这批小众海外
+    SaaS 召回一般，但免 key、免注册，至少不会因为账户问题整体失效。
+
+    cn.bing 仍然是负收益（查 `gtm.help` 回来知乎/MC 百科/搜狐，查
+    `AEO Checker` 回来百度百科「AEO 认证」+ 海关总署），所以默认不调用，
+    临时要用设 `CASE_LIB_ALLOW_BING=1`。
 
     HN 最多贡献 3 条，给后面的通用搜索留名额 —— 它查不到官网。
     """
     urls = []
-    backends = [(search_hn_algolia, 3), (search_google, per_query), (search_ddg, per_query)]
+    backends = [(search_hn_algolia, 3), (search_ddg, per_query)]
     if ALLOW_BING:
         backends.append((search_bing, per_query))
     for fn, cap in backends:
@@ -831,15 +794,25 @@ def llm(messages, temperature=0.2, max_tokens=None):
     """调一次模型。**截断了会自动加大预算重试**（见下方注释）。
 
     `max_tokens=None` 表示用默认 `AI_MAX_TOKENS`。
-    另有两级自动恢复：主端点 429 限流 → 切备端点（限流**不**消耗截断
-    重试次数）；备端点也限流才最终报错。没配备端点则行为同旧版。
+    另有自动降级：端点不可用 → 顺次切下一个端点（主 → 备1 → 备2）。
+    「不可用」的三种情形（2026-10-29 扩）：
+      · HTTP 429 限流 —— 不消耗截断重试次数；
+      · HTTP 402/403 额度耗尽或权限被挡（魔粒用完、账户欠费）；
+      · HTTP 5xx 或连不上（DNS/拒绝连接/TLS 失败）。
+    **400/401 仍是硬错误**：请求形状不合法或 key 不对，换端点同样错，
+    降级只会把配置问题藏起来。整条链都不可用才最终报错。
+    没配备端点则行为同旧版。
     """
     # 端点表：主端点用全局 AI_*（--ai-* CLI 覆盖照常生效）；
-    # 备端点与主端点同 base+model 时跳过（切过去等于没切）。
+    # 备端点与已登记端点同 base+model 时跳过（切过去等于没切）。
     eps = [{"base": AI_BASE, "key": AI_KEY, "model": AI_MODEL, "tag": "主"}]
-    if AI_FB_BASE and (AI_FB_BASE, AI_FB_MODEL) != (AI_BASE, AI_MODEL):
-        eps.append({"base": AI_FB_BASE, "key": AI_FB_KEY,
-                    "model": AI_FB_MODEL, "tag": "备"})
+    for tag, b, k, m in (("备1", AI_FB_BASE, AI_FB_KEY, AI_FB_MODEL),
+                         ("备2", AI_FB2_BASE, AI_FB2_KEY, AI_FB2_MODEL)):
+        if not b:
+            continue
+        if any((b, m) == (e["base"], e["model"]) for e in eps):
+            continue
+        eps.append({"base": b, "key": k, "model": m, "tag": tag})
     last_err = None
     budget = max_tokens or AI_MAX_TOKENS
     ei = 0
@@ -849,13 +822,16 @@ def llm(messages, temperature=0.2, max_tokens=None):
         try:
             return _llm_once(messages, temperature, budget,
                              ep["base"], ep["key"], ep["model"])
-        except _RateLimited as e:
+        except (_RateLimited, _QuotaBlocked, _EndpointDown) as e:
             last_err = e
             if ei + 1 >= len(eps):
                 break
             ei += 1
-            print("   ⇄ %s端点限流(HTTP 429)，自动切备端点 %s (%s)"
-                  % (ep["tag"], eps[ei]["base"], eps[ei]["model"]))
+            # 文案要把**原因**带出来：原来写死「限流(HTTP 429)」，
+            # 402/5xx 也印成 429 会把人往错方向带（去查限流，实际是欠费）。
+            print("   ⇄ %s端点不可用（%s），自动切下一级 %s：%s (%s)"
+                  % (ep["tag"], type(e).__name__, eps[ei]["tag"],
+                     eps[ei]["base"], eps[ei]["model"]))
             continue
         except _Truncated as e:
             last_err = e
@@ -871,7 +847,13 @@ def llm(messages, temperature=0.2, max_tokens=None):
             truncates += 1
             if truncates > LLM_TRUNCATE_RETRIES:
                 break
-            grown = AI_MAX_TOKENS + truncates * LLM_TRUNCATE_STEP
+            # 🚨 2026-10-29 修：这里原来写 `AI_MAX_TOKENS + truncates * STEP`，
+            # 把调用方传的 `max_tokens` 直接扔掉 —— `llm(max_tokens=900)`
+            # （backfill_narrative）或 2200（draft_case_text）一旦截断，
+            # 预算会跳到 20000，一次重试烧掉 20 倍的额度，还违背调用方
+            # 「这一问只要一句话」的本意。改为在**当前预算**上加步长，
+            # `max_tokens=None` 的老路径数值不变（16000 → 20000 → 24000）。
+            grown = budget + LLM_TRUNCATE_STEP
             print("   ↻ LLM 输出被截断，自动加预算重试"
                   "（%d → %d）" % (budget, grown))
             budget = grown
@@ -880,6 +862,18 @@ def llm(messages, temperature=0.2, max_tokens=None):
 
 class _RateLimited(RuntimeError):
     """端点限流（HTTP 429），可降级到备端点（可重试）。"""
+
+
+class _QuotaBlocked(RuntimeError):
+    """端点额度/权限被挡（HTTP 402/403），可降级到备端点。
+
+    🚨 2026-10-29 实测：魔搭魔粒耗尽、硅基流动余额不足都返回 402，
+    原来这类错误直接抛 RuntimeError，整批中断 —— 后备端点配了也永远轮不到。
+    """
+
+
+class _EndpointDown(RuntimeError):
+    """端点自身故障（HTTP 5xx / 连不上），可降级到备端点。"""
 
 
 class _Truncated(RuntimeError):
@@ -944,6 +938,19 @@ def _llm_once(messages, temperature, max_tokens,
         if e.code == 429:
             raise _RateLimited("LLM 端点限流 HTTP 429%s%s" % (
                 ("：" + detail) if detail else "", "（%s）" % base)) from e
+        # 🚨 2026-10-29 补：402/403 = 额度耗尽 / 权限被挡（魔粒耗尽、硅基流动
+        # 余额不足都走这条），5xx = 端点自己挂了。这两类**换端点有可能好**，
+        # 所以与限流一样要降级 —— 否则备端点配了也是摆设，整批白断一次。
+        # ⚠ 400（参数不合法）和 401（key 错）**故意不降级**：那是请求形状或
+        #   凭据问题，换端点只会把配置错误藏起来，必须原样炸出来。
+        if e.code in (402, 403):
+            raise _QuotaBlocked("LLM 端点额度/权限被挡 HTTP %s%s%s" % (
+                e.code, ("：" + detail) if detail else "",
+                "（%s）" % base)) from e
+        if 500 <= e.code < 600:
+            raise _EndpointDown("LLM 端点故障 HTTP %s%s%s" % (
+                e.code, ("：" + detail) if detail else "",
+                "（%s）" % base)) from e
         hint = ""
         if e.code == 401 and not key:
             hint = ("（当前是免 key 模式：这个模型不支持空 Bearer，"
@@ -952,8 +959,10 @@ def _llm_once(messages, temperature, max_tokens,
         raise RuntimeError("LLM 接口 HTTP %s%s%s" % (
             e.code, ("：" + detail) if detail else "", hint)) from e
     except urllib.error.URLError as e:
-        raise RuntimeError("LLM 端点连不上（%s）：%s"
-                           % (base, e.reason)) from e
+        # 连不上（DNS / 拒绝连接 / TLS 握手失败）也属于「这个端点此刻不可用」，
+        # 与 5xx 同类处理：降级。原因保留在消息里，别把排障线索丢了。
+        raise _EndpointDown("LLM 端点连不上（%s）：%s"
+                            % (base, e.reason)) from e
     with resp:
         data = json.loads(resp.read().decode("utf-8"))
     ch = (data.get("choices") or [{}])[0]

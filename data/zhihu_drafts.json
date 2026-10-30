@@ -5,5 +5,14 @@
     "url": "https://zhuanlan.zhihu.com/p/2098799999773570136",
     "status": "published",
     "ts": "2026-10-29 12:19:49"
+  },
+  "shipfast": {
+    "article_id": "2099470396764451624",
+    "title": "一次性买断卖了 127 万美元，然后从榜单上“消失”了：ShipFast 的三个信号",
+    "url": "https://zhuanlan.zhihu.com/p/2099470396764451624",
+    "status": "published",
+    "ts": "2026-10-30 11:59:09",
+    "published_ts": "2026-10-30 12:10:00",
+    "note": "2026-10-30 核验：CDP 打开 /p/2099470396764451624 为正式文章页（投票/评论区在、无发布按钮、无草稿提示），补记 published（此前 UI 发表成功后未回写状态）"
   }
 }

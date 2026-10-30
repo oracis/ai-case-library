@@ -2284,6 +2284,25 @@ def oldest_unpublished_draft_case(cdp):
     return None, "反查不到《%s》对应的 case（请用 --case 指定）" % title
 
 
+def _external_case_stub(cid):
+    """外部稿兜底（2026-10-30）：cases.json 里没有、但 `out/<cid>/meta.json`
+    存在的独立稿（如 open-source-games 桥接摆进来的 ext-* 稿）。
+
+    `publish_existing_draft` 只用 `c["id"]` 定位 meta.json / article.html /
+    cover_path，标题取 meta.json —— 所以一个最小 stub 就够，不进 cases.json、
+    不碰案例数据。代价：发表成功后 `mark_published_remote` 会把 ext-* 记进
+    toutiao_published.json —— 那是有用的发表记录，不算污染。
+    """
+    mp = os.path.join(OUT, cid, "meta.json")
+    if not os.path.isfile(mp):
+        return None
+    with open(mp, encoding="utf-8") as f:
+        title = (json.load(f).get("title") or "").strip()
+    if not title:
+        return None
+    return {"id": cid, "name": title}
+
+
 def cmd_send_draft(args):
     """把草稿箱里**已有**的一篇正式发表（不新建、不留孤儿草稿）。
 
@@ -2296,6 +2315,10 @@ def cmd_send_draft(args):
     try:
         if args.case:
             c = find_case_fuzzy(args.case)
+            if not c:
+                # 外部稿兜底（2026-10-30）：ext-* 稿不在 cases.json，
+                # 只要 out/<cid>/meta.json 存在就当独立稿发（见 stub 注释）
+                c = _external_case_stub(args.case)
             if not c:
                 raise SystemExit("找不到案例：%s" % args.case)
         else:
@@ -2329,6 +2352,109 @@ def cmd_send_draft(args):
         except Exception:                              # noqa: BLE001
             pass
 
+
+# ======================================================================
+# draft：外部 markdown → 草稿（不走 cases.json，2026-10-30 新增）
+# ======================================================================
+# `（源码：https://…）` 这类行内源码指向：头条正文里外链会被拦或降权，而
+# `clean_line()` 只剥 URL 会留下「（源码：）」这种断括号 ⇒ 整组删掉。
+_SRC_PAREN_RE = re.compile(r"[（(]\s*源码[:：][^）)]*[）)]")
+# 行尾「：https://…」：删 URL 后别留下一个孤零零的冒号
+_BARE_URL_TAIL_RE = re.compile(r"[：:]\s*https?://\S+\s*$")
+
+
+def md_title(md):
+    """取 md 首个一级标题作为标题（没有则返回空串）。"""
+    for line in (md or "").splitlines():
+        s = line.strip()
+        if s.startswith("# "):
+            return s[2:].strip()
+    return ""
+
+
+def strip_source_links(md):
+    """删掉「（源码：URL）」整组与行尾「：URL」，返回 (新 md, 处理处数)。
+
+    ⚠ 别改成「只删 URL」：2026-10-30 实测那样会留下「（源码：）」，
+    读者看到的是一个断掉的括号，比不写更糟。
+
+    外部稿（如 open-source-games 的源码索引稿）每条都带源码地址，而头条
+    正文不允许站外导流 ⇒ 这条链路上只能整组去掉，改由作者在评论区/主页
+    补。B站那边复用同一个函数（bilibili_publish.cmd_draft）。
+    """
+    out, hits = [], 0
+    for line in (md or "").splitlines():
+        new, k = _SRC_PAREN_RE.subn("", line)
+        hits += k
+        trimmed = _BARE_URL_TAIL_RE.sub("", new)
+        if trimmed != new:
+            hits += 1
+        out.append(trimmed)
+    return "\n".join(out), hits
+
+
+def cmd_draft(args):
+    """把**外部 markdown**（不走 cases.json 的独立稿）存成头条草稿。
+
+    为什么加它（2026-10-30）：像 open-source-games 这种外部项目，选题稿放在
+    它自己仓库的 `content/` 下，本仓库 `cases.json` 里没有对应 case ⇒
+    `publish` 和 `send-draft` 都只认案例，喂不进去。这里给一条「只吃文件」
+    的最小入口：建草稿，不发布。发布仍走 `send-draft`（按标题在草稿箱认亲）。
+
+    成功时打印 `DRAFT_TITLE=<title>`，供上游脚本解析（bridge.py 就靠它判断
+    「草稿真的建了」而不是「脚本退 0 了」）。
+    """
+    md_path = args.file
+    if not os.path.isfile(md_path):
+        raise SystemExit("✗ Markdown 不存在：%s" % md_path)
+    with open(md_path, encoding="utf-8") as f:
+        md = f.read()
+    md, dropped = strip_source_links(md)
+    title = _truncate_title((args.title or md_title(md) or "").strip(), TITLE_MAX)
+    if not title:
+        raise SystemExit("✗ 拿不到标题：md 里没有「# 标题」，也没给 --title")
+    blocks = md_to_blocks(md)
+    body_html = blocks_to_html(blocks, footer=False)
+    plain = blocks_plain_text(blocks)
+    print("头条草稿：%s" % os.path.relpath(md_path, ROOT))
+    print("  标题 = %s（%d 字）" % (title, len(title)))
+    print("  正文 = %d 块 / %d 字" % (len(blocks), len(plain)))
+    if dropped:
+        print("  已剥离 %d 处源码外链：头条正文里站外链接会被拦/降权" % dropped)
+    if len(plain) < BODY_MIN:
+        print("  [warn] 正文 %d 字，头条推荐 1000+（低于 %d 不建议发）"
+              % (len(plain), BODY_MIN))
+    if args.dry:
+        print("  [dry] 不开浏览器、不建草稿")
+        print("  正文前 120 字：%s" % strip_md(plain)[:120].replace("\n", " "))
+        return 0
+    sess = open_api_session()
+    if not sess:
+        raise SystemExit("编辑器页开不了（Chrome 没起/掉登录）")
+    cdp, tid = sess
+    try:
+        token = grab_anti_token(cdp)
+        print("  tt-anti-token：%s"
+              % (("已取（%d 字符）" % len(token)) if token else "没取到"),
+              flush=True)
+        if not token:
+            raise SystemExit("没拿到 token（掉登录或无头不触发自动保存）")
+        pgc_id, msg = save_draft_api(cdp, title, body_html, anti_token=token)
+        if not pgc_id:
+            raise SystemExit("✗ 存草稿失败：%s" % msg)
+        print("  ✓ 已存草稿 pgc_id=%s" % pgc_id)
+        print("DRAFT_TITLE=%s" % title)
+    finally:
+        # grab_anti_token 会留一条 `__probe_tok*` 探针草稿，顺手清掉
+        try:
+            cleanup_probe_draft(cdp)
+        except Exception:                              # noqa: BLE001
+            pass
+        try:
+            cdp.close_target(tid)
+        except Exception:                              # noqa: BLE001
+            pass
+    return 0
 
 
 def find_title(c):
@@ -3966,6 +4092,17 @@ def main():
     q.add_argument("--near", type=int, default=5)
     q.add_argument("--fresh", action="store_true")
     q.set_defaults(fn=cmd_queue)
+    dr = sub.add_parser(
+        "draft",
+        help="把**外部 markdown**（不走 cases.json）存成草稿；成功打印 "
+             "DRAFT_TITLE=<title>，退出码 0 = 草稿已建。给外部项目"
+             "（如 open-source-games）用，2026-10-30 新增")
+    dr.add_argument("--file", required=True, help="Markdown 路径")
+    dr.add_argument("--title", default=None,
+                    help="覆盖标题（缺省取 md 首个「# 」；超 30 字按头条规则截断）")
+    dr.add_argument("--dry", action="store_true",
+                    help="只打印将要创建什么，不开浏览器")
+    dr.set_defaults(fn=cmd_draft)
     p = sub.add_parser("publish")
     p.add_argument("--case")
     p.add_argument("--near", type=int, default=1)
@@ -4068,7 +4205,11 @@ def main():
     # 不做这步的话，`drafts` / `cover` / `dedup` / `probe` 在 Chrome 没起时
     # 只会报一句「连不上 9222」然后让人自己去开浏览器（实测踩过）。
     # 纯离线子命令（build/queue/preview）不需要浏览器，别去启动。
-    if getattr(args, "cmd", "") not in ("build", "queue", "preview"):
+    # ⚠ `draft --dry` 也算离线（2026-10-30）：它只打印将要创建什么，
+    #    顺手起一个 Chrome 既慢又和「dry 不动浏览器」的承诺不符。
+    if (getattr(args, "cmd", "") not in ("build", "queue", "preview")
+            and not (getattr(args, "cmd", "") == "draft"
+                     and getattr(args, "dry", False))):
         try:
             # ⚠ 头条的登录态在 `chrome-debug-profile`，**不是**公众号那个
             # ChromeCDP。拿错 profile 的症状极具误导性：CDP 连得上、

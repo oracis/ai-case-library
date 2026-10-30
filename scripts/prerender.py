@@ -801,7 +801,8 @@ def render_anti_page(anti, ctx):
         bits = ['<li>',
                 '<div class="anti-who"><b>%s</b>' % esc(a.get("name") or a.get("id")),
                 '<span class="anti-role" data-k="%s">%s</span>'
-                % (esc_attr(a.get("role") or ""), esc(ANTI_ROLE.get(a.get("role"), a.get("role") or "")))]
+                % (esc_attr(a.get("role") or ""),
+                   esc(ANTI_ROLE.get(a.get("role"), a.get("role") or "")))]
         if a.get("standalone"):
             bits.append('<span class="anti-done">已单独成文</span>')
         bits.append('</div>')

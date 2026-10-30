@@ -21,6 +21,7 @@ AI 没找到官网不代表这条数字是假的 —— 那是人该判的事，
 """
 
 import os
+import re
 import sys
 import json
 import unittest
@@ -924,95 +925,6 @@ class HNAlgoliaSearchTest(unittest.TestCase):
         self.assertLessEqual(len(out), 6)
 
 
-class GoogleCseTest(unittest.TestCase):
-    """Google CSE 检索通道（2026-10-21 接入，通用搜索的第一路）。
-
-    要守住的三件事：
-      1. 缺 key 或缺 cx 时**不发请求**（别拿半截凭据去打 401，白烧一次配额）；
-      2. 凭据可以放 data/secrets.json（google_key / google_cx），不必每次写环境变量
-         —— 这台机器的抓取多是后台任务，环境变量容易漏；
-      3. 单独给 CSE 用的代理（google_proxy）要真的透传到 http_get，
-         因为本机全局代理恰恰是把 Google 挡掉的那一层（2026-10-21 实测：
-         直连 000、1792 代理 000、SS 10808 也 000）。
-    """
-
-    ENV_KEYS = ("CASE_LIB_GOOGLE_KEY", "CASE_LIB_GOOGLE_CX", "CASE_LIB_GOOGLE_PROXY")
-
-    def setUp(self):
-        self._env = {k: os.environ.pop(k) for k in self.ENV_KEYS if k in os.environ}
-        self._sec = A._SEC
-        self._get = A.http_get
-
-    def tearDown(self):
-        A._SEC = self._sec
-        A.http_get = self._get
-        os.environ.pop("CASE_LIB_GOOGLE_KEY", None)
-        os.environ.pop("CASE_LIB_GOOGLE_CX", None)
-        os.environ.pop("CASE_LIB_GOOGLE_PROXY", None)
-        os.environ.update(self._env)
-
-    JSON = json.dumps({"items": [{"link": "https://thirdparty.example/review"},
-                                 {"link": "https://trustmrr.com/startup/x"},
-                                 {"link": ""}]})
-
-    def test_缺key不发请求(self):
-        A._SEC = {}
-        calls = []
-        A.http_get = lambda u, **kw: calls.append(u) or self.JSON
-        self.assertEqual(A.search_google("kibu"), [])
-        self.assertEqual(calls, [], "缺凭据时不该发出任何请求")
-
-    def test_缺cx也不发请求(self):
-        A._SEC = {"google_key": "k"}
-        calls = []
-        A.http_get = lambda u, **kw: calls.append(u) or self.JSON
-        self.assertEqual(A.search_google("kibu"), [])
-        self.assertEqual(calls, [])
-
-    def test_secrets回退并解析结果(self):
-        A._SEC = {"google_key": "KEY123", "google_cx": "CX456"}
-        seen = {}
-
-        def fake(u, **kw):
-            seen["url"] = u
-            seen.update(kw)
-            return self.JSON
-
-        A.http_get = fake
-        out = A.search_google("kibu", limit=3)
-        self.assertEqual(out, ["https://thirdparty.example/review",
-                              "https://trustmrr.com/startup/x"])
-        self.assertIn("key=KEY123", seen["url"])
-        self.assertIn("cx=CX456", seen["url"])
-        self.assertIn("num=3", seen["url"])
-        self.assertIsNone(seen.get("proxy"), "没配 google_proxy 时不能塞代理")
-
-    def test_环境变量赢过secrets(self):
-        A._SEC = {"google_key": "FROM_SECRETS", "google_cx": "CX456"}
-        os.environ["CASE_LIB_GOOGLE_KEY"] = "FROM_ENV"
-        seen = {}
-
-        def fake(u, **kw):
-            seen["url"] = u
-            return self.JSON
-
-        A.http_get = fake
-        A.search_google("kibu")
-        self.assertIn("key=FROM_ENV", seen["url"])
-
-    def test_google_proxy透传(self):
-        A._SEC = {"google_key": "k", "google_cx": "c", "google_proxy": "socks5h://127.0.0.1:10808"}
-        seen = {}
-
-        def fake(u, **kw):
-            seen.update(kw)
-            return self.JSON
-
-        A.http_get = fake
-        A.search_google("kibu")
-        self.assertEqual(seen.get("proxy"), "socks5h://127.0.0.1:10808")
-
-
 class LlmEndpointTest(unittest.TestCase):
     """换模型端点（--ai-model/--ai-base/--ai-key）的行为约束。"""
 
@@ -1235,12 +1147,59 @@ class ConfigChainTest(unittest.TestCase):
                 os.environ["CASE_LIB_AI_BASE"] = old_env
 
     def test_默认端点是智谱GLM(self):
-        """钉死 2026-10-13 的切换：默认 = 智谱 glm-4-flash（免费档）。
+        """钉死 2026-10-13 的切换：**源码内置默认** = 智谱 glm-4-flash（免费档）。
 
         space-bunny-free 2026-10-11 起被上游封直连，不许再变回默认。
-        （环境变量显式覆盖时跳过——那是合法的临时切换，不是默认值漂移。）
+
+        🚨 2026-10-29 修正：不许断言模块常量 `A.AI_BASE` / `A.AI_MODEL` ——
+        它们读的是 `data/secrets.json`（运营期已配成 ModelScope 主端点），
+        于是这条测试在「默认其实没漂移」的情况下天天红，属**陈旧断言**。
+        真正要钉的是源码里 `_cfg(..., default)` 写死的那个默认值。
         """
-        if any(k in os.environ for k in ("CASE_LIB_AI_BASE", "CASE_LIB_AI_MODEL")):
-            self.skipTest("环境变量覆盖了默认值")
-        self.assertEqual(A.AI_BASE, "https://open.bigmodel.cn/api/paas/v4")
-        self.assertEqual(A.AI_MODEL, "glm-4-flash")
+        src = open(A.__file__, encoding="utf-8").read()
+        self.assertTrue(
+            re.search(r'_cfg\(\s*"CASE_LIB_AI_BASE",\s*"ai_base",\s*'
+                      r'"https://open\.bigmodel\.cn/api/paas/v4"', src),
+            "源码默认端点漂了：应为智谱 https://open.bigmodel.cn/api/paas/v4")
+        self.assertTrue(
+            re.search(r'_cfg\(\s*"CASE_LIB_AI_MODEL",\s*"ai_model",\s*'
+                      r'"glm-4-flash"', src),
+            "源码默认模型漂了：应为 glm-4-flash")
+
+
+class LlmTruncateBudgetTest(unittest.TestCase):
+    """截断重试必须**在调用方给的预算上加**，不能跳回全局默认（2026-10-29）。
+
+    🚨 事故形状：`llm(max_tokens=900)` 截断后跳到 16000+4000 —— 一次重试
+    烧掉 20 倍额度，且违背调用方「这一问只要一句话」的本意。这种「参数被
+    静默扔掉」的 bug 从返回值看不出来（重试成功了），只有盯调用参数才抓得到，
+    所以断言的是**每次重试实际传下去的 max_tokens**，不是最终返回。
+    """
+
+    def _replay(self, max_tokens):
+        """跑一遍 llm()，返回每次调用收到的 max_tokens 列表。"""
+        seen = []
+
+        def fake(messages, temperature, mt, base=None, key=None, model=None):
+            seen.append(mt)
+            raise A._Truncated("finish_reason=length")
+
+        old = A._llm_once
+        A._llm_once = fake
+        try:
+            with self.assertRaises(RuntimeError):
+                A.llm([{"role": "user", "content": "x"}], max_tokens=max_tokens)
+        finally:
+            A._llm_once = old
+        return seen
+
+    def test_显式预算按步长递增(self):
+        step = A.LLM_TRUNCATE_STEP
+        self.assertEqual(self._replay(900), [900, 900 + step, 900 + 2 * step])
+
+    def test_默认预算路径数值不变(self):
+        """`max_tokens=None` 的老路径不能因为这次修复而改变（16000→20000→24000）。"""
+        seen = self._replay(None)
+        self.assertEqual(seen[0], A.AI_MAX_TOKENS)
+        self.assertEqual(seen[1], A.AI_MAX_TOKENS + A.LLM_TRUNCATE_STEP)
+        self.assertEqual(seen[2], A.AI_MAX_TOKENS + 2 * A.LLM_TRUNCATE_STEP)

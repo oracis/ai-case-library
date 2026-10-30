@@ -62,20 +62,54 @@ MONEY_RE = re.compile(r"(¥|\$|€|£)\s?[\d,]+")
 
 # ---------------------------------------------------------------- 基础工具
 
+_PY_CACHE = []
+
+
+def _python_ok(path):
+    """候选解释器实跑一次才算数。
+
+    坑：Windows 的 App Execution Alias（...\\WindowsApps\\python.exe）是个
+    Redirector 存根，直跑只打印「Python was not found; run without arguments
+    to install from the Microsoft Store」并以 9009 退出。系统 PATH 里它常排在
+    真解释器前面，所以不能只看 shutil.which 的第一个命中，更不能无脑信
+    sys.executable —— 必须让它 echo 一句再放行。
+    """
+    if not path or not os.path.isfile(path):
+        return False
+    if "windowsapps" in path.lower():
+        return False
+    try:
+        proc = subprocess.run([path, "-c", "import sys"],
+                              stdout=subprocess.DEVNULL,
+                              stderr=subprocess.DEVNULL,
+                              timeout=20)
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return proc.returncode == 0
+
+
 def _python_exe():
-    """跑 harvest 子进程用的 python。
+    """跑 harvest 子进程用的 python（实跑验证过的绝对路径）。
 
     PyInstaller 打包后 sys.executable 是 exe 自己，直接拿来 subprocess 会把
-    GUI 再拉起来；退回 PATH 上的 python（本机 CLI 一向用它跑 harvest，
-    Store 版 3.13 无 tkinter 但不影响 harvest）。找不到就退回 base_prefix。
+    GUI 再拉起来；于是退回 PATH 上的 python / py。全都不通就退回 base_prefix。
     """
-    if getattr(sys, "frozen", False):
-        import shutil
-        for cand in ("python", "python3", "py"):
-            p = shutil.which(cand)
-            if p:
-                return p
-        return os.path.join(sys.base_prefix, "python.exe")
+    if _PY_CACHE:
+        return _PY_CACHE[0]
+
+    import shutil
+    cands = []
+    if not getattr(sys, "frozen", False):
+        cands.append(sys.executable)
+    cands += [shutil.which(c) for c in ("python", "python3", "py")]
+    cands += [os.path.join(sys.base_prefix, "python.exe"),
+              os.path.join(sys.prefix, "python.exe"),
+              r"C:\Python313\python.exe",
+              r"C:\Python312\python.exe"]
+    for p in cands:
+        if _python_ok(p):
+            _PY_CACHE.append(p)
+            return p
     return sys.executable
 
 
@@ -318,6 +352,7 @@ def run_increment(args):
     log("    $ python scripts/harvest.py --source trustmrr_sitemap "
         "--tm-seeds %s --tm-sweep %d --limit %d"
         % (os.path.relpath(seeds_path, ROOT), len(seed_cards), len(seed_cards) + 50))
+    log("    [i] 解释器：%s" % cmd[0])
     proc = subprocess.run(cmd, cwd=ROOT)
     if proc.returncode != 0:
         log("    [!] harvest 子进程退出码 %d" % proc.returncode)

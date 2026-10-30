@@ -1081,6 +1081,19 @@ class Handler(BaseHTTPRequestHandler):
                     claim_kinds = draft.get("source_kinds") or []
                 dn_to, dn_why = VRULES.evidence_gap(claim_ver, claim_kinds)
 
+                # 来源合并（2026-10-28）：这里曾经写成
+                #   draft.get("sources") or hit.get("sources", [])
+                # —— 草稿里只要有来源，候选自带的那份就整段被丢掉。人工后补的
+                # 独立第二来源（GitHub 仓库 homepage、App Store 在架页这类锚点）
+                # 于是在晋升那一刻凭空消失，案例又退回「只有一个来源」。
+                # 改成按 url 去重后追加，草稿条目在前（那是人工核过的版本）。
+                # ⚠ 合并只进 sources 列表（给读者看的链接），**不进档位与证据判定**：
+                #   候选的 kind 是采集时自动标的，而「抓到官网就标 official」正是
+                #   这个库点名过的虚标路径 —— 用它抬档等于把 A 级证据借给
+                #   只有二手事实的条目。档位继续只认草稿（见下方 default_case_tier）。
+                merged_sources, added_sources = VRULES.merge_sources(
+                    draft.get("sources"), hit.get("sources"))
+
                 # 档位不走 result["tier"]，而走 default_case_tier（三档）：
                 # 有一手证据（stripe/official）进精品池；只有第三方来源、口径待核
                 # 进实核池；其余进备选池。质量分照旧存下来 —— 后台会显示成
@@ -1129,7 +1142,12 @@ class Handler(BaseHTTPRequestHandler):
                     "traffic_sources": hit.get("traffic_sources", []),
                     # 来源与修正优先用草稿里登记的，没有才回落到候选自带的
                     "corrections": draft.get("corrections") or hit.get("corrections", []),
-                    "sources": draft.get("sources") or hit.get("sources", []),
+                    "sources": merged_sources,
+                    # 留痕：这几条是候选自带的、AI 核验没覆盖过的来源，
+                    # 人工要复核相关性时按这个清单找，不用去比对两个文件。
+                    **({"sources_from_candidate": [
+                        s.get("url") for s in added_sources if isinstance(s, dict)
+                    ]} if added_sources else {}),
                     "published_from": cid,
                     "verified_at": now,
                     "updated_at": now,

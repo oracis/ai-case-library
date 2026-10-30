@@ -57,6 +57,15 @@ MAX_RAW = 5 * sum(WEIGHTS.values())          # 34.5
 
 # ------------------------------------------------------------------ 评分表
 # 分数是主观判断，但每一条都写明了依据。要调整就改这里，然后重跑。
+def _plain(s):
+    """note 是**纯文本**字段（站点上 `esc()` 直出，markdown 不生效）。
+
+    2026-10-29：`test_report_notes_have_no_bold_marker` 抓到 9 条 note 里写了
+    `**强调**`，读者看到的是字面星号。在写入口统一剥掉，比逐条改字面量稳。
+    """
+    return (s or "").replace("**", "")
+
+
 SCORES = {
     # ── 2026-10-26 backlog「有条件」档入库的 6 条 ──
     "serviceform": dict(
@@ -1084,7 +1093,6 @@ SCORES = {
              "独立 SaaS 插不进去。它只有 4 个客户、MRR $1,750，"
              "本身就还是一个很早期的验证。",
     ),
-    "private-venture-1": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=4, competition=3, note='收款走 lemon squeezy 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。开发者工具/API 语言无关、本地化成本低，国内开发者付费习惯改善，但同类开源/云厂商方案不少。'),
     "adawcag": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=4, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。开发者工具/API 语言无关、本地化成本低，国内开发者付费习惯改善，但同类开源/云厂商方案不少。'),
     "aeo-checker": dict(demand=3, payment=3, compliance=4, acquisition=3, localization=2, competition=2, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。广告/创意工具需求永续，但 Meta/Google 投放逻辑搬到国内要重做巨量/腾讯广告规则，且国内卷。'),
     "ad-machine": dict(demand=2, payment=3, compliance=4, acquisition=3, localization=3, competition=3, note='默认走 Stripe 等海外网关（国内不可直连，换微信/支付宝要重做支付与对账）。卖的是「替客户做」的人力服务，在国内要 BD/关系获客，一个人能吃下但规模受限于时间。'),
@@ -1279,6 +1287,225 @@ SCORES = {
              "本地化 2：模板排版、中文断行、送达与退订合规、SMTP 通道都要重做一遍。"
              "竞争 2：国内这块已萎缩，微信生态把「触达」吃掉了，剩下的小众工具价格被压得低。",
     ),
+    # ── 2026-10-29 补：fit_ready --check 报的 26 条 ──
+    # 评分口径见 DIMS：每项 5 分制，越高越容易搬（合规一项是「越不碰红线分越高」）。
+    # 这 26 条里有 18 条是本轮晋升的，所以判断是按案例已有字段现做的，不是抄来的。
+    "flowmance-templates": dict(
+        demand=3, payment=3, compliance=4, acquisition=3, localization=3, competition=2,
+        blocker="模板生态不对应",
+        note="模板本身不碰红线，合规给 4。真正的问题是生态：它卖的是 Webflow、Framer、"
+             "Figma 三个站的模板，国内对应的是即时设计、稿定，格式与组件体系都不同，"
+             "等于把货架拆了重建。需求 3：小团队确实愿意为「省一次设计」付钱，但模板"
+             "品类国内免费资源极多，竞争只给 2。获客 3：模板靠长尾关键词，这条路国内"
+             "也成立，只是搜索盘子小一档。",
+    ),
+    "neoscene": dict(
+        demand=3, payment=3, compliance=2, acquisition=2, localization=2, competition=2,
+        blocker="深度合成合规 + 算力成本",
+        note="图生视频的需求在国内是真的，剪映、即梦已经把它做成了大众功能，说明市场在，"
+             "但也说明空位很小。合规 2：AI 生成视频要过深度合成标识与内容审核，出问题要"
+             "能溯源。本地化 2：支付、短信、分发全要重接。获客 2：流量被抖音与剪映把住，"
+             "独立 App 买量极贵。成本侧还有个硬约束——它自述毛利率只有 10%，算力一涨价"
+             "就没有缓冲。",
+    ),
+    "boxer-ai": dict(
+        demand=3, payment=3, compliance=3, acquisition=2, localization=2, competition=2,
+        blocker="安卓机型碎片化",
+        note="健身与拳击在国内有付费人群，Keep 这类产品已经教育过市场，付费意愿给 3。"
+             "难点在交付侧而不是需求侧：靠摄像头做动作识别，iOS 尚可，安卓机型与摄像头"
+             "差异会把适配成本吃光毛利。合规 3：只做动作识别、不采集人脸特征，风险可控。"
+             "获客 2：健身 App 靠内容平台导流，成本高。竞争 2：Keep 与一批拳击课程 App "
+             "已经把位置占了。",
+    ),
+    "kori": dict(
+        demand=2, payment=2, compliance=4, acquisition=2, localization=1, competition=2,
+        blocker="内容要重做（韩语教材）",
+        note="韩语学习在国内是小盘子，且被多邻国、沪江这类成熟产品占住，付费意愿给 2。"
+             "最重的是改造：课程、例句、发音示范全是按英语母语者做的，换到中文用户要"
+             "整本重写，本地化只能给 1。好消息是它不碰任何合规红线（4），且走 App Store "
+             "收付费倒是现成的。这类案子可借的是「极简订阅 + 单一动作」的产品形态，"
+             "不是内容本身。",
+    ),
+    "admitodds-ai-college-admissions-platform": dict(
+        demand=2, payment=2, compliance=2, acquisition=2, localization=1, competition=2,
+        blocker="升学体系不同 + 咨询资质",
+        note="它吃的是 Common App 这套美国申请数据，国内对应的是高考志愿填报，数据在各省"
+             "考试院、规则按年变，产品逻辑搬不过来，本地化 1。合规 2：「录取概率评估」在"
+             "国内容易被认定为教育咨询甚至志愿填报服务，属于要资质且有纠纷风险的品类。"
+             "需求 2：家长愿意付钱，但付给的是「一对一规划」这种人力服务，不是自助工具。",
+    ),
+    "clamshell": dict(
+        demand=3, payment=2, compliance=4, acquisition=3, localization=1, competition=3,
+        blocker="无（唯一障碍是定价模式）",
+        note="合盖不休眠是跨平台的通用痛点，macOS 全球一致，本地化几乎为零（1 分是给"
+             "「中文说明与客服」留的）。合规 4：不碰数据、不碰内容。真正要改的是收钱方式："
+             "$9.99 一次买断在国内转化率很低，得改成订阅或加增值。竞争 3：同类免费工具"
+             "（Amphetamine 那类）已经把位置占住，做得比它好才有机会。",
+    ),
+    "colorcraft": dict(
+        demand=3, payment=2, compliance=3, acquisition=3, localization=2, competition=2,
+        blocker="KDP 生态不在国内",
+        note="它的卖点是「一句话做成过 KDP 检查的 PDF」，而 KDP 是亚马逊的自出版体系，"
+             "国内对应的是微信读书、番茄这类平台，排版与审核规则完全不同，卖点直接失效，"
+             "本地化 2。需求 3：自出版人群在国内也在增长。支付 2：一次性小额付费在国内"
+             "要走小程序或支付平台，转化不如海外的信用卡。",
+    ),
+    "kodo": dict(
+        demand=3, payment=3, compliance=3, acquisition=2, localization=2, competition=1,
+        blocker="设计工具红海",
+        note="AI 设计在国内是最挤的赛道之一：即时设计、MasterGo、稿定都在做生成式设计，"
+             "而且对个人免费，竞争只能给 1。需求本身是实的（3），付款方式也现成（3），"
+             "但「对话生成可编辑元素」这个能力已经没有差异化，新入局只能往垂直场景钻"
+             "（比如只做电商详情页）。获客 2：这个品类的投放成本被大厂抬得很高。",
+    ),
+    "freelance-writing-club": dict(
+        demand=2, payment=2, compliance=3, acquisition=2, localization=1, competition=2,
+        blocker="业态不存在（付费约稿情报）",
+        note="它卖的是「每个工作日一封人工筛过的约稿线索」，国内对应的形态是接单群、"
+             "稿费平台与自媒体联盟，这些都不向写手收费，所以付费意愿给 2，本地化给 1——"
+             "不是改造成本高，而是这个业态本身不存在。合规 3：转发公开约稿信息不违规，"
+             "但要小心把媒体联系信息当商品卖。可借的是「人工筛选本身就是价值」这个定位。",
+    ),
+    "agent-media": dict(
+        demand=3, payment=3, compliance=1, acquisition=2, localization=2, competition=2,
+        blocker="AI 内容备案与平台审核",
+        note="AI 短剧在国内需求很旺（红果、抖音都在推），付费也有，但合规是最硬的一堵墙："
+             "生成式内容要备案、要加深度合成标识，平台对 AI 剧集另有一套审核口径，"
+             "合规只能给 1。竞争 2：平台自己在做同类内容，独立订阅很难留住人。"
+             "真正能借的是「固定演员阵容 + 连载」这个降低生成成本的做法，而不是这门生意。",
+    ),
+    "lapsula": dict(
+        demand=3, payment=3, compliance=2, acquisition=2, localization=1, competition=2,
+        blocker="病患数据与行业 Know-how",
+        note="诊所管理在国内是成熟市场（领健、牙医管家等），需求与付费都真实，但两块难："
+             "一是涉及病患数据，要过等保与个人信息保护，合规 2；二是各家诊所的排班、"
+             "收费、医保结算差异极大，本地化只能给 1。竞争 2：已有产品覆盖了大部分功能，"
+             "空位只在很细的专科。可借的是「只做诊所、不做全院 HIS」的切口。",
+    ),
+    "lyro": dict(
+        demand=3, payment=3, compliance=2, acquisition=2, localization=2, competition=2,
+        blocker="音乐版权与分账",
+        note="AI 音乐国内已有网易天音、昆仑万维这类玩家，需求被验证过（3），订阅收款也现成（3）。"
+             "难点在版权：生成物的权利归属、平台分账规则、以及「成品能不能商用」都要逐条"
+             "写清楚，合规 2。成本侧同样是算力按次烧。可借的是它的定价结构——按月给 credits，"
+             "把重度用户和尝鲜用户分开。",
+    ),
+    "flint": dict(
+        demand=2, payment=2, compliance=3, acquisition=2, localization=1, competition=2,
+        blocker="iMessage 渠道在国内不存在",
+        note="它的分发是整个产品的一部分：不下载 App，直接在 iMessage 里聊天。国内没有"
+             "iMessage 生态，改成微信服务号又要过主体与内容审核，等于重做，本地化 1。"
+             "宗教内容在国内也属于要谨慎处理的题材（合规 3 是因为它只做灵修文本、不涉及"
+             "组织活动）。可借的是「用现有聊天工具当产品壳」这个思路，国内对应微信/企微。",
+    ),
+    "pdf-vault": dict(
+        demand=2, payment=2, compliance=3, acquisition=2, localization=2, competition=2,
+        blocker="可转售授权业态不存在",
+        note="卖「可转售的 PDF 授权」在国内几乎没有对应市场——知识付费更认课程与会员，"
+             "不认转售权，付费意愿 2。法律边界也模糊：数字商品的分销授权在合同上要写得很"
+             "清楚，否则一有纠纷就说不清（合规 3）。可借的是它的定价结构：一次性授权 + "
+             "月费托管，把「买断」和「持续服务」拆成两条收入。",
+    ),
+    "coldcaller-pro": dict(
+        demand=3, payment=3, compliance=1, acquisition=2, localization=1, competition=2,
+        blocker="个人信息保护法 + 外呼治理",
+        note="它的产品就是一本 B2B 联系人/电话线索库，并鼓励按名单外呼。这套在国内直接撞"
+             "《个人信息保护法》与商业外呼的管理规定，合规只能给 1，且数据源要全部重建，"
+             "本地化也 1。需求 3：B2B 销售确实缺线索。可借的只有「按行业切线索包」的"
+             "产品结构，数据来源必须换成公开渠道并做授权留痕。",
+    ),
+    "coldsire": dict(
+        demand=3, payment=3, compliance=2, acquisition=2, localization=1, competition=2,
+        blocker="工具链不同（Workspace / Instantly）",
+        note="它卖的是「把 Google Workspace 的 DNS 配好、接上 Instantly 就能发冷邮件」。"
+             "国内这套工具链整个不存在：邮箱是企业微信、阿里邮箱，冷邮件本身也不成气候，"
+             "本地化 1。需求 3：国内对应的是「企业邮箱批量开通 + 送达率调优」这类需求，"
+             "确实有人愿意付钱。可借的是「把配置这件脏活做成订阅」的思路。",
+    ),
+    "knightvision": dict(
+        demand=4, payment=3, compliance=2, acquisition=2, localization=2, competition=2,
+        blocker="广告素材合规",
+        note="电商与投放素材在国内是最大的付费场景之一，需求给 4，付款路径也现成。"
+             "难点在合规 2：生成的广告图要过平台审核，极限词、虚假宣传、人物肖像都要盯，"
+             "出事是品牌背。竞争 2：阿里妈妈、巨量都在把生成能力免费塞给广告主，第三方"
+             "工具只能靠「更懂某个品类」活。",
+    ),
+    "conductor": dict(
+        demand=3, payment=3, compliance=4, acquisition=2, localization=1, competition=3,
+        blocker="QuickBooks 生态不对应",
+        note="它是 QuickBooks 的 API 中间层：帮公司把财务数据接出来、接进别的系统。"
+             "国内对应的是用友、金蝶，生态不通，本地化只能给 1。但它不碰内容合规（4），"
+             "竞争 3——国内做「老系统 API 化」的厂商不多，空位比想象中大。真正可以照搬的是"
+             "这个形态：找一个装在几十万家公司里的老系统，给它在外面套一层干净的 API。",
+    ),
+    "headshotpro": dict(
+        demand=3, payment=3, compliance=2, acquisition=2, localization=1, competition=1,
+        blocker="人脸数据 + 红海竞争",
+        note="证件照在国内是彻头彻尾的红海：智能证件照类小程序遍地，且大多很便宜甚至免费，"
+             "竞争只能给 1。人脸属于敏感个人信息，要单独同意、要能删（合规 2）。它的启动"
+             "靠的是英文 SEO 加作者存量受众，国内 SEO 盘子小（获客 2）。唯一能借的是"
+             "「只做一张图、做到比照相馆好」的极致单点。",
+    ),
+    "klar": dict(
+        demand=4, payment=2, compliance=2, acquisition=3, localization=1, competition=2,
+        blocker="考纲本地化",
+        note="备考在国内是最刚性的需求之一，付费意愿给 4。但内容必须按国内考纲重做"
+             "（高考、考研、公考各有各的题库与命题习惯），本地化只能给 1，这是整条路里"
+             "最重的一块。合规 2：涉及教育内容，要小心「押题」「保过」这类表述。"
+             "获客 3：校园口碑这条路国内同样成立。可借的是「三个不懂代码的人用 Lovable "
+             "把产品搭出来」的路径本身。",
+    ),
+    "refactoring-ui": dict(
+        demand=2, payment=2, compliance=4, acquisition=3, localization=2,
+        competition=2,
+        blocker="买家在英文社区",
+        note="内容本身跨语言通用，合规上什么都不碰（4）。真正的问题是人不在：它一上线就"
+             "卖爆，是因为作者在 Twitter 有 5 万开发者听众，这套人情账在国内要重新攒"
+             "（获客 3，靠内容社区是可行的，但要时间）。国内对应的是极客时间、掘金小册，"
+             "分发渠道换了，定价也要按国内习惯压（付费 2）。",
+    ),
+    "pdf-ai": dict(
+        demand=3, payment=3, compliance=3, acquisition=2, localization=2, competition=2,
+        blocker="域名红利不可复制",
+        note="它起量的一大半功劳属于 pdf.ai 这个域名带来的搜索意图，这一条在国内无法"
+             "复制——百度已把这类词喂给自己的产品（获客 2）。产品能力（跟 PDF 对话）国内"
+             "免费替代很多，竞争 2。但需求是真的（3），按月订阅也被接受（3），合规上"
+             "只涉及用户上传文档的存储，注意告知与删除即可（3）。",
+    ),
+    "david-ai": dict(
+        demand=3, payment=2, compliance=1, acquisition=1, localization=1,
+        competition=2,
+        blocker="直邮触达与个人信息",
+        note="它的获客是「AI 批量给没网站的小店建站，再寄带二维码的明信片」。明信片要用"
+             "商家地址与经营者姓名，这些属于个人信息，来源不合法就是硬伤，合规只能给 1；"
+             "线下直邮搬到国内还要重新摸一遍投递与转化（获客 1）。本地化 1：建站本身国内"
+             "有微盟、有赞，改造成本不高但空位也没了。可借的是「先做出成品再去敲门」这个"
+             "动作顺序，不依赖平台流量。",
+    ),
+    "sleek": dict(
+        demand=3, payment=3, compliance=3, acquisition=2, localization=2, competition=1,
+        blocker="设计工具红海（与 kodo 同因）",
+        note="判断与 kodo 基本一致：即时设计、MasterGo 对个人免费且都在做 AI 生成，"
+             "竞争给 1。它的差异化是「3 周做完、一个月起量」，这个速度值得学，但产品本身"
+             "在国内没有位置。获客 2：这类工具的投放成本被大厂抬高。",
+    ),
+    "3ak-track": dict(
+        demand=2, payment=2, compliance=4, acquisition=2, localization=1,
+        competition=2,
+        blocker="训练内容要按国内体考重写",
+        note="它卖的是校队田径训练计划。国内对应的是体育中考与校队训练，需求其实更刚性，"
+             "但内容得按国内考试项目与评分标准重写（本地化 1）。合规 4：只涉及训练数据，"
+             "不碰医疗也不碰内容。它的启动几乎不可复制——两个人在 IG/TikTok 有 15 万粉，"
+             "产品是「粉丝变现」而不是「找到需求」（获客 2）。",
+    ),
+    "plausible-analytics": dict(
+        demand=3, payment=2, compliance=2, acquisition=2, localization=2, competition=2,
+        blocker="免费替代太强",
+        note="网站统计在国内被百度统计、CNZZ 这类免费产品占满，「隐私友好、不收集个人数据」"
+             "这个卖点在国内的付费意愿很弱（付费 2）。合规 2：统计本身要注意数据出境与"
+             "等保要求。可借的是它的开源 + 云托管双轨：代码公开换信任，托管收费换收入，"
+             "这个结构在任何市场都能用。",
+    ),
 }
 
 
@@ -1292,11 +1519,28 @@ def load_json(name, default=None):
         return json.load(f)
 
 
+def _orig_newline(path):
+    """原文件用哪种换行就写回哪种（红线 23）。
+
+    2026-10-29 实测：`cases.json` 本来是 LF，这里原来的 `open(..., "w")` 没给
+    `newline=""`，Windows 文本模式把每一个 `\\n` 翻成 `\\r\\n` —— 42268 行全变、
+    diff 全红，而数据一个字没改，极易误判成「算分把案例库搞乱了」。
+    harvest.save_json 早就踩过同一个坑并写了长注释，这两个脚本漏了。
+    """
+    try:
+        with open(path, "rb") as f:
+            return "\r\n" if b"\r\n" in f.read(4096) else "\n"
+    except OSError:
+        return "\n"
+
+
 def save_json(name, payload):
     path = os.path.join(DATA_DIR, name + ".json")
+    nl = _orig_newline(path)
     tmp = path + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(payload, f, ensure_ascii=False, indent=2)
+    text = json.dumps(payload, ensure_ascii=False, indent=2)
+    with open(tmp, "w", encoding="utf-8", newline="") as f:
+        f.write(text.replace("\n", nl))
     os.replace(tmp, path)
 
 
@@ -1340,7 +1584,7 @@ def main():
             "dims": dims,
             "raw": raw,
             "score": to_score(raw),
-            "note": s.get("note", ""),
+            "note": _plain(s.get("note", "")),
             "blocker": s.get("blocker"),
         })
 
@@ -1364,7 +1608,7 @@ def main():
             "medal": item["medal"],
             "dims": item["dims"],
             "weights": WEIGHTS,
-            "note": item["note"],
+            "note": _plain(item["note"]),
             "blocker": item["blocker"],
             "scored_at": today,
         }

@@ -264,16 +264,36 @@ class TestCoverHelpers(unittest.TestCase):
         self.assertLess(i_sz, i_disp,
                         "必须在 dispatchEvent 之前读 files[0].size")
 
-    def test_cover_source_exists_for_all_cases(self):
-        """37 篇都要有 cover.png 源图（B站封面直接复用头条的）。"""
-        import glob
+    def test_封面源图覆盖所有已排队的草稿(self):
+        """要发的每一篇都必须有 cover.png 源图（B站封面直接复用头条的）。
+
+        ⚠ 2026-10-29 改口径：原来钉的是「out/articles 下 37 篇全有封面」。
+        文章库后来涨到 270 篇，其中 195 篇只是入库、从没走过头条那条排版线，
+        压根不会发 B站，自然没有 cover.png——继续按「全部文章」钉，等于要求
+        给不发 B站的稿子统统做封面（而且真去生成就是 195 张白做的图）。
+
+        真正会发布的是 `data/bili_drafts.json` 里排队的那批（B站一天只让发
+        1 篇，队列就是全部待发面）。钉它才抓得住真事故：没封面 = 发到那一刻
+        必失败（`send-draft` 会报「没有封面源图」）。
+
+        out/ 是 gitignore 的构建产物，CI 里没有 ⇒ 明确跳过而不是假装通过。
+        """
+        import json
         root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        ids = [os.path.basename(f)[:-5]
-               for f in glob.glob(os.path.join(root, "out", "articles", "*.html"))]
+        if not os.path.isdir(os.path.join(root, "out", "toutiao")):
+            self.skipTest("没有 out/toutiao（构建产物未生成，CI 常态）")
+        p = os.path.join(root, "data", "bili_drafts.json")
+        if not os.path.isfile(p):
+            self.skipTest("没有 data/bili_drafts.json")
+        with open(p, encoding="utf-8") as f:
+            d = json.load(f)
+        ids = list(d.keys()) if isinstance(d, dict) else [x.get("id") for x in d]
+        ids = [c for c in ids if c]
         if not ids:
-            self.skipTest("还没生成 out/articles")
+            self.skipTest("B站草稿账是空的")
         missing = [c for c in ids if not bp.cover_path(c)]
-        self.assertEqual(missing, [], "缺封面源图：%s" % missing[:5])
+        self.assertEqual(missing, [],
+                         "已排队的草稿缺封面源图：%s" % missing[:5])
 
     def test_cover_source_meets_bili_min_size(self):
         """B站要求 ≥600x336；本地头条封面是 3840x2160。"""
@@ -385,13 +405,24 @@ class TestFlexTableToKvBlock(unittest.TestCase):
     两者粘成 `官方口径$3,150 MRR`。
     """
 
-    def test_no_real_table_in_source(self):
-        """前提：源 HTML 确实没有 <table>，所以不能指望转成真表格。"""
+    def test_真表格不会漏进输出(self):
+        """量**输出**，不量源码（2026-10-29 改判据）。
+
+        原判据是「源 HTML 里没有 `<table>`」——那是 2026-09-30 的事实：公众号
+        模板用 flex 伪装表格。但手写稿（`out/articles/mcdpoints.html`）会直接
+        写 `<table>`，此后这个前提就不成立了，继续钉源码等于禁止手写稿用表格。
+
+        真正要保证的是「B站编辑器里看不到表格」：B站没有表格能力，灌进去会被
+        整体降级成一个 `<p>`、单元格粘成一串。所以断言落在 `clean_body` 的产物上，
+        由 `_tables_to_kv_block` 负责把真表格转成键值块。
+        """
         for cid in bp.list_ids():
             h = bp.load_article_html(cid)
             if not h:
                 continue
-            self.assertNotIn("<table", h.lower(), "%s 出现了真表格" % cid)
+            out = bp.clean_body(h)
+            self.assertNotIn("<table", out.lower(),
+                             "%s 输出里漏进了真表格" % cid)
 
     def test_flex_row_becomes_kv(self):
         html = "<section>" + FLEX_P % ("官方口径", "$3,150 MRR") + \
@@ -497,13 +528,19 @@ class TestFlexTableToKvBlock(unittest.TestCase):
         实测 trustmrr 3 处 `</blockquote>}`，正文凭空冒出花括号。
         根因就是 return 语句本身，不是正则；曾误诊为「正则跨标签 / 捕获组
         错位」并据此「加固」了两个本来正确的正则。钉死输出侧。
+
+        ⚠ 2026-10-29 收窄到「**标签紧跟着的**裸花括号」，即 `>}` 这个形态：
+        那正是当初那个 bug 的样子（模板里多写的字面量，粘在 `</blockquote>`
+        后面）。正文里的 `}` 是内容——mcdpoints / mcdpoints-wx 两篇讲 TOON
+        格式，原样引用 `[160]{字段列表}:`，整段禁用会逼着人删掉真实引用才算过。
+        收窄后判据仍然钉在缺陷形态上，不是「放宽到不管」。
         """
         for cid in bp.list_ids():
             h = bp.load_article_html(cid)
             if not h:
                 continue
             out = bp.clean_body(h)
-            self.assertNotIn("}", out, "%s 正文里有裸花括号" % cid)
+            self.assertNotIn(">}", out, "%s 有标签后紧跟的裸花括号" % cid)
             self.assertEqual(out.count("<blockquote>"),
                              out.count("</blockquote>"),
                              "%s blockquote 开闭不配对" % cid)

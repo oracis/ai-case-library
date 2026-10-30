@@ -1,78 +1,77 @@
 {
-  "ran_at": "2026-10-29 06:43:19",
-  "added": 99,
+  "ran_at": "2026-10-30 06:43:21",
+  "added": 58,
   "by_source": {
-    "hn": 60,
-    "indiehackers": 7,
-    "trustmrr": 32
+    "hn": 44,
+    "trustmrr": 14
   },
   "inbox_total": 400,
-  "archived_this_run": 99,
-  "archive_total": 1055,
+  "archived_this_run": 58,
+  "archive_total": 1113,
   "top": [
     {
-      "name": "AskElliot Consulting",
-      "headline": "MRR $328，TrustMRR 第 2701 名",
-      "heat": 0,
-      "category": "AI 工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/askelliot"
-    },
-    {
-      "name": "GoodLads.cc",
-      "headline": "MRR $200，TrustMRR 第 4883 名",
-      "heat": 0,
-      "category": "AI 工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/goodlads"
-    },
-    {
-      "name": "TimeTuna.com",
-      "headline": "MRR $123，TrustMRR 第 3722 名",
+      "name": "Super",
+      "headline": "近 30 天收入 $1,337",
       "heat": 0,
       "category": "企业服务",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/timetuna"
+      "url": "https://trustmrr.com/startup/super"
     },
     {
-      "name": "ReplyCurrent",
-      "headline": "MRR $225，TrustMRR 第 3159 名",
+      "name": "AppXpose",
+      "headline": "MRR $180，TrustMRR 第 3426 名",
       "heat": 0,
-      "category": "垂直行业 SaaS",
+      "category": "Security",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/reply-current"
+      "url": "https://trustmrr.com/startup/appxpose"
     },
     {
-      "name": "Get Funneled",
-      "headline": "近 30 天收入 $20,146",
+      "name": "BTFind: Bluetooth Finder",
+      "headline": "MRR $920，TrustMRR 第 1761 名",
       "heat": 0,
-      "category": "营销工具",
+      "category": "移动应用",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/getfunneled"
+      "url": "https://trustmrr.com/startup/btfind-bluetooth-finder"
     },
     {
-      "name": "Gladia2: Old School Online RPG",
-      "headline": "近 30 天收入 $5,384",
+      "name": "Stud Finder Wall Detector Tool",
+      "headline": "MRR $5,482，TrustMRR 第 562 名",
       "heat": 0,
-      "category": "Games",
+      "category": "移动应用",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/gladia2"
+      "url": "https://trustmrr.com/startup/stud-finder-wall-detector-tool"
     },
     {
-      "name": "Store Stock Checker",
-      "headline": "近 30 天收入 $14,670",
+      "name": "Recently Followed: IG Tracker",
+      "headline": "近 30 天收入 $1,214",
       "heat": 0,
-      "category": "Analytics",
+      "category": "未分类",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/store-stock-checker"
+      "url": "https://trustmrr.com/startup/recently-followed-ig-tracker"
     },
     {
-      "name": "cove ivf",
-      "headline": "近 30 天收入 $285",
+      "name": "VTC Facile",
+      "headline": "近 30 天收入 $1,346",
       "heat": 0,
-      "category": "Health & Fitness",
+      "category": "移动应用",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/cove-ivf"
+      "url": "https://trustmrr.com/startup/vtc-facile"
+    },
+    {
+      "name": "My micro SaaS of $600k ARR is looking for a Founding Engineer for a pivot",
+      "headline": "疑似金额 $600k",
+      "heat": 1,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://bluemate.nl"
+    },
+    {
+      "name": "RaceCut",
+      "headline": "MRR $9,055",
+      "heat": 0,
+      "category": "创作者经济",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/racecut"
     }
   ]
 }

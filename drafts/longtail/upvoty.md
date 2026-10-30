@@ -1,4 +1,4 @@
-# Upvoty 拆解：先收钱再写代码，bootstrapped 六年做到 4 万美元月收入
+# Upvoty 拆解：先收钱再写代码，bootstrapped 六年才把订阅做起来
 
 > 平台：longtail ｜ 案例：Upvoty（upvoty）｜ 状态：社区重投版（已剥公众号导流段）
 
