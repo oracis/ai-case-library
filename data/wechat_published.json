@@ -343,11 +343,17 @@
   },
   "pieter-levels": {
     "title": "Pieter Levels 的产品矩阵",
-    "published_at": "2026-09-22 00:05",
-    "status": "draft",
+    "published_at": "2026-10-30 13:29",
+    "status": "published",
     "appmsgid": "100000226",
     "file": "公众号-pieter-levels拆解.html",
-    "refreshed_at": "2026-10-24 01:53"
+    "refreshed_at": "2026-10-24 01:53",
+    "publish_type": "publish",
+    "published_appmsgid": "2247484767",
+    "sent_via": "send",
+    "send_reason": "已发表列表出现新记录，标题一致",
+    "note": "｜publish模式自动发表，新 appmsgid=2247484767",
+    "verified_at": "2026-10-30 13:29"
   },
   "voklit": {
     "title": "卖海外虚拟号码这门生意，最后为什么停机挂牌",

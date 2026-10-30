@@ -12,5 +12,68 @@
     "url": "https://www.cnblogs.com/thing-explainer/p/23493644",
     "status": "published",
     "ts": "2026-10-30 11:59:04"
+  },
+  "plausible": {
+    "post_id": "23494731",
+    "title": "开源三年、10 个人、没有投资人：这个隐私分析工具是怎么活下来的？",
+    "url": "",
+    "status": "draft",
+    "ts": "2026-10-30 14:10:41"
+  },
+  "3ak-track-field": {
+    "post_id": "23494771",
+    "title": "先有 15 万粉受众，后有产品：两个田径生如何用 AI 做训练 App？",
+    "url": "",
+    "status": "draft",
+    "ts": "2026-10-30 14:13:24"
+  },
+  "getdavid": {
+    "post_id": "23494773",
+    "title": "AI 造站 + 纸质明信片：一家给小店做网站的公司怎么用线下动作获客",
+    "url": "",
+    "status": "draft",
+    "ts": "2026-10-30 14:13:26"
+  },
+  "headshotpro": {
+    "post_id": "23494775",
+    "title": "一个人做的 AI 证件照：Fortune 500 团队也在买",
+    "url": "",
+    "status": "draft",
+    "ts": "2026-10-30 14:13:28"
+  },
+  "klar": {
+    "post_id": "23494776",
+    "title": "三个不会写代码的大学生：靠 Lovable 做出来的 AI 备考工具",
+    "url": "",
+    "status": "draft",
+    "ts": "2026-10-30 14:13:30"
+  },
+  "pdfai": {
+    "post_id": "23494779",
+    "title": "一个人、0 员工、0 融资：这个「跟 PDF 对话」的工具是怎么做起来的？",
+    "url": "",
+    "status": "draft",
+    "ts": "2026-10-30 14:13:33"
+  },
+  "refactoringui": {
+    "post_id": "23494781",
+    "title": "先有受众，后做书：一个写给程序员的设计书是怎么卖起来的",
+    "url": "",
+    "status": "draft",
+    "ts": "2026-10-30 14:13:35"
+  },
+  "sleek-design": {
+    "post_id": "23494782",
+    "title": "三周搭出来的 AI 设计工具：零付费营销是怎么起量的",
+    "url": "",
+    "status": "draft",
+    "ts": "2026-10-30 14:13:38"
+  },
+  "upvoty": {
+    "post_id": "23494783",
+    "title": "bootstrapped 六年：这个用户反馈工具靠什么活到今天",
+    "url": "",
+    "status": "draft",
+    "ts": "2026-10-30 14:13:40"
   }
 }
