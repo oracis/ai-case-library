@@ -1822,6 +1822,108 @@ def send_draft(cdp=None, dry=False, cid=None):
                 pass
 
 
+def cmd_draft(args):
+    """把**外部 markdown**（不走 cases.json 的独立稿）存成 B站专栏草稿。
+
+    为什么加它（2026-10-30）：像 open-source-games 这种外部项目，选题稿在它
+    自己仓库的 `content/` 下，本仓库 `cases.json` 里没有对应 case ⇒
+    `publish --case` 认不到，喂不进去。这里给一条「只吃文件」的最小入口。
+
+    只建草稿，不发布（发布仍走 `send-draft`，额度 1 篇/天）。
+    成功时打印 `ARTICLE_ID=<aid>`，供上游脚本解析。
+
+    ⚠ 刻意**不调 `_record_draft()`**：那份台账记的是本仓库 cases.json 的
+      case，外部稿记进去只会让 `_load_manifest()` 的幂等判断失真。
+
+    md → HTML 复用 `toutiao_publish` 的 `md_to_blocks` / `blocks_to_html`
+    （已经是全库统一的那一套，别另造）；`build_arg` 只做段落级映射，
+    行内粗体会丢，这对外部稿是够的。
+    """
+    md_path = args.file
+    if not os.path.isfile(md_path):
+        raise SystemExit("✗ Markdown 不存在：%s" % md_path)
+    with open(md_path, encoding="utf-8") as f:
+        md = f.read()
+    import toutiao_publish as tt          # 局部 import：避免两个模块互相拉起
+    md, dropped = tt.strip_source_links(md)
+    title = (args.title or tt.md_title(md) or "").strip()
+    if not title:
+        raise SystemExit("✗ 拿不到标题：md 里没有「# 标题」，也没给 --title")
+    if len(title) > 40:
+        print("  [warn] 标题 %d 字 > B站上限 40，已截断" % len(title))
+        title = title[:40]
+    body = tt.blocks_to_html(tt.md_to_blocks(md), footer=False)
+    plain = re.sub(r"<[^>]+>", "", body)
+    print("B站专栏草稿：%s" % os.path.relpath(md_path, ROOT))
+    print("  标题 = %s（%d 字）" % (title, len(title)))
+    print("  正文 = %d 字" % len(plain))
+    if dropped:
+        print("  已剥离 %d 处源码外链：B站对站外导流零容忍" % dropped)
+    risk = risk_check(title + plain)
+    if risk:
+        # ⚠ 只警告、不硬拦（2026-10-30）：外部稿的正文来自**数据原文**，
+        #   实测命中过「小到可完整塞进一个二维码里」（某款游戏的简介），
+        #   那根本不是本项目的导流文案。硬拦会让外部稿永远建不了草稿，
+        #   而文案又不许编造 ⇒ 降级成提示，交人工终审判断。
+        print("  [warn] 命中风险词：%s（外部稿多来自数据原文，发布前人工确认）"
+              % risk)
+    if len(plain) < 200:
+        print("  ✗ 正文仅 %d 字（B站专栏建议 ≥300），跳过" % len(plain))
+        return 1
+    if args.dry:
+        print("  [dry] 不开浏览器、不建草稿")
+        print("  正文前 120 字：%s" % tt.strip_md(plain)[:120].replace("\n", " "))
+        return 0
+    cdp = wp.CDP(PUB_PORT)
+    try:
+        _api_tab(cdp)
+        # --cover（2026-10-30）：建草稿时就传封面图上 B站图床，URL 塞进
+        # image_urls —— `_cover_of()` 认 image_urls/origin_image_urls，
+        # 发布时就不会再走 `save_via_api(refresh_cover=True)` 补封面那条路
+        #（那条路有 risk_check 硬拦，外部稿数据原文可能误中，见 cmd_draft
+        #  上面的 warn 注释）。
+        image_urls = None
+        cov = getattr(args, "cover", None)
+        if cov:
+            if not os.path.isfile(cov):
+                print("  [warn] 封面文件不存在，草稿将无封面：%s" % cov)
+            else:
+                curl = bili_api.upload_cover(cdp, cov)
+                if curl:
+                    image_urls = [curl]
+                    print("  ✓ 封面已传图床：%s" % curl[:72])
+                else:
+                    print("  [warn] 封面上传失败，草稿将无封面（发布时会再补）")
+        arg = bili_api.build_arg(title, body, image_urls=image_urls)
+        out = bili_api.save_draft(cdp, arg)
+        if not isinstance(out, dict) or out.get("code") != 0:
+            print("  ✗ draft/add 失败：%s"
+                  % json.dumps(out, ensure_ascii=False)[:200])
+            return 1
+        aid = (out.get("data") or {}).get("article_id")
+        if not aid:
+            print("  ✗ draft/add 没回 article_id：%s"
+                  % json.dumps(out, ensure_ascii=False)[:200])
+            return 1
+        # 回读校验：「点了保存」≠「存上了」（2026-09-30 UI 路线栽过这个坑）
+        time.sleep(1.5)
+        after = bili_api.view_draft(cdp, aid)
+        got = (after.get("content") or "")
+        if not got.strip():
+            print("  ✗ 回读校验失败：草稿正文是空的（aid=%s）" % aid)
+            return 1
+        paras = len(arg["opus"]["content"]["paragraphs"])
+        print("  ✓ 已存草稿 aid=%s《%s》正文 %d 字 / %d 段"
+              % (aid, title, len(got), paras))
+        print("ARTICLE_ID=%s" % aid)
+        return 0
+    finally:
+        try:
+            cdp.close()
+        except Exception:                      # noqa: BLE001
+            pass
+
+
 def _cover_present(cdp, tid):
     """当前草稿是否已有自定义封面（DOM 层面）。
 
@@ -2481,6 +2583,19 @@ def main():
     s.add_argument("--dry", action="store_true",
                    help="只开到编辑器看发布按钮能不能点（补不补封面、点不点发布"
                         "都不做）")
+    dr = sub.add_parser(
+        "draft",
+        help="把**外部 markdown**（不走 cases.json）存成专栏草稿；成功打印 "
+             "ARTICLE_ID=<aid>。给外部项目（如 open-source-games）用，"
+             "2026-10-30 新增")
+    dr.add_argument("--file", required=True, help="Markdown 路径")
+    dr.add_argument("--title", default=None,
+                    help="覆盖标题（缺省取 md 首个「# 」；超 40 字截断）")
+    dr.add_argument("--cover", default=None,
+                    help="封面图路径（PNG/JPG）；传了就建草稿时上传图床并"
+                         "写进 image_urls，发布时不用再补封面。2026-10-30 新增")
+    dr.add_argument("--dry", action="store_true",
+                    help="只打印将要创建什么，不开浏览器")
     args = ap.parse_args()
 
     # 127.0.0.1 必须绕开系统代理，否则 websocket 连 Chrome 调试端口会被掐
@@ -2498,7 +2613,10 @@ def main():
     # 带 --no-sandbox 起 Chrome for Testing → 轮询端口）。
     # 不做这步的话，Chrome 没起时只会报「连不上 9222」让人自己去开浏览器。
     # `build` 是纯离线（只拼 HTML），不需要浏览器。
-    if args.cmd != "build":
+    # ⚠ `draft --dry` 同理（2026-10-30）：只打印将要建什么，起 Chrome 既慢
+    #    又和「dry 不开浏览器」的承诺不符。
+    if args.cmd != "build" and not (args.cmd == "draft"
+                                   and getattr(args, "dry", False)):
         try:
             # ⚠ B站的登录态在 `chrome-debug-profile`，**不是**公众号那个
             # ChromeCDP。拿错 profile 的症状：CDP 连得上、页面能开，
@@ -2553,6 +2671,11 @@ def main():
         # --dry 是「问今天能不能发」，不是一次尝试 —— 答案已经在打印里了，
         # 再退 1 会把「额度用完」和「脚本崩了」混成一回事。
         if not ok and not args.dry:
+            sys.exit(1)
+    elif args.cmd == "draft":
+        # 外部稿入口（2026-10-30）：只建草稿，不发。失败必须退非零，
+        # 上游 bridge.py 靠它判断「草稿真的建了」。
+        if cmd_draft(args):
             sys.exit(1)
     else:
         ap.print_help()
