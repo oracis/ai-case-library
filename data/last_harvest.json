@@ -1,77 +1,78 @@
 {
-  "ran_at": "2026-10-30 06:43:21",
-  "added": 58,
+  "ran_at": "2026-10-31 06:34:01",
+  "added": 57,
   "by_source": {
-    "hn": 44,
-    "trustmrr": 14
+    "hn": 43,
+    "indiehackers": 2,
+    "trustmrr": 12
   },
   "inbox_total": 400,
-  "archived_this_run": 58,
-  "archive_total": 1113,
+  "archived_this_run": 57,
+  "archive_total": 1170,
   "top": [
     {
-      "name": "Super",
-      "headline": "近 30 天收入 $1,337",
+      "name": "FlipScan: AI Reselling Scanner",
+      "headline": "近 30 天收入 $860",
       "heat": 0,
-      "category": "企业服务",
+      "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/super"
+      "url": "https://trustmrr.com/startup/flipscan"
     },
     {
-      "name": "AppXpose",
-      "headline": "MRR $180，TrustMRR 第 3426 名",
-      "heat": 0,
-      "category": "Security",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/appxpose"
-    },
-    {
-      "name": "BTFind: Bluetooth Finder",
-      "headline": "MRR $920，TrustMRR 第 1761 名",
-      "heat": 0,
-      "category": "移动应用",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/btfind-bluetooth-finder"
-    },
-    {
-      "name": "Stud Finder Wall Detector Tool",
-      "headline": "MRR $5,482，TrustMRR 第 562 名",
-      "heat": 0,
-      "category": "移动应用",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/stud-finder-wall-detector-tool"
-    },
-    {
-      "name": "Recently Followed: IG Tracker",
-      "headline": "近 30 天收入 $1,214",
-      "heat": 0,
-      "category": "未分类",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/recently-followed-ig-tracker"
-    },
-    {
-      "name": "VTC Facile",
-      "headline": "近 30 天收入 $1,346",
-      "heat": 0,
-      "category": "移动应用",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/vtc-facile"
-    },
-    {
-      "name": "My micro SaaS of $600k ARR is looking for a Founding Engineer for a pivot",
-      "headline": "疑似金额 $600k",
-      "heat": 1,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://bluemate.nl"
-    },
-    {
-      "name": "RaceCut",
-      "headline": "MRR $9,055",
+      "name": "ClipUtils",
+      "headline": "近 30 天收入 $379",
       "heat": 0,
       "category": "创作者经济",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/racecut"
+      "url": "https://trustmrr.com/startup/cliputils"
+    },
+    {
+      "name": "PaperTrace: AR Sketch",
+      "headline": "近 30 天收入 $132",
+      "heat": 0,
+      "category": "创作者经济",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/ar-drawing-sketch"
+    },
+    {
+      "name": "Truth or Dare: Couples Game",
+      "headline": "近 30 天收入 $548",
+      "heat": 0,
+      "category": "Games",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/truth-or-dare"
+    },
+    {
+      "name": "Bible Verse Alarm",
+      "headline": "近 30 天收入 $309",
+      "heat": 0,
+      "category": "移动应用",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/bible-verse-alarm"
+    },
+    {
+      "name": "DivvLaunches",
+      "headline": "累计收入 $170（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
+      "heat": 0,
+      "category": "营销工具",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/divvlaunches"
+    },
+    {
+      "name": "BuzzyX",
+      "headline": "MRR $232",
+      "heat": 0,
+      "category": "AI 工具",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/buzzyx"
+    },
+    {
+      "name": "Business Entrepreneur Tycoon",
+      "headline": "自报收入 $10 / mo（Indie Hackers）",
+      "heat": 0,
+      "category": "未分类",
+      "source": "indiehackers",
+      "url": "https://www.indiehackers.com/product/business-entrepreneur-tycoon"
     }
   ]
 }

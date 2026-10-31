@@ -25556,5 +25556,2434 @@
     "source_kind": "self_reported",
     "hn_id": "50140443",
     "archived_at": "2026-10-30"
+  },
+  {
+    "id": "one-click-flight-booking-in-claude",
+    "name": "One click flight booking in Claude",
+    "name_en": "One click flight booking in Claude",
+    "origin": "",
+    "one_liner": "tldr; Travelers wanted to find and book flights super fast in Claude, so we built this. -- BonBook started as flights via email because I was flying once a week in '24 and the UX got to me. Since then we've handled tens of thousands of requ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取",
+      "hn_discussion": "Who processes the booking & payment, an aggregator like Expedia or the airlines direct?\nAirlines process and charge your card directly. So a booking on Delta shows up as 'Delta Air Lines' and you keep credit card points."
+    },
+    "models": [],
+    "note": "自动采集于 2026-10-21（来源 hn，发布于 2026-10-20，5 分 / 2 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://mcp.bonbook.co/claude-setup",
+    "website": "",
+    "harvest_source": "hn",
+    "added_at": "2026-10-21",
+    "source_kind": "self_reported",
+    "hn_id": "50174185",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "drop-in-a-folder-of-html-and-get-back-a-private-url",
+    "name": "Drop in a folder of HTML and get back a private URL",
+    "name_en": "Drop in a folder of HTML and get back a private URL",
+    "origin": "",
+    "one_liner": "Show HN: Drop in a folder of HTML and get back a private URL",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-10-21（来源 hn，发布于 2026-10-20，3 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://eze.page/",
+    "website": "",
+    "harvest_source": "hn",
+    "added_at": "2026-10-21",
+    "source_kind": "self_reported",
+    "hn_id": "50174244",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "wellbody-body-health-tamagotchi",
+    "name": "Wellbody [Body Health Tamagotchi]",
+    "name_en": "Wellbody [Body Health Tamagotchi]",
+    "origin": "",
+    "one_liner": "Hi everyone, I have been working on wellbody health pal for the past 1-2 years. We recently uplifted the app to the current body health tamagotchi version and it's been a blast not just using and developing the app, but also developing our ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取",
+      "hn_discussion": "Does it need to be syncd with fitness trackers? I've built something similar and biggest complaint was data privacy. What are you doing to ensure data is protected? Anyway, seems like a fun concept good luck!"
+    },
+    "models": [],
+    "note": "自动采集于 2026-10-21（来源 hn，发布于 2026-10-20，2 分 / 1 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://wellbody.me",
+    "website": "",
+    "harvest_source": "hn",
+    "added_at": "2026-10-21",
+    "source_kind": "self_reported",
+    "hn_id": "50174260",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "schemawright-learning-database-design-in-a-gamified-way",
+    "name": "SchemaWright, learning database design in a gamified way",
+    "name_en": "SchemaWright, learning database design in a gamified way",
+    "origin": "",
+    "one_liner": "Let me begin by explaining what it is: SchemaWright is a platform for learning database table design in a gamified way, with a real Postgres database running on your browser via WASM. It was heavily inspired by Duolingo and LeetCode, becaus",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-10-21（来源 hn，发布于 2026-10-21，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://schemawright.com",
+    "website": "",
+    "harvest_source": "hn",
+    "added_at": "2026-10-21",
+    "source_kind": "self_reported",
+    "hn_id": "50174722",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "an-icon-for-every-city-in-north-america",
+    "name": "An icon for every city in North America",
+    "name_en": "An icon for every city in North America",
+    "origin": "",
+    "one_liner": "To my knowledge there is no icon pack for cities in NA below a certain size. So I created one! An icon for every city in NA with >100k population. 544 in total. Generated with Nano Banana Pro. These cost me ~$70 to generate. Giving away for",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "疑似金额 $70 "
+    },
+    "models": [],
+    "note": "自动采集于 2026-10-21（来源 hn，发布于 2026-10-21，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://evans.bike/naicons",
+    "website": "",
+    "harvest_source": "hn",
+    "added_at": "2026-10-21",
+    "source_kind": "self_reported",
+    "hn_id": "50174813",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "an-unofficial-guide-to-roblox-s-the-hollow-event",
+    "name": "An unofficial guide to Roblox's The Hollow event",
+    "name_en": "An unofficial guide to Roblox's The Hollow event",
+    "origin": "",
+    "one_liner": "Show HN: An unofficial guide to Roblox's The Hollow event",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-10-21（来源 hn，发布于 2026-10-21，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://robloxthehollow.com/",
+    "website": "",
+    "harvest_source": "hn",
+    "added_at": "2026-10-21",
+    "source_kind": "self_reported",
+    "hn_id": "50174821",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "hibi",
+    "name": "Hibi",
+    "name_en": "Hibi",
+    "origin": "",
+    "one_liner": "i shared hibi here in september as an open-source obsidian alternative but i wasn't able to attend to it much: https://news.ycombinator.com/item?id=49782528 for context, hibi is a free, open-source markdown/latex/typst/and more editor that ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-10-21（来源 hn，发布于 2026-10-21，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/schmayterling/hibi",
+    "website": "",
+    "harvest_source": "hn",
+    "added_at": "2026-10-21",
+    "source_kind": "self_reported",
+    "hn_id": "50174826",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "spotnote",
+    "name": "Spotnote",
+    "name_en": "Spotnote",
+    "origin": "",
+    "one_liner": "Show HN: Spotnote – click an element, hand your coding agent its file:line",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-10-21（来源 hn，发布于 2026-10-21，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/harukikuri/spotnote",
+    "website": "",
+    "harvest_source": "hn",
+    "added_at": "2026-10-21",
+    "source_kind": "self_reported",
+    "hn_id": "50174861",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "reverse-engineering-the-ane-to-run-gemma-4-26b-at-100-tok-s",
+    "name": "Reverse engineering the ANE to run Gemma 4 26B at 100 Tok/s",
+    "name_en": "Reverse engineering the ANE to run Gemma 4 26B at 100 Tok/s",
+    "origin": "",
+    "one_liner": "After checking out Turbo Fieldfare (a very interesting project that streamed experts from SSD on Apple Silicon Macs to run Gemma 4 26B with very little RAM usage), I tried to make this project much faster and succeeded! This project gets up",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-10-21（来源 hn，发布于 2026-10-21，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/zw5/ane-fieldfare",
+    "website": "",
+    "harvest_source": "hn",
+    "added_at": "2026-10-21",
+    "source_kind": "self_reported",
+    "hn_id": "50174998",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "unterm",
+    "name": "Unterm",
+    "name_en": "Unterm",
+    "origin": "",
+    "one_liner": "Show HN: Unterm – A pure-Rust terminal for humans and AI agents",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-10-21（来源 hn，发布于 2026-10-21，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/zhitongblog/unterm",
+    "website": "",
+    "harvest_source": "hn",
+    "added_at": "2026-10-21",
+    "source_kind": "self_reported",
+    "hn_id": "50175026",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "ida-the-mac-assistant-siri-should-have-been",
+    "name": "Ida, the Mac assistant Siri should have been",
+    "name_en": "Ida, the Mac assistant Siri should have been",
+    "origin": "",
+    "one_liner": "Hi HN, I'm Francisco. I've spent the last couple of months building what Siri promised to be 10 years ago. I'm calling it Ida. Ida is a native macOS voice assistant. Hold a shortcut, say what you want, let go, and Ida does it in the apps it",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-10-21（来源 hn，发布于 2026-10-21，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://www.heyida.ai/",
+    "website": "",
+    "harvest_source": "hn",
+    "added_at": "2026-10-21",
+    "source_kind": "self_reported",
+    "hn_id": "50175117",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "litedeck",
+    "name": "Litedeck",
+    "name_en": "Litedeck",
+    "origin": "",
+    "one_liner": "I made Agentless server management GUI over plain SSH. In Litedeck, we can show and download file, service, docker container, terminal and security, and resource monitoring. Because, I have some Raspberry pi4, mini pc(N97, N100), jetson nan",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-10-21（来源 hn，发布于 2026-10-21，3 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/cpprhtn/LiteDeck",
+    "website": "",
+    "harvest_source": "hn",
+    "added_at": "2026-10-21",
+    "source_kind": "self_reported",
+    "hn_id": "50175121",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "acplause",
+    "name": "acplause",
+    "name_en": "acplause",
+    "origin": "",
+    "one_liner": "Show HN: acplause – An ACP agent for OpenAI-compatible APIs",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-10-21（来源 hn，发布于 2026-10-21，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/anesthetised/acplause",
+    "website": "",
+    "harvest_source": "hn",
+    "added_at": "2026-10-21",
+    "source_kind": "self_reported",
+    "hn_id": "50175258",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "mile-pace-calculator-free-pace-and-split-tools-for-runners",
+    "name": "Mile Pace Calculator, free pace and split tools for runners",
+    "name_en": "Mile Pace Calculator, free pace and split tools for runners",
+    "origin": "",
+    "one_liner": "Show HN: Mile Pace Calculator, free pace and split tools for runners",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-10-21（来源 hn，发布于 2026-10-21，3 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://milepacecalculator.com/",
+    "website": "",
+    "harvest_source": "hn",
+    "added_at": "2026-10-21",
+    "source_kind": "self_reported",
+    "hn_id": "50175619",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "pope-pendle-pro",
+    "name": "Pope Pendle Pro",
+    "name_en": "Pope Pendle Pro",
+    "origin": "",
+    "one_liner": "Pope Pendle Pro resolves 10 contradictions per lunar cycle. It detects inversions, navigates the Veytar, and restores censored invariance. All for $13.27/month.\"",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-10-21（来源 hn，发布于 2026-10-21，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://github.com/knitprong/Faith-cloud",
+    "website": "",
+    "harvest_source": "hn",
+    "added_at": "2026-10-21",
+    "source_kind": "self_reported",
+    "hn_id": "50175741",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "vortex-code",
+    "name": "Vortex Code",
+    "name_en": "Vortex Code",
+    "origin": "",
+    "one_liner": "Show HN: Vortex Code",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-10-21（来源 hn，发布于 2026-10-21，1 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://spinozalabs.ai/software",
+    "website": "",
+    "harvest_source": "hn",
+    "added_at": "2026-10-21",
+    "source_kind": "self_reported",
+    "hn_id": "50175849",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "inca",
+    "name": "Inca",
+    "name_en": "Inca",
+    "origin": "",
+    "one_liner": "Show HN: Inca – a free, open-source 3D app that works like Maya 2020",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "自动采集于 2026-10-21（来源 hn，发布于 2026-10-21，2 分 / 0 条讨论）。自动抽到的金额只作线索，可能是售价、举例或行价，不是收入。",
+    "blocking": "尚未人工核实：需确认公司真实存在、收入口径、是否有公开披露",
+    "source_url": "https://incacad.com/",
+    "website": "",
+    "harvest_source": "hn",
+    "added_at": "2026-10-21",
+    "source_kind": "self_reported",
+    "hn_id": "50176178",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "99xdev",
+    "name": "99xDev",
+    "name_en": "99xDev",
+    "origin": "印度",
+    "one_liner": "Make Full-stack web apps built with AI. Deploy it instantly or self host.",
+    "category": "AI 工具",
+    "verification": "partial",
+    "metrics": {
+      "all_time": 0.11,
+      "growth": "+0.0%（近 30 天）",
+      "headline": "累计收入 $0（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。",
+      "monthly_timeline": [
+        [
+          "2025-11",
+          0.11
+        ],
+        [
+          "2026-05",
+          0.0
+        ],
+        [
+          "2026-06",
+          0.0
+        ]
+      ]
+    },
+    "models": [],
+    "note": "来自 TrustMRR 官方公开 Markdown 档案 https://trustmrr.com/startup/99xdev.md（llms.txt 指定的 AI 入口；收入由支付提供商 API 直接读取验证，非截图自报）。收入数据同步于 2026-07-26T17:57:35.877Z，档案为缓存快照（下次刷新约 2026-10-21T05:36:36.497Z）。口径：MRR = 当前月经常性收入（非订阅制项目恒 0）；近 30 天 = 滚动 30 天已验证流水，含一次性与用量收入，别当经常性收入引用；累计 = all-time。仍需人工确认口径与时效。已带 12 个月收入流水（monthly_timeline），可判连续多月是否真实爬升。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/99xdev",
+    "website": "https://99xdev.com/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2026-05-23",
+    "founder_name": "Sandeep",
+    "source_kind": "verified",
+    "trustmrr_slug": "99xdev",
+    "data_freshness": "2026-07-26T17:57:35.877Z",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "3-pixel-grid",
+    "name": "3 Pixel Grid",
+    "name_en": "3 Pixel Grid",
+    "origin": "英国",
+    "one_liner": "A tiny 3x3 animated indicator driven by simple delay arrays. Browse the patterns, click to copy the config, and drop it into your project.",
+    "category": "创作者经济",
+    "verification": "partial",
+    "metrics": {
+      "all_time": 2.72,
+      "growth": "+0.0%（近 30 天）",
+      "price_point": "$5,000",
+      "headline": "累计收入 $3（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。",
+      "monthly_timeline": [
+        [
+          "2026-01",
+          2.72
+        ]
+      ]
+    },
+    "models": [
+      "交易市场"
+    ],
+    "note": "来自 TrustMRR 官方公开 Markdown 档案 https://trustmrr.com/startup/3-pixel-grid.md（llms.txt 指定的 AI 入口；收入由支付提供商 API 直接读取验证，非截图自报）。收入数据同步于 2026-10-20T03:23:46.013Z，档案为缓存快照（下次刷新约 2026-10-21T05:36:34.612Z）。口径：MRR = 当前月经常性收入（非订阅制项目恒 0）；近 30 天 = 滚动 30 天已验证流水，含一次性与用量收入，别当经常性收入引用；累计 = all-time。仍需人工确认口径与时效。已带 12 个月收入流水（monthly_timeline），可判连续多月是否真实爬升。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/3-pixel-grid",
+    "website": "https://3pxgrid.com/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2025-12-14",
+    "founder_name": "metaheavies",
+    "trade": {
+      "price": "$5,000",
+      "multiple": null,
+      "revenue": null
+    },
+    "source_kind": "verified",
+    "trustmrr_slug": "3-pixel-grid",
+    "data_freshness": "2026-10-20T03:23:46.013Z",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "1-pixel-workout",
+    "name": "1 Pixel Workout",
+    "name_en": "1 Pixel Workout",
+    "origin": "乌克兰",
+    "one_liner": "Turn scrolling into 60-second workouts",
+    "category": "health fitness",
+    "verification": "partial",
+    "metrics": {
+      "all_time": 2.95,
+      "growth": "+0.0%（近 30 天）",
+      "headline": "累计收入 $3（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。",
+      "monthly_timeline": [
+        [
+          "2026-04",
+          2.95
+        ]
+      ]
+    },
+    "models": [
+      "买断制"
+    ],
+    "note": "来自 TrustMRR 官方公开 Markdown 档案 https://trustmrr.com/startup/1-pixel-workout.md（llms.txt 指定的 AI 入口；收入由支付提供商 API 直接读取验证，非截图自报）。收入数据同步于 2026-10-20T03:52:36.224Z，档案为缓存快照（下次刷新约 2026-10-21T05:36:31.528Z）。口径：MRR = 当前月经常性收入（非订阅制项目恒 0）；近 30 天 = 滚动 30 天已验证流水，含一次性与用量收入，别当经常性收入引用；累计 = all-time。仍需人工确认口径与时效。已带 12 个月收入流水（monthly_timeline），可判连续多月是否真实爬升。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/1-pixel-workout",
+    "website": "https://1pixelworkout.com/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2025-01-01",
+    "founder_name": "Denys Soloshenko 🇺🇦",
+    "source_kind": "verified",
+    "trustmrr_slug": "1-pixel-workout",
+    "data_freshness": "2026-10-20T03:52:36.224Z",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "abysm-dive-the-deep-sea",
+    "name": "ABYSM - Dive the Deep Sea",
+    "name_en": "ABYSM - Dive the Deep Sea",
+    "origin": "",
+    "one_liner": "A calm pixel-art ocean exploration game for iPhone and iPad. Descend through five ocean zones to Challenger Deep at 10,935 metres, discovering 75 real sea creatures and eight ocean landmarks. Explore at your own pace with ambient audio, a g",
+    "category": "移动应用",
+    "verification": "partial",
+    "metrics": {
+      "all_time": 2.99,
+      "growth": "-100.0%（近 30 天）",
+      "headline": "累计收入 $3（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。",
+      "monthly_timeline": [
+        [
+          "2026-07",
+          0.0
+        ],
+        [
+          "2026-08",
+          0.0
+        ],
+        [
+          "2026-09",
+          2.99
+        ],
+        [
+          "2026-10",
+          0.0
+        ]
+      ]
+    },
+    "models": [
+      "订阅制"
+    ],
+    "note": "来自 TrustMRR 官方公开 Markdown 档案 https://trustmrr.com/startup/abysm.md（llms.txt 指定的 AI 入口；收入由支付提供商 API 直接读取验证，非截图自报）。收入数据同步于 2026-10-20T00:53:03.018Z，档案为缓存快照（下次刷新约 2026-10-21T05:37:13.859Z）。口径：MRR = 当前月经常性收入（非订阅制项目恒 0）；近 30 天 = 滚动 30 天已验证流水，含一次性与用量收入，别当经常性收入引用；累计 = all-time。仍需人工确认口径与时效。已带 12 个月收入流水（monthly_timeline），可判连续多月是否真实爬升。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/abysm",
+    "website": "https://abysm.apoorvdarshan.com/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2026-07-15",
+    "founder_name": "Apoorv Darshan",
+    "source_kind": "verified",
+    "trustmrr_slug": "abysm",
+    "data_freshness": "2026-10-20T00:53:03.018Z",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "5ugc-ai-ugc-video",
+    "name": "5UGC: AI UGC Video",
+    "name_en": "5UGC: AI UGC Video",
+    "origin": "英国",
+    "one_liner": "AI-powered UGC video generation tool for performance marketers. Brands input a product image, define persona and script direction, and receive realistic vertical ad creatives in minutes — no creator coordination, no shipping, no production ",
+    "category": "垂直行业 SaaS",
+    "verification": "partial",
+    "metrics": {
+      "all_time": 5.0,
+      "growth": "+0.0%（近 30 天）",
+      "price_point": "$3,700",
+      "headline": "累计收入 $5（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。",
+      "monthly_timeline": [
+        [
+          "2026-02",
+          5.0
+        ]
+      ]
+    },
+    "models": [
+      "交易市场"
+    ],
+    "note": "来自 TrustMRR 官方公开 Markdown 档案 https://trustmrr.com/startup/5ugc-ai-ugc-video.md（llms.txt 指定的 AI 入口；收入由支付提供商 API 直接读取验证，非截图自报）。收入数据同步于 2026-10-20T04:21:26.386Z，档案为缓存快照（下次刷新约 2026-10-21T05:34:08.408Z）。口径：MRR = 当前月经常性收入（非订阅制项目恒 0）；近 30 天 = 滚动 30 天已验证流水，含一次性与用量收入，别当经常性收入引用；累计 = all-time。仍需人工确认口径与时效。已带 12 个月收入流水（monthly_timeline），可判连续多月是否真实爬升。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/5ugc-ai-ugc-video",
+    "website": "https://5ugc.com/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2026-02-15",
+    "trade": {
+      "price": "$3,700",
+      "multiple": null,
+      "revenue": null
+    },
+    "source_kind": "verified",
+    "trustmrr_slug": "5ugc-ai-ugc-video",
+    "data_freshness": "2026-10-20T04:21:26.386Z",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "act-school-reports",
+    "name": "ACT School Reports",
+    "name_en": "ACT School Reports",
+    "origin": "澳大利亚",
+    "one_liner": "Helping ACT teachers write personalised and compliant school report comments.",
+    "category": "垂直行业 SaaS",
+    "verification": "partial",
+    "metrics": {
+      "all_time": 6.48,
+      "growth": "+0.0%（近 30 天）",
+      "headline": "累计收入 $6（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。",
+      "monthly_timeline": [
+        [
+          "2025-11",
+          6.48
+        ]
+      ]
+    },
+    "models": [],
+    "note": "来自 TrustMRR 官方公开 Markdown 档案 https://trustmrr.com/startup/act-school-reports.md（llms.txt 指定的 AI 入口；收入由支付提供商 API 直接读取验证，非截图自报）。收入数据同步于 2026-10-20T02:08:26.576Z，档案为缓存快照（下次刷新约 2026-10-21T05:37:50.853Z）。口径：MRR = 当前月经常性收入（非订阅制项目恒 0）；近 30 天 = 滚动 30 天已验证流水，含一次性与用量收入，别当经常性收入引用；累计 = all-time。仍需人工确认口径与时效。已带 12 个月收入流水（monthly_timeline），可判连续多月是否真实爬升。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/act-school-reports",
+    "website": "https://actschoolreports.com.au/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2025-11-01",
+    "founder_name": "SlouchyPete",
+    "source_kind": "verified",
+    "trustmrr_slug": "act-school-reports",
+    "data_freshness": "2026-10-20T02:08:26.576Z",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "action-inbox",
+    "name": "action-inbox",
+    "name_en": "action-inbox",
+    "origin": "澳大利亚",
+    "one_liner": "Mac desktop app to maintain and organise your notifications from workflow management apps.",
+    "category": "开发者工具",
+    "verification": "partial",
+    "metrics": {
+      "all_time": 10.23,
+      "growth": "+0.0%（近 30 天）",
+      "headline": "累计收入 $10（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。",
+      "monthly_timeline": [
+        [
+          "2026-01",
+          10.23
+        ]
+      ]
+    },
+    "models": [],
+    "note": "来自 TrustMRR 官方公开 Markdown 档案 https://trustmrr.com/startup/action-inbox.md（llms.txt 指定的 AI 入口；收入由支付提供商 API 直接读取验证，非截图自报）。收入数据同步于 2026-10-20T03:03:30.355Z，档案为缓存快照（下次刷新约 2026-10-21T05:00:44.317Z）。口径：MRR = 当前月经常性收入（非订阅制项目恒 0）；近 30 天 = 滚动 30 天已验证流水，含一次性与用量收入，别当经常性收入引用；累计 = all-time。仍需人工确认口径与时效。已带 12 个月收入流水（monthly_timeline），可判连续多月是否真实爬升。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/action-inbox",
+    "website": "https://action-inbox.app/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2026-01-21",
+    "founder_name": "yourfavindiedev",
+    "source_kind": "verified",
+    "trustmrr_slug": "action-inbox",
+    "data_freshness": "2026-10-20T03:03:30.355Z",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "1h-challenge",
+    "name": "1h-challenge",
+    "name_en": "1h-challenge",
+    "origin": "法国",
+    "one_liner": "Le feuilleton de l'IA autonome : un agent Claude relève des défis chronométrés pour gagner de l'argent réel, en public, échecs inclus. Ép. 1 : 10 € en 57 min ✅. REX, scripts et pièges documentés — le public choisit les prochains épisodes.",
+    "category": "AI 工具",
+    "verification": "partial",
+    "metrics": {
+      "all_time": 12.57,
+      "growth": "+0.0%（近 30 天）",
+      "headline": "累计收入 $13（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。",
+      "monthly_timeline": [
+        [
+          "2026-07",
+          12.57
+        ]
+      ]
+    },
+    "models": [],
+    "note": "来自 TrustMRR 官方公开 Markdown 档案 https://trustmrr.com/startup/1h-challenge.md（llms.txt 指定的 AI 入口；收入由支付提供商 API 直接读取验证，非截图自报）。收入数据同步于 2026-10-20T05:12:46.267Z，档案为缓存快照（下次刷新约 2026-10-21T05:36:33.214Z）。口径：MRR = 当前月经常性收入（非订阅制项目恒 0）；近 30 天 = 滚动 30 天已验证流水，含一次性与用量收入，别当经常性收入引用；累计 = all-time。仍需人工确认口径与时效。已带 12 个月收入流水（monthly_timeline），可判连续多月是否真实爬升。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/1h-challenge",
+    "website": "https://1h-money.vercel.app/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2026-07-10",
+    "founder_name": "parweb · autonomous AI, building in public",
+    "source_kind": "verified",
+    "trustmrr_slug": "1h-challenge",
+    "data_freshness": "2026-10-20T05:12:46.267Z",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "21st-tools",
+    "name": "21st.tools",
+    "name_en": "21st.tools",
+    "origin": "美国",
+    "one_liner": "It's a product hunt alternative with no biases.",
+    "category": "开发者工具",
+    "verification": "partial",
+    "metrics": {
+      "all_time": 30.93,
+      "growth": "-100.0%（近 30 天）",
+      "headline": "累计收入 $31（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。",
+      "monthly_timeline": [
+        [
+          "2026-09",
+          10.0
+        ]
+      ]
+    },
+    "models": [],
+    "note": "来自 TrustMRR 官方公开 Markdown 档案 https://trustmrr.com/startup/21st-tools.md（llms.txt 指定的 AI 入口；收入由支付提供商 API 直接读取验证，非截图自报）。收入数据同步于 2026-10-20T02:12:10.000Z，档案为缓存快照（下次刷新约 2026-10-21T05:36:34.043Z）。口径：MRR = 当前月经常性收入（非订阅制项目恒 0）；近 30 天 = 滚动 30 天已验证流水，含一次性与用量收入，别当经常性收入引用；累计 = all-time。仍需人工确认口径与时效。已带 12 个月收入流水（monthly_timeline），可判连续多月是否真实爬升。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/21st-tools",
+    "website": "https://21st.tools/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2024-11-18",
+    "founder_name": "Sadek",
+    "source_kind": "verified",
+    "trustmrr_slug": "21st-tools",
+    "data_freshness": "2026-10-20T02:12:10.000Z",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "37-audits",
+    "name": "37 Audits",
+    "name_en": "37 Audits",
+    "origin": "巴西",
+    "one_liner": "The fastest and easiest way to find and fix SEO, security, performance, accessibility, and resilience issues before they cost rankings, revenue or trust.",
+    "category": "开发者工具",
+    "verification": "partial",
+    "metrics": {
+      "all_time": 57.84,
+      "growth": "+0.0%（近 30 天）",
+      "visitors": 103,
+      "headline": "累计收入 $58（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。",
+      "monthly_timeline": [
+        [
+          "2026-08",
+          19.13
+        ]
+      ]
+    },
+    "models": [
+      "买断制"
+    ],
+    "note": "来自 TrustMRR 官方公开 Markdown 档案 https://trustmrr.com/startup/37-audits.md（llms.txt 指定的 AI 入口；收入由支付提供商 API 直接读取验证，非截图自报）。收入数据同步于 2026-10-19T23:39:31.521Z，档案为缓存快照（下次刷新约 2026-10-21T05:36:35.045Z）。口径：MRR = 当前月经常性收入（非订阅制项目恒 0）；近 30 天 = 滚动 30 天已验证流水，含一次性与用量收入，别当经常性收入引用；累计 = all-time。仍需人工确认口径与时效。已带 12 个月收入流水（monthly_timeline），可判连续多月是否真实爬升。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/37-audits",
+    "website": "https://www.37audits.com/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2025-08-20",
+    "founder_name": "Thiago Moreira",
+    "source_kind": "verified",
+    "trustmrr_slug": "37-audits",
+    "data_freshness": "2026-10-19T23:39:31.521Z",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "abun-com",
+    "name": "Abun.com",
+    "name_en": "Abun.com",
+    "origin": "印度",
+    "one_liner": "The All-In-One Toolkit for SEO & Growth Marketing.",
+    "category": "AI 工具",
+    "verification": "partial",
+    "metrics": {
+      "mrr": 125.0,
+      "all_time": 11021.0,
+      "last_30d_revenue": 24.22,
+      "customers": 3,
+      "growth": "-0.0%（近 30 天）",
+      "price_point": "$50,000",
+      "headline": "MRR $125",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。",
+      "monthly_timeline": [
+        [
+          "2025-10",
+          96.34
+        ],
+        [
+          "2025-11",
+          522.0
+        ],
+        [
+          "2025-12",
+          228.0
+        ],
+        [
+          "2026-01",
+          129.0
+        ],
+        [
+          "2026-02",
+          129.0
+        ],
+        [
+          "2026-03",
+          103.0
+        ],
+        [
+          "2026-04",
+          49.22
+        ],
+        [
+          "2026-05",
+          61.22
+        ],
+        [
+          "2026-06",
+          24.22
+        ],
+        [
+          "2026-07",
+          24.22
+        ],
+        [
+          "2026-08",
+          972.0
+        ],
+        [
+          "2026-09",
+          24.22
+        ]
+      ]
+    },
+    "models": [
+      "交易市场"
+    ],
+    "note": "来自 TrustMRR 官方公开 Markdown 档案 https://trustmrr.com/startup/abun-com.md（llms.txt 指定的 AI 入口；收入由支付提供商 API 直接读取验证，非截图自报）。收入数据同步于 2026-10-20T02:34:10.375Z，档案为缓存快照（下次刷新约 2026-10-21T05:37:08.444Z）。口径：MRR = 当前月经常性收入（非订阅制项目恒 0）；近 30 天 = 滚动 30 天已验证流水，含一次性与用量收入，别当经常性收入引用；累计 = all-time。仍需人工确认口径与时效。已带 12 个月收入流水（monthly_timeline），可判连续多月是否真实爬升。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/abun-com",
+    "website": "https://abun.com/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2023-08-21",
+    "founder_name": "Junaid Ansari",
+    "trade": {
+      "price": "$50,000",
+      "multiple": "172.00x",
+      "revenue": "$24"
+    },
+    "source_kind": "verified",
+    "trustmrr_slug": "abun-com",
+    "data_freshness": "2026-10-20T02:34:10.375Z",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "0sec",
+    "name": "0sec",
+    "name_en": "0sec",
+    "origin": "俄罗斯",
+    "one_liner": "0sec is a voice AI calendar app that schedules events and manages time using voice commands.",
+    "category": "AI 工具",
+    "verification": "partial",
+    "metrics": {
+      "mrr": 125.0,
+      "all_time": 822.0,
+      "last_30d_revenue": 125.0,
+      "customers": 11,
+      "growth": "-7.8%（近 30 天）",
+      "headline": "MRR $125",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。",
+      "monthly_timeline": [
+        [
+          "2025-12",
+          0.0
+        ],
+        [
+          "2026-01",
+          19.98
+        ],
+        [
+          "2026-02",
+          50.22
+        ],
+        [
+          "2026-03",
+          69.36
+        ],
+        [
+          "2026-04",
+          91.4
+        ],
+        [
+          "2026-05",
+          91.3
+        ],
+        [
+          "2026-06",
+          90.93
+        ],
+        [
+          "2026-07",
+          93.58
+        ],
+        [
+          "2026-08",
+          100.0
+        ],
+        [
+          "2026-09",
+          157.0
+        ],
+        [
+          "2026-10",
+          58.43
+        ]
+      ]
+    },
+    "models": [
+      "订阅制"
+    ],
+    "note": "来自 TrustMRR 官方公开 Markdown 档案 https://trustmrr.com/startup/0sec.md（llms.txt 指定的 AI 入口；收入由支付提供商 API 直接读取验证，非截图自报）。收入数据同步于 2026-10-20T02:56:31.092Z，档案为缓存快照（下次刷新约 2026-10-21T05:36:31.624Z）。口径：MRR = 当前月经常性收入（非订阅制项目恒 0）；近 30 天 = 滚动 30 天已验证流水，含一次性与用量收入，别当经常性收入引用；累计 = all-time。仍需人工确认口径与时效。已带 12 个月收入流水（monthly_timeline），可判连续多月是否真实爬升。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/0sec",
+    "website": "http://0sec.app/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2025-08-22",
+    "founder_name": "potemin",
+    "source_kind": "verified",
+    "trustmrr_slug": "0sec",
+    "data_freshness": "2026-10-20T02:56:31.092Z",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "abre-bio",
+    "name": "Abre.bio",
+    "name_en": "Abre.bio",
+    "origin": "巴西",
+    "one_liner": "Sistema de assinatura para criadores e loja virtuais",
+    "category": "电商",
+    "verification": "partial",
+    "metrics": {
+      "mrr": 149.0,
+      "all_time": 15167.0,
+      "last_30d_revenue": 128.0,
+      "customers": 29,
+      "growth": "-43.9%（近 30 天）",
+      "headline": "MRR $149",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。",
+      "monthly_timeline": [
+        [
+          "2025-11",
+          173.0
+        ],
+        [
+          "2025-12",
+          133.0
+        ],
+        [
+          "2026-01",
+          153.0
+        ],
+        [
+          "2026-02",
+          157.0
+        ],
+        [
+          "2026-03",
+          234.0
+        ],
+        [
+          "2026-04",
+          215.0
+        ],
+        [
+          "2026-05",
+          211.0
+        ],
+        [
+          "2026-06",
+          121.0
+        ],
+        [
+          "2026-07",
+          193.0
+        ],
+        [
+          "2026-08",
+          195.0
+        ],
+        [
+          "2026-09",
+          190.0
+        ],
+        [
+          "2026-10",
+          104.0
+        ]
+      ]
+    },
+    "models": [
+      "订阅制"
+    ],
+    "note": "来自 TrustMRR 官方公开 Markdown 档案 https://trustmrr.com/startup/abre-bio.md（llms.txt 指定的 AI 入口；收入由支付提供商 API 直接读取验证，非截图自报）。收入数据同步于 2026-10-20T02:06:19.211Z，档案为缓存快照（下次刷新约 2026-10-21T05:37:08.015Z）。口径：MRR = 当前月经常性收入（非订阅制项目恒 0）；近 30 天 = 滚动 30 天已验证流水，含一次性与用量收入，别当经常性收入引用；累计 = all-time。仍需人工确认口径与时效。已带 12 个月收入流水（monthly_timeline），可判连续多月是否真实爬升。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/abre-bio",
+    "website": "https://abre.bio/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2021-09-08",
+    "founder_name": "Rony Max ➜ abre.bio",
+    "source_kind": "verified",
+    "trustmrr_slug": "abre-bio",
+    "data_freshness": "2026-10-20T02:06:19.211Z",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "10xprofit-io",
+    "name": "10Xprofit.io",
+    "name_en": "10Xprofit.io",
+    "origin": "孟加拉国",
+    "one_liner": "10xProfit combines powerful Amazon product research, real-time analytics, and automation tools in one platform. We provide data-driven insights across 18+ Amazon marketplaces, helping you make informed decisions faster.",
+    "category": "垂直行业 SaaS",
+    "verification": "partial",
+    "metrics": {
+      "mrr": 29.97,
+      "all_time": 900.0,
+      "last_30d_revenue": 158.0,
+      "customers": 3,
+      "growth": "+125.7%（近 30 天）",
+      "visitors": 1095,
+      "headline": "近 30 天收入 $158",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。",
+      "monthly_timeline": [
+        [
+          "2026-01",
+          150.0
+        ],
+        [
+          "2026-03",
+          99.0
+        ],
+        [
+          "2026-04",
+          103.0
+        ],
+        [
+          "2026-05",
+          67.97
+        ],
+        [
+          "2026-06",
+          49.0
+        ],
+        [
+          "2026-07",
+          138.0
+        ],
+        [
+          "2026-08",
+          125.0
+        ],
+        [
+          "2026-09",
+          29.97
+        ],
+        [
+          "2026-10",
+          138.0
+        ]
+      ]
+    },
+    "models": [
+      "订阅制"
+    ],
+    "note": "来自 TrustMRR 官方公开 Markdown 档案 https://trustmrr.com/startup/10xprofit-io.md（llms.txt 指定的 AI 入口；收入由支付提供商 API 直接读取验证，非截图自报）。收入数据同步于 2026-10-20T04:16:07.348Z，档案为缓存快照（下次刷新约 2026-10-21T05:36:32.430Z）。口径：MRR = 当前月经常性收入（非订阅制项目恒 0）；近 30 天 = 滚动 30 天已验证流水，含一次性与用量收入，别当经常性收入引用；累计 = all-time。仍需人工确认口径与时效。已带 12 个月收入流水（monthly_timeline），可判连续多月是否真实爬升。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/10xprofit-io",
+    "website": "https://10xprofit.io/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2026-02-12",
+    "founder_name": "10xprofitio",
+    "source_kind": "verified",
+    "trustmrr_slug": "10xprofit-io",
+    "data_freshness": "2026-10-20T04:16:07.348Z",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "abhub",
+    "name": "ABHUB",
+    "name_en": "ABHUB",
+    "origin": "美国",
+    "one_liner": "ABHUB is a no-code website builder and content management system for wineries.",
+    "category": "no code",
+    "verification": "partial",
+    "metrics": {
+      "mrr": 199.0,
+      "all_time": 5970.0,
+      "last_30d_revenue": 199.0,
+      "customers": 1,
+      "growth": "+0.0%（近 30 天）",
+      "price_point": "$10,000",
+      "headline": "MRR $199",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。",
+      "monthly_timeline": [
+        [
+          "2025-10",
+          199.0
+        ],
+        [
+          "2025-11",
+          199.0
+        ],
+        [
+          "2025-12",
+          199.0
+        ],
+        [
+          "2026-01",
+          199.0
+        ],
+        [
+          "2026-02",
+          199.0
+        ],
+        [
+          "2026-03",
+          199.0
+        ],
+        [
+          "2026-04",
+          199.0
+        ],
+        [
+          "2026-05",
+          199.0
+        ],
+        [
+          "2026-06",
+          199.0
+        ],
+        [
+          "2026-07",
+          199.0
+        ],
+        [
+          "2026-08",
+          199.0
+        ],
+        [
+          "2026-09",
+          199.0
+        ]
+      ]
+    },
+    "models": [
+      "交易市场"
+    ],
+    "note": "来自 TrustMRR 官方公开 Markdown 档案 https://trustmrr.com/startup/abhub.md（llms.txt 指定的 AI 入口；收入由支付提供商 API 直接读取验证，非截图自报）。收入数据同步于 2026-10-20T02:35:39.759Z，档案为缓存快照（下次刷新约 2026-10-21T05:37:07.643Z）。口径：MRR = 当前月经常性收入（非订阅制项目恒 0）；近 30 天 = 滚动 30 天已验证流水，含一次性与用量收入，别当经常性收入引用；累计 = all-time。仍需人工确认口径与时效。已带 12 个月收入流水（monthly_timeline），可判连续多月是否真实爬升。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/abhub",
+    "website": "https://www.abhub.co/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2023-09-01",
+    "founder_name": "Eric Campbell",
+    "trade": {
+      "price": "$10,000",
+      "multiple": "4.20x",
+      "revenue": "$199"
+    },
+    "source_kind": "verified",
+    "trustmrr_slug": "abhub",
+    "data_freshness": "2026-10-20T02:35:39.759Z",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "2fa-authenticator",
+    "name": "2FA Authenticator",
+    "name_en": "2FA Authenticator",
+    "origin": "美国",
+    "one_liner": "Two-factor authentication, the way it should be. Everything you expect from a modern authenticator — with security and privacy built in from the start. Your secrets stay on your device — always.",
+    "category": "security",
+    "verification": "partial",
+    "metrics": {
+      "mrr": 2.0,
+      "all_time": 218.0,
+      "last_30d_revenue": 218.0,
+      "customers": 4,
+      "growth": "+0.0%（近 30 天）",
+      "headline": "近 30 天收入 $218",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。",
+      "monthly_timeline": [
+        [
+          "2026-10",
+          218.0
+        ]
+      ]
+    },
+    "models": [
+      "订阅制"
+    ],
+    "note": "来自 TrustMRR 官方公开 Markdown 档案 https://trustmrr.com/startup/2fa-authenticator.md（llms.txt 指定的 AI 入口；收入由支付提供商 API 直接读取验证，非截图自报）。收入数据同步于 2026-10-20T00:48:19.925Z，档案为缓存快照（下次刷新约 2026-10-21T05:36:34.423Z）。口径：MRR = 当前月经常性收入（非订阅制项目恒 0）；近 30 天 = 滚动 30 天已验证流水，含一次性与用量收入，别当经常性收入引用；累计 = all-time。仍需人工确认口径与时效。已带 12 个月收入流水（monthly_timeline），可判连续多月是否真实爬升。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/2fa-authenticator",
+    "website": "https://www.authenticator.sh/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2026-04-16",
+    "source_kind": "verified",
+    "trustmrr_slug": "2fa-authenticator",
+    "data_freshness": "2026-10-20T00:48:19.925Z",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "achiv",
+    "name": "Achiv",
+    "name_en": "Achiv",
+    "origin": "美国",
+    "one_liner": "Most content tools start from a keyword and a vibe — so you get the average of the internet, and it doesn't rank or convert. Achiv starts from real demand. It mines the actual questions, complaints, and objections your buyers post on Reddit",
+    "category": "营销工具",
+    "verification": "partial",
+    "metrics": {
+      "all_time": 227.0,
+      "growth": "+0.0%（近 30 天）",
+      "headline": "累计收入 $227（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。",
+      "monthly_timeline": [
+        [
+          "2026-05",
+          99.0
+        ],
+        [
+          "2026-06",
+          128.0
+        ]
+      ]
+    },
+    "models": [
+      "订阅制"
+    ],
+    "note": "来自 TrustMRR 官方公开 Markdown 档案 https://trustmrr.com/startup/achiv.md（llms.txt 指定的 AI 入口；收入由支付提供商 API 直接读取验证，非截图自报）。收入数据同步于 2026-10-20T03:27:31.651Z，档案为缓存快照（下次刷新约 2026-10-21T05:37:39.995Z）。口径：MRR = 当前月经常性收入（非订阅制项目恒 0）；近 30 天 = 滚动 30 天已验证流水，含一次性与用量收入，别当经常性收入引用；累计 = all-time。仍需人工确认口径与时效。已带 12 个月收入流水（monthly_timeline），可判连续多月是否真实爬升。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/achiv",
+    "website": "https://achiv.com/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2026-02-15",
+    "founder_name": "Maks",
+    "source_kind": "verified",
+    "trustmrr_slug": "achiv",
+    "data_freshness": "2026-10-20T03:27:31.651Z",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "actrun-ai",
+    "name": "ActRun AI",
+    "name_en": "ActRun AI",
+    "origin": "美国",
+    "one_liner": "ActRun AI turns plain-English requests into real work across email, Slack, Stripe, LinkedIn, X, files, and browser tasks. Connect your tools, describe the outcome once, and run it as a chat action, reusable workflow, or 24/7 watcher with ap",
+    "category": "AI 工具",
+    "verification": "partial",
+    "metrics": {
+      "mrr": 250.0,
+      "all_time": 2271.0,
+      "last_30d_revenue": 252.0,
+      "customers": 7,
+      "growth": "+0.8%（近 30 天）",
+      "headline": "近 30 天收入 $252",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。",
+      "monthly_timeline": [
+        [
+          "2025-11",
+          75.0
+        ],
+        [
+          "2025-12",
+          75.0
+        ],
+        [
+          "2026-01",
+          50.0
+        ],
+        [
+          "2026-02",
+          50.0
+        ],
+        [
+          "2026-03",
+          75.0
+        ],
+        [
+          "2026-04",
+          175.0
+        ],
+        [
+          "2026-05",
+          275.0
+        ],
+        [
+          "2026-06",
+          374.0
+        ],
+        [
+          "2026-07",
+          320.0
+        ],
+        [
+          "2026-08",
+          300.0
+        ],
+        [
+          "2026-09",
+          250.0
+        ],
+        [
+          "2026-10",
+          227.0
+        ]
+      ]
+    },
+    "models": [
+      "订阅制"
+    ],
+    "note": "来自 TrustMRR 官方公开 Markdown 档案 https://trustmrr.com/startup/actrun-ai.md（llms.txt 指定的 AI 入口；收入由支付提供商 API 直接读取验证，非截图自报）。收入数据同步于 2026-10-20T02:10:01.542Z，档案为缓存快照（下次刷新约 2026-10-21T05:33:28.936Z）。口径：MRR = 当前月经常性收入（非订阅制项目恒 0）；近 30 天 = 滚动 30 天已验证流水，含一次性与用量收入，别当经常性收入引用；累计 = all-time。仍需人工确认口径与时效。已带 12 个月收入流水（monthly_timeline），可判连续多月是否真实爬升。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/actrun-ai",
+    "website": "https://actrun.ai/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2025-07-26",
+    "founder_name": "ActRun",
+    "source_kind": "verified",
+    "trustmrr_slug": "actrun-ai",
+    "data_freshness": "2026-10-20T02:10:01.542Z",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "21km-lol",
+    "name": "21km.lol",
+    "name_en": "21km.lol",
+    "origin": "德国",
+    "one_liner": "Sponsor Aleks at a half marathon. Your logo runs all 21.1 km.",
+    "category": "营销工具",
+    "verification": "partial",
+    "metrics": {
+      "all_time": 308.0,
+      "growth": "-100.0%（近 30 天）",
+      "headline": "累计收入 $308（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。",
+      "monthly_timeline": [
+        [
+          "2026-08",
+          288.0
+        ],
+        [
+          "2026-09",
+          19.68
+        ]
+      ]
+    },
+    "models": [],
+    "note": "来自 TrustMRR 官方公开 Markdown 档案 https://trustmrr.com/startup/21km.md（llms.txt 指定的 AI 入口；收入由支付提供商 API 直接读取验证，非截图自报）。收入数据同步于 2026-10-20T00:00:53.562Z，档案为缓存快照（下次刷新约 2026-10-21T04:23:11.629Z）。口径：MRR = 当前月经常性收入（非订阅制项目恒 0）；近 30 天 = 滚动 30 天已验证流水，含一次性与用量收入，别当经常性收入引用；累计 = all-time。仍需人工确认口径与时效。已带 12 个月收入流水（monthly_timeline），可判连续多月是否真实爬升。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/21km",
+    "website": "https://21km.lol/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2026-08-30",
+    "founder_name": "Aleksandar Jovanovic",
+    "source_kind": "verified",
+    "trustmrr_slug": "21km",
+    "data_freshness": "2026-10-20T00:00:53.562Z",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "abstract27-ltd",
+    "name": "Abstract27 Ltd",
+    "name_en": "Abstract27 Ltd",
+    "origin": "英国",
+    "one_liner": "We set up and host, Ghost CMS websites for bloggers, startups, small businesses and entrepreneurs starting at £17 per month. Easy to use, SEO optimised, newsletter and stripe integrated, hassle-free. Migrate from Wordpress, Substack, Beehii",
+    "category": "创作者经济",
+    "verification": "partial",
+    "metrics": {
+      "mrr": 399.0,
+      "all_time": 12623.0,
+      "last_30d_revenue": 249.0,
+      "customers": 13,
+      "growth": "-1.7%（近 30 天）",
+      "headline": "MRR $399",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。",
+      "monthly_timeline": [
+        [
+          "2025-11",
+          490.0
+        ],
+        [
+          "2025-12",
+          1391.0
+        ],
+        [
+          "2026-01",
+          875.0
+        ],
+        [
+          "2026-02",
+          296.0
+        ],
+        [
+          "2026-03",
+          1556.0
+        ],
+        [
+          "2026-04",
+          591.0
+        ],
+        [
+          "2026-05",
+          319.0
+        ],
+        [
+          "2026-06",
+          249.0
+        ],
+        [
+          "2026-07",
+          1289.0
+        ],
+        [
+          "2026-08",
+          288.0
+        ],
+        [
+          "2026-09",
+          251.0
+        ],
+        [
+          "2026-10",
+          125.0
+        ]
+      ]
+    },
+    "models": [
+      "订阅制"
+    ],
+    "note": "来自 TrustMRR 官方公开 Markdown 档案 https://trustmrr.com/startup/abstract27-ltd-1.md（llms.txt 指定的 AI 入口；收入由支付提供商 API 直接读取验证，非截图自报）。收入数据同步于 2026-10-20T02:18:07.402Z，档案为缓存快照（下次刷新约 2026-10-21T05:37:08.190Z）。口径：MRR = 当前月经常性收入（非订阅制项目恒 0）；近 30 天 = 滚动 30 天已验证流水，含一次性与用量收入，别当经常性收入引用；累计 = all-time。仍需人工确认口径与时效。已带 12 个月收入流水（monthly_timeline），可判连续多月是否真实爬升。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/abstract27-ltd-1",
+    "website": "https://abstract27.com/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2024-08-21",
+    "source_kind": "verified",
+    "trustmrr_slug": "abstract27-ltd-1",
+    "data_freshness": "2026-10-20T02:18:07.402Z",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "140-6",
+    "name": "140.6",
+    "name_en": "140.6",
+    "origin": "",
+    "one_liner": "Personalized triathlon training plans with workouts, fueling guidance, and progress stats.",
+    "category": "health fitness",
+    "verification": "partial",
+    "metrics": {
+      "mrr": 197.0,
+      "all_time": 881.0,
+      "last_30d_revenue": 524.0,
+      "customers": 11,
+      "growth": "+46.8%（近 30 天）",
+      "visitors": 5,
+      "headline": "近 30 天收入 $524",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。",
+      "monthly_timeline": [
+        [
+          "2026-07",
+          0.0
+        ],
+        [
+          "2026-08",
+          140.0
+        ],
+        [
+          "2026-09",
+          464.0
+        ],
+        [
+          "2026-10",
+          277.0
+        ]
+      ]
+    },
+    "models": [
+      "订阅制"
+    ],
+    "note": "来自 TrustMRR 官方公开 Markdown 档案 https://trustmrr.com/startup/140-6.md（llms.txt 指定的 AI 入口；收入由支付提供商 API 直接读取验证，非截图自报）。收入数据同步于 2026-10-19T23:59:15.313Z，档案为缓存快照（下次刷新约 2026-10-21T05:36:32.570Z）。口径：MRR = 当前月经常性收入（非订阅制项目恒 0）；近 30 天 = 滚动 30 天已验证流水，含一次性与用量收入，别当经常性收入引用；累计 = all-time。仍需人工确认口径与时效。已带 12 个月收入流水（monthly_timeline），可判连续多月是否真实爬升。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/140-6",
+    "website": "https://apps.apple.com/app/id6786566738",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founder_name": "Brian Tan",
+    "source_kind": "verified",
+    "trustmrr_slug": "140-6",
+    "data_freshness": "2026-10-19T23:59:15.313Z",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "300aidirectories",
+    "name": "300aidirectories",
+    "name_en": "300aidirectories",
+    "origin": "法国",
+    "one_liner": "Lists AI tools in 300+ directories to boost domain rating",
+    "category": "AI 工具",
+    "verification": "partial",
+    "metrics": {
+      "all_time": 745.0,
+      "growth": "+0.0%（近 30 天）",
+      "headline": "累计收入 $745（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。",
+      "monthly_timeline": [
+        [
+          "2025-12",
+          189.0
+        ],
+        [
+          "2026-01",
+          178.0
+        ],
+        [
+          "2026-04",
+          189.0
+        ],
+        [
+          "2026-06",
+          189.0
+        ]
+      ]
+    },
+    "models": [],
+    "note": "来自 TrustMRR 官方公开 Markdown 档案 https://trustmrr.com/startup/300aidirectories.md（llms.txt 指定的 AI 入口；收入由支付提供商 API 直接读取验证，非截图自报）。收入数据同步于 2026-10-20T02:43:10.461Z，档案为缓存快照（下次刷新约 2026-10-21T05:01:11.795Z）。口径：MRR = 当前月经常性收入（非订阅制项目恒 0）；近 30 天 = 滚动 30 天已验证流水，含一次性与用量收入，别当经常性收入引用；累计 = all-time。仍需人工确认口径与时效。已带 12 个月收入流水（monthly_timeline），可判连续多月是否真实爬升。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/300aidirectories",
+    "website": "https://300aidirectories.com/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2025-12-23",
+    "founder_name": "Hans \\| 300+ AI Directories🚀",
+    "source_kind": "verified",
+    "trustmrr_slug": "300aidirectories",
+    "data_freshness": "2026-10-20T02:43:10.461Z",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "access-labs-pty-ltd",
+    "name": "Access Labs PTY LTD",
+    "name_en": "Access Labs PTY LTD",
+    "origin": "澳大利亚",
+    "one_liner": "We have 2 separate product offerings. Our first is Access Pass, which is a self-service NFT membership for a fixed price, with the customer charged directly at checkout. The second is custom web3 development which is charged through a subsc",
+    "category": "AI 工具",
+    "verification": "partial",
+    "metrics": {
+      "mrr": 801.0,
+      "all_time": 39928.0,
+      "last_30d_revenue": 302.0,
+      "customers": 30,
+      "growth": "-9.0%（近 30 天）",
+      "headline": "MRR $801",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。",
+      "monthly_timeline": [
+        [
+          "2025-10",
+          182.0
+        ],
+        [
+          "2025-11",
+          599.0
+        ],
+        [
+          "2025-12",
+          1074.0
+        ],
+        [
+          "2026-01",
+          965.0
+        ],
+        [
+          "2026-02",
+          565.0
+        ],
+        [
+          "2026-03",
+          518.0
+        ],
+        [
+          "2026-04",
+          409.0
+        ],
+        [
+          "2026-05",
+          347.0
+        ],
+        [
+          "2026-06",
+          302.0
+        ],
+        [
+          "2026-07",
+          30.0
+        ]
+      ]
+    },
+    "models": [
+      "订阅制"
+    ],
+    "note": "来自 TrustMRR 官方公开 Markdown 档案 https://trustmrr.com/startup/access-labs-pty-ltd.md（llms.txt 指定的 AI 入口；收入由支付提供商 API 直接读取验证，非截图自报）。收入数据同步于 2026-07-04T22:05:35.345Z，档案为缓存快照（下次刷新约 2026-10-21T05:37:24.191Z）。口径：MRR = 当前月经常性收入（非订阅制项目恒 0）；近 30 天 = 滚动 30 天已验证流水，含一次性与用量收入，别当经常性收入引用；累计 = all-time。仍需人工确认口径与时效。已带 12 个月收入流水（monthly_timeline），可判连续多月是否真实爬升。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/access-labs-pty-ltd",
+    "website": "https://accesslabs.io/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2022-08-04",
+    "founder_name": "Botly",
+    "source_kind": "verified",
+    "trustmrr_slug": "access-labs-pty-ltd",
+    "data_freshness": "2026-07-04T22:05:35.345Z",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "88finder",
+    "name": "88finder",
+    "name_en": "88finder",
+    "origin": "澳大利亚",
+    "one_liner": "Web platform (SaaS) that helps travelers and backpackers find verified farms in Australia to complete their 88 days of work.",
+    "category": "垂直行业 SaaS",
+    "verification": "partial",
+    "metrics": {
+      "all_time": 998.0,
+      "growth": "+27.9%（近 30 天）",
+      "headline": "累计收入 $998（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。",
+      "monthly_timeline": [
+        [
+          "2025-11",
+          18.62
+        ],
+        [
+          "2025-12",
+          9.31
+        ],
+        [
+          "2026-02",
+          7.17
+        ],
+        [
+          "2026-03",
+          68.78
+        ],
+        [
+          "2026-04",
+          216.0
+        ],
+        [
+          "2026-05",
+          505.0
+        ],
+        [
+          "2026-06",
+          172.0
+        ]
+      ]
+    },
+    "models": [
+      "订阅制"
+    ],
+    "note": "来自 TrustMRR 官方公开 Markdown 档案 https://trustmrr.com/startup/88finder.md（llms.txt 指定的 AI 入口；收入由支付提供商 API 直接读取验证，非截图自报）。收入数据同步于 2026-10-20T04:17:14.677Z，档案为缓存快照（下次刷新约 2026-10-21T05:36:36.077Z）。口径：MRR = 当前月经常性收入（非订阅制项目恒 0）；近 30 天 = 滚动 30 天已验证流水，含一次性与用量收入，别当经常性收入引用；累计 = all-time。仍需人工确认口径与时效。已带 12 个月收入流水（monthly_timeline），可判连续多月是否真实爬升。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/88finder",
+    "website": "https://88finder.com/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2025-10-25",
+    "source_kind": "verified",
+    "trustmrr_slug": "88finder",
+    "data_freshness": "2026-10-20T04:17:14.677Z",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "1devtool",
+    "name": "1DevTool",
+    "name_en": "1DevTool",
+    "origin": "越南",
+    "one_liner": "Vibe Coding IDE — for working with many AI agents on multiple projects Multiple projects, multiple AI coding CLIs, one app — never lose context. Run Claude Code, Codex, and Gemini side by side across every repo. Switch projects in one click",
+    "category": "开发者工具",
+    "verification": "partial",
+    "metrics": {
+      "mrr": 2.41,
+      "all_time": 8634.0,
+      "last_30d_revenue": 1099.0,
+      "customers": 1,
+      "growth": "-34.5%（近 30 天）",
+      "visitors": 7865,
+      "price_point": "$50,000",
+      "headline": "近 30 天收入 $1,099",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。",
+      "monthly_timeline": [
+        [
+          "2025-11",
+          36.27
+        ],
+        [
+          "2025-12",
+          0.0
+        ],
+        [
+          "2026-01",
+          71.08
+        ],
+        [
+          "2026-02",
+          189.0
+        ],
+        [
+          "2026-03",
+          518.0
+        ],
+        [
+          "2026-04",
+          591.0
+        ],
+        [
+          "2026-05",
+          616.0
+        ],
+        [
+          "2026-06",
+          1187.0
+        ],
+        [
+          "2026-07",
+          1528.0
+        ],
+        [
+          "2026-08",
+          1851.0
+        ],
+        [
+          "2026-09",
+          1442.0
+        ],
+        [
+          "2026-10",
+          604.0
+        ]
+      ]
+    },
+    "models": [
+      "交易市场"
+    ],
+    "note": "来自 TrustMRR 官方公开 Markdown 档案 https://trustmrr.com/startup/1devtool.md（llms.txt 指定的 AI 入口；收入由支付提供商 API 直接读取验证，非截图自报）。收入数据同步于 2026-10-20T04:29:30.832Z，档案为缓存快照（下次刷新约 2026-10-21T05:34:06.878Z）。口径：MRR = 当前月经常性收入（非订阅制项目恒 0）；近 30 天 = 滚动 30 天已验证流水，含一次性与用量收入，别当经常性收入引用；累计 = all-time。仍需人工确认口径与时效。已带 12 个月收入流水（monthly_timeline），可判连续多月是否真实爬升。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/1devtool",
+    "website": "https://1devtool.com/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2025-11-05",
+    "founder_name": "Khoa Nguyen",
+    "trade": {
+      "price": "$50,000",
+      "multiple": "3.80x",
+      "revenue": "$1,099"
+    },
+    "source_kind": "verified",
+    "trustmrr_slug": "1devtool",
+    "data_freshness": "2026-10-20T04:29:30.832Z",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "1418-technologies-llc",
+    "name": "1418 Technologies LLC",
+    "name_en": "1418 Technologies LLC",
+    "origin": "美国",
+    "one_liner": "Modern technology services for individuals and businesses.",
+    "category": "开发者工具",
+    "verification": "partial",
+    "metrics": {
+      "mrr": 63.0,
+      "all_time": 20984.0,
+      "last_30d_revenue": 2063.0,
+      "customers": 2,
+      "growth": "+0.0%（近 30 天）",
+      "headline": "近 30 天收入 $2,063",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。",
+      "monthly_timeline": [
+        [
+          "2025-11",
+          55.0
+        ],
+        [
+          "2025-12",
+          55.0
+        ],
+        [
+          "2026-01",
+          55.0
+        ],
+        [
+          "2026-02",
+          2055.0
+        ],
+        [
+          "2026-03",
+          2055.0
+        ],
+        [
+          "2026-04",
+          2055.0
+        ],
+        [
+          "2026-05",
+          2030.0
+        ],
+        [
+          "2026-06",
+          30.0
+        ],
+        [
+          "2026-07",
+          2193.0
+        ],
+        [
+          "2026-08",
+          2063.0
+        ],
+        [
+          "2026-09",
+          2063.0
+        ],
+        [
+          "2026-10",
+          2030.0
+        ]
+      ]
+    },
+    "models": [
+      "订阅制"
+    ],
+    "note": "来自 TrustMRR 官方公开 Markdown 档案 https://trustmrr.com/startup/1418-technologies-llc.md（llms.txt 指定的 AI 入口；收入由支付提供商 API 直接读取验证，非截图自报）。收入数据同步于 2026-10-20T04:46:36.075Z，档案为缓存快照（下次刷新约 2026-10-21T05:36:32.687Z）。口径：MRR = 当前月经常性收入（非订阅制项目恒 0）；近 30 天 = 滚动 30 天已验证流水，含一次性与用量收入，别当经常性收入引用；累计 = all-time。仍需人工确认口径与时效。已带 12 个月收入流水（monthly_timeline），可判连续多月是否真实爬升。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/1418-technologies-llc",
+    "website": "https://1418tech.com/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2021-03-04",
+    "founder_name": "heem3 ⚡️",
+    "source_kind": "verified",
+    "trustmrr_slug": "1418-technologies-llc",
+    "data_freshness": "2026-10-20T04:46:36.075Z",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "100percentmarket",
+    "name": "100PercentMarket",
+    "name_en": "100PercentMarket",
+    "origin": "美国",
+    "one_liner": "We provide a market place for original media, fonts, clipart and media focused on print-on-demand.",
+    "category": "创作者经济",
+    "verification": "partial",
+    "metrics": {
+      "mrr": 2437.0,
+      "all_time": 6301.0,
+      "customers": 10,
+      "growth": "+0.0%（近 30 天）",
+      "headline": "MRR $2,437",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。",
+      "monthly_timeline": [
+        [
+          "2025-10",
+          46.99
+        ],
+        [
+          "2025-11",
+          92.95
+        ],
+        [
+          "2025-12",
+          1339.0
+        ],
+        [
+          "2026-01",
+          1913.0
+        ],
+        [
+          "2026-02",
+          1291.0
+        ],
+        [
+          "2026-03",
+          1492.0
+        ],
+        [
+          "2026-04",
+          80.0
+        ]
+      ]
+    },
+    "models": [
+      "订阅制"
+    ],
+    "note": "来自 TrustMRR 官方公开 Markdown 档案 https://trustmrr.com/startup/100percentmarket.md（llms.txt 指定的 AI 入口；收入由支付提供商 API 直接读取验证，非截图自报）。收入数据同步于 2026-10-20T04:02:48.899Z，档案为缓存快照（下次刷新约 2026-10-21T05:36:32.108Z）。口径：MRR = 当前月经常性收入（非订阅制项目恒 0）；近 30 天 = 滚动 30 天已验证流水，含一次性与用量收入，别当经常性收入引用；累计 = all-time。仍需人工确认口径与时效。已带 12 个月收入流水（monthly_timeline），可判连续多月是否真实爬升。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/100percentmarket",
+    "website": "https://www.100percentmarket.com/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2025-09-05",
+    "source_kind": "verified",
+    "trustmrr_slug": "100percentmarket",
+    "data_freshness": "2026-10-20T04:02:48.899Z",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "5-day-sprint",
+    "name": "5 Day Sprint",
+    "name_en": "5 Day Sprint",
+    "origin": "英国",
+    "one_liner": "Join Dan, Zehra and 16,509 others building AI businesses in days with video tutorials and 1 on 1 support.",
+    "category": "AI 工具",
+    "verification": "partial",
+    "metrics": {
+      "mrr": 6189.0,
+      "all_time": 246429.0,
+      "last_30d_revenue": 2410.0,
+      "customers": 87,
+      "growth": "-43.1%（近 30 天）",
+      "headline": "MRR $6,189",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。",
+      "monthly_timeline": [
+        [
+          "2025-11",
+          13849.0
+        ],
+        [
+          "2025-12",
+          20485.0
+        ],
+        [
+          "2026-01",
+          5874.0
+        ],
+        [
+          "2026-02",
+          6898.0
+        ],
+        [
+          "2026-03",
+          4960.0
+        ],
+        [
+          "2026-04",
+          5126.0
+        ],
+        [
+          "2026-05",
+          13356.0
+        ],
+        [
+          "2026-06",
+          1890.0
+        ],
+        [
+          "2026-07",
+          1830.0
+        ],
+        [
+          "2026-08",
+          2655.0
+        ],
+        [
+          "2026-09",
+          3184.0
+        ],
+        [
+          "2026-10",
+          1783.0
+        ]
+      ]
+    },
+    "models": [
+      "订阅制"
+    ],
+    "note": "来自 TrustMRR 官方公开 Markdown 档案 https://trustmrr.com/startup/5-day-sprint.md（llms.txt 指定的 AI 入口；收入由支付提供商 API 直接读取验证，非截图自报）。收入数据同步于 2026-10-20T02:06:50.662Z，档案为缓存快照（下次刷新约 2026-10-21T05:30:11.735Z）。口径：MRR = 当前月经常性收入（非订阅制项目恒 0）；近 30 天 = 滚动 30 天已验证流水，含一次性与用量收入，别当经常性收入引用；累计 = all-time。仍需人工确认口径与时效。已带 12 个月收入流水（monthly_timeline），可判连续多月是否真实爬升。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/5-day-sprint",
+    "website": "https://5daysprint.com/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2020-06-01",
+    "founder_name": "Omar",
+    "source_kind": "verified",
+    "trustmrr_slug": "5-day-sprint",
+    "data_freshness": "2026-10-20T02:06:50.662Z",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "10-ai-saas",
+    "name": "10 AI SaaS",
+    "name_en": "10 AI SaaS",
+    "origin": "斯洛文尼亚",
+    "one_liner": "Get production-ready SaaS source code for AI + Marketing tools. From code to cash in days, not months. Build your business on proven foundations.",
+    "category": "垂直行业 SaaS",
+    "verification": "partial",
+    "metrics": {
+      "all_time": 14188.0,
+      "growth": "-94.4%（近 30 天）",
+      "headline": "累计收入 $14,188（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。",
+      "monthly_timeline": [
+        [
+          "2025-10",
+          378.0
+        ],
+        [
+          "2025-11",
+          1103.0
+        ],
+        [
+          "2025-12",
+          1421.0
+        ],
+        [
+          "2026-01",
+          567.0
+        ],
+        [
+          "2026-02",
+          1890.0
+        ],
+        [
+          "2026-03",
+          284.0
+        ],
+        [
+          "2026-04",
+          643.0
+        ],
+        [
+          "2026-05",
+          84.18
+        ],
+        [
+          "2026-06",
+          0.0
+        ],
+        [
+          "2026-07",
+          0.0
+        ],
+        [
+          "2026-08",
+          0.0
+        ]
+      ]
+    },
+    "models": [],
+    "note": "来自 TrustMRR 官方公开 Markdown 档案 https://trustmrr.com/startup/10-ai-saas.md（llms.txt 指定的 AI 入口；收入由支付提供商 API 直接读取验证，非截图自报）。收入数据同步于 2026-08-06T21:43:21.392Z，档案为缓存快照（下次刷新约 2026-10-21T05:36:31.518Z）。口径：MRR = 当前月经常性收入（非订阅制项目恒 0）；近 30 天 = 滚动 30 天已验证流水，含一次性与用量收入，别当经常性收入引用；累计 = all-time。仍需人工确认口径与时效。已带 12 个月收入流水（monthly_timeline），可判连续多月是否真实爬升。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/10-ai-saas",
+    "website": "https://10.mobidonia.com/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2023-12-18",
+    "founder_name": "Daniel",
+    "source_kind": "verified",
+    "trustmrr_slug": "10-ai-saas",
+    "data_freshness": "2026-08-06T21:43:21.392Z",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "unfair-2-0",
+    "name": "Unfair 2.0",
+    "name_en": "Unfair 2.0",
+    "origin": "美国",
+    "one_liner": "Payment must be rendered at time of service. Allow 1-2 business days for Charges to show.",
+    "category": "未分类",
+    "verification": "partial",
+    "metrics": {
+      "all_time": 19823.0,
+      "growth": "+0.0%（近 30 天）",
+      "headline": "累计收入 $19,823（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。"
+    },
+    "models": [
+      "订阅制"
+    ],
+    "note": "来自 TrustMRR 官方公开 Markdown 档案 https://trustmrr.com/startup/a-1-plumbing-heating-cooling-mechanical.md（llms.txt 指定的 AI 入口；收入由支付提供商 API 直接读取验证，非截图自报）。收入数据同步于 2026-10-20T00:16:55.808Z，档案为缓存快照（下次刷新约 2026-10-21T05:36:36.745Z）。口径：MRR = 当前月经常性收入（非订阅制项目恒 0）；近 30 天 = 滚动 30 天已验证流水，含一次性与用量收入，别当经常性收入引用；累计 = all-time。仍需人工确认口径与时效。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/a-1-plumbing-heating-cooling-mechanical",
+    "website": "https://www.facebook.com/betterplumbabq",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2023-04-09",
+    "source_kind": "verified",
+    "trustmrr_slug": "a-1-plumbing-heating-cooling-mechanical",
+    "data_freshness": "2026-10-20T00:16:55.808Z",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "juicyagents",
+    "name": "JuicyAgents",
+    "name_en": "JuicyAgents",
+    "origin": "",
+    "one_liner": "Directory of AI agents, reusable skills and setup guides. It's for business owners, founders and small teams who are new to AI agents.",
+    "category": "AI 工具",
+    "verification": "partial",
+    "metrics": {
+      "growth": "+0.0%（近 30 天）",
+      "headline": "TrustMRR 收录（收入未公开）",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。"
+    },
+    "models": [],
+    "note": "来自 TrustMRR 官方公开数据端点 /api/ai（收入由支付网关 API 直读，非截图自报）。本条同步了官网、排名、收入、分类等字段，仍需人工确认口径与时效（页面标注的同步时间可能已过期）。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/maciej-chmura-juicyagents",
+    "website": "https://juicyagents.com/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "source_kind": "verified",
+    "trustmrr_slug": "maciej-chmura-juicyagents",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "holo-fit",
+    "name": "HOLO·FIT",
+    "name_en": "HOLO·FIT",
+    "origin": "",
+    "one_liner": "HOLO·FIT is an adaptive fitness coach for people who train on their own. Learn 81 exercises with interactive 3D demonstrations, reshape workouts around your time and equipment, and use an on-device ca",
+    "category": "Health & Fitness",
+    "verification": "partial",
+    "metrics": {
+      "growth": "+0.0%（近 30 天）",
+      "headline": "TrustMRR 收录（收入未公开）",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。"
+    },
+    "models": [],
+    "note": "来自 TrustMRR 官方公开数据端点 /api/ai（收入由支付网关 API 直读，非截图自报）。本条同步了官网、排名、收入、分类等字段，仍需人工确认口径与时效（页面标注的同步时间可能已过期）。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/holo-fit-max-yearly",
+    "website": "https://holofit.app/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "source_kind": "verified",
+    "trustmrr_slug": "holo-fit-max-yearly",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "genartcoloring",
+    "name": "GenArtColoring",
+    "name_en": "GenArtColoring",
+    "origin": "",
+    "one_liner": "",
+    "category": "未分类",
+    "verification": "partial",
+    "metrics": {
+      "mrr": 501.16,
+      "all_time": 1331.09684570774,
+      "last_30d_revenue": 1057.7551034469839,
+      "growth": "+297.1%（近 30 天）",
+      "headline": "近 30 天收入 $1,058",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。"
+    },
+    "models": [
+      "订阅制"
+    ],
+    "note": "来自 TrustMRR 官方公开数据端点 /api/ai（收入由支付网关 API 直读，非截图自报）。本条同步了官网、排名、收入、分类等字段，仍需人工确认口径与时效（页面标注的同步时间可能已过期）。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/genartcoloring",
+    "website": "https://genartcoloringbook.com/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "source_kind": "verified",
+    "trustmrr_slug": "genartcoloring",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "gallerylink",
+    "name": "Gallerylink",
+    "name_en": "Gallerylink",
+    "origin": "",
+    "one_liner": "GalleryLink turns a public Google Drive folder into a stunning, password-protected photo & video gallery no re-uploads, no storage. Share one link; it stays in sync with your Drive.",
+    "category": "创作者经济",
+    "verification": "partial",
+    "metrics": {
+      "mrr": 100.12,
+      "all_time": 456.27815684394085,
+      "last_30d_revenue": 305.5447249143266,
+      "growth": "+281.5%（近 30 天）",
+      "headline": "近 30 天收入 $306",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。"
+    },
+    "models": [
+      "订阅制"
+    ],
+    "note": "来自 TrustMRR 官方公开数据端点 /api/ai（收入由支付网关 API 直读，非截图自报）。本条同步了官网、排名、收入、分类等字段，仍需人工确认口径与时效（页面标注的同步时间可能已过期）。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/gallerylink",
+    "website": "https://gallerylink.live/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "source_kind": "verified",
+    "trustmrr_slug": "gallerylink",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "tryonthat",
+    "name": "TryOnThat",
+    "name_en": "TryOnThat",
+    "origin": "",
+    "one_liner": "",
+    "category": "未分类",
+    "verification": "partial",
+    "metrics": {
+      "growth": "+0.0%（近 30 天）",
+      "headline": "TrustMRR 收录（收入未公开）",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。"
+    },
+    "models": [],
+    "note": "来自 TrustMRR 官方公开数据端点 /api/ai（收入由支付网关 API 直读，非截图自报）。本条同步了官网、排名、收入、分类等字段，仍需人工确认口径与时效（页面标注的同步时间可能已过期）。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/tryonthat",
+    "website": "https://www.tryonthat.com/",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "source_kind": "verified",
+    "trustmrr_slug": "tryonthat",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "pinpoint",
+    "name": "PinPoint",
+    "name_en": "PinPoint",
+    "origin": "阿联酋",
+    "one_liner": "Dose tracker for peptide, TRT and GLP-1 users. Log injections, see levels between doses, track vial supply, run protocols with reminders and widgets.",
+    "category": "移动应用",
+    "verification": "partial",
+    "metrics": {
+      "mrr": 149.44,
+      "all_time": 1093.85,
+      "last_30d_revenue": 453.85,
+      "customers": 27,
+      "growth": "+42.2%（近 30 天）",
+      "price_point": "$8,000",
+      "margin": "80%",
+      "headline": "近 30 天收入 $454",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。排名来自 TrustMRR 榜单，随榜单实时变动。"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "note": "来自 TrustMRR 官方公开数据端点 /api/ai（收入由支付网关 API 直读，非截图自报）。本条同步了官网、排名、收入、分类等字段，仍需人工确认口径与时效（页面标注的同步时间可能已过期）。 挂牌出售中，要价 $8,000；倍数 1.47x。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/pinpoint",
+    "website": "https://pinpointdose.com",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2026-06-03",
+    "founder_x": "rahulnk",
+    "founder_name": "Rahul K",
+    "trade": {
+      "price": "$8,000",
+      "multiple": "1.47x",
+      "revenue": "$454"
+    },
+    "source_kind": "verified",
+    "trustmrr_slug": "pinpoint",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "screenshot-to-code-whimsyworks-inc",
+    "name": "Screenshot to Code (WhimsyWorks, Inc.)",
+    "name_en": "Screenshot to Code (WhimsyWorks, Inc.)",
+    "origin": "美国",
+    "one_liner": "",
+    "category": "AI 工具",
+    "verification": "partial",
+    "metrics": {
+      "mrr": 4693.33,
+      "all_time": 260824.05049899963,
+      "last_30d_revenue": 4522.78,
+      "customers": 308,
+      "growth": "-1.0%（近 30 天）",
+      "visitors": 2975,
+      "price_point": "$32,000",
+      "margin": "40%",
+      "headline": "MRR $4,693，TrustMRR 第 324 名",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。排名来自 TrustMRR 榜单，随榜单实时变动。"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "note": "来自 TrustMRR 官方公开数据端点 /api/ai（收入由支付网关 API 直读，非截图自报）。本条同步了官网、排名、收入、分类等字段，仍需人工确认口径与时效（页面标注的同步时间可能已过期）。 挂牌出售中，要价 $32,000；倍数 0.59x。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/screenshot-to-code-whimsyworks-inc",
+    "website": "https://screenshottocode.com",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2023-11-18",
+    "founder_x": "_abi_",
+    "founder_name": "Abi Raja",
+    "trade": {
+      "price": "$32,000",
+      "multiple": "0.59x",
+      "revenue": "$4,523"
+    },
+    "source_kind": "verified",
+    "trustmrr_slug": "screenshot-to-code-whimsyworks-inc",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "carry-save-chatgpt-claude-grok-to-markdown-automatically",
+    "name": "Carry: Save ChatGPT, Claude & Grok to Markdown Automatically",
+    "name_en": "Carry: Save ChatGPT, Claude & Grok to Markdown Automatically",
+    "origin": "印度",
+    "one_liner": "Carry automatically saves ChatGPT, Claude & Grok chats, Claude Projects & files to your Obsidian vault as Markdown. 14-day trial.",
+    "category": "Utilities",
+    "verification": "partial",
+    "metrics": {
+      "all_time": 472,
+      "last_30d_revenue": 354,
+      "growth": "+200.0%（近 30 天）",
+      "visitors": 639,
+      "price_point": "$10,000",
+      "margin": "99%",
+      "headline": "近 30 天收入 $354",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。排名来自 TrustMRR 榜单，随榜单实时变动。"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "note": "来自 TrustMRR 官方公开数据端点 /api/ai（收入由支付网关 API 直读，非截图自报）。本条同步了官网、排名、收入、分类等字段，仍需人工确认口径与时效（页面标注的同步时间可能已过期）。 挂牌出售中，要价 $10,000；倍数 2.35x。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/carry",
+    "website": "https://carry.md",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2026-07-17",
+    "founder_x": "iamankit",
+    "founder_name": "Ankit 🦊",
+    "trade": {
+      "price": "$10,000",
+      "multiple": "2.35x",
+      "revenue": "$354"
+    },
+    "source_kind": "verified",
+    "trustmrr_slug": "carry",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "embed-notion-pages",
+    "name": "Embed Notion Pages",
+    "name_en": "Embed Notion Pages",
+    "origin": "荷兰",
+    "one_liner": "Embed public Notion pages into WordPress, Webflow or any website without coding. Content stays synced with Notion. Paid plans add customization, password and email restrictions, and persistent embeds;",
+    "category": "企业服务",
+    "verification": "partial",
+    "metrics": {
+      "mrr": 1292,
+      "all_time": 41421.89,
+      "last_30d_revenue": 1204.4,
+      "customers": 99,
+      "growth": "-4.0%（近 30 天）",
+      "price_point": "$29,900",
+      "margin": "82%",
+      "headline": "MRR $1,292，TrustMRR 第 995 名",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。排名来自 TrustMRR 榜单，随榜单实时变动。"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "note": "来自 TrustMRR 官方公开数据端点 /api/ai（收入由支付网关 API 直读，非截图自报）。本条同步了官网、排名、收入、分类等字段，仍需人工确认口径与时效（页面标注的同步时间可能已过期）。 挂牌出售中，要价 $29,900；倍数 2.07x。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/embed-notion-pages",
+    "website": "https://www.embednotionpages.com",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "founded_at": "2022-08-17",
+    "founder_x": "ozanvos",
+    "founder_name": "Ozan van Oosten-Şener",
+    "trade": {
+      "price": "$29,900",
+      "multiple": "2.07x",
+      "revenue": "$1,204"
+    },
+    "source_kind": "verified",
+    "trustmrr_slug": "embed-notion-pages",
+    "archived_at": "2026-10-31"
+  },
+  {
+    "id": "vidoo",
+    "name": "Vidoo",
+    "name_en": "Vidoo",
+    "origin": "",
+    "one_liner": "A mobile generative AI video creation tool turning prompts and photos into realistic videos with built-in subscription and credit monetization.",
+    "category": "未分类",
+    "verification": "partial",
+    "metrics": {
+      "mrr": 1054.41,
+      "all_time": 131435.47999999998,
+      "last_30d_revenue": 4778.74,
+      "customers": 119,
+      "growth": "+717.5%（近 30 天）",
+      "price_point": "$50,000",
+      "margin": "100%",
+      "headline": "近 30 天收入 $4,779",
+      "metric_note": "收入由 TrustMRR 通过支付网关 API 直读（非截图自报）。口径：MRR = 当前月经常性收入；近 30 天 = 滚动 30 天的已验证流水，含一次性与用量收入 ——实测有佣金/流水型业务此项高出 MRR 三十余倍，别当经常性收入引用；累计 = all-time。注意页面标注的同步时间可能已过期。排名来自 TrustMRR 榜单，随榜单实时变动。"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "note": "来自 TrustMRR 官方公开数据端点 /api/ai（收入由支付网关 API 直读，非截图自报）。本条同步了官网、排名、收入、分类等字段，仍需人工确认口径与时效（页面标注的同步时间可能已过期）。 挂牌出售中，要价 $50,000；倍数 0.87x。",
+    "blocking": "需人工确认收入口径与数据时效（TrustMRR 同步时间可能已过）",
+    "source_url": "https://trustmrr.com/startup/vidoo",
+    "website": "https://play.google.com/store/apps/details?id=com.kling.ai.app",
+    "harvest_source": "trustmrr",
+    "added_at": "2026-10-20",
+    "trade": {
+      "price": "$50,000",
+      "multiple": "0.87x",
+      "revenue": "$4,779"
+    },
+    "source_kind": "verified",
+    "trustmrr_slug": "vidoo",
+    "archived_at": "2026-10-31"
   }
 ]

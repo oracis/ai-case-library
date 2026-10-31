@@ -106,5 +106,266 @@
   "category": "人工智能",
   "cover": "D:\\ai-case-library\\out\\toutiao\\shipfast\\cover.png",
   "ts": "2026-10-30 12:03:54"
+ },
+ "plausible-2026-10-30-1": {
+  "case": "plausible",
+  "title": "开源三年、10 个人、没有投资人：这个隐私分析工具是怎么活下来的？",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1699448",
+    "url": "https://developer.aliyun.com/article/new?edit=1699448#/"
+   },
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "338076",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338076"
+   }
+  },
+  "category": "人工智能",
+  "cover": "",
+  "ts": "2026-10-30 14:22:05"
+ },
+ "flodesk-2026-10-30-1": {
+  "case": "flodesk",
+  "title": "一个被 YC 拒绝的邮件工具：靠「一口价 + 无限发」做成了大生意",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "338078",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338078"
+   }
+  },
+  "category": "人工智能",
+  "cover": "",
+  "ts": "2026-10-30 14:25:39"
+ },
+ "getdavid-2026-10-30-1": {
+  "case": "getdavid",
+  "title": "AI 造站 + 纸质明信片：一家给小店做网站的公司怎么用线下动作获客",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "338079",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338079"
+   }
+  },
+  "category": "人工智能",
+  "cover": "",
+  "ts": "2026-10-30 14:26:07"
+ },
+ "headshotpro-2026-10-30-1": {
+  "case": "headshotpro",
+  "title": "一个人做的 AI 证件照：Fortune 500 团队也在买",
+  "platforms": {},
+  "category": "人工智能",
+  "cover": "",
+  "ts": "2026-10-30 14:26:35"
+ },
+ "klar-2026-10-30-1": {
+  "case": "klar",
+  "title": "三个不会写代码的大学生：靠 Lovable 做出来的 AI 备考工具",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "338080",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338080"
+   }
+  },
+  "category": "人工智能",
+  "cover": "",
+  "ts": "2026-10-30 14:27:02"
+ },
+ "pdfai-2026-10-30-1": {
+  "case": "pdfai",
+  "title": "一个人、0 员工、0 融资：这个「跟 PDF 对话」的工具是怎么做起来的？",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "338081",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338081"
+   }
+  },
+  "category": "人工智能",
+  "cover": "",
+  "ts": "2026-10-30 14:27:29"
+ },
+ "refactoringui-2026-10-30-1": {
+  "case": "refactoringui",
+  "title": "先有受众，后做书：一个写给程序员的设计书是怎么卖起来的",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "338082",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338082"
+   }
+  },
+  "category": "人工智能",
+  "cover": "",
+  "ts": "2026-10-30 14:27:57"
+ },
+ "sleek-design-2026-10-30-1": {
+  "case": "sleek-design",
+  "title": "三周搭出来的 AI 设计工具：零付费营销是怎么起量的",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "338084",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338084"
+   }
+  },
+  "category": "人工智能",
+  "cover": "",
+  "ts": "2026-10-30 14:28:24"
+ },
+ "upvoty-2026-10-30-1": {
+  "case": "upvoty",
+  "title": "bootstrapped 六年：这个用户反馈工具靠什么活到今天",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "338085",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338085"
+   }
+  },
+  "category": "人工智能",
+  "cover": "D:\\ai-case-library\\out\\toutiao\\upvoty\\cover.png",
+  "ts": "2026-10-30 14:28:58"
+ },
+ "3ak-track-field-2026-10-30-1": {
+  "case": "3ak-track-field",
+  "title": "先有 15 万粉受众，后有产品：两个田径生如何用 AI 做训练 App？",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1699450",
+    "url": "https://developer.aliyun.com/article/new?edit=1699450#/"
+   },
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "338086",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338086"
+   }
+  },
+  "category": "人工智能",
+  "cover": "",
+  "ts": "2026-10-30 14:32:12"
+ },
+ "headshotpro-2026-10-30-2": {
+  "case": "headshotpro",
+  "title": "一个人做的 AI 证件照：Fortune 500 团队也在买",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1699451",
+    "url": "https://developer.aliyun.com/article/new?edit=1699451#/"
+   },
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "338087",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338087"
+   }
+  },
+  "category": "人工智能",
+  "cover": "",
+  "ts": "2026-10-30 14:32:38"
+ },
+ "flodesk-2026-10-30-2": {
+  "case": "flodesk",
+  "title": "一个被 YC 拒绝的邮件工具：靠「一口价 + 无限发」做成了大生意",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1698291",
+    "url": "https://developer.aliyun.com/article/new?edit=1698291#/"
+   }
+  },
+  "category": "人工智能",
+  "cover": "",
+  "ts": "2026-10-30 14:33:07"
+ },
+ "getdavid-2026-10-30-2": {
+  "case": "getdavid",
+  "title": "AI 造站 + 纸质明信片：一家给小店做网站的公司怎么用线下动作获客",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1699817",
+    "url": "https://developer.aliyun.com/article/new?edit=1699817#/"
+   }
+  },
+  "category": "人工智能",
+  "cover": "",
+  "ts": "2026-10-30 14:33:37"
+ },
+ "klar-2026-10-30-2": {
+  "case": "klar",
+  "title": "三个不会写代码的大学生：靠 Lovable 做出来的 AI 备考工具",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1699633",
+    "url": "https://developer.aliyun.com/article/new?edit=1699633#/"
+   }
+  },
+  "category": "人工智能",
+  "cover": "",
+  "ts": "2026-10-30 14:34:03"
+ },
+ "pdfai-2026-10-30-2": {
+  "case": "pdfai",
+  "title": "一个人、0 员工、0 融资：这个「跟 PDF 对话」的工具是怎么做起来的？",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1698882",
+    "url": "https://developer.aliyun.com/article/new?edit=1698882#/"
+   }
+  },
+  "category": "人工智能",
+  "cover": "",
+  "ts": "2026-10-30 14:34:31"
+ },
+ "refactoringui-2026-10-30-2": {
+  "case": "refactoringui",
+  "title": "先有受众，后做书：一个写给程序员的设计书是怎么卖起来的",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1699076",
+    "url": "https://developer.aliyun.com/article/new?edit=1699076#/"
+   }
+  },
+  "category": "人工智能",
+  "cover": "",
+  "ts": "2026-10-30 14:34:57"
+ },
+ "sleek-design-2026-10-30-2": {
+  "case": "sleek-design",
+  "title": "三周搭出来的 AI 设计工具：零付费营销是怎么起量的",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1699266",
+    "url": "https://developer.aliyun.com/article/new?edit=1699266#/"
+   }
+  },
+  "category": "人工智能",
+  "cover": "",
+  "ts": "2026-10-30 14:35:24"
+ },
+ "upvoty-2026-10-30-2": {
+  "case": "upvoty",
+  "title": "bootstrapped 六年：这个用户反馈工具靠什么活到今天",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1699818",
+    "url": "https://developer.aliyun.com/article/new?edit=1699818#/"
+   }
+  },
+  "category": "人工智能",
+  "cover": "D:\\ai-case-library\\out\\toutiao\\upvoty\\cover.png",
+  "ts": "2026-10-30 14:35:52"
  }
 }
