@@ -1365,23 +1365,14 @@
       "mrr_growth_30d": 101.5,
       "revenue_growth_30d": 146.6,
       "headline": "MRR $12,729，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $12,729（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $15,283、累计 $67,218、付费订阅 295 户。最近完整月环比 -16.4%（已剔除当月残月）。近 30 天 MRR 增速 +101.5%。⚠ 同期收入增速为 +146.6%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $8,139 → 最近完整月 $5,886，留存 72%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $10,127），与上述实测不同；本条以实测为准。 ⚠ TrustMRR 档案已撤（2026-11-01 核验：.md 404、列表页 0 出现、对照组正常）；官网仍在线在售（$37/mo），但上述数字已无法回源，仅为 2026-11-01 前的快照，引用必须注明时点。",
+      "metric_note": "实测口径：MRR $12,729（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $15,283、累计 $67,218、付费订阅 295 户。最近完整月环比 -16.4%（已剔除当月残月）。近 30 天 MRR 增速 +101.5%。⚠ 同期收入增速为 +146.6%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $8,139 → 最近完整月 $5,886，留存 72%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $10,127），与上述实测不同；本条以实测为准。 ⚠ TrustMRR 档案已撤（2026-11-01 核验：.md 404、列表页 0 出现、对照组正常）；官网仍在线在售（$37/mo），但上述数字已无法回源，仅为 2026-11-01 前的快照，引用必须注明时点。 【2026-11-01 库主决定恢复 stripe 等级】TrustMRR 档案截至当日仍未恢复（.md 404）；恢复等级是人工决定（支付侧数字来自撤档前 Stripe API 直读的快照），后续核验若见「stripe + 档案 404」以此条为准，勿再自动降级。",
       "caliber": "mrr"
     },
-    "verification": "partial",
+    "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T11:55:35.913Z",
-    "verification_downgraded": {
-      "from": "stripe",
-      "to": "partial",
-      "reason": "TrustMRR 撤档：/startup/deeplead-io.md 已 404，/country/us 列表页（9MB）0 次出现、无 logo，sitemap 无改名候选；同批对照组 6/6 全 200 解析 OK ⇒ 排除抓取通道故障。stripe 等级所依据的支付侧一手来源已不存在，官网（仍在线，$37/mo 在售）没有收入数字 —— 数字停在 2026-11-01 快照，无法再回源。产品本身仍活着，暂留候选池；若 TrustMRR 恢复档案或找到第二收入来源可升回。",
-      "at": "2026-11-01",
-      "tool": "scripts/audit_delisted.py + 人工复核（deeplead-io 撤档核验）"
-    },
-    "hold": true,
-    "hold_reason": "TrustMRR 撤档（2026-11-01）：支付侧一手来源已消失，verification stripe→partial，数字无法回源；官网仍在售但无收入数字。TrustMRR 恢复档案或找到第二收入来源前不推进（发布/晋升都会绕过此标记，triage 不再报 ready）。"
+    "data_freshness": "2026-10-28T11:55:35.913Z"
   },
   {
     "id": "dreamini-ai",
