@@ -422,7 +422,8 @@
     "published": "1777577",
     "published_url": "https://developer.aliyun.com/article/1777577",
     "published_at": "2026-11-01 00:44",
-    "verify": "线上核验 09:54：table=2（仅两张评分表）、正文 $=0 全「美元」表述；收入段仍为 <ul><li> 6 条（源稿即列表）"
+    "verify": "线上核验：浏览器 DOM `.article-inner` table=3、li=0（收入段已改真表格）；curl 直取仍是改前 <ul> 快照（CDN，假阴性）。正文 $=0、全「美元」表述。",
+    "edited_at": "2026-11-01 10:08"
    }
   },
   "title": "TrustMRR：把「可核验」做成产品的海外小站",

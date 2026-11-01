@@ -1643,13 +1643,13 @@
  "trustmrr": {
   "aliyun": {
    "draft_id": "1701410",
-   "note": "🚨 阿里云草稿 aid ≠ 文章 id：发表后文章 id=1777577（用草稿号 1701410 打开是别人 2021 年的老文「Configuration」）。另：阿里云页面加载 MathJax（inlineMath [['$','$']]）⇒ `$` 会被当行内公式吃，源稿必须写「美元」。线上核验 table=2（两张评分表正常），收入段仍是 <ul><li> 6 条——那是源稿本身写成列表，不是渲染降级。",
+   "note": "🚨 阿里云草稿 aid ≠ 文章 id：发表后文章 id=1777577（用草稿号 1701410 打开是别人 2021 年的老文「Configuration」）。另：阿里云页面加载 MathJax（inlineMath [['$','$']]）⇒ `$` 会被当行内公式吃，源稿必须写「美元」。2026-11-01 10:08 改稿：把「它到底做到多大」的 6 行列表换成 markdown 表格 —— 编辑入口是 **`/article/new/database?publish=<文章id>`**（文章页右侧 `a.edit-btn-edit`），`?edit=` 只认草稿 id、塞文章 id 只会开空白编辑器；改完点「发布文章→确认」**同样要过人工拼图滑块**，提交后文章回到「内容审核中」状态。",
    "remote_id": "1777577",
    "state": "published",
-   "updated_at": "2026-11-01 09:55",
+   "updated_at": "2026-11-01 10:12",
    "url": "https://developer.aliyun.com/article/1777577",
-   "verified_at": "2026-11-01 09:54",
-   "verify": "curl 直取：HTTP 200 / title 命中 / 正文 $=0 / 美元=9 / table=2"
+   "verified_at": "2026-11-01 10:12",
+   "verify": "浏览器 DOM 复核（10:12）：`.article-inner` table=3 / li=0，「它到底做到多大」下已是 6 行两列表格；⚠ curl 直取同一 URL 仍返回**改前**的 `<ul>` 快照（table=2 li=13，带 `?nocache=` 也一样）⇒ 阿里云对无 cookie 请求返 CDN 旧快照，**线上可见性只认浏览器 DOM**，别拿 curl 判失败。"
   },
   "bilibili": {
    "at": "2026-10-31 18:26 草稿箱→发布（send-draft）",
