@@ -79,6 +79,12 @@ def main():
         "--name", "htm-increment-gui",
         # ⚠ --icon 必须绝对路径：PyInstaller 按 --workpath 解析相对路径，不是 cwd
         "--icon", ICON,
+        # ⚠ --paths 必须给 gui 目录：proc_shim.py 在 gui/ 下，
+        # htm_increment_gui.py 用 `from proc_shim import ProcShim` 导入它。
+        # 不显式给 --paths 时，PyInstaller 只扫入口脚本所在目录 —— 恰好也是
+        # gui/，但那依赖「入口脚本在包根」的默认行为；显式写死更稳
+        # （2026-11-01 加：proc_shim 是新拆出来的模块）。
+        "--paths", HERE,
         "--distpath", os.path.join(HERE, "dist"),
         "--workpath", os.path.join(HERE, "build"),
         "--specpath", HERE,

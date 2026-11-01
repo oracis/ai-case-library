@@ -164,6 +164,18 @@ jobs:
         continue-on-error: true
         run: python scripts/test_harvest_sources.py
 
+      - name: 测试 htm_increment.py + GUI proc_shim（GUI 采集崩溃回归锁）
+        # 🚨 2026-11-01：GUI 点「采集」100% 崩，命令行手动跑没事。
+        # 根因是 GUI 把 htm_increment 的 subprocess 整个换成自己的流式壳，
+        # 而壳只实现了 run() —— htm_increment 要读 subprocess.DEVNULL 等
+        # 模块级属性 ⇒ AttributeError。
+        # 守两条线：① 替身必须「像 subprocess 模块」（属性转发 + 精确语义交回）；
+        # ② 依赖方的内部探测不许依赖可被替换的模块级名字。
+        # 本测试**离线**（不联网、不动 data/），CI 可直接跑。
+        id: htm_increment
+        continue-on-error: true
+        run: python scripts/test_htm_increment.py
+
       - name: 测试 prerender.py（常量对齐、脱离 JS、转义）
         # 守三条线：① prerender.py 里的文案常量与 app.js 不能漂移（漂了不报错，
         # 只是同一条案例在两个地方显示成两个词）；② 案例页不跑 JS 也得读得到正文；
