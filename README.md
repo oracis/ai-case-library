@@ -650,6 +650,13 @@ App-Bound 加密，DPAPI 解不开；Chrome 136+ 也不给默认 profile 开调�
 流水写 `data/ms_checkin_log.json`，**已 gitignore** —— 它记的是「这台机器今天有没有
 领到」，换台机器就不成立，也不是能回放的业务台账。
 
+2026-11-01 起这套流程已抽成**用户级 skill** `modelscope-magicube-checkin`
+（`~/.workbuddy/skills/modelscope-magicube-checkin/`），脱离本仓库也能跑：
+自带最小 CDP 客户端（零第三方依赖）、`--login` 会自动轮询验证登录结果、
+一天两个「领取」按钮会连点、另有 `--status` 与 9 项本地自测（`selftest.py`，
+用假页面钉死「找按钮/点按钮/余额判据」，不碰真实账号）。
+本仓库的 `scripts/ms_checkin.py` 保留为同源入口，判据逻辑已与 skill 同步。
+
 补第三方来源的通道（2026-10-29 调整）：只剩 **HN Algolia** 与 **DuckDuckGo** 两路
 通用检索，都免 key、免注册。原 Google CSE 通道已整条移除 —— 它要求 Google Cloud
 项目开通结算并给 key 单独授权，实测恒返 403（`This project does not have the
