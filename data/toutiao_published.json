@@ -234,5 +234,89 @@
     "gid": "7693144739603890722",
     "evidence": "send_existing_draft",
     "verified_at": "2026-10-29 11:39"
+  },
+  {
+    "id": "trustmrr",
+    "at": "2026-10-31 18:22",
+    "gid": "7702774630259376676",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-31 18:22"
+  },
+  {
+    "id": "ext-ep-011-minetest",
+    "at": "2026-10-31 18:51",
+    "gid": "7702781884279063083",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-31 18:51"
+  },
+  {
+    "id": "ext-ep-002-2048",
+    "at": "2026-10-31 19:49",
+    "gid": "7702797168431612479",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-31 19:49"
+  },
+  {
+    "id": "ext-ep-003-freedoom",
+    "at": "2026-10-31 19:53",
+    "gid": "7702798120068858404",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-31 19:53"
+  },
+  {
+    "id": "ext-ep-004-quake",
+    "at": "2026-10-31 19:57",
+    "gid": "7702799110571475475",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-31 19:57"
+  },
+  {
+    "id": "ext-ep-005-supertux",
+    "at": "2026-10-31 20:01",
+    "gid": "7702800072290927140",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-31 20:01"
+  },
+  {
+    "id": "ext-ep-006-nethack",
+    "at": "2026-10-31 20:05",
+    "gid": "7702801086453482020",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-31 20:05"
+  },
+  {
+    "id": "ext-ep-007-openttd",
+    "at": "2026-10-31 20:09",
+    "gid": "7702802037850915391",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-31 20:09"
+  },
+  {
+    "id": "ext-ep-008-mindustry",
+    "at": "2026-10-31 20:12",
+    "gid": "7702803059026231827",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-31 20:12"
+  },
+  {
+    "id": "ext-ep-009-lichess",
+    "at": "2026-10-31 20:19",
+    "gid": "7702804780213518902",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-31 20:19"
+  },
+  {
+    "id": "ext-ep-010-cataclysm-dark-days-ahead",
+    "at": "2026-10-31 20:23",
+    "gid": "7702805768530100755",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-31 20:23"
+  },
+  {
+    "id": "ext-ep-001-super-mario-bros",
+    "at": "2026-10-31 22:10",
+    "gid": "7702394082697527848",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-31 22:10"
   }
 ]

@@ -426,6 +426,19 @@
    "title": ""
   }
  },
+ "clawlink": {
+  "bilibili": {
+   "account": "bilibili2",
+   "at": "2026-10-31 22:22",
+   "attempt": 1,
+   "confirmed_at": "2026-10-31 23:18",
+   "note": "二号(国会图书馆/9224)。提交时 toast「提交成功」但已发表列表为空 ⇒ 当时判「审核中」未记账；2026-10-31 23:30 回读已发表列表命中，aid=53699085，改判 published。⚠ 教训：B站专栏有审核延迟，提交后当天的「列表为空」不等于失败，别重发。",
+   "remote_id": "53699085",
+   "state": "published",
+   "title": "ClawLink：MRR $2,219，聊天窗口直连百个应用",
+   "url": "https://www.bilibili.com/read/cv53699085"
+  }
+ },
  "cometly": {
   "bilibili": {
    "at": "2026-10-10 19:39",
@@ -633,6 +646,17 @@
    "attempt": 0,
    "state": "draft_saved",
    "title": "fastwrite.io：AI写作工具SaaS，辅助学生学术"
+  }
+ },
+ "flodesk": {
+  "zhihu": {
+   "note": "2026-10-31 补记：远端已发表列表回读命中（2026-10-29 12:17:15）。此前 UI 发表后未回写台账，属漏记。",
+   "published_ts": "2026-10-29 12:17:15",
+   "remote_id": "2098799999773570136",
+   "state": "published",
+   "title": "一个被 YC 拒绝的邮件工具：靠「一口价 + 无限发」做成了大生意",
+   "updated_at": "2026-10-31 23:53:22",
+   "url": "https://zhuanlan.zhihu.com/p/2098799999773570136"
   }
  },
  "genius-ai": {
@@ -1415,6 +1439,15 @@
    "attempt": 0,
    "state": "draft_saved",
    "title": ""
+  },
+  "zhihu": {
+   "note": "2026-10-31 补记：远端已发表列表回读命中（2026-10-30 12:13:52）。此前 UI 发表后未回写台账，属漏记。",
+   "published_ts": "2026-10-30 12:13:52",
+   "remote_id": "2099470396764451624",
+   "state": "published",
+   "title": "一次性买断卖了 127 万美元，然后从榜单上“消失”了：ShipFast 的三个信号",
+   "updated_at": "2026-10-31 23:53:22",
+   "url": "https://zhuanlan.zhihu.com/p/2099470396764451624"
   }
  },
  "sierra": {
@@ -1608,29 +1641,102 @@
   }
  },
  "trustmrr": {
+  "aliyun": {
+   "draft_id": "1701410",
+   "note": "🚨 阿里云草稿 aid ≠ 文章 id：发表后文章 id=1777577（用草稿号 1701410 打开是别人 2021 年的老文「Configuration」）。另：阿里云页面加载 MathJax（inlineMath [['$','$']]）⇒ `$` 会被当行内公式吃，源稿必须写「美元」。线上核验 table=2（两张评分表正常），收入段仍是 <ul><li> 6 条——那是源稿本身写成列表，不是渲染降级。",
+   "remote_id": "1777577",
+   "state": "published",
+   "updated_at": "2026-11-01 09:55",
+   "url": "https://developer.aliyun.com/article/1777577",
+   "verified_at": "2026-11-01 09:54",
+   "verify": "curl 直取：HTTP 200 / title 命中 / 正文 $=0 / 美元=9 / table=2"
+  },
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-31 18:26 草稿箱→发布（send-draft）",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": "月收$40K：创业公司真实收入榜单"
+   "note": "发布时 aid 重分配（345579→53696865）",
+   "remote_id": "53696865",
+   "state": "published",
+   "title": "TrustMRR：验证过的创业公司收入数据库",
+   "updated_at": "2026-10-31 23:17"
+  },
+  "cnblogs": {
+   "note": "发后原地改标题（edit_post publish=True）",
+   "remote_id": "",
+   "state": "published",
+   "updated_at": "2026-10-31 23:17",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23507950"
+  },
+  "csdn": {
+   "cover": "https://i-blog.csdnimg.cn/direct/85dfeef64e46441cbfe7c713097c5e18.png",
+   "note": "2026-11-01 00:09 修三处后重发：①补封面（本地上传 16:9，csdnimg CDN，cover_type=1）；②两组评分列表改 markdown 表格；③正文 `$` 金额 CSDN 当行内公式渲染（`$18,380 MRR…$85,000` 整段被吃成 18,380𝑀𝑅𝑅）⇒ 源稿改为「美元」表述，全篇 0 个 `$`。⚠ 旧 id 169653810 已删除：saveArticle 传 `articleId` 会被忽略并**新建**一篇，正确字段是 `id`（已修 csdn_publish.save_article）。",
+   "remote_id": "169654106",
+   "state": "published",
+   "updated_at": "2026-11-01 00:12:42",
+   "url": "https://blog.csdn.net/sinat_32396037/article/details/169654106"
+  },
+  "juejin": {
+   "note": "2026-11-01 01:30 修两处后原地更新（URL/文章 id 未变）：①两组评分列表改真表格；②`$` 被当 KaTeX（3 处公式把「增长：上线 5 天做到 18,380 美元 MRR…」整段吃成斜体公式）⇒ 源稿改「美元」表述，0 个 `$`。⚠ 关键：`article_draft/update`+`article/publish` 都返 err_no=0 但正文不落库，因为 publish 渲染取的是 **html_content**，前端一直传占位值 `\"deprecated\"`（官方 UI 的「更新」同样无效）；必须传真实 HTML 才生效。另：原文章标签为空 → 掘金现在要求至少 1 个标签，已补「API」(6809640403516522504)。",
+   "remote_id": "7702463374432796699",
+   "state": "published",
+   "tags": [
+    "API"
+   ],
+   "updated_at": "2026-11-01 01:38",
+   "url": "https://juejin.cn/post/7702463374432796699",
+   "verified_at": "2026-11-01 01:38",
+   "verify": "线上 curl 核验：table=2 katex=0 美元=18 正文 $=0，8 个 h2 完整"
+  },
+  "tencentcloud": {
+   "at": "2026-11-01 00:34 草稿箱 338565 → 确认发布（审核中）",
+   "cover": "out/toutiao/trustmrr/cover.png",
+   "note": "腾讯云正文表格/分割线渲染正常（线上核验 table=2 hr=1）；封面经 addArticle 一并提交，列表页已显示",
+   "remote_id": "2773308",
+   "source_type": "原创",
+   "state": "published",
+   "tags": [
+    "创业",
+    "AIGC"
+   ],
+   "title": "TrustMRR：把「可核验」做成产品的海外小站",
+   "updated_at": "2026-11-01 00:38",
+   "url": "https://cloud.tencent.com/developer/article/2773308"
   },
   "toutiao": {
    "at": "2026-09-29 21:17",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "note": "回读已发表列表命中",
+   "remote_id": "7702774630259376676",
+   "state": "published",
+   "title": "",
+   "updated_at": "2026-10-31 23:17"
   },
   "wechat": {
    "at": "2026-09-29 21:17",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "note": "发布模式",
+   "remote_id": "2247484801",
+   "state": "published",
+   "title": "",
+   "updated_at": "2026-10-31 23:17",
+   "url": "https://mp.weixin.qq.com/s/57FR7YuL-ee1vQf-srbIwg"
   },
   "xhs": {
    "at": "2026-09-29 21:17",
    "attempt": 0,
+   "remote_id": "",
    "state": "draft_saved",
-   "title": ""
+   "title": "",
+   "updated_at": "2026-10-31 23:17"
+  },
+  "zhihu": {
+   "note": "2026-10-31 补记：远端已发表列表回读命中（2026-10-31 23:24:44）。此前 UI 发表后未回写台账，属漏记。",
+   "published_ts": "2026-10-31 23:24:44",
+   "remote_id": "2099933712293028149",
+   "state": "published",
+   "title": "TrustMRR：把「可核验」做成产品的海外小站",
+   "updated_at": "2026-10-31 23:53:22",
+   "url": "https://zhuanlan.zhihu.com/p/2099933712293028149"
   }
  },
  "uplinked-b-v": {

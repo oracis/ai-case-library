@@ -428,5 +428,21 @@
   "verified_at": "2026-10-27 13:01",
   "evidence": "editor-ui-publish",
   "note": "｜更新草稿 aid=344958（draft/add 回读校验通过）"
+ },
+ {
+  "id": "trustmrr",
+  "at": "2026-10-17 10:10",
+  "article_id": "345579",
+  "title": "TrustMRR：验证过的创业公司收入数据库",
+  "verified_at": "2026-10-31 18:26",
+  "evidence": "editor-ui-publish+aid-reassigned",
+  "note": "P1对账: 标题直接命中(cv53460777) → TrustMRR：验证过的创业公司收入数据库｜同案例另有一条旧稿『TrustMRR：验证过的创业公司收入数据库』(cv53352783, 2026-10-09 12:58，正文与新篇相同)｜更新草稿 aid=345579（draft/add 回读校验通过）"
+ },
+ {
+  "id": "clawlink",
+  "at": "2026-10-31 21:58",
+  "article_id": "376928",
+  "title": "ClawLink：MRR $2,219，TrustMRR 实",
+  "note": "｜更新草稿 aid=376928（draft/add 回读校验通过）"
  }
 ]

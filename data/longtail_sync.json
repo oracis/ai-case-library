@@ -99,7 +99,14 @@
     "url": "https://cloud.tencent.com/developer/article/2772404",
     "state": "published",
     "published_at": "2026-10-30 12:50:00",
-    "tags": ["前端框架", "next.js", "前端", "React", "Next.js", "SaaS"],
+    "tags": [
+     "前端框架",
+     "next.js",
+     "前端",
+     "React",
+     "Next.js",
+     "SaaS"
+    ],
     "note": "tag search 平台侧 404 → 用户授权自拟标签 → React setter+Enter 建 chip 后 UI 发布成功，弹窗「发布成功！文章正在审核中」"
    }
   },
@@ -367,5 +374,59 @@
   "category": "人工智能",
   "cover": "D:\\ai-case-library\\out\\toutiao\\upvoty\\cover.png",
   "ts": "2026-10-30 14:35:52"
+ },
+ "trustmrr-2026-10-31-1": {
+  "case": "trustmrr",
+  "category": "人工智能",
+  "cover": "https://case.ydtgo.top/covers/trustmrr.png",
+  "platforms": {
+   "aliyun": {
+    "err": "等不到阿里云编辑器（#title 不出现）",
+    "ok": false
+   },
+   "tencentcloud": {
+    "draftId": "338565",
+    "ok": true,
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338565",
+    "published": "2773308",
+    "published_url": "https://cloud.tencent.com/developer/article/2773308",
+    "published_at": "2026-11-01 00:34:21",
+    "audit": "审核中"
+   }
+  },
+  "title": "TrustMRR：把「可核验」做成产品的海外小站",
+  "ts": "2026-10-31 18:59:57",
+  "via": "cdp-9228"
+ },
+ "trustmrr-2026-10-31-2": {
+  "case": "trustmrr",
+  "category": "人工智能",
+  "cover": "https://case.ydtgo.top/covers/trustmrr.png",
+  "platforms": {
+   "aliyun": {
+    "err": "等不到阿里云编辑器（#title 不出现）",
+    "ok": false
+   }
+  },
+  "title": "TrustMRR：把「可核验」做成产品的海外小站",
+  "ts": "2026-10-31 19:00:58",
+  "via": "cdp-9228"
+ },
+ "trustmrr-2026-11-01-1": {
+  "case": "trustmrr",
+  "platforms": {
+   "aliyun": {
+    "draftId": "1701410",
+    "ok": true,
+    "url": "https://developer.aliyun.com/article/new?edit=1701410#/",
+    "published": "1777577",
+    "published_url": "https://developer.aliyun.com/article/1777577",
+    "published_at": "2026-11-01 00:44",
+    "verify": "线上核验 09:54：table=2（仅两张评分表）、正文 $=0 全「美元」表述；收入段仍为 <ul><li> 6 条（源稿即列表）"
+   }
+  },
+  "title": "TrustMRR：把「可核验」做成产品的海外小站",
+  "ts": "2026-11-01 00:18:43",
+  "via": "cdp-9228"
  }
 }
