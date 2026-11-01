@@ -3684,18 +3684,30 @@ def _connect_mp(cdp, debug=False):
       · 重导航后仍拿不到，才可能真是登录态过期（那要人工扫码）。
     原来只原地轮询 25 秒，恰好卡在换 token 需要的 30 秒之前 → 批量直接退出。
     """
+    # ⚠ 必须**优先挑后台首页**（`cgi-bin/home`）那个 tab（2026-10-31 实测）：
+    #   同一个 profile 里往往还开着「消息分析/数据统计」等 mp 页，且它们在
+    #   list_targets() 里排在首页前面。连到统计页也能拿到 token，于是
+    #   `_connect_mp` 返回的是统计页 tid —— 但 send_one 的基线读取
+    #   (`_list_from_home`) 和草稿箱读取都靠**首页 tab 发同步 XHR**，
+    #   统计页上同样的请求返回空 ⇒ 报「发表前读不到已发表列表，没有基线」，
+    #   整批一条都发不了。按 is_home 排序即可，不改变其它逻辑。
+    def _is_home(url):
+        return "cgi-bin/home" in url or "/cgi-bin/appmsg" in url
+
+    cands = [t for t in cdp.list_targets()
+             if t.get("type") == "page" and "mp.weixin.qq.com" in (t.get("url") or "")]
+    cands.sort(key=lambda t: 0 if _is_home(t.get("url") or "") else 1)
+
     tids = []
-    for t in cdp.list_targets():
-        u = t.get("url") or ""
-        if t.get("type") == "page" and "mp.weixin.qq.com" in u:
-            if cdp.connect_target(t["id"]):
-                tok = _get_token(cdp, debug=debug)
-                if tok and tok != "NO_TOKEN":
-                    return t["id"], tok
-                # 这个 tab 拿不到 token，先记下来当重导航的落点，
-                # **别每个轮次都new_target** —— 实测失败重试会堆出6 个
-                # 一模一样的首页 tab，既干扰后续复用也把页面搞乱。
-                tids.append(t["id"])
+    for t in cands:
+        if cdp.connect_target(t["id"]):
+            tok = _get_token(cdp, debug=debug)
+            if tok and tok != "NO_TOKEN":
+                return t["id"], tok
+            # 这个 tab 拿不到 token，先记下来当重导航的落点，
+            # **别每个轮次都new_target** —— 实测失败重试会堆出6 个
+            # 一模一样的首页 tab，既干扰后续复用也把页面搞乱。
+            tids.append(t["id"])
     tid = tids[-1] if tids else cdp.new_target(MP_ENTRY)["id"]
     cdp.connect_target(tid)
     login_attempted = False
@@ -4672,6 +4684,7 @@ def send_one(cdp, c, appmsgid, tok, home_tid=None, dry=False, notify=False,
         #     扫码是物理动作，自动化只能到这儿；扫完发布会自己继续。
         deadline = time.time() + timeout
         clicks, hinted, last_nag = 0, False, 0.0
+        unver_n = 0          # 连续 unverified 轮数，见下方宽限期注释
         last = "还没动静"
         while time.time() < deadline:
             time.sleep(4)
@@ -4707,9 +4720,21 @@ def send_one(cdp, c, appmsgid, tok, home_tid=None, dry=False, notify=False,
             status, new_id, reason = evaluate_send(
                 before_ids, after, draft_gone, title)
             last = reason
-            if status in ("ok", "unverified"):
+            if status == "ok":
                 return {"status": status, "appmsgid": new_id,
                         "publish_type": mode, "reason": reason}
+            if status == "unverified":
+                # ⚠ 别立刻返回（2026-10-31 实测踩到）：扫码通过后已发表
+                # 列表**秒级**就出现在，但草稿箱列表要过十几秒才把那条
+                # 摘掉 ⇒ 第一次轮询必然读到「有新记录 + 草稿还在」= unverified。
+                # 旧逻辑在这里直接 return，于是发成功的稿被判成未验证、
+                # 不落账（现象：`完成：新发表 0 条`，但后台明明发出来了）。
+                # 给 4 轮（约 16s）宽限，仍不满足才认 unverified。
+                unver_n += 1
+                if unver_n >= 4:
+                    return {"status": status, "appmsgid": new_id,
+                            "publish_type": mode, "reason": reason}
+                continue
         return {"status": "timeout", "appmsgid": "", "publish_type": mode,
                 "reason": "%ds 内没判定出来：%s%s"
                           % (timeout, last,
@@ -4747,6 +4772,35 @@ def build_send_todo(published, issues=None, limit=0):
                              t[0] if t[0] is not None else 0, t[1]))
     todo = [(cid, aid) for _n, _i, cid, aid in pool]
     return todo[:limit] if limit else todo
+
+
+def _mark_done(cid, rec, published):
+    """把「已发表」这条事实写进**正确的**台账（2026-10-31 修）。
+
+    · 案例稿 → `data/wechat_published.json`（sync / queue / publish_ready 的数据源）
+    · 独立稿（`publish --file` 存的那批，如游戏厅 ep-*）→ `data/wechat_standalone.json`
+
+    ⚠ 不分的后果：独立稿一旦混进 wechat_published.json，`sync` 对账就会把它们
+    当「本地有、远端无对应草稿」的孤儿条目，且 `build_send_todo` 会把它当案例
+    重排篇号 —— 两个台账从此各说各话。原来 send 分支直接 `published[cid]=rec`，
+    正是这个坑。
+    """
+    import atomicio
+    sa = {}
+    if os.path.exists(STANDALONE_PATH):
+        with open(STANDALONE_PATH, encoding="utf-8") as f:
+            sa = json.load(f) or {}
+    if cid in sa:
+        r = sa[cid]
+        for k in ("status", "published_appmsgid", "published_at", "publish_type",
+                  "sent_via", "send_reason", "title", "url"):
+            if rec.get(k):
+                r[k] = rec[k]
+        atomicio.write_json(STANDALONE_PATH, sa)     # 原子写，中途被杀不毁台账
+        return "standalone"
+    published[cid] = rec
+    save_published(published)
+    return "cases"
 
 
 def cmd_send(args):
@@ -4862,8 +4916,7 @@ def cmd_send(args):
             if r.get("appmsgid"):
                 rec["published_appmsgid"] = r["appmsgid"]
             rec.setdefault("title", make_wechat_title(c))
-            published[cid] = rec
-            save_published(published)
+            _mark_done(cid, rec, published)
             try:
                 import ledger as ld
                 ld.mark("wechat", cid, ld.PUBLISHED,
@@ -4892,8 +4945,7 @@ def cmd_send(args):
         rec["sent_via"] = "send"            # 留痕：自动发表，区别于后台手点
         rec["send_reason"] = r.get("reason", "")
         rec.setdefault("title", make_wechat_title(c))
-        published[cid] = rec
-        save_published(published)           # 逐篇落库，中途被杀也不丢
+        _mark_done(cid, rec, published)     # 逐篇落库，中途被杀也不丢
         try:
             import ledger as ld
             ld.mark("wechat", cid, ld.PUBLISHED, remote_id=aid,

@@ -264,8 +264,10 @@ def recent_posts(cfg, count=20):
 
 
 def delete_post(cfg, post_id):
+    # blogger.deletePost 标准签名是 5 参：appkey, postid, username, password,
+    # publish —— 少传 publish 服务端报「参数有误」（2026-10-30 实测）
     ok = _call(cfg, "blogger.deletePost", APPKEY, str(post_id),
-               cfg["username"], cfg["token"])
+               cfg["username"], cfg["token"], True)
     if not ok:
         raise ApiError("deletePost 返回非真值")
     return True

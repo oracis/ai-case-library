@@ -2314,11 +2314,13 @@ def cmd_send_draft(args):
     cdp, tid = sess
     try:
         if args.case:
-            c = find_case_fuzzy(args.case)
-            if not c:
-                # 外部稿兜底（2026-10-30）：ext-* 稿不在 cases.json，
-                # 只要 out/<cid>/meta.json 存在就当独立稿发（见 stub 注释）
-                c = _external_case_stub(args.case)
+            # 外部稿优先（2026-10-31 修）：ext-* 稿不在 cases.json，只要
+            # out/<cid>/meta.json 存在就当独立稿发（见 stub 注释）。
+            # ⚠ 顺序不能反：`find_case_fuzzy` 匹配不到时是 **raise SystemExit**，
+            #   不是 return None ⇒ 先调它的话，下面的兜底永远是死代码，
+            #   `--case ext-<slug>` 会直接以「没匹配到案例」退出（实测 2026-10-31，
+            #   open-source-games 桥接的每一期都发不出去）。
+            c = _external_case_stub(args.case) or find_case_fuzzy(args.case)
             if not c:
                 raise SystemExit("找不到案例：%s" % args.case)
         else:

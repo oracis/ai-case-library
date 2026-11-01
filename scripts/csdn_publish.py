@@ -118,7 +118,7 @@ def _opener():
     return urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
 
-def api(path, data=None, cookie=None, method=None, timeout=30):
+def _api_direct(path, data=None, cookie=None, method=None, timeout=30):
     """统一入口。data 为 dict 时转 JSON。返回 (http_status, dict|str)。
 
     ⚠ path 带 query 时也**只签 path**——实测 saveArticle 是 POST 无 query；
@@ -160,6 +160,113 @@ def api(path, data=None, cookie=None, method=None, timeout=30):
     if status == 401 or (isinstance(parsed, dict) and parsed.get("code") == 401):
         raise LoginRequired("401 请登录 | HTTP %s | %s"
                             % (status, json.dumps(parsed, ensure_ascii=False)[:300]))
+    if status >= 400:
+        raise ApiError("HTTP %s: %s" % (status, raw[:200]))
+    return status, parsed
+
+
+def api(path, data=None, cookie=None, method=None, timeout=30, via="auto"):
+    """统一入口。`via`：
+
+    - `"auto"`（默认）：先直连，遇 401 自动改走浏览器内请求；
+    - `"direct"`：只直连（历史行为）；
+    - `"browser"`：直接走浏览器内请求（CDP 端口见 `CDP_PORT` / `CDP_CSDN_PORT`）。
+    """
+    if via == "browser":
+        return browser_api(path, data=data, method=method)
+    try:
+        return _api_direct(path, data=data, cookie=cookie, method=method,
+                           timeout=timeout)
+    except LoginRequired:
+        if via == "direct":
+            raise
+        # 直连被网关当成「非浏览器请求」拒了，换个发起点重试一次
+        return browser_api(path, data=data, method=method)
+
+
+# --------------------------------------------------------------------------
+# 浏览器内发请求（2026-10-31 新增，解决「直连恒 401」）
+# --------------------------------------------------------------------------
+# 🚨 症状：cookie 明明是刚扫码拿的、whoami 前一刻还通过，直接从 python 发
+#   `saveArticle` 却恒定 `401 请登录后操作！`。同一份签名、同一份 cookie，
+#   **从浏览器页面内 fetch 就是 200**。
+#   ⇒ 网关判的不是登录态，而是「这个请求是不是浏览器发出的」（TLS/JA3、
+#     请求形态这类）。所以别再折腾 cookie、别再重登 —— 换发起点就行。
+#   签名算法无需改：WebCrypto 的 HMAC-SHA256 与 python hmac 完全等价。
+
+CDP_PORT = int(os.environ.get("CDP_CSDN_PORT") or 9224)
+
+_BROWSER_JS = r"""
+(async function(argStr){
+  var a = JSON.parse(argStr);
+  var CA_KEY='%(ca_key)s', SECRET='%(secret)s';
+  var ACCEPT='%(accept)s', CTYPE='%(ctype)s';
+  var nonce = crypto.randomUUID();
+  var toSign = a.method + '\n' + ACCEPT + '\n\n' + CTYPE + '\n\nx-ca-key:' + CA_KEY
+             + '\nx-ca-nonce:' + nonce + '\n' + a.path;
+  var enc = new TextEncoder();
+  var key = await crypto.subtle.importKey('raw', enc.encode(SECRET),
+                        {name:'HMAC', hash:'SHA-256'}, false, ['sign']);
+  var sig = await crypto.subtle.sign('HMAC', key, enc.encode(toSign));
+  var u8 = new Uint8Array(sig), bin = '';
+  for (var i=0;i<u8.length;i++) bin += String.fromCharCode(u8[i]);
+  var opt = {method: a.method, credentials: 'include',
+             headers: {'Accept': ACCEPT, 'Content-Type': CTYPE,
+                       'x-ca-key': CA_KEY, 'x-ca-nonce': nonce,
+                       'x-ca-signature': btoa(bin),
+                       'x-ca-signature-headers': 'x-ca-key,x-ca-nonce'}};
+  if (a.body !== null && a.body !== undefined) opt.body = JSON.stringify(a.body);
+  try {
+    var r = await fetch('https://bizapi.csdn.net' + a.path, opt);
+    return r.status + '|' + (await r.text()).slice(0, 4000);
+  } catch (e) {
+    return '0|' + String(e);
+  }
+})(%(arg)s)
+"""
+
+
+def _cdp_eval(js, port=None):
+    """在已登录 CSDN 的浏览器里求值。每次新开一个编辑器页，用完即关。"""
+    import wechat_publish as wp
+    port = port or CDP_PORT
+    cdp = wp.CDP(port)
+    tid = cdp.new_target(LOGIN_URL)["id"]
+    try:
+        if not cdp.connect_target(tid):
+            raise ApiError("连不上 CDP target（端口 %s）" % port)
+        time.sleep(5)                       # 等编辑器把会话刷出来，别抢跑
+        return cdp.eval(js)
+    finally:
+        try:
+            cdp.close_target(tid)
+        except Exception:                   # noqa: BLE001
+            pass
+
+
+def browser_api(path, data=None, port=None, method=None):
+    """与 api() 同语义，但请求从浏览器内部发出。"""
+    method = method or ("POST" if data is not None else "GET")
+    arg = json.dumps({"path": path, "method": method,
+                      "body": data if data is not None else None},
+                     ensure_ascii=False)
+    js = _BROWSER_JS % {"ca_key": CA_KEY, "secret": SECRET, "accept": ACCEPT,
+                        "ctype": CTYPE, "arg": json.dumps(arg)}
+    out = _cdp_eval(js, port)
+    if not isinstance(out, str) or "|" not in out:
+        raise ApiError("浏览器内请求没返回结果: %r" % (out,))
+    status_s, raw = out.split("|", 1)
+    try:
+        status = int(status_s)
+    except ValueError:
+        raise ApiError("浏览器内请求状态异常: %r" % (out[:200],))
+    try:
+        parsed = json.loads(raw)
+    except ValueError:
+        parsed = raw[:300]
+    if status == 401 or (isinstance(parsed, dict) and parsed.get("code") == 401):
+        raise LoginRequired("401 请登录（浏览器内）| %s"
+                            % json.dumps(parsed, ensure_ascii=False)[:200])
     if status >= 400:
         raise ApiError("HTTP %s: %s" % (status, raw[:200]))
     return status, parsed
@@ -219,8 +326,22 @@ def _inline(s):
     return s
 
 
+def _split_row(ln):
+    """`| a | b |` → ['a', 'b']（去掉首尾空列，单元格内 `\\|` 视为字面竖线）。"""
+    s = ln.strip()
+    if s.startswith("|"):
+        s = s[1:]
+    if s.endswith("|"):
+        s = s[:-1]
+    return [c.strip().replace("\\|", "|") for c in re.split(r"(?<!\\)\|", s)]
+
+
+def _is_table_sep(ln):
+    return bool(re.match(r"^\s*\|?[\s:-]*-[\s|:-]*\|?\s*$", ln)) and "-" in ln
+
+
 def md_to_html(md):
-    """草稿 md → HTML。不支持表格/嵌套列表——草稿管线里用到了再补。"""
+    """草稿 md → HTML。支持标题/引用/列表/表格/围栏代码；不支持嵌套列表。"""
     out, i = [], 0
     lines = md.split("\n")
     while i < len(lines):
@@ -237,6 +358,21 @@ def md_to_html(md):
             out.append("<pre><code%s>%s</code></pre>"
                        % (cls, "\n".join(code).replace("&", "&amp;")
                           .replace("<", "&lt;").replace(">", "&gt;")))
+            continue
+        # 表格：表头行 + 分隔行（|---|）才算数，否则按普通段落走
+        if (ln.strip().startswith("|") and i + 1 < len(lines)
+                and _is_table_sep(lines[i + 1])):
+            head = _split_row(ln)
+            i += 2
+            rows = []
+            while i < len(lines) and lines[i].strip().startswith("|"):
+                rows.append(_split_row(lines[i]))
+                i += 1
+            th = "".join("<th>%s</th>" % _inline(c) for c in head)
+            tb = "".join("<tr>%s</tr>" % "".join("<td>%s</td>" % _inline(c) for c in r)
+                         for r in rows)
+            out.append("<table><thead><tr>%s</tr></thead><tbody>%s</tbody></table>"
+                       % (th, tb))
             continue
         m = re.match(r"^(#{1,4})\s+(.*)$", ln)
         if m:
@@ -285,26 +421,46 @@ def split_md(md):
 # 发布动作
 # --------------------------------------------------------------------------
 
-def whoami():
+def whoami(via="auto"):
     """探活：saveArticle 空 body POST。
 
     2026-10-28 实测：空 body 返回 `code:200, data:"成功"`，**不建稿**
     （连 articleId 都不回）。⚠ 别用 `/blog-console-api/v1/user/info` 做
     探活——它对任何登录态都回 401（登录循环因此空转了 8 分钟）。
     """
-    st, body = api("/blog-console-api/v3/mdeditor/saveArticle", data={})
+    st, body = api("/blog-console-api/v3/mdeditor/saveArticle", data={}, via=via)
     if isinstance(body, dict) and body.get("code") == 200:
         return {"_note": "会话有效", "detail": body.get("data", "")}
     raise LoginRequired("探活未通过: %s" % json.dumps(body, ensure_ascii=False)[:200])
 
 
-def save_article(title, md_body, pub=True, tags="人工智能", article_id=None):
+def escape_math_dollars(md_body):
+    """把 `$` 转义成 `\\$`，避开 CSDN 的 KaTeX 自动渲染。
+
+    🚨 2026-11-01 实测：一篇稿子里同一段落出现**两个** `$`
+    （`…$18,380 MRR；…最大一笔 $85,000`），CSDN 会把中间整段吃成
+    行内公式 —— 正文里直接渲染成 `18,380𝑀𝑅𝑅；45天时…`，字距全乱、
+    `MRR` 变斜体。单个 `$`（`约 $40K`）不受影响，所以这个 bug 只在
+    「一段里两笔以上金额」时炸，很容易漏。
+
+    ⚠ 这条只修**行内公式误判**，不要用它替代「文字里别堆符号」的判断：
+    跨段落不会触发，所以按段落独立判断即可（全量转义更省事）。
+    """
+    return md_body.replace("$", "\\$")
+
+
+def save_article(title, md_body, pub=True, tags="人工智能", article_id=None,
+                 via="auto", cover_images=None, cover_type=None):
     """直接发表（唯一已验证的写入语义）。
 
     🚨 **saveArticle 没有「存草稿」语义**：2026-10-28 实测 `pubStatus:"draft"`
     被服务端无视，**直接发表**（文章出现在公开博客 + 计入日配额 2 篇）。
     真草稿端点未确认（编辑器「保存草稿」按钮的请求待 hook，合成 click
     触发不了 Vue handler）。所以本函数只有发表一种行为，名字也如实叫 publish。
+
+    `cover_images` / `cover_type`：封面。**不传就不动封面**（更新老文章时
+    务必传回原值，否则可能把已设好的封面清掉）。取值来自 getArticle：
+    本地上传后是 `cover_type="1"` + `cover_images=[<csdnimg url>]`。
     """
     payload = {
         "title": title,
@@ -317,9 +473,17 @@ def save_article(title, md_body, pub=True, tags="人工智能", article_id=None)
         "status": 0,
         "source": "pc_mdeditor",
     }
+    if cover_images is not None:
+        payload["cover_images"] = list(cover_images)
+    if cover_type is not None:
+        payload["cover_type"] = cover_type
     if article_id:
-        payload["articleId"] = article_id
-    st, body = api("/blog-console-api/v3/mdeditor/saveArticle", data=payload)
+        # 🚨 字段名是 `id`，不是 `articleId`。2026-11-01 实测：传 `articleId`
+        # 服务端**当没看见**，直接新建一篇（同一标题两篇并存，postTime 也是新的）。
+        # 证据 = 前端 payload 拼装 `d={id:t.articleid, title:...}`。
+        payload["id"] = str(article_id)
+    st, body = api("/blog-console-api/v3/mdeditor/saveArticle", data=payload,
+                   via=via)
     if not (isinstance(body, dict) and body.get("code") == 200):
         raise ApiError("saveArticle 未返回 code=200: %s" % json.dumps(body, ensure_ascii=False)[:300])
     data = body.get("data") or {}
@@ -470,6 +634,7 @@ def cmd_login(args):
 
 
 def main():
+    global CDP_PORT                      # 必须先声明，后面解析参数时才用得到
     ap = argparse.ArgumentParser(description="CSDN 发布（纯 REST + 网关签名）")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
@@ -480,12 +645,23 @@ def main():
     p.set_defaults(fn=cmd_login)
 
     p = sub.add_parser("whoami", help="验登录态 + 签名")
-    p.set_defaults(fn=lambda a: print(json.dumps(whoami(), ensure_ascii=False)[:500]))
+    p.add_argument("--via", default="auto",
+                   choices=["auto", "direct", "browser"],
+                   help="auto=先直连、401 自动改走浏览器内请求（默认）")
+    p.add_argument("--port", type=int, default=None,
+                   help="浏览器内请求用的 CDP 端口（默认 %d）" % CDP_PORT)
+    p.set_defaults(fn=lambda a: print(json.dumps(
+        whoami(via=a.via), ensure_ascii=False)[:500]))
 
     p = sub.add_parser("publish", help="发表文章（🚨 日配额 2 篇；saveArticle 无草稿语义）")
     p.add_argument("--file", required=True, help="markdown 文件")
     p.add_argument("--case", default="", help="案例 id（台账键，缺省用文件名）")
     p.add_argument("--tags", default="人工智能")
+    p.add_argument("--via", default="auto",
+                   choices=["auto", "direct", "browser"],
+                   help="auto=先直连、401 自动改走浏览器内请求（默认）")
+    p.add_argument("--port", type=int, default=None,
+                   help="浏览器内请求用的 CDP 端口（默认 %d）" % CDP_PORT)
 
     p = sub.add_parser("draft", help="🚫 不可用：saveArticle 的 pubStatus=draft 被服务端"
                                      "无视、会直接发表（2026-10-28 实测）。真草稿端点未确认")
@@ -503,6 +679,8 @@ def main():
     p.add_argument("--article-id", required=True)
 
     args = ap.parse_args()
+    if getattr(args, "port", None):
+        CDP_PORT = args.port
     if args.cmd == "draft":
         raise SystemExit(
             "🚫 draft 不可用：saveArticle 的 `pubStatus:\"draft\"` 被服务端无视，\n"
@@ -518,7 +696,8 @@ def main():
         title, body = split_md(md)
         if re.search(r"\d", title):
             print("⚠ 标题含数字（「标题禁金额」铁律）：", title)
-        aid, url, title = save_article(title, body, tags=args.tags)
+        aid, url, title = save_article(title, body, tags=args.tags,
+                                       via=args.via)
         remember(args.case or os.path.splitext(os.path.basename(args.file))[0],
                  aid, title, url)
         print("✓ 已发表: article_id=%s url=%s" % (aid, url))

@@ -200,3 +200,6 @@ logs/
 # 与 juejin/csdn 同款：宁可多一条规则也不能让 cookie 进仓库。
 data/zhihu_cookie.json
 data/zhihu_cookie.json.*
+
+# 数据台账改动前的本地备份目录（2026-11-01 起；只留本地，不进仓库）
+.bak-ledger/

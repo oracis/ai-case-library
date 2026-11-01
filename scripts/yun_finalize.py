@@ -379,7 +379,15 @@ def publish_aliyun(cdp, draft_id, community=None, cover_file=""):
     """
     # 社区：显式参数 > 台账 > 首选
     name = community or ledger_get("__community__%s" % draft_id).get("community")
-    name = select_community(cdp, draft_id, name) if name else ""
+    if name:
+        name = select_community(cdp, draft_id, name)   # 内含 open 草稿页
+    elif getattr(cdp, "ws", None) is None:
+        # ⚠ 不选社区时也必须先把草稿页开出来：`_connect()` 只建了 browser 级
+        #   WS，没 attach 任何 page ⇒ 直接 eval 会 `NoneType.send_text` 崩。
+        #   （「不发布到技术圈」走首页 feed 是平台允许的，社区可以留空。）
+        cdp.open("https://developer.aliyun.com/article/new?edit=%s" % draft_id)
+        time.sleep(8)
+        _close_disclaimer(cdp)
     # 文章图片（firstImg，页面态必传）：显式路径 > 台账反查
     local = cover_file or _find_local_cover(cdp, draft_id)
     if local and os.path.exists(local):
@@ -396,13 +404,30 @@ def publish_aliyun(cdp, draft_id, community=None, cover_file=""):
         raise SystemExit("阿里云发表：没找到「发布文章」按钮")
     _click_real(cdp, pos)
     time.sleep(3)
-    # 敏感信息确认框（30 位以上连续字母数字才触发）→ 继续发布
-    pos = _pos_of(cdp, """
-      [].filter.call(document.querySelectorAll('button'),
-        function(e){ return (e.textContent||'').trim() === '继续发布'; })[0]""")
-    if isinstance(pos, dict):
-        print("  敏感信息确认框 → 继续发布")
-        _click_real(cdp, pos)
+    # 确认框。⚠ 实测文案是「确认 / 取消」（2026-11-01），老版本才是「继续发布」。
+    #   必须限定在 .next-dialog 内找，否则会命中页面上别处的「确认」。
+    for label in ("继续发布", "确认"):
+        pos = _pos_of(cdp, """
+      [].filter.call(document.querySelectorAll('.next-dialog button'),
+        function(e){ return (e.textContent||'').trim() === %s; })[0]"""
+                      % json.dumps(label))
+        if isinstance(pos, dict):
+            print("  发布确认框 → %s" % label)
+            _click_real(cdp, pos)
+            break
+    # 滑块验证码（阿里云 Captcha，.aliyunCaptcha-top）：CDP 合成拖动会被判 bot
+    #   ——2026-11-01 实测：JS 派发能让滑块走到 140px，但松手即重置；
+    #   CDP Input 拖动则连 press 都接不住。只有人工拖能过。
+    time.sleep(2)
+    try:
+        cap = cdp.eval("!!document.querySelector('.aliyunCaptcha-top')")
+    except Exception:                                          # noqa: BLE001
+        cap = False
+    if cap:
+        raise SystemExit(
+            "阿里云发表：弹出滑块验证码（.aliyunCaptcha-top）。CDP 合成事件过不了，"
+            "请在 9228 窗口人工拖一次滑块，通过后再重跑本命令（草稿内容已保存，"
+            "重复发表不会建新稿）。")
     # 等跳转 /article/<id>
     for _ in range(20):
         time.sleep(2)
@@ -414,15 +439,21 @@ def publish_aliyun(cdp, draft_id, community=None, cover_file=""):
             ledger_set("__community__%s" % draft_id, published=m.group(1),
                        published_at=time.strftime("%Y-%m-%d %H:%M:%S"))
             return m.group(1)
-    raise SystemExit("阿里云发表：10s×2 内未见跳转，去页面人工确认（可能卡审核/弹窗）")
+    raise SystemExit("阿里云发表：20s×2 内未见跳转，去页面人工确认（可能卡审核/弹窗）")
 
 
 def first_paragraph(body, limit=300):
-    """正文首个非空段（剥 markdown 标记）作摘要兜底。"""
+    """正文首个非空段（剥 markdown 标记）作摘要兜底。
+
+    ⚠ 跳过 `>` 引用段与 `---` 分隔线：公众号稿的导语常写成引用块，
+      原样塞进阿里云摘要框会带出一个 `&gt;` 前缀（2026-11-01 实拍踩到）。
+    """
     import re
     for para in body.split("\n"):
         p = para.strip()
         if not p or p.startswith("#") or p.startswith("!["):
+            continue
+        if p.startswith(">") or p.startswith("---"):
             continue
         p = re.sub(r"[*`\[\]]|\[([^\]]*)\]\([^)]*\)", r"\1", p)
         return p[:limit]

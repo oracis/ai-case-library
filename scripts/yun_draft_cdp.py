@@ -408,14 +408,23 @@ def create_aliyun(cdp, title, body_md, abstract=""):
     time.sleep(9)
     print("    URL: %s" % cdp.eval("location.href"))
 
-    aid = _harvest_id(cdp)
+    # 判据顺序：埋点捞 aid（最快）→ 草稿箱按标题回读（可靠）。
+    # ⚠ 不要「抓不到就判失败」：2026-11-01 trustmrr 因此被判假失败，
+    #   人工又补点了一次 ⇒ 草稿箱两条同名。补点前必须先回读一次。
+    aid = ""
+    for attempt in (1, 2):
+        if attempt > 1:
+            print("    ⚠ 第 1 次点击没有落库证据，补点一次", flush=True)
+            _click_by_text(cdp, "存为草稿")
+            time.sleep(9)
+        aid = _harvest_id(cdp) or _aliyun_find_draft(cdp, title)
+        if aid:
+            break
     if aid:
         return aid, ""
-    print("    未抓到建稿接口 ⇒ 走草稿箱回读兜底")
     print("    验证码态: %s" % str(_captcha_present(cdp))[:200])
     print("    toast: %s" % str(_read_toast(cdp))[:200])
-    aid = _aliyun_find_draft(cdp, title)
-    return aid, ("没抓到建稿接口且草稿箱未匹配到" if not aid else "")
+    return "", "两次点击后草稿箱仍未出现同标题草稿"
 
 
 def _harvest_id(cdp):
@@ -529,18 +538,30 @@ def _aliyun_find_draft(cdp, title):
                 aid = _extract_id(resp)
                 if aid:
                     return aid
-    for ep in ("/developer/api/articleDraft/draftList?pageSize=20&pageNum=1",
-               "/developer/api/article/draft/list?pageSize=20&pageNum=1",
-               "/developer/api/articleDraft/list?pageSize=20&pageNum=1"):
+    # ⚠ 真实列表接口是 `articleDraft/listDraft`。早期写的是 draftList / draft/list
+    #   / articleDraft/list —— 三个全 404，于是「建成功了却回读不到」= 假失败
+    #   （2026-11-01 trustmrr 就这么被判失败，同时又手动点了一次 ⇒ 两条重复草稿）。
+    for ep in ("/developer/api/articleDraft/listDraft?pageSize=30&pageNum=1",
+               "/developer/api/articleDraft/draftList?pageSize=20&pageNum=1"):
         r = cdp.eval("""
 fetch(%s, {credentials: "include"})
   .then(function(r){ return r.text().then(function(t){ return r.status + "|" + t; }); })
   .catch(function(e){ return "ERR|" + e; })""" % json.dumps(ep))
         print("    草稿箱回读 %s → %s" % (ep.split("?")[0], str(r)[:200]))
-        if isinstance(r, str) and title in r:
-            aid = _extract_id(r)
-            if aid:
-                return aid
+        if not (isinstance(r, str) and "|" in r):
+            continue
+        _, _, payload = r.partition("|")
+        try:
+            data = json.loads(payload).get("data") or []
+        except Exception:                                       # noqa: BLE001
+            data = []
+        hit = [x for x in data if (x.get("title") or "").strip() == title.strip()]
+        if not hit:
+            continue
+        # 同名多条时取 aid 最大（最新建的那条）；重复草稿另行人工清理
+        aids = [int(x.get("aid") or 0) for x in hit]
+        print("    草稿箱命中 %d 条同标题，取 aid=%d" % (len(aids), max(aids)))
+        return str(max(aids))
     return ""
 
 
@@ -615,6 +636,19 @@ def create_tencent(cdp, title, body_md, abstract=""):
                          titleLen: ti ? ti.value.length : -1,
                          title: ti ? ti.value.slice(0, 40) : ''});
 })()"""))
+
+    # ⚠ 2026-10-31 用户实拍反馈「腾讯云正文行间距太大」：MD 通道把 markdown 的
+    #   **每个空行也转成一个空段落**（`<p><span> </span></p>`，各带 mb:20px），
+    #   真实段间距被撑成 ~60px。⇒ 存草稿前必须清空段落（详见 yun_tidy.py）。
+    import yun_tidy as T                                        # noqa: PLC0415
+    n_hr = T.fix_horizontal_rules(cdp)
+    if n_hr:
+        print("    `---` → 真水平线: %d 处" % n_hr)
+    removed, st = T.tidy_paragraphs(cdp, log=lambda m: print(m))
+    print("    空段落清理: 删 %d 个，剩 %s" % (removed,
+                                          json.dumps(st, ensure_ascii=False)))
+    if st.get("empty"):
+        print("    ⚠ 仍有空段落，存稿后行距会偏大")
 
     if not _click_by_text(cdp, "存草稿"):
         return "", "没找到「存草稿」按钮"
