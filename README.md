@@ -651,11 +651,27 @@ App-Bound 加密，DPAPI 解不开；Chrome 136+ 也不给默认 profile 开调�
 领到」，换台机器就不成立，也不是能回放的业务台账。
 
 2026-11-01 起这套流程已抽成**用户级 skill** `modelscope-magicube-checkin`
-（`~/.workbuddy/skills/modelscope-magicube-checkin/`），脱离本仓库也能跑：
+（`~/.workbuddy/skills/modelscope-magicube-checkin/`），脱离本仓库也能跑，
+并已上架 **SkillHub**（`skillhub.cn/skills/modelscope-magicube-checkin`，v1.1.0
+已过审：keen/sanbu 双 benign）与 GitHub（`oracis/modelscope-magicube-checkin`）：
 自带最小 CDP 客户端（零第三方依赖）、`--login` 会自动轮询验证登录结果、
 一天两个「领取」按钮会连点、另有 `--status` 与 9 项本地自测（`selftest.py`，
 用假页面钉死「找按钮/点按钮/余额判据」，不碰真实账号）。
 本仓库的 `scripts/ms_checkin.py` 保留为同源入口，判据逻辑已与 skill 同步。
+
+> ⚠ **skill v1.1.0 起是「只连不管」**（为过平台安全扫描）：
+> 脚本**不启动、不结束**任何浏览器进程，也**不读写**浏览器文件、不碰 cookie
+> 凭据、不改全局代理与环境变量。端口不通时它只打印一条**可复制的启动命令**，
+> 由你自己起 Chrome：
+>
+> ```bash
+> "$LOCALAPPDATA\Google\Chrome\Application\chrome.exe" \
+>   --remote-debugging-port=9333 --user-data-dir="$HOME/chrome-ms-profile" \
+>   --no-first-run --no-default-browser-check --no-sandbox \
+>   https://www.modelscope.cn/magicube/usage
+> ```
+>
+> `--no-sandbox` 是实测必需的：受限环境里不带它 Chrome 会直接退出、端口不开。
 
 补第三方来源的通道（2026-10-29 调整）：只剩 **HN Algolia** 与 **DuckDuckGo** 两路
 通用检索，都免 key、免注册。原 Google CSE 通道已整条移除 —— 它要求 Google Cloud
