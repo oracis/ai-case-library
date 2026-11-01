@@ -1661,11 +1661,13 @@
    "updated_at": "2026-10-31 23:17"
   },
   "cnblogs": {
-   "note": "发后原地改标题（edit_post publish=True）",
-   "remote_id": "",
+   "note": "发后原地改标题（edit_post publish=True）；2026-11-01 正文三处列表→真表格，走新增的 `edit --html-file`（本地只替换那三段 <ul>，其余字节不动）。",
+   "remote_id": "23507950",
    "state": "published",
-   "updated_at": "2026-10-31 23:17",
-   "url": "https://www.cnblogs.com/thing-explainer/p/23507950"
+   "updated_at": "2026-11-01 10:16",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23507950",
+   "verified_at": "2026-11-01 10:16",
+   "verify": "curl 直取 cnblogs_post_body：table=3 / ul=0 / li=0 / $=9 原样（本站纯富文本，不做公式解析）；无头截图确认边框、表头底色、首列不折行。site CSS 已自带 `.blogpost-body td{border:1px solid #c0c0c0;padding:8px 14px}`，无需内联边框，仅首列需 `white-space:nowrap`。"
   },
   "csdn": {
    "cover": "https://i-blog.csdnimg.cn/direct/85dfeef64e46441cbfe7c713097c5e18.png",
