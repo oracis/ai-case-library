@@ -4,7 +4,9 @@
     "title": "一个被 YC 拒绝的邮件工具：靠「一口价 + 无限发」做成了大生意",
     "url": "https://zhuanlan.zhihu.com/p/2098799999773570136",
     "status": "published",
-    "ts": "2026-10-29 12:19:49"
+    "ts": "2026-10-29 12:19:49",
+    "published_ts": "2026-10-29 12:17:15",
+    "verified_at": "2026-10-31 23:53:22"
   },
   "shipfast": {
     "article_id": "2099470396764451624",
@@ -12,8 +14,9 @@
     "url": "https://zhuanlan.zhihu.com/p/2099470396764451624",
     "status": "published",
     "ts": "2026-10-30 11:59:09",
-    "published_ts": "2026-10-30 12:10:00",
-    "note": "2026-10-30 核验：CDP 打开 /p/2099470396764451624 为正式文章页（投票/评论区在、无发布按钮、无草稿提示），补记 published（此前 UI 发表成功后未回写状态）"
+    "published_ts": "2026-10-30 12:13:52",
+    "note": "2026-10-30 核验：CDP 打开 /p/2099470396764451624 为正式文章页（投票/评论区在、无发布按钮、无草稿提示），补记 published（此前 UI 发表成功后未回写状态）",
+    "verified_at": "2026-10-31 23:53:22"
   },
   "plausible": {
     "article_id": "2099503506575078355",
@@ -77,5 +80,21 @@
     "url": "https://zhuanlan.zhihu.com/p/2099504252569777796",
     "status": "draft",
     "ts": "2026-10-30 14:13:41"
+  },
+  "ep-001-super-mario-bros": {
+    "article_id": "2099555668348949274",
+    "title": "游戏厅 #1：Super Mario Bros",
+    "url": "https://zhuanlan.zhihu.com/p/2099555668348949274",
+    "status": "draft",
+    "ts": "2026-10-30 17:37:59"
+  },
+  "trustmrr": {
+    "article_id": "2099933712293028149",
+    "title": "TrustMRR：把「可核验」做成产品的海外小站",
+    "url": "https://zhuanlan.zhihu.com/p/2099933712293028149",
+    "status": "published",
+    "ts": "2026-10-31 18:40:12",
+    "published_ts": "2026-10-31 23:24:44",
+    "verified_at": "2026-10-31 23:53:22"
   }
 }

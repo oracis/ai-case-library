@@ -29,6 +29,8 @@ python scripts/cnblogs_publish.py whoami                       # 验 token
 python scripts/cnblogs_publish.py draft --file drafts/wechat/x.md --case x
 python scripts/cnblogs_publish.py publish --file ... --case x  # 直接发表
 python scripts/cnblogs_publish.py release --case x            # 放行已有草稿（editPost，不产生重复稿）
+python scripts/cnblogs_publish.py edit --case x --file a.md   # 改已有文章正文（URL/评论不变）
+python scripts/cnblogs_publish.py edit --post-id 123 --html-file a.html   # 只换某几段时用现成 HTML
 python scripts/cnblogs_publish.py list [--query 标题子串]       # 回读判据
 python scripts/cnblogs_publish.py delete --post-id <id>
 ```
@@ -159,6 +161,7 @@ def remember(case_id, post_id, title, url="", status="draft"):
         with open(DRAFT_FILE, "r", encoding="utf-8") as f:
             ledger = json.load(f)
     ledger[case_id] = {
+        **(ledger.get(case_id) or {}),      # 保留人工补的 note 等字段，别整条覆盖
         "post_id": post_id, "title": title, "url": url, "status": status,
         "ts": time.strftime("%Y-%m-%d %H:%M:%S"),
     }
@@ -264,8 +267,10 @@ def recent_posts(cfg, count=20):
 
 
 def delete_post(cfg, post_id):
+    # blogger.deletePost 标准签名是 5 参：appkey, postid, username, password,
+    # publish —— 少传 publish 服务端报「参数有误」（2026-10-30 实测）
     ok = _call(cfg, "blogger.deletePost", APPKEY, str(post_id),
-               cfg["username"], cfg["token"])
+               cfg["username"], cfg["token"], True)
     if not ok:
         raise ApiError("deletePost 返回非真值")
     return True
@@ -288,7 +293,10 @@ def _load_md_strip_watermark(path):
     with open(path, "r", encoding="utf-8") as f:
         md = f.read()
     # 剥掉草稿管线的元信息水印（「> 平台：wechat ｜ 案例：… ｜ 状态：…」）
-    return "\n".join(ln for ln in md.split("\n") if not ln.startswith("> 平台："))
+    md = "\n".join(ln for ln in md.split("\n") if not ln.startswith("> 平台："))
+    # 剥掉编辑期注释 `<!-- 备选标题 / 传播力分 … -->`：md_to_html 会把它们当正文
+    # 转义成 `<p>&lt;!-- … --&gt;</p>` 挂到文章开头（2026-11-01 实测）
+    return re.sub(r"<!--.*?-->", "", md, flags=re.S)
 
 
 def _do_post(args, publish):
@@ -332,6 +340,85 @@ def cmd_release(args):
     print("✓ 已发表: post_id=%s %s" % (post_id, url or "（回读暂未带出链接）"))
 
 
+def cmd_edit(args):
+    """改已有文章的正文 —— 原地更新，URL / 评论 / 阅读数都不变。
+
+    两条路径：
+      * `--file x.md`       按 md 重建正文（默认剥编辑期注释、按需转 HTML）
+      * `--html-file x.html` 直接发现成 HTML —— 用于「只换某一段」的精细改稿：
+        先在本地把 HTML 改好，再整篇回传，避免重新渲染带来的无关 diff
+
+    标题 / 分类 / 标签**默认沿用服务器现值**（台上人工改过的标题比本地 md 权威，
+    例如标题铁律改过的无金额版）；只有显式 `--title` 才覆盖。
+    """
+    cfg = load_config()
+    post_id = args.post_id
+    if not post_id:
+        if not args.case:
+            raise SystemExit("给 --post-id 或 --case（台账 %s 里查）"
+                             % os.path.basename(DRAFT_FILE))
+        rec = _read_ledger().get(args.case) or {}
+        post_id = rec.get("post_id")
+        if not post_id:
+            raise SystemExit("台账里没有 %s 的 post_id" % args.case)
+
+    cur = get_post(cfg, post_id)
+    title = args.title or (cur.get("title") or "")
+
+    if args.html_file:
+        with open(args.html_file, "r", encoding="utf-8") as f:
+            body = f.read()
+        as_html = True
+    else:
+        if not args.file:
+            raise SystemExit("给 --file 或 --html-file")
+        md = _load_md_strip_watermark(args.file)
+        md_title, body = split_md(md)
+        as_html = bool(args.html) or _is_html(body)
+        if as_html:
+            body = md_to_html(body)             # 传 HTML 才不会被博客园当 md 再渲染
+        if md_title and md_title != title:
+            print("ℹ 本地 md 标题「%s」与线上「%s」不同 → 保持线上标题"
+                  "（要换用 --title）" % (md_title, title))
+
+    cats = list(cur.get("categories") or [])
+    if as_html:
+        cats = [c for c in cats if c != "[Markdown]"]
+    elif "[Markdown]" not in cats:
+        cats.insert(0, "[Markdown]")
+
+    st = {
+        "title": title,
+        "description": body,
+        "categories": cats,
+        "mt_keywords": cur.get("mt_keywords") or "",
+    }
+
+    print("→ post_id=%s「%s」" % (post_id, title))
+    print("  正文 %d 字 / 分类 %s / 标签 %s"
+          % (len(st["description"]), st["categories"] or "[]", st["mt_keywords"]))
+    if args.dry_run:
+        print("（--dry-run，未提交）")
+        return
+
+    edit_post(cfg, post_id, st, publish=not args.draft)
+    time.sleep(2)
+    url = cur.get("link") or cur.get("permalink") or ""
+    after = get_post(cfg, post_id)
+    same = (after.get("description") or "") == st["description"]
+    print("✓ 已更新: %s %s" % (post_id, url))
+    print("  回读正文一致: %s (%d 字)" % (same, len(after.get("description") or "")))
+    if not same:
+        print("  ⚠ 回读与提交不一致 —— 可能是 Markdown 渲染改写了 HTML，去线上看一眼")
+    case_id = args.case or post_id
+    remember(case_id, post_id, title, url=url,
+             status="draft" if args.draft else "published")
+
+
+def _is_html(body):
+    return bool(re.search(r"</(p|h2|h3|table|blockquote|ul)>", body))
+
+
 def _read_ledger():
     if not os.path.exists(DRAFT_FILE):
         return {}
@@ -370,6 +457,18 @@ def main():
     p.add_argument("--post-id", default="", help="直给远端 post_id")
     p.add_argument("--case", default="", help="或给 case id，从台账里取 post_id")
     p.set_defaults(fn=cmd_release)
+
+    p = sub.add_parser("edit", help="改已有文章正文（editPost 原地更新，URL/评论不变）")
+    p.add_argument("--post-id", default="", help="直给远端 post_id")
+    p.add_argument("--case", default="", help="或给 case id，从台账里取 post_id")
+    p.add_argument("--file", default="", help="按 md 重建正文（自动剥编辑期注释）")
+    p.add_argument("--html-file", default="",
+                   help="直接用现成 HTML（只换某一段时先本地改好再整篇回传）")
+    p.add_argument("--html", action="store_true", help="--file 时强制转 HTML 发送")
+    p.add_argument("--title", default="", help="覆盖标题（默认沿用线上现值）")
+    p.add_argument("--draft", action="store_true", help="改成草稿（默认保持已发表）")
+    p.add_argument("--dry-run", action="store_true", help="只打印不提交")
+    p.set_defaults(fn=cmd_edit)
 
     p = sub.add_parser("list", help="最近文章回读（发布成功 = 按标题命中）")
     p.add_argument("--n", type=int, default=20)

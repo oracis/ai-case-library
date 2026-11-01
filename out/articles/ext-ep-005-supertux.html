@@ -1,0 +1,28 @@
+<h1 style="font-size:22px;line-height:1.45;color:#111;margin:0 0 18px;font-weight:bold">游戏厅：SuperTux</h1>
+<p style="line-height:1.7;font-size:15px;color:#555;margin:0 0 22px;padding:12px 14px;background:#f5f7fb;border-radius:6px">SuperTux 是开源社区最著名的 2D 横版跳跃游戏之一，玩法风格向《超级马里奥》致敬。</p>
+<p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">开源游戏源码索引 · 每期只讲一款游戏</p>
+<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">先说清楚：这是源码索引，不是游戏下载站</h2>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">本文介绍的项目指向一个真实存在的源码仓库。仓库里只有代码：要自己装环境、自己编译；不少经典游戏的重实现项目，原版素材还要自备。它的价值在「能读、能改」，不在「下载即玩」。</p>
+<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">它是什么</h2>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">主角是 Linux 的吉祥物——企鹅 Tux，他的女友 Penny 被 X 博士掳走，Tux 于是穿越冰雪世界、森林与地牢营救伙伴。游戏包含多个世界与大量关卡，有加速鞋、火焰花式的道具变身等要素，并内置关卡编辑器，玩家可以自制并分享关卡。它预装在许多 Linux 发行版的软件仓库中，是开源游戏的门面作品之一，社区持续活跃开发。</p>
+<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">怎么玩</h2>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">目标是操控 Tux 穿越关卡：奔跑、跳跃，用踩踏或投掷等方式击败敌人，收集金币与道具，抵达关卡终点的旗帜。吃道具可以让 Tux 变大或获得发射火球的能力，受伤会缩小再受击则死亡。游戏支持键盘与手柄，方向键移动、按键跳跃与使用道具，键位可自定义。内置关卡编辑器，可自行设计关卡。给新手的提示：踩敌人要在下落时对准头顶，拿到变大道具后你就多一条命，别舍不得用加速跑。</p>
+<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">顺手看看代码</h2>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">代码组织上，data 目录存放所有资源文件，根目录包含主程序入口 src/main.cpp 和核心模块，如玩家控制 src/object/player.cpp、粒子效果 src/object/custom_particle_system.cpp、关卡编辑器相关 src/editor/overlay_widget.cpp 和 src/editor/editor.cpp，以及敌人行为 src/badguy/badguy.cpp。这种布局符合游戏开发中资源与逻辑分离的原则，便于管理和扩展。</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">从 src/main.cpp 开始读，因为它包含顶层符号 main，是程序的入口点。这里会初始化 SDL 框架，加载资源，并启动游戏主循环或编辑器模式，是理解程序启动流程的最佳起点。</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· src/object/player.cpp 中的 set_id 函数展示了如何动态绑定玩家状态属性，这种设计支持运行时行为修改。</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· src/object/custom_particle_system.cpp 的 ease_value 属性和 ease_speed_x 函数组合，实现了粒子动画的平滑过渡效果。</p>
+<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">想自己跑一遍</h2>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">素材里没读到构建脚本和入口页面，跑法请以仓库 README 为准。</p>
+<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">档案</h2>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 档案编号：106（平台跳跃类）</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 一句话简介：与 Tux 一起的经典 2D 横版跳跃闯关游戏</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 源码：<a href="https://github.com/SuperTux/supertux" style="color:#2f6fed;text-decoration:none;word-break:break-all">SuperTux</a></p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 站点详情页：<a href="https://games.ydtgo.top/#/game/106-supertux" style="color:#2f6fed;text-decoration:none;word-break:break-all">SuperTux</a></p>
+<p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">（源码部分依据 SuperTux/supertux 的公开代码结构整理，部分读过；细节以仓库当前代码为准。）</p>
+<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">版权与免责</h2>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 每一条的源码许可证以<strong>各自仓库</strong>为准，二次分发与商用前请逐条核对。</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 本站只做索引与归类，不托管任何游戏文件，也不提供素材包。</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 收录项目版权归各自作者所有；你是作者且不希望被收录，可以联系删除。</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">想自己翻？完整索引都在这里：<a href="https://games.ydtgo.top" style="color:#2f6fed;text-decoration:none;word-break:break-all">https://games.ydtgo.top</a></p>
+<p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">SuperTux 是开源社区最著名的 2D 横版跳跃游戏之一，玩法风格向《超级马里奥》致敬。全部指向源码仓库，需自行编译，部分需自备原版素材。</p>

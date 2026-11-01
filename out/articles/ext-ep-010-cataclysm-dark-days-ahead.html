@@ -1,0 +1,28 @@
+<h1 style="font-size:22px;line-height:1.45;color:#111;margin:0 0 18px;font-weight:bold">游戏厅：Cataclysm: Dark Days Ahead</h1>
+<p style="line-height:1.7;font-size:15px;color:#555;margin:0 0 22px;padding:12px 14px;background:#f5f7fb;border-radius:6px">Cataclysm: Dark Days Ahead（简称 CDDA）是一款设定在后末日世界的开源 Rogu…</p>
+<p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">开源游戏源码索引 · 每期只讲一款游戏</p>
+<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">先说清楚：这是源码索引，不是游戏下载站</h2>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">本文介绍的项目指向一个真实存在的源码仓库。仓库里只有代码：要自己装环境、自己编译；不少经典游戏的重实现项目，原版素材还要自备。它的价值在「能读、能改」，不在「下载即玩」。</p>
+<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">它是什么</h2>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">世界被名为「卡特克利斯姆」的灾变摧毁，充斥着丧尸、变异生物和怪异现象。游戏以极高的细节度著称：车辆改装、制作系统、身体部位伤害、变异与技能成长一应俱全，支持字符和瓦片图形两种界面，是深度生存 Rogue-like 的代表作之一。</p>
+<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">怎么玩</h2>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">目标没有唯一答案，常见玩法是创建幸存者后，在一开始的避难所或小镇中搜刮物资、建造安全据点、改装车辆活下去，并逐步变强。操作以键盘命令为主，方向键移动，配合大量快捷键搜刮、制作、战斗；身体各部位可能受伤、感染，昼夜和天气都影响生存。新手提示：开局别急着打架，先把食物、水和安全屋子搞定，听到枪声和引擎声尽量躲远。</p>
+<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">顺手看看代码</h2>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">代码组织围绕 Android 应用开发展开，主要在 `android/app/src/main/java/com/cleverraven/cataclysmdda` 目录下。`SplashScreen.java` 负责启动画面和初始化，`CataclysmDDA.java` 处理核心应用逻辑和系统交互，`CDDADocumentsProvider.java` 管理文件访问。目录结构分离了平台相关代码（android）、构建脚本（build-scripts）、数据（data）和开发环境配置（.devcontainer, .github），符合模块化开发思路。</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">从 `SplashScreen.java` 开始读，因为它是最早执行的模块，负责版本检查、崩溃提示和启动流程。先看 `onCreate` 和 `installOrRun`，理解应用初始化和游戏入口的衔接。</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 通过 `getVersionName` 和 `showCrashAlert` 实现应用元数据的抽象管理，符合 Android 开发规范。</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 形如 `CmdXxx` 的函数在 `installOrRun` 中组织成列表执行，体现命令模式在游戏启动阶段的应用。</p>
+<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">想自己跑一遍</h2>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">素材里没读到构建脚本和入口页面，跑法请以仓库 README 为准。</p>
+<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">档案</h2>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 档案编号：260（角色扮演类）</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 一句话简介：设定在后末日世界的 Roguelike 游戏</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 源码：<a href="https://github.com/CleverRaven/Cataclysm-DDA" style="color:#2f6fed;text-decoration:none;word-break:break-all">Cataclysm: Dark Days Ahead</a></p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 站点详情页：<a href="https://games.ydtgo.top/#/game/260-cataclysm-dark-days-ahead" style="color:#2f6fed;text-decoration:none;word-break:break-all">Cataclysm: Dark Days Ahead</a></p>
+<p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">（源码部分依据 CleverRaven/Cataclysm-DDA 的公开代码结构整理，部分读过；细节以仓库当前代码为准。）</p>
+<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">版权与免责</h2>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 每一条的源码许可证以<strong>各自仓库</strong>为准，二次分发与商用前请逐条核对。</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 本站只做索引与归类，不托管任何游戏文件，也不提供素材包。</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 收录项目版权归各自作者所有；你是作者且不希望被收录，可以联系删除。</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">想自己翻？完整索引都在这里：<a href="https://games.ydtgo.top" style="color:#2f6fed;text-decoration:none;word-break:break-all">https://games.ydtgo.top</a></p>
+<p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">Cataclysm: Dark Days Ahead（简称 CDDA）是一款设定在后末日世界的开源 Rogu…。全部指向源码仓库，需自行编译，部分需自备原版素材。</p>

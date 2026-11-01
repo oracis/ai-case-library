@@ -155,14 +155,10 @@
   },
   "trustmrr": {
     "title": "TrustMRR：把「验证收入」本身做成了产品：连 Stripe 才能上榜的创业公司收入数据库 + 交易市场",
-    "published_at": "2026-09-21 22:43",
-    "status": "published",
-    "appmsgid": "100000172",
-    "file": "公众号-trustmrr拆解.html",
-    "refreshed_at": "2026-10-02 13:38",
-    "group_sent": true,
-    "synced_at": "2026-10-10 00:07",
-    "sync_note": "远端已发表列表里存在，本地由 sync 回写"
+    "published_at": "2026-10-31 18:31",
+    "status": "draft",
+    "appmsgid": "100001141",
+    "file": "公众号-trustmrr拆解.html"
   },
   "comp-ai": {
     "title": "Comp AI：帮公司过 SOC 2 / ISO 27001 合规审计，把六个月的流程压到几周",

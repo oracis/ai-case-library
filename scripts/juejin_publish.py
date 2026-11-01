@@ -220,21 +220,37 @@ def split_md(md, default_title=""):
     return (title or "未命名"), body
 
 
-def brief_of(body, limit=100):
+def brief_of(body, limit=100, min_len=40):
     """摘要。掘金建议 50–100 字，取正文首个自然语言段落。
 
     HTML 注释（如 `<!-- 备选标题 2：… -->`）是给人看的工作注释，不是摘要素材：
     2026-10-27 实测掘金摘要抓到过注释行 → 先整体剥掉再取段。
+
+    ⚠ **2026-10-31 实测：`brief_content` 有下限，过短会被 `article/publish`
+      以 `err_no=2 参数错误` 拒发**（假象：草稿能建、单看字段没错，只有真发布才报）。
+      二分测出阈值在 24 字(FAIL) 与 30 字(OK) 之间。所以不能「取到第一个够长的
+      段落就返回」——单段 24 字会漏过，必须**继续累积多段直到 ≥ min_len(40)**，
+      再按 100 截断。这解释了为什么同一批案例稿「草稿都在、却一篇都发不出去」。
     """
     body = re.sub(r"<!--.*?-->", "", body, flags=re.S)
+    parts = []
     for p in body.splitlines():
         p = p.strip()
         if not p or p.startswith(("#", ">", "|", "-", "*", "```")):
             continue
         p = re.sub(r"\*\*|`|\[|\]\([^)]*\)", "", p).strip()
-        if len(p) >= 20:
-            return p[:limit]
-    return body[:limit]
+        if not p:
+            continue
+        parts.append(p)
+        joined = "".join(parts)
+        if len(joined) >= min_len:
+            return joined[:limit]
+    joined = "".join(parts)
+    if joined:
+        return joined[:limit]
+    # 兜底：正文没有任何自然段（全是标题/列表），把标记符去掉后压成一行
+    flat = re.sub(r"\s+", " ", re.sub(r"[#>`*|\-]", "", body)).strip()
+    return flat[:limit]
 
 
 # ---- 草稿 ----------------------------------------------------------------

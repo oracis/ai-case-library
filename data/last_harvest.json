@@ -1,78 +1,77 @@
 {
-  "ran_at": "2026-10-31 06:34:01",
-  "added": 57,
+  "ran_at": "2026-11-01 07:04:37",
+  "added": 51,
   "by_source": {
-    "hn": 43,
-    "indiehackers": 2,
-    "trustmrr": 12
+    "hn": 40,
+    "trustmrr": 11
   },
   "inbox_total": 400,
-  "archived_this_run": 57,
-  "archive_total": 1170,
+  "archived_this_run": 51,
+  "archive_total": 1221,
   "top": [
     {
-      "name": "FlipScan: AI Reselling Scanner",
-      "headline": "近 30 天收入 $860",
+      "name": "Obscreen",
+      "headline": "MRR $482，TrustMRR 第 1586 名",
       "heat": 0,
-      "category": "AI 工具",
+      "category": "垂直行业 SaaS",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/flipscan"
+      "url": "https://trustmrr.com/startup/obscreen"
     },
     {
-      "name": "ClipUtils",
-      "headline": "近 30 天收入 $379",
+      "name": "zescale",
+      "headline": "近 30 天收入 $4,385",
+      "heat": 0,
+      "category": "电商",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/simeo"
+    },
+    {
+      "name": "Proposal Lift",
+      "headline": "累计收入 $12（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
       "heat": 0,
       "category": "创作者经济",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/cliputils"
+      "url": "https://trustmrr.com/startup/proposal-lift"
     },
     {
-      "name": "PaperTrace: AR Sketch",
-      "headline": "近 30 天收入 $132",
-      "heat": 0,
-      "category": "创作者经济",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/ar-drawing-sketch"
-    },
-    {
-      "name": "Truth or Dare: Couples Game",
-      "headline": "近 30 天收入 $548",
-      "heat": 0,
-      "category": "Games",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/truth-or-dare"
-    },
-    {
-      "name": "Bible Verse Alarm",
-      "headline": "近 30 天收入 $309",
-      "heat": 0,
-      "category": "移动应用",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/bible-verse-alarm"
-    },
-    {
-      "name": "DivvLaunches",
-      "headline": "累计收入 $170（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
-      "heat": 0,
-      "category": "营销工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/divvlaunches"
-    },
-    {
-      "name": "BuzzyX",
-      "headline": "MRR $232",
+      "name": "LLM Hub: Offline AI Assistant",
+      "headline": "近 30 天收入 $387",
       "heat": 0,
       "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/buzzyx"
+      "url": "https://trustmrr.com/startup/llm-hub"
     },
     {
-      "name": "Business Entrepreneur Tycoon",
-      "headline": "自报收入 $10 / mo（Indie Hackers）",
+      "name": "Aqib Javed",
+      "headline": "近 30 天收入 $264",
       "heat": 0,
+      "category": "企业服务",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/aqib-javed"
+    },
+    {
+      "name": "bolder.fit",
+      "headline": "近 30 天收入 $110",
+      "heat": 0,
+      "category": "Community",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/bolderfit"
+    },
+    {
+      "name": "NES Contra (1987) port (ASM –> C and then C –> WebAssembly)",
+      "headline": "未获取",
+      "heat": 81,
       "category": "未分类",
-      "source": "indiehackers",
-      "url": "https://www.indiehackers.com/product/business-entrepreneur-tycoon"
+      "source": "hn",
+      "url": "https://epoyraz.github.io/nes-contra-us/"
+    },
+    {
+      "name": "BBRouter",
+      "headline": "未获取",
+      "heat": 21,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://bbrouter.com/bbrouter/ben-eater-sap-1"
     }
   ]
 }

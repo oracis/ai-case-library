@@ -14,7 +14,9 @@
     "mass_sent_at": "2026-10-25 22:44",
     "publish_type": "masssend",
     "batch_msgid": "1000000030",
-    "note": "2026-10-25 群发发送（send --notify），脚本轮询确认"
+    "note": "2026-10-25 群发发送（send --notify），脚本轮询确认",
+    "url": "https://mp.weixin.qq.com/s/Kd8uLR9GxQejpK0oZn4rmw",
+    "sent_via": "reconcile"
   },
   "mcdpoints": {
     "title": "用麦当劳官方接口查了一下，我的积分正在悄悄过期",
@@ -26,6 +28,120 @@
     "file": "mcdpoints-wx.html",
     "published_appmsgid": "2247484750",
     "content_url": "https://mp.weixin.qq.com/s/BeIyHtnhcQBOVlvTx1Cj0A",
-    "note": "2026-10-25 核对远端已发表列表补登（本机发送流程未落账）"
+    "note": "2026-10-25 核对远端已发表列表补登（本机发送流程未落账）",
+    "url": "https://mp.weixin.qq.com/s/BeIyHtnhcQBOVlvTx1Cj0A",
+    "sent_via": "reconcile"
+  },
+  "ep-001-super-mario-bros": {
+    "title": "游戏厅：Super Mario Bros",
+    "desc": "开源平台游戏《超级马力欧兄弟》，Backbone引擎实现，关卡完整，需自备素材编译。",
+    "tag": "游戏厅",
+    "published_at": "2026-10-31 22:52",
+    "status": "published",
+    "appmsgid": "100001164",
+    "file": "article.html",
+    "published_appmsgid": "2247484934",
+    "publish_type": "publish",
+    "url": "https://mp.weixin.qq.com/s/5Uaek_jjxRtbFm2ux9kKlg",
+    "sent_via": "send",
+    "note": "发布模式（不推送、不占群发额度）。send 判 unverified 的原因是草稿箱列表滞后于已发表列表，已人工回读确认：草稿箱已无 100001164、已发表列表出现 2247484934 同名条目。"
+  },
+  "ep-011-minetest": {
+    "title": "游戏厅：Minetest",
+    "desc": "C++/Lua 开源体素沙盒，类似我的世界，支持自定义方块与模组，源码编译，素材自备。",
+    "tag": "游戏厅",
+    "published_at": "2026-10-31 21:13",
+    "status": "draft",
+    "appmsgid": "100001285",
+    "file": "article.html"
+  },
+  "ep-002-2048": {
+    "title": "游戏厅：2048",
+    "desc": "风靡全球的数字合并游戏，开源网页实现，源自《1024》，需编译运行，含原版素材。",
+    "tag": "游戏厅",
+    "published_at": "2026-10-31 23:00",
+    "status": "published",
+    "appmsgid": "100001186",
+    "file": "article.html",
+    "published_appmsgid": "2247484935",
+    "publish_type": "publish",
+    "url": "https://mp.weixin.qq.com/s/pzsl1Ly97gtBEFi8FCPwkw",
+    "sent_via": "send",
+    "note": "发布模式。批量中断前已跑完，回读已发表列表命中同名条目，草稿箱已无 100001186。"
+  },
+  "ep-003-freedoom": {
+    "title": "游戏厅：Freedoom",
+    "desc": "Freedoom开源FPS游戏，资源自由授权，需编译运行，部分素材需自备。",
+    "tag": "游戏厅",
+    "published_at": "2026-10-31 20:40",
+    "status": "published",
+    "appmsgid": "100001197",
+    "file": "article.html",
+    "published_appmsgid": "2247484936",
+    "url": "https://mp.weixin.qq.com/s/2sNJBuoxyLEPSBIlhbVrnQ",
+    "sent_via": "reconcile"
+  },
+  "ep-004-quake": {
+    "title": "游戏厅：Quake",
+    "desc": "《雷神之锤》经典射击游戏，源码索引，自行编译，部分素材需自备。",
+    "tag": "游戏厅",
+    "published_at": "2026-10-31 20:44",
+    "status": "draft",
+    "appmsgid": "100001208",
+    "file": "article.html"
+  },
+  "ep-005-supertux": {
+    "title": "游戏厅：SuperTux",
+    "desc": "致敬超级马里奥，2D横版，源码自编译，含素材。",
+    "tag": "游戏厅",
+    "published_at": "2026-10-31 20:48",
+    "status": "draft",
+    "appmsgid": "100001219",
+    "file": "article.html"
+  },
+  "ep-006-nethack": {
+    "title": "游戏厅：NetHack",
+    "desc": "NetHack：Roguelike经典之作，需编译源码，部分素材自备。",
+    "tag": "游戏厅",
+    "published_at": "2026-10-31 20:53",
+    "status": "draft",
+    "appmsgid": "100001230",
+    "file": "article.html"
+  },
+  "ep-007-openttd": {
+    "title": "游戏厅：OpenTTD",
+    "desc": "经典经营模拟游戏开源版，需编译运行，含原版素材索引。",
+    "tag": "游戏厅",
+    "published_at": "2026-10-31 20:57",
+    "status": "draft",
+    "appmsgid": "100001241",
+    "file": "article.html"
+  },
+  "ep-008-mindustry": {
+    "title": "游戏厅：Mindustry",
+    "desc": "开源沙盒游戏，塔防+即时战略，源码索引，自编译，需原版素材。",
+    "tag": "游戏厅",
+    "published_at": "2026-10-31 21:01",
+    "status": "draft",
+    "appmsgid": "100001252",
+    "file": "article.html"
+  },
+  "ep-009-lichess": {
+    "title": "游戏厅：Lichess",
+    "desc": "Lichess（Libre Chess）免费开源，源码索引自编译，需原版素材。",
+    "tag": "游戏厅",
+    "published_at": "2026-10-31 21:05",
+    "status": "draft",
+    "appmsgid": "100001263",
+    "file": "article.html"
+  },
+  "ep-010-cataclysm-dark-days-ahead": {
+    "title": "游戏厅：Cataclysm: Dark Days Ahead",
+    "desc": "Cataclysm: Dark Days Ahead，开源Roguelike游戏，后末日世界背景，需编译源码及自备素材。",
+    "tag": "游戏厅",
+    "published_at": "2026-10-31 21:09",
+    "status": "draft",
+    "appmsgid": "100001274",
+    "file": "article.html"
   }
 }

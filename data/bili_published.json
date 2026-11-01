@@ -18,10 +18,11 @@
   {
     "id": "trustmrr",
     "at": "2026-10-17 10:10",
-    "article_id": "53460777",
-    "verified_at": "2026-10-19 01:53",
-    "evidence": "health_backfill",
-    "note": "P1对账: 标题直接命中(cv53460777) → TrustMRR：验证过的创业公司收入数据库｜同案例另有一条旧稿『TrustMRR：验证过的创业公司收入数据库』(cv53352783, 2026-10-09 12:58，正文与新篇相同)"
+    "article_id": "53696865",
+    "title": "TrustMRR：验证过的创业公司收入数据库",
+    "verified_at": "2026-10-31 18:26",
+    "evidence": "editor-ui-publish+aid-reassigned",
+    "note": "P1对账: 标题直接命中(cv53460777) → TrustMRR：验证过的创业公司收入数据库｜同案例另有一条旧稿『TrustMRR：验证过的创业公司收入数据库』(cv53352783, 2026-10-09 12:58，正文与新篇相同)｜更新草稿 aid=345579（draft/add 回读校验通过）"
   },
   {
     "id": "mort",
