@@ -1,0 +1,28 @@
+<h1 style="font-size:22px;line-height:1.45;color:#111;margin:0 0 18px;font-weight:bold">游戏厅：OpenTTD</h1>
+<p style="line-height:1.7;font-size:15px;color:#555;margin:0 0 22px;padding:12px 14px;background:#f5f7fb;border-radius:6px">OpenTTD 是经典经营模拟游戏《运输大亨豪华版》（Transport Tycoon Deluxe）的开源…</p>
+<p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">开源游戏源码索引 · 每期只讲一款游戏</p>
+<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">先说清楚：这是源码索引，不是游戏下载站</h2>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">本文介绍的项目指向一个真实存在的源码仓库。仓库里只有代码：要自己装环境、自己编译；不少经典游戏的重实现项目，原版素材还要自备。它的价值在「能读、能改」，不在「下载即玩」。</p>
+<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">它是什么</h2>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">《运输大亨》是 Chris Sawyer 于 1995 年打造的传奇作品：玩家扮演运输业大亨，从零开始建设铁路、公路、机场和港口，把货物与乘客在城镇之间运送赚取利润，在与其他大亨的竞争中发展出庞大的运输帝国。OpenTTD 由社区用 C++ 重新实现并大幅增强，加入更大的地图、多人联机、信号系统改进、自动车辆替换等海量新特性，支持 Windows、Linux、macOS 等平台，是开源游戏领域维护最活跃、完成度最高的项目之一。</p>
+<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">怎么玩</h2>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">目标是通过经营运输网络成为行业大亨。基本玩法：观察地图上城镇和工厂的供需关系，用道路车辆起步，在木材厂与锯木厂、煤矿与发电站之间铺设运输线赚钱；积累资金后升级为铁路、飞机和船运，并在规模扩大后继续投资新线路。规则要点：运输距离越远、货物越满利润越高，车辆会折旧老化需要更换；竞争对手会抢生意，还可以收购。给新手的提示：先开一条短途客运线路熟悉操作，学会使用火车信号灯后再铺复杂铁路网。</p>
+<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">顺手看看代码</h2>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">代码按功能模块划分到 src、media、bin 等目录。src 目录下按游戏逻辑分层，如 station_cmd.cpp 处理车站相关，train_cmd.cpp 处理列车相关。media 存储图形资源，bin 可能有可执行文件。这种组织方式便于按模块查找和修改代码，符合大型模拟游戏的复杂性。</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">从 src/station_cmd.cpp 开始读，因为它直接处理游戏核心交互逻辑，如车站生成和交互。顶层符号 IsHangar 和 GetStationAround 揭示了模块关注点，适合了解游戏世界构建的基础。</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· IsStationBridgeAboveOk 函数抽象了桥梁放置的复杂条件检查，体现了自研引擎对物理规则的封装</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· NormaliseTrainHead 函数通过形如 CmdXxx 的命令处理列车头车辆逻辑，展现了命令模式在列车操作中的应用</p>
+<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">想自己跑一遍</h2>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">素材里没读到构建脚本和入口页面，跑法请以仓库 README 为准。</p>
+<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">档案</h2>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 档案编号：330（策略（即时 + 回合 + 塔防）类）</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 一句话简介：基于 Chris Sawyer 经典游戏《运输大亨豪华版》的运输模拟游戏</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 源码：<a href="https://github.com/OpenTTD/OpenTTD" style="color:#2f6fed;text-decoration:none;word-break:break-all">OpenTTD</a></p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 站点详情页：<a href="https://games.ydtgo.top/#/game/330-openttd" style="color:#2f6fed;text-decoration:none;word-break:break-all">OpenTTD</a></p>
+<p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">（源码部分依据 OpenTTD/OpenTTD 的公开代码结构整理，部分读过；细节以仓库当前代码为准。）</p>
+<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">版权与免责</h2>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 每一条的源码许可证以<strong>各自仓库</strong>为准，二次分发与商用前请逐条核对。</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 本站只做索引与归类，不托管任何游戏文件，也不提供素材包。</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 收录项目版权归各自作者所有；你是作者且不希望被收录，可以联系删除。</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">想自己翻？完整索引都在这里：<a href="https://games.ydtgo.top" style="color:#2f6fed;text-decoration:none;word-break:break-all">https://games.ydtgo.top</a></p>
+<p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">OpenTTD 是经典经营模拟游戏《运输大亨豪华版》（Transport Tycoon Deluxe）的开源…。全部指向源码仓库，需自行编译，部分需自备原版素材。</p>
