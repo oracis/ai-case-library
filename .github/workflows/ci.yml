@@ -176,6 +176,16 @@ jobs:
         continue-on-error: true
         run: python scripts/test_htm_increment.py
 
+      - name: 测试 sync_headline_numbers.py（口径标签定位必须精准）
+        # 守两条线：① **同值陷阱** —— bobby 的 last30 与 all_time 旧值恰好相同
+        # （都是 1,436），只按「旧值相等」定位 ⇒ 把「近 30 天收入」写成累计口径；
+        # ② **语境误伤** —— 「MRR 增速 +12%」「历史峰值 $4,251」不是当前金额，
+        # 「付费订阅 1077 户」的数字也不能被当别人的前缀。
+        # 替换错一次比不替换更坏：headline 会自相矛盾，下游直接抄走。
+        id: sync_headline
+        continue-on-error: true
+        run: python scripts/test_sync_headline_numbers.py
+
       - name: 测试 prerender.py（常量对齐、脱离 JS、转义）
         # 守三条线：① prerender.py 里的文案常量与 app.js 不能漂移（漂了不报错，
         # 只是同一条案例在两个地方显示成两个词）；② 案例页不跑 JS 也得读得到正文；

@@ -23,22 +23,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 1400.0,
+      "mrr": 1351.0,
       "last_30d_revenue": 1127.0,
-      "all_time": 14372.0,
-      "subscriptions": 213,
+      "all_time": 14455.0,
+      "subscriptions": 211,
       "growth_30d": 6.7,
       "mrr_growth_30d": 6.7,
       "revenue_growth_30d": -3.1,
-      "headline": "MRR $1,400，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $1,400（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $1,127、累计 $14,372、付费订阅 213 户。最近完整月环比 +4.5%（已剔除当月残月）。近 30 天 MRR 增速 +6.7%。⚠ 同期收入增速为 -3.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $2,057 → 最近完整月 $1,209，留存 59%。挂牌 $36,000、倍数 2.90x（要价不等于收入）。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $1,400），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $1,351，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $1,351（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Stripe (API key)）。近 30 天收入 $1,127、累计 $14,455、付费订阅 211 户。最近完整月环比 +4.5%（已剔除当月残月）。近 30 天 MRR 增速 +6.7%。⚠ 同期收入增速为 -3.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $2,057 → 最近完整月 $1,209，留存 59%。挂牌 $36,000、倍数 2.90x（要价不等于收入）。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $1,400），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T08:54:25.153Z"
+    "data_freshness": "2026-11-01T02:54:15.704Z"
   },
   {
     "id": "screenshot-to-code-whimsyworks-inc",
@@ -63,22 +63,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 4478.0,
+      "mrr": 4458.0,
       "last_30d_revenue": 4188.0,
-      "all_time": 261956.0,
-      "subscriptions": 297,
+      "all_time": 262393.0,
+      "subscriptions": 294,
       "growth_30d": -10.4,
       "mrr_growth_30d": -10.4,
       "revenue_growth_30d": -10.4,
-      "headline": "MRR $4,478，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $4,478（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $4,188、累计 $261,956、付费订阅 297 户。最近完整月环比 -5.9%（已剔除当月残月）。近 30 天 MRR 增速 -10.4%。⚠ 历史峰值 $6,478 → 最近完整月 $4,727，留存 73%。挂牌 $32,000、倍数 0.60x（要价不等于收入）。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $4,598），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $4,458，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $4,458（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Stripe (API key)）。近 30 天收入 $4,188、累计 $262,393、付费订阅 294 户。最近完整月环比 -5.9%（已剔除当月残月）。近 30 天 MRR 增速 -10.4%。⚠ 历史峰值 $6,478 → 最近完整月 $4,727，留存 73%。挂牌 $32,000、倍数 0.60x（要价不等于收入）。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $4,598），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T12:39:34.470Z",
+    "data_freshness": "2026-11-01T00:37:28.397Z",
     "independent_check": {
       "checked_at": "2026-10-28",
       "method": "entity-anchor（iTunes sellerUrl / GitHub repo.homepage 必须与官网同域）+ 手动 WebFetch 复核",
@@ -130,22 +130,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 537.0,
+      "mrr": 408.0,
       "last_30d_revenue": 418.0,
-      "all_time": 2266.0,
-      "subscriptions": 24,
+      "all_time": 2293.0,
+      "subscriptions": 20,
       "growth_30d": -26.7,
       "mrr_growth_30d": -26.7,
       "revenue_growth_30d": -42.9,
-      "headline": "MRR $537，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $537（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $418、累计 $2,266、付费订阅 24 户。最近完整月环比 +153.3%（已剔除当月残月）。近 30 天 MRR 增速 -26.7%。⚠ 同期收入增速为 -42.9%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $846 → 最近完整月 $846，留存 100%。挂牌 $15,000、倍数 2.70x（要价不等于收入）。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $611），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $408，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $408（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Stripe (API key)）。近 30 天收入 $418、累计 $2,293、付费订阅 20 户。最近完整月环比 +153.3%（已剔除当月残月）。近 30 天 MRR 增速 -26.7%。⚠ 同期收入增速为 -42.9%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $846 → 最近完整月 $846，留存 100%。挂牌 $15,000、倍数 2.70x（要价不等于收入）。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $611），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T11:25:01.738Z"
+    "data_freshness": "2026-11-01T05:23:54.456Z"
   },
   {
     "id": "social-genius-text-analyzer",
@@ -171,22 +171,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-26",
     "metrics": {
-      "mrr": 384.0,
+      "mrr": 293.0,
       "last_30d_revenue": 1008.0,
-      "all_time": 1452.0,
-      "subscriptions": 34,
+      "all_time": 1506.0,
+      "subscriptions": 32,
       "growth_30d": 248.7,
       "mrr_growth_30d": 248.7,
       "revenue_growth_30d": 317.4,
-      "headline": "MRR $384，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $384（TrustMRR 从支付网关 API 直读，2026-10-28 同步，RevenueCat (API key)）。近 30 天收入 $1,008、累计 $1,452、付费订阅 34 户。最近完整月环比 +96.6%（已剔除当月残月）。近 30 天 MRR 增速 +248.7%。⚠ 同期收入增速为 +317.4%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $342 → 最近完整月 $342，留存 100%。挂牌 $25,000、倍数 2.37x（要价不等于收入）。⚠ 队列缓存值是 2026-10-26 采集时的快照（当时 $438），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $293，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $293（TrustMRR 从支付网关 API 直读，2026-11-01 同步，RevenueCat (API key)）。近 30 天收入 $1,008、累计 $1,506、付费订阅 32 户。最近完整月环比 +96.6%（已剔除当月残月）。近 30 天 MRR 增速 +248.7%。⚠ 同期收入增速为 +317.4%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $342 → 最近完整月 $342，留存 100%。挂牌 $25,000、倍数 2.37x（要价不等于收入）。⚠ 队列缓存值是 2026-10-26 采集时的快照（当时 $438），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（RevenueCat (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T12:50:28.389Z"
+    "data_freshness": "2026-11-01T00:48:17.355Z"
   },
   {
     "id": "stampsnap",
@@ -212,22 +212,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-26",
     "metrics": {
-      "mrr": 401.0,
+      "mrr": 344.0,
       "last_30d_revenue": 651.0,
-      "all_time": 7336.0,
-      "subscriptions": 105,
+      "all_time": 7299.0,
+      "subscriptions": 101,
       "growth_30d": 17.5,
       "mrr_growth_30d": 17.5,
       "revenue_growth_30d": 56.6,
-      "headline": "MRR $401，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $401（TrustMRR 从支付网关 API 直读，2026-10-28 同步，RevenueCat (API key)）。近 30 天收入 $651、累计 $7,336、付费订阅 105 户。最近完整月环比 -39.6%（已剔除当月残月）。近 30 天 MRR 增速 +17.5%。⚠ 同期收入增速为 +56.6%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $642 → 最近完整月 $346，留存 54%。挂牌 $17,000、倍数 2.31x（要价不等于收入）。⚠ 队列缓存值是 2026-10-26 采集时的快照（当时 $431），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $344，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $344（TrustMRR 从支付网关 API 直读，2026-11-01 同步，RevenueCat (API key)）。近 30 天收入 $651、累计 $7,299、付费订阅 101 户。最近完整月环比 -39.6%（已剔除当月残月）。近 30 天 MRR 增速 +17.5%。⚠ 同期收入增速为 +56.6%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $642 → 最近完整月 $346，留存 54%。挂牌 $17,000、倍数 2.31x（要价不等于收入）。⚠ 队列缓存值是 2026-10-26 采集时的快照（当时 $431），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（RevenueCat (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T12:49:57.933Z"
+    "data_freshness": "2026-11-01T00:48:15.751Z"
   },
   {
     "id": "static-forms",
@@ -254,22 +254,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-26",
     "metrics": {
-      "mrr": 1005.0,
+      "mrr": 1025.0,
       "last_30d_revenue": 1004.0,
-      "all_time": 9487.0,
-      "subscriptions": 126,
+      "all_time": 9680.0,
+      "subscriptions": 130,
       "growth_30d": 7.7,
       "mrr_growth_30d": 7.7,
       "revenue_growth_30d": -11.5,
-      "headline": "MRR $1,005，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $1,005（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $1,004、累计 $9,487、付费订阅 126 户。最近完整月环比 +22.7%（已剔除当月残月）。近 30 天 MRR 增速 +7.7%。⚠ 同期收入增速为 -11.5%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $1,886 → 最近完整月 $1,150，留存 61%。挂牌 $40,000、倍数 3.85x（要价不等于收入）。⚠ 队列缓存值是 2026-10-26 采集时的快照（当时 $994），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $1,025，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $1,025（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Stripe (API key)）。近 30 天收入 $1,004、累计 $9,680、付费订阅 130 户。最近完整月环比 +22.7%（已剔除当月残月）。近 30 天 MRR 增速 +7.7%。⚠ 同期收入增速为 -11.5%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $1,886 → 最近完整月 $1,150，留存 61%。挂牌 $40,000、倍数 3.85x（要价不等于收入）。⚠ 队列缓存值是 2026-10-26 采集时的快照（当时 $994），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T08:07:48.203Z"
+    "data_freshness": "2026-11-01T02:07:43.804Z"
   },
   {
     "id": "supascribe",
@@ -296,22 +296,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-26",
     "metrics": {
-      "mrr": 2424.0,
+      "mrr": 2433.0,
       "last_30d_revenue": 3101.0,
-      "all_time": 29457.0,
-      "subscriptions": 159,
+      "all_time": 29853.0,
+      "subscriptions": 160,
       "growth_30d": 1.3,
       "mrr_growth_30d": 1.3,
       "revenue_growth_30d": 54.8,
-      "headline": "MRR $2,424，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $2,424（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $3,101、累计 $29,457、付费订阅 159 户。最近完整月环比 +40.2%（已剔除当月残月）。近 30 天 MRR 增速 +1.3%。⚠ 同期收入增速为 +54.8%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $4,084 → 最近完整月 $2,267，留存 56%。挂牌 $75,000、倍数 2.09x（要价不等于收入）。⚠ 队列缓存值是 2026-10-26 采集时的快照（当时 $2,415），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $2,433，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $2,433（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Stripe (API key)）。近 30 天收入 $3,101、累计 $29,853、付费订阅 160 户。最近完整月环比 +40.2%（已剔除当月残月）。近 30 天 MRR 增速 +1.3%。⚠ 同期收入增速为 +54.8%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $4,084 → 最近完整月 $2,267，留存 56%。挂牌 $75,000、倍数 2.09x（要价不等于收入）。⚠ 队列缓存值是 2026-10-26 采集时的快照（当时 $2,415），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T12:44:46.129Z",
+    "data_freshness": "2026-11-01T00:42:38.026Z",
     "independent_check": {
       "checked_at": "2026-10-28",
       "method": "entity-anchor（iTunes sellerUrl / GitHub repo.homepage 必须与官网同域）+ 手动 WebFetch 复核",
@@ -364,22 +364,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 720.0,
+      "mrr": 685.0,
       "last_30d_revenue": 626.0,
-      "all_time": 11673.0,
-      "subscriptions": 49,
+      "all_time": 11771.0,
+      "subscriptions": 48,
       "growth_30d": -27.8,
       "mrr_growth_30d": -27.8,
       "revenue_growth_30d": -35.0,
-      "headline": "MRR $720，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $720（TrustMRR 从支付网关 API 直读，2026-10-28 同步，RevenueCat (API key)）。近 30 天收入 $626、累计 $11,673、付费订阅 49 户。最近完整月环比 -1.9%（已剔除当月残月）。近 30 天 MRR 增速 -27.8%。⚠ 同期收入增速为 -35.0%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $1,392 → 最近完整月 $926，留存 67%。挂牌 $16,000、倍数 2.00x（要价不等于收入）。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $691），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $685，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $685（TrustMRR 从支付网关 API 直读，2026-11-01 同步，RevenueCat (API key)）。近 30 天收入 $626、累计 $11,771、付费订阅 48 户。最近完整月环比 -1.9%（已剔除当月残月）。近 30 天 MRR 增速 -27.8%。⚠ 同期收入增速为 -35.0%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $1,392 → 最近完整月 $926，留存 67%。挂牌 $16,000、倍数 2.00x（要价不等于收入）。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $691），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（RevenueCat (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T10:38:54.066Z"
+    "data_freshness": "2026-11-01T04:37:45.983Z"
   },
   {
     "id": "volume-booster-louder-sound",
@@ -404,22 +404,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-26",
     "metrics": {
-      "mrr": 321.0,
+      "mrr": 398.0,
       "last_30d_revenue": 452.0,
-      "all_time": 975.0,
-      "subscriptions": 40,
+      "all_time": 1023.0,
+      "subscriptions": 42,
       "growth_30d": 53.3,
       "mrr_growth_30d": 53.3,
       "revenue_growth_30d": 21.5,
-      "headline": "MRR $321，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $321（TrustMRR 从支付网关 API 直读，2026-10-28 同步，RevenueCat (API key)）。近 30 天收入 $452、累计 $975、付费订阅 40 户。最近完整月环比 +157.8%（已剔除当月残月）。近 30 天 MRR 增速 +53.3%。⚠ 同期收入增速为 +21.5%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $428 → 最近完整月 $428，留存 100%。挂牌 $7,500、倍数 1.22x（要价不等于收入）。⚠ 队列缓存值是 2026-10-26 采集时的快照（当时 $369），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $398，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $398（TrustMRR 从支付网关 API 直读，2026-11-01 同步，RevenueCat (API key)）。近 30 天收入 $452、累计 $1,023、付费订阅 42 户。最近完整月环比 +157.8%（已剔除当月残月）。近 30 天 MRR 增速 +53.3%。⚠ 同期收入增速为 +21.5%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $428 → 最近完整月 $428，留存 100%。挂牌 $7,500、倍数 1.22x（要价不等于收入）。⚠ 队列缓存值是 2026-10-26 采集时的快照（当时 $369），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（RevenueCat (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T12:52:28.745Z"
+    "data_freshness": "2026-11-01T00:50:23.714Z"
   },
   {
     "id": "adverse-monitor",
@@ -448,14 +448,14 @@
       "mrr_growth_30d": 0.0,
       "revenue_growth_30d": 0.0,
       "headline": "MRR $356，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $356（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $0、累计 $3,985、付费订阅 2 户。最近完整月环比 +3908.2%（已剔除当月残月）。近 30 天 MRR 增速 +0.0%。⚠ 历史峰值 $3,888 → 最近完整月 $3,888，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $356），与上述实测不同；本条以实测为准。",
+      "metric_note": "实测口径：MRR $356（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Stripe (API key)）。近 30 天收入 $0、累计 $3,985、付费订阅 2 户。最近完整月环比 +3908.2%（已剔除当月残月）。近 30 天 MRR 增速 +0.0%。⚠ 历史峰值 $3,888 → 最近完整月 $3,888，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $356），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T11:44:08.864Z"
+    "data_freshness": "2026-11-01T05:43:00.211Z"
   },
   {
     "id": "aicasadesign-com",
@@ -475,22 +475,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 1298.0,
+      "mrr": 1306.0,
       "last_30d_revenue": 1426.0,
-      "all_time": 34753.0,
+      "all_time": 34779.0,
       "subscriptions": 31,
       "growth_30d": -8.1,
       "mrr_growth_30d": -8.1,
       "revenue_growth_30d": -5.5,
-      "headline": "MRR $1,298，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $1,298（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $1,426、累计 $34,753、付费订阅 31 户。最近完整月环比 +5.8%（已剔除当月残月）。近 30 天 MRR 增速 -8.1%。⚠ 历史峰值 $3,227 → 最近完整月 $1,549，留存 48%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $1,307），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $1,306，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $1,306（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Stripe (API key)）。近 30 天收入 $1,426、累计 $34,779、付费订阅 31 户。最近完整月环比 +5.8%（已剔除当月残月）。近 30 天 MRR 增速 -8.1%。⚠ 历史峰值 $3,227 → 最近完整月 $1,549，留存 48%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $1,307），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T08:42:29.257Z"
+    "data_freshness": "2026-11-01T02:42:21.921Z"
   },
   {
     "id": "apparelai",
@@ -509,22 +509,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 1021.0,
+      "mrr": 999.0,
       "last_30d_revenue": 1512.0,
-      "all_time": 6225.0,
+      "all_time": 6386.0,
       "subscriptions": 34,
       "growth_30d": 50.7,
       "mrr_growth_30d": 50.7,
       "revenue_growth_30d": 32.6,
-      "headline": "MRR $1,021，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $1,021（TrustMRR 从支付网关 API 直读，2026-10-28 同步，RevenueCat (API key), Dodo Payments (API key)）。近 30 天收入 $1,512、累计 $6,225、付费订阅 34 户。最近完整月环比 +5.8%（已剔除当月残月）。近 30 天 MRR 增速 +50.7%。⚠ 同期收入增速为 +32.6%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $1,299 → 最近完整月 $1,145，留存 88%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $904），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $999，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $999（TrustMRR 从支付网关 API 直读，2026-11-01 同步，RevenueCat (API key), Dodo Payments (API key)）。近 30 天收入 $1,512、累计 $6,386、付费订阅 34 户。最近完整月环比 +5.8%（已剔除当月残月）。近 30 天 MRR 增速 +50.7%。⚠ 同期收入增速为 +32.6%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $1,299 → 最近完整月 $1,145，留存 88%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $904），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（RevenueCat (API key), Dodo Payments (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T12:36:27.078Z"
+    "data_freshness": "2026-11-01T00:34:50.240Z"
   },
   {
     "id": "asta",
@@ -543,20 +543,20 @@
     "metrics": {
       "mrr": 0.0,
       "last_30d_revenue": 2148.0,
-      "all_time": 11276.0,
+      "all_time": 11387.0,
       "subscriptions": 0,
       "growth_30d": 0.0,
       "mrr_growth_30d": 0.0,
       "revenue_growth_30d": -37.1,
       "headline": "近 30 天收入 $2,148，TrustMRR 实时核对（非订阅制，MRR 恒 0）",
-      "metric_note": "实测口径：近 30 天已验证收入 $2,148（非订阅制/买断制业务，MRR 恒 0，本条门面口径为近 30 天流水，含一次性与用量收入，别当经常性收入引用；TrustMRR 从支付网关 API 直读，2026-10-28 同步，Shopify (OAuth connection)）。近 30 天收入 $2,148、累计 $11,276、付费订阅 0 户。最近完整月环比 +8.7%（已剔除当月残月）。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 -37.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $3,470 → 最近完整月 $3,470，留存 100%。⚠ 刷新前该条目没有任何收入数字（早期入库时收入未公开），本次首次补齐。",
+      "metric_note": "实测口径：近 30 天已验证收入 $2,148（非订阅制/买断制业务，MRR 恒 0，本条门面口径为近 30 天流水，含一次性与用量收入，别当经常性收入引用；TrustMRR 从支付网关 API 直读，2026-10-31 同步，Shopify (OAuth connection)）。近 30 天收入 $2,148、累计 $11,387、付费订阅 0 户。最近完整月环比 +8.7%（已剔除当月残月）。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 -37.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $3,470 → 最近完整月 $3,470，留存 100%。⚠ 刷新前该条目没有任何收入数字（早期入库时收入未公开），本次首次补齐。",
       "caliber": "last_30d"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Shopify (OAuth connection)），非截图自报。此前该条目在候选池里没有任何收入数字，本次首次补齐。",
-    "data_freshness": "2026-10-28T07:56:33.629Z"
+    "data_freshness": "2026-10-31T07:48:32.318Z"
   },
   {
     "id": "aswati-studio",
@@ -574,22 +574,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-26",
     "metrics": {
-      "mrr": 585.0,
+      "mrr": 575.0,
       "last_30d_revenue": 540.0,
-      "all_time": 2170.0,
-      "subscriptions": 49,
+      "all_time": 2179.0,
+      "subscriptions": 48,
       "growth_30d": 67.3,
       "mrr_growth_30d": 67.3,
       "revenue_growth_30d": -37.1,
-      "headline": "MRR $585，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $585（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Whop (API key)）。近 30 天收入 $540、累计 $2,170、付费订阅 49 户。最近完整月环比 +157.3%（已剔除当月残月）。近 30 天 MRR 增速 +67.3%。⚠ 同期收入增速为 -37.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $777 → 最近完整月 $777，留存 100%。⚠ 队列缓存值是 2026-10-26 采集时的快照（当时 $555），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $575，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $575（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Whop (API key)）。近 30 天收入 $540、累计 $2,179、付费订阅 48 户。最近完整月环比 +157.3%（已剔除当月残月）。近 30 天 MRR 增速 +67.3%。⚠ 同期收入增速为 -37.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $777 → 最近完整月 $777，留存 100%。⚠ 队列缓存值是 2026-10-26 采集时的快照（当时 $555），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Whop (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T12:52:30.217Z"
+    "data_freshness": "2026-11-01T00:50:19.569Z"
   },
   {
     "id": "august",
@@ -618,14 +618,14 @@
       "mrr_growth_30d": null,
       "revenue_growth_30d": 0.0,
       "headline": "MRR $332，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $332（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $0、累计 $0、付费订阅 2 户。月度时间线不足两个月，不给环比结论。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $332），与上述实测不同；本条以实测为准。",
+      "metric_note": "实测口径：MRR $332（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Stripe (API key)）。近 30 天收入 $0、累计 $0、付费订阅 2 户。月度时间线不足两个月，不给环比结论。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $332），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T10:25:58.990Z"
+    "data_freshness": "2026-11-01T04:24:52.504Z"
   },
   {
     "id": "autotube",
@@ -645,22 +645,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 624.0,
+      "mrr": 742.0,
       "last_30d_revenue": 626.0,
-      "all_time": 1818.0,
-      "subscriptions": 22,
+      "all_time": 1924.0,
+      "subscriptions": 24,
       "growth_30d": 21.9,
       "mrr_growth_30d": 21.9,
       "revenue_growth_30d": 26.4,
-      "headline": "MRR $624，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $624（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $626、累计 $1,818、付费订阅 22 户。最近完整月环比 +38.3%（已剔除当月残月）。近 30 天 MRR 增速 +21.9%。⚠ 历史峰值 $509 → 最近完整月 $509，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $483），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $742，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $742（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Stripe (API key)）。近 30 天收入 $626、累计 $1,924、付费订阅 24 户。最近完整月环比 +38.3%（已剔除当月残月）。近 30 天 MRR 增速 +21.9%。⚠ 历史峰值 $509 → 最近完整月 $509，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $483），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T10:31:10.494Z"
+    "data_freshness": "2026-11-01T04:30:04.585Z"
   },
   {
     "id": "babelbot",
@@ -681,22 +681,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 779.0,
+      "mrr": 820.0,
       "last_30d_revenue": 2152.0,
-      "all_time": 6610.0,
-      "subscriptions": 60,
+      "all_time": 6807.0,
+      "subscriptions": 62,
       "growth_30d": 55.5,
       "mrr_growth_30d": 55.5,
       "revenue_growth_30d": 126.9,
-      "headline": "MRR $779，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $779（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Polar (API key), Stripe (API key)）。近 30 天收入 $2,152、累计 $6,610、付费订阅 60 户。最近完整月环比 +59.6%（已剔除当月残月）。近 30 天 MRR 增速 +55.5%。⚠ 同期收入增速为 +126.9%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $1,042 → 最近完整月 $1,042，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $748），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $820，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $820（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Polar (API key), Stripe (API key)）。近 30 天收入 $2,152、累计 $6,807、付费订阅 62 户。最近完整月环比 +59.6%（已剔除当月残月）。近 30 天 MRR 增速 +55.5%。⚠ 同期收入增速为 +126.9%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $1,042 → 最近完整月 $1,042，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $748），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Polar (API key), Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T08:49:11.032Z"
+    "data_freshness": "2026-11-01T02:49:03.712Z"
   },
   {
     "id": "beautyflow",
@@ -715,22 +715,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 441.0,
+      "mrr": 454.0,
       "last_30d_revenue": 486.0,
-      "all_time": 1257.0,
-      "subscriptions": 110,
+      "all_time": 1295.0,
+      "subscriptions": 113,
       "growth_30d": 36.1,
       "mrr_growth_30d": 36.1,
       "revenue_growth_30d": 9.5,
-      "headline": "MRR $441，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $441（TrustMRR 从支付网关 API 直读，2026-10-28 同步，RevenueCat (API key)）。近 30 天收入 $486、累计 $1,257、付费订阅 110 户。最近完整月环比 +33.2%（已剔除当月残月）。近 30 天 MRR 增速 +36.1%。⚠ 同期收入增速为 +9.5%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $449 → 最近完整月 $449，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $428），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $454，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $454（TrustMRR 从支付网关 API 直读，2026-11-01 同步，RevenueCat (API key)）。近 30 天收入 $486、累计 $1,295、付费订阅 113 户。最近完整月环比 +33.2%（已剔除当月残月）。近 30 天 MRR 增速 +36.1%。⚠ 同期收入增速为 +9.5%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $449 → 最近完整月 $449，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $428），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（RevenueCat (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T12:30:47.538Z"
+    "data_freshness": "2026-11-01T00:29:08.781Z"
   },
   {
     "id": "blitzreels",
@@ -752,22 +752,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-23",
     "metrics": {
-      "mrr": 1145.0,
+      "mrr": 1271.0,
       "last_30d_revenue": 1979.0,
-      "all_time": 8419.0,
-      "subscriptions": 36,
+      "all_time": 8584.0,
+      "subscriptions": 39,
       "growth_30d": -0.6,
       "mrr_growth_30d": -0.6,
       "revenue_growth_30d": -24.7,
-      "headline": "MRR $1,145，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $1,145（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $1,979、累计 $8,419、付费订阅 36 户。最近完整月环比 -19.5%（已剔除当月残月）。近 30 天 MRR 增速 -0.6%。⚠ 同期收入增速为 -24.7%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $3,033 → 最近完整月 $2,441，留存 80%。⚠ 队列缓存值是 2026-10-23 采集时的快照（当时 $1,192），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $1,271，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $1,271（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Stripe (API key)）。近 30 天收入 $1,979、累计 $8,584、付费订阅 39 户。最近完整月环比 -19.5%（已剔除当月残月）。近 30 天 MRR 增速 -0.6%。⚠ 同期收入增速为 -24.7%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $3,033 → 最近完整月 $2,441，留存 80%。⚠ 队列缓存值是 2026-10-23 采集时的快照（当时 $1,192），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T08:04:07.752Z"
+    "data_freshness": "2026-11-01T02:04:04.343Z"
   },
   {
     "id": "bobby",
@@ -785,20 +785,20 @@
     "metrics": {
       "mrr": 0.0,
       "last_30d_revenue": 1436.0,
-      "all_time": 1436.0,
+      "all_time": 1666.0,
       "subscriptions": 0,
       "growth_30d": null,
       "mrr_growth_30d": null,
       "revenue_growth_30d": 0.0,
       "headline": "近 30 天收入 $1,436，TrustMRR 实时核对（非订阅制，MRR 恒 0）",
-      "metric_note": "实测口径：近 30 天已验证收入 $1,436（非订阅制/买断制业务，MRR 恒 0，本条门面口径为近 30 天流水，含一次性与用量收入，别当经常性收入引用；TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $1,436、累计 $1,436、付费订阅 0 户。月度时间线不足两个月，不给环比结论。⚠ 刷新前该条目没有任何收入数字（早期入库时收入未公开），本次首次补齐。",
+      "metric_note": "实测口径：近 30 天已验证收入 $1,436（非订阅制/买断制业务，MRR 恒 0，本条门面口径为近 30 天流水，含一次性与用量收入，别当经常性收入引用；TrustMRR 从支付网关 API 直读，2026-11-01 同步，Stripe (API key)）。近 30 天收入 $1,436、累计 $1,666、付费订阅 0 户。月度时间线不足两个月，不给环比结论。⚠ 刷新前该条目没有任何收入数字（早期入库时收入未公开），本次首次补齐。",
       "caliber": "last_30d"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。此前该条目在候选池里没有任何收入数字，本次首次补齐。",
-    "data_freshness": "2026-10-28T12:52:58.844Z"
+    "data_freshness": "2026-11-01T00:50:51.694Z"
   },
   {
     "id": "buma-baby-tracker",
@@ -817,22 +817,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 1139.0,
+      "mrr": 1302.0,
       "last_30d_revenue": 2896.0,
-      "all_time": 4761.0,
-      "subscriptions": 147,
+      "all_time": 5212.0,
+      "subscriptions": 157,
       "growth_30d": 57.2,
       "mrr_growth_30d": 57.2,
       "revenue_growth_30d": 56.6,
-      "headline": "MRR $1,139，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $1,139（TrustMRR 从支付网关 API 直读，2026-10-28 同步，RevenueCat (API key)）。近 30 天收入 $2,896、累计 $4,761、付费订阅 147 户。最近完整月环比 +5397.8%（已剔除当月残月）。近 30 天 MRR 增速 +57.2%。⚠ 历史峰值 $2,021 → 最近完整月 $2,021，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $1,307），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $1,302，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $1,302（TrustMRR 从支付网关 API 直读，2026-11-01 同步，RevenueCat (API key)）。近 30 天收入 $2,896、累计 $5,212、付费订阅 157 户。最近完整月环比 +5397.8%（已剔除当月残月）。近 30 天 MRR 增速 +57.2%。⚠ 历史峰值 $2,021 → 最近完整月 $2,021，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $1,307），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（RevenueCat (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T11:30:09.116Z"
+    "data_freshness": "2026-11-01T05:28:31.745Z"
   },
   {
     "id": "codowave",
@@ -861,14 +861,14 @@
       "mrr_growth_30d": null,
       "revenue_growth_30d": 0.0,
       "headline": "MRR $498，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $498（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $0、累计 $0、付费订阅 3 户。月度时间线不足两个月，不给环比结论。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $498），与上述实测不同；本条以实测为准。",
+      "metric_note": "实测口径：MRR $498（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Stripe (API key)）。近 30 天收入 $0、累计 $0、付费订阅 3 户。月度时间线不足两个月，不给环比结论。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $498），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T10:27:31.174Z"
+    "data_freshness": "2026-11-01T04:26:53.278Z"
   },
   {
     "id": "coloring-book",
@@ -888,22 +888,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 497.0,
+      "mrr": 470.0,
       "last_30d_revenue": 560.0,
-      "all_time": 6438.0,
+      "all_time": 6456.0,
       "subscriptions": 0,
       "growth_30d": 0.0,
       "mrr_growth_30d": 0.0,
       "revenue_growth_30d": 22.1,
-      "headline": "MRR $497，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $497（TrustMRR 从支付网关 API 直读，2026-10-28 同步，RevenueCat (API key)）。近 30 天收入 $560、累计 $6,438、付费订阅 0 户。最近完整月环比 -3.1%（已剔除当月残月）。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 +22.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $796 → 最近完整月 $473，留存 59%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $472），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $470，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $470（TrustMRR 从支付网关 API 直读，2026-11-01 同步，RevenueCat (API key)）。近 30 天收入 $560、累计 $6,456、付费订阅 0 户。最近完整月环比 -3.1%（已剔除当月残月）。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 +22.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $796 → 最近完整月 $473，留存 59%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $472），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（RevenueCat (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T08:48:39.155Z"
+    "data_freshness": "2026-11-01T02:48:02.765Z"
   },
   {
     "id": "comic-translator",
@@ -958,22 +958,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 357.0,
+      "mrr": 341.0,
       "last_30d_revenue": 472.0,
-      "all_time": 2683.0,
-      "subscriptions": 28,
+      "all_time": 2698.0,
+      "subscriptions": 27,
       "growth_30d": 6.7,
       "mrr_growth_30d": 6.7,
       "revenue_growth_30d": 4.9,
-      "headline": "MRR $357，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $357（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $472、累计 $2,683、付费订阅 28 户。最近完整月环比 +58.6%（已剔除当月残月）。近 30 天 MRR 增速 +6.7%。⚠ 历史峰值 $609 → 最近完整月 $482，留存 79%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $333），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $341，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $341（TrustMRR 从支付网关 API 直读，2026-10-27 同步，Stripe (API key)）。近 30 天收入 $472、累计 $2,698、付费订阅 27 户。最近完整月环比 +58.6%（已剔除当月残月）。近 30 天 MRR 增速 +6.7%。⚠ 历史峰值 $609 → 最近完整月 $482，留存 79%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $333），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T09:04:42.268Z"
+    "data_freshness": "2026-11-01T03:04:10.384Z"
   },
   {
     "id": "conecta-fitness",
@@ -994,22 +994,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 710.0,
+      "mrr": 680.0,
       "last_30d_revenue": 757.0,
-      "all_time": 5468.0,
-      "subscriptions": 76,
+      "all_time": 5569.0,
+      "subscriptions": 74,
       "growth_30d": -24.3,
       "mrr_growth_30d": -24.3,
       "revenue_growth_30d": -19.8,
-      "headline": "MRR $710，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $710（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $757、累计 $5,468、付费订阅 76 户。最近完整月环比 +15.4%（已剔除当月残月）。近 30 天 MRR 增速 -24.3%。⚠ 历史峰值 $973 → 最近完整月 $973，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $816），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $680，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $680（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Stripe (API key)）。近 30 天收入 $757、累计 $5,569、付费订阅 74 户。最近完整月环比 +15.4%（已剔除当月残月）。近 30 天 MRR 增速 -24.3%。⚠ 历史峰值 $973 → 最近完整月 $973，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $816），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T10:34:21.230Z"
+    "data_freshness": "2026-11-01T04:33:10.508Z"
   },
   {
     "id": "connor-cedro-seo-tampa-seo-consultant",
@@ -1032,20 +1032,20 @@
     "metrics": {
       "mrr": 6196.0,
       "last_30d_revenue": 5930.0,
-      "all_time": 44264.0,
+      "all_time": 48256.0,
       "subscriptions": 10,
       "growth_30d": 8.5,
       "mrr_growth_30d": 8.5,
       "revenue_growth_30d": 12.4,
       "headline": "MRR $6,196，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $6,196（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $5,930、累计 $44,264、付费订阅 10 户。最近完整月环比 +1.9%（已剔除当月残月）。近 30 天 MRR 增速 +8.5%。⚠ 历史峰值 $5,377 → 最近完整月 $5,377，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $5,763），与上述实测不同；本条以实测为准。",
+      "metric_note": "实测口径：MRR $6,196（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Stripe (API key)）。近 30 天收入 $5,930、累计 $48,256、付费订阅 10 户。最近完整月环比 +1.9%（已剔除当月残月）。近 30 天 MRR 增速 +8.5%。⚠ 历史峰值 $5,377 → 最近完整月 $5,377，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $5,763），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T10:05:48.594Z"
+    "data_freshness": "2026-11-01T04:05:12.601Z"
   },
   {
     "id": "contextbolt",
@@ -1066,22 +1066,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 894.0,
+      "mrr": 847.0,
       "last_30d_revenue": 910.0,
-      "all_time": 3399.0,
-      "subscriptions": 62,
+      "all_time": 3502.0,
+      "subscriptions": 59,
       "growth_30d": 20.5,
       "mrr_growth_30d": 20.5,
       "revenue_growth_30d": 23.2,
-      "headline": "MRR $894，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $894（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Lemon Squeezy (API key)）。近 30 天收入 $910、累计 $3,399、付费订阅 62 户。最近完整月环比 +43.6%（已剔除当月残月）。近 30 天 MRR 增速 +20.5%。⚠ 历史峰值 $853 → 最近完整月 $853，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $900），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $847，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $847（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Lemon Squeezy (API key)）。近 30 天收入 $910、累计 $3,502、付费订阅 59 户。最近完整月环比 +43.6%（已剔除当月残月）。近 30 天 MRR 增速 +20.5%。⚠ 历史峰值 $853 → 最近完整月 $853，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $900），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Lemon Squeezy (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T10:31:10.186Z"
+    "data_freshness": "2026-11-01T04:30:04.561Z"
   },
   {
     "id": "controlresell",
@@ -1103,22 +1103,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 21681.0,
+      "mrr": 21829.0,
       "last_30d_revenue": 25443.0,
-      "all_time": 164864.0,
-      "subscriptions": 450,
+      "all_time": 167823.0,
+      "subscriptions": 449,
       "growth_30d": -0.6,
       "mrr_growth_30d": -0.6,
       "revenue_growth_30d": 7.1,
-      "headline": "MRR $21,681，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $21,681（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $25,443、累计 $164,864、付费订阅 450 户。最近完整月环比 +1.2%（已剔除当月残月）。近 30 天 MRR 增速 -0.6%。⚠ 同期收入增速为 +7.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $24,706 → 最近完整月 $24,706，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $21,904），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $21,829，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $21,829（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Stripe (API key)）。近 30 天收入 $25,443、累计 $167,823、付费订阅 449 户。最近完整月环比 +1.2%（已剔除当月残月）。近 30 天 MRR 增速 -0.6%。⚠ 同期收入增速为 +7.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $24,706 → 最近完整月 $24,706，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $21,904），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T14:05:08.060Z"
+    "data_freshness": "2026-11-01T02:05:05.103Z"
   },
   {
     "id": "convertlabs",
@@ -1140,22 +1140,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 28776.0,
+      "mrr": 28185.0,
       "last_30d_revenue": 28154.0,
-      "all_time": 2242430.0,
-      "subscriptions": 474,
+      "all_time": 2245313.0,
+      "subscriptions": 471,
       "growth_30d": 7.4,
       "mrr_growth_30d": 7.4,
       "revenue_growth_30d": -2.6,
-      "headline": "MRR $28,776，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $28,776（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $28,154、累计 $2,242,430、付费订阅 474 户。最近完整月环比 -5.4%（已剔除当月残月）。近 30 天 MRR 增速 +7.4%。⚠ 同期收入增速为 -2.6%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $35,645 → 最近完整月 $30,944，留存 87%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $28,116），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $28,185，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $28,185（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Stripe (API key)）。近 30 天收入 $28,154、累计 $2,245,313、付费订阅 471 户。最近完整月环比 -5.4%（已剔除当月残月）。近 30 天 MRR 增速 +7.4%。⚠ 同期收入增速为 -2.6%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $35,645 → 最近完整月 $30,944，留存 87%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $28,116），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T08:08:18.157Z"
+    "data_freshness": "2026-11-01T02:08:14.447Z"
   },
   {
     "id": "convitede",
@@ -1175,22 +1175,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 1158.0,
+      "mrr": 1133.0,
       "last_30d_revenue": 1876.0,
-      "all_time": 18419.0,
-      "subscriptions": 375,
+      "all_time": 18601.0,
+      "subscriptions": 371,
       "growth_30d": -7.7,
       "mrr_growth_30d": -7.7,
       "revenue_growth_30d": -13.2,
-      "headline": "MRR $1,158，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $1,158（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $1,876、累计 $18,419、付费订阅 375 户。最近完整月环比 +6.3%（已剔除当月残月）。近 30 天 MRR 增速 -7.7%。⚠ 同期收入增速为 -13.2%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $2,172 → 最近完整月 $2,172，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $1,199），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $1,133，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $1,133（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Stripe (API key)）。近 30 天收入 $1,876、累计 $18,601、付费订阅 371 户。最近完整月环比 +6.3%（已剔除当月残月）。近 30 天 MRR 增速 -7.7%。⚠ 同期收入增速为 -13.2%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $2,172 → 最近完整月 $2,172，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $1,199），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T10:21:53.601Z"
+    "data_freshness": "2026-11-01T04:21:16.331Z"
   },
   {
     "id": "cramberry",
@@ -1211,22 +1211,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 917.0,
+      "mrr": 874.0,
       "last_30d_revenue": 1029.0,
-      "all_time": 4680.0,
-      "subscriptions": 63,
+      "all_time": 4747.0,
+      "subscriptions": 61,
       "growth_30d": 52.6,
       "mrr_growth_30d": 52.6,
       "revenue_growth_30d": 80.7,
-      "headline": "MRR $917，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $917（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $1,029、累计 $4,680、付费订阅 63 户。最近完整月环比 +57.6%（已剔除当月残月）。近 30 天 MRR 增速 +52.6%。⚠ 同期收入增速为 +80.7%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $547 → 最近完整月 $547，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $938），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $874，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $874（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Stripe (API key)）。近 30 天收入 $1,029、累计 $4,747、付费订阅 61 户。最近完整月环比 +57.6%（已剔除当月残月）。近 30 天 MRR 增速 +52.6%。⚠ 同期收入增速为 +80.7%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $547 → 最近完整月 $547，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $938），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T10:07:55.350Z"
+    "data_freshness": "2026-11-01T04:07:16.713Z"
   },
   {
     "id": "crawlbyte",
@@ -1249,20 +1249,20 @@
     "metrics": {
       "mrr": 1246.0,
       "last_30d_revenue": 6746.0,
-      "all_time": 91127.0,
+      "all_time": 91627.0,
       "subscriptions": 4,
       "growth_30d": 0.0,
       "mrr_growth_30d": 0.0,
       "revenue_growth_30d": -6.9,
       "headline": "MRR $1,246，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $1,246（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $6,746、累计 $91,127、付费订阅 4 户。最近完整月环比 -6.6%（已剔除当月残月）。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 -6.9%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $11,281 → 最近完整月 $7,246，留存 64%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $1,246），与上述实测不同；本条以实测为准。",
+      "metric_note": "实测口径：MRR $1,246（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Stripe (API key)）。近 30 天收入 $6,746、累计 $91,627、付费订阅 4 户。最近完整月环比 -6.6%（已剔除当月残月）。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 -6.9%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $11,281 → 最近完整月 $7,246，留存 64%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $1,246），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T08:13:57.557Z"
+    "data_freshness": "2026-11-01T02:13:52.788Z"
   },
   {
     "id": "creads",
@@ -1283,22 +1283,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 591.0,
+      "mrr": 574.0,
       "last_30d_revenue": 651.0,
-      "all_time": 4931.0,
+      "all_time": 4954.0,
       "subscriptions": 17,
       "growth_30d": -13.9,
       "mrr_growth_30d": -13.9,
       "revenue_growth_30d": -12.0,
-      "headline": "MRR $591，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $591（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $651、累计 $4,931、付费订阅 17 户。最近完整月环比 +47.4%（已剔除当月残月）。近 30 天 MRR 增速 -13.9%。⚠ 历史峰值 $1,047 → 最近完整月 $784，留存 75%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $534），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $574，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $574（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Stripe (API key)）。近 30 天收入 $651、累计 $4,954、付费订阅 17 户。最近完整月环比 +47.4%（已剔除当月残月）。近 30 天 MRR 增速 -13.9%。⚠ 历史峰值 $1,047 → 最近完整月 $784，留存 75%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $534），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T09:56:59.970Z"
+    "data_freshness": "2026-11-01T03:56:23.058Z"
   },
   {
     "id": "creativeclaw",
@@ -1320,22 +1320,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 11590.0,
+      "mrr": 12240.0,
       "last_30d_revenue": 104322.0,
-      "all_time": 199634.0,
-      "subscriptions": 220,
+      "all_time": 213953.0,
+      "subscriptions": 232,
       "growth_30d": 24.6,
       "mrr_growth_30d": 24.6,
       "revenue_growth_30d": 21.1,
-      "headline": "MRR $11,590，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $11,590（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Polar (API key)）。近 30 天收入 $104,322、累计 $199,634、付费订阅 220 户。最近完整月环比 +1668.1%（已剔除当月残月）。近 30 天 MRR 增速 +24.6%。⚠ 历史峰值 $92,894 → 最近完整月 $92,894，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $10,390），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $12,240，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $12,240（TrustMRR 从支付网关 API 直读，2026-10-31 同步，Polar (API key)）。近 30 天收入 $104,322、累计 $213,953、付费订阅 232 户。最近完整月环比 +1668.1%（已剔除当月残月）。近 30 天 MRR 增速 +24.6%。⚠ 历史峰值 $92,894 → 最近完整月 $92,894，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $10,390），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Polar (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T05:44:35.629Z"
+    "data_freshness": "2026-10-31T23:43:02.719Z"
   },
   {
     "id": "deeplead-io",
@@ -1390,22 +1390,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-26",
     "metrics": {
-      "mrr": 831.0,
+      "mrr": 768.0,
       "last_30d_revenue": 882.0,
-      "all_time": 955.0,
-      "subscriptions": 28,
+      "all_time": 1142.0,
+      "subscriptions": 29,
       "growth_30d": 1284.9,
       "mrr_growth_30d": 1284.9,
       "revenue_growth_30d": 1108.3,
-      "headline": "MRR $831，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $831（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $882、累计 $955、付费订阅 28 户。月度时间线不足两个月，不给环比结论。近 30 天 MRR 增速 +1284.9%。⚠ 同期收入增速为 +1108.3%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 队列缓存值是 2026-10-26 采集时的快照（当时 $651），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $768，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $768（TrustMRR 从支付网关 API 直读，2026-10-29 同步，Stripe (API key)）。近 30 天收入 $882、累计 $1,142、付费订阅 29 户。月度时间线不足两个月，不给环比结论。近 30 天 MRR 增速 +1284.9%。⚠ 同期收入增速为 +1108.3%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 队列缓存值是 2026-10-26 采集时的快照（当时 $651），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T12:53:04.250Z"
+    "data_freshness": "2026-11-01T00:50:52.331Z"
   },
   {
     "id": "dropapost",
@@ -1426,22 +1426,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-23",
     "metrics": {
-      "mrr": 1052.0,
+      "mrr": 1103.0,
       "last_30d_revenue": 1012.0,
-      "all_time": 5008.0,
-      "subscriptions": 35,
+      "all_time": 5260.0,
+      "subscriptions": 36,
       "growth_30d": 12.1,
       "mrr_growth_30d": 12.1,
       "revenue_growth_30d": 19.8,
-      "headline": "MRR $1,052，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $1,052（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $1,012、累计 $5,008、付费订阅 35 户。最近完整月环比 +13.3%（已剔除当月残月）。近 30 天 MRR 增速 +12.1%。⚠ 同期收入增速为 +19.8%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $977 → 最近完整月 $977，留存 100%。⚠ 队列缓存值是 2026-10-23 采集时的快照（当时 $1,014），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $1,103，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $1,103（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Stripe (API key)）。近 30 天收入 $1,012、累计 $5,260、付费订阅 36 户。最近完整月环比 +13.3%（已剔除当月残月）。近 30 天 MRR 增速 +12.1%。⚠ 同期收入增速为 +19.8%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $977 → 最近完整月 $977，留存 100%。⚠ 队列缓存值是 2026-10-23 采集时的快照（当时 $1,014），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T08:40:26.027Z"
+    "data_freshness": "2026-11-01T02:40:18.961Z"
   },
   {
     "id": "elmo",
@@ -1462,22 +1462,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 5349.0,
+      "mrr": 5547.0,
       "last_30d_revenue": 5676.0,
-      "all_time": 69176.0,
-      "subscriptions": 17,
+      "all_time": 69601.0,
+      "subscriptions": 19,
       "growth_30d": 16.7,
       "mrr_growth_30d": 16.7,
       "revenue_growth_30d": 8.6,
-      "headline": "MRR $5,349，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $5,349（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $5,676、累计 $69,176、付费订阅 17 户。最近完整月环比 -3.4%（已剔除当月残月）。近 30 天 MRR 增速 +16.7%。⚠ 同期收入增速为 +8.6%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $5,944 → 最近完整月 $5,743，留存 97%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $5,279），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $5,547，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $5,547（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Stripe (API key)）。近 30 天收入 $5,676、累计 $69,601、付费订阅 19 户。最近完整月环比 -3.4%（已剔除当月残月）。近 30 天 MRR 增速 +16.7%。⚠ 同期收入增速为 +8.6%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $5,944 → 最近完整月 $5,743，留存 97%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $5,279），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T08:32:04.330Z"
+    "data_freshness": "2026-11-01T02:32:03.713Z"
   },
   {
     "id": "esim-panel",
@@ -1568,22 +1568,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 8213.0,
+      "mrr": 8214.0,
       "last_30d_revenue": 7991.0,
-      "all_time": 36304.0,
-      "subscriptions": 100,
+      "all_time": 37258.0,
+      "subscriptions": 99,
       "growth_30d": 27.8,
       "mrr_growth_30d": 27.8,
       "revenue_growth_30d": 38.7,
-      "headline": "MRR $8,213，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $8,213（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $7,991、累计 $36,304、付费订阅 100 户。最近完整月环比 +23.0%（已剔除当月残月）。近 30 天 MRR 增速 +27.8%。⚠ 同期收入增速为 +38.7%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $6,403 → 最近完整月 $6,403，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $7,916），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $8,214，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $8,214（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Stripe (API key)）。近 30 天收入 $7,991、累计 $37,258、付费订阅 99 户。最近完整月环比 +23.0%（已剔除当月残月）。近 30 天 MRR 增速 +27.8%。⚠ 同期收入增速为 +38.7%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $6,403 → 最近完整月 $6,403，留存 99%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $7,916），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T11:06:55.279Z"
+    "data_freshness": "2026-11-01T05:05:48.215Z"
   },
   {
     "id": "garagelab",
@@ -1604,22 +1604,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 2039.0,
+      "mrr": 4251.0,
       "last_30d_revenue": 2193.0,
-      "all_time": 9508.0,
-      "subscriptions": 52,
+      "all_time": 10478.0,
+      "subscriptions": 107,
       "growth_30d": 20.6,
       "mrr_growth_30d": 20.6,
       "revenue_growth_30d": 9.5,
-      "headline": "MRR $2,039，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $2,039（TrustMRR 从支付网关 API 直读，2026-10-28 同步，RevenueCat (API key)）。近 30 天收入 $2,193、累计 $9,508、付费订阅 52 户。最近完整月环比 -3.1%（已剔除当月残月）。近 30 天 MRR 增速 +20.6%。⚠ 同期收入增速为 +9.5%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $2,054 → 最近完整月 $1,991，留存 97%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $2,004），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $4,251，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $4,251（TrustMRR 从支付网关 API 直读，2026-11-01 同步，RevenueCat (API key)）。近 30 天收入 $2,193、累计 $10,478、付费订阅 107 户。最近完整月环比 -3.1%（已剔除当月残月）。近 30 天 MRR 增速 +20.6%。⚠ 同期收入增速为 +9.5%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $2,054 → 最近完整月 $1,991，留存 97%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $2,004），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（RevenueCat (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T10:36:25.822Z"
+    "data_freshness": "2026-11-01T04:35:13.660Z"
   },
   {
     "id": "ihatepdf-cv",
@@ -1642,20 +1642,20 @@
     "metrics": {
       "mrr": 1194.0,
       "last_30d_revenue": 1308.0,
-      "all_time": 1340.0,
+      "all_time": 1341.0,
       "subscriptions": 6,
       "growth_30d": 0.0,
       "mrr_growth_30d": 0.0,
       "revenue_growth_30d": 3902.2,
       "headline": "MRR $1,194，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $1,194（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Dodo Payments (API key)）。近 30 天收入 $1,308、累计 $1,340、付费订阅 6 户。最近完整月环比 +1170.0%（已剔除当月残月）。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 +3902.2%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $31 → 最近完整月 $31，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $895），与上述实测不同；本条以实测为准。",
+      "metric_note": "实测口径：MRR $1,194（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Dodo Payments (API key)）。近 30 天收入 $1,308、累计 $1,341、付费订阅 6 户。最近完整月环比 +1170.0%（已剔除当月残月）。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 +3902.2%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $31 → 最近完整月 $31，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $895），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Dodo Payments (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T12:29:13.935Z"
+    "data_freshness": "2026-11-01T06:27:29.962Z"
   },
   {
     "id": "jarvis-bet",
@@ -1675,22 +1675,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 1166.0,
+      "mrr": 1132.0,
       "last_30d_revenue": 1120.0,
-      "all_time": 11754.0,
-      "subscriptions": 69,
+      "all_time": 11898.0,
+      "subscriptions": 66,
       "growth_30d": -49.5,
       "mrr_growth_30d": -49.5,
       "revenue_growth_30d": -55.1,
-      "headline": "MRR $1,166，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $1,166（TrustMRR 从支付网关 API 直读，2026-10-28 同步，RevenueCat (API key)）。近 30 天收入 $1,120、累计 $11,754、付费订阅 69 户。最近完整月环比 +11.3%（已剔除当月残月）。近 30 天 MRR 增速 -49.5%。⚠ 同期收入增速为 -55.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $2,549 → 最近完整月 $2,481，留存 97%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $1,163），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $1,132，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $1,132（TrustMRR 从支付网关 API 直读，2026-11-01 同步，RevenueCat (API key)）。近 30 天收入 $1,120、累计 $11,898、付费订阅 66 户。最近完整月环比 +11.3%（已剔除当月残月）。近 30 天 MRR 增速 -49.5%。⚠ 同期收入增速为 -55.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $2,549 → 最近完整月 $2,481，留存 97%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $1,163），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（RevenueCat (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T12:28:41.435Z"
+    "data_freshness": "2026-11-01T06:27:00.695Z"
   },
   {
     "id": "leadmetrics",
@@ -1710,22 +1710,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 5170.0,
+      "mrr": 5186.0,
       "last_30d_revenue": 5021.0,
-      "all_time": 96750.0,
+      "all_time": 97160.0,
       "subscriptions": 33,
       "growth_30d": -1.5,
       "mrr_growth_30d": -1.5,
       "revenue_growth_30d": -2.2,
-      "headline": "MRR $5,170，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $5,170（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $5,021、累计 $96,750、付费订阅 33 户。最近完整月环比 -10.5%（已剔除当月残月）。近 30 天 MRR 增速 -1.5%。⚠ 历史峰值 $12,719 → 最近完整月 $5,132，留存 40%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $5,491），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $5,186，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $5,186（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Stripe (API key)）。近 30 天收入 $5,021、累计 $97,160、付费订阅 33 户。最近完整月环比 -10.5%（已剔除当月残月）。近 30 天 MRR 增速 -1.5%。⚠ 历史峰值 $12,719 → 最近完整月 $5,132，留存 40%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $5,491），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T12:31:16.564Z"
+    "data_freshness": "2026-11-01T06:29:37.651Z"
   },
   {
     "id": "lunarbuild",
@@ -1746,22 +1746,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 6031.0,
+      "mrr": 3864.0,
       "last_30d_revenue": 11632.0,
-      "all_time": 223792.0,
-      "subscriptions": 8,
+      "all_time": 224041.0,
+      "subscriptions": 7,
       "growth_30d": 14.2,
       "mrr_growth_30d": 14.2,
       "revenue_growth_30d": -11.0,
-      "headline": "MRR $6,031，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $6,031（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $11,632、累计 $223,792、付费订阅 8 户。最近完整月环比 +27.0%（已剔除当月残月）。近 30 天 MRR 增速 +14.2%。⚠ 同期收入增速为 -11.0%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $20,985 → 最近完整月 $12,815，留存 61%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $5,531），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $3,864，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $3,864（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Stripe (API key)）。近 30 天收入 $11,632、累计 $224,041、付费订阅 7 户。最近完整月环比 +27.0%（已剔除当月残月）。近 30 天 MRR 增速 +14.2%。⚠ 同期收入增速为 -11.0%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $20,985 → 最近完整月 $12,815，留存 61%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $5,531），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T12:27:39.538Z"
+    "data_freshness": "2026-11-01T06:25:59.014Z"
   },
   {
     "id": "mausbot",
@@ -1779,22 +1779,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-26",
     "metrics": {
-      "mrr": 7140.0,
+      "mrr": 7435.0,
       "last_30d_revenue": 5518.0,
-      "all_time": 5719.0,
-      "subscriptions": 125,
+      "all_time": 6360.0,
+      "subscriptions": 112,
       "growth_30d": 0.0,
       "mrr_growth_30d": 0.0,
       "revenue_growth_30d": 2642.1,
-      "headline": "MRR $7,140，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $7,140（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Dodo Payments (API key)）。近 30 天收入 $5,518、累计 $5,719、付费订阅 125 户。月度时间线不足两个月，不给环比结论。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 +2642.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 队列缓存值是 2026-10-26 采集时的快照（当时 $7,559），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $7,435，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $7,435（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Dodo Payments (API key)）。近 30 天收入 $5,518、累计 $6,360、付费订阅 112 户。月度时间线不足两个月，不给环比结论。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 +2642.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 队列缓存值是 2026-10-26 采集时的快照（当时 $7,559），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Dodo Payments (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T12:27:43.230Z"
+    "data_freshness": "2026-11-01T06:26:02.308Z"
   },
   {
     "id": "mind-reach",
@@ -1813,22 +1813,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 2131.0,
+      "mrr": 2126.0,
       "last_30d_revenue": 1783.0,
-      "all_time": 77561.0,
-      "subscriptions": 211,
+      "all_time": 77782.0,
+      "subscriptions": 210,
       "growth_30d": -1.5,
       "mrr_growth_30d": -1.5,
       "revenue_growth_30d": -18.3,
-      "headline": "MRR $2,131，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $2,131（TrustMRR 从支付网关 API 直读，2026-10-28 同步，RevenueCat (API key)）。近 30 天收入 $1,783、累计 $77,561、付费订阅 211 户。最近完整月环比 -12.9%（已剔除当月残月）。近 30 天 MRR 增速 -1.5%。⚠ 同期收入增速为 -18.3%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $3,183 → 最近完整月 $2,103，留存 66%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $2,121），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $2,126，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $2,126（TrustMRR 从支付网关 API 直读，2026-11-01 同步，RevenueCat (API key)）。近 30 天收入 $1,783、累计 $77,782、付费订阅 210 户。最近完整月环比 -12.9%（已剔除当月残月）。近 30 天 MRR 增速 -1.5%。⚠ 同期收入增速为 -18.3%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $3,183 → 最近完整月 $2,103，留存 66%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $2,121），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（RevenueCat (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T12:33:20.225Z"
+    "data_freshness": "2026-11-01T06:31:38.289Z"
   },
   {
     "id": "picoo",
@@ -1849,22 +1849,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 504.0,
+      "mrr": 486.0,
       "last_30d_revenue": 2121.0,
-      "all_time": 3961.0,
-      "subscriptions": 28,
+      "all_time": 3980.0,
+      "subscriptions": 27,
       "growth_30d": -2.4,
       "mrr_growth_30d": -2.4,
       "revenue_growth_30d": 175.9,
-      "headline": "MRR $504，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $504（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Dodo Payments (API key)）。近 30 天收入 $2,121、累计 $3,961、付费订阅 28 户。最近完整月环比 +74.5%（已剔除当月残月）。近 30 天 MRR 增速 -2.4%。⚠ 同期收入增速为 +175.9%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $939 → 最近完整月 $939，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $486），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $486，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $486（TrustMRR 从支付网关 API 直读，2026-10-27 同步，Dodo Payments (API key)）。近 30 天收入 $2,121、累计 $3,980、付费订阅 27 户。最近完整月环比 +74.5%（已剔除当月残月）。近 30 天 MRR 增速 -2.4%。⚠ 同期收入增速为 +175.9%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $939 → 最近完整月 $939，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $486），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Dodo Payments (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T12:34:52.480Z"
+    "data_freshness": "2026-11-01T06:33:14.028Z"
   },
   {
     "id": "polyalerthub",
@@ -1885,22 +1885,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 906.0,
+      "mrr": 941.0,
       "last_30d_revenue": 904.0,
-      "all_time": 13495.0,
-      "subscriptions": 51,
+      "all_time": 13601.0,
+      "subscriptions": 52,
       "growth_30d": 4.6,
       "mrr_growth_30d": 4.6,
       "revenue_growth_30d": 3.3,
-      "headline": "MRR $906，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $906（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $904、累计 $13,495、付费订阅 51 户。最近完整月环比 -11.5%（已剔除当月残月）。近 30 天 MRR 增速 +4.6%。⚠ 历史峰值 $1,364 → 最近完整月 $875，留存 64%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $891），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $941，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $941（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Stripe (API key)）。近 30 天收入 $904、累计 $13,601、付费订阅 52 户。最近完整月环比 -11.5%（已剔除当月残月）。近 30 天 MRR 增速 +4.6%。⚠ 历史峰值 $1,364 → 最近完整月 $875，留存 64%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $891），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T12:39:34.706Z"
+    "data_freshness": "2026-11-01T06:37:25.006Z"
   },
   {
     "id": "rareui",
@@ -1919,22 +1919,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 650.0,
+      "mrr": 500.0,
       "last_30d_revenue": 681.0,
       "all_time": 1108.0,
-      "subscriptions": 3,
+      "subscriptions": 2,
       "growth_30d": 62.5,
       "mrr_growth_30d": 62.5,
       "revenue_growth_30d": 59.3,
-      "headline": "MRR $650，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $650（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Dodo Payments (API key)）。近 30 天收入 $681、累计 $1,108、付费订阅 3 户。月度时间线不足两个月，不给环比结论。近 30 天 MRR 增速 +62.5%。⚠ 历史峰值 $427 → 最近完整月 $427，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $650），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $500，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $500（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Dodo Payments (API key)）。近 30 天收入 $681、累计 $1,108、付费订阅 2 户。月度时间线不足两个月，不给环比结论。近 30 天 MRR 增速 +62.5%。⚠ 历史峰值 $427 → 最近完整月 $427，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $650），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Dodo Payments (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T12:36:29.137Z"
+    "data_freshness": "2026-11-01T06:34:46.634Z"
   },
   {
     "id": "sbc-crafter",
@@ -1955,22 +1955,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 369.0,
+      "mrr": 367.0,
       "last_30d_revenue": 395.0,
-      "all_time": 701.0,
-      "subscriptions": 111,
+      "all_time": 761.0,
+      "subscriptions": 110,
       "growth_30d": 22.4,
       "mrr_growth_30d": 22.4,
       "revenue_growth_30d": 29.2,
-      "headline": "MRR $369，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $369（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $395、累计 $701、付费订阅 111 户。最近完整月环比 +10616.4%（已剔除当月残月）。近 30 天 MRR 增速 +22.4%。⚠ 同期收入增速为 +29.2%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $359 → 最近完整月 $359，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $482），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $367，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $367（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Stripe (API key)）。近 30 天收入 $395、累计 $761、付费订阅 110 户。最近完整月环比 +10616.4%（已剔除当月残月）。近 30 天 MRR 增速 +22.4%。⚠ 同期收入增速为 +29.2%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $359 → 最近完整月 $359，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $482），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T12:34:23.208Z"
+    "data_freshness": "2026-11-01T06:32:13.783Z"
   },
   {
     "id": "social-post-flow",
@@ -1992,22 +1992,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-23",
     "metrics": {
-      "mrr": 663.0,
+      "mrr": 676.0,
       "last_30d_revenue": 689.0,
-      "all_time": 8743.0,
-      "subscriptions": 139,
+      "all_time": 8924.0,
+      "subscriptions": 142,
       "growth_30d": 0.0,
       "mrr_growth_30d": 0.0,
       "revenue_growth_30d": -13.0,
-      "headline": "MRR $663，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $663（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $689、累计 $8,743、付费订阅 139 户。最近完整月环比 +30.1%（已剔除当月残月）。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 -13.0%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $1,029 → 最近完整月 $834，留存 81%。⚠ 队列缓存值是 2026-10-23 采集时的快照（当时 $659），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $676，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $676（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Stripe (API key)）。近 30 天收入 $689、累计 $8,924、付费订阅 142 户。最近完整月环比 +30.1%（已剔除当月残月）。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 -13.0%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $1,029 → 最近完整月 $834，留存 81%。⚠ 队列缓存值是 2026-10-23 采集时的快照（当时 $659），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T12:34:26.994Z"
+    "data_freshness": "2026-11-01T06:32:40.367Z"
   },
   {
     "id": "sprinta-ai",
@@ -2028,22 +2028,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-23",
     "metrics": {
-      "mrr": 5264.0,
+      "mrr": 5273.0,
       "last_30d_revenue": 7216.0,
-      "all_time": 53346.0,
+      "all_time": 53766.0,
       "subscriptions": 54,
       "growth_30d": -16.2,
       "mrr_growth_30d": -16.2,
       "revenue_growth_30d": 22.7,
-      "headline": "MRR $5,264，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $5,264（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $7,216、累计 $53,346、付费订阅 54 户。最近完整月环比 -4.6%（已剔除当月残月）。近 30 天 MRR 增速 -16.2%。⚠ 同期收入增速为 +22.7%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $7,413 → 最近完整月 $5,991，留存 81%。⚠ 队列缓存值是 2026-10-23 采集时的快照（当时 $5,524），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $5,273，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $5,273（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Stripe (API key)）。近 30 天收入 $7,216、累计 $53,766、付费订阅 54 户。最近完整月环比 -4.6%（已剔除当月残月）。近 30 天 MRR 增速 -16.2%。⚠ 同期收入增速为 +22.7%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $7,413 → 最近完整月 $5,991，留存 81%。⚠ 队列缓存值是 2026-10-23 采集时的快照（当时 $5,524），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T10:01:41.697Z"
+    "data_freshness": "2026-11-01T04:01:06.795Z"
   },
   {
     "id": "stivio",
@@ -2065,20 +2065,20 @@
     "metrics": {
       "mrr": 0.0,
       "last_30d_revenue": 500.0,
-      "all_time": 519.0,
+      "all_time": 789.0,
       "subscriptions": 0,
       "growth_30d": 0.0,
       "mrr_growth_30d": 0.0,
       "revenue_growth_30d": 0.0,
       "headline": "近 30 天收入 $500，TrustMRR 实时核对（非订阅制，MRR 恒 0）",
-      "metric_note": "实测口径：近 30 天已验证收入 $500（非订阅制/买断制业务，MRR 恒 0，本条门面口径为近 30 天流水，含一次性与用量收入，别当经常性收入引用；TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $500、累计 $519、付费订阅 0 户。月度时间线不足两个月，不给环比结论。近 30 天 MRR 增速 +0.0%。⚠ 刷新前该条目没有任何收入数字（早期入库时收入未公开），本次首次补齐。",
+      "metric_note": "实测口径：近 30 天已验证收入 $500（非订阅制/买断制业务，MRR 恒 0，本条门面口径为近 30 天流水，含一次性与用量收入，别当经常性收入引用；TrustMRR 从支付网关 API 直读，2026-11-01 同步，Stripe (API key)）。近 30 天收入 $500、累计 $789、付费订阅 0 户。月度时间线不足两个月，不给环比结论。近 30 天 MRR 增速 +0.0%。⚠ 刷新前该条目没有任何收入数字（早期入库时收入未公开），本次首次补齐。",
       "caliber": "last_30d"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。此前该条目在候选池里没有任何收入数字，本次首次补齐。",
-    "data_freshness": "2026-10-28T11:43:42.049Z"
+    "data_freshness": "2026-11-01T05:42:29.273Z"
   },
   {
     "id": "studio-zero",
@@ -2097,22 +2097,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 372.0,
+      "mrr": 430.0,
       "last_30d_revenue": 816.0,
-      "all_time": 4065.0,
-      "subscriptions": 33,
+      "all_time": 4166.0,
+      "subscriptions": 37,
       "growth_30d": -4.1,
       "mrr_growth_30d": -4.1,
       "revenue_growth_30d": 38.4,
-      "headline": "MRR $372，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $372（TrustMRR 从支付网关 API 直读，2026-10-28 同步，RevenueCat (API key)）。近 30 天收入 $816、累计 $4,065、付费订阅 33 户。最近完整月环比 +24.1%（已剔除当月残月）。近 30 天 MRR 增速 -4.1%。⚠ 同期收入增速为 +38.4%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $652 → 最近完整月 $643，留存 99%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $372），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $430，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $430（TrustMRR 从支付网关 API 直读，2026-11-01 同步，RevenueCat (API key)）。近 30 天收入 $816、累计 $4,166、付费订阅 37 户。最近完整月环比 +24.1%（已剔除当月残月）。近 30 天 MRR 增速 -4.1%。⚠ 同期收入增速为 +38.4%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $652 → 最近完整月 $643，留存 99%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $372），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（RevenueCat (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T12:27:39.006Z"
+    "data_freshness": "2026-11-01T06:25:59.212Z"
   },
   {
     "id": "themedrop",
@@ -2132,22 +2132,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 371.0,
+      "mrr": 364.0,
       "last_30d_revenue": 1402.0,
-      "all_time": 6319.0,
-      "subscriptions": 33,
+      "all_time": 6436.0,
+      "subscriptions": 32,
       "growth_30d": -0.5,
       "mrr_growth_30d": -0.5,
       "revenue_growth_30d": 20.7,
-      "headline": "MRR $371，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $371（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Stripe (API key)）。近 30 天收入 $1,402、累计 $6,319、付费订阅 33 户。最近完整月环比 -20.6%（已剔除当月残月）。近 30 天 MRR 增速 -0.5%。⚠ 同期收入增速为 +20.7%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $1,431 → 最近完整月 $1,136，留存 79%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $371），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $364，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $364（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Stripe (API key)）。近 30 天收入 $1,402、累计 $6,436、付费订阅 32 户。最近完整月环比 -20.6%（已剔除当月残月）。近 30 天 MRR 增速 -0.5%。⚠ 同期收入增速为 +20.7%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $1,431 → 最近完整月 $1,136，留存 79%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $371），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T12:28:42.812Z"
+    "data_freshness": "2026-11-01T06:27:00.756Z"
   },
   {
     "id": "url2pin",
@@ -2168,22 +2168,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 797.0,
+      "mrr": 932.0,
       "last_30d_revenue": 2055.0,
-      "all_time": 5377.0,
-      "subscriptions": 51,
+      "all_time": 5962.0,
+      "subscriptions": 61,
       "growth_30d": 88.2,
       "mrr_growth_30d": 88.2,
       "revenue_growth_30d": 131.5,
-      "headline": "MRR $797，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $797（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Dodo Payments (API key)）。近 30 天收入 $2,055、累计 $5,377、付费订阅 51 户。最近完整月环比 +30.6%（已剔除当月残月）。近 30 天 MRR 增速 +88.2%。⚠ 同期收入增速为 +131.5%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $888 → 最近完整月 $888，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $646），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $932，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $932（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Dodo Payments (API key)）。近 30 天收入 $2,055、累计 $5,962、付费订阅 61 户。最近完整月环比 +30.6%（已剔除当月残月）。近 30 天 MRR 增速 +88.2%。⚠ 同期收入增速为 +131.5%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $888 → 最近完整月 $888，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $646），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Dodo Payments (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T10:03:43.168Z"
+    "data_freshness": "2026-11-01T04:03:05.265Z"
   },
   {
     "id": "velisto",
@@ -2212,14 +2212,14 @@
       "mrr_growth_30d": -47.2,
       "revenue_growth_30d": -69.6,
       "headline": "MRR $361，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $361（TrustMRR 从支付网关 API 直读，2026-10-28 同步，Polar (API key)）。近 30 天收入 $601、累计 $2,724、付费订阅 8 户。最近完整月环比 +1234.5%（已剔除当月残月）。近 30 天 MRR 增速 -47.2%。⚠ 同期收入增速为 -69.6%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $1,975 → 最近完整月 $1,975，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $361），与上述实测不同；本条以实测为准。",
+      "metric_note": "实测口径：MRR $361（TrustMRR 从支付网关 API 直读，2026-11-01 同步，Polar (API key)）。近 30 天收入 $601、累计 $2,724、付费订阅 8 户。最近完整月环比 +1234.5%（已剔除当月残月）。近 30 天 MRR 增速 -47.2%。⚠ 同期收入增速为 -69.6%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $1,975 → 最近完整月 $1,975，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $361），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Polar (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T12:32:51.533Z"
+    "data_freshness": "2026-11-01T00:31:13.370Z"
   },
   {
     "id": "vibeling",
@@ -2238,22 +2238,22 @@
     "source_kind": "verified",
     "added_at": "2026-10-22",
     "metrics": {
-      "mrr": 400.0,
+      "mrr": 399.0,
       "last_30d_revenue": 1099.0,
-      "all_time": 2964.0,
+      "all_time": 3021.0,
       "subscriptions": 102,
       "growth_30d": 4.1,
       "mrr_growth_30d": 4.1,
       "revenue_growth_30d": 76.1,
-      "headline": "MRR $400，TrustMRR 实时核对",
-      "metric_note": "实测口径：MRR $400（TrustMRR 从支付网关 API 直读，2026-10-28 同步，RevenueCat (API key)）。近 30 天收入 $1,099、累计 $2,964、付费订阅 102 户。最近完整月环比 +36.5%（已剔除当月残月）。近 30 天 MRR 增速 +4.1%。⚠ 同期收入增速为 +76.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $699 → 最近完整月 $699，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $414），与上述实测不同；本条以实测为准。",
+      "headline": "MRR $399，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $399（TrustMRR 从支付网关 API 直读，2026-11-01 同步，RevenueCat (API key)）。近 30 天收入 $1,099、累计 $3,021、付费订阅 102 户。最近完整月环比 +36.5%（已剔除当月残月）。近 30 天 MRR 增速 +4.1%。⚠ 同期收入增速为 +76.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $699 → 最近完整月 $699，留存 100%。⚠ 队列缓存值是 2026-10-22 采集时的快照（当时 $414），与上述实测不同；本条以实测为准。",
       "caliber": "mrr"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（RevenueCat (API key)），非截图自报。",
-    "data_freshness": "2026-10-28T12:35:26.966Z"
+    "data_freshness": "2026-11-01T06:33:45.853Z"
   },
   {
     "id": "carry-save-chatgpt-claude-grok-to-markdown-automatically",
@@ -2282,19 +2282,19 @@
     "metrics": {
       "mrr": 0.0,
       "last_30d_revenue": 531.0,
-      "all_time": 649.0,
+      "all_time": 708.0,
       "subscriptions": 0,
       "growth_30d": 0.0,
       "mrr_growth_30d": 0.0,
       "revenue_growth_30d": 350.0,
       "headline": "近 30 天收入 $531，TrustMRR 实时核对（非订阅制，MRR 恒 0）",
-      "metric_note": "实测口径：近 30 天已验证收入 $531（非订阅制/买断制业务，MRR 恒 0，本条门面口径为近 30 天流水，含一次性与用量收入，别当经常性收入引用；TrustMRR 从支付网关 API 直读，2026-10-28 同步，Polar (API key)）。近 30 天收入 $531、累计 $649、付费订阅 0 户。月度时间线不足两个月，不给环比结论。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 +350.0%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $177 → 最近完整月 $177，留存 100%。挂牌 $10,000、倍数 1.57x（要价不等于收入）。⚠ 刷新前该条目没有任何收入数字（早期入库时收入未公开），本次首次补齐。",
+      "metric_note": "实测口径：近 30 天已验证收入 $531（非订阅制/买断制业务，MRR 恒 0，本条门面口径为近 30 天流水，含一次性与用量收入，别当经常性收入引用；TrustMRR 从支付网关 API 直读，2026-11-01 同步，Polar (API key)）。近 30 天收入 $531、累计 $708、付费订阅 0 户。月度时间线不足两个月，不给环比结论。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 +350.0%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $177 → 最近完整月 $177，留存 100%。挂牌 $10,000、倍数 1.57x（要价不等于收入）。⚠ 刷新前该条目没有任何收入数字（早期入库时收入未公开），本次首次补齐。",
       "caliber": "last_30d"
     },
     "verification": "stripe",
     "promoted_from_inbox": "2026-10-28",
     "refreshed_at": "2026-10-28",
     "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Polar (API key)），非截图自报。此前该条目在候选池里没有任何收入数字，本次首次补齐。",
-    "data_freshness": "2026-10-28T11:19:19.157Z"
+    "data_freshness": "2026-11-01T05:17:40.020Z"
   }
 ]
