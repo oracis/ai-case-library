@@ -39,3 +39,24 @@ for r in rows:
   `json: invalid use of ,string struct tag`，看起来像没有权限，其实只是类型错。
 - 已发布文章的列表接口每次**只返回 10 条**，`cursor` 翻页无效；必须删完一批
   才能看到下一批。所以批量删除要写成「拉一页 → 删一页」的循环，不能拉全量再删。
+
+## 草稿箱子目录 `drafts/`（同日清空 28 条）
+
+28 条草稿在删除前**逐条抓了正文**，存在 `drafts/<draft_id>_<标题>.md`，
+`drafts/index.json` 是索引（含字数），`drafts/delete_result.json` 是删除结果。
+
+为什么值得单独存：这 28 条里有 11 条是 10-28~10-30 的老稿（Upvoty、Plausible、
+PDF.ai、Sleek、HeadshotPro、Klar、3ak-track-field、Flodesk、GetDavid、
+RefactoringUI 等），它们的**掘金改写版标题和本地 md 标题对不上**，
+在仓库里按文件名找不到对应正文。删了就是真没了，所以先抓后删。
+
+抓正文的正确姿势（列表接口不返回正文，`mark_content` 恒为空）：
+
+```python
+r = api("/content_api/v1/article_draft/detail", {"draft_id": "..."}, method="POST")
+body = r["article_draft"]["mark_content"]      # 正文在 article_draft 子对象里
+```
+
+⚠ 注意 `data/juejin_drafts.json` 里那 41 条 `draft_id` **现已全部失效**
+（草稿已删）。文件保留是为了记住「曾经建过哪些稿」，不要再拿它去调接口。
+
