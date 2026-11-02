@@ -40,17 +40,18 @@ for r in rows:
 - 已发布文章的列表接口每次**只返回 10 条**，`cursor` 翻页无效；必须删完一批
   才能看到下一批。所以批量删除要写成「拉一页 → 删一页」的循环，不能拉全量再删。
 
-## 草稿箱子目录 `drafts/`（同日清空 28 条）
+## 草稿箱同日清空 28 条（**不做备份**）
 
-28 条草稿在删除前**逐条抓了正文**，存在 `drafts/<draft_id>_<标题>.md`，
-`drafts/index.json` 是索引（含字数），`drafts/delete_result.json` 是删除结果。
+2026-11-02 同日把草稿箱 28 条全部删除，回读 0 条。
 
-为什么值得单独存：这 28 条里有 11 条是 10-28~10-30 的老稿（Upvoty、Plausible、
-PDF.ai、Sleek、HeadshotPro、Klar、3ak-track-field、Flodesk、GetDavid、
-RefactoringUI 等），它们的**掘金改写版标题和本地 md 标题对不上**，
-在仓库里按文件名找不到对应正文。删了就是真没了，所以先抓后删。
+**按用户要求，草稿正文不留备份**（曾抓取 42490 字又删掉）。所以这份存档里
+没有草稿内容，只留这条事实记录。草稿正文若还想要，只能回 git 历史
+（`ceba458` 那一版曾包含，后续提交已移除）或从 `drafts/newbatch/` 的原始稿
+反查——注意那 11 条 10-28~10-30 的老稿（Upvoty、Plausible、PDF.ai、Sleek、
+HeadshotPro、Klar、3ak-track-field、Flodesk、GetDavid、RefactoringUI）在本地
+按标题是找不到对应 md 的，掘金侧已不可恢复。
 
-抓正文的正确姿势（列表接口不返回正文，`mark_content` 恒为空）：
+抓草稿正文的正确姿势（留档备查，列表接口不返回正文，`mark_content` 恒为空）：
 
 ```python
 r = api("/content_api/v1/article_draft/detail", {"draft_id": "..."}, method="POST")
