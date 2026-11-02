@@ -24,16 +24,16 @@
     "url": "https://juejin.cn/editor/drafts/7701289357391233039"
   },
   "betting-tips": {
-    "draft_id": "7701673451149279266",
-    "title": "Betting Tips：MRR $337，TrustMRR 实时核对",
-    "created_at": "2026-10-29 11:48:16",
-    "url": "https://juejin.cn/editor/drafts/7701673451149279266"
+    "draft_id": "7703186580324139017",
+    "title": "一个体育投注推荐 App 的技术栈：赛程数据、定时推送与订阅付费墙",
+    "created_at": "2026-11-02 12:12:24",
+    "url": "https://juejin.cn/editor/drafts/7703186580324139017"
   },
   "shipfast": {
-    "draft_id": "7702064982632497186",
-    "title": "一次性买断 $199、累计 $1.27M、近 30 天只剩约 $3K：把 ShipFast 这类 Next.js 脚手架的技术账和生意账拆开看",
-    "created_at": "2026-10-30 12:00:31",
-    "url": "https://juejin.cn/editor/drafts/7702064982632497186"
+    "draft_id": "7703186364129771529",
+    "title": "Next.js SaaS 脚手架的四个集成点：认证、支付 webhook、邮件与 schema 的工程取舍",
+    "created_at": "2026-11-02 12:12:29",
+    "url": "https://juejin.cn/editor/drafts/7703186364129771529"
   },
   "plausible": {
     "draft_id": "7702064982632955938",
@@ -174,13 +174,75 @@
     "url": "https://juejin.cn/editor/drafts/7702463374432452635"
   },
   "trustmrr": {
-    "draft_id": "7702483654676758566",
-    "title": "TrustMRR：把「可核验」做成产品的海外小站",
-    "created_at": "2026-10-31 18:10:34",
-    "url": "https://juejin.cn/editor/drafts/7702483654676758566",
-    "article_id": "7702463374432796699",
-    "article_url": "https://juejin.cn/post/7702463374432796699",
-    "note": "原地更新成功：正文改用 html_content 传真实 HTML（mark_content 仅编辑器回显）",
-    "updated_at": "2026-11-01 01:30"
+    "draft_id": "7703167920998203401",
+    "title": "只连支付网关才能上榜：TrustMRR 怎么把「收入可核验」做成一套数据管道",
+    "created_at": "2026-11-02 12:12:23",
+    "url": "https://juejin.cn/editor/drafts/7703167920998203401"
+  },
+  "chessigma": {
+    "draft_id": "7703186364129656841",
+    "title": "100 万用户只收 576 个订阅：免费对弈平台的实时同步架构与算力账",
+    "created_at": "2026-11-02 12:01:08",
+    "url": "https://juejin.cn/editor/drafts/7703186364129656841"
+  },
+  "cod-dex": {
+    "draft_id": "7703186580324040713",
+    "title": "把编程课做成闯关游戏：互动课程的判题沙箱与订阅门控设计",
+    "created_at": "2026-11-02 12:01:19",
+    "url": "https://juejin.cn/editor/drafts/7703186580324040713"
+  },
+  "lichess": {
+    "draft_id": "7703186364129787913",
+    "title": "Lichess 为什么能免费养几百万棋手：Scala + WebSocket 的实时对弈架构",
+    "created_at": "2026-11-02 12:14:27",
+    "url": "https://juejin.cn/editor/drafts/7703186364129787913"
+  },
+  "minetest": {
+    "draft_id": "7703186580324089865",
+    "title": "Minetest 的 Lua mod 系统怎么撑住沙盒扩展：一个 C++ 引擎的插件边界设计",
+    "created_at": "2026-11-02 12:12:11",
+    "url": "https://juejin.cn/editor/drafts/7703186580324089865"
+  },
+  "nethack": {
+    "draft_id": "7703186364129755145",
+    "title": "NetHack 用 C 写了三十多年还在更新：一个把游戏规则直接写进代码的架构",
+    "created_at": "2026-11-02 12:12:12",
+    "url": "https://juejin.cn/editor/drafts/7703186364129755145"
+  },
+  "cataclysm": {
+    "draft_id": "7703186580324106249",
+    "title": "Cataclysm-DDA 的万物皆 JSON：一个 C++ 游戏如何靠数据驱动堆出十年内容",
+    "created_at": "2026-11-02 12:12:13",
+    "url": "https://juejin.cn/editor/drafts/7703186580324106249"
+  },
+  "mindustry": {
+    "draft_id": "7703167920998187017",
+    "title": "Mindustry 用 Java 做确定性联机：锁步同步在一个塔防游戏里怎么落地",
+    "created_at": "2026-11-02 12:12:14",
+    "url": "https://juejin.cn/editor/drafts/7703167920998187017"
+  },
+  "supertux": {
+    "draft_id": "7703384226859761674",
+    "title": "SuperTux 的关卡是用 Lisp 语法写的：一个 SDL2 平台游戏的关卡格式设计",
+    "created_at": "2026-11-02 12:12:20",
+    "url": "https://juejin.cn/editor/drafts/7703384226859761674"
+  },
+  "freedoom": {
+    "draft_id": "7703186580324122633",
+    "title": "Freedoom 不写引擎，只重画素材：Doom WAD 格式与「自由素材」的兼容性工程",
+    "created_at": "2026-11-02 12:12:21",
+    "url": "https://juejin.cn/editor/drafts/7703186580324122633"
+  },
+  "supermario": {
+    "draft_id": "7703143764567588890",
+    "title": "在浏览器里复刻 1985 年的超级马里奥：6502 时代的关卡数据怎么搬进 JS",
+    "created_at": "2026-11-02 12:12:22",
+    "url": "https://juejin.cn/editor/drafts/7703143764567588890"
+  },
+  "lichess_v2": {
+    "draft_id": "7703186364129804297",
+    "title": "我把 WebSocket 塞进业务进程，上线三天掉了两次线：重读 Lichess 的架构",
+    "created_at": "2026-11-02 12:25:09",
+    "url": "https://juejin.cn/editor/drafts/7703186364129804297"
   }
 }

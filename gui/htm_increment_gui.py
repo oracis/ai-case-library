@@ -49,6 +49,14 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 from tkinter.scrolledtext import ScrolledText
 
+# proc_shim 是同目录的纯 stdlib 模块（不 import tkinter），可以单独单测。
+# 打包时它必须跟着进 exe —— PyInstaller 会扫到本文件的 import，自动带上。
+try:
+    from proc_shim import ProcShim  # noqa: E402
+except ImportError:  # 直接以脚本方式运行（python gui/htm_increment_gui.py）
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from proc_shim import ProcShim  # noqa: E402
+
 APP_NAME = "htm-increment-gui"
 DEFAULT_ROOT = r"D:\ai-case-library"
 DEFAULT_OUT = "tmp/htm_screen"
@@ -181,39 +189,21 @@ class _LogSink:
 
 
 class _ProcShim:
-    """替换 htm_increment 模块里的 subprocess：Popen 流式读 + 可中止。
+    """兼容别名 → gui/proc_shim.py 的 ProcShim。
 
-    htm_increment 用 subprocess.run(cmd, cwd=ROOT) 起 harvest；打包后
-    sys.executable 是 exe 自己不能复用（已在 htm_increment._python_exe
-    处理），这里解决另一半：让子进程输出进日志窗口、停止键能杀掉它。
+    ⚠ 2026-11-01：旧实现只有 run() 一个方法，而 htm_increment._python_ok()
+    要读 subprocess.DEVNULL / subprocess.SubprocessError 这些**模块级属性**
+    —— 替身上没有 ⇒ GUI 点「采集」必崩（命令行手动跑没事，拖了两天才发现）。
+    新实现见 gui/proc_shim.py：属性转发给真 subprocess，语义才对得上。
     """
 
-    def __init__(self, emit, should_stop):
-        self._emit = emit
-        self._should_stop = should_stop
-        self.proc = None
+    def __new__(cls, emit, should_stop):
+        return ProcShim(emit, should_stop)
 
-    def run(self, cmd, cwd=None, **kw):
-        self.proc = subprocess.Popen(
-            [str(c) for c in cmd], cwd=cwd,
-            stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-            text=True, encoding="utf-8", errors="replace", bufsize=1)
-        try:
-            for line in self.proc.stdout:
-                self._emit(line)
-                if self._should_stop():
-                    try:
-                        self.proc.terminate()
-                    except Exception:
-                        pass
-                    break
-        finally:
-            try:
-                self.proc.stdout.close()
-            except Exception:
-                pass
-        rc = self.proc.wait()
-        return subprocess.CompletedProcess(cmd, rc)
+
+def _make_shim(emit, should_stop):
+    """建替身。统一走这里，方便将来换实现只改一处。"""
+    return ProcShim(emit, should_stop)
 
 
 # ---------------------------------------------------------------- 自检模式
@@ -227,6 +217,8 @@ def run_selftest(argv):
     ap.add_argument("--skip-fetch", action="store_true")
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--full", action="store_true", help="真跑采集（默认 dry-run）")
+    ap.add_argument("--probe-only", action="store_true",
+                    help="只验解释器探测（_python_exe）就退出，不跑管线")
     args = ap.parse_args(argv)
 
     root = (args.root or "").strip() or resolve_root()
@@ -249,8 +241,27 @@ def run_selftest(argv):
     try:
         mod = load_increment_module(root)
         stop = threading.Event()
-        mod.subprocess = _ProcShim(sink.emit, stop.is_set)
-        rc = mod.run_increment(ns)
+        mod.subprocess = _make_shim(sink.emit, stop.is_set)
+        if args.probe_only:
+            # 只验解释器探测 —— 这一步正是 11-01 崩溃的地方，
+            # 而 dry-run 走不到它（采集那步才调 _python_exe）。
+            # 冻结态尤其要验：exe 里 sys.executable 是 exe 自己，
+            # 候选顺序错了就找不到能跑 harvest 的解释器。
+            exe = mod._python_exe()
+            print("[selftest] 选中的解释器：%s" % exe)
+            if not exe or not os.path.isfile(exe):
+                print("[!] 解释器无效：%r" % (exe,))
+                rc = 1
+            else:
+                r = subprocess.run([exe, "-c", "import sys;print(sys.executable)"],
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.STDOUT, timeout=30)
+                print("[selftest] 实跑 rc=%d 输出=%s"
+                      % (r.returncode,
+                         (r.stdout or b"").decode("utf-8", "replace").strip()))
+                rc = 0 if r.returncode == 0 else 1
+        else:
+            rc = mod.run_increment(ns)
     except Exception:
         sys.stdout = old
         traceback.print_exc()
@@ -441,7 +452,7 @@ class IncrementApp(tk.Tk):
         try:
             sys.stdout = sink
             mod = load_increment_module(params["root"])
-            mod.subprocess = _ProcShim(sink.emit, self.stop_event.is_set)
+            mod.subprocess = _make_shim(sink.emit, self.stop_event.is_set)
             rc = mod.run_increment(ns)
         except Exception:
             sink.emit("\n[!] GUI 运行异常：\n%s\n" % traceback.format_exc())

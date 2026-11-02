@@ -426,6 +426,62 @@
    "title": ""
   }
  },
+ "chessigma": {
+  "aliyun": {
+   "at": "2026-11-01 17:17",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "aid=1700270"
+  },
+  "bilibili": {
+   "at": "2026-11-01 17:03",
+   "attempt": 0,
+   "state": "published",
+   "title": "Chessigma：「免费版 Chess.com」拿下 10（世界逻辑 aid=345663，审核中）"
+  },
+  "cnblogs": {
+   "at": "2026-11-01 17:17",
+   "attempt": 0,
+   "state": "published",
+   "title": "cnblogs.com/thing-explainer/p/23511986"
+  },
+  "juejin": {
+   "at": "2026-11-01 17:17",
+   "attempt": 0,
+   "state": "published",
+   "title": "juejin.cn/post/7702737817416957967"
+  },
+  "tencentcloud": {
+   "at": "2026-11-01 17:17",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "draftId=338751"
+  },
+  "toutiao": {
+   "at": "2026-11-01 17:17",
+   "attempt": 1,
+   "state": "published",
+   "title": "Chessigma：「免费版 Chess.com」拿下 10（pgc_id=7703128531567477282）"
+  },
+  "wechat": {
+   "at": "2026-11-01 14:03",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "Chessigma：「免费版 Chess.com」拿下 10"
+  },
+  "xhs": {
+   "at": "2026-11-01 16:48",
+   "attempt": 0,
+   "state": "published",
+   "title": "Chessigma：拿下 100 万+"
+  },
+  "zhihu": {
+   "at": "2026-11-01 17:17",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "知乎草稿（后台点发布）"
+  }
+ },
  "clawlink": {
   "bilibili": {
    "account": "bilibili2",
@@ -437,6 +493,62 @@
    "state": "published",
    "title": "ClawLink：MRR $2,219，聊天窗口直连百个应用",
    "url": "https://www.bilibili.com/read/cv53699085"
+  }
+ },
+ "cod-dex": {
+  "aliyun": {
+   "at": "2026-11-01 17:17",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "aid=1701241"
+  },
+  "bilibili": {
+   "at": "2026-11-01 17:03",
+   "attempt": 2,
+   "state": "draft_saved",
+   "title": "Codédex（国会图书馆草稿 345664，今日额度满待明发）"
+  },
+  "cnblogs": {
+   "at": "2026-11-01 17:17",
+   "attempt": 0,
+   "state": "published",
+   "title": "cnblogs.com/thing-explainer/p/23511987"
+  },
+  "juejin": {
+   "at": "2026-11-01 17:17",
+   "attempt": 0,
+   "state": "published",
+   "title": "juejin.cn/post/7702736770072821795"
+  },
+  "tencentcloud": {
+   "at": "2026-11-01 17:17",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "draftId=338752"
+  },
+  "toutiao": {
+   "at": "2026-11-01 17:17",
+   "attempt": 1,
+   "state": "published",
+   "title": "Codédex（pgc_id=7703129188911383055）"
+  },
+  "wechat": {
+   "at": "2026-11-01 16:04",
+   "attempt": 1,
+   "state": "draft_saved",
+   "title": "Codédex：把学编程包装成「冒险旅程」的互动课程平台，免费 250+ 小时内容引流，Club 订阅 /月变现"
+  },
+  "xhs": {
+   "at": "2026-11-01 17:46",
+   "attempt": 0,
+   "state": "published",
+   "title": "Codédex：把学编程包装成的互动课程（16:33，重复篇已删）"
+  },
+  "zhihu": {
+   "at": "2026-11-01 17:17",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": "知乎草稿（后台点发布）"
   }
  },
  "cometly": {

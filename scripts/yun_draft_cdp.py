@@ -569,86 +569,65 @@ fetch(%s, {credentials: "include"})
 # 腾讯云
 # --------------------------------------------------------------------------
 def create_tencent(cdp, title, body_md, abstract=""):
-    """腾讯云建草稿。返回 (draftId, 失败原因)。"""
+    """腾讯云建草稿。返回 (draftId, 失败原因)。
+
+    ⚠ 2026-11-01 编辑器改版：旧 ProseMirror（#cdc-rich-editor + 「切换 MD
+    编辑器」）已下线，换成 CodeMirror（cm-content）。旧注入流程整体失效
+    （#cdc-rich-editor 永不出现 ⇒ 原先报「等不到编辑器」假失败）。
+    新流程（实测可用）：标题仍走 textarea.cdc-article-editor__title-input；
+    正文走工具栏「导入MD」的文件入口 —— 用 CDP DOM.setFileInputFiles 直接喂
+    清理后的 .md，绕过系统文件对话框，CodeMirror 完整载入 markdown（含 \$ 正确
+    显示为字面 $，不触发数学渲染）。
+    """
     cdp.open(TENCENT_NEW)
     time.sleep(3)
     _arm_hook(cdp)                      # 预埋点（含一次 reload）
-    if not _wait_for(cdp, "!!document.querySelector('#cdc-rich-editor')"):
-        return "", "等不到腾讯云编辑器（#cdc-rich-editor 不出现）"
+    if not _wait_for(cdp,
+            "!!document.querySelector('textarea.cdc-article-editor__title-input')"):
+        return "", "等不到腾讯云编辑器（标题输入框不出现）"
 
-    # 标题：真身是 textarea.cdc-article-editor__title-input（不是 input）
+    # 标题：真身仍是 textarea.cdc-article-editor__title-input
     r = _fill_text(cdp, "textarea.cdc-article-editor__title-input", title)
     print("    标题注入: %s" % r)
     if r == "not found":
         return "", "找不到标题输入框"
 
-    # 正文：**优先切 MD 编辑器**（平台自己把 markdown 转富文本，与扩展
-    # 路线一致，最保真）；切不了才退回 ProseMirror 灌 HTML。
-    md_ok = False
-    if _click_by_text(cdp, "切换 MD 编辑器",
-                      tags="button,[role=button],div,span,a"):
-        time.sleep(4)
-        r = cdp.eval("""
-(function(){
-  var ts = document.querySelectorAll('textarea');
-  for (var i = 0; i < ts.length; i++) {
-    if (ts[i].offsetParent === null) continue;
-    if ((ts[i].className || '').indexOf('title-input') >= 0) continue;
-    var setter = Object.getOwnPropertyDescriptor(
-      window.HTMLTextAreaElement.prototype, 'value').set;
-    setter.call(ts[i], %s);
-    ts[i].dispatchEvent(new Event('input', {bubbles: true}));
-    ts[i].dispatchEvent(new Event('change', {bubbles: true}));
-    return 'md textarea len=' + ts[i].value.length;
-  }
-  return 'no md textarea';
-})()""" % json.dumps(body_md))
-        print("    正文注入（MD 模式）: %s" % r)
-        md_ok = "len=" in str(r)
+    # 正文：写清理后的 .md（去水印行），经「导入MD」文件入口灌进 CodeMirror
+    clean_lines = [ln for ln in body_md.split("\n")
+                   if not ln.startswith("> 平台：")]
+    clean_md = "\n".join(clean_lines)
+    tmp_dir = os.path.join(ROOT, "tmp")
+    os.makedirs(tmp_dir, exist_ok=True)
+    tmp_md = os.path.join(tmp_dir, "_tc_import_%d.md" % int(time.time()))
+    with open(tmp_md, "w", encoding="utf-8") as f:
+        f.write(clean_md)
 
-    if not md_ok:
-        # 兜底：TipTap/ProseMirror（#cdc-rich-editor, contenteditable）
-        # ⇒ 不用 innerHTML（ProseMirror 状态不同步），走 execCommand('insertHTML')
-        #    才会产生它认的 beforeinput/input 事件。
-        html = md_to_html(body_md)
-        r = cdp.eval("""
-(function(){
-  var ed = document.querySelector('#cdc-rich-editor');
-  if (!ed) return 'no editor';
-  ed.focus();
-  var sel = window.getSelection();
-  var range = document.createRange();
-  range.selectNodeContents(ed);
-  sel.removeAllRanges();
-  sel.addRange(range);
-  var ok = document.execCommand('insertHTML', false, %s);
-  return (ok ? 'insertHTML ok' : 'execCommand false') +
-         ' len=' + (ed.innerHTML || '').length;
-})()""" % json.dumps(html))
-        print("    正文注入（ProseMirror）: %s" % r)
-    time.sleep(2)
-    print("    编辑器回读: %s" % cdp.eval("""
-(function(){
-  var ed = document.querySelector('#cdc-rich-editor');
-  var ti = document.querySelector('textarea.cdc-article-editor__title-input');
-  return JSON.stringify({edLen: ed ? ed.innerHTML.length : -1,
-                         edText: ed ? (ed.innerText || '').slice(0, 40) : '',
-                         titleLen: ti ? ti.value.length : -1,
-                         title: ti ? ti.value.slice(0, 40) : ''});
-})()"""))
-
-    # ⚠ 2026-10-31 用户实拍反馈「腾讯云正文行间距太大」：MD 通道把 markdown 的
-    #   **每个空行也转成一个空段落**（`<p><span> </span></p>`，各带 mb:20px），
-    #   真实段间距被撑成 ~60px。⇒ 存草稿前必须清空段落（详见 yun_tidy.py）。
-    import yun_tidy as T                                        # noqa: PLC0415
-    n_hr = T.fix_horizontal_rules(cdp)
-    if n_hr:
-        print("    `---` → 真水平线: %d 处" % n_hr)
-    removed, st = T.tidy_paragraphs(cdp, log=lambda m: print(m))
-    print("    空段落清理: 删 %d 个，剩 %s" % (removed,
-                                          json.dumps(st, ensure_ascii=False)))
-    if st.get("empty"):
-        print("    ⚠ 仍有空段落，存稿后行距会偏大")
+    if not _click_by_text(cdp, "导入MD",
+                          tags="button,[role=button],div,span,a"):
+        return "", "没找到「导入MD」按钮"
+    print("    已点「导入MD」", flush=True)
+    time.sleep(2.5)
+    try:
+        doc = cdp.send("DOM.getDocument")
+        root = doc["result"]["root"]["nodeId"]
+        q = cdp.send("DOM.querySelector",
+                     {"nodeId": root, "selector": "input[type=file]"})
+        nid = (q.get("result") or {}).get("nodeId")
+        if nid:
+            cdp.send("DOM.setFileInputFiles",
+                     {"nodeId": nid, "files": [tmp_md.replace("\\", "/")]})
+            print("    导入MD 文件: %s" % tmp_md)
+        else:
+            print("    ⚠ 没找到 file input（导入MD 入口）")
+    except Exception as e:                          # noqa: BLE001
+        print("    ⚠ 导入MD 设文件失败: %s" % str(e)[:80])
+    # 等 CodeMirror 载入正文
+    if not _wait_for(cdp,
+            "(function(){var e=document.querySelector('.cm-content');"
+            "return !!(e && (e.innerText||'').length>20);})()", timeout=45):
+        return "", "导入MD 后正文未载入（.cm-content 为空）"
+    print("    正文载入: %s 字" % cdp.eval(
+        "(document.querySelector('.cm-content')||{innerText:''}).innerText.length"))
 
     if not _click_by_text(cdp, "存草稿"):
         return "", "没找到「存草稿」按钮"
@@ -661,7 +640,6 @@ def create_tencent(cdp, title, body_md, abstract=""):
         print("    未抓到建稿接口 ⇒ 走草稿箱回读兜底")
         did = _tencent_find_draft(cdp, title)
     return did, ("" if did else "未抓到建稿接口，草稿箱也没匹配到")
-
 
 def _tencent_find_draft(cdp, title):
     """腾讯云草稿箱按标题找 draftId（兜底路径）。

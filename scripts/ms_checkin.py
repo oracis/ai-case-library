@@ -185,6 +185,38 @@ JS_CLAIM = """
     var r = el.getBoundingClientRect();
     return r.width > 0 && r.height > 0;
   }
+  function disabledLike(el) {
+    // ⚠ <button disabled> 的 className 是空的，只看 class 判不出来
+    //   ⇒ 必须看 el.disabled 属性，再兜一层祖先链（Ant 的 ant-btn-disabled
+    //   挂在 button 自己身上，某些版本挂在包裹层上）。
+    if (el.disabled === true) return true;
+    var cls = String(el.className || '');
+    if (/disabled|is-disabled/i.test(cls)) return true;
+    if (el.getAttribute && el.getAttribute('aria-disabled') === 'true') return true;
+    var p = el.parentElement;
+    while (p) {
+      if (p.disabled === true) return true;
+      var pc = String(p.className || '');
+      if (/disabled|is-disabled/i.test(pc)) return true;
+      if (p.getAttribute && p.getAttribute('aria-disabled') === 'true') return true;
+      p = p.parentElement;
+    }
+    return false;
+  }
+  function isClaim(el) {
+    var s = (el.innerText || '').trim();
+    // 只认短文案的独立按钮：父容器 innerText 会把整段页面都带进来
+    if (!s || s.length > 8) return false;
+    if (!/^(领取|立即领取|领取奖励|签到)$/.test(s)) return false;
+    if (!visible(el)) return false;
+    if (disabledLike(el)) return false;
+    // ⚠ 只认「叶子」元素：<div class="task"><button>领取</button></div> 里
+    //   那个 div 的 innerText 也正好是「领取」，会被误当成按钮点掉。
+    //   BUTTON/A 自身是交互控件，豁免子元素检查。
+    var tag = (el.tagName || '').toUpperCase();
+    if (tag !== 'BUTTON' && tag !== 'A' && el.children.length > 0) return false;
+    return true;
+  }
   var txt = document.body ? document.body.innerText : '';
   // 「今天已领过」的文案（2026-10-29 实测页面）：每日发放下两项会标
   // 「今日已完成」（注册并登录 200 / 绑定阿里云 50）。英文站与旧文案一并兜住，
@@ -194,15 +226,10 @@ JS_CLAIM = """
     document.querySelectorAll('button, a, span, div'));
   for (var i = 0; i < nodes.length; i++) {
     var el = nodes[i];
-    var s = (el.innerText || '').trim();
-    // 只认短文案的独立按钮：父容器 innerText 会把整段页面都带进来
-    if (!s || s.length > 8) continue;
-    if (!/^(领取|立即领取|领取奖励|签到)$/.test(s)) continue;
-    if (!visible(el)) continue;
-    var cls = String(el.className || '');
-    if (/disabled|is-disabled/.test(cls)) continue;
+    if (!isClaim(el)) continue;
     el.click();
-    return JSON.stringify({clicked: true, label: s, claimedText: claimed});
+    return JSON.stringify({clicked: true, label: (el.innerText || '').trim(),
+                           claimedText: claimed});
   }
   return JSON.stringify({clicked: false, claimedText: claimed});
 })()

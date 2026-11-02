@@ -32,6 +32,7 @@ tmp/htm_screen/ 下的临时脚本里，换机器或隔几周就跑不稳；判�
 """
 
 import argparse
+import glob
 import html as H
 import json
 import os
@@ -44,6 +45,16 @@ from datetime import datetime
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 import text_clean as TC  # noqa: E402
+
+# 真 subprocess 模块的私有引用。
+#
+# 🚨 GUI（gui/htm_increment_gui.py）会把本模块的 `subprocess` 整个换成
+# 「可流式、可中止」的壳，好让 harvest 子进程输出进日志窗口、停止键能杀它。
+# 壳只保证 run() 可用，模块级常量（DEVNULL / PIPE / SubprocessError…）
+# 不保证有 —— 所以**内部探测必须走这个私有引用**，绝不能写 subprocess.DEVNULL。
+# 2026-11-01 实测：GUI 点「采集」必崩，就是 _python_ok() 里读 subprocess.DEVNULL
+# 撞上壳缺属性（壳的形状问题在 gui/proc_shim.py 修，但依赖方也要自保）。
+_REAL_SUBPROCESS = subprocess
 
 HOME_URL = "https://howtomakemi.com/"
 UA = "Mozilla/5.0 (compatible; CaseLibraryHarvester/1.0)"
@@ -73,17 +84,20 @@ def _python_ok(path):
     to install from the Microsoft Store」并以 9009 退出。系统 PATH 里它常排在
     真解释器前面，所以不能只看 shutil.which 的第一个命中，更不能无脑信
     sys.executable —— 必须让它 echo 一句再放行。
+
+    ⚠ 必须用 _REAL_SUBPROCESS（真模块），不能用模块级的 subprocess：
+    GUI 会把 mod.subprocess 换成流式壳，壳上没有 DEVNULL/SubprocessError。
     """
     if not path or not os.path.isfile(path):
         return False
     if "windowsapps" in path.lower():
         return False
     try:
-        proc = subprocess.run([path, "-c", "import sys"],
-                              stdout=subprocess.DEVNULL,
-                              stderr=subprocess.DEVNULL,
-                              timeout=20)
-    except (OSError, subprocess.SubprocessError):
+        proc = _REAL_SUBPROCESS.run([path, "-c", "import sys"],
+                                    stdout=_REAL_SUBPROCESS.DEVNULL,
+                                    stderr=_REAL_SUBPROCESS.DEVNULL,
+                                    timeout=20)
+    except (OSError, _REAL_SUBPROCESS.SubprocessError):
         return False
     return proc.returncode == 0
 
@@ -92,7 +106,22 @@ def _python_exe():
     """跑 harvest 子进程用的 python（实跑验证过的绝对路径）。
 
     PyInstaller 打包后 sys.executable 是 exe 自己，直接拿来 subprocess 会把
-    GUI 再拉起来；于是退回 PATH 上的 python / py。全都不通就退回 base_prefix。
+    GUI 再拉起来；于是退回 base_prefix / PATH 上的 python。
+
+    ⚠ 候选顺序有讲究（按「最可能是可用解释器」排，不按偶然的 PATH 顺序）：
+      1. sys.executable —— 非冻结态它就是当前解释器，最省事。
+         冻结态跳过（它就是 exe 自己）。
+      2. sys.base_prefix / sys.prefix 下的 python.exe —— 冻结态 base_prefix
+         指向**打包时用的那个 Python**，几乎必然可用（harvest.py 只用标准库）。
+      3. 扫常见安装位置：C:\\Python3xx、%LOCALAPPDATA%\\Programs\\Python\\Python3xx
+         （微软商店版装在后者，不在 C:\\ 根下）。
+      4. shutil.which("python") / ("python3") —— PATH 顺序靠不住，
+         WindowsApps 存根常排第一，靠 _python_ok 的实跑验证 + windowsapps
+         路径排除把它挡掉。
+      5. shutil.which("py") 垫底 —— 它是**启动器**不是解释器，实跑能过
+         （`py -c "import sys"` rc=0），但版本由它自己挑，不如上面确定。
+
+    每个候选都要过 _python_ok 的实跑验证才算数。
     """
     if _PY_CACHE:
         return _PY_CACHE[0]
@@ -101,11 +130,14 @@ def _python_exe():
     cands = []
     if not getattr(sys, "frozen", False):
         cands.append(sys.executable)
-    cands += [shutil.which(c) for c in ("python", "python3", "py")]
     cands += [os.path.join(sys.base_prefix, "python.exe"),
-              os.path.join(sys.prefix, "python.exe"),
-              r"C:\Python313\python.exe",
-              r"C:\Python312\python.exe"]
+              os.path.join(sys.prefix, "python.exe")]
+    cands += sorted(glob.glob(r"C:\Python3*\python.exe"), reverse=True)
+    cands += sorted(glob.glob(os.path.join(
+        os.environ.get("LOCALAPPDATA", ""), "Programs", "Python",
+        "Python3*", "python.exe")), reverse=True)
+    cands += [shutil.which(c) for c in ("python", "python3")]
+    cands += [shutil.which("py")]
     for p in cands:
         if _python_ok(p):
             _PY_CACHE.append(p)

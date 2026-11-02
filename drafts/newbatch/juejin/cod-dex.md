@@ -1,0 +1,151 @@
+# 把编程课做成闯关游戏：互动课程的判题沙箱与订阅门控设计
+
+一个互动式编程学习平台，课程被包装成「冒险旅程」，覆盖 HTML/CSS/JavaScript/Python/React，每课配即时运行的练习和勋章。免费层给到 250+ 小时内容，Club 会员 9.99 美元/月起。目前 MRR 84,214 美元、付费订阅 6,686 个、累计收入 1,468,111 美元。
+
+开发者教育的钱不在课程质量，在「学完的幻觉」——但把这句话变成产品，靠的不是文案，是一套让「学会」可被感知的工程系统。这篇拆它的技术骨架：课程怎么建模、代码在哪跑、判题怎么判、订阅怎么门控。
+
+## 一、它做的是什么
+
+互动式编程学习平台，2022 年 11 月上线，创始人 Sonny Li。核心形态是「课程即闯关」：每节课有起始代码、即时运行的练习、通过后解锁下一关，配上连续学习天数和勋章。
+
+免费 + 订阅双轨：250+ 小时课程免费，Club 会员 9.99 美元/月解锁进阶路径、项目和社区功能。9.99 美元是「一杯咖啡」定价，靠 6,686 个订阅堆出 8.4 万美元月流水。
+
+## 二、钱从哪来
+
+纯订阅制，两个价格锚点——月付 9.99 美元、年付打折。定价锚定「咖啡价」而非「课程价」，用户跳过比价环节，这直接决定了订阅数能堆到 6,686 这个量级。
+
+近 30 天收入 72,088 美元，历史峰值 80,384 美元，最近完整月 75,612 美元，留存 94%。也就是说不增长也不掉太多，订阅制已经进入稳态。
+
+## 三、互动课程平台的技术骨架
+
+同样说明：下面是按公开产品形态给出的参考实现，不是官方披露的架构。
+
+### 3.1 课程即数据，不是页面
+
+最要命的设计决策：课程内容存数据库还是写死在代码里？
+
+写死在代码里，每次加课都要发版，内容团队被工程排期绑死。正确做法是 lesson 作为结构化数据，前端按 schema 渲染：
+
+```json
+{
+  "id": "py-07-loops",
+  "chapter": "python-basics",
+  "tier": "free",
+  "starter": "for i in range(3):\n    print(i)\n",
+  "tests": [{ "kind": "stdout", "expect": "0\n1\n2\n" }],
+  "hints": ["range(n) 从 0 开始，到 n-1 结束"],
+  "xp": 20
+}
+```
+
+这样加一节课是后台录数据，不是一次上线。课程数从 50 涨到 500，工程侧零成本。
+
+### 3.2 代码在哪跑：三种方案的成本对比
+
+浏览器里执行用户代码，有三条路：
+
+| 方案 | 延迟 | 安全边界 | 成本 | 适用 |
+| --- | --- | --- | --- | --- |
+| 服务端容器判题 | 200~800ms | 最强（隔离） | 每并发一容器，最贵 | 后端语言、系统课 |
+| 浏览器 iframe + Worker | < 10ms | 中（同源策略） | 零 | JS/TS/HTML/CSS |
+| 浏览器 WASM（Pyodide） | 首次 3~10s | 中（沙箱内） | 零 | Python |
+
+教学场景的容错比生产高得多——学员代码是「跑三行 print」，不是生产负载。所以主流做法是：**能放浏览器就放浏览器**，只有必须访问文件系统或后端的课才落容器。
+
+JS 的执行沙箱必须这样起：
+
+```ts
+// 关键：sandbox 里绝对不能同时给 allow-scripts 和 allow-same-origin
+// 给了同源，iframe 里的代码就能读父页面的 cookie 和 localStorage
+const iframe = document.createElement('iframe');
+iframe.sandbox.add('allow-scripts');   // 只给脚本，不给同源
+iframe.srcdoc = '<script>' + userCode + '<\/script>';
+```
+
+Python 课走 Pyodide（CPython 编译到 WASM），首包 6~10MB 是硬伤，必须 CDN + 强缓存 + 提前在「课程列表页」预加载，别等用户点进编辑器才开始下载。
+
+### 3.3 判题：教学场景不做 IO 判题
+
+竞赛平台那套「读 stdin 比 stdout」的判题器在这里是错的——学员写的是 `print(i)`，不是解题函数。教学判题看的是输出快照和断言：
+
+```ts
+async function judge(lesson: Lesson, code: string, run: Runner) {
+  const r = await run(code, { timeoutMs: 3000 });
+
+  if (r.timeout) return { ok: false, reason: 'timeout' };   // 死循环
+  if (r.stderr)  return { ok: false, reason: 'stderr', stderr: r.stderr };
+
+  const norm = (s: string) => s.replace(/\r\n/g, '\n').trimEnd();
+  return norm(r.stdout) === norm(lesson.tests[0].expect)
+    ? { ok: true }
+    : { ok: false, reason: 'diff', got: r.stdout, expect: lesson.tests[0].expect };
+}
+```
+
+两个工程细节决定体验：
+
+- **必须有超时 + terminate**。学员十个里有三个会写出 `while True`。Worker 里跑，超时直接 `worker.terminate()`，主线程绝不能卡。
+- **归一化再比**。尾随空格、`\r\n`、末尾空行——严格比会劝退大量其实做对了的人。判题太严，退课率比判题太松高得多。
+
+### 3.4 进度：事件流派生，不要布尔字段
+
+勋章、连续天数、关卡解锁，如果都存成布尔字段，早晚会互相打架：`completed=true` 但 `streak=0`，用户一改系统时间就刷出 30 天连续学习。
+
+正确做法是只存事件，状态全部派生：
+
+```sql
+-- 只追加，不改写
+create table lesson_event (
+  user_id   text not null,
+  lesson_id text not null,
+  kind      text not null,        -- 'started' | 'passed' | 'hint_used'
+  at        integer not null,     -- 服务端时间
+  primary key (user_id, lesson_id, kind)
+);
+```
+
+勋章 = 对事件流跑一次聚合规则；连续天数 = 按服务端时区分桶后算 gap。改客户端时间没用，因为 `at` 是服务端写的。
+
+### 3.5 订阅门控：用有效期，不用布尔值
+
+这是订阅制产品最容易埋雷的地方：
+
+```sql
+-- 别用 is_paid boolean
+create table entitlement (
+  user_id            text primary key,
+  plan               text not null,     -- 'club_monthly' | 'club_yearly'
+  current_period_end integer not null   -- 有效期，续费失败也能优雅降级
+);
+```
+
+门控检查只有一个入口，且在服务端：
+
+```ts
+function canAccess(lesson: Lesson, ent?: Entitlement, now = Date.now()) {
+  if (lesson.tier === 'free') return true;
+  return !!ent && ent.current_period_end > now;
+}
+```
+
+前端隐藏按钮只是 UI，不是权限。所有付费内容的详情接口都必须过这一层，否则改个前端就能白嫖——这类平台被扒内容，十次有九次是接口没 gate。
+
+## 四、几个真实的坑
+
+- **Stripe webhook 乱序**。`invoice.paid` 和 `customer.subscription.updated` 到达顺序不保证，用事件里的时间戳做幂等判断，别用「最后到达的为准」。否则用户续费后反而被降级。
+- **WASM 首屏**。Pyodide 冷启动在中低端笔记本上能到 10 秒。解决不是优化加载，是提前加载 + 进度条 + 「先看讲解视频」占位，把等待藏进内容里。
+- **进度不能只存本地**。本地存进度看着省钱，但用户换设备就清零，这是订阅制产品最致命的流失点。
+- **课程 schema 要留 version**。改判题规则会把老学员的历史通过记录判成「未通过」，加个 `schema_version` 就避免了整个迁移噩梦。
+
+## 五、能搬走的部分
+
+- **教育产品先设计「怎么让用户感觉自己学会了」**，再想教什么。进度可视化是产品，不是装饰。
+- **免费层给到「足够建立信任」的量**，付费层卖进阶和身份。250 小时免费不是亏，是转化前置。
+- **内容与代码解耦**。课程存数据，工程只维护渲染器和判题器，内容团队才能自己跑起来。
+- **低价月付 + 年付折扣**：月付降门槛，年付锁留存。
+
+## 六、给做同类产品的人
+
+互动教学平台的技术难度不在「跑代码」，在四件事：沙箱别漏、超时别卡、进度别丢、门控别只在前端。这四条做对了，剩下的就是内容量的问题。
+
+数据来源：官方公开口径（产品官网、支付验证页快照，2026-10-14 同步）。

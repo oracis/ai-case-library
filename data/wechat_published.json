@@ -709,5 +709,29 @@
     "send_reason": "已发表列表出现新记录，标题一致",
     "note": "｜publish模式自动发表，新 appmsgid=2247484764",
     "verified_at": "2026-10-27 13:24"
+  },
+  "chessigma": {
+    "title": "Chessigma：「免费版 Chess.com」拿下 100 万+ 用户，576 个订阅",
+    "published_at": "2026-11-01 19:59",
+    "status": "published",
+    "appmsgid": "100001301",
+    "file": "公众号-chessigma拆解.html",
+    "publish_type": "publish",
+    "published_appmsgid": "2247484985",
+    "sent_via": "send",
+    "send_reason": "已发表列表出现新记录，标题一致"
+  },
+  "cod-dex": {
+    "title": "Codédex：把学编程包装成「冒险旅程」的互动课程平台，免费 250+ 小时内容引流，Club 订阅 /月变现",
+    "published_at": "2026-11-01 20:05",
+    "status": "published",
+    "appmsgid": "100001326",
+    "file": "公众号-cod-dex拆解.html",
+    "publish_type": "publish",
+    "published_appmsgid": "2247484986",
+    "sent_via": "send",
+    "send_reason": "已发表列表出现新记录，标题一致",
+    "note": "｜publish模式自动发表，新 appmsgid=2247484986",
+    "verified_at": "2026-11-01 20:05"
   }
 }
