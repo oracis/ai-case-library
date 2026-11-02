@@ -102,7 +102,7 @@ python scripts/publish_multi.py block toutiao --case quran-unlock \
 | 小红书 | `data/xhs_drafts.json` | ✅ `--yes` | **绝不能透传 `--dry`**：它的 `--dry` 会照常填表，只是不点发布（污染过 bustem 草稿） |
 | 今日头条 | `data/toutiao_drafts.json` + `_published.json` | ✅ `--yes` | 封面是硬要求，`cover.png` 缺了就当产物不完整 |
 | B站专栏 | **只有清单** | ✅ `--yes`（`send-draft` 走编辑器 UI 点「发布」，2026-10-20） | 草稿只存在远端，本地无从判断；**每天限 1 篇**（本账号 lv0~lv3 档，lv4+ 才 5 篇），额度用完发布按钮变灰，脚本明确报失败 |
-| 掘金 | `data/juejin_drafts.json` | ✅ `publish --draft-id/--case` | **唯一纯 REST 的平台**：不开浏览器、不点 DOM，cookie 鉴权；正文吃 **Markdown**（不是 HTML）；普通账号**只能带 1 个标签** |
+| ~~掘金~~ | ~~`data/juejin_drafts.json`~~ | ⛔ **2026-11-02 停用** | 账号审核无可归因标准（25 篇只过 5 篇，三种文体都试过），已摘适配器 + 脚本双闸熔断；文章与草稿已全删，草稿台账已删。详见 `data/juejin_retired_2026-11-02/README.md`。原始能力备注：唯一纯 REST 的平台，cookie 鉴权，正文吃 Markdown，普通账号只能带 1 个标签 |
 
 ## 为什么串行不并发
 

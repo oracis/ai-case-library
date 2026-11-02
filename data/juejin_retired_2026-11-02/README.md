@@ -58,6 +58,9 @@ r = api("/content_api/v1/article_draft/detail", {"draft_id": "..."}, method="POS
 body = r["article_draft"]["mark_content"]      # 正文在 article_draft 子对象里
 ```
 
-⚠ 注意 `data/juejin_drafts.json` 里那 41 条 `draft_id` **现已全部失效**
-（草稿已删）。文件保留是为了记住「曾经建过哪些稿」，不要再拿它去调接口。
+⚠ `data/juejin_drafts.json`（43 条 slug→draft_id 映射）**已整体删除**
+（commit 见删除记录）。草稿全清后这些 id 全部失效，文件只剩历史冗余。
+所有读取它的位置（`juejin_publish.py` 的 `DRAFT_FILE`、`adapters/juejin.py`、
+`blocked.py`）本来都写了 `os.path.isfile` 判空 + `or {}` 兜底，删文件不会
+让任何脚本报错，只是 `known_ids()` 返回空集（现已无建稿需求，无影响）。
 
