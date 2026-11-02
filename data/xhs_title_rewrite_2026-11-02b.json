@@ -1,0 +1,196 @@
+{
+ "_note": "小红书存量笔记标题去模板化（2026-11-02 第二批，27 篇）。上限 20 字，ASCII 按半字计。",
+ "items": [
+  {
+   "nid": "6ae5c52b",
+   "case": "trustmrr",
+   "old": "TrustMRR：真实收入榜单数据库",
+   "new": "连上 Stripe 才准上榜的收入榜单",
+   "nid_full": "6ae5c52b0000000025009c95"
+  },
+  {
+   "nid": "6ae2c075",
+   "case": "lancer-app",
+   "old": "Lancer：AI 替接单者写提案",
+   "new": "自由职业者的提案，AI 写完替你投出去",
+   "nid_full": "6ae2c075000000002402f84c"
+  },
+  {
+   "nid": "6ae19918",
+   "case": "promptmonitor-io",
+   "old": "PromptMon：盯 AI 里的品牌",
+   "new": "品牌在 AI 回答里出现几次，现在能查",
+   "nid_full": "6ae199180000000035032b4c"
+  },
+  {
+   "nid": "6ae02e43",
+   "case": "agentsguild",
+   "old": "AgentsGuild",
+   "new": "卖 39 美元一次性的游戏开发工具包",
+   "nid_full": "6ae02e43000000001802efb4"
+  },
+  {
+   "nid": "6adefddb",
+   "case": "ai-prank-call",
+   "old": "AI Prank Call",
+   "new": "用名人声音打恶作剧电话，毛利 95%",
+   "nid_full": "6adefddb0000000015004eb5"
+  },
+  {
+   "nid": "6adcb493",
+   "case": "downconvert-sketchup-files",
+   "old": "DownConvert：SU 版本转换",
+   "new": "SketchUp 文件转回旧版，月入 3748 美元",
+   "nid_full": "6adcb493000000003303733b"
+  },
+  {
+   "nid": "6adb113e",
+   "case": "comp-ai",
+   "old": "Comp AI：帮公司过合规审计",
+   "new": "把 SOC 2 审计从六个月压到几周",
+   "nid_full": "6adb113e0000000031024f63"
+  },
+  {
+   "nid": "6ad9843b",
+   "case": "chatbase",
+   "old": "Chatbase：文档一键变客服",
+   "new": "上传文档就有客服机器人，30 分钟成交",
+   "nid_full": "6ad9843b000000003102f89e"
+  },
+  {
+   "nid": "6ad84279",
+   "case": "gojiberryai",
+   "old": "GojiberryAI：B2B 自动获客",
+   "new": "谁在换工作就推给销售，卖的是时机",
+   "nid_full": "6ad84279000000002b01dbc4"
+  },
+  {
+   "nid": "6ad77248",
+   "case": "cometly",
+   "old": "Cometly：广告数据归因分析",
+   "new": "哪条广告带来哪笔收入，广告费不白花",
+   "nid_full": "6ad772480000000028001e50"
+  },
+  {
+   "nid": "6ad63f90",
+   "case": "prosp",
+   "old": "PROSP：销售线索挖到自动触达",
+   "new": "把领英外呼压成一个按钮，一个人做完",
+   "nid_full": "6ad63f90000000002902f170",
+   "new_prev": "领英外呼压成一个按钮，年流水 43 万美元",
+   "note": "首版「年流水 43 万美元」标题被判未通过，改中性表述重提"
+  },
+  {
+   "nid": "6ad46e11",
+   "case": "meerkats-ai",
+   "old": "Meerkats：替营销公司跑获客",
+   "new": "找线索到约上会议只要 15 分钟",
+   "nid_full": "6ad46e1100000000270212d9"
+  },
+  {
+   "nid": "6ad380ad",
+   "case": "boothie-ai-photo-editor",
+   "old": "Boothie：AI 照片编辑器",
+   "new": "选个风格，自拍被重渲染成那种质感",
+   "nid_full": "6ad380ad000000001a02352d"
+  },
+  {
+   "nid": "6ad199f9",
+   "case": "bustem",
+   "old": "Bustem：帮电商品牌全网打假",
+   "new": "38 个平台帮品牌抓仿品，软件加人工",
+   "nid_full": "6ad199f9000000001c02d723"
+  },
+  {
+   "nid": "6acc9aaa",
+   "case": "podawaa",
+   "old": "月收$66K：Publish",
+   "new": "把领英内容当产品运营：排期加分析",
+   "nid_full": "6acc9aaa00000000180173ec"
+  },
+  {
+   "nid": "6acb59ac",
+   "case": "bettrbot",
+   "old": "月收$48K：Turn any",
+   "new": "输入想法几分钟出成片，累计赚 162 万",
+   "nid_full": "6acb59ac000000001801bb7c"
+  },
+  {
+   "nid": "6aca376a",
+   "case": "postiz",
+   "old": "月收$202K：给 SaaS 公司的营销",
+   "new": "一条内容发十几个平台，6000 订阅撑起",
+   "nid_full": "6aca376a000000000a01d2d7"
+  },
+  {
+   "nid": "6ac90f90",
+   "case": "startclaw",
+   "old": "StartClaw：零配置跑 AI 助手",
+   "new": "不买服务器不配 key，也能跑起 agent",
+   "nid_full": "6ac90f90000000000a023d03"
+  },
+  {
+   "nid": "6ac87451",
+   "case": "outrank",
+   "old": "Outrank：自动做 SEO 排名",
+   "new": "从月入 300 到月入 30 万，只做 SEO",
+   "nid_full": "6ac87451000000001b02d1d7"
+  },
+  {
+   "nid": "6ac718ad",
+   "case": "marc-lou-portfolio",
+   "old": "Marc Lou：三年发25个产品",
+   "new": "三年发 25 个产品，12 个在赚钱",
+   "nid_full": "6ac718ad000000001802dd9e"
+  },
+  {
+   "nid": "6ac3ae3e",
+   "case": "kibu",
+   "old": "Kibu：残障机构的病历系统",
+   "new": "给残障服务机构做病历系统，48 个州",
+   "nid_full": "6ac3ae3e000000001203fcd9"
+  },
+  {
+   "nid": "6ac322bc",
+   "case": "voklit",
+   "old": "月收$1.6K：把海外号码做成订阅生意",
+   "new": "卖海外号码给跨境团队，整站 6 万挂牌",
+   "nid_full": "6ac322bc000000001a02b5c3"
+  },
+  {
+   "nid": "6ac1277b",
+   "case": "storyshort-ai",
+   "old": "月收$20K：批量做不露脸短视频",
+   "new": "输入主题就出无露脸短视频，100 人付费",
+   "nid_full": "6ac1277b000000000a020659"
+  },
+  {
+   "nid": "6ac11f83",
+   "case": "pieter-levels",
+   "old": "月收$250K：靠几个网站收租",
+   "new": "三款产品月入 25 万美元，不雇全职",
+   "nid_full": "6ac11f8300000000120373ba"
+  },
+  {
+   "nid": "6ac0cd43",
+   "case": "mort",
+   "old": "月收$42.72：AI 求职代理",
+   "new": "盯 5 万个招聘页，按简历打分自动投递",
+   "nid_full": "6ac0cd4300000000180297ad"
+  },
+  {
+   "nid": "6abdf2a6",
+   "case": "uplinked-b-v",
+   "old": "月收$2.4K：在领英上自动加客户",
+   "new": "分析你的领英档案，生成 12 周内容策略",
+   "nid_full": "6abdf2a60000000013018c63"
+  },
+  {
+   "nid": "6abcb846",
+   "case": "divine-widgets",
+   "old": "月收$6.2K：卖网站小挂件给站长",
+   "new": "每日经文放上锁屏，一个人做到月入 1254",
+   "nid_full": "6abcb8460000000012037cc0"
+  }
+ ]
+}

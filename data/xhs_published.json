@@ -1,266 +1,344 @@
 [
-  {
-    "id": "divine-widgets",
-    "at": "2026-09-30 15:20",
-    "note_id": "6abcb8460000000012037cc0",
-    "title": "月收$6.2K：卖网站小挂件给站长",
-    "metrics": {
-      "synced_at": "2026-10-23 15:27",
-      "likes": 0,
-      "views": 0
-    },
-    "note": "2026-10-23 15:27 接口对账回填（线上已发布）"
+ {
+  "id": "divine-widgets",
+  "at": "2026-09-30 15:20",
+  "note_id": "6abcb8460000000012037cc0",
+  "title": "每日经文放上锁屏，一个人做到月入 1254",
+  "metrics": {
+   "synced_at": "2026-10-23 15:27",
+   "likes": 0,
+   "views": 0
   },
-  {
-    "id": "uplinked-b-v",
-    "at": "2026-10-01 13:41",
-    "note_id": "6abdf2a60000000013018c63",
-    "title": "月收$2.4K：在领英上自动加客户",
-    "metrics": {
-      "synced_at": "2026-10-23 15:27",
-      "likes": 6,
-      "views": 87
-    },
-    "note": "2026-10-18 21:46 接口对账回填（线上已发布）"
+  "note": "2026-10-23 15:27 接口对账回填（线上已发布）",
+  "title_old": "月收$6.2K：卖网站小挂件给站长",
+  "title_fixed_at": "2026-11-02"
+ },
+ {
+  "id": "uplinked-b-v",
+  "at": "2026-10-01 13:41",
+  "note_id": "6abdf2a60000000013018c63",
+  "title": "分析你的领英档案，生成 12 周内容策略",
+  "metrics": {
+   "synced_at": "2026-10-23 15:27",
+   "likes": 6,
+   "views": 87
   },
-  {
-    "id": "mort",
-    "at": "2026-10-03 17:39",
-    "note_id": "6ac0cd4300000000180297ad",
-    "title": "月收$42.72：AI 求职代理",
-    "metrics": {
-      "synced_at": "2026-10-23 15:27",
-      "likes": 3,
-      "views": 26
-    },
-    "note": "2026-10-03 23:40 人工从草稿箱发布"
+  "note": "2026-10-18 21:46 接口对账回填（线上已发布）",
+  "title_old": "月收$2.4K：在领英上自动加客户",
+  "title_fixed_at": "2026-11-02"
+ },
+ {
+  "id": "mort",
+  "at": "2026-10-03 17:39",
+  "note_id": "6ac0cd4300000000180297ad",
+  "title": "盯 5 万个招聘页，按简历打分自动投递",
+  "metrics": {
+   "synced_at": "2026-10-23 15:27",
+   "likes": 3,
+   "views": 26
   },
-  {
-    "id": "pieter-levels",
-    "at": "2026-10-03 23:30",
-    "note_id": "6ac11f8300000000120373ba",
-    "title": "月收$250K：靠几个网站收租",
-    "metrics": {
-      "synced_at": "2026-10-23 15:27",
-      "likes": 8,
-      "views": 157
-    },
-    "note": "2026-10-03 23:40 人工从草稿箱发布"
+  "note": "2026-10-03 23:40 人工从草稿箱发布",
+  "title_old": "月收$42.72：AI 求职代理",
+  "title_fixed_at": "2026-11-02"
+ },
+ {
+  "id": "pieter-levels",
+  "at": "2026-10-03 23:30",
+  "note_id": "6ac11f8300000000120373ba",
+  "title": "三款产品月入 25 万美元，不雇全职",
+  "metrics": {
+   "synced_at": "2026-10-23 15:27",
+   "likes": 8,
+   "views": 157
   },
-  {
-    "id": "storyshort-ai",
-    "at": "2026-10-04 00:04",
-    "note_id": "6ac1277b000000000a020659",
-    "title": "月收$20K：批量做不露脸短视频",
-    "metrics": {
-      "synced_at": "2026-10-23 15:27",
-      "likes": 1,
-      "views": 44
-    },
-    "note": "2026-10-18 21:46 接口对账回填（线上已发布）"
+  "note": "2026-10-03 23:40 人工从草稿箱发布",
+  "title_old": "月收$250K：靠几个网站收租",
+  "title_fixed_at": "2026-11-02"
+ },
+ {
+  "id": "storyshort-ai",
+  "at": "2026-10-04 00:04",
+  "note_id": "6ac1277b000000000a020659",
+  "title": "输入主题就出无露脸短视频，100 人付费",
+  "metrics": {
+   "synced_at": "2026-10-23 15:27",
+   "likes": 1,
+   "views": 44
   },
-  {
-    "id": "voklit",
-    "at": "2026-10-05 12:08",
-    "note_id": "6ac322bc000000001a02b5c3",
-    "title": "月收$1.6K：把海外号码做成订阅生意",
-    "metrics": {
-      "synced_at": "2026-10-23 15:27",
-      "likes": 3,
-      "views": 44
-    },
-    "note": "2026-10-18 21:46 接口对账回填（线上已发布）"
+  "note": "2026-10-18 21:46 接口对账回填（线上已发布）",
+  "title_old": "月收$20K：批量做不露脸短视频",
+  "title_fixed_at": "2026-11-02"
+ },
+ {
+  "id": "voklit",
+  "at": "2026-10-05 12:08",
+  "note_id": "6ac322bc000000001a02b5c3",
+  "title": "卖海外号码给跨境团队，整站 6 万挂牌",
+  "metrics": {
+   "synced_at": "2026-10-23 15:27",
+   "likes": 3,
+   "views": 44
   },
-  {
-    "id": "kibu",
-    "at": "2026-10-05 22:03",
-    "note_id": "6ac3ae3e000000001203fcd9",
-    "title": "Kibu：残障机构的病历系统",
-    "metrics": {
-      "synced_at": "2026-10-23 15:27",
-      "likes": 1,
-      "views": 8
-    },
-    "note": "2026-10-18 21:46 接口对账回填（线上已发布）"
+  "note": "2026-10-18 21:46 接口对账回填（线上已发布）",
+  "title_old": "月收$1.6K：把海外号码做成订阅生意",
+  "title_fixed_at": "2026-11-02"
+ },
+ {
+  "id": "kibu",
+  "at": "2026-10-05 22:03",
+  "note_id": "6ac3ae3e000000001203fcd9",
+  "title": "给残障服务机构做病历系统，48 个州",
+  "metrics": {
+   "synced_at": "2026-10-23 15:27",
+   "likes": 1,
+   "views": 8
   },
-  {
-    "id": "marc-lou-portfolio",
-    "at": "2026-10-08 12:14",
-    "note_id": "6ac718ad000000001802dd9e",
-    "title": "Marc Lou：三年发25个产品",
-    "metrics": {
-      "synced_at": "2026-10-23 15:27",
-      "likes": 0,
-      "views": 25
-    },
-    "note": "2026-10-23 14:57 接口对账回填（线上已发布）"
+  "note": "2026-10-18 21:46 接口对账回填（线上已发布）",
+  "title_old": "Kibu：残障机构的病历系统",
+  "title_fixed_at": "2026-11-02"
+ },
+ {
+  "id": "marc-lou-portfolio",
+  "at": "2026-10-08 12:14",
+  "note_id": "6ac718ad000000001802dd9e",
+  "title": "三年发 25 个产品，12 个在赚钱",
+  "metrics": {
+   "synced_at": "2026-10-23 15:27",
+   "likes": 0,
+   "views": 25
   },
-  {
-    "id": "outrank",
-    "at": "2026-10-09 12:57",
-    "note_id": "6ac87451000000001b02d1d7",
-    "title": "Outrank：自动做 SEO 排名",
-    "metrics": {
-      "synced_at": "2026-10-23 15:27",
-      "likes": 2,
-      "views": 24
-    },
-    "note": "2026-10-23 14:57 接口对账回填（线上已发布）"
+  "note": "2026-10-23 14:57 接口对账回填（线上已发布）",
+  "title_old": "Marc Lou：三年发25个产品",
+  "title_fixed_at": "2026-11-02"
+ },
+ {
+  "id": "outrank",
+  "at": "2026-10-09 12:57",
+  "note_id": "6ac87451000000001b02d1d7",
+  "title": "从月入 300 到月入 30 万，只做 SEO",
+  "metrics": {
+   "synced_at": "2026-10-23 15:27",
+   "likes": 2,
+   "views": 24
   },
-  {
-    "id": "startclaw",
-    "at": "2026-10-10 00:00",
-    "note_id": "6ac90f90000000000a023d03",
-    "title": "StartClaw：零配置跑 AI 助手",
-    "metrics": {
-      "synced_at": "2026-10-23 15:27",
-      "likes": 0,
-      "views": 9
-    },
-    "note": "2026-10-23 14:57 接口对账回填（线上已发布）"
+  "note": "2026-10-23 14:57 接口对账回填（线上已发布）",
+  "title_old": "Outrank：自动做 SEO 排名",
+  "title_fixed_at": "2026-11-02"
+ },
+ {
+  "id": "startclaw",
+  "at": "2026-10-10 00:00",
+  "note_id": "6ac90f90000000000a023d03",
+  "title": "不买服务器不配 key，也能跑起 agent",
+  "metrics": {
+   "synced_at": "2026-10-23 15:27",
+   "likes": 0,
+   "views": 9
   },
-  {
-    "id": "postiz",
-    "at": "2026-10-10 21:02",
-    "note_id": "6aca376a000000000a01d2d7",
-    "title": "月收$202K：给 SaaS 公司的营销",
-    "metrics": {
-      "synced_at": "2026-10-23 15:27",
-      "likes": 2,
-      "views": 19
-    },
-    "note": "2026-10-23 15:27 接口对账回填（线上已发布）"
+  "note": "2026-10-23 14:57 接口对账回填（线上已发布）",
+  "title_old": "StartClaw：零配置跑 AI 助手",
+  "title_fixed_at": "2026-11-02"
+ },
+ {
+  "id": "postiz",
+  "at": "2026-10-10 21:02",
+  "note_id": "6aca376a000000000a01d2d7",
+  "title": "一条内容发十几个平台，6000 订阅撑起",
+  "metrics": {
+   "synced_at": "2026-10-23 15:27",
+   "likes": 2,
+   "views": 19
   },
-  {
-    "id": "bettrbot",
-    "at": "2026-10-11 17:41",
-    "note_id": "6acb59ac000000001801bb7c",
-    "title": "月收$48K：Turn any",
-    "metrics": {
-      "synced_at": "2026-10-23 15:27",
-      "likes": 2,
-      "views": 51
-    },
-    "note": "2026-10-23 15:27 接口对账回填（线上已发布）"
+  "note": "2026-10-23 15:27 接口对账回填（线上已发布）",
+  "title_old": "月收$202K：给 SaaS 公司的营销",
+  "title_fixed_at": "2026-11-02"
+ },
+ {
+  "id": "bettrbot",
+  "at": "2026-10-11 17:41",
+  "note_id": "6acb59ac000000001801bb7c",
+  "title": "输入想法几分钟出成片，累计赚 162 万",
+  "metrics": {
+   "synced_at": "2026-10-23 15:27",
+   "likes": 2,
+   "views": 51
   },
-  {
-    "id": "podawaa",
-    "at": "2026-10-12 16:30",
-    "note_id": "6acc9aaa00000000180173ec",
-    "title": "月收$66K：Publish",
-    "metrics": {
-      "synced_at": "2026-10-23 15:27",
-      "likes": 4,
-      "views": 40
-    },
-    "note": "2026-10-23 15:27 接口对账回填（线上已发布）"
+  "note": "2026-10-23 15:27 接口对账回填（线上已发布）",
+  "title_old": "月收$48K：Turn any",
+  "title_fixed_at": "2026-11-02"
+ },
+ {
+  "id": "podawaa",
+  "at": "2026-10-12 16:30",
+  "note_id": "6acc9aaa00000000180173ec",
+  "title": "把领英内容当产品运营：排期加分析",
+  "metrics": {
+   "synced_at": "2026-10-23 15:27",
+   "likes": 4,
+   "views": 40
   },
-  {
-    "id": "bustem",
-    "at": "2026-10-16 11:28",
-    "note_id": "6ad199f9000000001c02d723",
-    "title": "Bustem：帮电商品牌全网打假",
-    "metrics": {
-      "synced_at": "2026-10-23 15:27",
-      "likes": 0,
-      "views": 11
-    },
-    "note": "2026-10-23 15:27 接口对账回填；⚠ 与 6ac513e3 重复发布"
+  "note": "2026-10-23 15:27 接口对账回填（线上已发布）",
+  "title_old": "月收$66K：Publish",
+  "title_fixed_at": "2026-11-02"
+ },
+ {
+  "id": "bustem",
+  "at": "2026-10-16 11:28",
+  "note_id": "6ad199f9000000001c02d723",
+  "title": "38 个平台帮品牌抓仿品，软件加人工",
+  "metrics": {
+   "synced_at": "2026-10-23 15:27",
+   "likes": 0,
+   "views": 11
   },
-  {
-    "id": "boothie-ai-photo-editor",
-    "at": "2026-10-17 22:05",
-    "note_id": "6ad380ad000000001a02352d",
-    "title": "Boothie：AI 照片编辑器",
-    "metrics": {
-      "synced_at": "2026-10-23 15:27",
-      "likes": 0,
-      "views": 12
-    },
-    "note": "2026-10-23 15:27 接口对账回填（线上已发布）"
+  "note": "2026-10-23 15:27 接口对账回填；⚠ 与 6ac513e3 重复发布",
+  "title_old": "Bustem：帮电商品牌全网打假",
+  "title_fixed_at": "2026-11-02"
+ },
+ {
+  "id": "boothie-ai-photo-editor",
+  "at": "2026-10-17 22:05",
+  "note_id": "6ad380ad000000001a02352d",
+  "title": "选个风格，自拍被重渲染成那种质感",
+  "metrics": {
+   "synced_at": "2026-10-23 15:27",
+   "likes": 0,
+   "views": 12
   },
-  {
-    "id": "meerkats-ai",
-    "at": "2026-10-18 14:58",
-    "note_id": "6ad46e1100000000270212d9",
-    "title": "Meerkats：替营销公司跑获客",
-    "metrics": {
-      "synced_at": "2026-10-23 15:27",
-      "likes": 3,
-      "views": 24
-    },
-    "note": "2026-10-23 15:27 接口对账回填（线上已发布）"
+  "note": "2026-10-23 15:27 接口对账回填（线上已发布）",
+  "title_old": "Boothie：AI 照片编辑器",
+  "title_fixed_at": "2026-11-02"
+ },
+ {
+  "id": "meerkats-ai",
+  "at": "2026-10-18 14:58",
+  "note_id": "6ad46e1100000000270212d9",
+  "title": "找线索到约上会议只要 15 分钟",
+  "metrics": {
+   "synced_at": "2026-10-23 15:27",
+   "likes": 3,
+   "views": 24
   },
-  {
-    "id": "prosp",
-    "at": "2026-10-20 00:04",
-    "note_id": "6ad63f90000000002902f170",
-    "title": "PROSP：销售线索挖到自动触达",
-    "metrics": {
-      "synced_at": "2026-10-23 15:27",
-      "likes": 1,
-      "views": 12
-    },
-    "note": "2026-10-23 15:27 接口对账回填（线上已发布）"
+  "note": "2026-10-23 15:27 接口对账回填（线上已发布）",
+  "title_old": "Meerkats：替营销公司跑获客",
+  "title_fixed_at": "2026-11-02"
+ },
+ {
+  "id": "prosp",
+  "at": "2026-10-20 00:04",
+  "note_id": "6ad63f90000000002902f170",
+  "title": "把领英外呼压成一个按钮，一个人做完",
+  "metrics": {
+   "synced_at": "2026-10-23 15:27",
+   "likes": 1,
+   "views": 12
   },
-  {
-    "id": "cometly",
-    "at": "2026-10-20 21:53",
-    "note_id": "6ad772480000000028001e50",
-    "title": "Cometly：广告数据归因分析",
-    "metrics": {
-      "synced_at": "2026-10-23 15:27",
-      "likes": 0,
-      "views": 4
-    },
-    "note": "2026-10-23 15:27 接口对账回填（线上已发布）"
+  "note": "2026-10-23 15:27 接口对账回填（线上已发布）",
+  "title_old": "PROSP：销售线索挖到自动触达",
+  "title_fixed_at": "2026-11-02"
+ },
+ {
+  "id": "cometly",
+  "at": "2026-10-20 21:53",
+  "note_id": "6ad772480000000028001e50",
+  "title": "哪条广告带来哪笔收入，广告费不白花",
+  "metrics": {
+   "synced_at": "2026-10-23 15:27",
+   "likes": 0,
+   "views": 4
   },
-  {
-    "id": "gojiberryai",
-    "at": "2026-10-21 12:41",
-    "note_id": "6ad84279000000002b01dbc4",
-    "title": "GojiberryAI：B2B 自动获客",
-    "metrics": {
-      "synced_at": "2026-10-23 15:27",
-      "likes": 0,
-      "views": 8
-    },
-    "note": "2026-10-23 15:27 接口对账回填（线上已发布）"
+  "note": "2026-10-23 15:27 接口对账回填（线上已发布）",
+  "title_old": "Cometly：广告数据归因分析",
+  "title_fixed_at": "2026-11-02"
+ },
+ {
+  "id": "gojiberryai",
+  "at": "2026-10-21 12:41",
+  "note_id": "6ad84279000000002b01dbc4",
+  "title": "谁在换工作就推给销售，卖的是时机",
+  "metrics": {
+   "synced_at": "2026-10-23 15:27",
+   "likes": 0,
+   "views": 8
   },
-  {
-    "id": "chatbase",
-    "at": "2026-10-22 11:34",
-    "note_id": "6ad9843b000000003102f89e",
-    "title": "Chatbase：文档一键变客服",
-    "metrics": {
-      "synced_at": "2026-10-23 15:27",
-      "likes": 0,
-      "views": 4
-    },
-    "note": "2026-10-23 15:27 接口对账回填（线上已发布）"
+  "note": "2026-10-23 15:27 接口对账回填（线上已发布）",
+  "title_old": "GojiberryAI：B2B 自动获客",
+  "title_fixed_at": "2026-11-02"
+ },
+ {
+  "id": "chatbase",
+  "at": "2026-10-22 11:34",
+  "note_id": "6ad9843b000000003102f89e",
+  "title": "上传文档就有客服机器人，30 分钟成交",
+  "metrics": {
+   "synced_at": "2026-10-23 15:27",
+   "likes": 0,
+   "views": 4
   },
-  {
-    "id": "comp-ai",
-    "at": "2026-10-23 15:48"
-  },
-  {
-    "id": "downconvert-sketchup-files",
-    "at": "2026-10-24 21:37"
-  },
-  {
-    "id": "agentsguild",
-    "at": "2026-10-27 12:53"
-  },
-  {
-    "id": "promptmonitor-io",
-    "at": "2026-10-28 14:41"
-  },
-  {
-    "id": "lancer-app",
-    "at": "2026-10-29 11:41"
-  },
-  {
-    "id": "trustmrr",
-    "at": "2026-10-31 18:38"
-  }
+  "note": "2026-10-23 15:27 接口对账回填（线上已发布）",
+  "title_old": "Chatbase：文档一键变客服",
+  "title_fixed_at": "2026-11-02"
+ },
+ {
+  "id": "comp-ai",
+  "at": "2026-10-23 15:48",
+  "note_id": "6adb113e0000000031024f63",
+  "title_old": "Comp AI：帮公司过合规审计",
+  "title": "把 SOC 2 审计从六个月压到几周",
+  "title_fixed_at": "2026-11-02"
+ },
+ {
+  "id": "downconvert-sketchup-files",
+  "at": "2026-10-24 21:37",
+  "note_id": "6adcb493000000003303733b",
+  "title_old": "DownConvert：SU 版本转换",
+  "title": "SketchUp 文件转回旧版，月入 3748 美元",
+  "title_fixed_at": "2026-11-02"
+ },
+ {
+  "id": "agentsguild",
+  "at": "2026-10-27 12:53",
+  "note_id": "6ae02e43000000001802efb4",
+  "title_old": "AgentsGuild",
+  "title": "卖 39 美元一次性的游戏开发工具包",
+  "title_fixed_at": "2026-11-02"
+ },
+ {
+  "id": "promptmonitor-io",
+  "at": "2026-10-28 14:41",
+  "note_id": "6ae199180000000035032b4c",
+  "title_old": "PromptMon：盯 AI 里的品牌",
+  "title": "品牌在 AI 回答里出现几次，现在能查",
+  "title_fixed_at": "2026-11-02"
+ },
+ {
+  "id": "lancer-app",
+  "at": "2026-10-29 11:41",
+  "note_id": "6ae2c075000000002402f84c",
+  "title_old": "Lancer：AI 替接单者写提案",
+  "title": "自由职业者的提案，AI 写完替你投出去",
+  "title_fixed_at": "2026-11-02"
+ },
+ {
+  "id": "trustmrr",
+  "at": "2026-10-31 18:38",
+  "note_id": "6ae5c52b0000000025009c95",
+  "title_old": "TrustMRR：真实收入榜单数据库",
+  "title": "连上 Stripe 才准上榜的收入榜单",
+  "title_fixed_at": "2026-11-02"
+ },
+ {
+  "id": "cod-dex",
+  "at": "2026-11-01 16:35",
+  "note_id": "6ae6f944000000000e00c0dc",
+  "title": "9.99 美元学编程，6686 人买单",
+  "note": "2026-11-02 改标题，发布后状态为「审核中」。原标题「Codédex：把学编程包装成的互动课程」模板化"
+ },
+ {
+  "id": "chessigma",
+  "at": "2026-11-01 16:43",
+  "note_id": "6ae6fbae00000000070389e1",
+  "title": "免费下棋，100 万人用，576 人付费",
+  "note": "2026-11-02 改标题：笔记管理→铅笔→/publish/update?id=<noteId>，改完点 xhs-publish-btn 内红色「发布」，回列表已看不到「审核中」（已过审）。原标题「Chessigma：拿下 100 万+」模板化"
+ }
 ]

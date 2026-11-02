@@ -90,5 +90,19 @@
     "status": "published",
     "ts": "2026-11-01 10:16:10",
     "note": " | 2026-10-31 标题改为无金额版（铁律：标题禁金额）"
+  },
+  "chessigma": {
+    "post_id": "23511986",
+    "title": "100 万用户只转化 576 个付费：免费版 Chess.com 怎么用实时对弈架构撑住算力成本",
+    "url": "https://www.cnblogs.com/thing-explainer/p/23511986",
+    "status": "published",
+    "ts": "2026-11-02 12:20:40"
+  },
+  "cod-dex": {
+    "post_id": "23511987",
+    "title": "把 Python 课做成闯关地图：Codédex 的免费层、判题练习与 9.99 美元的订阅门控",
+    "url": "https://www.cnblogs.com/thing-explainer/p/23511987",
+    "status": "published",
+    "ts": "2026-11-02 12:20:48"
   }
 }

@@ -239,7 +239,21 @@ class Runner:
             return
         for cid in cids:
             self.log("  %s" % cid)
-            r = self.run_one(arts[cid], plat)
+            try:
+                r = self.run_one(arts[cid], plat)
+            except Exception as e:                     # noqa: BLE001
+                # 🛡 进程级中断/未捕获异常（子进程挂死被外部 kill、CDP
+                # 连接崩等）不能让 state 永远停在 building 让人看不见——
+                # 记 failed，用户才好用 retry 重发。2026-11-01 修：头条两篇
+                # 就因 run_one 被中断卡成 building 且无回写。
+                self.m.mark_failed(
+                    cid, plat,
+                    "run_one 异常：%s"
+                    % (type(e).__name__ + ": " + str(e))[:200],
+                    self._title(arts[cid], plat))
+                self.log("    [%s] ✗ run_one 异常：%s"
+                         % (ad.label, str(e)[:110]))
+                r = "failed"
             tally[cid] = tally.get(cid, True) and (r != "failed")
 
     def _run_batch(self, ad, plat, cids, arts, tally):
@@ -253,7 +267,17 @@ class Runner:
                      replace=self.replace)
         if r is None:                       # 平台没实现 batch，退回逐条
             for cid in cids:
-                res = self.run_one(arts[cid], plat)
+                try:
+                    res = self.run_one(arts[cid], plat)
+                except Exception as e:                 # noqa: BLE001
+                    self.m.mark_failed(
+                        cid, plat,
+                        "run_one 异常：%s"
+                        % (type(e).__name__ + ": " + str(e))[:200],
+                        self._title(arts[cid], plat))
+                    self.log("    [%s] ✗ run_one 异常：%s"
+                             % (ad.label, str(e)[:110]))
+                    res = "failed"
                 tally[cid] = tally.get(cid, True) and (res != "failed")
             return
         if self.dry:
