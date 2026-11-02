@@ -324,6 +324,25 @@ def delete_draft(draft_id, cookie=None):
                {"draft_id": str(draft_id)}, cookie)
 
 
+def delete_article(article_id, cookie=None):
+    """删**已发布**文章（不是草稿 —— 草稿走 `article_draft/delete`）。
+
+    ⚠ 2026-11-02 实测参数类型：`article_id` 必须是**带引号的数字字符串**。
+
+    踩坑经过：先以为要 int，传 `{"article_id": 7703...}` 结果十条全挂，
+    服务端回的是 Go 的吐真言：
+        `json: invalid use of ,string struct tag, trying to unmarshal
+         unquoted value into int64`
+    —— 字段声明是 `int64` + `,string` tag，即 JSON 里必须写成 `"7703..."`。
+    改成 `str` 后 err_no=0。
+
+    ⚠ 别拿 `article_draft/delete` 的经验反推：那边 `draft_id` 也是字符串，
+    但**原因不同**（那边字段本来就是 string）。两个端点看着像，理由不一样。
+    """
+    return api("/content_api/v1/article/delete",
+               {"article_id": str(article_id)}, cookie)
+
+
 def remember(slug, draft_id, title):
     """本地台账，供适配器判幂等（掘金草稿只在远端，本地没记录就会重发）。"""
     db = {}
@@ -755,6 +774,50 @@ def cmd_delete(args):
     return 0
 
 
+def cmd_delete_article(args):
+    """删已发布文章。批量模式从删除前快照读 id，逐条删并回读。
+
+    ⚠ 删完**必须回读验证**：`article/delete` 返回 err_no=0 不等于列表里就没了
+    （掘金有缓存/软删），拿 query_list 确认 article_id 确实消失才算成功。
+    """
+    ids = []
+    if getattr(args, "article_id", None):
+        ids = [args.article_id]
+    elif getattr(args, "from_manifest", None):
+        rows = json.load(open(args.from_manifest, encoding="utf-8"))
+        ids = [r["article_id"] for r in rows]
+    if not ids:
+        raise SystemExit("✗ 给 --article-id 或 --from-manifest")
+
+    if args.dry:
+        print("  [dry] 将删 %d 篇：%s" % (len(ids), ", ".join(ids)))
+        return 0
+
+    ok = fail = 0
+    for aid in ids:
+        try:
+            delete_article(aid)
+            print("  ✓ 已删 %s" % aid)
+            ok += 1
+        except ApiError as e:
+            print("  ✗ %s -> %s" % (aid, str(e)[:110]))
+            fail += 1
+
+    # 回读：列表里还剩下的才算真没删掉
+    left = set()
+    try:
+        d = api("/content_api/v1/article/query_list",
+                {"user_id": whoami().get("user_id"), "sort_type": 2,
+                 "cursor": "0", "limit": 50})
+        left = {str((it.get("article_info") or {}).get("article_id")) for it in (d or [])}
+    except Exception as e:                                  # noqa: BLE001
+        print("  [warn] 回读失败：%s" % str(e)[:100])
+    still = [i for i in ids if i in left]
+    print("删除 %d 成功 / %d 失败；回读仍在列表：%d 篇%s"
+          % (ok, fail, len(still), ("  <-- " + ", ".join(still)) if still else ""))
+    return 0 if (fail == 0 and not still) else 1
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description="掘金发布（纯 API，正文吃 Markdown）")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -810,6 +873,15 @@ def main(argv=None):
     p = sub.add_parser("delete", help="删草稿")
     p.add_argument("--draft-id", required=True)
     p.set_defaults(fn=cmd_delete)
+
+    p = sub.add_parser("delete-article",
+                       help="删已发布文章（可批量，从删除前快照读 id）")
+    p.add_argument("--article-id")
+    p.add_argument("--from-manifest",
+                   help="删除前快照 json（含 article_id 列表）")
+    p.add_argument("--dry", action="store_true")
+    p.set_defaults(fn=cmd_delete_article)
+
 
     args = ap.parse_args(argv)
     return args.fn(args)
