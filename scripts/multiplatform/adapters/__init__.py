@@ -17,5 +17,18 @@
 换成本项目的「CDP + 已登录 Chrome」。
 """
 
-from . import toutiao, bilibili, xiaohongshu, wechat, juejin  # noqa: F401
+# ⛔ 2026-11-02 起**停用掘金**，不再发布任何文章。
+# 停用原因（不是技术故障，是平台侧不可预期）：
+#   同账号 10 篇已发文章只有 2 篇过审（通过率 20%），且**不存在可归因的
+#   客观标准**——标题模板化、八节骨架、第一人称踩坑体例三种写法都试过，
+#   被拒与通过的差异无法从内容侧复现或预测。对一个「发出去就消失、
+#   只能靠猜」的渠道继续投入，性价比不成立。
+#   ⇒ 结论：这是渠道问题，不是稿件问题。不要再花时间调文体去撞审核。
+#
+# 恢复方法：把下面 juejin 加回 import 即可（adapter 文件本身完整保留）。
+# 另注：`scripts/multiplatform/blocked.py` 里仍保留 juejin 分支 —— 那是
+#   **清理存量草稿**（27 条）用的，不属于发布路径，故不随本次停用一起摘掉。
+from . import toutiao, bilibili, xiaohongshu, wechat  # noqa: F401
+# from . import juejin   # ⛔ 已停用，见上
 from .base import REGISTRY, Adapter, get, all_adapters     # noqa: F401
+

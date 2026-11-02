@@ -639,8 +639,34 @@ def cmd_tags(args):
     return 0
 
 
+def _refuse_if_retired(dry=False):
+    """⛔ 2026-11-02 起掘金渠道停用：不许再存稿、不许再发布。
+
+    停用不是因为脚本坏了，是因为**平台侧没有可归因的客观标准**：
+    同账号 10 篇已发文章只过审 2 篇，模板标题、八节骨架、第一人称踩坑
+    体例三种写法都试过，被拒/通过之间的差异从内容侧复现不出来。
+    继续换文体去撞审核是无底洞，已在 `adapters/__init__.py` 同步摘掉
+    适配器注册，这里是**第二道闸**，防止有人绕过框架直接敲命令行。
+
+    ⚠ 只拦写入（draft / publish）。`login` / `whoami` / `list` /
+    `categories` / `tags` / `delete` 一律放行 —— 存量 27 条草稿还得能清，
+    账号登录态还得能验。要彻底恢复：删掉本函数调用，并把
+    `adapters/__init__.py` 里的 juejin import 加回去。
+    """
+    if dry:
+        print("  [warn] 掘金渠道已停用（2026-11-02），当前是 --dry，不会真发。")
+        return
+    raise SystemExit(
+        "⛔ 掘金渠道已停用（2026-11-02），不再发布。\n"
+        "   原因：该平台审核无可归因标准，10 篇只过 2 篇，无法从内容侧改进。\n"
+        "   只读操作仍可用：whoami / list / categories / tags / delete --draft-id\n"
+        "   要恢复发布：见 scripts/juejin_publish.py 的 _refuse_if_retired() 注释。")
+
+
+
 def cmd_draft(args):
     """存草稿。掘金正文吃 Markdown，所以独立稿直接给 .md 就行，不需要 HTML。"""
+    _refuse_if_retired(dry=getattr(args, "dry", False))
     if args.file:
         md_path = args.file
         slug = os.path.splitext(os.path.basename(md_path))[0]
@@ -699,6 +725,7 @@ def cmd_list(args):
 
 
 def cmd_publish(args):
+    _refuse_if_retired(dry=getattr(args, "dry", False))
     _, db = known_ids()
     did = args.draft_id
     if not did and args.case:
