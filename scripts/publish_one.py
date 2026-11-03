@@ -71,6 +71,12 @@ PY = sys.executable or "python"
 # 把路径显示成「游戏仓:xxx」，两处默认值必须一致。
 GAMES_ROOT = os.environ.get("GAMES_ROOT", r"D:/open-source-games")
 
+# --gen 可按需生成 AI 稿的平台（= gen_case_drafts.PLATFORMS，腾讯云/阿里云技术向
+# 稿另有流程不在内）。注意 aliyun 在 gen 里能出「商业拆解」骨架，但要走
+# 腾讯云体裁口径时仍需人工技术向重写 —— 现在阿里云过审口径与博客园一致，先放行。
+GEN_PLATFORMS = ("cnblogs", "zhihu", "csdn", "aliyun")
+GEN_SCRIPT = os.path.join(SCRIPTS, "gen_case_drafts.py")
+
 # 平台 → 平台稿文件名（游戏仓 content/<slug>/platform/<file>）
 GAME_FILE = {
     "wechat": "wechat.md", "toutiao": "toutiao.md", "xhs": "xhs.md",
@@ -382,8 +388,25 @@ def upload_remote(platform, case, dry=False):
     return subprocess.call(cmd, cwd=ROOT)
 
 
+def gen_pack(platform, case):
+    """按需生成一篇 AI case 平台稿（gen_case_drafts.py）；失败返回 None。
+
+    ⚠ 必须带 NO_PROXY：ModelScope 端点走直连（本机有全局代理时会 403/超时，
+    与 scripts 直连发布同一坑）。生成失败不拦发布 —— 它只负责把稿补出来，
+    补不出来就走原来的「稿件（缺）」路径报闸。
+    """
+    env = dict(os.environ, NO_PROXY="*", no_proxy="*")
+    cmd = [PY, "-X", "utf8", GEN_SCRIPT, "--case", case, "--platforms", platform]
+    try:
+        rc = subprocess.call(cmd, cwd=ROOT, env=env)
+    except OSError as e:
+        print("  ✗ 生成失败：%s" % e)
+        return None
+    return pack_path(platform, case) if rc == 0 else None
+
+
 def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
-        as_json=False):
+        as_json=False, gen=False):
     case, row = pick(platform, case, day)
     cn = dict(SLOT.PLATFORMS)[platform]
     if not row.get("kind"):
@@ -399,6 +422,28 @@ def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
     print("  档期：%s" % row.get("reason"))
     if row.get("note"):
         print("  ⚠ %s" % row["note"])
+    if not pack and gen and platform in GEN_PLATFORMS:
+        # AI 稿库断供（五个 --file 平台共用同 3 篇早发完了）⇒ 按需生成这一篇。
+        # ⚠ 档期在 AI 池空时会**回退到游戏稿**（decide 的 fallback），显式 --gen
+        # 就是要把 AI 稿补出来 ⇒ 此时选稿交给 gen_case_drafts（按质量挑第一篇
+        # 没发过的），别顺着回退把游戏稿发了 —— 那会多烧一期游戏额度。
+        # 显式 --gen 才做，不静默：生成的稿子标题是模型写的，人得有机会看到。
+        fb = row.get("fallback") or ""
+        ai_wanted = row.get("kind") == "ai" or (SLOT.kind_of(case) == "game"
+                                                and "改发 AI" in fb)
+        if ai_wanted:
+            if SLOT.kind_of(case) == "game":
+                import gen_case_drafts as _G
+                new_case = _G.pick_by_quality(platform)
+                if new_case:
+                    case = new_case
+                    pack = pack_path(platform, case)
+                    print("  档期本该发 AI 但稿库为 0 ⇒ 按质量补选：%s" % case)
+            if not pack and SLOT.kind_of(case) == "ai":
+                print("  稿件缺货 ⇒ 按需生成（gen_case_drafts，模板拼装+LLM 只写标题）")
+                pack = gen_pack(platform, case)
+                if pack:
+                    print("  稿件：%s（新生成）" % pack)
     print("  稿件：%s" % (pack or "（缺）"))
 
     gates = run_gates(platform, case, pack)
@@ -490,6 +535,8 @@ def main(argv=None):
     ap.add_argument("--timeout", type=int, default=900, help="单平台超时秒数")
     ap.add_argument("--upload", action="store_true",
                     help="两朵云没草稿时先跑 sync_longtail 上传（要浏览器+扩展）")
+    ap.add_argument("--gen", action="store_true",
+                    help="AI 稿缺货时按需生成（gen_case_drafts，模板拼装+LLM 只写标题）")
     a = ap.parse_args(argv)
 
     if a.all and a.platform:
@@ -501,7 +548,7 @@ def main(argv=None):
             return plan(a.day, todo, a.json)
         rc = 0
         for k in todo:
-            rc |= run(k, None, True, a.timeout, a.day, a.upload, a.json)
+            rc |= run(k, None, True, a.timeout, a.day, a.upload, a.json, a.gen)
         return rc
     if not a.platform:
         return plan(a.day, None, a.json)
@@ -509,7 +556,7 @@ def main(argv=None):
         ap.error("--case 只能配单个 --platform")
     rc = 0
     for k in a.platform:
-        rc |= run(k, a.case, a.yes, a.timeout, a.day, a.upload, a.json)
+        rc |= run(k, a.case, a.yes, a.timeout, a.day, a.upload, a.json, a.gen)
     return rc
 
 

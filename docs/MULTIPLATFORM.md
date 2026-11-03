@@ -16,8 +16,28 @@ python scripts/publish_one.py                 # 今日计划（只读，不碰�
 python scripts/publish_one.py --platform csdn # 干跑：闸结果 + 将要执行的确切命令
 python scripts/publish_one.py --platform csdn --yes   # 真发
 python scripts/publish_one.py --platform tencentcloud --upload --yes  # 两朵云先补草稿
+python scripts/publish_one.py --platform cnblogs --gen --yes  # AI 稿缺货先按需生成再发
 python scripts/publish_one.py --json          # 机器可读（给定时任务吃）
 ```
+
+### 按需生成（`gen_case_drafts.py`，2026-11-03 补断供）
+
+五个 `--file` 平台（cnblogs/zhihu/csdn/tencentcloud/aliyun）共用同一批稿，
+`chessigma / cod-dex / shipfast` 三篇发完后 **AI case 全面断供**，`decide()`
+会静默回退到游戏稿 —— 游戏稿只有 11 期，烧完五平台全停。补法：
+
+```bash
+python scripts/gen_case_drafts.py --list 10        # 候选清单（人挑）
+python scripts/gen_case_drafts.py --case clawlink  # 一次生成 4 平台
+python scripts/publish_one.py --platform cnblogs --gen --yes   # 缺稿自动生成再发
+```
+
+设计原则：**正文是模板拼装，不是 LLM 写的** —— `playbook`/`why_it_works`/
+`verdict`/`what_it_does`/`how_it_makes_money` 与 cases.json 字段逐字对应，
+零编造、零成本、可复现；LLM 只写标题一行（带「禁金额」守卫，失败回退模板）。
+覆盖 cnblogs/zhihu/csdn/aliyun 四家；**腾讯云不在内** —— 它只收技术向
+（标题禁金额、正文讲实现取舍），cases.json 没有技术栈字段，硬拼就是
+「伪技术稿」，那是被驳回过的老路。
 
 它**不重写任何平台逻辑**：CDP 选择器、封面注入、抽屉填写都留在原脚本里，
 入口只做三件事 —— 用 `publish_slot.decide()` 选平台与稿件、串七道闸、按
