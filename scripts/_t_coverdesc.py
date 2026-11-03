@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""cover_desc_ai.validate() 的门禁回归测试。
+r"""cover_desc_ai.validate() 的门禁回归测试。
 
 ⚠ 为什么要写成文件而不是 `python -c`：**Bash 双引号会把 `$7,926` 里的
    `$7` 当shell 变量展开成空**，导致测试数据被悄悄改写、门禁看起来
