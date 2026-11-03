@@ -3,17 +3,50 @@
  "game_ids": [],
  "records": {
   "toutiao": [
-   {"at": "2026-11-02", "case_id": "ext-ep-001-super-mario-bros"},
-   {"at": "2026-11-02", "case_id": "ext-ep-002-2048"},
-   {"at": "2026-11-02", "case_id": "ext-ep-003-freedoom"},
-   {"at": "2026-11-02", "case_id": "ext-ep-004-quake"},
-   {"at": "2026-11-02", "case_id": "ext-ep-005-supertux"},
-   {"at": "2026-11-02", "case_id": "ext-ep-006-nethack"},
-   {"at": "2026-11-02", "case_id": "ext-ep-007-openttd"},
-   {"at": "2026-11-02", "case_id": "ext-ep-008-mindustry"},
-   {"at": "2026-11-02", "case_id": "ext-ep-009-lichess"},
-   {"at": "2026-11-02", "case_id": "ext-ep-010-cataclysm-dark-days-ahead"},
-   {"at": "2026-11-02", "case_id": "ext-ep-011-minetest"}
+   {
+    "at": "2026-11-02",
+    "case_id": "ext-ep-001-super-mario-bros"
+   },
+   {
+    "at": "2026-11-02",
+    "case_id": "ext-ep-002-2048"
+   },
+   {
+    "at": "2026-11-02",
+    "case_id": "ext-ep-003-freedoom"
+   },
+   {
+    "at": "2026-11-02",
+    "case_id": "ext-ep-004-quake"
+   },
+   {
+    "at": "2026-11-02",
+    "case_id": "ext-ep-005-supertux"
+   },
+   {
+    "at": "2026-11-02",
+    "case_id": "ext-ep-006-nethack"
+   },
+   {
+    "at": "2026-11-02",
+    "case_id": "ext-ep-007-openttd"
+   },
+   {
+    "at": "2026-11-02",
+    "case_id": "ext-ep-008-mindustry"
+   },
+   {
+    "at": "2026-11-02",
+    "case_id": "ext-ep-009-lichess"
+   },
+   {
+    "at": "2026-11-02",
+    "case_id": "ext-ep-010-cataclysm-dark-days-ahead"
+   },
+   {
+    "at": "2026-11-02",
+    "case_id": "ext-ep-011-minetest"
+   }
   ]
  }
 }

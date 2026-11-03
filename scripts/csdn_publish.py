@@ -694,8 +694,9 @@ def main():
         md = "\n".join(ln for ln in md.split("\n")
                        if not ln.startswith("> 平台："))
         title, body = split_md(md)
-        if re.search(r"\d", title):
-            print("⚠ 标题含数字（「标题禁金额」铁律）：", title)
+        if re.search(r"[$¥€£]\s*\d|\d[\d,.]*\s*(?:美元|美金|美刀|元|万|亿|RMB|USD|MRR|ARR)",
+                     title, re.I):
+            print("⚠ 标题疑似含金额（「标题禁金额」铁律）：", title)
         aid, url, title = save_article(title, body, tags=args.tags,
                                        via=args.via)
         remember(args.case or os.path.splitext(os.path.basename(args.file))[0],

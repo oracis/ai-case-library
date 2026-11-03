@@ -348,8 +348,9 @@ def main():
     case = args.case or os.path.splitext(os.path.basename(src))[0]
     title, body = read_draft(src)
     import re
-    if re.search(r"\d", title):
-        print("⚠ 标题含数字（「标题禁金额」铁律），请先核：%s" % title)
+    if re.search(r"[$¥€£]\s*\d|\d[\d,.]*\s*(?:美元|美金|美刀|元|万|亿|RMB|USD|MRR|ARR)",
+                 title, re.I):
+        print("⚠ 标题疑似含金额（「标题禁金额」铁律），请先核：%s" % title)
 
     cover_path, cover_bytes = find_cover(case, args.cover)
     cover_url = ""

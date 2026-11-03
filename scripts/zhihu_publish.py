@@ -277,8 +277,9 @@ def main():
         md = "\n".join(ln for ln in md.split("\n")
                        if not ln.startswith("> 平台："))
         title, body_md = split_md(md)
-        if re.search(r"\d", title):
-            print("⚠ 标题含数字（「标题禁金额」铁律）：", title)
+        if re.search(r"[$¥€£]\s*\d|\d[\d,.]*\s*(?:美元|美金|美刀|元|万|亿|RMB|USD|MRR|ARR)",
+                     title, re.I):
+            print("⚠ 标题疑似含金额（「标题禁金额」铁律）：", title)
         aid, url = create_draft(title, md_to_html(body_md))
         case_id = args.case or os.path.splitext(os.path.basename(args.file))[0]
         remember(case_id, aid, title, url=url, status="draft")

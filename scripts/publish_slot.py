@@ -78,15 +78,36 @@ def today(day=None):
     return day or time.strftime("%Y-%m-%d")
 
 
+GAME_PREFIX = "ext-ep-"
+
+
+def _norm_id(cid):
+    """游戏期 id 的两种写法归一：产物侧 `ext-ep-001-x`，台账侧 `ep-001-x`。
+
+    2026-10-30 博客园/知乎两处台账记的是**不带** `ext-` 的写法（post_id 已
+    published），而 `game_all()` 只产出 `ext-` 前缀。不归一 ⇒ 已发过的期被
+    判成「没发过」，下一轮原样再发一遍（11-03 实测：博客园已发 ep-001，
+    仍被选成今日候选，差点重发）。
+    """
+    cid = str(cid or "").strip()
+    if cid.startswith("ext-"):
+        # 只剥 "ext-"，保留 "ep-"：ext-ep-001-x → ep-001-x
+        return cid[4:]
+    return cid
+
+
 def kind_of(case_id, _extra=None):
     """一篇稿属于哪一类：`game` 还是 `ai`。
 
-    判据只有一条 —— **游戏厅系列是 `ext-ep-NNN-*` 命名的外部稿**。
-    别拿 cases.json 的 category 猜：那里没有「游戏」这个分类，
-    而 `chessigma`（国际象棋）恰恰是正经 AI case，按关键词猜会误判。
+    判据：**游戏厅系列**，两种写法都算 —— 产物侧 `ext-ep-NNN-*`、台账侧
+    `ep-NNN-*`（见 `_norm_id`）。别拿 cases.json 的 category 猜：那里没有
+    「游戏」这个分类，而 `chessigma`（国际象棋）恰恰是正经 AI case，
+    按关键词猜会误判。
     """
     cid = str(case_id or "").strip()
-    if cid.startswith("ext-ep-"):
+    if cid.startswith(GAME_PREFIX):
+        return "game"
+    if cid.startswith("ep-") and cid[3:6].isdigit() and cid[6:7] == "-":
         return "game"
     extra = _extra if _extra is not None else _kind_log()
     for item in extra.get("game_ids") or []:
@@ -305,8 +326,11 @@ def game_all():
 
 def game_pool(platform, ready_only=True):
     """该平台「还没发过且稿子已就绪」的游戏稿。"""
-    sent = {cid for _, cid in records(platform) if kind_of(cid) == "game"}
-    ids = [k for k in game_all() if k not in sent]
+    # 用归一口径比：台账里可能是 ep-001-x，产物侧是 ext-ep-001-x。
+    # 不按 kind_of 过滤 —— 它认得出两种写法，但 sent 里同时混着 AI case，
+    # 归一后直接求差更省事（AI case id 不会与 ep-NNN- 撞）。
+    sent = {_norm_id(cid) for _, cid in records(platform)}
+    ids = [k for k in game_all() if _norm_id(k) not in sent]
     if ready_only:
         ids = [k for k in ids if pack_exists(platform, k)]
     return ids
@@ -314,9 +338,9 @@ def game_pool(platform, ready_only=True):
 
 def game_missing_pack(platform):
     """还没发、但草稿包也没做的游戏稿数量（= 要补的活）。"""
-    sent = {cid for _, cid in records(platform) if kind_of(cid) == "game"}
+    sent = {_norm_id(cid) for _, cid in records(platform)}
     return [k for k in game_all()
-            if k not in sent and not pack_exists(platform, k)]
+            if _norm_id(k) not in sent and not pack_exists(platform, k)]
 
 
 def ai_pool(platform, ready_only=True):

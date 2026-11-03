@@ -442,7 +442,18 @@ def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
 
 
 def _note_kind(platform, case):
-    """补记档期日志：头条的 ext-ep-* 不进 toutiao_published.json，只能这里补。"""
+    """补记档期日志：头条的 ext-ep-* 不进 toutiao_published.json，只能这里补。
+
+    ⚠ 别的平台**台账自己就读得到**，再补一条会让 `records()` 把同一篇算两次
+    —— 2026-11-03 实测：博客园发完后补记，quota=2 被一条稿占满，当天第二篇
+    直接被判「今日已发 2 篇」。所以先按归一口径查一遍，台账里已经有就不补。
+    """
+    try:
+        sent = {SLOT._norm_id(cid) for _, cid in SLOT.records(platform)}
+    except Exception:                                      # noqa: BLE001
+        sent = set()
+    if SLOT._norm_id(case) in sent:
+        return
     path = os.path.join(DATA, "publish_kind_log.json")
     data = _load("publish_kind_log.json") or {}
     rec = data.setdefault("records", {})
