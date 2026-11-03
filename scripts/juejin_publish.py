@@ -216,6 +216,11 @@ def split_md(md, default_title=""):
         if not title:
             title = lines[0].lstrip()[2:].strip()
         lines = lines[1:]
+    # 稿头那行 `> 平台：xx ｜ 案例：yy ｜ 状态：…` 是仓库内部记账，不是正文。
+    # 不剥掉会被原样发到线上（掘金正文里一个大引言块），2026-11-03 修。
+    META = re.compile(r"^>\s*平台[:：].*案例[:：].*状态[:：]")
+    while lines and (not lines[0].strip() or META.match(lines[0].strip())):
+        lines = lines[1:]
     body = "\n".join(lines).strip()
     return (title or "未命名"), body
 
@@ -658,7 +663,7 @@ def cmd_tags(args):
     return 0
 
 
-def _refuse_if_retired(dry=False):
+def _refuse_if_retired(dry=False, allow=False):
     """⛔ 2026-11-02 起掘金渠道停用：不许再存稿、不许再发布。
 
     停用不是因为脚本坏了，是因为**平台侧没有可归因的客观标准**：
@@ -667,25 +672,32 @@ def _refuse_if_retired(dry=False):
     继续换文体去撞审核是无底洞，已在 `adapters/__init__.py` 同步摘掉
     适配器注册，这里是**第二道闸**，防止有人绕过框架直接敲命令行。
 
+    ⚠ 2026-11-03 起加 `--allow-retired`：用户要「再试一篇看具体反馈」时，
+    这是**一次性投递**，不是恢复渠道。闸的意义是「不许批量重跑」，不是
+    「永远不许单发一篇取证」——真恢复要把适配器 import 也加回来。
+
     ⚠ 只拦写入（draft / publish）。`login` / `whoami` / `list` /
-    `categories` / `tags` / `delete` 一律放行 —— 存量 27 条草稿还得能清，
-    账号登录态还得能验。要彻底恢复：删掉本函数调用，并把
-    `adapters/__init__.py` 里的 juejin import 加回去。
+    `categories` / `tags` / `delete` 一律放行 —— 存量草稿还得能清，
+    账号登录态还得能验。
     """
     if dry:
         print("  [warn] 掘金渠道已停用（2026-11-02），当前是 --dry，不会真发。")
         return
+    if allow:
+        print("  [warn] --allow-retired：绕过「掘金停用」闸，本次按一次性投递处理。")
+        return
     raise SystemExit(
         "⛔ 掘金渠道已停用（2026-11-02），不再发布。\n"
         "   原因：该平台审核无可归因标准，10 篇只过 2 篇，无法从内容侧改进。\n"
-        "   只读操作仍可用：whoami / list / categories / tags / delete --draft-id\n"
-        "   要恢复发布：见 scripts/juejin_publish.py 的 _refuse_if_retired() 注释。")
+        "   单次取证请加 --allow-retired（不是恢复渠道）。\n"
+        "   只读操作仍可用：whoami / list / categories / tags / delete --draft-id")
 
 
 
 def cmd_draft(args):
     """存草稿。掘金正文吃 Markdown，所以独立稿直接给 .md 就行，不需要 HTML。"""
-    _refuse_if_retired(dry=getattr(args, "dry", False))
+    _refuse_if_retired(dry=getattr(args, "dry", False),
+                        allow=getattr(args, "allow_retired", False))
     if args.file:
         md_path = args.file
         slug = os.path.splitext(os.path.basename(md_path))[0]
@@ -744,7 +756,8 @@ def cmd_list(args):
 
 
 def cmd_publish(args):
-    _refuse_if_retired(dry=getattr(args, "dry", False))
+    _refuse_if_retired(dry=getattr(args, "dry", False),
+                        allow=getattr(args, "allow_retired", False))
     _, db = known_ids()
     did = args.draft_id
     if not did and args.case:
@@ -858,6 +871,8 @@ def main(argv=None):
     p.add_argument("--cover", default="", help="封面图 URL（可空）")
     p.add_argument("--replace", action="store_true", help="已存过也重建")
     p.add_argument("--dry", action="store_true")
+    p.add_argument("--allow-retired", dest="allow_retired", action="store_true",
+                   help="绕过「掘金停用」闸，单次取证用（不是恢复渠道）")
     p.set_defaults(fn=cmd_draft)
 
     p = sub.add_parser("list", help="草稿箱")
@@ -868,6 +883,8 @@ def main(argv=None):
     p.add_argument("--draft-id")
     p.add_argument("--case")
     p.add_argument("--dry", action="store_true")
+    p.add_argument("--allow-retired", dest="allow_retired", action="store_true",
+                   help="绕过「掘金停用」闸，单次取证用（不是恢复渠道）")
     p.set_defaults(fn=cmd_publish)
 
     p = sub.add_parser("delete", help="删草稿")

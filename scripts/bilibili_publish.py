@@ -45,6 +45,7 @@ import unicodedata
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import wechat_publish as wp  # noqa: E402  复用 CDP / 案例加载
 import bili_draft_api as bili_api  # noqa: E402  草稿箱接口层（读/写/删）
+import link_hygiene as _lh  # noqa: E402  外链卫生硬闸（2026-11-02）
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "out", "bili")
@@ -163,12 +164,20 @@ def _js(cdp, expr):
 # --------------------------------------------------------------------------
 # 内容转换：公众号长文 → B站专栏富文本
 # --------------------------------------------------------------------------
-def load_article_html(cid):
+def load_article_html(cid, gate=False):
+    """读 `out/articles/<cid>.html`。`gate=True` 时顺带跑外链卫生硬闸。
+
+    闸只放在**发表/建稿**路径上（`publish` / `send-draft` / `draft`），
+    预览和 build 不闸 —— 否则一篇历史稿命中就会打断整个批量循环。
+    """
     p = os.path.join(OUT_ART, cid + ".html")
     if not os.path.isfile(p):
         return None
     with open(p, encoding="utf-8") as f:
-        return f.read()
+        html = f.read()
+    if gate:
+        _lh.assert_clean(html, "B站稿 %s" % cid)
+    return html
 
 
 def extract_title(html):
@@ -743,7 +752,7 @@ def publish_one(cid, dry=False, replace=False, keep_tabs=False, use_api=True,
                             refresh_cover=cover)
 
     _need_sel()
-    html = load_article_html(cid)
+    html = load_article_html(cid, gate=not dry)
     if not html:
         print("  ✗ 找不到 out/articles/%s.html" % cid)
         return False
@@ -1299,7 +1308,7 @@ def save_via_api(cid, replace=False, cdp=None, title=None, body=None,
         没封面」才传（replace 保住旧封面）。
     `cdp` 可传入复用（批量时省连接）；不给就自己建。
     """
-    html = load_article_html(cid)
+    html = load_article_html(cid, gate=True)
     if not html:
         print("  ✗ 找不到 out/articles/%s.html" % cid)
         return False

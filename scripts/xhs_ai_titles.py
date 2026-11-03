@@ -300,10 +300,15 @@ def main(argv=None):
                     help="已有覆盖的案例也重新生成（默认跳过）")
     ap.add_argument("--model", help="临时换模型")
     ap.add_argument("--only", help="逗号分隔的 case id，只改这些（其余不动）")
-    ap.add_argument("--cn", action="store_true",
-                    help="强制中文短语：素材改喂中文 what_it_does，"
-                         "并校验必须含中文、禁金额（one_liner 是英文时必用）")
+    ap.add_argument("--no-cn", dest="cn", action="store_false",
+                    help="旧的「金额前缀」口径（本地再拼一次「月收$X：」）。"
+                         "2026-10-14 起标题禁金额，此口径已停用，仅留作考古。")
     args = ap.parse_args(argv)
+    # 2026-11-02：默认走「整条中文标题」口径（store_false ⇒ 默认 True）。
+    # 旧口径下面会把**已经合格的整条标题**再拼一次金额前缀 —— 既违反
+    # 10-14 的「标题禁金额」红线，又绕过了上面的长度校验直接落盘：实测
+    # demopolish 校验时 20 字、写进表里 27 字，发布侧反手判超长丢弃，
+    # 标题就退化成规则硬切的半截。金额前缀口径整体停用。
 
     load_key()
     cases = X.load_cases()
@@ -440,13 +445,12 @@ def main(argv=None):
 
     merged = dict(old_ov)
     for cid, full in ok.items():
-        if args.cn:
-            merged[cid] = full      # 已是完整标题，make_xhs_title 整条返回
+        # 2026-11-02：两种口径统一只写 full（= 发布侧真正会发出的那条标题）。
+        # 旧模式在这里再拼一次 lead 会超长且带金额，落盘前必须再校一次长度。
+        if len(full) > X.TITLE_MAX:
+            bad[cid] = "落盘前超长(%d>%d)：%s" % (len(full), X.TITLE_MAX, full)
             continue
-        c = next(c for c in cases if c["id"] == cid)
-        lead = lead_of(c)
-        # 旧模式：AI 只出短语，本地拼金额前缀（口径不被 AI 改写）
-        merged[cid] = ("%s：%s" % (lead, full)) if lead else full
+        merged[cid] = full
     with open(OVERRIDES, "w", encoding="utf-8") as f:
         json.dump(merged, f, ensure_ascii=False, indent=2, sort_keys=True)
 

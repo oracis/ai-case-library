@@ -4857,6 +4857,19 @@ def cmd_send(args):
     if not todo:
         print("没有可发表的草稿（台账里没有 status=draft 且带 appmsgid 的记录）")
         return
+    # 外链卫生硬闸（2026-11-02）：草稿箱里躺着的可能是旧版正文，正文里带
+    # 自家站点导流照样会被判「营销推广」——发之前按源稿再核一遍。
+    # 素材源是 out/articles/<cid>.html；独立稿（--file 存出来的）没有源稿，跳过。
+    try:
+        import link_hygiene as _lh
+    except ImportError:
+        _lh = None
+    if _lh:
+        for _cid, _aid in todo:
+            _src = os.path.join(ARTICLES_DIR, _cid + ".html")
+            if os.path.isfile(_src):
+                with open(_src, encoding="utf-8") as _f:
+                    _lh.assert_clean(_f.read(), "公众号稿 %s" % _cid)
     mode = "群发（推送粉丝、占每日 1 次额度）" if args.notify \
         else "发布（不推送、不占每日群发额度）"
     print("模式：%s（两者都需管理员扫码，见下）" % mode)

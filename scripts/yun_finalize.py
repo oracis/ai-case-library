@@ -18,8 +18,10 @@
 
 红线：不拿双门禁，谁也点不了「确认发布」。
 """
+import base64
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -370,6 +372,415 @@ def _ledger_all():
     return {}
 
 
+def _cover_src(cdp):
+    """发表抽屉里封面图当前的 `img.src`。
+
+    ⚠ 判断封面状态**只能看 src**，不能看 class：`.editor-publish-drawer__img-cover`
+      设好封面后**仍然是 `is-empty`**（11-03 实测），照 class 判断会把成功的当失败。
+    """
+    return str(cdp.eval(
+        "(function(){var w=document.querySelector('.editor-publish-drawer__img-cover');"
+        "var i=w&&w.querySelector('.img-cover-img img');"
+        "return (i&&i.src)||'';})()") or "")
+
+
+def cover_landed(cdp):
+    """封面是否**真的落库**。返回 (bool, src)。
+
+    `blob:` / `data:` 只是本地预览（文件选中了但还没传上去）；
+    `https://developer.qcloudimg.com/...` 才是传进 COS 后的正式地址 ——
+    这个地址印在文章上，是「封面真的存在」的唯一硬证据。
+    """
+    src = _cover_src(cdp)
+    return (src.startswith("http") and not src.startswith("http://blob")), src
+
+
+def inject_cover(cdp, cover_file, timeout=20):
+    """把本地图片挂到封面区，返回 (state, info)。
+
+    state 三态（**别再拿 `files.length` 或 `is-empty` 判断，两者都是假的**）：
+      `landed` —— src 已是 `https://developer.qcloudimg.com/...`，真落库
+      `staged` —— src 变成 `blob:` / 弹出裁剪框：文件已被接受，
+                  **上传发生在「确认发布」那一刻**，提交前不可能看到正式地址
+      `failed` —— 覆盖区毫无变化 / 找不到 input / 抛错
+
+    🚨 为什么不能用 `DOM.setFileInputFiles`：对该隐藏 input 无论传 nodeId 还是
+       objectId，调用都返回成功、**但不报错地什么都没做**（files.length 恒 0，
+       封面区毫无变化）。这是 11-03「发布成功但封面静默丢失」的真凶。
+       可用路径是页内构造 File 赋给 `input.files`（React 只认这个）。
+    🚨 注入后 `input.files.length` 会读回 **0**（React 处理完清空了 input），
+       但文件确实进去了 —— 判据只能是封面区 `img.src` 有没有变化。
+    """
+    if not (cover_file and os.path.isfile(cover_file)):
+        return "failed", "封面文件不存在：%s" % cover_file
+    before = _cover_src(cdp)
+    with open(cover_file, "rb") as f:
+        b64 = base64.b64encode(f.read()).decode()
+    name = os.path.basename(cover_file)
+    mime = ("image/png" if name.lower().endswith(".png")
+            else "image/jpeg" if name.lower().endswith((".jpg", ".jpeg"))
+            else "image/png")
+    r = cdp.eval("""
+      (function(){
+        try{
+          var b64="%s", bin=atob(b64), n=bin.length, arr=new Uint8Array(n);
+          for(var i=0;i<n;i++) arr[i]=bin.charCodeAt(i);
+          var f=new File([arr], %s, {type:%s});
+          var dt=new DataTransfer(); dt.items.add(f);
+          var inp=document.querySelector('input.img-cover-input');
+          if(!inp) return 'NO_INPUT';
+          inp.files=dt.files;
+          inp.dispatchEvent(new Event('input',{bubbles:true}));
+          inp.dispatchEvent(new Event('change',{bubbles:true}));
+          return 'DISPATCHED';
+        }catch(e){ return 'ERR:'+e.message }
+      })()""" % (b64, json.dumps(name), json.dumps(mime)))
+    tip = str(r or "")
+    if tip == "NO_INPUT":
+        return "failed", "抽屉里找不到 input.img-cover-input"
+    if tip.startswith("ERR"):
+        return "failed", "注入抛错：%s" % tip[4:70]
+
+    deadline = time.time() + timeout
+    src = before
+    while time.time() < deadline:
+        time.sleep(1.5)
+        src = _cover_src(cdp)
+        if src and src != before:
+            break
+    if not src or src == before:
+        return "failed", "注入后封面区无变化（文件可能未被接受），src=%s" % (src or "(空)")
+    if src.startswith("http"):
+        return "landed", src
+    if src.startswith("blob:") or cdp.eval(
+            "!!document.querySelector('.cropper-container')"):
+        return "staged", src
+    return "failed", "封面区状态异常：%s" % src[:70]
+
+
+def _hook_publish(cdp):
+    """提交前挂抓包钩子：记下 article/publish 类接口的响应，用来取 articleId。
+
+    ⚠ 为什么要抓：从草稿发布成功后 URL 只回到 `write-new`（**不带 id**），
+      而「封面是否落库」必须到文章页 `og:image` 才能验 —— 没有 id 就无从复核。
+    """
+    cdp.eval("""(function(){
+      if(window.__pub) return 'already';
+      window.__pub=[];
+      function grab(u, p){
+        try{ p.then(function(r){ try{ r.clone().text().then(function(t){
+          if(/article|publish|draft/i.test(u) && t && t.length < 200000)
+            window.__pub.push({u:u, t:String(t).slice(0,4000)});
+        }).catch(function(){}); }catch(e){} }); }catch(e){}
+      }
+      var of = window.fetch;
+      window.fetch = function(){
+        var u = String((arguments[0] && arguments[0].url) || arguments[0]);
+        var p = of.apply(this, arguments); grab(u, p); return p;
+      };
+      var oo = XMLHttpRequest.prototype.open, os = XMLHttpRequest.prototype.send;
+      XMLHttpRequest.prototype.open = function(m,u){ this.__u = String(u);
+        return oo.apply(this, arguments); };
+      XMLHttpRequest.prototype.send = function(){
+        var x = this;
+        this.addEventListener('load', function(){
+          try{ if(/article|publish|draft/i.test(x.__u) && x.responseText
+                 && x.responseText.length < 200000)
+            window.__pub.push({u:x.__u, t:String(x.responseText).slice(0,4000)}); }catch(e){}
+        });
+        return os.apply(this, arguments);
+      };
+      return 'hooked';
+    })()""")
+
+
+def _published_article_id(cdp):
+    """从 `_hook_publish` 抓到的响应里取 7 位 articleId；取不到返回空串。"""
+    try:
+        items = json.loads(str(cdp.eval("JSON.stringify(window.__pub||[])") or "[]"))
+    except Exception:                                      # noqa: BLE001
+        return ""
+    for it in reversed(items):
+        for m in re.finditer(r'"(articleId|article_id)"\s*:\s*"?(\d{6,9})',
+                             str(it.get("t") or "")):
+            return m.group(2)
+    # 兜底：发布响应里可能只回一个裸 id（7 位 = articleId，6 位是 draftId，别混）
+    for it in reversed(items):
+        u = str(it.get("u") or "")
+        if not re.search(r"publish|article/save|article/write", u):
+            continue
+        for m in re.finditer(r'"(?:id|aid)"\s*:\s*"?(\d{7})"?', str(it.get("t") or "")):
+            return m.group(1)
+    return ""
+
+
+def _open_publish_drawer(cdp):
+    """在已打开的编辑器页点「去发布」把抽屉叫出来。"""
+    pos = _pos_of(cdp, """
+      [].filter.call(document.querySelectorAll('button,[role=button],a,span,div'),
+        function(e){ return e.offsetParent !== null
+          && (e.textContent||'').trim() === '去发布'; })[0]""")
+    if not isinstance(pos, dict):
+        return False
+    _click_real(cdp, pos)
+    time.sleep(5)
+    return bool(cdp.eval("!!document.querySelector('.editor-publish-drawer')"))
+
+
+def publish_tencent(cdp, draft_id, abstract="", cover_file="", tags=("架构设计",),
+                    require_cover=True):
+    """腾讯云发表：一次会话内填完 4 个必填项再提交。返回 (ok, 说明)。
+
+    🚨 为什么必须「一次填完」（2026-11-03 实测，白折腾近一小时）：
+      抽屉是**临时表单**，任何 Page.navigate / 重开页面都会清空 ——
+      回读会看到 `{abs:0, orig:false}`。当初为了「再确认一眼」反复重载，
+      填了三轮都被清掉，最后误判成「腾讯云发布不可用」。
+
+    缺任一项，点「确认发布」都是**静默失败**：只弹「文章已于 刚刚 保存到草稿」，
+    URL 停在 write-new?draftId=xxx，不报错。四步分别是：
+      1. 文章来源（.t-radio__former[0] = 原创）—— 必须回读 checked
+      2. 标签（.cdc-tags-input__input[0]）—— 真实键盘输入后**点下拉候选**，
+         只输入不点候选等于没选（回读 value 是空）
+      3. 摘要（textarea.editor-publish-drawer__textarea-main）—— React 受控，
+         用 value setter + input 事件；「一键提取」不稳
+      4. 封面（input.img-cover-input）—— 走 `inject_cover()` 注入后必须判**文件是否
+         真被接受**（`DOM.setFileInputFiles` 对该框无效且不报错，是「静默丢封面」
+         真凶；`files.length`、`is-empty` 两个判据都是假的）
+    专栏**不是**必填（这个号没有专栏，列表只有「创建专栏」）。
+
+    成功判据：URL 从 write-new?draftId=xxx 变成 write-new（无 draftId）。
+    封面判据（两段，缺一不可）：
+      · 提交前：`inject_cover()` 必须是 landed/staged；failed 且 `require_cover=True`
+        就直接 return False，不带着空封面提交（否则线上留一篇无图文章，事后补图
+        还会让文章重回审核）；
+      · 提交后：拿提交响应里的 articleId 回读创作中心卡片缩略图（CSS background-image），
+        读不到即判定封面没落库并 return False（附 `--fix-cover` 补救命令）。
+    """
+    cdp.open("https://cloud.tencent.com/developer/article/write-new"
+             "?draftId=%s" % draft_id)
+    time.sleep(10)
+    if not _open_publish_drawer(cdp):
+        return False, "没找到「去发布」或发布抽屉没打开"
+
+    # 1) 文章来源 = 原创
+    if cdp.eval("""(function(){var r=document.querySelectorAll('.t-radio__former');
+        if(!r.length) return false; r[0].click(); return r[0].checked;})()""") is not True:
+        return False, "文章来源（原创）没选中"
+
+    # 2) 标签：真实键盘 + 点候选
+    for tag in list(tags)[:5]:
+        p = _pos_of(cdp, "document.querySelectorAll('.cdc-tags-input__input')[0]")
+        if not isinstance(p, dict):
+            return False, "找不到标签输入框"
+        _click_real(cdp, p)
+        time.sleep(1)
+        for ch in tag:
+            cdp.send("Input.dispatchKeyEvent", {"type": "char", "text": ch})
+            time.sleep(0.12)
+        time.sleep(3)
+        opt = _pos_of(cdp, """
+          [].filter.call(document.querySelectorAll('li,div[class*=option],span,div'),
+            function(e){ return e.offsetParent !== null
+              && (e.textContent||'').trim() === %s
+              && e.children.length === 0; })[0]""" % json.dumps(tag))
+        if not isinstance(opt, dict):
+            time.sleep(3)
+            opt = _pos_of(cdp, """
+              [].filter.call(document.querySelectorAll('li,div[class*=option],span,div'),
+                function(e){ return e.offsetParent !== null
+                  && (e.textContent||'').trim() === %s
+                  && e.children.length === 0; })[0]""" % json.dumps(tag))
+        if not isinstance(opt, dict):
+            return False, "标签「%s」没有下拉候选" % tag
+        _click_real(cdp, opt)
+        time.sleep(2)
+        # 回读：标签区必须真的挂上这个标签（只输入不点候选时这里是空的，
+        # 而点「确认发布」只会静默存草稿 —— 11-03 就卡在这一步）
+        zone = str(cdp.eval("(document.querySelector('.cdc-tags-input')"
+                            "||{}).innerText||''"))
+        if tag not in zone:
+            return False, "标签「%s」点了但没选中" % tag
+
+    # 3) 摘要
+    if abstract:
+        n = cdp.eval("""
+        (function(){var t=document.querySelector('.editor-publish-drawer__textarea-main');
+          if(!t) return -1;
+          var s=Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype,'value').set;
+          s.call(t,%s); t.dispatchEvent(new Event('input',{bubbles:true}));
+          return t.value.length;})()""" % json.dumps(abstract))
+        if not n or int(n) <= 0:
+            return False, "摘要注入失败"
+
+    # 4) 封面 —— 必须确认文件真的被接受（以前只打一行 warn 就提交，才会静默丢图）
+    cover_state = ""
+    if cover_file:
+        if not os.path.isfile(cover_file):
+            return False, "封面文件不存在：%s" % cover_file
+        cover_state, cmsg = inject_cover(cdp, cover_file)
+        if cover_state == "failed":
+            # 宁可让调用方重跑，也不要在线上留一篇无封面的文章 ——
+            # 事后补图会让已发布文章重回审核（11-03 实测 3 分钟）。
+            if require_cover:
+                return False, "封面没挂上，已拦下不提交：%s" % cmsg
+            print("  ⚠ 封面没挂上（%s），require_cover=False 继续提交" % cmsg)
+        elif cover_state == "staged":
+            print("  ✓ 封面文件已接受（裁剪框），正式地址由提交时上传产生")
+        else:
+            print("  ✓ 封面已在线上：%s" % cmsg[:80])
+
+    # 5) 提交（先挂网络钩子：提交响应里带 articleId，用来回读封面）
+    _hook_publish(cdp)
+    p2 = _pos_of(cdp, """
+      [].filter.call(document.querySelectorAll('button'),
+        function(e){ return e.offsetParent !== null
+          && (e.textContent||'').trim() === '确认发布'; })[0]""")
+    if not isinstance(p2, dict):
+        return False, "没找到「确认发布」"
+    _click_real(cdp, p2)
+    time.sleep(16)
+    url = str(cdp.eval("location.href") or "")
+    if "draftId=" in url:
+        return False, "点了确认发布但 URL 仍带 draftId（静默失败）：%s" % url[:90]
+
+    # 6) 封面复核：只有线上 og:image 有地址才算真的落库
+    if cover_state == "staged":
+        aid = _published_article_id(cdp)
+        if not aid:
+            return True, ("%s\n    封面：已随提交上传，但没抓到 articleId，未能线上复核"
+                          "（用 tc_manage.py status 或文章页 og:image 复查）" % url[:80])
+        ok, info = verify_cover_online(cdp, aid, timeout=180)
+        if ok:
+            return True, "%s\n    封面已落库：%s" % (url[:70], str(info)[:80])
+        return False, ("已发布，但封面没落库（%s）。文章 id=%s，"
+                       "跑 `--fix-cover %s --cover <图>` 可补上" % (info, aid, aid))
+    return True, url
+
+
+def update_cover(cdp, article_id, cover_file, verify=True):
+    """给**已发布**文章补/换封面。返回 (ok, 说明)。
+
+    走编辑页 `write-new/<articleId>`（不是 draftId，两者不可混用：
+    articleId 7 位、draftId 6 位），点「去发布」→ 注图 → 落库校验 → 「确认发布」。
+
+    ⚠ 已知副作用：改已发布文章会**重回「审核中」**，通常几分钟内二次过审
+      （11-03 实测 3 分钟），期间列表卡片显示「正在审核中」、缩略图不显示。
+    ⚠ 线上判据是卡片缩略图的 CSS `background-image`，不是 `og:image`（那是平台
+      默认分享图标），也不是卡片里的 `<img>`（缩略图不是 img 标签）。
+    """
+    if not (cover_file and os.path.isfile(cover_file)):
+        return False, "封面文件不存在：%s" % cover_file
+    prev = ""
+    cdp.open("https://cloud.tencent.com/developer/creator/article")
+    time.sleep(10)
+    prev, _st = _card_of(cdp, article_id)
+    if prev:
+        print("  改前线上封面：%s" % prev[:80])
+    cdp.open("https://cloud.tencent.com/developer/article/write-new/%s" % article_id)
+    time.sleep(10)
+    if not _open_publish_drawer(cdp):
+        return False, "没找到「去发布」或发布抽屉没打开"
+    state, info = inject_cover(cdp, cover_file)
+    if state == "failed":
+        return False, "封面没挂上，已拦下不提交：%s" % info
+    print("  ✓ 封面文件已接受（%s），提交后回读卡片缩略图复核" % state)
+    p = _pos_of(cdp, """
+      [].filter.call(document.querySelectorAll('button'),
+        function(e){ return e.offsetParent !== null
+          && (e.textContent||'').trim() === '确认发布'; })[0]""")
+    if not isinstance(p, dict):
+        return False, "没找到「确认发布」"
+    _click_real(cdp, p)
+    time.sleep(16)
+    if not verify:
+        return True, str(info)
+    ok, got = verify_cover_online(cdp, article_id, baseline=prev)
+    if not ok:
+        return False, "已提交，但封面没换成功：%s" % got
+    if prev:
+        return True, "封面已更换：%s" % got
+    return True, "封面已上线：%s" % got
+
+
+CARD_JS = """(function(){
+  var a=[].filter.call(document.querySelectorAll('a[href*="/developer/article/%s"]'),
+    function(e){ return e.offsetParent!==null; })[0];
+  if(!a) return JSON.stringify({cover:'', state:''});
+  var b=a; for(var k=0;k<10 && b.parentElement;k++){ b=b.parentElement;
+    if(/编辑|删除/.test(b.textContent||'')) break; }
+  var out='';
+  b.querySelectorAll('*').forEach(function(e){
+    if(out) return;
+    var bi=getComputedStyle(e).backgroundImage||'';
+    var m=bi.match(/url\\("?([^")]+)"?\\)/);
+    if(m && /qcloudimg|yehe/.test(m[1])) out=m[1];
+  });
+  var st=(b.innerText||'').match(/已发布|审核中|未通过/);
+  return JSON.stringify({cover:out, state:st?st[0]:''});
+})()"""
+
+CARDSEL_COVER_JS = CARD_JS          # 兼容旧引用
+
+
+def _card_of(cdp, article_id):
+    """读创作中心某篇文章卡片上的 (封面缩略图 url, 状态)。"""
+    try:
+        d = json.loads(str(cdp.eval(CARD_JS % article_id) or "{}"))
+    except Exception:                                      # noqa: BLE001
+        return "", ""
+    return str(d.get("cover") or ""), str(d.get("state") or "")
+
+
+def verify_cover_online(cdp, article_id, baseline="", timeout=360):
+    """回读**创作中心卡片缩略图**，确认封面真的挂在线上。返回 (ok, url|原因)。
+
+    ⚠ 判据只能用卡片的 CSS `background-image`：
+      · 文章页 `og:image` 是平台默认分享图标（`.../shareicons/cloud.png`），与封面无关；
+      · 卡片缩略图**不是 `<img>`**，`querySelectorAll('img')` 恒为空。
+    🚨 提交后卡片不会立刻换图（CDN/缓存 + 文章重回审核）：**必须轮询**，
+       而且给了 `baseline` 时要等 URL **真的变了**才算成功 —— 11-03 就是提交后
+       立刻读，读到旧图，把一次成功的换图误判成「没换成」。
+    """
+    deadline = time.time() + timeout
+    last = ("", "")
+    while time.time() < deadline:
+        cdp.open("https://cloud.tencent.com/developer/creator/article")
+        time.sleep(10)
+        last = _card_of(cdp, article_id)
+        cover, state = last
+        if cover.startswith("http") and state == "已发布":
+            if not baseline or cover.split("?")[0] != baseline.split("?")[0]:
+                return True, cover
+        time.sleep(15)
+    cover, state = last
+    if not cover.startswith("http"):
+        # 卡片一直读不到缩略图时兜底：开编辑页抽屉读 `img.src`（https 才算落库）
+        ok2, msg2 = verify_cover_in_drawer(cdp, article_id, timeout=90)
+        if ok2:
+            return True, msg2
+        return False, "卡片读不到缩略图（状态=%s），抽屉里也没有封面：%s" % (
+            state or "未知", msg2)
+    return False, "封面仍是改前那张（状态=%s），等了 %ds 没换" % (state or "未知", timeout)
+
+
+def verify_cover_in_drawer(cdp, article_id, timeout=90):
+    """备用判据：打开编辑页抽屉，读封面 `img.src`（`https://` 才算落库）。
+
+    卡片读不到缩略图时用它兜底。注意抽屉会保持临时表单状态，读完别复用该页提交。
+    """
+    deadline = time.time() + timeout
+    src = ""
+    while time.time() < deadline:
+        cdp.open("https://cloud.tencent.com/developer/article/write-new/%s" % article_id)
+        time.sleep(10)
+        if _open_publish_drawer(cdp):
+            src = _cover_src(cdp)
+            if src.startswith("http"):
+                return True, "抽屉封面：%s" % src
+        time.sleep(15)
+    return False, "抽屉里也没有封面（src=%s）" % (src or "(空)")
+
+
 def publish_aliyun(cdp, draft_id, community=None, cover_file=""):
     """发表阿里云草稿。**只准由 --publish --i-said-publish 双门禁调用。**
 
@@ -515,9 +926,29 @@ if __name__ == "__main__":
                     help="有头模式（默认无头；扫码登录/风控兜底用，或 CHROME_HEADED=1）")
     ap.add_argument("--cover", default="",
                     help="发表时的本地图（文章图片/firstImg），缺省台账反查")
+    ap.add_argument("--fix-cover", default="", metavar="ARTICLE_ID",
+                    help="给已发布文章补/换封面（7 位 articleId），需同时给 --cover")
     ap.add_argument("--i-said-publish",
                     help="发表确认口令，值必须 = 用户原话 i-said-publish")
     a = ap.parse_args()
+    if a.fix_cover:
+        # 输出示例：python scripts/yun_finalize.py --fix-cover 2774554 \
+        #             --cover out/toutiao/cod-dex/cover.png
+        if not a.cover:
+            raise SystemExit("🚫 --fix-cover 需要同时给 --cover <本地图片>")
+        proc, cdp = _connect()
+        try:
+            ok, info = update_cover(cdp, a.fix_cover, a.cover)
+            print(("✓ " if ok else "✗ ") + str(info))
+            if ok:
+                ledger_set("__cover__%s" % a.fix_cover, cover_url=info.split()[0],
+                           at=time.strftime("%Y-%m-%d %H:%M"))
+            sys.exit(0 if ok else 1)
+        finally:
+            try:
+                cdp.bws.close()
+            except Exception:                              # noqa: BLE001
+                pass
     if a.publish:
         if a.i_said_publish != "i-said-publish":
             raise SystemExit("🚫 拒绝发表：--publish 必须与 --i-said-publish "

@@ -104,6 +104,36 @@ python scripts/publish_multi.py block toutiao --case quran-unlock \
 | B站专栏 | **只有清单** | ✅ `--yes`（`send-draft` 走编辑器 UI 点「发布」，2026-10-20） | 草稿只存在远端，本地无从判断；**每天限 1 篇**（本账号 lv0~lv3 档，lv4+ 才 5 篇），额度用完发布按钮变灰，脚本明确报失败 |
 | ~~掘金~~ | ~~`data/juejin_drafts.json`~~ | ⛔ **2026-11-02 停用** | 账号审核无可归因标准（25 篇只过 5 篇，三种文体都试过），已摘适配器 + 脚本双闸熔断；文章与草稿已全删，草稿台账已删。详见 `data/juejin_retired_2026-11-02/README.md`。原始能力备注：唯一纯 REST 的平台，cookie 鉴权，正文吃 Markdown，普通账号只能带 1 个标签 |
 
+### 游戏稿从哪来（2026-11-02 补齐七平台缺口）
+
+游戏厅的稿子**不在 `cases.json` 里**，`gen_platform_md.py` 生不出来——它读的是
+案例库自己的数据。游戏稿的源头是另一个仓库 `D:/open-source-games`：
+
+```
+content/<slug>/article.md        技术向（仓库怎么组织 / 从哪读起 / 值得抄的实现）
+content/<slug>/article-game.md   游戏向（它是什么 / 怎么玩 / 它用什么技术做的）
+content/<slug>/article-free.md   免费向（零成本能拿到什么 / 上手要付什么成本）
+content/<slug>/platform/<平台>.md   ← 2026-11-02 新增：10 个平台各一份成稿
+content/<slug>/xhs.md            小红书正文（标题在 data/titles.json 的 xhs_title）
+```
+
+以前只有前三份取向稿，桥接按平台映射复用同一份 ⇒ 知乎 / CSDN / 博客园 /
+腾讯云 / 阿里云**根本没有游戏稿**，九平台轮发里那几家永远只能发 AI 案例。
+现在 `publish/platform_drafts.py` 按平台落稿，只做确定性替换，不重写正文：
+
+| 差异 | 规则 |
+|---|---|
+| 标题 | `data/titles.json`（`title` 带技术钩子 / `summary` 当开头概要 / `xhs_title` ≤20 字） |
+| 导流 | 含 `ydtgo.top` 的行整行删（用户 11-02：不推广个人网站） |
+| 章节 | 「档案」→「基本信息」；删「档案编号」「站点详情页」；「顺手看看代码」→「它用什么技术做的」 |
+| 公式 | CSDN / 腾讯云 / 阿里云是 KaTeX 平台 ⇒ `$12` 写成「12 美元」，禁 `$` |
+| 外链 | 头条稿里 markdown 链接降级成纯文字（站外链接会被拦/降权） |
+| 期号 | 标题与正文都不出现「第 N 期」 |
+
+发布仍然是「`--file` 指过去」：`python scripts/zhihu_publish.py draft --file
+D:/open-source-games/content/<slug>/platform/zhihu.md --case <cid>`。
+发出去的稿子要过 `scripts/link_hygiene.py`（110 份平台稿实测 0 命中）。
+
 ## 为什么串行不并发
 
 批量发版抢同一个 Chrome/CDP 会互相踩。实测并发时子进程批量
@@ -112,7 +142,13 @@ python scripts/publish_multi.py block toutiao --case quran-unlock \
 
 并发的正确解法是「一个平台一个 Chrome 实例」，那是以后的事。
 
-## 掘金专章（2026-10-25 新增）
+## 掘金专章（2026-10-25 新增）——⛔ 2026-11-02 渠道已停用，本章仅留档
+
+> **不要再往掘金发任何稿。** 账号 25 篇只过 5 篇，模板标题 / 八节技术拆解 / 第一人称踩坑三种文体
+> 都试过仍无法归因，判定平台侧无可归因标准 ⇒ 停发并撤下全部文章。
+> 代码侧双闸熔断：`multiplatform/adapters/__init__.py` 已摘 `juejin`、`juejin_publish._refuse_if_retired()`
+> 跑即报错（`--dry` 只打 warn）。存档见 `data/juejin_retired_2026-11-02/`。
+> 以下接口与踩坑记录保留，是为了将来若真要复活时不必重新逆向。
 
 掘金是五家里**唯一不需要浏览器**的：`juejin_publish.py` 全程 REST，
 连 CDP 都不建立（只有首次 `login` 用一次 CDP 抓 cookie）。

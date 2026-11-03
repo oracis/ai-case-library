@@ -11,7 +11,7 @@
 | **头条** | ✅ `draft_list` + `mp_provider`（已发表只能导航式读） | ✅ `article/publish`（`--api`，需新鲜 `tt-anti-token`；`save=1` 即群发）+ 封面上传两级 `/spice/image` | ✅ `delete_draft` / `delete?type=2`（已发布） | 2026-10-18 更新，**六项全通**；两条环境约束：写操作需活着的编辑器页供 token，且**必须是有头 Chrome**（headless 的 token 返 7050） |
 | **公众号** | ✅ `app_msg_list` + `appmsgpublish?sub=list` | ✅ `mp_editor_change_cover` / `mp_editor_set_content` | ✅ `operate_appmsg?sub=del` | 2026-10-16 更新，`action=del` 恒 200009 是猜错接口身 |
 | **小红书** | ⚠ 无服务端 API | ⚠ 无 | ⚠ 无 | **草稿在浏览器本地 IndexedDB** |
-| **掘金** | ✅ `article_draft/query_list` | ✅ `article_draft/create` + `article/publish` | ✅ `article_draft/delete` | 2026-10-25 新增。**纯 REST + cookie 鉴权**，五平台里唯一不开浏览器的；正文吃 Markdown |
+| ~~**掘金**~~ | ~~✅ `article_draft/query_list`~~ | ~~✅ `article_draft/create` + `article/publish`~~ | ~~✅ `article_draft/delete`~~ | ⛔ **2026-11-02 渠道停用**（25 篇只过 5 篇、三种文体都无法归因）⇒ 不再发布，代码双闸熔断；能力仅留档：纯 REST + cookie 鉴权，五平台里唯一不开浏览器的，正文吃 Markdown |
 
 ### 封面白边体检（`scripts/verify_cover_edge.py`，2026-10-17 新增）
 

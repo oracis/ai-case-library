@@ -38,6 +38,7 @@ import time
 from urllib.parse import urlencode
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import link_hygiene as link_hygiene  # noqa: E402  营销推广硬闸（域名 + 引流话术）
 import wechat_publish as wp  # noqa: E402  复用 CDP / cases 加载 / 公众号标题
 import xhs_publish as x      # noqa: E402  复用模糊匹配
 from multiplatform import queue as Q  # noqa: E402  待发队列排序口径（最新在前）
@@ -2308,6 +2309,7 @@ def cmd_send_draft(args):
 
     默认取**存入最久**的未发布草稿（与小红书/B站口径一致）；--case 指定。
     """
+    rate_guard()                       # 单日发布上限（2026-11-02 禁言教训）
     sess = open_api_session()
     if not sess:
         raise SystemExit("编辑器页开不了（Chrome 没起/掉登录）")
@@ -2363,6 +2365,52 @@ def cmd_send_draft(args):
 _SRC_PAREN_RE = re.compile(r"[（(]\s*源码[:：][^）)]*[）)]")
 # 行尾「：https://…」：删 URL 后别留下一个孤零零的冒号
 _BARE_URL_TAIL_RE = re.compile(r"[：:]\s*https?://\S+\s*$")
+# markdown 链接 `[文字](URL)` —— 上面两条正则只认裸 URL，`[Minetest](https://…)`
+# 会整条漏过去，变成正文里的 <a href>。（2026-11-02 实测：11 篇游戏厅正文里
+# 各有 2 处自家站点链接就是这么漏的。）
+_MD_LINK_RE = re.compile(r"\[([^\]\n]{0,40})\]\((https?://[^)\s]+)\)")
+# 自家域名：**整行删**，不是「去链接留文字」。
+# 2026-11-02 教训：头条判「包含营销推广类信息」禁言 30 天，导火索就是正文里的
+# `https://games.ydtgo.top`（索引站导流）。「想自己翻？完整索引都在这里：…」
+# 这类句子本身就是导流话术，光删 URL 留下句子等于明示「去站外找」。
+_SELF_HOST_RE = re.compile(r"https?://([a-z0-9-]+\.)*ydtgo\.top", re.I)
+
+
+def strip_source_links(md):
+    """删掉「（源码：URL）」整组、行尾「：URL」、markdown 链接、自家导流行。
+
+    返回 (新 md, 处理处数)。
+
+    ⚠ 别改成「只删 URL」：2026-10-30 实测那样会留下「（源码：）」，
+    读者看到的是一个断掉的括号，比不写更糟。
+
+    外部稿（如 open-source-games 的源码索引稿）每条都带源码地址，而头条
+    正文不允许站外导流 ⇒ 这条链路上只能整组去掉，改由作者在评论区/主页
+    补。B站那边复用同一个函数（bilibili_publish.cmd_draft）。
+
+    🚨 2026-11-02 加严（代价：账号被禁言 30 天）：
+      1. markdown 链接也要处理 —— 旧版只认裸 URL，`[Minetest](https://…)`
+         原样进了正文，变成 <a href>。
+      2. **自家域名整行删**（`ydtgo.top` 全系）。「去链接留文字」不解决
+         问题：平台判的是「把用户往外带」这件事，不是 URL 字面量。
+    """
+    out, hits = [], 0
+    for line in (md or "").splitlines():
+        if _SELF_HOST_RE.search(line):
+            hits += 1
+            continue                      # 整行丢（含导流话术）
+        new, k = _SRC_PAREN_RE.subn("", line)
+        hits += k
+        trimmed = _BARE_URL_TAIL_RE.sub("", new)
+        if trimmed != new:
+            hits += 1
+        # md 链接降级为纯文字（保留可读性，去掉可点外链）
+        demoted, m = _MD_LINK_RE.subn(lambda x: x.group(1), trimmed)
+        if m:
+            hits += m
+            trimmed = demoted
+        out.append(trimmed)
+    return "\n".join(out), hits
 
 
 def md_title(md):
@@ -2374,25 +2422,162 @@ def md_title(md):
     return ""
 
 
-def strip_source_links(md):
-    """删掉「（源码：URL）」整组与行尾「：URL」，返回 (新 md, 处理处数)。
+_EPISODE_RE = re.compile(r"^(.*?)第\s*\d+\s*[期集]\s*[：:]\s*(.+)$")
 
-    ⚠ 别改成「只删 URL」：2026-10-30 实测那样会留下「（源码：）」，
-    读者看到的是一个断掉的括号，比不写更糟。
 
-    外部稿（如 open-source-games 的源码索引稿）每条都带源码地址，而头条
-    正文不允许站外导流 ⇒ 这条链路上只能整组去掉，改由作者在评论区/主页
-    补。B站那边复用同一个函数（bilibili_publish.cmd_draft）。
+# ======================================================================
+# 发布频率守卫（2026-11-02 新增，代价：账号被禁言 30 天）
+# ======================================================================
+# 事实：10-31 定「所有期去掉期号」，11-02 一天内把 11 篇游戏厅全部发完
+# （19:49–22:10，约 2 小时多发 11 篇同栏目、同结构、同一导流域名的稿子），
+# 22:26 收到「包含营销推广类信息」禁言 30 天。同批文章的展现量也从
+# 数百掉到 45/0。
+#
+# 结论：**同栏目单日连发是硬风险**，平台不看你内容质量，看的是行为特征：
+#   同一账号 + 短时间 + 同域名外链 + 同模板 ⇒ 营销号。
+# 所以这里做成默认拦截，放行要显式 TT_FORCE_RATE=1（并写明理由）。
+RATE_DAILY_MAX = int(os.environ.get("TT_DAILY_MAX") or 3)
+PUBLISHED_PATH = os.path.join(ROOT, "data", "toutiao_published.json")
+
+# 禁言冻结期（2026-11-02 用户拍板：「头条号解禁后再动」）。
+# 依据：处罚中心原文「禁言 7 天，2026-11-02 至 2026-11-09，到期自动解除」
+#    ⇒ 11-09 是**禁言期的最后一天**，所以本地闸设 11-10（宁可晚一天，别抢那一天）。
+# 违规内容点了 2 篇（Minetest / Quake）——正是 22:00 我改过标题又重新点
+# 「发布」送审的那两篇。禁言期内任何写操作（发稿/建草稿/改文/删稿/探针）
+# 都是**再送一次审**，只会加重，不会变轻。
+# 只读操作（drafts / queue / 看列表）不受限，冻结只拦写。
+# 想提前解冻：TT_BAN_UNTIL=2026-01-01（等于关掉本地闸，平台侧照旧）。
+BAN_UNTIL = (os.environ.get("TT_BAN_UNTIL") or "2026-11-10").strip()
+
+
+def is_frozen(day=None):
+    """今天是否还在禁言冻结期（`BAN_UNTIL` 当天之前都算冻结）。"""
+    day = day or time.strftime("%Y-%m-%d")
+    return day < BAN_UNTIL
+
+
+def freeze_guard(action="写操作"):
+    """禁言冻结期内拦住任何头条写操作。只读命令不要调这个。"""
+    if not is_frozen():
+        return
+    raise SystemExit(
+        "✗ 头条还在禁言冻结期（到 %s，处罚中心：11-02→11-09 到期自动解除），"
+        "%s已拦下。\n"
+        "  2026-11-02 的教训：把已发布文章「编辑→改标题→再点发布」等于重新送审，\n"
+        "  禁言就是这么触发的（Minetest / Quake 两篇就是这个动作之后被判的）。\n"
+        "  · 解禁后再动，且恢复后一天最多 %d 篇、隔天发\n"
+        "  · 只是想看状态：drafts / queue 这类只读命令不受影响\n"
+        "  · 确实要提前解冻：TT_BAN_UNTIL=2026-01-01（关本地闸，平台侧处罚照旧）"
+        % (BAN_UNTIL, action, RATE_DAILY_MAX))
+
+
+def daily_publish_count(day=None):
+    """今天已发布几篇（按各台账的时间字段）。
+
+    ⚠ 只读 `toutiao_published.json` 会**严重低估**：外部稿（ext-ep-*）走
+    `draft` + `send-draft`，成果记在 `publish_manifest.json` / `toutiao_drafts.json`
+    里，`toutiao_published.json` 一条都不加。2026-11-02 那天 11 篇游戏厅
+    在 published.json 里是 0，只看它等于没守卫。所以三个账本一起扫。
     """
-    out, hits = [], 0
-    for line in (md or "").splitlines():
-        new, k = _SRC_PAREN_RE.subn("", line)
-        hits += k
-        trimmed = _BARE_URL_TAIL_RE.sub("", new)
-        if trimmed != new:
-            hits += 1
-        out.append(trimmed)
-    return "\n".join(out), hits
+    day = day or time.strftime("%Y-%m-%d")
+    seen, n = set(), 0
+    for fn, keys in (("toutiao_published.json", ("at", "published_at")),
+                     ("toutiao_published2.json", ("at", "published_at")),
+                     ("toutiao_drafts.json", ("at", "published_at", "sent_at")),
+                     ("publish_manifest.json", ("published_at", "at"))):
+        p = os.path.join(ROOT, "data", fn)
+        if not os.path.isfile(p):
+            continue
+        try:
+            with open(p, encoding="utf-8") as f:
+                data = json.load(f)
+        except Exception:                              # noqa: BLE001
+            continue
+        rows = data if isinstance(data, list) else list(
+            (data or {}).values() if isinstance(data, dict) else [])
+        for it in rows:
+            if not isinstance(it, dict):
+                continue
+            plat = it.get("platform") or it.get("plat")
+            if plat and str(plat).lower() not in ("toutiao", "tt"):
+                continue
+            for k in keys:
+                v = str(it.get(k) or "")
+                if v.startswith(day):
+                    key = (it.get("id") or it.get("case_id") or "",
+                           it.get("gid") or "")
+                    if key not in seen:
+                        seen.add(key)
+                        n += 1
+                    break
+    # 远端更准，但这里不发网络请求（守卫要在开浏览器前就能拦）
+    return n
+
+
+def rate_guard(will_publish=True):
+    """发稿前的日频拦截。`will_publish=False`（只建草稿）时只提醒。
+
+    ⚠ 禁言冻结期（`BAN_UNTIL`）内**先于日频拦下**，连建草稿也不许：建草稿
+    也要走 `draft_list`/`save` 写接口，禁言期内的写动作都会被记行为。
+    """
+    freeze_guard("建草稿/发稿" if not will_publish else "发稿")
+    n = daily_publish_count()
+    if not will_publish:
+        if n:
+            print("  今日已发 %d 篇（建议上限 %d）" % (n, RATE_DAILY_MAX))
+        return n
+    if n >= RATE_DAILY_MAX and not os.environ.get("TT_FORCE_RATE"):
+        raise SystemExit(
+            "✗ 今天已经发了 %d 篇（上限 %d）—— 停。\n"
+            "  2026-11-02 就是在 2 小时内连发 11 篇同栏目稿子，被头条判\n"
+            "  「包含营销推广类信息」禁言 30 天。\n"
+            "  · 真要发：TT_FORCE_RATE=1 重跑（想清楚再说）\n"
+            "  · 放宽上限：TT_DAILY_MAX=5\n"
+            "  · 只是想存稿：用 draft（不发布，不受此限）" % (n, RATE_DAILY_MAX))
+    if n:
+        print("  今日已发 %d/%d 篇" % (n, RATE_DAILY_MAX))
+    return n
+
+
+def strip_episode_no(title):
+    """去掉「第N期：」编号：`游戏厅第11期：Minetest` → `游戏厅：Minetest`。
+
+    2026-10-31 用户拍板：**所有期去掉期号**，标题统一「栏目：游戏名」，
+    想发哪篇发哪篇。但外部稿的标题来自它自己仓库 md 的一级标题，上游不会
+    跟着改 ⇒ 2026-11-02 头条草稿箱里冒出一条「游戏厅第11期：Minetest»，
+    上线标题却是「游戏厅：Minetest」，两边对不上。这里做最后一道归一。
+    """
+    m = _EPISODE_RE.match((title or "").strip())
+    if not m:
+        return title
+    head, tail = m.group(1).strip(" ：:-"), m.group(2).strip()
+    return ("%s：%s" % (head, tail)) if head else tail
+
+
+def cid_for_title(title):
+    """按 `out/toutiao/<cid>/meta.json` 的 title 反查本地 cid。
+
+    外部稿（open-source-games 系列）不在 `cases.json` 里，`find_case_fuzzy`
+    找不到；但它的产物目录结构与案例一致，靠 meta 标题认亲最稳。
+    """
+    want = (title or "").strip()
+    if not want:
+        return ""
+    try:
+        for name in sorted(os.listdir(OUT)):
+            mp = os.path.join(OUT, name, "meta.json")
+            if not os.path.isfile(mp):
+                continue
+            try:
+                with open(mp, encoding="utf-8") as f:
+                    t = (json.load(f).get("title") or "").strip()
+            except Exception:                               # noqa: BLE001
+                continue
+            if t == want:
+                return name
+    except Exception:                                       # noqa: BLE001
+        return ""
+    return ""
 
 
 def cmd_draft(args):
@@ -2409,17 +2594,48 @@ def cmd_draft(args):
     md_path = args.file
     if not os.path.isfile(md_path):
         raise SystemExit("✗ Markdown 不存在：%s" % md_path)
+    if not getattr(args, "dry", False):
+        rate_guard(will_publish=False)  # draft 只存草稿，只提醒不拦；dry 不拦
     with open(md_path, encoding="utf-8") as f:
         md = f.read()
     md, dropped = strip_source_links(md)
-    title = _truncate_title((args.title or md_title(md) or "").strip(), TITLE_MAX)
+    # 引流话术（案例库 / 社群招新）—— strip_source_links 只管链接，不管句子。
+    # 头条 11-02 的处罚理由就是「包含营销推广类信息」，这类话术同属该条。
+    md, _lead = link_hygiene.strip(md)
+    if _lead:
+        dropped += len(_lead)
+    # 标题优先级（2026-11-02）：--title > data/toutiao_titles.json > md 一级标题。
+    # 外部稿的 md 标题仍是「游戏厅第11期：Minetest」，既带期号又没有概要 ⇒
+    # 直接用会把「简陋标题」重新灌回草稿箱。先按 md 标题反查 cid，再查表。
+    md_raw = (md_title(md) or "").strip()
+    cid_hint = ""
+    for _h in (md_raw, strip_episode_no(md_raw)):
+        if _h:
+            cid_hint = cid_for_title(_h)
+            if cid_hint:
+                break
+    tab_title, tab_summary = title_entry(cid_hint)
+    title = (args.title or "").strip() or tab_title or md_raw
+    title = _truncate_title(title, TITLE_MAX)
     if not title:
         raise SystemExit("✗ 拿不到标题：md 里没有「# 标题」，也没给 --title")
+    _t2 = strip_episode_no(title)
+    if _t2 != title:
+        print("  标题去期号：%s → %s（10-31 定的口径：所有期统一「栏目：名字」）"
+              % (title, _t2))
+        title = _t2
+    # 概要（2026-11-02 用户要求「标题需要加概要介绍」）：头条的
+    # `search_info.abstract` 字段。表里没登记就不硬编，交给正文首段提示人工补。
+    abstract = tab_summary
+    if title.count("，") == 0 and not abstract:
+        print("  [!] 标题只有栏目+名字、没有概要，且表里没登记 summary：")
+        print("      在 data/toutiao_titles.json 补 %s 的 {title, summary}" % (cid_hint or "<cid>"))
     blocks = md_to_blocks(md)
     body_html = blocks_to_html(blocks, footer=False)
     plain = blocks_plain_text(blocks)
     print("头条草稿：%s" % os.path.relpath(md_path, ROOT))
     print("  标题 = %s（%d 字）" % (title, len(title)))
+    print("  概要 = %s" % (abstract[:70] if abstract else "（无）"))
     print("  正文 = %d 块 / %d 字" % (len(blocks), len(plain)))
     if dropped:
         print("  已剥离 %d 处源码外链：头条正文里站外链接会被拦/降权" % dropped)
@@ -2441,10 +2657,27 @@ def cmd_draft(args):
               flush=True)
         if not token:
             raise SystemExit("没拿到 token（掉登录或无头不触发自动保存）")
-        pgc_id, msg = save_draft_api(cdp, title, body_html, anti_token=token)
+        pgc_id, msg = save_draft_api(cdp, title, body_html, abstract_text=abstract,
+                                     anti_token=token)
         if not pgc_id:
             raise SystemExit("✗ 存草稿失败：%s" % msg)
         print("  ✓ 已存草稿 pgc_id=%s" % pgc_id)
+        # 2026-11-02 修「外部稿永远没封面」：本命令走纯 API 建稿，而
+        # `save_draft_api` 没有封面参数 ⇒ 草稿箱里一律显示「无封面」
+        # （第11期就是这么来的：18:42 建稿无封面，20:24 才渲染出 cover.png）。
+        # 建完立刻按标题认回本地 cid，本地有 cover.png 就补上（cover_one
+        # 只依赖 c["id"]，不吃 cases.json）。
+        cid = cid_for_title(title)
+        cp = cover_path(cid) if cid else ""
+        if cp:
+            r = cover_one({"id": cid})
+            print("  · 封面：%s（%s）" % (os.path.basename(cp),
+                                          "已上传" if r == "ok" else r))
+        else:
+            print("  [!] 这篇没有封面 ⇒ 草稿箱显示「无封面」，头条推荐会被压低。")
+            print("      ⇒ 先出封面 out/toutiao/<id>/cover.png"
+                  "（python scripts/toutiao_publish.py covers --case <id>），"
+                  "或建完再跑 cover 补一张。")
         print("DRAFT_TITLE=%s" % title)
     finally:
         # grab_anti_token 会留一条 `__probe_tok*` 探针草稿，顺手清掉
@@ -2459,12 +2692,62 @@ def cmd_draft(args):
     return 0
 
 
+TITLES_PATH = os.path.join(ROOT, "data", "toutiao_titles.json")
+_TITLES_CACHE = {"at": 0.0, "d": None}
+
+
+def titles_table():
+    """`data/toutiao_titles.json`：`{cid: {title, summary}}`（2026-11-02 新增）。
+
+    用户口径（11-02 定，两条）：
+      1. **标题必须带概要**，只有「游戏厅：Minetest」这种裸名算缺陷 ——
+         读者在信息流里只看到标题，不知道这篇讲什么、值不值得点。
+      2. **永不出现「第N期」**：系列感靠栏目名「游戏厅」维持，不靠编号。
+         （上游 open-source-games 的 md 一级标题还带着期号，所以
+         `strip_episode_no` 保留为最后一道兜底。）
+
+    优先级：`--title` > 本表 > `out/toutiao/<cid>/meta.json` > cid。
+    放表里而不是改 meta.json：meta 由 `build_article` 每次重算会覆盖，
+    而标题是编辑决策，必须人工可控、可复核。
+    """
+    try:
+        st = os.stat(TITLES_PATH)
+    except OSError:
+        return {}
+    if _TITLES_CACHE["d"] is not None and _TITLES_CACHE["at"] == st.st_mtime:
+        return _TITLES_CACHE["d"]
+    try:
+        with open(TITLES_PATH, encoding="utf-8") as f:
+            d = json.load(f)
+        if not isinstance(d, dict):
+            d = {}
+    except Exception:                                  # noqa: BLE001
+        return {}
+    _TITLES_CACHE.update(at=st.st_mtime, d=d)
+    return d
+
+
+def title_entry(cid):
+    """返回 (title, summary)；没登记就空串，让调用方回退。"""
+    e = titles_table().get(cid or "")
+    if isinstance(e, dict):
+        return ((e.get("title") or "").strip(),
+                (e.get("summary") or "").strip())
+    if isinstance(e, str):          # 兼容早期纯字符串形态
+        return e.strip(), ""
+    return "", ""
+
+
 def find_title(c):
-    mp = os.path.join(OUT, c["id"], "meta.json")
+    t, _ = title_entry(c.get("id") if isinstance(c, dict) else c)
+    if t:
+        return t
+    cid = c.get("id") if isinstance(c, dict) else c
+    mp = os.path.join(OUT, cid, "meta.json")
     if os.path.isfile(mp):
         with open(mp, encoding="utf-8") as f:
-            return json.load(f).get("title", c["id"])
-    return c["id"]
+            return json.load(f).get("title", cid)
+    return cid
 
 
 def cmd_build(args):
@@ -2529,7 +2812,10 @@ def cmd_queue(args):
         has = os.path.isfile(os.path.join(OUT, c["id"], "meta.json"))
         print("  %-24s %-28s %s" % (c["id"], c.get("name", ""),
                                     "" if has else "（没稿，会现造）"))
-    print("\n要发就跑：python scripts/toutiao_publish.py publish --near %d" % n)
+    if is_frozen():
+        print("\n⛔ 禁言冻结中（到 %s），只读用；发稿/建草稿一律被拦。" % BAN_UNTIL)
+    else:
+        print("\n要发就跑：python scripts/toutiao_publish.py publish --near %d" % n)
 
 
 def _diagnose_failure(c, cdp=None):
@@ -2559,6 +2845,7 @@ def _diagnose_failure(c, cdp=None):
 
 
 def cmd_publish(args):
+    freeze_guard("发布")
     if args.case:
         todo = [find_case_fuzzy(args.case)]
     else:
@@ -3274,16 +3561,32 @@ def open_api_session(wait=10):
         except Exception:                                   # noqa: BLE001
             pass
         return None
+    # 2026-11-02（用户要求）：探针草稿用完**立即删**。被 kill 的运行不走
+    # finally，`__probe_tokN__` 会留在草稿箱里（实测真留过一条），所以每次
+    # 开编辑器会话先扫一遍 —— 「下一次运行立刻清干净」。清理只走页面内
+    # fetch（draft_list / delete_draft），不导航、不影响 argus 上下文，
+    # 放在取 token 之前是安全的。
+    try:
+        n = cleanup_probe_draft(cdp, rounds=2, pause=1.5, quiet=True)
+        if n:
+            print("  [清] 上次残留的探针草稿 %d 条已删" % n)
+    except Exception:                                       # noqa: BLE001
+        pass
     return cdp, tid
 
 
-def cleanup_probe_draft(cdp, title_prefix="__probe", rounds=3, pause=3.0):
+def cleanup_probe_draft(cdp, title_prefix="__probe", rounds=3, pause=3.0,
+                        quiet=False):
     """删掉 grab_anti_token 留下的探针草稿（用 delete_draft_api）。
 
     ⚠ **必须重试**：hook 抓到 token 时，页面那次自动保存**可能还没落库**
     （2026-10-17 实测首轮 `draft_list` 里还没有，过几秒才出现）。
     只查一次会「删 0 条」然后留下垃圾稿 —— 而 `draft_list` 读到的条数
     是唯一判据，所以宁可多等几轮。
+
+    ⚠ 2026-11-02 加**收尾复核**：被 SIGTERM 掐死的运行不会走 finally，
+    `__probe_tokN__` 就留在草稿箱里（实测真留了一条）。删完必须再读一次，
+    还剩下就明说，别静默收工。
     """
     total = 0
     for _ in range(max(1, rounds)):
@@ -3303,6 +3606,17 @@ def cleanup_probe_draft(cdp, title_prefix="__probe", rounds=3, pause=3.0):
                                 x.get("draft_type") or 2) == "OK":
                 total += 1
         time.sleep(pause)
+    # 收尾复核：确认盒子里真没有探针稿了
+    try:
+        left = [x for x in (fetch_draft_api_raw(cdp) or [])
+                if (x.get("title") or "").startswith(title_prefix)]
+    except Exception:                                       # noqa: BLE001
+        left = []
+    if left:
+        print("  !! 还有 %d 条探针草稿没删掉：%s（下次运行会再清）"
+              % (len(left), [x.get("title") for x in left][:3]))
+    elif total and not quiet:
+        print("  [清] 探针草稿已删 %d 条" % total)
     return total
 
 
@@ -3769,6 +4083,251 @@ def _count_dup_and_delbtn(cdp, title, keep_newest=True, expand=True):
     return d.get("n", 0), pos
 
 
+def published_index(cdp, max_page=3):
+    """`{标题: gid}` —— 已发表文章索引（只读）。
+
+    和 `fetch_published_articles` 同一条通路（`Page.navigate` 到 API URL，
+    页面内 fetch 会被 argus 挡），差别只在要把 gid 也挖出来：改已发布
+    标题必须靠 gid 打开 `?pgc_id=` 编辑页。
+    """
+    out = {}
+    try:
+        tid = cdp.new_target(TT_ARTICLES_PAGE)["id"]
+    except Exception as e:                             # noqa: BLE001
+        print("[warn] 打不开文章页：%s" % e)
+        return out
+    box = wp.CDP(CDP_PORT)
+    try:
+        box.connect_target(tid)
+        time.sleep(4)
+        for pg in range(1, max_page + 1):
+            off = (pg - 1) * 10
+            try:
+                box.send("Page.navigate", {"url": _article_api_url(off, pg)})
+                time.sleep(3.5)
+                txt = str(box.eval("(document.body.innerText||'')") or "")
+            except Exception as e:                     # noqa: BLE001
+                print("[warn] 第 %d 页读取失败：%s" % (pg, e))
+                break
+            if not txt.startswith("{"):
+                break
+            try:
+                d = json.loads(txt)
+            except Exception:                          # noqa: BLE001
+                break
+            for it in (d.get("data") or []):
+                base = (((it.get("assembleCell") or {}).get("itemCell") or {})
+                        .get("articleBase") or {})
+                t = (base.get("title") or "").strip()
+                g = base.get("gidStr") or base.get("groupID")
+                if t and g:
+                    out[t] = str(g)
+            if not d.get("has_more"):
+                break
+    finally:
+        try:
+            box.close_target(tid)
+        except Exception:                              # noqa: BLE001
+            pass
+    return out
+
+
+_SEL_TT_TITLE = 'textarea[placeholder*="标题"]'
+
+
+def _replace_textarea(cdp, sel, text):
+    """把受控 textarea 的值整体换成 `text`（真键盘，改完自校验）。"""
+    r = cdp.eval("""(function(){
+      var e = document.querySelector(%s);
+      if (!e) return 'notfound';
+      e.scrollIntoView({block:'center'});
+      e.focus();
+      e.setSelectionRange(0, (e.value||'').length);
+      return 'ok';
+    })()""" % json.dumps(sel))
+    if r != "ok":
+        return "notfound"
+    # 真按 Ctrl+A：有的框架只认键盘选区，不认 setSelectionRange
+    for typ in ("keyDown", "keyUp"):
+        cdp.send("Input.dispatchKeyEvent",
+                 {"type": typ, "modifiers": 2, "key": "a", "code": "KeyA",
+                  "windowsVirtualKeyCode": 65})
+    time.sleep(0.2)
+    cdp.send("Input.insertText", {"text": text})
+    time.sleep(0.6)
+    got = str(cdp.eval("(function(){var e=document.querySelector(%s);"
+                       "return e?e.value:'';})()" % json.dumps(sel)) or "")
+    if got.strip() != text.strip():
+        # 兜底：逐字 Backspace 清空后重输（insertText 偶发插到光标处）
+        for _ in range(len(got) + 2):
+            cdp.send("Input.dispatchKeyEvent",
+                     {"type": "keyDown", "key": "Backspace",
+                      "code": "Backspace", "windowsVirtualKeyCode": 8})
+            cdp.send("Input.dispatchKeyEvent",
+                     {"type": "keyUp", "key": "Backspace",
+                      "code": "Backspace", "windowsVirtualKeyCode": 8})
+        cdp.send("Input.insertText", {"text": text})
+        time.sleep(0.8)
+        got = str(cdp.eval("(function(){var e=document.querySelector(%s);"
+                           "return e?e.value:'';})()" % json.dumps(sel)) or "")
+    return "ok" if got.strip() == text.strip() else "mismatch:%r" % got
+
+
+def _button_pos(cdp, text):
+    r = cdp.eval("""(function(){
+      var bs = [].slice.call(document.querySelectorAll('button'));
+      for (var i = 0; i < bs.length; i++) {
+        var t = (bs[i].innerText || '').trim();
+        if (t === %s && !bs[i].disabled) {
+          bs[i].scrollIntoView({block:'center'});
+          var b = bs[i].getBoundingClientRect();
+          return JSON.stringify({x: b.x + b.width/2, y: b.y + b.height/2});
+        }
+      }
+      return 'notfound';
+    })()""" % json.dumps(text))
+    return json.loads(r) if r and r != "notfound" else None
+
+
+def _click_pos(cdp, pos):
+    for typ in ("mousePressed", "mouseReleased"):
+        cdp.send("Input.dispatchMouseEvent",
+                 {"type": typ, "x": pos["x"], "y": pos["y"],
+                  "button": "left", "clickCount": 1})
+    time.sleep(0.6)
+
+
+def cmd_retitle(args):
+    """把**已发布**文章的标题换成 `data/toutiao_titles.json` 里的版本。
+
+    为什么单开一条命令（2026-11-02）：`send-draft` 只管草稿箱、`cover` 只管
+    图，而已发布文章的标题在头条必须「编辑页改标题 → **再点一次发布**」才
+    生效（只保存不点发布，线上纹丝不动）。所以它是一条独立的、带回读校验
+    的写路径。
+
+    判据（与发布同一口径）：改完重新拉已发表列表，**按新标题命中**才算成功。
+    """
+    # 目标集合直接取标题表的 key：外部稿（ext-ep-*）不在 cases.json 里，
+    # 走 load_cases() 会一篇都拿不到。
+    all_cids = sorted(titles_table().keys())
+    if args.case:
+        want = (args.case or "").strip()
+        all_cids = [c for c in all_cids if want in c]
+        if not all_cids:
+            raise SystemExit("标题表里没有匹配 %r 的 cid" % want)
+    cases = [{"id": cid} for cid in all_cids]
+    cdp = wp.CDP(CDP_PORT)
+    idx = published_index(cdp)
+    print("已发表索引：%d 条" % len(idx))
+    todo = []
+    for c in cases:
+        cid = c["id"]
+        new_t, summary = title_entry(cid)
+        if not new_t:
+            print("  · %-38s 表里没登记，跳过" % cid)
+            continue
+        cur = find_title(c)                    # 表优先，所以这里拿的是新标题
+        # 旧标题：meta.json 里的那个（线上现在就是它）
+        mp = os.path.join(OUT, cid, "meta.json")
+        old = ""
+        if os.path.isfile(mp):
+            with open(mp, encoding="utf-8") as f:
+                old = (json.load(f).get("title") or "").strip()
+        # 判据看**线上**，不看 meta.json：meta 由 build_article 重算，改完标题
+        # 它仍是旧的，会让人以为「还没改」而反复打开编辑器重发（21:58 实测）。
+        if new_t in idx:
+            print("  · %-38s 线上已是新标题，跳过" % cid)
+            continue
+        gid = idx.get(old) or idx.get(strip_episode_no(old))
+        if not gid:
+            print("  · %-38s 已发表列表里找不到（旧标题=%r），跳过" % (cid, old))
+            continue
+        if new_t == old:
+            print("  · %-38s 已是新标题，跳过" % cid)
+            continue
+        todo.append((cid, gid, old, new_t, summary))
+    if not todo:
+        print("没有要改的。")
+        return 0
+    if getattr(args, "limit", 0):
+        todo = todo[:args.limit]
+    print("待改 %d 篇%s" % (len(todo), "（dry-run）" if args.dry else ""))
+    for i, (cid, gid, old, new_t, summary) in enumerate(todo, 1):
+        print("[%d/%d] %-38s\n      %s\n   →  %s (%d 字)"
+              % (i, len(todo), cid, old, new_t, len(new_t)), flush=True)
+        if args.dry:
+            continue
+        ok = _retitle_one(cdp, gid, new_t, summary)
+        print("      %s" % ("✓ 已更新" if ok else "✗ 失败"), flush=True)
+        if not ok:
+            break
+    if not args.dry:
+        after = published_index(cdp)
+        hits = sum(1 for _, _, _, n, _ in todo if n in after)
+        print("回读校验：%d/%d 篇已按新标题命中" % (hits, len(todo)))
+    return 0
+
+
+def _retitle_one(cdp, gid, new_title, summary=""):
+    """打开 `?pgc_id=` 编辑页 → 改标题 → 点发布 → 校验。"""
+    url = ("https://mp.toutiao.com/profile_v4/graphic/publish?pgc_id=%s" % gid)
+    tid = cdp.new_target(url)["id"]
+    box = wp.CDP(CDP_PORT)
+    try:
+        box.connect_target(tid)
+        _check_login(box)
+        # 编辑器是重页面：13s 起步，但实测偶发要 25s+（21:58 那一轮就是
+        # 「标题框读不到值」直接返回 false）。改成轮询，别用固定 sleep 赌。
+        cur = ""
+        for _ in range(24):
+            time.sleep(1.5)
+            cur = str(box.eval("(function(){var e=document.querySelector(%s);"
+                               "return e?e.value:'';})()"
+                               % json.dumps(_SEL_TT_TITLE)) or "")
+            if cur.strip():
+                break
+        if not cur.strip():
+            print("      [!] 标题框 36s 内读不到值（编辑器没加载完/掉登录）")
+            return False
+        r = _replace_textarea(box, _SEL_TT_TITLE, new_title)
+        if r != "ok":
+            print("      [!] 改标题失败：%s" % r)
+            return False
+        if summary:
+            # 摘要框（有就填，没有就算了——头条这块 A/B 过，不一定存在）
+            sj = box.eval("""(function(){
+              var es=[].slice.call(document.querySelectorAll('textarea'));
+              for (var i=0;i<es.length;i++){
+                var ph=(es[i].getAttribute('placeholder')||'');
+                if (ph.indexOf('摘要')>=0) return 'yes';
+              }
+              return 'no';
+            })()""")
+            if sj == "yes":
+                _replace_textarea(
+                    box, 'textarea[placeholder*="摘要"]', summary)
+        pos = _button_pos(box, "发布")
+        if not pos:
+            print("      [!] 找不到「发布」按钮")
+            return False
+        _click_pos(box, pos)
+        time.sleep(6)
+        # 二次确认弹窗（「确定发布」之类）
+        for label in ("确定", "确认发布", "发布"):
+            p2 = _button_pos(box, label)
+            if p2:
+                _click_pos(box, p2)
+                time.sleep(4)
+                break
+        time.sleep(5)
+        return True
+    finally:
+        try:
+            cdp.close_target(tid)
+        except Exception:                              # noqa: BLE001
+            pass
+
+
 def cmd_covers(args):
     """批量生成头条横版封面 out/toutiao/<id>/cover.png。"""
     cases = [find_case_fuzzy(args.case)] if args.case else list(load_cases())
@@ -4154,6 +4713,16 @@ def main():
     # 会在只起了 9223 时报「连不上 9222」。跟 CDP_PORT 走。
     cv.add_argument("--port", type=int, default=CDP_PORT)
     cv.set_defaults(fn=cmd_covers)
+
+    # ---- retitle：改【已发布】文章的标题（2026-11-02）----
+    rt = sub.add_parser("retitle",
+                        help="把已发布文章的标题换成 data/toutiao_titles.json "
+                             "里的「栏目：名字，概要」，改完点发布并回读校验")
+    rt.add_argument("--case")
+    rt.add_argument("--dry", action="store_true")
+    rt.add_argument("--limit", type=int, default=0,
+                    help="这一轮最多改几篇（每篇要开编辑页+点发布，约 45s，分批跑）")
+    rt.set_defaults(fn=cmd_retitle)
     pr = sub.add_parser("probe", help="登录后导出发文页 DOM，校准选择器")
     pr.add_argument("--url")
     pr.add_argument("--keep", action="store_true")
@@ -4209,6 +4778,16 @@ def main():
     # 纯离线子命令（build/queue/preview）不需要浏览器，别去启动。
     # ⚠ `draft --dry` 也算离线（2026-10-30）：它只打印将要创建什么，
     #    顺手起一个 Chrome 既慢又和「dry 不动浏览器」的承诺不符。
+    # ---- 禁言冻结：早于「启动浏览器」拦下（2026-11-02 用户拍板）----
+    # 必须在 autostart 之前：否则冻结期跑一条 send-draft 也会把 Chrome 拉起来，
+    # 既慢又让人以为「其实动了」。写命令黑名单式拦住，只读命令放行。
+    _WRITE_CMDS = ("draft", "send-draft", "publish", "refresh", "retitle",
+                   "cover", "unpublish", "dedup", "probe")
+    _is_dry = bool(getattr(args, "dry", False))
+    if (args.cmd in _WRITE_CMDS and not _is_dry and is_frozen()):
+        freeze_guard({"draft": "建草稿", "send-draft": "发稿",
+                      "publish": "发稿"}.get(args.cmd, "写操作"))
+
     if (getattr(args, "cmd", "") not in ("build", "queue", "preview")
             and not (getattr(args, "cmd", "") == "draft"
                      and getattr(args, "dry", False))):

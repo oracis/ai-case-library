@@ -467,6 +467,15 @@ def main():
             break
         d, cid = target
         nt = x.make_xhs_title(cases[cid])
+        if d.get("title") == nt:
+            # 2026-11-02：标题**已经是**目标值，只是完成名单没记（口径改过又改回、
+            # 或上次验收没落账）。别为了记账白开一次编辑器 —— 打开草稿编辑页会触发
+            # 自动保存，把 `saved` 刷成今天，直接毁掉「存入最久」这个选稿判据。
+            print("  ✓ %-18s 已是目标标题，跳过" % cid, flush=True)
+            done[cid] = nt
+            cases_left.discard(cid)
+            _save_done(done)
+            continue
         print("[%d] %-18s %-26s → %s" % (i + 1, cid, d.get("title"), nt), flush=True)
         ok, why = retitle_one(sub, js, d, nt)
         print("    %s %s" % ("✅" if ok else "❌", why), flush=True)
