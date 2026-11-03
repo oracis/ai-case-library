@@ -1366,10 +1366,11 @@
  },
  "prosp": {
   "bilibili": {
-   "at": "2026-09-29 21:22",
+   "at": "2026-11-03 13:56 草稿箱→发布（send-draft）",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "remote_id": "53736510",
+   "state": "published",
+   "title": "PROSP：把找人、写话术、发出去压成一个按钮"
   },
   "toutiao": {
    "at": "2026-09-29 21:17",

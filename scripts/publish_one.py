@@ -388,6 +388,53 @@ def upload_remote(platform, case, dry=False):
     return subprocess.call(cmd, cwd=ROOT)
 
 
+# 草稿箱即 FIFO 队列的平台（用户定，2026-11-03）：发最久草稿，箱空才新写。
+# 两家的 send-draft 都「默认取存入最久的一条」，正好是队列语义。
+FIFO_PLATFORMS = ("bilibili", "xhs")
+
+
+def fifo_note(platform):
+    """send-draft 发的那篇不经过本地选稿 ⇒ 发完把它的类型补进档期日志。
+
+    档期轮换（AI/游戏按天轮流）只管「新写」时的选稿；FIFO 发出的旧稿类型
+    可能与当日档期不同，如实按台账记，别让轮换计数失真。
+    """
+    try:
+        cid = None
+        if platform == "bilibili":
+            m = _load("publish_manifest.json") or {}
+            best = ""
+            for c, plats in m.items():
+                b = (plats or {}).get("bilibili") if isinstance(plats, dict) else None
+                if isinstance(b, dict) and b.get("state") == "published" \
+                        and (b.get("at") or "")[:10] == SLOT.today():
+                    if (b.get("at") or "") > best:
+                        best, cid = b.get("at"), c
+        else:  # xhs：台账是 [{id, at}, …]，取今天最新一条
+            rows = _load("xhs_published.json") or []
+            today = SLOT.today()
+            hit = [r for r in rows if str(r.get("at") or "").startswith(today)]
+            if hit:
+                cid = hit[-1].get("id")
+        if not cid:
+            return
+        path = os.path.join(DATA, "publish_kind_log.json")
+        d = atomicio.load_json(path) if hasattr(atomicio, "load_json") \
+            else json.load(open(path, encoding="utf-8"))
+        rec = d.setdefault("records", {}).setdefault(platform, [])
+        if any(r.get("case_id") == cid for r in rec):
+            return
+        rec.append({"at": SLOT.today() + " " + time.strftime("%H:%M"),
+                    "case_id": cid, "kind": SLOT.kind_of(cid),
+                    "note": "send-draft FIFO 最久草稿"})
+        json.dump(d, open(path, "w", encoding="utf-8"),
+                  ensure_ascii=False, indent=1)
+        print("  台账：publish_kind_log.json 记 %s/%s（%s）"
+              % (platform, cid, SLOT.kind_of(cid)))
+    except Exception as e:                                  # noqa: BLE001
+        print("  ⚠ 档期日志补记失败（不影响发布）：%s" % str(e)[:80])
+
+
 def gen_pack(platform, case):
     """按需生成一篇 AI case 平台稿（gen_case_drafts.py）；失败返回 None。
 
@@ -406,7 +453,40 @@ def gen_pack(platform, case):
 
 
 def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
-        as_json=False, gen=False):
+        as_json=False, gen=False, new=False):
+    cn = dict(SLOT.PLATFORMS)[platform]
+    # 草稿箱即 FIFO 队列（用户定，2026-11-03）：先发**存入最久**的那条，
+    # 箱空了才按当日档期新写。旧 SPEC 接成 `publish`（无脑新写）是错的——
+    # B站一天只烧 1 篇额度，新写等于把箱里积压的稿晾着、额度拿去发新稿；
+    # 小红书同病：箱里 48 条还往里塞第 49 条。send-draft 本来就「默认取
+    # 存入最久的一条」，这里只是把入口接对。
+    if platform in FIFO_PLATFORMS and not new and not case:
+        print("▶ %s ｜ FIFO：发草稿箱里存入最久的一条（send-draft 默认）" % cn)
+        print("  规则：箱空才新写 —— 那时加 --new 走当日档期选稿。")
+        if as_json:
+            print(json.dumps({"platform": platform, "mode": "fifo"},
+                             ensure_ascii=False))
+            return 0
+        script = ("xhs_publish.py" if platform == "xhs"
+                  else "bilibili_publish.py")
+        if not yes:
+            print("\n（干跑）将会执行：\n  %s" % _q(os.path.join(
+                SCRIPTS, script)) + " send-draft")
+            return 0
+        print("\n执行 send-draft…")
+        rc = subprocess.call([PY, "-X", "utf8",
+                              os.path.join(SCRIPTS, script), "send-draft"],
+                             cwd=ROOT)
+        if rc != 0:
+            print("\n✗ send-draft 未成功。两种常见情形：")
+            print("  · 箱空 → 新写：python scripts/publish_one.py "
+                  "--platform %s --new --yes" % platform)
+            print("  · 点了发布但回读没命中 → B站常见 toast「提交成功」+ aid "
+                  "重分配，按标题查已发表列表补账（别重发）")
+        else:
+            fifo_note(platform)
+        return rc
+
     case, row = pick(platform, case, day)
     cn = dict(SLOT.PLATFORMS)[platform]
     if not row.get("kind"):
@@ -537,6 +617,8 @@ def main(argv=None):
                     help="两朵云没草稿时先跑 sync_longtail 上传（要浏览器+扩展）")
     ap.add_argument("--gen", action="store_true",
                     help="AI 稿缺货时按需生成（gen_case_drafts，模板拼装+LLM 只写标题）")
+    ap.add_argument("--new", action="store_true",
+                    help="B站/小红书跳过 FIFO 直发，按当日档期新写草稿（箱空时用）")
     a = ap.parse_args(argv)
 
     if a.all and a.platform:
@@ -548,7 +630,8 @@ def main(argv=None):
             return plan(a.day, todo, a.json)
         rc = 0
         for k in todo:
-            rc |= run(k, None, True, a.timeout, a.day, a.upload, a.json, a.gen)
+            rc |= run(k, None, True, a.timeout, a.day, a.upload, a.json, a.gen,
+                      a.new)
         return rc
     if not a.platform:
         return plan(a.day, None, a.json)
@@ -556,7 +639,8 @@ def main(argv=None):
         ap.error("--case 只能配单个 --platform")
     rc = 0
     for k in a.platform:
-        rc |= run(k, a.case, a.yes, a.timeout, a.day, a.upload, a.json, a.gen)
+        rc |= run(k, a.case, a.yes, a.timeout, a.day, a.upload, a.json, a.gen,
+                  a.new)
     return rc
 
 

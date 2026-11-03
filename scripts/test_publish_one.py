@@ -150,5 +150,36 @@ class DryRun(unittest.TestCase):
         P.run("csdn", "ext-ep-001-super-mario-bros", yes=False)
 
 
+class FifoQueue(unittest.TestCase):
+    """B站/小红书是 FIFO 队列（用户定，2026-11-03）：发最久草稿，箱空才新写。
+
+    钉两条：① 默认走 send-draft（不选稿、不过闸、不落 --yes 之外的东西）；
+    ② --new 或显式 --case 才回到「按档期新写」的老路径——否则箱里积压的稿
+    会被晾着，额度拿去发新稿。
+    """
+
+    def test_default_is_send_draft(self):
+        self.assertEqual(P.FIFO_PLATFORMS, ("bilibili", "xhs"))
+
+    def test_fifo_dry_run_never_spawns_and_never_picks(self):
+        def boom(*a, **kw):
+            raise AssertionError("FIFO 干跑居然真的执行了 send-draft")
+        P.subprocess.call = boom
+        # 不该走到 pick/闸：传一个必然让 pick 报错的假 day 也照样走 FIFO
+        P.run("bilibili", None, yes=False, day="1999-01-01")
+
+    def test_new_flag_bypasses_fifo(self):
+        # --new 必须走到「按档期选稿」；FIFO 默认路径则绝不碰 pick
+        def boom_pick(*a, **kw):
+            raise AssertionError("--new 居然没走选稿")
+        orig = P.pick
+        P.pick = boom_pick
+        try:
+            self.assertRaises(AssertionError, P.run,
+                              "bilibili", None, yes=False, new=True)
+        finally:
+            P.pick = orig
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

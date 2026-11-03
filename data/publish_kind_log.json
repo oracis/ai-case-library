@@ -47,6 +47,35 @@
     "at": "2026-11-02",
     "case_id": "ext-ep-011-minetest"
    }
+  ],
+  "zhihu": [
+   {
+    "case_id": "ext-ep-001-super-mario-bros",
+    "kind": "game",
+    "at": "2026-11-03 13:12"
+   }
+  ],
+  "csdn": [
+   {
+    "case_id": "ext-ep-001-super-mario-bros",
+    "kind": "game",
+    "at": "2026-11-03 13:12"
+   }
+  ],
+  "wechat": [
+   {
+    "case_id": "ext-ep-001-super-mario-bros",
+    "kind": "game",
+    "at": "2026-11-03 13:18"
+   }
+  ],
+  "bilibili": [
+   {
+    "at": "2026-11-03 13:56",
+    "case_id": "prosp",
+    "kind": "ai",
+    "note": "send-draft FIFO 最久草稿；aid 342364→53736510"
+   }
   ]
  }
 }

@@ -20,6 +20,29 @@ python scripts/publish_one.py --platform cnblogs --gen --yes  # AI 稿缺货先�
 python scripts/publish_one.py --json          # 机器可读（给定时任务吃）
 ```
 
+### B站 / 小红书是 FIFO 队列（用户定，2026-11-03）
+
+**草稿箱即队列：先发存入最久的那条，箱空了才按当日档期新写。** 两家的
+`send-draft` 本来就「默认取存入最久的一条」，但入口此前接成了 `publish`
+（无脑新写）——B站一天只烧 1 篇额度，新写等于把箱里积压的稿晾着、额度
+拿去发新稿；小红书箱里 48 条还往里塞第 49 条。现在：
+
+```bash
+python scripts/publish_one.py --platform bilibili --yes   # FIFO 发最久草稿
+python scripts/publish_one.py --platform bilibili --new --yes  # 箱空才用：按档期新写
+```
+
+配套两个坑（2026-11-03 双双实撞）：
+
+- **B站 toast「提交成功」但已发表列表暂时查不到** = 发布实际成功，aid 被
+  重分配（342364→53736510、376914→53736590 都实测过）。按标题轮询已发表
+  列表补账（`_mark_manifest_published` + ledger.promote），**绝不重发**。
+- **B站双账号**：一号 = 9223 + `chrome-debug-profile`；二号（国会图书馆）=
+  9224 + `chrome-bili2-profile`，跑二号命令必须带 `CDP_BILI_PORT=9224`
+  （漏了的症状很阴：发到一号、台账还写成功）。二号只发游戏 article-free
+  版（标题走 meta.title_alt，同稿双发会被判重复投稿）。9224 平时是 CSDN
+  的浏览器，发二号前先杀掉再起 bili2 profile。
+
 ### 按需生成（`gen_case_drafts.py`，2026-11-03 补断供）
 
 五个 `--file` 平台（cnblogs/zhihu/csdn/tencentcloud/aliyun）共用同一批稿，
