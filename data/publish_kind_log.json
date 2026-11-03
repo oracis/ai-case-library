@@ -1,0 +1,19 @@
+{
+ "_note": "补记「平台台账里读不到」的真实发布。头条的游戏厅稿走 pgc 建稿，不写 toutiao_published.json，只能靠这里；不补的话 publish_slot 会误判成「头条从没发过游戏」。at 只精确到日：当日 11 篇的具体时点没落任何台账（运行日志只剩首尾），而判定只看日期与先后，不需要精确时间。别把它当成审计依据。",
+ "game_ids": [],
+ "records": {
+  "toutiao": [
+   {"at": "2026-11-02", "case_id": "ext-ep-001-super-mario-bros"},
+   {"at": "2026-11-02", "case_id": "ext-ep-002-2048"},
+   {"at": "2026-11-02", "case_id": "ext-ep-003-freedoom"},
+   {"at": "2026-11-02", "case_id": "ext-ep-004-quake"},
+   {"at": "2026-11-02", "case_id": "ext-ep-005-supertux"},
+   {"at": "2026-11-02", "case_id": "ext-ep-006-nethack"},
+   {"at": "2026-11-02", "case_id": "ext-ep-007-openttd"},
+   {"at": "2026-11-02", "case_id": "ext-ep-008-mindustry"},
+   {"at": "2026-11-02", "case_id": "ext-ep-009-lichess"},
+   {"at": "2026-11-02", "case_id": "ext-ep-010-cataclysm-dark-days-ahead"},
+   {"at": "2026-11-02", "case_id": "ext-ep-011-minetest"}
+  ]
+ }
+}

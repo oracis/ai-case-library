@@ -1,18 +1,18 @@
 {
   "chessigma": {
     "article_id": "169742331",
-    "status": "published",
+    "status": "rejected",
     "title": "Chessigma 技术拆解：一个海外独立产品的工程与增长",
     "url": "https://blog.csdn.net/sinat_32396037/article/details/169742331",
-    "ts": "2026-11-01 14:45:57"
+    "ts": "2026-11-01 14:45:57",
+    "note": "2026-11-02 创作中心复核：2026-11-01 14:45 那篇显示「审核未通过」，此前台账记成 published 是错的（saveArticle 返回成功 ≠ 过审）"
   },
   "cod-dex": {
-    "article_id": null,
-    "status": "blocked_by_quota",
-    "title": "Codédex 技术拆解：把「可验证」做成产品的海外独立产品",
-    "url": null,
-    "note": "2026-11-01 今日 2 篇配额已满（TrustMRR 测试稿 00:09 + chessigma 14:45 两次发表事件已用满；删稿不退配额，确认事件计数模型）。待次日配额重置(0/2)后发表。源稿 drafts/newbatch/csdn/cod-dex.md",
-    "ts": "2026-11-01 14:50"
+    "article_id": "169850647",
+    "title": "Codédex 技术拆解：一个海外独立产品的工程与增长",
+    "url": "https://blog.csdn.net/sinat_32396037/article/details/169850647",
+    "ts": "2026-11-02 23:35:54",
+    "status": "published"
   },
   "_deleted": {
     "trustmrr_169654106": "2026-11-01 14:49 删除：00:09 的 TrustMRR 测试稿，非本批次占位稿，用于腾创作中心位（但 CSDN 日配额按发表事件计、删除不退款，故未能当日发 cod-dex）"

@@ -1,142 +1,143 @@
 {
- "flodesk": {
-  "article_id": "2098799999773570136",
-  "title": "一个被 YC 拒绝的邮件工具：靠「一口价 + 无限发」做成了大生意",
-  "url": "https://zhuanlan.zhihu.com/p/2098799999773570136",
-  "status": "published",
-  "ts": "2026-10-29 12:19:49",
-  "published_ts": "2026-10-29 12:17:15",
-  "verified_at": "2026-10-31 23:53:22"
- },
- "shipfast": {
-  "article_id": "2099470396764451624",
-  "title": "一次性买断卖了 127 万美元，然后从榜单上“消失”了：ShipFast 的三个信号",
-  "url": "https://zhuanlan.zhihu.com/p/2099470396764451624",
-  "status": "published",
-  "ts": "2026-10-30 11:59:09",
-  "published_ts": "2026-10-30 12:13:52",
-  "note": "2026-10-30 核验：CDP 打开 /p/2099470396764451624 为正式文章页（投票/评论区在、无发布按钮、无草稿提示），补记 published（此前 UI 发表成功后未回写状态）",
-  "verified_at": "2026-10-31 23:53:22"
- },
- "plausible": {
-  "article_id": "2099503506575078355",
-  "title": "开源三年、10 个人、没有投资人：这个隐私分析工具是怎么活下来的？",
-  "url": "https://zhuanlan.zhihu.com/p/2099503506575078355",
-  "status": "draft",
-  "ts": "2026-10-30 14:10:43"
- },
- "3ak-track-field": {
-  "article_id": "2099504180557768154",
-  "title": "先有 15 万粉受众，后有产品：两个田径生如何用 AI 做训练 App？",
-  "url": "https://zhuanlan.zhihu.com/p/2099504180557768154",
-  "status": "draft",
-  "ts": "2026-10-30 14:13:24"
- },
- "getdavid": {
-  "article_id": "2099504191156893329",
-  "title": "AI 造站 + 纸质明信片：一家给小店做网站的公司怎么用线下动作获客",
-  "url": "https://zhuanlan.zhihu.com/p/2099504191156893329",
-  "status": "draft",
-  "ts": "2026-10-30 14:13:26"
- },
- "headshotpro": {
-  "article_id": "2099504200480772284",
-  "title": "一个人做的 AI 证件照：Fortune 500 团队也在买",
-  "url": "https://zhuanlan.zhihu.com/p/2099504200480772284",
-  "status": "draft",
-  "ts": "2026-10-30 14:13:29"
- },
- "klar": {
-  "article_id": "2099504210362554039",
-  "title": "三个不会写代码的大学生：靠 Lovable 做出来的 AI 备考工具",
-  "url": "https://zhuanlan.zhihu.com/p/2099504210362554039",
-  "status": "draft",
-  "ts": "2026-10-30 14:13:31"
- },
- "pdfai": {
-  "article_id": "2099504222593082711",
-  "title": "一个人、0 员工、0 融资：这个「跟 PDF 对话」的工具是怎么做起来的？",
-  "url": "https://zhuanlan.zhihu.com/p/2099504222593082711",
-  "status": "draft",
-  "ts": "2026-10-30 14:13:34"
- },
- "refactoringui": {
-  "article_id": "2099504230704989752",
-  "title": "先有受众，后做书：一个写给程序员的设计书是怎么卖起来的",
-  "url": "https://zhuanlan.zhihu.com/p/2099504230704989752",
-  "status": "draft",
-  "ts": "2026-10-30 14:13:36"
- },
- "sleek-design": {
-  "article_id": "2099504242616752000",
-  "title": "三周搭出来的 AI 设计工具：零付费营销是怎么起量的",
-  "url": "https://zhuanlan.zhihu.com/p/2099504242616752000",
-  "status": "draft",
-  "ts": "2026-10-30 14:13:38"
- },
- "upvoty": {
-  "article_id": "2099504252569777796",
-  "title": "bootstrapped 六年：这个用户反馈工具靠什么活到今天",
-  "url": "https://zhuanlan.zhihu.com/p/2099504252569777796",
-  "status": "draft",
-  "ts": "2026-10-30 14:13:41"
- },
- "ep-001-super-mario-bros": {
-  "article_id": "2099555668348949274",
-  "title": "游戏厅 #1：Super Mario Bros",
-  "url": "https://zhuanlan.zhihu.com/p/2099555668348949274",
-  "status": "draft",
-  "ts": "2026-10-30 17:37:59"
- },
- "trustmrr": {
-  "article_id": "2099933712293028149",
-  "title": "TrustMRR：把「可核验」做成产品的海外小站",
-  "url": "https://zhuanlan.zhihu.com/p/2099933712293028149",
-  "status": "published",
-  "ts": "2026-10-31 18:40:12",
-  "published_ts": "2026-10-31 23:24:44",
-  "verified_at": "2026-10-31 23:53:22"
- },
- "chessigma": {
-  "article_id": "2100211498438104962",
-  "title": "一个海外小产品怎么赚钱：Chessigma",
-  "url": "https://zhuanlan.zhihu.com/p/2100211498438104962",
-  "status": "draft",
-  "ts": "2026-11-01 13:04:01",
-  "publish_settings": {
-   "cover_set": true,
-   "cover_ref": "pic-private/v2-2eb56baaef30e931f0e4941def7f7070",
-   "declaration": "包含 AI 辅助创作 作者对内容负责",
-   "topics": [
-    "国际象棋",
-    "独立开发"
-   ],
-   "submit_to_question": "未选择（有意不投，避免答非所问降权）",
-   "scheduled": false,
-   "content_source": ""
+  "flodesk": {
+    "article_id": "2098799999773570136",
+    "title": "一个被 YC 拒绝的邮件工具：靠「一口价 + 无限发」做成了大生意",
+    "url": "https://zhuanlan.zhihu.com/p/2098799999773570136",
+    "status": "published",
+    "ts": "2026-10-29 12:19:49",
+    "published_ts": "2026-10-29 12:17:15",
+    "verified_at": "2026-10-31 23:53:22"
   },
-  "settings_verified_at": "2026-11-01 19:05",
-  "note": "发布设置（封面/声明/话题）已通过 CDP 设置并用 /api/articles/{id}/draft 回读确认；等待人工点「发布」"
- },
- "cod-dex": {
-  "article_id": "2100211505627242739",
-  "title": "一个海外小产品怎么赚钱：Codédex",
-  "url": "https://zhuanlan.zhihu.com/p/2100211505627242739",
-  "status": "draft",
-  "ts": "2026-11-01 13:04:03",
-  "publish_settings": {
-   "cover_set": true,
-   "cover_ref": "pic-private/v2-89252eb3577a6f17c924c6b6cbbcd02e",
-   "declaration": "包含 AI 辅助创作 作者对内容负责",
-   "topics": [
-    "独立开发",
-    "编程学习"
-   ],
-   "submit_to_question": "未选择（有意不投，避免答非所问降权）",
-   "scheduled": false,
-   "content_source": ""
+  "shipfast": {
+    "article_id": "2099470396764451624",
+    "title": "一次性买断卖了 127 万美元，然后从榜单上“消失”了：ShipFast 的三个信号",
+    "url": "https://zhuanlan.zhihu.com/p/2099470396764451624",
+    "status": "published",
+    "ts": "2026-10-30 11:59:09",
+    "published_ts": "2026-10-30 12:13:52",
+    "note": "2026-10-30 核验：CDP 打开 /p/2099470396764451624 为正式文章页（投票/评论区在、无发布按钮、无草稿提示），补记 published（此前 UI 发表成功后未回写状态）",
+    "verified_at": "2026-10-31 23:53:22"
   },
-  "settings_verified_at": "2026-11-01 19:05",
-  "note": "发布设置（封面/声明/话题）已通过 CDP 设置并用 /api/articles/{id}/draft 回读确认；等待人工点「发布」"
- }
+  "plausible": {
+    "article_id": "2099503506575078355",
+    "title": "开源三年、10 个人、没有投资人：这个隐私分析工具是怎么活下来的？",
+    "url": "https://zhuanlan.zhihu.com/p/2099503506575078355",
+    "status": "draft",
+    "ts": "2026-10-30 14:10:43"
+  },
+  "3ak-track-field": {
+    "article_id": "2099504180557768154",
+    "title": "先有 15 万粉受众，后有产品：两个田径生如何用 AI 做训练 App？",
+    "url": "https://zhuanlan.zhihu.com/p/2099504180557768154",
+    "status": "published",
+    "ts": "2026-10-30 14:13:24",
+    "published_at": "2026-11-02 23:35:00"
+  },
+  "getdavid": {
+    "article_id": "2099504191156893329",
+    "title": "AI 造站 + 纸质明信片：一家给小店做网站的公司怎么用线下动作获客",
+    "url": "https://zhuanlan.zhihu.com/p/2099504191156893329",
+    "status": "draft",
+    "ts": "2026-10-30 14:13:26"
+  },
+  "headshotpro": {
+    "article_id": "2099504200480772284",
+    "title": "一个人做的 AI 证件照：Fortune 500 团队也在买",
+    "url": "https://zhuanlan.zhihu.com/p/2099504200480772284",
+    "status": "draft",
+    "ts": "2026-10-30 14:13:29"
+  },
+  "klar": {
+    "article_id": "2099504210362554039",
+    "title": "三个不会写代码的大学生：靠 Lovable 做出来的 AI 备考工具",
+    "url": "https://zhuanlan.zhihu.com/p/2099504210362554039",
+    "status": "draft",
+    "ts": "2026-10-30 14:13:31"
+  },
+  "pdfai": {
+    "article_id": "2099504222593082711",
+    "title": "一个人、0 员工、0 融资：这个「跟 PDF 对话」的工具是怎么做起来的？",
+    "url": "https://zhuanlan.zhihu.com/p/2099504222593082711",
+    "status": "draft",
+    "ts": "2026-10-30 14:13:34"
+  },
+  "refactoringui": {
+    "article_id": "2099504230704989752",
+    "title": "先有受众，后做书：一个写给程序员的设计书是怎么卖起来的",
+    "url": "https://zhuanlan.zhihu.com/p/2099504230704989752",
+    "status": "draft",
+    "ts": "2026-10-30 14:13:36"
+  },
+  "sleek-design": {
+    "article_id": "2099504242616752000",
+    "title": "三周搭出来的 AI 设计工具：零付费营销是怎么起量的",
+    "url": "https://zhuanlan.zhihu.com/p/2099504242616752000",
+    "status": "draft",
+    "ts": "2026-10-30 14:13:38"
+  },
+  "upvoty": {
+    "article_id": "2099504252569777796",
+    "title": "bootstrapped 六年：这个用户反馈工具靠什么活到今天",
+    "url": "https://zhuanlan.zhihu.com/p/2099504252569777796",
+    "status": "draft",
+    "ts": "2026-10-30 14:13:41"
+  },
+  "ep-001-super-mario-bros": {
+    "article_id": "2099555668348949274",
+    "title": "游戏厅 #1：Super Mario Bros",
+    "url": "https://zhuanlan.zhihu.com/p/2099555668348949274",
+    "status": "draft",
+    "ts": "2026-10-30 17:37:59"
+  },
+  "trustmrr": {
+    "article_id": "2099933712293028149",
+    "title": "TrustMRR：把「可核验」做成产品的海外小站",
+    "url": "https://zhuanlan.zhihu.com/p/2099933712293028149",
+    "status": "published",
+    "ts": "2026-10-31 18:40:12",
+    "published_ts": "2026-10-31 23:24:44",
+    "verified_at": "2026-10-31 23:53:22"
+  },
+  "chessigma": {
+    "article_id": "2100211498438104962",
+    "title": "一个海外小产品怎么赚钱：Chessigma",
+    "url": "https://zhuanlan.zhihu.com/p/2100211498438104962",
+    "status": "draft",
+    "ts": "2026-11-01 13:04:01",
+    "publish_settings": {
+      "cover_set": true,
+      "cover_ref": "pic-private/v2-2eb56baaef30e931f0e4941def7f7070",
+      "declaration": "包含 AI 辅助创作 作者对内容负责",
+      "topics": [
+        "国际象棋",
+        "独立开发"
+      ],
+      "submit_to_question": "未选择（有意不投，避免答非所问降权）",
+      "scheduled": false,
+      "content_source": ""
+    },
+    "settings_verified_at": "2026-11-01 19:05",
+    "note": "发布设置（封面/声明/话题）已通过 CDP 设置并用 /api/articles/{id}/draft 回读确认；等待人工点「发布」"
+  },
+  "cod-dex": {
+    "article_id": "2100211505627242739",
+    "title": "一个海外小产品怎么赚钱：Codédex",
+    "url": "https://zhuanlan.zhihu.com/p/2100211505627242739",
+    "status": "draft",
+    "ts": "2026-11-01 13:04:03",
+    "publish_settings": {
+      "cover_set": true,
+      "cover_ref": "pic-private/v2-89252eb3577a6f17c924c6b6cbbcd02e",
+      "declaration": "包含 AI 辅助创作 作者对内容负责",
+      "topics": [
+        "独立开发",
+        "编程学习"
+      ],
+      "submit_to_question": "未选择（有意不投，避免答非所问降权）",
+      "scheduled": false,
+      "content_source": ""
+    },
+    "settings_verified_at": "2026-11-01 19:05",
+    "note": "发布设置（封面/声明/话题）已通过 CDP 设置并用 /api/articles/{id}/draft 回读确认；等待人工点「发布」"
+  }
 }

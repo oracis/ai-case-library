@@ -441,11 +441,17 @@
   },
   "wpconvert-ai-convert-ai-sites-to-wordpress": {
     "title": "WPConvert：AI 建站转 WP",
-    "published_at": "2026-10-10 16:10",
-    "status": "draft",
+    "published_at": "2026-11-02 20:33",
+    "status": "published",
     "appmsgid": "100000424",
     "file": "公众号-wpconvert-ai-convert-ai-sites-to-wordpress拆解.html",
-    "refreshed_at": "2026-10-24 01:52"
+    "refreshed_at": "2026-10-24 01:52",
+    "publish_type": "publish",
+    "published_appmsgid": "2247484987",
+    "sent_via": "send",
+    "send_reason": "已发表列表出现新记录，标题一致",
+    "note": "｜publish模式自动发表，新 appmsgid=2247484987",
+    "verified_at": "2026-11-02 20:33"
   },
   "augora-ai": {
     "title": "Augora AI：Shopify 广告追踪自动化",

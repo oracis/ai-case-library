@@ -1,336 +1,343 @@
 [
- {
-  "id": "voklit",
-  "at": "2026-09-28 20:40",
-  "gid": "7690546974906417705",
-  "verified_at": "2026-10-19 00:33",
-  "evidence": "health_backfill",
-  "note": "P1对账: 『月收$1.6K：给跨境团队搭云通信』(金额1600)｜草稿箱另有一条同名旧稿（2026-10-09 22:05「Voklit：给跨境团队搭云通信」），2026-10-19 合并台账时留痕"
- },
- {
-  "id": "stan",
-  "at": "2026-09-28 20:40",
-  "gid": "7690551881990537782",
-  "verified_at": "2026-10-19 00:28",
-  "evidence": "health_backfill",
-  "note": "P1对账: 『月收$3.57M：帮创作者靠粉丝养活自己』(金额3,569,654)"
- },
- {
-  "id": "sierra",
-  "at": "2026-09-28 20:40",
-  "gid": "7690553428477297215",
-  "verified_at": "2026-10-19 00:28",
-  "evidence": "health_backfill",
-  "note": "2026-10-19 对账修正：本条远端标题是『年收$200M：AI 客服解决才收钱』。原 note 写的『$20 万/月的营销归因生意』经正文核验是 Cometly（原文「35.4% 是 Cometly 的 MRR 增长率」），已改挂。"
- },
- {
-  "id": "visualizee-ai",
-  "at": "2026-09-28 20:40",
-  "gid": "7690559707596980776",
-  "verified_at": "2026-10-19 00:28",
-  "evidence": "health_backfill",
-  "note": "P1对账: 『月收$8.6K：帮设计师渲染效果图』(金额8600)"
- },
- {
-  "id": "outrank",
-  "at": "2026-09-28 20:40",
-  "gid": "7690562742851240484",
-  "verified_at": "2026-10-19 00:28",
-  "evidence": "health_backfill",
-  "note": "P1对账: 『月收$250K：自动写博客把排名做上去』(金额250000)"
- },
- {
-  "id": "marc-lou-portfolio",
-  "at": "2026-09-28 20:40",
-  "gid": "7690563255642669610",
-  "verified_at": "2026-10-19 00:28",
-  "evidence": "health_backfill",
-  "note": "P1对账: 『月收$1.03M：靠一堆小产品组合赚钱』(金额1,032,000)"
- },
- {
-  "id": "bustem",
-  "at": "2026-09-28 20:40",
-  "gid": "7696928049501061668",
-  "verified_at": "2026-10-19 00:28",
-  "evidence": "health_backfill",
-  "note": "P1对账: 新口径『Bustem：帮电商品牌全网打假』+旧口径『月收$398K：帮品牌删仿品和窜货链接』两篇"
- },
- {
-  "id": "kibu",
-  "at": "2026-09-28 20:40",
-  "gid": "7690564267208098358",
-  "verified_at": "2026-10-19 00:28",
-  "evidence": "health_backfill",
-  "note": "P1对账: 『月收$234K：给残障机构做病历系统』(金额234,319)"
- },
- {
-  "id": "pieter-levels",
-  "at": "2026-09-28 20:40",
-  "gid": "7690564771770352169",
-  "verified_at": "2026-10-19 00:28",
-  "evidence": "health_backfill",
-  "note": "P1对账: 『月收$250K：靠几个网站收租』(金额250000)"
- },
- {
-  "id": "promptmonitor-io",
-  "at": "2026-10-17 01:20",
-  "gid": "7693149267216581154",
-  "verified_at": "2026-10-19 00:28",
-  "evidence": "health_backfill",
-  "note": "P1对账: 『PromptMon：盯 AI 里的品牌』(缩写前缀互补)"
- },
- {
-  "id": "divine-widgets",
-  "at": "2026-10-17 01:20",
-  "gid": "7693149862145065507",
-  "verified_at": "2026-10-19 00:28",
-  "evidence": "health_backfill",
-  "note": "P1对账: 『Divine：给站长卖网站挂件』(缩写前缀互补)"
- },
- {
-  "id": "prosp",
-  "at": "2026-10-17 01:20",
-  "gid": "7693150299531313679",
-  "verified_at": "2026-10-19 00:28",
-  "evidence": "health_backfill",
-  "note": "P1对账: 『PROSP：销售线索挖到自动触达』"
- },
- {
-  "id": "easymix",
-  "at": "2026-10-17 01:20",
-  "gid": "7696469867460887067",
-  "verified_at": "2026-10-19 00:28",
-  "evidence": "health_backfill",
-  "note": "P1对账: 『上传人声和伴奏一键出混音成品』(本地标题兜底)"
- },
- {
-  "id": "publbee",
-  "at": "2026-10-17 01:20",
-  "gid": "7694943795279905316",
-  "verified_at": "2026-10-19 00:28",
-  "evidence": "health_backfill",
-  "note": "P1对账: 『自助出版的作者愿意为工具付钱——只是撑不起大生意』(语义)"
- },
- {
-  "id": "podawaa",
-  "at": "2026-10-17 01:20",
-  "gid": "7694944481099792915",
-  "verified_at": "2026-10-19 00:28",
-  "evidence": "health_backfill",
-  "note": "P1对账: 『把 LinkedIn 内容发布做成订阅，然后靠平台自己的增长』(语义)"
- },
- {
-  "id": "coral",
-  "at": "2026-10-17 对账补登",
-  "gid": "7693137454026506752",
-  "verified_at": "2026-10-19 00:28",
-  "evidence": "health_backfill",
-  "note": "P1对账: 远端『Coral：托管你的开源 AI 助手』在册（2026-10-16 群发，台账漏登）。2026-10-17 晚复核恢复：上午误以「草稿箱没有」为据删过，但已发表列表实证在册——群发后稿件离开草稿箱是正常行为，草稿箱没有≠没群发"
- },
- {
-  "id": "uplinked-b-v",
-  "at": "2026-10-17 对账补登",
-  "gid": "7693148818614993423",
-  "verified_at": "2026-10-19 00:28",
-  "evidence": "health_backfill",
-  "note": "P1对账: 远端『UpLinked：领英上自动加客户』在册（2026-10-16 群发，台账漏登）。2026-10-17 晚复核恢复：上午误以「草稿箱没有」为据删过，但已发表列表实证在册——群发后稿件离开草稿箱是正常行为，草稿箱没有≠没群发"
- },
- {
-  "id": "vid-ai",
-  "at": "2026-10-13 23:41",
-  "gid": "7694945062837076522",
-  "verified_at": "2026-10-19 00:28",
-  "evidence": "health_backfill",
-  "note": "2026-10-19 对账正名：旧口径标题，正文＝「把想法/脚本变成可直接发布的短视频」，即 Vid.AI。早先误判为 GHOST。（远端：『两年做到累计 $162 万，然后峰值留存掉到 46%』）"
- },
- {
-  "id": "cometly",
-  "at": "2026-10-13 23:41",
-  "gid": "7694945688005788202",
-  "verified_at": "2026-10-19 00:28",
-  "evidence": "health_backfill",
-  "note": "2026-10-19 对账：新旧两篇都在线上。旧篇『$20 万/月的营销归因生意，但不是一个人做的』（正文首行即 Cometly）。早先这条旧篇被错挂在 sierra 名下。（远端：『Cometly：广告数据归因分析』）"
- },
- {
-  "id": "fastwrite-io",
-  "at": "2026-10-13 23:41",
-  "gid": "7697626230077669926",
-  "verified_at": "2026-10-19 00:28",
-  "evidence": "health_backfill",
-  "note": "2026-10-19 对账：草稿已升格为已发布，台账未迁移（远端：『fastwrite.io：提升学术写作质量』）"
- },
- {
-  "id": "growingupvideo",
-  "at": "2026-10-13 23:41",
-  "gid": "7697626377811755530",
-  "verified_at": "2026-10-19 00:28",
-  "evidence": "health_backfill",
-  "note": "2026-10-19 对账：草稿已升格为已发布，台账未迁移（远端：『GrowingUpVideo：照片变脸电影级视频』）"
- },
- {
-  "id": "search1api",
-  "at": "2026-10-19 23:14",
-  "gid": "7693147875014787618",
-  "evidence": "send_existing_draft",
-  "verified_at": "2026-10-19 23:14"
- },
- {
-  "id": "insect-bite-id",
-  "at": "2026-10-20 15:31",
-  "gid": "7693147331377611299",
-  "evidence": "send_existing_draft",
-  "verified_at": "2026-10-20 15:31"
- },
- {
-  "id": "autoreels-ai",
-  "at": "2026-10-21 12:38",
-  "gid": "7693146865831657999",
-  "evidence": "send_existing_draft",
-  "verified_at": "2026-10-21 12:38"
- },
- {
-  "id": "magicslides-app",
-  "at": "2026-10-22 11:31",
-  "gid": "7693146329643500066",
-  "evidence": "send_existing_draft",
-  "verified_at": "2026-10-22 11:31"
- },
- {
-  "id": "1lookup",
-  "at": "2026-10-23 15:01",
-  "gid": "7693145848108024354",
-  "evidence": "send_existing_draft",
-  "verified_at": "2026-10-23 15:01"
- },
- {
-  "id": "downconvert-sketchup-files",
-  "at": "2026-10-24 21:32",
-  "gid": "7699903206700139046",
-  "evidence": "send_existing_draft",
-  "verified_at": "2026-10-24 21:32"
- },
- {
-  "id": "mcdpoints",
-  "at": "2026-10-25 09:57"
- },
- {
-  "id": "ai-prank-call",
-  "at": "2026-10-26 14:23"
- },
- {
-  "id": "agentsguild",
-  "at": "2026-10-27 12:46",
-  "gid": "7700851215516664362",
-  "evidence": "send_existing_draft",
-  "verified_at": "2026-10-27 12:46"
- },
- {
-  "id": "quran-unlock",
-  "at": "2026-10-28 14:00"
- },
- {
-  "id": "genius-ai",
-  "at": "2026-10-29 11:39",
-  "gid": "7693144739603890722",
-  "evidence": "send_existing_draft",
-  "verified_at": "2026-10-29 11:39"
- },
- {
-  "id": "trustmrr",
-  "at": "2026-10-31 18:22",
-  "gid": "7702774630259376676",
-  "evidence": "send_existing_draft",
-  "verified_at": "2026-10-31 18:22"
- },
- {
-  "id": "ext-ep-011-minetest",
-  "at": "2026-10-31 18:51",
-  "gid": "7702781884279063083",
-  "evidence": "send_existing_draft",
-  "verified_at": "2026-10-31 18:51"
- },
- {
-  "id": "ext-ep-002-2048",
-  "at": "2026-10-31 19:49",
-  "gid": "7702797168431612479",
-  "evidence": "send_existing_draft",
-  "verified_at": "2026-10-31 19:49"
- },
- {
-  "id": "ext-ep-003-freedoom",
-  "at": "2026-10-31 19:53",
-  "gid": "7702798120068858404",
-  "evidence": "send_existing_draft",
-  "verified_at": "2026-10-31 19:53"
- },
- {
-  "id": "ext-ep-004-quake",
-  "at": "2026-10-31 19:57",
-  "gid": "7702799110571475475",
-  "evidence": "send_existing_draft",
-  "verified_at": "2026-10-31 19:57"
- },
- {
-  "id": "ext-ep-005-supertux",
-  "at": "2026-10-31 20:01",
-  "gid": "7702800072290927140",
-  "evidence": "send_existing_draft",
-  "verified_at": "2026-10-31 20:01"
- },
- {
-  "id": "ext-ep-006-nethack",
-  "at": "2026-10-31 20:05",
-  "gid": "7702801086453482020",
-  "evidence": "send_existing_draft",
-  "verified_at": "2026-10-31 20:05"
- },
- {
-  "id": "ext-ep-007-openttd",
-  "at": "2026-10-31 20:09",
-  "gid": "7702802037850915391",
-  "evidence": "send_existing_draft",
-  "verified_at": "2026-10-31 20:09"
- },
- {
-  "id": "ext-ep-008-mindustry",
-  "at": "2026-10-31 20:12",
-  "gid": "7702803059026231827",
-  "evidence": "send_existing_draft",
-  "verified_at": "2026-10-31 20:12"
- },
- {
-  "id": "ext-ep-009-lichess",
-  "at": "2026-10-31 20:19",
-  "gid": "7702804780213518902",
-  "evidence": "send_existing_draft",
-  "verified_at": "2026-10-31 20:19"
- },
- {
-  "id": "ext-ep-010-cataclysm-dark-days-ahead",
-  "at": "2026-10-31 20:23",
-  "gid": "7702805768530100755",
-  "evidence": "send_existing_draft",
-  "verified_at": "2026-10-31 20:23"
- },
- {
-  "id": "ext-ep-001-super-mario-bros",
-  "at": "2026-10-31 22:10",
-  "gid": "7702394082697527848",
-  "evidence": "send_existing_draft",
-  "verified_at": "2026-10-31 22:10"
- },
- {
-  "id": "chessigma",
-  "at": "2026-11-01 17:06",
-  "gid": "7703128531567477282",
-  "title_fixed_at": "2026-11-02 13:2x",
-  "note": "原标题被 30 字硬截断成「Chessigma：「免费版 Chess.com」拿下 10」，2026-11-02 走「修改已发布文章」改成「免费下棋平台拿下 100 万用户，只有 576 人付费」，未删稿，展现/评论保留"
- },
- {
-  "id": "cod-dex",
-  "at": "2026-11-01 17:15",
-  "gid": "7703129188911383055",
-  "title_fixed_at": "2026-11-02 13:2x",
-  "note": "原标题截断成「Codédex：把学编程包装成「冒险旅程」的互动课程平台，免」，2026-11-02 改成「9.99 美元学编程，6686 人把课程当闯关游戏」，未删稿"
- }
+  {
+    "id": "voklit",
+    "at": "2026-09-28 20:40",
+    "gid": "7690546974906417705",
+    "verified_at": "2026-10-19 00:33",
+    "evidence": "health_backfill",
+    "note": "P1对账: 『月收$1.6K：给跨境团队搭云通信』(金额1600)｜草稿箱另有一条同名旧稿（2026-10-09 22:05「Voklit：给跨境团队搭云通信」），2026-10-19 合并台账时留痕"
+  },
+  {
+    "id": "stan",
+    "at": "2026-09-28 20:40",
+    "gid": "7690551881990537782",
+    "verified_at": "2026-10-19 00:28",
+    "evidence": "health_backfill",
+    "note": "P1对账: 『月收$3.57M：帮创作者靠粉丝养活自己』(金额3,569,654)"
+  },
+  {
+    "id": "sierra",
+    "at": "2026-09-28 20:40",
+    "gid": "7690553428477297215",
+    "verified_at": "2026-10-19 00:28",
+    "evidence": "health_backfill",
+    "note": "2026-10-19 对账修正：本条远端标题是『年收$200M：AI 客服解决才收钱』。原 note 写的『$20 万/月的营销归因生意』经正文核验是 Cometly（原文「35.4% 是 Cometly 的 MRR 增长率」），已改挂。"
+  },
+  {
+    "id": "visualizee-ai",
+    "at": "2026-09-28 20:40",
+    "gid": "7690559707596980776",
+    "verified_at": "2026-10-19 00:28",
+    "evidence": "health_backfill",
+    "note": "P1对账: 『月收$8.6K：帮设计师渲染效果图』(金额8600)"
+  },
+  {
+    "id": "outrank",
+    "at": "2026-09-28 20:40",
+    "gid": "7690562742851240484",
+    "verified_at": "2026-10-19 00:28",
+    "evidence": "health_backfill",
+    "note": "P1对账: 『月收$250K：自动写博客把排名做上去』(金额250000)"
+  },
+  {
+    "id": "marc-lou-portfolio",
+    "at": "2026-09-28 20:40",
+    "gid": "7690563255642669610",
+    "verified_at": "2026-10-19 00:28",
+    "evidence": "health_backfill",
+    "note": "P1对账: 『月收$1.03M：靠一堆小产品组合赚钱』(金额1,032,000)"
+  },
+  {
+    "id": "bustem",
+    "at": "2026-09-28 20:40",
+    "gid": "7696928049501061668",
+    "verified_at": "2026-10-19 00:28",
+    "evidence": "health_backfill",
+    "note": "P1对账: 新口径『Bustem：帮电商品牌全网打假』+旧口径『月收$398K：帮品牌删仿品和窜货链接』两篇"
+  },
+  {
+    "id": "kibu",
+    "at": "2026-09-28 20:40",
+    "gid": "7690564267208098358",
+    "verified_at": "2026-10-19 00:28",
+    "evidence": "health_backfill",
+    "note": "P1对账: 『月收$234K：给残障机构做病历系统』(金额234,319)"
+  },
+  {
+    "id": "pieter-levels",
+    "at": "2026-09-28 20:40",
+    "gid": "7690564771770352169",
+    "verified_at": "2026-10-19 00:28",
+    "evidence": "health_backfill",
+    "note": "P1对账: 『月收$250K：靠几个网站收租』(金额250000)"
+  },
+  {
+    "id": "promptmonitor-io",
+    "at": "2026-10-17 01:20",
+    "gid": "7693149267216581154",
+    "verified_at": "2026-10-19 00:28",
+    "evidence": "health_backfill",
+    "note": "P1对账: 『PromptMon：盯 AI 里的品牌』(缩写前缀互补)"
+  },
+  {
+    "id": "divine-widgets",
+    "at": "2026-10-17 01:20",
+    "gid": "7693149862145065507",
+    "verified_at": "2026-10-19 00:28",
+    "evidence": "health_backfill",
+    "note": "P1对账: 『Divine：给站长卖网站挂件』(缩写前缀互补)"
+  },
+  {
+    "id": "prosp",
+    "at": "2026-10-17 01:20",
+    "gid": "7693150299531313679",
+    "verified_at": "2026-10-19 00:28",
+    "evidence": "health_backfill",
+    "note": "P1对账: 『PROSP：销售线索挖到自动触达』"
+  },
+  {
+    "id": "easymix",
+    "at": "2026-10-17 01:20",
+    "gid": "7696469867460887067",
+    "verified_at": "2026-10-19 00:28",
+    "evidence": "health_backfill",
+    "note": "P1对账: 『上传人声和伴奏一键出混音成品』(本地标题兜底)"
+  },
+  {
+    "id": "publbee",
+    "at": "2026-10-17 01:20",
+    "gid": "7694943795279905316",
+    "verified_at": "2026-10-19 00:28",
+    "evidence": "health_backfill",
+    "note": "P1对账: 『自助出版的作者愿意为工具付钱——只是撑不起大生意』(语义)"
+  },
+  {
+    "id": "podawaa",
+    "at": "2026-10-17 01:20",
+    "gid": "7694944481099792915",
+    "verified_at": "2026-10-19 00:28",
+    "evidence": "health_backfill",
+    "note": "P1对账: 『把 LinkedIn 内容发布做成订阅，然后靠平台自己的增长』(语义)"
+  },
+  {
+    "id": "coral",
+    "at": "2026-10-17 对账补登",
+    "gid": "7693137454026506752",
+    "verified_at": "2026-10-19 00:28",
+    "evidence": "health_backfill",
+    "note": "P1对账: 远端『Coral：托管你的开源 AI 助手』在册（2026-10-16 群发，台账漏登）。2026-10-17 晚复核恢复：上午误以「草稿箱没有」为据删过，但已发表列表实证在册——群发后稿件离开草稿箱是正常行为，草稿箱没有≠没群发"
+  },
+  {
+    "id": "uplinked-b-v",
+    "at": "2026-10-17 对账补登",
+    "gid": "7693148818614993423",
+    "verified_at": "2026-10-19 00:28",
+    "evidence": "health_backfill",
+    "note": "P1对账: 远端『UpLinked：领英上自动加客户』在册（2026-10-16 群发，台账漏登）。2026-10-17 晚复核恢复：上午误以「草稿箱没有」为据删过，但已发表列表实证在册——群发后稿件离开草稿箱是正常行为，草稿箱没有≠没群发"
+  },
+  {
+    "id": "vid-ai",
+    "at": "2026-10-13 23:41",
+    "gid": "7694945062837076522",
+    "verified_at": "2026-10-19 00:28",
+    "evidence": "health_backfill",
+    "note": "2026-10-19 对账正名：旧口径标题，正文＝「把想法/脚本变成可直接发布的短视频」，即 Vid.AI。早先误判为 GHOST。（远端：『两年做到累计 $162 万，然后峰值留存掉到 46%』）"
+  },
+  {
+    "id": "cometly",
+    "at": "2026-10-13 23:41",
+    "gid": "7694945688005788202",
+    "verified_at": "2026-10-19 00:28",
+    "evidence": "health_backfill",
+    "note": "2026-10-19 对账：新旧两篇都在线上。旧篇『$20 万/月的营销归因生意，但不是一个人做的』（正文首行即 Cometly）。早先这条旧篇被错挂在 sierra 名下。（远端：『Cometly：广告数据归因分析』）"
+  },
+  {
+    "id": "fastwrite-io",
+    "at": "2026-10-13 23:41",
+    "gid": "7697626230077669926",
+    "verified_at": "2026-10-19 00:28",
+    "evidence": "health_backfill",
+    "note": "2026-10-19 对账：草稿已升格为已发布，台账未迁移（远端：『fastwrite.io：提升学术写作质量』）"
+  },
+  {
+    "id": "growingupvideo",
+    "at": "2026-10-13 23:41",
+    "gid": "7697626377811755530",
+    "verified_at": "2026-10-19 00:28",
+    "evidence": "health_backfill",
+    "note": "2026-10-19 对账：草稿已升格为已发布，台账未迁移（远端：『GrowingUpVideo：照片变脸电影级视频』）"
+  },
+  {
+    "id": "search1api",
+    "at": "2026-10-19 23:14",
+    "gid": "7693147875014787618",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-19 23:14"
+  },
+  {
+    "id": "insect-bite-id",
+    "at": "2026-10-20 15:31",
+    "gid": "7693147331377611299",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-20 15:31"
+  },
+  {
+    "id": "autoreels-ai",
+    "at": "2026-10-21 12:38",
+    "gid": "7693146865831657999",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-21 12:38"
+  },
+  {
+    "id": "magicslides-app",
+    "at": "2026-10-22 11:31",
+    "gid": "7693146329643500066",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-22 11:31"
+  },
+  {
+    "id": "1lookup",
+    "at": "2026-10-23 15:01",
+    "gid": "7693145848108024354",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-23 15:01"
+  },
+  {
+    "id": "downconvert-sketchup-files",
+    "at": "2026-10-24 21:32",
+    "gid": "7699903206700139046",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-24 21:32"
+  },
+  {
+    "id": "mcdpoints",
+    "at": "2026-10-25 09:57"
+  },
+  {
+    "id": "ai-prank-call",
+    "at": "2026-10-26 14:23"
+  },
+  {
+    "id": "agentsguild",
+    "at": "2026-10-27 12:46",
+    "gid": "7700851215516664362",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-27 12:46"
+  },
+  {
+    "id": "quran-unlock",
+    "at": "2026-10-28 14:00"
+  },
+  {
+    "id": "genius-ai",
+    "at": "2026-10-29 11:39",
+    "gid": "7693144739603890722",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-29 11:39"
+  },
+  {
+    "id": "trustmrr",
+    "at": "2026-10-31 18:22",
+    "gid": "7702774630259376676",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-31 18:22"
+  },
+  {
+    "id": "ext-ep-011-minetest",
+    "at": "2026-10-31 18:51",
+    "gid": "7702781884279063083",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-31 18:51"
+  },
+  {
+    "id": "ext-ep-002-2048",
+    "at": "2026-10-31 19:49",
+    "gid": "7702797168431612479",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-31 19:49"
+  },
+  {
+    "id": "ext-ep-003-freedoom",
+    "at": "2026-10-31 19:53",
+    "gid": "7702798120068858404",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-31 19:53"
+  },
+  {
+    "id": "ext-ep-004-quake",
+    "at": "2026-10-31 19:57",
+    "gid": "7702799110571475475",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-31 19:57"
+  },
+  {
+    "id": "ext-ep-005-supertux",
+    "at": "2026-10-31 20:01",
+    "gid": "7702800072290927140",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-31 20:01"
+  },
+  {
+    "id": "ext-ep-006-nethack",
+    "at": "2026-10-31 20:05",
+    "gid": "7702801086453482020",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-31 20:05"
+  },
+  {
+    "id": "ext-ep-007-openttd",
+    "at": "2026-10-31 20:09",
+    "gid": "7702802037850915391",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-31 20:09"
+  },
+  {
+    "id": "ext-ep-008-mindustry",
+    "at": "2026-10-31 20:12",
+    "gid": "7702803059026231827",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-31 20:12"
+  },
+  {
+    "id": "ext-ep-009-lichess",
+    "at": "2026-10-31 20:19",
+    "gid": "7702804780213518902",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-31 20:19"
+  },
+  {
+    "id": "ext-ep-010-cataclysm-dark-days-ahead",
+    "at": "2026-10-31 20:23",
+    "gid": "7702805768530100755",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-31 20:23"
+  },
+  {
+    "id": "ext-ep-001-super-mario-bros",
+    "at": "2026-10-31 22:10",
+    "gid": "7702394082697527848",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-10-31 22:10"
+  },
+  {
+    "id": "chessigma",
+    "at": "2026-11-01 17:06",
+    "gid": "7703128531567477282",
+    "title_fixed_at": "2026-11-02 13:2x",
+    "note": "原标题被 30 字硬截断成「Chessigma：「免费版 Chess.com」拿下 10」，2026-11-02 走「修改已发布文章」改成「免费下棋平台拿下 100 万用户，只有 576 人付费」，未删稿，展现/评论保留"
+  },
+  {
+    "id": "cod-dex",
+    "at": "2026-11-01 17:15",
+    "gid": "7703129188911383055",
+    "title_fixed_at": "2026-11-02 13:2x",
+    "note": "原标题截断成「Codédex：把学编程包装成「冒险旅程」的互动课程平台，免」，2026-11-02 改成「9.99 美元学编程，6686 人把课程当闯关游戏」，未删稿"
+  },
+  {
+    "id": "wpconvert-ai-convert-ai-sites-to-wordpress",
+    "at": "2026-11-02 20:16",
+    "gid": "7699904459535401510",
+    "evidence": "send_existing_draft",
+    "verified_at": "2026-11-02 20:16"
+  }
 ]

@@ -1,8 +1,6 @@
 <h1 style="font-size:22px;line-height:1.45;color:#111;margin:0 0 18px;font-weight:bold">游戏厅：Super Mario Bros</h1>
 <p style="line-height:1.7;font-size:15px;color:#555;margin:0 0 22px;padding:12px 14px;background:#f5f7fb;border-radius:6px">这是经典平台游戏《超级马力欧兄弟》的开源复刻项目，用 Backbone 游戏引擎实现了一个关卡。</p>
-<p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">开源游戏源码索引 · 每期只讲一款游戏</p>
-<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">先说清楚：这是源码索引，不是游戏下载站</h2>
-<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">本文介绍的项目指向一个真实存在的源码仓库。仓库里只有代码：要自己装环境、自己编译；不少经典游戏的重实现项目，原版素材还要自备。它的价值在「能读、能改」，不在「下载即玩」。</p>
+<p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">开源游戏拆解 · 它用的是什么技术</p>
 <h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">它是什么</h2>
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">《超级马力欧兄弟》是任天堂 1985 年在 FC 平台推出的横版卷轴平台游戏，也是电子游戏史上最具影响力的作品：水管工马力欧穿越蘑菇王国，踩扁敌人、顶砖块吃蘑菇变大、收集金币，一路营救碧奇公主。该项目以代码致敬经典，适合想了解横版平台游戏如何用 JavaScript 实现的玩家和开发者。</p>
 <h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">怎么玩</h2>
@@ -14,15 +12,14 @@
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· onAttach 和 onDetach 在 core.js 提供了模块化组件的生命周期管理方式。</p>
 <h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">想自己跑一遍</h2>
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px"></p>
-<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">档案</h2>
-<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 档案编号：068（街机类）</p>
+<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">它用什么技术做的</h2>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">这是跑在浏览器里的 JavaScript 复刻：用 Backbone 拆分游戏对象与状态，画面靠 HTML5 Canvas 逐帧重绘，跳跃物理、碰撞判定、关卡数据全在前端代码里。好处是没有原生二进制、打开网页就能跑，也意味着整个游戏循环都在源码里摊开给你看——想改重力或跑速，改一个常量就行。</p>
+<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">基本信息</h2>
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 一句话简介：用 Backbone 游戏引擎编写的一个关卡</p>
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 源码：<a href="https://github.com/martindrapeau/backbone-game-engine" style="color:#2f6fed;text-decoration:none;word-break:break-all">Super Mario Bros</a></p>
-<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 站点详情页：<a href="https://games.ydtgo.top/#/game/068-super-mario-bros" style="color:#2f6fed;text-decoration:none;word-break:break-all">Super Mario Bros</a></p>
 <p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">（源码部分依据 martindrapeau/backbone-game-engine 的公开代码结构整理，完整读过；细节以仓库当前代码为准。）</p>
 <h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">版权与免责</h2>
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 每一条的源码许可证以<strong>各自仓库</strong>为准，二次分发与商用前请逐条核对。</p>
-<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 本站只做索引与归类，不托管任何游戏文件，也不提供素材包。</p>
-<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 收录项目版权归各自作者所有；你是作者且不希望被收录，可以联系删除。</p>
-<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">想自己翻？完整索引都在这里：<a href="https://games.ydtgo.top" style="color:#2f6fed;text-decoration:none;word-break:break-all">https://games.ydtgo.top</a></p>
-<p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">这是经典平台游戏《超级马力欧兄弟》的开源复刻项目，用 Backbone 游戏引擎实现了一个关卡。全部指向源码仓库，需自行编译，部分需自备原版素材。</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 本文只讨论项目与代码，不托管任何游戏文件，也不提供素材包。</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 代码与素材版权归各自作者所有，本文仅作技术介绍。</p>
+<p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">这是经典平台游戏《超级马力欧兄弟》的开源复刻项目，用 Backbone 游戏引擎实现了一个关卡。源码都在各自仓库里，需自行编译，部分需自备原版素材。</p>

@@ -1,509 +1,597 @@
 {
-  "upvoty-tc-ali-20261028-02": {
-    "case": "upvoty",
-    "title": "bootstrapped 六年：这个用户反馈工具靠什么活到今天",
-    "platforms": {
-      "aliyun": {
-        "ok": true,
-        "draftId": "1696290",
-        "url": "https://developer.aliyun.com/article/new?edit=1696290#/"
-      },
-      "tencentcloud": {
-        "ok": true,
-        "draftId": "337075",
-        "url": "https://cloud.tencent.com/developer/article/write-new?draftId=337075"
-      }
-    },
-    "category": "人工智能",
-    "cover": "out/toutiao/upvoty/cover.png",
-    "note": "首次带 cover(dataURI)+category 实测",
-    "ts": "2026-10-28 15:52:00"
+ "upvoty-tc-ali-20261028-02": {
+  "case": "upvoty",
+  "title": "bootstrapped 六年：这个用户反馈工具靠什么活到今天",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1696290",
+    "url": "https://developer.aliyun.com/article/new?edit=1696290#/"
+   },
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "337075",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=337075"
+   }
   },
-  "upvoty-2026-10-28-1": {
-    "case": "upvoty",
-    "title": "bootstrapped 六年：这个用户反馈工具靠什么活到今天",
-    "platforms": {
-      "tencentcloud": {
-        "ok": true,
-        "draftId": "337119",
-        "url": "https://cloud.tencent.com/developer/article/write-new?draftId=337119"
-      }
-    },
-    "category": "人工智能",
-    "cover": "D:\\ai-case-library\\out\\toutiao\\upvoty\\cover.png",
-    "ts": "2026-10-28 16:50:59"
+  "category": "人工智能",
+  "cover": "out/toutiao/upvoty/cover.png",
+  "note": "首次带 cover(dataURI)+category 实测",
+  "ts": "2026-10-28 15:52:00"
+ },
+ "upvoty-2026-10-28-1": {
+  "case": "upvoty",
+  "title": "bootstrapped 六年：这个用户反馈工具靠什么活到今天",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "337119",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=337119"
+   }
   },
-  "markdown-structure-2026-10-29-1": {
-    "case": "markdown-structure",
-    "title": "同一份 Markdown 分发到 4 个技术社区，标题层级为什么只在一处丢失",
-    "platforms": {
-      "aliyun": {
-        "ok": true,
-        "articleId": "1776574",
-        "url": "https://developer.aliyun.com/article/1776574",
-        "state": "auditing",
-        "community": "云原生",
-        "cover": "out/longtail/markdown-structure-cover.png",
-        "abstract_chars": 103,
-        "body_chars": 5037
-      }
-    },
-    "note": "mditor 实测：H2x9/PREX4/TABLEX1 渲染正常；需人工过拼图滑块",
-    "ts": "2026-10-29 13:52:21"
+  "category": "人工智能",
+  "cover": "D:\\ai-case-library\\out\\toutiao\\upvoty\\cover.png",
+  "ts": "2026-10-28 16:50:59"
+ },
+ "markdown-structure-2026-10-29-1": {
+  "case": "markdown-structure",
+  "title": "同一份 Markdown 分发到 4 个技术社区，标题层级为什么只在一处丢失",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "articleId": "1776574",
+    "url": "https://developer.aliyun.com/article/1776574",
+    "state": "auditing",
+    "community": "云原生",
+    "cover": "out/longtail/markdown-structure-cover.png",
+    "abstract_chars": 103,
+    "body_chars": 5037
+   }
   },
-  "upvoty-tc-republish-2026-10-29-1": {
-    "case": "upvoty",
-    "title": "bootstrapped 六年：这个用户反馈工具靠什么活到今天",
-    "platforms": {
-      "tencentcloud": {
-        "ok": true,
-        "articleId": "2771439",
-        "url": "https://cloud.tencent.com/developer/article/2771439",
-        "state": "published",
-        "draftId": "337119",
-        "abstract_chars": 102,
-        "body_chars": 1123,
-        "note": "驳回（内容包含广告/引流信息）后走「立即修改」重投无导流版",
-        "published_at": "2026-10-29 14:06:20"
-      }
-    },
-    "note": "CodesMirror6 Markdown 源码编辑器整段写入；首图保留作封面",
-    "ts": "2026-10-29 14:01:57"
+  "note": "mditor 实测：H2x9/PREX4/TABLEX1 渲染正常；需人工过拼图滑块",
+  "ts": "2026-10-29 13:52:21"
+ },
+ "upvoty-tc-republish-2026-10-29-1": {
+  "case": "upvoty",
+  "title": "bootstrapped 六年：这个用户反馈工具靠什么活到今天",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "articleId": "2771439",
+    "url": "https://cloud.tencent.com/developer/article/2771439",
+    "state": "published",
+    "draftId": "337119",
+    "abstract_chars": 102,
+    "body_chars": 1123,
+    "note": "驳回（内容包含广告/引流信息）后走「立即修改」重投无导流版",
+    "published_at": "2026-10-29 14:06:20"
+   }
   },
-  "shipfast-al-cdp-2026-10-30-1": {
-    "case": "shipfast",
-    "title": "从模板源码反推工程决策：一份 Next.js SaaS 模板里值得拆开看的四个模块",
-    "platforms": {
-      "aliyun": {
-        "ok": true,
-        "draftId": "1698462",
-        "articleId": "1777090",
-        "url": "https://developer.aliyun.com/article/1777090",
-        "state": "auditing",
-        "published_via": "CDP publish_aliyun + 人工滑块"
-      }
-    },
-    "category": "人工智能",
-    "cover": "out/toutiao/shipfast/cover.png",
-    "note": "CDP putDraft 直建（扩展侧阿里云登录态掉线兜底）；替换已删的 upvoty 软文草稿 1696290",
-    "ts": "2026-10-30 12:18:31"
+  "note": "CodesMirror6 Markdown 源码编辑器整段写入；首图保留作封面",
+  "ts": "2026-10-29 14:01:57"
+ },
+ "shipfast-al-cdp-2026-10-30-1": {
+  "case": "shipfast",
+  "title": "从模板源码反推工程决策：一份 Next.js SaaS 模板里值得拆开看的四个模块",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1698462",
+    "articleId": "1777090",
+    "url": "https://developer.aliyun.com/article/1777090",
+    "state": "auditing",
+    "published_via": "CDP publish_aliyun + 人工滑块"
+   }
   },
-  "shipfast-2026-10-30-1": {
-    "case": "shipfast",
-    "title": "Next.js SaaS 脚手架的工程化边界：认证、支付回调与事务邮件的模块化取舍",
-    "platforms": {
-      "tencentcloud": {
-        "ok": true,
-        "draftId": "338031",
-        "articleId": "2772404",
-        "url": "https://cloud.tencent.com/developer/article/2772404",
-        "state": "published",
-        "published_at": "2026-10-30 12:50:00",
-        "tags": [
-          "前端框架",
-          "next.js",
-          "前端",
-          "React",
-          "Next.js",
-          "SaaS"
-        ],
-        "note": "tag search 平台侧 404 → 用户授权自拟标签 → React setter+Enter 建 chip 后 UI 发布成功，弹窗「发布成功！文章正在审核中」"
-      }
-    },
-    "category": "人工智能",
-    "cover": "D:\\ai-case-library\\out\\toutiao\\shipfast\\cover.png",
-    "ts": "2026-10-30 12:03:54"
+  "category": "人工智能",
+  "cover": "out/toutiao/shipfast/cover.png",
+  "note": "CDP putDraft 直建（扩展侧阿里云登录态掉线兜底）；替换已删的 upvoty 软文草稿 1696290",
+  "ts": "2026-10-30 12:18:31"
+ },
+ "shipfast-2026-10-30-1": {
+  "case": "shipfast",
+  "title": "Next.js SaaS 脚手架的工程化边界：认证、支付回调与事务邮件的模块化取舍",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "338031",
+    "articleId": "2772404",
+    "url": "https://cloud.tencent.com/developer/article/2772404",
+    "state": "published",
+    "published_at": "2026-10-30 12:50:00",
+    "tags": [
+     "前端框架",
+     "next.js",
+     "前端",
+     "React",
+     "Next.js",
+     "SaaS"
+    ],
+    "note": "tag search 平台侧 404 → 用户授权自拟标签 → React setter+Enter 建 chip 后 UI 发布成功，弹窗「发布成功！文章正在审核中」"
+   }
   },
-  "plausible-2026-10-30-1": {
-    "case": "plausible",
-    "title": "开源三年、10 个人、没有投资人：这个隐私分析工具是怎么活下来的？",
-    "platforms": {
-      "aliyun": {
-        "ok": true,
-        "draftId": "1699448",
-        "url": "https://developer.aliyun.com/article/new?edit=1699448#/"
-      },
-      "tencentcloud": {
-        "ok": true,
-        "draftId": "338076",
-        "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338076"
-      }
-    },
-    "category": "人工智能",
-    "cover": "",
-    "ts": "2026-10-30 14:22:05"
+  "category": "人工智能",
+  "cover": "D:\\ai-case-library\\out\\toutiao\\shipfast\\cover.png",
+  "ts": "2026-10-30 12:03:54"
+ },
+ "plausible-2026-10-30-1": {
+  "case": "plausible",
+  "title": "开源三年、10 个人、没有投资人：这个隐私分析工具是怎么活下来的？",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1699448",
+    "url": "https://developer.aliyun.com/article/new?edit=1699448#/"
+   },
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "338076",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338076"
+   }
   },
-  "flodesk-2026-10-30-1": {
-    "case": "flodesk",
-    "title": "一个被 YC 拒绝的邮件工具：靠「一口价 + 无限发」做成了大生意",
-    "platforms": {
-      "tencentcloud": {
-        "ok": true,
-        "draftId": "338078",
-        "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338078"
-      }
-    },
-    "category": "人工智能",
-    "cover": "",
-    "ts": "2026-10-30 14:25:39"
+  "category": "人工智能",
+  "cover": "",
+  "ts": "2026-10-30 14:22:05"
+ },
+ "flodesk-2026-10-30-1": {
+  "case": "flodesk",
+  "title": "一个被 YC 拒绝的邮件工具：靠「一口价 + 无限发」做成了大生意",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "338078",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338078"
+   }
   },
-  "getdavid-2026-10-30-1": {
-    "case": "getdavid",
-    "title": "AI 造站 + 纸质明信片：一家给小店做网站的公司怎么用线下动作获客",
-    "platforms": {
-      "tencentcloud": {
-        "ok": true,
-        "draftId": "338079",
-        "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338079"
-      }
-    },
-    "category": "人工智能",
-    "cover": "",
-    "ts": "2026-10-30 14:26:07"
+  "category": "人工智能",
+  "cover": "",
+  "ts": "2026-10-30 14:25:39"
+ },
+ "getdavid-2026-10-30-1": {
+  "case": "getdavid",
+  "title": "AI 造站 + 纸质明信片：一家给小店做网站的公司怎么用线下动作获客",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "338079",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338079"
+   }
   },
-  "headshotpro-2026-10-30-1": {
-    "case": "headshotpro",
-    "title": "一个人做的 AI 证件照：Fortune 500 团队也在买",
-    "platforms": {},
-    "category": "人工智能",
-    "cover": "",
-    "ts": "2026-10-30 14:26:35"
+  "category": "人工智能",
+  "cover": "",
+  "ts": "2026-10-30 14:26:07"
+ },
+ "headshotpro-2026-10-30-1": {
+  "case": "headshotpro",
+  "title": "一个人做的 AI 证件照：Fortune 500 团队也在买",
+  "platforms": {},
+  "category": "人工智能",
+  "cover": "",
+  "ts": "2026-10-30 14:26:35"
+ },
+ "klar-2026-10-30-1": {
+  "case": "klar",
+  "title": "三个不会写代码的大学生：靠 Lovable 做出来的 AI 备考工具",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "338080",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338080"
+   }
   },
-  "klar-2026-10-30-1": {
-    "case": "klar",
-    "title": "三个不会写代码的大学生：靠 Lovable 做出来的 AI 备考工具",
-    "platforms": {
-      "tencentcloud": {
-        "ok": true,
-        "draftId": "338080",
-        "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338080"
-      }
-    },
-    "category": "人工智能",
-    "cover": "",
-    "ts": "2026-10-30 14:27:02"
+  "category": "人工智能",
+  "cover": "",
+  "ts": "2026-10-30 14:27:02"
+ },
+ "pdfai-2026-10-30-1": {
+  "case": "pdfai",
+  "title": "一个人、0 员工、0 融资：这个「跟 PDF 对话」的工具是怎么做起来的？",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "338081",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338081"
+   }
   },
-  "pdfai-2026-10-30-1": {
-    "case": "pdfai",
-    "title": "一个人、0 员工、0 融资：这个「跟 PDF 对话」的工具是怎么做起来的？",
-    "platforms": {
-      "tencentcloud": {
-        "ok": true,
-        "draftId": "338081",
-        "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338081"
-      }
-    },
-    "category": "人工智能",
-    "cover": "",
-    "ts": "2026-10-30 14:27:29"
+  "category": "人工智能",
+  "cover": "",
+  "ts": "2026-10-30 14:27:29"
+ },
+ "refactoringui-2026-10-30-1": {
+  "case": "refactoringui",
+  "title": "先有受众，后做书：一个写给程序员的设计书是怎么卖起来的",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "338082",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338082"
+   }
   },
-  "refactoringui-2026-10-30-1": {
-    "case": "refactoringui",
-    "title": "先有受众，后做书：一个写给程序员的设计书是怎么卖起来的",
-    "platforms": {
-      "tencentcloud": {
-        "ok": true,
-        "draftId": "338082",
-        "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338082"
-      }
-    },
-    "category": "人工智能",
-    "cover": "",
-    "ts": "2026-10-30 14:27:57"
+  "category": "人工智能",
+  "cover": "",
+  "ts": "2026-10-30 14:27:57"
+ },
+ "sleek-design-2026-10-30-1": {
+  "case": "sleek-design",
+  "title": "三周搭出来的 AI 设计工具：零付费营销是怎么起量的",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "338084",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338084"
+   }
   },
-  "sleek-design-2026-10-30-1": {
-    "case": "sleek-design",
-    "title": "三周搭出来的 AI 设计工具：零付费营销是怎么起量的",
-    "platforms": {
-      "tencentcloud": {
-        "ok": true,
-        "draftId": "338084",
-        "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338084"
-      }
-    },
-    "category": "人工智能",
-    "cover": "",
-    "ts": "2026-10-30 14:28:24"
+  "category": "人工智能",
+  "cover": "",
+  "ts": "2026-10-30 14:28:24"
+ },
+ "upvoty-2026-10-30-1": {
+  "case": "upvoty",
+  "title": "bootstrapped 六年：这个用户反馈工具靠什么活到今天",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "338085",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338085"
+   }
   },
-  "upvoty-2026-10-30-1": {
-    "case": "upvoty",
-    "title": "bootstrapped 六年：这个用户反馈工具靠什么活到今天",
-    "platforms": {
-      "tencentcloud": {
-        "ok": true,
-        "draftId": "338085",
-        "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338085"
-      }
-    },
-    "category": "人工智能",
-    "cover": "D:\\ai-case-library\\out\\toutiao\\upvoty\\cover.png",
-    "ts": "2026-10-30 14:28:58"
+  "category": "人工智能",
+  "cover": "D:\\ai-case-library\\out\\toutiao\\upvoty\\cover.png",
+  "ts": "2026-10-30 14:28:58"
+ },
+ "3ak-track-field-2026-10-30-1": {
+  "case": "3ak-track-field",
+  "title": "先有 15 万粉受众，后有产品：两个田径生如何用 AI 做训练 App？",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1699450",
+    "url": "https://developer.aliyun.com/article/new?edit=1699450#/"
+   },
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "338086",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338086"
+   }
   },
-  "3ak-track-field-2026-10-30-1": {
-    "case": "3ak-track-field",
-    "title": "先有 15 万粉受众，后有产品：两个田径生如何用 AI 做训练 App？",
-    "platforms": {
-      "aliyun": {
-        "ok": true,
-        "draftId": "1699450",
-        "url": "https://developer.aliyun.com/article/new?edit=1699450#/"
-      },
-      "tencentcloud": {
-        "ok": true,
-        "draftId": "338086",
-        "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338086"
-      }
-    },
-    "category": "人工智能",
-    "cover": "",
-    "ts": "2026-10-30 14:32:12"
+  "category": "人工智能",
+  "cover": "",
+  "ts": "2026-10-30 14:32:12"
+ },
+ "headshotpro-2026-10-30-2": {
+  "case": "headshotpro",
+  "title": "一个人做的 AI 证件照：Fortune 500 团队也在买",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1699451",
+    "url": "https://developer.aliyun.com/article/new?edit=1699451#/"
+   },
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "338087",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338087"
+   }
   },
-  "headshotpro-2026-10-30-2": {
-    "case": "headshotpro",
-    "title": "一个人做的 AI 证件照：Fortune 500 团队也在买",
-    "platforms": {
-      "aliyun": {
-        "ok": true,
-        "draftId": "1699451",
-        "url": "https://developer.aliyun.com/article/new?edit=1699451#/"
-      },
-      "tencentcloud": {
-        "ok": true,
-        "draftId": "338087",
-        "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338087"
-      }
-    },
-    "category": "人工智能",
-    "cover": "",
-    "ts": "2026-10-30 14:32:38"
+  "category": "人工智能",
+  "cover": "",
+  "ts": "2026-10-30 14:32:38"
+ },
+ "flodesk-2026-10-30-2": {
+  "case": "flodesk",
+  "title": "一个被 YC 拒绝的邮件工具：靠「一口价 + 无限发」做成了大生意",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1698291",
+    "url": "https://developer.aliyun.com/article/new?edit=1698291#/"
+   }
   },
-  "flodesk-2026-10-30-2": {
-    "case": "flodesk",
-    "title": "一个被 YC 拒绝的邮件工具：靠「一口价 + 无限发」做成了大生意",
-    "platforms": {
-      "aliyun": {
-        "ok": true,
-        "draftId": "1698291",
-        "url": "https://developer.aliyun.com/article/new?edit=1698291#/"
-      }
-    },
-    "category": "人工智能",
-    "cover": "",
-    "ts": "2026-10-30 14:33:07"
+  "category": "人工智能",
+  "cover": "",
+  "ts": "2026-10-30 14:33:07"
+ },
+ "getdavid-2026-10-30-2": {
+  "case": "getdavid",
+  "title": "AI 造站 + 纸质明信片：一家给小店做网站的公司怎么用线下动作获客",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1699817",
+    "url": "https://developer.aliyun.com/article/new?edit=1699817#/"
+   }
   },
-  "getdavid-2026-10-30-2": {
-    "case": "getdavid",
-    "title": "AI 造站 + 纸质明信片：一家给小店做网站的公司怎么用线下动作获客",
-    "platforms": {
-      "aliyun": {
-        "ok": true,
-        "draftId": "1699817",
-        "url": "https://developer.aliyun.com/article/new?edit=1699817#/"
-      }
-    },
-    "category": "人工智能",
-    "cover": "",
-    "ts": "2026-10-30 14:33:37"
+  "category": "人工智能",
+  "cover": "",
+  "ts": "2026-10-30 14:33:37"
+ },
+ "klar-2026-10-30-2": {
+  "case": "klar",
+  "title": "三个不会写代码的大学生：靠 Lovable 做出来的 AI 备考工具",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1699633",
+    "url": "https://developer.aliyun.com/article/new?edit=1699633#/"
+   }
   },
-  "klar-2026-10-30-2": {
-    "case": "klar",
-    "title": "三个不会写代码的大学生：靠 Lovable 做出来的 AI 备考工具",
-    "platforms": {
-      "aliyun": {
-        "ok": true,
-        "draftId": "1699633",
-        "url": "https://developer.aliyun.com/article/new?edit=1699633#/"
-      }
-    },
-    "category": "人工智能",
-    "cover": "",
-    "ts": "2026-10-30 14:34:03"
+  "category": "人工智能",
+  "cover": "",
+  "ts": "2026-10-30 14:34:03"
+ },
+ "pdfai-2026-10-30-2": {
+  "case": "pdfai",
+  "title": "一个人、0 员工、0 融资：这个「跟 PDF 对话」的工具是怎么做起来的？",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1698882",
+    "url": "https://developer.aliyun.com/article/new?edit=1698882#/"
+   }
   },
-  "pdfai-2026-10-30-2": {
-    "case": "pdfai",
-    "title": "一个人、0 员工、0 融资：这个「跟 PDF 对话」的工具是怎么做起来的？",
-    "platforms": {
-      "aliyun": {
-        "ok": true,
-        "draftId": "1698882",
-        "url": "https://developer.aliyun.com/article/new?edit=1698882#/"
-      }
-    },
-    "category": "人工智能",
-    "cover": "",
-    "ts": "2026-10-30 14:34:31"
+  "category": "人工智能",
+  "cover": "",
+  "ts": "2026-10-30 14:34:31"
+ },
+ "refactoringui-2026-10-30-2": {
+  "case": "refactoringui",
+  "title": "先有受众，后做书：一个写给程序员的设计书是怎么卖起来的",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1699076",
+    "url": "https://developer.aliyun.com/article/new?edit=1699076#/"
+   }
   },
-  "refactoringui-2026-10-30-2": {
-    "case": "refactoringui",
-    "title": "先有受众，后做书：一个写给程序员的设计书是怎么卖起来的",
-    "platforms": {
-      "aliyun": {
-        "ok": true,
-        "draftId": "1699076",
-        "url": "https://developer.aliyun.com/article/new?edit=1699076#/"
-      }
-    },
-    "category": "人工智能",
-    "cover": "",
-    "ts": "2026-10-30 14:34:57"
+  "category": "人工智能",
+  "cover": "",
+  "ts": "2026-10-30 14:34:57"
+ },
+ "sleek-design-2026-10-30-2": {
+  "case": "sleek-design",
+  "title": "三周搭出来的 AI 设计工具：零付费营销是怎么起量的",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1699266",
+    "url": "https://developer.aliyun.com/article/new?edit=1699266#/"
+   }
   },
-  "sleek-design-2026-10-30-2": {
-    "case": "sleek-design",
-    "title": "三周搭出来的 AI 设计工具：零付费营销是怎么起量的",
-    "platforms": {
-      "aliyun": {
-        "ok": true,
-        "draftId": "1699266",
-        "url": "https://developer.aliyun.com/article/new?edit=1699266#/"
-      }
-    },
-    "category": "人工智能",
-    "cover": "",
-    "ts": "2026-10-30 14:35:24"
+  "category": "人工智能",
+  "cover": "",
+  "ts": "2026-10-30 14:35:24"
+ },
+ "upvoty-2026-10-30-2": {
+  "case": "upvoty",
+  "title": "bootstrapped 六年：这个用户反馈工具靠什么活到今天",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1699818",
+    "url": "https://developer.aliyun.com/article/new?edit=1699818#/"
+   }
   },
-  "upvoty-2026-10-30-2": {
-    "case": "upvoty",
-    "title": "bootstrapped 六年：这个用户反馈工具靠什么活到今天",
-    "platforms": {
-      "aliyun": {
-        "ok": true,
-        "draftId": "1699818",
-        "url": "https://developer.aliyun.com/article/new?edit=1699818#/"
-      }
-    },
-    "category": "人工智能",
-    "cover": "D:\\ai-case-library\\out\\toutiao\\upvoty\\cover.png",
-    "ts": "2026-10-30 14:35:52"
+  "category": "人工智能",
+  "cover": "D:\\ai-case-library\\out\\toutiao\\upvoty\\cover.png",
+  "ts": "2026-10-30 14:35:52"
+ },
+ "trustmrr-2026-10-31-1": {
+  "case": "trustmrr",
+  "category": "人工智能",
+  "cover": "https://case.ydtgo.top/covers/trustmrr.png",
+  "platforms": {
+   "aliyun": {
+    "err": "等不到阿里云编辑器（#title 不出现）",
+    "ok": false
+   },
+   "tencentcloud": {
+    "draftId": "338565",
+    "ok": true,
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338565",
+    "published": "2773308",
+    "published_url": "https://cloud.tencent.com/developer/article/2773308",
+    "published_at": "2026-11-01 00:34:21",
+    "audit": "审核中"
+   }
   },
-  "trustmrr-2026-10-31-1": {
-    "case": "trustmrr",
-    "category": "人工智能",
-    "cover": "https://case.ydtgo.top/covers/trustmrr.png",
-    "platforms": {
-      "aliyun": {
-        "err": "等不到阿里云编辑器（#title 不出现）",
-        "ok": false
-      },
-      "tencentcloud": {
-        "draftId": "338565",
-        "ok": true,
-        "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338565",
-        "published": "2773308",
-        "published_url": "https://cloud.tencent.com/developer/article/2773308",
-        "published_at": "2026-11-01 00:34:21",
-        "audit": "审核中"
-      }
-    },
-    "title": "TrustMRR：把「可核验」做成产品的海外小站",
-    "ts": "2026-10-31 18:59:57",
-    "via": "cdp-9228"
+  "title": "TrustMRR：把「可核验」做成产品的海外小站",
+  "ts": "2026-10-31 18:59:57",
+  "via": "cdp-9228"
+ },
+ "trustmrr-2026-10-31-2": {
+  "case": "trustmrr",
+  "category": "人工智能",
+  "cover": "https://case.ydtgo.top/covers/trustmrr.png",
+  "platforms": {
+   "aliyun": {
+    "err": "等不到阿里云编辑器（#title 不出现）",
+    "ok": false
+   }
   },
-  "trustmrr-2026-10-31-2": {
-    "case": "trustmrr",
-    "category": "人工智能",
-    "cover": "https://case.ydtgo.top/covers/trustmrr.png",
-    "platforms": {
-      "aliyun": {
-        "err": "等不到阿里云编辑器（#title 不出现）",
-        "ok": false
-      }
-    },
-    "title": "TrustMRR：把「可核验」做成产品的海外小站",
-    "ts": "2026-10-31 19:00:58",
-    "via": "cdp-9228"
+  "title": "TrustMRR：把「可核验」做成产品的海外小站",
+  "ts": "2026-10-31 19:00:58",
+  "via": "cdp-9228"
+ },
+ "trustmrr-2026-11-01-1": {
+  "case": "trustmrr",
+  "platforms": {
+   "aliyun": {
+    "draftId": "1701410",
+    "ok": true,
+    "url": "https://developer.aliyun.com/article/new?edit=1701410#/",
+    "published": "1777577",
+    "published_url": "https://developer.aliyun.com/article/1777577",
+    "published_at": "2026-11-01 00:44",
+    "verify": "线上核验：浏览器 DOM `.article-inner` table=3、li=0（收入段已改真表格）；curl 直取仍是改前 <ul> 快照（CDN，假阴性）。正文 $=0、全「美元」表述。",
+    "edited_at": "2026-11-01 10:08"
+   }
   },
-  "trustmrr-2026-11-01-1": {
-    "case": "trustmrr",
-    "platforms": {
-      "aliyun": {
-        "draftId": "1701410",
-        "ok": true,
-        "url": "https://developer.aliyun.com/article/new?edit=1701410#/",
-        "published": "1777577",
-        "published_url": "https://developer.aliyun.com/article/1777577",
-        "published_at": "2026-11-01 00:44",
-        "verify": "线上核验：浏览器 DOM `.article-inner` table=3、li=0（收入段已改真表格）；curl 直取仍是改前 <ul> 快照（CDN，假阴性）。正文 $=0、全「美元」表述。",
-        "edited_at": "2026-11-01 10:08"
-      }
-    },
-    "title": "TrustMRR：把「可核验」做成产品的海外小站",
-    "ts": "2026-11-01 00:18:43",
-    "via": "cdp-9228"
+  "title": "TrustMRR：把「可核验」做成产品的海外小站",
+  "ts": "2026-11-01 00:18:43",
+  "via": "cdp-9228"
+ },
+ "chessigma-2026-11-01-1": {
+  "case": "chessigma",
+  "title": "云原生视角下的独立产品增长：Chessigma",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1700270",
+    "url": "https://developer.aliyun.com/article/new?edit=1700270#/"
+   }
   },
-  "chessigma-2026-11-01-1": {
-    "case": "chessigma",
-    "title": "云原生视角下的独立产品增长：Chessigma",
-    "platforms": {
-      "aliyun": {
-        "ok": true,
-        "draftId": "1700270",
-        "url": "https://developer.aliyun.com/article/new?edit=1700270#/"
-      }
-    },
-    "via": "cdp-9228",
-    "ts": "2026-11-01 13:31:15"
+  "via": "cdp-9228",
+  "ts": "2026-11-01 13:31:15"
+ },
+ "cod-dex-2026-11-01-1": {
+  "case": "cod-dex",
+  "title": "云原生视角下的独立产品增长：Codédex",
+  "platforms": {
+   "tencentcloud": {
+    "ok": false,
+    "err": "等不到腾讯云编辑器（#cdc-rich-editor 不出现）"
+   }
   },
-  "cod-dex-2026-11-01-1": {
-    "case": "cod-dex",
-    "title": "云原生视角下的独立产品增长：Codédex",
-    "platforms": {
-      "tencentcloud": {
-        "ok": false,
-        "err": "等不到腾讯云编辑器（#cdc-rich-editor 不出现）"
-      }
-    },
-    "via": "cdp-9228",
-    "ts": "2026-11-01 13:31:43"
+  "via": "cdp-9228",
+  "ts": "2026-11-01 13:31:43"
+ },
+ "chessigma-2026-11-01-2": {
+  "case": "chessigma",
+  "title": "云原生视角下的独立产品增长：Chessigma",
+  "platforms": {
+   "tencentcloud": {
+    "ok": false,
+    "err": "等不到腾讯云编辑器（#cdc-rich-editor 不出现）"
+   }
   },
-  "chessigma-2026-11-01-2": {
-    "case": "chessigma",
-    "title": "云原生视角下的独立产品增长：Chessigma",
-    "platforms": {
-      "tencentcloud": {
-        "ok": false,
-        "err": "等不到腾讯云编辑器（#cdc-rich-editor 不出现）"
-      }
-    },
-    "via": "cdp-9228",
-    "ts": "2026-11-01 13:31:43"
+  "via": "cdp-9228",
+  "ts": "2026-11-01 13:31:43"
+ },
+ "cod-dex-2026-11-01-2": {
+  "case": "cod-dex",
+  "title": "云原生视角下的独立产品增长：Codédex",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1701241",
+    "url": "https://developer.aliyun.com/article/new?edit=1701241#/"
+   }
   },
-  "cod-dex-2026-11-01-2": {
-    "case": "cod-dex",
-    "title": "云原生视角下的独立产品增长：Codédex",
-    "platforms": {
-      "aliyun": {
-        "ok": true,
-        "draftId": "1701241",
-        "url": "https://developer.aliyun.com/article/new?edit=1701241#/"
-      }
-    },
-    "via": "cdp-9228",
-    "ts": "2026-11-01 13:33:38"
+  "via": "cdp-9228",
+  "ts": "2026-11-01 13:33:38"
+ },
+ "chessigma-2026-11-01-4": {
+  "case": "chessigma",
+  "title": "云原生视角下的独立产品增长：Chessigma",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "338751",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338751"
+   }
   },
-  "chessigma-2026-11-01-4": {
-    "case": "chessigma",
-    "title": "云原生视角下的独立产品增长：Chessigma",
-    "platforms": {
-      "tencentcloud": {
-        "ok": true,
-        "draftId": "338751",
-        "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338751"
-      }
-    },
-    "via": "cdp-9228",
-    "ts": "2026-11-01 14:45:25"
+  "via": "cdp-9228",
+  "ts": "2026-11-01 14:45:25"
+ },
+ "cod-dex-2026-11-01-4": {
+  "case": "cod-dex",
+  "title": "云原生视角下的独立产品增长：Codédex",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "338752",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338752"
+   }
   },
-  "cod-dex-2026-11-01-4": {
-    "case": "cod-dex",
-    "title": "云原生视角下的独立产品增长：Codédex",
-    "platforms": {
-      "tencentcloud": {
-        "ok": true,
-        "draftId": "338752",
-        "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338752"
-      }
-    },
-    "via": "cdp-9228",
-    "ts": "2026-11-01 14:45:45"
-  }
+  "via": "cdp-9228",
+  "ts": "2026-11-01 14:45:45"
+ },
+ "chessigma-2026-11-02-1": {
+  "case": "chessigma",
+  "title": "云原生视角下的独立产品增长：Chessigma",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "339482",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=339482"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-02 23:37:17"
+ },
+ "chessigma-2026-11-02-2": {
+  "case": "chessigma",
+  "title": "云原生视角下的独立产品增长：Chessigma",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "339483",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=339483"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-02 23:39:30"
+ },
+ "cod-dex-2026-11-02-1": {
+  "case": "cod-dex",
+  "title": "云原生视角下的独立产品增长：Codédex",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1702239",
+    "url": "https://developer.aliyun.com/article/new?edit=1702239#/"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-02 23:42:28"
+ },
+ "cod-dex-2026-11-03-1": {
+  "case": "cod-dex",
+  "title": "交互式编程课程的运行时设计：代码执行沙箱、事件溯源进度与内容权限门控",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1701663",
+    "published": true,
+    "articleId": "1778138",
+    "url": "https://developer.aliyun.com/article/1778138",
+    "state": "审核中"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-03 00:31:31",
+  "note": "11-03 按「技术角度」重写后重建草稿（旧商务稿 1702239/1702624/1699890 留待清理）；人工拖滑块通过，提交发表"
+ },
+ "chessigma-2026-11-03-1": {
+  "case": "chessigma",
+  "title": "浏览器端棋类分析引擎的工程取舍：WASM 引擎、PGN 增量解析与对局状态同步",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "339489",
+    "published": true,
+    "state": "审核中",
+    "tag": "架构设计"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-03 00:49:59",
+  "note": "技术向重写；旧商务稿（月入 $7306）在「未通过」区留档"
+ },
+ "cod-dex-2026-11-03-2": {
+  "case": "cod-dex",
+  "title": "交互式编程课程的运行时设计：代码执行沙箱、事件溯源进度与内容权限门控",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "339491",
+    "published": true,
+    "state": "审核中",
+    "tag": "架构设计"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-03 00:49:59",
+  "note": "按腾讯云「只收技术向」重写后新建草稿；旧商务稿（$84K MRR）在「未通过」区留档"
+ }
 }
