@@ -55,6 +55,8 @@ SCRIPTS = os.path.join(ROOT, "scripts")
 DATA = os.path.join(ROOT, "data")
 sys.path.insert(0, SCRIPTS)
 
+import atomicio                                                          # noqa: E402
+
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
@@ -139,8 +141,7 @@ MONEY_WORDS = ("MRR", "mrr", "月入", "月收入", "营收", "ARR", "美金", "
 def _load(name):
     p = os.path.join(DATA, name)
     try:
-        with open(p, encoding="utf-8") as f:
-            return json.load(f)
+        return atomicio.read_json(p, default={})
     except (OSError, ValueError):
         return {}
 
@@ -301,6 +302,11 @@ def build_cmd(platform, case, pack, yes):
         cmd = s("yun_finalize.py", "--case", case, "--file", pack,
                 "--publish", "--i-said-publish", "i-said-publish",
                 "--" + key.replace("_", "-"), str(row.get(key) or ""))
+        # ⚠ 阿里云必带 --headed：滑块验证码是人机验证，无头窗口用户看不见
+        #   ⇒ 拖不了。2026-11-03 踩过：build_cmd 漏传，yun_finalize 自己
+        #   起了无头实例，用户报告「看不到滑块」。
+        if platform == "aliyun":
+            cmd.append("--headed")
         c = cover_of(case)
         if c:
             cmd += ["--cover", c]
@@ -419,16 +425,15 @@ def fifo_note(platform):
         if not cid:
             return
         path = os.path.join(DATA, "publish_kind_log.json")
-        d = atomicio.load_json(path) if hasattr(atomicio, "load_json") \
-            else json.load(open(path, encoding="utf-8"))
+        d = atomicio.read_json(path, default={})
         rec = d.setdefault("records", {}).setdefault(platform, [])
         if any(r.get("case_id") == cid for r in rec):
             return
         rec.append({"at": SLOT.today() + " " + time.strftime("%H:%M"),
                     "case_id": cid, "kind": SLOT.kind_of(cid),
                     "note": "send-draft FIFO 最久草稿"})
-        json.dump(d, open(path, "w", encoding="utf-8"),
-                  ensure_ascii=False, indent=1)
+        with atomicio.file_lock(path + ".lock", timeout=30.0):
+            atomicio.write_json(path, d, indent=1)
         print("  台账：publish_kind_log.json 记 %s/%s（%s）"
               % (platform, cid, SLOT.kind_of(cid)))
     except Exception as e:                                  # noqa: BLE001
@@ -589,10 +594,10 @@ def _note_kind(platform, case):
         return
     rows.append({"case_id": case, "kind": SLOT.kind_of(case), "at": stamp})
     try:
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=1)
+        with atomicio.file_lock(path + ".lock", timeout=30.0):
+            atomicio.write_json(path, data, indent=1)
         print("台账：publish_kind_log.json 记 %s/%s" % (platform, case))
-    except OSError as e:                                   # noqa: BLE001
+    except (OSError, TimeoutError) as e:                   # noqa: BLE001
         print("⚠ 档期日志没写进去：%s" % e)
 
 

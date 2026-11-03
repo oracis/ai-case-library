@@ -781,24 +781,148 @@ def verify_cover_in_drawer(cdp, article_id, timeout=90):
     return False, "抽屉里也没有封面（src=%s）" % (src or "(空)")
 
 
-def publish_aliyun(cdp, draft_id, community=None, cover_file=""):
+def _aliyun_content_state(cdp):
+    """读阿里云编辑页当前内容长度：{'title': n, 'body': n}。
+
+    ⚠ 正文真身是 `.mditor textarea.textarea`（`#article-editor` 只是镜像）。
+    """
+    try:
+        raw = cdp.eval("""
+        (function(){
+          var t = document.querySelector('#title');
+          var real = document.querySelector('.mditor textarea.textarea');
+          var mir = document.querySelector('#article-editor');
+          return JSON.stringify({
+            title: t ? (t.value||'').length : 0,
+            body: real ? (real.value||'').length : (mir ? (mir.value||'').length : 0)
+          });
+        })()""")
+        return json.loads(raw or "{}") or {"title": 0, "body": 0}
+    except Exception:                                          # noqa: BLE001
+        return {"title": 0, "body": 0}
+
+
+def _aliyun_fill_content(cdp, body_md, title=""):
+    """把本地稿重新注入阿里云编辑页（草稿没回填时的兜底）。
+
+    正文写真身 textarea 并派发 input，让 mditor 镜像同步；
+    标题写 #title 并派发 input。
+    """
+    ok = True
+    if title:
+        try:
+            cdp.eval("""
+            (function(){
+              var t = document.querySelector('#title');
+              if (!t) return 'no';
+              var setter = Object.getOwnPropertyDescriptor(
+                window.HTMLInputElement.prototype, 'value').set;
+              setter.call(t, %s);
+              t.dispatchEvent(new Event('input', {bubbles: true}));
+              return 'ok';
+            })()""" % json.dumps(title))
+        except Exception:                                      # noqa: BLE001
+            ok = False
+    try:
+        r = cdp.eval("""
+        (function(){
+          var real = document.querySelector('.mditor textarea.textarea');
+          if (!real) return 'no real textarea';
+          var setter = Object.getOwnPropertyDescriptor(
+            window.HTMLTextAreaElement.prototype, 'value').set;
+          setter.call(real, %s);
+          real.dispatchEvent(new Event('input', {bubbles: true}));
+          return 'ok len=' + real.value.length;
+        })()""" % json.dumps(body_md))
+        print("    正文注入: %s" % r)
+        if r == "no real textarea":
+            ok = False
+    except Exception:                                          # noqa: BLE001
+        ok = False
+    time.sleep(2)
+    return ok
+
+
+def _wait_captcha(cdp, captcha_wait=300, where=""):
+    """等用户人工拖过阿里云滑块。返回 True=已通过（或本来就没有）。
+
+    ⚠ 2026-11-03 定位到的**真根因**：滑块不是出现在「发布」那一步，
+    而是**打开 `?edit=<aid>` 时就弹**——而且它**挡在草稿读取之前**：
+    页面里 title/body 全空，hook 抓包也证实**根本没有发任何拉草稿的请求**
+    ⇒ 阿里云要求先过验证才允许读草稿。
+    所以正确顺序是：**开页面 → 过验证 → 草稿回填 → 再操作**。
+
+    旧实现（弹滑块就 SystemExit 让用户重跑）是死循环：重跑会重新点
+    「发布文章」，验证码刷新，用户上一次拖的成果作废（当天重跑 4 次全卡）。
+
+    现在：原地轮询等待，拖过即自动继续；脚本不退出、不重复点发布。
+    """
+    deadline = time.time() + captcha_wait
+    warned = False
+    while True:
+        try:
+            cap = cdp.eval("!!document.querySelector('.aliyunCaptcha-top')")
+        except Exception:                                      # noqa: BLE001
+            cap = False
+        if not cap:
+            if warned:
+                print("  ✓ 滑块已通过")
+            return True
+        try:
+            if re.search(r"/article/\d+", cdp.eval("location.href") or ""):
+                return True
+        except Exception:                                      # noqa: BLE001
+            pass
+        if not warned:
+            print("  ⚠ 阿里云弹滑块验证码（.aliyunCaptcha-top）%s" % where)
+            print("    👉 请在 9228 浏览器窗口**人工拖一次滑块**"
+                  "（脚本会一直等，不会退出、不会重复点发布）")
+            print("    最多等 %d 秒；拖过即自动继续。" % captcha_wait)
+            warned = True
+        if time.time() > deadline:
+            raise SystemExit(
+                "阿里云发表：等滑块 %d 秒仍未通过（.aliyunCaptcha-top）。"
+                "草稿内容已保存，重跑不会建新稿。" % captcha_wait)
+        time.sleep(3)
+
+
+def publish_aliyun(cdp, draft_id, community=None, cover_file="",
+                   captcha_wait=300, body_md="", title=""):
     """发表阿里云草稿。**只准由 --publish --i-said-publish 双门禁调用。**
 
     UI 路线（全新页面态，三项页面态字段一次配齐）：
-    选社区 → 传文章图片（firstImg）→ 真实鼠标点「发布文章」
-    → 敏感信息确认框自动「继续发布」→ 跳转 /article/<id> 即成功。
+    开草稿页 → **过滑块（人工）** → 草稿回填 → 选社区 → 传文章图片（firstImg）
+    → 真实鼠标点「发布文章」→ 敏感信息确认框自动「继续发布」
+    → 跳转 /article/<id> 即成功。
+
+    captcha_wait：弹滑块时**在原地等用户人工拖**的秒数（默认 5 分钟）。
+    body_md：草稿没回填时的兜底正文（本地稿原文）。
     """
     # 社区：显式参数 > 台账 > 首选
     name = community or ledger_get("__community__%s" % draft_id).get("community")
+    draft_url = "https://developer.aliyun.com/article/new?edit=%s" % draft_id
     if name:
         name = select_community(cdp, draft_id, name)   # 内含 open 草稿页
     elif getattr(cdp, "ws", None) is None:
         # ⚠ 不选社区时也必须先把草稿页开出来：`_connect()` 只建了 browser 级
         #   WS，没 attach 任何 page ⇒ 直接 eval 会 `NoneType.send_text` 崩。
         #   （「不发布到技术圈」走首页 feed 是平台允许的，社区可以留空。）
-        cdp.open("https://developer.aliyun.com/article/new?edit=%s" % draft_id)
+        cdp.open(draft_url)
         time.sleep(8)
         _close_disclaimer(cdp)
+    # ⚠ 2026-11-03：滑块在**开页面时**就弹，且挡在草稿读取之前 ⇒
+    #   必须先过验证，等草稿回填，再做后面的社区/传图/发布。
+    _wait_captcha(cdp, captcha_wait, where="（开草稿页时）")
+    # 草稿回填检查：过了验证仍空 ⇒ 说明草稿没读回来，用本地稿兜底注入
+    filled = _aliyun_content_state(cdp)
+    print("  草稿回填：标题 %d 字 / 正文 %d 字"
+          % (filled["title"], filled["body"]))
+    if filled["title"] == 0 and body_md:
+        print("  ⚠ 草稿没回填 ⇒ 用本地稿重新注入")
+        _aliyun_fill_content(cdp, body_md, title=title)
+        filled = _aliyun_content_state(cdp)
+        print("  注入后：标题 %d 字 / 正文 %d 字"
+              % (filled["title"], filled["body"]))
     # 文章图片（firstImg，页面态必传）：显式路径 > 台账反查
     local = cover_file or _find_local_cover(cdp, draft_id)
     if local and os.path.exists(local):
@@ -826,19 +950,8 @@ def publish_aliyun(cdp, draft_id, community=None, cover_file=""):
             print("  发布确认框 → %s" % label)
             _click_real(cdp, pos)
             break
-    # 滑块验证码（阿里云 Captcha，.aliyunCaptcha-top）：CDP 合成拖动会被判 bot
-    #   ——2026-11-01 实测：JS 派发能让滑块走到 140px，但松手即重置；
-    #   CDP Input 拖动则连 press 都接不住。只有人工拖能过。
-    time.sleep(2)
-    try:
-        cap = cdp.eval("!!document.querySelector('.aliyunCaptcha-top')")
-    except Exception:                                          # noqa: BLE001
-        cap = False
-    if cap:
-        raise SystemExit(
-            "阿里云发表：弹出滑块验证码（.aliyunCaptcha-top）。CDP 合成事件过不了，"
-            "请在 9228 窗口人工拖一次滑块，通过后再重跑本命令（草稿内容已保存，"
-            "重复发表不会建新稿）。")
+    # 发布后可能**又**弹一次滑块（风控二次校验）——同样原地等
+    _wait_captcha(cdp, captcha_wait, where="（点发布后）")
     # 等跳转 /article/<id>
     for _ in range(20):
         time.sleep(2)
@@ -931,6 +1044,8 @@ if __name__ == "__main__":
                     help="给已发布文章补/换封面（7 位 articleId），需同时给 --cover")
     ap.add_argument("--i-said-publish",
                     help="发表确认口令，值必须 = 用户原话 i-said-publish")
+    ap.add_argument("--captcha-wait", type=int, default=300,
+                    help="弹滑块时原地等用户人工拖的秒数（默认 300）")
     a = ap.parse_args()
     if a.fix_cover:
         # 输出示例：python scripts/yun_finalize.py --fix-cover 2774554 \
@@ -984,10 +1099,26 @@ if __name__ == "__main__":
             sys.exit(0 if ok else 1)
         if not a.al_draft:
             raise SystemExit("🚫 拒绝发表：--publish 需要 --al-draft 或 --tc-draft")
-        proc, cdp = _connect()
+        # ⚠ 2026-11-03：必须走有头。滑块验证码是阿里云的人机验证，
+        #   无头窗口用户看不见 ⇒ 用户没法拖，脚本只能干等/超时。
+        #   （原代码这里调 `_connect()` 丢了 headed 参数，默认无头，
+        #   导致「用户说看不到滑块」——实为无头实例在跑。）
+        proc, cdp = _connect(headed=a.headed)
         try:
+            # 兜底正文：草稿没回填时用它重新注入
+            body_md = ""
+            src = a.file or os.path.join(ROOT, "drafts", "wechat",
+                                         "%s.md" % (a.case or ""))
+            if os.path.isfile(src):
+                from csdn_publish import split_md
+                body_md = split_md(open(src, encoding="utf-8").read())[1]
+            title = ""
+            if body_md:
+                m = re.search(r"^#\s+(.+)$", body_md, re.M)
+                title = m.group(1).strip() if m else ""
             publish_aliyun(cdp, int(a.al_draft), a.community or None,
-                           a.cover or "")
+                           a.cover or "", captcha_wait=a.captcha_wait,
+                           body_md=body_md, title=title)
         finally:
             try:
                 cdp.bws.close()

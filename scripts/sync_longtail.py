@@ -297,6 +297,8 @@ def main():
     ap.add_argument("--i-said-publish", dest="i_said_publish", default="")
     ap.add_argument("--headed", action="store_true",
                     help="finalize/publish 用有头 Chrome（默认无头）")
+    ap.add_argument("--captcha-wait", type=int, default=300,
+                    help="publish 时弹滑块原地等人工拖的秒数（默认 300）")
     args = ap.parse_args()
 
     if args.finalize:
@@ -323,7 +325,8 @@ def main():
         proc, cdp = F._connect(args.headed)
         try:
             F.publish_aliyun(cdp, int(args.al_draft), args.community or None,
-                         args.cover or "")
+                         args.cover or "",
+                         captcha_wait=getattr(args, "captcha_wait", 300))
         finally:
             try:
                 cdp.bws.close()

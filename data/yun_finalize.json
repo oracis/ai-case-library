@@ -90,5 +90,19 @@
     "community": "云原生",
     "updated": "2026-11-03 00:28:42",
     "uploaded_img": "https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_3f1d202e83a5480991888d46ba5ca48e.png"
+  },
+  "ext-ep-001-super-mario-bros": {
+    "tc_draft": "339742",
+    "al_draft": "1703041",
+    "tc_url": "https://cloud.tencent.com/developer/article/2774977",
+    "al_url": "https://developer.aliyun.com/article/new?edit=1703041#/",
+    "updated": "2026-11-03 15:03:31",
+    "tc_state": "published",
+    "tc_state_at": "2026-11-03 14:58",
+    "tc_article": "2774977"
+  },
+  "__community__1703041": {
+    "uploaded_img": "https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_433ab472f1254f2f8759781de39af45f.png",
+    "updated": "2026-11-03 16:30:47"
   }
 }

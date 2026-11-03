@@ -69,6 +69,15 @@ class BuildCmd(unittest.TestCase):
         self.assertIn("--publish", cmd)
         self.assertIn("i-said-publish", cmd, "两朵云发表必须带确认口令，否则闸形同虚设")
 
+    def test_aliyun_must_be_headed(self):
+        """阿里云必须 --headed：滑块是人机验证，无头窗口用户拖不了。
+
+        2026-11-03 实测踩坑：build_cmd 漏传 --headed ⇒ yun_finalize 自己起了
+        无头实例，用户报告「看不到滑块」，连拖 4 次全卡在验证码。
+        """
+        cmd = " ".join(P.build_cmd("aliyun", "x", os.path.join(HERE, "x.md"), True))
+        self.assertIn("--headed", cmd, "阿里云发表漏了 --headed ⇒ 用户看不见滑块")
+
 
 class GamePack(unittest.TestCase):
     """游戏仓产物只在「--file 取稿」的平台认账。"""
