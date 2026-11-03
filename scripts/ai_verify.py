@@ -138,6 +138,9 @@ AI_FB_MODEL = _cfg("CASE_LIB_AI_FALLBACK_MODEL", "ai_fallback_model", "")
 AI_FB2_BASE = (_cfg("CASE_LIB_AI_FALLBACK2_BASE", "ai_fallback2_base", "") or "").rstrip("/")
 AI_FB2_KEY = _cfg("CASE_LIB_AI_FALLBACK2_KEY", "ai_fallback2_key", "")
 AI_FB2_MODEL = _cfg("CASE_LIB_AI_FALLBACK2_MODEL", "ai_fallback2_model", "")
+# 最近一次实际用的端点（llm() 成功后写）。草稿 note 必须记这个，
+# 而不是记配置里的主模型 —— 降级发生时两者不是一回事（见 llm() 内注释）。
+LAST_ENDPOINT = {"tag": "", "model": "", "base": ""}
 # 🚨 **截断自动重试**（2026-10-10）。
 # 推理模型把思考 token 也算进 max_tokens，核一条要烧 4000+（思考约 3600），
 # 16000 仍偶发被吃光 —— `publbee`、`vectosolve` 都因此失败过，而同批里
@@ -374,7 +377,7 @@ def domains_of(sources):
     return out
 
 
-def map_ai_to_draft(cand, ai, publish_mode, model_name=""):
+def map_ai_to_draft(cand, ai, publish_mode, model_name="", ep_tag=""):
     """把 AI 的回答映射成服务端认的草稿。
 
     每一个勾都要求有结构性证据，不裸信 AI 的布尔值：
@@ -480,8 +483,13 @@ def map_ai_to_draft(cand, ai, publish_mode, model_name=""):
     hits = [h for h in hits if h in BONUS_KEYS]
 
     conf = ai.get("confidence", 0)
-    note = "AI 自动核实（%s，%s，置信度 %.0f%%）" % (
-        model_name or AI_MODEL, datetime.now().strftime("%Y-%m-%d %H:%M"), conf * 100)
+    # note 必须记**实际用的端点**：降级（主端点限流→备2）时判定质量明显更弱，
+    # 但如果不记下来，事后只能靠 caliber_reason 是不是英文去反推（2026-11-03
+    # 就是这么找出 5 条降级草稿的）。端点标签非「主」就标出来。
+    _ep = "·%s端点" % ep_tag if ep_tag and ep_tag != "主" else ""
+    note = "AI 自动核实（%s%s，%s，置信度 %.0f%%）" % (
+        model_name or AI_MODEL, _ep,
+        datetime.now().strftime("%Y-%m-%d %H:%M"), conf * 100)
     if irrelevant_dropped:
         note += "；已剔除 %d 条无关来源（词典/音乐/电商等，不计入来源数）" % irrelevant_dropped
     if ai.get("summary"):
@@ -820,8 +828,18 @@ def llm(messages, temperature=0.2, max_tokens=None):
     while truncates <= LLM_TRUNCATE_RETRIES:
         ep = eps[ei]
         try:
-            return _llm_once(messages, temperature, budget,
+            out = _llm_once(messages, temperature, budget,
                              ep["base"], ep["key"], ep["model"])
+            # 🚨 记录**这次实际用的是哪个端点**。2026-11-03 实测踩坑：
+            # 主端点限流后自动降级到备2（glm-4-flash），但草稿 note 仍写
+            # 主模型名 deepseek-ai/DeepSeek-V4.1-Flash-1017 —— 于是 5 条
+            # 降级模型判的草稿混进「DeepSeek 核的」堆里，事后无从分辨，
+            # 只能靠 caliber_reason 是不是英文去猜（本次就是靠这个猜出来的）。
+            # 谱系必须写进每一条草稿，降级不是小事：备2 的判断质量明显更弱。
+            LAST_ENDPOINT["tag"] = ep["tag"]
+            LAST_ENDPOINT["model"] = ep["model"]
+            LAST_ENDPOINT["base"] = ep["base"]
+            return out
         except (_RateLimited, _QuotaBlocked, _EndpointDown) as e:
             last_err = e
             if ei + 1 >= len(eps):
@@ -1602,7 +1620,9 @@ def verify_one(cand, admin, publish=False, min_score=0, log=None):
 
     # 3) 映射成草稿并存回后台
     say("   检索：抓到 %d 页原文" % len(pages))
-    draft = map_ai_to_draft(cand, ai, publish)
+    draft = map_ai_to_draft(cand, ai, publish,
+                            model_name=LAST_ENDPOINT.get("model") or AI_MODEL,
+                            ep_tag=LAST_ENDPOINT.get("tag") or "主")
     result = admin.put_draft(cid, draft)
     say("   AI：口径=%s 等级=%s 来源=%d 置信度=%.0f%%" % (
         draft["caliber"] or "-", draft["verification"] or "-",

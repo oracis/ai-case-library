@@ -155,6 +155,21 @@ class MapTest(unittest.TestCase):
         self.assertIn("denied_still_alive", [w["key"] for w in r["warnings"]])
         self.assertIn("含 1 项 AI 反证", r["verdict"])
 
+    def test_降级端点要记进note_不能冒名主模型(self):
+        # 🚨 2026-11-03 实测：主端点限流后自动降级到备2（glm-4-flash），
+        # 但草稿 note 仍写主模型名 —— 5 条降级判的草稿混进「DeepSeek 核的」
+        # 堆里，事后只能靠 caliber_reason 是不是英文去反推。
+        # note 必须带上实际端点标签，降级不是小事：备2 判断质量明显更弱。
+        draft = A.map_ai_to_draft(CAND, good_ai(), publish_mode=False,
+                                  model_name="glm-4-flash", ep_tag="备2")
+        self.assertIn("glm-4-flash", draft["note"])
+        self.assertIn("备2", draft["note"])
+        # 主端点时不带降级标记
+        d2 = A.map_ai_to_draft(CAND, good_ai(), publish_mode=False,
+                               model_name="deepseek-ai/DeepSeek-V4.1-Flash-1017",
+                               ep_tag="主")
+        self.assertNotIn("端点", d2["note"])
+
     def test_三道全否_才判不进库(self):
         # 一道都没成立，AI 还拿到了三份明确反证 —— 这种进库是污染，必须拦
         draft = A.map_ai_to_draft(
@@ -544,7 +559,7 @@ class ResultShapeTest(unittest.TestCase):
         A.extract_json = lambda t: {"confidence": 0.9}
         A.build_queries = lambda cand: ["q"]
         A.current_blockers = lambda old: ([], [])
-        A.map_ai_to_draft = lambda cand, ai, pub: {
+        A.map_ai_to_draft = lambda cand, ai, pub, **kw: {
             "caliber": "mrr", "verification": "official",
             "sources": [{"label": "s", "url": "https://example.com/a", "kind": "official"}],
         }
@@ -611,7 +626,7 @@ class ResultShapeTest(unittest.TestCase):
             A.extract_json = lambda t: {"confidence": 0.9}
             A.build_queries = lambda cand: ["q"]
             A.current_blockers = lambda old: ([], [])
-            A.map_ai_to_draft = lambda cand, ai, pub: {
+            A.map_ai_to_draft = lambda cand, ai, pub, **kw: {
                 "caliber": "mrr", "verification": "official", "sources": []}
 
             class FakeAdmin:

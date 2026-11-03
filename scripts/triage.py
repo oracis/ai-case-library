@@ -421,6 +421,25 @@ def _amount(num, unit):
     return v
 
 
+# harvest 对「当前收入为零」的条目写的口径声明（_headline_api 固定格式，
+# 机器生成非自报）。存量条目 metrics 里没有 mrr/last_30d_revenue 键
+# （旧版 harvest 只在 >0 时落盘），这句声明是唯一机器可读信号；
+# 新条目将带显式 0（契约：缺字段 = 没抓到，0 = 抓到且为零）。
+ZERO_NOW_MARKER = "当前 MRR 与近 30 天均为 0"
+
+
+def _zero_now(rec):
+    """当前收入是否结构性归零（MRR 与近 30 天都实测为 0，只剩累计残值）。"""
+    m = rec.get("metrics") or {}
+    _mrr, _l30 = m.get("mrr"), m.get("last_30d_revenue")
+    if (isinstance(_mrr, (int, float)) and not isinstance(_mrr, bool)
+            and _mrr <= 0
+            and isinstance(_l30, (int, float)) and not isinstance(_l30, bool)
+            and _l30 <= 0):
+        return True
+    return ZERO_NOW_MARKER in str(m.get("headline") or "")
+
+
 def revenue_of(rec):
     """这条的月收入（美元）。抽不到返回 None —— 抽不到就绝不当「量级太小」。
 
@@ -665,13 +684,8 @@ def _score_data(rec, hits, misses, flags):
     # 与近 30 天均为 0…）」含数字又让 has_numbers 为真 —— 于是 2026-11-03
     # 实测 6/11 条零收入条目全被洗成 deep（upworkscribe 累计 $28 也在列），
     # 深核预算花在墓碑上。这正是 10-10 / 10-21 两次注释里写过的同一类故障，
-    # 第三次露头才补上闸。只认「两个字段都在且都 ≤0」：字段缺失不判死，
-    # 那是 backfill 的事。
-    m = rec.get("metrics") or {}
-    _mrr, _l30 = m.get("mrr"), m.get("last_30d_revenue")
-    if (isinstance(_mrr, (int, float)) and not isinstance(_mrr, bool) and _mrr <= 0
-            and isinstance(_l30, (int, float)) and not isinstance(_l30, bool)
-            and _l30 <= 0):
+    # 第三次露头才补上闸。
+    if _zero_now(rec):
         misses.append(("dead_revenue", PENALTIES["dead_revenue"],
                        "当前收入归零（MRR 与近 30 天均为 0），只剩累计残值"))
         flags.append(("dead_revenue", "当前收入归零，只剩累计残值"))
@@ -758,10 +772,7 @@ def _hint(rec, scope, rev, bf):
         return "占位 / 参考条目：本来就不进核实流程"
     if rev is not None and rev < TINY_REVENUE:
         return "量级偏小，除非后续口径或收入有明显变化"
-    _m = rec.get("metrics") or {}
-    _mrr, _l30 = _m.get("mrr"), _m.get("last_30d_revenue")
-    if (isinstance(_mrr, (int, float)) and _mrr <= 0
-            and isinstance(_l30, (int, float)) and _l30 <= 0):
+    if _zero_now(rec):
         return ("当前收入归零，只剩累计残值 —— 除非有复活迹象，"
                 "否则不值得花深核预算")
     headline = str((rec.get("metrics") or {}).get("headline") or "")
