@@ -11,6 +11,8 @@
   "at": "2026-10-16 14:10",
   "article_id": "342364",
   "title": "PROSP：把找人、写话术、发出去压成一个按钮",
+  "verified_at": "2026-11-03 13:56",
+  "evidence": "editor-ui-publish + toast 提交成功 + 按标题补账(aid 342364→53736510)",
   "note": "｜草稿同步(2026-10-16 14:10): title 认领 aid=342364"
  },
  {
@@ -460,5 +462,12 @@
   "article_id": "345680",
   "title": "Codédex：把学编程包装成「冒险旅程」的互动课程平台，免",
   "note": "｜更新草稿 aid=345664（draft/add 回读校验通过）｜更新草稿 aid=345680（draft/add 回读校验通过）"
+ },
+ {
+  "id": "upvoty",
+  "at": "2026-11-03 13:42",
+  "article_id": "345869",
+  "title": "Upvoty",
+  "note": "｜更新草稿 aid=345869（draft/add 回读校验通过）"
  }
 ]

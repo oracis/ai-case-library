@@ -139,5 +139,12 @@
     },
     "settings_verified_at": "2026-11-01 19:05",
     "note": "发布设置（封面/声明/话题）已通过 CDP 设置并用 /api/articles/{id}/draft 回读确认；等待人工点「发布」"
+  },
+  "ext-ep-001-super-mario-bros": {
+    "article_id": "2100938408583611480",
+    "title": "游戏厅：马力欧兄弟，被 JS 重写的 1985 经典",
+    "url": "https://zhuanlan.zhihu.com/p/2100938408583611480",
+    "status": "draft",
+    "ts": "2026-11-03 13:12:30"
   }
 }
