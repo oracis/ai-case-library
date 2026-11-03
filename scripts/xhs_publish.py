@@ -393,14 +393,19 @@ def make_xhs_title(c, used=None):
 
 
 def _clip(s, n):
-    """正文用：带省略号的软截断（先在句读处断）。"""
+    """正文用：带省略号的软截断（先在句读处断）。
+
+    2026-11-03：断在逗号/顿号上=留了半句话（chessigma 实发
+    「2025 年 3 月上线（比想象中新），」——读者读到一半没了）。
+    句读处断完若尾字是逗号/顿号，升成句号，保证截出来的是完整句。
+    """
     s = re.sub(r"\s+", " ", (s or "").strip())
     if len(s) <= n:
         return s
     cut = s[:n]
     for p in sorted(cut.rfind(x) for x in "。！？；.!?;，, "):
         if p >= n * 0.6:
-            return cut[:p + 1]
+            return re.sub(r"[，,、]$", "。", cut[:p + 1])
     return cut.rstrip() + "…"
 
 
@@ -431,7 +436,7 @@ def build_body(c):
     pb = [x.strip() for x in (c.get("playbook") or []) if x.strip()]
     name = c.get("name_en") or c.get("name") or c.get("id")
 
-    def assemble(n_why, how_n, what_n):
+    def assemble(n_why, how_n, what_n, why_n=52):
         parts = [
             hook,
             "",
@@ -443,7 +448,11 @@ def build_body(c):
             "",
             "🔍 为什么能成立",
         ]
-        parts += ["· " + _clip(x, 52) for x in why[:n_why]]
+        # why 段预算（2026-11-03）：固定 52 字是把完整论点拦腰砍断的元凶
+        # （chessigma「只要 0.06% 转化就能覆盖」被切成「只要 0.」）。正文
+        # 上限 1000 字、实际普遍只用 600 字 ⇒ 放宽到 100，并纳入退让梯度
+        # ——超预算时先砍条数、再砍单条预算，而不是先砍成半句。
+        parts += ["· " + _clip(x, why_n) for x in why[:n_why]]
         if pb:
             parts += ["", "🧠 最值得抄的一点", _clip(pb[0], 60)]
         # headline 自带「（RevenueCat API 验证）」这类括号后缀，先剥掉再拼
@@ -461,10 +470,13 @@ def build_body(c):
         return "\n".join(parts)
 
     tail = "\n" + " ".join(build_tags(c))
-    # 逐级收紧字段预算，直到塞进 1000 字
+    # 逐级收紧字段预算，直到塞进 1000 字。末位是 why 单条预算：
+    # 先砍条数（3→2），最后才回到旧 52 字硬约束。
     text = None
-    for n_why, how_n, what_n in ((3, 150, 120), (2, 110, 90), (2, 80, 70)):
-        text = assemble(n_why, how_n, what_n)
+    for n_why, how_n, what_n, why_n in ((3, 150, 120, 100),
+                                        (2, 110, 90, 72),
+                                        (2, 80, 70, 52)):
+        text = assemble(n_why, how_n, what_n, why_n)
         if len(text) + len(tail) <= BODY_MAX:
             return text + tail
     return (text or "") + tail
@@ -1267,16 +1279,28 @@ def cmd_publish(args):
                     "  · 直接发那条：python scripts/xhs_publish.py send-draft --case %s\n"
                     "  · 确实要再存一份：加 --force-dup" % (note.get("title"), c["id"]))
 
-    tid = None
-    for t in cdp.list_targets():
-        if "creator.xiaohongshu.com" in (t.get("url") or ""):
-            tid = t["id"]
-            break
-    if not tid:
+    # 2026-11-03 修「未连接页面 target」（当天 upvoty/chessigma 各断一次）：
+    # /json 里还有 iframe/service_worker 等无 webSocketDebuggerUrl 的 target，
+    # 只按 URL 匹配会抓到；且 connect_target 失败只返回 False，原来没接
+    # 返回值，炸点被推迟到第一次 eval。现在：限定 type=page、连接失败就
+    # 关掉僵尸页重开新页，再失败才报错。
+    sub = wp.CDP(PUB_PORT)
+    pages = [t for t in cdp.list_targets()
+             if t.get("type") == "page"
+             and "creator.xiaohongshu.com" in (t.get("url") or "")]
+    tid = pages[0]["id"] if pages else None
+    if tid and sub.connect_target(tid):
+        print("复用已开的 creator 页")
+    else:
+        if tid:
+            try:
+                cdp.close_target(tid)          # 僵尸/死页先关
+            except Exception:                  # noqa: BLE001
+                pass
         tid = cdp.new_target(PUB_URL)["id"]
         time.sleep(4)
-    sub = wp.CDP(PUB_PORT)
-    sub.connect_target(tid)
+        if not sub.connect_target(tid):
+            raise SystemExit("[err] 新开 creator 页也连不上，去浏览器看一眼")
     # 收尾必须关掉自己这个编辑器页（--keep 除外）。编辑器活着 = 自动保存定时器
     # 活着；而发布成功后页面会回到**空白新建态**，那条空白就成了草稿箱里新冒出来
     # 的「暂无笔记标题」（2026-11-02 复盘）。atexit 能盖住 SystemExit 退出路径。
