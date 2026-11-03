@@ -16,6 +16,7 @@ import os
 import sys
 import tempfile
 import contextlib
+from datetime import datetime
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO, "scripts"))
@@ -992,6 +993,32 @@ def test_tm_seed_unlisted_not_gone():
     print()
 
 
+def test_tm_seed_refresh():
+    """🚨 回归钉：种子模式必须刷新陈旧档案，不能拿首抓快照判一辈子。
+
+    2026-11-03 实测：67 个命中 TrustMRR 的 howtomakemi 种子全在 10-14 抓过，
+    旧逻辑种子模式直接 return []，档案池选拔用的永远是 20 天前的收入快照，
+    「低于 $100 65」把 5 个实际涨过门槛的（bibby 96→344 等）拦死。种子
+    超过 TM_SEED_REFRESH_DAYS 未抓的必须重抓。
+    """
+    print("[21] 种子模式刷新陈旧档案")
+    old = "2026-10-14"
+    recent = datetime.now().strftime("%Y-%m-%d")
+    st = {"sitemap": {"a": "", "b": "", "c": ""},
+          "profiles": {"a": {"fetched": old}, "b": {"fetched": recent},
+                       "c": {"fetched": old}},
+          "gone": [], "unlisted": [], "cursor": 0}
+    batch = H.tm_pick_batch(st, 10, seeds=["a", "b", "c"])
+    chk("窗口外的种子进刷新队列", sorted(batch) == ["a", "c"], batch)
+    chk("窗口内的种子不重抓", "b" not in batch, batch)
+    batch2 = H.tm_pick_batch(st, 10, seeds=["b"])
+    chk("全在窗口内则空批（走档案池选拔）", batch2 == [], batch2)
+    # budget 有界性仍然生效
+    batch3 = H.tm_pick_batch(st, 1, seeds=["a", "b", "c"])
+    chk("刷新也受 budget 有界约束", batch3 == ["a"], batch3)
+    print()
+
+
 def main():
     print("=" * 62)
     print("  harvest 五源解析 + source_kind 测试（离线）")
@@ -1014,6 +1041,7 @@ def main():
     section("归档条目不回流", test_archive_not_reharvested)
     section("drop_keywords 词边界+否定保护", test_drop_keywords_no_substring_false_positive)
     section("种子未收录 ≠ 档案下架", test_tm_seed_unlisted_not_gone)
+    section("种子模式刷新陈旧档案", test_tm_seed_refresh)
 
     print("=" * 62)
     if fails:

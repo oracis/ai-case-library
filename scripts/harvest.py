@@ -36,7 +36,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import atomicio
 import text_clean as TC
@@ -922,6 +922,13 @@ TM_WORKERS = 5                           # .md 是缓存快照，5 并发足够�
 TM_MD_TIMEOUT = 25
 TM_ROUND_BUDGET = 100                    # 每轮 .md 抓取上限（日常跑默认值）
 
+# 种子模式的档案刷新窗口：howtomakemi 种子命中 TrustMRR 的那批，抓过一次后
+# 就会永远留在 profiles 里，旧逻辑种子模式直接 return [] 不再抓——用的永远是
+# 首抓那天的收入快照。2026-11-03 实测：67 个命中种子的缓存停在 10-14，实时
+# 重抓后 5 个涨过 $100 门槛（bibby 96→344、swisscohousing-ch 98→207…），
+# 全被旧快照拦掉。种子在窗口内重抓一次再判，成本可控（这批只有几十个）。
+TM_SEED_REFRESH_DAYS = 7
+
 
 def _fetch_text(url, timeout=30, gzip_ok=True):
     """抓文本，**支持 gzip**（urllib 不会自动解压，得自己来）。
@@ -1151,10 +1158,21 @@ def tm_pick_batch(st, budget, seeds=None):
         print("    [i] 种子队列 %d 个新 slug 优先抓取" % len(seed_fresh))
         return batch
     if seeds:
-        # 种子模式：只抓种子。种子抓完就停，不轮换 sitemap 其他 slug——
-        # 那会稀释「这个线索源发现了什么」。定期全面轮换请走不带
-        # --tm-seeds 的普通模式。
-        return []
+        # 种子模式：只抓种子，不轮换 sitemap 其他 slug——那会稀释「这个
+        # 线索源发现了什么」。定期全面轮换请走不带 --tm-seeds 的普通模式。
+        # 种子都抓过时刷新窗口外的陈旧档案：收入快照会过期，涨过门槛的
+        # 不能被首抓那天的旧数据永久拦掉（见 TM_SEED_REFRESH_DAYS 注释）。
+        cutoff = (datetime.now() - timedelta(days=TM_SEED_REFRESH_DAYS)
+                  ).strftime("%Y-%m-%d")
+        stale = sorted(
+            s for s in seeds
+            if s in st["profiles"] and s not in gone
+            and (st["profiles"][s].get("fetched") or "")[:10] < cutoff)
+        batch = stale[:budget]
+        if batch:
+            print("    [i] 种子模式：%d 个档案超过 %d 天未抓，刷新收入快照"
+                  % (len(batch), TM_SEED_REFRESH_DAYS))
+        return batch
     fresh = [s for s in slugs if s not in st["profiles"] and s not in gone]
     if fresh:
         cur = int(st.get("cursor") or 0) % len(fresh)
@@ -1267,14 +1285,16 @@ def harvest_trustmrr_sitemap(limit, budget=TM_ROUND_BUDGET, dry_run=False,
             print("    [i] 种子中 %d 个 slug 未收录于 TrustMRR sitemap"
                   "（名称未对齐，非下架，跳过）" % len(unlisted_now))
     if not batch:
-        # 种子已抓完：档案池里可能还有上轮被 limit 截断、没进队列的，
-        # 直接走选拔（不抓取）。种子全进过库时才真没事干。
+        # 种子已抓完（且都在刷新窗口内）：档案池里可能还有上轮被 limit
+        # 截断、没进队列的，直接走选拔（不抓取）。种子全进过库时才真没事干。
         if not (seeds and any(s in st["profiles"] for s in seeds)):
             print("    [i] 没有待抓的 slug")
             return []
-        print("    [i] 种子已抓完，直接从档案池选拔")
-    print("    [i] 本轮抓 %d 个 .md 档案（池 %d，已抓 %d，游标 %s）"
-          % (len(batch), len(st["sitemap"]), len(st["profiles"]), st["cursor"]))
+        print("    [i] 种子档案均在 %d 天刷新窗口内，本轮不抓取，直接用缓存选拔"
+              % TM_SEED_REFRESH_DAYS)
+    else:
+        print("    [i] 本轮抓 %d 个 .md 档案（池 %d，已抓 %d，游标 %s）"
+              % (len(batch), len(st["sitemap"]), len(st["profiles"]), st["cursor"]))
 
     def ckpt(partial):
         if not dry_run:
