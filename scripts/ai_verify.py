@@ -35,9 +35,9 @@
     读取优先级：环境变量 > data/secrets.json > 上面这些默认值。
     ⚠ space-bunny-free（opencode.ai/zen）2026-10-11 起被上游封直连，已弃用；
        ModelScope DeepSeek/Qwen 魔粒已耗尽，2026-11-03 已移除。
-       当前主端点 = 端砚 Sage-A1.5（免费、512K、关思考 ~5s/条），备1 = 智谱 glm-4-flash，
-       备2 = 端砚 Agents-A1。浦语 intern-s2 与 Atria-Dawn 因单条 90~300s 且会超时，
-       不进自动降级链。
+       当前主端点 = 端砚 Sage-A1.5（免费、512K、关思考 ~5s/条），备1 = 端砚 Agents-A1，
+       备2 = 智谱 glm-4-flash（额度独立，平台级故障兜底）。浦语 intern-s2 与 Atria-Dawn
+       因单条 90~300s 且会超时，不进自动降级链。
 
 换模型（CLI 覆盖环境变量，不传就用上面的默认值）
     # 先花几秒验端点，别直接跑一批才发现 key 不对
@@ -138,8 +138,9 @@ AI_BASE_NO_PROXY = ("opencode.ai/zen",)
 #
 # 端点优先级（越往下越便宜、越不容易撞限）：
 #   主   = 书生·端砚 Sage-A1.5（免费、512K、关思考后 ~5s/条；4 条候选与智谱口径 4/4 一致）
-#   备 1 = 智谱 glm-4-flash（真免费、额度**独立于端砚**，主端点被挡时真兜底）
-#   备 2 = 端砚 Agents-A1（同平台不同模型；平台级故障时会跟着挂，故排在智谱之后）
+#   备 1 = 端砚 Agents-A1（同平台不同模型，256K 多模态；关思考 7.5s，pluma 上与 Sage 同判
+#          mrr/stripe/$1,338。⚠ 开思考实测 **300s 直接超时** ⇒ 必须一起关）
+#   备 2 = 智谱 glm-4-flash（真免费、额度**独立于端砚**，平台级故障时的最后兜底）
 # ⚠ Atria-Dawn **不进自动降级链**：实测 90~300s/条且在真实核验里两次 300s 超时，
 #   当备端点等于让整批卡死。需要时手动 `--ai-model Atria-Dawn`。
 # ⚠ 浦语 intern-s2（chat.intern-ai.org.cn）实测 150~300s/条、也超时过，不再作主/备。
@@ -1092,6 +1093,17 @@ def ping_llm():
         return 1
     dt = time.time() - t0
     print("[OK] %.1fs 响应：%s" % (dt, (out or "")[:200].replace("\n", " ")))
+    # 🚨 降级发生时，上面那行「模型：」印的是**配置里的主模型**，不是实际应答的
+    # 那个 —— 2026-11-03 实测就靠这条才没把 Agents-A1 的回答当成 Sage 的。
+    used = LAST_ENDPOINT.get("model") or AI_MODEL
+    if used != AI_MODEL:
+        print("[!] 注意：实际应答的是 **%s**（%s），不是配置里的 %s —— 主端点已降级。"
+              % (used, LAST_ENDPOINT.get("tag"), AI_MODEL))
+    if not (out or "").strip():
+        print("[!] 但响应正文是空的：端点通了却没有内容。多半是模型把输出全放在"
+              " reasoning_content 里或思考吃光了 max_tokens —— 加 ai_extra 关思考"
+              "（chat_template_kwargs.enable_thinking=false），别只看 [OK] 就放行。")
+        return 1
     print("\n可以直接用了：python scripts/ai_verify.py --triage --limit 5")
     return 0
 
