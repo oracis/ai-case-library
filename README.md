@@ -619,60 +619,6 @@ export CASE_LIB_ADMIN_PASSWORD=...             # 后台密码（写草稿/发布
 没抓到原文的条目会被明确拒绝而不是硬编（实测 getdavid 一条：检索不到一手
 披露，脚本直接跳过、维持卡点）。
 
-### 额度与检索通道，各有一个自查脚本
-
-AI 核实用的是魔搭（ModelScope）的「魔粒」。**魔粒不会白给**，而且有两个坑：
-
-- **没有官方签到 API**（只有社区逆向的余额查询接口）。所以任何「自动签到」都只能是
-  模拟网页操作 —— `ms_checkin.py` 走 CDP 真点页面，不调逆向接口。
-- **不是「登录即到账」，要在魔粒页点「领取」**；额度官方动态调整（曾 200 粒/天，
-  也会出现「今日已领完」）。而且 `ai_verify.py` 拿 Access Token（`ms-xxx`）直接
-  打 API **不产生登录行为**，光配好 key 一分魔粒都不会多。
-
-由此，脚本的成功判据是「**点到领取且余额真的变了**」，不是「页面读得到余额」——
-后者只证明登录成功，会演成日志天天 OK、魔粒不涨的假绿：
-
-```bash
-python scripts/ms_checkin.py --login   # 首次：起有头 Chrome，人工登录一次（只需一次）
-python scripts/ms_checkin.py           # 每天：无头开站点点「领取」，比对余额前后
-python scripts/ms_checkin.py --probe   # 调试：打印登录判据 / 魔粒文案 / 页面正文，不写日志
-```
-
-四种状态，**别把 UNKNOWN 当失败、也别把 ALREADY 当新领取**：
-`CLAIMED`（点了且余额增加）/ `ALREADY`（页面写着「今日已领」）/
-`NO_LOGIN`（profile 里没有会话，重跑 `--login`）/ `UNKNOWN`（找不到入口或点了没变）。
-退出码：**0** = CLAIMED 或 ALREADY / **2** = NO_LOGIN / **3** = UNKNOWN。
-
-登录态存在独立 profile（默认 `C:\Users\DELL\chrome-ms-profile`，可用
-`MS_CDP_PROFILE` 换）——不能用日常 Chrome 的 cookie：Chrome 127+ 是 v20
-App-Bound 加密，DPAPI 解不开；Chrome 136+ 也不给默认 profile 开调试端口。
-
-流水写 `data/ms_checkin_log.json`，**已 gitignore** —— 它记的是「这台机器今天有没有
-领到」，换台机器就不成立，也不是能回放的业务台账。
-
-2026-11-01 起这套流程已抽成**用户级 skill** `modelscope-magicube-checkin`
-（`~/.workbuddy/skills/modelscope-magicube-checkin/`），脱离本仓库也能跑，
-并已上架 **SkillHub**（`skillhub.cn/skills/modelscope-magicube-checkin`，v1.1.0
-已过审：keen/sanbu 双 benign）与 GitHub（`oracis/modelscope-magicube-checkin`）：
-自带最小 CDP 客户端（零第三方依赖）、`--login` 会自动轮询验证登录结果、
-一天两个「领取」按钮会连点、另有 `--status` 与 9 项本地自测（`selftest.py`，
-用假页面钉死「找按钮/点按钮/余额判据」，不碰真实账号）。
-本仓库的 `scripts/ms_checkin.py` 保留为同源入口，判据逻辑已与 skill 同步。
-
-> ⚠ **skill v1.1.0 起是「只连不管」**（为过平台安全扫描）：
-> 脚本**不启动、不结束**任何浏览器进程，也**不读写**浏览器文件、不碰 cookie
-> 凭据、不改全局代理与环境变量。端口不通时它只打印一条**可复制的启动命令**，
-> 由你自己起 Chrome：
->
-> ```bash
-> "$LOCALAPPDATA\Google\Chrome\Application\chrome.exe" \
->   --remote-debugging-port=9333 --user-data-dir="$HOME/chrome-ms-profile" \
->   --no-first-run --no-default-browser-check --no-sandbox \
->   https://www.modelscope.cn/magicube/usage
-> ```
->
-> `--no-sandbox` 是实测必需的：受限环境里不带它 Chrome 会直接退出、端口不开。
-
 补第三方来源的通道（2026-10-29 调整）：只剩 **HN Algolia** 与 **DuckDuckGo** 两路
 通用检索，都免 key、免注册。原 Google CSE 通道已整条移除 —— 它要求 Google Cloud
 项目开通结算并给 key 单独授权，实测恒返 403（`This project does not have the

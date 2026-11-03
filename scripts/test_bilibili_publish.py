@@ -584,15 +584,26 @@ class TestFlexTableToKvBlock(unittest.TestCase):
         self.assertNotIn("<blockquote", out)
         self.assertIn("$1.2M", out)
 
-    def test_all_37_have_kv_blocks(self):
-        """37 篇每篇都得转出键值块，且不能残留粘连。"""
+    def test_flex_consumed_and_multirow_converted(self):
+        """凡含 flex 伪表格的稿必须被转换消费掉；≥2 行的组必须转出键值块。
+
+        2026-11-03 放宽旧断言「每篇都得有 blockquote」：游戏稿
+        （game_rebrand 重写）与 anti 系列的键值信息本来就是
+        「· 标签：值」纯段落，**没有 flex 输入就不该有 blockquote 输出**
+        （38/550 篇如此，旧断言对它们是无中生有）。断言对象是
+        「转换生效」，不是「某种样式必须存在」。
+        """
         for cid in bp.list_ids():
             h = bp.load_article_html(cid)
             if not h:
                 continue
+            # ≥2 行连续 flex 的组，转换后必须出现 blockquote（单行组不包块）
+            multi = any(len(bp._FLEX_ROW_RE.findall(m.group(0))) >= 2
+                        for m in bp._FLEX_BLOCK_RE.finditer(h))
             out = bp.clean_body(h)
-            self.assertIn("<blockquote>", out, "%s 没转出键值块" % cid)
-            # flex 特征必须已被消费掉
+            if multi:
+                self.assertIn("<blockquote>", out, "%s 没转出键值块" % cid)
+            # flex 特征必须已被消费掉（有没有输入都不许残留）
             self.assertNotIn("space-between", out, "%s 残留 flex" % cid)
 
     def test_order_matters_flex_before_strip_span(self):

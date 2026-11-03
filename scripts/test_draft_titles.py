@@ -129,6 +129,18 @@ class TestDraftTitles(unittest.TestCase):
             self.assertTrue(new.strip(), "%s/%s 新文为空" % (plat, cid))
             self.assertNotEqual(old, new, "%s/%s 改了个寂寞" % (plat, cid))
 
+    def test_品牌名里的缩写子串不算金额(self):
+        """2026-11-03 误伤回归锁：产品名 TrustMRR 里的 MRR 子串被旧正则
+        扫成「收入口径缩写」，合规标题被判带金额。禁的是「MRR 当口径用」，
+        不是禁人家叫这个名字——独立词才认，前后贴字母的不算。
+        """
+        self.assertIsNone(self.m.MONEY_RE.search(
+            "# TrustMRR：把「可核验」做成产品的海外小站"))
+        # 口径用法仍然要拦：独立出现的 MRR / ARR 不放行
+        self.assertIsNotNone(self.m.MONEY_RE.search("# 从 0 到 40K MRR 的工具"))
+        self.assertIsNotNone(self.m.MONEY_RE.search("# 一个 MRR 导出的插件"))
+        self.assertIsNotNone(self.m.MONEY_RE.search("# ARR 百万的 SaaS"))
+
     def test_六个字的口径词不许出现在标题里(self):
         """「月入 / 月收入 / 月流水」是最容易把年化、累计说成月度的三个词。
 
