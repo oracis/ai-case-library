@@ -166,17 +166,30 @@ def _rows_csdn():
 
 
 def _rows_yun(which):
+    """两朵云：不是每条都有 `*_published_at`，缺了就按已有字段回退。
+
+    🚨 2026-11-03 实撞：chessigma / cod-dex 的台账只有
+    `tc_state=published` + `tc_article=2774552` + `tc_state_at`，**没有**
+    `tc_published_at` —— 老判据只认后者，于是这两篇被当成「没发过」，
+    档期下一轮又把它们选进候选池（重发就会出第二篇）。
+    判据改成「有 article id 且 state=published」，时点按
+    `published_at → state_at → updated` 回退；都缺也照收（宁可不发，不重发）。
+    """
     d = _load("yun_finalize.json") or {}
     out = []
     for cid, v in d.items():
         if not isinstance(v, dict) or cid.startswith("__community__"):
             continue
         if which == "tencentcloud":
-            at = v.get("tc_published_at") or ""
+            sent = v.get("tc_state") == "published" or bool(v.get("tc_article"))
+            cand = (v.get("tc_published_at"), v.get("tc_state_at"), v.get("updated"))
         else:
-            at = v.get("al_published_at") or ""
-        if at:
-            out.append((str(at), cid))
+            sent = bool(v.get("al_published_at") or v.get("al_article"))
+            cand = (v.get("al_published_at"), v.get("al_state_at"), v.get("updated"))
+        if not sent:
+            continue
+        at = next((str(x) for x in cand if x), "")
+        out.append((at, cid))
     return out
 
 
@@ -230,17 +243,49 @@ PACK = {
 }
 
 
-def pack_exists(platform, case_id):
+# 游戏仓：一期游戏稿落 10 份 `content/<slug>/platform/<平台>.md`（2026-11-02 建、
+# 11-03 补齐 110 份）。跨仓路径只此一处，`GAMES_ROOT` 可覆盖（换机/CI）。
+GAMES_ROOT = os.environ.get("GAMES_ROOT", r"D:/open-source-games")
+
+# 哪些平台的发布脚本是「喂一个 md 文件」（`--file`）。只有这些平台，游戏仓的
+# platform/<平台>.md 才算可直接发的产物。
+# ⚠ 头条/小红书/B站**不算**：它们 `--case` 打开的是 out/<平台>/<case>/ 那套
+# 二版产物（标题模板 + 配图），游戏仓的 md 不能顶替 —— 记进来会让档期以为
+# 「有稿」然后发布时打空。
+MD_FILE_PLATFORMS = ("csdn", "cnblogs", "zhihu", "tencentcloud", "aliyun")
+
+
+def game_pack(platform, case_id):
+    """游戏仓里这一期该平台的平台稿；不存在返回 None。"""
+    if platform not in MD_FILE_PLATFORMS:
+        return None
+    cid = str(case_id or "")
+    if not cid.startswith("ext-"):
+        return None                                   # AI case 不走这条路
+    p = os.path.join(GAMES_ROOT, "content", cid[len("ext-"):],
+                     "platform", "%s.md" % platform)
+    return p if os.path.isfile(p) else None
+
+
+def pack_of(platform, case_id):
+    """该平台这一篇的产物路径（不存在返回 None）。发布与判档期共用这一个判据。"""
     spec = PACK.get(platform)
-    if not spec:
-        return False
-    rel, style = spec
-    base = os.path.join(ROOT, rel)
-    if style == "dir":
-        return os.path.isdir(os.path.join(base, case_id))
-    if style == "html":
-        return os.path.isfile(os.path.join(base, case_id + ".html"))
-    return os.path.isfile(os.path.join(base, case_id + ".md"))
+    if spec:
+        rel, style = spec
+        base = os.path.join(ROOT, rel)
+        if style == "dir":
+            p = os.path.join(base, case_id)
+            if os.path.isdir(p):
+                return p
+        else:
+            p = os.path.join(base, case_id + (".html" if style == "html" else ".md"))
+            if os.path.isfile(p):
+                return p
+    return game_pack(platform, case_id)
+
+
+def pack_exists(platform, case_id):
+    return pack_of(platform, case_id) is not None
 
 
 def game_all():

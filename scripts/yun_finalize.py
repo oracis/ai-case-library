@@ -921,7 +921,8 @@ if __name__ == "__main__":
     ap.add_argument("--community", default="",
                     help="阿里云发布子社区（缺省按 COMMUNITY_PREF 全等匹配）")
     ap.add_argument("--publish", action="store_true",
-                    help="发表模式（阿里云）。必须同时给 --i-said-publish")
+                    help="发表模式。必须同时给 --i-said-publish；"
+                         "--tc-draft <id> 发腾讯云，--al-draft <id> 发阿里云")
     ap.add_argument("--headed", action="store_true",
                     help="有头模式（默认无头；扫码登录/风控兜底用，或 CHROME_HEADED=1）")
     ap.add_argument("--cover", default="",
@@ -953,8 +954,36 @@ if __name__ == "__main__":
         if a.i_said_publish != "i-said-publish":
             raise SystemExit("🚫 拒绝发表：--publish 必须与 --i-said-publish "
                              "i-said-publish 成对（用户明确说「发布」才允许）")
+        if a.tc_draft:
+            # 腾讯云发表：此前只有 `publish_tencent()` 函数、没有 CLI，
+            # 每轮发布都得临时拼一段 python 调它 —— 2026-11-03 补成正规入口，
+            # 好让 publish_one.py 能一条命令驱动（含封面落库校验）。
+            src = a.file or os.path.join(ROOT, "drafts", "wechat",
+                                         "%s.md" % (a.case or ""))
+            body = ""
+            if os.path.isfile(src):
+                from csdn_publish import split_md
+                body = split_md(open(src, encoding="utf-8").read())[1]
+            abstract = a.abstract or first_paragraph(body)
+            proc, cdp = _connect()
+            try:
+                ok, info = publish_tencent(cdp, int(a.tc_draft), abstract=abstract,
+                                           cover_file=a.cover or "")
+            finally:
+                try:
+                    cdp.bws.close()
+                except Exception:                              # noqa: BLE001
+                    pass
+            print(("✓ " if ok else "✗ ") + str(info))
+            if ok and a.case:
+                ledger_set(a.case, tc_draft=str(a.tc_draft),
+                           tc_state="published",
+                           tc_state_at=time.strftime("%Y-%m-%d %H:%M"),
+                           tc_article=str((info or "").split()[0])
+                           if (info or "")[:1].isdigit() else "")
+            sys.exit(0 if ok else 1)
         if not a.al_draft:
-            raise SystemExit("🚫 拒绝发表：--publish 需要 --al-draft")
+            raise SystemExit("🚫 拒绝发表：--publish 需要 --al-draft 或 --tc-draft")
         proc, cdp = _connect()
         try:
             publish_aliyun(cdp, int(a.al_draft), a.community or None,

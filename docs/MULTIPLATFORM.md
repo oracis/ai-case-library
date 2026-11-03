@@ -4,6 +4,34 @@
 与[这篇 CSDN 文章](https://blog.csdn.net/fzil001/article/details/160228873)，
 但**只抄它们对的部分**。
 
+## 统一入口 `publish_one.py`（2026-11-03）
+
+编排能力一直在，但**每次发布都要重攒一遍**：先跑 `publish_slot.py` 判档期，
+再翻四个脚本确认参数，再想起 KaTeX 的 `$` 要改美元、游戏稿不能带自家域名、
+腾讯云标题不许带金额，发完还得记得去哪个台账查是否真落。判断散在 9 个
+`argparse` 和 5 篇 PLAYBOOK 里 ⇒ 收成一个入口。
+
+```bash
+python scripts/publish_one.py                 # 今日计划（只读，不碰浏览器）
+python scripts/publish_one.py --platform csdn # 干跑：闸结果 + 将要执行的确切命令
+python scripts/publish_one.py --platform csdn --yes   # 真发
+python scripts/publish_one.py --platform tencentcloud --upload --yes  # 两朵云先补草稿
+python scripts/publish_one.py --json          # 机器可读（给定时任务吃）
+```
+
+它**不重写任何平台逻辑**：CDP 选择器、封面注入、抽屉填写都留在原脚本里，
+入口只做三件事 —— 用 `publish_slot.decide()` 选平台与稿件、串七道闸、按
+`SPEC` 拼命令并回读。判「该发哪篇」与判「有没有稿」共用
+`publish_slot.pack_of()` 一个判据，避免「档期说有稿、发布说没有」。
+
+七道闸：`draft`（产物在不在）/ `link`（`link_hygiene`）/ `katex`
+（`katex_money_fix`）/ `tt`（`tt_compliance`）/ `genre`（腾讯云技术向）/
+`cover`（封面必须存在）/ `remote`（两朵云远端草稿 id，且没发过）。
+默认干跑，`--yes` 才写；一次只跑一个平台。
+
+**终点语义**：公众号与知乎只能到**草稿**（订阅号群发要后台点、知乎
+`publish` 端点未开放），汇总时不许说成「已发布」。
+
 ## 参考了什么，拒绝了什么
 
 | 来源 | 抄的 | 不抄的 | 原因 |
