@@ -65,6 +65,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SCRIPTS = os.path.join(ROOT, "scripts")
 sys.path.insert(0, SCRIPTS)
 
+import db  # noqa: E402  SQLite 统一台账：CSDN 发布记录写 platform_posts (platform='csdn')
+
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
@@ -294,6 +296,30 @@ def save_cookie(cookie_string):
 
 
 def remember(case_id, article_id, title, url=""):
+    """记账：CSDN draft。优先写 SQLite（platform_posts, platform='csdn'），
+    同时双写 JSON 快照（供 publish_slot 等旧脚本只读兼容）。
+
+    ⚠ db 写仅当 `DRAFT_FILE` 是默认路径时生效（测试注入临时文件时不碰真库，
+    与 `Manifest._db_write` 同一先例）。
+    """
+    if DRAFT_FILE == os.path.join(ROOT, "data", "csdn_drafts.json"):
+        conn = db.get_conn()
+        try:
+            db.upsert_post(conn, case_id, "csdn", {
+                "state": "draft",
+                "remote_id": str(article_id) if article_id else "",
+                "url": url or "",
+                "title": title or "",
+                "draft_id": str(article_id) if article_id else "",
+                "attempt": 0,
+                "published_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "updated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "note": "",
+            })
+        finally:
+            db.close_conn()
+
+    # 双写 JSON 快照（保持原格式，供旧脚本只读兼容）
     import atomicio
     ledger = {}
     if os.path.exists(DRAFT_FILE):

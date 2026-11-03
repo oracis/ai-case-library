@@ -53,6 +53,7 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 from csdn_publish import split_md, md_to_html          # noqa: E402  复用纯函数
+import db  # noqa: E402  SQLite 统一台账：博客园发布记录写 platform_posts (platform='cnblogs')
 
 CONFIG_FILE = os.path.join(ROOT, "data", "cnblogs_config.json")
 DRAFT_FILE = os.path.join(ROOT, "data", "cnblogs_drafts.json")
@@ -155,6 +156,31 @@ def save_config(cfg):
 
 
 def remember(case_id, post_id, title, url="", status="draft"):
+    """记账：博客园 draft/published。优先写 SQLite（platform_posts, platform='cnblogs'），
+    同时双写 JSON 快照（供 publish_slot 等旧脚本只读兼容）。
+
+    ⚠ db 写仅当 `DRAFT_FILE` 是默认路径时生效 —— 测试会把 DRAFT_FILE 注入
+    临时文件（与 `Manifest._db_write` 只认默认清单同一个先例），避免
+    selftest 往真库里写 case-a/case-b 之类的脏数据。
+    """
+    if DRAFT_FILE == os.path.join(ROOT, "data", "cnblogs_drafts.json"):
+        conn = db.get_conn()
+        try:
+            db.upsert_post(conn, case_id, "cnblogs", {
+                "state": status,
+                "remote_id": str(post_id) if post_id else "",
+                "url": url or "",
+                "title": title or "",
+                "draft_id": str(post_id) if post_id else "",
+                "attempt": 0,
+                "published_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "updated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "note": "status=" + status,
+            })
+        finally:
+            db.close_conn()
+
+    # 双写 JSON 快照（保持原格式，供旧脚本只读兼容）
     import atomicio
     ledger = {}
     if os.path.exists(DRAFT_FILE):
@@ -167,6 +193,37 @@ def remember(case_id, post_id, title, url="", status="draft"):
     }
     atomicio.write_json(DRAFT_FILE, ledger)
     print("✓ 台账: %s ← %s (%s)" % (os.path.basename(DRAFT_FILE), case_id, status))
+
+
+def _read_ledger():
+    """优先从 SQLite ledger 读 cnblogs 平台记录；db 无数据时回退 JSON。
+
+    返回格式与原 `cnblogs_drafts.json` 兼容：{case_id: {post_id, title, url, status, ts}}
+    """
+    conn = db.get_conn()
+    try:
+        posts = db.get_posts_by_platform(conn, "cnblogs")
+        if posts:
+            result = {}
+            for p in posts:
+                result[p["case_id"]] = {
+                    "post_id": p.get("remote_id") or "",
+                    "title": p.get("title") or "",
+                    "url": p.get("url") or "",
+                    "status": p.get("state") or "draft",
+                    "ts": p.get("updated_at") or "",
+                }
+            return result
+    except Exception:
+        pass
+    finally:
+        db.close_conn()
+
+    # fallback：从 JSON 读（迁移期兼容旧数据）
+    if not os.path.exists(DRAFT_FILE):
+        return {}
+    with open(DRAFT_FILE, "r", encoding="utf-8") as f:
+        return json.load(f)
 
 
 # --------------------------------------------------------------------------
@@ -418,13 +475,6 @@ def cmd_edit(args):
 
 def _is_html(body):
     return bool(re.search(r"</(p|h2|h3|table|blockquote|ul)>", body))
-
-
-def _read_ledger():
-    if not os.path.exists(DRAFT_FILE):
-        return {}
-    with open(DRAFT_FILE, "r", encoding="utf-8") as f:
-        return json.load(f)
 
 
 def main():

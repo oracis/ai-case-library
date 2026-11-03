@@ -36,6 +36,7 @@ from datetime import datetime
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
+import atomicio                                                          # noqa: E402
 import verify_rules as VR                                              # noqa: E402
 
 CASES = os.path.join(ROOT, "data", "cases.json")
@@ -48,8 +49,7 @@ def main():
                     help="连已有 tier 的也重算（默认只补缺的）")
     args = ap.parse_args()
 
-    with open(CASES, encoding="utf-8") as f:
-        cases = json.load(f)
+    cases = atomicio.read_json(CASES)
 
     print("=" * 68)
     print("  案例默认定档 · 政策见 verify_rules.default_case_tier")
@@ -88,10 +88,9 @@ def main():
     bak = os.path.join(bak_dir, "cases.json.bak-%s"
                        % datetime.now().strftime("%Y%m%d-%H%M%S"))
     shutil.copy2(CASES, bak)
-    with open(CASES, "w", encoding="utf-8") as f:
-        json.dump(cases, f, ensure_ascii=False, indent=2)
-        f.write("\n")
-    print("\n  已写入 data/cases.json（备份：%s）" % os.path.basename(bak))
+    with atomicio.file_lock(CASES + ".lock", timeout=30.0):
+        atomicio.write_json(CASES, cases, indent=2, trailing_newline=True)
+    print("\n  已写入 data/cases.json（备份：%s，原子写+文件锁）" % os.path.basename(bak))
     return 0
 
 

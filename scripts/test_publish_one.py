@@ -120,13 +120,21 @@ class GamePack(unittest.TestCase):
 
 
 class YunLedger(unittest.TestCase):
-    """两朵云台账的「发过没有」判据。"""
+    """两朵云台账的「发过没有」判据。
+
+    ⚠ 2026-11-03 切 SQLite 后：`_rows_yun` 是「db 优先 + JSON fallback」，
+    本类测的是 fallback 分支的时点回退 —— mock db 返回空强制走 fallback，
+    再 mock `_load` 注入 fake JSON。
+    """
 
     def setUp(self):
         self._load = S._load
+        self._get_posts = S.db.get_posts_by_platform
+        S.db.get_posts_by_platform = lambda conn, platform, **kw: []
 
     def tearDown(self):
         S._load = self._load
+        S.db.get_posts_by_platform = self._get_posts
 
     def test_published_without_timestamp_counts(self):
         fake = {"chessigma": {"tc_draft": "339489", "tc_article": "2774552",

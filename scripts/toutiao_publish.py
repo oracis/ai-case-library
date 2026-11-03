@@ -42,6 +42,7 @@ import link_hygiene as link_hygiene  # noqa: E402  营销推广硬闸（域名 +
 import wechat_publish as wp  # noqa: E402  复用 CDP / cases 加载 / 公众号标题
 import xhs_publish as x      # noqa: E402  复用模糊匹配
 from multiplatform import queue as Q  # noqa: E402  待发队列排序口径（最新在前）
+import db  # noqa: E402  SQLite 统一台账：头条发布记录写 platform_posts (platform='toutiao')
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "out", "toutiao")
@@ -637,6 +638,20 @@ def write_article(meta, outdir=None):
 # 记录 / 队列
 # ======================================================================
 def _ids(path):
+    """读台账 id 列表。对 DRAFT_FILE/PUB_FILE 优先从 SQLite ledger 读；db 无数据时回退 JSON。"""
+    if path in (DRAFT_FILE, PUB_FILE):
+        conn = db.get_conn()
+        try:
+            state = "draft" if path == DRAFT_FILE else "published"
+            posts = db.get_posts_by_platform(conn, "toutiao", state=state)
+            if posts:
+                return [p["case_id"] for p in posts]
+        except Exception:
+            pass
+        finally:
+            db.close_conn()
+
+    # fallback：从 JSON 读（迁移期兼容旧数据）
     if not os.path.isfile(path):
         return []
     try:
@@ -704,23 +719,66 @@ def _mark(path, cid, extra=None):
 
 
 def mark_drafted(cid):
-    _mark(DRAFT_FILE, cid)
+    """记账：头条 draft。优先写 SQLite，双写 JSON 快照（供旧脚本只读兼容）。"""
+    conn = db.get_conn()
+    try:
+        db.upsert_post(conn, cid, "toutiao", {
+            "state": "draft",
+            "remote_id": "",
+            "url": "",
+            "title": "",
+            "draft_id": "",
+            "attempt": 0,
+            "published_at": time.strftime("%Y-%m-%d %H:%M"),
+            "updated_at": time.strftime("%Y-%m-%d %H:%M"),
+            "note": "",
+        })
+    finally:
+        db.close_conn()
+    _mark(DRAFT_FILE, cid)  # 双写 JSON 快照
 
 
 def mark_published(cid):
-    _mark(PUB_FILE, cid)
+    """记账：头条 published。优先写 SQLite，双写 JSON 快照（供旧脚本只读兼容）。"""
+    conn = db.get_conn()
+    try:
+        db.upsert_post(conn, cid, "toutiao", {
+            "state": "published",
+            "remote_id": "",
+            "url": "",
+            "title": "",
+            "draft_id": "",
+            "attempt": 0,
+            "published_at": time.strftime("%Y-%m-%d %H:%M"),
+            "updated_at": time.strftime("%Y-%m-%d %H:%M"),
+            "note": "",
+        })
+    finally:
+        db.close_conn()
+    _mark(PUB_FILE, cid)  # 双写 JSON 快照
 
 
 def mark_published_remote(cid, gid, evidence):
     """发表并**带 gid** 记台账（`send-draft` 用）。
 
-    为什么不全盘走 `scripts/ledger.py`：头条这两个文件是 2019 年以来的
-    存量格式（LF/CRLF 行尾、note 历史字段），`ledger.mark` 那套统一层
-    还没接头条的 gid 主键（见 LEDGER_CONSISTENCY.md 的 TODO）。这里只
-    在既有约定上补 `gid`/`evidence`/`verified_at` 三个键，与 voklit
-    那条 health_backfill 记录同构。
+    优先写 SQLite（remote_id=gid, note=evidence），双写 JSON 快照。
     """
-    _mark(PUB_FILE, cid, extra={
+    conn = db.get_conn()
+    try:
+        db.upsert_post(conn, cid, "toutiao", {
+            "state": "published",
+            "remote_id": str(gid),
+            "url": "",
+            "title": "",
+            "draft_id": "",
+            "attempt": 0,
+            "published_at": time.strftime("%Y-%m-%d %H:%M"),
+            "updated_at": time.strftime("%Y-%m-%d %H:%M"),
+            "note": evidence or "",
+        })
+    finally:
+        db.close_conn()
+    _mark(PUB_FILE, cid, extra={                     # 双写 JSON 快照
         "gid": str(gid),
         "evidence": evidence,
         "verified_at": time.strftime("%Y-%m-%d %H:%M"),

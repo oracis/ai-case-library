@@ -34,6 +34,9 @@ import time
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data")
 
+sys.path.insert(0, os.path.join(ROOT, "scripts"))
+import db  # noqa: E402  SQLite 统一台账：读端切到 platform_posts 表
+
 # 平台顺序 = 输出顺序，按「主力 → 长尾」排
 PLATFORMS = [
     ("wechat", "公众号"),
@@ -128,6 +131,22 @@ def _kind_log():
 # 口径：只收**真的发出去了**的记录，草稿不算（草稿不是「发过这一类」）。
 
 def _rows_wechat():
+    """公众号：优先从 SQLite ledger 读 platform='wechat' state='published'。"""
+    conn = db.get_conn()
+    try:
+        posts = db.get_posts_by_platform(conn, "wechat", state="published")
+        if posts:
+            out = []
+            for p in posts:
+                at = p.get("published_at") or p.get("updated_at") or ""
+                if at:
+                    out.append((str(at), p["case_id"]))
+            return out
+    except Exception:                                   # noqa: BLE001
+        pass
+    finally:
+        db.close_conn()
+    # fallback：从 JSON 读（迁移期兼容旧数据）
     d = _load("wechat_published.json") or {}
     out = []
     for cid, v in d.items():
@@ -139,7 +158,38 @@ def _rows_wechat():
     return out
 
 
-def _rows_list(fname, keys=("at", "published_at"), id_keys=("case_id", "id")):
+_PLATFORM_FILE_MAP = {
+    "toutiao": "toutiao_published.json",
+    "xhs": "xhs_published.json",
+    "bilibili": "bili_published.json",
+}
+
+
+def _rows_list(platform, keys=("at", "published_at"), id_keys=("case_id", "id")):
+    """通用 list 型台账：优先从 SQLite ledger 读 platform 对应的 published 记录。"""
+    conn = db.get_conn()
+    try:
+        posts = db.get_posts_by_platform(conn, platform, state="published")
+        if posts:
+            out = []
+            for p in posts:
+                at = ""
+                for k in keys:
+                    if p.get(k):
+                        at = str(p[k])
+                        break
+                if not at:
+                    at = p.get("updated_at") or p.get("published_at") or ""
+                cid = p["case_id"]
+                if at and cid:
+                    out.append((at, cid))
+            return out
+    except Exception:                                   # noqa: BLE001
+        pass
+    finally:
+        db.close_conn()
+    # fallback：从 JSON 读（迁移期兼容旧数据）
+    fname = _PLATFORM_FILE_MAP.get(platform, platform + "_published.json")
     d = _load(fname) or []
     if isinstance(d, dict):
         d = list(d.values())
@@ -162,8 +212,37 @@ def _rows_list(fname, keys=("at", "published_at"), id_keys=("case_id", "id")):
     return out
 
 
-def _rows_dict(fname, status_ok=("published",), ts_keys=("ts", "published_ts")):
-    """cnblogs / zhihu 那种 {case_id: {...}} 结构。"""
+def _rows_dict(platform, status_ok=("published",), ts_keys=("ts", "published_ts")):
+    """cnblogs / zhihu / csdn 那种 {case_id: {...}} 结构。优先从 SQLite ledger 读。"""
+    conn = db.get_conn()
+    try:
+        posts = db.get_posts_by_platform(conn, platform)
+        if posts:
+            out = []
+            for p in posts:
+                if status_ok and (p.get("state") or "") not in status_ok:
+                    continue
+                at = ""
+                for k in ts_keys:
+                    if p.get(k):
+                        at = str(p[k])
+                        break
+                if not at:
+                    at = p.get("updated_at") or p.get("published_at") or ""
+                if at:
+                    out.append((at, p["case_id"]))
+            return out
+    except Exception:                                   # noqa: BLE001
+        pass
+    finally:
+        db.close_conn()
+    # fallback：从 JSON 读（迁移期兼容旧数据）
+    fname_map = {
+        "cnblogs": "cnblogs_drafts.json",
+        "zhihu": "zhihu_drafts.json",
+        "csdn": "csdn_drafts.json",
+    }
+    fname = fname_map.get(platform, platform + "_drafts.json")
     d = _load(fname) or {}
     out = []
     for cid, v in d.items():
@@ -183,19 +262,36 @@ def _rows_dict(fname, status_ok=("published",), ts_keys=("ts", "published_ts")):
 
 def _rows_csdn():
     # csdn_drafts 里 blocked_by_quota 也算「试过但没发出去」，不收
-    return _rows_dict("csdn_drafts.json", status_ok=("published",))
+    return _rows_dict("csdn", status_ok=("published",))
 
 
 def _rows_yun(which):
-    """两朵云：不是每条都有 `*_published_at`，缺了就按已有字段回退。
-
-    🚨 2026-11-03 实撞：chessigma / cod-dex 的台账只有
-    `tc_state=published` + `tc_article=2774552` + `tc_state_at`，**没有**
-    `tc_published_at` —— 老判据只认后者，于是这两篇被当成「没发过」，
-    档期下一轮又把它们选进候选池（重发就会出第二篇）。
-    判据改成「有 article id 且 state=published」，时点按
-    `published_at → state_at → updated` 回退；都缺也照收（宁可不发，不重发）。
-    """
+    """两朵云：优先从 SQLite ledger 读 platform='tencentcloud'/'aliyun' state='published'。"""
+    platform = "tencentcloud" if which == "tencentcloud" else "aliyun"
+    conn = db.get_conn()
+    try:
+        posts = db.get_posts_by_platform(conn, platform)
+        if posts:
+            out = []
+            for p in posts:
+                if p.get("case_id", "").startswith("__community__"):
+                    continue
+                if which == "tencentcloud":
+                    sent = p.get("state") == "published" or bool(p.get("remote_id"))
+                    cand = (p.get("published_at"), p.get("updated_at"))
+                else:
+                    sent = bool(p.get("published_at") or p.get("remote_id"))
+                    cand = (p.get("published_at"), p.get("updated_at"))
+                if not sent:
+                    continue
+                at = next((str(x) for x in cand if x), "")
+                out.append((at, p["case_id"]))
+            return out
+    except Exception:                                   # noqa: BLE001
+        pass
+    finally:
+        db.close_conn()
+    # fallback：从 JSON 读（迁移期兼容旧数据）
     d = _load("yun_finalize.json") or {}
     out = []
     for cid, v in d.items():
@@ -216,11 +312,11 @@ def _rows_yun(which):
 
 READERS = {
     "wechat": _rows_wechat,
-    "toutiao": lambda: _rows_list("toutiao_published.json"),
-    "xhs": lambda: _rows_list("xhs_published.json"),
-    "bilibili": lambda: _rows_list("bili_published.json"),
-    "cnblogs": lambda: _rows_dict("cnblogs_drafts.json"),
-    "zhihu": lambda: _rows_dict("zhihu_drafts.json"),
+    "toutiao": lambda: _rows_list("toutiao"),
+    "xhs": lambda: _rows_list("xhs"),
+    "bilibili": lambda: _rows_list("bilibili"),
+    "cnblogs": lambda: _rows_dict("cnblogs"),
+    "zhihu": lambda: _rows_dict("zhihu"),
     "csdn": _rows_csdn,
     "tencentcloud": lambda: _rows_yun("tencentcloud"),
     "aliyun": lambda: _rows_yun("aliyun"),

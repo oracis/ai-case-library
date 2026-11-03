@@ -46,6 +46,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import wechat_publish as wp  # noqa: E402  复用 CDP / 案例加载
 import bili_draft_api as bili_api  # noqa: E402  草稿箱接口层（读/写/删）
 import link_hygiene as _lh  # noqa: E402  外链卫生硬闸（2026-11-02）
+import db  # noqa: E402  SQLite 统一台账：bilibili 发布记录写 platform_posts (platform='bilibili')
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "out", "bili")
@@ -998,6 +999,16 @@ def _local_done_ids():
                 done.add(cid)
     except Exception:                                  # noqa: BLE001
         pass
+    # 从 SQLite ledger 读 bilibili 的 draft/published 记录
+    conn = db.get_conn()
+    try:
+        posts = db.get_posts_by_platform(conn, "bilibili")
+        done |= {p["case_id"] for p in posts}
+    except Exception:                                  # noqa: BLE001
+        pass
+    finally:
+        db.close_conn()
+    # 兼容旧 JSON（迁移期兜底）
     for fname in ("bili_drafts.json", "bili_published.json"):
         try:
             with open(os.path.join(os.path.dirname(
@@ -1436,25 +1447,70 @@ def _record_draft(cid, aid, title=""):
 
 
 def _load_manifest():
-    """读发布清单（publish_manifest.json）。B站幂等只认清单，不看 ledger 层。"""
+    """优先从 SQLite ledger 读 bilibili 平台发布记录；db 无数据时回退到 JSON。
+
+    返回格式与原 `publish_manifest.json` 兼容：{cid: {bilibili: {state, remote_id, url, title, draft_id, attempt, at, note}}}
+    """
+    conn = db.get_conn()
+    try:
+        posts = db.get_posts_by_platform(conn, "bilibili")
+        if posts:
+            result = {}
+            for p in posts:
+                cid = p["case_id"]
+                result.setdefault(cid, {})["bilibili"] = {
+                    "state": p.get("state") or "",
+                    "remote_id": p.get("remote_id") or "",
+                    "url": p.get("url") or "",
+                    "title": p.get("title") or "",
+                    "draft_id": p.get("draft_id") or "",
+                    "attempt": p.get("attempt") or 0,
+                    "at": p.get("updated_at") or "",
+                    "note": p.get("note") or "",
+                }
+            return result
+    except Exception:
+        pass
+    finally:
+        db.close_conn()
+
+    # fallback：从 JSON 读（迁移期兼容旧数据）
     p = os.path.join(ROOT, "data", "publish_manifest.json")
     try:
         with open(p, encoding="utf-8") as f:
             return json.load(f)
-    except Exception:                              # noqa: BLE001
+    except Exception:
         return {}
 
 
 def _mark_manifest_published(cid, remote_id, title=""):
     """B站真发成功后写清单：state=published + remote_id（幂等真值）。
 
-    ⚠ 2026-10-20 修格式回归：旧实现 `indent=2` + 默认文本模式重写整个
-       清单，而本仓库的规范格式是 `indent=1, sort_keys=True`（范式在
-       `multiplatform/state.py` 的 `Manifest.save`）——缩进乱改一次，
-       git diff 就多出 3156 行纯格式噪音。现在与 `Manifest.save` 同构：
-       临时文件 + `os.replace` 原子替换（半截 JSON = 整本清单失效），
-       显式 `newline="\n"` 免得 Windows 文本模式把行尾翻成 CRLF。
+    写入 SQLite ledger（platform_posts, platform='bilibili'）为真值；
+    同时双写 `publish_manifest.json` 快照（indent=1 + sort_keys，与
+    `multiplatform.state.Manifest.save` 同构），供仍直接读 JSON 的旧脚本
+    （publish_one、bilibili 适配器 fallback 等）兼容。
+
+    ⚠ 2026-10-20 修格式回归：快照必须 `indent=1` + 显式 `newline="\n"`，
+       乱改缩进会让 git diff 多出几千行纯格式噪音。
     """
+    conn = db.get_conn()
+    try:
+        db.upsert_post(conn, cid, "bilibili", {
+            "state": "published",
+            "remote_id": remote_id,
+            "url": "",
+            "title": title or "",
+            "draft_id": "",
+            "attempt": 0,
+            "published_at": time.strftime("%Y-%m-%d %H:%M"),
+            "updated_at": time.strftime("%Y-%m-%d %H:%M"),
+            "note": "草稿箱→发布（send-draft）",
+        })
+    finally:
+        db.close_conn()
+
+    # 双写 JSON 快照（原子替换，供旧脚本只读兼容）
     p = os.path.join(ROOT, "data", "publish_manifest.json")
     try:
         m = _load_manifest()
@@ -1470,6 +1526,7 @@ def _mark_manifest_published(cid, remote_id, title=""):
             json.dump(m, f, ensure_ascii=False, indent=1, sort_keys=True)
         os.replace(tmp, p)
     except Exception as e:                         # noqa: BLE001
+        sys.stderr.write("⚠ manifest JSON 快照写失败(%s)：%s\n" % (cid, e))
         print("    ⚠ 清单写入失败（不影响已发布的草稿）：%s" % str(e)[:80])
 
 

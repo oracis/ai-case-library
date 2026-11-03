@@ -48,6 +48,44 @@ def ledger_get(case):
     return {}
 
 
+def _db_sync(case, rec):
+    """两朵云记录同步进 SQLite platform_posts（tc_* → tencentcloud，al_* → aliyun）。
+
+    JSON 快照仍是唯一完整格式（tc_draft/tc_article/tc_state_at 等自由字段），
+    db 存归一后的五元组，供 publish_one 的 remote 闸 / publish_slot 查询。
+    """
+    try:
+        import db                                       # noqa: PLC0415
+    except Exception:                                  # noqa: BLE001
+        return
+    now = rec.get("updated") or time.strftime("%Y-%m-%d %H:%M:%S")
+    conn = db.get_conn()
+    try:
+        for prefix, plat in (("tc", "tencentcloud"), ("al", "aliyun")):
+            state = rec.get(prefix + "_state") or ""
+            article = rec.get(prefix + "_article") or ""
+            draft = rec.get(prefix + "_draft") or ""
+            if not (state or article or draft):
+                continue
+            db.upsert_post(conn, case, plat, {
+                "state": state or ("published" if article else "draft"),
+                "remote_id": article,
+                "url": "",
+                "title": rec.get("title") or "",
+                "draft_id": draft,
+                "attempt": 0,
+                "published_at": rec.get(prefix + "_published_at")
+                                or rec.get(prefix + "_state_at") or now,
+                "updated_at": rec.get(prefix + "_state_at") or now,
+                "note": "",
+            })
+        conn.commit()
+    except Exception:                                  # noqa: BLE001
+        pass
+    finally:
+        db.close_conn()
+
+
 def ledger_set(case, **kv):
     d = {}
     if os.path.exists(LEDGER):
@@ -59,6 +97,8 @@ def ledger_set(case, **kv):
     d[case] = rec
     from atomicio import write_json                    # noqa: PLC0415
     write_json(LEDGER, d)
+    if not case.startswith("__community__"):           # 社区偏好记录不进 db
+        _db_sync(case, rec)
     return rec
 
 JS_CLICK_REAL = """

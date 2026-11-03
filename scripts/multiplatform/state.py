@@ -30,22 +30,64 @@
 
 import json
 import os
+import sys
 import time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__))))
 MANIFEST = os.path.join(ROOT, "data", "publish_manifest.json")
 
+if os.path.join(ROOT, "scripts") not in sys.path:
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+import db  # noqa: E402  SQLite 统一台账：Manifest.load/save 切到 platform_posts 表
+
 STATES = ("pending", "building", "draft_saved", "published", "failed",
-          "blocked")
-DONE_STATES = ("draft_saved", "published")
+          "blocked", "deleted")
+# `deleted`：平台侧文章已被删（不可恢复），台账置此态，**不自动重发**。
+# 2026-11-03 归位：以前它是 JSON 里的合法值却不在状态机里，`is_done` 认不出，
+# 差点把 magicslides 的今日头条稿重新发一遍。
+DONE_STATES = ("draft_saved", "published", "deleted")
 # 终态里「不会再自动进队列」的那些：failed 要 --retry 才回队，blocked 同理
 # 但必须人工 reset —— 见模块头注释。
-TERMINAL_STATES = ("published", "blocked")
+TERMINAL_STATES = ("published", "blocked", "deleted")
 
 
 def _now():
     return time.strftime("%Y-%m-%d %H:%M")
+
+
+# `platform_posts` 里的 state 是各平台脚本的原生叫法（draft / auditing /
+# 审核中 …），Manifest 的状态机只有 STATES 那几个值。进出 db 时做一次映射，
+# 免得两套词汇混在一张表里：
+#   draft / auditing / 审核中  → draft_saved（草稿已进箱、或已送审 ⇒ 不会再发）
+_DB_TO_MANIFEST = {
+    "draft": "draft_saved",
+    "draft_saved": "draft_saved",
+    "auditing": "draft_saved",
+    "审核中": "draft_saved",
+    "published": "published",
+    "pending": "pending",
+    "building": "building",
+    "failed": "failed",
+    "blocked": "blocked",
+    "deleted": "deleted",
+}
+# 反向：Manifest 写回 db 时用平台原生词汇（draft_saved → draft）
+_MANIFEST_TO_DB = {
+    "pending": "pending",
+    "building": "building",
+    "draft_saved": "draft",
+    "published": "published",
+    "failed": "failed",
+    "blocked": "blocked",
+    "deleted": "deleted",
+}
+
+
+def _norm_state(raw):
+    """db 里的 state → Manifest 状态机取值。未知值原样返回（不静默吞）。"""
+    s = (raw or "").strip()
+    return _DB_TO_MANIFEST.get(s, s or "pending")
 
 
 class Manifest:
@@ -57,6 +99,33 @@ class Manifest:
         self.load()
 
     def load(self):
+        if self.path == MANIFEST:
+            # 从 SQLite ledger 读（platform_posts 全平台），转成 Manifest 格式
+            conn = db.get_conn()
+            try:
+                cur = conn.execute("SELECT * FROM platform_posts ORDER BY updated_at DESC")
+                rows = cur.fetchall()
+                if rows:
+                    data = {}
+                    for r in rows:
+                        cid = r["case_id"]
+                        plat = r["platform"]
+                        rec = {
+                            "state": _norm_state(r["state"]),
+                            "at": r["updated_at"] or r["published_at"] or "",
+                            "title": r["title"] or "",
+                            "attempt": r["attempt"] or 0,
+                        }
+                        if r["note"]:
+                            rec["error"] = r["note"]
+                        data.setdefault(cid, {})[plat] = rec
+                    self.data = data
+                    return self
+            except Exception:  # noqa: BLE001
+                pass
+            finally:
+                db.close_conn()
+        # fallback：从 JSON 读（测试用临时文件或迁移期兼容）
         try:
             with open(self.path, encoding="utf-8") as f:
                 d = json.load(f)
@@ -66,12 +135,70 @@ class Manifest:
         return self
 
     def save(self):
+        """JSON 快照落盘（原子替换）。
+
+        ⚠ 2026-11-03 起真值在 SQLite（`platform_posts` 表）：`set()` / `remove()`
+        会直接把**单条**记录写进 db，这里的 `save()` 只负责维护
+        `publish_manifest.json` 快照，供仍直接读 JSON 的旧脚本兼容。
+        不做「整份 dump 回 db」——那是 O(全表) 写，每 `set()` 一次就全表重刷，
+        433 条案例撑不住。
+        """
         os.makedirs(os.path.dirname(self.path), exist_ok=True)
         tmp = self.path + ".tmp"
-        with open(tmp, "w", encoding="utf-8") as f:
+        with open(tmp, "w", encoding="utf-8", newline="\n") as f:
             json.dump(self.data, f, ensure_ascii=False, indent=1,
                       sort_keys=True)
         os.replace(tmp, self.path)
+
+    # ---- SQLite 单条落盘（真值） -------------------------------------------
+    def _db_write(self, cid, plat, rec):
+        """把单条 (cid, plat) 记录写进 `platform_posts`。仅对默认清单生效。
+
+        `path` 被换成临时文件（测试注入）时不碰真库。
+        """
+        if self.path != MANIFEST:
+            return
+        conn = db.get_conn()
+        try:
+            try:
+                db.upsert_post(conn, cid, plat, {
+                    "state": _MANIFEST_TO_DB.get(rec.get("state") or "pending",
+                                                 rec.get("state") or "pending"),
+                    "remote_id": rec.get("remote_id") or "",
+                    "url": rec.get("url") or "",
+                    "title": rec.get("title") or "",
+                    "draft_id": rec.get("draft_id") or "",
+                    "attempt": int(rec.get("attempt") or 0),
+                    "published_at": rec.get("at") or "",
+                    "updated_at": rec.get("at") or "",
+                    "note": rec.get("error") or rec.get("note") or "",
+                })
+                conn.commit()
+            except Exception as e:                     # noqa: BLE001
+                # db 写失败不能吞掉发布流程：JSON 快照已经落了，至少还能续跑
+                sys.stderr.write("⚠ manifest 写 db 失败(%s/%s)：%s\n"
+                                 % (cid, plat, e))
+        finally:
+            db.close_conn()
+
+    def _db_remove(self, cid, plat=None):
+        if self.path != MANIFEST:
+            return
+        conn = db.get_conn()
+        try:
+            if plat:
+                conn.execute(
+                    "DELETE FROM platform_posts WHERE case_id=? AND platform=?",
+                    (cid, plat))
+            else:
+                conn.execute("DELETE FROM platform_posts WHERE case_id=?",
+                             (cid,))
+            conn.commit()
+        except Exception as e:                         # noqa: BLE001
+            sys.stderr.write("⚠ manifest 删 db 失败(%s/%s)：%s\n"
+                             % (cid, plat or "*", e))
+        finally:
+            db.close_conn()
 
     # ---- 读 ---------------------------------------------------------------
     def get(self, cid, plat):
@@ -119,6 +246,7 @@ class Manifest:
         elif state not in ("failed", "blocked"):
             rec[plat].pop("error", None)
         self.save()
+        self._db_write(cid, plat, rec[plat])
         return rec[plat]
 
     def mark_pending(self, cid, plat, title=""):
@@ -153,6 +281,7 @@ class Manifest:
         else:
             self.data.pop(cid, None)
         self.save()
+        self._db_remove(cid, plat)
 
     # ---- 统计 -------------------------------------------------------------
     def cids(self):

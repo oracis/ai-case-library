@@ -181,6 +181,19 @@ data/wechat_published.json.tmp
 # 同上：本地安全网，不进库（正文差异看 data/xhs_published.json 本身）。
 data/*.bak-*
 
+# SQLite 统一台账的真值文件（2026-11-03 起 scripts/db.py）。
+# ⚠️ 不入库：① 二进制，每次发布都会重写（WAL），提交进来是不可读的噪音 diff；
+# ② 可从 JSON 随时重建（python scripts/import_to_db.py），入库的快照是 JSON；
+# ③ CI 的「data/ 未被测试污染」断言按 git diff 判 —— 追踪它会让每个跑测试的
+#    runner 自带脏 diff（CI 不设 LEDGER_DB 时测试会写真库）。本地每日备份
+#    由 scripts/backup_ledger.py 落在 _backups/（已忽略）。
+data/ledger.db
+data/ledger.db-wal
+data/ledger.db-shm
+
+# 改源码前的手工备份（如 scripts/atomicio.py.bak-20261103）：本地安全网，不进库。
+scripts/*.bak-*
+
 # 注意 data/publish_manifest.json（多平台发布清单）**要入库**：
 # 它是「哪条案例在哪个平台发到哪一步」的唯一事实来源（尤其 B站草稿只存在
 # 远端，本地无状态文件）。丢了就得靠人肉翻四个平台的草稿箱重建。

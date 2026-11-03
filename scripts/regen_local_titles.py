@@ -34,10 +34,11 @@ def main():
     print("[1] regenerated toutiao meta.json for %d cases" % n_meta)
 
     # ---- 2) manifest wechat/toutiao/xhs title fields ----
-    mp = os.path.join(ROOT, "data", "publish_manifest.json")
-    raw = open(mp, "rb").read()
-    eol = "\r\n" if b"\r\n" in raw else "\n"
-    man = json.loads(raw.decode("utf-8"))
+    # 2026-11-03 切 SQLite：数据源走 Manifest（platform_posts 真值，load 自带
+    # JSON fallback）；写回 = JSON 快照（原格式）+ db 逐条 UPDATE title。
+    from multiplatform import state as MS
+    m = MS.Manifest()
+    man = m.data
 
     fns = {
         "wechat": lambda c: wp.make_wechat_title(c),
@@ -53,16 +54,32 @@ def main():
             if plat in entry and isinstance(entry[plat], dict):
                 entry[plat]["title"] = fn(c)
                 n_man += 1
+
+    mp = os.path.join(ROOT, "data", "publish_manifest.json")
     # ⚠ 缩进必须是 1 + sort_keys：publish_manifest.json 的规范格式在
     #   `multiplatform/state.py` 的 `Manifest.save`（indent=1, sort_keys=True）。
     #   2026-10-20 之前这里是 indent=2，每次跑完 git diff 多出三千行
     #   纯格式噪音（与 `bilibili_publish._mark_manifest_published` 同病）。
     text = json.dumps(man, ensure_ascii=False, indent=1, sort_keys=True)
-    text = text.replace("\n", eol)    # 保留原行尾
-    with open(mp, "w", encoding="utf-8", newline="") as f:
-        f.write(text)
-        if not text.endswith(eol):
-            f.write(eol)
+    with open(mp, "w", encoding="utf-8", newline="\n") as f:
+        f.write(text + "\n")
+    # db 侧只更新 title（别动 state/at/attempt —— 本工具只管标题）
+    try:
+        import db
+        conn = db.get_conn()
+        try:
+            for cid, entry in man.items():
+                for plat, fn in fns.items():
+                    if plat in entry and isinstance(entry[plat], dict):
+                        conn.execute(
+                            "UPDATE platform_posts SET title=? "
+                            "WHERE case_id=? AND platform=?",
+                            (entry[plat].get("title") or "", cid, plat))
+        finally:
+            conn.commit()
+            db.close_conn()
+    except Exception as e:                             # noqa: BLE001
+        print("⚠ db 同步失败（JSON 快照已写）：%s" % e)
     print("[2] updated manifest title fields for %d platform-entries" % n_man)
 
 

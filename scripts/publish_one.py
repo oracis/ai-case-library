@@ -56,6 +56,7 @@ DATA = os.path.join(ROOT, "data")
 sys.path.insert(0, SCRIPTS)
 
 import atomicio                                                          # noqa: E402
+import db  # noqa: E402  SQLite 统一台账：两朵云发布记录读 platform_posts (platform='tencentcloud'/'aliyun')
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -243,8 +244,41 @@ def _gate_cover(platform, case, pack, **kw):
     return (True, os.path.relpath(c, ROOT)) if c else (False, "缺封面图 ⇒ 腾讯云会静默失败，公众号/头条封面为空")
 
 
+def _yun_row(case, platform):
+    """从 SQLite ledger 读两朵云发布记录，返回兼容 yun_finalize.json 格式的 dict。
+
+    映射：draft_id → tc_draft/al_draft，remote_id → tc_article/al_article，
+    state → tc_state/al_state，url → tc_url/al_url。
+    找不到返回 {}。
+    """
+    conn = db.get_conn()
+    try:
+        p = db.get_post(conn, case, platform)
+        if not p:
+            return {}
+        key = "tc_" if platform == "tencentcloud" else "al_"
+        row = {}
+        if p.get("draft_id"):
+            row[key + "draft"] = p["draft_id"]
+        if p.get("remote_id"):
+            row[key + "article"] = p["remote_id"]
+        if p.get("state"):
+            row[key + "state"] = p["state"]
+        if p.get("url"):
+            row[key + "url"] = p["url"]
+        if p.get("title"):
+            row[key + "title"] = p["title"]
+        if p.get("note"):
+            row[key + "note"] = p["note"]
+        if p.get("updated_at"):
+            row["updated"] = p["updated_at"]
+        return row
+    finally:
+        db.close_conn()
+
+
 def _gate_remote(platform, case, pack, **kw):
-    row = _load("yun_finalize.json").get(case) or {}
+    row = _yun_row(case, platform) or {}
     key = "tc_draft" if platform == "tencentcloud" else "al_draft"
     did = str(row.get(key) or "")
     if not did:
@@ -297,7 +331,7 @@ def build_cmd(platform, case, pack, yes):
     elif platform == "zhihu":
         cmd = s("zhihu_publish.py", "draft", "--file", pack, "--case", case)
     elif platform in ("tencentcloud", "aliyun"):
-        row = _load("yun_finalize.json").get(case) or {}
+        row = _yun_row(case, platform) or {}
         key = "tc_draft" if platform == "tencentcloud" else "al_draft"
         cmd = s("yun_finalize.py", "--case", case, "--file", pack,
                 "--publish", "--i-said-publish", "i-said-publish",

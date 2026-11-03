@@ -46,6 +46,9 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(
 SCRIPTS = os.path.join(ROOT, "scripts")
 DATA = os.path.join(ROOT, "data")
 
+sys.path.insert(0, SCRIPTS)
+import db  # noqa: E402  SQLite 统一台账：读端切到 platform_posts 表
+
 PLATS = ("wechat", "toutiao", "xhs", "bilibili", "juejin")
 
 LABEL = {"wechat": "公众号", "toutiao": "今日头条", "xhs": "小红书",
@@ -104,6 +107,20 @@ def draft_ref(plat, cid):
         did = str(rec.get("draft_id") or "").strip()
         return {"draft_id": did} if did else {}
     if plat == "bilibili":
+        # 优先从 SQLite ledger 读
+        conn = db.get_conn()
+        try:
+            posts = db.get_posts_by_platform(conn, "bilibili", state="draft")
+            for p in posts:
+                if p["case_id"] == cid:
+                    aid = str(p.get("remote_id") or p.get("draft_id") or "").strip()
+                    if aid:
+                        return {"article_id": aid, "title": p.get("title", "")}
+        except Exception:  # noqa: BLE001
+            pass
+        finally:
+            db.close_conn()
+        # fallback：从 JSON 读（迁移期兼容旧数据）
         for e in _rj(os.path.join(DATA, "bili_drafts.json"), []) or []:
             if isinstance(e, dict) and e.get("id") == cid:
                 aid = str(e.get("article_id") or "").strip()
@@ -116,6 +133,23 @@ def draft_ref(plat, cid):
 
 
 def self_wechat():
+    """优先从 SQLite ledger 读 wechat 平台 published 记录；db 无数据时回退 JSON。"""
+    conn = db.get_conn()
+    try:
+        posts = db.get_posts_by_platform(conn, "wechat", state="published")
+        if posts:
+            result = {}
+            for p in posts:
+                result[p["case_id"]] = {
+                    "appmsgid": p.get("remote_id") or "",
+                    "title": p.get("title") or "",
+                    "status": p.get("state") or "published",
+                }
+            return result
+    except Exception:  # noqa: BLE001
+        pass
+    finally:
+        db.close_conn()
     return _rj(os.path.join(DATA, "wechat_published.json"), {})
 
 

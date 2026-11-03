@@ -98,6 +98,22 @@ def main():
     text = json.dumps(cur, ensure_ascii=False, indent=2).replace("\n", nl)
     with open(LEDGER, "w", encoding="utf-8", newline="") as f:
         f.write(text)
+    # db 同步（2026-11-03 切 SQLite）：时间戳同步 platform_posts
+    try:
+        import db
+        conn = db.get_conn()
+        try:
+            for cid, now in table.items():
+                conn.execute(
+                    "UPDATE platform_posts SET published_at=?, updated_at=? "
+                    "WHERE case_id=? AND platform='xhs' AND state='draft'",
+                    (now, now, cid))
+            conn.commit()
+        finally:
+            db.close_conn()
+        print("db（platform_posts）已同步 %d 条时间戳" % len(table))
+    except Exception as e:                             # noqa: BLE001
+        print("⚠ db 同步失败（JSON 已写回）：%s" % e)
     print("已写回 %d 条时间戳" % len(fixed))
 
 

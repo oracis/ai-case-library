@@ -41,6 +41,7 @@ import wechat_publish as wp  # noqa: E402  复用 CDP / 色板 / 案例加载
 import link_hygiene as _lh  # noqa: E402  外链卫生硬闸（2026-11-02）
 import lead_templates        # noqa: E402  四型开头钩子模板库
 from multiplatform import queue as Q  # noqa: E402  待发队列排序口径（最新在前）
+import db  # noqa: E402  SQLite 统一台账：xhs 发布记录写 platform_posts (platform='xhs')
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "out", "xhs")
@@ -2733,6 +2734,21 @@ def _pub_file():
 
 
 def _published_ids():
+    """优先从 SQLite ledger 读 xhs 平台 published 记录；db 无数据时回退 JSON。
+
+    返回格式与原 `xhs_published.json` 兼容：id 列表。
+    """
+    conn = db.get_conn()
+    try:
+        posts = db.get_posts_by_platform(conn, "xhs", state="published")
+        if posts:
+            return [p["case_id"] for p in posts]
+    except Exception:
+        pass
+    finally:
+        db.close_conn()
+
+    # fallback：从 JSON 读（迁移期兼容旧数据）
     p = _pub_file()
     if not os.path.isfile(p):
         return []
@@ -2746,7 +2762,23 @@ def _published_ids():
 
 
 def mark_published(cid):
-    _mark(_pub_file(), cid)
+    """记账：xhs published。优先写 SQLite，双写 JSON 快照（供旧脚本只读兼容）。"""
+    conn = db.get_conn()
+    try:
+        db.upsert_post(conn, cid, "xhs", {
+            "state": "published",
+            "remote_id": "",
+            "url": "",
+            "title": "",
+            "draft_id": "",
+            "attempt": 0,
+            "published_at": time.strftime("%Y-%m-%d %H:%M"),
+            "updated_at": time.strftime("%Y-%m-%d %H:%M"),
+            "note": "",
+        })
+    finally:
+        db.close_conn()
+    _mark(_pub_file(), cid)  # 双写 JSON 快照
 
 
 def _draft_file():
@@ -2754,8 +2786,24 @@ def _draft_file():
 
 
 def mark_drafted(cid):
-    """进过草稿箱也算「发过了」，避免重复生成草稿（2026-09-26 清重复踩过）。"""
-    _mark(_draft_file(), cid)
+    """记账：xhs draft（进过草稿箱也算「发过了」，避免重复生成草稿）。
+    优先写 SQLite，双写 JSON 快照（供旧脚本只读兼容）。"""
+    conn = db.get_conn()
+    try:
+        db.upsert_post(conn, cid, "xhs", {
+            "state": "draft",
+            "remote_id": "",
+            "url": "",
+            "title": "",
+            "draft_id": "",
+            "attempt": 0,
+            "published_at": time.strftime("%Y-%m-%d %H:%M"),
+            "updated_at": time.strftime("%Y-%m-%d %H:%M"),
+            "note": "",
+        })
+    finally:
+        db.close_conn()
+    _mark(_draft_file(), cid)  # 双写 JSON 快照
 
 
 def _unmark(p, cid):
@@ -2765,7 +2813,27 @@ def _unmark(p, cid):
     草稿后本地还记着「发过了」，而 `_drafted_ids` 正是 publish 的幂等判据，
     于是这条永远不会再被发出去。实测：purge 删掉 MORT 的小红书草稿后，
     `publish_multi run mort --platforms xhs` 直接说「没有待发的」。
+
+    两层都要动（2026-11-03 修回）：
+    - SQLite `platform_posts`：真值，purge 后必须删掉，否则 db 侧仍算「发过」
+    - JSON 快照：仍被 `xhs_delete` / 手工排查读取，保持同步
+    测试会传临时路径进来，那种情况下不碰真库（`p` 不是两个真台账之一就跳过）。
     """
+    # --- SQLite ledger 层删除（仅对真台账生效） ---
+    if p in (_pub_file(), _draft_file()):
+        state = "published" if p == _pub_file() else "draft"
+        conn = db.get_conn()
+        try:
+            conn.execute(
+                "DELETE FROM platform_posts WHERE case_id=? AND platform='xhs' AND state=?",
+                (cid, state))
+            conn.commit()
+        except Exception as e:                         # noqa: BLE001
+            sys.stderr.write("⚠ xhs 删 db 记录失败(%s)：%s\n" % (cid, e))
+        finally:
+            db.close_conn()
+
+    # --- JSON 快照层删除 ---
     entries, nl, was_dict = _load_ledger(p)
     rest = [e for e in entries if e["id"] != cid]
     if len(rest) == len(entries):
@@ -2885,6 +2953,21 @@ def _mark(p, cid):
 
 
 def _drafted_ids():
+    """优先从 SQLite ledger 读 xhs 平台 draft 记录；db 无数据时回退 JSON。
+
+    返回格式与原 `xhs_drafts.json` 兼容：id 列表。
+    """
+    conn = db.get_conn()
+    try:
+        posts = db.get_posts_by_platform(conn, "xhs", state="draft")
+        if posts:
+            return [p["case_id"] for p in posts]
+    except Exception:
+        pass
+    finally:
+        db.close_conn()
+
+    # fallback：从 JSON 读（迁移期兼容旧数据）
     p = _draft_file()
     if not os.path.isfile(p):
         return []

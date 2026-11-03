@@ -36,6 +36,7 @@ sys.path.insert(0, HERE)
 
 import atomicio                                                       # noqa: E402
 import zhihu_creator as ZC                                            # noqa: E402
+import db  # noqa: E402  SQLite 统一台账：读端切到 platform_posts 表
 
 DRAFT_FILE = os.path.join(ROOT, "data", "zhihu_drafts.json")
 MANIFEST = os.path.join(ROOT, "data", "publish_manifest.json")
@@ -88,22 +89,99 @@ def fetch_published(limit=50, max_pages=10):
 
 
 def _read(path):
+    """优先从 SQLite ledger 读；db 无数据时回退 JSON。"""
+    # DRAFT_FILE → platform_posts (platform='zhihu')
+    if os.path.basename(path) == os.path.basename(DRAFT_FILE):
+        conn = db.get_conn()
+        try:
+            posts = db.get_posts_by_platform(conn, "zhihu")
+            if posts:
+                result = {}
+                for p in posts:
+                    result[p["case_id"]] = {
+                        "article_id": p.get("remote_id") or p.get("draft_id") or "",
+                        "title": p.get("title") or "",
+                        "url": p.get("url") or "",
+                        "status": p.get("state") or "draft",
+                        "ts": p.get("updated_at") or p.get("published_at") or "",
+                    }
+                return result
+        except Exception:  # noqa: BLE001
+            pass
+        finally:
+            db.close_conn()
+
+    # MANIFEST → platform_posts (platform='zhihu')
+    if os.path.basename(path) == os.path.basename(MANIFEST):
+        conn = db.get_conn()
+        try:
+            posts = db.get_posts_by_platform(conn, "zhihu")
+            if posts:
+                result = {}
+                for p in posts:
+                    result[p["case_id"]] = {
+                        "zhihu": {
+                            "state": p.get("state") or "draft",
+                            "remote_id": p.get("remote_id") or "",
+                            "title": p.get("title") or "",
+                            "draft_id": p.get("draft_id") or "",
+                            "updated_at": p.get("updated_at") or "",
+                            "url": p.get("url") or "",
+                        }
+                    }
+                return result
+        except Exception:  # noqa: BLE001
+            pass
+        finally:
+            db.close_conn()
+
+    # fallback：从 JSON 读（迁移期兼容旧数据）
     with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 
 def _write(path, obj):
-    """按各台账自己的写入口径落盘，别用自己的审美改格式。
+    """写 SQLite ledger（platform_posts, platform='zhihu'）。
 
-    `publish_manifest.json` 的写入口是 `multiplatform.state.Manifest.save`
-    （`indent=1` + `sort_keys=True`）；`zhihu_drafts.json` 一直是 `indent=2`。
-    2026-10-31 实测：用 indent=2 重写 manifest 会让 git diff 从 ~110 行
-    涨到 3887 行（整文件重排），改了什么反而看不出来。
+    不再写 JSON 快照——db 是唯一事实源。
     """
-    if os.path.basename(path) == os.path.basename(MANIFEST):
-        atomicio.write_json(path, obj, indent=1, sort_keys=True)
-    else:
-        atomicio.write_json(path, obj, indent=2)
+    conn = db.get_conn()
+    try:
+        if os.path.basename(path) == os.path.basename(DRAFT_FILE):
+            for cid, v in obj.items():
+                if not isinstance(v, dict):
+                    continue
+                db.upsert_post(conn, cid, "zhihu", {
+                    "state": v.get("status") or "draft",
+                    "remote_id": v.get("article_id") or "",
+                    "url": v.get("url") or "",
+                    "title": v.get("title") or "",
+                    "draft_id": v.get("article_id") or "",
+                    "attempt": 0,
+                    "published_at": v.get("ts") or "",
+                    "updated_at": v.get("ts") or "",
+                    "note": "status=" + (v.get("status") or "draft"),
+                })
+        elif os.path.basename(path) == os.path.basename(MANIFEST):
+            for cid, v in obj.items():
+                if not isinstance(v, dict):
+                    continue
+                z = v.get("zhihu")
+                if not isinstance(z, dict):
+                    continue
+                db.upsert_post(conn, cid, "zhihu", {
+                    "state": z.get("state") or "draft",
+                    "remote_id": z.get("remote_id") or z.get("article_id") or "",
+                    "url": z.get("url") or "",
+                    "title": z.get("title") or "",
+                    "draft_id": z.get("draft_id") or "",
+                    "attempt": 0,
+                    "published_at": z.get("updated_at") or "",
+                    "updated_at": z.get("updated_at") or "",
+                    "note": "",
+                })
+    finally:
+        db.close_conn()
 
 
 def _render(path, obj):

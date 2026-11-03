@@ -44,6 +44,7 @@ import time
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import xhs_webapi as X  # noqa: E402
+import db  # noqa: E402  SQLite 统一台账：读端切到 platform_posts 表
 
 ROOT = os.path.dirname(HERE)
 LEDGER = os.path.join(ROOT, "data", "xhs_published.json")
@@ -76,7 +77,33 @@ def find_note(notes, note_id):
 
 
 def ledger_hits(note_id):
-    """台账里引用该 note_id 的条目（返回 [(index, entry)]）。"""
+    """台账里引用该 note_id 的条目（返回 [(index, entry)]）。
+
+    优先从 SQLite ledger 读（platform='xhs' state='published'，按
+    remote_id == note_id 匹配）；⚠ 仅当 `LEDGER` 是默认路径时 —— 测试会把
+    LEDGER 注入临时文件（与 `Manifest._db_write` 同一先例），此时只走 JSON。
+    """
+    if LEDGER == os.path.join(ROOT, "data", "xhs_published.json"):
+        conn = db.get_conn()
+        try:
+            posts = db.get_posts_by_platform(conn, "xhs", state="published")
+            hits = []
+            for i, p in enumerate(posts):
+                if p.get("remote_id") == note_id:
+                    hits.append((i, {
+                        "id": p["case_id"],
+                        "at": p.get("published_at") or p.get("updated_at") or "",
+                        "note_id": p.get("remote_id") or "",
+                        "title": p.get("title") or "",
+                    }))
+            if hits:
+                return hits
+        except Exception:  # noqa: BLE001
+            pass
+        finally:
+            db.close_conn()
+
+    # fallback：从 JSON 读（迁移期兼容旧数据 + 测试注入路径）
     rows = _read_json(LEDGER, [])
     if not isinstance(rows, list):
         return []
@@ -104,16 +131,36 @@ def archive(note, note_id, applied):
 
 
 def drop_from_ledger(note_id):
-    """从台账移除该 note_id 的条目（先备份），返回移除条数。"""
+    """从台账移除该 note_id 的条目（先备份），返回移除条数。
+
+    优先从 SQLite ledger 删（platform='xhs' state='published' AND
+    remote_id=note_id）；同时更新 JSON 快照（先备份，供旧脚本只读兼容）。
+    ⚠ db 删仅当 `LEDGER` 是默认路径时生效（测试注入临时文件时不碰真库）。
+    """
+    removed_db = 0
+    if LEDGER == os.path.join(ROOT, "data", "xhs_published.json"):
+        conn = db.get_conn()
+        try:
+            cur = conn.execute(
+                "DELETE FROM platform_posts WHERE platform='xhs' "
+                "AND state='published' AND remote_id=?", (note_id,))
+            conn.commit()
+            removed_db = cur.rowcount
+        except Exception:  # noqa: BLE001
+            pass
+        finally:
+            db.close_conn()
+
+    # JSON 快照层删除（保持原逻辑：先备份再删）
     rows = _read_json(LEDGER, [])
     if not isinstance(rows, list):
-        return 0
+        return removed_db
     kept = [e for e in rows if e.get("note_id") != note_id]
     if len(kept) == len(rows):
-        return 0
+        return removed_db
     shutil.copy2(LEDGER, "%s.bak-%s" % (LEDGER, time.strftime("%Y%m%d-%H%M%S")))
     _write_json(LEDGER, kept)
-    return len(rows) - len(kept)
+    return max(removed_db, len(rows) - len(kept))
 
 
 def cmd_dup(cdp, case_id):

@@ -54,12 +54,23 @@ code:0）。所以**没有回读拿到远端 ID 的写入，不许记成 publish
 import json
 import os
 import re
+import sys
 import time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data")
 
+if os.path.join(ROOT, "scripts") not in sys.path:
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+try:
+    import db as _db      # noqa: E402  SQLite 统一台账：写出口同步 platform_posts
+except Exception:         # noqa: BLE001  db 层缺席时纯 JSON 照常工作
+    _db = None
+
 PLATFORMS = ("wechat", "toutiao", "bilibili", "xiaohongshu")
+
+# ledger 平台名 → platform_posts 的 platform 值（其余同名）
+_DB_PLATFORM = {"xiaohongshu": "xhs"}
 
 DRAFT = "draft"
 PUBLISHED = "published"
@@ -352,21 +363,76 @@ def _item_out(r, platform, id_value=None):
     return out
 
 
+# ------------------------------------------------------------------ db 同步
+
+def _db_enabled():
+    """测试把 `L.DATA` 指到临时目录时不碰真库（与 Manifest._db_write 同一先例）。"""
+    return _db is not None and DATA == os.path.join(ROOT, "data")
+
+
+def _db_sync(platform, rec):
+    """把一条统一视图记录同步进 SQLite `platform_posts`（真值）。
+
+    ⚠ 为什么放在写出口而不是 load：`load`+`save` 是 JSON round-trip 一对
+      （`ledger_health` 还直接用 `_read_file`），load 若改读 db 会缺
+      evidence/gid 之类只在 JSON 里有的字段，save 回写就丢数据。
+      在 mark/promote/set_draft_id/save 出口单条 upsert，两边都不丢。
+    """
+    if not _db_enabled():
+        return
+    plat = _DB_PLATFORM.get(platform, platform)
+    conn = _db.get_conn()
+    try:
+        _db.upsert_post(conn, rec["id"], plat, {
+            "state": rec.get("state") or DRAFT,
+            "remote_id": rec.get("remote_id") or "",
+            "url": "",
+            "title": rec.get("title") or "",
+            "draft_id": rec.get("draft_remote_id") or "",
+            "attempt": 0,
+            "published_at": rec.get("at") or "",
+            "updated_at": rec.get("at") or "",
+            "note": rec.get("note") or "",
+        })
+        conn.commit()
+    except Exception:                                  # noqa: BLE001
+        pass                                           # db 失败不拦 JSON 主流程
+    finally:
+        _db.close_conn()
+
+
+def _db_remove(platform, cid):
+    if not _db_enabled():
+        return
+    plat = _DB_PLATFORM.get(platform, platform)
+    conn = _db.get_conn()
+    try:
+        conn.execute("DELETE FROM platform_posts WHERE case_id=? AND platform=?",
+                     (cid, plat))
+        conn.commit()
+    except Exception:                                  # noqa: BLE001
+        pass
+    finally:
+        _db.close_conn()
+
+
 def save(platform, recs):
-    """把统一视图写回该平台的文件。原子写、保格式。"""
+    """把统一视图写回该平台的文件。原子写、保格式；并同步 db。"""
     buckets = _serialize(platform, recs)
     spec = _SPEC[platform]
     if spec["layout"] == "dict":
         p = _path(platform, PUBLISHED)
         _, _, nl, ind = _read_file(p)
         _write_file(p, buckets[PUBLISHED], nl, ind)
-        return
-    for st, fname in ((PUBLISHED, spec.get("published")), (DRAFT, spec.get("draft"))):
-        if not fname:
-            continue
-        p = os.path.join(DATA, fname)
-        _, _, nl, ind = _read_file(p)
-        _write_file(p, buckets[st], nl, ind)
+    else:
+        for st, fname in ((PUBLISHED, spec.get("published")), (DRAFT, spec.get("draft"))):
+            if not fname:
+                continue
+            p = os.path.join(DATA, fname)
+            _, _, nl, ind = _read_file(p)
+            _write_file(p, buckets[st], nl, ind)
+    for r in recs.values():            # db 同步（JSON 落盘成功后）
+        _db_sync(platform, r)
 
 
 # ------------------------------------------------------------------ 写入口
@@ -455,6 +521,7 @@ def remove(platform, cid):
     if cid in recs:
         del recs[cid]
         save(platform, recs)
+        _db_remove(platform, cid)
         return True
     return False
 
