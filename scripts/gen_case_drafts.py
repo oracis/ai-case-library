@@ -1,0 +1,394 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""按需生成一篇 case 的平台稿（cnblogs / zhihu / csdn / aliyun）。
+
+为什么是「模板拼装 + 只让 LLM 写标题」：
+
+  现有 chessigma / cod-dex / shipfast 那三批稿，逐段与 cases.json 字段一一对应——
+  `playbook` →「工程上值得抄的点」、`why_it_works` →「为什么能跑起来」、
+  `verdict` →「一句话总结」、`what_it_does` →「这个产品是什么」、
+  `how_it_makes_money` →「商业模型怎么搭」。也就是说**正文本来就是拼的**。
+
+  拼装的好处正好对上这个库的红线：零编造（没有一个字是模型写的）、零成本、
+  可复现。不用担心模型把 `$7,306` 拿去做除法、也不用担心它把案例业绩写成
+  「我赚了多少」。LLM 只负责标题一行，失败就回退模板标题，稿件照样出。
+
+⛔ tencentcloud 不在本脚本范围：它只收技术向（标题禁金额、正文讲实现取舍、
+  可贴代码），而 cases.json 里**没有技术栈字段**——硬拼只能拼出「伪技术稿」，
+  那正是 11-01/02 两篇被驳「技术无关内容」的老路。要走腾讯云仍按
+  PLAYBOOK-platforms 的技术向重写流程。
+
+用法：
+    python scripts/gen_case_drafts.py --case chessigma
+    python scripts/gen_case_drafts.py --case chessigma --platforms cnblogs,csdn
+    python scripts/gen_case_drafts.py --auto            # 今日档期 AI 候选第一篇
+    python scripts/gen_case_drafts.py --case x --dry    # 只打印不出稿
+    python scripts/gen_case_drafts.py --case x --no-llm # 纯模板标题（离线可用）
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import sys
+import time
+import urllib.request
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA = os.path.join(ROOT, "data")
+OUT = os.path.join(ROOT, "drafts", "newbatch")
+
+# 本脚本能出的平台。tencentcloud 故意不在里面（见模块 docstring）。
+PLATFORMS = ("cnblogs", "zhihu", "csdn", "aliyun")
+
+# KaTeX 平台：一段里 ≥2 个 `$` 会把中间整段吃成公式 ⇒ 一律写「美元」。
+# cnblogs / zhihu 是纯富文本，`$` 原样（与存量大稿一致）。
+DOLLAR_AS_TEXT = {"csdn", "aliyun"}
+
+UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+      "(KHTML, like Gecko) Chrome/131.0 Safari/537.36")
+
+# 标题口径：技术社区看工程，知乎看「怎么赚钱」，阿里云看云/成本
+TITLE_HINT = {
+    "cnblogs": "技术社区（博客园）读者：标题落在工程/架构/成本上，像「用 XX 架构撑住 N 个用户」这种",
+    "csdn": "技术社区（CSDN）读者：标题落在工程实现或取舍上，可以直接点出技术手段",
+    "zhihu": "知乎读者：标题可以是「一个小产品怎么赚钱」这种商业拆解口吻，但不要浮夸",
+    "aliyun": "阿里云开发者社区读者：标题落在云资源/成本结构/工程实践上",
+}
+
+SYS_GUARD = (
+    "只输出一行标题，不要引号、不要序号、不要解释。硬性要求："
+    "1) 不超过 30 个汉字；2) **不许出现任何金额、货币符号、MRR、ARR、月收入、营收、"
+    "增长率、百分比**——数字只允许是用户量、订阅数这类规模量；"
+    "3) 不写「我」「我们」；4) 不出现网址、品牌引流语。"
+)
+
+
+# ---------------------------------------------------------------- 数据
+
+def _load(name):
+    with open(os.path.join(DATA, name), encoding="utf-8") as f:
+        return json.load(f)
+
+
+def find_case(cid):
+    for c in _load("cases.json"):
+        if c.get("id") == cid:
+            return c
+    raise SystemExit("找不到案例：%s（在 data/cases.json 里没有）" % cid)
+
+
+def _need(c, key, alt=None):
+    v = c.get(key)
+    if not v and alt:
+        v = c.get(alt)
+    if not v:
+        raise SystemExit("案例 %s 缺字段 %s，不出稿（宁可不出，不写「数据待补充」充数）"
+                         % (c.get("id"), key))
+    return v
+
+
+def _bullets(items):
+    return "\n".join("- %s" % str(x).strip() for x in items if str(x).strip())
+
+
+def _sources(c, limit=3):
+    """数据来源写成短名，不要把 source label 里的括号细节/裸 URL 拖进正文。
+
+    `label` 是抓取时写的工作备注（例：「GitHub 仓库 mehdi-bh/chessigma-mcp（★0，
+    最近推送 2026-10-02，仓库主页指向 https://…」），原样塞进正文会带出半截 URL、
+    还会把句号吃掉。只取前缀名，到第一个冒号/括号/逗号为止。
+    """
+    out = []
+    for s in (c.get("sources") or []):
+        label = (s.get("label") or "").strip()
+        if not label:
+            continue
+        label = re.split(r"[：（(,，]", label)[0].strip()
+        label = re.sub(r"https?://\S+", "", label).strip()
+        if label and label not in out:
+            out.append(label[:22])
+        if len(out) >= limit:
+            break
+    return "、".join(out) or "公开资料"
+
+
+def money_text(t):
+    """`$7,306` → `7,306 美元`；`$299/月` → `299 美元/月`。"""
+    return re.sub(r"\$\s?([\d][\d,.]*)", r"\1 美元", str(t))
+
+
+# ---------------------------------------------------------------- 标题
+
+def llm_title(c, platform, timeout=60):
+    """让模型写一行标题；失败返回 None（调用方回退模板标题）。"""
+    try:
+        sec = _load("secrets.json")
+    except Exception:                                       # noqa: BLE001
+        return None
+    key = os.environ.get("CASE_LIB_AI_KEY") or sec.get("ai_key")
+    base = (os.environ.get("CASE_LIB_AI_BASE") or sec.get("ai_base")
+            or "https://api-inference.modelscope.cn/v1").rstrip("/")
+    model = os.environ.get("CASE_LIB_AI_MODEL") or sec.get("ai_model")
+    if not (key and model):
+        return None
+    facts = {
+        "name": c.get("name"), "one_liner": c.get("one_liner"),
+        "what_it_does": (c.get("what_it_does") or "")[:400],
+        "playbook": (c.get("playbook") or [])[:3],
+        "why_it_works": (c.get("why_it_works") or [])[:2],
+    }
+    prompt = ("%s\n\n案例事实（只许用这些，不许编）：\n%s"
+              % (TITLE_HINT.get(platform, ""),
+                 json.dumps(facts, ensure_ascii=False)))
+    body = json.dumps({"model": model, "temperature": 0.6, "max_tokens": 1200,
+                       "messages": [{"role": "system", "content": SYS_GUARD},
+                                    {"role": "user", "content": prompt}]}
+                      ).encode("utf-8")
+    req = urllib.request.Request(
+        base + "/chat/completions", data=body,
+        headers={"Content-Type": "application/json",
+                 "Authorization": "Bearer " + key, "User-Agent": UA})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            d = json.loads(r.read().decode("utf-8"))
+        t = (d["choices"][0]["message"]["content"] or "").strip()
+    except Exception as e:                                  # noqa: BLE001
+        print("  ⚠ 标题生成失败（%s），用模板标题" % type(e).__name__)
+        return None
+    t = t.splitlines()[0].strip().strip("「」\"'《》#*-").strip()
+    if not t or len(t) > 40 or re.search(r"[$¥€£]|MRR|ARR|月入|营收", t, re.I):
+        print("  ⚠ 标题不合规（%s），用模板标题" % (t[:20] or "空"))
+        return None
+    return t
+
+
+def fallback_title(c):
+    one = str(c.get("one_liner") or "").strip().rstrip("。")
+    one = re.sub(r"[$¥€£]\s?[\d][\d,.]*", "", one)
+    one = re.sub(r"(MRR|ARR)[^，,。]*", "", one, flags=re.I)
+    one = re.sub(r"[，,]\s*[，,]", "，", one).strip("，, ")
+    name = c.get("name") or c.get("id")
+    return ("%s：%s" % (name, one))[:38] if one else str(name)
+
+
+# ---------------------------------------------------------------- 正文
+
+def render(platform, c, title):
+    what = _need(c, "what_it_does")
+    how = _need(c, "how_it_makes_money")
+    why = _bullets(_need(c, "why_it_works"))
+    play = _bullets(_need(c, "playbook"))
+    verdict = _need(c, "verdict")
+    m = c.get("metrics") or {}
+    head = m.get("headline") or ""
+    src = _sources(c)
+
+    if platform in ("cnblogs", "csdn"):
+        body = ["## 这个产品是什么", what]
+        if head:
+            body += ["", "公开口径：%s。" % head.rstrip("。")]
+        body += ["", "## 商业模型怎么搭", how,
+                 "", "## 工程上值得抄的点", play,
+                 "", "## 为什么能跑起来", why,
+                 "", "一句话总结：%s" % verdict.rstrip("。") + "。",
+                 "", "数据来源：%s，数字带口径带修正。" % src]
+    elif platform == "zhihu":
+        body = ["## 一、它到底解决了什么", what,
+                "", "## 二、钱从哪来", how]
+        if head:
+            body += ["", "口径：%s。" % head.rstrip("。")]
+        body += ["", "## 三、为什么它能成", why,
+                 "", "## 四、能抄的做法", play,
+                 "", "## 五、给想做类似产品的你", verdict,
+                 "", "数据来源：%s。" % src]
+    elif platform == "aliyun":
+        body = ["## 背景", what,
+                "", "## 数据与口径"]
+        # ⚠ 只写 headline，**不要把 metric_note 塞进来**：那是内部工作口径
+        # （「队列缓存值是 2026-10-14 采集时的快照…⚠ 同期收入增速为 -0.1%」），
+        # 读者不需要，写进去等于把内部标注当正文。
+        body += ["公开口径：%s。" % (head.rstrip("。") if head else "无公开数字"), "",
+                 "口径说明：数字直接取自支付侧或官方页面，不做汇率换算、不把累计收入"
+                 "当当期收入；同一篇里只用一个口径，不混用 ARR 与 MRR。",
+                 "", "## 可复制的工程实践", play,
+                 "", "## 总结", verdict,
+                 "", "数据来源：%s。" % src]
+    else:
+        raise SystemExit("不支持的平台：%s" % platform)
+
+    text = "\n".join(body).strip()
+    if platform in DOLLAR_AS_TEXT:
+        text = money_text(text)
+    return text
+
+
+def header(platform, c, title):
+    return "# %s\n\n> 平台：%s ｜ 案例：%s（%s）｜ 状态：本地稿，未推送\n" % (
+        title, platform, c.get("name") or c.get("id"), c.get("id"))
+
+
+def write_one(platform, c, title, dry=False):
+    """返回落盘路径；dry 时返回空串。"""
+    text = header(platform, c, title) + "\n" + render(platform, c, title) + "\n"
+    if dry:
+        print("\n" + "=" * 70 + "\n" + text)
+        return ""
+    d = os.path.join(OUT, platform)
+    os.makedirs(d, exist_ok=True)
+    p = os.path.join(d, "%s.md" % c["id"])
+    with open(p, "w", encoding="utf-8", newline="\n") as f:
+        f.write(text)
+    return p
+
+
+# ---------------------------------------------------------------- CLI
+
+def eligible(c):
+    """这篇能不能拿去做稿。
+
+    口径与库里已发的那批一致（chessigma / cod-dex / shipfast）：tier=premium、
+    证据是 stripe/official、needs_review 不为真，且拼稿要用的五个字段都在。
+    `partial` / `founder` / `disputed` 一律不发 —— 那是「数字没核到」的档。
+    另外两道硬门槛：
+    - 收入 ≥300（与 promote_to_candidates.MIN_MRR / triage.TINY_REVENUE 同值；
+      mrr / last_30d / all_time 任一达标即可，口径不同不能硬比就取最大）；
+    - 名字不能是全大写 —— 那是从聚合站页面标题抓下来的，不是品牌名
+      （例：「DOWNCONVERT SKETCHUP FILES」），拼进水印头很难看。
+    """
+    if c.get("needs_review"):
+        return False
+    if c.get("tier") != "premium":
+        return False
+    if (c.get("verification") or "") not in ("stripe", "official"):
+        return False
+    name = str(c.get("name") or "")
+    if name and name == name.upper() and len(name) > 4:
+        return False
+    m = c.get("metrics") or {}
+    if max(m.get(k) or 0 for k in ("mrr", "last_30d_revenue", "all_time")) < 300:
+        return False
+    for k in ("what_it_does", "how_it_makes_money", "playbook",
+              "why_it_works", "verdict"):
+        if not c.get(k):
+            return False
+    return True
+
+
+def pick_by_quality(platform):
+    """按质量挑该平台第一篇没发过的 AI case（eligible 过滤，composite 降序）。"""
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    import publish_slot as S
+    cases = [c for c in (S._load("cases.json") or []) if c.get("id") and eligible(c)]
+    cases.sort(key=lambda c: ((c.get("composite") or {}).get("score") or 0),
+               reverse=True)
+    sent = {S._norm_id(cid) for _, cid in S.records(platform)}
+    return next((c["id"] for c in cases if S._norm_id(c["id"]) not in sent), None)
+
+
+def auto_case():
+    """今天该发的那篇 AI case：先问档期，档期挑不出来就按质量补第一篇没发过的。
+
+    `decide()` 在 AI 稿库为 0 时会**回退到游戏稿**，所以光看 decide 永远拿不到
+    AI 候选（这恰恰是「稿库断供」的症状）—— 这时交给 `pick_by_quality`。
+    """
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    import publish_slot as S
+    for plat in PLATFORMS:
+        row = S.decide(plat)
+        if row.get("kind") == "ai" and row.get("candidates"):
+            return row["candidates"][0]
+    for plat in PLATFORMS:
+        cid = pick_by_quality(plat)
+        if cid:
+            return cid
+    return None
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser(description="按需生成一篇 case 的平台稿")
+    g = ap.add_mutually_exclusive_group()
+    g.add_argument("--case", help="案例 id（data/cases.json 里的 id）")
+    g.add_argument("--auto", action="store_true", help="今天该发的 AI case（档期挑不出就按质量补第一篇没发过的）")
+    g.add_argument("--list", type=int, metavar="N", help="只列前 N 个可发候选，不生成")
+    ap.add_argument("--platforms", default=",".join(PLATFORMS),
+                    help="逗号分隔，可选：%s" % ",".join(PLATFORMS))
+    ap.add_argument("--dry", action="store_true", help="只打印，不写盘")
+    ap.add_argument("--no-llm", action="store_true", help="标题一律用模板（离线）")
+    ap.add_argument("--force", action="store_true", help="已有稿也覆盖（默认跳过，保护手改）")
+    a = ap.parse_args(argv)
+
+    if a.list:
+        sys.path.insert(0, os.path.join(ROOT, "scripts"))
+        import publish_slot as S
+        plats = [p.strip() for p in a.platforms.split(",") if p.strip()]
+        sent = set()
+        for p in plats:
+            sent |= {S._norm_id(cid) for _, cid in S.records(p)}
+        cs = [c for c in (S._load("cases.json") or []) if c.get("id") and eligible(c)]
+        cs.sort(key=lambda c: ((c.get("composite") or {}).get("score") or 0),
+                reverse=True)
+        cs = [c for c in cs if S._norm_id(c["id"]) not in sent][:a.list]
+        for i, c in enumerate(cs, 1):
+            m = c.get("metrics") or {}
+            # 非订阅制 MRR 恒 0 ⇒ 显示口径更宽的数字，别把 $2,893/30d 显示成 "—"
+            if m.get("mrr"):
+                amount, label = m["mrr"], "MRR"
+            elif m.get("last_30d_revenue"):
+                amount, label = m["last_30d_revenue"], "30d"
+            else:
+                amount, label = m.get("all_time"), "累计"
+            print("%2d. %-34s %-28s %s %-9s 分 %s"
+                  % (i, c["id"][:34], (c.get("name") or "")[:28],
+                     label, amount if amount is not None else "—",
+                     (c.get("composite") or {}).get("score")))
+            print("    %s" % (c.get("one_liner") or "")[:78])
+        if not cs:
+            print("没有可发候选（%s 都已发过，或都不满足 tier/证据门槛）" % ",".join(plats))
+        return 0
+    if not (a.case or a.auto):
+        ap.error("要给 --case / --auto / --list 其中之一")
+
+    cid = a.case or auto_case()
+    if not cid:
+        raise SystemExit("今天没有轮到 AI case（或候选池为空），用 --case 指定一篇")
+    c = find_case(cid)
+    plats = [p.strip() for p in a.platforms.split(",") if p.strip()]
+    bad = [p for p in plats if p not in PLATFORMS]
+    if bad:
+        raise SystemExit("不支持的平台：%s（本脚本只管 %s；腾讯云/阿里云技术向稿另有流程）"
+                         % (",".join(bad), ", ".join(PLATFORMS)))
+
+    print("案例：%s（%s）｜ 平台：%s" % (c.get("name") or cid, cid, ",".join(plats)))
+    made = []
+    for p in plats:
+        dest = os.path.join(OUT, p, "%s.md" % cid)
+        if os.path.exists(dest) and not a.force:
+            print("  = %s 已有稿，跳过（要覆盖加 --force）：%s"
+                  % (p, os.path.relpath(dest, ROOT)))
+            continue
+        title = None if a.no_llm else llm_title(c, p)
+        if title:
+            print("  标题[%s] LLM：%s" % (p, title))
+        else:
+            title = fallback_title(c)
+            print("  标题[%s] 模板：%s" % (p, title))
+        try:
+            path = write_one(p, c, title, dry=a.dry)
+        except SystemExit as e:
+            print("  ✗ %s：%s" % (p, e))
+            continue
+        if path:
+            print("  ✓ %s（%d 字）→ %s" % (p, len(open(path, encoding="utf-8").read()),
+                                          os.path.relpath(path, ROOT)))
+            made.append(path)
+        time.sleep(0.3)
+    if made:
+        print("\n完成 %d 份。下一步：python scripts/publish_one.py --platform %s"
+              % (len(made), plats[0]))
+    return 0 if made or a.dry else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

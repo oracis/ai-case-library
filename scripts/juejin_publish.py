@@ -216,6 +216,11 @@ def split_md(md, default_title=""):
         if not title:
             title = lines[0].lstrip()[2:].strip()
         lines = lines[1:]
+    # 稿头那行 `> 平台：xx ｜ 案例：yy ｜ 状态：…` 是仓库内部记账，不是正文。
+    # 不剥掉会被原样发到线上（掘金正文里一个大引言块），2026-11-03 修。
+    META = re.compile(r"^>\s*平台[:：].*案例[:：].*状态[:：]")
+    while lines and (not lines[0].strip() or META.match(lines[0].strip())):
+        lines = lines[1:]
     body = "\n".join(lines).strip()
     return (title or "未命名"), body
 
@@ -322,6 +327,25 @@ def delete_draft(draft_id, cookie=None):
     """
     return api("/content_api/v1/article_draft/delete",
                {"draft_id": str(draft_id)}, cookie)
+
+
+def delete_article(article_id, cookie=None):
+    """删**已发布**文章（不是草稿 —— 草稿走 `article_draft/delete`）。
+
+    ⚠ 2026-11-02 实测参数类型：`article_id` 必须是**带引号的数字字符串**。
+
+    踩坑经过：先以为要 int，传 `{"article_id": 7703...}` 结果十条全挂，
+    服务端回的是 Go 的吐真言：
+        `json: invalid use of ,string struct tag, trying to unmarshal
+         unquoted value into int64`
+    —— 字段声明是 `int64` + `,string` tag，即 JSON 里必须写成 `"7703..."`。
+    改成 `str` 后 err_no=0。
+
+    ⚠ 别拿 `article_draft/delete` 的经验反推：那边 `draft_id` 也是字符串，
+    但**原因不同**（那边字段本来就是 string）。两个端点看着像，理由不一样。
+    """
+    return api("/content_api/v1/article/delete",
+               {"article_id": str(article_id)}, cookie)
 
 
 def remember(slug, draft_id, title):
@@ -639,8 +663,41 @@ def cmd_tags(args):
     return 0
 
 
+def _refuse_if_retired(dry=False, allow=False):
+    """⛔ 2026-11-02 起掘金渠道停用：不许再存稿、不许再发布。
+
+    停用不是因为脚本坏了，是因为**平台侧没有可归因的客观标准**：
+    同账号 10 篇已发文章只过审 2 篇，模板标题、八节骨架、第一人称踩坑
+    体例三种写法都试过，被拒/通过之间的差异从内容侧复现不出来。
+    继续换文体去撞审核是无底洞，已在 `adapters/__init__.py` 同步摘掉
+    适配器注册，这里是**第二道闸**，防止有人绕过框架直接敲命令行。
+
+    ⚠ 2026-11-03 起加 `--allow-retired`：用户要「再试一篇看具体反馈」时，
+    这是**一次性投递**，不是恢复渠道。闸的意义是「不许批量重跑」，不是
+    「永远不许单发一篇取证」——真恢复要把适配器 import 也加回来。
+
+    ⚠ 只拦写入（draft / publish）。`login` / `whoami` / `list` /
+    `categories` / `tags` / `delete` 一律放行 —— 存量草稿还得能清，
+    账号登录态还得能验。
+    """
+    if dry:
+        print("  [warn] 掘金渠道已停用（2026-11-02），当前是 --dry，不会真发。")
+        return
+    if allow:
+        print("  [warn] --allow-retired：绕过「掘金停用」闸，本次按一次性投递处理。")
+        return
+    raise SystemExit(
+        "⛔ 掘金渠道已停用（2026-11-02），不再发布。\n"
+        "   原因：该平台审核无可归因标准，10 篇只过 2 篇，无法从内容侧改进。\n"
+        "   单次取证请加 --allow-retired（不是恢复渠道）。\n"
+        "   只读操作仍可用：whoami / list / categories / tags / delete --draft-id")
+
+
+
 def cmd_draft(args):
     """存草稿。掘金正文吃 Markdown，所以独立稿直接给 .md 就行，不需要 HTML。"""
+    _refuse_if_retired(dry=getattr(args, "dry", False),
+                        allow=getattr(args, "allow_retired", False))
     if args.file:
         md_path = args.file
         slug = os.path.splitext(os.path.basename(md_path))[0]
@@ -699,6 +756,8 @@ def cmd_list(args):
 
 
 def cmd_publish(args):
+    _refuse_if_retired(dry=getattr(args, "dry", False),
+                        allow=getattr(args, "allow_retired", False))
     _, db = known_ids()
     did = args.draft_id
     if not did and args.case:
@@ -726,6 +785,50 @@ def cmd_delete(args):
     delete_draft(args.draft_id)
     print("✓ 已删草稿 %s" % args.draft_id)
     return 0
+
+
+def cmd_delete_article(args):
+    """删已发布文章。批量模式从删除前快照读 id，逐条删并回读。
+
+    ⚠ 删完**必须回读验证**：`article/delete` 返回 err_no=0 不等于列表里就没了
+    （掘金有缓存/软删），拿 query_list 确认 article_id 确实消失才算成功。
+    """
+    ids = []
+    if getattr(args, "article_id", None):
+        ids = [args.article_id]
+    elif getattr(args, "from_manifest", None):
+        rows = json.load(open(args.from_manifest, encoding="utf-8"))
+        ids = [r["article_id"] for r in rows]
+    if not ids:
+        raise SystemExit("✗ 给 --article-id 或 --from-manifest")
+
+    if args.dry:
+        print("  [dry] 将删 %d 篇：%s" % (len(ids), ", ".join(ids)))
+        return 0
+
+    ok = fail = 0
+    for aid in ids:
+        try:
+            delete_article(aid)
+            print("  ✓ 已删 %s" % aid)
+            ok += 1
+        except ApiError as e:
+            print("  ✗ %s -> %s" % (aid, str(e)[:110]))
+            fail += 1
+
+    # 回读：列表里还剩下的才算真没删掉
+    left = set()
+    try:
+        d = api("/content_api/v1/article/query_list",
+                {"user_id": whoami().get("user_id"), "sort_type": 2,
+                 "cursor": "0", "limit": 50})
+        left = {str((it.get("article_info") or {}).get("article_id")) for it in (d or [])}
+    except Exception as e:                                  # noqa: BLE001
+        print("  [warn] 回读失败：%s" % str(e)[:100])
+    still = [i for i in ids if i in left]
+    print("删除 %d 成功 / %d 失败；回读仍在列表：%d 篇%s"
+          % (ok, fail, len(still), ("  <-- " + ", ".join(still)) if still else ""))
+    return 0 if (fail == 0 and not still) else 1
 
 
 def main(argv=None):
@@ -768,6 +871,8 @@ def main(argv=None):
     p.add_argument("--cover", default="", help="封面图 URL（可空）")
     p.add_argument("--replace", action="store_true", help="已存过也重建")
     p.add_argument("--dry", action="store_true")
+    p.add_argument("--allow-retired", dest="allow_retired", action="store_true",
+                   help="绕过「掘金停用」闸，单次取证用（不是恢复渠道）")
     p.set_defaults(fn=cmd_draft)
 
     p = sub.add_parser("list", help="草稿箱")
@@ -778,11 +883,22 @@ def main(argv=None):
     p.add_argument("--draft-id")
     p.add_argument("--case")
     p.add_argument("--dry", action="store_true")
+    p.add_argument("--allow-retired", dest="allow_retired", action="store_true",
+                   help="绕过「掘金停用」闸，单次取证用（不是恢复渠道）")
     p.set_defaults(fn=cmd_publish)
 
     p = sub.add_parser("delete", help="删草稿")
     p.add_argument("--draft-id", required=True)
     p.set_defaults(fn=cmd_delete)
+
+    p = sub.add_parser("delete-article",
+                       help="删已发布文章（可批量，从删除前快照读 id）")
+    p.add_argument("--article-id")
+    p.add_argument("--from-manifest",
+                   help="删除前快照 json（含 article_id 列表）")
+    p.add_argument("--dry", action="store_true")
+    p.set_defaults(fn=cmd_delete_article)
+
 
     args = ap.parse_args(argv)
     return args.fn(args)

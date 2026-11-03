@@ -25,6 +25,16 @@
    "title": ""
   }
  },
+ "3ak-track-field": {
+  "zhihu": {
+   "at": "2026-11-02 23:49",
+   "attempt": 0,
+   "remote_id": "2099504180557768154",
+   "state": "published",
+   "title": "先有 15 万粉受众，后有产品：两个田径生如何用 AI 做训练 App？",
+   "url": "https://zhuanlan.zhihu.com/p/2099504180557768154"
+  }
+ },
  "aeo-checker": {
   "toutiao": {
    "at": "2026-10-19 22:46",
@@ -513,6 +523,14 @@
    "attempt": 0,
    "state": "published",
    "title": "cnblogs.com/thing-explainer/p/23511987"
+  },
+  "csdn": {
+   "at": "2026-11-02 23:49",
+   "attempt": 1,
+   "remote_id": "169850647",
+   "state": "published",
+   "title": "Codédex 技术拆解：一个海外独立产品的工程与增长",
+   "url": "https://blog.csdn.net/sinat_32396037/article/details/169850647"
   },
   "juejin": {
    "at": "2026-11-01 17:17",
@@ -1041,9 +1059,10 @@
    "title": "月收$11K：输入主题自动做 PPT"
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-11-03 01:20",
    "attempt": 0,
-   "state": "draft_saved",
+   "note": "2026-09-28 发布后被判「审核未通过」；2026-11-03 凌晨在作品管理删除（不可恢复），台账置 deleted，不自动重发。",
+   "state": "deleted",
    "title": ""
   },
   "wechat": {
@@ -2098,10 +2117,9 @@
  },
  "wpconvert-ai-convert-ai-sites-to-wordpress": {
   "bilibili": {
-   "article_id": "343876",
-   "at": "2026-10-10 19:39",
+   "at": "2026-11-02 20:20",
    "attempt": 2,
-   "state": "draft_saved",
+   "state": "published",
    "title": "把 AI 建站工具生成的网站，转成 WordPress——一个工程师的生意"
   },
   "toutiao": {

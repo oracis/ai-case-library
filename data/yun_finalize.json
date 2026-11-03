@@ -56,5 +56,39 @@
   "__community__1701241": {
     "uploaded_img": "https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_24d72cd6056d45308f98b0e7c45aaa48.png",
     "updated": "2026-11-02 11:27:26"
+  },
+  "chessigma": {
+    "tc_draft": "339489",
+    "updated": "2026-11-03 11:20:22",
+    "tc_article": "2774552",
+    "tc_state": "published",
+    "tc_state_at": "2026-11-03 11:20",
+    "tc_old_rejected_deleted": "2773633",
+    "tc_note": "技术向重写后过审上线（原商务稿 2773633 已驳回并删除）"
+  },
+  "__community__1702239": {
+    "community": "云原生",
+    "updated": "2026-11-02 23:43:13",
+    "uploaded_img": "https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_2a3b80857450439495390eba3f946f83.png"
+  },
+  "cod-dex": {
+    "al_draft": "1701663",
+    "cover_url": "",
+    "abstract": "Codédex 做互动式编程学习：课程被包装成「冒险旅程」（Start your coding adventure），覆盖 HTML/CSS/JavaScript/Python/React 等，每课配",
+    "community": "云原生",
+    "updated": "2026-11-03 11:49:48",
+    "tc_draft": "339491",
+    "tc_article": "2774554",
+    "tc_state": "published",
+    "tc_state_at": "2026-11-03 11:32",
+    "tc_old_rejected_deleted": "2773642",
+    "tc_note": "技术向重写后过审上线（原商务稿 2773642 已删）；封面经 update_cover 重新上传并校验缩略图变更。",
+    "tc_cover": "https://developer.qcloudimg.com/http-save/yehe-12743977/a22373d83a1d4bd9f24ae0c4519c057b.jpg",
+    "tc_cover_at": "2026-11-03 12:05"
+  },
+  "__community__1701663": {
+    "community": "云原生",
+    "updated": "2026-11-03 00:28:42",
+    "uploaded_img": "https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_3f1d202e83a5480991888d46ba5ca48e.png"
   }
 }

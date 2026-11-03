@@ -4,6 +4,66 @@
 与[这篇 CSDN 文章](https://blog.csdn.net/fzil001/article/details/160228873)，
 但**只抄它们对的部分**。
 
+## 统一入口 `publish_one.py`（2026-11-03）
+
+编排能力一直在，但**每次发布都要重攒一遍**：先跑 `publish_slot.py` 判档期，
+再翻四个脚本确认参数，再想起 KaTeX 的 `$` 要改美元、游戏稿不能带自家域名、
+腾讯云标题不许带金额，发完还得记得去哪个台账查是否真落。判断散在 9 个
+`argparse` 和 5 篇 PLAYBOOK 里 ⇒ 收成一个入口。
+
+```bash
+python scripts/publish_one.py                 # 今日计划（只读，不碰浏览器）
+python scripts/publish_one.py --platform csdn # 干跑：闸结果 + 将要执行的确切命令
+python scripts/publish_one.py --platform csdn --yes   # 真发
+python scripts/publish_one.py --platform tencentcloud --upload --yes  # 两朵云先补草稿
+python scripts/publish_one.py --platform cnblogs --gen --yes  # AI 稿缺货先按需生成再发
+python scripts/publish_one.py --json          # 机器可读（给定时任务吃）
+```
+
+### 按需生成（`gen_case_drafts.py`，2026-11-03 补断供）
+
+五个 `--file` 平台（cnblogs/zhihu/csdn/tencentcloud/aliyun）共用同一批稿，
+`chessigma / cod-dex / shipfast` 三篇发完后 **AI case 全面断供**，`decide()`
+会静默回退到游戏稿 —— 游戏稿只有 11 期，烧完五平台全停。补法：
+
+```bash
+python scripts/gen_case_drafts.py --list 10        # 候选清单（人挑）
+python scripts/gen_case_drafts.py --case clawlink  # 一次生成 4 平台
+python scripts/publish_one.py --platform cnblogs --gen --yes   # 缺稿自动生成再发
+```
+
+设计原则：**正文是模板拼装，不是 LLM 写的** —— `playbook`/`why_it_works`/
+`verdict`/`what_it_does`/`how_it_makes_money` 与 cases.json 字段逐字对应，
+零编造、零成本、可复现；LLM 只写标题一行（带「禁金额」守卫，失败回退模板）。
+覆盖 cnblogs/zhihu/csdn/aliyun 四家；**腾讯云不在内** —— 它只收技术向
+（标题禁金额、正文讲实现取舍），cases.json 没有技术栈字段，硬拼就是
+「伪技术稿」，那是被驳回过的老路。
+
+它**不重写任何平台逻辑**：CDP 选择器、封面注入、抽屉填写都留在原脚本里，
+入口只做三件事 —— 用 `publish_slot.decide()` 选平台与稿件、串七道闸、按
+`SPEC` 拼命令并回读。判「该发哪篇」与判「有没有稿」共用
+`publish_slot.pack_of()` 一个判据，避免「档期说有稿、发布说没有」。
+
+七道闸：`draft`（产物在不在）/ `link`（`link_hygiene`）/ `katex`
+（`katex_money_fix`）/ `tt`（`tt_compliance`）/ `genre`（腾讯云技术向）/
+`cover`（封面必须存在）/ `remote`（两朵云远端草稿 id，且没发过）。
+默认干跑，`--yes` 才写；一次只跑一个平台。
+
+**终点语义**：公众号与知乎只能到**草稿**（订阅号群发要后台点、知乎
+`publish` 端点未开放），汇总时不许说成「已发布」。
+
+### 首跑（11-03 博客园·2048）暴露的四个坑
+
+入口是真发之前，`--json`/干跑都过，但第一次真发立刻踩到三个真 bug —— 都是
+「离线能过、上线就错」那一类，记在这里免得下次当成偶发：
+
+| 症状 | 根因 | 修法 |
+|---|---|---|
+| 已发过的期又被选成今日候选（差一次重发） | 游戏期 id 两种写法：产物侧 `ext-ep-001-x`、台账侧 `ep-001-x`；`game_all()` 只产出前者，`sent` 只收到后者 ⇒ 求差永远不为空 | `publish_slot._norm_id()` 归一（只剥 `ext-`，保留 `ep-`），`kind_of` 两种写法都认 |
+| 发完第二篇被判「今日已发 2 篇」 | `_note_kind` 无条件补记，而博客园台账本来就写得到 ⇒ `records()` 同一条算两次，占满 quota=2 | 补记前先查平台台账（归一口径），已有就跳过；补记只服务「台账读不到」的头条 |
+| 公开页 HTTP 404，以为发布失败 | 博客园对**无 UA** 的请求回 404 页面（不是 403），curl 默认 UA 必踩 | 校验公开页必须带浏览器 UA；判据仍是「列表按标题命中」，404 只能说明「没带 UA」 |
+| 标题「2048」被报「含金额」 | 判据是 `re.search(r"\d", title)`，任何数字都拦 | 收窄成金额形态（货币符号+数字 / 数字+美元/元/万/RMB/MRR），游戏名与年份放过 |
+
 ## 参考了什么，拒绝了什么
 
 | 来源 | 抄的 | 不抄的 | 原因 |
@@ -102,7 +162,37 @@ python scripts/publish_multi.py block toutiao --case quran-unlock \
 | 小红书 | `data/xhs_drafts.json` | ✅ `--yes` | **绝不能透传 `--dry`**：它的 `--dry` 会照常填表，只是不点发布（污染过 bustem 草稿） |
 | 今日头条 | `data/toutiao_drafts.json` + `_published.json` | ✅ `--yes` | 封面是硬要求，`cover.png` 缺了就当产物不完整 |
 | B站专栏 | **只有清单** | ✅ `--yes`（`send-draft` 走编辑器 UI 点「发布」，2026-10-20） | 草稿只存在远端，本地无从判断；**每天限 1 篇**（本账号 lv0~lv3 档，lv4+ 才 5 篇），额度用完发布按钮变灰，脚本明确报失败 |
-| 掘金 | `data/juejin_drafts.json` | ✅ `publish --draft-id/--case` | **唯一纯 REST 的平台**：不开浏览器、不点 DOM，cookie 鉴权；正文吃 **Markdown**（不是 HTML）；普通账号**只能带 1 个标签** |
+| ~~掘金~~ | ~~`data/juejin_drafts.json`~~ | ⛔ **2026-11-02 停用** | 账号审核无可归因标准（25 篇只过 5 篇，三种文体都试过），已摘适配器 + 脚本双闸熔断；文章与草稿已全删，草稿台账已删。详见 `data/juejin_retired_2026-11-02/README.md`。原始能力备注：唯一纯 REST 的平台，cookie 鉴权，正文吃 Markdown，普通账号只能带 1 个标签 |
+
+### 游戏稿从哪来（2026-11-02 补齐七平台缺口）
+
+游戏厅的稿子**不在 `cases.json` 里**，`gen_platform_md.py` 生不出来——它读的是
+案例库自己的数据。游戏稿的源头是另一个仓库 `D:/open-source-games`：
+
+```
+content/<slug>/article.md        技术向（仓库怎么组织 / 从哪读起 / 值得抄的实现）
+content/<slug>/article-game.md   游戏向（它是什么 / 怎么玩 / 它用什么技术做的）
+content/<slug>/article-free.md   免费向（零成本能拿到什么 / 上手要付什么成本）
+content/<slug>/platform/<平台>.md   ← 2026-11-02 新增：10 个平台各一份成稿
+content/<slug>/xhs.md            小红书正文（标题在 data/titles.json 的 xhs_title）
+```
+
+以前只有前三份取向稿，桥接按平台映射复用同一份 ⇒ 知乎 / CSDN / 博客园 /
+腾讯云 / 阿里云**根本没有游戏稿**，九平台轮发里那几家永远只能发 AI 案例。
+现在 `publish/platform_drafts.py` 按平台落稿，只做确定性替换，不重写正文：
+
+| 差异 | 规则 |
+|---|---|
+| 标题 | `data/titles.json`（`title` 带技术钩子 / `summary` 当开头概要 / `xhs_title` ≤20 字） |
+| 导流 | 含 `ydtgo.top` 的行整行删（用户 11-02：不推广个人网站） |
+| 章节 | 「档案」→「基本信息」；删「档案编号」「站点详情页」；「顺手看看代码」→「它用什么技术做的」 |
+| 公式 | CSDN / 腾讯云 / 阿里云是 KaTeX 平台 ⇒ `$12` 写成「12 美元」，禁 `$` |
+| 外链 | 头条稿里 markdown 链接降级成纯文字（站外链接会被拦/降权） |
+| 期号 | 标题与正文都不出现「第 N 期」 |
+
+发布仍然是「`--file` 指过去」：`python scripts/zhihu_publish.py draft --file
+D:/open-source-games/content/<slug>/platform/zhihu.md --case <cid>`。
+发出去的稿子要过 `scripts/link_hygiene.py`（110 份平台稿实测 0 命中）。
 
 ## 为什么串行不并发
 
@@ -112,7 +202,13 @@ python scripts/publish_multi.py block toutiao --case quran-unlock \
 
 并发的正确解法是「一个平台一个 Chrome 实例」，那是以后的事。
 
-## 掘金专章（2026-10-25 新增）
+## 掘金专章（2026-10-25 新增）——⛔ 2026-11-02 渠道已停用，本章仅留档
+
+> **不要再往掘金发任何稿。** 账号 25 篇只过 5 篇，模板标题 / 八节技术拆解 / 第一人称踩坑三种文体
+> 都试过仍无法归因，判定平台侧无可归因标准 ⇒ 停发并撤下全部文章。
+> 代码侧双闸熔断：`multiplatform/adapters/__init__.py` 已摘 `juejin`、`juejin_publish._refuse_if_retired()`
+> 跑即报错（`--dry` 只打 warn）。存档见 `data/juejin_retired_2026-11-02/`。
+> 以下接口与踩坑记录保留，是为了将来若真要复活时不必重新逆向。
 
 掘金是五家里**唯一不需要浏览器**的：`juejin_publish.py` 全程 REST，
 连 CDP 都不建立（只有首次 `login` 用一次 CDP 抓 cookie）。

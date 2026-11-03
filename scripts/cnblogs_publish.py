@@ -303,8 +303,9 @@ def _do_post(args, publish):
     cfg = load_config()
     md = _load_md_strip_watermark(args.file)
     title, body = split_md(md)
-    if re.search(r"\d", title):
-        print("⚠ 标题含数字（「标题禁金额」铁律）：", title)
+    if re.search(r"[$¥€£]\s*\d|\d[\d,.]*\s*(?:美元|美金|美刀|元|万|亿|RMB|USD|MRR|ARR)",
+                 title, re.I):
+        print("⚠ 标题疑似含金额（「标题禁金额」铁律）：", title)
     post_id = new_post(cfg, title, body, publish=publish, as_html=args.html)
     case_id = args.case or os.path.splitext(os.path.basename(args.file))[0]
     url = ""

@@ -1,8 +1,6 @@
 <h1 style="font-size:22px;line-height:1.45;color:#111;margin:0 0 18px;font-weight:bold">游戏厅：NetHack</h1>
 <p style="line-height:1.7;font-size:15px;color:#555;margin:0 0 22px;padding:12px 14px;background:#f5f7fb;border-radius:6px">NetHack 是 Roguelike 品类中最负盛名的作品之一，最初发布于 1987 年，是一款单人地牢探…</p>
-<p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">开源游戏源码索引 · 每期只讲一款游戏</p>
-<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">先说清楚：这是源码索引，不是游戏下载站</h2>
-<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">本文介绍的项目指向一个真实存在的源码仓库。仓库里只有代码：要自己装环境、自己编译；不少经典游戏的重实现项目，原版素材还要自备。它的价值在「能读、能改」，不在「下载即玩」。</p>
+<p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">开源游戏拆解 · 它用的是什么技术</p>
 <h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">它是什么</h2>
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">玩家要在随机生成的、多层深入的地牢中寻找「Yendor 项坠」。游戏以极高的自由度和复杂的交互模拟著称：几乎任何物品之间、玩家与怪物之间都可能产生意想不到的组合效果，无数玩家的死亡方式千奇百怪。其 ASCII 字符画面背后藏着惊人的深度，常被称为「比许多图形游戏更庞大」。</p>
 <h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">怎么玩</h2>
@@ -14,15 +12,14 @@
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· hack.h 的 mvitals 结构体整合了角色状态，体现了状态机设计的模块化思想</p>
 <h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">想自己跑一遍</h2>
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">素材里没读到构建脚本和入口页面，跑法请以仓库 README 为准。</p>
-<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">档案</h2>
-<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 档案编号：267（角色扮演类）</p>
+<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">它用什么技术做的</h2>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">纯 C 实现，画面是终端里的 ASCII 字符而不是贴图，地牢在每次开局时由算法现场生成。它的复杂不在渲染，而在**规则引擎**：物品、怪物、地形、状态几乎可以任意组合，两两之间都有交互。几十年来一直有人拿它做 AI 实验（比如让程序自动通关），就是因为规则够规整。</p>
+<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">基本信息</h2>
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 一句话简介：单人 Roguelike 地牢探索游戏，也是该品类中最受欢迎的游戏之一</p>
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 源码：<a href="https://github.com/NetHack/NetHack" style="color:#2f6fed;text-decoration:none;word-break:break-all">NetHack</a></p>
-<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 站点详情页：<a href="https://games.ydtgo.top/#/game/267-nethack" style="color:#2f6fed;text-decoration:none;word-break:break-all">NetHack</a></p>
 <p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">（源码部分依据 NetHack/NetHack 的公开代码结构整理，部分读过；细节以仓库当前代码为准。）</p>
 <h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">版权与免责</h2>
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 每一条的源码许可证以<strong>各自仓库</strong>为准，二次分发与商用前请逐条核对。</p>
-<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 本站只做索引与归类，不托管任何游戏文件，也不提供素材包。</p>
-<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 收录项目版权归各自作者所有；你是作者且不希望被收录，可以联系删除。</p>
-<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">想自己翻？完整索引都在这里：<a href="https://games.ydtgo.top" style="color:#2f6fed;text-decoration:none;word-break:break-all">https://games.ydtgo.top</a></p>
-<p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">NetHack 是 Roguelike 品类中最负盛名的作品之一，最初发布于 1987 年，是一款单人地牢探…。全部指向源码仓库，需自行编译，部分需自备原版素材。</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 本文只讨论项目与代码，不托管任何游戏文件，也不提供素材包。</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 代码与素材版权归各自作者所有，本文仅作技术介绍。</p>
+<p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">NetHack 是 Roguelike 品类中最负盛名的作品之一，最初发布于 1987 年，是一款单人地牢探…。源码都在各自仓库里，需自行编译，部分需自备原版素材。</p>

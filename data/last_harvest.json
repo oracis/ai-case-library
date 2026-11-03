@@ -1,77 +1,77 @@
 {
-  "ran_at": "2026-11-02 07:04:19",
-  "added": 57,
+  "ran_at": "2026-11-03 07:28:24",
+  "added": 65,
   "by_source": {
-    "hn": 40,
+    "hn": 48,
     "trustmrr": 17
   },
   "inbox_total": 400,
-  "archived_this_run": 57,
-  "archive_total": 1278,
+  "archived_this_run": 65,
+  "archive_total": 1343,
   "top": [
     {
-      "name": "Figmentor",
-      "headline": "MRR $1,841，TrustMRR 第 1004 名",
+      "name": "Linguana",
+      "headline": "近 30 天收入 $3,014",
       "heat": 0,
-      "category": "创作者经济",
+      "category": "垂直行业 SaaS",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/figmentor"
+      "url": "https://trustmrr.com/startup/linguana"
     },
     {
-      "name": "Aiter.io",
-      "headline": "MRR $433，TrustMRR 第 1484 名",
-      "heat": 0,
-      "category": "营销工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/aiter-io"
-    },
-    {
-      "name": "pushoff - ranked pushups",
-      "headline": "MRR $527，TrustMRR 第 3576 名",
-      "heat": 0,
-      "category": "未分类",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/private-venture-92"
-    },
-    {
-      "name": "B-Roll Me",
-      "headline": "累计收入 $12（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
-      "heat": 0,
-      "category": "创作者经济",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/b-roll-me"
-    },
-    {
-      "name": "StopSmoking",
-      "headline": "累计收入 $19（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
-      "heat": 0,
-      "category": "Health & Fitness",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/stopsmoking"
-    },
-    {
-      "name": "Thecalcs",
-      "headline": "累计收入 $90（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
-      "heat": 0,
-      "category": "Utilities",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/thecalcs"
-    },
-    {
-      "name": "Togedr",
-      "headline": "近 30 天收入 $108",
-      "heat": 0,
-      "category": "未分类",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/razorpay-business-7"
-    },
-    {
-      "name": "SinceWhen",
-      "headline": "近 30 天收入 $274",
+      "name": "FlowPost",
+      "headline": "MRR $230，TrustMRR 第 2662 名",
       "heat": 0,
       "category": "企业服务",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/sincewhen"
+      "url": "https://trustmrr.com/startup/flowpost-ai"
+    },
+    {
+      "name": "Traced",
+      "headline": "MRR $156，TrustMRR 第 5964 名",
+      "heat": 0,
+      "category": "AI 工具",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/traced"
+    },
+    {
+      "name": "Stacker: Peptide Tracker",
+      "headline": "近 30 天收入 $2,041",
+      "heat": 0,
+      "category": "Health & Fitness",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/stacker"
+    },
+    {
+      "name": "ExamCat: AI Study Tutor",
+      "headline": "近 30 天收入 $283",
+      "heat": 0,
+      "category": "垂直行业 SaaS",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/examcat"
+    },
+    {
+      "name": "TerraGrid: MGRS Tactical GPS",
+      "headline": "近 30 天收入 $128",
+      "heat": 0,
+      "category": "移动应用",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/terragrid-mgrs-tactical-gps"
+    },
+    {
+      "name": "DirectRoles",
+      "headline": "近 30 天收入 $24,703",
+      "heat": 0,
+      "category": "Recruiting & HR",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/directroles"
+    },
+    {
+      "name": "MeltKit",
+      "headline": "近 30 天收入 $414",
+      "heat": 0,
+      "category": "创作者经济",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/meltkit"
     }
   ]
 }

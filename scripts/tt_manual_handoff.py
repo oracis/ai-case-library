@@ -161,6 +161,9 @@ def main():
     ap.add_argument("--timeout", type=int, default=3600, help="--watch 最长等秒数")
     args = ap.parse_args()
 
+    # 2026-11-02：禁言冻结期一律不动编辑器（灌正文会触发自动保存 = 一次写）。
+    tp.freeze_guard("灌草稿正文")
+
     t2c = _title_to_case()
     if args.one:
         r = fill_open_editor(args.case, close_after=not args.keep)

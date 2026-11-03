@@ -38,6 +38,7 @@ import urllib.request
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import wechat_publish as wp  # noqa: E402  复用 CDP / 色板 / 案例加载
+import link_hygiene as _lh  # noqa: E402  外链卫生硬闸（2026-11-02）
 import lead_templates        # noqa: E402  四型开头钩子模板库
 from multiplatform import queue as Q  # noqa: E402  待发队列排序口径（最新在前）
 
@@ -167,8 +168,23 @@ def _hard_clip(s, n):
     return cut[:best + 1].rstrip() if best >= 0 else cut.rstrip()
 
 
+def _short_name(name):
+    """长英文名在 20 字标题里挤不下时用的精简写法。
+
+    2026-11-02：`Roster for Slack` 占 16 字，只剩 3 字给描述，压缩出来是
+    「为 S」这种半截词。把「for …」尾巴和常见域名后缀去掉再拼一次，
+    `Roster for Slack → Roster`、`Chatsell.co → Chatsell`。
+    """
+    s = re.sub(r"\s+for\s+.*$", "", name or "", flags=re.I).strip()
+    s = re.sub(r"\.(co|ai|io|run|so|app|com|dev|xyz|sh|fm)$", "", s, flags=re.I).strip()
+    return s or (name or "")
+
+
 OVERRIDES_PATH = os.path.join(ROOT, "data", "xhs_title_overrides.json")
 _OVERRIDES_CACHE = None
+
+
+
 
 # 正文/卡片覆盖表（2026-10-01 新增）。
 # 为什么需要：标题覆盖只能改标题，但 2026-10-01 voklit 被判**文本违规+图片违规**
@@ -206,6 +222,26 @@ def note_override(cid):
     return _note_overrides().get(cid or "")
 
 
+def _core_desc(desc, budget):
+    """从业务描述里提出「能进标题的核心短语」。
+
+    2026-11-02：一批 desc 是「为 Slack 团队提供持续排班」「Demopolish 帮助软件
+    和 SaaS 创始人 60 秒内制作专业演示视频」这种长壳句，硬切只会切出
+    「为WooComm」「Demopolis」半截词。先把「为…提供 / 帮助 / 让」这层壳剥掉，
+    留下真正的卖点短语，再截断。
+    """
+    s = re.sub(r"（[^）]*）", "", desc or "").strip(" ，,。")
+    m = re.search(r"(?:提供|帮助|帮|让|用于|用来|专注)(.+)$", s)
+    if m:
+        t = m.group(1).strip(" ，,。")
+        if len(t) >= 4:
+            return _hard_clip(t, budget)
+    head = re.split(r"[，,；;]", s)[0].strip(" ，,。")
+    if 4 <= len(head):
+        return _hard_clip(head, budget)
+    return ""
+
+
 def _title_desc(desc, budget):
     """把一句话业务描述压到 budget 字内：取主干 → 去引号补充 → 硬切。
 
@@ -225,6 +261,11 @@ def _title_desc(desc, budget):
         s2 = re.sub(r"「[^」]*」", "", s).strip(" ，,。")
         if len(s2) >= 4:
             s = s2
+    if len(s) > budget:
+        # 长壳句（「为 X 提供 Y」）先提核心，别再硬切出半截英文词
+        core = _core_desc(s, budget)
+        if core:
+            return core
     return _hard_clip(s, budget)
 
 
@@ -274,12 +315,27 @@ def _raw_make_xhs_title(c, used=None):
     绝不出现「…」。`used` 是批量生成时已用标题集合，撞车就依次退到下一候选。
     """
     ov = _title_overrides().get(c.get("id") or "")
-    if ov and 4 <= len(ov) <= TITLE_MAX:
-        return ov
+    if ov:
+        # 2026-11-02：覆盖表里可能还带「月收$X：」前缀（xhs_ai_titles 旧拼接口径）。
+        # 标题红线禁金额，出口 strip_title_money 一定会把它剥掉——但**长度检查
+        # 发生在剥之前**，于是一条 27 字条目被整个判废、退回规则路径，再被硬切成
+        # 「DemoPolish：软件和SaaS创始」「Verse：Verse 以单次提示构建自」这种半截。
+        # 先按出口口径剥一遍再判长度，存的和发出来的才是同一个东西。
+        import make_article as _ma
+        _ov = _ma.strip_title_money(ov)
+        if 4 <= len(_ov) <= TITLE_MAX:
+            return _ov
     # 2026-10-14：红线（标题禁金额/收入指标）——不再用「月收$X」/「X成交」前缀。
     # 金额是正文该讲的事，标题只放「产品名：描述」或通用尾缀。
     amt = None
     desc = short_desc(c)
+    # 2026-11-02 修「标题退化成裸应用名」：`short_desc` 常是 one_liner 原文，
+    # 以「MRR $351，」这类指标开头。而标题红线禁金额 —— 不先洗掉，`_title_desc`
+    # 只会切出 "MRR"，拼成《Roster for Slack：MRR》，随后 strip_title_money
+    # 把它剥掉、顺带清掉尾冒号 ⇒ 草稿里只剩《Roster for Slack》。
+    # 10-25 那批 10 条草稿全是这个成因，规则本身没丢，是脏 desc 把规则挤掉了。
+    import make_article as _ma
+    desc = _ma.strip_title_money(desc)
     name = (c.get("name") or c.get("id") or "").strip()
     generic = ["海外小生意", "一人公司生意", "海外小项目"]
     lead = ("%s成交" % amt) if (amt and "成交" in h) else (
@@ -297,7 +353,19 @@ def _raw_make_xhs_title(c, used=None):
         #   就被判废，直接掉进 generic「海外小生意」。实测 quotedeck 的
         #   desc 只有 11 字、拼起来 21 字、超预算 1 字也被拒。
         #   金额前缀那条走了压缩、这条没走，是纯 bug。
-        cands.append("%s：%s" % (name, _title_desc(desc, TITLE_MAX - len(name) - 1)))
+        # 2026-11-02：压缩结果为空就别产出「名字：」这种空描述候选（那会被
+        #   下游剥成裸名），直接退到通用尾缀。
+        _budget = TITLE_MAX - len(name) - 1
+        _short = _short_name(name)
+        if _budget < 6 and _short and _short != name:
+            # 长名（>13 字）挤不出描述 ⇒ 精简名 + **完整短尾缀**。
+            # 别用 _title_desc 硬切：预算 3 字时切出来是「为 S」「Demopolis」
+            # 这种半截词，读者看不懂，还不如「一人公司」这种完整短语。
+            for _g in ("一人公司", "这门生意", "海外小生意"):
+                cands.append("%s：%s" % (_short, _g))
+        _d = _title_desc(desc, _budget)
+        if _d.strip():
+            cands.append("%s：%s" % (name, _d))
         cands += ["%s：%s" % (name, g) for g in generic]
     cands.append("拆解一个海外小生意")
     for t in cands:
@@ -1169,6 +1237,10 @@ def cmd_publish(args):
     if not os.path.isfile(nj):
         build_case(BUILD_PORT, c)
     note = json.load(open(nj, encoding="utf-8"))
+    # 发布前硬闸（2026-11-02）：正文/标题里不许出现自家站点导流或索引站口气。
+    # 头条已因「包含营销推广类信息」被禁言 7 天；小红书对站外引流的处置更狠
+    # （限推荐 + 搜索降权），所以宁可发不出去，也不能带出去。
+    _lh.assert_clean(json.dumps(note, ensure_ascii=False), "小红书稿 %s" % c["id"])
     if not _port_up(PUB_PORT):
         raise SystemExit(
             "没找到 %d 调试 Chrome。先起：\n"
@@ -1178,6 +1250,23 @@ def cmd_publish(args):
             "--no-first-run --no-default-browser-check --remote-allow-origins=* "
             "\n然后人工登录 creator.xiaohongshu.com 一次。" % PUB_PORT)
     cdp = wp.CDP(PUB_PORT)
+    # 上一轮被 kill/超时打断时留下的编辑器页还在后台跑自动保存定时器，
+    # 会不断把空白笔记存成「暂无笔记标题」。开跑先收尸（2026-11-02）。
+    reap_editors()
+
+    # ---- 远端草稿箱查重（2026-11-02）----
+    # 幂等从此是「本地台账 OR 远端草稿箱」两条腿。命中就停：让调用方去发
+    # 那条现成的（send-draft），而不是在 40+ 条的箱子里再叠一条同标题的。
+    if not getattr(args, "force_dup", False):
+        dups = remote_dup_titles()
+        if dups is not None:
+            want = norm_title(note.get("title") or "")
+            if want and want in dups:
+                raise SystemExit(
+                    "草稿箱里已有同标题草稿《%s》，不重复新建。\n"
+                    "  · 直接发那条：python scripts/xhs_publish.py send-draft --case %s\n"
+                    "  · 确实要再存一份：加 --force-dup" % (note.get("title"), c["id"]))
+
     tid = None
     for t in cdp.list_targets():
         if "creator.xiaohongshu.com" in (t.get("url") or ""):
@@ -1188,6 +1277,12 @@ def cmd_publish(args):
         time.sleep(4)
     sub = wp.CDP(PUB_PORT)
     sub.connect_target(tid)
+    # 收尾必须关掉自己这个编辑器页（--keep 除外）。编辑器活着 = 自动保存定时器
+    # 活着；而发布成功后页面会回到**空白新建态**，那条空白就成了草稿箱里新冒出来
+    # 的「暂无笔记标题」（2026-11-02 复盘）。atexit 能盖住 SystemExit 退出路径。
+    if not getattr(args, "keep", False):
+        import atexit
+        atexit.register(lambda: cdp.close_target(tid))
     # 2026-10-28 修：headless 不传 --window-size 时视口只有 784x449，底部
     # 「发布」按钮按 viewport 比例坐标点击会落空（实测连炸两次 rc=2：
     # 点击无反应、30s 不跳 success，草稿仍留在 IndexedDB）。与 _draft_cdp
@@ -1506,15 +1601,20 @@ def _wait_draft_entry(sub, timeout=30):
     return None
 
 
-def _draft_cdp(fresh=True):
+def _draft_cdp(fresh=True, url=None):
     """连上 9223 里已登录的小红书创作中心。
 
     ⚠ **默认新开标签页**。复用一个开久了的 publish 页会「CDP 连得上、点了
       没反应」—— 修图脚本 `xhs_draft_fix_images` 卡过半小时才靠新 tab 解掉；
       2026-10-20 `send-draft` 抽屉死活点不开（jclick 和真实鼠标都没用）也是
       同一个原因。旧 tab 里 Vue 的抽屉/编辑器 DOM 已经进入点不动的状态。
-    ⚠ 顺带：别直接 navigate 到 `?target=draft`，那个 URL 会把抽屉卡在半开
-      状态（有入口、点了没反应）。从干净的 `?source=official` 进，再点入口。
+    ⚠ 2026-11-02 改口：**默认开草稿箱列表页 `?target=draft`，不再开
+      `?source=official`**。旧注释说 draft URL 会把抽屉卡在半开，实测（
+      `xhs_retitle_drafts` 一直这么用、连续 5 轮读 48 条都正常）已经不成立；
+      而开 `?source=official` 等于**每次读草稿箱都进一次创作编辑器**，小红书
+      会当场挂一条空白笔记并自动保存 —— 这就是草稿箱里没完没了冒出
+      「暂无笔记标题」的真正来源。抽屉万一不开，fetch_drafts 自己会重试，
+      再不行用 `url=PUB_URL` 显式退回旧行为。
     """
     cdp = wp.CDP(PUB_PORT)
     tid = None
@@ -1525,7 +1625,7 @@ def _draft_cdp(fresh=True):
                 tid = t["id"]
                 break
     if not tid:
-        tid = cdp.new_target(PUB_URL)["id"]
+        tid = cdp.new_target(url or DRAFT_URL)["id"]
     sub = wp.CDP(PUB_PORT)
     sub.connect_target(tid)
     sub._own_tid = tid if fresh else None
@@ -1571,6 +1671,48 @@ def _js(sub, expr):
         except (ValueError, TypeError):
             pass
     return r
+
+
+def reap_editors(keep=None, quiet=False):
+    """关掉残留的「发布笔记」编辑器页，返回关掉的条数。
+
+    2026-11-02 复盘：草稿箱里三番五次冒出「暂无笔记标题」，而代码里**没有
+    任何一处主动新建草稿**。真凶是编辑器页自己 —— 一进
+    `publish?source=official`，小红书就当场挂一条空白笔记并触发自动保存
+    （草稿存在**浏览器本地**，见草稿箱顶部那条蓝字提示）。而 `cmd_publish`
+    从来没关过自己的 tab：连着跑十来次之后，浏览器里挂着 8 个编辑器页，
+    8 个自动保存定时器在后台不停续期 ⇒ 空白那条反复被"新建/刷新"，连已有
+    草稿的 `保存于` 也被一直往后刷（Chessigma 21:25 → 21:30，把「存入最久」
+    这个选稿判据一起搅烂）。
+
+    ⇒ 规矩：**开跑前先扫一遍残留**，**收尾必须关自己的 tab**。
+    只关编辑器页，草稿箱列表页（`?target=draft`）不算，留着不影响。
+    """
+    if keep is None:
+        keep = set()
+    elif isinstance(keep, str):
+        keep = {keep}
+    n = 0
+    try:
+        cdp = wp.CDP(PUB_PORT)
+        for t in cdp.list_targets() or []:
+            if t.get("type") not in (None, "page"):
+                continue
+            if t.get("id") in keep:
+                continue
+            u = t.get("url") or ""
+            if "creator.xiaohongshu.com" not in u:
+                continue
+            if "source=official" not in u:      # 只要编辑器页
+                continue
+            cdp.close_target(t["id"])
+            n += 1
+    except Exception as e:                      # noqa: BLE001
+        if not quiet:
+            print("[warn] 清理残留编辑器页失败：%s" % str(e)[:80])
+    if n and not quiet:
+        print("已关掉 %d 个残留的发布编辑页（它们一直在后台自动保存草稿）" % n)
+    return n
 
 
 def fetch_drafts(sub=None):
@@ -1648,6 +1790,44 @@ def norm_title(t):
     t = re.sub(r"(话题|收藏|点赞)\s*$", "", t)   # 结尾残留的话题标签词
     t = re.sub(r"[，,。.；;：:！!？?（）()「」“”\"'’‘·、\-—_/\\|]", "", t)
     return t.lower()
+
+
+#: 远端草稿箱标题缓存。批量发 N 条时不必每条都开一次抽屉（一次 30~60s）。
+_DUP_CACHE = {"at": 0.0, "set": None}
+
+
+def remote_dup_titles(max_age=300):
+    """远端草稿箱的标题集合（`norm_title` 归一化）。失败返回 None。
+
+    为什么要这一步（2026-11-02）：
+      `publish` 原来的幂等**只看本地台账** `data/xhs_drafts.json`，而台账是
+      「确认存上了才写」。于是任何「上次没走到记账」的重跑都会再建一条同标题
+      草稿 —— 11-01 Codédex（13:19 / 16:14 两条）、10-28 PromptMon、10-26
+      AI Prank Call 的重复全是这么来的。用户的追问是「为什么不比对草稿箱」，
+      答案就是：之前确实没比，只信本地账。
+      返回 None 表示**没查成**（Chrome 没起 / 抽屉打不开），调用方应降级放行，
+      不能因为查重失败就把发布整条卡死。
+    """
+    now = time.time()
+    if _DUP_CACHE["set"] is not None and now - _DUP_CACHE["at"] < max_age:
+        return _DUP_CACHE["set"]
+    sub = None
+    try:
+        sub = _draft_cdp(fresh=True)
+        cards = fetch_drafts(sub)
+    except BaseException as e:                      # noqa: BLE001
+        print("[warn] 草稿箱查重没跑成（%s），本次不做重复保护" % str(e)[:60])
+        return None
+    finally:
+        if sub is not None:
+            try:
+                close_own_tab(sub)
+            except Exception:                       # noqa: BLE001
+                pass
+    s = {norm_title(c.get("title") or "") for c in (cards or [])}
+    s.discard("")
+    _DUP_CACHE.update({"at": now, "set": s})
+    return s
 
 
 def match_drafts(drafts, cases=None):
@@ -2476,6 +2656,39 @@ def cmd_purge(args):
               % (len(dropped), "、".join(dropped)))
 
 
+def cmd_reap(args):
+    """关残留编辑器页 + 体检空壳草稿。
+
+    为什么要有这条命令（2026-11-02）：草稿箱里反复冒出「暂无笔记标题」，
+    根因是**编辑器页自己**在自动保存空白笔记，而 publish 从不关 tab。
+    跑完 publish / send-draft 之后顺手 `reap` 一下，能立刻看出有没有漏。
+    """
+    n = reap_editors()
+    if not n and not args.purge:
+        print("没有残留的编辑页。")
+    print("\n体检草稿箱…")
+    sub = _draft_cdp()
+    cards = fetch_drafts(sub) or []
+    badge = _js(sub, """(function(){
+      var es=[].slice.call(document.querySelectorAll('*')).filter(function(x){
+        return /^图文笔记\\(\\d+\\)$/.test((x.innerText||'').trim()); });
+      return es.length ? (es[es.length-1].innerText||'').trim() : '?';})()""")
+    empt = [d for d in cards if not (d.get("title") or "").strip()
+            or "暂无笔记标题" in (d.get("title") or "")]
+    print("徽标 %s · 卡片 %d 条 · 无标题 %d 条" % (badge, len(cards), len(empt)))
+    for d in empt:
+        print("  · %s | %s" % (d.get("saved"), d.get("title")))
+    if not empt:
+        print("没有空壳草稿。")
+        close_own_tab(sub)
+        return
+    if not args.purge:
+        print("\n（只看不动。加 --purge 真删）")
+        return
+    cmd_purge(argparse.Namespace(dry=False, all=True, limit=0,
+                                 match="暂无笔记标题"))
+
+
 def cmd_queue(args):
     """看看接下来会发哪几条（不连浏览器、不花钱）。"""
     todo = pending_cases(need_cards=not args.fresh)
@@ -2730,6 +2943,12 @@ def main():
     pg.add_argument("--match", help="只删标题含这段的（比如清理空壳草稿）")
     pg.add_argument("--dry", action="store_true")
     pg.set_defaults(fn=cmd_purge)
+    rp = sub.add_parser("reap",
+                        help="关掉残留的发布编辑页并体检空壳草稿（不带 --purge 只报不动）")
+    rp.add_argument("--purge", action="store_true",
+                    help="顺手把「暂无笔记标题」且正文/图片都空的草稿删掉")
+    rp.add_argument("--dry", action="store_true")
+    rp.set_defaults(fn=cmd_reap)
     qq = sub.add_parser("queue", help="看看接下来会发哪几条（不动浏览器）")
     qq.add_argument("--near", type=int, default=5, help="预览条数，默认 5")
     qq.add_argument("--fresh", action="store_true",
@@ -2753,6 +2972,8 @@ def main():
                    help="不勾选「原创声明」（默认会勾上）")
     q.add_argument("--keep", action="store_true",
                    help="沿用当前编辑页状态（默认重新导航，避免图/字叠加）")
+    q.add_argument("--force-dup", dest="force_dup", action="store_true",
+                   help="跳过「远端草稿箱已有同标题就不建」的保护，强制再存一份")
     q.set_defaults(fn=cmd_publish)
     sd = sub.add_parser(
         "send-draft",

@@ -97,6 +97,10 @@ PENALTIES = {
     "small": 15,               # 人已标注「体量太小，暂不精写」
     "tiny_revenue": 12,        # 月收入低于可成案的量级
     "bare": 10,                # 连来源性质都没标（候选池里才有意义，见 scope）
+    # 当前收入结构性归零（MRR 与近 30 天均为 0，只剩 all_time 残值）。
+    # 惩罚量级与 tiny_revenue 同档：两者都是「撑不起一篇拆解」，只是病因不同 ——
+    # 一个是量不够，一个是已经不赚了。见 _score_data 的 dead_revenue 注释。
+    "dead_revenue": 12,
 }
 
 # 判级线。数字是从真实数据倒推的：队列 points 的中位数只有 2 分，
@@ -653,6 +657,24 @@ def _score_data(rec, hits, misses, flags):
                        "月收入 $%s，低于可成案的量级（$%d）"
                        % (("%.0f" % rev), int(TINY_REVENUE))))
         flags.append(("tiny_revenue", "量级太小，撑不起一篇拆解"))
+
+    # 🚨 当前收入结构性归零（mrr 与 last_30d_revenue 同时 ≤0，只剩 all_time
+    # 残值）。这是 2026-10-21「累计跳过」修复留下的半截：revenue_of 刻意对
+    # 「累计收入 $X」返回 None（累计不是月收入，口径对了），但 rev=None 意味着
+    # tiny_revenue 旗标永不成立，而 harvest 的 headline「累计收入 $X（当前 MRR
+    # 与近 30 天均为 0…）」含数字又让 has_numbers 为真 —— 于是 2026-11-03
+    # 实测 6/11 条零收入条目全被洗成 deep（upworkscribe 累计 $28 也在列），
+    # 深核预算花在墓碑上。这正是 10-10 / 10-21 两次注释里写过的同一类故障，
+    # 第三次露头才补上闸。只认「两个字段都在且都 ≤0」：字段缺失不判死，
+    # 那是 backfill 的事。
+    m = rec.get("metrics") or {}
+    _mrr, _l30 = m.get("mrr"), m.get("last_30d_revenue")
+    if (isinstance(_mrr, (int, float)) and not isinstance(_mrr, bool) and _mrr <= 0
+            and isinstance(_l30, (int, float)) and not isinstance(_l30, bool)
+            and _l30 <= 0):
+        misses.append(("dead_revenue", PENALTIES["dead_revenue"],
+                       "当前收入归零（MRR 与近 30 天均为 0），只剩累计残值"))
+        flags.append(("dead_revenue", "当前收入归零，只剩累计残值"))
     return got, rev
 
 
@@ -736,6 +758,12 @@ def _hint(rec, scope, rev, bf):
         return "占位 / 参考条目：本来就不进核实流程"
     if rev is not None and rev < TINY_REVENUE:
         return "量级偏小，除非后续口径或收入有明显变化"
+    _m = rec.get("metrics") or {}
+    _mrr, _l30 = _m.get("mrr"), _m.get("last_30d_revenue")
+    if (isinstance(_mrr, (int, float)) and _mrr <= 0
+            and isinstance(_l30, (int, float)) and _l30 <= 0):
+        return ("当前收入归零，只剩累计残值 —— 除非有复活迹象，"
+                "否则不值得花深核预算")
     headline = str((rec.get("metrics") or {}).get("headline") or "")
     host = host_of(rec.get("source_url"))
     if SUSPECT_AMOUNT in headline:
@@ -764,7 +792,8 @@ def _can_deep(scope, got_numbers, rev, flag_keys, hit_keys, host):
     has_numbers() 为真的条数。曾经这里写着「441 条里只有 4 条」，
     等 TrustMRR 成了主要来源之后那个数字就完全不成立了。）
     """
-    if not got_numbers or "small" in flag_keys or "tiny_revenue" in flag_keys:
+    if (not got_numbers or "small" in flag_keys or "tiny_revenue" in flag_keys
+            or "dead_revenue" in flag_keys):
         return False
     if rev is not None and rev < TINY_REVENUE:
         return False
@@ -796,7 +825,10 @@ def _grade(rec, scope, score, flags, hit_keys, got, rev, att, ready, bf, host,
         return "later"
     if _can_deep(scope, got, rev, keys, hit_keys, host):
         return "deep"
-    if score >= DEEP_LINE:
+    # 分数兜底也要尊重量级/生死旗标：材料厚（字段填得全）不等于还在赚钱，
+    # 2026-11-03 实测 ai-selfie-studio（当前收入归零）65 分走这条兜底进 deep。
+    if (score >= DEEP_LINE and "tiny_revenue" not in keys
+            and "dead_revenue" not in keys):
         return "deep"
     if scope == "candidate":
         # 候选池是人工从队列里一条条挑出来的。机器能排前后，不能推翻人的选择：

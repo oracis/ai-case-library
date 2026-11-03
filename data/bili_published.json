@@ -146,5 +146,14 @@
     "verified_at": "2026-10-29 11:46",
     "evidence": "editor-ui-publish + 重分配 aid 回读",
     "note": "2026-10-29 发布时 B站重分配 aid：342411 → 53660838；脚本按旧 aid 回读误报失败，已人工回读已发表列表命中补账"
+  },
+  {
+    "id": "wpconvert-ai-convert-ai-sites-to-wordpress",
+    "at": "2026-10-15 21:22",
+    "article_id": "53725626",
+    "title": "WPConvert：AI 建的站转成 WordPress",
+    "verified_at": "2026-11-02 20:20",
+    "evidence": "editor-ui-publish(2026-11-02 回读已发表列表命中)",
+    "note": "｜草稿同步(2026-10-15 21:22): title 认领 aid=343876"
   }
 ]
