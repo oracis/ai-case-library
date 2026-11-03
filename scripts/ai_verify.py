@@ -26,22 +26,23 @@
 环境变量（LLM 走 OpenAI 兼容接口，GLM / DeepSeek / Kimi 都行）
     CASE_LIB_AI_KEY     必填（--plan 除外）。也可放 data/secrets.json 的 ai_key
                         （该文件已被 .gitignore 排除，是 key 的正规位置）
-    CASE_LIB_AI_BASE    默认 https://open.bigmodel.cn/api/paas/v4（智谱）
-    CASE_LIB_AI_MODEL   默认 glm-4-flash（免费档）
+    CASE_LIB_AI_BASE    默认 https://chat.intern-ai.org.cn/api/v1（书生·浦语）
+    CASE_LIB_AI_MODEL   默认 intern-s2（397B 推理模型，思考走 reasoning_content）
     CASE_LIB_ADMIN_PASSWORD   后台密码（写草稿/发布要登录 5053）
 
     读取优先级：环境变量 > data/secrets.json > 上面这些默认值。
     ⚠ space-bunny-free（opencode.ai/zen）2026-10-11 起被上游封直连，已弃用；
-       DeepSeek 是付费端点，按需显式切。
+       ModelScope DeepSeek/Qwen 魔粒已耗尽，2026-11-03 已移除。当前主端点 = 书生·浦语
+       intern-s2（每月 9000 万 input + 9000 万 output，次月重置），备 = 智谱 glm-4-flash。
 
 换模型（CLI 覆盖环境变量，不传就用上面的默认值）
     # 先花几秒验端点，别直接跑一批才发现 key 不对
     python scripts/ai_verify.py --ping
     # 通了再核
     python scripts/ai_verify.py --triage --limit 5
-    python scripts/ai_verify.py --limit 5 --ai-model deepseek-chat \
-                                --ai-base https://api.deepseek.com \
-                                --ai-key sk-xxx
+    python scripts/ai_verify.py --limit 5 --ai-model <模型名> \
+                                --ai-base <OpenAI 兼容 base，结尾 /v1> \
+                                --ai-key <API Key>
 
     端点约定：base 填到 /v1（别带 /chat/completions），尾部斜杠会被rstrip。
     ⚠ 换端点最常见的两个坑，--ping 会直接指出来：
@@ -110,26 +111,28 @@ def _cfg(env_key, sec_key, default):
 
 
 ADMIN_BASE = os.environ.get("CASE_LIB_ADMIN_BASE", "http://127.0.0.1:5053")
-# 🚨 默认端点 = 智谱 GLM-4-Flash（免费档，2026-10-13 切换）。
+# 🚨 默认端点 = 书生·浦语 intern-s2（2026-11-03 切为主端点；此前是智谱 glm-4-flash 免费档）。
 # 上一个默认 space-bunny-free（opencode.ai/zen）2026-10-11 起被上游封直连，已弃用；
-# 再上一个 DeepSeek 是付费的。key 走 CASE_LIB_AI_KEY 或 secrets.json 的 ai_key。
+# 再上一个 ModelScope DeepSeek/Qwen 魔粒已耗尽，2026-11-03 已从端点链移除。
+# 浦语要点：base 是 chat.intern-ai.org.cn/api/v1（不是 internlm 门户域名，
+# 也不是端砚的 discovery-api）；key 形如 sk-xxx，走 Bearer；思考内容在
+# reasoning_content 字段，content 是干净正文，response_format 被接受但不强制。
+# key 走 CASE_LIB_AI_KEY 或 secrets.json 的 ai_key。
 AI_BASE = _cfg("CASE_LIB_AI_BASE", "ai_base",
-               "https://open.bigmodel.cn/api/paas/v4").rstrip("/")
+               "https://chat.intern-ai.org.cn/api/v1").rstrip("/")
 AI_KEY = _cfg("CASE_LIB_AI_KEY", "ai_key", "")
-AI_MODEL = _cfg("CASE_LIB_AI_MODEL", "ai_model", "glm-4-flash")
+AI_MODEL = _cfg("CASE_LIB_AI_MODEL", "ai_model", "intern-s2")
 # 这些base 走本机代理会超时/403，LLM 请求时绕过代理（仅 LLM，不影响其他）
 AI_BASE_NO_PROXY = ("opencode.ai/zen",)
-# 🚨 备端点链（429 自动降级，2026-10-26 起；2026-10-29 扩成两级）。
+# 🚨 备端点链（429/402/403/5xx 自动降级，2026-10-26 起；2026-10-29 扩成两级）。
 #
-# ModelScope 按**魔粒**计费（每天登录发 200 粒，做任务最多 500 粒/天）：
-# 旗舰 2 粒/次、主流 1 粒/次、轻量 0.5 粒/次；另有账号级 2000 次/天
-# 和单模型 ~200 次/天两道动态限流。跑大批量必撞 429 —— 撞了自动往下切，
-# 整批不再半途而废。
+# 2026-11-03：ModelScope 魔粒已耗尽，DeepSeek-V4.1-Flash / Qwen3.8-Flash-Next
+# 已从端点链移除，不再作为主 / 备端点。
 #
 # 端点优先级（越往下越便宜、越不容易撞限）：
-#   主   = ModelScope DeepSeek-V4.1-Flash（旗舰 2 粒，质量最好）
-#   备 1 = ModelScope Qwen3.8-Flash-Next（主流 1 粒，500 次/天）
-#   备 2 = 智谱 glm-4-flash（真免费，最后兜底）
+#   主   = 书生·浦语 intern-s2（每月 9000 万 input + 9000 万 output，免费、次月重置）
+#   备 1 = 智谱 glm-4-flash（真免费，额度独立，主端点限流/超月额度时兜底）
+#   备 2 = （留空）
 # 读 secrets.json 的 ai_fallback_* / ai_fallback2_*（env CASE_LIB_AI_FALLBACK*
 # 优先）。没配 = 链短一级，行为同旧版。
 AI_FB_BASE = (_cfg("CASE_LIB_AI_FALLBACK_BASE", "ai_fallback_base", "") or "").rstrip("/")
@@ -831,11 +834,9 @@ def llm(messages, temperature=0.2, max_tokens=None):
             out = _llm_once(messages, temperature, budget,
                              ep["base"], ep["key"], ep["model"])
             # 🚨 记录**这次实际用的是哪个端点**。2026-11-03 实测踩坑：
-            # 主端点限流后自动降级到备2（glm-4-flash），但草稿 note 仍写
-            # 主模型名 deepseek-ai/DeepSeek-V4.1-Flash-1017 —— 于是 5 条
-            # 降级模型判的草稿混进「DeepSeek 核的」堆里，事后无从分辨，
-            # 只能靠 caliber_reason 是不是英文去猜（本次就是靠这个猜出来的）。
-            # 谱系必须写进每一条草稿，降级不是小事：备2 的判断质量明显更弱。
+            # 主端点限流后自动降级到备端点，但草稿 note 仍写主模型名 —— 于是
+            # 降级模型判的草稿混进「主模型核的」堆里，事后无从分辨。
+            # 谱系必须写进每一条草稿，降级不是小事：备端点的判断质量明显更弱。
             LAST_ENDPOINT["tag"] = ep["tag"]
             LAST_ENDPOINT["model"] = ep["model"]
             LAST_ENDPOINT["base"] = ep["base"]
@@ -908,7 +909,7 @@ def _llm_once(messages, temperature, max_tokens,
         "messages": messages,
         "temperature": temperature,
         "response_format": {"type": "json_object"},
-        # 推理模型（如 deepseek-flash）的思考 token 也计入 max_tokens——
+        # 推理模型的思考 token 也计入 max_tokens——
         # 实测核一条要烧 4000+（其中思考约 3600），2000/8000 都会被截断，
         # 这里放宽到 AI_MAX_TOKENS；不够时llm() 会自动加重试预算。
         "max_tokens": max_tokens,
@@ -951,12 +952,12 @@ def _llm_once(messages, temperature, max_tokens,
             detail = e.read().decode("utf-8", "replace")[:300]
         except Exception:                                    # noqa: BLE001
             pass
-        # 🚨 429 = 限流（ModelScope 2000 次/天账号级、单模型 ~500 动态），
+        # 🚨 429 = 限流（账号级/单模型动态限流），
         # 抛专用异常让 llm() 切备端点，别混进普通 RuntimeError。
         if e.code == 429:
             raise _RateLimited("LLM 端点限流 HTTP 429%s%s" % (
                 ("：" + detail) if detail else "", "（%s）" % base)) from e
-        # 🚨 2026-10-29 补：402/403 = 额度耗尽 / 权限被挡（魔粒耗尽、硅基流动
+        # 🚨 2026-10-29 补：402/403 = 额度耗尽 / 权限被挡（魔粒耗尽、账户欠费
         # 余额不足都走这条），5xx = 端点自己挂了。这两类**换端点有可能好**，
         # 所以与限流一样要降级 —— 否则备端点配了也是摆设，整批白断一次。
         # ⚠ 400（参数不合法）和 401（key 错）**故意不降级**：那是请求形状或

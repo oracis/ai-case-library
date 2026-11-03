@@ -1161,25 +1161,31 @@ class ConfigChainTest(unittest.TestCase):
             if old_env is not None:
                 os.environ["CASE_LIB_AI_BASE"] = old_env
 
-    def test_默认端点是智谱GLM(self):
-        """钉死 2026-10-13 的切换：**源码内置默认** = 智谱 glm-4-flash（免费档）。
+    def test_默认端点是书生浦语(self):
+        """钉死 2026-11-03 的切换：**源码内置默认** = 书生·浦语 intern-s2。
 
-        space-bunny-free 2026-10-11 起被上游封直连，不许再变回默认。
+        背景：ModelScope 魔粒耗尽后临时用智谱 glm-4-flash 顶了一段，
+        2026-11-03 拿到浦语 key（每月 9000 万 input + 9000 万 output），
+        改为主端点，智谱降为备端点 `ai_fallback_*`。
+
+        🚨 base 是 `chat.intern-ai.org.cn/api/v1` —— **不是**门户域名
+        `internlm.intern-ai.org.cn`，也不是端砚的 `discovery-api.intern-ai.org.cn`
+        （那两个拿 Bearer sk-key 都是 401）。
 
         🚨 2026-10-29 修正：不许断言模块常量 `A.AI_BASE` / `A.AI_MODEL` ——
-        它们读的是 `data/secrets.json`（运营期已配成 ModelScope 主端点），
-        于是这条测试在「默认其实没漂移」的情况下天天红，属**陈旧断言**。
+        它们读的是 `data/secrets.json`（运营期配置），于是这条测试在
+        「默认其实没漂移」的情况下天天红，属**陈旧断言**。
         真正要钉的是源码里 `_cfg(..., default)` 写死的那个默认值。
         """
         src = open(A.__file__, encoding="utf-8").read()
         self.assertTrue(
             re.search(r'_cfg\(\s*"CASE_LIB_AI_BASE",\s*"ai_base",\s*'
-                      r'"https://open\.bigmodel\.cn/api/paas/v4"', src),
-            "源码默认端点漂了：应为智谱 https://open.bigmodel.cn/api/paas/v4")
+                      r'"https://chat\.intern-ai\.org\.cn/api/v1"', src),
+            "源码默认端点漂了：应为浦语 https://chat.intern-ai.org.cn/api/v1")
         self.assertTrue(
             re.search(r'_cfg\(\s*"CASE_LIB_AI_MODEL",\s*"ai_model",\s*'
-                      r'"glm-4-flash"', src),
-            "源码默认模型漂了：应为 glm-4-flash")
+                      r'"intern-s2"', src),
+            "源码默认模型漂了：应为 intern-s2")
 
 
 class LlmTruncateBudgetTest(unittest.TestCase):

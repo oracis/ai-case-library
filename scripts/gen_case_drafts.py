@@ -129,7 +129,7 @@ def llm_title(c, platform, timeout=60):
         return None
     key = os.environ.get("CASE_LIB_AI_KEY") or sec.get("ai_key")
     base = (os.environ.get("CASE_LIB_AI_BASE") or sec.get("ai_base")
-            or "https://api-inference.modelscope.cn/v1").rstrip("/")
+            or "https://chat.intern-ai.org.cn/api/v1").rstrip("/")
     model = os.environ.get("CASE_LIB_AI_MODEL") or sec.get("ai_model")
     if not (key and model):
         return None
