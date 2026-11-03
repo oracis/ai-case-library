@@ -466,6 +466,57 @@ class Grading(unittest.TestCase):
         self.assertIn("missing_source_url", {f["key"] for f in r["flags"]})
         self.assertIn("first_hand_claimed", {h["key"] for h in r["hits"]})
 
+    def test_当前收入归零只剩累计_不进深核(self):
+        """🚨 2026-11-03 实测补的闸（第三次露头的同一类故障）。
+
+        harvest 对 MRR=0 且 last30=0 的条目写「累计收入 $X（当前 MRR 与近
+        30 天均为 0…）」——headline 含数字让 has_numbers 为真，revenue_of
+        的「累计跳过」又让 rev=None，tiny_revenue 旗标永不成立 ⇒ 6/11 条
+        零收入条目被洗成 deep（upworkscribe 累计 $28 也在列），深核预算
+        花在墓碑上。闸：dead_revenue 旗标同时在 _can_deep 和分数兜底拦住。
+        """
+        r = T.score_record(rec(id="d", name="D", harvest_source="trustmrr",
+                               source_kind="verified",
+                               metrics={"mrr": 0, "last_30d_revenue": 0,
+                                        "all_time": 558, "customers": 19,
+                                        "headline": "累计收入 $558"
+                                                    "（当前 MRR 与近 30 天均为 0）"}),
+                           "inbox")
+        self.assertEqual(r["grade"], "later")
+        self.assertIn("dead_revenue", {f["key"] for f in r["flags"]})
+        self.assertIn("dead_revenue", {m["key"] for m in r["misses"]})
+        self.assertIn("归零", r["hint"] or "")
+
+    def test_收入字段缺失_不判死(self):
+        """mrr/last30 缺失是 backfill 的事，不是「归零」——dead_revenue
+        只在两个字段都在且都 ≤0 时才立。"""
+        r = T.score_record(rec(id="m", name="M", harvest_source="trustmrr",
+                               source_kind="verified",
+                               metrics={"all_time": 3000,
+                                        "headline": "TrustMRR 验证收入榜条目"
+                                                    "（具体数字待补）"}),
+                           "inbox")
+        self.assertNotIn("dead_revenue", {f["key"] for f in r["flags"]})
+        self.assertEqual(r["grade"], "backfill")
+
+    def test_低MRR高实收_按MRR口径判tiny(self):
+        """mrr 优先是刻意策略（订阅制的月收入口径就是 MRR）。
+
+        2026-11-03 bibby：MRR $173、近 30 天实收 $344（增长 +493%）——
+        按 TINY_REVENUE=300 判 later。这是门槛策略的正确行为不是 bug：
+        last30 含一次性收入，别当经常性收入引用（TrustMRR 口径声明原文）。
+        钉住这条，防止有人顺手把取数顺序改成 last30 优先而没人拍板。
+        """
+        r = T.score_record(rec(id="b", name="B", harvest_source="trustmrr",
+                               source_kind="verified",
+                               metrics={"mrr": 173.0, "last_30d_revenue": 344.0,
+                                        "all_time": 1752.0,
+                                        "headline": "MRR $173"}),
+                           "inbox")
+        self.assertEqual(r["grade"], "later")
+        self.assertIn("tiny_revenue", {f["key"] for f in r["flags"]})
+        self.assertNotIn("dead_revenue", {f["key"] for f in r["flags"]})
+
 
 # ---------------------------------------------------------------------------
 class TierAdvice(unittest.TestCase):
