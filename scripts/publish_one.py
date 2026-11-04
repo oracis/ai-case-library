@@ -20,13 +20,20 @@
 
 | 闸 | 拦什么 | 谁提供 |
 |---|---|---|
+| `dedupe` | 该 case 在本平台已发过 / 已有远端草稿 / 长尾台账已有建稿批次 | `publish_guard.check_dupe()` |
 | `draft` | 稿子产物不存在（没稿不许发） | 本文件 |
 | `link` | 自家域名/索引站口气/引流话术 | `link_hygiene.scan()` |
 | `katex` | KaTeX 平台 `$` 把数字吃成公式 | `katex_money_fix.scan_file()` |
 | `tt` | 头条社区规范 block 级命中 | `tt_compliance.scan()` |
 | `genre` | 腾讯云只收技术向：标题带金额/MRR 必被驳 | 本文件 |
-| `cover` | 封面图不存在（腾讯云缺封面静默失败） | 本文件 |
+| `title` | 标题超平台上限 / 硬截断 / 空壳模板 / AI 套话 / 金额与 `$` | `publish_guard.scan_title()` |
+| `template` | 管线水印 / 罐头来源句 / 每篇同一串栏目 / 知乎导流 | `publish_guard.scan_content()` |
+| `cover` | 本地无封面资源，或发布命令没带 `--cover` | `publish_guard.check_cover()` |
 | `remote` | 两朵云没有远端草稿 id（还没上传过） | `data/yun_finalize.json` |
+
+⚠ `cover` 闸只保证「本地有资源 + 命令会带参数」；**平台侧封面是否真的落库**
+必须按 `VERIFY_HINT` 回读（腾讯云 `tc_manage.py status`、CSDN `csdn_list_drafts.py`）。
+本地有 PNG ≠ 封面已设置 —— 2026-11-04 CSDN 三篇草稿就是这么裸着进去的。
 
 ## 用法
 
@@ -64,6 +71,7 @@ if hasattr(sys.stdout, "reconfigure"):
 import csdn_rules as CR          # noqa: E402
 import katex_money_fix as KX      # noqa: E402
 import link_hygiene as LH         # noqa: E402
+import publish_guard as G         # noqa: E402  幂等/标题/形态/封面 单一判据源（只读）
 import publish_slot as SLOT       # noqa: E402
 import tt_compliance as TT        # noqa: E402
 
@@ -102,16 +110,28 @@ TERMINAL = {
 }
 
 # 每平台必过的闸（顺序即执行顺序）
+# 🚨 2026-11-04：`dedupe` / `title` / `template` / `cover` 补到**全部九平台**。
+#   此前只有 4 个平台有 cover 闸、0 个平台有 case 级去重，B站/小红书的
+#   FIFO 分支更是一条闸都不进 —— 重复草稿与裸图就是从这两处漏出去的。
 GATES = {
-    "wechat": ["draft", "link", "cover"],
-    "toutiao": ["draft", "link", "tt"],
-    "xhs": ["draft", "link"],
-    "bilibili": ["draft", "link", "cover"],
-    "cnblogs": ["draft", "link"],
-    "zhihu": ["draft", "link"],
-    "csdn": ["draft", "link", "katex", "rules", "cover"],
-    "tencentcloud": ["draft", "link", "katex", "genre", "cover", "remote"],
-    "aliyun": ["draft", "link", "katex", "remote"],
+    "wechat": ["dedupe", "draft", "link", "title", "template", "cover",
+               "cover_remote"],
+    "toutiao": ["dedupe", "draft", "link", "tt", "title", "template", "cover",
+                "cover_remote"],
+    "xhs": ["dedupe", "draft", "link", "title", "template", "cover",
+            "cover_remote"],
+    "bilibili": ["dedupe", "draft", "link", "title", "template", "cover",
+                 "cover_remote"],
+    "cnblogs": ["dedupe", "draft", "link", "title", "template", "cover",
+                "cover_remote"],
+    "zhihu": ["dedupe", "draft", "link", "title", "template", "cover",
+              "cover_remote"],
+    "csdn": ["dedupe", "draft", "link", "katex", "rules", "title", "template",
+             "cover", "cover_remote"],
+    "tencentcloud": ["dedupe", "draft", "link", "katex", "genre", "title",
+                     "template", "cover", "cover_remote", "remote"],
+    "aliyun": ["dedupe", "draft", "link", "katex", "title", "template", "cover",
+               "cover_remote", "remote"],
 }
 
 # 缺产物时的补建命令（确定性产物才有：排版/二版图，不含 AI 改写）
@@ -172,12 +192,12 @@ def _html_of(path):
 
 
 def cover_of(case):
-    """封面图：先看头条产物目录（最全），再看公众号封面缓存。"""
-    for cand in (os.path.join(ROOT, "out", "toutiao", case, "cover.png"),
-                 os.path.join(ROOT, "out", "toutiao", case, "cover.jpg")):
-        if os.path.isfile(cand):
-            return cand
-    return ""
+    """封面资源查找链委托给 `publish_guard.cover_of()`（单一真理）。
+
+    旧实现只查 `out/toutiao/<case>/cover.*`，而头条题图其实是
+    `out/xhs/<case>/card-1.png`，漏掉就会把「有封面」误判成「没有」。
+    """
+    return G.cover_of(case)
 
 
 # ---------------------------------------------------------------- 闸
@@ -241,8 +261,84 @@ def _gate_genre(platform, case, pack, **kw):
 
 
 def _gate_cover(platform, case, pack, **kw):
-    c = cover_of(case)
-    return (True, os.path.relpath(c, ROOT)) if c else (False, "缺封面图 ⇒ 腾讯云会静默失败，公众号/头条封面为空")
+    """封面：本地有资源 + 对 `--file` 平台确认发布命令真的带 `--cover`。
+
+    只查本地 PNG 是不够的：2026-11-04 CSDN 三篇草稿「本地有图、平台侧
+    coverImage 全空」，因为封面没随 `saveArticle` 一次提交。
+    """
+    c = G.check_cover(platform, case)
+    if not c["ok"]:
+        return False, c["detail"]
+    if platform in G.COVER_ARG_PLATFORMS:
+        cmd = build_cmd(platform, case, pack, True)
+        if "--cover" not in cmd:
+            return False, "发布命令没带 --cover ⇒ 本地有图也不会落到平台侧"
+        return True, "%s ｜ 命令已带 --cover" % c["detail"]
+    return True, c["detail"]
+
+
+def _gate_cover_remote(platform, case, pack, **kw):
+    """封面回读：平台侧到底有没有封面（`scripts/cover_verify.py`）。
+
+    `_gate_cover` 是**静态**的（本地有没有图、命令带不带 --cover），
+    这一道是**动态**的（平台侧字段读出来是什么）。
+    只有「真读了、读出来是空的」才拦；「没查过」只提示 ——
+    否则闸会变成「没记录 = 通过」的假绿发生器。
+    """
+    try:
+        import cover_verify as CV
+    except Exception as e:                                 # noqa: BLE001
+        return True, "⚠ 回读模块不可用（%s），按未回读处理" % str(e)[:60]
+    v = CV.verify(platform, case)
+    if v["state"] == "ok":
+        return True, "平台侧已落库：%s" % v["evidence"][:70]
+    if v["state"] == "empty":
+        return False, ("%s ⇒ 补封面后再发，别把裸图发出去"
+                       % v["detail"][:150])
+    return True, "⚠ %s" % v["detail"][:150]
+
+
+def _gate_dedupe(platform, case, pack, force=False, **kw):
+    """case 级幂等：已发过 / 已有远端草稿都不许再来一次。
+
+    `--force` 只绕这一道闸（补发确有其事），且必须显式给；标题/形态/封面
+    三道不许绕 —— 那是内容质量，不是「要不要重发」的选择题。
+    """
+    r = G.check_dupe(platform, case)
+    if r["ok"]:
+        return True, r["detail"]
+    if force:
+        return True, "⚠ 显式 --force 放行（%s）" % r["detail"]
+    return False, r["detail"]
+
+
+def _gate_title(platform, case, pack, **kw):
+    """标题：平台上限 / 硬截断 / 空壳模板 / AI 套话 / 金额与 `$`。"""
+    t = G.title_of(pack)
+    if not t and pack and os.path.isdir(pack):
+        # 头条/小红书/B站的二版产物是目录，标题由各自脚本现算，
+        # 静态取不到就别误拦 —— 但复核提示要留着。
+        return True, "产物目录无静态标题 ⇒ 发前跑 audit_cover_title.py 复核"
+    fs = G.scan_title(platform, t, pack)
+    bad = [f for f in fs if f["level"] == "block"]
+    if bad:
+        return False, "%d 条（%s：%s）" % (len(bad), bad[0]["rule"], bad[0]["detail"])
+    if fs:
+        return True, "%d 字 / 上限 %d，warn %d 条（%s）" % (
+            len(t), G.TITLE_MAX.get(platform, 100), len(fs), fs[0]["detail"][:60])
+    return True, "%d 字 / 上限 %d，干净" % (len(t), G.TITLE_MAX.get(platform, 100))
+
+
+def _gate_template(platform, case, pack, **kw):
+    """内容形态：管线水印 / 罐头来源句 / 机械栏目 / 知乎导流。"""
+    fs = G.scan_content(platform, None, pack)
+    bad = [f for f in fs if f["level"] == "block"]
+    if bad:
+        return False, "%d 条（%s：%s）⇒ 改稿或重建产物（不要 --force）" % (
+            len(bad), bad[0]["rule"], bad[0]["detail"])
+    if fs:
+        return True, "warn %d 条（%s）" % (len(fs), fs[0]["detail"][:60])
+    return True, "形态干净"
 
 
 def _gate_rules(platform, case, pack, **kw):
@@ -298,25 +394,31 @@ def _gate_remote(platform, case, pack, **kw):
     did = str(row.get(key) or "")
     if not did:
         return False, "台账没有远端草稿 id（还没上传到 %s 草稿箱）" % platform
-    state = row.get("tc_state") or ""
-    if platform == "tencentcloud" and state == "published":
-        return False, "台账已是 published（article %s）⇒ 重复发会出第二篇" % row.get("tc_article", "?")
+    state = row.get("tc_state" if platform == "tencentcloud" else "al_state") or ""
+    # 🚨 2026-11-04 修：旧写法恒读 `tc_state`，阿里云分支永远拿不到状态
+    #   ⇒ 已 published 的稿子也过闸，重复发不会被拦。
+    if state == "published":
+        art = row.get("tc_article" if platform == "tencentcloud" else "al_article") or "?"
+        return False, "台账已是 published（article %s）⇒ 重复发会出第二篇" % art
     return True, "draftId=%s" % did
 
 
 GATE_FN = {
-    "draft": _gate_draft, "link": _gate_link, "katex": _gate_katex,
-    "tt": _gate_tt, "genre": _gate_genre, "cover": _gate_cover,
-    "rules": _gate_rules, "remote": _gate_remote,
+    "dedupe": _gate_dedupe, "draft": _gate_draft, "link": _gate_link,
+    "katex": _gate_katex, "tt": _gate_tt, "genre": _gate_genre,
+    "cover": _gate_cover, "rules": _gate_rules,
+    "cover_remote": _gate_cover_remote,
+    "title": _gate_title, "template": _gate_template,
+    "remote": _gate_remote,
 }
 
 
-def run_gates(platform, case, pack):
+def run_gates(platform, case, pack, force=False):
     rows = []
-    for name in GATES.get(platform, ["draft"]):
+    for name in GATES.get(platform, ["dedupe", "draft"]):
         fn = GATE_FN[name]
         try:
-            ok, detail = fn(platform, case, pack)
+            ok, detail = fn(platform, case, pack, force=force)
         except SystemExit as e:                     # 闸自己 raise 也算拦下
             ok, detail = False, str(e).strip().splitlines()[0][:120]
         rows.append({"gate": name, "ok": bool(ok), "detail": detail})
@@ -516,7 +618,7 @@ def gen_pack(platform, case):
 
 
 def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
-        as_json=False, gen=False, new=False):
+        as_json=False, gen=False, new=False, force=False):
     cn = dict(SLOT.PLATFORMS)[platform]
     # 草稿箱即 FIFO 队列（用户定，2026-11-03）：先发**存入最久**的那条，
     # 箱空了才按当日档期新写。旧 SPEC 接成 `publish`（无脑新写）是错的——
@@ -524,8 +626,16 @@ def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
     # 小红书同病：箱里 48 条还往里塞第 49 条。send-draft 本来就「默认取
     # 存入最久的一条」，这里只是把入口接对。
     if platform in FIFO_PLATFORMS and not new and not case:
+        # 🚨 2026-11-04：FIFO 分支原本连档期都不看，直接 send-draft。
+        #   「今日已到上限」时重跑一次就是第二篇 ⇒ 先把配额闸补上。
+        d = SLOT.decide(platform, day)
+        if not d.get("kind"):
+            print("✗ %s 今天不发/已到上限：%s" % (cn, d.get("reason")))
+            print("  （FIFO 发的是箱内存最久的一条；重跑前先按标题查已发表列表，别重发）")
+            return 1
         print("▶ %s ｜ FIFO：发草稿箱里存入最久的一条（send-draft 默认）" % cn)
         print("  规则：箱空才新写 —— 那时加 --new 走当日档期选稿。")
+        print("  ⚠ 这条路径不经过本地选稿；失败先查已发表列表，别原地重跑。")
         if as_json:
             print(json.dumps({"platform": platform, "mode": "fifo"},
                              ensure_ascii=False))
@@ -589,7 +699,7 @@ def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
                     print("  稿件：%s（新生成）" % pack)
     print("  稿件：%s" % (pack or "（缺）"))
 
-    gates = run_gates(platform, case, pack)
+    gates = run_gates(platform, case, pack, force=force)
     if as_json:
         print(json.dumps({"platform": platform, "case": case, "pack": pack,
                           "gates": gates,
@@ -599,7 +709,7 @@ def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
     if upload and platform in ("tencentcloud", "aliyun") and any(
             g["gate"] == "remote" and not g["ok"] for g in gates):
         if upload_remote(platform, case, dry=not yes) == 0:
-            gates = run_gates(platform, case, pack)
+            gates = run_gates(platform, case, pack, force=force)
         else:
             print("✗ 上传失败（CDP 通道）：查 9228 Chrome 是否常驻、"
                   "chrome-yun-profile 登录态是否还在，按上面报错处理")
@@ -615,6 +725,8 @@ def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
         print("\n加 --yes 才真发。")
         return 0
 
+    if force:
+        print("\n⚠ --force 只绕过 dedupe 闸；title / template / cover / remote 照常硬拦。")
     cmd = build_cmd(platform, case, pack, True)
     print("\n执行：%s\n" % " ".join(_q(c) for c in cmd))
     t0 = time.time()
@@ -683,6 +795,9 @@ def main(argv=None):
                     help="AI 稿缺货时按需生成（gen_case_drafts，模板拼装+LLM 只写标题）")
     ap.add_argument("--new", action="store_true",
                     help="B站/小红书跳过 FIFO 直发，按当日档期新写草稿（箱空时用）")
+    ap.add_argument("--force", action="store_true",
+                    help="补发时只绕过 dedupe 闸（标题/形态/封面/remote 仍硬拦）；"
+                         "默认不许对已发过或已有草稿的 case 再来一次")
     a = ap.parse_args(argv)
 
     if a.all and a.platform:
@@ -695,7 +810,7 @@ def main(argv=None):
         rc = 0
         for k in todo:
             rc |= run(k, None, True, a.timeout, a.day, a.upload, a.json, a.gen,
-                      a.new)
+                      a.new, a.force)
         return rc
     if not a.platform:
         return plan(a.day, None, a.json)
@@ -704,7 +819,7 @@ def main(argv=None):
     rc = 0
     for k in a.platform:
         rc |= run(k, a.case, a.yes, a.timeout, a.day, a.upload, a.json, a.gen,
-                  a.new)
+                  a.new, a.force)
     return rc
 
 

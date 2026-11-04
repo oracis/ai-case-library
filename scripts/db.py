@@ -166,6 +166,23 @@ def _init_schema(conn):
     cur.execute("CREATE INDEX IF NOT EXISTS idx_posts_platform ON platform_posts(platform)")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_posts_state ON platform_posts(state)")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_posts_case_platform ON platform_posts(case_id, platform)")
+    # 🚨 (case_id, platform) 必须数据库级唯一（2026-11-04 补）：此前只有普通
+    #   索引，去重完全靠 `upsert_post` 的 SELECT→DELETE→INSERT 应用层约定；
+    #   多进程/并发建稿时这层约定会漏，而 `longtail_sync.json` 的键是**批次**
+    #   （<case>-<日期>-<序号>）不是幂等键 ⇒ 同一 case 同平台重复建稿无痕
+    #   （实测 43 条里 12 组重复标题）。与 `verifications` 同款：先去重再建
+    #   唯一索引，老库平滑升级；每组保留 id 最大（最新）那条。
+    ux = cur.execute("SELECT 1 FROM sqlite_master WHERE type='index' "
+                     "AND name='ux_posts_case_platform'").fetchone()
+    if not ux:
+        # 只在首次升级时去重；别让「读台账/出发布计划」这种只读路径
+        # 每次连接都跑一条 DELETE（会开写事务、动 WAL）。
+        cur.execute("""
+            DELETE FROM platform_posts WHERE id NOT IN (
+                SELECT MAX(id) FROM platform_posts GROUP BY case_id, platform)
+        """)
+        cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS ux_posts_case_platform "
+                    "ON platform_posts(case_id, platform)")
 
     # ---- 表 3：verifications 核实记录 ----
     cur.execute("""
@@ -323,17 +340,23 @@ def upsert_post(conn, case_id, platform, row):
         if not int(row.get("attempt") or 0) and int(old.get("attempt") or 0):
             row["attempt"] = old["attempt"]
 
-    cols = ["case_id", "platform"] + [k for k in row.keys() if k not in ("case_id", "platform")]
-    vals = [case_id, platform] + [row.get(k) for k in cols[2:]]
-    placeholders = ", ".join("?" for _ in cols)
-    col_sql = ", ".join(cols)
-
+    fields = [k for k in row.keys() if k not in ("case_id", "platform")]
     if existing:
-        post_id = existing["id"]
-        conn.execute("DELETE FROM platform_posts WHERE id=?", (post_id,))
-    conn.execute(
-        f"INSERT INTO platform_posts ({col_sql}) VALUES ({placeholders})",
-        vals)
+        # 🚨 UPDATE 而非 DELETE+INSERT（2026-11-04）：后者会重置 AUTOINCREMENT
+        #   id、把没带的字段冲成 NULL，并在唯一索引下留出「删了还没插」的
+        #   竞态窗口 —— 两个进程同时建同一篇稿就会各插一条。只更新本次
+        #   带来的字段，其余保留旧值，与「空字段回填」那段语义一致。
+        sets = ", ".join(f"{k}=?" for k in fields)
+        conn.execute(
+            f"UPDATE platform_posts SET {sets} WHERE id=?",
+            tuple(row.get(k) for k in fields) + (existing["id"],))
+    else:
+        cols = ["case_id", "platform"] + fields
+        vals = [case_id, platform] + [row.get(k) for k in fields]
+        placeholders = ", ".join("?" for _ in cols)
+        conn.execute(
+            f"INSERT INTO platform_posts ({', '.join(cols)}) VALUES ({placeholders})",
+            vals)
     return True
 
 

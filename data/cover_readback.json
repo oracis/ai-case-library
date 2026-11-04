@@ -1,0 +1,10 @@
+{
+ "chessigma": {
+  "csdn": {
+   "at": "2026-11-05 00:57:18",
+   "evidence": "CSDN 列表读取失败（✗ Chrome CDP 没起来（端口 9224））",
+   "source": "live",
+   "state": "unknown"
+  }
+ }
+}

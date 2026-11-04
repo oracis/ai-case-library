@@ -166,9 +166,33 @@ CATEGORY_STYLE = {
     # 它是「工作日每日一封人工筛选的约稿邮件」，本质是订阅制资讯刊物，
     # 所以画 newsletter / 邮件排版 / 订阅者列表，而不是报纸头版。
     "news magazines": "newsletter layout, curated email digest and subscriber list panels",
+    # ---- 2026-11-05 补：crypto web3（2 条，TrustMRR 档案给的分类就是这串小写英文）。
+    # 画钱包/链上数据/代币图表，不要画「比特币标志堆」——那会变成炒币海报。
+    "crypto web3": "crypto wallet and on-chain data interface, token charts and "
+                   "wallet transaction flows",
     "未分类": "generic software product concept illustration",
 }
 DEFAULT_STYLE = "flat geometric editorial illustration, product and workflow concept"
+
+
+def cat_key(cat):
+    """category → 两张映射表里的 key：精确命中优先，其次大小写/分隔符归一。
+
+    两张表是**按字符串精确查**的，而分类名来自不同来源：`Utilities` 与
+    `utilities`、`Security` 与 `security`、`Mobile Apps` 与 `移动应用` 同时存在。
+    2026-10-15、10-19、11-05 三次都是同一个故事：新来一个大小写变体 ⇒ 该分类
+    封面悄悄退回 DEFAULT_STYLE，风格不统一且**没有任何报错**。所以查表前先归一，
+    并保留精确命中优先（老写法行为不变）；`test_agnes_cover` 也按这个函数判定
+    覆盖率 —— 判据和实现不能各写一套。
+    """
+    c = (cat or "").strip()
+    if not c or c in CATEGORY_STYLE:
+        return c
+    norm = " ".join(c.lower().replace("_", " ").replace("-", " ").split())
+    for k in CATEGORY_STYLE:
+        if " ".join(k.lower().replace("_", " ").replace("-", " ").split()) == norm:
+            return k
+    return c
 
 # 允许的单字母/短缩写（`_ascii_only` 的白名单）。库里有 `1Lookup` 这种
 # 数字开头的名字，也需要容忍。
@@ -210,6 +234,8 @@ CATEGORY_THEME = {
     "travel": "travel booking and itinerary",
     # 与 CATEGORY_STYLE 同批补（2026-10-29）：订阅制资讯刊物
     "news magazines": "newsletter digest and subscriber list",
+    # 与 CATEGORY_STYLE 同批补（2026-11-05）：链上产品
+    "crypto web3": "crypto wallet and on-chain charts",
     "未分类": "software product",
 }
 
@@ -336,7 +362,7 @@ def build_prompt(case, target="square"):
     one_liner / verdict 是中文，**只取其 ASCII 片段**（多半为空），
     因为图像模型画不出中文，硬塞会出乱码图。
     """
-    cat = (case.get("category") or "").strip()
+    cat = cat_key(case.get("category"))
     style = CATEGORY_STYLE.get(cat, DEFAULT_STYLE)
     name = _ascii_only(case.get("name") or case.get("id") or "")
     one = _ascii_only(case.get("one_liner") or "")

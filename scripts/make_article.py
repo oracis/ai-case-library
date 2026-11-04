@@ -588,6 +588,66 @@ def strip_title_money(t):
     return s
 
 
+def _clean_title_hook(s):
+    """去掉标题里的数据层口径旁注（2026-11-04）。
+
+    `promote_to_candidates.py` 生成的 `metrics.headline` 是
+    「近 30 天收入 $16,120，TrustMRR 实时核对（非订阅制，MRR 恒 0）」。
+    `build_titles()` 以前把它整段拼进 `<h1>` ⇒ 6 篇公众号标题 66–76 字
+    超 64 上限，而且「实时核对 / 非订阅制」是给编辑看的旁注，不是标题文案。
+    只清旁注，金额本身保留（公众号不是技术社区，标题允许带数字）。
+    """
+    s = s or ""
+    s = re.sub(r"[（(]\s*非订阅制[^）)]*[）)]", "", s)
+    s = re.split(r"[，,]\s*TrustMRR\s*(?:实时)?核对", s)[0]
+    s = re.sub(r"^\s*公开口径[:：]\s*", "", s)
+    return re.sub(r"\s{2,}", " ", s).strip(" ，,、：:；;")
+
+
+def _cut_title(t, limit=64):
+    """公众号 64 字上限：按标点裁，不硬切。"""
+    if len(t) <= limit:
+        return t
+    head = t[:limit]
+    pos = max(head.rfind(x) for x in "，,、；;：: ")
+    if pos >= limit * 0.6:
+        return head[:pos].rstrip("，,、；;：: ")
+    return head.rstrip("，,、；;：: 的")
+
+
+# --------------------------------------------------- AI 标题覆盖表（只读）
+_AI_TITLE_CACHE = {"mtime": None, "titles": {}}
+
+
+def ai_title_overrides():
+    """只读 `data/wechat_title_overrides.json`，mtime 缓存，**绝不写盘**。
+
+    2026-11-04：`wechat_ai_titles.py` 用 LLM 把 175 篇「Name：MRR $X」模板
+    标题改写成具体句式，覆盖表落盘在 data/。生成器必须读同一份，否则
+    `make_article` 重建产物会把标题冲回模板，等于白改。
+    优先级：人工手改表 `TITLE_OVERRIDES` > AI 覆盖表 > 模板。
+    ⚠ 项目红线：读函数不许写盘。文件缺失/损坏一律静默返回空表，
+      保持旧的模板行为，绝不让生成器因为一张可选表而崩。
+    """
+    p = os.path.join(ROOT, "data", "wechat_title_overrides.json")
+    try:
+        mt = os.path.getmtime(p)
+    except OSError:
+        _AI_TITLE_CACHE["titles"] = {}
+        _AI_TITLE_CACHE["mtime"] = None
+        return {}
+    if _AI_TITLE_CACHE["mtime"] != mt:
+        try:
+            with open(p, encoding="utf-8") as f:
+                d = json.load(f)
+            t = d.get("titles", {}) if isinstance(d, dict) else {}
+        except (OSError, ValueError):
+            t = {}
+        _AI_TITLE_CACHE["titles"] = t if isinstance(t, dict) else {}
+        _AI_TITLE_CACHE["mtime"] = mt
+    return _AI_TITLE_CACHE["titles"]
+
+
 def build_titles(case):
     """三条备选标题。没手改过的走模板，并在草稿里标出建议手改。"""
     if case["id"] in TITLE_OVERRIDES:
@@ -602,17 +662,25 @@ def build_titles(case):
         return titles, True
     m = case.get("metrics") or {}
     name = case.get("name", case["id"])
-    hook = m.get("headline") or case.get("one_liner") or ""
+    hook = _clean_title_hook(m.get("headline") or case.get("one_liner") or "")
     # 定位被占位清理清空（或本来就没料）时，别拼出「PROSP：」这种带尾巴冒号的标题
     # ——冒号后面什么都没有，比只写产品名更刺眼。
     def _t(prefix, tail):
-        tail = (tail or "").strip()
-        return ("%s：%s" % (prefix, strip_quotes(tail))) if tail else prefix
-    return [
+        tail = _clean_title_hook(strip_quotes(tail or "").strip())
+        return _cut_title(("%s：%s" % (prefix, tail)) if tail else prefix)
+    titles = [
         _t(name, strip_quotes(hook)),
         "%s 这条生意，国内能做吗" % name,
         _t("拆解 %s" % name, case.get("one_liner", "")),
-    ], False
+    ]
+    # AI 改写覆盖表（2026-11-04）：人工表已在上面 return，这里只兜模板。
+    # 只换 titles[0]，另两条备选仍是模板形状供人挑；manual=True 表示标题
+    # 已定稿（不再打「标题由模板生成，发布前请手改」注释）。
+    ai = ai_title_overrides().get(case["id"])
+    if isinstance(ai, str) and ai.strip():
+        titles[0] = ai.strip()
+        return titles, True
+    return titles, False
 
 
 # ------------------------------------------------------------------ 正文分段
@@ -630,6 +698,52 @@ NO_HEAD = ""
 def _row(label, value):
     """键值行标记：两个渲染器都会把它渲成两列表格（md 真表格 / html 拼装表格）。"""
     return "%s%s%s%s" % (ROW_MARK, label, ROW_MARK, value)
+
+
+#: 口径 → 读者能懂的一句话。不是给机器看的枚举值（`metrics.caliber` 本身
+#: 是判据输入，绝不能改），而是印在数据卡上的一行说明。
+#: 取值必须覆盖库存实际用到的全部口径（mrr 345 / last_30d 82 / arr 20 /
+#: lifetime 6 / annual 5 / run_rate 2），缺一个就会把枚举值直接印给读者。
+CALIBER_TEXT = {
+    "mrr": "MRR，当前月经常性收入",
+    "last_30d": "近 30 天滚动流水，含一次性收入，不等于经常性收入",
+    "arr": "年化收入，由年费折算或按月费 ×12",
+    "run_rate": "按近期速度推算的年化流水（run rate），不是已实现收入",
+    "annual": "年度收入，按整年收费计，不等于月费 ×12",
+    "lifetime": "上线至今累计收入，不折算成月/年",
+    "all_time": "上线至今累计收入，不折算成月/年",
+    "none": "无可比口径（非订阅制，经常性收入恒为 0）",
+}
+
+
+def timepoint_row(case, metrics=None):
+    """数据卡最后一行：这些数字是**哪一天**的快照、按什么口径算的。
+
+    为什么非要这一行（2026-11-05，用户口径）
+    ----------------------------------------
+    用户指出金额「不准确，并且是动态的」——标题已全禁金额，但正文的数据卡
+    仍然只印数字、不印时点。读者看到「MRR $244,029」会当成今天的数，
+    实际那可能是上一次抓取那天的快照，之后涨了还是跌了都不知道。
+
+    只印日期也不够：`last_30d` 那种滚动 30 天流水常比 MRR 高一个量级
+    （实测有佣金型业务高出三十余倍），不标明口径就会被当成经常性收入引用。
+
+    所以这一行必须同时带**时点**和**口径**，缺一样都只是半个答案。
+    没有 `verified_at` 的旧数据**不许编日期**——宁可不印这一行。
+    """
+    m = metrics if isinstance(metrics, dict) else (case.get("metrics") or {})
+    at = str(case.get("verified_at") or "").strip()
+    cal = str(case.get("caliber") or "").strip().lower()
+    parts = []
+    if at:
+        parts.append("截至 %s（抓取日快照）" % at)
+    if cal in CALIBER_TEXT:
+        parts.append("口径：%s" % CALIBER_TEXT[cal])
+    elif cal and cal not in ("", "unknown"):
+        parts.append("口径：%s" % cal)
+    if not parts:
+        return ""
+    return _row("数据时点", "｜".join(parts))
 
 
 def _split_row(p):
@@ -715,6 +829,11 @@ def build_sections(case):
         if val in (None, "", [], {}):
             continue
         size.append(_row(label, fmt_metric(key, val)))
+    # 时点 + 口径永远压在数字后面：读者先读到数，紧接着读到「这是哪天的数」。
+    if size:
+        tp = timepoint_row(case, m)
+        if tp:
+            size.append(tp)
     if size:
         secs.append(("它到底做到多大", size))
 

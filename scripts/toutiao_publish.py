@@ -136,10 +136,14 @@ def _title_override(cid):
 
 
 _TITLE_TAIL_JUNK = re.compile(r"[\s—–:：,，、.。!！?？|/\\-]+$")
+# 断面落在这些字上＝半个词；11-04 实测「…于是有了」「…拿下 10」都是这么来的
+_DANGLING_TAIL = re.compile(
+    r"(?:的|了|和|与|为|在|把|被|从|对|及|或|是|之|以|而|且|并|但|就|都|"
+    r"也|还|将|让|给|这|其|一|个|[「『（(]|\d)$")
 
 
 def _truncate_title(title, limit):
-    """按头条 30 字上限截断，且不留「——一」式残渣。
+    """按头条 30 字上限截断，且不留「——一」式残渣 / 「拿下 10」式半截数字。
 
     2026-10-17：旧逻辑 `cand[:TITLE_MAX]` 硬切，实测把
     「…转成 WordPress——一键迁移」切成「…WordPress——一」
@@ -148,14 +152,28 @@ def _truncate_title(title, limit):
       ① 截断面落在孤立标点/空白上 ⇒ 清掉；
       ② 截断面落在连接号（——/—/-）后一两个字上 ⇒ 连接号带残字一起清，
          干净收在前半句（仅当原标题真的超 limit，不误伤完整的「A——B」）。
+    2026-11-04 补 ③：断面落在虚字或**切在数字中间**（`raw[limit]` 还是数字）
+        ⇒ 退回上一个分句标点，宁可标题短一点也不留半个词。全仓体检时
+        「Chessigma：「免费版 Chess.com」拿下 10」「…本来就是错的，于是有了」
+        就是这两类。
     """
-    t = (title or "")[:limit]
-    t = _TITLE_TAIL_JUNK.sub("", t)                    # ①
-    if len(title or "") > limit:                       # ②
-        m = re.search(r"[-—–]{1,2}.{0,2}$", t)
-        if m:
-            t = t[:m.start()]
-    return t or (title or "").strip()[:limit]
+    raw = title or ""
+    if len(raw) <= limit:
+        return raw
+    t = _TITLE_TAIL_JUNK.sub("", raw[:limit])                    # ①
+    m = re.search(r"[-—–]{1,2}.{0,2}$", t)
+    if m:                                                       # ②
+        t = t[:m.start()]
+    cut_mid_number = (limit < len(raw) and raw[limit].isdigit()
+                      and bool(t) and t[-1].isdigit())
+    if _DANGLING_TAIL.search(t) or cut_mid_number:                # ③
+        pos = max(t.rfind(x) for x in "，,、；;：:")
+        if pos >= 8:
+            back = t[:pos].rstrip("，,、；;：: ")
+            if len(back) >= 8:
+                return back
+        t = re.sub(r"\d+$", "", t).rstrip("，,、；;：: 的地得")
+    return t or raw.strip()[:limit]
 
 
 def make_toutiao_title(c, hits_out=None):
