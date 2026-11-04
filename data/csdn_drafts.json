@@ -1,32 +1,38 @@
 {
-  "chessigma": {
-    "article_id": "169742331",
-    "status": "rejected",
-    "title": "Chessigma 技术拆解：一个海外独立产品的工程与增长",
-    "url": "https://blog.csdn.net/sinat_32396037/article/details/169742331",
-    "ts": "2026-11-01 14:45:57",
-    "note": "2026-11-02 创作中心复核：2026-11-01 14:45 那篇显示「审核未通过」，此前台账记成 published 是错的（saveArticle 返回成功 ≠ 过审）"
-  },
-  "cod-dex": {
-    "article_id": "169850647",
-    "title": "Codédex 技术拆解：一个海外独立产品的工程与增长",
-    "url": "https://blog.csdn.net/sinat_32396037/article/details/169850647",
-    "ts": "2026-11-02 23:35:54",
-    "status": "published"
-  },
-  "_deleted": {
-    "trustmrr_169654106": "2026-11-01 14:49 删除：00:09 的 TrustMRR 测试稿，非本批次占位稿，用于腾创作中心位（但 CSDN 日配额按发表事件计、删除不退款，故未能当日发 cod-dex）"
-  },
-  "ext-ep-001-super-mario-bros": {
-    "article_id": null,
-    "title": "游戏厅：马力欧兄弟，被 JS 重写的 1985 经典",
-    "url": "https://blog.csdn.net/sinat_32396037/article/details/169938945",
-    "ts": "2026-11-03 13:12:58"
-  },
-  "ext-ep-002-2048": {
-    "article_id": null,
-    "title": "游戏厅：2048，一个网页就能玩的数字合并",
-    "url": "https://blog.csdn.net/sinat_32396037/article/details/170041126",
-    "ts": "2026-11-04 13:16:04"
-  }
+ "chessigma": {
+  "article_id": "170045008",
+  "title": "做一个免费国际象棋对战平台，工程上要过哪几道关",
+  "url": "https://blog.csdn.net/sinat_32396037/article/details/170045008",
+  "ts": "2026-11-04 17:1x",
+  "cover": "https://i-blog.csdnimg.cn/direct/94b53f6af8a44307bf77c489acb925ff.png",
+  "state": "deep_deleted"
+ },
+ "cod-dex": {
+  "article_id": "169850647",
+  "title": "浏览器里跑学生代码：互动式编程平台的沙箱、判题与成本",
+  "url": "https://blog.csdn.net/sinat_32396037/article/details/169850647",
+  "ts": "2026-11-04 17:16:30",
+  "status": "published",
+  "genre": "tech",
+  "state": "published"
+ },
+ "_deleted": {
+  "trustmrr_169654106": "2026-11-01 14:49 删除：00:09 的 TrustMRR 测试稿，非本批次占位稿，用于腾创作中心位（但 CSDN 日配额按发表事件计、删除不退款，故未能当日发 cod-dex）"
+ },
+ "ext-ep-001-super-mario-bros": {
+  "article_id": "169938945",
+  "title": "用 Backbone 游戏引擎复刻超级马力欧兄弟：Sprite、Engine 与关卡数据怎么分层",
+  "url": "https://blog.csdn.net/sinat_32396037/article/details/169938945",
+  "ts": "2026-11-04 17:1x",
+  "cover": "https://i-blog.csdnimg.cn/direct/eb599d3e8a5846ab9627083de43d968a.png",
+  "state": "deep_deleted"
+ },
+ "ext-ep-002-2048": {
+  "article_id": "170041126",
+  "title": "4×4 网格怎么写出「合并」手感：读开源 2048 的代码结构",
+  "url": "https://blog.csdn.net/sinat_32396037/article/details/170041126",
+  "ts": "2026-11-04 17:1x",
+  "cover": "https://i-blog.csdnimg.cn/direct/f9811f07fbd04fb4a156f8172dbbca44.png",
+  "state": "deep_deleted"
+ }
 }

@@ -61,6 +61,7 @@ import db  # noqa: E402  SQLite 统一台账：两朵云发布记录读 platform
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
+import csdn_rules as CR          # noqa: E402
 import katex_money_fix as KX      # noqa: E402
 import link_hygiene as LH         # noqa: E402
 import publish_slot as SLOT       # noqa: E402
@@ -108,7 +109,7 @@ GATES = {
     "bilibili": ["draft", "link", "cover"],
     "cnblogs": ["draft", "link"],
     "zhihu": ["draft", "link"],
-    "csdn": ["draft", "link", "katex"],
+    "csdn": ["draft", "link", "katex", "rules", "cover"],
     "tencentcloud": ["draft", "link", "katex", "genre", "cover", "remote"],
     "aliyun": ["draft", "link", "katex", "remote"],
 }
@@ -244,6 +245,20 @@ def _gate_cover(platform, case, pack, **kw):
     return (True, os.path.relpath(c, ROOT)) if c else (False, "缺封面图 ⇒ 腾讯云会静默失败，公众号/头条封面为空")
 
 
+def _gate_rules(platform, case, pack, **kw):
+    """CSDN《社区内容创作规范》硬闸（scripts/csdn_rules.py）。"""
+    if not pack or not pack.lower().endswith(".md"):
+        return True, "非 md，跳过"
+    R = CR
+    title, body = R.read_md(pack)
+    v = R.scan(title, R.clean(body))
+    if v["block"]:
+        it = v["block"][0]
+        return False, "%d 条会驳回（%s：%s）⇒ scripts/csdn_rules.py %s" % (
+            len(v["block"]), it["rule"], it["spec"], os.path.relpath(pack, ROOT))
+    return True, "无违规词条（warn %d 条）" % len(v["warn"])
+
+
 def _yun_row(case, platform):
     """从 SQLite ledger 读两朵云发布记录，返回兼容 yun_finalize.json 格式的 dict。
 
@@ -291,7 +306,8 @@ def _gate_remote(platform, case, pack, **kw):
 
 GATE_FN = {
     "draft": _gate_draft, "link": _gate_link, "katex": _gate_katex,
-    "tt": _gate_tt, "genre": _gate_genre, "cover": _gate_cover, "remote": _gate_remote,
+    "tt": _gate_tt, "genre": _gate_genre, "cover": _gate_cover,
+    "rules": _gate_rules, "remote": _gate_remote,
 }
 
 
@@ -326,6 +342,11 @@ def build_cmd(platform, case, pack, yes):
         cmd = s("bilibili_publish.py", "publish", "--case", case)
     elif platform == "csdn":
         cmd = s("csdn_publish.py", "publish", "--file", pack, "--case", case)
+        # 封面必须随发表一起提交（saveArticle 的 cover_images）；
+        # 事后补封面要重发一次、重新过审，2026-11-04 三篇全裸图就是漏了这一步
+        c = cover_of(case)
+        if c:
+            cmd += ["--cover", c]
     elif platform == "cnblogs":
         cmd = s("cnblogs_publish.py", "publish", "--file", pack, "--case", case)
     elif platform == "zhihu":
