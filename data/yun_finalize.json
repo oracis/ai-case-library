@@ -119,5 +119,19 @@
     "tc_state_at": "2026-11-04 14:13",
     "updated": "2026-11-04 14:14:39",
     "tc_article": "2775867"
+  },
+  "ext-ep-003-freedoom": {
+    "tc_draft": "340532",
+    "tc_state": "published",
+    "tc_state_at": "2026-11-04 19:26",
+    "tc_article": "2776285",
+    "updated": "2026-11-04 19:26:57"
+  },
+  "mort": {
+    "tc_draft": "340537",
+    "tc_state": "published",
+    "tc_state_at": "2026-11-04 19:34",
+    "tc_article": "2776290",
+    "updated": "2026-11-04 19:34:48"
   }
 }

@@ -98,6 +98,11 @@
     "case_id": "ext-ep-001-super-mario-bros",
     "kind": "game",
     "at": "2026-11-04 13:03"
+   },
+   {
+    "case_id": "clawlink",
+    "kind": "ai",
+    "at": "2026-11-04 14:45"
    }
   ],
   "xhs": [

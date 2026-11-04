@@ -340,6 +340,42 @@ def _remember(key, entry):
     write_text(LEDGER, text, newline=nl)
 
 
+def _remember_db(case, results, title=""):
+    """同步写 SQLite `platform_posts`（state=draft）。
+
+    🚨 2026-11-04 补：此前只写 `longtail_sync.json`，而
+    `publish_one.py` 的 `remote` 闸只读 SQLite（`db.get_post`）——
+    于是「刚建好草稿」和「从没建过草稿」在闸眼里一模一样，报
+    `台账没有远端草稿 id`，照提示再跑一次 `--upload` 就会**建出第二份
+    草稿**。两份草稿各自可能被发表，正是重复稿的来源。
+
+    `upsert_post` 的状态只前进不回退（`_STATE_RANK`），所以 draft 不会
+    盖掉已有的 published；已发过的稿子这里只补 draft_id，不改状态。
+    """
+    try:
+        import db                                    # noqa: PLC0415
+    except Exception as e:                           # noqa: BLE001
+        print("  ⚠ SQLite 台账不可用（%s），只写 JSON" % repr(e)[:80])
+        return
+    conn = db.get_conn()
+    try:
+        for plat, info in results.items():
+            if not info.get("ok") or not info.get("draftId"):
+                continue
+            db.upsert_post(conn, case, plat, {
+                "draft_id": str(info["draftId"]),
+                "state": "draft",
+                "url": info.get("url") or "",
+                "title": title,
+                "updated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+            })
+        conn.commit()
+        print("✓ SQLite platform_posts ← %d 个平台（state=draft）"
+              % len([r for r in results.values() if r.get("ok")]))
+    finally:
+        db.close_conn()
+
+
 def _fill_text(cdp, selector, value):
     """往 input/textarea 填值（React 受控 ⇒ 必须用原生 setter + 事件）。"""
     return cdp.eval("""
@@ -745,6 +781,7 @@ def main():
     _remember(key, {"case": case, "title": title, "platforms": results,
                     "via": "cdp-9228", "ts": time.strftime("%Y-%m-%d %H:%M:%S")})
     print("✓ 台账: %s ← %s" % (os.path.relpath(LEDGER, ROOT), key))
+    _remember_db(case, results, title)
     print("  收尾/发表沿用: python scripts/sync_longtail.py --finalize --case %s "
           "--al-draft <aid> --tc-draft <did>" % case)
 
