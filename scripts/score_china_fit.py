@@ -2773,6 +2773,40 @@ SCORES = {
              "化门槛，接上国内支付就能用。竞争 2：酷家乐、美间已经把家装设计链路吃透，"
              "单点出图工具的生存空间在「不想学软件的人」。",
     ),
+
+    # ── 2026-11-04 404 档案 4 条降级口径入库 ──
+    "changelogfy": dict(
+        demand=3, payment=4, compliance=4, acquisition=3, localization=3, competition=2,
+        blocker="反馈工具与 GitHub Issues、Lark 文档重叠，付费意愿低",
+        note="需求 3：产品经理需要收集反馈，但用免费工具替代容易。付费 4：$30–$50 区间能被小团"
+             "队接受。合规 4：无资质要求。获客 3：Product Hunt 与 indie "
+             "hacker 社区。本地化 3：工具类无语言障碍。竞争 2：与 GitHub Issues、"
+             "飞书文档高度重叠。",
+    ),
+    "citron-app": dict(
+        demand=3, payment=3, compliance=3, acquisition=2, localization=4, competition=2,
+        blocker="国内小红书/抖音菜谱内容生态与海外不同，且多语言是唯一壁垒",
+        note="需求 3：菜谱需求稳定，但短视频菜谱转化率不高。付费 3：App Store 订阅用户的付费"
+             "习惯比安卓好。合规 3：菜谱内容无合规风险。获客 2：App Store 获客贵，"
+             "依赖社交媒体传播。本地化 4：多语言是核心能力。竞争 2：下厨房、豆果美食等成熟玩家。",
+    ),
+    "ryn-vpn": dict(
+        demand=4, payment=3, compliance=1, acquisition=2, localization=3, competition=2,
+        blocker="国内 VPN 业务属电信增值业务，无资质不能做",
+        note="需求 4：翻墙与隐私需求稳定存在。付费 3：VPN 用户付费意愿中等，"
+             "被免费工具挤压。合规 1：VPN 在国内属电信增值业务，个人开发无资质。"
+             "获客 2：App Store 与 Google Play 获客贵。本地化 3："
+             "产品本身无语言障碍。竞争 2：Surfshark、NordVPN 等巨头林立。",
+    ),
+    "ton-piston": dict(
+        demand=3, payment=4, compliance=3, acquisition=2, localization=2, competition=3,
+        blocker="法国求职入口（France Travail、La Bonne Alternance）不开放给外国开发者",
+        note="需求 3：求职是长期刚需，但单价低、频次低。付费 4：学生群体价格敏感，"
+             "但 Pro 套餐锚点 $30–$50 可接受。合规 3：求职数据涉及个人隐私，"
+             "法国有 RGPD，国内有个人信息保护法。获客 2：法国本土入口被国企垄断，"
+             "外国人很难拿到。本地化 2：法国求职市场与国内完全不重叠。竞争 3："
+             "AI 简历工具多，但本地化搜索入口是壁垒。",
+    ),
 }
 
 
