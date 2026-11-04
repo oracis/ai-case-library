@@ -35,7 +35,7 @@ def backup(keep=10):
     # 清理超出 keep 份的旧备份
     backups = sorted(
         f for f in os.listdir(BACKUP_DIR)
-        if f.startswith("ledger.db.bak-") and f.endswith(".db")
+        if f.startswith("ledger.db.bak-")
     )
     while len(backups) > keep:
         old = os.path.join(BACKUP_DIR, backups.pop(0))
