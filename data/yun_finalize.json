@@ -90,5 +90,34 @@
     "community": "云原生",
     "updated": "2026-11-03 00:28:42",
     "uploaded_img": "https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_3f1d202e83a5480991888d46ba5ca48e.png"
+  },
+  "ext-ep-001-super-mario-bros": {
+    "tc_draft": "339742",
+    "al_draft": "1703041",
+    "tc_url": "https://cloud.tencent.com/developer/article/2774977",
+    "al_url": "https://developer.aliyun.com/article/1778894",
+    "updated": "2026-11-04 14:09:13",
+    "tc_state": "published",
+    "tc_state_at": "2026-11-03 14:58",
+    "tc_article": "2774977",
+    "al_article": "1778894",
+    "al_state": "published",
+    "al_state_at": "2026-11-04 13:51:34",
+    "al_published_at": "2026-11-04 13:51:34"
+  },
+  "__community__1703041": {
+    "uploaded_img": "https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_96c35f25576f428680601c68a5d8a971.png",
+    "updated": "2026-11-04 13:51:34",
+    "community": "云原生",
+    "published": "1778894",
+    "published_at": "2026-11-04 13:51:34"
+  },
+  "ext-ep-002-2048": {
+    "tc_draft": "340253",
+    "tc_state": "published",
+    "title": "游戏厅：2048，一个网页就能玩的数字合并",
+    "tc_state_at": "2026-11-04 14:13",
+    "updated": "2026-11-04 14:14:39",
+    "tc_article": "2775867"
   }
 }

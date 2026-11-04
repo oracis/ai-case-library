@@ -569,7 +569,7 @@ fetch(%s, {credentials: "include"})
 # 腾讯云
 # --------------------------------------------------------------------------
 def create_tencent(cdp, title, body_md, abstract=""):
-    """腾讯云建草稿。返回 (draftId, 失败原因)。
+    r"""腾讯云建草稿。返回 (draftId, 失败原因)。
 
     ⚠ 2026-11-01 编辑器改版：旧 ProseMirror（#cdc-rich-editor + 「切换 MD
     编辑器」）已下线，换成 CodeMirror（cm-content）。旧注入流程整体失效

@@ -262,6 +262,26 @@ def _run_via_cdp(args, case, title, body, cover_url):
     remember(key, {"case": case, "title": title, "platforms": results,
                    "category": args.category, "cover": cover_url or "",
                    "via": "cdp-9228", "ts": time.strftime("%Y-%m-%d %H:%M:%S")})
+    # 🚨 建完稿必须登记 tc_draft/al_draft（2026-11-04 补）：publish_one 的 remote 闸
+    #   读的是 **SQLite platform_posts.draft_id**（不是 longtail_sync.json）。
+    #   此前只写 longtail_sync.json ⇒ 草稿明明建好了，闸还报「台账没有远端草稿 id」，
+    #   每次都得手工补一条 ledger_set 才能发。`ledger_set` 会顺带 `_db_sync`。
+    import yun_finalize as F
+    for plat, info in results.items():
+        if not info.get("ok"):
+            continue
+        kv = {"title": title}
+        if plat == "tencentcloud":
+            kv.update(tc_draft=str(info["draftId"]), tc_state="draft",
+                      tc_state_at=time.strftime("%Y-%m-%d %H:%M"))
+        else:
+            kv.update(al_draft=str(info["draftId"]), al_state="draft",
+                      al_state_at=time.strftime("%Y-%m-%d %H:%M"))
+        try:
+            F.ledger_set(case, **kv)
+            print("  ✓ 台账登记 %s 草稿 id=%s（db 已同步）" % (plat, info["draftId"]))
+        except Exception as _e:                            # noqa: BLE001
+            print("  ⚠ 台账登记失败（不影响草稿）：%s: %s" % (type(_e).__name__, _e))
     print("✓ 台账: %s ← %s" % (os.path.relpath(LEDGER, ROOT), key))
     print("  收尾/发表沿用: python scripts/sync_longtail.py --finalize --case %s "
           "--al-draft <aid> --tc-draft <did>" % case)
@@ -297,6 +317,8 @@ def main():
     ap.add_argument("--i-said-publish", dest="i_said_publish", default="")
     ap.add_argument("--headed", action="store_true",
                     help="finalize/publish 用有头 Chrome（默认无头）")
+    ap.add_argument("--captcha-wait", type=int, default=300,
+                    help="publish 时弹滑块原地等人工拖的秒数（默认 300）")
     args = ap.parse_args()
 
     if args.finalize:
@@ -323,7 +345,8 @@ def main():
         proc, cdp = F._connect(args.headed)
         try:
             F.publish_aliyun(cdp, int(args.al_draft), args.community or None,
-                         args.cover or "")
+                         args.cover or "",
+                         captcha_wait=getattr(args, "captcha_wait", 300))
         finally:
             try:
                 cdp.bws.close()

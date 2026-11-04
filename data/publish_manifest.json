@@ -1,22 +1,25 @@
 {
  "1lookup": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-17 22:06",
    "attempt": 0,
+   "error": "对账补登: 读公开页正文确认(cv53482719) → 1Lookup：一个 API 查电话、邮箱、IP 实时数据",
    "state": "draft_saved",
-   "title": "月收$244K：一个接口验电话和邮箱"
+   "title": "1Lookup：一个 API 查电话、邮箱、IP 实时数据"
   },
   "toutiao": {
    "at": "2026-10-23 15:56",
    "attempt": 0,
+   "error": "send_existing_draft",
    "state": "published",
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-02 01:09",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "state": "published",
+   "title": "1Lookup：一个 API 做电话、邮箱、IP 的实时数据校验"
   },
   "xhs": {
    "at": "2026-09-29 21:17",
@@ -26,13 +29,25 @@
   }
  },
  "3ak-track-field": {
+  "aliyun": {
+   "at": "2026-11-03 21:33:42",
+   "attempt": 0,
+   "error": " | longtail_key=3ak-track-field-2026-10-30-1",
+   "state": "published",
+   "title": ""
+  },
+  "tencentcloud": {
+   "at": "2026-11-03 21:33:42",
+   "attempt": 0,
+   "error": " | longtail_key=3ak-track-field-2026-10-30-1",
+   "state": "published",
+   "title": ""
+  },
   "zhihu": {
    "at": "2026-11-02 23:49",
    "attempt": 0,
-   "remote_id": "2099504180557768154",
    "state": "published",
-   "title": "先有 15 万粉受众，后有产品：两个田径生如何用 AI 做训练 App？",
-   "url": "https://zhuanlan.zhihu.com/p/2099504180557768154"
+   "title": "先有 15 万粉受众，后有产品：两个田径生如何用 AI 做训练 App？"
   }
  },
  "aeo-checker": {
@@ -57,10 +72,11 @@
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-09-21 22:57",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "state": "published",
+   "title": "AEO Engine"
   },
   "xhs": {
    "at": "2026-09-29 21:17",
@@ -73,9 +89,9 @@
   "bilibili": {
    "at": "2026-10-27 13:01 草稿箱→发布（send-draft）",
    "attempt": 1,
-   "remote_id": "53628187",
+   "error": "｜更新草稿 aid=344958（draft/add 回读校验通过）",
    "state": "published",
-   "title": "AgentsGuild：卖给游戏开发者的 AI 技能工具包，靠一次性付费赚钱"
+   "title": "AgentsGuild：近 30 天已验证收入 ，为游戏开发"
   },
   "juejin": {
    "at": "2026-10-26 12:56",
@@ -84,22 +100,24 @@
    "title": "AgentsGuild：近 30 天收入 $398，TrustMRR 实时核对（非订阅制，MRR 恒 0）"
   },
   "toutiao": {
-   "at": "2026-10-26 13:57",
+   "at": "2026-10-27 12:46",
    "attempt": 2,
-   "state": "draft_saved",
+   "error": "send_existing_draft",
+   "state": "published",
    "title": "AgentsGuild：卖给游戏开发者的 AI 技能工具包，靠一次性付费赚钱"
   },
   "wechat": {
-   "at": "2026-10-26 13:09",
+   "at": "2026-10-27 13:24",
    "attempt": 0,
-   "state": "draft_saved",
+   "error": "｜publish模式自动发表，新 appmsgid=2247484764",
+   "state": "published",
    "title": "AgentsGuild：卖给游戏开发者的 AI 技能工具包，靠一次性付费赚钱"
   },
   "xhs": {
-   "at": "2026-10-26 13:12",
+   "at": "2026-10-27 12:53",
    "attempt": 0,
    "state": "draft_saved",
-   "title": "AgentsGuild：卖给游戏开发者的 AI 技能工具包，靠一次性付费赚钱"
+   "title": "卖 39 美元一次性的游戏开发工具包"
   }
  },
  "ai-math-solver": {
@@ -119,7 +137,7 @@
    "at": "2026-10-25 01:13",
    "attempt": 0,
    "state": "draft_saved",
-   "title": "AI Math Solver+：AI数学解题工具，为师生、家"
+   "title": "AI Math Solver+：AI数学解题工具，为师生、家长和数学爱好者提供即时解决方案"
   },
   "xhs": {
    "at": "2026-10-25 01:52",
@@ -148,10 +166,11 @@
    "title": "AI Prank Call：AI 语音恶作剧服务，32 活跃"
   },
   "wechat": {
-   "at": "2026-10-26 15:47",
+   "at": "2026-10-25 00:43",
    "attempt": 0,
+   "error": "远端已发表列表里存在，本地由 sync 回写",
    "state": "published",
-   "title": "AI Prank Call：AI 语音恶作剧服务，32 活跃"
+   "title": "AI Prank Call：AI 语音恶作剧服务，32 活跃订阅数"
   },
   "xhs": {
    "at": "2026-10-26 15:28",
@@ -177,7 +196,7 @@
    "at": "2026-10-25 01:17",
    "attempt": 0,
    "state": "draft_saved",
-   "title": "AI Smart Decor：AI智能室内设计工具，让用户预"
+   "title": "AI Smart Decor：AI智能室内设计工具，让用户预览装修效果"
   },
   "xhs": {
    "at": "2026-10-25 01:55",
@@ -229,7 +248,7 @@
    "at": "2026-10-10 16:17",
    "attempt": 1,
    "state": "draft_saved",
-   "title": "Shopify 商家的 Meta 追踪本来就是错的，于是有了"
+   "title": "Augora AI：Shopify 广告追踪自动化"
   },
   "xhs": {
    "at": "2026-10-10 17:41",
@@ -242,21 +261,22 @@
   "bilibili": {
    "at": "2026-10-20 同步（用户手动发布，已通过列表回读命中）",
    "attempt": 0,
-   "remote_id": 342371,
+   "error": "2026-10-20 00:55 发现已在已通过列表（非本次自动发布，应为 10-19 深夜编辑器打开后的人工点击，具体时间未知）",
    "state": "published",
-   "title": "月收$1.4K：一键把素材剪成短视频"
+   "title": "AutoReels.AI：一键把素材剪成短视频"
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-21 12:38",
    "attempt": 0,
-   "state": "draft_saved",
+   "error": "send_existing_draft",
+   "state": "published",
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-09-21 21:09",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "state": "published",
+   "title": "AutoReels.AI：AI 自动生成短视频"
   },
   "xhs": {
    "at": "2026-09-29 21:17",
@@ -288,7 +308,7 @@
    "at": "2026-10-25 00:47",
    "attempt": 0,
    "state": "draft_saved",
-   "title": "Betting Tips：为足球、篮球、网球、美式足球和棒球"
+   "title": "Betting Tips：为足球、篮球、网球、美式足球和棒球爱好者提供每日专家投注建议"
   },
   "xhs": {
    "at": "2026-10-25 01:29",
@@ -299,10 +319,11 @@
  },
  "bettrbot": {
   "xhs": {
-   "at": "2026-10-23 15:56",
+   "at": "2026-10-11 17:41",
    "attempt": 0,
+   "error": "2026-10-23 15:27 接口对账回填（线上已发布）",
    "state": "draft_saved",
-   "title": ""
+   "title": "输入想法几分钟出成片，累计赚 162 万"
   }
  },
  "boothie-ai-photo-editor": {
@@ -319,16 +340,17 @@
    "title": "Boothie: AI Photo Editor：MRR $"
   },
   "wechat": {
-   "at": "2026-10-14 01:07",
+   "at": "2026-10-15 22:34",
    "attempt": 2,
    "state": "draft_saved",
-   "title": "Boothie: AI Photo Editor"
+   "title": "Boothie：AI 照片编辑器"
   },
   "xhs": {
-   "at": "2026-10-14 00:13",
+   "at": "2026-10-17 22:05",
    "attempt": 3,
+   "error": "2026-10-23 15:27 接口对账回填（线上已发布）",
    "state": "draft_saved",
-   "title": "月收$46K：Boothie 是"
+   "title": "选个风格，自拍被重渲染成那种质感"
   }
  },
  "bustem": {
@@ -339,30 +361,34 @@
    "title": "月收$398K：帮品牌删仿品和窜货链接"
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-09-28 20:40",
    "attempt": 0,
-   "state": "draft_saved",
+   "error": "P1对账: 新口径『Bustem：帮电商品牌全网打假』+旧口径『月收$398K：帮品牌删仿品和窜货链接』两篇",
+   "state": "published",
    "title": ""
   },
   "wechat": {
-   "at": "2026-10-28 14:54",
+   "at": "2026-10-16 08:35",
    "attempt": 0,
+   "error": "远端已发表列表里存在，本地由 sync 回写",
    "state": "published",
-   "title": "Bustem：帮电商品牌全网打假，找仿品、窜货、下架链接"
+   "title": "Bustem：帮电商品牌全网打假"
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-16 11:28",
    "attempt": 0,
+   "error": "2026-10-23 15:27 接口对账回填；⚠ 与 6ac513e3 重复发布",
    "state": "draft_saved",
-   "title": ""
+   "title": "38 个平台帮品牌抓仿品，软件加人工"
   }
  },
  "chatbase": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-18 14:59",
    "attempt": 0,
+   "error": "对账补登: 读公开页正文确认(cv53490089) → Chatbase：上传文档就得到一个客服机器人",
    "state": "draft_saved",
-   "title": "年收$10M：上传文档变客服机器人"
+   "title": "Chatbase：上传文档就得到一个客服机器人"
   },
   "toutiao": {
    "at": "2026-09-29 21:17",
@@ -371,16 +397,18 @@
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-09-21 21:59",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "state": "published",
+   "title": "「年入 $20M」和「累计 $20M」，差了一整个量级"
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-22 11:34",
    "attempt": 0,
+   "error": "2026-10-23 15:27 接口对账回填（线上已发布）",
    "state": "draft_saved",
-   "title": ""
+   "title": "上传文档就有客服机器人，30 分钟成交"
   }
  },
  "chatsell-co": {
@@ -400,7 +428,7 @@
    "at": "2026-10-25 01:00",
    "attempt": 0,
    "state": "draft_saved",
-   "title": "Chatsell.co：为WooCommerce店铺提供自然"
+   "title": "Chatsell.co：为WooCommerce店铺提供自然语言产品搜索和即时答案的AI聊天机器人。"
   },
   "xhs": {
    "at": "2026-10-25 01:40",
@@ -413,9 +441,9 @@
   "bilibili": {
    "at": "2026-10-20 同步（用户手动发布，已通过列表回读命中）",
    "attempt": 0,
-   "remote_id": 342374,
+   "error": "2026-10-20 00:52 编辑器点「发布」→「你的专栏已提交成功」→ 已通过列表回读命中（草稿箱最老，10-10 01:15）",
    "state": "published",
-   "title": "月收$3.4K：给 AI 写的应用查漏洞"
+   "title": "CheckVibe：扫描 vibe-coded 应用漏洞"
   },
   "toutiao": {
    "at": "2026-09-29 21:17",
@@ -424,10 +452,11 @@
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-09-21 23:19",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "state": "published",
+   "title": "CheckVibe：扫描 vibe-coded 应用的安全漏洞——转换率翻三倍靠的不是产品，是付费墙的写法"
   },
   "xhs": {
    "at": "2026-09-29 21:17",
@@ -438,9 +467,10 @@
  },
  "chessigma": {
   "aliyun": {
-   "at": "2026-11-01 17:17",
+   "at": "2026-11-03 21:33:42",
    "attempt": 0,
-   "state": "draft_saved",
+   "error": " | longtail_key=chessigma-2026-11-01-1",
+   "state": "published",
    "title": "aid=1700270"
   },
   "bilibili": {
@@ -462,28 +492,31 @@
    "title": "juejin.cn/post/7702737817416957967"
   },
   "tencentcloud": {
-   "at": "2026-11-01 17:17",
+   "at": "2026-11-03 21:33:42",
    "attempt": 0,
-   "state": "draft_saved",
+   "error": " | longtail_key=chessigma-2026-11-03-1",
+   "state": "published",
    "title": "draftId=338751"
   },
   "toutiao": {
    "at": "2026-11-01 17:17",
    "attempt": 1,
+   "error": "原标题被 30 字硬截断成「Chessigma：「免费版 Chess.com」拿下 10」，2026-11-02 走「修改已发布文章」改成「免费下棋平台拿下 100 万用户，只有 576 人付费」，未删稿，展现/评论保留",
    "state": "published",
    "title": "Chessigma：「免费版 Chess.com」拿下 10（pgc_id=7703128531567477282）"
   },
   "wechat": {
-   "at": "2026-11-01 14:03",
+   "at": "2026-11-01 19:59",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": "Chessigma：「免费版 Chess.com」拿下 10"
+   "state": "published",
+   "title": "Chessigma：「免费版 Chess.com」拿下 100 万+ 用户，576 个订阅"
   },
   "xhs": {
    "at": "2026-11-01 16:48",
    "attempt": 0,
+   "error": "2026-11-02 改标题：笔记管理→铅笔→/publish/update?id=<noteId>，改完点 xhs-publish-btn 内红色「发布」，回列表已看不到「审核中」（已过审）。原标题「Chessigma：拿下 100 万+」模板化",
    "state": "published",
-   "title": "Chessigma：拿下 100 万+"
+   "title": "免费下棋，100 万人用，576 人付费"
   },
   "zhihu": {
    "at": "2026-11-01 17:17",
@@ -494,22 +527,19 @@
  },
  "clawlink": {
   "bilibili": {
-   "account": "bilibili2",
    "at": "2026-10-31 22:22",
    "attempt": 1,
-   "confirmed_at": "2026-10-31 23:18",
-   "note": "二号(国会图书馆/9224)。提交时 toast「提交成功」但已发表列表为空 ⇒ 当时判「审核中」未记账；2026-10-31 23:30 回读已发表列表命中，aid=53699085，改判 published。⚠ 教训：B站专栏有审核延迟，提交后当天的「列表为空」不等于失败，别重发。",
-   "remote_id": "53699085",
+   "error": "二号(国会图书馆/9224)。提交时 toast「提交成功」但已发表列表为空 ⇒ 当时判「审核中」未记账；2026-10-31 23:30 回读已发表列表命中，aid=53699085，改判 published。⚠ 教训：B站专栏有审核延迟，提交后当天的「列表为空」不等于失败，别重发。",
    "state": "published",
-   "title": "ClawLink：MRR $2,219，聊天窗口直连百个应用",
-   "url": "https://www.bilibili.com/read/cv53699085"
+   "title": "ClawLink：MRR $2,219，聊天窗口直连百个应用"
   }
  },
  "cod-dex": {
   "aliyun": {
-   "at": "2026-11-01 17:17",
+   "at": "2026-11-03 21:33:42",
    "attempt": 0,
-   "state": "draft_saved",
+   "error": " | longtail_key=cod-dex-2026-11-03-1",
+   "state": "published",
    "title": "aid=1701241"
   },
   "bilibili": {
@@ -527,10 +557,8 @@
   "csdn": {
    "at": "2026-11-02 23:49",
    "attempt": 1,
-   "remote_id": "169850647",
    "state": "published",
-   "title": "Codédex 技术拆解：一个海外独立产品的工程与增长",
-   "url": "https://blog.csdn.net/sinat_32396037/article/details/169850647"
+   "title": "Codédex 技术拆解：一个海外独立产品的工程与增长"
   },
   "juejin": {
    "at": "2026-11-01 17:17",
@@ -539,28 +567,32 @@
    "title": "juejin.cn/post/7702736770072821795"
   },
   "tencentcloud": {
-   "at": "2026-11-01 17:17",
+   "at": "2026-11-03 21:33:42",
    "attempt": 0,
-   "state": "draft_saved",
+   "error": " | longtail_key=cod-dex-2026-11-03-2",
+   "state": "published",
    "title": "draftId=338752"
   },
   "toutiao": {
    "at": "2026-11-01 17:17",
    "attempt": 1,
+   "error": "原标题截断成「Codédex：把学编程包装成「冒险旅程」的互动课程平台，免」，2026-11-02 改成「9.99 美元学编程，6686 人把课程当闯关游戏」，未删稿",
    "state": "published",
    "title": "Codédex（pgc_id=7703129188911383055）"
   },
   "wechat": {
-   "at": "2026-11-01 16:04",
+   "at": "2026-11-01 20:05",
    "attempt": 1,
-   "state": "draft_saved",
+   "error": "｜publish模式自动发表，新 appmsgid=2247484986",
+   "state": "published",
    "title": "Codédex：把学编程包装成「冒险旅程」的互动课程平台，免费 250+ 小时内容引流，Club 订阅 /月变现"
   },
   "xhs": {
    "at": "2026-11-01 17:46",
    "attempt": 0,
+   "error": "2026-11-02 改标题，发布后状态为「审核中」。原标题「Codédex：把学编程包装成的互动课程」模板化",
    "state": "published",
-   "title": "Codédex：把学编程包装成的互动课程（16:33，重复篇已删）"
+   "title": "9.99 美元学编程，6686 人买单"
   },
   "zhihu": {
    "at": "2026-11-01 17:17",
@@ -577,22 +609,24 @@
    "title": "Cometly：把广告和收入对上号"
   },
   "toutiao": {
-   "at": "2026-10-10 16:00",
+   "at": "2026-10-13 23:41",
    "attempt": 1,
-   "state": "draft_saved",
+   "error": "2026-10-19 对账：新旧两篇都在线上。旧篇『$20 万/月的营销归因生意，但不是一个人做的』（正文首行即 Cometly）。早先这条旧篇被错挂在 sierra 名下。（远端：『Cometly：广告数据归因分析』）",
+   "state": "published",
    "title": "$20 万/月的营销归因生意，但不是一个人做的"
   },
   "wechat": {
-   "at": "2026-10-10 17:01",
+   "at": "2026-10-16 07:50",
    "attempt": 1,
    "state": "draft_saved",
-   "title": "$20 万/月的营销归因生意，但不是一个人做的"
+   "title": "Cometly：广告数据归因分析"
   },
   "xhs": {
-   "at": "2026-10-10 18:06",
+   "at": "2026-10-20 21:53",
    "attempt": 0,
+   "error": "2026-10-23 15:27 接口对账回填（线上已发布）",
    "state": "draft_saved",
-   "title": "月收$202K：给 SaaS 公司的营销"
+   "title": "哪条广告带来哪笔收入，广告费不白花"
   }
  },
  "comp-ai": {
@@ -609,16 +643,17 @@
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-09-22 00:10",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "state": "published",
+   "title": "Comp AI：帮公司过 SOC 2 / ISO 27001 合规审计，把六个月的流程压到几周"
   },
   "xhs": {
    "at": "2026-10-23 15:56",
    "attempt": 0,
    "state": "published",
-   "title": ""
+   "title": "把 SOC 2 审计从六个月压到几周"
   }
  },
  "coral": {
@@ -629,16 +664,18 @@
    "title": "旧标题"
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-17 对账补登",
    "attempt": 0,
-   "state": "draft_saved",
+   "error": "P1对账: 远端『Coral：托管你的开源 AI 助手』在册（2026-10-16 群发，台账漏登）。2026-10-17 晚复核恢复：上午误以「草稿箱没有」为据删过，但已发表列表实证在册——群发后稿件离开草稿箱是正常行为，草稿箱没有≠没群发",
+   "state": "published",
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-20 22:32",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "error": "｜publish模式自动发表，新 appmsgid=2247484557",
+   "state": "published",
+   "title": "Coral：托管你的开源 AI 助手"
   },
   "xhs": {
    "at": "2026-09-29 21:17",
@@ -664,7 +701,7 @@
    "at": "2026-10-25 00:56",
    "attempt": 0,
    "state": "draft_saved",
-   "title": "DemoPolish：Demopolish帮助软件和SaaS"
+   "title": "DemoPolish：Demopolish帮助软件和SaaS创始人60秒内制作专业演示视频"
   },
   "xhs": {
    "at": "2026-10-25 01:37",
@@ -677,79 +714,200 @@
   "bilibili": {
    "at": "2026-10-28 14:37 草稿箱→发布（send-draft）",
    "attempt": 0,
-   "remote_id": "53645998",
+   "error": "｜草稿同步(2026-10-10 01:17): title 认领 aid=342399｜更新草稿 aid=342399（draft/add 回读校验通过）｜更新草稿 aid=342399（draft/add 回读校验通过）",
    "state": "published",
    "title": "Divine Widgets：圣经小组件，每日经文祷告上锁屏"
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-17 01:20",
    "attempt": 0,
-   "state": "draft_saved",
+   "error": "P1对账: 『Divine：给站长卖网站挂件』(缩写前缀互补)",
+   "state": "published",
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-09-24 23:59",
    "attempt": 0,
    "state": "draft_saved",
-   "title": ""
+   "title": "Divine Widgets：一个人做的圣经小组件，锁屏上每天一句"
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-09-30 15:20",
    "attempt": 0,
+   "error": "2026-10-23 15:27 接口对账回填（线上已发布）",
    "state": "draft_saved",
-   "title": ""
+   "title": "每日经文放上锁屏，一个人做到月入 1254"
   }
  },
  "downconvert-sketchup-files": {
   "bilibili": {
-   "at": "2026-10-13 22:48",
+   "at": "2026-10-14 13:25",
    "attempt": 1,
+   "error": "2026-10-24 21:2x 编辑器点「发布」→ toast「提交成功」→ 草稿箱 44→43（aid=343827 消失）→ 已发表列表按标题命中 cv53590385《DownConvert：SketchUp 文件转旧版》。⚠ 脚本按 aid 回读未命中是判据缺陷：B站发布后 read id 会变（343827→53590385），已发表列表回读必须按标题匹配。",
    "state": "draft_saved",
    "title": "DownConvert：SketchUp 文件转旧版"
   },
   "toutiao": {
-   "at": "2026-10-13 22:59",
+   "at": "2026-10-24 21:32",
    "attempt": 0,
-   "state": "draft_saved",
+   "error": "send_existing_draft",
+   "state": "published",
    "title": "DOWNCONVERT SKETCHUP FILES：MRR"
   },
   "wechat": {
-   "at": "2026-10-14 01:24",
+   "at": "2026-10-24 21:54",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": "DOWNCONVERT SKETCHUP FILES：Ske"
+   "error": "｜publish模式自动发表，新 appmsgid=2247484627",
+   "state": "published",
+   "title": "DOWNCONVERT SKETCHUP FILES：SketchUp 文件版本转换工具"
   },
   "xhs": {
-   "at": "2026-10-14 00:26",
+   "at": "2026-10-24 21:37",
    "attempt": 0,
    "state": "draft_saved",
-   "title": "DOWNCONVERT SKETCHUP FILES：Ske"
+   "title": "SketchUp 文件转回旧版，月入 3748 美元"
   }
  },
  "easymix": {
   "bilibili": {
-   "at": "2026-10-05 15:15",
+   "at": "2026-10-17 10:10",
    "attempt": 1,
+   "error": "P1对账: 语义匹配(混音订阅, cv53335667) → 法国录音棚收 250 欧一单，有人把混音做成了订阅",
    "state": "draft_saved",
    "title": "法国录音棚收 250 欧一单，有人把混音做成了订阅"
   },
   "toutiao": {
-   "at": "2026-10-05 14:52",
+   "at": "2026-10-17 01:20",
    "attempt": 0,
-   "state": "draft_saved",
+   "error": "P1对账: 『上传人声和伴奏一键出混音成品』(本地标题兜底)",
+   "state": "published",
    "title": "法国录音棚收 250 欧一单，有人把混音做成了订阅"
   },
   "wechat": {
    "at": "2026-10-05 14:06",
    "attempt": 0,
    "state": "draft_saved",
-   "title": "法国录音棚收 250 欧一单，有人把混音做成了订阅"
+   "title": "法国录音棚的一单，有人把混音做成了订阅"
   },
   "xhs": {
    "at": "2026-10-05 14:59",
    "attempt": 1,
    "state": "draft_saved",
    "title": "法国录音棚收 250 欧一单，有人把混音做成了订阅"
+  }
+ },
+ "ext-ep-001-super-mario-bros": {
+  "aliyun": {
+   "article_id": "1778894",
+   "at": "2026-11-04 13:54",
+   "attempt": 0,
+   "state": "published",
+   "title": "游戏厅：马力欧兄弟，被 JS 重写的 1985 经典",
+   "url": "https://developer.aliyun.com/article/1778894"
+  },
+  "tencentcloud": {
+   "at": "2026-11-03 21:33:42",
+   "attempt": 0,
+   "error": " | longtail_key=ext-ep-001-super-mario-bros-2026-11-03-1",
+   "state": "published",
+   "title": ""
+  },
+  "toutiao": {
+   "at": "2026-10-31 22:10",
+   "attempt": 0,
+   "error": "send_existing_draft",
+   "state": "published",
+   "title": ""
+  }
+ },
+ "ext-ep-002-2048": {
+  "toutiao": {
+   "at": "2026-10-31 19:49",
+   "attempt": 0,
+   "error": "send_existing_draft",
+   "state": "published",
+   "title": ""
+  }
+ },
+ "ext-ep-003-freedoom": {
+  "toutiao": {
+   "at": "2026-10-31 19:53",
+   "attempt": 0,
+   "error": "send_existing_draft",
+   "state": "published",
+   "title": ""
+  }
+ },
+ "ext-ep-004-quake": {
+  "toutiao": {
+   "at": "2026-10-31 19:57",
+   "attempt": 0,
+   "error": "send_existing_draft",
+   "state": "published",
+   "title": ""
+  }
+ },
+ "ext-ep-005-supertux": {
+  "toutiao": {
+   "at": "2026-10-31 20:01",
+   "attempt": 0,
+   "error": "send_existing_draft",
+   "state": "published",
+   "title": ""
+  }
+ },
+ "ext-ep-006-nethack": {
+  "toutiao": {
+   "at": "2026-10-31 20:05",
+   "attempt": 0,
+   "error": "send_existing_draft",
+   "state": "published",
+   "title": ""
+  }
+ },
+ "ext-ep-007-openttd": {
+  "toutiao": {
+   "at": "2026-10-31 20:09",
+   "attempt": 0,
+   "error": "send_existing_draft",
+   "state": "published",
+   "title": ""
+  }
+ },
+ "ext-ep-008-mindustry": {
+  "toutiao": {
+   "at": "2026-10-31 20:12",
+   "attempt": 0,
+   "error": "send_existing_draft",
+   "state": "published",
+   "title": ""
+  }
+ },
+ "ext-ep-009-lichess": {
+  "toutiao": {
+   "at": "2026-10-31 20:19",
+   "attempt": 0,
+   "error": "send_existing_draft",
+   "state": "published",
+   "title": ""
+  }
+ },
+ "ext-ep-010-cataclysm-dark-days-ahead": {
+  "toutiao": {
+   "at": "2026-10-31 20:23",
+   "attempt": 0,
+   "error": "send_existing_draft",
+   "state": "published",
+   "title": ""
+  }
+ },
+ "ext-ep-011-minetest": {
+  "toutiao": {
+   "at": "2026-10-31 18:51",
+   "attempt": 0,
+   "error": "send_existing_draft",
+   "state": "published",
+   "title": ""
   }
  },
  "fastwrite-io": {
@@ -760,16 +918,17 @@
    "title": "fastwrite.io：AI 帮学生写学术文本"
   },
   "toutiao": {
-   "at": "2026-10-13 22:57",
+   "at": "2026-10-13 23:41",
    "attempt": 0,
-   "state": "draft_saved",
+   "error": "2026-10-19 对账：草稿已升格为已发布，台账未迁移（远端：『fastwrite.io：提升学术写作质量』）",
+   "state": "published",
    "title": "fastwrite.io：AI写作工具SaaS，辅助学生学术"
   },
   "wechat": {
    "at": "2026-10-14 01:19",
    "attempt": 0,
    "state": "draft_saved",
-   "title": "fastwrite.io：AI写作工具SaaS，辅助学生学术"
+   "title": "fastwrite.io：AI写作工具SaaS，辅助学生学术写作"
   },
   "xhs": {
    "at": "2026-10-14 00:22",
@@ -779,14 +938,26 @@
   }
  },
  "flodesk": {
-  "zhihu": {
-   "note": "2026-10-31 补记：远端已发表列表回读命中（2026-10-29 12:17:15）。此前 UI 发表后未回写台账，属漏记。",
-   "published_ts": "2026-10-29 12:17:15",
-   "remote_id": "2098799999773570136",
+  "aliyun": {
+   "at": "2026-11-03 21:33:42",
+   "attempt": 0,
+   "error": " | longtail_key=flodesk-2026-10-30-2",
    "state": "published",
-   "title": "一个被 YC 拒绝的邮件工具：靠「一口价 + 无限发」做成了大生意",
-   "updated_at": "2026-10-31 23:53:22",
-   "url": "https://zhuanlan.zhihu.com/p/2098799999773570136"
+   "title": ""
+  },
+  "tencentcloud": {
+   "at": "2026-11-03 21:33:42",
+   "attempt": 0,
+   "error": " | longtail_key=flodesk-2026-10-30-1",
+   "state": "published",
+   "title": ""
+  },
+  "zhihu": {
+   "at": "2026-11-03 21:04:52",
+   "attempt": 0,
+   "error": "2026-10-31 补记：远端已发表列表回读命中（2026-10-29 12:17:15）。此前 UI 发表后未回写台账，属漏记。",
+   "state": "published",
+   "title": "一个被 YC 拒绝的邮件工具：靠「一口价 + 无限发」做成了大生意"
   }
  },
  "genius-ai": {
@@ -799,19 +970,37 @@
   "toutiao": {
    "at": "2026-10-29 11:46",
    "attempt": 0,
+   "error": "send_existing_draft",
    "state": "published",
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-02 01:32",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "state": "published",
+   "title": "Genius AI（原 GlossGenius）：给美发店、美甲店、理疗诊所做的一体化后台：预约、收银、发短信"
   },
   "xhs": {
    "at": "2026-09-29 21:17",
    "attempt": 0,
    "state": "draft_saved",
+   "title": ""
+  }
+ },
+ "getdavid": {
+  "aliyun": {
+   "at": "2026-11-03 21:33:42",
+   "attempt": 0,
+   "error": " | longtail_key=getdavid-2026-10-30-2",
+   "state": "published",
+   "title": ""
+  },
+  "tencentcloud": {
+   "at": "2026-11-03 21:33:42",
+   "attempt": 0,
+   "error": " | longtail_key=getdavid-2026-10-30-1",
+   "state": "published",
    "title": ""
   }
  },
@@ -829,16 +1018,18 @@
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-02 01:14",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "state": "published",
+   "title": "GojiberryAI：面向 B2B 团队的 AI GTM 平台：找高意向线索，把购买信号变成对话"
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-21 12:41",
    "attempt": 0,
+   "error": "2026-10-23 15:27 接口对账回填（线上已发布）",
    "state": "draft_saved",
-   "title": ""
+   "title": "谁在换工作就推给销售，卖的是时机"
   }
  },
  "growingupvideo": {
@@ -849,16 +1040,17 @@
    "title": "GrowingUpVideo：旧照片做成变脸视频"
   },
   "toutiao": {
-   "at": "2026-10-13 23:04",
+   "at": "2026-10-13 23:41",
    "attempt": 0,
-   "state": "draft_saved",
+   "error": "2026-10-19 对账：草稿已升格为已发布，台账未迁移（远端：『GrowingUpVideo：照片变脸电影级视频』）",
+   "state": "published",
    "title": "GrowingUpVideo：近 30 天收入 $3,285"
   },
   "wechat": {
    "at": "2026-10-14 01:36",
    "attempt": 0,
    "state": "draft_saved",
-   "title": "GrowingUpVideo：5分钟内将照片变成电影级AI变"
+   "title": "GrowingUpVideo：5分钟内将照片变成电影级AI变脸视频"
   },
   "xhs": {
    "at": "2026-10-14 00:33",
@@ -869,8 +1061,9 @@
  },
  "harperai": {
   "bilibili": {
-   "at": "2026-10-05 15:15",
+   "at": "2026-10-06 00:17",
    "attempt": 1,
+   "error": "对账补登: 读公开页正文确认(cv53304680) → 正文首句『Harper 把英国公开的公司抵押记录…』 ⇒ HarperAI",
    "state": "draft_saved",
    "title": "把英国公开抵押记录连成一张网，然后卖给贷款经纪"
   },
@@ -891,6 +1084,22 @@
    "attempt": 1,
    "state": "draft_saved",
    "title": "把英国公开抵押记录连成一张网，然后卖给贷款经纪"
+  }
+ },
+ "headshotpro": {
+  "aliyun": {
+   "at": "2026-11-03 21:33:42",
+   "attempt": 0,
+   "error": " | longtail_key=headshotpro-2026-10-30-2",
+   "state": "published",
+   "title": ""
+  },
+  "tencentcloud": {
+   "at": "2026-11-03 21:33:42",
+   "attempt": 0,
+   "error": " | longtail_key=headshotpro-2026-10-30-2",
+   "state": "published",
+   "title": ""
   }
  },
  "homy": {
@@ -923,21 +1132,21 @@
   "bilibili": {
    "at": "2026-10-21 12:35 草稿箱→发布（send-draft；回读滞后，人工核实空间公开列表 id=53536366 后补账）",
    "attempt": 0,
-   "remote_id": "342403",
    "state": "published",
    "title": "Insect Bite ID：拍张照认出被什么咬"
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-20 15:31",
    "attempt": 0,
-   "state": "draft_saved",
+   "error": "send_existing_draft",
+   "state": "published",
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-09-21 20:41",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "state": "published",
+   "title": "Insect Bite ID：用 AI 识别虫咬类型"
   },
   "xhs": {
    "at": "2026-09-29 21:17",
@@ -950,26 +1159,44 @@
   "bilibili": {
    "at": "2026-10-22 11:29 草稿箱→发布（send-draft；回读滞后，人工核实空间公开列表 id=53551964 后补账）",
    "attempt": 0,
-   "remote_id": "342405",
    "state": "published",
    "title": "Kibu：给智障与发育障碍机构做的内容与电子病历系统"
   },
   "toutiao": {
    "at": "2026-09-30 17:44",
    "attempt": 0,
+   "error": "P1对账: 『月收$234K：给残障机构做病历系统』(金额234,319)",
    "state": "published",
    "title": ""
   },
   "wechat": {
    "at": "2026-10-29 12:10",
    "attempt": 0,
+   "error": "｜publish模式自动发表，新 appmsgid=2247484766",
+   "state": "published",
+   "title": "Kibu：专给智障与发育障碍（I/DD）服务机构做的内容、合规与电子病历系统"
+  },
+  "xhs": {
+   "at": "2026-10-05 22:03",
+   "attempt": 0,
+   "error": "2026-10-18 21:46 接口对账回填（线上已发布）",
+   "state": "draft_saved",
+   "title": "给残障服务机构做病历系统，48 个州"
+  }
+ },
+ "klar": {
+  "aliyun": {
+   "at": "2026-11-03 21:33:42",
+   "attempt": 0,
+   "error": " | longtail_key=klar-2026-10-30-2",
    "state": "published",
    "title": ""
   },
-  "xhs": {
-   "at": "2026-09-29 21:17",
+  "tencentcloud": {
+   "at": "2026-11-03 21:33:42",
    "attempt": 0,
-   "state": "draft_saved",
+   "error": " | longtail_key=klar-2026-10-30-1",
+   "state": "published",
    "title": ""
   }
  },
@@ -987,16 +1214,17 @@
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-09-21 23:03",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "state": "published",
+   "title": "Lancer.app：AI 替自由职业者干完接单最烦的那一段：找活、筛活、写提案、投出去"
   },
   "xhs": {
    "at": "2026-10-29 11:46",
    "attempt": 0,
    "state": "published",
-   "title": ""
+   "title": "自由职业者的提案，AI 写完替你投出去"
   }
  },
  "le19emetrou": {
@@ -1013,10 +1241,10 @@
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-09-25 00:27",
    "attempt": 0,
    "state": "draft_saved",
-   "title": ""
+   "title": "一笔广告费，卖一支高尔夫开瓶器"
   },
   "xhs": {
    "at": "2026-09-29 21:17",
@@ -1042,7 +1270,7 @@
    "at": "2026-10-14 01:30",
    "attempt": 0,
    "state": "draft_saved",
-   "title": "MacWall：为 Mac 用户提供 4K 电影感动态壁纸的"
+   "title": "MacWall：为 Mac 用户提供 4K 电影感动态壁纸的订阅产品"
   },
   "xhs": {
    "at": "2026-10-14 00:30",
@@ -1055,21 +1283,23 @@
   "bilibili": {
    "at": "2026-10-29 11:46",
    "attempt": 0,
+   "error": "2026-10-29 发布时 B站重分配 aid：342411 → 53660838；脚本按旧 aid 回读误报失败，已人工回读已发表列表命中补账",
    "state": "published",
-   "title": "月收$11K：输入主题自动做 PPT"
+   "title": "MagicSlides.app：输入主题自动做 PPT"
   },
   "toutiao": {
    "at": "2026-11-03 01:20",
    "attempt": 0,
-   "note": "2026-09-28 发布后被判「审核未通过」；2026-11-03 凌晨在作品管理删除（不可恢复），台账置 deleted，不自动重发。",
+   "error": "send_existing_draft",
    "state": "deleted",
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-02 00:56",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "state": "published",
+   "title": "MagicSlides.app：AI 一键生成演示文稿"
   },
   "xhs": {
    "at": "2026-09-29 21:17",
@@ -1086,22 +1316,49 @@
    "title": "月收$1.03M：靠一堆小产品组合赚钱"
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-09-28 20:40",
    "attempt": 0,
-   "state": "draft_saved",
+   "error": "P1对账: 『月收$1.03M：靠一堆小产品组合赚钱』(金额1,032,000)",
+   "state": "published",
    "title": ""
   },
   "wechat": {
-   "at": "2026-10-23 15:56",
+   "at": "2026-10-23 15:54",
+   "attempt": 0,
+   "error": "｜publish模式自动发表，新 appmsgid=2247484626",
+   "state": "published",
+   "title": "Marc Lou 的产品矩阵：三年发 25 个产品、12 个赚钱、1 个大成——靠「组合」而不是「单品」活着"
+  },
+  "xhs": {
+   "at": "2026-10-08 12:14",
+   "attempt": 0,
+   "error": "2026-10-23 14:57 接口对账回填（线上已发布）",
+   "state": "draft_saved",
+   "title": "三年发 25 个产品，12 个在赚钱"
+  }
+ },
+ "markdown-structure": {
+  "aliyun": {
+   "at": "2026-11-03 21:33:42",
+   "attempt": 0,
+   "error": " | longtail_key=markdown-structure-2026-10-29-1",
+   "state": "draft_saved",
+   "title": ""
+  }
+ },
+ "mcdpoints": {
+  "toutiao": {
+   "at": "2026-10-25 09:57",
    "attempt": 0,
    "state": "published",
    "title": ""
   },
-  "xhs": {
-   "at": "2026-09-29 21:17",
+  "wechat": {
+   "at": "2026-10-25 11:16",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "error": "｜publish模式自动发表，新 appmsgid=2247484750",
+   "state": "published",
+   "title": "用麦当劳官方接口查了一下，我的积分正在悄悄过期"
   }
  },
  "meerkats-ai": {
@@ -1118,23 +1375,26 @@
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-16 08:02",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "state": "published",
+   "title": "Meerkats：替营销公司跑获客"
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-18 14:58",
    "attempt": 0,
+   "error": "2026-10-23 15:27 接口对账回填（线上已发布）",
    "state": "draft_saved",
-   "title": ""
+   "title": "找线索到约上会议只要 15 分钟"
   }
  },
  "mort": {
   "bilibili": {
-   "at": "2026-09-30 19:44",
+   "at": "2026-11-03 21:27",
    "attempt": 2,
-   "state": "draft_saved",
+   "error": "P1对账: 标题直接命中(cv53280245) → MORT：AI 求职代理，自动投遍企业招聘页",
+   "state": "published",
    "title": "MORT：AI 产品"
   },
   "toutiao": {
@@ -1147,13 +1407,14 @@
    "at": "2026-09-30 19:50",
    "attempt": 0,
    "state": "draft_saved",
-   "title": "MORT：AI 产品"
+   "title": "MORT：AI 求职代理：盯 5 万个企业招聘页，按简历打分并自动投递"
   },
   "xhs": {
-   "at": "2026-09-30 20:14",
+   "at": "2026-10-03 17:39",
    "attempt": 1,
+   "error": "2026-10-03 23:40 人工从草稿箱发布",
    "state": "draft_saved",
-   "title": "月收$84：AI"
+   "title": "盯 5 万个招聘页，按简历打分自动投递"
   }
  },
  "nitra": {
@@ -1170,10 +1431,11 @@
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-09-21 21:48",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "state": "published",
+   "title": "中文媒体把这家美国医疗公司的客户数，写多了 10 倍"
   },
   "xhs": {
    "at": "2026-09-29 21:17",
@@ -1199,7 +1461,7 @@
    "at": "2026-10-14 01:13",
    "attempt": 0,
    "state": "draft_saved",
-   "title": "Nutria (9e3eaa)：AI 卡路里追踪应用，MRR"
+   "title": "Nutria：AI 卡路里追踪应用"
   },
   "xhs": {
    "at": "2026-10-14 00:18",
@@ -1216,21 +1478,40 @@
    "title": "月收$250K：自动写博客把排名做上去"
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-09-28 20:40",
    "attempt": 0,
-   "state": "draft_saved",
+   "error": "P1对账: 『月收$250K：自动写博客把排名做上去』(金额250000)",
+   "state": "published",
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-22 11:47",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "error": "｜publish模式自动发表，新 appmsgid=2247484559",
+   "state": "published",
+   "title": "Outrank：从 AI 博客生成器到自动化 SEO 引擎"
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-09 12:57",
    "attempt": 0,
+   "error": "2026-10-23 14:57 接口对账回填（线上已发布）",
    "state": "draft_saved",
+   "title": "从月入 300 到月入 30 万，只做 SEO"
+  }
+ },
+ "pdfai": {
+  "aliyun": {
+   "at": "2026-11-03 21:33:42",
+   "attempt": 0,
+   "error": " | longtail_key=pdfai-2026-10-30-2",
+   "state": "published",
+   "title": ""
+  },
+  "tencentcloud": {
+   "at": "2026-11-03 21:33:42",
+   "attempt": 0,
+   "error": " | longtail_key=pdfai-2026-10-30-1",
+   "state": "published",
    "title": ""
   }
  },
@@ -1251,7 +1532,7 @@
    "at": "2026-10-14 01:58",
    "attempt": 0,
    "state": "draft_saved",
-   "title": "Pet Plus Us：AI 生成宠物与主人个性化肖像，挂牌"
+   "title": "Pet Plus Us：AI 生成宠物与主人个性化肖像"
   },
   "xhs": {
    "at": "2026-10-14 00:48",
@@ -1270,19 +1551,38 @@
   "toutiao": {
    "at": "2026-09-30 17:44",
    "attempt": 0,
+   "error": "P1对账: 『月收$250K：靠几个网站收租』(金额250000)",
    "state": "published",
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-30 13:29",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "error": "｜publish模式自动发表，新 appmsgid=2247484767",
+   "state": "published",
+   "title": "Pieter Levels 的产品矩阵"
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-03 23:30",
    "attempt": 0,
+   "error": "2026-10-03 23:40 人工从草稿箱发布",
    "state": "draft_saved",
+   "title": "三款产品月入 25 万美元，不雇全职"
+  }
+ },
+ "plausible": {
+  "aliyun": {
+   "at": "2026-11-03 21:33:42",
+   "attempt": 0,
+   "error": " | longtail_key=plausible-2026-10-30-1",
+   "state": "published",
+   "title": ""
+  },
+  "tencentcloud": {
+   "at": "2026-11-03 21:33:42",
+   "attempt": 0,
+   "error": " | longtail_key=plausible-2026-10-30-1",
+   "state": "published",
    "title": ""
   }
  },
@@ -1294,22 +1594,24 @@
    "title": "Podawaa：LinkedIn 排期与受众增长"
   },
   "toutiao": {
-   "at": "2026-10-10 15:56",
+   "at": "2026-10-17 01:20",
    "attempt": 1,
-   "state": "draft_saved",
+   "error": "P1对账: 『把 LinkedIn 内容发布做成订阅，然后靠平台自己的增长』(语义)",
+   "state": "published",
    "title": "把 LinkedIn 内容发布做成订阅，然后靠平台自己的增长做到月收 $6.6 万"
   },
   "wechat": {
    "at": "2026-10-10 16:40",
    "attempt": 1,
    "state": "draft_saved",
-   "title": "把 LinkedIn 内容发布做成订阅，然后靠平台自己的增长"
+   "title": "Podawaa：把 LinkedIn 发布做成订阅"
   },
   "xhs": {
-   "at": "2026-10-10 17:53",
+   "at": "2026-10-12 16:30",
    "attempt": 2,
+   "error": "2026-10-23 15:27 接口对账回填（线上已发布）",
    "state": "draft_saved",
-   "title": "把 LinkedIn 内容发布做成订阅，然后靠平台自己的增长"
+   "title": "把领英内容当产品运营：排期加分析"
   }
  },
  "postiz": {
@@ -1326,16 +1628,18 @@
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-09-21 22:10",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "state": "published",
+   "title": "Postiz：社媒一键多平台排期发布，靠 agent 营销把 MRR 从 1.7 万推到 20 万"
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-10 21:02",
    "attempt": 0,
+   "error": "2026-10-23 15:27 接口对账回填（线上已发布）",
    "state": "draft_saved",
-   "title": ""
+   "title": "一条内容发十几个平台，6000 订阅撑起"
   }
  },
  "promptmonitor-io": {
@@ -1346,48 +1650,52 @@
    "title": "$85K成交：盯住 AI 怎么提你品牌"
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-17 01:20",
    "attempt": 0,
-   "state": "draft_saved",
+   "error": "P1对账: 『PromptMon：盯 AI 里的品牌』(缩写前缀互补)",
+   "state": "published",
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-09-25 00:04",
    "attempt": 0,
    "state": "draft_saved",
-   "title": ""
+   "title": "品牌开始问「AI 回答里提不提我」，于是有了这门生意"
   },
   "xhs": {
    "at": "2026-10-28 14:54",
    "attempt": 0,
    "state": "published",
-   "title": "PromptMon：盯 AI 里的品牌"
+   "title": "品牌在 AI 回答里出现几次，现在能查"
   }
  },
  "prosp": {
   "bilibili": {
-   "at": "2026-09-29 21:22",
+   "at": "2026-11-03 13:56 草稿箱→发布（send-draft）",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "error": "｜草稿同步(2026-10-16 14:10): title 认领 aid=342364",
+   "state": "published",
+   "title": "PROSP：把找人、写话术、发出去压成一个按钮"
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-17 01:20",
    "attempt": 0,
-   "state": "draft_saved",
+   "error": "P1对账: 『PROSP：销售线索挖到自动触达』",
+   "state": "published",
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-09-24 23:53",
    "attempt": 0,
    "state": "draft_saved",
-   "title": ""
+   "title": "PROSP：把 B2B 销售的一整天，压成一个按钮"
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-20 00:04",
    "attempt": 0,
+   "error": "2026-10-23 15:27 接口对账回填（线上已发布）",
    "state": "draft_saved",
-   "title": ""
+   "title": "把领英外呼压成一个按钮，一个人做完"
   }
  },
  "publbee": {
@@ -1398,16 +1706,17 @@
    "title": "Publbee：给 KDP 自助出版作者的 AI 工具"
   },
   "toutiao": {
-   "at": "2026-10-10 15:53",
+   "at": "2026-10-17 01:20",
    "attempt": 1,
-   "state": "draft_saved",
+   "error": "P1对账: 『自助出版的作者愿意为工具付钱——只是撑不起大生意』(语义)",
+   "state": "published",
    "title": "自助出版的作者愿意为工具付钱——只是撑不起大生意"
   },
   "wechat": {
    "at": "2026-10-10 16:33",
    "attempt": 1,
    "state": "draft_saved",
-   "title": "自助出版的作者愿意为工具付钱——只是撑不起大生意"
+   "title": "Publbee：KDP 作者的 AI 工具箱"
   },
   "xhs": {
    "at": "2026-10-10 17:49",
@@ -1456,10 +1765,10 @@
    "title": "Quran Unlock：古兰经习惯打卡"
   },
   "wechat": {
-   "at": "2026-10-01 23:00",
+   "at": "2026-09-30 17:00",
    "attempt": 0,
    "state": "draft_saved",
-   "title": "Quran Unlock：移动 app"
+   "title": "Quran Unlock：读古兰经解锁其他 App"
   },
   "xhs": {
    "at": "2026-10-01 23:00",
@@ -1468,11 +1777,28 @@
    "title": "月收$659：信仰类习惯打卡 App"
   }
  },
+ "refactoringui": {
+  "aliyun": {
+   "at": "2026-11-03 21:33:42",
+   "attempt": 0,
+   "error": " | longtail_key=refactoringui-2026-10-30-2",
+   "state": "published",
+   "title": ""
+  },
+  "tencentcloud": {
+   "at": "2026-11-03 21:33:42",
+   "attempt": 0,
+   "error": " | longtail_key=refactoringui-2026-10-30-1",
+   "state": "published",
+   "title": ""
+  }
+ },
  "rezi": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-11-03 21:27",
    "attempt": 0,
-   "state": "draft_saved",
+   "error": "P1对账: 标题直接命中(cv53385991) → Rezi：AI 简历生成器，最不酷却验证收入最高",
+   "state": "published",
    "title": "月收$293K：帮你写出能过筛的简历"
   },
   "toutiao": {
@@ -1482,10 +1808,11 @@
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-09-21 22:04",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "state": "published",
+   "title": "Rezi：AI 简历生成器——最不酷的需求，却是验证收入最高的 AI 产品"
   },
   "xhs": {
    "at": "2026-09-29 21:17",
@@ -1511,7 +1838,7 @@
    "at": "2026-10-25 01:04",
    "attempt": 0,
    "state": "draft_saved",
-   "title": "Roster for Slack：为 Slack 团队提供持"
+   "title": "Roster for Slack：为 Slack 团队提供持续排班，提升生产力。"
   },
   "xhs": {
    "at": "2026-10-25 01:44",
@@ -1528,16 +1855,17 @@
    "title": "月收$1.3K：给 AI 用的搜索接口"
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-19 23:14",
    "attempt": 0,
-   "state": "draft_saved",
+   "error": "send_existing_draft",
+   "state": "published",
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-09-25 00:33",
    "attempt": 0,
    "state": "draft_saved",
-   "title": ""
+   "title": "Search1API：不赌哪个 AI 会赢，只卖它们都需要的那次联网"
   },
   "xhs": {
    "at": "2026-09-29 21:17",
@@ -1547,11 +1875,25 @@
   }
  },
  "shipfast": {
+  "aliyun": {
+   "at": "2026-11-03 21:33:42",
+   "attempt": 0,
+   "error": " | longtail_key=shipfast-al-cdp-2026-10-30-1",
+   "state": "draft_saved",
+   "title": ""
+  },
   "bilibili": {
    "at": "2026-09-29 22:06",
    "attempt": 0,
    "state": "draft_saved",
    "title": "月收$1.27M：卖给程序员的开站模板"
+  },
+  "tencentcloud": {
+   "at": "2026-10-30 12:50:00",
+   "attempt": 0,
+   "error": "tag search 平台侧 404 → 用户授权自拟标签 → React setter+Enter 建 chip 后 UI 发布成功，弹窗「发布成功！文章正在审核中」 | longtail_key=shipfast-2026-10-30-1",
+   "state": "published",
+   "title": ""
   },
   "toutiao": {
    "at": "2026-09-29 21:17",
@@ -1560,10 +1902,11 @@
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-09-21 22:39",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "state": "published",
+   "title": "被吹爆的 ShipFast，近 30 天收入只剩约 $3,000"
   },
   "xhs": {
    "at": "2026-09-29 21:17",
@@ -1572,13 +1915,11 @@
    "title": ""
   },
   "zhihu": {
-   "note": "2026-10-31 补记：远端已发表列表回读命中（2026-10-30 12:13:52）。此前 UI 发表后未回写台账，属漏记。",
-   "published_ts": "2026-10-30 12:13:52",
-   "remote_id": "2099470396764451624",
+   "at": "2026-11-03 21:04:52",
+   "attempt": 0,
+   "error": "2026-10-31 补记：远端已发表列表回读命中（2026-10-30 12:13:52）。此前 UI 发表后未回写台账，属漏记。",
    "state": "published",
-   "title": "一次性买断卖了 127 万美元，然后从榜单上“消失”了：ShipFast 的三个信号",
-   "updated_at": "2026-10-31 23:53:22",
-   "url": "https://zhuanlan.zhihu.com/p/2099470396764451624"
+   "title": "一次性买断卖了 127 万美元，然后从榜单上“消失”了：ShipFast 的三个信号"
   }
  },
  "sierra": {
@@ -1591,19 +1932,37 @@
   "toutiao": {
    "at": "2026-09-30 17:44",
    "attempt": 0,
+   "error": "2026-10-19 对账修正：本条远端标题是『年收$200M：AI 客服解决才收钱』。原 note 写的『$20 万/月的营销归因生意』经正文核验是 Cometly（原文「35.4% 是 Cometly 的 MRR 增长率」），已改挂。",
    "state": "published",
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-02 01:23",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "state": "published",
+   "title": "Sierra：企业级 AI 客服代理，只在问题被真正解决时才收钱"
   },
   "xhs": {
    "at": "2026-09-29 21:17",
    "attempt": 0,
    "state": "draft_saved",
+   "title": ""
+  }
+ },
+ "sleek-design": {
+  "aliyun": {
+   "at": "2026-11-03 21:33:42",
+   "attempt": 0,
+   "error": " | longtail_key=sleek-design-2026-10-30-2",
+   "state": "published",
+   "title": ""
+  },
+  "tencentcloud": {
+   "at": "2026-11-03 21:33:42",
+   "attempt": 0,
+   "error": " | longtail_key=sleek-design-2026-10-30-1",
+   "state": "published",
    "title": ""
   }
  },
@@ -1621,10 +1980,11 @@
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-02 14:35",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "state": "published",
+   "title": "$65K MRR 是真的，但它已经停止增长了"
   },
   "xhs": {
    "at": "2026-09-29 21:17",
@@ -1641,16 +2001,18 @@
    "title": "月收$3.57M：帮创作者靠粉丝养活自己"
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-09-28 20:40",
    "attempt": 0,
-   "state": "draft_saved",
+   "error": "P1对账: 『月收$3.57M：帮创作者靠粉丝养活自己』(金额3,569,654)",
+   "state": "published",
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-02 01:02",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "state": "published",
+   "title": "Stan：帮创作者「靠自己活着和工作」的平台"
   },
   "xhs": {
    "at": "2026-09-29 21:17",
@@ -1673,16 +2035,18 @@
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-21 12:47",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "error": "｜publish模式自动发表，新 appmsgid=2247484558",
+   "state": "published",
+   "title": "StartClaw：零配置跑 AI 助手"
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-10 00:00",
    "attempt": 0,
+   "error": "2026-10-23 14:57 接口对账回填（线上已发布）",
    "state": "draft_saved",
-   "title": ""
+   "title": "不买服务器不配 key，也能跑起 agent"
   }
  },
  "static-run": {
@@ -1728,7 +2092,7 @@
    "at": "2026-10-14 01:47",
    "attempt": 0,
    "state": "draft_saved",
-   "title": "Stealth RDP：提供跨美欧的Windows/Linu"
+   "title": "Stealth RDP：跨美欧的 Windows/Linux VPS 托管服务"
   },
   "xhs": {
    "at": "2026-10-14 00:41",
@@ -1759,151 +2123,146 @@
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-09-21 23:25",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "state": "published",
+   "title": "StoryShort.ai：自动生成无露脸短视频，靠 TikTok 图文轮播拿到 100+ 付费用户"
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-04 00:04",
    "attempt": 0,
+   "error": "2026-10-18 21:46 接口对账回填（线上已发布）",
    "state": "draft_saved",
-   "title": ""
+   "title": "输入主题就出无露脸短视频，100 人付费"
   }
  },
  "trustmrr": {
   "aliyun": {
-   "draft_id": "1701410",
-   "note": "🚨 阿里云草稿 aid ≠ 文章 id：发表后文章 id=1777577（用草稿号 1701410 打开是别人 2021 年的老文「Configuration」）。另：阿里云页面加载 MathJax（inlineMath [['$','$']]）⇒ `$` 会被当行内公式吃，源稿必须写「美元」。2026-11-01 10:08 改稿：把「它到底做到多大」的 6 行列表换成 markdown 表格 —— 编辑入口是 **`/article/new/database?publish=<文章id>`**（文章页右侧 `a.edit-btn-edit`），`?edit=` 只认草稿 id、塞文章 id 只会开空白编辑器；改完点「发布文章→确认」**同样要过人工拼图滑块**，提交后文章回到「内容审核中」状态。",
-   "remote_id": "1777577",
+   "at": "2026-11-01 00:44",
+   "attempt": 0,
+   "error": " | longtail_key=trustmrr-2026-11-01-1",
    "state": "published",
-   "updated_at": "2026-11-01 10:12",
-   "url": "https://developer.aliyun.com/article/1777577",
-   "verified_at": "2026-11-01 10:12",
-   "verify": "浏览器 DOM 复核（10:12）：`.article-inner` table=3 / li=0，「它到底做到多大」下已是 6 行两列表格；⚠ curl 直取同一 URL 仍返回**改前**的 `<ul>` 快照（table=2 li=13，带 `?nocache=` 也一样）⇒ 阿里云对无 cookie 请求返 CDN 旧快照，**线上可见性只认浏览器 DOM**，别拿 curl 判失败。"
+   "title": ""
   },
   "bilibili": {
    "at": "2026-10-31 18:26 草稿箱→发布（send-draft）",
    "attempt": 0,
-   "note": "发布时 aid 重分配（345579→53696865）",
-   "remote_id": "53696865",
+   "error": "P1对账: 标题直接命中(cv53460777) → TrustMRR：验证过的创业公司收入数据库｜同案例另有一条旧稿『TrustMRR：验证过的创业公司收入数据库』(cv53352783, 2026-10-09 12:58，正文与新篇相同)｜更新草稿 aid=345579（draft/add 回读校验通过）",
    "state": "published",
-   "title": "TrustMRR：验证过的创业公司收入数据库",
-   "updated_at": "2026-10-31 23:17"
+   "title": "TrustMRR：验证过的创业公司收入数据库"
   },
   "cnblogs": {
-   "note": "发后原地改标题（edit_post publish=True）；2026-11-01 正文三处列表→真表格，走新增的 `edit --html-file`（本地只替换那三段 <ul>，其余字节不动）。",
-   "remote_id": "23507950",
+   "at": "2026-11-03 21:04:52",
+   "attempt": 0,
+   "error": "发后原地改标题（edit_post publish=True）；2026-11-01 正文三处列表→真表格，走新增的 `edit --html-file`（本地只替换那三段 <ul>，其余字节不动）。",
    "state": "published",
-   "updated_at": "2026-11-01 10:16",
-   "url": "https://www.cnblogs.com/thing-explainer/p/23507950",
-   "verified_at": "2026-11-01 10:16",
-   "verify": "curl 直取 cnblogs_post_body：table=3 / ul=0 / li=0 / $=9 原样（本站纯富文本，不做公式解析）；无头截图确认边框、表头底色、首列不折行。site CSS 已自带 `.blogpost-body td{border:1px solid #c0c0c0;padding:8px 14px}`，无需内联边框，仅首列需 `white-space:nowrap`。"
+   "title": ""
   },
   "csdn": {
-   "cover": "https://i-blog.csdnimg.cn/direct/85dfeef64e46441cbfe7c713097c5e18.png",
-   "note": "2026-11-01 00:09 修三处后重发：①补封面（本地上传 16:9，csdnimg CDN，cover_type=1）；②两组评分列表改 markdown 表格；③正文 `$` 金额 CSDN 当行内公式渲染（`$18,380 MRR…$85,000` 整段被吃成 18,380𝑀𝑅𝑅）⇒ 源稿改为「美元」表述，全篇 0 个 `$`。⚠ 旧 id 169653810 已删除：saveArticle 传 `articleId` 会被忽略并**新建**一篇，正确字段是 `id`（已修 csdn_publish.save_article）。",
-   "remote_id": "169654106",
+   "at": "2026-11-03 21:04:52",
+   "attempt": 0,
+   "error": "2026-11-01 00:09 修三处后重发：①补封面（本地上传 16:9，csdnimg CDN，cover_type=1）；②两组评分列表改 markdown 表格；③正文 `$` 金额 CSDN 当行内公式渲染（`$18,380 MRR…$85,000` 整段被吃成 18,380𝑀𝑅𝑅）⇒ 源稿改为「美元」表述，全篇 0 个 `$`。⚠ 旧 id 169653810 已删除：saveArticle 传 `articleId` 会被忽略并**新建**一篇，正确字段是 `id`（已修 csdn_publish.save_article）。",
    "state": "published",
-   "updated_at": "2026-11-01 00:12:42",
-   "url": "https://blog.csdn.net/sinat_32396037/article/details/169654106"
+   "title": ""
   },
   "juejin": {
-   "note": "2026-11-01 01:30 修两处后原地更新（URL/文章 id 未变）：①两组评分列表改真表格；②`$` 被当 KaTeX（3 处公式把「增长：上线 5 天做到 18,380 美元 MRR…」整段吃成斜体公式）⇒ 源稿改「美元」表述，0 个 `$`。⚠ 关键：`article_draft/update`+`article/publish` 都返 err_no=0 但正文不落库，因为 publish 渲染取的是 **html_content**，前端一直传占位值 `\"deprecated\"`（官方 UI 的「更新」同样无效）；必须传真实 HTML 才生效。另：原文章标签为空 → 掘金现在要求至少 1 个标签，已补「API」(6809640403516522504)。",
-   "remote_id": "7702463374432796699",
+   "at": "2026-11-03 21:04:52",
+   "attempt": 0,
+   "error": "2026-11-01 01:30 修两处后原地更新（URL/文章 id 未变）：①两组评分列表改真表格；②`$` 被当 KaTeX（3 处公式把「增长：上线 5 天做到 18,380 美元 MRR…」整段吃成斜体公式）⇒ 源稿改「美元」表述，0 个 `$`。⚠ 关键：`article_draft/update`+`article/publish` 都返 err_no=0 但正文不落库，因为 publish 渲染取的是 **html_content**，前端一直传占位值 `\"deprecated\"`（官方 UI 的「更新」同样无效）；必须传真实 HTML 才生效。另：原文章标签为空 → 掘金现在要求至少 1 个标签，已补「API」(6809640403516522504)。",
    "state": "published",
-   "tags": [
-    "API"
-   ],
-   "updated_at": "2026-11-01 01:38",
-   "url": "https://juejin.cn/post/7702463374432796699",
-   "verified_at": "2026-11-01 01:38",
-   "verify": "线上 curl 核验：table=2 katex=0 美元=18 正文 $=0，8 个 h2 完整"
+   "title": ""
   },
   "tencentcloud": {
-   "at": "2026-11-01 00:34 草稿箱 338565 → 确认发布（审核中）",
-   "cover": "out/toutiao/trustmrr/cover.png",
-   "note": "腾讯云正文表格/分割线渲染正常（线上核验 table=2 hr=1）；封面经 addArticle 一并提交，列表页已显示",
-   "remote_id": "2773308",
-   "source_type": "原创",
+   "at": "2026-11-01 00:34:21",
+   "attempt": 0,
+   "error": " | longtail_key=trustmrr-2026-10-31-1",
    "state": "published",
-   "tags": [
-    "创业",
-    "AIGC"
-   ],
-   "title": "TrustMRR：把「可核验」做成产品的海外小站",
-   "updated_at": "2026-11-01 00:38",
-   "url": "https://cloud.tencent.com/developer/article/2773308"
+   "title": "TrustMRR：把「可核验」做成产品的海外小站"
   },
   "toutiao": {
    "at": "2026-09-29 21:17",
    "attempt": 0,
-   "note": "回读已发表列表命中",
-   "remote_id": "7702774630259376676",
+   "error": "send_existing_draft",
    "state": "published",
-   "title": "",
-   "updated_at": "2026-10-31 23:17"
+   "title": ""
   },
   "wechat": {
    "at": "2026-09-29 21:17",
    "attempt": 0,
-   "note": "发布模式",
-   "remote_id": "2247484801",
+   "error": "发布模式",
    "state": "published",
-   "title": "",
-   "updated_at": "2026-10-31 23:17",
-   "url": "https://mp.weixin.qq.com/s/57FR7YuL-ee1vQf-srbIwg"
+   "title": "TrustMRR：把「验证收入」本身做成了产品：连 Stripe 才能上榜的创业公司收入数据库 + 交易市场"
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-31 18:38",
    "attempt": 0,
-   "remote_id": "",
    "state": "draft_saved",
-   "title": "",
-   "updated_at": "2026-10-31 23:17"
+   "title": "连上 Stripe 才准上榜的收入榜单"
   },
   "zhihu": {
-   "note": "2026-10-31 补记：远端已发表列表回读命中（2026-10-31 23:24:44）。此前 UI 发表后未回写台账，属漏记。",
-   "published_ts": "2026-10-31 23:24:44",
-   "remote_id": "2099933712293028149",
+   "at": "2026-11-03 21:04:52",
+   "attempt": 0,
+   "error": "2026-10-31 补记：远端已发表列表回读命中（2026-10-31 23:24:44）。此前 UI 发表后未回写台账，属漏记。",
    "state": "published",
-   "title": "TrustMRR：把「可核验」做成产品的海外小站",
-   "updated_at": "2026-10-31 23:53:22",
-   "url": "https://zhuanlan.zhihu.com/p/2099933712293028149"
+   "title": "TrustMRR：把「可核验」做成产品的海外小站"
   }
  },
  "uplinked-b-v": {
   "bilibili": {
-   "at": "2026-10-02 17:41",
+   "at": "2026-10-07 00:05",
    "attempt": 0,
+   "error": "对账补登: 读公开页正文确认(cv53315883) → UpLinked B.V.：在领英上自动加客户｜同案例另有一条旧标题稿『月收$2.4K：在领英上自动加客户』(cv53245351, 2026-09-30 15:19)",
    "state": "draft_saved",
-   "title": "月收$2.4K：在领英上自动加客户"
+   "title": "UpLinked B.V.：在领英上自动加客户"
   },
   "toutiao": {
-   "at": "2026-10-02 17:41",
+   "at": "2026-10-17 对账补登",
    "attempt": 0,
-   "state": "draft_saved",
+   "error": "P1对账: 远端『UpLinked：领英上自动加客户』在册（2026-10-16 群发，台账漏登）。2026-10-17 晚复核恢复：上午误以「草稿箱没有」为据删过，但已发表列表实证在册——群发后稿件离开草稿箱是正常行为，草稿箱没有≠没群发",
+   "state": "published",
    "title": "月收$2.4K：在领英上自动加客户"
   },
   "wechat": {
-   "at": "2026-10-02 17:41",
+   "at": "2026-10-16 07:56",
    "attempt": 0,
    "state": "draft_saved",
-   "title": "月收$2.4K：在领英上自动加客户"
+   "title": "UpLinked：领英上自动加客户"
   },
   "xhs": {
-   "at": "2026-10-02 17:41",
+   "at": "2026-10-01 13:41",
    "attempt": 0,
+   "error": "2026-10-18 21:46 接口对账回填（线上已发布）",
    "state": "draft_saved",
-   "title": "月收$2.4K：在领英上自动加客户"
+   "title": "分析你的领英档案，生成 12 周内容策略"
   }
  },
  "upvoty": {
+  "aliyun": {
+   "at": "2026-11-03 21:33:42",
+   "attempt": 0,
+   "error": " | longtail_key=upvoty-2026-10-30-2",
+   "state": "published",
+   "title": ""
+  },
   "juejin": {
    "at": "2026-10-28 14:54",
    "attempt": 0,
    "state": "published",
    "title": "Upvoty拆解：先收200个注册再写代码，六年做到$40K MRR"
+  },
+  "tencentcloud": {
+   "at": "2026-11-03 21:33:42",
+   "attempt": 0,
+   "error": " | longtail_key=upvoty-2026-10-30-1",
+   "state": "published",
+   "title": ""
+  },
+  "xhs": {
+   "at": "2026-11-03 13:40",
+   "attempt": 0,
+   "state": "draft_saved",
+   "title": ""
   }
  },
  "vectosolve": {
@@ -1923,7 +2282,7 @@
    "at": "2026-10-10 16:24",
    "attempt": 1,
    "state": "draft_saved",
-   "title": "月收 $1,808 但唯一在增长：把 PNG 转成可编辑的"
+   "title": "VectoSolve：位图一键转可编辑 SVG"
   },
   "xhs": {
    "at": "2026-10-10 17:45",
@@ -1949,7 +2308,7 @@
    "at": "2026-10-25 01:21",
    "attempt": 0,
    "state": "draft_saved",
-   "title": "Verse：Verse 以单次提示构建自主 AI 员工"
+   "title": "Verse：Verse 以单次提示构建自主 AI 员工。"
   },
   "xhs": {
    "at": "2026-10-25 01:59",
@@ -1966,16 +2325,17 @@
    "title": "Vid.AI：一段脚本直接变成短视频"
   },
   "toutiao": {
-   "at": "2026-10-10 15:58",
+   "at": "2026-10-13 23:41",
    "attempt": 1,
-   "state": "draft_saved",
+   "error": "2026-10-19 对账正名：旧口径标题，正文＝「把想法/脚本变成可直接发布的短视频」，即 Vid.AI。早先误判为 GHOST。（远端：『两年做到累计 $162 万，然后峰值留存掉到 46%』）",
+   "state": "published",
    "title": "两年做到累计 $162 万，然后峰值留存掉到 46%"
   },
   "wechat": {
    "at": "2026-10-10 16:55",
    "attempt": 1,
    "state": "draft_saved",
-   "title": "两年做到累计 $162 万，然后峰值留存掉到 46%"
+   "title": "Vid.AI：脚本一键变短视频"
   },
   "xhs": {
    "at": "2026-10-10 17:57",
@@ -1986,10 +2346,11 @@
  },
  "viktor": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-05 12:11",
    "attempt": 0,
+   "error": "对账补登: 读公开页正文确认(cv53298456) → Viktor：住进 Slack 的 AI 同事",
    "state": "draft_saved",
-   "title": "年收$15M：住进群聊替你干活的 AI"
+   "title": "Viktor：住进 Slack 的 AI 同事"
   },
   "toutiao": {
    "at": "2026-09-29 21:17",
@@ -1998,10 +2359,11 @@
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-09-21 21:53",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "state": "published",
+   "title": "Viktor：住进 Slack / Teams 的 AI 同事，你 @ 它，它把活干完再贴回来"
   },
   "xhs": {
    "at": "2026-09-29 21:17",
@@ -2012,22 +2374,25 @@
  },
  "visualizee-ai": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-17 10:10",
    "attempt": 0,
+   "error": "P1对账: 标题直接命中(cv53283349) → Visualizee.ai：给建筑师做效果图云渲染",
    "state": "draft_saved",
    "title": "月收$8.6K：帮设计师渲染效果图"
   },
   "toutiao": {
    "at": "2026-09-30 17:44",
    "attempt": 0,
+   "error": "P1对账: 『月收$8.6K：帮设计师渲染效果图』(金额8600)",
    "state": "published",
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-16 20:18",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "error": "｜后台已发表（编辑器页面确认），本地由 send 修正",
+   "state": "published",
+   "title": "Visualizee.ai：建筑与室内设计的效果图渲染工具"
   },
   "xhs": {
    "at": "2026-09-29 21:17",
@@ -2038,28 +2403,31 @@
  },
  "voklit": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-11-03 21:27",
    "attempt": 0,
-   "state": "draft_saved",
+   "error": "P1对账: 标题直接命中(cv53375028) → Voklit：给跨境团队搭的云通信",
+   "state": "published",
    "title": "月收$1.6K：给跨境团队搭云通信"
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-09-28 20:40",
    "attempt": 0,
-   "state": "draft_saved",
+   "error": "P1对账: 『月收$1.6K：给跨境团队搭云通信』(金额1600)｜草稿箱另有一条同名旧稿（2026-10-09 22:05「Voklit：给跨境团队搭云通信」），2026-10-19 合并台账时留痕",
+   "state": "published",
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-09-24 23:27",
    "attempt": 0,
    "state": "draft_saved",
-   "title": ""
+   "title": "卖海外虚拟号码这门生意，最后为什么停机挂牌"
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-05 12:08",
    "attempt": 0,
+   "error": "2026-10-18 21:46 接口对账回填（线上已发布）",
    "state": "draft_saved",
-   "title": ""
+   "title": "卖海外号码给跨境团队，整站 6 万挂牌"
   }
  },
  "wagiff-app": {
@@ -2079,7 +2447,7 @@
    "at": "2026-10-14 02:03",
    "attempt": 0,
    "state": "draft_saved",
-   "title": "Wagiff App：中东北非地区男性用户戒除不良习惯的社交"
+   "title": "Wagiff App：中东北非地区男性用户戒除不良习惯的社交应用"
   },
   "xhs": {
    "at": "2026-10-14 00:52",
@@ -2090,7 +2458,6 @@
  },
  "white-glove-content": {
   "bilibili": {
-   "article_id": "343875",
    "at": "2026-10-13 22:48",
    "attempt": 1,
    "state": "draft_saved",
@@ -2106,7 +2473,7 @@
    "at": "2026-10-14 01:52",
    "attempt": 0,
    "state": "draft_saved",
-   "title": "White Glove Content：为创作者和品牌提供社"
+   "title": "White Glove Content：为创作者和品牌提供社交媒体无脸视频内容订阅服务"
   },
   "xhs": {
    "at": "2026-10-14 00:45",
@@ -2119,26 +2486,38 @@
   "bilibili": {
    "at": "2026-11-02 20:20",
    "attempt": 2,
+   "error": "｜草稿同步(2026-10-15 21:22): title 认领 aid=343876",
+   "state": "published",
+   "title": "WPConvert：AI 建的站转成 WordPress"
+  },
+  "toutiao": {
+   "at": "2026-11-02 20:16",
+   "attempt": 1,
+   "error": "send_existing_draft",
    "state": "published",
    "title": "把 AI 建站工具生成的网站，转成 WordPress——一个工程师的生意"
   },
-  "toutiao": {
-   "at": "2026-10-10 15:46",
-   "attempt": 1,
-   "state": "draft_saved",
-   "title": "把 AI 建站工具生成的网站，转成 WordPress——一个工程师的生意"
-  },
   "wechat": {
-   "at": "2026-10-10 16:10",
+   "at": "2026-11-02 20:33",
    "attempt": 1,
-   "state": "draft_saved",
-   "title": "把 AI 建站工具生成的网站，转成 WordPress——一"
+   "error": "｜publish模式自动发表，新 appmsgid=2247484987",
+   "state": "published",
+   "title": "WPConvert：AI 建站转 WP"
   },
   "xhs": {
-   "at": "2026-10-10 17:38",
+   "at": "2026-11-02 20:22",
    "attempt": 2,
    "state": "draft_saved",
    "title": "月收$3.6K：WPConvert."
+  }
+ },
+ "公众号-31个可复制的AI产品-推文": {
+  "wechat": {
+   "at": "2026-10-25 22:44",
+   "attempt": 0,
+   "error": "｜masssend模式自动发表，新 appmsgid=2247484751",
+   "state": "published",
+   "title": "我核了 255 个海外 AI 产品的收入，只有 31 个值得抄"
   }
  }
 }

@@ -593,5 +593,40 @@
   "via": "cdp-9228",
   "ts": "2026-11-03 00:49:59",
   "note": "按腾讯云「只收技术向」重写后新建草稿；旧商务稿（$84K MRR）在「未通过」区留档"
+ },
+ "ext-ep-001-super-mario-bros-2026-11-03-1": {
+  "case": "ext-ep-001-super-mario-bros",
+  "title": "游戏厅：马力欧兄弟，被 JS 重写的 1985 经典",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "339742",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=339742"
+   },
+   "aliyun": {
+    "ok": true,
+    "draftId": "1703041",
+    "url": "https://developer.aliyun.com/article/new?edit=1703041#/"
+   }
+  },
+  "category": "人工智能",
+  "cover": "https://case.ydtgo.top/covers/ext-ep-001-super-mario-bros.png",
+  "via": "cdp-9228",
+  "ts": "2026-11-03 14:55:14"
+ },
+ "ext-ep-002-2048-2026-11-04-1": {
+  "case": "ext-ep-002-2048",
+  "title": "游戏厅：2048，一个网页就能玩的数字合并",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "340253",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=340253"
+   }
+  },
+  "category": "人工智能",
+  "cover": "https://case.ydtgo.top/covers/ext-ep-002-2048.png",
+  "via": "cdp-9228",
+  "ts": "2026-11-04 14:10:45"
  }
 }

@@ -129,7 +129,7 @@ def llm_title(c, platform, timeout=60):
         return None
     key = os.environ.get("CASE_LIB_AI_KEY") or sec.get("ai_key")
     base = (os.environ.get("CASE_LIB_AI_BASE") or sec.get("ai_base")
-            or "https://api-inference.modelscope.cn/v1").rstrip("/")
+            or "https://discovery-api.intern-ai.org.cn/v1").rstrip("/")
     model = os.environ.get("CASE_LIB_AI_MODEL") or sec.get("ai_model")
     if not (key and model):
         return None
@@ -142,10 +142,22 @@ def llm_title(c, platform, timeout=60):
     prompt = ("%s\n\n案例事实（只许用这些，不许编）：\n%s"
               % (TITLE_HINT.get(platform, ""),
                  json.dumps(facts, ensure_ascii=False)))
-    body = json.dumps({"model": model, "temperature": 0.6, "max_tokens": 1200,
-                       "messages": [{"role": "system", "content": SYS_GUARD},
-                                    {"role": "user", "content": prompt}]}
-                      ).encode("utf-8")
+    body = {"model": model, "temperature": 0.6, "max_tokens": 1200,
+            "messages": [{"role": "system", "content": SYS_GUARD},
+                         {"role": "user", "content": prompt}]}
+    # 🚨 端点私有参数必须跟 ai_verify 用同一套口径（secrets.json 的 ai_extra，
+    # 按模型名索引）：Sage-A1.5 默认一直思考，1200 token 全被 reasoning 吃光、
+    # content 返回空串 ⇒ 每条标题都掉回模板，还不报错 —— 静默降质最难发现。
+    try:
+        extra = (json.loads(os.environ["CASE_LIB_AI_EXTRA"])
+                 if "CASE_LIB_AI_EXTRA" in os.environ
+                 else sec.get("ai_extra") or {})
+    except Exception:                                        # noqa: BLE001
+        extra = {}
+    if isinstance(extra, dict) and isinstance(extra.get(model), dict):
+        body.update({k: v for k, v in extra[model].items()
+                     if k not in ("model", "messages")})
+    body = json.dumps(body).encode("utf-8")
     req = urllib.request.Request(
         base + "/chat/completions", data=body,
         headers={"Content-Type": "application/json",

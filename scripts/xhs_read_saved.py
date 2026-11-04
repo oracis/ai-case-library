@@ -174,6 +174,21 @@ def main():
     with open(LEDGER, "w", encoding="utf-8", newline="") as f:
         f.write(json.dumps(entries, ensure_ascii=False, indent=2)
                 .replace("\n", nl))
+    # db 同步（2026-11-03 切 SQLite）：改了 at 的条目同步 platform_posts
+    try:
+        import db
+        conn = db.get_conn()
+        try:
+            for c, _o, new in changed:
+                conn.execute(
+                    "UPDATE platform_posts SET published_at=?, updated_at=? "
+                    "WHERE case_id=? AND platform='xhs' AND state='draft'",
+                    (new, new, c))
+            conn.commit()
+        finally:
+            db.close_conn()
+    except Exception as e:                             # noqa: BLE001
+        print("⚠ db 同步失败（JSON 已写回）：%s" % e)
     print("\n✅ 已回填 %d 条 at（at_source=draft_box = 最近一次实际发稿）"
           % n_upd)
     print("   已标注 %d 条 at_source=first_mark_git（草稿箱已无稿，"

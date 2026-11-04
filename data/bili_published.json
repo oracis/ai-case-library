@@ -155,5 +155,14 @@
     "verified_at": "2026-11-02 20:20",
     "evidence": "editor-ui-publish(2026-11-02 回读已发表列表命中)",
     "note": "｜草稿同步(2026-10-15 21:22): title 认领 aid=343876"
+  },
+  {
+    "id": "prosp",
+    "at": "2026-10-16 14:10",
+    "article_id": "53736510",
+    "title": "PROSP：把找人、写话术、发出去压成一个按钮",
+    "verified_at": "2026-11-03 13:56",
+    "evidence": "editor-ui-publish + toast 提交成功 + 按标题补账(aid 342364→53736510)",
+    "note": "｜草稿同步(2026-10-16 14:10): title 认领 aid=342364"
   }
 ]

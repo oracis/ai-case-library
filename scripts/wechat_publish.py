@@ -55,6 +55,7 @@ import urllib.request
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from text_clean import clean_placeholders, strip_placeholders  # noqa: E402
+import db  # noqa: E402  SQLite 统一台账：wechat 发布记录写 platform_posts (platform='wechat')
 
 CASES_PATH = os.path.join(ROOT, "data", "cases.json")
 ARTICLES_DIR = os.path.join(ROOT, "out", "articles")
@@ -1378,6 +1379,30 @@ def load_anti_cases():
 
 
 def load_published():
+    """优先从 SQLite ledger 读 wechat 平台发布记录；db 无数据时回退到 JSON。
+
+    返回格式与原 `wechat_published.json` 兼容：{cid: {title, published_at, status, appmsgid, file}}
+    """
+    conn = db.get_conn()
+    try:
+        posts = db.get_posts_by_platform(conn, "wechat")
+        if posts:
+            result = {}
+            for p in posts:
+                result[p["case_id"]] = {
+                    "title": p.get("title") or "",
+                    "published_at": p.get("published_at") or "",
+                    "status": p.get("state") or "",
+                    "appmsgid": p.get("remote_id") or "",
+                    "file": "",
+                }
+            return result
+    except Exception:
+        pass
+    finally:
+        db.close_conn()
+
+    # fallback：从 JSON 读（迁移期兼容旧数据）
     if not os.path.exists(PUBLISHED_PATH):
         return {}
     with open(PUBLISHED_PATH, encoding="utf-8") as f:
@@ -1385,6 +1410,29 @@ def load_published():
 
 
 def save_published(pub):
+    """写 SQLite ledger（platform_posts, platform='wechat'）+ 双写 JSON 快照。
+
+    db 是真值；JSON 快照供仍直接读 `wechat_published.json` 的旧脚本
+    （wechat_sync、wechat_verify_covers、publish_slot 的 fallback 等）兼容。
+    """
+    conn = db.get_conn()
+    try:
+        for cid, rec in pub.items():
+            db.upsert_post(conn, cid, "wechat", {
+                "state": rec.get("status") or "draft",
+                "remote_id": rec.get("appmsgid") or "",
+                "url": rec.get("url") or "",
+                "title": rec.get("title") or "",
+                "draft_id": "",
+                "attempt": rec.get("attempt", 0),
+                "published_at": rec.get("published_at") or "",
+                "updated_at": rec.get("published_at") or "",
+                "note": "file=" + (rec.get("file") or ""),
+            })
+    finally:
+        db.close_conn()
+
+    # 双写 JSON 快照（保持原格式 indent=2，供旧脚本只读兼容）
     with open(PUBLISHED_PATH, "w", encoding="utf-8") as f:
         json.dump(pub, f, ensure_ascii=False, indent=2)
 

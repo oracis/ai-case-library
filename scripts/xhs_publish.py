@@ -41,6 +41,7 @@ import wechat_publish as wp  # noqa: E402  复用 CDP / 色板 / 案例加载
 import link_hygiene as _lh  # noqa: E402  外链卫生硬闸（2026-11-02）
 import lead_templates        # noqa: E402  四型开头钩子模板库
 from multiplatform import queue as Q  # noqa: E402  待发队列排序口径（最新在前）
+import db  # noqa: E402  SQLite 统一台账：xhs 发布记录写 platform_posts (platform='xhs')
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "out", "xhs")
@@ -393,14 +394,19 @@ def make_xhs_title(c, used=None):
 
 
 def _clip(s, n):
-    """正文用：带省略号的软截断（先在句读处断）。"""
+    """正文用：带省略号的软截断（先在句读处断）。
+
+    2026-11-03：断在逗号/顿号上=留了半句话（chessigma 实发
+    「2025 年 3 月上线（比想象中新），」——读者读到一半没了）。
+    句读处断完若尾字是逗号/顿号，升成句号，保证截出来的是完整句。
+    """
     s = re.sub(r"\s+", " ", (s or "").strip())
     if len(s) <= n:
         return s
     cut = s[:n]
     for p in sorted(cut.rfind(x) for x in "。！？；.!?;，, "):
         if p >= n * 0.6:
-            return cut[:p + 1]
+            return re.sub(r"[，,、]$", "。", cut[:p + 1])
     return cut.rstrip() + "…"
 
 
@@ -431,7 +437,7 @@ def build_body(c):
     pb = [x.strip() for x in (c.get("playbook") or []) if x.strip()]
     name = c.get("name_en") or c.get("name") or c.get("id")
 
-    def assemble(n_why, how_n, what_n):
+    def assemble(n_why, how_n, what_n, why_n=52):
         parts = [
             hook,
             "",
@@ -443,7 +449,11 @@ def build_body(c):
             "",
             "🔍 为什么能成立",
         ]
-        parts += ["· " + _clip(x, 52) for x in why[:n_why]]
+        # why 段预算（2026-11-03）：固定 52 字是把完整论点拦腰砍断的元凶
+        # （chessigma「只要 0.06% 转化就能覆盖」被切成「只要 0.」）。正文
+        # 上限 1000 字、实际普遍只用 600 字 ⇒ 放宽到 100，并纳入退让梯度
+        # ——超预算时先砍条数、再砍单条预算，而不是先砍成半句。
+        parts += ["· " + _clip(x, why_n) for x in why[:n_why]]
         if pb:
             parts += ["", "🧠 最值得抄的一点", _clip(pb[0], 60)]
         # headline 自带「（RevenueCat API 验证）」这类括号后缀，先剥掉再拼
@@ -461,10 +471,13 @@ def build_body(c):
         return "\n".join(parts)
 
     tail = "\n" + " ".join(build_tags(c))
-    # 逐级收紧字段预算，直到塞进 1000 字
+    # 逐级收紧字段预算，直到塞进 1000 字。末位是 why 单条预算：
+    # 先砍条数（3→2），最后才回到旧 52 字硬约束。
     text = None
-    for n_why, how_n, what_n in ((3, 150, 120), (2, 110, 90), (2, 80, 70)):
-        text = assemble(n_why, how_n, what_n)
+    for n_why, how_n, what_n, why_n in ((3, 150, 120, 100),
+                                        (2, 110, 90, 72),
+                                        (2, 80, 70, 52)):
+        text = assemble(n_why, how_n, what_n, why_n)
         if len(text) + len(tail) <= BODY_MAX:
             return text + tail
     return (text or "") + tail
@@ -1267,16 +1280,28 @@ def cmd_publish(args):
                     "  · 直接发那条：python scripts/xhs_publish.py send-draft --case %s\n"
                     "  · 确实要再存一份：加 --force-dup" % (note.get("title"), c["id"]))
 
-    tid = None
-    for t in cdp.list_targets():
-        if "creator.xiaohongshu.com" in (t.get("url") or ""):
-            tid = t["id"]
-            break
-    if not tid:
+    # 2026-11-03 修「未连接页面 target」（当天 upvoty/chessigma 各断一次）：
+    # /json 里还有 iframe/service_worker 等无 webSocketDebuggerUrl 的 target，
+    # 只按 URL 匹配会抓到；且 connect_target 失败只返回 False，原来没接
+    # 返回值，炸点被推迟到第一次 eval。现在：限定 type=page、连接失败就
+    # 关掉僵尸页重开新页，再失败才报错。
+    sub = wp.CDP(PUB_PORT)
+    pages = [t for t in cdp.list_targets()
+             if t.get("type") == "page"
+             and "creator.xiaohongshu.com" in (t.get("url") or "")]
+    tid = pages[0]["id"] if pages else None
+    if tid and sub.connect_target(tid):
+        print("复用已开的 creator 页")
+    else:
+        if tid:
+            try:
+                cdp.close_target(tid)          # 僵尸/死页先关
+            except Exception:                  # noqa: BLE001
+                pass
         tid = cdp.new_target(PUB_URL)["id"]
         time.sleep(4)
-    sub = wp.CDP(PUB_PORT)
-    sub.connect_target(tid)
+        if not sub.connect_target(tid):
+            raise SystemExit("[err] 新开 creator 页也连不上，去浏览器看一眼")
     # 收尾必须关掉自己这个编辑器页（--keep 除外）。编辑器活着 = 自动保存定时器
     # 活着；而发布成功后页面会回到**空白新建态**，那条空白就成了草稿箱里新冒出来
     # 的「暂无笔记标题」（2026-11-02 复盘）。atexit 能盖住 SystemExit 退出路径。
@@ -2709,6 +2734,21 @@ def _pub_file():
 
 
 def _published_ids():
+    """优先从 SQLite ledger 读 xhs 平台 published 记录；db 无数据时回退 JSON。
+
+    返回格式与原 `xhs_published.json` 兼容：id 列表。
+    """
+    conn = db.get_conn()
+    try:
+        posts = db.get_posts_by_platform(conn, "xhs", state="published")
+        if posts:
+            return [p["case_id"] for p in posts]
+    except Exception:
+        pass
+    finally:
+        db.close_conn()
+
+    # fallback：从 JSON 读（迁移期兼容旧数据）
     p = _pub_file()
     if not os.path.isfile(p):
         return []
@@ -2722,7 +2762,23 @@ def _published_ids():
 
 
 def mark_published(cid):
-    _mark(_pub_file(), cid)
+    """记账：xhs published。优先写 SQLite，双写 JSON 快照（供旧脚本只读兼容）。"""
+    conn = db.get_conn()
+    try:
+        db.upsert_post(conn, cid, "xhs", {
+            "state": "published",
+            "remote_id": "",
+            "url": "",
+            "title": "",
+            "draft_id": "",
+            "attempt": 0,
+            "published_at": time.strftime("%Y-%m-%d %H:%M"),
+            "updated_at": time.strftime("%Y-%m-%d %H:%M"),
+            "note": "",
+        })
+    finally:
+        db.close_conn()
+    _mark(_pub_file(), cid)  # 双写 JSON 快照
 
 
 def _draft_file():
@@ -2730,8 +2786,24 @@ def _draft_file():
 
 
 def mark_drafted(cid):
-    """进过草稿箱也算「发过了」，避免重复生成草稿（2026-09-26 清重复踩过）。"""
-    _mark(_draft_file(), cid)
+    """记账：xhs draft（进过草稿箱也算「发过了」，避免重复生成草稿）。
+    优先写 SQLite，双写 JSON 快照（供旧脚本只读兼容）。"""
+    conn = db.get_conn()
+    try:
+        db.upsert_post(conn, cid, "xhs", {
+            "state": "draft",
+            "remote_id": "",
+            "url": "",
+            "title": "",
+            "draft_id": "",
+            "attempt": 0,
+            "published_at": time.strftime("%Y-%m-%d %H:%M"),
+            "updated_at": time.strftime("%Y-%m-%d %H:%M"),
+            "note": "",
+        })
+    finally:
+        db.close_conn()
+    _mark(_draft_file(), cid)  # 双写 JSON 快照
 
 
 def _unmark(p, cid):
@@ -2741,7 +2813,27 @@ def _unmark(p, cid):
     草稿后本地还记着「发过了」，而 `_drafted_ids` 正是 publish 的幂等判据，
     于是这条永远不会再被发出去。实测：purge 删掉 MORT 的小红书草稿后，
     `publish_multi run mort --platforms xhs` 直接说「没有待发的」。
+
+    两层都要动（2026-11-03 修回）：
+    - SQLite `platform_posts`：真值，purge 后必须删掉，否则 db 侧仍算「发过」
+    - JSON 快照：仍被 `xhs_delete` / 手工排查读取，保持同步
+    测试会传临时路径进来，那种情况下不碰真库（`p` 不是两个真台账之一就跳过）。
     """
+    # --- SQLite ledger 层删除（仅对真台账生效） ---
+    if p in (_pub_file(), _draft_file()):
+        state = "published" if p == _pub_file() else "draft"
+        conn = db.get_conn()
+        try:
+            conn.execute(
+                "DELETE FROM platform_posts WHERE case_id=? AND platform='xhs' AND state=?",
+                (cid, state))
+            conn.commit()
+        except Exception as e:                         # noqa: BLE001
+            sys.stderr.write("⚠ xhs 删 db 记录失败(%s)：%s\n" % (cid, e))
+        finally:
+            db.close_conn()
+
+    # --- JSON 快照层删除 ---
     entries, nl, was_dict = _load_ledger(p)
     rest = [e for e in entries if e["id"] != cid]
     if len(rest) == len(entries):
@@ -2861,6 +2953,21 @@ def _mark(p, cid):
 
 
 def _drafted_ids():
+    """优先从 SQLite ledger 读 xhs 平台 draft 记录；db 无数据时回退 JSON。
+
+    返回格式与原 `xhs_drafts.json` 兼容：id 列表。
+    """
+    conn = db.get_conn()
+    try:
+        posts = db.get_posts_by_platform(conn, "xhs", state="draft")
+        if posts:
+            return [p["case_id"] for p in posts]
+    except Exception:
+        pass
+    finally:
+        db.close_conn()
+
+    # fallback：从 JSON 读（迁移期兼容旧数据）
     p = _draft_file()
     if not os.path.isfile(p):
         return []

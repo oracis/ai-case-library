@@ -41,6 +41,7 @@ if hasattr(sys.stdout, "reconfigure"):
 import zhihu_sign as Z                    # noqa: E402
 from csdn_publish import split_md, md_to_html   # noqa: E402  复用纯函数
 from juejin_publish import _CDP           # noqa: E402  stdlib CDP 客户端
+import db  # noqa: E402  SQLite 统一台账：知乎发布记录写 platform_posts (platform='zhihu')
 
 COOKIE_FILE = os.path.join(ROOT, "data", "zhihu_cookie.json")
 DRAFT_FILE = os.path.join(ROOT, "data", "zhihu_drafts.json")
@@ -88,6 +89,30 @@ def _ck(cookie_dict, name):
 
 
 def remember(case_id, article_id, title, url="", status="draft"):
+    """记账：知乎 draft/published。优先写 SQLite（platform_posts, platform='zhihu'），
+    同时双写 JSON 快照（供 publish_slot / zhihu_ledger_sync 等旧脚本只读兼容）。
+
+    ⚠ db 写仅当 `DRAFT_FILE` 是默认路径时生效（测试注入临时文件时不碰真库，
+    与 `Manifest._db_write` 同一先例）。
+    """
+    if DRAFT_FILE == os.path.join(ROOT, "data", "zhihu_drafts.json"):
+        conn = db.get_conn()
+        try:
+            db.upsert_post(conn, case_id, "zhihu", {
+                "state": status,
+                "remote_id": str(article_id) if article_id else "",
+                "url": url or "",
+                "title": title or "",
+                "draft_id": str(article_id) if article_id else "",
+                "attempt": 0,
+                "published_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "updated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "note": "status=" + status,
+            })
+        finally:
+            db.close_conn()
+
+    # 双写 JSON 快照（保持原格式，供旧脚本只读兼容）
     import atomicio
     ledger = {}
     if os.path.exists(DRAFT_FILE):

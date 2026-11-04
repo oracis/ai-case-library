@@ -143,5 +143,14 @@
     "status": "draft",
     "appmsgid": "100001274",
     "file": "article.html"
+  },
+  "ext-ep-001-super-mario-bros": {
+    "title": "游戏厅：Super Mario Bros",
+    "desc": "",
+    "tag": "万物解释者",
+    "published_at": "2026-11-03 13:18",
+    "status": "draft",
+    "appmsgid": "100001350",
+    "file": "ext-ep-001-super-mario-bros.html"
   }
 }

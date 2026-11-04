@@ -34,6 +34,7 @@ sys.path.insert(0, HERE)
 
 import toutiao_publish as tt  # noqa: E402
 import wechat_publish as wp   # noqa: E402
+import db  # noqa: E402  SQLite 统一台账：读端切到 platform_posts 表
 
 DRAFT_FILE = os.path.join(ROOT, "data", "toutiao_drafts.json")
 PUB_FILE = os.path.join(ROOT, "data", "toutiao_published.json")
@@ -43,14 +44,42 @@ _ALIAS_RE = re.compile(r"『([^』]+)』")
 
 
 def load_ledger():
-    """读两本台账，统一成 [{id, at, note?}]（兼容老的纯 id 列表）。"""
+    """读两本台账，优先从 SQLite ledger，db 无数据时回退 JSON。
+
+    返回 (draft_rows, pub_rows)，每个是 [{id, at, note?}]。
+    """
+    def _from_db(state):
+        conn = db.get_conn()
+        try:
+            posts = db.get_posts_by_platform(conn, "toutiao", state=state)
+            if posts:
+                out = []
+                for p in posts:
+                    e = {"id": p["case_id"], "at": p.get("published_at") or p.get("updated_at") or ""}
+                    if p.get("note"):
+                        e["note"] = p["note"]
+                    out.append(e)
+                return out
+        except Exception:  # noqa: BLE001
+            pass
+        finally:
+            db.close_conn()
+        return None
+
     def _r(p):
         if not os.path.isfile(p):
             return []
         with open(p, "r", encoding="utf-8") as f:
             return [e if isinstance(e, dict) else {"id": e}
                     for e in json.load(f) if e]
-    return _r(DRAFT_FILE), _r(PUB_FILE)
+
+    draft_rows = _from_db("draft")
+    pub_rows = _from_db("published")
+    if draft_rows is None:
+        draft_rows = _r(DRAFT_FILE)
+    if pub_rows is None:
+        pub_rows = _r(PUB_FILE)
+    return draft_rows, pub_rows
 
 
 def collect_alias(ledger_rows):

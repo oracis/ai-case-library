@@ -155,6 +155,21 @@ class MapTest(unittest.TestCase):
         self.assertIn("denied_still_alive", [w["key"] for w in r["warnings"]])
         self.assertIn("含 1 项 AI 反证", r["verdict"])
 
+    def test_降级端点要记进note_不能冒名主模型(self):
+        # 🚨 2026-11-03 实测：主端点限流后自动降级到备2（glm-4-flash），
+        # 但草稿 note 仍写主模型名 —— 5 条降级判的草稿混进「DeepSeek 核的」
+        # 堆里，事后只能靠 caliber_reason 是不是英文去反推。
+        # note 必须带上实际端点标签，降级不是小事：备2 判断质量明显更弱。
+        draft = A.map_ai_to_draft(CAND, good_ai(), publish_mode=False,
+                                  model_name="glm-4-flash", ep_tag="备2")
+        self.assertIn("glm-4-flash", draft["note"])
+        self.assertIn("备2", draft["note"])
+        # 主端点时不带降级标记
+        d2 = A.map_ai_to_draft(CAND, good_ai(), publish_mode=False,
+                               model_name="deepseek-ai/DeepSeek-V4.1-Flash-1017",
+                               ep_tag="主")
+        self.assertNotIn("端点", d2["note"])
+
     def test_三道全否_才判不进库(self):
         # 一道都没成立，AI 还拿到了三份明确反证 —— 这种进库是污染，必须拦
         draft = A.map_ai_to_draft(
@@ -544,7 +559,7 @@ class ResultShapeTest(unittest.TestCase):
         A.extract_json = lambda t: {"confidence": 0.9}
         A.build_queries = lambda cand: ["q"]
         A.current_blockers = lambda old: ([], [])
-        A.map_ai_to_draft = lambda cand, ai, pub: {
+        A.map_ai_to_draft = lambda cand, ai, pub, **kw: {
             "caliber": "mrr", "verification": "official",
             "sources": [{"label": "s", "url": "https://example.com/a", "kind": "official"}],
         }
@@ -611,7 +626,7 @@ class ResultShapeTest(unittest.TestCase):
             A.extract_json = lambda t: {"confidence": 0.9}
             A.build_queries = lambda cand: ["q"]
             A.current_blockers = lambda old: ([], [])
-            A.map_ai_to_draft = lambda cand, ai, pub: {
+            A.map_ai_to_draft = lambda cand, ai, pub, **kw: {
                 "caliber": "mrr", "verification": "official", "sources": []}
 
             class FakeAdmin:
@@ -1146,25 +1161,32 @@ class ConfigChainTest(unittest.TestCase):
             if old_env is not None:
                 os.environ["CASE_LIB_AI_BASE"] = old_env
 
-    def test_默认端点是智谱GLM(self):
-        """钉死 2026-10-13 的切换：**源码内置默认** = 智谱 glm-4-flash（免费档）。
+    def test_默认端点是端砚Sage(self):
+        """钉死 2026-11-03 的切换：**源码内置默认** = 书生·端砚 Sage-A1.5。
 
-        space-bunny-free 2026-10-11 起被上游封直连，不许再变回默认。
+        背景：浦语 intern-s2 单条 150~300s、真实核验里超时过；端砚三款
+        （Sage-A1.5 / Atria-Dawn / Agents-A1）免费、512K，同批 4 条候选
+        Sage 与智谱口径 **4/4 一致**，关思考后 4.8~9.5s/条 ⇒ 改为主端点。
+
+        🚨 base 是 `discovery-api.intern-ai.org.cn/v1` —— **不是**浦语的
+        `chat.intern-ai.org.cn/api/v1`，也不是门户 `internlm.intern-ai.org.cn`。
+        端砚的系统设置 AK/SK 调模型一律 401，只有「API Key」tab 生成的
+        `sk-` 才行 —— 这三件事混起来会查半天。
 
         🚨 2026-10-29 修正：不许断言模块常量 `A.AI_BASE` / `A.AI_MODEL` ——
-        它们读的是 `data/secrets.json`（运营期已配成 ModelScope 主端点），
-        于是这条测试在「默认其实没漂移」的情况下天天红，属**陈旧断言**。
+        它们读的是 `data/secrets.json`（运营期配置），于是这条测试在
+        「默认其实没漂移」的情况下天天红，属**陈旧断言**。
         真正要钉的是源码里 `_cfg(..., default)` 写死的那个默认值。
         """
         src = open(A.__file__, encoding="utf-8").read()
         self.assertTrue(
             re.search(r'_cfg\(\s*"CASE_LIB_AI_BASE",\s*"ai_base",\s*'
-                      r'"https://open\.bigmodel\.cn/api/paas/v4"', src),
-            "源码默认端点漂了：应为智谱 https://open.bigmodel.cn/api/paas/v4")
+                      r'"https://discovery-api\.intern-ai\.org\.cn/v1"', src),
+            "源码默认端点漂了：应为端砚 https://discovery-api.intern-ai.org.cn/v1")
         self.assertTrue(
             re.search(r'_cfg\(\s*"CASE_LIB_AI_MODEL",\s*"ai_model",\s*'
-                      r'"glm-4-flash"', src),
-            "源码默认模型漂了：应为 glm-4-flash")
+                      r'"Sage-A1\.5"', src),
+            "源码默认模型漂了：应为 Sage-A1.5")
 
 
 class LlmTruncateBudgetTest(unittest.TestCase):
@@ -1180,7 +1202,8 @@ class LlmTruncateBudgetTest(unittest.TestCase):
         """跑一遍 llm()，返回每次调用收到的 max_tokens 列表。"""
         seen = []
 
-        def fake(messages, temperature, mt, base=None, key=None, model=None):
+        def fake(messages, temperature, mt, base=None, key=None, model=None,
+                 extra=None):
             seen.append(mt)
             raise A._Truncated("finish_reason=length")
 
@@ -1203,3 +1226,90 @@ class LlmTruncateBudgetTest(unittest.TestCase):
         self.assertEqual(seen[0], A.AI_MAX_TOKENS)
         self.assertEqual(seen[1], A.AI_MAX_TOKENS + A.LLM_TRUNCATE_STEP)
         self.assertEqual(seen[2], A.AI_MAX_TOKENS + 2 * A.LLM_TRUNCATE_STEP)
+
+
+class EndpointExtraAndContentTest(unittest.TestCase):
+    """端点私有参数透传 + content 为空时回落 reasoning_content（2026-11-03）。
+
+    🚨 事故形状（真实踩到）：书生·端砚的 Sage-A1.5 **默认一直思考**，
+    max_tokens 全被 reasoning 吃光、content 恒为空字符串 —— ping 打印
+    「[OK] 0.4s 响应：」后面跟着空串，看着像通了，其实一个字符都没有，
+    后面 extract_json 必然炸。唯一解是在请求体里关思考
+    （chat_template_kwargs.enable_thinking=false）。
+    另一个形状：**同一个模型名在不同入口行为不一致** —— 浦语的 intern-s2
+    把 JSON 放 content，端砚的 intern-s2 却把答案写进 reasoning_content、
+    content=None。所以 content 空时必须回落，否则等于白调一次。
+    """
+
+    def _run_once(self, resp_payload, extra=None):
+        """用假 urlopen 跑一次 llm()，返回（请求体, 返回值）。"""
+        captured = {}
+
+        class FakeResp:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *a):
+                return False
+
+            def read(self):
+                return json.dumps(resp_payload).encode("utf-8")
+
+        def fake_urlopen(req, timeout=None):
+            captured["body"] = json.loads(req.data.decode("utf-8"))
+            return FakeResp()
+
+        old_urlopen = A.urllib.request.urlopen
+        old_extra, old_key = A.AI_EXTRA_MAP, A.AI_KEY
+        A.urllib.request.urlopen = fake_urlopen
+        A.AI_KEY = "dummy"
+        A.AI_EXTRA_MAP = {A.AI_MODEL: extra} if extra else {}
+        try:
+            out = A.llm([{"role": "user", "content": "hi"}])
+        finally:
+            A.urllib.request.urlopen = old_urlopen
+            A.AI_EXTRA_MAP = old_extra
+            A.AI_KEY = old_key
+        return captured["body"], out
+
+    def test_额外参数透传进请求体(self):
+        """按模型名配的端点私有字段必须真的发出去。"""
+        body, _ = self._run_once(
+            {"choices": [{"message": {"content": "{}"}, "finish_reason": "stop"}]},
+            extra={"chat_template_kwargs": {"enable_thinking": False}})
+        self.assertEqual(body["chat_template_kwargs"],
+                         {"enable_thinking": False})
+
+    def test_额外参数不许改model和messages(self):
+        """端点私有字段不能把谱系改掉 —— LAST_ENDPOINT 记的会变成假话。"""
+        body, _ = self._run_once(
+            {"choices": [{"message": {"content": "{}"}, "finish_reason": "stop"}]},
+            extra={"model": "偷偷换掉", "messages": [], "temperature": 0.9})
+        self.assertEqual(body["model"], A.AI_MODEL)
+        self.assertEqual(body["messages"], [{"role": "user", "content": "hi"}])
+        self.assertEqual(body["temperature"], 0.9, "非谱系字段允许端点覆盖")
+
+    def test_content为空时回落reasoning_content(self):
+        """端砚 intern-s2 把答案写进 reasoning_content，content 是 None。"""
+        _, out = self._run_once(
+            {"choices": [{"message": {"content": None,
+                                      "reasoning_content": '{"ok":1}'},
+                          "finish_reason": "stop"}]})
+        self.assertEqual(out, '{"ok":1}')
+
+    def test_两者都空返回空串不抛(self):
+        """空串要让 extract_json 那层报「解析失败」，而不是 KeyError。"""
+        _, out = self._run_once(
+            {"choices": [{"message": {"content": ""}, "finish_reason": "stop"}]})
+        self.assertEqual(out, "")
+
+    def test_extra配置解析容错(self):
+        """配置写错只告警、不清空已有端点链。"""
+        self.assertEqual(A._parse_extra_map(""), {})
+        self.assertEqual(
+            A._parse_extra_map('{"M": {"a": 1}}'), {"M": {"a": 1}})
+        self.assertEqual(A._parse_extra_map({"M": {"a": 1}}), {"M": {"a": 1}})
+        # 非法 JSON / 非对象 / 值不是对象 —— 一律忽略，不抛
+        self.assertEqual(A._parse_extra_map("{不是 json"), {})
+        self.assertEqual(A._parse_extra_map("[1,2]"), {})
+        self.assertEqual(A._parse_extra_map('{"M": 1}'), {})

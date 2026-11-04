@@ -2259,7 +2259,11 @@ def _entry_from_api(it, api, taken):
     """TrustMRR 官方 API：字段齐全，直接落盘，不再写「待补」。"""
     mrr = api.get("mrr") or 0
     metrics = {}
-    if api.get("mrr"):
+    # 契约：缺字段 = 没抓到；0 = 抓到且为零。mrr/last30 两路径恒有键，故用
+    # isinstance 判「抓到了」—— 旧写法 `if api.get(...)` 把 0 静默丢掉，下游
+    # triage 分不清「没抓到」（该 backfill）和「实测为零」（当前收入归零，
+    # 不该花深核预算），2026-11-03 实测 6 条零收入条目因此被洗成 deep。
+    if isinstance(api.get("mrr"), (int, float)):
         metrics["mrr"] = api["mrr"]
     if api.get("revenue_total"):
         metrics["all_time"] = api["revenue_total"]
@@ -2268,7 +2272,7 @@ def _entry_from_api(it, api, taken):
     # 契约名，否则 triage.revenue_of() 取不到数。
     # 漏写这一格的代价：TrustMRR 的 Current MRR 对非订阅制项目恒为 0，
     # 于是「月流水几万、MRR 为零」的条目全被当成没有收入数据。
-    if api.get("revenue_last30d"):
+    if isinstance(api.get("revenue_last30d"), (int, float)):
         metrics["last_30d_revenue"] = api["revenue_last30d"]
     if api.get("customers"):
         metrics["customers"] = api["customers"]

@@ -171,43 +171,43 @@
     "id": "search1api",
     "at": "2026-10-19 23:14",
     "gid": "7693147875014787618",
-    "evidence": "send_existing_draft",
-    "verified_at": "2026-10-19 23:14"
+    "verified_at": "2026-10-19 23:14",
+    "evidence": "send_existing_draft"
   },
   {
     "id": "insect-bite-id",
     "at": "2026-10-20 15:31",
     "gid": "7693147331377611299",
-    "evidence": "send_existing_draft",
-    "verified_at": "2026-10-20 15:31"
+    "verified_at": "2026-10-20 15:31",
+    "evidence": "send_existing_draft"
   },
   {
     "id": "autoreels-ai",
     "at": "2026-10-21 12:38",
     "gid": "7693146865831657999",
-    "evidence": "send_existing_draft",
-    "verified_at": "2026-10-21 12:38"
+    "verified_at": "2026-10-21 12:38",
+    "evidence": "send_existing_draft"
   },
   {
     "id": "magicslides-app",
     "at": "2026-10-22 11:31",
     "gid": "7693146329643500066",
-    "evidence": "send_existing_draft",
-    "verified_at": "2026-10-22 11:31"
+    "verified_at": "2026-10-22 11:31",
+    "evidence": "send_existing_draft"
   },
   {
     "id": "1lookup",
     "at": "2026-10-23 15:01",
     "gid": "7693145848108024354",
-    "evidence": "send_existing_draft",
-    "verified_at": "2026-10-23 15:01"
+    "verified_at": "2026-10-23 15:01",
+    "evidence": "send_existing_draft"
   },
   {
     "id": "downconvert-sketchup-files",
     "at": "2026-10-24 21:32",
     "gid": "7699903206700139046",
-    "evidence": "send_existing_draft",
-    "verified_at": "2026-10-24 21:32"
+    "verified_at": "2026-10-24 21:32",
+    "evidence": "send_existing_draft"
   },
   {
     "id": "mcdpoints",
@@ -221,8 +221,8 @@
     "id": "agentsguild",
     "at": "2026-10-27 12:46",
     "gid": "7700851215516664362",
-    "evidence": "send_existing_draft",
-    "verified_at": "2026-10-27 12:46"
+    "verified_at": "2026-10-27 12:46",
+    "evidence": "send_existing_draft"
   },
   {
     "id": "quran-unlock",
@@ -232,112 +232,112 @@
     "id": "genius-ai",
     "at": "2026-10-29 11:39",
     "gid": "7693144739603890722",
-    "evidence": "send_existing_draft",
-    "verified_at": "2026-10-29 11:39"
+    "verified_at": "2026-10-29 11:39",
+    "evidence": "send_existing_draft"
   },
   {
     "id": "trustmrr",
     "at": "2026-10-31 18:22",
     "gid": "7702774630259376676",
-    "evidence": "send_existing_draft",
-    "verified_at": "2026-10-31 18:22"
+    "verified_at": "2026-10-31 18:22",
+    "evidence": "send_existing_draft"
   },
   {
     "id": "ext-ep-011-minetest",
     "at": "2026-10-31 18:51",
     "gid": "7702781884279063083",
-    "evidence": "send_existing_draft",
-    "verified_at": "2026-10-31 18:51"
+    "verified_at": "2026-10-31 18:51",
+    "evidence": "send_existing_draft"
   },
   {
     "id": "ext-ep-002-2048",
     "at": "2026-10-31 19:49",
     "gid": "7702797168431612479",
-    "evidence": "send_existing_draft",
-    "verified_at": "2026-10-31 19:49"
+    "verified_at": "2026-10-31 19:49",
+    "evidence": "send_existing_draft"
   },
   {
     "id": "ext-ep-003-freedoom",
     "at": "2026-10-31 19:53",
     "gid": "7702798120068858404",
-    "evidence": "send_existing_draft",
-    "verified_at": "2026-10-31 19:53"
+    "verified_at": "2026-10-31 19:53",
+    "evidence": "send_existing_draft"
   },
   {
     "id": "ext-ep-004-quake",
     "at": "2026-10-31 19:57",
     "gid": "7702799110571475475",
-    "evidence": "send_existing_draft",
-    "verified_at": "2026-10-31 19:57"
+    "verified_at": "2026-10-31 19:57",
+    "evidence": "send_existing_draft"
   },
   {
     "id": "ext-ep-005-supertux",
     "at": "2026-10-31 20:01",
     "gid": "7702800072290927140",
-    "evidence": "send_existing_draft",
-    "verified_at": "2026-10-31 20:01"
+    "verified_at": "2026-10-31 20:01",
+    "evidence": "send_existing_draft"
   },
   {
     "id": "ext-ep-006-nethack",
     "at": "2026-10-31 20:05",
     "gid": "7702801086453482020",
-    "evidence": "send_existing_draft",
-    "verified_at": "2026-10-31 20:05"
+    "verified_at": "2026-10-31 20:05",
+    "evidence": "send_existing_draft"
   },
   {
     "id": "ext-ep-007-openttd",
     "at": "2026-10-31 20:09",
     "gid": "7702802037850915391",
-    "evidence": "send_existing_draft",
-    "verified_at": "2026-10-31 20:09"
+    "verified_at": "2026-10-31 20:09",
+    "evidence": "send_existing_draft"
   },
   {
     "id": "ext-ep-008-mindustry",
     "at": "2026-10-31 20:12",
     "gid": "7702803059026231827",
-    "evidence": "send_existing_draft",
-    "verified_at": "2026-10-31 20:12"
+    "verified_at": "2026-10-31 20:12",
+    "evidence": "send_existing_draft"
   },
   {
     "id": "ext-ep-009-lichess",
     "at": "2026-10-31 20:19",
     "gid": "7702804780213518902",
-    "evidence": "send_existing_draft",
-    "verified_at": "2026-10-31 20:19"
+    "verified_at": "2026-10-31 20:19",
+    "evidence": "send_existing_draft"
   },
   {
     "id": "ext-ep-010-cataclysm-dark-days-ahead",
     "at": "2026-10-31 20:23",
     "gid": "7702805768530100755",
-    "evidence": "send_existing_draft",
-    "verified_at": "2026-10-31 20:23"
+    "verified_at": "2026-10-31 20:23",
+    "evidence": "send_existing_draft"
   },
   {
     "id": "ext-ep-001-super-mario-bros",
     "at": "2026-10-31 22:10",
     "gid": "7702394082697527848",
-    "evidence": "send_existing_draft",
-    "verified_at": "2026-10-31 22:10"
+    "verified_at": "2026-10-31 22:10",
+    "evidence": "send_existing_draft"
   },
   {
     "id": "chessigma",
     "at": "2026-11-01 17:06",
     "gid": "7703128531567477282",
-    "title_fixed_at": "2026-11-02 13:2x",
-    "note": "原标题被 30 字硬截断成「Chessigma：「免费版 Chess.com」拿下 10」，2026-11-02 走「修改已发布文章」改成「免费下棋平台拿下 100 万用户，只有 576 人付费」，未删稿，展现/评论保留"
+    "note": "原标题被 30 字硬截断成「Chessigma：「免费版 Chess.com」拿下 10」，2026-11-02 走「修改已发布文章」改成「免费下棋平台拿下 100 万用户，只有 576 人付费」，未删稿，展现/评论保留",
+    "title_fixed_at": "2026-11-02 13:2x"
   },
   {
     "id": "cod-dex",
     "at": "2026-11-01 17:15",
     "gid": "7703129188911383055",
-    "title_fixed_at": "2026-11-02 13:2x",
-    "note": "原标题截断成「Codédex：把学编程包装成「冒险旅程」的互动课程平台，免」，2026-11-02 改成「9.99 美元学编程，6686 人把课程当闯关游戏」，未删稿"
+    "note": "原标题截断成「Codédex：把学编程包装成「冒险旅程」的互动课程平台，免」，2026-11-02 改成「9.99 美元学编程，6686 人把课程当闯关游戏」，未删稿",
+    "title_fixed_at": "2026-11-02 13:2x"
   },
   {
     "id": "wpconvert-ai-convert-ai-sites-to-wordpress",
     "at": "2026-11-02 20:16",
     "gid": "7699904459535401510",
-    "evidence": "send_existing_draft",
-    "verified_at": "2026-11-02 20:16"
+    "verified_at": "2026-11-02 20:16",
+    "evidence": "send_existing_draft"
   }
 ]

@@ -55,6 +55,9 @@ SCRIPTS = os.path.join(ROOT, "scripts")
 DATA = os.path.join(ROOT, "data")
 sys.path.insert(0, SCRIPTS)
 
+import atomicio                                                          # noqa: E402
+import db  # noqa: E402  SQLite 统一台账：两朵云发布记录读 platform_posts (platform='tencentcloud'/'aliyun')
+
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
@@ -139,8 +142,7 @@ MONEY_WORDS = ("MRR", "mrr", "月入", "月收入", "营收", "ARR", "美金", "
 def _load(name):
     p = os.path.join(DATA, name)
     try:
-        with open(p, encoding="utf-8") as f:
-            return json.load(f)
+        return atomicio.read_json(p, default={})
     except (OSError, ValueError):
         return {}
 
@@ -242,8 +244,41 @@ def _gate_cover(platform, case, pack, **kw):
     return (True, os.path.relpath(c, ROOT)) if c else (False, "缺封面图 ⇒ 腾讯云会静默失败，公众号/头条封面为空")
 
 
+def _yun_row(case, platform):
+    """从 SQLite ledger 读两朵云发布记录，返回兼容 yun_finalize.json 格式的 dict。
+
+    映射：draft_id → tc_draft/al_draft，remote_id → tc_article/al_article，
+    state → tc_state/al_state，url → tc_url/al_url。
+    找不到返回 {}。
+    """
+    conn = db.get_conn()
+    try:
+        p = db.get_post(conn, case, platform)
+        if not p:
+            return {}
+        key = "tc_" if platform == "tencentcloud" else "al_"
+        row = {}
+        if p.get("draft_id"):
+            row[key + "draft"] = p["draft_id"]
+        if p.get("remote_id"):
+            row[key + "article"] = p["remote_id"]
+        if p.get("state"):
+            row[key + "state"] = p["state"]
+        if p.get("url"):
+            row[key + "url"] = p["url"]
+        if p.get("title"):
+            row[key + "title"] = p["title"]
+        if p.get("note"):
+            row[key + "note"] = p["note"]
+        if p.get("updated_at"):
+            row["updated"] = p["updated_at"]
+        return row
+    finally:
+        db.close_conn()
+
+
 def _gate_remote(platform, case, pack, **kw):
-    row = _load("yun_finalize.json").get(case) or {}
+    row = _yun_row(case, platform) or {}
     key = "tc_draft" if platform == "tencentcloud" else "al_draft"
     did = str(row.get(key) or "")
     if not did:
@@ -296,11 +331,16 @@ def build_cmd(platform, case, pack, yes):
     elif platform == "zhihu":
         cmd = s("zhihu_publish.py", "draft", "--file", pack, "--case", case)
     elif platform in ("tencentcloud", "aliyun"):
-        row = _load("yun_finalize.json").get(case) or {}
+        row = _yun_row(case, platform) or {}
         key = "tc_draft" if platform == "tencentcloud" else "al_draft"
         cmd = s("yun_finalize.py", "--case", case, "--file", pack,
                 "--publish", "--i-said-publish", "i-said-publish",
                 "--" + key.replace("_", "-"), str(row.get(key) or ""))
+        # ⚠ 阿里云必带 --headed：滑块验证码是人机验证，无头窗口用户看不见
+        #   ⇒ 拖不了。2026-11-03 踩过：build_cmd 漏传，yun_finalize 自己
+        #   起了无头实例，用户报告「看不到滑块」。
+        if platform == "aliyun":
+            cmd.append("--headed")
         c = cover_of(case)
         if c:
             cmd += ["--cover", c]
@@ -376,16 +416,65 @@ def plan(day=None, platforms=None, as_json=False):
 def upload_remote(platform, case, dry=False):
     """把稿子上传到两朵云草稿箱（拿到 tc_draft / al_draft）。
 
-    走 `sync_longtail.py`（CSDN 同步助手 MCP）：这是两朵云**唯一**建稿入口，
-    没有它 `remote` 闸永远过不去。需要浏览器已登录 + 扩展的 MCP 开关打开，
-    所以不做默认自动执行 —— 失败时给的是明确的下一步，不是静默跳过。
+    ⚠ 2026-11-04 修：显式带 `--via cdp`（`yun_draft_cdp.py`，9228 常驻
+    Chrome，登录态磁盘持久），**不依赖 CSDN 同步助手扩展**。旧写法漏传
+    `--via`，而 `sync_longtail.py` 默认是 `mcp` ⇒ 扩展没连上时 `--upload`
+    必失败，报错还把人往「浏览器/扩展没开」上带，其实两朵云早有
+    不依赖扩展的通道（sync_longtail 的 help 自己都写着「推荐」）。
+    仍不做默认自动执行 —— 失败时给明确的下一步，不静默跳过。
     """
     cmd = [PY, "-X", "utf8", os.path.join(SCRIPTS, "sync_longtail.py"),
-           "--case", case, "--platforms", platform]
+           "--case", case, "--platforms", platform, "--via", "cdp"]
     print("上传草稿：%s" % " ".join(_q(c) for c in cmd))
     if dry:
         return 0
     return subprocess.call(cmd, cwd=ROOT)
+
+
+# 草稿箱即 FIFO 队列的平台（用户定，2026-11-03）：发最久草稿，箱空才新写。
+# 两家的 send-draft 都「默认取存入最久的一条」，正好是队列语义。
+FIFO_PLATFORMS = ("bilibili", "xhs")
+
+
+def fifo_note(platform):
+    """send-draft 发的那篇不经过本地选稿 ⇒ 发完把它的类型补进档期日志。
+
+    档期轮换（AI/游戏按天轮流）只管「新写」时的选稿；FIFO 发出的旧稿类型
+    可能与当日档期不同，如实按台账记，别让轮换计数失真。
+    """
+    try:
+        cid = None
+        if platform == "bilibili":
+            m = _load("publish_manifest.json") or {}
+            best = ""
+            for c, plats in m.items():
+                b = (plats or {}).get("bilibili") if isinstance(plats, dict) else None
+                if isinstance(b, dict) and b.get("state") == "published" \
+                        and (b.get("at") or "")[:10] == SLOT.today():
+                    if (b.get("at") or "") > best:
+                        best, cid = b.get("at"), c
+        else:  # xhs：台账是 [{id, at}, …]，取今天最新一条
+            rows = _load("xhs_published.json") or []
+            today = SLOT.today()
+            hit = [r for r in rows if str(r.get("at") or "").startswith(today)]
+            if hit:
+                cid = hit[-1].get("id")
+        if not cid:
+            return
+        path = os.path.join(DATA, "publish_kind_log.json")
+        d = atomicio.read_json(path, default={})
+        rec = d.setdefault("records", {}).setdefault(platform, [])
+        if any(r.get("case_id") == cid for r in rec):
+            return
+        rec.append({"at": SLOT.today() + " " + time.strftime("%H:%M"),
+                    "case_id": cid, "kind": SLOT.kind_of(cid),
+                    "note": "send-draft FIFO 最久草稿"})
+        with atomicio.file_lock(path + ".lock", timeout=30.0):
+            atomicio.write_json(path, d, indent=1)
+        print("  台账：publish_kind_log.json 记 %s/%s（%s）"
+              % (platform, cid, SLOT.kind_of(cid)))
+    except Exception as e:                                  # noqa: BLE001
+        print("  ⚠ 档期日志补记失败（不影响发布）：%s" % str(e)[:80])
 
 
 def gen_pack(platform, case):
@@ -406,7 +495,40 @@ def gen_pack(platform, case):
 
 
 def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
-        as_json=False, gen=False):
+        as_json=False, gen=False, new=False):
+    cn = dict(SLOT.PLATFORMS)[platform]
+    # 草稿箱即 FIFO 队列（用户定，2026-11-03）：先发**存入最久**的那条，
+    # 箱空了才按当日档期新写。旧 SPEC 接成 `publish`（无脑新写）是错的——
+    # B站一天只烧 1 篇额度，新写等于把箱里积压的稿晾着、额度拿去发新稿；
+    # 小红书同病：箱里 48 条还往里塞第 49 条。send-draft 本来就「默认取
+    # 存入最久的一条」，这里只是把入口接对。
+    if platform in FIFO_PLATFORMS and not new and not case:
+        print("▶ %s ｜ FIFO：发草稿箱里存入最久的一条（send-draft 默认）" % cn)
+        print("  规则：箱空才新写 —— 那时加 --new 走当日档期选稿。")
+        if as_json:
+            print(json.dumps({"platform": platform, "mode": "fifo"},
+                             ensure_ascii=False))
+            return 0
+        script = ("xhs_publish.py" if platform == "xhs"
+                  else "bilibili_publish.py")
+        if not yes:
+            print("\n（干跑）将会执行：\n  %s" % _q(os.path.join(
+                SCRIPTS, script)) + " send-draft")
+            return 0
+        print("\n执行 send-draft…")
+        rc = subprocess.call([PY, "-X", "utf8",
+                              os.path.join(SCRIPTS, script), "send-draft"],
+                             cwd=ROOT)
+        if rc != 0:
+            print("\n✗ send-draft 未成功。两种常见情形：")
+            print("  · 箱空 → 新写：python scripts/publish_one.py "
+                  "--platform %s --new --yes" % platform)
+            print("  · 点了发布但回读没命中 → B站常见 toast「提交成功」+ aid "
+                  "重分配，按标题查已发表列表补账（别重发）")
+        else:
+            fifo_note(platform)
+        return rc
+
     case, row = pick(platform, case, day)
     cn = dict(SLOT.PLATFORMS)[platform]
     if not row.get("kind"):
@@ -458,7 +580,8 @@ def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
         if upload_remote(platform, case, dry=not yes) == 0:
             gates = run_gates(platform, case, pack)
         else:
-            print("✗ 上传失败，按上面报错处理（八成是浏览器/扩展没开）")
+            print("✗ 上传失败（CDP 通道）：查 9228 Chrome 是否常驻、"
+                  "chrome-yun-profile 登录态是否还在，按上面报错处理")
             return 1
     for g in gates:
         print("  %s %-6s %s" % ("✓" if g["ok"] else "✗", g["gate"], g["detail"]))
@@ -509,10 +632,10 @@ def _note_kind(platform, case):
         return
     rows.append({"case_id": case, "kind": SLOT.kind_of(case), "at": stamp})
     try:
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=1)
+        with atomicio.file_lock(path + ".lock", timeout=30.0):
+            atomicio.write_json(path, data, indent=1)
         print("台账：publish_kind_log.json 记 %s/%s" % (platform, case))
-    except OSError as e:                                   # noqa: BLE001
+    except (OSError, TimeoutError) as e:                   # noqa: BLE001
         print("⚠ 档期日志没写进去：%s" % e)
 
 
@@ -537,6 +660,8 @@ def main(argv=None):
                     help="两朵云没草稿时先跑 sync_longtail 上传（要浏览器+扩展）")
     ap.add_argument("--gen", action="store_true",
                     help="AI 稿缺货时按需生成（gen_case_drafts，模板拼装+LLM 只写标题）")
+    ap.add_argument("--new", action="store_true",
+                    help="B站/小红书跳过 FIFO 直发，按当日档期新写草稿（箱空时用）")
     a = ap.parse_args(argv)
 
     if a.all and a.platform:
@@ -548,7 +673,8 @@ def main(argv=None):
             return plan(a.day, todo, a.json)
         rc = 0
         for k in todo:
-            rc |= run(k, None, True, a.timeout, a.day, a.upload, a.json, a.gen)
+            rc |= run(k, None, True, a.timeout, a.day, a.upload, a.json, a.gen,
+                      a.new)
         return rc
     if not a.platform:
         return plan(a.day, None, a.json)
@@ -556,7 +682,8 @@ def main(argv=None):
         ap.error("--case 只能配单个 --platform")
     rc = 0
     for k in a.platform:
-        rc |= run(k, a.case, a.yes, a.timeout, a.day, a.upload, a.json, a.gen)
+        rc |= run(k, a.case, a.yes, a.timeout, a.day, a.upload, a.json, a.gen,
+                  a.new)
     return rc
 
 

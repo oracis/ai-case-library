@@ -73,8 +73,9 @@ def main():
     ap.add_argument("--out", default="", help="把结果写成 json")
     args = ap.parse_args()
 
-    ledger = json.load(open(os.path.join(ROOT, "data", "wechat_published.json"),
-                            encoding="utf-8"))
+    # 2026-11-03 切 SQLite：走 W.load_published()（db 优先 + JSON fallback），
+    # 与 wechat_publish 的台账视图保持同一真值
+    ledger = W.load_published()
     if args.cases:
         pairs = [(cid, (ledger.get(cid) or {}).get("appmsgid"))
                  for cid in args.cases]

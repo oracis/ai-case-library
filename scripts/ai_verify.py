@@ -26,22 +26,27 @@
 环境变量（LLM 走 OpenAI 兼容接口，GLM / DeepSeek / Kimi 都行）
     CASE_LIB_AI_KEY     必填（--plan 除外）。也可放 data/secrets.json 的 ai_key
                         （该文件已被 .gitignore 排除，是 key 的正规位置）
-    CASE_LIB_AI_BASE    默认 https://open.bigmodel.cn/api/paas/v4（智谱）
-    CASE_LIB_AI_MODEL   默认 glm-4-flash（免费档）
+    CASE_LIB_AI_BASE    默认 https://discovery-api.intern-ai.org.cn/v1（书生·端砚）
+    CASE_LIB_AI_MODEL   默认 Sage-A1.5（免费 512K；**必须配 ai_extra 关思考**）
+    CASE_LIB_AI_EXTRA   JSON：按模型名透传端点私有参数，默认见 secrets.json 的 ai_extra
+                        例 {"Sage-A1.5":{"chat_template_kwargs":{"enable_thinking":false}}}
     CASE_LIB_ADMIN_PASSWORD   后台密码（写草稿/发布要登录 5053）
 
     读取优先级：环境变量 > data/secrets.json > 上面这些默认值。
     ⚠ space-bunny-free（opencode.ai/zen）2026-10-11 起被上游封直连，已弃用；
-       DeepSeek 是付费端点，按需显式切。
+       ModelScope DeepSeek/Qwen 魔粒已耗尽，2026-11-03 已移除。
+       当前主端点 = 端砚 Sage-A1.5（免费、512K、关思考 ~5s/条），备1 = 端砚 Agents-A1，
+       备2 = 智谱 glm-4-flash（额度独立，平台级故障兜底）。浦语 intern-s2 与 Atria-Dawn
+       因单条 90~300s 且会超时，不进自动降级链。
 
 换模型（CLI 覆盖环境变量，不传就用上面的默认值）
     # 先花几秒验端点，别直接跑一批才发现 key 不对
     python scripts/ai_verify.py --ping
     # 通了再核
     python scripts/ai_verify.py --triage --limit 5
-    python scripts/ai_verify.py --limit 5 --ai-model deepseek-chat \
-                                --ai-base https://api.deepseek.com \
-                                --ai-key sk-xxx
+    python scripts/ai_verify.py --limit 5 --ai-model <模型名> \
+                                --ai-base <OpenAI 兼容 base，结尾 /v1> \
+                                --ai-key <API Key>
 
     端点约定：base 填到 /v1（别带 /chat/completions），尾部斜杠会被rstrip。
     ⚠ 换端点最常见的两个坑，--ping 会直接指出来：
@@ -110,26 +115,35 @@ def _cfg(env_key, sec_key, default):
 
 
 ADMIN_BASE = os.environ.get("CASE_LIB_ADMIN_BASE", "http://127.0.0.1:5053")
-# 🚨 默认端点 = 智谱 GLM-4-Flash（免费档，2026-10-13 切换）。
+# 🚨 默认端点 = 书生·端砚 Sage-A1.5（2026-11-03 切；此前是浦语 intern-s2 → 智谱 glm-4-flash）。
 # 上一个默认 space-bunny-free（opencode.ai/zen）2026-10-11 起被上游封直连，已弃用；
-# 再上一个 DeepSeek 是付费的。key 走 CASE_LIB_AI_KEY 或 secrets.json 的 ai_key。
+# 再上一个 ModelScope DeepSeek/Qwen 魔粒已耗尽，2026-11-03 已从端点链移除。
+# 端砚要点：base 是 discovery-api.intern-ai.org.cn/v1（不是浦语的 chat.intern-ai.org.cn，
+# 也不是门户 internlm.intern-ai.org.cn）；key 形如 sk-xxx 走 Bearer（AK/SK 那对是平台
+# 服务凭证，调模型一律 401）。Sage-A1.5 / Atria-Dawn / Agents-A1 三款免费、512K/256K。
+# 🚨 **Sage-A1.5 必须关思考**（见 AI_EXTRA_MAP）：默认会一直思考，max_tokens 全被
+# reasoning 吃光、content 恒为空 —— 实测 2000 token 烧完仍没正文，不是额度不够。
+# 关掉后同一条 0.4s 返回，开思考 36s 且仍可能是空壳。
+# key 走 CASE_LIB_AI_KEY 或 secrets.json 的 ai_key。
 AI_BASE = _cfg("CASE_LIB_AI_BASE", "ai_base",
-               "https://open.bigmodel.cn/api/paas/v4").rstrip("/")
+               "https://discovery-api.intern-ai.org.cn/v1").rstrip("/")
 AI_KEY = _cfg("CASE_LIB_AI_KEY", "ai_key", "")
-AI_MODEL = _cfg("CASE_LIB_AI_MODEL", "ai_model", "glm-4-flash")
+AI_MODEL = _cfg("CASE_LIB_AI_MODEL", "ai_model", "Sage-A1.5")
 # 这些base 走本机代理会超时/403，LLM 请求时绕过代理（仅 LLM，不影响其他）
 AI_BASE_NO_PROXY = ("opencode.ai/zen",)
-# 🚨 备端点链（429 自动降级，2026-10-26 起；2026-10-29 扩成两级）。
+# 🚨 备端点链（429/402/403/5xx 自动降级，2026-10-26 起；2026-10-29 扩成两级）。
 #
-# ModelScope 按**魔粒**计费（每天登录发 200 粒，做任务最多 500 粒/天）：
-# 旗舰 2 粒/次、主流 1 粒/次、轻量 0.5 粒/次；另有账号级 2000 次/天
-# 和单模型 ~200 次/天两道动态限流。跑大批量必撞 429 —— 撞了自动往下切，
-# 整批不再半途而废。
+# 2026-11-03：ModelScope 魔粒已耗尽，DeepSeek-V4.1-Flash / Qwen3.8-Flash-Next
+# 已从端点链移除，不再作为主 / 备端点。
 #
 # 端点优先级（越往下越便宜、越不容易撞限）：
-#   主   = ModelScope DeepSeek-V4.1-Flash（旗舰 2 粒，质量最好）
-#   备 1 = ModelScope Qwen3.8-Flash-Next（主流 1 粒，500 次/天）
-#   备 2 = 智谱 glm-4-flash（真免费，最后兜底）
+#   主   = 书生·端砚 Sage-A1.5（免费、512K、关思考后 ~5s/条；4 条候选与智谱口径 4/4 一致）
+#   备 1 = 端砚 Agents-A1（同平台不同模型，256K 多模态；关思考 7.5s，pluma 上与 Sage 同判
+#          mrr/stripe/$1,338。⚠ 开思考实测 **300s 直接超时** ⇒ 必须一起关）
+#   备 2 = 智谱 glm-4-flash（真免费、额度**独立于端砚**，平台级故障时的最后兜底）
+# ⚠ Atria-Dawn **不进自动降级链**：实测 90~300s/条且在真实核验里两次 300s 超时，
+#   当备端点等于让整批卡死。需要时手动 `--ai-model Atria-Dawn`。
+# ⚠ 浦语 intern-s2（chat.intern-ai.org.cn）实测 150~300s/条、也超时过，不再作主/备。
 # 读 secrets.json 的 ai_fallback_* / ai_fallback2_*（env CASE_LIB_AI_FALLBACK*
 # 优先）。没配 = 链短一级，行为同旧版。
 AI_FB_BASE = (_cfg("CASE_LIB_AI_FALLBACK_BASE", "ai_fallback_base", "") or "").rstrip("/")
@@ -138,6 +152,9 @@ AI_FB_MODEL = _cfg("CASE_LIB_AI_FALLBACK_MODEL", "ai_fallback_model", "")
 AI_FB2_BASE = (_cfg("CASE_LIB_AI_FALLBACK2_BASE", "ai_fallback2_base", "") or "").rstrip("/")
 AI_FB2_KEY = _cfg("CASE_LIB_AI_FALLBACK2_KEY", "ai_fallback2_key", "")
 AI_FB2_MODEL = _cfg("CASE_LIB_AI_FALLBACK2_MODEL", "ai_fallback2_model", "")
+# 最近一次实际用的端点（llm() 成功后写）。草稿 note 必须记这个，
+# 而不是记配置里的主模型 —— 降级发生时两者不是一回事（见 llm() 内注释）。
+LAST_ENDPOINT = {"tag": "", "model": "", "base": ""}
 # 🚨 **截断自动重试**（2026-10-10）。
 # 推理模型把思考 token 也算进 max_tokens，核一条要烧 4000+（思考约 3600），
 # 16000 仍偶发被吃光 —— `publbee`、`vectosolve` 都因此失败过，而同批里
@@ -146,6 +163,35 @@ AI_FB2_MODEL = _cfg("CASE_LIB_AI_FALLBACK2_MODEL", "ai_fallback2_model", "")
 AI_MAX_TOKENS = int(os.environ.get("CASE_LIB_AI_MAX_TOKENS") or 16000)
 LLM_TRUNCATE_RETRIES = 2
 LLM_TRUNCATE_STEP = 4000
+
+
+def _parse_extra_map(raw):
+    """解析「按模型名给额外请求参数」的配置（JSON 对象）。
+
+    形状：{"Sage-A1.5": {"chat_template_kwargs": {"enable_thinking": false}}}
+
+    为什么需要它：有些端点（书生·端砚 Sage-A1.5）默认**一直思考**，
+    max_tokens 全被 reasoning 吃光、content 永远为空 —— 2000 token 烧完
+    仍然没正文，16000 也只是更久地空转。唯一解是在请求体里关思考，
+    而这不是 OpenAI 标准字段，只能按模型透传。
+    按**模型名**而不是按端点位置索引：降级到别的模型时自动不带这些参数，
+    不会拿着 Sage 的私有字段去敲智谱（那会 400）。
+    解析失败只告警、不抛 —— 配置写错不该让整批核验停下来。
+    """
+    if not raw:
+        return {}
+    try:
+        obj = json.loads(raw) if isinstance(raw, str) else raw
+    except Exception as e:                                  # noqa: BLE001
+        print("[!] ai_extra 不是合法 JSON，已忽略：%s" % e)
+        return {}
+    if not isinstance(obj, dict):
+        print("[!] ai_extra 必须是 {模型名: {参数}} 形式的对象，已忽略")
+        return {}
+    return {k: v for k, v in obj.items() if isinstance(v, dict)}
+
+
+AI_EXTRA_MAP = _parse_extra_map(_cfg("CASE_LIB_AI_EXTRA", "ai_extra", ""))
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/126.0 Safari/537.36")
 
@@ -374,7 +420,7 @@ def domains_of(sources):
     return out
 
 
-def map_ai_to_draft(cand, ai, publish_mode, model_name=""):
+def map_ai_to_draft(cand, ai, publish_mode, model_name="", ep_tag=""):
     """把 AI 的回答映射成服务端认的草稿。
 
     每一个勾都要求有结构性证据，不裸信 AI 的布尔值：
@@ -480,8 +526,13 @@ def map_ai_to_draft(cand, ai, publish_mode, model_name=""):
     hits = [h for h in hits if h in BONUS_KEYS]
 
     conf = ai.get("confidence", 0)
-    note = "AI 自动核实（%s，%s，置信度 %.0f%%）" % (
-        model_name or AI_MODEL, datetime.now().strftime("%Y-%m-%d %H:%M"), conf * 100)
+    # note 必须记**实际用的端点**：降级（主端点限流→备2）时判定质量明显更弱，
+    # 但如果不记下来，事后只能靠 caliber_reason 是不是英文去反推（2026-11-03
+    # 就是这么找出 5 条降级草稿的）。端点标签非「主」就标出来。
+    _ep = "·%s端点" % ep_tag if ep_tag and ep_tag != "主" else ""
+    note = "AI 自动核实（%s%s，%s，置信度 %.0f%%）" % (
+        model_name or AI_MODEL, _ep,
+        datetime.now().strftime("%Y-%m-%d %H:%M"), conf * 100)
     if irrelevant_dropped:
         note += "；已剔除 %d 条无关来源（词典/音乐/电商等，不计入来源数）" % irrelevant_dropped
     if ai.get("summary"):
@@ -805,14 +856,16 @@ def llm(messages, temperature=0.2, max_tokens=None):
     """
     # 端点表：主端点用全局 AI_*（--ai-* CLI 覆盖照常生效）；
     # 备端点与已登记端点同 base+model 时跳过（切过去等于没切）。
-    eps = [{"base": AI_BASE, "key": AI_KEY, "model": AI_MODEL, "tag": "主"}]
+    eps = [{"base": AI_BASE, "key": AI_KEY, "model": AI_MODEL, "tag": "主",
+            "extra": AI_EXTRA_MAP.get(AI_MODEL)}]
     for tag, b, k, m in (("备1", AI_FB_BASE, AI_FB_KEY, AI_FB_MODEL),
                          ("备2", AI_FB2_BASE, AI_FB2_KEY, AI_FB2_MODEL)):
         if not b:
             continue
         if any((b, m) == (e["base"], e["model"]) for e in eps):
             continue
-        eps.append({"base": b, "key": k, "model": m, "tag": tag})
+        eps.append({"base": b, "key": k, "model": m, "tag": tag,
+                    "extra": AI_EXTRA_MAP.get(m)})
     last_err = None
     budget = max_tokens or AI_MAX_TOKENS
     ei = 0
@@ -820,8 +873,17 @@ def llm(messages, temperature=0.2, max_tokens=None):
     while truncates <= LLM_TRUNCATE_RETRIES:
         ep = eps[ei]
         try:
-            return _llm_once(messages, temperature, budget,
-                             ep["base"], ep["key"], ep["model"])
+            out = _llm_once(messages, temperature, budget,
+                             ep["base"], ep["key"], ep["model"],
+                             ep.get("extra"))
+            # 🚨 记录**这次实际用的是哪个端点**。2026-11-03 实测踩坑：
+            # 主端点限流后自动降级到备端点，但草稿 note 仍写主模型名 —— 于是
+            # 降级模型判的草稿混进「主模型核的」堆里，事后无从分辨。
+            # 谱系必须写进每一条草稿，降级不是小事：备端点的判断质量明显更弱。
+            LAST_ENDPOINT["tag"] = ep["tag"]
+            LAST_ENDPOINT["model"] = ep["model"]
+            LAST_ENDPOINT["base"] = ep["base"]
+            return out
         except (_RateLimited, _QuotaBlocked, _EndpointDown) as e:
             last_err = e
             if ei + 1 >= len(eps):
@@ -881,20 +943,27 @@ class _Truncated(RuntimeError):
 
 
 def _llm_once(messages, temperature, max_tokens,
-              base=None, key=None, model=None):
+              base=None, key=None, model=None, extra=None):
     base = base if base is not None else AI_BASE
     key = key if key is not None else AI_KEY
     model = model if model is not None else AI_MODEL
-    body = json.dumps({
+    payload = {
         "model": model,
         "messages": messages,
         "temperature": temperature,
         "response_format": {"type": "json_object"},
-        # 推理模型（如 deepseek-flash）的思考 token 也计入 max_tokens——
+        # 推理模型的思考 token 也计入 max_tokens——
         # 实测核一条要烧 4000+（其中思考约 3600），2000/8000 都会被截断，
         # 这里放宽到 AI_MAX_TOKENS；不够时llm() 会自动加重试预算。
         "max_tokens": max_tokens,
-    }).encode("utf-8")
+    }
+    # 端点私有参数按模型名透传（见 _parse_extra_map 的注释）。
+    # 放在标准字段之后合并：允许端点覆盖 temperature 等，但不允许它把
+    # model/messages 改掉（那会让 LAST_ENDPOINT 记的谱系变成假话）。
+    if extra:
+        payload.update({k: v for k, v in extra.items()
+                        if k not in ("model", "messages")})
+    body = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(
         base + "/chat/completions", data=body,
         headers={"Content-Type": "application/json",
@@ -933,12 +1002,12 @@ def _llm_once(messages, temperature, max_tokens,
             detail = e.read().decode("utf-8", "replace")[:300]
         except Exception:                                    # noqa: BLE001
             pass
-        # 🚨 429 = 限流（ModelScope 2000 次/天账号级、单模型 ~500 动态），
+        # 🚨 429 = 限流（账号级/单模型动态限流），
         # 抛专用异常让 llm() 切备端点，别混进普通 RuntimeError。
         if e.code == 429:
             raise _RateLimited("LLM 端点限流 HTTP 429%s%s" % (
                 ("：" + detail) if detail else "", "（%s）" % base)) from e
-        # 🚨 2026-10-29 补：402/403 = 额度耗尽 / 权限被挡（魔粒耗尽、硅基流动
+        # 🚨 2026-10-29 补：402/403 = 额度耗尽 / 权限被挡（魔粒耗尽、账户欠费
         # 余额不足都走这条），5xx = 端点自己挂了。这两类**换端点有可能好**，
         # 所以与限流一样要降级 —— 否则备端点配了也是摆设，整批白断一次。
         # ⚠ 400（参数不合法）和 401（key 错）**故意不降级**：那是请求形状或
@@ -969,7 +1038,15 @@ def _llm_once(messages, temperature, max_tokens,
     if ch.get("finish_reason") == "length":
         raise _Truncated("LLM 回答被 max_tokens 截断（finish_reason=length）"
                          "——模型思考太长，正文没输出完整 JSON")
-    return ch["message"]["content"]
+    msg = ch.get("message") or {}
+    # 🚨 2026-11-03 实测：同一个模型名在不同入口的行为并不一致。
+    # 浦语 `chat.intern-ai.org.cn` 的 intern-s2 把 JSON 放 content、
+    # 思考放 reasoning_content；端砚 `discovery-api` 的 intern-s2 却把
+    # **答案本身**写进 reasoning_content，content=None。
+    # `_llm_once` 原来只读 content → 拿到 None，ping 显示「[OK] 响应：」
+    # 后面空一串，看起来像通了其实是空壳，后面 extract_json 必然炸。
+    # 所以 content 为空时回落到 reasoning_content；两者都空才算真空。
+    return msg.get("content") or msg.get("reasoning_content") or ""
 
 
 def ping_llm():
@@ -1016,6 +1093,17 @@ def ping_llm():
         return 1
     dt = time.time() - t0
     print("[OK] %.1fs 响应：%s" % (dt, (out or "")[:200].replace("\n", " ")))
+    # 🚨 降级发生时，上面那行「模型：」印的是**配置里的主模型**，不是实际应答的
+    # 那个 —— 2026-11-03 实测就靠这条才没把 Agents-A1 的回答当成 Sage 的。
+    used = LAST_ENDPOINT.get("model") or AI_MODEL
+    if used != AI_MODEL:
+        print("[!] 注意：实际应答的是 **%s**（%s），不是配置里的 %s —— 主端点已降级。"
+              % (used, LAST_ENDPOINT.get("tag"), AI_MODEL))
+    if not (out or "").strip():
+        print("[!] 但响应正文是空的：端点通了却没有内容。多半是模型把输出全放在"
+              " reasoning_content 里或思考吃光了 max_tokens —— 加 ai_extra 关思考"
+              "（chat_template_kwargs.enable_thinking=false），别只看 [OK] 就放行。")
+        return 1
     print("\n可以直接用了：python scripts/ai_verify.py --triage --limit 5")
     return 0
 
@@ -1602,7 +1690,9 @@ def verify_one(cand, admin, publish=False, min_score=0, log=None):
 
     # 3) 映射成草稿并存回后台
     say("   检索：抓到 %d 页原文" % len(pages))
-    draft = map_ai_to_draft(cand, ai, publish)
+    draft = map_ai_to_draft(cand, ai, publish,
+                            model_name=LAST_ENDPOINT.get("model") or AI_MODEL,
+                            ep_tag=LAST_ENDPOINT.get("tag") or "主")
     result = admin.put_draft(cid, draft)
     say("   AI：口径=%s 等级=%s 来源=%d 置信度=%.0f%%" % (
         draft["caliber"] or "-", draft["verification"] or "-",

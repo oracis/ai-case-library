@@ -69,6 +69,15 @@ class BuildCmd(unittest.TestCase):
         self.assertIn("--publish", cmd)
         self.assertIn("i-said-publish", cmd, "两朵云发表必须带确认口令，否则闸形同虚设")
 
+    def test_aliyun_must_be_headed(self):
+        """阿里云必须 --headed：滑块是人机验证，无头窗口用户拖不了。
+
+        2026-11-03 实测踩坑：build_cmd 漏传 --headed ⇒ yun_finalize 自己起了
+        无头实例，用户报告「看不到滑块」，连拖 4 次全卡在验证码。
+        """
+        cmd = " ".join(P.build_cmd("aliyun", "x", os.path.join(HERE, "x.md"), True))
+        self.assertIn("--headed", cmd, "阿里云发表漏了 --headed ⇒ 用户看不见滑块")
+
 
 class GamePack(unittest.TestCase):
     """游戏仓产物只在「--file 取稿」的平台认账。"""
@@ -111,13 +120,21 @@ class GamePack(unittest.TestCase):
 
 
 class YunLedger(unittest.TestCase):
-    """两朵云台账的「发过没有」判据。"""
+    """两朵云台账的「发过没有」判据。
+
+    ⚠ 2026-11-03 切 SQLite 后：`_rows_yun` 是「db 优先 + JSON fallback」，
+    本类测的是 fallback 分支的时点回退 —— mock db 返回空强制走 fallback，
+    再 mock `_load` 注入 fake JSON。
+    """
 
     def setUp(self):
         self._load = S._load
+        self._get_posts = S.db.get_posts_by_platform
+        S.db.get_posts_by_platform = lambda conn, platform, **kw: []
 
     def tearDown(self):
         S._load = self._load
+        S.db.get_posts_by_platform = self._get_posts
 
     def test_published_without_timestamp_counts(self):
         fake = {"chessigma": {"tc_draft": "339489", "tc_article": "2774552",
@@ -148,6 +165,73 @@ class DryRun(unittest.TestCase):
             raise AssertionError("干跑居然真的执行了发布命令")
         P.subprocess.call = boom
         P.run("csdn", "ext-ep-001-super-mario-bros", yes=False)
+
+
+class FifoQueue(unittest.TestCase):
+    """B站/小红书是 FIFO 队列（用户定，2026-11-03）：发最久草稿，箱空才新写。
+
+    钉两条：① 默认走 send-draft（不选稿、不过闸、不落 --yes 之外的东西）；
+    ② --new 或显式 --case 才回到「按档期新写」的老路径——否则箱里积压的稿
+    会被晾着，额度拿去发新稿。
+    """
+
+    def test_default_is_send_draft(self):
+        self.assertEqual(P.FIFO_PLATFORMS, ("bilibili", "xhs"))
+
+    def test_fifo_dry_run_never_spawns_and_never_picks(self):
+        def boom(*a, **kw):
+            raise AssertionError("FIFO 干跑居然真的执行了 send-draft")
+        P.subprocess.call = boom
+        # 不该走到 pick/闸：传一个必然让 pick 报错的假 day 也照样走 FIFO
+        P.run("bilibili", None, yes=False, day="1999-01-01")
+
+    def test_new_flag_bypasses_fifo(self):
+        # --new 必须走到「按档期选稿」；FIFO 默认路径则绝不碰 pick
+        def boom_pick(*a, **kw):
+            raise AssertionError("--new 居然没走选稿")
+        orig = P.pick
+        P.pick = boom_pick
+        try:
+            self.assertRaises(AssertionError, P.run,
+                              "bilibili", None, yes=False, new=True)
+        finally:
+            P.pick = orig
+
+
+class UploadRemote(unittest.TestCase):
+    """两朵云 --upload 必须走 CDP 通道（2026-11-04）。
+
+    踩坑：upload_remote 漏传 --via，sync_longtail 默认 mcp ⇒ 扩展 WS 没连上
+    时 remote 闸永远补不上，而项目里 10-30 就有不依赖扩展的 CDP 建稿。
+    钉住命令带 --via cdp，且干跑不落子进程。
+    """
+
+    def setUp(self):
+        self._call = P.subprocess.call
+
+    def tearDown(self):
+        P.subprocess.call = self._call
+
+    def test_upload_uses_cdp_channel(self):
+        seen = {}
+
+        def fake_call(cmd, **kw):
+            seen["cmd"] = cmd
+            return 0
+
+        P.subprocess.call = fake_call
+        self.assertEqual(P.upload_remote("aliyun", "demo", dry=False), 0)
+        cmd = seen["cmd"]
+        self.assertIn("--via", cmd)
+        self.assertEqual(cmd[cmd.index("--via") + 1], "cdp")
+        self.assertIn("sync_longtail.py", " ".join(cmd))
+        self.assertIn("aliyun", cmd)
+
+    def test_upload_dry_never_spawns(self):
+        def boom(*a, **kw):
+            raise AssertionError("干跑居然真的执行了上传")
+        P.subprocess.call = boom
+        self.assertEqual(P.upload_remote("tencentcloud", "demo", dry=True), 0)
 
 
 if __name__ == "__main__":

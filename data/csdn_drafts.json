@@ -16,5 +16,17 @@
   },
   "_deleted": {
     "trustmrr_169654106": "2026-11-01 14:49 删除：00:09 的 TrustMRR 测试稿，非本批次占位稿，用于腾创作中心位（但 CSDN 日配额按发表事件计、删除不退款，故未能当日发 cod-dex）"
+  },
+  "ext-ep-001-super-mario-bros": {
+    "article_id": null,
+    "title": "游戏厅：马力欧兄弟，被 JS 重写的 1985 经典",
+    "url": "https://blog.csdn.net/sinat_32396037/article/details/169938945",
+    "ts": "2026-11-03 13:12:58"
+  },
+  "ext-ep-002-2048": {
+    "article_id": null,
+    "title": "游戏厅：2048，一个网页就能玩的数字合并",
+    "url": "https://blog.csdn.net/sinat_32396037/article/details/170041126",
+    "ts": "2026-11-04 13:16:04"
   }
 }

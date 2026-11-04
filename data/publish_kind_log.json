@@ -47,6 +47,66 @@
     "at": "2026-11-02",
     "case_id": "ext-ep-011-minetest"
    }
+  ],
+  "zhihu": [
+   {
+    "case_id": "ext-ep-001-super-mario-bros",
+    "kind": "game",
+    "at": "2026-11-03 13:12"
+   },
+   {
+    "case_id": "ext-ep-002-2048",
+    "kind": "game",
+    "at": "2026-11-04 11:59"
+   }
+  ],
+  "csdn": [
+   {
+    "case_id": "ext-ep-001-super-mario-bros",
+    "kind": "game",
+    "at": "2026-11-03 13:12"
+   },
+   {
+    "case_id": "ext-ep-002-2048",
+    "kind": "game",
+    "at": "2026-11-04 13:16"
+   }
+  ],
+  "wechat": [
+   {
+    "case_id": "ext-ep-001-super-mario-bros",
+    "kind": "game",
+    "at": "2026-11-03 13:18"
+   }
+  ],
+  "bilibili": [
+   {
+    "at": "2026-11-03 13:56",
+    "case_id": "prosp",
+    "kind": "ai",
+    "note": "send-draft FIFO 最久草稿；aid 342364→53736510"
+   },
+   {
+    "at": "2026-11-04 13:10",
+    "case_id": "marc-lou-portfolio",
+    "kind": "ai",
+    "note": "send-draft FIFO 最久草稿"
+   }
+  ],
+  "cnblogs": [
+   {
+    "case_id": "ext-ep-001-super-mario-bros",
+    "kind": "game",
+    "at": "2026-11-04 13:03"
+   }
+  ],
+  "xhs": [
+   {
+    "at": "2026-11-04 13:09",
+    "case_id": "speel-co",
+    "kind": "ai",
+    "note": "send-draft FIFO 最久草稿"
+   }
   ]
  }
 }

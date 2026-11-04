@@ -53,6 +53,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 
+import db  # noqa: E402  SQLite 统一台账：读端切到 platform_posts 表
+
 LEDGER = os.path.join(ROOT, "data", "xhs_published.json")
 HISTORY = os.path.join(ROOT, "data", "xhs_metrics_history.json")
 ALIASES = os.path.join(ROOT, "data", "xhs_aliases.json")
@@ -195,6 +197,28 @@ def _num(v):
 
 
 def local_entries():
+    """优先从 SQLite ledger 读 xhs 平台 published 记录；db 无数据时回退 JSON。"""
+    conn = db.get_conn()
+    try:
+        posts = db.get_posts_by_platform(conn, "xhs", state="published")
+        if posts:
+            result = []
+            for p in posts:
+                e = {"id": p["case_id"], "at": p.get("published_at") or p.get("updated_at") or ""}
+                if p.get("remote_id"):
+                    e["note_id"] = p["remote_id"]
+                if p.get("title"):
+                    e["title"] = p["title"]
+                if p.get("note"):
+                    e["note"] = p["note"]
+                result.append(e)
+            return result
+    except Exception:  # noqa: BLE001
+        pass
+    finally:
+        db.close_conn()
+
+    # fallback：从 JSON 读（迁移期兼容旧数据）
     d = _read_json(LEDGER, [])
     if isinstance(d, dict):
         return [{"id": k, "at": v} for k, v in d.items()]
@@ -328,7 +352,25 @@ def main():
 
     shutil.copy2(LEDGER, "%s.bak-%s" % (LEDGER, time.strftime("%Y%m%d-%H%M%S")))
     import atomicio
-    atomicio.write_text(LEDGER, json.dumps(out, ensure_ascii=False, indent=2))
+    # 同步写 SQLite ledger（platform_posts, platform='xhs' state='published'）
+    conn = db.get_conn()
+    try:
+        for e in out:
+            db.upsert_post(conn, e["id"], "xhs", {
+                "state": "published",
+                "remote_id": e.get("note_id") or "",
+                "url": "",
+                "title": e.get("title") or "",
+                "draft_id": "",
+                "attempt": 0,
+                "published_at": e.get("at") or "",
+                "updated_at": e.get("at") or "",
+                "note": e.get("note") or "",
+            })
+    finally:
+        db.close_conn()
+    # 双写 JSON 快照（LEDGER 本体也要写回——备份了不写等于白备份）
+    atomicio.write_json(LEDGER, out)
     atomicio.write_json(HISTORY, hist)
     print("\n✓ 已写回 %s：%d 条（备份在同目录 .bak-*）" % (LEDGER, len(out)))
     print("✓ 指标快照 → %s（%s：%d case）" % (HISTORY, today, len(snap)))

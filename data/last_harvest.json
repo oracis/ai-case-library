@@ -1,77 +1,77 @@
 {
-  "ran_at": "2026-11-03 07:28:24",
-  "added": 65,
+  "ran_at": "2026-11-04 07:11:19",
+  "added": 56,
   "by_source": {
-    "hn": 48,
-    "trustmrr": 17
+    "hn": 45,
+    "trustmrr": 11
   },
   "inbox_total": 400,
-  "archived_this_run": 65,
-  "archive_total": 1343,
+  "archived_this_run": 56,
+  "archive_total": 1399,
   "top": [
     {
-      "name": "Linguana",
-      "headline": "近 30 天收入 $3,014",
+      "name": "Seyyah Mobile",
+      "headline": "近 30 天收入 $654",
       "heat": 0,
-      "category": "垂直行业 SaaS",
+      "category": "电商",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/linguana"
+      "url": "https://trustmrr.com/startup/stealth-company-91"
     },
     {
-      "name": "FlowPost",
-      "headline": "MRR $230，TrustMRR 第 2662 名",
+      "name": "Louna's Models - Leading Onlyfans Agency (Established models and 10k+ leads)",
+      "headline": "近 30 天收入 $8,296",
       "heat": 0,
-      "category": "企业服务",
+      "category": "营销工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/flowpost-ai"
+      "url": "https://trustmrr.com/startup/lounasmodels"
     },
     {
-      "name": "Traced",
-      "headline": "MRR $156，TrustMRR 第 5964 名",
+      "name": "SEO Skills by PENRA",
+      "headline": "近 30 天收入 $391",
       "heat": 0,
       "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/traced"
+      "url": "https://trustmrr.com/startup/seo-skills-by-penra"
     },
     {
-      "name": "Stacker: Peptide Tracker",
-      "headline": "近 30 天收入 $2,041",
+      "name": "Claim Avenue",
+      "headline": "近 30 天收入 $10,263",
       "heat": 0,
-      "category": "Health & Fitness",
+      "category": "营销工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/stacker"
+      "url": "https://trustmrr.com/startup/claimavenue"
     },
     {
-      "name": "ExamCat: AI Study Tutor",
-      "headline": "近 30 天收入 $283",
+      "name": "SmartBlur",
+      "headline": "近 30 天收入 $114",
+      "heat": 0,
+      "category": "Security",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/hasantavision"
+    },
+    {
+      "name": "Futura",
+      "headline": "累计收入 $142（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
+      "heat": 0,
+      "category": "企业服务",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/futura"
+    },
+    {
+      "name": "SIE Serverless",
+      "headline": "疑似金额 $500 ",
+      "heat": 9,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://superlinked.com/"
+    },
+    {
+      "name": "NoteTube, Inc.",
+      "headline": "近 30 天收入 $223",
       "heat": 0,
       "category": "垂直行业 SaaS",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/examcat"
-    },
-    {
-      "name": "TerraGrid: MGRS Tactical GPS",
-      "headline": "近 30 天收入 $128",
-      "heat": 0,
-      "category": "移动应用",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/terragrid-mgrs-tactical-gps"
-    },
-    {
-      "name": "DirectRoles",
-      "headline": "近 30 天收入 $24,703",
-      "heat": 0,
-      "category": "Recruiting & HR",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/directroles"
-    },
-    {
-      "name": "MeltKit",
-      "headline": "近 30 天收入 $414",
-      "heat": 0,
-      "category": "创作者经济",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/meltkit"
+      "url": "https://trustmrr.com/startup/notetube-inc"
     }
   ]
 }
