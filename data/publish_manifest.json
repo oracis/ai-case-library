@@ -30,14 +30,14 @@
  },
  "3ak-track-field": {
   "aliyun": {
-   "at": "2026-11-03 21:04:52",
+   "at": "2026-11-03 21:33:42",
    "attempt": 0,
    "error": " | longtail_key=3ak-track-field-2026-10-30-1",
    "state": "published",
    "title": ""
   },
   "tencentcloud": {
-   "at": "2026-11-03 21:04:52",
+   "at": "2026-11-03 21:33:42",
    "attempt": 0,
    "error": " | longtail_key=3ak-track-field-2026-10-30-1",
    "state": "published",
@@ -103,7 +103,7 @@
    "at": "2026-10-27 12:46",
    "attempt": 2,
    "error": "send_existing_draft",
-   "state": "draft_saved",
+   "state": "published",
    "title": "AgentsGuild：卖给游戏开发者的 AI 技能工具包，靠一次性付费赚钱"
   },
   "wechat": {
@@ -269,7 +269,7 @@
    "at": "2026-10-21 12:38",
    "attempt": 0,
    "error": "send_existing_draft",
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   },
   "wechat": {
@@ -364,7 +364,7 @@
    "at": "2026-09-28 20:40",
    "attempt": 0,
    "error": "P1对账: 新口径『Bustem：帮电商品牌全网打假』+旧口径『月收$398K：帮品牌删仿品和窜货链接』两篇",
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   },
   "wechat": {
@@ -467,7 +467,7 @@
  },
  "chessigma": {
   "aliyun": {
-   "at": "2026-11-03 21:04:52",
+   "at": "2026-11-03 21:33:42",
    "attempt": 0,
    "error": " | longtail_key=chessigma-2026-11-01-1",
    "state": "published",
@@ -492,7 +492,7 @@
    "title": "juejin.cn/post/7702737817416957967"
   },
   "tencentcloud": {
-   "at": "2026-11-03 21:04:52",
+   "at": "2026-11-03 21:33:42",
    "attempt": 0,
    "error": " | longtail_key=chessigma-2026-11-03-1",
    "state": "published",
@@ -536,7 +536,7 @@
  },
  "cod-dex": {
   "aliyun": {
-   "at": "2026-11-03 21:04:52",
+   "at": "2026-11-03 21:33:42",
    "attempt": 0,
    "error": " | longtail_key=cod-dex-2026-11-03-1",
    "state": "published",
@@ -567,7 +567,7 @@
    "title": "juejin.cn/post/7702736770072821795"
   },
   "tencentcloud": {
-   "at": "2026-11-03 21:04:52",
+   "at": "2026-11-03 21:33:42",
    "attempt": 0,
    "error": " | longtail_key=cod-dex-2026-11-03-2",
    "state": "published",
@@ -612,7 +612,7 @@
    "at": "2026-10-13 23:41",
    "attempt": 1,
    "error": "2026-10-19 对账：新旧两篇都在线上。旧篇『$20 万/月的营销归因生意，但不是一个人做的』（正文首行即 Cometly）。早先这条旧篇被错挂在 sierra 名下。（远端：『Cometly：广告数据归因分析』）",
-   "state": "draft_saved",
+   "state": "published",
    "title": "$20 万/月的营销归因生意，但不是一个人做的"
   },
   "wechat": {
@@ -667,7 +667,7 @@
    "at": "2026-10-17 对账补登",
    "attempt": 0,
    "error": "P1对账: 远端『Coral：托管你的开源 AI 助手』在册（2026-10-16 群发，台账漏登）。2026-10-17 晚复核恢复：上午误以「草稿箱没有」为据删过，但已发表列表实证在册——群发后稿件离开草稿箱是正常行为，草稿箱没有≠没群发",
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   },
   "wechat": {
@@ -722,7 +722,7 @@
    "at": "2026-10-17 01:20",
    "attempt": 0,
    "error": "P1对账: 『Divine：给站长卖网站挂件』(缩写前缀互补)",
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   },
   "wechat": {
@@ -751,7 +751,7 @@
    "at": "2026-10-24 21:32",
    "attempt": 0,
    "error": "send_existing_draft",
-   "state": "draft_saved",
+   "state": "published",
    "title": "DOWNCONVERT SKETCHUP FILES：MRR"
   },
   "wechat": {
@@ -780,7 +780,7 @@
    "at": "2026-10-17 01:20",
    "attempt": 0,
    "error": "P1对账: 『上传人声和伴奏一键出混音成品』(本地标题兜底)",
-   "state": "draft_saved",
+   "state": "published",
    "title": "法国录音棚收 250 欧一单，有人把混音做成了订阅"
   },
   "wechat": {
@@ -798,14 +798,15 @@
  },
  "ext-ep-001-super-mario-bros": {
   "aliyun": {
-   "at": "2026-11-03 21:04:52",
+   "article_id": "1778894",
+   "at": "2026-11-04 13:54",
    "attempt": 0,
-   "error": " | longtail_key=ext-ep-001-super-mario-bros-2026-11-03-1",
    "state": "published",
-   "title": ""
+   "title": "游戏厅：马力欧兄弟，被 JS 重写的 1985 经典",
+   "url": "https://developer.aliyun.com/article/1778894"
   },
   "tencentcloud": {
-   "at": "2026-11-03 21:04:52",
+   "at": "2026-11-03 21:33:42",
    "attempt": 0,
    "error": " | longtail_key=ext-ep-001-super-mario-bros-2026-11-03-1",
    "state": "published",
@@ -815,7 +816,7 @@
    "at": "2026-10-31 22:10",
    "attempt": 0,
    "error": "send_existing_draft",
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   }
  },
@@ -824,7 +825,7 @@
    "at": "2026-10-31 19:49",
    "attempt": 0,
    "error": "send_existing_draft",
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   }
  },
@@ -833,7 +834,7 @@
    "at": "2026-10-31 19:53",
    "attempt": 0,
    "error": "send_existing_draft",
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   }
  },
@@ -842,7 +843,7 @@
    "at": "2026-10-31 19:57",
    "attempt": 0,
    "error": "send_existing_draft",
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   }
  },
@@ -851,7 +852,7 @@
    "at": "2026-10-31 20:01",
    "attempt": 0,
    "error": "send_existing_draft",
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   }
  },
@@ -860,7 +861,7 @@
    "at": "2026-10-31 20:05",
    "attempt": 0,
    "error": "send_existing_draft",
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   }
  },
@@ -869,7 +870,7 @@
    "at": "2026-10-31 20:09",
    "attempt": 0,
    "error": "send_existing_draft",
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   }
  },
@@ -878,7 +879,7 @@
    "at": "2026-10-31 20:12",
    "attempt": 0,
    "error": "send_existing_draft",
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   }
  },
@@ -887,7 +888,7 @@
    "at": "2026-10-31 20:19",
    "attempt": 0,
    "error": "send_existing_draft",
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   }
  },
@@ -896,7 +897,7 @@
    "at": "2026-10-31 20:23",
    "attempt": 0,
    "error": "send_existing_draft",
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   }
  },
@@ -905,7 +906,7 @@
    "at": "2026-10-31 18:51",
    "attempt": 0,
    "error": "send_existing_draft",
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   }
  },
@@ -920,7 +921,7 @@
    "at": "2026-10-13 23:41",
    "attempt": 0,
    "error": "2026-10-19 对账：草稿已升格为已发布，台账未迁移（远端：『fastwrite.io：提升学术写作质量』）",
-   "state": "draft_saved",
+   "state": "published",
    "title": "fastwrite.io：AI写作工具SaaS，辅助学生学术"
   },
   "wechat": {
@@ -938,14 +939,14 @@
  },
  "flodesk": {
   "aliyun": {
-   "at": "2026-11-03 21:04:52",
+   "at": "2026-11-03 21:33:42",
    "attempt": 0,
    "error": " | longtail_key=flodesk-2026-10-30-2",
    "state": "published",
    "title": ""
   },
   "tencentcloud": {
-   "at": "2026-11-03 21:04:52",
+   "at": "2026-11-03 21:33:42",
    "attempt": 0,
    "error": " | longtail_key=flodesk-2026-10-30-1",
    "state": "published",
@@ -989,14 +990,14 @@
  },
  "getdavid": {
   "aliyun": {
-   "at": "2026-11-03 21:04:52",
+   "at": "2026-11-03 21:33:42",
    "attempt": 0,
    "error": " | longtail_key=getdavid-2026-10-30-2",
    "state": "published",
    "title": ""
   },
   "tencentcloud": {
-   "at": "2026-11-03 21:04:52",
+   "at": "2026-11-03 21:33:42",
    "attempt": 0,
    "error": " | longtail_key=getdavid-2026-10-30-1",
    "state": "published",
@@ -1042,7 +1043,7 @@
    "at": "2026-10-13 23:41",
    "attempt": 0,
    "error": "2026-10-19 对账：草稿已升格为已发布，台账未迁移（远端：『GrowingUpVideo：照片变脸电影级视频』）",
-   "state": "draft_saved",
+   "state": "published",
    "title": "GrowingUpVideo：近 30 天收入 $3,285"
   },
   "wechat": {
@@ -1087,14 +1088,14 @@
  },
  "headshotpro": {
   "aliyun": {
-   "at": "2026-11-03 21:04:52",
+   "at": "2026-11-03 21:33:42",
    "attempt": 0,
    "error": " | longtail_key=headshotpro-2026-10-30-2",
    "state": "published",
    "title": ""
   },
   "tencentcloud": {
-   "at": "2026-11-03 21:04:52",
+   "at": "2026-11-03 21:33:42",
    "attempt": 0,
    "error": " | longtail_key=headshotpro-2026-10-30-2",
    "state": "published",
@@ -1138,7 +1139,7 @@
    "at": "2026-10-20 15:31",
    "attempt": 0,
    "error": "send_existing_draft",
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   },
   "wechat": {
@@ -1185,14 +1186,14 @@
  },
  "klar": {
   "aliyun": {
-   "at": "2026-11-03 21:04:52",
+   "at": "2026-11-03 21:33:42",
    "attempt": 0,
    "error": " | longtail_key=klar-2026-10-30-2",
    "state": "published",
    "title": ""
   },
   "tencentcloud": {
-   "at": "2026-11-03 21:04:52",
+   "at": "2026-11-03 21:33:42",
    "attempt": 0,
    "error": " | longtail_key=klar-2026-10-30-1",
    "state": "published",
@@ -1318,7 +1319,7 @@
    "at": "2026-09-28 20:40",
    "attempt": 0,
    "error": "P1对账: 『月收$1.03M：靠一堆小产品组合赚钱』(金额1,032,000)",
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   },
   "wechat": {
@@ -1338,7 +1339,7 @@
  },
  "markdown-structure": {
   "aliyun": {
-   "at": "2026-11-03 21:04:52",
+   "at": "2026-11-03 21:33:42",
    "attempt": 0,
    "error": " | longtail_key=markdown-structure-2026-10-29-1",
    "state": "draft_saved",
@@ -1349,7 +1350,7 @@
   "toutiao": {
    "at": "2026-10-25 09:57",
    "attempt": 0,
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   },
   "wechat": {
@@ -1390,10 +1391,10 @@
  },
  "mort": {
   "bilibili": {
-   "at": "2026-10-17 10:10",
+   "at": "2026-11-03 21:27",
    "attempt": 2,
    "error": "P1对账: 标题直接命中(cv53280245) → MORT：AI 求职代理，自动投遍企业招聘页",
-   "state": "draft_saved",
+   "state": "published",
    "title": "MORT：AI 产品"
   },
   "toutiao": {
@@ -1480,7 +1481,7 @@
    "at": "2026-09-28 20:40",
    "attempt": 0,
    "error": "P1对账: 『月收$250K：自动写博客把排名做上去』(金额250000)",
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   },
   "wechat": {
@@ -1500,14 +1501,14 @@
  },
  "pdfai": {
   "aliyun": {
-   "at": "2026-11-03 21:04:52",
+   "at": "2026-11-03 21:33:42",
    "attempt": 0,
    "error": " | longtail_key=pdfai-2026-10-30-2",
    "state": "published",
    "title": ""
   },
   "tencentcloud": {
-   "at": "2026-11-03 21:04:52",
+   "at": "2026-11-03 21:33:42",
    "attempt": 0,
    "error": " | longtail_key=pdfai-2026-10-30-1",
    "state": "published",
@@ -1571,14 +1572,14 @@
  },
  "plausible": {
   "aliyun": {
-   "at": "2026-11-03 21:04:52",
+   "at": "2026-11-03 21:33:42",
    "attempt": 0,
    "error": " | longtail_key=plausible-2026-10-30-1",
    "state": "published",
    "title": ""
   },
   "tencentcloud": {
-   "at": "2026-11-03 21:04:52",
+   "at": "2026-11-03 21:33:42",
    "attempt": 0,
    "error": " | longtail_key=plausible-2026-10-30-1",
    "state": "published",
@@ -1596,7 +1597,7 @@
    "at": "2026-10-17 01:20",
    "attempt": 1,
    "error": "P1对账: 『把 LinkedIn 内容发布做成订阅，然后靠平台自己的增长』(语义)",
-   "state": "draft_saved",
+   "state": "published",
    "title": "把 LinkedIn 内容发布做成订阅，然后靠平台自己的增长做到月收 $6.6 万"
   },
   "wechat": {
@@ -1652,7 +1653,7 @@
    "at": "2026-10-17 01:20",
    "attempt": 0,
    "error": "P1对账: 『PromptMon：盯 AI 里的品牌』(缩写前缀互补)",
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   },
   "wechat": {
@@ -1680,7 +1681,7 @@
    "at": "2026-10-17 01:20",
    "attempt": 0,
    "error": "P1对账: 『PROSP：销售线索挖到自动触达』",
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   },
   "wechat": {
@@ -1708,7 +1709,7 @@
    "at": "2026-10-17 01:20",
    "attempt": 1,
    "error": "P1对账: 『自助出版的作者愿意为工具付钱——只是撑不起大生意』(语义)",
-   "state": "draft_saved",
+   "state": "published",
    "title": "自助出版的作者愿意为工具付钱——只是撑不起大生意"
   },
   "wechat": {
@@ -1778,14 +1779,14 @@
  },
  "refactoringui": {
   "aliyun": {
-   "at": "2026-11-03 21:04:52",
+   "at": "2026-11-03 21:33:42",
    "attempt": 0,
    "error": " | longtail_key=refactoringui-2026-10-30-2",
    "state": "published",
    "title": ""
   },
   "tencentcloud": {
-   "at": "2026-11-03 21:04:52",
+   "at": "2026-11-03 21:33:42",
    "attempt": 0,
    "error": " | longtail_key=refactoringui-2026-10-30-1",
    "state": "published",
@@ -1794,10 +1795,10 @@
  },
  "rezi": {
   "bilibili": {
-   "at": "2026-10-17 10:10",
+   "at": "2026-11-03 21:27",
    "attempt": 0,
    "error": "P1对账: 标题直接命中(cv53385991) → Rezi：AI 简历生成器，最不酷却验证收入最高",
-   "state": "draft_saved",
+   "state": "published",
    "title": "月收$293K：帮你写出能过筛的简历"
   },
   "toutiao": {
@@ -1857,7 +1858,7 @@
    "at": "2026-10-19 23:14",
    "attempt": 0,
    "error": "send_existing_draft",
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   },
   "wechat": {
@@ -1875,7 +1876,7 @@
  },
  "shipfast": {
   "aliyun": {
-   "at": "2026-11-03 21:04:52",
+   "at": "2026-11-03 21:33:42",
    "attempt": 0,
    "error": " | longtail_key=shipfast-al-cdp-2026-10-30-1",
    "state": "draft_saved",
@@ -1951,14 +1952,14 @@
  },
  "sleek-design": {
   "aliyun": {
-   "at": "2026-11-03 21:04:52",
+   "at": "2026-11-03 21:33:42",
    "attempt": 0,
    "error": " | longtail_key=sleek-design-2026-10-30-2",
    "state": "published",
    "title": ""
   },
   "tencentcloud": {
-   "at": "2026-11-03 21:04:52",
+   "at": "2026-11-03 21:33:42",
    "attempt": 0,
    "error": " | longtail_key=sleek-design-2026-10-30-1",
    "state": "published",
@@ -2003,7 +2004,7 @@
    "at": "2026-09-28 20:40",
    "attempt": 0,
    "error": "P1对账: 『月收$3.57M：帮创作者靠粉丝养活自己』(金额3,569,654)",
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   },
   "wechat": {
@@ -2219,7 +2220,7 @@
    "at": "2026-10-17 对账补登",
    "attempt": 0,
    "error": "P1对账: 远端『UpLinked：领英上自动加客户』在册（2026-10-16 群发，台账漏登）。2026-10-17 晚复核恢复：上午误以「草稿箱没有」为据删过，但已发表列表实证在册——群发后稿件离开草稿箱是正常行为，草稿箱没有≠没群发",
-   "state": "draft_saved",
+   "state": "published",
    "title": "月收$2.4K：在领英上自动加客户"
   },
   "wechat": {
@@ -2238,7 +2239,7 @@
  },
  "upvoty": {
   "aliyun": {
-   "at": "2026-11-03 21:04:52",
+   "at": "2026-11-03 21:33:42",
    "attempt": 0,
    "error": " | longtail_key=upvoty-2026-10-30-2",
    "state": "published",
@@ -2251,7 +2252,7 @@
    "title": "Upvoty拆解：先收200个注册再写代码，六年做到$40K MRR"
   },
   "tencentcloud": {
-   "at": "2026-11-03 21:04:52",
+   "at": "2026-11-03 21:33:42",
    "attempt": 0,
    "error": " | longtail_key=upvoty-2026-10-30-1",
    "state": "published",
@@ -2327,7 +2328,7 @@
    "at": "2026-10-13 23:41",
    "attempt": 1,
    "error": "2026-10-19 对账正名：旧口径标题，正文＝「把想法/脚本变成可直接发布的短视频」，即 Vid.AI。早先误判为 GHOST。（远端：『两年做到累计 $162 万，然后峰值留存掉到 46%』）",
-   "state": "draft_saved",
+   "state": "published",
    "title": "两年做到累计 $162 万，然后峰值留存掉到 46%"
   },
   "wechat": {
@@ -2402,17 +2403,17 @@
  },
  "voklit": {
   "bilibili": {
-   "at": "2026-10-17 10:10",
+   "at": "2026-11-03 21:27",
    "attempt": 0,
    "error": "P1对账: 标题直接命中(cv53375028) → Voklit：给跨境团队搭的云通信",
-   "state": "draft_saved",
+   "state": "published",
    "title": "月收$1.6K：给跨境团队搭云通信"
   },
   "toutiao": {
    "at": "2026-09-28 20:40",
    "attempt": 0,
    "error": "P1对账: 『月收$1.6K：给跨境团队搭云通信』(金额1600)｜草稿箱另有一条同名旧稿（2026-10-09 22:05「Voklit：给跨境团队搭云通信」），2026-10-19 合并台账时留痕",
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   },
   "wechat": {
@@ -2493,7 +2494,7 @@
    "at": "2026-11-02 20:16",
    "attempt": 1,
    "error": "send_existing_draft",
-   "state": "draft_saved",
+   "state": "published",
    "title": "把 AI 建站工具生成的网站，转成 WordPress——一个工程师的生意"
   },
   "wechat": {

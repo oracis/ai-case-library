@@ -684,17 +684,22 @@ def publish_tencent(cdp, draft_id, abstract="", cover_file="", tags=("架构设�
         return False, "点了确认发布但 URL 仍带 draftId（静默失败）：%s" % url[:90]
 
     # 6) 封面复核：只有线上 og:image 有地址才算真的落库
+    # ⚠ articleId 必须**回传给调用方**（2026-11-04 修）：URL 变成 write-new 只证明
+    #   「提交成功」，台账要的是 7 位文章 id。此前 CLI 用 `info.split()[0]` 取，
+    #   拿到的是文章 URL ⇒ `tc_article` 恒空，列表复核时无 id 可对。
+    aid = _published_article_id(cdp) or ""
+    idline = ("\n    articleId=%s" % aid) if aid else ""
     if cover_state == "staged":
-        aid = _published_article_id(cdp)
         if not aid:
-            return True, ("%s\n    封面：已随提交上传，但没抓到 articleId，未能线上复核"
-                          "（用 tc_manage.py status 或文章页 og:image 复查）" % url[:80])
+            return True, ("%s%s\n    封面：已随提交上传，但没抓到 articleId，未能线上复核"
+                          "（用 tc_manage.py status 或文章页 og:image 复查）"
+                          % (url[:80], idline))
         ok, info = verify_cover_online(cdp, aid, timeout=180)
         if ok:
-            return True, "%s\n    封面已落库：%s" % (url[:70], str(info)[:80])
+            return True, "%s%s\n    封面已落库：%s" % (url[:70], idline, str(info)[:80])
         return False, ("已发布，但封面没落库（%s）。文章 id=%s，"
                        "跑 `--fix-cover %s --cover <图>` 可补上" % (info, aid, aid))
-    return True, url
+    return True, url + idline
 
 
 def update_cover(cdp, article_id, cover_file, verify=True):
@@ -883,6 +888,18 @@ def _aliyun_fill_content(cdp, body_md, title=""):
     return ok
 
 
+_CAPTCHA_VISIBLE_JS = r"""
+(function(){
+  var e = document.querySelector('.aliyunCaptcha-top');
+  if (!e) return 'none';
+  var r = e.getBoundingClientRect();
+  var st = getComputedStyle(e);
+  if (st.display === 'none' || st.visibility === 'hidden') return 'hidden';
+  if (r.width < 5 || r.height < 5) return 'hidden';
+  return 'visible';
+})()"""
+
+
 def _wait_captcha(cdp, captcha_wait=300, where=""):
     """等用户人工拖过阿里云滑块。返回 True=已通过（或本来就没有）。
 
@@ -901,7 +918,13 @@ def _wait_captcha(cdp, captcha_wait=300, where=""):
     warned = False
     while True:
         try:
-            cap = cdp.eval("!!document.querySelector('.aliyunCaptcha-top')")
+            # ⚠ 2026-11-04 修：`.aliyunCaptcha-top` 是**常驻挂载**的容器，
+            #   没有验证时也在 DOM 里（实测 getBoundingClientRect 0×0、
+            #   display:flex、visibility:visible）。
+            #   旧写法只判「元素存在」⇒ 永远认为滑块在挡路，原地空等到超时
+            #   （实测 300s / 240s 两次全卡这里，用户看到的却是一个没有滑块
+            #   的空白编辑器）。必须判**可见 + 有尺寸**。
+            cap = cdp.eval(_CAPTCHA_VISIBLE_JS) == "visible"
         except Exception:                                      # noqa: BLE001
             cap = False
         if not cap:
@@ -927,7 +950,7 @@ def _wait_captcha(cdp, captcha_wait=300, where=""):
 
 
 def publish_aliyun(cdp, draft_id, community=None, cover_file="",
-                   captcha_wait=300, body_md="", title=""):
+                   captcha_wait=300, body_md="", title="", abstract=""):
     """发表阿里云草稿。**只准由 --publish --i-said-publish 双门禁调用。**
 
     UI 路线（全新页面态，三项页面态字段一次配齐）：
@@ -954,15 +977,60 @@ def publish_aliyun(cdp, draft_id, community=None, cover_file="",
     #   必须先过验证，等草稿回填，再做后面的社区/传图/发布。
     _wait_captcha(cdp, captcha_wait, where="（开草稿页时）")
     # 草稿回填检查：过了验证仍空 ⇒ 说明草稿没读回来，用本地稿兜底注入
+    # ⚠ 2026-11-04：回填是**异步**的。页面刚打开就查/注入，会在回填响应回来
+    #   时被整体覆盖（实测注入 ok len=1905，3 秒后复读变成 0 字，随后还触发
+    #   CDP WS 10054）。所以先等读数稳定（连续两次一致），再判断要不要注入。
     filled = _aliyun_content_state(cdp)
+    for _ in range(8):
+        time.sleep(1.5)
+        nxt = _aliyun_content_state(cdp)
+        if nxt == filled:
+            break
+        filled = nxt
     print("  草稿回填：标题 %d 字 / 正文 %d 字"
           % (filled["title"], filled["body"]))
     if filled["title"] == 0 and body_md:
         print("  ⚠ 草稿没回填 ⇒ 用本地稿重新注入")
-        _aliyun_fill_content(cdp, body_md, title=title)
-        filled = _aliyun_content_state(cdp)
-        print("  注入后：标题 %d 字 / 正文 %d 字"
-              % (filled["title"], filled["body"]))
+        for attempt in range(1, 4):
+            _aliyun_fill_content(cdp, body_md, title=title)
+            time.sleep(3)
+            filled = _aliyun_content_state(cdp)
+            print("  注入后（第 %d 次）：标题 %d 字 / 正文 %d 字"
+                  % (attempt, filled["title"], filled["body"]))
+            if filled["title"] > 0 and filled["body"] > 0:
+                break
+    # 🚨 空稿不许点发布：否则会发出去一篇无标题无正文的文章（2026-11-04 卡过）
+    if filled["title"] == 0 or filled["body"] == 0:
+        raise SystemExit(
+            "阿里云发表：注入后标题 %d 字 / 正文 %d 字，空稿不能点「发布文章」。"
+            "草稿 aid=%s 仍在，修好再跑（不会建新稿）。"
+            % (filled["title"], filled["body"], draft_id))
+    # 摘要（必填）：真身是 `textarea#abstractContent`（占位「请填写摘要」，0/300）。
+    # ⚠ 2026-11-04：`.ai-summary-box` 只是「摘要 / AI生成摘要」标签盒子，**不是**
+    #   输入框；照它找 input 会一无所获，于是摘要永远空着 ⇒ 点「发布文章」被
+    #   客户端校验静默拦下（无弹窗、无请求、不跳转，只闪一个「消息」提示）。
+    if abstract:
+        cur = cdp.eval("(function(){var t=document.querySelector('#abstractContent');"
+                       "return t?t.value.length:-1;})()")
+        if isinstance(cur, int) and cur == 0:
+            r = cdp.eval("""
+            (function(){
+              var t = document.querySelector('#abstractContent');
+              if (!t) return 'no abstractContent';
+              var setter = Object.getOwnPropertyDescriptor(
+                window.HTMLTextAreaElement.prototype, 'value').set;
+              setter.call(t, %s);
+              t.dispatchEvent(new Event('input', {bubbles: true}));
+              t.dispatchEvent(new Event('change', {bubbles: true}));
+              return 'ok len=' + t.value.length;
+            })()""" % json.dumps(abstract))
+            print("  摘要注入: %s" % r)
+            time.sleep(1)
+        got = cdp.eval("(function(){var t=document.querySelector('#abstractContent');"
+                       "return t?t.value.length:-1;})()")
+        print("  摘要长度: %s" % got)
+        if not isinstance(got, int) or got == 0:
+            raise SystemExit("阿里云发表：摘要仍为空，会被必填校验拦住，不点发布")
     # 文章图片（firstImg，页面态必传）：显式路径 > 台账反查
     local = cover_file or _find_local_cover(cdp, draft_id)
     if local and os.path.exists(local):
@@ -1147,18 +1215,22 @@ if __name__ == "__main__":
         try:
             # 兜底正文：草稿没回填时用它重新注入
             body_md = ""
+            title = ""
             src = a.file or os.path.join(ROOT, "drafts", "wechat",
                                          "%s.md" % (a.case or ""))
             if os.path.isfile(src):
                 from csdn_publish import split_md
-                body_md = split_md(open(src, encoding="utf-8").read())[1]
-            title = ""
-            if body_md:
-                m = re.search(r"^#\s+(.+)$", body_md, re.M)
-                title = m.group(1).strip() if m else ""
+                # ⚠ 2026-11-04 修：`split_md()` 返回 (title, body)，**body 里
+                #   已经把 `# 标题` 那一行摘掉了**。旧代码拿 body 再正则找
+                #   `^# ` 必然找不到 ⇒ title 恒为 ""，注入后标题 0 字，被阿里云
+                #   必填卡住（表现：点「发布文章」不跳转、20s×2 超时）。
+                #   标题必须取 split_md 的第 0 项。
+                title, body_md = split_md(open(src, encoding="utf-8").read())
             publish_aliyun(cdp, int(a.al_draft), a.community or None,
                            a.cover or "", captcha_wait=a.captcha_wait,
-                           body_md=body_md, title=title)
+                           body_md=body_md, title=title,
+                           abstract=(a.abstract or first_paragraph(body_md)
+                                     or ledger_get(a.case or "").get("abstract", "")))
         finally:
             try:
                 cdp.bws.close()

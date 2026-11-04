@@ -65,6 +65,11 @@
     "case_id": "ext-ep-001-super-mario-bros",
     "kind": "game",
     "at": "2026-11-03 13:12"
+   },
+   {
+    "case_id": "ext-ep-002-2048",
+    "kind": "game",
+    "at": "2026-11-04 13:16"
    }
   ],
   "wechat": [
@@ -80,6 +85,12 @@
     "case_id": "prosp",
     "kind": "ai",
     "note": "send-draft FIFO 最久草稿；aid 342364→53736510"
+   },
+   {
+    "at": "2026-11-04 13:10",
+    "case_id": "marc-lou-portfolio",
+    "kind": "ai",
+    "note": "send-draft FIFO 最久草稿"
    }
   ],
   "cnblogs": [

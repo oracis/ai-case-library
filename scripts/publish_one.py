@@ -416,12 +416,15 @@ def plan(day=None, platforms=None, as_json=False):
 def upload_remote(platform, case, dry=False):
     """把稿子上传到两朵云草稿箱（拿到 tc_draft / al_draft）。
 
-    走 `sync_longtail.py`（CSDN 同步助手 MCP）：这是两朵云**唯一**建稿入口，
-    没有它 `remote` 闸永远过不去。需要浏览器已登录 + 扩展的 MCP 开关打开，
-    所以不做默认自动执行 —— 失败时给的是明确的下一步，不是静默跳过。
+    ⚠ 2026-11-04 修：显式带 `--via cdp`（`yun_draft_cdp.py`，9228 常驻
+    Chrome，登录态磁盘持久），**不依赖 CSDN 同步助手扩展**。旧写法漏传
+    `--via`，而 `sync_longtail.py` 默认是 `mcp` ⇒ 扩展没连上时 `--upload`
+    必失败，报错还把人往「浏览器/扩展没开」上带，其实两朵云早有
+    不依赖扩展的通道（sync_longtail 的 help 自己都写着「推荐」）。
+    仍不做默认自动执行 —— 失败时给明确的下一步，不静默跳过。
     """
     cmd = [PY, "-X", "utf8", os.path.join(SCRIPTS, "sync_longtail.py"),
-           "--case", case, "--platforms", platform]
+           "--case", case, "--platforms", platform, "--via", "cdp"]
     print("上传草稿：%s" % " ".join(_q(c) for c in cmd))
     if dry:
         return 0
@@ -577,7 +580,8 @@ def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
         if upload_remote(platform, case, dry=not yes) == 0:
             gates = run_gates(platform, case, pack)
         else:
-            print("✗ 上传失败，按上面报错处理（八成是浏览器/扩展没开）")
+            print("✗ 上传失败（CDP 通道）：查 9228 Chrome 是否常驻、"
+                  "chrome-yun-profile 登录态是否还在，按上面报错处理")
             return 1
     for g in gates:
         print("  %s %-6s %s" % ("✓" if g["ok"] else "✗", g["gate"], g["detail"]))

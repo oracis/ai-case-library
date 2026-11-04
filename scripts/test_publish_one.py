@@ -198,5 +198,41 @@ class FifoQueue(unittest.TestCase):
             P.pick = orig
 
 
+class UploadRemote(unittest.TestCase):
+    """两朵云 --upload 必须走 CDP 通道（2026-11-04）。
+
+    踩坑：upload_remote 漏传 --via，sync_longtail 默认 mcp ⇒ 扩展 WS 没连上
+    时 remote 闸永远补不上，而项目里 10-30 就有不依赖扩展的 CDP 建稿。
+    钉住命令带 --via cdp，且干跑不落子进程。
+    """
+
+    def setUp(self):
+        self._call = P.subprocess.call
+
+    def tearDown(self):
+        P.subprocess.call = self._call
+
+    def test_upload_uses_cdp_channel(self):
+        seen = {}
+
+        def fake_call(cmd, **kw):
+            seen["cmd"] = cmd
+            return 0
+
+        P.subprocess.call = fake_call
+        self.assertEqual(P.upload_remote("aliyun", "demo", dry=False), 0)
+        cmd = seen["cmd"]
+        self.assertIn("--via", cmd)
+        self.assertEqual(cmd[cmd.index("--via") + 1], "cdp")
+        self.assertIn("sync_longtail.py", " ".join(cmd))
+        self.assertIn("aliyun", cmd)
+
+    def test_upload_dry_never_spawns(self):
+        def boom(*a, **kw):
+            raise AssertionError("干跑居然真的执行了上传")
+        P.subprocess.call = boom
+        self.assertEqual(P.upload_remote("tencentcloud", "demo", dry=True), 0)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
