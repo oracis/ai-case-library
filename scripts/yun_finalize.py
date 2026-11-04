@@ -1199,11 +1199,14 @@ if __name__ == "__main__":
                     pass
             print(("✓ " if ok else "✗ ") + str(info))
             if ok and a.case:
+                # 文章 id 从回传的 `articleId=<7位>` 取（2026-11-04 修：
+                # 原来从首 token 取，拿到的是文章 URL，tc_article 恒空）。
+                import re as _re
+                m = _re.search(r"articleId=(\d+)", str(info or ""))
                 ledger_set(a.case, tc_draft=str(a.tc_draft),
                            tc_state="published",
                            tc_state_at=time.strftime("%Y-%m-%d %H:%M"),
-                           tc_article=str((info or "").split()[0])
-                           if (info or "")[:1].isdigit() else "")
+                           tc_article=m.group(1) if m else "")
             sys.exit(0 if ok else 1)
         if not a.al_draft:
             raise SystemExit("🚫 拒绝发表：--publish 需要 --al-draft 或 --tc-draft")
