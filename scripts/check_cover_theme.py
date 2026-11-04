@@ -137,8 +137,8 @@ def main(argv):
     judge = key == "toutiao"
     label = "--" + key
 
-    cases = json.load(open(os.path.join(ROOT, "data", "cases.json"),
-                           encoding="utf-8"))
+    import case_store as CS
+    cases = CS.load_cases()
     if isinstance(cases, dict):
         cases = cases.get("cases") or cases.get("items") or []
     only = set(args)

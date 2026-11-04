@@ -136,8 +136,8 @@ def main():
     with open(os.path.join(ROOT, "data", "candidates.json"),
               encoding="utf-8") as f:
         cands = json.load(f)
-    with open(os.path.join(ROOT, "data", "cases.json"), encoding="utf-8") as f:
-        cases = json.load(f)
+    import case_store as CS
+    cases = CS.load_cases()
     done_ids = {c.get("published_from") for c in cases}
     todo = [c for c in cands if c.get("id") not in done_ids]
     print("待抓候选 %d 条" % len(todo))

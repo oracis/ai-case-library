@@ -49,7 +49,8 @@ def main():
                     help="连已有 tier 的也重算（默认只补缺的）")
     args = ap.parse_args()
 
-    cases = atomicio.read_json(CASES)
+    import case_store as CS
+    cases = CS.load_cases()
 
     print("=" * 68)
     print("  案例默认定档 · 政策见 verify_rules.default_case_tier")
@@ -89,8 +90,8 @@ def main():
                        % datetime.now().strftime("%Y%m%d-%H%M%S"))
     shutil.copy2(CASES, bak)
     with atomicio.file_lock(CASES + ".lock", timeout=30.0):
-        atomicio.write_json(CASES, cases, indent=2, trailing_newline=True)
-    print("\n  已写入 data/cases.json（备份：%s，原子写+文件锁）" % os.path.basename(bak))
+        CS.save_cases(cases)          # 写库 + 重导镜像（原子写由 case_store 负责）
+    print("\n  已写入 case_library 并重导 data/cases.json（备份：%s）" % os.path.basename(bak))
     return 0
 
 

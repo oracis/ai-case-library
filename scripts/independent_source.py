@@ -352,7 +352,8 @@ def main():
     ap.add_argument("--workers", type=int, default=4)
     args = ap.parse_args()
 
-    cases = json.load(open(CASES, encoding="utf-8"))
+    import case_store as CS
+    cases = CS.load_cases()
     todo = [c for c in cases if is_isolated(c)]
 
     # 上一轮已经补过的案例：写回之后它们「不再只有一个域」，但仍属于这轮
@@ -439,8 +440,7 @@ def main():
             have.add(u)
             added += 1
 
-    atomicio.write_json(CASES, cases, indent=2,
-                        newline=atomicio.detect_newline(CASES))
+    CS.save_cases(cases)              # 写 case_library + 重导 cases.json 镜像
     print("写回：新增来源 %d 条，independent_check 覆盖 %d 条案例" % (added, len(out)))
     return 0
 

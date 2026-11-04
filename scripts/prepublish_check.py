@@ -75,15 +75,12 @@ def has_money(text):
 
 
 def load_case(cid):
-    """从 cases.json 取案例记录（公众号标题要用）。"""
-    p = os.path.join(ROOT, "data", "cases.json")
+    """取案例记录（公众号标题要用）。真值在 case_library 表。"""
     try:
-        for c in json.load(open(p, encoding="utf-8")):
-            if c.get("id") == cid:
-                return c
-    except (OSError, ValueError):
-        pass
-    return None
+        import case_store as CS
+        return CS.get_case(cid)
+    except Exception:                              # noqa: BLE001
+        return None
 
 
 def compliance_item(text, platform, items):

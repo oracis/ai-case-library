@@ -134,14 +134,8 @@ LEADOUT_KW = ["案例库", "社群", "每天筛", "完整核实记录", "核实�
 # 加载
 # --------------------------------------------------------------------------
 def load_cases():
-    if not os.path.isfile(CASES):
-        return {}
-    with open(CASES, encoding="utf-8") as f:
-        d = json.load(f)
-    # cases.json 可能是 {cases:[...]} 或 [...]
-    if isinstance(d, dict):
-        return d.get("cases", d)
-    return d
+    import case_store as CS
+    return CS.load_cases()
 
 
 def list_ids():

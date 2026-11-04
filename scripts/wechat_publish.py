@@ -1361,11 +1361,8 @@ def _set_cover_from_body(cdp, tries=3, force=False):
 
 
 def load_cases():
-    if not os.path.exists(CASES_PATH):
-        return []
-    with open(CASES_PATH, encoding="utf-8") as f:
-        d = json.load(f)
-    cases = d if isinstance(d, list) else d.get("cases", [])
+    import case_store as CS
+    cases = CS.load_cases()
     # 定位占位（「（具体定位未获取）」）不能进标题/摘要/封面文案 —— 与 make_article
     # 用的是同一个清理函数，保证「本地 HTML」与「草稿标题」不会一个清一个没清。
     clean_placeholders(cases)

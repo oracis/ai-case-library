@@ -32,8 +32,8 @@ import publish_guard as G          # noqa: E402  平台上限单一真理（与�
 
 
 def load_cases():
-    with open(os.path.join(ROOT, "data", "cases.json"), encoding="utf-8") as f:
-        return {c["id"]: c for c in json.load(f)}
+    import case_store as CS
+    return CS.load_by_id()
 
 
 def money(v):

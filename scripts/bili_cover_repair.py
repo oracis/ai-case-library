@@ -50,10 +50,8 @@ def save(d):
 
 
 def all_cases():
-    with open(os.path.join(ROOT, "data", "cases.json"), encoding="utf-8") as f:
-        d = json.load(f)
-    cases = d if isinstance(d, list) else d.get("cases") or []
-    return [c["id"] for c in cases]
+    import case_store as CS
+    return CS.load_ids()
 
 
 def _summarize(out):

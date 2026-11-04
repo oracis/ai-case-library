@@ -21,7 +21,7 @@
 比如 CheckVibe 一个人完全能做，但在国内卖不动；Nitra 产品很好做，但医疗牌照拿不到。
 
 用法：
-    python scripts/score_china_fit.py             # 打分并写回 data/cases.json
+    python scripts/score_china_fit.py             # 打分并写回 case_library（+重导镜像）
     python scripts/score_china_fit.py --dry-run   # 只看结果，不写入
     python scripts/score_china_fit.py --top 8     # 只打印前 8
 """
@@ -3040,6 +3040,9 @@ SCORES = {
 # ------------------------------------------------------------------ 计算
 
 def load_json(name, default=None):
+    if name == "cases":
+        import case_store as CS          # 真值在 case_library（2026-11-05 起）
+        return CS.load_cases()
     path = os.path.join(DATA_DIR, name + ".json")
     if not os.path.exists(path):
         return default if default is not None else []
@@ -3063,6 +3066,13 @@ def _orig_newline(path):
 
 
 def save_json(name, payload):
+    # 2026-11-05：`cases` 的真值已迁进 SQLite（case_library 表），
+    # `data/cases.json` 只是镜像。收口到 case_store：写库 + 重导镜像，
+    # 否则跑一次算分就让「库」和「镜像」分叉（算的分数只落进了文件）。
+    if name == "cases":
+        import case_store as CS
+        CS.save_cases(payload)
+        return
     path = os.path.join(DATA_DIR, name + ".json")
     nl = _orig_newline(path)
     tmp = path + ".tmp"
@@ -3180,7 +3190,7 @@ def main():
         return 0
 
     save_json("cases", cases)
-    print("\n已写入 data/cases.json（%d 条带 china_fit）" % len(scored))
+    print("\n已写入 case_library（%d 条带 china_fit），镜像 data/cases.json 已重导" % len(scored))
     print("页面刷新即可看到「国内移植排行」视图。")
     return 0
 

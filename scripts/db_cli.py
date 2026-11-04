@@ -130,15 +130,16 @@ def cmd_published(args):
 def cmd_tiers(args):
     conn = db.get_conn()
     try:
+        # 真值是 case_library（2026-11-05 起）；老表 cases 只剩 graveyard/anti_cases
         rows = conn.execute(
-            "SELECT type, tier, COUNT(*) AS n FROM cases WHERE deleted=0 "
-            "GROUP BY type, tier ORDER BY type, tier"
+            "SELECT tier, COUNT(*) AS n FROM case_library WHERE deleted=0 "
+            "GROUP BY tier ORDER BY tier"
         ).fetchall()
-        data = [{"type": r[0], "tier": r[1], "count": r[2]} for r in rows]
+        data = [{"tier": r[0], "count": r[1]} for r in rows]
         if args.json:
             print(json.dumps(data, ensure_ascii=False, indent=2))
         else:
-            _fmt_rows(data, title="按 type/tier 聚合 cases")
+            _fmt_rows(data, title="按 tier 聚合 case_library")
     finally:
         db.close_conn()
     return 0

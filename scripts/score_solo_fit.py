@@ -39,7 +39,7 @@
         skip     双低          别碰
 
 用法：
-    python scripts/score_solo_fit.py              # 打分并写回 data/cases.json
+    python scripts/score_solo_fit.py              # 打分并写回 case_library（+重导镜像）
     python scripts/score_solo_fit.py --dry-run    # 只看结果
     python scripts/score_solo_fit.py --top 10     # 只看前 10
     python scripts/score_solo_fit.py --threshold 75   # 换及格线
@@ -862,6 +862,9 @@ DELIVERY = {
 # ------------------------------------------------------------------ 工具
 
 def load_json(name, default=None):
+    if name == "cases":
+        import case_store as CS          # 真值在 case_library（2026-11-05 起）
+        return CS.load_cases()
     path = os.path.join(DATA_DIR, name + ".json")
     if not os.path.exists(path):
         return default if default is not None else []
@@ -883,6 +886,13 @@ def _orig_newline(path):
 
 
 def save_json(name, payload):
+    # 2026-11-05：`cases` 的真值已迁进 SQLite（case_library 表），
+    # `data/cases.json` 只是镜像。收口到 case_store：写库 + 重导镜像，
+    # 否则跑一次算分就让「库」和「镜像」分叉（算的分数只落进了文件）。
+    if name == "cases":
+        import case_store as CS
+        CS.save_cases(payload)
+        return
     path = os.path.join(DATA_DIR, name + ".json")
     nl = _orig_newline(path)
     tmp = path + ".tmp"
@@ -1086,7 +1096,8 @@ def main():
         return 0
 
     save_json("cases", cases)
-    print("\n已写入 data/cases.json（solo_fit %d 条，composite %d 条）" % (len(rows), len(both)))
+    print("\n已写入 case_library（solo_fit %d 条，composite %d 条），镜像 data/cases.json 已重导"
+          % (len(rows), len(both)))
     print("页面刷新即可看到「综合排行」视图。")
     return 0
 

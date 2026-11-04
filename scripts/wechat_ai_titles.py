@@ -315,8 +315,8 @@ def numset(s):
 
 
 def load_cases():
-    return {c["id"]: c for c in json.loads(C.read(os.path.join(
-        DATA, "cases.json")))}
+    import case_store as CS
+    return CS.load_by_id()
 
 
 def published_ids():

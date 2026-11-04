@@ -216,13 +216,13 @@ def main():
             (dg.get("reason") or "")[:60])
 
         print("\n[8] 校验数据文件里真的存下来了（不是只回包里有）")
-        found3 = [c for c in json.load(open(os.path.join(DATA, "cases.json"),
-                                            encoding="utf-8"))
+        import case_store as CS          # 真值在 case_library，读库才算「真落盘」
+        found3 = [c for c in CS.load_cases()
                   if c.get("published_from") == PROBE3]
         chk("降级后的案例落了盘", len(found3) == 1 and
             found3[0].get("verification") == "partial", len(found3))
 
-        cases = json.load(open(os.path.join(DATA, "cases.json"), encoding="utf-8"))
+        cases = CS.load_cases()
         on_disk = {c.get("id"): c for c in cases}
         found = [c for c in cases if c.get("published_from") in (PROBE1, PROBE2)]
         chk("两个探针案例都落了盘", len(found) == 2, len(found))

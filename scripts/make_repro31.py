@@ -278,7 +278,8 @@ def card(c, idx):
 
 
 def main():
-    data = json.load(open(os.path.join(ROOT, "data", "cases.json"), encoding="utf-8"))
+    import case_store as CS
+    data = CS.load_cases()
     cases = data["cases"] if isinstance(data, dict) else data
     picked = [
         c for c in cases

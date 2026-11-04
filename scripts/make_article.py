@@ -1141,8 +1141,10 @@ def render_html(case, titles, manual, secs, score):
 
 # ------------------------------------------------------------------ 主流程
 def load_cases(path):
-    with open(path, "r", encoding="utf-8") as f:
-        data = json.load(f)
+    # path 默认是 data/cases.json 镜像；真值在 case_library 表（case_store 里判）。
+    # 传了**别的**路径（测试/离线）时 case_store 会照旧读那个文件。
+    import case_store as CS
+    data = CS.load_cases(path) if path else CS.load_cases()
     cases = data["cases"] if isinstance(data, dict) and "cases" in data else data
     if not isinstance(cases, list):
         print("[!] cases.json 结构异常：拿不到 cases 列表")

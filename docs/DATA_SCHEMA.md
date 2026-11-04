@@ -9,7 +9,11 @@ of this file without reading a single Chinese sentence.
 
 - **Produced by**: `scripts/build_static.py` (build artifact) and `GET /api/data` (local server)
 - **Consumed by**: the static site itself (`data.js`), and any third-party program
-- **Source of truth**: the repository `data/*.json` files, hand-curated and committed
+- **Source of truth**: the repository `data/*.json` files, hand-curated and committed.
+  One exception, since 2026-11-05: the case library lives in a SQLite table
+  (`case_library` in the local `data/ledger.db`), and `data/cases.json` is its
+  **byte-for-byte export** — the file in git is still what you review and diff,
+  and a fresh clone falls back to reading it when no local database exists.
 - **License**: MIT — free to use, modify and redistribute, including commercially
 
 ## Where to get it

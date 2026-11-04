@@ -494,16 +494,9 @@ def spec_gap(target):
 
 
 def load_cases(only=None):
-    with open(CASES_PATH, encoding="utf-8") as f:
-        d = json.load(f)
-    cases = d if isinstance(d, list) else d.get("cases", d)
-    out = []
-    for c in cases:
-        cid = c.get("id")
-        if only and cid != only:
-            continue
-        out.append(c)
-    return out
+    """案例来自 case_store（SQLite 真值），不再是 JSON 文件。"""
+    import case_store as CS
+    return CS.load_cases(only=only)
 
 
 def cmd_gen(args):

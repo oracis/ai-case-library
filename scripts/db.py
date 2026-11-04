@@ -23,6 +23,7 @@
 import json
 import os
 import sqlite3
+import sys
 import threading
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -97,6 +98,42 @@ def close_conn():
         _local.conn_path = None
 
 
+#: cases 表里「结构化字段」：写库时 json.dumps，读库时 json.loads。
+#: 🚨 这份清单是**唯一**依据 —— `upsert_case()` 只写表中存在的列，缺一个字段
+#: 就意味着它在第一次写库时静默消失。2026-11-05 实测 `cases.json` 有 14 个
+#: 字段不在老表结构里（`china_fit`/`solo_fit`/`composite` 两张人工评分表、
+#: `cover_desc` 封面文案链……），差点整批判丢。
+CASE_JSON_FIELDS = (
+    # 原表结构就有的 10 个
+    "metrics", "models", "replicability", "why_it_works", "playbook",
+    "signals", "traffic_sources", "corrections", "sources", "tags",
+    # 2026-11-05 补齐：评分 / 评审 / 文案
+    "china_fit", "solo_fit", "composite", "judgment", "independent_check",
+    "human_read", "human_read_at", "needs_review", "verification_downgraded",
+    "sources_from_candidate", "exclude_from_solo_cases",
+    "cover_desc", "segment", "segment_reason",
+)
+
+#: 老库升级用：列名 → 声明。`CREATE TABLE IF NOT EXISTS` 对已存在的表不生效，
+#: 所以新增列必须再走一遍 `ALTER TABLE`，否则老 `ledger.db` 永远缺列。
+_CASE_LATE_COLUMNS = {
+    "china_fit": "TEXT",              # JSON：中国适配评分
+    "solo_fit": "TEXT",               # JSON：个人可复制性评分
+    "composite": "TEXT",              # JSON：双轴合成与排名
+    "judgment": "TEXT",
+    "independent_check": "TEXT",
+    "human_read": "TEXT",             # JSON bool：是否已人工通读
+    "human_read_at": "TEXT",
+    "needs_review": "TEXT",
+    "verification_downgraded": "TEXT",
+    "sources_from_candidate": "TEXT",
+    "exclude_from_solo_cases": "TEXT",
+    "cover_desc": "TEXT",             # 封面第二行的手写文案，优先于 one_liner
+    "segment": "TEXT",
+    "segment_reason": "TEXT",
+}
+
+
 def _init_schema(conn):
     cur = conn.cursor()
 
@@ -135,14 +172,114 @@ def _init_schema(conn):
         tier_reason    TEXT,
         quality_score  INTEGER,
         created_at     TEXT,
-        deleted        INTEGER NOT NULL DEFAULT 0
+        deleted        INTEGER NOT NULL DEFAULT 0,
+        -- 2026-11-05 补齐：这 14 个字段原先只在 cases.json 里，
+        -- 表结构没有 ⇒ 第一次写库就会被静默丢掉（详见 CASE_JSON_FIELDS）
+        china_fit      TEXT,        -- JSON：中国适配评分
+        solo_fit       TEXT,        -- JSON：个人可复制性评分
+        composite      TEXT,        -- JSON：双轴合成与排名
+        judgment       TEXT,
+        independent_check TEXT,
+        human_read     TEXT,        -- JSON bool：是否已人工通读
+        human_read_at  TEXT,
+        needs_review   TEXT,
+        verification_downgraded TEXT,
+        sources_from_candidate  TEXT,
+        exclude_from_solo_cases TEXT,
+        cover_desc     TEXT,        -- 封面第二行手写文案，优先于 one_liner
+        segment        TEXT,
+        segment_reason TEXT
     )
     """)
+    # 老库升级：CREATE TABLE IF NOT EXISTS 对已存在的表不生效，缺列要显式 ALTER。
+    # 幂等：每列先查 PRAGMA，已存在就跳过（重复跑不报错）。
+    _have = _table_columns(conn, "cases")
+    for _col, _type in _CASE_LATE_COLUMNS.items():
+        if _col not in _have:
+            cur.execute("ALTER TABLE cases ADD COLUMN %s %s" % (_col, _type))
+    if "field_order" not in _have:
+        # 每行 JSON 里原键的顺序。SQLite 存不了有序对象，但**导出镜像要逐字节
+        # 还原**就得记住它：没有这列，`cases.json` 每次导出都按表列顺序重排，
+        # 461 条全部错位 ⇒ 迁移那一次提交变成整文件 diff，评审等于失效。
+        cur.execute("ALTER TABLE cases ADD COLUMN field_order TEXT")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_cases_type ON cases(type)")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_cases_status ON cases(status)")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_cases_verification ON cases(verification)")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_cases_tier ON cases(tier)")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_cases_deleted ON cases(deleted)")
+
+    # ---- 表 1b：case_library 案例库本体（2026-11-05 起是真值） ----
+    # 为什么另起一张表，而不是改上面那张 cases：
+    #   ① 老表里 501 行 = 479 条 type='case' + 22 条 type='graveyard'，
+    #      而 cases.json 只有 461 条 ⇒ 它早就和真值不一致了（陈旧镜像），
+    #      直接当权威等于把 18 条脏数据转正。
+    #   ② 老表是「三份 JSON 合并」的设计（case/graveyard/anti_case 用 type 区分），
+    #      迁移后真值只对应 `cases.json` 一个文件，混在一张表里每个写方都得记得
+    #      加 `WHERE type='case'`，漏一次就写到别人的行上。
+    #   ③ platform_posts 的外键指向 `cases(id)`，而 SQLite 改不了外键，所以
+    #      **不能**把老表改名再复用 `cases` 这个名字 —— 只能并列。
+    # 结论：`case_library` 一表对一文件；老表保留为历史归档 + 外键锚点，不再写业务数据。
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS case_library (
+        id             TEXT PRIMARY KEY,
+        -- 以下字段顺序 = cases.json 里字段的常见顺序（导出时按 field_order 还原真实键序）
+        name           TEXT,
+        name_en        TEXT,
+        origin         TEXT,
+        one_liner      TEXT,
+        category       TEXT,
+        industry       TEXT,
+        status         TEXT,
+        verification   TEXT,
+        caliber        TEXT,
+        metrics        TEXT,        -- JSON
+        models         TEXT,        -- JSON array
+        replicability  TEXT,        -- JSON
+        verdict        TEXT,
+        what_it_does   TEXT,
+        how_it_makes_money TEXT,
+        why_it_works   TEXT,        -- JSON array
+        playbook       TEXT,        -- JSON array
+        signals        TEXT,        -- JSON array
+        founder        TEXT,
+        traffic_sources TEXT,       -- JSON array
+        corrections    TEXT,        -- JSON array
+        sources        TEXT,        -- JSON array
+        published_from TEXT,
+        verified_at    TEXT,
+        updated_at     TEXT,
+        tags           TEXT,        -- JSON array
+        tier           TEXT,
+        tier_reason    TEXT,
+        quality_score  INTEGER,
+        china_fit      TEXT,        -- JSON：中国适配评分
+        solo_fit       TEXT,        -- JSON：个人可复制性评分
+        composite      TEXT,        -- JSON：双轴合成与排名
+        judgment       TEXT,
+        independent_check TEXT,
+        human_read     TEXT,        -- JSON bool：是否已人工通读
+        human_read_at  TEXT,
+        needs_review   TEXT,
+        verification_downgraded TEXT,
+        sources_from_candidate  TEXT,
+        exclude_from_solo_cases TEXT,
+        cover_desc     TEXT,        -- 封面第二行手写文案，优先于 one_liner
+        segment        TEXT,
+        segment_reason TEXT,
+        -- 库内记账列（导出镜像时剥掉，不写进 cases.json）
+        created_at     TEXT,
+        deleted        INTEGER NOT NULL DEFAULT 0,
+        field_order    TEXT         -- JSON 数组：该行原 JSON 的键序，导出逐字节还原用
+    )
+    """)
+    _lib_have = _table_columns(conn, "case_library")
+    for _col, _type in _CASE_LATE_COLUMNS.items():
+        if _col not in _lib_have:
+            cur.execute("ALTER TABLE case_library ADD COLUMN %s %s" % (_col, _type))
+    for _idx, _col in (("idx_lib_status", "status"), ("idx_lib_tier", "tier"),
+                       ("idx_lib_verification", "verification"),
+                       ("idx_lib_deleted", "deleted")):
+        cur.execute("CREATE INDEX IF NOT EXISTS %s ON case_library(%s)" % (_idx, _col))
 
     # ---- 表 2：platform_posts 统一发布台账 ----
     cur.execute("""
@@ -218,31 +355,43 @@ def _init_schema(conn):
 
 # ---------------------------------------------------------------- cases
 
+#: 导出时**不写进镜像**的库内记账列。
+_ORDER_INTERNAL = {"type", "deleted", "created_at", "field_order", "rowid", "_rid"}
+
+
 def _table_columns(conn, table):
     """返回指定表的所有列名集合。"""
     cur = conn.execute(f"PRAGMA table_info({table})")
     return {r[1] for r in cur.fetchall()}
 
 
-_CASE_COLUMNS = None
+#: 案例库真值表（2026-11-05 起）。老表 `cases` 只留历史归档 + platform_posts 的外键锚点，
+#: 不再写业务数据 —— 见 `_init_schema()` 里的长注释。
+CASE_TABLE = "case_library"
+
+_CASE_COLUMNS = {}          # 表名 → 列集合（旧代码按「全局单例」用过，现在按表缓存）
+_WARNED_UNKNOWN = set()     # (表, 字段) → 已警告过，避免每次写都刷屏
 
 
-def upsert_case(conn, row):
-    """插入或更新一条 case。`row` 为 dict，键与 cases 表字段一致，值为标量或需 JSON 序列化的对象。
+def upsert_case(conn, row, table=None):
+    """插入或更新一条 case。`row` 为 dict，键与表字段一致，值为标量或需 JSON 序列化的对象。
 
     只写入表中已存在的列，未知字段被忽略（避免老数据里有 `needs_review`
     这类后来加的字段导致建表失败）。
-    """
-    global _CASE_COLUMNS
-    if _CASE_COLUMNS is None:
-        _CASE_COLUMNS = _table_columns(conn, "cases")
 
-    json_fields = ("metrics", "models", "replicability", "why_it_works", "playbook",
-                   "signals", "traffic_sources", "corrections", "sources", "tags")
+    `table` 默认写 `case_library`（真值）。只有导入 graveyard / anti_cases
+    这类**不属于案例库本体**的数据时才显式传 `table="cases"`（老表）。
+    """
+    table = table or CASE_TABLE
+    if table not in _CASE_COLUMNS:
+        _CASE_COLUMNS[table] = _table_columns(conn, table)
+    cols_have = _CASE_COLUMNS[table]
+
+    json_fields = CASE_JSON_FIELDS
     now = row.get("updated_at") or _now()
     params = {}
     for k, v in row.items():
-        if k not in _CASE_COLUMNS:
+        if k not in cols_have:
             continue
         if k in json_fields and v is not None:
             params[k] = json.dumps(v, ensure_ascii=False)
@@ -250,14 +399,41 @@ def upsert_case(conn, row):
             params[k] = v
     params["updated_at"] = now
     params.setdefault("created_at", now)
-    params.setdefault("type", "case")
+    if "type" in cols_have:
+        params.setdefault("type", "case")
     params.setdefault("deleted", 0)
+    if "field_order" in cols_have:
+        # 记住这一行 JSON 的键序（导出镜像要逐字节还原）。两种情况：
+        # ① 调用方传的是从 JSON 读出来的 dict ⇒ dict 本身就保序，用它；
+        # ② 传的是 get_case() 的产物（键序=表列序）⇒ 必须沿用库里已存的，
+        #    否则一次「读-改-写」就把原本的键序冲成列序。
+        if row.get("field_order"):
+            params["field_order"] = row["field_order"]
+        else:
+            params["field_order"] = json.dumps(
+                [k for k in row if k not in _ORDER_INTERNAL], ensure_ascii=False)
+
+    # 🚨 未知字段必须**喊出来**。`upsert_case` 只写表中存在的列，这是为了
+    # 老数据里的临时字段不炸建表；但代价是「JSON 里有、表里没有」的字段会被
+    # 静默丢掉 —— 2026-11-05 就踩到：cases.json 里 14 个字段（两张人工评分表
+    # + 封面文案）表结构里根本没有，第一次迁库差点整批判丢。
+    # 所以这里对未知键发一次警告（每表每键只喊一次，不刷屏）。
+    for k in row:
+        if k in cols_have or k in _ORDER_INTERNAL:
+            continue
+        if (table, k) in _WARNED_UNKNOWN:
+            continue
+        _WARNED_UNKNOWN.add((table, k))
+        sys.stderr.write(
+            "[db] 警告：%s 表没有列 %r，写入时会被静默丢弃。\n"
+            "     若这是真字段，先在 db.py 的建表语句 + _CASE_LATE_COLUMNS 补列。\n"
+            % (table, k))
 
     cols = ", ".join(params.keys())
     placeholders = ", ".join("?" for _ in params)
     updates = ", ".join(f"{k}=excluded.{k}" for k in params.keys() if k != "id")
     sql = f"""
-    INSERT INTO cases ({cols}) VALUES ({placeholders})
+    INSERT INTO {table} ({cols}) VALUES ({placeholders})
     ON CONFLICT(id) DO UPDATE SET {updates}
     """
     conn.execute(sql, tuple(params.values()))
@@ -265,12 +441,12 @@ def upsert_case(conn, row):
 
 
 def get_case(conn, case_id):
-    cur = conn.execute("SELECT * FROM cases WHERE id=? AND deleted=0", (case_id,))
+    cur = conn.execute("SELECT * FROM %s WHERE id=? AND deleted=0" % CASE_TABLE, (case_id,))
     return _row_to_dict(cur.fetchone())
 
 
 def list_cases(conn, where="", params=(), limit=None, offset=None):
-    sql = "SELECT * FROM cases WHERE deleted=0"
+    sql = "SELECT * FROM %s WHERE deleted=0" % CASE_TABLE
     if where:
         sql += " AND " + where
     sql += " ORDER BY updated_at DESC"
@@ -285,8 +461,8 @@ def list_cases(conn, where="", params=(), limit=None, offset=None):
 
 
 def delete_case(conn, case_id):
-    """软删除。"""
-    conn.execute("UPDATE cases SET deleted=1 WHERE id=?", (case_id,))
+    """软删除（只在真值表上标记，不会真删行）。"""
+    conn.execute("UPDATE %s SET deleted=1 WHERE id=?" % CASE_TABLE, (case_id,))
 
 
 # ---------------------------------------------------------------- platform_posts
@@ -462,18 +638,56 @@ def json_field(value):
     return value
 
 
-def export_cases_to_json(conn, out_path):
-    """把 cases 表导出为 JSON 数组（与原 cases.json 结构兼容）。"""
-    rows = list_cases(conn)
+def export_cases_to_json(conn, out_path, only_type="case", keep_internal=False):
+    """把 cases 表导出为 JSON 数组 —— 这是 `data/cases.json` 的**镜像生成器**。
+
+    2026-11-05 起真值在库里，`cases.json` 是导出产物（继续进 git 供 diff 评审）。
+    要做到「镜像不改一个字」，导出必须守三条：
+
+    1. **顺序 = rowid**，不是 `updated_at DESC`。导进来的顺序就是原数组顺序，
+       按时间排序会把 461 条打散 ⇒ 每次导出都是整文件重写，diff 失去意义。
+    2. **丢掉内部记账列**（`type`/`deleted`/`created_at`）：原 JSON 里从来没有，
+       带着它们出去等于给每个条目凭空加键。
+    3. **值为 None 的键不写**：原 JSON 没有显式 null（实测 0 处），字段缺席就是
+       缺席，写成 `"cover_desc": null` 会让 416 条凭空多一行。
+    """
+    sql = "SELECT rowid AS _rid, * FROM %s WHERE deleted=0" % CASE_TABLE
+    params = ()
+    if only_type and "type" in _table_columns(conn, CASE_TABLE):
+        sql += " AND type=?"
+        params = (only_type,)
+    sql += " ORDER BY rowid"
+    rows = [_row_to_dict(r) for r in conn.execute(sql, params).fetchall()]
     out = []
+    internal = {"_rid", "type", "deleted", "created_at", "field_order"}
     for r in rows:
-        for jf in ("metrics", "models", "replicability", "why_it_works", "playbook",
-                   "signals", "traffic_sources", "corrections", "sources", "tags"):
-            r[jf] = json_field(r.get(jf))
-        out.append(r)
-    with open(out_path, "w", encoding="utf-8") as f:
-        json.dump(out, f, ensure_ascii=False, indent=2)
-        f.write("\n")
+        # 键序：先按库里记下的原始顺序，再把「后来才有的列」按列序补在后面
+        order = []
+        if r.get("field_order"):
+            try:
+                order = [k for k in json.loads(r["field_order"]) if k in r]
+            except (json.JSONDecodeError, TypeError, ValueError):
+                order = []
+        keys = order + [k for k in r if k not in order]
+        item = {}
+        for k in keys:
+            v = r[k]
+            if k in internal and not keep_internal:
+                continue
+            if v is None:
+                continue
+            item[k] = json_field(v) if k in CASE_JSON_FIELDS else v
+        out.append(item)
+    # 走仓库统一的原子写：ensure_ascii=False + indent=2 + LF **且不补末尾换行**
+    # （原 cases.json 末字节是 `]`，补一个 `\n` 就会让每次导出都多一行 diff）
+    try:
+        import atomicio
+        atomicio.write_json(out_path, out, indent=2, trailing_newline=False)
+    except Exception:                              # noqa: BLE001
+        tmp = out_path + ".tmp"
+        with open(tmp, "w", encoding="utf-8", newline="\n") as f:
+            json.dump(out, f, ensure_ascii=False, indent=2)
+        os.replace(tmp, out_path)
     return len(out)
 
 

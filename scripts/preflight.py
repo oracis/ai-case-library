@@ -182,7 +182,7 @@ def main():
     # 4. 数据健康
     cases = load("cases", [])
     if not isinstance(cases, list) or not cases:
-        say(FAIL, "cases.json", "读不到或为空")
+        say(FAIL, "case_library", "读不到或为空（跑 import_to_db.py --cases）")
     else:
         miss = {
             "china_fit": sum(1 for c in cases if not c.get("china_fit")),
@@ -194,6 +194,24 @@ def main():
         say(PASS if not bad else WARN, "cases 数据完整度",
             "%d 条" % len(cases) + ("；缺 " + ", ".join(
                 "%s×%d" % (k, v) for k, v in bad.items()) if bad else "；四项齐备"))
+
+        # 库与镜像必须同源（2026-11-05）：真值在 SQLite，`data/cases.json` 是导出的
+        # 镜像、进 git 供 review。两边条数不一致 ⇒ 有人手改了 JSON 没回库，或
+        # 写库后镜像没重导 —— 两种情况都会让「review 看到的东西」不等于「实际数据」。
+        try:
+            import json as _json
+            import os as _os
+            import case_store as _CS
+            mirror = _os.path.join(ROOT, "data", "cases.json")
+            with open(mirror, encoding="utf-8") as _f:
+                mirror_n = len(_json.load(_f))
+            db_n = _CS.count()
+            say(PASS if mirror_n == db_n else FAIL, "库/镜像同源",
+                "库里 %d 条｜镜像 %d 条" % (db_n, mirror_n)
+                + ("" if mirror_n == db_n else
+                   "（不一致：跑 case_store.py --export 重导；手改过 JSON 的话先 import_to_db.py --cases）"))
+        except Exception as _e:                       # noqa: BLE001
+            say(WARN, "库/镜像同源", "查不了（%s）" % _e)
 
         tiers = {}
         for c in cases:

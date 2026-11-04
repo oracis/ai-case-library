@@ -269,8 +269,8 @@ def iter_visible(case):
 
 
 def load():
-    with io.open(CASES_PATH, encoding="utf-8") as f:
-        return json.load(f)
+    import case_store as CS
+    return CS.load_cases()
 
 
 def scan(cases):
@@ -382,7 +382,8 @@ def cmd_apply():
         for cid, loc, b, a in bad[:10]:
             print("   %s %s\n     旧：%s\n     新：%s" % (cid, loc, b, a))
         return 2
-    atomicio.write_json(CASES_PATH, cases, indent=2, newline="")
+    import case_store as CS
+    CS.save_cases(cases)              # 写 case_library + 重导 cases.json 镜像
     print("已写入 %d 处（只改措辞，数字逐字段核过）" % n)
     return 0
 

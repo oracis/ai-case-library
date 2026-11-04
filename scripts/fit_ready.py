@@ -29,7 +29,7 @@ replicability 更是没有任何脚本生成，一直靠人工写进 cases.json�
 ----
     python scripts/fit_ready.py --check     # 看哪些案例还缺判断（只读）
     python scripts/fit_ready.py --dry-run   # 只报要改什么，不写盘
-    python scripts/fit_ready.py             # 写入 data/cases.json
+    python scripts/fit_ready.py             # 写入 case_library（+重导镜像）
 
 写完必须接着跑这两步，否则 solo_fit / china_fit 还是空的：
     python scripts/score_solo_fit.py        # 重算 solo_fit + composite + quadrant
@@ -185,8 +185,8 @@ REPLICABILITY = {
 
 
 def load_cases():
-    with open(CASES_PATH, encoding="utf-8") as f:
-        return json.load(f)
+    import case_store as CS
+    return CS.load_cases()
 
 
 def missing_replicability(cases, only=None):
@@ -283,16 +283,11 @@ def cmd_apply(dry_run=False):
         # 同一个坑 harvest.save_json() 犯过、contentpack_ready.py 也犯过。
         # ⚠️ cases.json 有四万行，格式噪音会把真实改动彻底淹没 ——
         # 下次真出问题时就分不清是数据变了还是换行变了。
-        raw = open(CASES_PATH, "rb").read()
-        nl = "\r\n" if b"\r\n" in raw[:8192] else "\n"
-        tail_nl = raw.endswith(b"\n")
-        body = json.dumps(cases, ensure_ascii=False, indent=2)
-        text = (body + ("\n" if tail_nl else "")).replace("\n", nl)
-        # ⚠ 原子写（2026-10-21 补）：cases.json 四万行，原地截断写被 Ctrl-C
-        #    打断就留下半截 JSON —— 此时 triage 之类读到的是空库，重复检测失效。
-        atomicio.write_text(CASES_PATH, text)
-        print("\n已写入 data/cases.json（%s，格式保持 %s /末尾换行=%s）"
-              % (today, "CRLF" if nl == "\r\n" else "LF", tail_nl))
+        # 2026-11-05：写库 + 重导镜像。以前这里手工探测 CRLF/末尾换行，
+        # 现在格式由 case_store/db 一处负责（键序按 field_order 还原、原子写）。
+        import case_store as CS
+        CS.save_cases(cases)
+        print("\n已写入 case_library（%s），镜像 data/cases.json 已重导" % today)
 
     print("\n接着跑这两步把派生分算出来：")
     print("  python scripts/score_solo_fit.py")
