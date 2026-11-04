@@ -814,6 +814,9 @@ DELIVERY = {
     "ryn-vpn": (5, "VPN 是纯软件交付，App Store 装上即用，零交付；负担只剩服务器与节点维护。"),
     "ton-piston": (4, "求职搜索零交付，但 Pro 套餐的简历优化与求职信生成要保证输出质量，"
                       "属于自助为主。"),
+
+    # ── 2026-11-04 sotie 人工确认 still_alive 后入库 ──
+    "sotie-ai-best-friend": (5, "App Store 上架即交付，零交付；生成内容由模型返回，无人工环节。"),
 }
 
 
