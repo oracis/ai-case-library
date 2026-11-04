@@ -132,7 +132,7 @@
       "score": 73.1,
       "raw": 21.2,
       "max_raw": 29.0,
-      "rank": 163,
+      "rank": 169,
       "medal": null,
       "dims": {
         "build": 3,
@@ -320,7 +320,7 @@
       "score": 62.1,
       "raw": 18.0,
       "max_raw": 29.0,
-      "rank": 357,
+      "rank": 373,
       "medal": null,
       "dims": {
         "build": 3,
@@ -497,7 +497,7 @@
       "score": 65.9,
       "raw": 19.1,
       "max_raw": 29.0,
-      "rank": 295,
+      "rank": 309,
       "medal": null,
       "dims": {
         "build": 3,
@@ -627,7 +627,7 @@
       "score": 65.9,
       "raw": 19.1,
       "max_raw": 29.0,
-      "rank": 297,
+      "rank": 311,
       "medal": null,
       "dims": {
         "build": 3,
@@ -773,7 +773,7 @@
       "score": 64.8,
       "raw": 18.8,
       "max_raw": 29.0,
-      "rank": 309,
+      "rank": 323,
       "medal": null,
       "dims": {
         "build": 2,
@@ -925,7 +925,7 @@
       "score": 66.6,
       "raw": 19.3,
       "max_raw": 29.0,
-      "rank": 290,
+      "rank": 304,
       "medal": null,
       "dims": {
         "build": 3,
@@ -1115,7 +1115,7 @@
       "score": 69.0,
       "raw": 20.0,
       "max_raw": 29.0,
-      "rank": 213,
+      "rank": 226,
       "medal": null,
       "dims": {
         "build": 4,
@@ -1265,7 +1265,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 69,
+      "rank": 72,
       "medal": null,
       "dims": {
         "build": 4,
@@ -1464,7 +1464,7 @@
       "score": 65.5,
       "raw": 19.0,
       "max_raw": 29.0,
-      "rank": 299,
+      "rank": 313,
       "medal": null,
       "dims": {
         "build": 2,
@@ -1609,7 +1609,7 @@
       "score": 57.2,
       "raw": 16.6,
       "max_raw": 29.0,
-      "rank": 400,
+      "rank": 418,
       "medal": null,
       "dims": {
         "build": 3,
@@ -1759,7 +1759,7 @@
       "score": 65.5,
       "raw": 19.0,
       "max_raw": 29.0,
-      "rank": 301,
+      "rank": 315,
       "medal": null,
       "dims": {
         "build": 3,
@@ -1956,7 +1956,7 @@
       "score": 65.5,
       "raw": 19.0,
       "max_raw": 29.0,
-      "rank": 298,
+      "rank": 312,
       "medal": null,
       "dims": {
         "build": 3,
@@ -2150,7 +2150,7 @@
       "score": 62.1,
       "raw": 18.0,
       "max_raw": 29.0,
-      "rank": 358,
+      "rank": 374,
       "medal": null,
       "dims": {
         "build": 3,
@@ -2301,7 +2301,7 @@
       "score": 50.4,
       "raw": 17.4,
       "max_raw": 34.5,
-      "rank": 373,
+      "rank": 374,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -2327,7 +2327,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 251,
+      "rank": 264,
       "medal": null,
       "dims": {
         "build": 4,
@@ -2472,7 +2472,7 @@
       "score": 64.1,
       "raw": 18.6,
       "max_raw": 29.0,
-      "rank": 315,
+      "rank": 330,
       "medal": null,
       "dims": {
         "build": 3,
@@ -2620,7 +2620,7 @@
       "score": 75.9,
       "raw": 22.0,
       "max_raw": 29.0,
-      "rank": 110,
+      "rank": 116,
       "medal": null,
       "dims": {
         "build": 4,
@@ -2787,7 +2787,69 @@
     "quality_score": 30,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 33.6,
+      "raw": 11.6,
+      "max_raw": 34.5,
+      "rank": 459,
+      "medal": null,
+      "dims": {
+        "demand": 2,
+        "payment": 2,
+        "compliance": 1,
+        "acquisition": 1,
+        "localization": 1,
+        "competition": 3
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "卡点是深度合成合规加绑 Discord。需求 2：语音克隆当作社交道具有真实好奇，但付费场景薄。付费 2：海外订阅走 Discord 内支付，国内要另建收款与会员体系。合规 1：语音克隆落进深度合成管理规定，要算法备案、显著标识与被克隆人授权，个人几乎做不到。获客 1：它整套分发绑在 Discord 机器人目录上，国内社群生态不同，宿主不存在。本地化 1：平台、支付、合规留痕全要重做。竞争 3：国内同类少是因为门槛高。可借的只有社交道具这个卖点。",
+      "blocker": "深度合成合规 + 绑 Discord",
+      "scored_at": "2026-11-04"
+    },
+    "solo_fit": {
+      "score": 76.9,
+      "raw": 22.3,
+      "max_raw": 29.0,
+      "rank": 83,
+      "medal": null,
+      "dims": {
+        "build": 3,
+        "reach": 4,
+        "capital": 5,
+        "window": 3,
+        "delivery": 4
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "Discord 机器人装上即用，不需要实施；负担在语音模型调用成本与服务器维护，属于轻量自助工具。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-11-04"
+    },
+    "composite": {
+      "score": 42.3,
+      "solo": 76.9,
+      "china": 33.6,
+      "rank": 448,
+      "medal": null,
+      "quadrant": "export",
+      "quadrant_label": "能做，但别在国内卖",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-11-04"
+    }
   },
   {
     "id": "appmockupgenerator",
@@ -3083,7 +3145,7 @@
       "score": 54.5,
       "raw": 15.8,
       "max_raw": 29.0,
-      "rank": 411,
+      "rank": 431,
       "medal": null,
       "dims": {
         "build": 3,
@@ -3249,7 +3311,69 @@
     "quality_score": 70,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 41.4,
+      "raw": 14.3,
+      "max_raw": 34.5,
+      "rank": 435,
+      "medal": null,
+      "dims": {
+        "demand": 3,
+        "payment": 3,
+        "compliance": 1,
+        "acquisition": 2,
+        "localization": 1,
+        "competition": 2
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "卡点是外呼营销治理。需求 3：按结果付费的获客外包在国内需求真实，中小企业愿意试。付费 3：对公收款没问题，但按效果结算的对账成本高。合规 1：AI 外呼是骚扰治理重点，语音合成加自动拨打还叠加深度合成标识要求。获客 2：它靠海外本地商家名单与外呼自身获客，国内号码来源合法性是前置门槛。本地化 1：线路、话术、行业名单、合规留痕全要重做，且做完仍可能被叫停。竞争 2：国内已有合规外呼与智能客服玩家，个人没有牌照优势。",
+      "blocker": "外呼营销治理",
+      "scored_at": "2026-11-04"
+    },
+    "solo_fit": {
+      "score": 69.7,
+      "raw": 20.2,
+      "max_raw": 29.0,
+      "rank": 218,
+      "medal": null,
+      "dims": {
+        "build": 4,
+        "reach": 3,
+        "capital": 5,
+        "window": 4,
+        "delivery": 2
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "AI 外呼代理含人工运营环节：话术配置、名单清洗、结果复核都要人参与，按结果付费意味着交付责任在你这边。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-11-04"
+    },
+    "composite": {
+      "score": 47.1,
+      "solo": 69.7,
+      "china": 41.4,
+      "rank": 424,
+      "medal": null,
+      "quadrant": "skip",
+      "quadrant_label": "别碰",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-11-04"
+    }
   },
   {
     "id": "rock-identifier",
@@ -3416,7 +3540,7 @@
       "score": 80.7,
       "raw": 23.4,
       "max_raw": 29.0,
-      "rank": 36,
+      "rank": 37,
       "medal": null,
       "dims": {
         "build": 4,
@@ -3578,7 +3702,7 @@
       "score": 46.4,
       "raw": 16.0,
       "max_raw": 34.5,
-      "rank": 405,
+      "rank": 409,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -3604,7 +3728,7 @@
       "score": 76.2,
       "raw": 22.1,
       "max_raw": 29.0,
-      "rank": 85,
+      "rank": 89,
       "medal": null,
       "dims": {
         "build": 4,
@@ -3723,7 +3847,7 @@
       "score": 44.9,
       "raw": 15.5,
       "max_raw": 34.5,
-      "rank": 414,
+      "rank": 419,
       "medal": null,
       "dims": {
         "demand": 1,
@@ -3749,7 +3873,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 66,
+      "rank": 69,
       "medal": null,
       "dims": {
         "build": 4,
@@ -3936,7 +4060,7 @@
       "score": 64.1,
       "raw": 18.6,
       "max_raw": 29.0,
-      "rank": 313,
+      "rank": 328,
       "medal": null,
       "dims": {
         "build": 3,
@@ -4107,7 +4231,7 @@
       "score": 50.4,
       "raw": 17.4,
       "max_raw": 34.5,
-      "rank": 369,
+      "rank": 370,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -4133,7 +4257,7 @@
       "score": 74.5,
       "raw": 21.6,
       "max_raw": 29.0,
-      "rank": 112,
+      "rank": 118,
       "medal": null,
       "dims": {
         "build": 4,
@@ -4306,7 +4430,7 @@
       "score": 72.4,
       "raw": 21.0,
       "max_raw": 29.0,
-      "rank": 175,
+      "rank": 182,
       "medal": null,
       "dims": {
         "build": 4,
@@ -4505,7 +4629,7 @@
       "score": 71.0,
       "raw": 20.6,
       "max_raw": 29.0,
-      "rank": 195,
+      "rank": 207,
       "medal": null,
       "dims": {
         "build": 4,
@@ -4629,7 +4753,7 @@
       "score": 47.0,
       "raw": 16.2,
       "max_raw": 34.5,
-      "rank": 403,
+      "rank": 407,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -4655,7 +4779,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 67,
+      "rank": 70,
       "medal": null,
       "dims": {
         "build": 4,
@@ -4779,7 +4903,7 @@
       "score": 47.2,
       "raw": 16.3,
       "max_raw": 34.5,
-      "rank": 399,
+      "rank": 403,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -4805,7 +4929,7 @@
       "score": 80.7,
       "raw": 23.4,
       "max_raw": 29.0,
-      "rank": 33,
+      "rank": 34,
       "medal": null,
       "dims": {
         "build": 4,
@@ -5001,7 +5125,7 @@
       "score": 80.7,
       "raw": 23.4,
       "max_raw": 29.0,
-      "rank": 42,
+      "rank": 43,
       "medal": null,
       "dims": {
         "build": 4,
@@ -5146,7 +5270,7 @@
       "score": 80.7,
       "raw": 23.4,
       "max_raw": 29.0,
-      "rank": 41,
+      "rank": 42,
       "medal": null,
       "dims": {
         "build": 4,
@@ -5306,7 +5430,7 @@
       "score": 50.4,
       "raw": 17.4,
       "max_raw": 34.5,
-      "rank": 372,
+      "rank": 373,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -5332,7 +5456,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 145,
+      "rank": 151,
       "medal": null,
       "dims": {
         "build": 4,
@@ -5487,7 +5611,7 @@
       "score": 75.9,
       "raw": 22.0,
       "max_raw": 29.0,
-      "rank": 97,
+      "rank": 102,
       "medal": null,
       "dims": {
         "build": 4,
@@ -5672,7 +5796,7 @@
       "score": 80.7,
       "raw": 23.4,
       "max_raw": 29.0,
-      "rank": 24,
+      "rank": 25,
       "medal": null,
       "dims": {
         "build": 4,
@@ -5801,7 +5925,7 @@
       "score": 75.9,
       "raw": 22.0,
       "max_raw": 29.0,
-      "rank": 92,
+      "rank": 97,
       "medal": null,
       "dims": {
         "build": 4,
@@ -5967,7 +6091,69 @@
     "quality_score": 30,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 35.1,
+      "raw": 12.1,
+      "max_raw": 34.5,
+      "rank": 456,
+      "medal": null,
+      "dims": {
+        "demand": 1,
+        "payment": 2,
+        "compliance": 1,
+        "acquisition": 2,
+        "localization": 1,
+        "competition": 4
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "卡点是制度不存在。需求 1：集体诉讼和解金申报依赖美国法律体系，国内没有对应的可申报池，用户连要找什么都不存在。付费 2：内购通道本身通，但付费理由不成立。合规 1：涉及法律信息服务的资质与代理申报边界，个人主体难过。获客 2：海外靠诉讼公告与法务社群导流，国内无等价信息源。本地化 1：整套产品的数据源、规则与用户动作都要从零设计。竞争 4：国内几乎没有同类产品，空位来自制度差异，不是市场空白。",
+      "blocker": "制度不存在",
+      "scored_at": "2026-11-04"
+    },
+    "solo_fit": {
+      "score": 71.4,
+      "raw": 20.7,
+      "max_raw": 29.0,
+      "rank": 198,
+      "medal": null,
+      "dims": {
+        "build": 4,
+        "reach": 2,
+        "capital": 5,
+        "window": 3,
+        "delivery": 4
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "纯信息型 App，用户自助订阅，零实施；负担在和解金项目库要持续收录与核验，属于内容维护型产品。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-11-04"
+    },
+    "composite": {
+      "score": 42.4,
+      "solo": 71.4,
+      "china": 35.1,
+      "rank": 447,
+      "medal": null,
+      "quadrant": "export",
+      "quadrant_label": "能做，但别在国内卖",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-11-04"
+    }
   },
   {
     "id": "codowave",
@@ -6081,7 +6267,7 @@
       "score": 64.1,
       "raw": 18.6,
       "max_raw": 29.0,
-      "rank": 319,
+      "rank": 334,
       "medal": null,
       "dims": {
         "build": 3,
@@ -6253,7 +6439,7 @@
       "score": 51.3,
       "raw": 17.7,
       "max_raw": 34.5,
-      "rank": 357,
+      "rank": 358,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -6279,7 +6465,7 @@
       "score": 64.1,
       "raw": 18.6,
       "max_raw": 29.0,
-      "rank": 320,
+      "rank": 335,
       "medal": null,
       "dims": {
         "build": 3,
@@ -6443,7 +6629,7 @@
       "score": 80.7,
       "raw": 23.4,
       "max_raw": 29.0,
-      "rank": 43,
+      "rank": 44,
       "medal": null,
       "dims": {
         "build": 4,
@@ -6666,7 +6852,7 @@
       "score": 80.7,
       "raw": 23.4,
       "max_raw": 29.0,
-      "rank": 25,
+      "rank": 26,
       "medal": null,
       "dims": {
         "build": 4,
@@ -7000,7 +7186,7 @@
       "score": 54.5,
       "raw": 15.8,
       "max_raw": 29.0,
-      "rank": 412,
+      "rank": 432,
       "medal": null,
       "dims": {
         "build": 3,
@@ -7166,7 +7352,7 @@
       "score": 74.5,
       "raw": 21.6,
       "max_raw": 29.0,
-      "rank": 113,
+      "rank": 119,
       "medal": null,
       "dims": {
         "build": 4,
@@ -7290,7 +7476,69 @@
     "quality_score": 30,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 37.1,
+      "raw": 12.8,
+      "max_raw": 34.5,
+      "rank": 454,
+      "medal": null,
+      "dims": {
+        "demand": 2,
+        "payment": 3,
+        "compliance": 1,
+        "acquisition": 1,
+        "localization": 2,
+        "competition": 2
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "卡点是匿名社交强监管。需求 2：匿名问答在校园场景有真实好奇，但付费意愿弱、留存短。付费 3：内购通道通。合规 1：匿名发布在国内属强监管形态，要实名后台、内容审核与举报处置，个人主体配置不起。获客 1：冷启动高度依赖校园地推与社群自传播，而这类传播正是平台治理重点。本地化 2：审核策略、社区规则、举报链路都要重建。竞争 2：国内匿名社交产品多次被下架，留下的空位不是机会。",
+      "blocker": "匿名社交强监管",
+      "scored_at": "2026-11-04"
+    },
+    "solo_fit": {
+      "score": 75.9,
+      "raw": 22.0,
+      "max_raw": 29.0,
+      "rank": 105,
+      "medal": null,
+      "dims": {
+        "build": 4,
+        "reach": 3,
+        "capital": 5,
+        "window": 3,
+        "delivery": 4
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "App 自助，装上即用；负担在内容审核与社区治理，匿名形态下这块的成本会随用户量涨。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-11-04"
+    },
+    "composite": {
+      "score": 44.9,
+      "solo": 75.9,
+      "china": 37.1,
+      "rank": 440,
+      "medal": null,
+      "quadrant": "export",
+      "quadrant_label": "能做，但别在国内卖",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-11-04"
+    }
   },
   {
     "id": "coloring-book",
@@ -7404,7 +7652,7 @@
       "score": 76.2,
       "raw": 22.1,
       "max_raw": 29.0,
-      "rank": 86,
+      "rank": 90,
       "medal": null,
       "dims": {
         "build": 4,
@@ -7718,7 +7966,7 @@
       "score": 44.9,
       "raw": 15.5,
       "max_raw": 34.5,
-      "rank": 410,
+      "rank": 415,
       "medal": null,
       "dims": {
         "demand": 1,
@@ -7926,7 +8174,7 @@
       "score": 71.4,
       "raw": 20.7,
       "max_raw": 29.0,
-      "rank": 186,
+      "rank": 196,
       "medal": null,
       "dims": {
         "build": 4,
@@ -8267,7 +8515,7 @@
       "score": 72.4,
       "raw": 21.0,
       "max_raw": 29.0,
-      "rank": 177,
+      "rank": 187,
       "medal": null,
       "dims": {
         "build": 4,
@@ -8439,7 +8687,69 @@
     "quality_score": 50,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 38.6,
+      "raw": 13.3,
+      "max_raw": 34.5,
+      "rank": 450,
+      "medal": null,
+      "dims": {
+        "demand": 1,
+        "payment": 3,
+        "compliance": 1,
+        "acquisition": 2,
+        "localization": 2,
+        "competition": 3
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "卡点是酒类内容合规。需求 1：派对饮酒游戏在国内既缺对应的聚会文化土壤，也不适合公开推广，付费人群薄。付费 3：App 内购通道本身通畅。合规 1：以饮酒为主题的内容触到酒类营销限制，面向未成年人分发尤其敏感，上架审核难过。获客 2：海外靠派对场景与社媒自传播，国内这条传播链会被平台限流。本地化 2：题库、玩法与社交关系链都要重做，但主题本身不能留。竞争 3：同类聚会游戏不多，空位来自题材受限而非没人做。",
+      "blocker": "酒类内容合规",
+      "scored_at": "2026-11-04"
+    },
+    "solo_fit": {
+      "score": 80.7,
+      "raw": 23.4,
+      "max_raw": 29.0,
+      "rank": 24,
+      "medal": null,
+      "dims": {
+        "build": 4,
+        "reach": 3,
+        "capital": 5,
+        "window": 3,
+        "delivery": 5
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "App 内小游戏，下载即用、零交付；负担只在关卡与题库更新，属于最轻的一类 C 端产品。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-11-04"
+    },
+    "composite": {
+      "score": 47.0,
+      "solo": 80.7,
+      "china": 38.6,
+      "rank": 428,
+      "medal": null,
+      "quadrant": "export",
+      "quadrant_label": "能做，但别在国内卖",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-11-04"
+    }
   },
   {
     "id": "cattus-ai",
@@ -8580,7 +8890,7 @@
       "score": 51.3,
       "raw": 17.7,
       "max_raw": 34.5,
-      "rank": 356,
+      "rank": 357,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -8606,7 +8916,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 246,
+      "rank": 259,
       "medal": null,
       "dims": {
         "build": 4,
@@ -8773,7 +9083,7 @@
       "score": 57.9,
       "raw": 16.8,
       "max_raw": 29.0,
-      "rank": 397,
+      "rank": 415,
       "medal": null,
       "dims": {
         "build": 4,
@@ -8923,7 +9233,7 @@
       "score": 72.4,
       "raw": 21.0,
       "max_raw": 29.0,
-      "rank": 179,
+      "rank": 189,
       "medal": null,
       "dims": {
         "build": 4,
@@ -9447,7 +9757,7 @@
       "score": 71.4,
       "raw": 20.7,
       "max_raw": 29.0,
-      "rank": 187,
+      "rank": 197,
       "medal": null,
       "dims": {
         "build": 4,
@@ -9603,7 +9913,7 @@
       "score": 80.7,
       "raw": 23.4,
       "max_raw": 29.0,
-      "rank": 31,
+      "rank": 32,
       "medal": null,
       "dims": {
         "build": 4,
@@ -9771,7 +10081,7 @@
       "score": 75.9,
       "raw": 22.0,
       "max_raw": 29.0,
-      "rank": 90,
+      "rank": 95,
       "medal": null,
       "dims": {
         "build": 4,
@@ -9956,7 +10266,7 @@
       "score": 64.1,
       "raw": 18.6,
       "max_raw": 29.0,
-      "rank": 317,
+      "rank": 332,
       "medal": null,
       "dims": {
         "build": 3,
@@ -10096,7 +10406,7 @@
       "score": 75.9,
       "raw": 22.0,
       "max_raw": 29.0,
-      "rank": 104,
+      "rank": 110,
       "medal": null,
       "dims": {
         "build": 4,
@@ -10246,7 +10556,7 @@
       "score": 80.7,
       "raw": 23.4,
       "max_raw": 29.0,
-      "rank": 40,
+      "rank": 41,
       "medal": null,
       "dims": {
         "build": 4,
@@ -10526,7 +10836,69 @@
     "quality_score": 60,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 43.8,
+      "raw": 15.1,
+      "max_raw": 34.5,
+      "rank": 427,
+      "medal": null,
+      "dims": {
+        "demand": 3,
+        "payment": 2,
+        "compliance": 1,
+        "acquisition": 2,
+        "localization": 2,
+        "competition": 3
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "卡点是盗版与侵权风险。需求 3：磁力聚合搜索确有真实检索需求，但付费集中在少数重度用户。付费 2：支付通道对这类站点基本不开放，收款本身是问题。合规 1：国内直接落进侵权责任与内容违规，主体与域名都难保全。获客 2：海外靠搜索引擎与论坛自然流量，国内搜索侧不会给这类词排名。本地化 2：索引源、质量评分、去重规则都要重做，而资源本身不合法。竞争 3：同类工具少，但空位来自不敢做，不是没人想到。可借的只有质量评分这个产品思路。",
+      "blocker": "盗版与侵权风险",
+      "scored_at": "2026-11-04"
+    },
+    "solo_fit": {
+      "score": 72.4,
+      "raw": 21.0,
+      "max_raw": 29.0,
+      "rank": 186,
+      "medal": null,
+      "dims": {
+        "build": 4,
+        "reach": 3,
+        "capital": 5,
+        "window": 2,
+        "delivery": 4
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "纯搜索工具，用户自助订阅，没有实施环节；负担在索引源要持续维护，链接失效与资源下架都得跟着更新。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-11-04"
+    },
+    "composite": {
+      "score": 49.5,
+      "solo": 72.4,
+      "china": 43.8,
+      "rank": 406,
+      "medal": null,
+      "quadrant": "export",
+      "quadrant_label": "能做，但别在国内卖",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-11-04"
+    }
   },
   {
     "id": "autotube",
@@ -10614,7 +10986,7 @@
       "score": 48.4,
       "raw": 16.7,
       "max_raw": 34.5,
-      "rank": 390,
+      "rank": 391,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -10790,7 +11162,7 @@
       "score": 67.6,
       "raw": 19.6,
       "max_raw": 29.0,
-      "rank": 276,
+      "rank": 289,
       "medal": null,
       "dims": {
         "build": 4,
@@ -10966,7 +11338,7 @@
       "score": 80.7,
       "raw": 23.4,
       "max_raw": 29.0,
-      "rank": 35,
+      "rank": 36,
       "medal": null,
       "dims": {
         "build": 4,
@@ -11114,7 +11486,7 @@
       "score": 69.7,
       "raw": 20.2,
       "max_raw": 29.0,
-      "rank": 210,
+      "rank": 223,
       "medal": null,
       "dims": {
         "build": 4,
@@ -11307,7 +11679,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 235,
+      "rank": 248,
       "medal": null,
       "dims": {
         "build": 4,
@@ -11461,7 +11833,69 @@
     "quality_score": 35,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 40.0,
+      "raw": 13.8,
+      "max_raw": 34.5,
+      "rank": 444,
+      "medal": null,
+      "dims": {
+        "demand": 2,
+        "payment": 3,
+        "compliance": 1,
+        "acquisition": 2,
+        "localization": 1,
+        "competition": 3
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "卡点是 NFT 涉虚拟货币禁令。需求 2：国内有定制开发需求，但它用的 NFT 获客入口在境内不可用，需求要整体换赛道。付费 3：项目制对公收款通。合规 1：虚拟货币相关业务在境内被禁，用 NFT 做入口本身就不合法，连带营销与结算都受限。获客 2：它靠 Web3 圈层与项目转介绍，国内无对应合规渠道。本地化 1：业务形态、客户群、交付方式全要重建，等于换一家公司。竞争 3：国内定制开发竞争者极多，这一档没有差异化。",
+      "blocker": "NFT 涉虚拟货币禁令",
+      "scored_at": "2026-11-04"
+    },
+    "solo_fit": {
+      "score": 61.4,
+      "raw": 17.8,
+      "max_raw": 29.0,
+      "rank": 377,
+      "medal": null,
+      "dims": {
+        "build": 4,
+        "reach": 3,
+        "capital": 5,
+        "window": 3,
+        "delivery": 1
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "主体是周付的定制开发公司，交付即团队：需求澄清、排期、验收都靠人，产品化部分只是获客入口。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-11-04"
+    },
+    "composite": {
+      "score": 44.3,
+      "solo": 61.4,
+      "china": 40.0,
+      "rank": 442,
+      "medal": null,
+      "quadrant": "skip",
+      "quadrant_label": "别碰",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-11-04"
+    }
   },
   {
     "id": "studio-zero",
@@ -11580,7 +12014,7 @@
       "score": 80.7,
       "raw": 23.4,
       "max_raw": 29.0,
-      "rank": 38,
+      "rank": 39,
       "medal": null,
       "dims": {
         "build": 4,
@@ -11740,7 +12174,7 @@
       "score": 50.4,
       "raw": 17.4,
       "max_raw": 34.5,
-      "rank": 374,
+      "rank": 375,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -11766,7 +12200,7 @@
       "score": 76.9,
       "raw": 22.3,
       "max_raw": 29.0,
-      "rank": 77,
+      "rank": 80,
       "medal": null,
       "dims": {
         "build": 4,
@@ -11939,7 +12373,7 @@
       "score": 73.1,
       "raw": 21.2,
       "max_raw": 29.0,
-      "rank": 158,
+      "rank": 164,
       "medal": null,
       "dims": {
         "build": 5,
@@ -12058,7 +12492,7 @@
       "score": 51.3,
       "raw": 17.7,
       "max_raw": 34.5,
-      "rank": 358,
+      "rank": 359,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -12084,7 +12518,7 @@
       "score": 69.0,
       "raw": 20.0,
       "max_raw": 29.0,
-      "rank": 215,
+      "rank": 228,
       "medal": null,
       "dims": {
         "build": 3,
@@ -12281,7 +12715,7 @@
       "score": 71.0,
       "raw": 20.6,
       "max_raw": 29.0,
-      "rank": 188,
+      "rank": 199,
       "medal": null,
       "dims": {
         "build": 4,
@@ -12449,7 +12883,69 @@
     "quality_score": 80,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 33.6,
+      "raw": 11.6,
+      "max_raw": 34.5,
+      "rank": 458,
+      "medal": null,
+      "dims": {
+        "demand": 2,
+        "payment": 2,
+        "compliance": 1,
+        "acquisition": 1,
+        "localization": 1,
+        "competition": 3
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "卡点是平台与合规双卡。需求 2：匿名反馈在团队管理里确有场景，但国内企业更倾向实名可控的工具，愿意付费的少。付费 2：海外按席位订阅，国内要换对公采购链路。合规 1：企业内匿名发声与内容留痕要求冲突，出事时责任主体不清。获客 1：它靠 Slack 应用目录分发，国内协作工具是飞书与企微，宿主生态整个换掉。本地化 1：平台接口、权限模型、审核策略全要重做。竞争 3：国内直接对手少，因为产品形态连同市场一起消失。",
+      "blocker": "平台与合规双卡",
+      "scored_at": "2026-11-04"
+    },
+    "solo_fit": {
+      "score": 75.9,
+      "raw": 22.0,
+      "max_raw": 29.0,
+      "rank": 94,
+      "medal": null,
+      "dims": {
+        "build": 4,
+        "reach": 3,
+        "capital": 5,
+        "window": 3,
+        "delivery": 4
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "机器人装上即用，没有实施环节；负担在权限配置与内容审核，企业客户会要求审计与留痕。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-11-04"
+    },
+    "composite": {
+      "score": 42.1,
+      "solo": 75.9,
+      "china": 33.6,
+      "rank": 449,
+      "medal": null,
+      "quadrant": "export",
+      "quadrant_label": "能做，但别在国内卖",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-11-04"
+    }
   },
   {
     "id": "contextbolt",
@@ -12568,7 +13064,7 @@
       "score": 80.7,
       "raw": 23.4,
       "max_raw": 29.0,
-      "rank": 29,
+      "rank": 30,
       "medal": null,
       "dims": {
         "build": 4,
@@ -12718,7 +13214,7 @@
       "score": 79.3,
       "raw": 23.0,
       "max_raw": 29.0,
-      "rank": 48,
+      "rank": 49,
       "medal": null,
       "dims": {
         "build": 4,
@@ -12822,7 +13318,69 @@
     "quality_score": 60,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 25.8,
+      "raw": 8.9,
+      "max_raw": 34.5,
+      "rank": 461,
+      "medal": null,
+      "dims": {
+        "demand": 1,
+        "payment": 1,
+        "compliance": 1,
+        "acquisition": 1,
+        "localization": 1,
+        "competition": 3
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "卡点是预测市场在境内被禁。需求 1：Polymarket 本身在境内不可用，交易者群体不存在，整套产品的标的消失。付费 1：面向境外交易者的收款与合规通道在国内主体下也走不通。合规 1：预测市场属被禁业务，提供行情与投注分析同样在打击范围内。获客 1：它靠加密社群与交易者论坛分发，国内无合规渠道。本地化 1：数据源、标的、用户群全要换，换完就不是这个产品。竞争 3：国内没有同类，是因为业务本身不可做。整条线不可碰。",
+      "blocker": "预测市场在境内被禁",
+      "scored_at": "2026-11-04"
+    },
+    "solo_fit": {
+      "score": 72.4,
+      "raw": 21.0,
+      "max_raw": 29.0,
+      "rank": 184,
+      "medal": null,
+      "dims": {
+        "build": 4,
+        "reach": 3,
+        "capital": 5,
+        "window": 2,
+        "delivery": 4
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "自助订阅的警报终端，注册即用、零交付；负担在行情接口与推送稳定性的持续维护。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-11-04"
+    },
+    "composite": {
+      "score": 35.1,
+      "solo": 72.4,
+      "china": 25.8,
+      "rank": 458,
+      "medal": null,
+      "quadrant": "export",
+      "quadrant_label": "能做，但别在国内卖",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-11-04"
+    }
   },
   {
     "id": "nagringa",
@@ -12967,7 +13525,7 @@
       "score": 71.0,
       "raw": 20.6,
       "max_raw": 29.0,
-      "rank": 196,
+      "rank": 208,
       "medal": null,
       "dims": {
         "build": 4,
@@ -13086,7 +13644,7 @@
       "score": 50.4,
       "raw": 17.4,
       "max_raw": 34.5,
-      "rank": 375,
+      "rank": 376,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -13112,7 +13670,7 @@
       "score": 80.7,
       "raw": 23.4,
       "max_raw": 29.0,
-      "rank": 34,
+      "rank": 35,
       "medal": null,
       "dims": {
         "build": 4,
@@ -13270,7 +13828,69 @@
     "quality_score": 35,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 47.8,
+      "raw": 16.5,
+      "max_raw": 34.5,
+      "rank": 396,
+      "medal": null,
+      "dims": {
+        "demand": 3,
+        "payment": 4,
+        "compliance": 1,
+        "acquisition": 2,
+        "localization": 2,
+        "competition": 2
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "卡点是服务重加外呼合规。需求 3：国内 B2B 确实买获客结果，按通话或按线索付费也有人接受。付费 4：对公合同与开票都顺，客单能撑住。合规 1：外呼是骚扰电话治理重点，未同意的商业呼叫与号码来源都受严格约束。获客 2：它靠本地企业名录与外呼本身获客，国内这条链既要数据合法又要线路合规。本地化 2：话术、线路、行业名单、结算口径全要重做。竞争 2：国内呼叫中心与获客外包成熟，但玩家都在合规框架内，个人更难进。",
+      "blocker": "服务重 + 外呼合规",
+      "scored_at": "2026-11-04"
+    },
+    "solo_fit": {
+      "score": 50.3,
+      "raw": 14.6,
+      "max_raw": 29.0,
+      "rank": 445,
+      "medal": null,
+      "dims": {
+        "build": 4,
+        "reach": 3,
+        "capital": 3,
+        "window": 2,
+        "delivery": 1
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "按效果付费的 B2B 外呼获客，交付就是一支打电话的团队；高额部署档靠人做 GTM，规模与人力同步增长，不是可自助的软件。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-11-04"
+    },
+    "composite": {
+      "score": 48.3,
+      "solo": 50.3,
+      "china": 47.8,
+      "rank": 415,
+      "medal": null,
+      "quadrant": "skip",
+      "quadrant_label": "别碰",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-11-04"
+    }
   },
   {
     "id": "casa-fran-concepts-llc",
@@ -13436,7 +14056,7 @@
       "score": 62.8,
       "raw": 18.2,
       "max_raw": 29.0,
-      "rank": 353,
+      "rank": 368,
       "medal": null,
       "dims": {
         "build": 4,
@@ -13586,7 +14206,7 @@
       "score": 80.7,
       "raw": 23.4,
       "max_raw": 29.0,
-      "rank": 37,
+      "rank": 38,
       "medal": null,
       "dims": {
         "build": 4,
@@ -13851,7 +14471,69 @@
     "quality_score": 65,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 40.0,
+      "raw": 13.8,
+      "max_raw": 34.5,
+      "rank": 446,
+      "medal": null,
+      "dims": {
+        "demand": 2,
+        "payment": 3,
+        "compliance": 1,
+        "acquisition": 2,
+        "localization": 1,
+        "competition": 3
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "卡点是电信资质加 eSIM 未开放。需求 2：出境漫游流量确实有需求，但国内用户更习惯直接在平台买套餐，白标分销空间小。付费 3：B 端对公结算通。合规 1：转售流量需要电信业务经营许可与运营商合约，个人主体拿不到；国内 eSIM 手机端也尚未开放，两头都堵。获客 2：它靠海外旅行社群与分销商起量，国内渠道被运营商与平台占住。本地化 1：资质、套餐、结算、实名核验全要重做。竞争 3：直接对手少，但空位来自牌照门槛。",
+      "blocker": "电信资质 + eSIM 未开放",
+      "scored_at": "2026-11-04"
+    },
+    "solo_fit": {
+      "score": 62.4,
+      "raw": 18.1,
+      "max_raw": 29.0,
+      "rank": 371,
+      "medal": null,
+      "dims": {
+        "build": 4,
+        "reach": 3,
+        "capital": 4,
+        "window": 3,
+        "delivery": 2
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "白标 SaaS 要接运营商、配流量套餐与结算，每加一个客户都要做实施与合规对接，不是纯自助的产品。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-11-04"
+    },
+    "composite": {
+      "score": 44.5,
+      "solo": 62.4,
+      "china": 40.0,
+      "rank": 441,
+      "medal": null,
+      "quadrant": "skip",
+      "quadrant_label": "别碰",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-11-04"
+    }
   },
   {
     "id": "cramberry",
@@ -13975,7 +14657,7 @@
       "score": 75.9,
       "raw": 22.0,
       "max_raw": 29.0,
-      "rank": 99,
+      "rank": 104,
       "medal": null,
       "dims": {
         "build": 4,
@@ -14169,7 +14851,7 @@
       "score": 64.1,
       "raw": 18.6,
       "max_raw": 29.0,
-      "rank": 322,
+      "rank": 337,
       "medal": null,
       "dims": {
         "build": 3,
@@ -14428,7 +15110,69 @@
     "quality_score": 60,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 25.8,
+      "raw": 8.9,
+      "max_raw": 34.5,
+      "rank": 460,
+      "medal": null,
+      "dims": {
+        "demand": 1,
+        "payment": 1,
+        "compliance": 1,
+        "acquisition": 1,
+        "localization": 1,
+        "competition": 3
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "卡点是博彩在内地违法。需求 1：体育博彩分析在国内没有合法标的，付费入口本身不可用，需求不成立。付费 1：面向博彩用户的收款通道在国内主体下无法合规开通。合规 1：为博彩提供分析与引流属明确违法，不是备案或改造能解决。获客 1：它靠博彩社群与推广返佣起量，国内这类推广同样被禁。本地化 1：标的、用户、结算全要换，换完就不再是这个产品。竞争 3：国内无同类是法律结果，不是市场空位。整条线不可碰。",
+      "blocker": "博彩在内地违法",
+      "scored_at": "2026-11-04"
+    },
+    "solo_fit": {
+      "score": 72.4,
+      "raw": 21.0,
+      "max_raw": 29.0,
+      "rank": 183,
+      "medal": null,
+      "dims": {
+        "build": 4,
+        "reach": 3,
+        "capital": 5,
+        "window": 2,
+        "delivery": 4
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "自助订阅的分析工具，注册即用、零交付；负担在赛事数据与模型更新，属于内容维护型产品。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-11-04"
+    },
+    "composite": {
+      "score": 35.1,
+      "solo": 72.4,
+      "china": 25.8,
+      "rank": 457,
+      "medal": null,
+      "quadrant": "export",
+      "quadrant_label": "能做，但别在国内卖",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-11-04"
+    }
   },
   {
     "id": "ai-song-clip-generator",
@@ -14574,7 +15318,7 @@
       "score": 50.7,
       "raw": 17.5,
       "max_raw": 34.5,
-      "rank": 360,
+      "rank": 361,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -14600,7 +15344,7 @@
       "score": 69.0,
       "raw": 20.0,
       "max_raw": 29.0,
-      "rank": 212,
+      "rank": 225,
       "medal": null,
       "dims": {
         "build": 3,
@@ -14794,7 +15538,7 @@
       "score": 50.3,
       "raw": 14.6,
       "max_raw": 29.0,
-      "rank": 424,
+      "rank": 444,
       "medal": null,
       "dims": {
         "build": 4,
@@ -14962,7 +15706,7 @@
       "score": 62.4,
       "raw": 18.1,
       "max_raw": 29.0,
-      "rank": 355,
+      "rank": 370,
       "medal": null,
       "dims": {
         "build": 4,
@@ -15086,7 +15830,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 72,
+      "rank": 75,
       "medal": null,
       "dims": {
         "build": 4,
@@ -15252,7 +15996,7 @@
       "score": 75.9,
       "raw": 22.0,
       "max_raw": 29.0,
-      "rank": 102,
+      "rank": 108,
       "medal": null,
       "dims": {
         "build": 4,
@@ -15444,7 +16188,7 @@
       "score": 75.9,
       "raw": 22.0,
       "max_raw": 29.0,
-      "rank": 98,
+      "rank": 103,
       "medal": null,
       "dims": {
         "build": 4,
@@ -15563,7 +16307,7 @@
       "score": 50.4,
       "raw": 17.4,
       "max_raw": 34.5,
-      "rank": 376,
+      "rank": 377,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -15589,7 +16333,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 70,
+      "rank": 73,
       "medal": null,
       "dims": {
         "build": 4,
@@ -15734,7 +16478,7 @@
       "score": 75.9,
       "raw": 22.0,
       "max_raw": 29.0,
-      "rank": 89,
+      "rank": 93,
       "medal": null,
       "dims": {
         "build": 4,
@@ -15851,7 +16595,7 @@
       "score": 45.8,
       "raw": 15.8,
       "max_raw": 34.5,
-      "rank": 407,
+      "rank": 411,
       "medal": null,
       "dims": {
         "demand": 4,
@@ -15877,7 +16621,7 @@
       "score": 75.9,
       "raw": 22.0,
       "max_raw": 29.0,
-      "rank": 94,
+      "rank": 99,
       "medal": null,
       "dims": {
         "build": 4,
@@ -16039,7 +16783,7 @@
       "score": 49.9,
       "raw": 17.2,
       "max_raw": 34.5,
-      "rank": 379,
+      "rank": 380,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -16065,7 +16809,7 @@
       "score": 75.9,
       "raw": 22.0,
       "max_raw": 29.0,
-      "rank": 93,
+      "rank": 98,
       "medal": null,
       "dims": {
         "build": 4,
@@ -16257,7 +17001,7 @@
       "score": 57.6,
       "raw": 16.7,
       "max_raw": 29.0,
-      "rank": 399,
+      "rank": 417,
       "medal": null,
       "dims": {
         "build": 4,
@@ -16402,7 +17146,7 @@
       "score": 64.1,
       "raw": 18.6,
       "max_raw": 29.0,
-      "rank": 314,
+      "rank": 329,
       "medal": null,
       "dims": {
         "build": 3,
@@ -16566,7 +17310,7 @@
       "score": 50.4,
       "raw": 17.4,
       "max_raw": 34.5,
-      "rank": 371,
+      "rank": 372,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -16592,7 +17336,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 59,
+      "rank": 62,
       "medal": null,
       "dims": {
         "build": 4,
@@ -16762,7 +17506,69 @@
     "quality_score": 80,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 51.3,
+      "raw": 17.7,
+      "max_raw": 34.5,
+      "rank": 354,
+      "medal": null,
+      "dims": {
+        "demand": 3,
+        "payment": 4,
+        "compliance": 2,
+        "acquisition": 2,
+        "localization": 2,
+        "competition": 2
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "卡点是线索买卖涉个人信息。需求 3：搬家与仓储公司确实买线索，但采购方集中在少数区域龙头。付费 4：对公打款、开票都顺，通道无障碍。合规 2：货本身是有搬家意向的个人信息，按个人信息保护法要单独同意且来源合法，转售这条链在监管口径里。获客 2：它靠海外本地商家名录加冷邮件铺开，国内同类数据握在地图与生活服务平台手里，不外流。本地化 2：报价、派单、结算规则全要重做。竞争 2：58、货拉拉已把分发入口占住。",
+      "blocker": "线索买卖涉个人信息",
+      "scored_at": "2026-11-04"
+    },
+    "solo_fit": {
+      "score": 49.3,
+      "raw": 14.3,
+      "max_raw": 29.0,
+      "rank": 447,
+      "medal": null,
+      "dims": {
+        "build": 4,
+        "reach": 2,
+        "capital": 3,
+        "window": 3,
+        "delivery": 1
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "卖的是线索不是软件：每条搬家需求都要人工核实、跟单、跟搬家公司对账，交付本身就是一支销售团队，一个人接不住，收入也随跟单人力线性增长。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-11-04"
+    },
+    "composite": {
+      "score": 49.7,
+      "solo": 49.3,
+      "china": 51.3,
+      "rank": 401,
+      "medal": null,
+      "quadrant": "skip",
+      "quadrant_label": "别碰",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-11-04"
+    }
   },
   {
     "id": "car-play-connect",
@@ -16925,7 +17731,7 @@
       "score": 80.7,
       "raw": 23.4,
       "max_raw": 29.0,
-      "rank": 26,
+      "rank": 27,
       "medal": null,
       "dims": {
         "build": 4,
@@ -17129,7 +17935,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 56,
+      "rank": 59,
       "medal": null,
       "dims": {
         "build": 4,
@@ -17327,7 +18133,7 @@
       "score": 79.3,
       "raw": 23.0,
       "max_raw": 29.0,
-      "rank": 47,
+      "rank": 48,
       "medal": null,
       "dims": {
         "build": 4,
@@ -17876,7 +18682,7 @@
       "score": 79.3,
       "raw": 23.0,
       "max_raw": 29.0,
-      "rank": 49,
+      "rank": 50,
       "medal": null,
       "dims": {
         "build": 4,
@@ -18130,7 +18936,7 @@
       "score": 50.4,
       "raw": 17.4,
       "max_raw": 34.5,
-      "rank": 377,
+      "rank": 378,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -18156,7 +18962,7 @@
       "score": 80.7,
       "raw": 23.4,
       "max_raw": 29.0,
-      "rank": 39,
+      "rank": 40,
       "medal": null,
       "dims": {
         "build": 4,
@@ -18317,7 +19123,7 @@
       "score": 47.8,
       "raw": 16.5,
       "max_raw": 34.5,
-      "rank": 395,
+      "rank": 398,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -18343,7 +19149,7 @@
       "score": 80.7,
       "raw": 23.4,
       "max_raw": 29.0,
-      "rank": 28,
+      "rank": 29,
       "medal": null,
       "dims": {
         "build": 4,
@@ -18504,7 +19310,7 @@
       "score": 51.3,
       "raw": 17.7,
       "max_raw": 34.5,
-      "rank": 355,
+      "rank": 356,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -18530,7 +19336,7 @@
       "score": 75.9,
       "raw": 22.0,
       "max_raw": 29.0,
-      "rank": 95,
+      "rank": 100,
       "medal": null,
       "dims": {
         "build": 4,
@@ -18687,7 +19493,69 @@
     "quality_score": 60,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 42.0,
+      "raw": 14.5,
+      "max_raw": 34.5,
+      "rank": 432,
+      "medal": null,
+      "dims": {
+        "demand": 1,
+        "payment": 2,
+        "compliance": 3,
+        "acquisition": 2,
+        "localization": 2,
+        "competition": 3
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "卡点是受众窄加涉竞猜。需求 1：F1 与 MotoGP 在国内是小众兴趣，愿意为预测结果付费的人群很薄，且付费动机容易滑向博彩联想。付费 2：App 内购本身通，但一旦被判为竞猜类，支付与上架都会卡。合规 3：纯赛事数据展示不违法，可只要沾竞猜或奖励就变性质，边界窄。获客 2：海外靠赛车社区与赛事直播导流，国内缺同量级社区。本地化 2：赛事版权、中文术语与推送节奏都要重做。竞争 3：国内直接对手少，但空位来自受众太小。",
+      "blocker": "受众窄 + 涉竞猜",
+      "scored_at": "2026-11-04"
+    },
+    "solo_fit": {
+      "score": 77.2,
+      "raw": 22.4,
+      "max_raw": 29.0,
+      "rank": 56,
+      "medal": null,
+      "dims": {
+        "build": 4,
+        "reach": 3,
+        "capital": 5,
+        "window": 2,
+        "delivery": 5
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "App 内自助订阅，装上即用、零实施；长期负担是赛事数据要跟着赛程更新，预测模型与结果页也要维护。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-11-04"
+    },
+    "composite": {
+      "score": 49.0,
+      "solo": 77.2,
+      "china": 42.0,
+      "rank": 410,
+      "medal": null,
+      "quadrant": "export",
+      "quadrant_label": "能做，但别在国内卖",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-11-04"
+    }
   },
   {
     "id": "mind-reach",
@@ -18918,7 +19786,69 @@
     "quality_score": 30,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 44.9,
+      "raw": 15.5,
+      "max_raw": 34.5,
+      "rank": 414,
+      "medal": null,
+      "dims": {
+        "demand": 3,
+        "payment": 4,
+        "compliance": 1,
+        "acquisition": 2,
+        "localization": 1,
+        "competition": 2
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "卡点是保健食品资质。需求 3：自然补剂在国内有真实消费人群，保健需求不缺。付费 4：电商收款、平台结算都成熟，没有通道问题。合规 1：宣称保健功能要保健食品注册（蓝帽子），跨境也要走正面清单，个人主体基本拿不到。获客 2：它靠 Shopify 独立站加海外社媒投放，国内流量集中在平台电商，投放逻辑不同。本地化 1：供应链、注册、标签、售后全要重建，几乎等于换一门生意。竞争 2：同类补剂品牌已多，但真正的门槛在资质不在产品。",
+      "blocker": "保健食品资质",
+      "scored_at": "2026-11-04"
+    },
+    "solo_fit": {
+      "score": 64.5,
+      "raw": 18.7,
+      "max_raw": 29.0,
+      "rank": 325,
+      "medal": null,
+      "dims": {
+        "build": 5,
+        "reach": 3,
+        "capital": 4,
+        "window": 4,
+        "delivery": 1
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "实物电商，选品、备货、跨境物流、售后与合规注册都是交付本身，软件只占很小一环，一个人扛不动整条供应链。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-11-04"
+    },
+    "composite": {
+      "score": 48.8,
+      "solo": 64.5,
+      "china": 44.9,
+      "rank": 414,
+      "medal": null,
+      "quadrant": "skip",
+      "quadrant_label": "别碰",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-11-04"
+    }
   },
   {
     "id": "babelbot",
@@ -19006,7 +19936,7 @@
       "score": 44.1,
       "raw": 15.2,
       "max_raw": 34.5,
-      "rank": 419,
+      "rank": 425,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -19032,7 +19962,7 @@
       "score": 75.9,
       "raw": 22.0,
       "max_raw": 29.0,
-      "rank": 91,
+      "rank": 96,
       "medal": null,
       "dims": {
         "build": 4,
@@ -19217,7 +20147,7 @@
       "score": 67.2,
       "raw": 19.5,
       "max_raw": 29.0,
-      "rank": 283,
+      "rank": 297,
       "medal": null,
       "dims": {
         "build": 4,
@@ -19362,7 +20292,69 @@
     "quality_score": 15,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 47.8,
+      "raw": 16.5,
+      "max_raw": 34.5,
+      "rank": 394,
+      "medal": null,
+      "dims": {
+        "demand": 3,
+        "payment": 3,
+        "compliance": 2,
+        "acquisition": 2,
+        "localization": 2,
+        "competition": 2
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "卡点是字体版权与双边供给。需求 3：按需印刷卖家确实要买可商用字体与素材，预算真实。付费 3：B 端小额采购走对公或平台支付都通，但客单不高。合规 2：字体授权链与商用范围界定国内纠纷多，平台要担审核责任。获客 2：它靠海外按需印刷社区起量，国内对应的是电商设计群体，渠道完全不同。本地化 2：授权协议、发票、结算与内容审核全要重建。竞争 2：字由、站酷已经把正版字体分发占住，个人做不出供应链。",
+      "blocker": "字体版权与双边供给",
+      "scored_at": "2026-11-04"
+    },
+    "solo_fit": {
+      "score": 55.2,
+      "raw": 16.0,
+      "max_raw": 29.0,
+      "rank": 426,
+      "medal": null,
+      "dims": {
+        "build": 4,
+        "reach": 3,
+        "capital": 3,
+        "window": 2,
+        "delivery": 2
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "双边市场，一边要谈字体作者授权、一边要维护按需印刷的供给与结算，上架审核、版权链、分成都要人盯，不是装完即用的工具。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-11-04"
+    },
+    "composite": {
+      "score": 49.3,
+      "solo": 55.2,
+      "china": 47.8,
+      "rank": 407,
+      "medal": null,
+      "quadrant": "skip",
+      "quadrant_label": "别碰",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-11-04"
+    }
   },
   {
     "id": "clarity-search-ai-inc",
@@ -19513,7 +20505,7 @@
       "score": 64.1,
       "raw": 18.6,
       "max_raw": 29.0,
-      "rank": 318,
+      "rank": 333,
       "medal": null,
       "dims": {
         "build": 3,
@@ -19761,7 +20753,7 @@
       "score": 47.0,
       "raw": 16.2,
       "max_raw": 34.5,
-      "rank": 404,
+      "rank": 408,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -19787,7 +20779,7 @@
       "score": 75.9,
       "raw": 22.0,
       "max_raw": 29.0,
-      "rank": 106,
+      "rank": 112,
       "medal": null,
       "dims": {
         "build": 4,
@@ -19974,7 +20966,7 @@
       "score": 57.6,
       "raw": 16.7,
       "max_raw": 29.0,
-      "rank": 398,
+      "rank": 416,
       "medal": null,
       "dims": {
         "build": 4,
@@ -20171,7 +21163,7 @@
       "score": 75.9,
       "raw": 22.0,
       "max_raw": 29.0,
-      "rank": 96,
+      "rank": 101,
       "medal": null,
       "dims": {
         "build": 4,
@@ -20328,7 +21320,7 @@
       "score": 50.4,
       "raw": 17.4,
       "max_raw": 34.5,
-      "rank": 378,
+      "rank": 379,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -20354,7 +21346,7 @@
       "score": 75.9,
       "raw": 22.0,
       "max_raw": 29.0,
-      "rank": 108,
+      "rank": 114,
       "medal": null,
       "dims": {
         "build": 4,
@@ -20517,7 +21509,69 @@
     "quality_score": 50,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 40.6,
+      "raw": 14.0,
+      "max_raw": 34.5,
+      "rank": 442,
+      "medal": null,
+      "dims": {
+        "demand": 2,
+        "payment": 3,
+        "compliance": 2,
+        "acquisition": 1,
+        "localization": 1,
+        "competition": 3
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "卡点是平台反自动化。需求 2：自动回帖抢求购线索确有人愿意付钱，但依赖平台默许，需求不稳。付费 3：订阅收款通道通。合规 2：自动回复 Reddit 与 X 的求购帖属平台明确禁止的自动化行为，轻则限流重则封号，国内平台同样零容忍。获客 1：目标平台在国内不可用，整套获客场景连同账号体系一起消失。本地化 1：平台、语义识别、回复策略全要重做，做完仍面临反自动化治理。竞争 3：国内同类少，是因为平台不给做。",
+      "blocker": "平台反自动化",
+      "scored_at": "2026-11-04"
+    },
+    "solo_fit": {
+      "score": 67.6,
+      "raw": 19.6,
+      "max_raw": 29.0,
+      "rank": 292,
+      "medal": null,
+      "dims": {
+        "build": 4,
+        "reach": 3,
+        "capital": 5,
+        "window": 2,
+        "delivery": 3
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "工具本身自助开通，但要持续对抗平台风控：规则一变就得改匹配与回复策略，用户发不出去第一个找的是你。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-11-04"
+    },
+    "composite": {
+      "score": 46.0,
+      "solo": 67.6,
+      "china": 40.6,
+      "rank": 434,
+      "medal": null,
+      "quadrant": "skip",
+      "quadrant_label": "别碰",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-11-04"
+    }
   },
   {
     "id": "coupleai",
@@ -20684,7 +21738,7 @@
       "score": 80.7,
       "raw": 23.4,
       "max_raw": 29.0,
-      "rank": 30,
+      "rank": 31,
       "medal": null,
       "dims": {
         "build": 4,
@@ -20856,7 +21910,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 140,
+      "rank": 146,
       "medal": null,
       "dims": {
         "build": 3,
@@ -21011,7 +22065,7 @@
       "score": 76.9,
       "raw": 22.3,
       "max_raw": 29.0,
-      "rank": 80,
+      "rank": 84,
       "medal": null,
       "dims": {
         "build": 4,
@@ -21164,7 +22218,7 @@
       "score": 75.9,
       "raw": 22.0,
       "max_raw": 29.0,
-      "rank": 105,
+      "rank": 111,
       "medal": null,
       "dims": {
         "build": 4,
@@ -21366,7 +22420,7 @@
       "score": 80.7,
       "raw": 23.4,
       "max_raw": 29.0,
-      "rank": 27,
+      "rank": 28,
       "medal": null,
       "dims": {
         "build": 4,
@@ -21534,7 +22588,69 @@
     "quality_score": 50,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 38.6,
+      "raw": 13.3,
+      "max_raw": 34.5,
+      "rank": 449,
+      "medal": null,
+      "dims": {
+        "demand": 1,
+        "payment": 3,
+        "compliance": 1,
+        "acquisition": 1,
+        "localization": 2,
+        "competition": 4
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "卡点是宗教内容合规。需求 1：圣经阅读在国内没有对应的公开付费人群，内容分发也受限。付费 3：App 内购通道本身可用。合规 1：宗教类内容公开运营受严格管理，未经批准不得在互联网提供宗教信息服务，主体资质个人拿不到。获客 1：海外靠教会与信仰社区自然传播，国内等价渠道不存在。本地化 2：内容、语言、社区运营全要重做，而主题本身不可保留。竞争 4：国内几乎没有同类付费产品，空位来自制度而非市场空白。整条形态不适合上站推广，也不适合当可复制样本。",
+      "blocker": "宗教内容合规",
+      "scored_at": "2026-11-04"
+    },
+    "solo_fit": {
+      "score": 77.2,
+      "raw": 22.4,
+      "max_raw": 29.0,
+      "rank": 58,
+      "medal": null,
+      "dims": {
+        "build": 4,
+        "reach": 3,
+        "capital": 5,
+        "window": 2,
+        "delivery": 5
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "App 自助订阅，装上即用、零交付；长期负担是经文版本、阅读计划与内容校对的维护，属于内容型轻产品。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-11-04"
+    },
+    "composite": {
+      "score": 46.3,
+      "solo": 77.2,
+      "china": 38.6,
+      "rank": 431,
+      "medal": null,
+      "quadrant": "export",
+      "quadrant_label": "能做，但别在国内卖",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-11-04"
+    }
   },
   {
     "id": "leadmetrics",
@@ -21648,7 +22764,7 @@
       "score": 71.0,
       "raw": 20.6,
       "max_raw": 29.0,
-      "rank": 194,
+      "rank": 206,
       "medal": null,
       "dims": {
         "build": 4,
@@ -21847,7 +22963,7 @@
       "score": 66.2,
       "raw": 19.2,
       "max_raw": 29.0,
-      "rank": 292,
+      "rank": 306,
       "medal": null,
       "dims": {
         "build": 4,
@@ -22045,7 +23161,7 @@
       "score": 80.7,
       "raw": 23.4,
       "max_raw": 29.0,
-      "rank": 32,
+      "rank": 33,
       "medal": null,
       "dims": {
         "build": 4,
@@ -22195,7 +23311,7 @@
       "score": 79.3,
       "raw": 23.0,
       "max_raw": 29.0,
-      "rank": 50,
+      "rank": 51,
       "medal": null,
       "dims": {
         "build": 4,
@@ -22395,7 +23511,7 @@
       "score": 67.2,
       "raw": 19.5,
       "max_raw": 29.0,
-      "rank": 282,
+      "rank": 296,
       "medal": null,
       "dims": {
         "build": 4,
@@ -22545,7 +23661,7 @@
       "score": 64.8,
       "raw": 18.8,
       "max_raw": 29.0,
-      "rank": 307,
+      "rank": 321,
       "medal": null,
       "dims": {
         "build": 4,
@@ -22745,7 +23861,7 @@
       "score": 71.0,
       "raw": 20.6,
       "max_raw": 29.0,
-      "rank": 189,
+      "rank": 200,
       "medal": null,
       "dims": {
         "build": 4,
@@ -22885,7 +24001,7 @@
       "score": 59.3,
       "raw": 17.2,
       "max_raw": 29.0,
-      "rank": 381,
+      "rank": 399,
       "medal": null,
       "dims": {
         "build": 3,
@@ -23049,7 +24165,69 @@
     "quality_score": 50,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 40.6,
+      "raw": 14.0,
+      "max_raw": 34.5,
+      "rank": 440,
+      "medal": null,
+      "dims": {
+        "demand": 2,
+        "payment": 3,
+        "compliance": 2,
+        "acquisition": 1,
+        "localization": 1,
+        "competition": 3
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "卡点是平台反作弊加绑 YouTube。需求 2：靠评论区曝光引流确有人买，但这是灰产边缘的需求，规模有限。付费 3：订阅收款本身通。合规 2：批量自动评论与提及属平台明确禁止的自动化行为，账号封禁是常态。获客 1：它整套价值绑在 YouTube 评论区机制上，国内短视频平台的评论生态与开放接口都不同，获客链直接断。本地化 1：平台、账号体系、反检测策略全要重做，做完同样被治理。竞争 3：国内同类工具少，是因为做了就封。",
+      "blocker": "平台反作弊 + 绑 YouTube",
+      "scored_at": "2026-11-04"
+    },
+    "solo_fit": {
+      "score": 72.4,
+      "raw": 21.0,
+      "max_raw": 29.0,
+      "rank": 180,
+      "medal": null,
+      "dims": {
+        "build": 4,
+        "reach": 3,
+        "capital": 5,
+        "window": 2,
+        "delivery": 4
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "自助订阅工具，配置好账号即可跑，没有实施环节；但账号被限制后要用户自己处理，售后压力集中在平台风控上。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-11-04"
+    },
+    "composite": {
+      "score": 47.0,
+      "solo": 72.4,
+      "china": 40.6,
+      "rank": 429,
+      "medal": null,
+      "quadrant": "export",
+      "quadrant_label": "能做，但别在国内卖",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-11-04"
+    }
   },
   {
     "id": "brainrot-mov",
@@ -23211,7 +24389,7 @@
       "score": 76.9,
       "raw": 22.3,
       "max_raw": 29.0,
-      "rank": 74,
+      "rank": 77,
       "medal": null,
       "dims": {
         "build": 4,
@@ -23361,7 +24539,7 @@
       "score": 71.0,
       "raw": 20.6,
       "max_raw": 29.0,
-      "rank": 197,
+      "rank": 209,
       "medal": null,
       "dims": {
         "build": 4,
@@ -23511,7 +24689,7 @@
       "score": 75.9,
       "raw": 22.0,
       "max_raw": 29.0,
-      "rank": 101,
+      "rank": 107,
       "medal": null,
       "dims": {
         "build": 4,
@@ -23635,7 +24813,7 @@
       "score": 50.7,
       "raw": 17.5,
       "max_raw": 34.5,
-      "rank": 365,
+      "rank": 366,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -23661,7 +24839,7 @@
       "score": 75.9,
       "raw": 22.0,
       "max_raw": 29.0,
-      "rank": 109,
+      "rank": 115,
       "medal": null,
       "dims": {
         "build": 4,
@@ -23855,7 +25033,7 @@
       "score": 75.9,
       "raw": 22.0,
       "max_raw": 29.0,
-      "rank": 107,
+      "rank": 113,
       "medal": null,
       "dims": {
         "build": 4,
@@ -24047,7 +25225,7 @@
       "score": 66.2,
       "raw": 19.2,
       "max_raw": 29.0,
-      "rank": 291,
+      "rank": 305,
       "medal": null,
       "dims": {
         "build": 4,
@@ -24192,7 +25370,7 @@
       "score": 61.4,
       "raw": 17.8,
       "max_raw": 29.0,
-      "rank": 365,
+      "rank": 382,
       "medal": null,
       "dims": {
         "build": 4,
@@ -24386,7 +25564,7 @@
       "score": 64.1,
       "raw": 18.6,
       "max_raw": 29.0,
-      "rank": 312,
+      "rank": 327,
       "medal": null,
       "dims": {
         "build": 3,
@@ -24542,7 +25720,69 @@
     "quality_score": 25,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 44.3,
+      "raw": 15.3,
+      "max_raw": 34.5,
+      "rank": 421,
+      "medal": null,
+      "dims": {
+        "demand": 3,
+        "payment": 3,
+        "compliance": 1,
+        "acquisition": 2,
+        "localization": 2,
+        "competition": 2
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "卡点是倒票合规。需求 3：热门演出与赛事的转票需求在国内真实存在，愿意买的不少。付费 3：平台担保交易与对公结算都通，但抽佣模式要看资质。合规 1：票务实名制与倒卖有价票证的违法风险直接压在这条链上，越成功越危险。获客 2：它靠海外票务社区与二级市场渠道起量，国内平台把转售收进官方入口。本地化 2：实名核验、票源核验、履约与退款规则都要重建。竞争 2：大麦、猫眼已把票务入口占住，二级转售没有放开空间。",
+      "blocker": "倒票合规",
+      "scored_at": "2026-11-04"
+    },
+    "solo_fit": {
+      "score": 59.3,
+      "raw": 17.2,
+      "max_raw": 29.0,
+      "rank": 398,
+      "medal": null,
+      "dims": {
+        "build": 3,
+        "reach": 2,
+        "capital": 4,
+        "window": 3,
+        "delivery": 3
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "票务转售社区要同时运营买家与卖家、处理履约与纠纷，供需两端都得有人盯，不是挂上去就自动成交的工具。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-11-04"
+    },
+    "composite": {
+      "score": 47.3,
+      "solo": 59.3,
+      "china": 44.3,
+      "rank": 422,
+      "medal": null,
+      "quadrant": "skip",
+      "quadrant_label": "别碰",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-11-04"
+    }
   },
   {
     "id": "deeplead-io",
@@ -24630,7 +25870,69 @@
     "quality_score": 35,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 47.8,
+      "raw": 16.5,
+      "max_raw": 34.5,
+      "rank": 399,
+      "medal": null,
+      "dims": {
+        "demand": 3,
+        "payment": 4,
+        "compliance": 1,
+        "acquisition": 2,
+        "localization": 2,
+        "competition": 2
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "卡点是外展合规。需求 3：B2B 找客户的痛在国内一样真，销售团队愿意为线索付费。付费 4：企业订阅对公收款顺畅，代运营档也能开票。合规 1：批量采集企业联系人信息并发冷邮件，国内受个人信息保护与反垃圾规则双重约束，源头数据合法性是硬伤。获客 2：它靠海外商业数据库与邮件生态起量，国内没有等价的公开联系人库可买。本地化 2：要换数据源、换送达通道、重做话术模板。竞争 2：国内 SCRM 与获客工具已多，但真正卡住的还是合规。",
+      "blocker": "外展合规",
+      "scored_at": "2026-11-04"
+    },
+    "solo_fit": {
+      "score": 54.8,
+      "raw": 15.9,
+      "max_raw": 29.0,
+      "rank": 430,
+      "medal": null,
+      "dims": {
+        "build": 4,
+        "reach": 3,
+        "capital": 2,
+        "window": 3,
+        "delivery": 2
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "外展送达率要持续运维：域名预热、发信额度、退信处理都在链条上，另有单价很高的代运营档，说明产品做不轻、服务比重不低。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-11-04"
+    },
+    "composite": {
+      "score": 49.2,
+      "solo": 54.8,
+      "china": 47.8,
+      "rank": 408,
+      "medal": null,
+      "quadrant": "skip",
+      "quadrant_label": "别碰",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-11-04"
+    }
   },
   {
     "id": "cosmo",
@@ -24745,7 +26047,69 @@
     "quality_score": 65,
     "needs_review": false,
     "human_read": false,
-    "human_read_at": ""
+    "human_read_at": "",
+    "china_fit": {
+      "score": 39.7,
+      "raw": 13.7,
+      "max_raw": 34.5,
+      "rank": 447,
+      "medal": null,
+      "dims": {
+        "demand": 1,
+        "payment": 2,
+        "compliance": 4,
+        "acquisition": 1,
+        "localization": 1,
+        "competition": 3
+      },
+      "weights": {
+        "demand": 1.5,
+        "payment": 1.2,
+        "compliance": 1.2,
+        "acquisition": 1.0,
+        "localization": 1.0,
+        "competition": 1.0
+      },
+      "note": "卡点是绑 Discord。需求 1：Discord 内嵌结账在国内没有对应生态，社群电商的需求已被微信小店、小程序商城接住，没有独立付费位。付费 2：海外高客单订阅靠 Discord 社群转化，国内这条收款与信任链要另建。合规 4：纯电商工具本身合规负担小，这是六维里唯一不低的一项。获客 1：它靠 Discord 社群与机器人目录分发，国内无等价入口。本地化 1：整个宿主平台要换，产品等于重做。竞争 3：国内直接对手少，因为需求已被平台原生功能吃掉。",
+      "blocker": "绑 Discord",
+      "scored_at": "2026-11-04"
+    },
+    "solo_fit": {
+      "score": 71.0,
+      "raw": 20.6,
+      "max_raw": 29.0,
+      "rank": 204,
+      "medal": null,
+      "dims": {
+        "build": 4,
+        "reach": 3,
+        "capital": 5,
+        "window": 3,
+        "delivery": 3
+      },
+      "weights": {
+        "delivery": 1.4,
+        "reach": 1.3,
+        "capital": 1.1,
+        "build": 1.0,
+        "window": 1.0
+      },
+      "delivery_note": "插件加支付，安装后要维护商品、订单与服务器权限，有持续运维但不需要实施团队。",
+      "derived_from": "replicability (build=6-tech, reach=6-distribution, capital=6-capital, window=6-timing)",
+      "scored_at": "2026-11-04"
+    },
+    "composite": {
+      "score": 46.0,
+      "solo": 71.0,
+      "china": 39.7,
+      "rank": 433,
+      "medal": null,
+      "quadrant": "export",
+      "quadrant_label": "能做，但别在国内卖",
+      "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+      "threshold": 70.0,
+      "scored_at": "2026-11-04"
+    }
   },
   {
     "id": "chatdash-llc",
@@ -24906,7 +26270,7 @@
       "score": 71.0,
       "raw": 20.6,
       "max_raw": 29.0,
-      "rank": 192,
+      "rank": 203,
       "medal": null,
       "dims": {
         "build": 4,
@@ -25061,7 +26425,7 @@
       "score": 66.2,
       "raw": 19.2,
       "max_raw": 29.0,
-      "rank": 293,
+      "rank": 307,
       "medal": null,
       "dims": {
         "build": 4,
@@ -25201,7 +26565,7 @@
       "score": 62.4,
       "raw": 18.1,
       "max_raw": 29.0,
-      "rank": 354,
+      "rank": 369,
       "medal": null,
       "dims": {
         "build": 4,
@@ -25346,7 +26710,7 @@
       "score": 71.0,
       "raw": 20.6,
       "max_raw": 29.0,
-      "rank": 193,
+      "rank": 205,
       "medal": null,
       "dims": {
         "build": 4,
@@ -25519,7 +26883,7 @@
       "score": 72.4,
       "raw": 21.0,
       "max_raw": 29.0,
-      "rank": 178,
+      "rank": 188,
       "medal": null,
       "dims": {
         "build": 4,
@@ -25700,7 +27064,7 @@
       "score": 75.9,
       "raw": 22.0,
       "max_raw": 29.0,
-      "rank": 103,
+      "rank": 109,
       "medal": null,
       "dims": {
         "build": 4,
@@ -25845,7 +27209,7 @@
       "score": 79.3,
       "raw": 23.0,
       "max_raw": 29.0,
-      "rank": 51,
+      "rank": 52,
       "medal": null,
       "dims": {
         "build": 4,
@@ -25964,7 +27328,7 @@
       "score": 47.8,
       "raw": 16.5,
       "max_raw": 34.5,
-      "rank": 398,
+      "rank": 402,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -25990,7 +27354,7 @@
       "score": 64.5,
       "raw": 18.7,
       "max_raw": 29.0,
-      "rank": 311,
+      "rank": 326,
       "medal": null,
       "dims": {
         "build": 4,
@@ -26115,7 +27479,7 @@
       "score": 51.3,
       "raw": 17.7,
       "max_raw": 34.5,
-      "rank": 354,
+      "rank": 355,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -26141,7 +27505,7 @@
       "score": 73.1,
       "raw": 21.2,
       "max_raw": 29.0,
-      "rank": 157,
+      "rank": 163,
       "medal": null,
       "dims": {
         "build": 3,
@@ -26265,7 +27629,7 @@
       "score": 44.1,
       "raw": 15.2,
       "max_raw": 34.5,
-      "rank": 420,
+      "rank": 426,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -26291,7 +27655,7 @@
       "score": 72.1,
       "raw": 20.9,
       "max_raw": 29.0,
-      "rank": 182,
+      "rank": 192,
       "medal": null,
       "dims": {
         "build": 4,
@@ -26315,7 +27679,7 @@
       "score": 49.7,
       "solo": 72.1,
       "china": 44.1,
-      "rank": 401,
+      "rank": 402,
       "medal": null,
       "quadrant": "export",
       "quadrant_label": "能做，但别在国内卖",
@@ -26406,7 +27770,7 @@
       "score": 37.1,
       "raw": 12.8,
       "max_raw": 34.5,
-      "rank": 437,
+      "rank": 453,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -26432,7 +27796,7 @@
       "score": 66.6,
       "raw": 19.3,
       "max_raw": 29.0,
-      "rank": 287,
+      "rank": 301,
       "medal": null,
       "dims": {
         "build": 4,
@@ -26456,7 +27820,7 @@
       "score": 43.0,
       "solo": 66.6,
       "china": 37.1,
-      "rank": 428,
+      "rank": 445,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -26696,7 +28060,7 @@
       "score": 50.7,
       "raw": 17.5,
       "max_raw": 34.5,
-      "rank": 361,
+      "rank": 362,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -26722,7 +28086,7 @@
       "score": 80.3,
       "raw": 23.3,
       "max_raw": 29.0,
-      "rank": 44,
+      "rank": 45,
       "medal": null,
       "dims": {
         "build": 4,
@@ -26834,7 +28198,7 @@
       "score": 48.4,
       "raw": 16.7,
       "max_raw": 34.5,
-      "rank": 391,
+      "rank": 392,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -26860,7 +28224,7 @@
       "score": 76.9,
       "raw": 22.3,
       "max_raw": 29.0,
-      "rank": 81,
+      "rank": 85,
       "medal": null,
       "dims": {
         "build": 3,
@@ -26979,7 +28343,7 @@
       "score": 40.6,
       "raw": 14.0,
       "max_raw": 34.5,
-      "rank": 431,
+      "rank": 441,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -27005,7 +28369,7 @@
       "score": 73.1,
       "raw": 21.2,
       "max_raw": 29.0,
-      "rank": 159,
+      "rank": 165,
       "medal": null,
       "dims": {
         "build": 5,
@@ -27029,7 +28393,7 @@
       "score": 47.1,
       "solo": 73.1,
       "china": 40.6,
-      "rank": 416,
+      "rank": 425,
       "medal": null,
       "quadrant": "export",
       "quadrant_label": "能做，但别在国内卖",
@@ -27134,7 +28498,7 @@
       "score": 44.9,
       "raw": 15.5,
       "max_raw": 34.5,
-      "rank": 412,
+      "rank": 417,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -27160,7 +28524,7 @@
       "score": 74.5,
       "raw": 21.6,
       "max_raw": 29.0,
-      "rank": 114,
+      "rank": 120,
       "medal": null,
       "dims": {
         "build": 4,
@@ -27284,7 +28648,7 @@
       "score": 44.3,
       "raw": 15.3,
       "max_raw": 34.5,
-      "rank": 415,
+      "rank": 420,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -27310,7 +28674,7 @@
       "score": 70.7,
       "raw": 20.5,
       "max_raw": 29.0,
-      "rank": 199,
+      "rank": 211,
       "medal": null,
       "dims": {
         "build": 4,
@@ -27334,7 +28698,7 @@
       "score": 49.6,
       "solo": 70.7,
       "china": 44.3,
-      "rank": 403,
+      "rank": 404,
       "medal": null,
       "quadrant": "export",
       "quadrant_label": "能做，但别在国内卖",
@@ -27434,7 +28798,7 @@
       "score": 47.8,
       "raw": 16.5,
       "max_raw": 34.5,
-      "rank": 397,
+      "rank": 401,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -27460,7 +28824,7 @@
       "score": 73.1,
       "raw": 21.2,
       "max_raw": 29.0,
-      "rank": 160,
+      "rank": 166,
       "medal": null,
       "dims": {
         "build": 3,
@@ -27576,7 +28940,7 @@
       "score": 40.6,
       "raw": 14.0,
       "max_raw": 34.5,
-      "rank": 432,
+      "rank": 443,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -27602,7 +28966,7 @@
       "score": 74.5,
       "raw": 21.6,
       "max_raw": 29.0,
-      "rank": 116,
+      "rank": 122,
       "medal": null,
       "dims": {
         "build": 4,
@@ -27626,7 +28990,7 @@
       "score": 47.4,
       "solo": 74.5,
       "china": 40.6,
-      "rank": 414,
+      "rank": 421,
       "medal": null,
       "quadrant": "export",
       "quadrant_label": "能做，但别在国内卖",
@@ -27721,7 +29085,7 @@
       "score": 43.5,
       "raw": 15.0,
       "max_raw": 34.5,
-      "rank": 422,
+      "rank": 429,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -27747,7 +29111,7 @@
       "score": 66.6,
       "raw": 19.3,
       "max_raw": 29.0,
-      "rank": 289,
+      "rank": 303,
       "medal": null,
       "dims": {
         "build": 4,
@@ -27771,7 +29135,7 @@
       "score": 48.1,
       "solo": 66.6,
       "china": 43.5,
-      "rank": 409,
+      "rank": 416,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -27871,7 +29235,7 @@
       "score": 41.4,
       "raw": 14.3,
       "max_raw": 34.5,
-      "rank": 430,
+      "rank": 439,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -27897,7 +29261,7 @@
       "score": 74.5,
       "raw": 21.6,
       "max_raw": 29.0,
-      "rank": 115,
+      "rank": 121,
       "medal": null,
       "dims": {
         "build": 4,
@@ -27921,7 +29285,7 @@
       "score": 48.0,
       "solo": 74.5,
       "china": 41.4,
-      "rank": 410,
+      "rank": 417,
       "medal": null,
       "quadrant": "export",
       "quadrant_label": "能做，但别在国内卖",
@@ -28021,7 +29385,7 @@
       "score": 44.9,
       "raw": 15.5,
       "max_raw": 34.5,
-      "rank": 411,
+      "rank": 416,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -28047,7 +29411,7 @@
       "score": 60.0,
       "raw": 17.4,
       "max_raw": 29.0,
-      "rank": 376,
+      "rank": 393,
       "medal": null,
       "dims": {
         "build": 4,
@@ -28071,7 +29435,7 @@
       "score": 47.9,
       "solo": 60.0,
       "china": 44.9,
-      "rank": 411,
+      "rank": 418,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -28192,7 +29556,7 @@
       "score": 76.6,
       "raw": 22.2,
       "max_raw": 29.0,
-      "rank": 84,
+      "rank": 88,
       "medal": null,
       "dims": {
         "build": 4,
@@ -28333,7 +29697,7 @@
       "score": 52.1,
       "raw": 15.1,
       "max_raw": 29.0,
-      "rank": 420,
+      "rank": 440,
       "medal": null,
       "dims": {
         "build": 2,
@@ -28445,7 +29809,7 @@
       "score": 42.0,
       "raw": 14.5,
       "max_raw": 34.5,
-      "rank": 425,
+      "rank": 433,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -28471,7 +29835,7 @@
       "score": 67.6,
       "raw": 19.6,
       "max_raw": 29.0,
-      "rank": 277,
+      "rank": 290,
       "medal": null,
       "dims": {
         "build": 3,
@@ -28495,7 +29859,7 @@
       "score": 47.1,
       "solo": 67.6,
       "china": 42.0,
-      "rank": 417,
+      "rank": 426,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -28581,7 +29945,7 @@
       "score": 48.7,
       "raw": 16.8,
       "max_raw": 34.5,
-      "rank": 387,
+      "rank": 388,
       "medal": null,
       "dims": {
         "demand": 4,
@@ -28607,7 +29971,7 @@
       "score": 61.0,
       "raw": 17.7,
       "max_raw": 29.0,
-      "rank": 367,
+      "rank": 384,
       "medal": null,
       "dims": {
         "build": 2,
@@ -28717,7 +30081,7 @@
       "score": 49.9,
       "raw": 17.2,
       "max_raw": 34.5,
-      "rank": 380,
+      "rank": 381,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -28743,7 +30107,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 65,
+      "rank": 68,
       "medal": null,
       "dims": {
         "build": 2,
@@ -28849,7 +30213,7 @@
       "score": 51.3,
       "raw": 17.7,
       "max_raw": 34.5,
-      "rank": 359,
+      "rank": 360,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -28875,7 +30239,7 @@
       "score": 67.6,
       "raw": 19.6,
       "max_raw": 29.0,
-      "rank": 278,
+      "rank": 291,
       "medal": null,
       "dims": {
         "build": 3,
@@ -28985,7 +30349,7 @@
       "score": 35.1,
       "raw": 12.1,
       "max_raw": 34.5,
-      "rank": 439,
+      "rank": 457,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -29011,7 +30375,7 @@
       "score": 63.4,
       "raw": 18.4,
       "max_raw": 29.0,
-      "rank": 348,
+      "rank": 363,
       "medal": null,
       "dims": {
         "build": 3,
@@ -29035,7 +30399,7 @@
       "score": 40.8,
       "solo": 63.4,
       "china": 35.1,
-      "rank": 434,
+      "rank": 454,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -29121,7 +30485,7 @@
       "score": 48.4,
       "raw": 16.7,
       "max_raw": 34.5,
-      "rank": 392,
+      "rank": 393,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -29147,7 +30511,7 @@
       "score": 73.1,
       "raw": 21.2,
       "max_raw": 29.0,
-      "rank": 161,
+      "rank": 167,
       "medal": null,
       "dims": {
         "build": 3,
@@ -29257,7 +30621,7 @@
       "score": 44.1,
       "raw": 15.2,
       "max_raw": 34.5,
-      "rank": 418,
+      "rank": 424,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -29283,7 +30647,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 217,
+      "rank": 230,
       "medal": null,
       "dims": {
         "build": 3,
@@ -29307,7 +30671,7 @@
       "score": 49.0,
       "solo": 68.6,
       "china": 44.1,
-      "rank": 405,
+      "rank": 409,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -29390,7 +30754,7 @@
       "score": 44.3,
       "raw": 15.3,
       "max_raw": 34.5,
-      "rank": 417,
+      "rank": 423,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -29416,7 +30780,7 @@
       "score": 67.2,
       "raw": 19.5,
       "max_raw": 29.0,
-      "rank": 285,
+      "rank": 299,
       "medal": null,
       "dims": {
         "build": 3,
@@ -29440,7 +30804,7 @@
       "score": 48.9,
       "solo": 67.2,
       "china": 44.3,
-      "rank": 408,
+      "rank": 413,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -29525,7 +30889,7 @@
       "score": 72.1,
       "raw": 20.9,
       "max_raw": 29.0,
-      "rank": 185,
+      "rank": 195,
       "medal": null,
       "dims": {
         "build": 3,
@@ -29662,7 +31026,7 @@
       "score": 64.1,
       "raw": 18.6,
       "max_raw": 29.0,
-      "rank": 321,
+      "rank": 336,
       "medal": null,
       "dims": {
         "build": 3,
@@ -29818,7 +31182,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 123,
+      "rank": 129,
       "medal": null,
       "dims": {
         "build": 3,
@@ -29952,7 +31316,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 133,
+      "rank": 139,
       "medal": null,
       "dims": {
         "build": 3,
@@ -30086,7 +31450,7 @@
       "score": 60.0,
       "raw": 17.4,
       "max_raw": 29.0,
-      "rank": 374,
+      "rank": 391,
       "medal": null,
       "dims": {
         "build": 3,
@@ -30220,7 +31584,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 255,
+      "rank": 268,
       "medal": null,
       "dims": {
         "build": 3,
@@ -30354,7 +31718,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 247,
+      "rank": 260,
       "medal": null,
       "dims": {
         "build": 2,
@@ -30488,7 +31852,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 264,
+      "rank": 277,
       "medal": null,
       "dims": {
         "build": 3,
@@ -30618,7 +31982,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 68,
+      "rank": 71,
       "medal": null,
       "dims": {
         "build": 3,
@@ -30748,7 +32112,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 122,
+      "rank": 128,
       "medal": null,
       "dims": {
         "build": 3,
@@ -30882,7 +32246,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 124,
+      "rank": 130,
       "medal": null,
       "dims": {
         "build": 3,
@@ -31016,7 +32380,7 @@
       "score": 65.2,
       "raw": 18.9,
       "max_raw": 29.0,
-      "rank": 306,
+      "rank": 320,
       "medal": null,
       "dims": {
         "build": 2,
@@ -31146,7 +32510,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 54,
+      "rank": 55,
       "medal": null,
       "dims": {
         "build": 3,
@@ -31280,7 +32644,7 @@
       "score": 70.0,
       "raw": 20.3,
       "max_raw": 29.0,
-      "rank": 201,
+      "rank": 213,
       "medal": null,
       "dims": {
         "build": 2,
@@ -31410,7 +32774,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 121,
+      "rank": 127,
       "medal": null,
       "dims": {
         "build": 3,
@@ -31518,7 +32882,7 @@
       "score": 50.4,
       "raw": 17.4,
       "max_raw": 34.5,
-      "rank": 368,
+      "rank": 369,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -31544,7 +32908,7 @@
       "score": 54.1,
       "raw": 15.7,
       "max_raw": 29.0,
-      "rank": 414,
+      "rank": 434,
       "medal": null,
       "dims": {
         "build": 3,
@@ -31678,7 +33042,7 @@
       "score": 59.0,
       "raw": 17.1,
       "max_raw": 29.0,
-      "rank": 392,
+      "rank": 410,
       "medal": null,
       "dims": {
         "build": 3,
@@ -31812,7 +33176,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 219,
+      "rank": 232,
       "medal": null,
       "dims": {
         "build": 3,
@@ -31946,7 +33310,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 338,
+      "rank": 353,
       "medal": null,
       "dims": {
         "build": 3,
@@ -32076,7 +33440,7 @@
       "score": 69.7,
       "raw": 20.2,
       "max_raw": 29.0,
-      "rank": 208,
+      "rank": 221,
       "medal": null,
       "dims": {
         "build": 3,
@@ -32206,7 +33570,7 @@
       "score": 76.9,
       "raw": 22.3,
       "max_raw": 29.0,
-      "rank": 75,
+      "rank": 78,
       "medal": null,
       "dims": {
         "build": 3,
@@ -32336,7 +33700,7 @@
       "score": 59.0,
       "raw": 17.1,
       "max_raw": 29.0,
-      "rank": 391,
+      "rank": 409,
       "medal": null,
       "dims": {
         "build": 3,
@@ -32470,7 +33834,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 327,
+      "rank": 342,
       "medal": null,
       "dims": {
         "build": 3,
@@ -32604,7 +33968,7 @@
       "score": 67.6,
       "raw": 19.6,
       "max_raw": 29.0,
-      "rank": 269,
+      "rank": 282,
       "medal": null,
       "dims": {
         "build": 3,
@@ -32738,7 +34102,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 342,
+      "rank": 357,
       "medal": null,
       "dims": {
         "build": 3,
@@ -32866,7 +34230,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 57,
+      "rank": 60,
       "medal": null,
       "dims": {
         "build": 3,
@@ -32998,7 +34362,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 153,
+      "rank": 159,
       "medal": null,
       "dims": {
         "build": 3,
@@ -33132,7 +34496,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 244,
+      "rank": 257,
       "medal": null,
       "dims": {
         "build": 3,
@@ -33262,7 +34626,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 220,
+      "rank": 233,
       "medal": null,
       "dims": {
         "build": 3,
@@ -33396,7 +34760,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 139,
+      "rank": 145,
       "medal": null,
       "dims": {
         "build": 3,
@@ -33530,7 +34894,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 328,
+      "rank": 343,
       "medal": null,
       "dims": {
         "build": 3,
@@ -33662,7 +35026,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 329,
+      "rank": 344,
       "medal": null,
       "dims": {
         "build": 3,
@@ -33792,7 +35156,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 141,
+      "rank": 147,
       "medal": null,
       "dims": {
         "build": 3,
@@ -33926,7 +35290,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 266,
+      "rank": 279,
       "medal": null,
       "dims": {
         "build": 3,
@@ -34058,7 +35422,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 148,
+      "rank": 154,
       "medal": null,
       "dims": {
         "build": 3,
@@ -34192,7 +35556,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 229,
+      "rank": 242,
       "medal": null,
       "dims": {
         "build": 3,
@@ -34322,7 +35686,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 347,
+      "rank": 362,
       "medal": null,
       "dims": {
         "build": 3,
@@ -34452,7 +35816,7 @@
       "score": 71.0,
       "raw": 20.6,
       "max_raw": 29.0,
-      "rank": 198,
+      "rank": 210,
       "medal": null,
       "dims": {
         "build": 3,
@@ -34586,7 +35950,7 @@
       "score": 69.7,
       "raw": 20.2,
       "max_raw": 29.0,
-      "rank": 204,
+      "rank": 216,
       "medal": null,
       "dims": {
         "build": 3,
@@ -34716,7 +36080,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 252,
+      "rank": 265,
       "medal": null,
       "dims": {
         "build": 3,
@@ -34846,7 +36210,7 @@
       "score": 69.7,
       "raw": 20.2,
       "max_raw": 29.0,
-      "rank": 209,
+      "rank": 222,
       "medal": null,
       "dims": {
         "build": 3,
@@ -34980,7 +36344,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 138,
+      "rank": 144,
       "medal": null,
       "dims": {
         "build": 3,
@@ -35114,7 +36478,7 @@
       "score": 59.0,
       "raw": 17.1,
       "max_raw": 29.0,
-      "rank": 387,
+      "rank": 405,
       "medal": null,
       "dims": {
         "build": 3,
@@ -35244,7 +36608,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 144,
+      "rank": 150,
       "medal": null,
       "dims": {
         "build": 3,
@@ -35352,7 +36716,7 @@
       "score": 47.0,
       "raw": 16.2,
       "max_raw": 34.5,
-      "rank": 402,
+      "rank": 406,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -35378,7 +36742,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 344,
+      "rank": 359,
       "medal": null,
       "dims": {
         "build": 3,
@@ -35512,7 +36876,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 332,
+      "rank": 347,
       "medal": null,
       "dims": {
         "build": 3,
@@ -35646,7 +37010,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 222,
+      "rank": 235,
       "medal": null,
       "dims": {
         "build": 3,
@@ -35780,7 +37144,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 256,
+      "rank": 269,
       "medal": null,
       "dims": {
         "build": 3,
@@ -35914,7 +37278,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 73,
+      "rank": 76,
       "medal": null,
       "dims": {
         "build": 3,
@@ -36048,7 +37412,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 333,
+      "rank": 348,
       "medal": null,
       "dims": {
         "build": 3,
@@ -36178,7 +37542,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 142,
+      "rank": 148,
       "medal": null,
       "dims": {
         "build": 3,
@@ -36308,7 +37672,7 @@
       "score": 72.4,
       "raw": 21.0,
       "max_raw": 29.0,
-      "rank": 168,
+      "rank": 174,
       "medal": null,
       "dims": {
         "build": 3,
@@ -36442,7 +37806,7 @@
       "score": 59.0,
       "raw": 17.1,
       "max_raw": 29.0,
-      "rank": 383,
+      "rank": 401,
       "medal": null,
       "dims": {
         "build": 3,
@@ -36576,7 +37940,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 149,
+      "rank": 155,
       "medal": null,
       "dims": {
         "build": 3,
@@ -36710,7 +38074,7 @@
       "score": 67.6,
       "raw": 19.6,
       "max_raw": 29.0,
-      "rank": 268,
+      "rank": 281,
       "medal": null,
       "dims": {
         "build": 3,
@@ -36835,7 +38199,7 @@
       "score": 67.6,
       "raw": 19.6,
       "max_raw": 29.0,
-      "rank": 279,
+      "rank": 293,
       "medal": null,
       "dims": {
         "build": 3,
@@ -36980,7 +38344,7 @@
       "score": 61.7,
       "raw": 17.9,
       "max_raw": 29.0,
-      "rank": 360,
+      "rank": 376,
       "medal": null,
       "dims": {
         "build": 2,
@@ -37112,7 +38476,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 346,
+      "rank": 361,
       "medal": null,
       "dims": {
         "build": 3,
@@ -37246,7 +38610,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 225,
+      "rank": 238,
       "medal": null,
       "dims": {
         "build": 3,
@@ -37380,7 +38744,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 259,
+      "rank": 272,
       "medal": null,
       "dims": {
         "build": 3,
@@ -37514,7 +38878,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 260,
+      "rank": 273,
       "medal": null,
       "dims": {
         "build": 3,
@@ -37648,7 +39012,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 218,
+      "rank": 231,
       "medal": null,
       "dims": {
         "build": 3,
@@ -37782,7 +39146,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 336,
+      "rank": 351,
       "medal": null,
       "dims": {
         "build": 3,
@@ -37916,7 +39280,7 @@
       "score": 67.6,
       "raw": 19.6,
       "max_raw": 29.0,
-      "rank": 270,
+      "rank": 283,
       "medal": null,
       "dims": {
         "build": 3,
@@ -38046,7 +39410,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 136,
+      "rank": 142,
       "medal": null,
       "dims": {
         "build": 3,
@@ -38180,7 +39544,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 337,
+      "rank": 352,
       "medal": null,
       "dims": {
         "build": 3,
@@ -38310,7 +39674,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 238,
+      "rank": 251,
       "medal": null,
       "dims": {
         "build": 3,
@@ -38440,7 +39804,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 120,
+      "rank": 126,
       "medal": null,
       "dims": {
         "build": 3,
@@ -38569,7 +39933,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 325,
+      "rank": 340,
       "medal": null,
       "dims": {
         "build": 3,
@@ -38710,7 +40074,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 226,
+      "rank": 239,
       "medal": null,
       "dims": {
         "build": 3,
@@ -38842,7 +40206,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 61,
+      "rank": 64,
       "medal": null,
       "dims": {
         "build": 3,
@@ -38976,7 +40340,7 @@
       "score": 72.1,
       "raw": 20.9,
       "max_raw": 29.0,
-      "rank": 180,
+      "rank": 190,
       "medal": null,
       "dims": {
         "build": 3,
@@ -39099,7 +40463,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 64,
+      "rank": 67,
       "medal": null,
       "dims": {
         "build": 3,
@@ -39238,7 +40602,7 @@
       "score": 62.8,
       "raw": 18.2,
       "max_raw": 29.0,
-      "rank": 350,
+      "rank": 365,
       "medal": null,
       "dims": {
         "build": 3,
@@ -39372,7 +40736,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 250,
+      "rank": 263,
       "medal": null,
       "dims": {
         "build": 3,
@@ -39504,7 +40868,7 @@
       "score": 67.6,
       "raw": 19.6,
       "max_raw": 29.0,
-      "rank": 273,
+      "rank": 286,
       "medal": null,
       "dims": {
         "build": 3,
@@ -39634,7 +40998,7 @@
       "score": 72.4,
       "raw": 21.0,
       "max_raw": 29.0,
-      "rank": 171,
+      "rank": 177,
       "medal": null,
       "dims": {
         "build": 2,
@@ -39768,7 +41132,7 @@
       "score": 67.6,
       "raw": 19.6,
       "max_raw": 29.0,
-      "rank": 271,
+      "rank": 284,
       "medal": null,
       "dims": {
         "build": 3,
@@ -39900,7 +41264,7 @@
       "score": 64.8,
       "raw": 18.8,
       "max_raw": 29.0,
-      "rank": 310,
+      "rank": 324,
       "medal": null,
       "dims": {
         "build": 3,
@@ -40034,7 +41398,7 @@
       "score": 59.0,
       "raw": 17.1,
       "max_raw": 29.0,
-      "rank": 390,
+      "rank": 408,
       "medal": null,
       "dims": {
         "build": 3,
@@ -40168,7 +41532,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 132,
+      "rank": 138,
       "medal": null,
       "dims": {
         "build": 3,
@@ -40302,7 +41666,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 245,
+      "rank": 258,
       "medal": null,
       "dims": {
         "build": 3,
@@ -40432,7 +41796,7 @@
       "score": 69.7,
       "raw": 20.2,
       "max_raw": 29.0,
-      "rank": 206,
+      "rank": 219,
       "medal": null,
       "dims": {
         "build": 3,
@@ -40562,7 +41926,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 60,
+      "rank": 63,
       "medal": null,
       "dims": {
         "build": 3,
@@ -40696,7 +42060,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 254,
+      "rank": 267,
       "medal": null,
       "dims": {
         "build": 3,
@@ -40830,7 +42194,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 154,
+      "rank": 160,
       "medal": null,
       "dims": {
         "build": 3,
@@ -40960,7 +42324,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 155,
+      "rank": 161,
       "medal": null,
       "dims": {
         "build": 3,
@@ -41090,7 +42454,7 @@
       "score": 69.7,
       "raw": 20.2,
       "max_raw": 29.0,
-      "rank": 207,
+      "rank": 220,
       "medal": null,
       "dims": {
         "build": 3,
@@ -41224,7 +42588,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 146,
+      "rank": 152,
       "medal": null,
       "dims": {
         "build": 3,
@@ -41358,7 +42722,7 @@
       "score": 59.0,
       "raw": 17.1,
       "max_raw": 29.0,
-      "rank": 384,
+      "rank": 402,
       "medal": null,
       "dims": {
         "build": 3,
@@ -41492,7 +42856,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 249,
+      "rank": 262,
       "medal": null,
       "dims": {
         "build": 3,
@@ -41622,7 +42986,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 53,
+      "rank": 54,
       "medal": null,
       "dims": {
         "build": 3,
@@ -41752,7 +43116,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 150,
+      "rank": 156,
       "medal": null,
       "dims": {
         "build": 3,
@@ -41886,7 +43250,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 237,
+      "rank": 250,
       "medal": null,
       "dims": {
         "build": 3,
@@ -42016,7 +43380,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 239,
+      "rank": 252,
       "medal": null,
       "dims": {
         "build": 3,
@@ -42150,7 +43514,7 @@
       "score": 59.0,
       "raw": 17.1,
       "max_raw": 29.0,
-      "rank": 386,
+      "rank": 404,
       "medal": null,
       "dims": {
         "build": 3,
@@ -42284,7 +43648,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 228,
+      "rank": 241,
       "medal": null,
       "dims": {
         "build": 3,
@@ -42414,7 +43778,7 @@
       "score": 76.9,
       "raw": 22.3,
       "max_raw": 29.0,
-      "rank": 78,
+      "rank": 81,
       "medal": null,
       "dims": {
         "build": 3,
@@ -42548,7 +43912,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 128,
+      "rank": 134,
       "medal": null,
       "dims": {
         "build": 3,
@@ -42682,7 +44046,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 265,
+      "rank": 278,
       "medal": null,
       "dims": {
         "build": 3,
@@ -42812,7 +44176,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 52,
+      "rank": 53,
       "medal": null,
       "dims": {
         "build": 3,
@@ -42942,7 +44306,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 257,
+      "rank": 270,
       "medal": null,
       "dims": {
         "build": 3,
@@ -43076,7 +44440,7 @@
       "score": 72.4,
       "raw": 21.0,
       "max_raw": 29.0,
-      "rank": 172,
+      "rank": 178,
       "medal": null,
       "dims": {
         "build": 3,
@@ -43210,7 +44574,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 221,
+      "rank": 234,
       "medal": null,
       "dims": {
         "build": 3,
@@ -43344,7 +44708,7 @@
       "score": 59.0,
       "raw": 17.1,
       "max_raw": 29.0,
-      "rank": 382,
+      "rank": 400,
       "medal": null,
       "dims": {
         "build": 3,
@@ -43493,7 +44857,7 @@
       "score": 72.4,
       "raw": 21.0,
       "max_raw": 29.0,
-      "rank": 170,
+      "rank": 176,
       "medal": null,
       "dims": {
         "build": 3,
@@ -43627,7 +44991,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 58,
+      "rank": 61,
       "medal": null,
       "dims": {
         "build": 3,
@@ -43761,7 +45125,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 234,
+      "rank": 247,
       "medal": null,
       "dims": {
         "build": 3,
@@ -43893,7 +45257,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 137,
+      "rank": 143,
       "medal": null,
       "dims": {
         "build": 3,
@@ -44027,7 +45391,7 @@
       "score": 56.9,
       "raw": 16.5,
       "max_raw": 29.0,
-      "rank": 402,
+      "rank": 420,
       "medal": null,
       "dims": {
         "build": 2,
@@ -44161,7 +45525,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 341,
+      "rank": 356,
       "medal": null,
       "dims": {
         "build": 3,
@@ -44291,7 +45655,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 71,
+      "rank": 74,
       "medal": null,
       "dims": {
         "build": 3,
@@ -44425,7 +45789,7 @@
       "score": 67.2,
       "raw": 19.5,
       "max_raw": 29.0,
-      "rank": 281,
+      "rank": 295,
       "medal": null,
       "dims": {
         "build": 3,
@@ -44557,7 +45921,7 @@
       "score": 72.4,
       "raw": 21.0,
       "max_raw": 29.0,
-      "rank": 173,
+      "rank": 179,
       "medal": null,
       "dims": {
         "build": 3,
@@ -44691,7 +46055,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 232,
+      "rank": 245,
       "medal": null,
       "dims": {
         "build": 3,
@@ -44824,7 +46188,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 240,
+      "rank": 253,
       "medal": null,
       "dims": {
         "build": 3,
@@ -44958,7 +46322,7 @@
       "score": 69.0,
       "raw": 20.0,
       "max_raw": 29.0,
-      "rank": 214,
+      "rank": 227,
       "medal": null,
       "dims": {
         "build": 2,
@@ -45092,7 +46456,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 236,
+      "rank": 249,
       "medal": null,
       "dims": {
         "build": 3,
@@ -45226,7 +46590,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 345,
+      "rank": 360,
       "medal": null,
       "dims": {
         "build": 3,
@@ -45360,7 +46724,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 258,
+      "rank": 271,
       "medal": null,
       "dims": {
         "build": 3,
@@ -45464,7 +46828,7 @@
       "score": 47.0,
       "raw": 16.2,
       "max_raw": 34.5,
-      "rank": 401,
+      "rank": 405,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -45490,7 +46854,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 335,
+      "rank": 350,
       "medal": null,
       "dims": {
         "build": 3,
@@ -45624,7 +46988,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 135,
+      "rank": 141,
       "medal": null,
       "dims": {
         "build": 3,
@@ -45754,7 +47118,7 @@
       "score": 76.9,
       "raw": 22.3,
       "max_raw": 29.0,
-      "rank": 79,
+      "rank": 82,
       "medal": null,
       "dims": {
         "build": 3,
@@ -45882,7 +47246,7 @@
       "score": 67.6,
       "raw": 19.6,
       "max_raw": 29.0,
-      "rank": 274,
+      "rank": 287,
       "medal": null,
       "dims": {
         "build": 3,
@@ -46012,7 +47376,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 134,
+      "rank": 140,
       "medal": null,
       "dims": {
         "build": 3,
@@ -46144,7 +47508,7 @@
       "score": 60.0,
       "raw": 17.4,
       "max_raw": 29.0,
-      "rank": 375,
+      "rank": 392,
       "medal": null,
       "dims": {
         "build": 3,
@@ -46278,7 +47642,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 242,
+      "rank": 255,
       "medal": null,
       "dims": {
         "build": 3,
@@ -46412,7 +47776,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 147,
+      "rank": 153,
       "medal": null,
       "dims": {
         "build": 3,
@@ -46542,7 +47906,7 @@
       "score": 66.2,
       "raw": 19.2,
       "max_raw": 29.0,
-      "rank": 294,
+      "rank": 308,
       "medal": null,
       "dims": {
         "build": 3,
@@ -46672,7 +48036,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 127,
+      "rank": 133,
       "medal": null,
       "dims": {
         "build": 3,
@@ -46817,7 +48181,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 130,
+      "rank": 136,
       "medal": null,
       "dims": {
         "build": 3,
@@ -46947,7 +48311,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 131,
+      "rank": 137,
       "medal": null,
       "dims": {
         "build": 3,
@@ -47081,7 +48445,7 @@
       "score": 59.0,
       "raw": 17.1,
       "max_raw": 29.0,
-      "rank": 389,
+      "rank": 407,
       "medal": null,
       "dims": {
         "build": 3,
@@ -47215,7 +48579,7 @@
       "score": 72.4,
       "raw": 21.0,
       "max_raw": 29.0,
-      "rank": 169,
+      "rank": 175,
       "medal": null,
       "dims": {
         "build": 3,
@@ -47345,7 +48709,7 @@
       "score": 73.8,
       "raw": 21.4,
       "max_raw": 29.0,
-      "rank": 117,
+      "rank": 123,
       "medal": null,
       "dims": {
         "build": 2,
@@ -47475,7 +48839,7 @@
       "score": 60.0,
       "raw": 17.4,
       "max_raw": 29.0,
-      "rank": 377,
+      "rank": 394,
       "medal": null,
       "dims": {
         "build": 3,
@@ -47609,7 +48973,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 241,
+      "rank": 254,
       "medal": null,
       "dims": {
         "build": 3,
@@ -47743,7 +49107,7 @@
       "score": 69.7,
       "raw": 20.2,
       "max_raw": 29.0,
-      "rank": 205,
+      "rank": 217,
       "medal": null,
       "dims": {
         "build": 3,
@@ -47868,7 +49232,7 @@
       "score": 69.7,
       "raw": 20.2,
       "max_raw": 29.0,
-      "rank": 203,
+      "rank": 215,
       "medal": null,
       "dims": {
         "build": 3,
@@ -48013,7 +49377,7 @@
       "score": 55.2,
       "raw": 16.0,
       "max_raw": 29.0,
-      "rank": 410,
+      "rank": 429,
       "medal": null,
       "dims": {
         "build": 3,
@@ -48158,7 +49522,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 340,
+      "rank": 355,
       "medal": null,
       "dims": {
         "build": 3,
@@ -48292,7 +49656,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 253,
+      "rank": 266,
       "medal": null,
       "dims": {
         "build": 3,
@@ -48422,7 +49786,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 248,
+      "rank": 261,
       "medal": null,
       "dims": {
         "build": 3,
@@ -48554,7 +49918,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 55,
+      "rank": 57,
       "medal": null,
       "dims": {
         "build": 3,
@@ -48686,7 +50050,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 330,
+      "rank": 345,
       "medal": null,
       "dims": {
         "build": 3,
@@ -48820,7 +50184,7 @@
       "score": 61.4,
       "raw": 17.8,
       "max_raw": 29.0,
-      "rank": 364,
+      "rank": 381,
       "medal": null,
       "dims": {
         "build": 2,
@@ -48926,7 +50290,7 @@
       "score": 50.4,
       "raw": 17.4,
       "max_raw": 34.5,
-      "rank": 367,
+      "rank": 368,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -48952,7 +50316,7 @@
       "score": 50.3,
       "raw": 14.6,
       "max_raw": 29.0,
-      "rank": 425,
+      "rank": 446,
       "medal": null,
       "dims": {
         "build": 3,
@@ -49082,7 +50446,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 143,
+      "rank": 149,
       "medal": null,
       "dims": {
         "build": 3,
@@ -49216,7 +50580,7 @@
       "score": 67.2,
       "raw": 19.5,
       "max_raw": 29.0,
-      "rank": 280,
+      "rank": 294,
       "medal": null,
       "dims": {
         "build": 3,
@@ -49350,7 +50714,7 @@
       "score": 73.8,
       "raw": 21.4,
       "max_raw": 29.0,
-      "rank": 118,
+      "rank": 124,
       "medal": null,
       "dims": {
         "build": 2,
@@ -49480,7 +50844,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 231,
+      "rank": 244,
       "medal": null,
       "dims": {
         "build": 3,
@@ -49583,7 +50947,7 @@
       "score": 47.8,
       "raw": 16.5,
       "max_raw": 34.5,
-      "rank": 393,
+      "rank": 395,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -49609,7 +50973,7 @@
       "score": 65.2,
       "raw": 18.9,
       "max_raw": 29.0,
-      "rank": 302,
+      "rank": 316,
       "medal": null,
       "dims": {
         "build": 2,
@@ -49754,7 +51118,7 @@
       "score": 55.5,
       "raw": 16.1,
       "max_raw": 29.0,
-      "rank": 407,
+      "rank": 425,
       "medal": null,
       "dims": {
         "build": 2,
@@ -49888,7 +51252,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 227,
+      "rank": 240,
       "medal": null,
       "dims": {
         "build": 3,
@@ -50018,7 +51382,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 63,
+      "rank": 66,
       "medal": null,
       "dims": {
         "build": 3,
@@ -50152,7 +51516,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 152,
+      "rank": 158,
       "medal": null,
       "dims": {
         "build": 3,
@@ -50282,7 +51646,7 @@
       "score": 56.9,
       "raw": 16.5,
       "max_raw": 29.0,
-      "rank": 401,
+      "rank": 419,
       "medal": null,
       "dims": {
         "build": 2,
@@ -50411,7 +51775,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 326,
+      "rank": 341,
       "medal": null,
       "dims": {
         "build": 3,
@@ -50556,7 +51920,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 331,
+      "rank": 346,
       "medal": null,
       "dims": {
         "build": 3,
@@ -50686,7 +52050,7 @@
       "score": 55.2,
       "raw": 16.0,
       "max_raw": 29.0,
-      "rank": 408,
+      "rank": 427,
       "medal": null,
       "dims": {
         "build": 3,
@@ -50820,7 +52184,7 @@
       "score": 59.0,
       "raw": 17.1,
       "max_raw": 29.0,
-      "rank": 388,
+      "rank": 406,
       "medal": null,
       "dims": {
         "build": 3,
@@ -50928,7 +52292,7 @@
       "score": 50.4,
       "raw": 17.4,
       "max_raw": 34.5,
-      "rank": 366,
+      "rank": 367,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -50954,7 +52318,7 @@
       "score": 54.1,
       "raw": 15.7,
       "max_raw": 29.0,
-      "rank": 413,
+      "rank": 433,
       "medal": null,
       "dims": {
         "build": 3,
@@ -51057,7 +52421,7 @@
       "score": 44.3,
       "raw": 15.3,
       "max_raw": 34.5,
-      "rank": 416,
+      "rank": 422,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -51083,7 +52447,7 @@
       "score": 73.1,
       "raw": 21.2,
       "max_raw": 29.0,
-      "rank": 156,
+      "rank": 162,
       "medal": null,
       "dims": {
         "build": 3,
@@ -51219,7 +52583,7 @@
       "score": 69.3,
       "raw": 20.1,
       "max_raw": 29.0,
-      "rank": 211,
+      "rank": 224,
       "medal": null,
       "dims": {
         "build": 2,
@@ -51353,7 +52717,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 119,
+      "rank": 125,
       "medal": null,
       "dims": {
         "build": 3,
@@ -51489,7 +52853,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 126,
+      "rank": 132,
       "medal": null,
       "dims": {
         "build": 3,
@@ -51634,7 +52998,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 224,
+      "rank": 237,
       "medal": null,
       "dims": {
         "build": 3,
@@ -51759,7 +53123,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 223,
+      "rank": 236,
       "medal": null,
       "dims": {
         "build": 3,
@@ -51880,7 +53244,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 129,
+      "rank": 135,
       "medal": null,
       "dims": {
         "build": 4,
@@ -52011,7 +53375,7 @@
       "score": 46.6,
       "raw": 13.5,
       "max_raw": 29.0,
-      "rank": 429,
+      "rank": 451,
       "medal": null,
       "dims": {
         "build": 3,
@@ -52035,7 +53399,7 @@
       "score": 49.0,
       "raw": 16.9,
       "max_raw": 34.5,
-      "rank": 385,
+      "rank": 386,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -52061,7 +53425,7 @@
       "score": 47.1,
       "solo": 46.6,
       "china": 49.0,
-      "rank": 415,
+      "rank": 423,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -52159,7 +53523,7 @@
       "score": 61.4,
       "raw": 17.8,
       "max_raw": 29.0,
-      "rank": 366,
+      "rank": 383,
       "medal": null,
       "dims": {
         "build": 3,
@@ -52290,7 +53654,7 @@
       "score": 47.6,
       "raw": 13.8,
       "max_raw": 29.0,
-      "rank": 427,
+      "rank": 449,
       "medal": null,
       "dims": {
         "build": 3,
@@ -52314,7 +53678,7 @@
       "score": 45.5,
       "raw": 15.7,
       "max_raw": 34.5,
-      "rank": 408,
+      "rank": 412,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -52340,7 +53704,7 @@
       "score": 45.9,
       "solo": 47.6,
       "china": 45.5,
-      "rank": 421,
+      "rank": 435,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -52437,7 +53801,7 @@
       "score": 34.8,
       "raw": 10.1,
       "max_raw": 29.0,
-      "rank": 435,
+      "rank": 457,
       "medal": null,
       "dims": {
         "build": 2,
@@ -52487,7 +53851,7 @@
       "score": 39.1,
       "solo": 34.8,
       "china": 56.2,
-      "rank": 435,
+      "rank": 455,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -52572,7 +53936,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 334,
+      "rank": 349,
       "medal": null,
       "dims": {
         "build": 3,
@@ -52709,7 +54073,7 @@
       "score": 61.4,
       "raw": 17.8,
       "max_raw": 29.0,
-      "rank": 362,
+      "rank": 379,
       "medal": null,
       "dims": {
         "build": 3,
@@ -52866,7 +54230,7 @@
       "score": 61.7,
       "raw": 17.9,
       "max_raw": 29.0,
-      "rank": 359,
+      "rank": 375,
       "medal": null,
       "dims": {
         "build": 2,
@@ -52998,7 +54362,7 @@
       "score": 70.0,
       "raw": 20.3,
       "max_raw": 29.0,
-      "rank": 200,
+      "rank": 212,
       "medal": null,
       "dims": {
         "build": 4,
@@ -53300,7 +54664,7 @@
       "score": 53.4,
       "raw": 15.5,
       "max_raw": 29.0,
-      "rank": 417,
+      "rank": 437,
       "medal": null,
       "dims": {
         "build": 4,
@@ -53437,7 +54801,7 @@
       "score": 60.3,
       "raw": 17.5,
       "max_raw": 29.0,
-      "rank": 372,
+      "rank": 389,
       "medal": null,
       "dims": {
         "build": 3,
@@ -53571,7 +54935,7 @@
       "score": 67.2,
       "raw": 19.5,
       "max_raw": 29.0,
-      "rank": 284,
+      "rank": 298,
       "medal": null,
       "dims": {
         "build": 3,
@@ -53717,7 +55081,7 @@
       "score": 59.0,
       "raw": 17.1,
       "max_raw": 29.0,
-      "rank": 385,
+      "rank": 403,
       "medal": null,
       "dims": {
         "build": 3,
@@ -53741,7 +55105,7 @@
       "score": 42.9,
       "raw": 14.8,
       "max_raw": 34.5,
-      "rank": 423,
+      "rank": 430,
       "medal": null,
       "dims": {
         "demand": 4,
@@ -53767,7 +55131,7 @@
       "score": 46.1,
       "solo": 59.0,
       "china": 42.9,
-      "rank": 420,
+      "rank": 432,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -53859,7 +55223,7 @@
       "score": 66.6,
       "raw": 19.3,
       "max_raw": 29.0,
-      "rank": 288,
+      "rank": 302,
       "medal": null,
       "dims": {
         "build": 2,
@@ -54011,7 +55375,7 @@
       "score": 76.9,
       "raw": 22.3,
       "max_raw": 29.0,
-      "rank": 76,
+      "rank": 79,
       "medal": null,
       "dims": {
         "build": 3,
@@ -54169,7 +55533,7 @@
       "score": 64.1,
       "raw": 18.6,
       "max_raw": 29.0,
-      "rank": 316,
+      "rank": 331,
       "medal": null,
       "dims": {
         "build": 3,
@@ -54193,7 +55557,7 @@
       "score": 37.7,
       "raw": 13.0,
       "max_raw": 34.5,
-      "rank": 436,
+      "rank": 452,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -54219,7 +55583,7 @@
       "score": 43.0,
       "solo": 64.1,
       "china": 37.7,
-      "rank": 429,
+      "rank": 446,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -54300,7 +55664,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 125,
+      "rank": 131,
       "medal": null,
       "dims": {
         "build": 4,
@@ -54447,7 +55811,7 @@
       "score": 60.7,
       "raw": 17.6,
       "max_raw": 29.0,
-      "rank": 368,
+      "rank": 385,
       "medal": null,
       "dims": {
         "build": 3,
@@ -54578,7 +55942,7 @@
       "score": 67.6,
       "raw": 19.6,
       "max_raw": 29.0,
-      "rank": 272,
+      "rank": 285,
       "medal": null,
       "dims": {
         "build": 4,
@@ -54602,7 +55966,7 @@
       "score": 49.0,
       "raw": 16.9,
       "max_raw": 34.5,
-      "rank": 384,
+      "rank": 385,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -54725,7 +56089,7 @@
       "score": 67.6,
       "raw": 19.6,
       "max_raw": 29.0,
-      "rank": 275,
+      "rank": 288,
       "medal": null,
       "dims": {
         "build": 3,
@@ -54866,7 +56230,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 243,
+      "rank": 256,
       "medal": null,
       "dims": {
         "build": 2,
@@ -54997,7 +56361,7 @@
       "score": 61.4,
       "raw": 17.8,
       "max_raw": 29.0,
-      "rank": 361,
+      "rank": 378,
       "medal": null,
       "dims": {
         "build": 4,
@@ -55144,7 +56508,7 @@
       "score": 53.4,
       "raw": 15.5,
       "max_raw": 29.0,
-      "rank": 416,
+      "rank": 436,
       "medal": null,
       "dims": {
         "build": 2,
@@ -55168,7 +56532,7 @@
       "score": 47.8,
       "raw": 16.5,
       "max_raw": 34.5,
-      "rank": 394,
+      "rank": 397,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -55194,7 +56558,7 @@
       "score": 48.9,
       "solo": 53.4,
       "china": 47.8,
-      "rank": 407,
+      "rank": 412,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -55307,7 +56671,7 @@
       "score": 64.1,
       "raw": 18.6,
       "max_raw": 29.0,
-      "rank": 323,
+      "rank": 338,
       "medal": null,
       "dims": {
         "build": 4,
@@ -55438,7 +56802,7 @@
       "score": 62.8,
       "raw": 18.2,
       "max_raw": 29.0,
-      "rank": 351,
+      "rank": 366,
       "medal": null,
       "dims": {
         "build": 2,
@@ -55585,7 +56949,7 @@
       "score": 60.7,
       "raw": 17.6,
       "max_raw": 29.0,
-      "rank": 371,
+      "rank": 388,
       "medal": null,
       "dims": {
         "build": 3,
@@ -55721,7 +57085,7 @@
       "score": 60.7,
       "raw": 17.6,
       "max_raw": 29.0,
-      "rank": 370,
+      "rank": 387,
       "medal": null,
       "dims": {
         "build": 3,
@@ -55884,7 +57248,7 @@
       "score": 72.1,
       "raw": 20.9,
       "max_raw": 29.0,
-      "rank": 181,
+      "rank": 191,
       "medal": null,
       "dims": {
         "build": 3,
@@ -56074,7 +57438,7 @@
       "score": 61.4,
       "raw": 17.8,
       "max_raw": 29.0,
-      "rank": 363,
+      "rank": 380,
       "medal": null,
       "dims": {
         "build": 3,
@@ -56199,7 +57563,7 @@
       "score": 48.4,
       "raw": 16.7,
       "max_raw": 34.5,
-      "rank": 388,
+      "rank": 389,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -56225,7 +57589,7 @@
       "score": 65.2,
       "raw": 18.9,
       "max_raw": 29.0,
-      "rank": 305,
+      "rank": 319,
       "medal": null,
       "dims": {
         "build": 3,
@@ -56394,7 +57758,7 @@
       "score": 70.0,
       "raw": 20.3,
       "max_raw": 29.0,
-      "rank": 202,
+      "rank": 214,
       "medal": null,
       "dims": {
         "build": 4,
@@ -56701,7 +58065,7 @@
       "score": 75.9,
       "raw": 22.0,
       "max_raw": 29.0,
-      "rank": 100,
+      "rank": 106,
       "medal": null,
       "dims": {
         "build": 4,
@@ -56824,7 +58188,7 @@
       "score": 47.8,
       "raw": 16.5,
       "max_raw": 34.5,
-      "rank": 396,
+      "rank": 400,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -56850,7 +58214,7 @@
       "score": 56.9,
       "raw": 16.5,
       "max_raw": 29.0,
-      "rank": 403,
+      "rank": 421,
       "medal": null,
       "dims": {
         "build": 3,
@@ -56874,7 +58238,7 @@
       "score": 49.6,
       "solo": 56.9,
       "china": 47.8,
-      "rank": 404,
+      "rank": 405,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -57016,7 +58380,7 @@
       "score": 72.8,
       "raw": 21.1,
       "max_raw": 29.0,
-      "rank": 164,
+      "rank": 170,
       "medal": null,
       "dims": {
         "build": 2,
@@ -57139,7 +58503,7 @@
       "score": 49.3,
       "raw": 17.0,
       "max_raw": 34.5,
-      "rank": 383,
+      "rank": 384,
       "medal": null,
       "dims": {
         "demand": 4,
@@ -57165,7 +58529,7 @@
       "score": 46.6,
       "raw": 13.5,
       "max_raw": 29.0,
-      "rank": 430,
+      "rank": 452,
       "medal": null,
       "dims": {
         "build": 3,
@@ -57189,7 +58553,7 @@
       "score": 47.1,
       "solo": 46.6,
       "china": 49.3,
-      "rank": 418,
+      "rank": 427,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -57321,7 +58685,7 @@
       "score": 59.0,
       "raw": 17.1,
       "max_raw": 29.0,
-      "rank": 393,
+      "rank": 411,
       "medal": null,
       "dims": {
         "build": 4,
@@ -57469,7 +58833,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 261,
+      "rank": 274,
       "medal": null,
       "dims": {
         "build": 4,
@@ -57588,7 +58952,7 @@
       "score": 40.0,
       "raw": 13.8,
       "max_raw": 34.5,
-      "rank": 433,
+      "rank": 445,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -57614,7 +58978,7 @@
       "score": 75.2,
       "raw": 21.8,
       "max_raw": 29.0,
-      "rank": 111,
+      "rank": 117,
       "medal": null,
       "dims": {
         "build": 4,
@@ -57638,7 +59002,7 @@
       "score": 47.0,
       "solo": 75.2,
       "china": 40.0,
-      "rank": 419,
+      "rank": 430,
       "medal": null,
       "quadrant": "export",
       "quadrant_label": "能做，但别在国内卖",
@@ -57744,7 +59108,7 @@
       "score": 44.9,
       "raw": 15.5,
       "max_raw": 34.5,
-      "rank": 413,
+      "rank": 418,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -57770,7 +59134,7 @@
       "score": 58.3,
       "raw": 16.9,
       "max_raw": 29.0,
-      "rank": 395,
+      "rank": 413,
       "medal": null,
       "dims": {
         "build": 3,
@@ -57794,7 +59158,7 @@
       "score": 47.6,
       "solo": 58.3,
       "china": 44.9,
-      "rank": 413,
+      "rank": 420,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -57916,7 +59280,7 @@
       "score": 73.4,
       "raw": 21.3,
       "max_raw": 29.0,
-      "rank": 151,
+      "rank": 157,
       "medal": null,
       "dims": {
         "build": 4,
@@ -58073,7 +59437,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 233,
+      "rank": 246,
       "medal": null,
       "dims": {
         "build": 3,
@@ -58380,7 +59744,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 263,
+      "rank": 276,
       "medal": null,
       "dims": {
         "build": 4,
@@ -58530,7 +59894,7 @@
       "score": 52.8,
       "raw": 15.3,
       "max_raw": 29.0,
-      "rank": 418,
+      "rank": 438,
       "medal": null,
       "dims": {
         "build": 3,
@@ -58554,7 +59918,7 @@
       "score": 49.0,
       "raw": 16.9,
       "max_raw": 34.5,
-      "rank": 386,
+      "rank": 387,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -58687,7 +60051,7 @@
       "score": 52.4,
       "raw": 15.2,
       "max_raw": 29.0,
-      "rank": 419,
+      "rank": 439,
       "medal": null,
       "dims": {
         "build": 3,
@@ -58863,7 +60227,7 @@
       "score": 37.2,
       "raw": 10.8,
       "max_raw": 29.0,
-      "rank": 434,
+      "rank": 456,
       "medal": null,
       "dims": {
         "build": 3,
@@ -58913,7 +60277,7 @@
       "score": 41.5,
       "solo": 37.2,
       "china": 58.6,
-      "rank": 432,
+      "rank": 452,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -59055,7 +60419,7 @@
       "score": 62.4,
       "raw": 18.1,
       "max_raw": 29.0,
-      "rank": 356,
+      "rank": 372,
       "medal": null,
       "dims": {
         "build": 3,
@@ -59217,7 +60581,7 @@
       "score": 54.1,
       "raw": 15.7,
       "max_raw": 29.0,
-      "rank": 415,
+      "rank": 435,
       "medal": null,
       "dims": {
         "build": 3,
@@ -59522,7 +60886,7 @@
       "score": 65.2,
       "raw": 18.9,
       "max_raw": 29.0,
-      "rank": 304,
+      "rank": 318,
       "medal": null,
       "dims": {
         "build": 3,
@@ -59598,7 +60962,7 @@
       "score": 41.4,
       "raw": 14.3,
       "max_raw": 34.5,
-      "rank": 429,
+      "rank": 438,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -59624,7 +60988,7 @@
       "score": 44.2,
       "solo": 55.2,
       "china": 41.4,
-      "rank": 427,
+      "rank": 444,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -59685,7 +61049,7 @@
       "score": 55.2,
       "raw": 16.0,
       "max_raw": 29.0,
-      "rank": 409,
+      "rank": 428,
       "medal": null,
       "dims": {
         "build": 2,
@@ -59743,7 +61107,7 @@
       "score": 42.0,
       "raw": 14.5,
       "max_raw": 34.5,
-      "rank": 426,
+      "rank": 434,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -59769,7 +61133,7 @@
       "score": 45.7,
       "solo": 60.3,
       "china": 42.0,
-      "rank": 424,
+      "rank": 438,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -59827,7 +61191,7 @@
       "score": 60.3,
       "raw": 17.5,
       "max_raw": 29.0,
-      "rank": 373,
+      "rank": 390,
       "medal": null,
       "dims": {
         "build": 3,
@@ -59895,7 +61259,7 @@
       "score": 42.9,
       "raw": 14.8,
       "max_raw": 34.5,
-      "rank": 424,
+      "rank": 431,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -60126,7 +61490,7 @@
       "score": 72.1,
       "raw": 20.9,
       "max_raw": 29.0,
-      "rank": 183,
+      "rank": 193,
       "medal": null,
       "dims": {
         "build": 3,
@@ -60184,7 +61548,7 @@
       "score": 46.1,
       "raw": 15.9,
       "max_raw": 34.5,
-      "rank": 406,
+      "rank": 410,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -60210,7 +61574,7 @@
       "score": 44.3,
       "solo": 43.8,
       "china": 46.1,
-      "rank": 426,
+      "rank": 443,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -60261,7 +61625,7 @@
       "score": 43.8,
       "raw": 12.7,
       "max_raw": 29.0,
-      "rank": 432,
+      "rank": 454,
       "medal": null,
       "dims": {
         "build": 2,
@@ -60406,7 +61770,7 @@
       "score": 76.9,
       "raw": 22.3,
       "max_raw": 29.0,
-      "rank": 83,
+      "rank": 87,
       "medal": null,
       "dims": {
         "build": 4,
@@ -60551,7 +61915,7 @@
       "score": 72.1,
       "raw": 20.9,
       "max_raw": 29.0,
-      "rank": 184,
+      "rank": 194,
       "medal": null,
       "dims": {
         "build": 3,
@@ -60900,7 +62264,7 @@
       "score": 60.7,
       "raw": 17.6,
       "max_raw": 29.0,
-      "rank": 369,
+      "rank": 386,
       "medal": null,
       "dims": {
         "build": 3,
@@ -61056,7 +62420,7 @@
       "score": 77.2,
       "raw": 22.4,
       "max_raw": 29.0,
-      "rank": 62,
+      "rank": 65,
       "medal": null,
       "dims": {
         "build": 4,
@@ -61128,7 +62492,7 @@
       "score": 39.1,
       "raw": 13.5,
       "max_raw": 34.5,
-      "rank": 434,
+      "rank": 448,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -61154,7 +62518,7 @@
       "score": 33.2,
       "solo": 31.7,
       "china": 39.1,
-      "rank": 439,
+      "rank": 461,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -61216,7 +62580,7 @@
       "score": 31.7,
       "raw": 9.2,
       "max_raw": 29.0,
-      "rank": 436,
+      "rank": 458,
       "medal": null,
       "dims": {
         "build": 2,
@@ -61371,7 +62735,7 @@
       "score": 68.3,
       "raw": 19.8,
       "max_raw": 29.0,
-      "rank": 267,
+      "rank": 280,
       "medal": null,
       "dims": {
         "build": 3,
@@ -61438,7 +62802,7 @@
       "score": 38.6,
       "raw": 13.3,
       "max_raw": 34.5,
-      "rank": 435,
+      "rank": 451,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -61464,7 +62828,7 @@
       "score": 42.1,
       "solo": 55.9,
       "china": 38.6,
-      "rank": 430,
+      "rank": 450,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -61529,7 +62893,7 @@
       "score": 55.9,
       "raw": 16.2,
       "max_raw": 29.0,
-      "rank": 405,
+      "rank": 423,
       "medal": null,
       "dims": {
         "build": 3,
@@ -61633,7 +62997,7 @@
       "score": 34.9,
       "solo": 30.3,
       "china": 53.3,
-      "rank": 437,
+      "rank": 459,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -61690,7 +63054,7 @@
       "score": 30.3,
       "raw": 8.8,
       "max_raw": 29.0,
-      "rank": 439,
+      "rank": 461,
       "medal": null,
       "dims": {
         "build": 1,
@@ -61852,7 +63216,7 @@
       "score": 48.3,
       "raw": 14.0,
       "max_raw": 29.0,
-      "rank": 426,
+      "rank": 448,
       "medal": null,
       "dims": {
         "build": 3,
@@ -61924,7 +63288,7 @@
       "score": 49.3,
       "raw": 17.0,
       "max_raw": 34.5,
-      "rank": 382,
+      "rank": 383,
       "medal": null,
       "dims": {
         "demand": 4,
@@ -61950,7 +63314,7 @@
       "score": 34.1,
       "solo": 30.3,
       "china": 49.3,
-      "rank": 438,
+      "rank": 460,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -62013,7 +63377,7 @@
       "score": 30.3,
       "raw": 8.8,
       "max_raw": 29.0,
-      "rank": 438,
+      "rank": 460,
       "medal": null,
       "dims": {
         "build": 2,
@@ -62085,7 +63449,7 @@
       "score": 48.4,
       "raw": 16.7,
       "max_raw": 34.5,
-      "rank": 389,
+      "rank": 390,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -62111,7 +63475,7 @@
       "score": 45.5,
       "solo": 44.8,
       "china": 48.4,
-      "rank": 425,
+      "rank": 439,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -62167,7 +63531,7 @@
       "score": 44.8,
       "raw": 13.0,
       "max_raw": 29.0,
-      "rank": 431,
+      "rank": 453,
       "medal": null,
       "dims": {
         "build": 2,
@@ -62331,7 +63695,7 @@
       "score": 65.5,
       "raw": 19.0,
       "max_raw": 29.0,
-      "rank": 300,
+      "rank": 314,
       "medal": null,
       "dims": {
         "build": 3,
@@ -62488,7 +63852,7 @@
       "score": 80.3,
       "raw": 23.3,
       "max_raw": 29.0,
-      "rank": 45,
+      "rank": 46,
       "medal": null,
       "dims": {
         "build": 4,
@@ -62640,7 +64004,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 262,
+      "rank": 275,
       "medal": null,
       "dims": {
         "build": 3,
@@ -62793,7 +64157,7 @@
       "score": 72.8,
       "raw": 21.1,
       "max_raw": 29.0,
-      "rank": 167,
+      "rank": 173,
       "medal": null,
       "dims": {
         "build": 4,
@@ -62862,7 +64226,7 @@
       "score": 50.7,
       "raw": 17.5,
       "max_raw": 34.5,
-      "rank": 363,
+      "rank": 364,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -62939,7 +64303,7 @@
       "score": 76.2,
       "raw": 22.1,
       "max_raw": 29.0,
-      "rank": 88,
+      "rank": 92,
       "medal": null,
       "dims": {
         "build": 3,
@@ -63095,7 +64459,7 @@
       "score": 58.3,
       "raw": 16.9,
       "max_raw": 29.0,
-      "rank": 394,
+      "rank": 412,
       "medal": null,
       "dims": {
         "build": 3,
@@ -63240,7 +64604,7 @@
       "score": 66.6,
       "raw": 19.3,
       "max_raw": 29.0,
-      "rank": 286,
+      "rank": 300,
       "medal": null,
       "dims": {
         "build": 3,
@@ -63387,7 +64751,7 @@
       "score": 76.9,
       "raw": 22.3,
       "max_raw": 29.0,
-      "rank": 82,
+      "rank": 86,
       "medal": null,
       "dims": {
         "build": 3,
@@ -63539,7 +64903,7 @@
       "score": 56.2,
       "raw": 16.3,
       "max_raw": 29.0,
-      "rank": 404,
+      "rank": 422,
       "medal": null,
       "dims": {
         "build": 3,
@@ -63684,7 +65048,7 @@
       "score": 80.3,
       "raw": 23.3,
       "max_raw": 29.0,
-      "rank": 46,
+      "rank": 47,
       "medal": null,
       "dims": {
         "build": 3,
@@ -63821,7 +65185,7 @@
       "score": 65.9,
       "raw": 19.1,
       "max_raw": 29.0,
-      "rank": 296,
+      "rank": 310,
       "medal": null,
       "dims": {
         "build": 2,
@@ -63964,7 +65328,7 @@
       "score": 73.1,
       "raw": 21.2,
       "max_raw": 29.0,
-      "rank": 162,
+      "rank": 168,
       "medal": null,
       "dims": {
         "build": 3,
@@ -64026,7 +65390,7 @@
       "score": 50.7,
       "raw": 17.5,
       "max_raw": 34.5,
-      "rank": 362,
+      "rank": 363,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -64052,7 +65416,7 @@
       "score": 47.9,
       "solo": 47.2,
       "china": 50.7,
-      "rank": 412,
+      "rank": 419,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -64104,7 +65468,7 @@
       "score": 47.2,
       "raw": 13.7,
       "max_raw": 29.0,
-      "rank": 428,
+      "rank": 450,
       "medal": null,
       "dims": {
         "build": 2,
@@ -64247,7 +65611,7 @@
       "score": 72.4,
       "raw": 21.0,
       "max_raw": 29.0,
-      "rank": 174,
+      "rank": 181,
       "medal": null,
       "dims": {
         "build": 3,
@@ -64392,7 +65756,7 @@
       "score": 72.4,
       "raw": 21.0,
       "max_raw": 29.0,
-      "rank": 176,
+      "rank": 185,
       "medal": null,
       "dims": {
         "build": 3,
@@ -64543,7 +65907,7 @@
       "score": 69.0,
       "raw": 20.0,
       "max_raw": 29.0,
-      "rank": 216,
+      "rank": 229,
       "medal": null,
       "dims": {
         "build": 3,
@@ -64686,7 +66050,7 @@
       "score": 76.2,
       "raw": 22.1,
       "max_raw": 29.0,
-      "rank": 87,
+      "rank": 91,
       "medal": null,
       "dims": {
         "build": 4,
@@ -64839,7 +66203,7 @@
       "score": 71.0,
       "raw": 20.6,
       "max_raw": 29.0,
-      "rank": 191,
+      "rank": 202,
       "medal": null,
       "dims": {
         "build": 3,
@@ -64912,7 +66276,7 @@
       "score": 44.9,
       "raw": 15.5,
       "max_raw": 34.5,
-      "rank": 409,
+      "rank": 413,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -64938,7 +66302,7 @@
       "score": 42.1,
       "solo": 41.4,
       "china": 44.9,
-      "rank": 431,
+      "rank": 451,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -64993,7 +66357,7 @@
       "score": 41.4,
       "raw": 12.0,
       "max_raw": 29.0,
-      "rank": 433,
+      "rank": 455,
       "medal": null,
       "dims": {
         "build": 2,
@@ -65154,7 +66518,7 @@
       "score": 72.8,
       "raw": 21.1,
       "max_raw": 29.0,
-      "rank": 166,
+      "rank": 172,
       "medal": null,
       "dims": {
         "build": 4,
@@ -65228,7 +66592,7 @@
       "score": 68.6,
       "raw": 19.9,
       "max_raw": 29.0,
-      "rank": 230,
+      "rank": 243,
       "medal": null,
       "dims": {
         "build": 3,
@@ -65373,7 +66737,7 @@
       "score": 65.2,
       "raw": 18.9,
       "max_raw": 29.0,
-      "rank": 303,
+      "rank": 317,
       "medal": null,
       "dims": {
         "build": 3,
@@ -65468,7 +66832,7 @@
       "score": 49.3,
       "raw": 17.0,
       "max_raw": 34.5,
-      "rank": 381,
+      "rank": 382,
       "medal": null,
       "dims": {
         "demand": 4,
@@ -65520,7 +66884,7 @@
       "score": 51.0,
       "raw": 14.8,
       "max_raw": 29.0,
-      "rank": 422,
+      "rank": 442,
       "medal": null,
       "dims": {
         "build": 2,
@@ -65663,7 +67027,7 @@
       "score": 60.0,
       "raw": 17.4,
       "max_raw": 29.0,
-      "rank": 378,
+      "rank": 395,
       "medal": null,
       "dims": {
         "build": 3,
@@ -65809,7 +67173,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 339,
+      "rank": 354,
       "medal": null,
       "dims": {
         "build": 3,
@@ -65903,7 +67267,7 @@
       "score": 35.7,
       "raw": 12.3,
       "max_raw": 34.5,
-      "rank": 438,
+      "rank": 455,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -65929,7 +67293,7 @@
       "score": 41.3,
       "solo": 63.8,
       "china": 35.7,
-      "rank": 433,
+      "rank": 453,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -65955,7 +67319,7 @@
       "score": 31.4,
       "raw": 9.1,
       "max_raw": 29.0,
-      "rank": 437,
+      "rank": 459,
       "medal": null,
       "dims": {
         "build": 1,
@@ -66043,7 +67407,7 @@
       "score": 50.4,
       "raw": 17.4,
       "max_raw": 34.5,
-      "rank": 370,
+      "rank": 371,
       "medal": null,
       "dims": {
         "demand": 4,
@@ -66069,7 +67433,7 @@
       "score": 35.2,
       "solo": 31.4,
       "china": 50.4,
-      "rank": 436,
+      "rank": 456,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -66095,7 +67459,7 @@
       "score": 63.4,
       "raw": 18.4,
       "max_raw": 29.0,
-      "rank": 349,
+      "rank": 364,
       "medal": null,
       "dims": {
         "build": 1,
@@ -66237,7 +67601,7 @@
       "score": 50.7,
       "raw": 14.7,
       "max_raw": 29.0,
-      "rank": 423,
+      "rank": 443,
       "medal": null,
       "dims": {
         "build": 3,
@@ -66405,7 +67769,7 @@
       "score": 51.0,
       "raw": 14.8,
       "max_raw": 29.0,
-      "rank": 421,
+      "rank": 441,
       "medal": null,
       "dims": {
         "build": 2,
@@ -66534,7 +67898,7 @@
       "score": 41.4,
       "raw": 14.3,
       "max_raw": 34.5,
-      "rank": 427,
+      "rank": 436,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -66560,7 +67924,7 @@
       "score": 64.1,
       "raw": 18.6,
       "max_raw": 29.0,
-      "rank": 324,
+      "rank": 339,
       "medal": null,
       "dims": {
         "build": 3,
@@ -66664,7 +68028,7 @@
       "score": 45.9,
       "solo": 64.1,
       "china": 41.4,
-      "rank": 422,
+      "rank": 436,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -66716,7 +68080,7 @@
       "score": 62.8,
       "raw": 18.2,
       "max_raw": 29.0,
-      "rank": 352,
+      "rank": 367,
       "medal": null,
       "dims": {
         "build": 3,
@@ -66864,7 +68228,7 @@
       "score": 64.8,
       "raw": 18.8,
       "max_raw": 29.0,
-      "rank": 308,
+      "rank": 322,
       "medal": null,
       "dims": {
         "build": 3,
@@ -66985,7 +68349,7 @@
       "score": 43.5,
       "raw": 15.0,
       "max_raw": 34.5,
-      "rank": 421,
+      "rank": 428,
       "medal": null,
       "dims": {
         "demand": 2,
@@ -67011,7 +68375,7 @@
       "score": 71.0,
       "raw": 20.6,
       "max_raw": 29.0,
-      "rank": 190,
+      "rank": 201,
       "medal": null,
       "dims": {
         "build": 4,
@@ -67103,7 +68467,7 @@
       "score": 49.0,
       "solo": 71.0,
       "china": 43.5,
-      "rank": 406,
+      "rank": 411,
       "medal": null,
       "quadrant": "export",
       "quadrant_label": "能做，但别在国内卖",
@@ -67155,7 +68519,7 @@
       "score": 55.9,
       "raw": 16.2,
       "max_raw": 29.0,
-      "rank": 406,
+      "rank": 424,
       "medal": null,
       "dims": {
         "build": 3,
@@ -67277,7 +68641,7 @@
       "score": 41.4,
       "raw": 14.3,
       "max_raw": 34.5,
-      "rank": 428,
+      "rank": 437,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -67303,7 +68667,7 @@
       "score": 63.8,
       "raw": 18.5,
       "max_raw": 29.0,
-      "rank": 343,
+      "rank": 358,
       "medal": null,
       "dims": {
         "build": 3,
@@ -67399,7 +68763,7 @@
       "score": 45.9,
       "solo": 63.8,
       "china": 41.4,
-      "rank": 423,
+      "rank": 437,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -67452,7 +68816,7 @@
       "score": 72.8,
       "raw": 21.1,
       "max_raw": 29.0,
-      "rank": 165,
+      "rank": 171,
       "medal": null,
       "dims": {
         "build": 3,
@@ -67601,7 +68965,7 @@
       "score": 60.0,
       "raw": 17.4,
       "max_raw": 29.0,
-      "rank": 379,
+      "rank": 396,
       "medal": null,
       "dims": {
         "build": 3,
@@ -67722,7 +69086,7 @@
       "score": 47.2,
       "raw": 16.3,
       "max_raw": 34.5,
-      "rank": 400,
+      "rank": 404,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -67748,7 +69112,7 @@
       "score": 59.7,
       "raw": 17.3,
       "max_raw": 29.0,
-      "rank": 380,
+      "rank": 397,
       "medal": null,
       "dims": {
         "build": 3,
@@ -67842,7 +69206,7 @@
       "score": 49.7,
       "solo": 59.7,
       "china": 47.2,
-      "rank": 402,
+      "rank": 403,
       "medal": null,
       "quadrant": "skip",
       "quadrant_label": "别碰",
@@ -67869,7 +69233,7 @@
       "score": 50.7,
       "raw": 17.5,
       "max_raw": 34.5,
-      "rank": 364,
+      "rank": 365,
       "medal": null,
       "dims": {
         "demand": 3,
@@ -67895,7 +69259,7 @@
       "score": 58.3,
       "raw": 16.9,
       "max_raw": 29.0,
-      "rank": 396,
+      "rank": 414,
       "medal": null,
       "dims": {
         "build": 4,
