@@ -204,19 +204,28 @@ _BROWSER_JS = r"""
   var CA_KEY='%(ca_key)s', SECRET='%(secret)s';
   var ACCEPT='%(accept)s', CTYPE='%(ctype)s';
   var nonce = crypto.randomUUID();
-  var toSign = a.method + '\n' + ACCEPT + '\n\n' + CTYPE + '\n\nx-ca-key:' + CA_KEY
-             + '\nx-ca-nonce:' + nonce + '\n' + a.path;
+  // ⚠ 只对 POST 有效。GET（如 `article/list?status=draft`）试过三版全失败：
+  //   ① 整串含 query 去签 ② 只签 pathname ③ 再叠「GET 时 Content-Type 取空」
+  //   —— 服务端一律回 `HMAC signature does not match`。签名算法还差条件没摸到，
+  //   **别再用 browser_api 发 GET**；查草稿/文章列表走 `csdn_list_drafts.py`
+  //   （页面点 tab + 抓自己的请求，已验证可用）。POST 无 query，一直正常。
+  var isGet = (a.method === 'GET');
+  var signPath = a.path.split('?')[0];
+  var signCType = isGet ? '' : CTYPE;
+  var toSign = a.method + '\n' + ACCEPT + '\n\n' + signCType + '\n\nx-ca-key:' + CA_KEY
+             + '\nx-ca-nonce:' + nonce + '\n' + signPath;
   var enc = new TextEncoder();
   var key = await crypto.subtle.importKey('raw', enc.encode(SECRET),
                         {name:'HMAC', hash:'SHA-256'}, false, ['sign']);
   var sig = await crypto.subtle.sign('HMAC', key, enc.encode(toSign));
   var u8 = new Uint8Array(sig), bin = '';
   for (var i=0;i<u8.length;i++) bin += String.fromCharCode(u8[i]);
-  var opt = {method: a.method, credentials: 'include',
-             headers: {'Accept': ACCEPT, 'Content-Type': CTYPE,
-                       'x-ca-key': CA_KEY, 'x-ca-nonce': nonce,
-                       'x-ca-signature': btoa(bin),
-                       'x-ca-signature-headers': 'x-ca-key,x-ca-nonce'}};
+  var hdrs = {'Accept': ACCEPT,
+              'x-ca-key': CA_KEY, 'x-ca-nonce': nonce,
+              'x-ca-signature': btoa(bin),
+              'x-ca-signature-headers': 'x-ca-key,x-ca-nonce'};
+  if (!isGet) hdrs['Content-Type'] = CTYPE;
+  var opt = {method: a.method, credentials: 'include', headers: hdrs};
   if (a.body !== null && a.body !== undefined) opt.body = JSON.stringify(a.body);
   try {
     var r = await fetch('https://bizapi.csdn.net' + a.path, opt);
@@ -566,16 +575,22 @@ def list_published(cookie=None, pages=1):
     return out
 
 
-def delete_article(article_id, cookie=None):
+def delete_article(article_id, cookie=None, deep=False):
     """删除已发表文章/草稿。
 
     ✅ 2026-10-28 实测：`POST /blog/phoenix/console/v1/article/del`
     body {"articleId": <int>} → `{"code":200,"data":true}`，已发表与
     编辑器自动保存草稿都能删（连删 3 篇验证）。
+
+    ✅ 2026-11-04 实测：body 再带 `"deep": true` = **彻底删除**（不进回收站、不可恢复），
+    回收站里的条目也能这么删。日常优先用默认的「进回收站」，确认无误再 deep。
     """
     cookie = cookie or load_cookie()
+    payload = {"articleId": int(article_id)}
+    if deep:
+        payload["deep"] = True
     st, body = api("/blog/phoenix/console/v1/article/del",
-                   data={"articleId": int(article_id)}, cookie=cookie)
+                   data=payload, cookie=cookie)
     if not (isinstance(body, dict) and body.get("code") == 200):
         raise ApiError("del 未返回 code=200: %s" % json.dumps(body, ensure_ascii=False)[:200])
     return True
@@ -683,6 +698,10 @@ def main():
     p.add_argument("--file", required=True, help="markdown 文件")
     p.add_argument("--case", default="", help="案例 id（台账键，缺省用文件名）")
     p.add_argument("--tags", default="人工智能")
+    p.add_argument("--cover", default="", help="封面图（本地 png/jpg）。传了就先上传拿 csdnimg 地址，"
+                                              "再随 saveArticle 的 cover_images 一起提交")
+    p.add_argument("--force", action="store_true",
+                   help="跳过《创作规范》合规闸（csdn_rules 命中 block 才需要）")
     p.add_argument("--via", default="auto",
                    choices=["auto", "direct", "browser"],
                    help="auto=先直连、401 自动改走浏览器内请求（默认）")
@@ -715,16 +734,55 @@ def main():
     if args.cmd == "publish":
         with open(args.file, "r", encoding="utf-8") as f:
             md = f.read()
-        # 剥掉草稿管线的元信息水印（「> 平台：wechat ｜ 案例：… ｜ 状态：…」），
-        # 平台名在 CSDN 上是错的，留着会误导读者
-        md = "\n".join(ln for ln in md.split("\n")
-                       if not ln.startswith("> 平台："))
+        # 发布前的确定性清洗（剥管线水印 / 抹验证平台 / 去口径旁注）+ 合规闸
+        import csdn_rules as R
+        md = R.clean(md)
         title, body = split_md(md)
+        verdict = R.scan(title, body)
+        for it in verdict["block"]:
+            print("✗ 规范 %s 命中「%s」%d 处（样例「%s」）"
+                  % (it["spec"], it["rule"], it["count"], it["sample"]))
+        for it in verdict["warn"]:
+            print("⚠ 低质风险「%s」%d 处" % (it["rule"], it["count"]))
+        if verdict["block"] and not args.force:
+            raise SystemExit("✗ 未过《CSDN 社区内容创作规范》，拒绝发表（确要发加 --force）")
         if re.search(r"[$¥€£]\s*\d|\d[\d,.]*\s*(?:美元|美金|美刀|元|万|亿|RMB|USD|MRR|ARR)",
                      title, re.I):
             print("⚠ 标题疑似含金额（「标题禁金额」铁律）：", title)
-        aid, url, title = save_article(title, body, tags=args.tags,
-                                       via=args.via)
+
+        # 封面：先上传拿 URL，再塞进 saveArticle 的 cover_images（CSDN 唯一的封面口径）
+        # 2026-11-05 修：CSDN 直连恒 401 ⇒ save_article 必走浏览器内请求回退，
+        # 旧写法在 save_article 之前就 proc.terminate() ⇒ 回退连 9224 必死
+        # （症状：封面上传成功后报「连不上 Chrome 调试端口」）。
+        # 改成 Chrome 活到 save_article 结束；封面上传抽屉偶发渲染慢（racy），
+        # 加一次重试。
+        cover_images = cover_type = None
+        proc = None
+        try:
+            if args.cover:
+                cover_path = os.path.abspath(args.cover)
+                if not os.path.isfile(cover_path):
+                    raise SystemExit("✗ 封面不存在：%s" % cover_path)
+                import csdn_set_cover as SC
+                proc, cdp = SC.open_cdp()
+                url = err = None
+                for attempt in (1, 2):
+                    url, err = SC.upload_cover_url(cdp, cover_path)
+                    if not err:
+                        break
+                    print("⚠ 封面上传第 %d 次失败：%s（重试）" % (attempt, err))
+                if err:
+                    raise SystemExit("✗ 封面上传失败：%s" % err)
+                cover_images, cover_type = [url], "1"
+                print("✓ 封面：%s" % url)
+
+            aid, url, title = save_article(title, body, tags=args.tags,
+                                           via=args.via,
+                                           cover_images=cover_images,
+                                           cover_type=cover_type)
+        finally:
+            if proc is not None:
+                proc.terminate()
         remember(args.case or os.path.splitext(os.path.basename(args.file))[0],
                  aid, title, url)
         print("✓ 已发表: article_id=%s url=%s" % (aid, url))

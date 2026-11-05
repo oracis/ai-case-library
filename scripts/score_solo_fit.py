@@ -39,7 +39,7 @@
         skip     双低          别碰
 
 用法：
-    python scripts/score_solo_fit.py              # 打分并写回 data/cases.json
+    python scripts/score_solo_fit.py              # 打分并写回 case_library（+重导镜像）
     python scripts/score_solo_fit.py --dry-run    # 只看结果
     python scripts/score_solo_fit.py --top 10     # 只看前 10
     python scripts/score_solo_fit.py --threshold 75   # 换及格线
@@ -817,12 +817,54 @@ DELIVERY = {
 
     # ── 2026-11-04 sotie 人工确认 still_alive 后入库 ──
     "sotie-ai-best-friend": (5, "App Store 上架即交付，零交付；生成内容由模型返回，无人工环节。"),
+
+    # ── 2026-11-04 C 档（综合 < 50，别搬）合并，共 22 条 ──
+    "100percentmarket": (2, "双边市场，一边要谈字体作者授权、一边要维护按需印刷的供给与结算，上架审核、"
+                      "版权链、分成都要人盯，不是装完即用的工具。"),
+    "access-labs-pty-ltd": (1, "主体是周付的定制开发公司，交付即团队：需求澄清、排期、验收都靠人，产品化部分只是获客入口。"),
+    "akari-tickets": (3, "票务转售社区要同时运营买家与卖家、处理履约与纠纷，供需两端都得有人盯，"
+                      "不是挂上去就自动成交的工具。"),
+    "anonymous-bot-for-slack": (4, "机器人装上即用，没有实施环节；负担在权限配置与内容审核，企业客户会要求审计与留痕。"),
+    "apparate-pty-ltd": (1, "按效果付费的 B2B 外呼获客，交付就是一支打电话的团队；高额部署档靠人做 GTM，"
+                      "规模与人力同步增长，不是可自助的软件。"),
+    "asta": (1, "实物电商，选品、备货、跨境物流、售后与合规注册都是交付本身，软件只占很小一环，"
+                      "一个人扛不动整条供应链。"),
+    "berace": (5, "App 内自助订阅，装上即用、零实施；长期负担是赛事数据要跟着赛程更新，"
+                      "预测模型与结果页也要维护。"),
+    "bibly": (5, "App 自助订阅，装上即用、零交付；长期负担是经文版本、阅读计划与内容校对的维护，"
+                      "属于内容型轻产品。"),
+    "book-the-move": (1, "卖的是线索不是软件：每条搬家需求都要人工核实、跟单、跟搬家公司对账，"
+                      "交付本身就是一支销售团队，一个人接不住，收入也随跟单人力线性增长。"),
+    "buzzrush": (5, "App 内小游戏，下载即用、零交付；负担只在关卡与题库更新，属于最轻的一类 C 端产品。"),
+    "cash-cow-inc": (2, "AI 外呼代理含人工运营环节：话术配置、名单清洗、结果复核都要人参与，"
+                      "按结果付费意味着交付责任在你这边。"),
+    "classyaction": (4, "纯信息型 App，用户自助订阅，零实施；负担在和解金项目库要持续收录与核验，"
+                      "属于内容维护型产品。"),
+    "commentions-automated-comments-with-mentions": (4, "自助订阅工具，配置好账号即可跑，没有实施环节；但账号被限制后要用户自己处理，"
+                      "售后压力集中在平台风控上。"),
+    "copykitten": (4, "Discord 机器人装上即用，不需要实施；负担在语音模型调用成本与服务器维护，"
+                      "属于轻量自助工具。"),
+    "cosmo": (3, "插件加支付，安装后要维护商品、订单与服务器权限，有持续运维但不需要实施团队。"),
+    "deeplead-io": (2, "外展送达率要持续运维：域名预热、发信额度、退信处理都在链条上，另有单价很高的代运营档，"
+                      "说明产品做不轻、服务比重不低。"),
+    "esim-panel": (2, "白标 SaaS 要接运营商、配流量套餐与结算，每加一个客户都要做实施与合规对接，"
+                      "不是纯自助的产品。"),
+    "fill": (4, "App 自助，装上即用；负担在内容审核与社区治理，匿名形态下这块的成本会随用户量涨。"),
+    "jarvis-bet": (4, "自助订阅的分析工具，注册即用、零交付；负担在赛事数据与模型更新，属于内容维护型产品。"),
+    "polyalerthub": (4, "自助订阅的警报终端，注册即用、零交付；负担在行情接口与推送稳定性的持续维护。"),
+    "replymer": (3, "工具本身自助开通，但要持续对抗平台风控：规则一变就得改匹配与回复策略，"
+                      "用户发不出去第一个找的是你。"),
+    "torrentclaw": (4, "纯搜索工具，用户自助订阅，没有实施环节；负担在索引源要持续维护，链接失效与资源下架都得跟着更"
+                      "新。"),
 }
 
 
 # ------------------------------------------------------------------ 工具
 
 def load_json(name, default=None):
+    if name == "cases":
+        import case_store as CS          # 真值在 case_library（2026-11-05 起）
+        return CS.load_cases()
     path = os.path.join(DATA_DIR, name + ".json")
     if not os.path.exists(path):
         return default if default is not None else []
@@ -844,6 +886,13 @@ def _orig_newline(path):
 
 
 def save_json(name, payload):
+    # 2026-11-05：`cases` 的真值已迁进 SQLite（case_library 表），
+    # `data/cases.json` 只是镜像。收口到 case_store：写库 + 重导镜像，
+    # 否则跑一次算分就让「库」和「镜像」分叉（算的分数只落进了文件）。
+    if name == "cases":
+        import case_store as CS
+        CS.save_cases(payload)
+        return
     path = os.path.join(DATA_DIR, name + ".json")
     nl = _orig_newline(path)
     tmp = path + ".tmp"
@@ -1047,7 +1096,8 @@ def main():
         return 0
 
     save_json("cases", cases)
-    print("\n已写入 data/cases.json（solo_fit %d 条，composite %d 条）" % (len(rows), len(both)))
+    print("\n已写入 case_library（solo_fit %d 条，composite %d 条），镜像 data/cases.json 已重导"
+          % (len(rows), len(both)))
     print("页面刷新即可看到「综合排行」视图。")
     return 0
 

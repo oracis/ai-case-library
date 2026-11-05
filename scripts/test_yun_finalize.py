@@ -99,5 +99,33 @@ class ProbeScript(unittest.TestCase):
         self.assertIn("aliyunCaptcha-top", src, "探针没查滑块容器")
 
 
+class DraftLedgerBridge(unittest.TestCase):
+    """建稿台账必须同时落 JSON 与 SQLite（2026-11-04 补）。
+
+    为什么钉死：`publish_one.py` 的 `remote` 闸**只读 SQLite**
+    （`db.get_post` 取 `draft_id`），`tc_manage`/`yun_finalize` 读 SQLite。
+    而 `yun_draft_cdp` 原先只写 `longtail_sync.json` ⇒ 建完草稿后闸仍报
+    「台账没有远端草稿 id」，照提示再跑一次 `--upload` 就**建出第二份草稿**，
+    两份都可能被发表 —— 这是重复稿的源头，不是显示问题。
+    """
+
+    def test_bridge_exists_and_writes_sqlite(self):
+        with open(os.path.join(HERE, "yun_draft_cdp.py"), encoding="utf-8") as f:
+            src = f.read()
+        self.assertIn("def _remember_db(", src, "缺 _remember_db（SQLite 落账）")
+        self.assertIn("db.upsert_post(", src, "没写 platform_posts")
+        self.assertRegex(src, r"_remember\(key,\s*\{", "JSON 台账被删了？")
+        # 两个台账必须都在 main 里被调用，只调一个就是这次的事故形态
+        self.assertIn("_remember_db(case, results", src,
+                      "main 没有调用 _remember_db ⇒ SQLite 又空了")
+
+    def test_draft_state_does_not_beat_published(self):
+        """state=draft 写回不得覆盖已 published（db 的状态排序兜底）。"""
+        import db                                          # noqa: PLC0415
+        self.assertLessEqual(db._STATE_RANK.get("draft", 9),
+                             db._STATE_RANK.get("published", 9),
+                             "draft 的排位不能高于 published")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

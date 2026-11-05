@@ -99,6 +99,12 @@ def data_path(name):
 
 
 def load_json(name):
+    # 2026-11-05：案例库真值在 SQLite（`case_library` 表），`data/cases.json`
+    # 是自动导出的镜像。收口在这里，`build_payload()` / 站点构建 / 线上 API
+    # 全部自动改读库，不用逐个改调用点。其余台账仍是 JSON 文件。
+    if name == "cases":
+        import case_store as CS
+        return CS.load_cases()
     path = data_path(name)
     if not os.path.exists(path):
         return []
@@ -115,6 +121,11 @@ def save_json(name, payload):
     整个文件 diff 全红 —— 数据没变，只是行尾变了，而排查的人会先怀疑
     「是不是把库写坏了」。同类事故 2026-10-10 在 harvest 上真踩过一次。
     """
+    if name == "cases":
+        # 写库 + 重导镜像（格式统一由 case_store/db 负责）
+        import case_store as CS
+        CS.save_cases(payload)
+        return
     os.makedirs(DATA_DIR, exist_ok=True)
     path = data_path(name)
     atomicio.write_json(path, payload, indent=2,

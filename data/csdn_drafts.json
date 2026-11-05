@@ -1,32 +1,43 @@
 {
   "chessigma": {
-    "article_id": "169742331",
-    "status": "rejected",
-    "title": "Chessigma 技术拆解：一个海外独立产品的工程与增长",
-    "url": "https://blog.csdn.net/sinat_32396037/article/details/169742331",
-    "ts": "2026-11-01 14:45:57",
-    "note": "2026-11-02 创作中心复核：2026-11-01 14:45 那篇显示「审核未通过」，此前台账记成 published 是错的（saveArticle 返回成功 ≠ 过审）"
+    "article_id": "170136834",
+    "title": "做一个免费国际象棋对战平台，工程上要过哪几道关",
+    "url": "https://blog.csdn.net/sinat_32396037/article/details/170136834",
+    "ts": "2026-11-05 13:28:03",
+    "note": "2026-11-05 13:28 published（审核约 10 分钟通过）；封面 bd495dbe 随 saveArticle 提交并已随文公开"
   },
   "cod-dex": {
     "article_id": "169850647",
-    "title": "Codédex 技术拆解：一个海外独立产品的工程与增长",
+    "title": "浏览器里跑学生代码：互动式编程平台的沙箱、判题与成本",
     "url": "https://blog.csdn.net/sinat_32396037/article/details/169850647",
-    "ts": "2026-11-02 23:35:54",
-    "status": "published"
+    "ts": "2026-11-04 17:16:30",
+    "status": "published",
+    "genre": "tech",
+    "state": "published"
   },
   "_deleted": {
     "trustmrr_169654106": "2026-11-01 14:49 删除：00:09 的 TrustMRR 测试稿，非本批次占位稿，用于腾创作中心位（但 CSDN 日配额按发表事件计、删除不退款，故未能当日发 cod-dex）"
   },
   "ext-ep-001-super-mario-bros": {
-    "article_id": null,
-    "title": "游戏厅：马力欧兄弟，被 JS 重写的 1985 经典",
+    "article_id": "169938945",
+    "title": "用 Backbone 游戏引擎复刻超级马力欧兄弟：Sprite、Engine 与关卡数据怎么分层",
     "url": "https://blog.csdn.net/sinat_32396037/article/details/169938945",
-    "ts": "2026-11-03 13:12:58"
+    "ts": "2026-11-04 17:1x",
+    "cover": "https://i-blog.csdnimg.cn/direct/eb599d3e8a5846ab9627083de43d968a.png",
+    "state": "deep_deleted"
   },
   "ext-ep-002-2048": {
-    "article_id": null,
-    "title": "游戏厅：2048，一个网页就能玩的数字合并",
+    "article_id": "170041126",
+    "title": "4×4 网格怎么写出「合并」手感：读开源 2048 的代码结构",
     "url": "https://blog.csdn.net/sinat_32396037/article/details/170041126",
-    "ts": "2026-11-04 13:16:04"
+    "ts": "2026-11-04 17:1x",
+    "cover": "https://i-blog.csdnimg.cn/direct/f9811f07fbd04fb4a156f8172dbbca44.png",
+    "state": "deep_deleted"
+  },
+  "ext-ep-003-freedoom": {
+    "article_id": null,
+    "title": "没有原版素材的《毁灭战士》怎么造：读 Freedoom 的资源仓库",
+    "url": "https://blog.csdn.net/sinat_32396037/article/details/170138487",
+    "ts": "2026-11-05 14:05:34"
   }
 }

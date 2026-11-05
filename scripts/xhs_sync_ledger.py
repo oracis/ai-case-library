@@ -125,8 +125,8 @@ def load_override_titles():
 
 
 def load_cases():
-    d = _read_json(CASES, [])
-    return d if isinstance(d, list) else []
+    import case_store as CS
+    return CS.load_cases()
 
 
 def load_aliases():

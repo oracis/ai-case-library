@@ -83,24 +83,27 @@ def _to_platform_post(case_id, platform, row):
 # ================================================================
 
 def import_cases(conn):
-    """导入 cases.json / graveyard.json / anti_cases.json 到 cases 表。"""
+    """导入 cases.json 到 `case_library`（真值表），graveyard / anti_cases 仍进老表 `cases`。
+
+    2026-11-05：案例库本体迁到 `case_library`，一表对一文件。graveyard 与
+    anti_cases 不是案例库本体（前者是已停运复盘、后者是「活得好但搬不动」），
+    继续留在老表，避免三份数据的生命周期互相污染。
+    """
     count = 0
 
-    # --- cases.json ---
+    # --- cases.json → case_library ---
     path = os.path.join(DATA, "cases.json")
     data = _load_json(path, [])
     if isinstance(data, list):
         for r in data:
             if not isinstance(r, dict) or not r.get("id"):
                 continue
-            row = dict(r)
-            row["type"] = "case"
-            db.upsert_case(conn, row)
+            db.upsert_case(conn, dict(r))          # 默认写 CASE_TABLE = case_library
             count += 1
     conn.commit()
-    print(f"  cases.json → {count} 条（累计）")
+    print(f"  cases.json → case_library {count} 条")
 
-    # --- graveyard.json ---
+    # --- graveyard.json → 老表 cases ---
     count_g = 0
     path = os.path.join(DATA, "graveyard.json")
     data = _load_json(path, [])
@@ -110,10 +113,10 @@ def import_cases(conn):
                 continue
             row = dict(r)
             row["type"] = "graveyard"
-            db.upsert_case(conn, row)
+            db.upsert_case(conn, row, table="cases")
             count_g += 1
     conn.commit()
-    print(f"  graveyard.json → {count_g} 条")
+    print(f"  graveyard.json → cases {count_g} 条")
 
     # --- anti_cases.json ---
     count_a = 0
@@ -127,14 +130,14 @@ def import_cases(conn):
             if isinstance(v, dict) and v.get("id"):
                 row = dict(v)
                 row["type"] = "anti_case"
-                db.upsert_case(conn, row)
+                db.upsert_case(conn, row, table="cases")
                 count_a += 1
             elif isinstance(v, dict) and isinstance(v.get("cases"), list):
                 for c in v["cases"]:
                     if isinstance(c, dict) and c.get("id"):
                         row = dict(c)
                         row["type"] = "anti_case"
-                        db.upsert_case(conn, row)
+                        db.upsert_case(conn, row, table="cases")
                         count_a += 1
     conn.commit()
     print(f"  anti_cases.json → {count_a} 条")
@@ -315,11 +318,13 @@ def main():
             print(f"    verifications 表共导入 {n} 条记录")
 
         # 统计
+        lib_n = conn.execute("SELECT COUNT(*) FROM case_library WHERE deleted=0").fetchone()[0]
         cases_n = conn.execute("SELECT COUNT(*) FROM cases WHERE deleted=0").fetchone()[0]
         posts_n = conn.execute("SELECT COUNT(*) FROM platform_posts").fetchone()[0]
         ver_n = conn.execute("SELECT COUNT(*) FROM verifications").fetchone()[0]
         print(f"\n=== 导入完成 ===")
-        print(f"  cases:         {cases_n} 条")
+        print(f"  case_library:  {lib_n} 条（真值）")
+        print(f"  cases(老表):   {cases_n} 条（graveyard/anti + 历史归档）")
         print(f"  platform_posts: {posts_n} 条")
         print(f"  verifications:  {ver_n} 条")
         print(f"  数据库文件: {db.current_path()}")

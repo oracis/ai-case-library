@@ -113,10 +113,27 @@ class TestCategoryCoverage(unittest.TestCase):
             d = json.load(f)
         cases = d if isinstance(d, list) else d.get("cases", d)
         real = {(c.get("category") or "").strip() for c in cases}
-        miss = sorted(x for x in real - set(A.CATEGORY_STYLE) if x)
+        # 判据走 `A.cat_key()`，与 `build_prompt()` 是同一个入口：分类名大小写
+        # 变体（`utilities` / `Utilities`）由它归一，**但真·新分类仍然必须显式
+        # 补映射** —— 不能靠归一化把一个没见过的分类悄悄算作已覆盖。
+        miss = sorted(x for x in real - set(A.CATEGORY_STYLE)
+                      if x and A.cat_key(x) not in A.CATEGORY_STYLE)
         self.assertEqual(miss, [], "未覆盖的 category: %s" % miss)
         self.assertEqual(miss, [], "未覆盖的 theme: %s" % (
-            sorted(x for x in real - set(A.CATEGORY_THEME) if x),))
+            sorted(x for x in real - set(A.CATEGORY_THEME)
+                   if x and A.cat_key(x) not in A.CATEGORY_THEME),))
+
+    def test_case_variant_maps_to_same_style(self):
+        """`utilities` 必须和 `Utilities` 画同一套风格（第三次踩同一类坑）。"""
+        self.assertEqual(A.cat_key("utilities"), "Utilities")
+        up = A.build_prompt({"id": "x", "name": "X", "category": "Utilities"}, "square")
+        low = A.build_prompt({"id": "x", "name": "X", "category": "utilities"}, "square")
+        self.assertEqual(up, low)
+
+    def test_truly_unknown_category_is_not_normalized_away(self):
+        """归一化只处理大小写/分隔符，不许把没见过的分类也算成已覆盖。"""
+        self.assertNotIn(A.cat_key("legal tech"), A.CATEGORY_STYLE)
+        self.assertIn(A.cat_key("crypto-web3"), A.CATEGORY_STYLE)
 
     def test_unknown_category_falls_back(self):
         p = A.build_prompt({"id": "x", "name": "X",

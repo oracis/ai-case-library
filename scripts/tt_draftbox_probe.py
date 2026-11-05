@@ -45,9 +45,8 @@ PROBE = {
 
 
 def load_cases():
-    p = os.path.join(ROOT, "data", "cases.json")
-    with io.open(p, encoding="utf-8", newline="") as f:
-        return json.loads(f.read())
+    import case_store as CS
+    return CS.load_cases()
 
 
 def titles_of():

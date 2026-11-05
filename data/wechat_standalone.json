@@ -152,5 +152,14 @@
     "status": "draft",
     "appmsgid": "100001350",
     "file": "ext-ep-001-super-mario-bros.html"
+  },
+  "ext-ep-002-2048": {
+    "title": "游戏厅：2048",
+    "desc": "",
+    "tag": "万物解释者",
+    "published_at": "2026-11-05 09:59",
+    "status": "draft",
+    "appmsgid": "100001362",
+    "file": "ext-ep-002-2048.html"
   }
 }

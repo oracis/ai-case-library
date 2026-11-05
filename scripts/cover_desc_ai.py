@@ -150,22 +150,26 @@ def ask_llm(case):
 
 
 def load_cases():
-    with io.open(CASES, encoding="utf-8", newline="") as f:
-        return json.loads(f.read())
+    import case_store as CS
+    return CS.load_cases()
 
 
 def save_cases_like(raw, data):
-    """保持原格式：indent=2 + CRLF + 无末尾换行（记忆铁律 16）。"""
-    out = json.dumps(data, ensure_ascii=False, indent=2).replace("\n", "\r\n")
-    with io.open(CASES, "w", encoding="utf-8", newline="") as f:
-        f.write(out)
+    """写库 + 重导镜像。格式由 case_store/db 统一负责（键序按 field_order 还原）。
+
+    以前这里手写「indent=2 + CRLF + 无末尾换行」，而实测 data/cases.json
+    是 **LF + 无末尾换行** —— 注释与事实不符，正是把格式化收口到一处的原因。
+    `raw` 参数保留只为兼容老调用点。
+    """
+    import case_store as CS
+    CS.save_cases(data)
 
 
 def main():
     ap = argparse.ArgumentParser(description="AI 生成封面一句话介绍")
     ap.add_argument("--plan", action="store_true", help="只列会改哪些")
     ap.add_argument("--draft", action="store_true", help="生成候选到本地草稿")
-    ap.add_argument("--apply", action="store_true", help="把草稿写进 cases.json")
+    ap.add_argument("--apply", action="store_true", help="把草稿写进 case_library")
     ap.add_argument("--all", action="store_true", help="连已有 cover_desc 也重写")
     ap.add_argument("--ping", action="store_true", help="只测端点通不通")
     ap.add_argument("--ai-base", default=None, help="覆盖 LLM 端点")
@@ -239,9 +243,9 @@ def main():
             return 2
         with io.open(DRAFT, encoding="utf-8") as f:
             drafts = json.load(f)
-        with io.open(CASES, encoding="utf-8", newline="") as f:
-            raw = f.read()
-        data = json.loads(raw)
+        import case_store as CS
+        raw = ""
+        data = CS.load_cases()
         # ⚠ --only 必须**同时约束 draft 的筛选和 apply 的写盘** ——
         #   只改前者的话，草稿文件里**历史遗留**的其它记录会被顺带写进去
         #   （实测点名 1 条却写了 22 条）。草稿是累积文件，不是本次产物。

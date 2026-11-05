@@ -37,6 +37,36 @@ PORT = 9228
 PROFILE = os.path.expandvars(r"%USERPROFILE%\chrome-yun-profile")
 LEDGER = os.path.join(ROOT, "data", "yun_finalize.json")
 
+# 发表链路把「封面到底设上了没有」写在这里，由 CLI 落进 `data/cover_readback.json`
+# （`cover_verify.record()`）。为什么走全局而不是改返回值：这两个函数的返回
+# 形态已被 publish_one / 手工调用依赖，加第三个返回值会静默改变解包行为。
+# 🚨 只许在**真读到证据**时写 "ok"；读不到写 "unknown"，绝不许写 "ok"。
+LAST_COVER = {"state": "", "evidence": ""}
+
+
+def _set_cover(state, evidence=""):
+    LAST_COVER["state"] = state
+    LAST_COVER["evidence"] = str(evidence or "")[:300]
+
+
+def _record_cover(case, platform):
+    """把 `LAST_COVER` 落进 `data/cover_readback.json`。
+
+    `state` 为空 = 这条链路这次没判过封面（比如没走到封面那一步），
+    **不记录**比记一条假的更安全 —— 空着会被闸判成 `unknown`。
+    """
+    st = LAST_COVER.get("state") or ""
+    if not (case and st):
+        return
+    try:
+        import cover_verify as CV
+        CV.record(case, platform, st, LAST_COVER.get("evidence", ""),
+                  source="yun_finalize")
+        print("  封面台账：%s / %s ← %s" % (case, platform, st))
+    except Exception as e:                             # noqa: BLE001
+        # 台账写不进去不该让已经发出去的文章变成「发布失败」
+        print("  ⚠ 封面回读结果没写进台账（不影响发表）：%s" % str(e)[:80])
+
 # 社区候选优先级：--community 未给时按序取 UI 里第一个命中的**全等**选项
 COMMUNITY_PREF = ["云原生", "人工智能"]
 
@@ -342,6 +372,27 @@ def upload_image(cdp, cover):
     return url
 
 
+def _judge_aliyun_cover(v):
+    """把 draftDetail 复核里的 `coverUrl` 变成封面状态。
+
+    `v` 是页内 `JSON.stringify({abstractLen, coverUrl, gmtModified})` 的字符串。
+    🚨 解析失败写 `unknown`，**不写 empty** —— 「读不懂」和「读懂了是空的」
+      是两件事，混起来就会把网络抖动记成「这个平台没封面」。
+    """
+    try:
+        j = json.loads(str(v))
+    except (ValueError, TypeError):
+        _set_cover("unknown", "draftDetail 复核无法解析：%s" % str(v)[:120])
+        return
+    url = str((j or {}).get("coverUrl") or "")
+    if url.startswith("http"):
+        _set_cover("ok", "draftDetail.coverUrl=%s" % url)
+    elif url:
+        _set_cover("empty", "coverUrl 不是 http 地址（%s）⇒ 视为未落库" % url[:80])
+    else:
+        _set_cover("empty", "draftDetail.coverUrl 为空 ⇒ 草稿没有封面")
+
+
 def finalize_aliyun(cdp, draft_id, abstract, cover_url, community=None):
     """API 直写：putDraft 带 abstractContent + coverUrl。
 
@@ -379,6 +430,9 @@ fetch("/developer/api/articleDraft/draftDetail?aid=%d", {credentials: "include"}
       coverUrl: d.coverUrl, gmtModified: d.gmtModified}); })""" % draft_id)
     time.sleep(2)
     print("  阿里云复核: %s" % v)
+    # 🚨 2026-11-05：这段复核打印一直没人读（典型的假绿形状）——
+    #   `coverUrl` 就在这里，却从没有判据。现在把它变成台账里的状态。
+    _judge_aliyun_cover(v)
     # 社区：UI 选中（页面态）+ 台账留档（发表步骤复用）
     name = select_community(cdp, draft_id, community)
     if name:
@@ -596,6 +650,7 @@ def publish_tencent(cdp, draft_id, abstract="", cover_file="", tags=("架构设�
       · 提交后：拿提交响应里的 articleId 回读创作中心卡片缩略图（CSS background-image），
         读不到即判定封面没落库并 return False（附 `--fix-cover` 补救命令）。
     """
+    LAST_COVER.update(state="", evidence="")
     cdp.open("https://cloud.tencent.com/developer/article/write-new"
              "?draftId=%s" % draft_id)
     time.sleep(10)
@@ -663,11 +718,17 @@ def publish_tencent(cdp, draft_id, abstract="", cover_file="", tags=("架构设�
             # 事后补图会让已发布文章重回审核（11-03 实测 3 分钟）。
             if require_cover:
                 return False, "封面没挂上，已拦下不提交：%s" % cmsg
+            _set_cover("empty", "封面没挂上但 require_cover=False 继续提交：%s" % cmsg)
             print("  ⚠ 封面没挂上（%s），require_cover=False 继续提交" % cmsg)
         elif cover_state == "staged":
             print("  ✓ 封面文件已接受（裁剪框），正式地址由提交时上传产生")
         else:
+            # `landed` = 抽屉里已经是 https://developer.qcloudimg.com/... 的正式地址，
+            # 这是平台侧真有封面的一手证据，可以直接记 ok（不必等发表）。
+            _set_cover("ok", "发表抽屉封面 img.src=%s" % cmsg)
             print("  ✓ 封面已在线上：%s" % cmsg[:80])
+    else:
+        _set_cover("empty", "本次发表没带封面（--cover 为空）")
 
     # 5) 提交（先挂网络钩子：提交响应里带 articleId，用来回读封面）
     _hook_publish(cdp)
@@ -691,12 +752,16 @@ def publish_tencent(cdp, draft_id, abstract="", cover_file="", tags=("架构设�
     idline = ("\n    articleId=%s" % aid) if aid else ""
     if cover_state == "staged":
         if not aid:
+            _set_cover("unknown",
+                       "封面已随提交上传，但没抓到 articleId，未能线上复核")
             return True, ("%s%s\n    封面：已随提交上传，但没抓到 articleId，未能线上复核"
                           "（用 tc_manage.py status 或文章页 og:image 复查）"
                           % (url[:80], idline))
         ok, info = verify_cover_online(cdp, aid, timeout=180)
         if ok:
+            _set_cover("ok", "线上文章 %s 卡片缩略图 background-image=%s" % (aid, info))
             return True, "%s%s\n    封面已落库：%s" % (url[:70], idline, str(info)[:80])
+        _set_cover("empty", "已发布 articleId=%s，线上卡片缩略图为空：%s" % (aid, info))
         return False, ("已发布，但封面没落库（%s）。文章 id=%s，"
                        "跑 `--fix-cover %s --cover <图>` 可补上" % (info, aid, aid))
     return True, url + idline
@@ -961,6 +1026,7 @@ def publish_aliyun(cdp, draft_id, community=None, cover_file="",
     captcha_wait：弹滑块时**在原地等用户人工拖**的秒数（默认 5 分钟）。
     body_md：草稿没回填时的兜底正文（本地稿原文）。
     """
+    LAST_COVER.update(state="", evidence="")
     # 社区：显式参数 > 台账 > 首选
     name = community or ledger_get("__community__%s" % draft_id).get("community")
     draft_url = "https://developer.aliyun.com/article/new?edit=%s" % draft_id
@@ -1032,13 +1098,23 @@ def publish_aliyun(cdp, draft_id, community=None, cover_file="",
         if not isinstance(got, int) or got == 0:
             raise SystemExit("阿里云发表：摘要仍为空，会被必填校验拦住，不点发布")
     # 文章图片（firstImg，页面态必传）：显式路径 > 台账反查
+    # 🚨 2026-11-05：这里的失败原来是**静默**的（`if u:` 没有 else），
+    #   于是「本地有图、文章里没图」可以一路发出去而没人知道。
     local = cover_file or _find_local_cover(cdp, draft_id)
     if local and os.path.exists(local):
         u = upload_image(cdp, local)
         if u:
             ledger_set("__community__%s" % draft_id, uploaded_img=u)
+            _set_cover("ok", "文章首图 firstImg=%s" % u)
+        else:
+            _set_cover("empty", "文章首图上传失败（upload_image 返回空）：%s" % local)
+            print("  ⚠ 文章首图没传上：%s" % local)
     elif local:
+        _set_cover("empty", "封面文件不存在，未传首图：%s" % local)
         print("  ⚠ 封面文件不存在: %s（跳过传图）" % local)
+    else:
+        _set_cover("empty", "既没给 --cover 也没在台账里反查到本地封面")
+        print("  ⚠ 没有本地封面可传（该文发出的首图会是空的）")
     # 点「发布文章」（真实鼠标）
     pos = _pos_of(cdp, """
       [].filter.call(document.querySelectorAll('button'),
@@ -1207,6 +1283,7 @@ if __name__ == "__main__":
                            tc_state="published",
                            tc_state_at=time.strftime("%Y-%m-%d %H:%M"),
                            tc_article=m.group(1) if m else "")
+            _record_cover(a.case, "tencentcloud")
             sys.exit(0 if ok else 1)
         if not a.al_draft:
             raise SystemExit("🚫 拒绝发表：--publish 需要 --al-draft 或 --tc-draft")
@@ -1239,6 +1316,9 @@ if __name__ == "__main__":
                 cdp.bws.close()
             except Exception:                                  # noqa: BLE001
                 pass
+            # 放在 finally 里：publish_aliyun 失败时 raise SystemExit，
+            # 「封面传没传上」这个事实仍然要落库（否则永远停在 unknown）。
+            _record_cover(a.case, "aliyun")
     else:
         run(case=a.case, file=a.file, tc_draft=a.tc_draft, al_draft=a.al_draft,
             abstract=a.abstract or None, cover_url=a.cover_url,

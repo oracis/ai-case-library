@@ -75,7 +75,9 @@ def save_cookie(pairs):
     import atomicio
     atomicio.write_json(COOKIE_FILE, {
         "pairs": pairs,                                # [(name, value), ...]
-        "cookie_string": "; ".join("%s=%s" % kv for kv in pairs),
+        # 2026-11-05 修：`"%s=%s" % kv` 只对 tuple 拆包，list 会 TypeError
+        # （zhihu_creator.cmd_cookies 传的是 [n, v] 列表）。显式 tuple() 兼容两者。
+        "cookie_string": "; ".join("%s=%s" % tuple(kv[:2]) for kv in pairs),
         "saved_at": time.strftime("%Y-%m-%d %H:%M:%S"),
     })
     print("✓ cookie 落盘: %s" % os.path.relpath(COOKIE_FILE, ROOT))

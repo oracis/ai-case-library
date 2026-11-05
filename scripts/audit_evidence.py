@@ -78,7 +78,8 @@ def main():
                     help="把虚标的等级降回证据撑得住的那一档（默认只报告）")
     args = ap.parse_args()
 
-    cases = json.load(open(CASES, encoding="utf-8"))
+    import case_store as CS
+    cases = CS.load_cases()
     today = datetime.now().strftime("%Y-%m-%d")
     hits = audit(cases)
 
@@ -131,9 +132,9 @@ def main():
         c["updated_at"] = today
         n += 1
 
-    json.dump(cases, open(CASES, "w", encoding="utf-8"),
-              ensure_ascii=False, indent=2)
-    print("已降级 %d 条并写回 data/cases.json" % n)
+    import case_store as CS
+    CS.save_cases(cases)                 # 写 case_library + 重导 cases.json 镜像
+    print("已降级 %d 条（写库后镜像已重导）" % n)
     print("（原始等级都留在各自的 verification_downgraded.from 里，可还原）")
     return 0
 

@@ -59,8 +59,8 @@ def _mod(name):
 
 
 def load_cases():
-    d = json.load(open(os.path.join(ROOT, "data", "cases.json"), encoding="utf-8"))
-    return d if isinstance(d, list) else d.get("cases", d)
+    import case_store as CS
+    return CS.load_cases()
 
 
 def built_ids():

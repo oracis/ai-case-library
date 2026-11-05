@@ -43,6 +43,9 @@ CONTENT_FIELDS = ["what_it_does", "how_it_makes_money", "verdict", "why_it_works
 
 
 def load(name):
+    if name == "cases.json":
+        import case_store as CS          # 真值在 case_library
+        return CS.load_cases()
     with open(os.path.join(ROOT, "data", name), encoding="utf-8") as f:
         return json.load(f)
 

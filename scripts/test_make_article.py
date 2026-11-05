@@ -394,6 +394,38 @@ def main():
     chk("data/static/dist 无 .bak 残留（gitignore 的同步快照不算）",
         not dirty, "、".join(dirty))
 
+    # ---------------- 数据时点（2026-11-05）----------------
+    # 用户口径：金额「不准确，并且是动态的」。标题已全禁金额，但正文数据卡
+    # 原来只印数字不印时点 ⇒ 读者会把抓取日快照当今天的数。
+    print("\n数据时点")
+    with_at = [c for c in cases if str(c.get("verified_at") or "").strip()]
+    no_row = [c.get("id") for c in with_at if not m.timepoint_row(c)]
+    chk("每条有 verified_at 的案例都生成了时点行", not no_row, "、".join(no_row[:5]))
+
+    wrong_date = [c.get("id") for c in with_at
+                  if ("截至 %s" % c["verified_at"]) not in m.timepoint_row(c)]
+    chk("时点行印的是 verified_at 那个日期（不自己编日期）",
+        not wrong_date, "、".join(wrong_date[:5]))
+
+    cals = {str(c.get("caliber") or "").strip().lower() for c in cases} - {""}
+    miss_cal = sorted(cals - set(m.CALIBER_TEXT))
+    chk("库存用到过的 caliber 全有读者能懂的中文口径", not miss_cal, "、".join(miss_cal))
+
+    bare = m.timepoint_row({"metrics": {"mrr": 1}, "caliber": "mrr"})
+    chk("没有 verified_at 时不编日期，但仍给出处口径",
+        "截至" not in bare and "口径" in bare)
+
+    chk("既无日期又无口径 → 不出这一行（宁缺勿编）",
+        m.timepoint_row({"metrics": {"mrr": 1}}) == "")
+
+    # 时点行必须是数据卡的最后一行：读者先读数字，紧接着读「这是哪天的数」
+    one = next((c for c in cases if (c.get("metrics") or {}).get("headline")), None)
+    if one:
+        secs = m.build_sections(one)
+        card = dict(secs).get("它到底做到多大") or []
+        chk("时点行压在数据卡最末", card and m._split_row(card[-1])[0] == "数据时点",
+            card[-1][:40] if card else "(无数据卡)")
+
     print("\n" + "=" * 62)
     if fails:
         print("  结果：%d 通过 / %d 失败" % (passed, len(fails)))

@@ -71,10 +71,8 @@ CENTER_LO, CENTER_HI = 0.40, 0.60
 
 
 def load_cases():
-    import json
-    p = os.path.join(ROOT, "data", "cases.json")
-    data = json.load(open(p, encoding="utf-8"))
-    return data["cases"] if isinstance(data, dict) else data
+    import case_store as CS
+    return CS.load_cases()
 
 
 def png_text_blocks(path, thresh=90):

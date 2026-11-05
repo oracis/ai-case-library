@@ -119,5 +119,42 @@
     "tc_state_at": "2026-11-04 14:13",
     "updated": "2026-11-04 14:14:39",
     "tc_article": "2775867"
+  },
+  "ext-ep-003-freedoom": {
+    "tc_draft": "340532",
+    "tc_state": "published",
+    "tc_state_at": "2026-11-04 19:26",
+    "tc_article": "2776285",
+    "updated": "2026-11-04 19:26:57"
+  },
+  "mort": {
+    "tc_draft": "340537",
+    "tc_state": "published",
+    "tc_state_at": "2026-11-04 19:34",
+    "tc_article": "2776290",
+    "updated": "2026-11-04 19:34:48"
+  },
+  "tencentcloud": {
+    "title": "游戏厅：Quake，1999 年开源的雷神之锤",
+    "tc_draft": "340965",
+    "tc_state": "draft",
+    "tc_state_at": "2026-11-05 11:41",
+    "updated": "2026-11-05 11:41:15"
+  },
+  "ext-ep-004-quake": {
+    "tc_draft": "340965",
+    "tc_state": "published",
+    "tc_state_at": "2026-11-05 11:59",
+    "title": "游戏厅：Quake，1999 年开源的雷神之锤",
+    "updated": "2026-11-05 11:59:57",
+    "tc_article": "2776740"
+  },
+  "gojiberryai": {
+    "title": "盯住「谁在换工作」：信号驱动线索系统的三个工程问题",
+    "tc_draft": "341234",
+    "tc_state": "published",
+    "tc_state_at": "2026-11-05 14:22",
+    "updated": "2026-11-05 14:22:59",
+    "tc_article": "2776839"
   }
 }

@@ -56,7 +56,8 @@ def main():
 
     # 收集案例：优先用 cases.json 里能生成 B站标题的
     import json as _j
-    cases = _j.load(open(os.path.join(ROOT, "data", "cases.json"), encoding="utf-8"))
+    import case_store as CS
+    cases = CS.load_cases()
     if isinstance(cases, dict):
         cases = cases["cases"]
     if args.case:

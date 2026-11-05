@@ -134,14 +134,8 @@ LEADOUT_KW = ["案例库", "社群", "每天筛", "完整核实记录", "核实�
 # 加载
 # --------------------------------------------------------------------------
 def load_cases():
-    if not os.path.isfile(CASES):
-        return {}
-    with open(CASES, encoding="utf-8") as f:
-        d = json.load(f)
-    # cases.json 可能是 {cases:[...]} 或 [...]
-    if isinstance(d, dict):
-        return d.get("cases", d)
-    return d
+    import case_store as CS
+    return CS.load_cases()
 
 
 def list_ids():
@@ -1447,40 +1441,44 @@ def _record_draft(cid, aid, title=""):
 
 
 def _load_manifest():
-    """优先从 SQLite ledger 读 bilibili 平台发布记录；db 无数据时回退到 JSON。
+    """读整本 manifest：JSON 为底座，db 的 bilibili 记录逐条覆盖其上。
 
-    返回格式与原 `publish_manifest.json` 兼容：{cid: {bilibili: {state, remote_id, url, title, draft_id, attempt, at, note}}}
+    ⚠ 2026-11-05 修：「db 有数据就只返回 db」曾把返回值裁成 bilibili 单平台子集，
+    _mark_manifest_published 拿它当整本快照写回 ⇒ publish_manifest.json 被剪掉
+    toutiao/wechat/xhs/aliyun/zhihu 等全部非 B站记录（101→74，实测事故）。
+    返回值必须是**完整** {cid: {platform: {...}}}——快照写回与 send-draft 的
+    published 去重过滤都依赖整本。
     """
+    p = os.path.join(ROOT, "data", "publish_manifest.json")
+    try:
+        with open(p, encoding="utf-8") as f:
+            result = json.load(f)
+    except Exception:
+        result = {}
+    if not isinstance(result, dict):
+        result = {}
+
     conn = db.get_conn()
     try:
         posts = db.get_posts_by_platform(conn, "bilibili")
-        if posts:
-            result = {}
-            for p in posts:
-                cid = p["case_id"]
-                result.setdefault(cid, {})["bilibili"] = {
-                    "state": p.get("state") or "",
-                    "remote_id": p.get("remote_id") or "",
-                    "url": p.get("url") or "",
-                    "title": p.get("title") or "",
-                    "draft_id": p.get("draft_id") or "",
-                    "attempt": p.get("attempt") or 0,
-                    "at": p.get("updated_at") or "",
-                    "note": p.get("note") or "",
-                }
-            return result
+        for p_ in posts or []:
+            cid = p_["case_id"]
+            result.setdefault(cid, {})["bilibili"] = {
+                "state": p_.get("state") or "",
+                "remote_id": p_.get("remote_id") or "",
+                "url": p_.get("url") or "",
+                "title": p_.get("title") or "",
+                "draft_id": p_.get("draft_id") or "",
+                "attempt": p_.get("attempt") or 0,
+                "at": p_.get("updated_at") or "",
+                "note": p_.get("note") or "",
+            }
     except Exception:
         pass
     finally:
         db.close_conn()
 
-    # fallback：从 JSON 读（迁移期兼容旧数据）
-    p = os.path.join(ROOT, "data", "publish_manifest.json")
-    try:
-        with open(p, encoding="utf-8") as f:
-            return json.load(f)
-    except Exception:
-        return {}
+    return result
 
 
 def _mark_manifest_published(cid, remote_id, title=""):

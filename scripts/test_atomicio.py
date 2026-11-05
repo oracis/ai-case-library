@@ -106,11 +106,20 @@ class TestDataWritersUseAtomicIO(unittest.TestCase):
         self.assertEqual(sorted(os.listdir(self.d)), ["draft_text.json"])
 
     def test_fit_ready写cases走原子写(self):
-        # fit_ready 的写盘在 main() 内联，没有可单测的函数 ⇒ 钉源码调用点
-        src = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                "fit_ready.py"), encoding="utf-8").read()
-        self.assertIn("atomicio.write_text(CASES_PATH, text)", src)
+        """2026-11-05 起 cases 的写盘收口到 case_store（内部走 atomicio）。
+
+        断言从「fit_ready 里直接调 atomicio」改成「fit_ready 必须调
+        CS.save_cases，且 case_store 的导出必须走 atomicio.write_json」——
+        原子性这条不能因为换了入口就丢。
+        """
+        base = os.path.dirname(os.path.abspath(__file__))
+        with open(os.path.join(base, "fit_ready.py"), encoding="utf-8") as f:
+            src = f.read()
+        self.assertIn("CS.save_cases(cases)", src)
         self.assertNotIn('open(CASES_PATH, "w"', src)
+        with open(os.path.join(base, "db.py"), encoding="utf-8") as f:
+            dbsrc = f.read()
+        self.assertIn("atomicio.write_json(out_path, out, indent=2", dbsrc)
 
     def test_采集与后台写盘也走原子写(self):
         """harvest.save_json 与 server.save_json 曾各自手写 tmp+replace。

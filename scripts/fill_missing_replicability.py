@@ -90,8 +90,8 @@ def main():
     ap.add_argument("--dry-run", action="store_true", help="只打印，不写入")
     args = ap.parse_args()
 
-    with io.open(CASES, "r", encoding="utf-8", newline="") as f:
-        cases = json.loads(f.read())
+    import case_store as CS
+    cases = CS.load_cases()
 
     patched, no_rule = [], []
     for c in cases:
@@ -113,10 +113,8 @@ def main():
         print("\n--dry-run：未写入")
         return 0
 
-    # 与 cases.json 现有格式一致：indent=2、CRLF、无末尾换行
-    with io.open(CASES, "w", encoding="utf-8", newline="") as f:
-        f.write(json.dumps(cases, ensure_ascii=False, indent=2).replace("\n", "\r\n"))
-    print("已写入 data/cases.json")
+    CS.save_cases(cases)              # 写库 + 重导镜像（格式统一由 case_store 负责）
+    print("已写入 case_library，镜像 data/cases.json 已重导")
     return 0
 
 

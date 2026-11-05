@@ -1138,7 +1138,10 @@ def test_save_json_preserves_newline():
         body = json.dumps(payload, ensure_ascii=False, indent=2)
 
         # ① 预置 LF 文件 → 写回必须还是 LF（不能被翻译成 CRLF）
-        for name in ("lf_file", "cases"):
+        # ⚠️ 不再包含 "cases"：2026-11-05 起案例库真值在 SQLite，save_json("cases")
+        #    走 case_store（写库+重导镜像），不再落 data/cases.json 这个文件路径。
+        #    这一条改成下面 ⑥ 的「路由」断言。
+        for name in ("lf_file",):
             p = os.path.join(tmp, name + ".json")
             with open(p, "w", encoding="utf-8", newline="\n") as f:
                 f.write(body)
@@ -1166,6 +1169,21 @@ def test_save_json_preserves_newline():
         p = os.path.join(tmp, "brand_new.json")
         chk("新建文件用 LF", os.path.exists(p)
             and b"\r\n" not in open(p, "rb").read())
+
+        # ⑥ save_json("cases") 必须路由到 case_store，而不是写文件
+        #    （写库 + 重导镜像；镜像路径跟着库走，测试用临时库就不会污染真镜像）
+        import case_store as CS
+        calls = []
+        orig_save = CS.save_cases
+        CS.save_cases = lambda payload, **kw: calls.append(list(payload))
+        try:
+            H.save_json("cases", payload)
+        finally:
+            CS.save_cases = orig_save
+        chk("save_json('cases') 走 case_store", len(calls) == 1 and len(calls[0]) == 2,
+            "调用 %d 次" % len(calls))
+        chk("save_json('cases') 不落 data/cases.json 文件",
+            not os.path.exists(os.path.join(tmp, "cases.json")))
 
         # ⑤ detect_newline 判据本身
         chk("detect: 不存在→默认 LF",

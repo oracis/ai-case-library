@@ -22,7 +22,7 @@
 
 用法：
     python scripts/fill_caliber.py            # 只出报告，不写盘
-    python scripts/fill_caliber.py --write    # 写回 data/cases.json
+    python scripts/fill_caliber.py --write    # 写回 case_library（+重导镜像）
 """
 import argparse
 import json
@@ -181,10 +181,11 @@ def decide(case):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--write", action="store_true", help="写回 data/cases.json")
+    ap.add_argument("--write", action="store_true", help="写回 case_library（并重导镜像）")
     args = ap.parse_args()
 
-    cases = json.load(open(CASES, encoding="utf-8"))
+    import case_store as CS
+    cases = CS.load_cases()
     todo = [c for c in cases if not c.get("caliber")]
     print("缺 caliber：%d 条" % len(todo))
 
@@ -210,9 +211,8 @@ def main():
     for c, k, why in done:
         c["caliber"] = k
         c["updated_at"] = c.get("updated_at") or ""
-    text = json.dumps(cases, ensure_ascii=False, indent=2)
-    atomicio.write_text(CASES, text + "\n", newline=atomicio.detect_newline(CASES))
-    print("\n已写回 %d 条 → %s" % (len(done), os.path.relpath(CASES, ROOT)))
+    CS.save_cases(cases)              # 写 case_library + 重导 cases.json 镜像
+    print("\n已写回 %d 条 → case_library（镜像 data/cases.json 已重导）" % len(done))
     left = sum(1 for c in cases if not c.get("caliber"))
     print("剩余缺 caliber：%d 条" % left)
     return 0

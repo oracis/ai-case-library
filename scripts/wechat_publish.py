@@ -413,10 +413,19 @@ _REVENUE_PHRASE = re.compile(
 _CLAUSE_SPLIT = re.compile(r"[：:，,；;。！!？?\n]")
 
 # 金额（含「19€」这种符号后置写法）
+# ⚠ 字符类必须同时含**全角 ￥（U+FFE5）与半角 ¥（U+00A5）**：
+# 2026-11-04 实测 10 条封面文案里 8 条用的是半角 ¥（「做到 2026 年¥1.01亿」
+# 「涨 10 倍到 ¥6，720万」），旧式 `[$￥€£]` 只认全角，整句判不成金额子句
+# ⇒ 金额原样印在封面上。封面口径本来就是「不显示金额」，这里一并修掉。
 _MONEY_ANY = re.compile(
-    r"[$￥€£]\s?\d[\d,.]*"
-    r"|\d[\d,.]*\s*[€£]"
+    r"[$￥¥€£]\s?\d[\d,.，]*"
+    r"|\d[\d,.，]*\s*[€£¥]"
     r"|\d[\d,.]*\s*[万千万亿]?\s*(?:美元|美金|人民币|元|欧元|英镑|刀)"
+    # 中文约数金额（「做到几百万美金」）：没有阿拉伯数字前缀，
+    # 上面的式子全都看不见 —— pdf-ai 实测就漏在这。
+    # ⚠ `[百万千亿]` 必须允许**两个**字：「几百万」是「几」+「百万」，
+    # 单字符类只吃掉「百」，剩下「万美金」就匹配不上（实测漏掉 pdf-ai）。
+    r"|(?:几|数|十几|几十|上百|上千)\s*[百万千亿]{0,2}\s*(?:美元|美金|人民币|元|刀)"
     r"|(?:MRR|ARR|月入|年入|营收|收入|流水|定价|售价|客单价|要价|挂牌)"
     r"\s*[:：]?\s*[$￥€£]?\s*\d[\d,.]*\s*[KkMmBb万亿]?",
     re.I)
@@ -1352,11 +1361,8 @@ def _set_cover_from_body(cdp, tries=3, force=False):
 
 
 def load_cases():
-    if not os.path.exists(CASES_PATH):
-        return []
-    with open(CASES_PATH, encoding="utf-8") as f:
-        d = json.load(f)
-    cases = d if isinstance(d, list) else d.get("cases", [])
+    import case_store as CS
+    cases = CS.load_cases()
     # 定位占位（「（具体定位未获取）」）不能进标题/摘要/封面文案 —— 与 make_article
     # 用的是同一个清理函数，保证「本地 HTML」与「草稿标题」不会一个清一个没清。
     clean_placeholders(cases)

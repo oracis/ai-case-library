@@ -61,9 +61,8 @@ NEW_DIMS = {
 
 
 def main():
-    with io.open(CASES, "r", encoding="utf-8", newline="") as f:
-        raw = f.read()
-    cases = json.loads(raw)
+    import case_store as CS
+    cases = CS.load_cases()
     changed, skipped = [], []
     for c in cases:
         rep = c.get("replicability") or {}
@@ -83,10 +82,7 @@ def main():
         }
         changed.append(cid)
 
-    # cases.json 原生格式：indent=2 + CRLF + 无末尾换行（与 fill_case_text 同规）
-    out = json.dumps(cases, ensure_ascii=False, indent=2).replace("\n", "\r\n")
-    with io.open(CASES, "w", encoding="utf-8", newline="") as f:
-        f.write(out)
+    CS.save_cases(cases)              # 写库 + 重导镜像
     print("换算 %d 条；未匹配到人工判据（保持原样）%d 条：%s"
           % (len(changed), len(skipped), "、".join(skipped) or "无"))
     print("新维度示例：%s" % json.dumps(

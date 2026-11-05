@@ -44,10 +44,13 @@
    "title": ""
   },
   "zhihu": {
-   "at": "2026-11-02 23:49",
-   "attempt": 0,
+   "note": "status=published",
+   "published_ts": "2026-11-02 23:28:58",
+   "remote_id": "2099504180557768154",
    "state": "published",
-   "title": "先有 15 万粉受众，后有产品：两个田径生如何用 AI 做训练 App？"
+   "title": "先有 15 万粉受众，后有产品：两个田径生如何用 AI 做训练 App？",
+   "updated_at": "2026-11-05 13:40:37",
+   "url": "https://zhuanlan.zhihu.com/p/2099504180557768154"
   }
  },
  "aeo-checker": {
@@ -467,9 +470,9 @@
  },
  "chessigma": {
   "aliyun": {
-   "at": "2026-11-03 21:33:42",
+   "at": "2026-11-05 11:05:00",
    "attempt": 0,
-   "error": " | longtail_key=chessigma-2026-11-01-1",
+   "error": "补账：published_at 缺失导致 slot 今日计数漏（11-05 上午批次，时刻为日志近似）",
    "state": "published",
    "title": "aid=1700270"
   },
@@ -519,10 +522,13 @@
    "title": "免费下棋，100 万人用，576 人付费"
   },
   "zhihu": {
-   "at": "2026-11-01 17:17",
-   "attempt": 0,
-   "state": "draft_saved",
-   "title": "知乎草稿（后台点发布）"
+   "note": "status=published",
+   "published_ts": "2026-11-01 19:11:46",
+   "remote_id": "2100211498438104962",
+   "state": "published",
+   "title": "100 万人在免费下棋，576 人付钱：Chessigma 用 0.06% 转化率撑起月入 7,306 美元",
+   "updated_at": "2026-11-05 13:40:37",
+   "url": "https://zhuanlan.zhihu.com/p/2100211498438104962"
   }
  },
  "clawlink": {
@@ -536,9 +542,9 @@
  },
  "cod-dex": {
   "aliyun": {
-   "at": "2026-11-03 21:33:42",
+   "at": "2026-11-05 11:05:00",
    "attempt": 0,
-   "error": " | longtail_key=cod-dex-2026-11-03-1",
+   "error": "补账：published_at 缺失导致 slot 今日计数漏（11-05 上午批次，时刻为日志近似）",
    "state": "published",
    "title": "aid=1701241"
   },
@@ -595,10 +601,13 @@
    "title": "9.99 美元学编程，6686 人买单"
   },
   "zhihu": {
-   "at": "2026-11-01 17:17",
-   "attempt": 0,
-   "state": "draft_saved",
-   "title": "知乎草稿（后台点发布）"
+   "note": "status=published",
+   "published_ts": "2026-11-02 11:12:03",
+   "remote_id": "2100211505627242739",
+   "state": "published",
+   "title": "把 Python 课做成闯关地图：Codédex 靠 9.99 美元的「咖啡价」攒下 6,686 个订阅",
+   "updated_at": "2026-11-05 13:40:37",
+   "url": "https://zhuanlan.zhihu.com/p/2100211505627242739"
   }
  },
  "cometly": {
@@ -678,9 +687,9 @@
    "title": "Coral：托管你的开源 AI 助手"
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-11-05 10:47",
    "attempt": 0,
-   "state": "draft_saved",
+   "state": "published",
    "title": ""
   }
  },
@@ -953,11 +962,13 @@
    "title": ""
   },
   "zhihu": {
-   "at": "2026-11-03 21:04:52",
-   "attempt": 0,
-   "error": "2026-10-31 补记：远端已发表列表回读命中（2026-10-29 12:17:15）。此前 UI 发表后未回写台账，属漏记。",
+   "note": "status=published",
+   "published_ts": "2026-10-29 12:17:15",
+   "remote_id": "2098799999773570136",
    "state": "published",
-   "title": "一个被 YC 拒绝的邮件工具：靠「一口价 + 无限发」做成了大生意"
+   "title": "一个被 YC 拒绝的邮件工具：靠「一口价 + 无限发」做成了大生意",
+   "updated_at": "2026-11-05 13:40:37",
+   "url": "https://zhuanlan.zhihu.com/p/2098799999773570136"
   }
  },
  "genius-ai": {
@@ -1002,6 +1013,15 @@
    "error": " | longtail_key=getdavid-2026-10-30-1",
    "state": "published",
    "title": ""
+  },
+  "zhihu": {
+   "note": "status=published",
+   "published_ts": "2026-11-05 12:51:47",
+   "remote_id": "2099504191156893329",
+   "state": "published",
+   "title": "AI 造站 + 纸质明信片：一家给小店做网站的公司怎么用线下动作获客",
+   "updated_at": "2026-11-05 13:40:37",
+   "url": "https://zhuanlan.zhihu.com/p/2099504191156893329"
   }
  },
  "gojiberryai": {
@@ -1419,10 +1439,12 @@
  },
  "nitra": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-11-05 11:15:00",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": "年收$33M：小诊所管钱和药品库存"
+   "error": "补账修正：published_at 曾错记 2026-10-10；真实为 11-05 上午批次，时刻为日志近似（档期只需日期精度）",
+   "remote_id": "53766079",
+   "state": "published",
+   "title": "Nitra：给独立小诊所做管钱、管合规、管库存的后台"
   },
   "toutiao": {
    "at": "2026-09-29 21:17",
@@ -1584,6 +1606,15 @@
    "error": " | longtail_key=plausible-2026-10-30-1",
    "state": "published",
    "title": ""
+  },
+  "zhihu": {
+   "note": "status=published",
+   "published_ts": "2026-11-01 17:49:49",
+   "remote_id": "2099503506575078355",
+   "state": "published",
+   "title": "开源三年、10 个人、没有投资人：这个隐私分析工具是怎么活下来的？",
+   "updated_at": "2026-11-05 13:40:37",
+   "url": "https://zhuanlan.zhihu.com/p/2099503506575078355"
   }
  },
  "podawaa": {
@@ -1915,11 +1946,13 @@
    "title": ""
   },
   "zhihu": {
-   "at": "2026-11-03 21:04:52",
-   "attempt": 0,
-   "error": "2026-10-31 补记：远端已发表列表回读命中（2026-10-30 12:13:52）。此前 UI 发表后未回写台账，属漏记。",
+   "note": "status=published",
+   "published_ts": "2026-10-30 12:13:52",
+   "remote_id": "2099470396764451624",
    "state": "published",
-   "title": "一次性买断卖了 127 万美元，然后从榜单上“消失”了：ShipFast 的三个信号"
+   "title": "一次性买断卖了 127 万美元，然后从榜单上“消失”了：ShipFast 的三个信号",
+   "updated_at": "2026-11-05 13:40:37",
+   "url": "https://zhuanlan.zhihu.com/p/2099470396764451624"
   }
  },
  "sierra": {
@@ -2201,11 +2234,13 @@
    "title": "连上 Stripe 才准上榜的收入榜单"
   },
   "zhihu": {
-   "at": "2026-11-03 21:04:52",
-   "attempt": 0,
-   "error": "2026-10-31 补记：远端已发表列表回读命中（2026-10-31 23:24:44）。此前 UI 发表后未回写台账，属漏记。",
+   "note": "status=published",
+   "published_ts": "2026-10-31 23:24:44",
+   "remote_id": "2099933712293028149",
    "state": "published",
-   "title": "TrustMRR：把「可核验」做成产品的海外小站"
+   "title": "TrustMRR：把「可核验」做成产品的海外小站",
+   "updated_at": "2026-11-05 13:40:37",
+   "url": "https://zhuanlan.zhihu.com/p/2099933712293028149"
   }
  },
  "uplinked-b-v": {

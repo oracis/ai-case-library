@@ -52,6 +52,12 @@ PROXY_ENV_KEYS = ("HTTP_PROXY", "HTTPS_PROXY", "http_proxy", "https_proxy",
 # ---------------------------------------------------------------- 基础设施
 
 def load_json(name, default=None):
+    # 2026-11-05：案例库真值在 SQLite（case_library 表），`cases.json` 只是镜像。
+    # 收口在这里，所有走 load_json("cases.json") 的调用方（gen_case_drafts 等）
+    # 自动改读库，不必逐个改调用点。
+    if name == "cases":
+        import case_store as CS
+        return CS.load_cases()
     path = os.path.join(DATA_DIR, name + ".json")
     if not os.path.exists(path):
         return default if default is not None else []
@@ -77,6 +83,11 @@ def save_json(name, payload):
     原子性由 atomicio 保证（tmp + fsync + os.replace）：原地截断写在被
     Ctrl-C / 断电打断时会留下半截 JSON，而半截 JSON 会被上层当成空库。
     """
+    if name == "cases":
+        # 写库 + 重导镜像（格式由 case_store/db 统一负责，不再探测换行）
+        import case_store as CS
+        CS.save_cases(payload)
+        return
     path = os.path.join(DATA_DIR, name + ".json")
     atomicio.write_json(path, payload, indent=2, newline=detect_newline(path))
 

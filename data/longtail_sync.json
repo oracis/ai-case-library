@@ -628,5 +628,61 @@
   "cover": "https://case.ydtgo.top/covers/ext-ep-002-2048.png",
   "via": "cdp-9228",
   "ts": "2026-11-04 14:10:45"
+ },
+ "ext-ep-003-freedoom-2026-11-04-1": {
+  "case": "ext-ep-003-freedoom",
+  "title": "给 Doom 引擎造一套合法素材：Freedoom 要对的那些资源契约",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "340532",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=340532"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-04 19:24:33"
+ },
+ "mort-2026-11-04-1": {
+  "case": "mort",
+  "title": "盯住 5 万个招聘页：招聘聚合系统的采集调度、去重与投递副作用",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "340537",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=340537"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-04 19:32:33"
+ },
+ "tencentcloud-2026-11-05-1": {
+  "case": "tencentcloud",
+  "title": "游戏厅：Quake，1999 年开源的雷神之锤",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "340965",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=340965"
+   }
+  },
+  "category": "人工智能",
+  "cover": "",
+  "via": "cdp-9228",
+  "ts": "2026-11-05 11:41:15"
+ },
+ "gojiberryai-2026-11-05-1": {
+  "case": "gojiberryai",
+  "title": "盯住「谁在换工作」：信号驱动线索系统的三个工程问题",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "341234",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=341234"
+   }
+  },
+  "category": "人工智能",
+  "cover": "https://case.ydtgo.top/covers/gojiberryai.png",
+  "via": "cdp-9228",
+  "ts": "2026-11-05 14:18:41"
  }
 }
