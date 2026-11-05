@@ -69363,5 +69363,293 @@
       "scored_at": "2026-11-04"
     },
     "cover_desc": "AI 干活，行业老手在后面复核"
+  },
+  {
+    "id": "catering-funnels",
+    "name": "Catering Funnels",
+    "name_en": "Catering Funnels",
+    "origin": "美国",
+    "one_liner": "Catering Funnels 为餐厅提供代运营式餐饮线索生成与自动化，当前 MRR $3,929，活跃订阅 7 个。",
+    "category": "垂直行业 SaaS",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 3929.0,
+      "last_30d_revenue": 3865.0,
+      "all_time": 29861.0,
+      "subscriptions": 7,
+      "growth_30d": 61.4,
+      "mrr_growth_30d": 61.4,
+      "revenue_growth_30d": 14.5,
+      "headline": "MRR $3,929，TrustMRR 核对",
+      "metric_note": "实测口径：MRR $3,929（TrustMRR 从支付网关 API 直读，2026-11-05 同步，Stripe (API key)）。近 30 天收入 $3,865、累计 $29,861、付费订阅 7 户。最近完整月环比 +104.4%（已剔除当月残月）。近 30 天 MRR 增速 +61.4%。⚠ 同期收入增速为 +14.5%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $4,862 → 最近完整月 $4,862，留存 100%。队列缓存值与本次核对一致（均 $3,929）；数据是截至 2026-11-05 的支付侧缓存快照，不是实时值。",
+      "caliber": "mrr"
+    },
+    "models": [
+      "订阅制"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 2,
+      "timing": 3
+    },
+    "verdict": "它卖的不是线索生成工具，而是「代运营」——客户买的是无需雇佣员工、无需支付佣金即可承接企业订单的交付能力。",
+    "what_it_does": "Catering Funnels 是一个面向拥有活跃餐饮业务餐厅的代运营线索生成与自动化平台，于 2025-11-18 上线。产品通过平台捕获每笔询价、自动化跟进并预订企业餐饮订单，无需雇佣更多员工、支付市场佣金或投放广告。按 TrustMRR 缓存快照，当前 MRR 为 $3,929，活跃订阅数为 7。创始人未公开，团队规模未披露。",
+    "how_it_makes_money": "收入来自按月订阅，定价分三档：Takeout $97/月 + $497 安装费；Delivery $747/月 + $997 安装费；Full-Service $2,997/月 + $1,997 安装费。按 TrustMRR 档案记录，当前 MRR $3,929、活跃订阅 7 个，客单价 $561.29。",
+    "why_it_works": [
+      "素材显示当前 MRR $3,929 由 7 个活跃订阅支撑，客单价 $561.29。机制：高客单价订阅意味着客户购买的是完整代运营服务，而非低价自助工具，因此单客户贡献收入更高。",
+      "定价结构包含一次性安装费（如 Delivery 档 $997）。机制：安装费将获客成本前置回收，降低后续服务亏损风险，同时筛选出有真实预算的企业客户。",
+      "档案自述指出餐厅问题在于「未管理的需求」而非「缺乏线索」。机制：产品定位从获客转向需求管理，直接对应餐厅老板最痛的漏接订单问题，提高付费意愿。"
+    ],
+    "playbook": [
+      "将一次性安装费与月度订阅捆绑，用安装费覆盖初始服务成本，同时筛选高预算客户。",
+      "在营销中强调「无需雇佣额外员工」和「无需支付市场佣金」，直接对比传统获客渠道的成本结构。",
+      "针对特定行业（如餐饮）设计标准化服务流程，将非标准化需求打包为固定价位的产品档位。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [],
+    "sources": [
+      {
+        "label": "TrustMRR 官方 .md 档案（Stripe；站点级声明支付商 API 直读）",
+        "url": "https://trustmrr.com/startup/catering-funnels.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "官网首页（仅证产品存在，不证明收入数字）",
+        "url": "https://cateringfunnels.com/",
+        "kind": "homepage"
+      }
+    ],
+    "published_from": "catering-funnels",
+    "verified_at": "2026-11-05",
+    "updated_at": "2026-11-06",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（stripe），按默认政策进精品池",
+    "quality_score": 0,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "talkeasy",
+    "name": "TalkEasy",
+    "name_en": "TalkEasy",
+    "origin": "加拿大",
+    "one_liner": "TalkEasy 是一个 AI 口语陪练产品，当前 MRR 为 $1,561，活跃订阅 159 个，客单价 $9.82。",
+    "category": "垂直行业 SaaS",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 1561.0,
+      "last_30d_revenue": 1301.0,
+      "all_time": 24423.0,
+      "subscriptions": 159,
+      "growth_30d": null,
+      "mrr_growth_30d": null,
+      "revenue_growth_30d": 0.0,
+      "headline": "MRR $1,561，TrustMRR 核对",
+      "metric_note": "实测口径：MRR $1,561（TrustMRR 从支付网关 API 直读，2026-11-05 同步，Stripe (API key), Superwall (API key)）。近 30 天收入 $1,301、累计 $24,423、付费订阅 159 户。最近完整月环比 +22.8%（已剔除当月残月）。⚠ 历史峰值 $2,415 → 最近完整月 $2,213，留存 92%。队列缓存值与本次核对一致（均 $1,561）；数据是截至 2026-11-05 的支付侧缓存快照，不是实时值。",
+      "caliber": "mrr"
+    },
+    "models": [
+      "订阅制"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 3
+    },
+    "verdict": "它卖的不是英语课程，而是随时可开的语音练习场景——客户买的是低门槛的开口机会，不是教学质量。",
+    "what_it_does": "TalkEasy 提供网页与 iPhone 端应用，用户通过一对一语音对话与 AI 导师练习英语口语，完成引导课程并获取反馈。产品于 2025 年 6 月 26 日上线，创始人未公开。支付网关为 Stripe，收入数字来自 TrustMRR 档案记录（缓存快照）。当前活跃订阅数为 159，当前 MRR 为 $1,561。档案自述团队规模为 1 人，用户数为 58,400，该数据未经二次核实。",
+    "how_it_makes_money": "用户通过 Stripe 在网页端或 App Store 在 iPhone 端支付订阅费用。当前 MRR 为 $1,561，活跃订阅数为 159，客单价为 $9.82。定价因计划与市场而异，具体档位未公开。",
+    "why_it_works": [
+      "活跃订阅 159 个，MRR $1,561，客单价 $9.82（TrustMRR 档案记录）——低价订阅降低决策门槛，使 AI 陪练能覆盖价格敏感型学习者。",
+      "上线时间 2025 年 6 月 26 日，当前 MRR $1,561（TrustMRR 档案记录）——产品处于早期阶段，月度时间线不足，当前收入规模尚小。",
+      "档案自述用户数 58,400（未经二次核实）——若该数字属实，说明产品具备一定流量基础，但活跃订阅仅 159，转化率存在提升空间。"
+    ],
+    "playbook": [
+      "把客单价控制在 $10 以下，降低用户首次尝试的决策成本，适合低频、高复购的练习类产品。",
+      "通过网页端与移动端双入口覆盖用户，利用 App Store 与 Stripe 完成支付闭环，减少用户流失。",
+      "利用 AI 导师提供即时反馈，替代真人陪练的高成本，实现规模化服务。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [],
+    "sources": [
+      {
+        "label": "TrustMRR 官方 .md 档案（Stripe + Superwall 双源；站点级声明支付商 API 直读）",
+        "url": "https://trustmrr.com/startup/talkeasy.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "官网首页（仅证产品存在，不证明收入数字）",
+        "url": "https://talk-easy.com/",
+        "kind": "homepage"
+      }
+    ],
+    "published_from": "talkeasy",
+    "verified_at": "2026-11-05",
+    "updated_at": "2026-11-06",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（stripe），按默认政策进精品池",
+    "quality_score": 0,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "bubblav",
+    "name": "BubblaV",
+    "name_en": "BubblaV",
+    "origin": "瑞典",
+    "one_liner": "BubblaV 是 AI 客服助手，MRR $441，9 个活跃订阅，客单价 $49。",
+    "category": "AI 工具",
+    "industry": "",
+    "status": "curated",
+    "verification": "partial",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 441.0,
+      "last_30d_revenue": 368.0,
+      "all_time": 1133.0,
+      "subscriptions": 9,
+      "growth_30d": 28.6,
+      "mrr_growth_30d": 28.6,
+      "revenue_growth_30d": 21.2,
+      "headline": "MRR $441，TrustMRR 核对",
+      "metric_note": "实测口径：MRR $441（TrustMRR 从支付网关 API 直读，2026-11-05 同步，Polar (API key)）。近 30 天收入 $368、累计 $1,133、付费订阅 9 户。最近完整月环比 +21.1%（已剔除当月残月）。近 30 天 MRR 增速 +28.6%。⚠ 同期收入增速为 +21.2%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $368 → 最近完整月 $368，留存 100%。队列缓存值与本次核对一致（均 $441）；数据是截至 2026-11-05 的支付侧缓存快照，不是实时值。",
+      "caliber": "mrr"
+    },
+    "models": [
+      "订阅制"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 3
+    },
+    "verdict": "它卖的不是 AI 客服，是「无按量计费」的定价结构——客户买的是成本可预测性，不是聊天机器人。",
+    "what_it_does": "BubblaV 由创始人 BubblaV 于 2026-04-01 创立，产品形态为 AI 客服助手，包含 24/7 网站聊天机器人和 AI Copilot。收入数字来自 TrustMRR 档案记录（缓存快照），支付源为 Polar。当前 MRR 为 $441，活跃订阅数 9 个，近 30 天收入 $368。",
+    "how_it_makes_money": "采用免费增值模式，Pro 版定价 $49/月或 $39/月（年付），14 天免费试用，无按解决量或按座位收费。按 MRR $441 与活跃订阅 9 个，素材给出的客单价约 $49，与档案自述的 Pro 版月价一致。",
+    "why_it_works": [
+      "素材显示无 per-resolution 或 per-seat 费用，机制：固定月费消除客户对用量增长的恐惧，降低决策门槛。",
+      "近 30 天收入 $368，MRR $441，机制：免费计划作为流量入口，Pro 版 $49 定价完成转化。",
+      "活跃订阅数 9 个，机制：小团队（2–5 人）低客单价策略，适合中小企业快速部署。"
+    ],
+    "playbook": [
+      "用免费计划降低试用门槛，用固定月费替代按量计费，消除客户对成本不可控的顾虑。",
+      "提供 14 天免费试用，缩短客户从注册到付费的决策周期。",
+      "针对中小企业设计低客单价（$49），降低首次付费的心理门槛。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [],
+    "sources": [
+      {
+        "label": "TrustMRR 官方 .md 档案（Polar；站点级声明支付商 API 直读）",
+        "url": "https://trustmrr.com/startup/bubblav.md",
+        "kind": "review"
+      },
+      {
+        "label": "官网首页（仅证产品存在，不证明收入数字）",
+        "url": "https://www.bubblav.com/",
+        "kind": "homepage"
+      }
+    ],
+    "published_from": "bubblav",
+    "verified_at": "2026-11-05",
+    "updated_at": "2026-11-06",
+    "tags": [],
+    "tier": "standard",
+    "tier_reason": "有独立第三方来源、口径待核，进实核池",
+    "quality_score": 0,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "arq",
+    "name": "ARQ",
+    "name_en": "ARQ",
+    "origin": "英国",
+    "one_liner": "ARQ 是面向厨卫卧室展厅的 AI 渲染工具，当前 MRR $397，6 个活跃订阅。",
+    "category": "创作者经济",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 397.0,
+      "last_30d_revenue": 366.0,
+      "all_time": 432.0,
+      "subscriptions": 6,
+      "growth_30d": 500.9,
+      "mrr_growth_30d": 500.9,
+      "revenue_growth_30d": 455.0,
+      "headline": "MRR $397，TrustMRR 核对",
+      "metric_note": "实测口径：MRR $397（TrustMRR 从支付网关 API 直读，2026-11-05 同步，Stripe (API key)）。近 30 天收入 $366、累计 $432、付费订阅 6 户。最近完整月环比 +269.6%（已剔除当月残月）。近 30 天 MRR 增速 +500.9%。⚠ 同期收入增速为 +455.0%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $244 → 最近完整月 $244，留存 100%。队列缓存值与本次核对一致（均 $397）；数据是截至 2026-11-05 的支付侧缓存快照，不是实时值。",
+      "caliber": "mrr"
+    },
+    "models": [
+      "订阅制"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 2,
+      "timing": 3
+    },
+    "verdict": "它卖的不是渲染，是展厅销售流程的标准化——客户买的是把设计稿变成可交付演示的固定节奏。",
+    "what_it_does": "ARQ 由 Jordan Murray 于 2026 年 5 月 24 日创立，帮助厨房、卧室和浴室展厅将现有设计转化为照片级渲染图和品牌化客户演示。团队可在统一工作流中排队渲染、审核版本、收集客户反馈，并将已批准的画面转为视频、情绪板和社交媒体内容。当前活跃订阅数为 6，收入数字来自 TrustMRR 档案记录（缓存快照），支付源为 Stripe。",
+    "how_it_makes_money": "按订阅收费，分月付和年付，套餐按渲染额度区分，功能全包含。当前 MRR 为 $397，活跃订阅数 6，客单价 $66.17。",
+    "why_it_works": [
+      "档案自述：减少展厅团队在多个工具间制作视觉、追踪版本和收集反馈的时间。机制：把分散在邮件、云盘和聊天软件里的确认流程收进一个工作流，降低沟通损耗。",
+      "TrustMRR 档案记录：近 30 天收入 $366，其中 2026-10-19 和 2026-10-22 各 $66.01。机制：每单约 $66，说明客户按固定套餐付费，收入可预测。",
+      "TrustMRR 档案记录：2026-10-07 至 2026-10-18 每日收入为 $0，2026-10-19 起出现收入。机制：上线首月无收入，说明产品刚完成冷启动，当前增长是首月验证而非持续趋势。"
+    ],
+    "playbook": [
+      "把客户最重复的交付环节（如渲染、反馈、定稿）打包成单一工作流，减少工具切换。",
+      "按使用量（渲染额度）划分套餐，让不同规模客户都能匹配价格。",
+      "在上线首月不追求增速，先验证付费意愿，再逐步扩大获客。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [],
+    "sources": [
+      {
+        "label": "TrustMRR 官方 .md 档案（Stripe；站点级声明支付商 API 直读）",
+        "url": "https://trustmrr.com/startup/arq.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "官网首页（仅证产品存在，不证明收入数字）",
+        "url": "https://arq-renderer.com/",
+        "kind": "homepage"
+      }
+    ],
+    "published_from": "arq",
+    "verified_at": "2026-11-05",
+    "updated_at": "2026-11-06",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（stripe），按默认政策进精品池",
+    "quality_score": 0,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
   }
 ]
