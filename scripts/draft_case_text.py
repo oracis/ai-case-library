@@ -641,6 +641,46 @@ def draft_one(cid, slug, summ, retries=2):
     return None, last or "未知失败"
 
 
+def revalidate_stage(stage, summ, tm_dir=None, reporter=print):
+    """把守卫回套到暂存区已有草稿，只更新 _problems / _needs_human。
+
+    返回 (bad, skipped)；**不写盘**，由 main 调 save_stage()。
+
+    ⚠ 素材完全缺失（没有 summary 键、也没有 .md）时跳过这一条：事实卡里
+      除了「未公开」什么都没有，数字守卫会把历史草稿里真实引用过的数字
+      全报成「素材里没有的数字」。那是素材丢了，不是正文有问题——给它
+      打上 _needs_human 会让 apply 步骤把这类存量稿一起挡掉。
+      2026-11-05 全量回套实测 5 条中招：ton-piston / ryn-vpn /
+      changelogfy / citron-app / sotie-ai-best-friend。
+    """
+    if tm_dir is None:
+        tm_dir = TM_DIR
+    bad = skipped = 0
+    for cid, v in stage.items():
+        slug = v.get("_slug") or cid
+        s = lookup_summary(summ, slug, cid) or {}
+        # ⚠ 必须与起草时喂给模型的素材**完全一致**（含 .md 原文），
+        # 否则素材里的数字会被误判成「凭空出现」—— 回套第一次就踩了：
+        # 漏掉 .md 后把日期（2026）和 .md 里的收入数字报成了编造。
+        md = ""
+        md_path = os.path.join(tm_dir, slug + ".md")
+        if os.path.exists(md_path):
+            with open(md_path, "r", encoding="utf-8") as f:
+                md = f.read()
+        if not s and not md:
+            skipped += 1
+            reporter("  ⏭ %-34s 素材缺失（无摘要、无 .md），跳过回套" % cid[:34])
+            continue
+        card_src = extract_numbers(facts_card(slug, s, md))
+        problems = validate(v, card_src, s)
+        v["_problems"] = problems
+        v["_needs_human"] = bool(problems)
+        if problems:
+            bad += 1
+            reporter("  ⚠ %-34s %s" % (cid[:34], "；".join(problems)[:80]))
+    return bad, skipped
+
+
 def main():
     ap = argparse.ArgumentParser(description="批量起草案例正文到暂存区")
     ap.add_argument("--ids", help="逗号分隔的候选 id")
@@ -660,27 +700,10 @@ def main():
     # 守卫升级后不必重跑 LLM：把新规则回套到已有草稿即可。
     # （口径守卫就是这么加的 —— 重跑要一小时，回套只要一秒。）
     if args.revalidate:
-        bad = 0
-        for cid, v in stage.items():
-            slug = v.get("_slug") or cid
-            s = lookup_summary(summ, slug, cid) or {}
-            # ⚠ 必须与起草时喂给模型的素材**完全一致**（含 .md 原文），
-            # 否则素材里的数字会被误判成「凭空出现」—— 回套第一次就踩了：
-            # 漏掉 .md 后把日期（2026）和 .md 里的收入数字报成了编造。
-            md = ""
-            md_path = os.path.join(TM_DIR, slug + ".md")
-            if os.path.exists(md_path):
-                with open(md_path, "r", encoding="utf-8") as f:
-                    md = f.read()
-            card_src = extract_numbers(facts_card(slug, s, md))
-            problems = validate(v, card_src, s)
-            v["_problems"] = problems
-            v["_needs_human"] = bool(problems)
-            if problems:
-                bad += 1
-                print("  ⚠ %-34s %s" % (cid[:34], "；".join(problems)[:80]))
+        bad, skipped = revalidate_stage(stage, summ)
         save_stage(stage)
-        print("\n回套完成：%d 条草稿，其中 %d 条被守卫拦下" % (len(stage), bad))
+        print("\n回套完成：%d 条草稿，其中 %d 条被守卫拦下；"
+              "素材缺失跳过 %d 条" % (len(stage), bad, skipped))
         return 0
 
     targets = []

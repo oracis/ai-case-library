@@ -379,5 +379,67 @@ class FragmentWarning(unittest.TestCase):
         self.assertNotIn("残片", out[0])
 
 
+class Revalidate(unittest.TestCase):
+    """全量 --revalidate 的素材缺失保护（2026-11-05）。
+
+    事故：summary.json 只剩 16 键时跑全量，177 条旧草稿拿空摘要回套，
+    171 条由净转脏；其中连 .md 都没有的 5 条把真实引用过的数字全报成
+    「素材里没有的数字」，apply 会因此把它们挡掉。
+    """
+
+    @staticmethod
+    def _entry(**kw):
+        base = _draft(
+            one_liner="这是一个中文定位句",
+            what_it_does="这个产品做一件具体的事。",
+            how_it_makes_money="靠订阅收费。",
+            verdict="值得继续观察。",
+            why_it_works=["中文理由一条"], playbook=["中文步骤一条"],
+            replicability={"tech": "", "distribution": "",
+                           "capital": "", "timing": ""},
+        )
+        base.update(kw)
+        return base
+
+    def test_无素材条目跳过且原状态不被改写(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as td:
+            stage = {"ghost": self._entry(
+                _slug="ghost", _problems=["哨兵：保持原样"], _needs_human=True)}
+            bad, skipped = D.revalidate_stage(
+                stage, {}, tm_dir=td, reporter=lambda *a: None)
+            self.assertEqual((bad, skipped), (0, 1))
+            self.assertEqual(stage["ghost"]["_problems"], ["哨兵：保持原样"])
+            self.assertTrue(stage["ghost"]["_needs_human"])
+
+    def test_有md的条目仍会被回套(self):
+        import io
+        import tempfile
+        with tempfile.TemporaryDirectory() as td:
+            with io.open(os.path.join(td, "ok.md"), "w", encoding="utf-8") as f:
+                f.write("# Ok\n\n| Last 30 days | $1,000 |\n"
+                        "\n## Related TrustMRR Pages\n- [llms.txt](x)\n")
+            stage = {"ok": self._entry(
+                _slug="ok", what_it_does="这个产品做一件事，收入 1000 元。")}
+            bad, skipped = D.revalidate_stage(
+                stage, {}, tm_dir=td, reporter=lambda *a: None)
+            self.assertEqual(skipped, 0)
+            self.assertEqual(bad, 1)
+            self.assertTrue(any("人民币" in p for p in stage["ok"]["_problems"]))
+            self.assertTrue(stage["ok"]["_needs_human"])
+
+    def test_只有摘要没有md也会回套(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as td:
+            summ = {"ok": {"slug": "ok", "cur_mrr": 1000,
+                           "active_subs": 0, "provider": "Stripe"}}
+            stage = {"ok": self._entry(_slug="ok")}
+            bad, skipped = D.revalidate_stage(
+                stage, summ, tm_dir=td, reporter=lambda *a: None)
+            self.assertEqual((bad, skipped), (0, 0))
+            self.assertEqual(stage["ok"]["_problems"], [])
+            self.assertFalse(stage["ok"]["_needs_human"])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
