@@ -35,11 +35,10 @@ sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
 import auth                                    # noqa: E402
 import ai_verify as AV                         # noqa: E402
+import candidate_store as CSt                  # noqa: E402  候选池唯一读写入口
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-
-CAND_PATH = os.path.join(ROOT, "data", "candidates.json")
 
 # 案例正文真正会读的内容字段。缺任何一个，发布出来的都是一张有数字没内容的卡片。
 CONTENT_FIELDS = ("what_it_does", "why_it_works", "playbook", "verdict",
@@ -170,8 +169,7 @@ def main():
     if args.selfcheck:
         raise SystemExit(selfcheck())
 
-    with open(CAND_PATH, encoding="utf-8") as f:
-        cands = json.load(f)
+    cands = CSt.load_candidates()
 
     chosen, skipped = select(cands, args.id)
     print("候选池 %d 条：内容包齐全 %d 条，缺内容包 %d 条\n"

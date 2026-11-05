@@ -1772,6 +1772,10 @@ def verify_one(cand, admin, publish=False, min_score=0, log=None):
 # 入口
 # ---------------------------------------------------------------------------
 def load_json(name):
+    if name == "candidates":
+        # 2026-11-06：统一走 candidate_store（server / verify_cookie / peek_ai 都经这里）
+        import candidate_store as CSt
+        return CSt.load_candidates(path=os.path.join(ROOT, "data", name + ".json"))
     with open(os.path.join(ROOT, "data", name + ".json"), encoding="utf-8") as f:
         return json.load(f)
 

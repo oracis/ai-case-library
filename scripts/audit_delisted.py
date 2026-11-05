@@ -195,6 +195,9 @@ def probe(slug, retries=3):
 
 
 def load(name):
+    if name == "candidates":
+        import candidate_store as CSt
+        return CSt.load_candidates(path=CANDS)
     p = INBOX if name == "inbox" else CANDS
     with open(p, encoding="utf-8", newline="") as f:
         return json.load(f)
@@ -210,6 +213,11 @@ def save(name, rows):
     一次无心的批量改动就会让整个文件的 diff 全红。
     所以先探原文件的字节形态，写回时照原样。
     """
+    if name == "candidates":
+        # 原子写 + 格式探测统一交给 candidate_store（原来是原地截断写 + 只探换行）
+        import candidate_store as CSt
+        CSt.save_candidates(rows, path=CANDS)
+        return
     p = INBOX if name == "inbox" else CANDS
     with open(p, "rb") as f:
         raw = f.read()

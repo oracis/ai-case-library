@@ -105,6 +105,11 @@ def load_json(name):
     if name == "cases":
         import case_store as CS
         return CS.load_cases()
+    if name == "candidates":
+        # 2026-11-06：候选池读写统一收口到 candidate_store（格式/原子性/锁一处管）
+        # ⚠ 显式传 path：收口的是「读写实现」，不是「路径解析」，别丢掉 data_path()
+        import candidate_store as CSt
+        return CSt.load_candidates(path=data_path(name))
     path = data_path(name)
     if not os.path.exists(path):
         return []
@@ -125,6 +130,10 @@ def save_json(name, payload):
         # 写库 + 重导镜像（格式统一由 case_store/db 负责）
         import case_store as CS
         CS.save_cases(payload)
+        return
+    if name == "candidates":
+        import candidate_store as CSt
+        CSt.save_candidates(payload, path=data_path(name))
         return
     os.makedirs(DATA_DIR, exist_ok=True)
     path = data_path(name)

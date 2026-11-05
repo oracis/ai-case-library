@@ -48,6 +48,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
 import build_static                     # noqa: E402
+import candidate_store as CSt            # noqa: E402  候选池唯一读写入口
 import contentpack_ready                # noqa: E402
 import deploy_oss                       # noqa: E402
 import fit_ready                        # noqa: E402
@@ -258,9 +259,7 @@ def admin_alive(base=None, timeout=3):
 
 def pending_publish():
     """有几条候选内容包齐全、可以被发布。只读，不连 server。"""
-    import json
-    with open(os.path.join(ROOT, "data", "candidates.json"), encoding="utf-8") as f:
-        cands = json.load(f)
+    cands = CSt.load_candidates()
     chosen, skipped = publish_ready.select(cands, None)
     return chosen, skipped
 

@@ -30,6 +30,7 @@ UA = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"}
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import atomicio  # noqa: E402  原子写盘（半截档案 = 后面的摘要全空）
+import candidate_store as CSt  # noqa: E402  候选池唯一读写入口
 
 MIN_MD_BYTES = 200
 # 完整档案的**页脚**（2026-10-21 抓 private-venture.md 实测的结尾）：
@@ -133,9 +134,8 @@ def summarize(slug, md):
 
 def main():
     os.makedirs(OUT, exist_ok=True)
-    with open(os.path.join(ROOT, "data", "candidates.json"),
-              encoding="utf-8") as f:
-        cands = json.load(f)
+    # 显式传 path：测试会把 F.ROOT 指到临时目录并在里面放 candidates.json 替身
+    cands = CSt.load_candidates(path=os.path.join(ROOT, "data", "candidates.json"))
     import case_store as CS
     cases = CS.load_cases()
     done_ids = {c.get("published_from") for c in cases}

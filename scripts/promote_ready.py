@@ -46,6 +46,9 @@ def load(name):
     if name == "cases.json":
         import case_store as CS          # 真值在 case_library
         return CS.load_cases()
+    if name == "candidates.json":
+        import candidate_store as CSt
+        return CSt.load_candidates(path=os.path.join(ROOT, "data", name))
     with open(os.path.join(ROOT, "data", name), encoding="utf-8") as f:
         return json.load(f)
 

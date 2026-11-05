@@ -56,6 +56,7 @@ from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import atomicio  # noqa: E402  原子写盘：半截 candidates.json = 整个候选池失效
+import candidate_store as CSt  # noqa: E402  候选池唯一读写入口（2026-11-06 收口）
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CAND_PATH = os.path.join(ROOT, "data", "candidates.json")
@@ -848,52 +849,31 @@ RESERVED_METRIC_KEYS = (
 )
 
 
-def detect_fmt(path, default_indent=2):
-    """探清这个 JSON 文件原本的缩进与换行，**原样写回**。
+# ---------------------------------------------------------------------------
+# 候选池读写的**兼容入口**（2026-11-06）。
+#
+# 实现已整体搬到 `candidate_store.py`，这里只保留三个薄封装：
+#   * `CAND_PATH` 仍是模块级常量 —— `test_atomicio` / `test_publish_ready`
+#     靠替换它把写盘引到临时目录，不能删。
+#   * `cmd_apply` 依赖 `save_candidates()` 返回 `(indent, nl, tail_nl)`，
+#     `candidate_store.save_candidates()` 保持同一返回值。
+#
+# 格式探测与原子写的历史（2026-10-10 / 10-21 两次全量 diff 事故）见
+# `candidate_store.detect_fmt()` 的 docstring。别在这里再实现一遍。
+# ---------------------------------------------------------------------------
 
-    2026-10-10 实测：`data/candidates.json` 是 **LF + indent=2 + 无末尾换行**。
-    而 `cmd_apply` 原先写的是默认文本模式 + `indent=1` + 末尾补`\\n`
-    ⇒ Windows 下 LF 被翻译成 CRLF、缩进从 2 变 1、末尾多个换行，
-    **整个文件 diff 全红而数据一个字没变**（同 `harvest.save_json()` 那个坑）。
-    ⚠️ 别用「反正能读回来」安慰自己—— diff 噪音会掩盖真实改动，
-    下次真出问题时会分不清是数据变了还是格式变了。
-    """
-    try:
-        with open(path, "rb") as f:
-            raw = f.read()
-    except OSError:
-        return default_indent, "\n", False
-    try:
-        data = json.loads(raw.decode("utf-8"))
-    except (ValueError, UnicodeDecodeError):
-        return default_indent, "\n", False
-    nl = "\r\n" if b"\r\n" in raw[:4096] else "\n"
-    for ind in (1, 2, 4):
-        for tail_nl in (True, False):
-            body = json.dumps(data, ensure_ascii=False, indent=ind)
-            cand = (body + ("\n" if tail_nl else "")).replace("\n", nl).encode("utf-8")
-            if cand == raw:
-                return ind, nl, tail_nl
-    return default_indent, nl, False
+def detect_fmt(path, default_indent=2):
+    """兼容入口 → `candidate_store.detect_fmt()`。"""
+    return CSt.detect_fmt(path, default_indent=default_indent)
 
 
 def load_candidates():
-    with open(CAND_PATH, encoding="utf-8") as f:
-        return json.load(f)
+    return CSt.load_candidates(path=CAND_PATH)
 
 
 def save_candidates(cands):
-    """按原格式写回（缩进/换行/末尾换行都跟原文件一致）。
-
-    ⚠ 写盘走 `atomicio`（2026-10-21 修）：此前是原地截断写，写到一半被打断
-    就留下半截 JSON —— 候选池当场读不出来，而被 `except` 吞掉时会被当成空池，
-    `--apply` 再来一次就把整本重写。格式探测照旧（见 `detect_fmt`）。
-    """
-    ind, nl, tail_nl = detect_fmt(CAND_PATH)
-    body = json.dumps(cands, ensure_ascii=False, indent=ind)
-    text = (body + ("\n" if tail_nl else "")).replace("\n", nl)
-    atomicio.write_text(CAND_PATH, text)
-    return ind, nl, tail_nl
+    """兼容入口 → `candidate_store.save_candidates()`（原子写 + 原格式）。"""
+    return CSt.save_candidates(cands, path=CAND_PATH)
 
 
 def check_pack(cid, pack):

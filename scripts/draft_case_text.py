@@ -47,6 +47,7 @@ sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
 import ai_verify  # noqa: E402  —— 复用它的 LLM 配置链与 llm()
 import atomicio   # noqa: E402  原子写盘：半截 stage 会让「续跑」重花 AI 额度
+import candidate_store as CSt  # noqa: E402  候选池唯一读写入口
 import fetch_tm_md as F  # noqa: E402  档案完整性判据（残片不许当素材用）
 
 TM_DIR = os.path.join(ROOT, "tmp", "tm_md")
@@ -712,7 +713,7 @@ def main():
                          "只更新 _problems / _needs_human")
     args = ap.parse_args()
 
-    cands = load_json(os.path.join(ROOT, "data", "candidates.json"), [])
+    cands = CSt.load_candidates()
     summ = load_json(os.path.join(TM_DIR, "summary.json"), {})
     stage = load_json(STAGE, {})
 

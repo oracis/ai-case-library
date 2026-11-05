@@ -33,8 +33,10 @@
 自动挑（不给 `--ids`）的顺序是 **triage 分数降序**，同分按 id —— 不是
 `inbox.json` 的文件顺序（那是采集追加顺序，见 pick_targets 的注释）。
 
-⚠️ 写入前后必须核对换行格式（红线 7）：`candidates.json` 是 LF，
-`inbox.json` 是 CRLF，两者不同。本脚本按各文件原生格式写回。
+⚠️ 写盘格式（红线 7）：候选池一律走 `candidate_store`（按磁盘字节探测
+indent/换行/末尾换行 + 原子写 + 锁），本脚本不再自己判换行；inbox /
+inbox_archive 仍由 `_write_like()` 按各文件原生格式写回。2026-11-06 实测
+candidates.json 是 LF、inbox.json 是 CRLF，两者不同。
 """
 
 import argparse
@@ -49,14 +51,15 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
 import audit_delisted as AD                                   # noqa: E402
+import candidate_store as CSt                                  # noqa: E402
 import triage as T                                             # noqa: E402
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 INBOX = os.path.join(ROOT, "data", "inbox.json")
-CANDS = os.path.join(ROOT, "data", "candidates.json")
 ARCHIVE = os.path.join(ROOT, "data", "inbox_archive.json")
+# 候选池的路径不再散落在这里 —— 读写一律走 candidate_store（2026-11-06）
 
 
 def _write_like(path, rows):
@@ -580,9 +583,10 @@ def refresh_in_pool(args, cands):
         cands[cands.index(rec)] = fresh
         updated.append(rid)
 
-    crlf = _write_like(CANDS, cands)
+    ind, nl, tail_nl = CSt.save_candidates(cands)
     print("[write] 刷新 %d 条：%s" % (len(updated), ", ".join(updated)))
-    print("换行格式保持 %s" % ("CRLF" if crlf else "LF"))
+    print("格式保持 indent=%d / %s / 末尾换行=%s"
+          % (ind, "CRLF" if nl == "\r\n" else "LF", "有" if tail_nl else "无"))
     return 0
 
 
@@ -648,8 +652,7 @@ def main():
 
     with open(INBOX, encoding="utf-8", newline="") as f:
         inbox = json.load(f)
-    with open(CANDS, encoding="utf-8", newline="") as f:
-        cands = json.load(f)
+    cands = CSt.load_candidates()
 
     have = {c.get("id") for c in cands}
     inbox_idx = {i["id"]: i for i in inbox}
@@ -740,12 +743,13 @@ def main():
         cands.append(new)
         added.append(rid)
 
-    # candidates.json 原生是 LF（与 inbox 的 CRLF 不同，红线 7）
-    crlf = _write_like(CANDS, cands)
+    # 候选池写盘格式由 candidate_store 按磁盘字节探测，不再在这里写死换行
+    ind, nl, tail_nl = CSt.save_candidates(cands)
 
     print("[write] 候选池 %d → %d 条：%s" % (len(cands) - len(added), len(cands),
                                         ", ".join(added)))
-    print("        换行格式保持 %s" % ("CRLF" if crlf else "LF"))
+    print("        格式保持 indent=%d / %s / 末尾换行=%s"
+          % (ind, "CRLF" if nl == "\r\n" else "LF", "有" if tail_nl else "无"))
 
     moved, left = archive_from_inbox(set(added))
     print("[write] inbox %d → %d 条（%d 条移出，留底到 inbox_archive.json，未删除）"

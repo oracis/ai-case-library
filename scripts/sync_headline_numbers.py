@@ -27,8 +27,8 @@ metrics.all_time / metrics.subscriptions / data_freshness），
     python scripts/sync_headline_numbers.py --write      # 实际写入
     python scripts/sync_headline_numbers.py --write --ids garagelab,lunarbuild
 
-⚠ 写入保持文件原生格式（candidates.json 是 LF、末尾无换行 —— 见
-`promote_to_candidates.py` 头部「红线 7」），不改换行风格。
+⚠ 读写统一走 `candidate_store`（2026-11-06）：格式按磁盘字节探测后
+原子落盘。旧版这里是原地截断写（无 fsync / os.replace），被中断会留半截 JSON。
 """
 
 import argparse
@@ -39,7 +39,9 @@ import sys
 from datetime import datetime
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CANDS = os.path.join(ROOT, "data", "candidates.json")
+sys.path.insert(0, os.path.join(ROOT, "scripts"))
+
+import candidate_store as CSt  # noqa: E402  候选池唯一读写入口
 
 # 字段 → 字符串里对应的标签。顺序有意义：先长后短，避免 "$1,400" 被
 # "1,400" 之类的短模式先吃掉。
@@ -223,12 +225,7 @@ def main():
     ap.add_argument("--write", action="store_true")
     args = ap.parse_args()
 
-    with open(CANDS, "rb") as f:
-        raw = f.read()
-    newline = "\r\n" if b"\r\n" in raw else "\n"
-    text = raw.decode("utf-8")
-    rows = json.loads(text)
-    pretty = json.dumps(rows, ensure_ascii=False, indent=2)
+    rows = CSt.load_candidates()
 
     ids = {x.strip() for x in args.ids.split(",") if x.strip()}
 
@@ -289,12 +286,7 @@ def main():
                 changed.append((rid, key, hits))
 
     if args.write:
-        new_pretty = json.dumps(rows, ensure_ascii=False, indent=2)
-        if newline == "\r\n":
-            new_pretty = new_pretty.replace("\n", "\r\n")
-        # 保持「末尾无换行」的原生形态（与写前一致）
-        with open(CANDS, "w", encoding="utf-8", newline="") as f:
-            f.write(new_pretty)
+        CSt.save_candidates(rows)
         print("[write] 改了 %d 处（%d 条条目）" % (len(changed), len({c[0] for c in changed})))
     else:
         print("[dry-run] 会改 %d 处（%d 条条目）：" % (len(changed), len({c[0] for c in changed})))

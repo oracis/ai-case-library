@@ -28,10 +28,10 @@ from datetime import datetime
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
+import candidate_store as CSt                                # noqa: E402
 import verify_rules as VR                                    # noqa: E402
 
 VERS = os.path.join(ROOT, "data", "verifications.json")
-CANDS = os.path.join(ROOT, "data", "candidates.json")
 NOW = datetime.now().strftime("%Y-%m-%d %H:%M")
 
 
@@ -129,7 +129,7 @@ def build_draft(cand):
 
 
 def main():
-    cands = json.load(open(CANDS, encoding="utf-8"))
+    cands = CSt.load_candidates()
     vers = json.load(open(VERS, encoding="utf-8")) \
         if os.path.exists(VERS) else {}
     made = skipped = 0

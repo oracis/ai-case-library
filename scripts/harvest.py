@@ -58,6 +58,13 @@ def load_json(name, default=None):
     if name == "cases":
         import case_store as CS
         return CS.load_cases()
+    if name == "candidates":
+        import candidate_store as CSt
+        p = os.path.join(DATA_DIR, "candidates.json")
+        if not os.path.exists(p) and default is not None:
+            return default
+        # 显式传 path：测试会替换 H.DATA_DIR 到临时目录，不能读默认真台账
+        return CSt.load_candidates(path=p)
     path = os.path.join(DATA_DIR, name + ".json")
     if not os.path.exists(path):
         return default if default is not None else []
@@ -87,6 +94,10 @@ def save_json(name, payload):
         # 写库 + 重导镜像（格式由 case_store/db 统一负责，不再探测换行）
         import case_store as CS
         CS.save_cases(payload)
+        return
+    if name == "candidates":
+        import candidate_store as CSt
+        CSt.save_candidates(payload, path=os.path.join(DATA_DIR, "candidates.json"))
         return
     path = os.path.join(DATA_DIR, name + ".json")
     atomicio.write_json(path, payload, indent=2, newline=detect_newline(path))

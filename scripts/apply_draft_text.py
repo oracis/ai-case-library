@@ -12,8 +12,10 @@
     2. `verify_rules.content_gate()`：正文四硬字段（one_liner / what_it_does /
        how_it_makes_money / verdict）长度与存在性。不过就不写。
 
-格式：candidates.json 是 indent=2 + CRLF + 无末尾换行（与 cases.json 的
-LF 不同！）。写回后做字节级自检，还原不成功直接中止。
+格式：读写统一走 `candidate_store`（2026-11-06 收口）。⚠️ 旧版这里写
+「candidates.json 是 CRLF」与磁盘事实相反，且写盘时硬 `.replace("\\n", "\\r\\n")`
+会把整本 LF 翻成 CRLF；它的「字节级自检」比的是自己刚写的输出，永远通过。
+现在由 `CSt.save_candidates()` 按磁盘原生格式原子落盘，`CSt.check()` 复核。
 
 用法：
     python scripts/apply_draft_text.py --dry            # 只看会写哪些
@@ -31,9 +33,9 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
+import candidate_store as CSt  # noqa: E402  候选池唯一读写入口
 import verify_rules  # noqa: E402
 
-CAND = os.path.join(ROOT, "data", "candidates.json")
 STAGE = os.path.join(ROOT, "tmp", "draft_text.json")
 
 FIELDS = ("one_liner", "what_it_does", "how_it_makes_money", "verdict",
@@ -56,7 +58,7 @@ def main():
     args = ap.parse_args()
 
     stage = load(STAGE, {})
-    cands = load(CAND, [])
+    cands = CSt.load_candidates()
     if not stage:
         print("[!] 暂存区为空：先跑 scripts/draft_case_text.py")
         return 1
@@ -115,15 +117,13 @@ def main():
         print("\n没有可写入的条目，未改动候选池")
         return 0
 
-    s = json.dumps(cands, ensure_ascii=False, indent=2).replace("\n", "\r\n")
-    with io.open(CAND, "w", encoding="utf-8", newline="") as f:
-        f.write(s)
-    # 字节级自检：candidates.json 用 CRLF，写错就是全量 diff
-    with io.open(CAND, "r", encoding="utf-8", newline="") as f:
-        back = f.read()
-    if back != s:
-        raise SystemExit("[!] 写回格式与预期不一致，已中止")
-    print("\n已写入 data/candidates.json（%d 条）" % len(written))
+    ind, nl, tail_nl = CSt.save_candidates(cands)
+    ok, msg = CSt.check()
+    if not ok:
+        raise SystemExit("[!] 写回格式自检未通过：%s" % msg)
+    print("\n已写入 data/candidates.json（%d 条，indent=%d / %s / 末尾换行=%s）"
+          % (len(cands), ind, "CRLF" if nl == "\r\n" else "LF",
+             "有" if tail_nl else "无"))
     print("下一步：python scripts/promote_ready.py --ready")
     return 0
 

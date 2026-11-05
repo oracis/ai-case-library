@@ -20,10 +20,12 @@
    `what_it_does` / `how_it_makes_money` / `why_it_works` / `signals` 里
    已有的事实推，不准引入外部知识 —— 引入就等于把没核实的东西写进了
    一个主打「每个数字都核过」的库。
-3. **改 `data/cases.json` 必须字节级还原原格式。** 本库同时存在
-   indent=2+**LF**（cases.json）与 indent=2+**CRLF**（candidates.json）
-   两种换行，写错一次就是全量 diff。本脚本**自动探测**并在写回后自检，
-   还原不成功直接中止（宁可不动，也不要污染台账）。
+3. **改 `data/cases.json` 必须字节级还原原格式。** `data/` 下各文件的
+   换行/缩进/末尾换行并不统一（inbox.json 是 CRLF，cases.json /
+   candidates.json 是 LF —— 2026-11-06 实测；旧注释把 candidates 写成
+   CRLF 是错的）。写错一次就是全量 diff。本脚本**自动探测**并在写回后
+   自检，还原不成功直接中止（宁可不动，也不要污染台账）。
+   候选池的探测/写盘已统一到 `candidate_store.py`，本脚本只管 cases.json。
 
 用法
 ----
@@ -52,8 +54,9 @@ UNKNOWN = "未公开"
 # ---------------------------------------------------------------------------
 # 原生序列化格式探测
 # ---------------------------------------------------------------------------
-#为什么必须探测而不是写死：cases.json 是 LF、candidates.json 是 CRLF，
-# 两者 indent 都是 2、都没有末尾换行。写死任一个都会让另一个炸成全量 diff。
+# 为什么必须探测而不是写死：data/ 下格式并不统一（inbox.json 是 CRLF，
+# cases.json / candidates.json 是 LF，2026-11-06 实测），且 indent 与末尾
+# 换行也可能不同。写死任一个都会让别的文件炸成全量 diff。
 def detect_fmt(raw_bytes):
     """从原始字节猜出 (indent, 换行符, 是否有末尾换行)。"""
     crlf = raw_bytes.count(b"\r\n")
