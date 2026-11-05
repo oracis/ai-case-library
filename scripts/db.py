@@ -533,6 +533,17 @@ def upsert_post(conn, case_id, platform, row):
         conn.execute(
             f"INSERT INTO platform_posts ({', '.join(cols)}) VALUES ({placeholders})",
             vals)
+    # 🚨 必须在这里提交（2026-11-05 修**静默丢写**）：此前 `upsert_post` 不提交，
+    #   而调用方普遍是 `conn = get_conn() → upsert_post() → close_conn()`，
+    #   `close_conn()` 只是 `conn.close()` —— sqlite3 对未提交事务**静默回滚**。
+    #   实测：写完立刻关连接、另开一个 sqlite3 连接查，行不存在。
+    #   受害面是所有「单行写」调用方（`toutiao_publish.mark_*`、
+    #   `wechat_publish.save_published` …）：JSON 快照看着有、SQLite 里没有，
+    #   而 dedupe 只认 SQLite ⇒ 这层台账等于没写。只有显式 `conn.commit()`
+    #   的调用方（`ledger.py`）是通的，所以问题一直没暴露。
+    #   ⚠ 别改成在 `close_conn()` 里统一提交：那里无法区分「正常结束」和
+    #   「异常中途」，异常时提交半截数据比丢写更糟。
+    conn.commit()
     return True
 
 

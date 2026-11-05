@@ -655,13 +655,26 @@ def write_article(meta, outdir=None):
 # ======================================================================
 # 记录 / 队列
 # ======================================================================
+# 「已经占了这个号」的状态集合 —— **必须与 `publish_guard.PUBLISHED_STATES` 同值**
+# （`test_toutiao_settle` 有相等断言，改一处不改另一处会直接转红）。
+# 为什么不是只认 `published`（2026-11-05 修）：`auditing` 表示「点了发布但两侧都
+# 没见到」，此时**绝不能**当成没发过 —— 它很可能正在审核队列里，再发就是第二篇。
+_OCCUPIED_STATES = ("published", "auditing", "blocked", "审核中")
+
+
 def _ids(path):
     """读台账 id 列表。对 DRAFT_FILE/PUB_FILE 优先从 SQLite ledger 读；db 无数据时回退 JSON。"""
     if path in (DRAFT_FILE, PUB_FILE):
         conn = db.get_conn()
         try:
-            state = "draft" if path == DRAFT_FILE else "published"
-            posts = db.get_posts_by_platform(conn, "toutiao", state=state)
+            if path == DRAFT_FILE:
+                posts = db.get_posts_by_platform(conn, "toutiao", state="draft")
+            else:
+                # 2026-11-05：`published` 之外的状态也占号（见 _OCCUPIED_STATES）。
+                # 旧实现只取 state='published' ⇒ 一条 auditing 记录在待发队列里
+                # 等于不存在，`pending_cases` 会把它再选一次。
+                posts = [p for p in db.get_posts_by_platform(conn, "toutiao")
+                         if (p.get("state") or "").strip() in _OCCUPIED_STATES]
             if posts:
                 return [p["case_id"] for p in posts]
         except Exception:
@@ -757,35 +770,30 @@ def mark_drafted(cid):
 
 
 def mark_published(cid):
-    """记账：头条 published。优先写 SQLite，双写 JSON 快照（供旧脚本只读兼容）。"""
-    conn = db.get_conn()
-    try:
-        db.upsert_post(conn, cid, "toutiao", {
-            "state": "published",
-            "remote_id": "",
-            "url": "",
-            "title": "",
-            "draft_id": "",
-            "attempt": 0,
-            "published_at": time.strftime("%Y-%m-%d %H:%M"),
-            "updated_at": time.strftime("%Y-%m-%d %H:%M"),
-            "note": "",
-        })
-    finally:
-        db.close_conn()
-    _mark(PUB_FILE, cid)  # 双写 JSON 快照
+    """记账：头条 published，**不带远端 ID**（兼容保留，2026-11-05 起无内部调用）。
+
+    ⚠ 别在新代码里用它：没有 `remote_id` 的「已发布」是对账时无法核实的一手
+      证据缺口（`ledger.py` 里同类问题的处置是降级成 `unverified`）。确认过
+      发表、但接口拿不到 gid 时请用 `mark_published_remote(cid, "", 证据)`，
+      把证据写进 note 里。
+    """
+    mark_published_remote(cid, "", "legacy_mark_published")
 
 
 def mark_published_remote(cid, gid, evidence):
-    """发表并**带 gid** 记台账（`send-draft` 用）。
+    """发表并**带 gid** 记台账（`send-draft` / UI 回读命中时用）。
 
     优先写 SQLite（remote_id=gid, note=evidence），双写 JSON 快照。
+    `gid` 允许为空（2026-11-05）：UI 路线的已发表列表接口目前只回标题，
+      取不到 gid 时**不要因此不记账** —— `publish_guard` 的 dedupe 也认
+      `state='published'`，漏记反而会让这篇被重发一遍。空 gid 时 JSON 快照
+      不写 `gid` 键，避免出现 `"gid": ""` 这种看起来像有 ID 的假证据。
     """
     conn = db.get_conn()
     try:
         db.upsert_post(conn, cid, "toutiao", {
             "state": "published",
-            "remote_id": str(gid),
+            "remote_id": str(gid or ""),
             "url": "",
             "title": "",
             "draft_id": "",
@@ -796,11 +804,39 @@ def mark_published_remote(cid, gid, evidence):
         })
     finally:
         db.close_conn()
-    _mark(PUB_FILE, cid, extra={                     # 双写 JSON 快照
-        "gid": str(gid),
+    extra = {                                        # 双写 JSON 快照
         "evidence": evidence,
         "verified_at": time.strftime("%Y-%m-%d %H:%M"),
-    })
+    }
+    if gid:
+        extra["gid"] = str(gid)
+    _mark(PUB_FILE, cid, extra=extra)
+
+
+def mark_auditing(cid, evidence=""):
+    """记账：头条 `auditing`（点了发布，但平台侧两侧都没见到这篇）。
+
+    🚨 这个状态存在的唯一目的 = **别重发**。`publish_guard.PUBLISHED_STATES`
+      含 `auditing` ⇒ dedupe 命中；`_ids(PUB_FILE)` 也把它算占号。
+      它**不代表已发表**，也不进 `toutiao_published.json`（那是「已发表」口径，
+      塞进去会把报表篇数算多）⇒ 必须靠 `tt_probe_published.py` / `tt_manage.py`
+      复核后改回 published 或 draft。
+    """
+    conn = db.get_conn()
+    try:
+        db.upsert_post(conn, cid, "toutiao", {
+            "state": "auditing",
+            "remote_id": "",
+            "url": "",
+            "title": "",
+            "draft_id": "",
+            "attempt": 0,
+            "published_at": time.strftime("%Y-%m-%d %H:%M"),
+            "updated_at": time.strftime("%Y-%m-%d %H:%M"),
+            "note": evidence or "",
+        })
+    finally:
+        db.close_conn()
 
 
 def pending_cases(need_built=True):
@@ -1388,10 +1424,78 @@ def cmd_probe(args):
             cdp.close_target(t["id"])
 
 
+def _settle_ui_publish(cdp, c, title):
+    """点完「预览并发布」后按**平台侧真值**记账，替代无条件 `mark_published`。
+
+    🚨 为什么必须回读（2026-11-05 修）：旧实现点完按钮 `sleep(4)` 就
+      `mark_published()`，而且不写 `remote_id`。实测那条按钮有时**只把页面
+      跳到预览步**（还要再点一次才真发），于是出现「台账 published、平台
+      草稿箱里躺着」。而 `publish_guard` 的 dedupe 只认 state ⇒ 这篇以后
+      **再也不会被发出去**，全程零报错。**危害方向是漏发，不是重发。**
+
+    三种结局，各自记账（**只有第 ① 种算成功**）：
+      ① 已发表列表命中      → `mark_published_remote`（拿到 gid 就带上）
+      ② 已发表无、草稿箱有  → `mark_drafted`（就是停在预览步了，可以重试）
+      ③ 两侧都读不到        → `mark_auditing`（多半在审核队列；标了才不会被
+         当成「没发过」重发，需 `tt_probe_published.py` 复核后定案）
+
+    顺序不能反：草稿箱里可能有已发表稿的**残留**，先查已发表才不会被残留骗。
+    """
+    cid = c["id"]
+    # ---------- ① 已发表列表（权威） ----------
+    try:
+        arts = fetch_published_articles(cdp, max_page=1) or []
+    except Exception as e:                              # noqa: BLE001
+        arts = []
+        print("    [warn] 已发表列表回读异常：%s" % str(e)[:60])
+    pub_titles = [a.get("title") or "" for a in arts]
+    hit = None
+    if title and title.strip() and title.strip() in [t.strip() for t in pub_titles]:
+        hit = title.strip()
+    if not hit:
+        # 头条会改写/截断标题，字面相等常常不成立 ⇒ 用产品名优先的同一套判据
+        # （与 `cmd_publish` 的 API 批量核对共用，避免两套口径）
+        hit = draft_title_match(cid, c, pub_titles)
+    if hit:
+        gid = ""
+        for a in arts:
+            if (a.get("title") or "").strip() == hit:
+                gid = a.get("gid") or ""
+                break
+        print("    ✓ 已发表列表命中：《%s》%s"
+              % (hit, ("gid=%s" % gid) if gid else "（接口没回 gid，按标题记）"))
+        mark_published_remote(cid, gid, "ui_publish_readback")
+        return True
+
+    # ---------- ② 草稿箱：稿件还在 = 只走到预览步 ----------
+    raw = fetch_draft_api_raw(cdp)
+    if raw is None:
+        print("    [warn] 草稿箱读取失败，无法判断是否停在预览步")
+        d_hit = None
+    else:
+        d_hit = draft_title_match(cid, c, [x.get("title") or "" for x in raw])
+    if d_hit:
+        print("    ✗ 这篇还在草稿箱（《%s》）⇒ 「预览并发布」只到了预览步，**并未发表**" % d_hit)
+        print("      台账记 draft（不是 published）⇒ 后续不会漏发，也不会误判成第二篇")
+        mark_drafted(cid)
+        return False
+
+    # ---------- ③ 两侧都没有 ----------
+    print("    ⚠ 已发表列表与草稿箱都没见到这篇 ⇒ 多半进了审核队列")
+    print("      台账记 auditing（**不算已发表**，但会挡住重发）；"
+          "过几分钟跑 tt_probe_published.py 复核")
+    mark_auditing(cid, "ui_publish_unverified:已发表列表/草稿箱双读均未命中")
+    return False
+
+
 def publish_one(c, dry=False, yes=False, cover=True):
     """填一稿进发文页。dry = 只填不点；yes = 点「发布」，否则靠自动存草稿。
 
     cover = 顺手把小红书卡片图第 1 张传成封面（头条没封面推荐会弱）。
+
+    🚨 `yes=True` **不再直接记「已发表」**（2026-11-05 修）：点完按钮要回读
+      已发表列表/草稿箱再定案，见 `_settle_ui_publish`。返回 True 只代表
+      「已确认发表」。
     """
     meta_path = os.path.join(OUT, c["id"], "meta.json")
     if not os.path.isfile(meta_path):
@@ -1461,17 +1565,16 @@ def publish_one(c, dry=False, yes=False, cover=True):
             print("    自动保存：%s" % ("已保存" if ok else "没等到保存提示，稍后去草稿箱确认"))
             if not ok:
                 return False
-        else:
-            btn = _click_text(cdp, ["预览并发布", "发布文章", "立即发布"])
-            if btn == "notfound":
-                print("    [warn] 没点到发布按钮，记录不写")
-                return False
-        time.sleep(4)
-        if yes:
-            mark_published(c["id"])
-        else:
+            time.sleep(4)
             mark_drafted(c["id"])
-        return True
+            return True
+        btn = _click_text(cdp, ["预览并发布", "发布文章", "立即发布"])
+        if btn == "notfound":
+            print("    [warn] 没点到发布按钮，记录不写")
+            return False
+        print("    已点「%s」—— 先回读平台侧真值再记账（不再直接标已发表）" % btn)
+        time.sleep(4)
+        return _settle_ui_publish(cdp, c, meta["title"])
     finally:
         cdp.close_target(t["id"])
 
@@ -1613,7 +1716,10 @@ def publish_api_one(c, cdp=None, anti_token=None, verify=True, with_cover=True,
                     print("    [warn] 回读校验异常（%s），按服务端 code:0 记"
                           % str(e)[:60])
         if send:
-            mark_published(c["id"])
+            # 2026-11-05：`pgc_id` 就是发表后的 gid（见 docstring 实测）⇒ 带上它。
+            # 旧实现 `mark_published` 写 remote_id 空，dedupe 只能靠 state，
+            # 对账时也拿不到「哪一篇」的正证据。
+            mark_published_remote(c["id"], pgcid, "api_send_readback")
         else:
             mark_drafted(c["id"])
         return pgcid
@@ -3229,11 +3335,35 @@ def _extract_article_title(item):
         return ""
 
 
+def _extract_article_gid(item):
+    """从 data[i] 挖 gid，取不到返 ""。
+
+    ⚠ 这里**只能靠兜底猜测**：`assembleCell.itemCell.articleBase` 的实测路径
+      只确认了 `title`（见 `_extract_article_title`），gid 字段名没实证过。
+      所以按「已知候选名逐个试、拿第一个非空」处理，并且**取不到不算失败**
+      —— 台账照样按标题记 published，只是 note 里不留 gid。
+      （真拿到 gid 的价值：对账时能直接定位到哪一篇，不用再按标题猜。）
+    """
+    try:
+        ac = item.get("assembleCell") or {}
+        ic = ac.get("itemCell") or {}
+        ab = ic.get("articleBase") or {}
+        for v in (ab.get("gid"), ab.get("item_id"), ab.get("id"),
+                  ic.get("gid"), ic.get("item_id"), ac.get("gid"),
+                  item.get("gid"), item.get("item_id")):
+            if v not in (None, "", 0, "0"):
+                return str(v)
+    except Exception:                                  # noqa: BLE001
+        return ""
+    return ""
+
+
 def fetch_published_articles(cdp, max_page=5):
     """已发布图文列表（文章 tab 的 API 版，2026-10-16 P1 实证）。
 
-    走 _article_api_url + 浏览器导航式读取，返回 [{title, url}]；
-    失败/空返回 []（上层可退 UI 两页收集）。
+    走 _article_api_url + 浏览器导航式读取，返回 `[{title, url, gid}]`；
+    失败/空返回 []（上层可退 UI 两页收集）。`gid` 尽力而为，取不到是 `""`
+    （见 `_extract_article_gid`），别把它当判据。
 
     实测：本号 20 条（has_more 第 2 页即 false），与 UI 版逐条一致。
     """
@@ -3268,7 +3398,8 @@ def fetch_published_articles(cdp, max_page=5):
             for it in data:
                 t = _extract_article_title(it)
                 if t:
-                    out.append({"title": t, "url": ""})
+                    out.append({"title": t, "url": "",
+                                "gid": _extract_article_gid(it)})
             if not d.get("has_more") or not data:
                 break
     finally:
