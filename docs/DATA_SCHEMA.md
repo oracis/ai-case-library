@@ -128,6 +128,26 @@ guaranteed present; everything else may be `null`, `""` or `[]`.
 | `verification_downgraded` | object \| null | Present only when `audit_evidence.py` lowered `verification`. See below. |
 | `china_fit` | object \| null | China-portability score. See below. |
 
+#### `verified_at` / `caliber` — candidate → case
+
+Both fields are defined on the **case** above, but a candidate may carry them
+early (2026-11-05). When promoted, `server.py` resolves them through
+`verify_rules.resolve_case_timepoint(candidate, draft, now)`:
+
+- `verified_at` is **the day the revenue numbers were last checked / fetched**,
+  not the promotion day. `make_article.timepoint_row()` prints it as
+  `截至 <date>（抓取日快照）`, so stamping the promotion day would silently
+  date a stale cached snapshot forward. A candidate-carried valid `YYYY-MM-DD`
+  wins; invalid values fall back to the server's `now`; ISO timestamps keep
+  their date part only.
+- `caliber` resolution order: the human verification draft
+  (`verifications.json`) → candidate top level → candidate `metrics.caliber`.
+- Candidates without these fields keep the old behaviour (`verified_at = now`).
+
+⚠ Do **not** back-fill `verified_at` into `data/verifications.json` — that
+store deliberately has no such field (37/37 entries). And `verified_at` is
+unrelated to the three meanings of `verification` described above.
+
 #### `tier`, `tier_reason`
 
 Three shelves, from strongest to weakest evidence:

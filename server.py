@@ -1119,6 +1119,11 @@ class Handler(BaseHTTPRequestHandler):
 
                 # 人工核读标记在 new_case 建好后再写（见下方 apply_human_read）：
                 # 时间戳一律取**服务端存下的草稿**，不用请求体里的。
+                #
+                # 数据时点（另一回事）：候选上已登记的**回源核对日**优先于晋升当天。
+                # 收入是那天的缓存快照，`timepoint_row()` 要印「截至 X（抓取日快照）」；
+                # 若用 now 覆盖，推迟一天晋升就凭空虚报一天时效（2026-11-05）。
+                case_at, case_caliber = VRULES.resolve_case_timepoint(hit, draft, now)
                 new_case = {
                     "id": slugify(hit.get("name_en") or hit.get("name"), taken),
                     "name": hit.get("name"),
@@ -1132,7 +1137,7 @@ class Handler(BaseHTTPRequestHandler):
                     # 但草稿标得太高时，降到证据撑得住的那一档（dn_to），
                     # 并在下方写 verification_downgraded 记下原值与理由。
                     "verification": dn_to or claim_ver,
-                    "caliber": draft.get("caliber", ""),
+                    "caliber": case_caliber,
                     "metrics": hit.get("metrics", {}),
                     "models": hit.get("models", []),
                     "replicability": hit.get("replicability", {}),
@@ -1160,7 +1165,7 @@ class Handler(BaseHTTPRequestHandler):
                         s.get("url") for s in added_sources if isinstance(s, dict)
                     ]} if added_sources else {}),
                     "published_from": cid,
-                    "verified_at": now,
+                    "verified_at": case_at,
                     "updated_at": now,
                     "tags": hit.get("tags", []),
                     # 赛道标记必须跟着晋升一起搬（2026-10-11 补）。

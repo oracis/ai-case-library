@@ -420,6 +420,39 @@ def merge_sources(draft_sources, candidate_sources):
     return merged, added
 
 
+def resolve_case_timepoint(candidate, draft=None, now=""):
+    """晋升时定下案例的 `verified_at` / `caliber`。返回 (日期, 口径)。
+
+    2026-11-05：`server.py` 的 `new_case` 原本硬写 `verified_at = now`
+    （**晋升当天**）。可 `make_article.timepoint_row()` 把它印成
+    「截至 X（抓取日快照）」——数字明明是几天前回源的缓存快照，推迟一天
+    晋升就凭空虚报一天时效。候选上若已登记核对日（本库回源那天），
+    必须用那个，不能用晋升当天覆盖。
+
+    优先级：
+      · `verified_at` — 候选顶层的合法 `YYYY-MM-DD` > 服务端 `now`；
+      · `caliber` — 人工核实草稿（`verifications.json`）> 候选顶层
+        > 候选 `metrics.caliber`（采集时自动标的，最弱）。
+    没有时点的旧候选不受影响：一律回落到 `now`，行为与改前一致。
+    """
+    c = candidate if isinstance(candidate, dict) else {}
+    d = draft if isinstance(draft, dict) else {}
+    # `[:10]` 是刻意的：允许 `2026-11-05T04:00:12Z` 这类同步时间戳，
+    # 只取日期部分（时分秒是支付侧标注，不该进「截至 X」）。
+    at = str(c.get("verified_at") or "").strip()[:10]
+    ok = (len(at) == 10 and at[4] == at[7] == "-"
+          and at[:4].isdigit() and at[5:7].isdigit() and at[8:].isdigit()
+          and 1 <= int(at[5:7]) <= 12 and 1 <= int(at[8:]) <= 31)
+    if not ok:
+        at = ""                      # 脏值不采信，回落服务端当天
+    cal = str(d.get("caliber") or "").strip().lower()
+    if not cal:
+        cal = str(c.get("caliber") or "").strip().lower()
+    if not cal:
+        cal = str((c.get("metrics") or {}).get("caliber") or "").strip().lower()
+    return (at or now), cal
+
+
 def default_case_tier(rec):
     """给一个已发布案例定默认档位。返回 (tier, 理由)。
 

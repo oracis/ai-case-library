@@ -32,7 +32,9 @@
     "verification": "stripe",
     "refreshed_at": "2026-11-05",
     "note": "收入数字来自 TrustMRR 公开的官方营收档案，由支付服务商 API 直读计算（Stripe (API key)），非截图自报；该档案是缓存快照，引用须带时点与口径。",
-    "data_freshness": "2026-11-05T04:00:12.787Z"
+    "data_freshness": "2026-11-05T04:00:12.787Z",
+    "verified_at": "2026-11-05",
+    "caliber": "mrr"
   },
   {
     "id": "talkeasy",
@@ -67,7 +69,9 @@
     "verification": "stripe",
     "refreshed_at": "2026-11-05",
     "note": "收入数字来自 TrustMRR 公开的官方营收档案，由支付服务商 API 直读计算（Stripe (API key), Superwall (API key)），非截图自报；该档案是缓存快照，引用须带时点与口径。",
-    "data_freshness": "2026-11-05T06:35:33.332Z"
+    "data_freshness": "2026-11-05T06:35:33.332Z",
+    "verified_at": "2026-11-05",
+    "caliber": "mrr"
   },
   {
     "id": "bubblav",
@@ -103,7 +107,9 @@
     "verification": "stripe",
     "refreshed_at": "2026-11-05",
     "note": "收入数字来自 TrustMRR 公开的官方营收档案，由支付服务商 API 直读计算（Polar (API key)），非截图自报；该档案是缓存快照，引用须带时点与口径。",
-    "data_freshness": "2026-11-05T06:49:02.099Z"
+    "data_freshness": "2026-11-05T06:49:02.099Z",
+    "verified_at": "2026-11-05",
+    "caliber": "mrr"
   },
   {
     "id": "arq",
@@ -139,6 +145,8 @@
     "verification": "stripe",
     "refreshed_at": "2026-11-05",
     "note": "收入数字来自 TrustMRR 公开的官方营收档案，由支付服务商 API 直读计算（Stripe (API key)），非截图自报；该档案是缓存快照，引用须带时点与口径。",
-    "data_freshness": "2026-11-05T06:50:59.465Z"
+    "data_freshness": "2026-11-05T06:50:59.465Z",
+    "verified_at": "2026-11-05",
+    "caliber": "mrr"
   }
 ]
