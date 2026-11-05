@@ -19,6 +19,7 @@
 改守卫前先跑这个：python scripts/test_draft_case_text.py
 """
 
+import json
 import os
 import sys
 import unittest
@@ -236,6 +237,100 @@ class FactsCard(unittest.TestCase):
     def test_missing_fields_marked(self):
         card = D.facts_card("x", {}, "")
         self.assertIn("创始人：未公开", card)
+
+
+class Wording(unittest.TestCase):
+    """2026-11-05：4 条新草稿抽检发现的措辞事故。
+
+    根因不是模型自由发挥，而是素材卡抬头把「支付网关 API 直读」「已验证收入」
+    「（已算好）」当固定标签印给了模型，模型照抄后变成：
+    ① 缓存快照说成「截至 2026-11-05 实时直读」；
+    ② partial 证据等级写成「经 Stripe API 直读验证」；
+    ③ 给模型看的批注「（已算好）」印给读者；
+    ④ 客单价（推算值）写成「将订阅定价压在 $10 以下」。
+    改源头治未来、scrub_wording() 治已生成的稿，两者都要锁住。
+    """
+
+    REAL_BAD = {
+        "what_it_does": (
+            "截至 2026-11-05，支付网关直读显示当前 MRR 为 $3,929，活跃订阅数为 7。"
+            "收入数据来自 Polar 支付网关 API 直读。当前 MRR 为 $441，"
+            "近 30 天已验证收入 $368。"),
+        "how_it_makes_money": (
+            "按支付网关直读数据，当前 MRR $3,929 除以活跃订阅数 7，"
+            "得出客单价 $561.29。当前 MRR 为 $397，活跃订阅数 6，"
+            "客单价 $66.17（已算好）。用 MRR $441 除以活跃订阅数 9，"
+            "推算客单价约 $49。"),
+        "why_it_works": [
+            "活跃订阅 159 个，MRR $1,561，客单价 $9.82（支付网关直读）——低价订阅降低门槛。",
+            "支付网关直读：近 30 天已验证收入 $366，其中 2026-10-19 各 $66.01。",
+            "收入数据经 Stripe API 直读验证。",
+        ],
+        "playbook": ["将订阅定价压在 $10 以下，降低首次尝试的决策成本。"],
+        "replicability": {"tech": 2, "distribution": 3, "capital": 1, "timing": 3},
+    }
+
+    @staticmethod
+    def _money(data):
+        import re
+        return set(re.findall(r"\$[\d,]+(?:\.\d+)?",
+                              json.dumps(data, ensure_ascii=False)))
+
+    def test_facts_card_no_strong_claim_labels(self):
+        card = D.facts_card("x", {"cur_mrr": 12454.0, "active_subs": 407,
+                                  "rev_30d": 11550.0}, "")
+        for bad in ("支付网关 API 直读", "已算好", "已验证收入"):
+            self.assertNotIn(bad, card)
+        self.assertIn("缓存快照", card)
+        self.assertIn("不是本库实时直读", card)
+        self.assertIn("$30.6", card)  # 去掉批注不能把数值一起删掉
+
+    def test_system_bans_realtime_fabricated_date_and_arpu_as_price(self):
+        for rule in ("缓存快照", "不许自己编日期", "客单价不是定价",
+                     "素材卡里的批注", "不要重算"):
+            self.assertIn(rule, D.SYSTEM)
+        self.assertNotIn("客单价（已算好）", D.SYSTEM)
+        self.assertNotIn("订阅数 ÷ MRR", D.SYSTEM)  # 原式写反了，已改掉
+
+    def test_wording_bans_detects_every_real_case(self):
+        hits = D.wording_bans(self.REAL_BAD)
+        labels = {h.split(" @ ")[0] for h in hits}
+        self.assertEqual(labels, {"自编时点+实时直读", "实时直读强断言",
+                                  "已验证收入", "素材批注",
+                                  "客单价当定价", "复述除法过程"})
+
+    def test_scrub_cleans_every_real_case(self):
+        out, n = D.scrub_wording(self.REAL_BAD)
+        self.assertGreater(n, 0)
+        self.assertEqual(D.wording_bans(out), [])
+        self.assertIn("TrustMRR 缓存快照", out["what_it_does"])
+        self.assertIn("支付源为 Polar", out["what_it_does"])
+        self.assertIn("支付源为 Stripe", out["why_it_works"][2])
+        self.assertIn("把客单价控制在", out["playbook"][0])
+        self.assertNotIn("已算好", out["how_it_makes_money"])
+
+    def test_scrub_never_changes_money(self):
+        out, _n = D.scrub_wording(self.REAL_BAD)
+        self.assertEqual(self._money(out), self._money(self.REAL_BAD))
+
+    def test_scrub_drops_model_invented_date(self):
+        out, _n = D.scrub_wording(self.REAL_BAD)
+        self.assertNotIn("截至 2026-11-05", out["what_it_does"])
+
+    def test_scrub_is_idempotent(self):
+        once, _n = D.scrub_wording(self.REAL_BAD)
+        twice, n2 = D.scrub_wording(once)
+        self.assertEqual(n2, 0)
+        self.assertEqual(once, twice)
+
+    def test_scrub_keeps_other_fields_intact(self):
+        out, _n = D.scrub_wording(self.REAL_BAD)
+        self.assertEqual(out["replicability"], self.REAL_BAD["replicability"])
+        self.assertNotIn("replicability", dict(D._visible_texts(out)))
+        clean = _draft(one_liner="MRR $1,155 的订阅制工具", verdict="它卖的是节奏")
+        out2, n = D.scrub_wording(clean)
+        self.assertEqual(n, 0)
+        self.assertEqual(out2, clean)
 
 
 class FragmentWarning(unittest.TestCase):
