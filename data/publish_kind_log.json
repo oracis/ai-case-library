@@ -70,6 +70,11 @@
     "case_id": "ext-ep-002-2048",
     "kind": "game",
     "at": "2026-11-04 13:16"
+   },
+   {
+    "case_id": "ext-ep-003-freedoom",
+    "kind": "game",
+    "at": "2026-11-05 14:05"
    }
   ],
   "wechat": [
@@ -77,6 +82,11 @@
     "case_id": "ext-ep-001-super-mario-bros",
     "kind": "game",
     "at": "2026-11-03 13:18"
+   },
+   {
+    "case_id": "ext-ep-002-2048",
+    "kind": "game",
+    "at": "2026-11-05 09:59"
    }
   ],
   "bilibili": [
@@ -109,6 +119,12 @@
    {
     "at": "2026-11-04 13:09",
     "case_id": "speel-co",
+    "kind": "ai",
+    "note": "send-draft FIFO 最久草稿"
+   },
+   {
+    "at": "2026-11-05 10:47",
+    "case_id": "coral",
     "kind": "ai",
     "note": "send-draft FIFO 最久草稿"
    }

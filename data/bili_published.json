@@ -164,5 +164,14 @@
     "verified_at": "2026-11-03 13:56",
     "evidence": "editor-ui-publish + toast 提交成功 + 按标题补账(aid 342364→53736510)",
     "note": "｜草稿同步(2026-10-16 14:10): title 认领 aid=342364"
+  },
+  {
+    "id": "nitra",
+    "at": "2026-10-10 01:26",
+    "article_id": "53766079",
+    "title": "Nitra：给独立小诊所做管钱、管合规、管库存的后台",
+    "verified_at": "2026-11-05 10:14",
+    "evidence": "editor-ui-publish",
+    "note": "｜草稿同步(2026-10-10 01:26): title 认领 aid=342414"
   }
 ]

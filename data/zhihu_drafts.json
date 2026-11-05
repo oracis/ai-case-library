@@ -22,8 +22,10 @@
     "article_id": "2099503506575078355",
     "title": "开源三年、10 个人、没有投资人：这个隐私分析工具是怎么活下来的？",
     "url": "https://zhuanlan.zhihu.com/p/2099503506575078355",
-    "status": "draft",
-    "ts": "2026-10-30 14:10:43"
+    "status": "published",
+    "ts": "2026-10-30 14:10:43",
+    "published_ts": "2026-11-01 17:49:49",
+    "verified_at": "2026-11-05 12:47:47"
   },
   "3ak-track-field": {
     "article_id": "2099504180557768154",
@@ -37,8 +39,10 @@
     "article_id": "2099504191156893329",
     "title": "AI 造站 + 纸质明信片：一家给小店做网站的公司怎么用线下动作获客",
     "url": "https://zhuanlan.zhihu.com/p/2099504191156893329",
-    "status": "draft",
-    "ts": "2026-10-30 14:13:26"
+    "status": "published",
+    "ts": "2026-11-05 12:51:47",
+    "published_ts": "2026-11-05 12:51:47",
+    "verified_at": "2026-11-05 12:54:07"
   },
   "headshotpro": {
     "article_id": "2099504200480772284",
@@ -100,9 +104,9 @@
   },
   "chessigma": {
     "article_id": "2100211498438104962",
-    "title": "一个海外小产品怎么赚钱：Chessigma",
+    "title": "100 万人在免费下棋，576 人付钱：Chessigma 用 0.06% 转化率撑起月入 7,306 美元",
     "url": "https://zhuanlan.zhihu.com/p/2100211498438104962",
-    "status": "draft",
+    "status": "published",
     "ts": "2026-11-01 13:04:01",
     "publish_settings": {
       "cover_set": true,
@@ -117,13 +121,15 @@
       "content_source": ""
     },
     "settings_verified_at": "2026-11-01 19:05",
-    "note": "发布设置（封面/声明/话题）已通过 CDP 设置并用 /api/articles/{id}/draft 回读确认；等待人工点「发布」"
+    "note": "发布设置（封面/声明/话题）已通过 CDP 设置并用 /api/articles/{id}/draft 回读确认；等待人工点「发布」",
+    "published_ts": "2026-11-01 19:11:46",
+    "verified_at": "2026-11-05 12:47:47"
   },
   "cod-dex": {
     "article_id": "2100211505627242739",
-    "title": "一个海外小产品怎么赚钱：Codédex",
+    "title": "把 Python 课做成闯关地图：Codédex 靠 9.99 美元的「咖啡价」攒下 6,686 个订阅",
     "url": "https://zhuanlan.zhihu.com/p/2100211505627242739",
-    "status": "draft",
+    "status": "published",
     "ts": "2026-11-01 13:04:03",
     "publish_settings": {
       "cover_set": true,
@@ -138,7 +144,9 @@
       "content_source": ""
     },
     "settings_verified_at": "2026-11-01 19:05",
-    "note": "发布设置（封面/声明/话题）已通过 CDP 设置并用 /api/articles/{id}/draft 回读确认；等待人工点「发布」"
+    "note": "发布设置（封面/声明/话题）已通过 CDP 设置并用 /api/articles/{id}/draft 回读确认；等待人工点「发布」",
+    "published_ts": "2026-11-02 11:12:03",
+    "verified_at": "2026-11-05 12:47:47"
   },
   "ext-ep-001-super-mario-bros": {
     "article_id": "2100938408583611480",

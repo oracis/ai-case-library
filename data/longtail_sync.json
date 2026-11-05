@@ -654,5 +654,35 @@
   },
   "via": "cdp-9228",
   "ts": "2026-11-04 19:32:33"
+ },
+ "tencentcloud-2026-11-05-1": {
+  "case": "tencentcloud",
+  "title": "游戏厅：Quake，1999 年开源的雷神之锤",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "340965",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=340965"
+   }
+  },
+  "category": "人工智能",
+  "cover": "",
+  "via": "cdp-9228",
+  "ts": "2026-11-05 11:41:15"
+ },
+ "gojiberryai-2026-11-05-1": {
+  "case": "gojiberryai",
+  "title": "盯住「谁在换工作」：信号驱动线索系统的三个工程问题",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "341234",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=341234"
+   }
+  },
+  "category": "人工智能",
+  "cover": "https://case.ydtgo.top/covers/gojiberryai.png",
+  "via": "cdp-9228",
+  "ts": "2026-11-05 14:18:41"
  }
 }

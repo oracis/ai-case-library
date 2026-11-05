@@ -6,5 +6,21 @@
    "source": "live",
    "state": "unknown"
   }
+ },
+ "ext-ep-004-quake": {
+  "tencentcloud": {
+   "at": "2026-11-05 11:59:57",
+   "evidence": "线上文章 2776740 卡片缩略图 background-image=https://developer.qcloudimg.com/http-save/yehe-12743977/99167b1df4e4c09a5f381d033c5f9fb9.jpg",
+   "source": "yun_finalize",
+   "state": "ok"
+  }
+ },
+ "gojiberryai": {
+  "tencentcloud": {
+   "at": "2026-11-05 14:22:59",
+   "evidence": "线上文章 2776839 卡片缩略图 background-image=抽屉封面：https://developer-private-1258344699.cos.ap-guangzhou.myqcloud.com/editor/image/12743977/20261105-54f4304c.jpeg?x-cos-security-token=KFhWj2MiQUwKqsaQXbb7LfYTTyJ8IBmafe560ebbec9f75eaf0be232033a36bcdxcwyxHJD1kryhjIpi0X2ZJiDWuG_LGoJOJFUB18ytAnt8_LP7J2ypDycW5MWSS",
+   "source": "yun_finalize",
+   "state": "ok"
+  }
  }
 }
