@@ -441,5 +441,88 @@ class Revalidate(unittest.TestCase):
             self.assertFalse(stage["ok"]["_needs_human"])
 
 
+class StockWording(unittest.TestCase):
+    """2026-11-05 二轮：181 条存量草稿里 129 条带旧措辞，首版 SCRUB_RULES
+    只覆盖 4 条新稿的句式，全量预演有 38 条洗完仍违规。这里用**真实存量
+    原句**锁住补齐后的形态，防止规则再退回「只认一种写法」。
+    """
+
+    STOCK_BAD = {
+        "what_it_does": (
+            "收款走 Stripe，收入数字由支付网关 API 直读。当前 MRR $402，活跃订阅 22 个。"
+            "收入由 Whop 与 Stripe 两个支付网关 API 直读。"
+            "收入数据经 Stripe API 直读验证，当前 MRR 为 $28,579。"
+            "收入由支付网关 API 直读，非档案自述。"
+            "收入通过 RevenueCat 支付网关 API 直读，非订阅制。"
+            "付费订阅 217 份，由 Stripe 支付网关 API 直读。"),
+        "how_it_makes_money": (
+            "当前 MRR $618 除以活跃订阅数 148，得出客单价为 $4.18。"
+            "用 MRR $4,945 除以活跃订阅数 1068，得出客单价 $4.63。"
+            "客单价 $83.09（支付网关直读，已算好）。"
+            "另有客单价 $66.17（已算好），直接引用素材。"
+            "收入来自 Stripe 支付网关 API 直读，2026-11-03 同步。"
+            "MRR $531（支付网关 API 直读），活跃订阅数 13 个。"),
+        "why_it_works": [
+            "支付网关 API 直读：近 30 天已验证收入 $2,675，数据来自 Stripe。",
+            "近 30 天已验证收入 $2,786（支付网关直读），机制：买断制收入随时间衰减。",
+            "支付网关直读显示近 30 天收入 $6,680。",
+        ],
+        "playbook": [
+            "用支付网关 API 直读收入并公开：把实数摆出来。",
+            "使用 Paddle 等支付网关 API 直读收入，避免手动录入或截图。",
+            "将订阅定价压在 $10 以下，降低首次尝试的决策成本。",
+        ],
+        "replicability": {"tech": 2, "distribution": 3, "capital": 1, "timing": 3},
+    }
+
+    @staticmethod
+    def _money(data):
+        import re
+        return set(re.findall(r"\$[\d,]+(?:\.\d+)?",
+                              json.dumps(data, ensure_ascii=False)))
+
+    @staticmethod
+    def _text(data):
+        return "\n".join(t for _k, t in D._visible_texts(data))
+
+    def test_bans_catches_all_stock_shapes(self):
+        labels = {h.split(" @ ")[0] for h in D.wording_bans(self.STOCK_BAD)}
+        self.assertEqual(labels, {"实时直读强断言", "已验证收入", "素材批注",
+                                  "客单价当定价", "复述除法过程"})
+
+    def test_scrub_cleans_all_stock_shapes(self):
+        out, n = D.scrub_wording(self.STOCK_BAD)
+        self.assertGreater(n, 10)
+        self.assertEqual(D.wording_bans(out), [])
+
+    def test_scrub_never_changes_money(self):
+        out, _n = D.scrub_wording(self.STOCK_BAD)
+        self.assertEqual(self._money(out), self._money(self.STOCK_BAD))
+
+    def test_scrub_keeps_payment_sources(self):
+        out, _n = D.scrub_wording(self.STOCK_BAD)
+        text = self._text(out)
+        for src in ("支付源为 Stripe", "支付源为 Whop 与 Stripe",
+                    "支付源为 RevenueCat"):
+            self.assertIn(src, text)
+
+    def test_no_strong_claim_label_left(self):
+        out, _n = D.scrub_wording(self.STOCK_BAD)
+        text = self._text(out)
+        for bad in ("支付网关 API 直读", "已验证收入", "已算好",
+                    "除以活跃订阅数", "将订阅定价压在", "支付网关直读"):
+            self.assertNotIn(bad, text, bad)
+
+    def test_scrub_is_idempotent_on_stock(self):
+        once, _n = D.scrub_wording(self.STOCK_BAD)
+        twice, n2 = D.scrub_wording(once)
+        self.assertEqual(n2, 0)
+        self.assertEqual(once, twice)
+
+    def test_scrub_keeps_non_visible_fields(self):
+        out, _n = D.scrub_wording(self.STOCK_BAD)
+        self.assertEqual(out["replicability"], self.STOCK_BAD["replicability"])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
