@@ -205,6 +205,25 @@ python scripts/audit_evidence.py --apply    # downgrade, with a backup and a rec
 An applied downgrade never deletes the old value — it moves into
 `verification_downgraded` (see below), so restoring it is removing one field.
 
+#### Same key, three stores, three meanings — never back-fill one from another
+
+The key `verification` also exists in the *internal* stores. The values look alike
+but answer different questions; they are **not** copies of one field:
+
+| Store | Written by | What the value means |
+|---|---|---|
+| `candidates.json` | `promote_to_candidates.to_candidate()` (hardcodes `stripe`) | Provenance of the number: read from the payment-gateway side (a TrustMRR cached snapshot). **Not** an evidence-grade ruling. |
+| `verifications.json` | `PUT /api/candidates/:id/verification`, `ai_verify.py` | Evidence grade (`stripe` / `official` / `partial` / `founder` / `disputed`) derived from the registered `source_kinds`. |
+| `cases.json` | `POST /api/candidates/:id/promote` in `server.py` | Published grade: the draft's grade takes precedence over the candidate value, then `evidence_gap()` clamps it to what the sources carry. |
+
+So one case may legitimately read `stripe` in the candidate pool and `partial` in
+`verifications.json` — e.g. `bubblav` (Polar payment source, registered sources
+`homepage` + `review`). **Do not "fix" this by copying either value into the other:**
+neither file is rewritten by the other, and `import_to_db.py` maps them into separate
+SQLite tables (`verifications` vs the case tables). The only place they meet is
+promotion, which builds a *new* `cases.json` object and deliberately uses the
+evidence-grade side for the public case.
+
 ### `metrics` object
 
 All keys optional; monetary values are **plain numbers** in USD, no currency symbol.

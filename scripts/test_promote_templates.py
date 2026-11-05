@@ -126,6 +126,18 @@ class PromoteTemplateTests(unittest.TestCase):
         self.assertIn("一致", out["metrics"]["metric_note"])
         self.assertNotIn("与上述实测不同", out["metrics"]["metric_note"])
 
+    def test_candidate_verification_is_provenance_not_evidence_grade(self):
+        """候选池 verification 是「支付侧直读」标记，不从来源记录继承证据等级。
+
+        2026-11-05 用户确认：candidates.json 的 stripe 与 verifications.json 的
+        partial 是两套语义、两个写入者，不互相覆盖；晋升时才由草稿等级落到
+        cases.json。这里钉住 to_candidate() 不搬 rec 里的 verification。
+        """
+        rec = make_rec()
+        rec["verification"] = "partial"
+        out = P.to_candidate(rec, make_live(), make_metrics(), 0.614)
+        self.assertEqual(out["verification"], "stripe")
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
