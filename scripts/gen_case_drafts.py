@@ -299,11 +299,26 @@ def pick_by_quality(platform):
     return next((c["id"] for c in cases if S._norm_id(c["id"]) not in sent), None)
 
 
+def pick_by_oldest(platform):
+    """按「收录最久」挑该平台第一篇没发过的 AI case（2026-11-05 用户定）。
+
+    收录时间用 `verified_at`（核验入库时点，全库覆盖，YYYY-MM-DD；同日并列
+    按库序稳定）。规则背景：轮到某条线无稿时，从源补写收录最久的素材发布
+    （publish_slot.decide 输出 need_draft=True 后走这里），而不是轮空。
+    """
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    import publish_slot as S
+    cases = [c for c in (S._load("cases.json") or []) if c.get("id") and eligible(c)]
+    cases.sort(key=lambda c: (c.get("verified_at") or "9999-12-31"))
+    sent = {S._norm_id(cid) for _, cid in S.records(platform)}
+    return next((c["id"] for c in cases if S._norm_id(c["id"]) not in sent), None)
+
+
 def auto_case():
     """今天该发的那篇 AI case：先问档期，档期挑不出来就按质量补第一篇没发过的。
 
-    `decide()` 在 AI 稿库为 0 时会**回退到游戏稿**，所以光看 decide 永远拿不到
-    AI 候选（这恰恰是「稿库断供」的症状）—— 这时交给 `pick_by_quality`。
+    `decide()` 在 AI 稿库为 0 时会输出 need_draft=True（2026-11-05 起，不再
+    回退游戏稿）—— 这时交给 `pick_by_oldest`（收录最久优先，用户定的补稿规则）。
     """
     sys.path.insert(0, os.path.join(ROOT, "scripts"))
     import publish_slot as S
@@ -311,8 +326,10 @@ def auto_case():
         row = S.decide(plat)
         if row.get("kind") == "ai" and row.get("candidates"):
             return row["candidates"][0]
+        # 2026-11-05：decide 对「AI 无稿」现在输出 need_draft=True（不再 blocked
+        # 或回退游戏）——这正是该走补稿分支的信号，落到下面的按收录最久补选。
     for plat in PLATFORMS:
-        cid = pick_by_quality(plat)
+        cid = pick_by_oldest(plat)
         if cid:
             return cid
     return None

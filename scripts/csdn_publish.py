@@ -751,26 +751,38 @@ def main():
             print("⚠ 标题疑似含金额（「标题禁金额」铁律）：", title)
 
         # 封面：先上传拿 URL，再塞进 saveArticle 的 cover_images（CSDN 唯一的封面口径）
+        # 2026-11-05 修：CSDN 直连恒 401 ⇒ save_article 必走浏览器内请求回退，
+        # 旧写法在 save_article 之前就 proc.terminate() ⇒ 回退连 9224 必死
+        # （症状：封面上传成功后报「连不上 Chrome 调试端口」）。
+        # 改成 Chrome 活到 save_article 结束；封面上传抽屉偶发渲染慢（racy），
+        # 加一次重试。
         cover_images = cover_type = None
-        if args.cover:
-            cover_path = os.path.abspath(args.cover)
-            if not os.path.isfile(cover_path):
-                raise SystemExit("✗ 封面不存在：%s" % cover_path)
-            import csdn_set_cover as SC
-            proc, cdp = SC.open_cdp()
-            try:
-                url, err = SC.upload_cover_url(cdp, cover_path)
-            finally:
-                proc.terminate()
-            if err:
-                raise SystemExit("✗ 封面上传失败：%s" % err)
-            cover_images, cover_type = [url], "1"
-            print("✓ 封面：%s" % url)
+        proc = None
+        try:
+            if args.cover:
+                cover_path = os.path.abspath(args.cover)
+                if not os.path.isfile(cover_path):
+                    raise SystemExit("✗ 封面不存在：%s" % cover_path)
+                import csdn_set_cover as SC
+                proc, cdp = SC.open_cdp()
+                url = err = None
+                for attempt in (1, 2):
+                    url, err = SC.upload_cover_url(cdp, cover_path)
+                    if not err:
+                        break
+                    print("⚠ 封面上传第 %d 次失败：%s（重试）" % (attempt, err))
+                if err:
+                    raise SystemExit("✗ 封面上传失败：%s" % err)
+                cover_images, cover_type = [url], "1"
+                print("✓ 封面：%s" % url)
 
-        aid, url, title = save_article(title, body, tags=args.tags,
-                                       via=args.via,
-                                       cover_images=cover_images,
-                                       cover_type=cover_type)
+            aid, url, title = save_article(title, body, tags=args.tags,
+                                           via=args.via,
+                                           cover_images=cover_images,
+                                           cover_type=cover_type)
+        finally:
+            if proc is not None:
+                proc.terminate()
         remember(args.case or os.path.splitext(os.path.basename(args.file))[0],
                  aid, title, url)
         print("✓ 已发表: article_id=%s url=%s" % (aid, url))

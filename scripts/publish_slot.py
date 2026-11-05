@@ -7,6 +7,14 @@
 1. 每个平台的内容组合是**两类各一篇**：一篇 AI case、一篇游戏（游戏厅栏目）。
 2. 平台日配额只有 1 篇时 ⇒ **按天轮流**：今天发 AI case，隔天发游戏，再隔天 AI …
 3. 日配额 ≥2 的平台，可以同一天把两类各发一篇（先补「最近没发过的那类」）。
+4. **两类必须交替（2026-11-05 用户定）**：连着两篇同类型（跨日或同日）都算破坏交替。
+   轮到的类无稿时**默认不发**（blocked），不再自动回退另一类——正是旧 fallback 让
+   B站 11-04/11-05 连发两天 AI case。确要连发同类，显式 `--allow-same-kind` 越过。
+5. **轮到无稿 ⇒ 从源补稿，不轮空（2026-11-05 用户定）**：AI 线无现成稿时输出
+   `need_draft=True`，从案例库挑**收录最久**（verified_at 最早）的 eligible case 补写
+   草稿再发布——发的是轮到的类，与交替规则不冲突。四平台走 `--gen`（gen_case_drafts，
+   选稿 `pick_by_oldest`）；腾讯云只收技术向稿，走人工重写流程（参照 mort.md 口径），
+   模板拼装会被驳「技术无关」。
 
 为什么要有这个文件
 ------------------
@@ -179,7 +187,9 @@ def _rows_list(platform, keys=("at", "published_at"), id_keys=("case_id", "id"))
                         at = str(p[k])
                         break
                 if not at:
-                    at = p.get("updated_at") or p.get("published_at") or ""
+                    # 2026-11-05 修：published_at（真实发表时点）优先于 updated_at
+                    # （补账/同步时刻）—— 否则补账记录全被算成「今天发的」，误触日配额。
+                    at = p.get("published_at") or p.get("updated_at") or ""
                 cid = p["case_id"]
                 if at and cid:
                     out.append((at, cid))
@@ -212,7 +222,7 @@ def _rows_list(platform, keys=("at", "published_at"), id_keys=("case_id", "id"))
     return out
 
 
-def _rows_dict(platform, status_ok=("published",), ts_keys=("ts", "published_ts")):
+def _rows_dict(platform, status_ok=("published",), ts_keys=("ts", "published_ts", "published_at")):
     """cnblogs / zhihu / csdn 那种 {case_id: {...}} 结构。优先从 SQLite ledger 读。"""
     conn = db.get_conn()
     try:
@@ -228,7 +238,9 @@ def _rows_dict(platform, status_ok=("published",), ts_keys=("ts", "published_ts"
                         at = str(p[k])
                         break
                 if not at:
-                    at = p.get("updated_at") or p.get("published_at") or ""
+                    # 2026-11-05 修：published_at（真实发表时点）优先于 updated_at
+                    # （补账/同步时刻）—— 否则补账记录全被算成「今天发的」，误触日配额。
+                    at = p.get("published_at") or p.get("updated_at") or ""
                 if at:
                     out.append((at, p["case_id"]))
             return out
@@ -467,7 +479,7 @@ def frozen_until(platform, day=None):
     return until if until and today(day) < until else None
 
 
-def decide(platform, day=None):
+def decide(platform, day=None, allow_same_kind=False):
     """返回今天这个平台该发什么。
 
     kind: "ai" / "game" / None（今天不该发）
@@ -517,17 +529,32 @@ def decide(platform, day=None):
         pool = ai_pool(platform)
         missing = []
 
-    # 轮到的那一类没稿 ⇒ 回退到另一类，别让该平台空转。
-    # 两种情况都会走到这里：① 游戏稿在该平台已全部发完（头条就是）；
-    # ② 平台稿还没生成（其余 7 个平台）。回退时把缺口如实带出去。
+    # 轮到的那一类没稿，分两种（2026-11-05 用户定）：
+    # ① 轮到 AI 且 AI 池空 ⇒ 不轮空、也不回退游戏（破坏交替），输出 need_draft=True，
+    #   由 publish_one --gen 从案例库补写「收录最久」的 eligible case（腾讯云走
+    #   技术向人工重写，见 gen_case_drafts 模块 docstring 的⛔说明）。
+    # ② 轮到游戏且游戏池空（头条式源耗尽）⇒ 默认 blocked；连发同类要显式
+    #   allow_same_kind=True（实测教训：B站 11-04 AI → 11-05 fallback 又发 AI）。
+    if not pool and want == "ai":
+        out["need_draft"] = True
+        out.update(kind="ai", reason=why + "；「AI case」无现成稿 ⇒ 按「无稿补写」规则"
+                                      "从源生成收录最久的一篇（publish_one --gen）")
+        return out
     if not pool:
         alt = "ai" if want == "game" else "game"
         alt_pool = ai_pool(platform) if alt == "ai" else game_pool(platform)
-        if alt_pool:
-            out["fallback"] = "「%s」无稿可发，本轮改发 %s" % (KIND_LABEL[want], KIND_LABEL[alt])
+        if alt_pool and allow_same_kind:
+            out["fallback"] = "「%s」无稿可发，--allow-same-kind 显式改发 %s（同类连发，破坏交替）" % (
+                KIND_LABEL[want], KIND_LABEL[alt])
             want, pool = alt, alt_pool
             missing = []
-            why = why + "；" + out["fallback"]
+            why = why + ";" + out["fallback"]
+        elif alt_pool:
+            out["blocked"] = ("轮到「%s」无稿可发；回退另一类会连发同类、违反「两类交替」规则" 
+                              "⇒ 本轮不发（--allow-same-kind 可越）" % KIND_LABEL[want])
+            # blocked 也带 kind=None + reason：main() 渲染与下游消费都假定键存在
+            out.update(kind=None, reason=out["blocked"])
+            return out
 
     out.update(kind=want, reason=why, candidates=pool[:5], pool_size=len(pool))
     if missing:
@@ -541,12 +568,12 @@ def decide(platform, day=None):
     return out
 
 
-def report(platforms=None, day=None):
+def report(platforms=None, day=None, allow_same_kind=False):
     rows = []
     for key, cn in PLATFORMS:
         if platforms and key not in platforms:
             continue
-        d = decide(key, day)
+        d = decide(key, day, allow_same_kind=allow_same_kind)
         d["name"] = cn
         rows.append(d)
     return rows
@@ -557,9 +584,11 @@ def main(argv=None):
     ap.add_argument("--platform", action="append", help="只看某平台（可多次）")
     ap.add_argument("--day", help="预演某天（YYYY-MM-DD），默认今天")
     ap.add_argument("--json", action="store_true", help="机器可读输出")
+    ap.add_argument("--allow-same-kind", action="store_true",
+                    help="轮到的类无稿时显式回退另一类（连发同类，破坏交替，默认拦）")
     args = ap.parse_args(argv)
 
-    rows = report(args.platform, args.day)
+    rows = report(args.platform, args.day, allow_same_kind=args.allow_same_kind)
     if args.json:
         print(json.dumps(rows, ensure_ascii=False, indent=1))
         return 0

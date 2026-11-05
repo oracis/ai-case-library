@@ -147,6 +147,66 @@ JS_OPEN_DRAWER = r"""(function () {
   return 'NOT_FOUND';
 })()"""
 
+
+def _open_drawer_real_click(cdp, log=print, wait_total=24):
+    """真实坐标点击「发布文章」开抽屉并轮询 file input 出现。
+
+    🚨 2026-11-05 实测：JS_OPEN_DRAWER 的合成 `.click()` 是 untrusted 事件，
+    Vue handler 时认时不认 ⇒ 抽屉「时开时不开」（表现为找不到
+    `input.el-upload__input`，十次里成一次全靠运气）。改成 CDP 坐标级
+    `Input.dispatchMouseEvent`（trusted 事件）+ 轮询，治本。
+    ⚠ 另一前置：**空白编辑器点发布不开抽屉**（只弹提示 toast）——
+    先填占位标题+正文再点（封面 URL 之后随 saveArticle 提交，占位内容不落库）。
+    """
+    import json as _json
+    # 占位内容（空白编辑器点发布只弹「请先…」提示，不出抽屉）
+    cdp.eval(r"""(function(){
+        var ti = document.querySelector('input.article-bar__title');
+        if (ti && !ti.value) { ti.value='占位标题'; ti.dispatchEvent(new Event('input',{bubbles:true})); }
+        var ce = document.querySelector('[contenteditable=true]');
+        if (ce && !ce.innerText.trim()) {
+            ce.innerHTML = '<p>占位正文。</p>';
+            ce.dispatchEvent(new InputEvent('input',{bubbles:true}));
+        }
+        return 1;
+    })()""")
+    time.sleep(2)
+    import json as _json
+    box = cdp.eval(r"""(function(){
+        // 优先 btn-publish（实测唯一可靠锚点）；按文字兜底时必须过滤不可见按钮，
+        // 否则会命中隐藏的同名按钮 ⇒ 坐标 (0,0) 点在空白处。
+        var b = document.querySelector('button.btn-publish');
+        if (!(b && b.getBoundingClientRect().width > 0)) {
+            var all = document.querySelectorAll('button');
+            b = null;
+            for (var i=0;i<all.length;i++){
+                if (/^发布文章$/.test((all[i].innerText||'').trim())
+                    && all[i].getBoundingClientRect().width > 0){ b = all[i]; break; }
+            }
+        }
+        if (!b) return '';
+        var r = b.getBoundingClientRect();
+        return JSON.stringify({x:r.left+r.width/2, y:r.top+r.height/2});
+    })()""")
+    if not box:
+        return "NOT_FOUND"
+    b = _json.loads(box)
+    for typ in ("mousePressed", "mouseReleased"):
+        cdp.send("Input.dispatchMouseEvent",
+                 {"type": typ, "x": b["x"], "y": b["y"],
+                  "button": "left", "clickCount": 1})
+    # 轮询抽屉里的 file input（渲染有延迟）
+    for _ in range(max(1, wait_total // 3)):
+        time.sleep(3)
+        hit = cdp.eval(
+            "!!(document.querySelector('.el-upload__input')"
+            " || document.querySelector('input.cfw-file-input')"
+            " || document.querySelector('.container-coverimage-box input[type=file]')"
+            " || document.querySelector('.cover-upload-box input[type=file]'))")
+        if hit:
+            return "ok"
+    return "INPUT_TIMEOUT"
+
 JS_CONFIRM_CROP = r"""(function () {
   var w = document.querySelector('.vue-image-crop-upload');
   if (!w) return 'NO_CROPPER';
@@ -208,12 +268,15 @@ def _feed_and_confirm(cdp, cover, log=print):
     cdp.send("DOM.enable")
     doc = cdp.send("DOM.getDocument", {"depth": 0})
     root = (doc.get("result") or {}).get("root", {}).get("nodeId")
-    # 🚨 2026-11-04 实测抽屉里真正的封面上传控件是 Element UI 的
+    # 🚨 2026-11-05 实测抽屉里真正的封面上传控件是 Element UI 的
     #   `input.el-upload__input`（accept=".png,.jpg,.jpeg,.gif"），它**不在**
     #   `.cover-upload-box` 里面 —— 老的 `.cover-upload-box input[type=file]`
     #   选择器恒返回空，所以「上传封面」一直报「抽屉没开？」。
+    #   2026-11-05 下午再变：抽屉改版后是 cfw-* 组件，控件变成
+    #   `input.cfw-file-input`（accept 含 .webp），实测喂图直出 csdnimg URL。
     node = None
-    for sel in (".el-upload__input",
+    for sel in ("input.cfw-file-input",
+                ".el-upload__input",
                 ".container-coverimage-box input[type=file]",
                 ".cover-upload-box input[type=file]"):
         q = cdp.send("DOM.querySelector", {"nodeId": root, "selector": sel})
@@ -243,8 +306,10 @@ def upload_cover_url(cdp, cover, log=print):
     tid = cdp.new_target("https://editor.csdn.net/md/")["id"]
     cdp.connect_target(tid)
     time.sleep(16)
-    log("  点「发布文章」开抽屉：%s" % cdp.eval(JS_OPEN_DRAWER))
-    time.sleep(7)
+    st = _open_drawer_real_click(cdp, log)    # 2026-11-05：合成 click 不可靠，改真实坐标点击+轮询
+    log("  点「发布文章」开抽屉：%s" % st)
+    if st not in ("ok",):
+        return "", "抽屉没打开（%s）" % st
     return _feed_and_confirm(cdp, cover, log)
 
 
@@ -260,8 +325,10 @@ def set_cover(cdp, article_id, cover, publish=False, log=print):
         return "", "编辑器把 articleId 吞了（当前 %s）——这篇在审核中/回收站，先恢复成草稿" % here[:60]
     log("  标题：%s" % str(cdp.eval(
         "(document.querySelector('.article-bar-title input, input.title-input')||{}).value || 'NA'"))[:40])
-    log("  点「发布文章」开抽屉：%s" % cdp.eval(JS_OPEN_DRAWER))
-    time.sleep(7)
+    st = _open_drawer_real_click(cdp, log)    # 2026-11-05：同 upload_cover_url
+    log("  点「发布文章」开抽屉：%s" % st)
+    if st not in ("ok",):
+        return "", "抽屉没打开（%s）" % st
     cover_url, err = _feed_and_confirm(cdp, cover, log)
     if err:
         return "", err

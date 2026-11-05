@@ -88,54 +88,105 @@ def fetch_published(limit=50, max_pages=10):
     return token, out
 
 
+def _load_json(path):
+    """读 JSON 快照，容错：缺失/损坏返回 {}。快照只是合并底座，db 才是真值。"""
+    try:
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+        return data if isinstance(data, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def _merge_fieldwise(json_rec, db_rec):
+    """逐字段合并：db 非空值胜出，db 空值回落 JSON ⇒ JSON 独有记录/字段不丢。
+
+    2026-11-05 bug ③ 的修复点：db 是唯一事实源，但 JSON 快照里存在 db
+    从没收录过的记录（如 UI 手动建的草稿、游戏厅稿）。旧逻辑「db 有数据
+    就直接 return」把这些记录整条丢掉——既不参与对账合并，--apply 时也
+    落不进 db，永远停在快照里。合并后它们随 _write 的 upsert 补录进 db。
+    """
+    rec = dict(json_rec or {})
+    for k, v in (db_rec or {}).items():
+        if v not in (None, ""):
+            rec[k] = v
+        elif k not in rec:
+            rec[k] = v
+    return rec
+
+
 def _read(path):
-    """优先从 SQLite ledger 读；db 无数据时回退 JSON。"""
-    # DRAFT_FILE → platform_posts (platform='zhihu')
-    if os.path.basename(path) == os.path.basename(DRAFT_FILE):
+    """db 真值 ∪ JSON 快照：取两边 case 并集逐字段合并。
+
+    db 非空字段覆盖 JSON（db 是真值），JSON 独有的 case / 字段保留，
+    借 _write 的 upsert 补录进 db。迁移期 JSON 快照不再会整条丢记录。
+    """
+    name = os.path.basename(path)
+    is_draft = name == os.path.basename(DRAFT_FILE)
+    is_manifest = name == os.path.basename(MANIFEST)
+    if not (is_draft or is_manifest):
+        # 其他文件：维持旧行为，直接读 JSON
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)
+
+    json_data = _load_json(path)
+    db_rows = []
+    try:
         conn = db.get_conn()
         try:
-            posts = db.get_posts_by_platform(conn, "zhihu")
-            if posts:
-                result = {}
-                for p in posts:
-                    result[p["case_id"]] = {
-                        "article_id": p.get("remote_id") or p.get("draft_id") or "",
-                        "title": p.get("title") or "",
-                        "url": p.get("url") or "",
-                        "status": p.get("state") or "draft",
-                        "ts": p.get("updated_at") or p.get("published_at") or "",
-                    }
-                return result
-        except Exception:  # noqa: BLE001
-            pass
+            db_rows = db.get_posts_by_platform(conn, "zhihu") or []
         finally:
             db.close_conn()
+    except Exception:  # noqa: BLE001  db 不可用时回落纯 JSON（旧行为）
+        return json_data if json_data else _load_json_fallback(path)
 
-    # MANIFEST → platform_posts (platform='zhihu')
-    if os.path.basename(path) == os.path.basename(MANIFEST):
-        conn = db.get_conn()
-        try:
-            posts = db.get_posts_by_platform(conn, "zhihu")
-            if posts:
-                result = {}
-                for p in posts:
-                    result[p["case_id"]] = {
-                        "zhihu": {
-                            "state": p.get("state") or "draft",
-                            "remote_id": p.get("remote_id") or "",
-                            "title": p.get("title") or "",
-                            "draft_id": p.get("draft_id") or "",
-                            "updated_at": p.get("updated_at") or "",
-                            "url": p.get("url") or "",
-                        }
-                    }
-                return result
-        except Exception:  # noqa: BLE001
-            pass
-        finally:
-            db.close_conn()
+    if is_draft:
+        db_map = {}
+        for p in db_rows:
+            db_map[p["case_id"]] = {
+                "article_id": p.get("remote_id") or p.get("draft_id") or "",
+                "title": p.get("title") or "",
+                "url": p.get("url") or "",
+                "status": p.get("state") or "draft",
+                "ts": p.get("updated_at") or p.get("published_at") or "",
+                # 发表时点单独带出（published 才有意义），否则同步循环写的
+                # published_ts 在 _write 里落不了盘 ⇒ 永远 dirty。
+                "published_ts": (p.get("published_at") or "")
+                    if (p.get("state") == "published") else "",
+            }
+        return {cid: _merge_fieldwise(json_data.get(cid), db_map.get(cid))
+                for cid in set(json_data) | set(db_map)}
 
-    # fallback：从 JSON 读（迁移期兼容旧数据）
+    # MANIFEST：{cid: {zhihu: {...}}}，逐 cid 在 zhihu 子层合并；
+    # JSON 条目里其他平台的键原样保留（本脚本只动 zhihu）。
+    db_map = {}
+    for p in db_rows:
+        db_map[p["case_id"]] = {"zhihu": {
+            "state": p.get("state") or "draft",
+            "remote_id": p.get("remote_id") or "",
+            "title": p.get("title") or "",
+            "draft_id": p.get("draft_id") or "",
+            "updated_at": p.get("updated_at") or "",
+            # 带出 published_at，使 main() 的 diff 判据稳定（不带则每轮都误报变更）
+            "published_ts": p.get("published_at") or "",
+            "url": p.get("url") or "",
+        }}
+    merged = {}
+    for cid in set(json_data) | set(db_map):
+        jent = json_data.get(cid)
+        ent = dict(jent) if isinstance(jent, dict) else {}
+        jz = ent.get("zhihu") if isinstance(ent.get("zhihu"), dict) else None
+        dz = (db_map.get(cid) or {}).get("zhihu")
+        merged_z = _merge_fieldwise(jz, dz)
+        # 两边都没有 zhihu 记录的条目（纯其他平台）不造空 zhihu 层——
+        # 否则 _write 会给没发过知乎的 case 批量 upsert 出空 draft 行。
+        if merged_z:
+            ent["zhihu"] = merged_z
+        merged[cid] = ent
+    return merged
+
+
+def _load_json_fallback(path):
     with open(path, encoding="utf-8") as f:
         return json.load(f)
 
@@ -158,7 +209,9 @@ def _write(path, obj):
                     "title": v.get("title") or "",
                     "draft_id": v.get("article_id") or "",
                     "attempt": 0,
-                    "published_at": v.get("ts") or "",
+                    # 2026-11-05 修：published_at 必须取 published_ts（真实发表时点），
+                    # 旧写法取 ts（=updated_at）⇒ 每跑一次同步就把发表时间刷成补账时间。
+                    "published_at": v.get("published_ts") or v.get("ts") or "",
                     "updated_at": v.get("ts") or "",
                     "note": "status=" + (v.get("status") or "draft"),
                 })
@@ -176,7 +229,9 @@ def _write(path, obj):
                     "title": z.get("title") or "",
                     "draft_id": z.get("draft_id") or "",
                     "attempt": 0,
-                    "published_at": z.get("updated_at") or "",
+                    # 2026-11-05 修：published_at 取 published_ts（真实发表时点），
+                    # 旧写法取 updated_at（=补账运行时刻）⇒ 发表时间全变成同步时间。
+                    "published_at": z.get("published_ts") or z.get("updated_at") or "",
                     "updated_at": z.get("updated_at") or "",
                     "note": "",
                 })
@@ -300,9 +355,11 @@ def main():
     written = []
     for path, obj in ((DRAFT_FILE, drafts), (MANIFEST, manifest)):
         if _write_if_changed(path, obj):
-            written.append(os.path.relpath(path, ROOT))
+            written.append(os.path.basename(path))
     if written:
-        print("\n✓ 已写 %s" % "、".join(written))
+        # ⚠ 实际落盘的是 SQLite platform_posts（_write 只写 db），
+        # 这里报的文件名只是「哪本台账有变动」的标签，别当 JSON 写盘证据。
+        print("\n✓ 已写台账（SQLite platform_posts）：%s" % "、".join(written))
     else:
         print("\n✓ 两本台账无需改动")
     return 1 if unmatched else 0

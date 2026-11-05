@@ -477,9 +477,9 @@ def build_cmd(platform, case, pack, yes):
 
 # ---------------------------------------------------------------- 选稿 / 计划
 
-def pick(platform, case=None, day=None):
+def pick(platform, case=None, day=None, allow_same_kind=False):
     """返回 (case, 档期行) 或 (None, 档期行)。"""
-    row = SLOT.decide(platform, day)
+    row = SLOT.decide(platform, day, allow_same_kind=allow_same_kind)
     pool = t = row.get("candidates") or []
     if case:
         if case in t:
@@ -491,13 +491,13 @@ def pick(platform, case=None, day=None):
     return (t[0] if t else None), row
 
 
-def plan(day=None, platforms=None, as_json=False):
+def plan(day=None, platforms=None, as_json=False, allow_same_kind=False):
     rows = []
     for key, cn in SLOT.PLATFORMS:
         if platforms and key not in platforms:
             continue
-        d = SLOT.decide(key, day)
-        case, _ = pick(key, day=day)
+        d = SLOT.decide(key, day, allow_same_kind=allow_same_kind)
+        case, _ = pick(key, day=day, allow_same_kind=allow_same_kind)
         pack = pack_path(key, case) if case else None
         gates = run_gates(key, case, pack) if case else []
         rows.append({
@@ -618,7 +618,8 @@ def gen_pack(platform, case):
 
 
 def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
-        as_json=False, gen=False, new=False, force=False):
+        as_json=False, gen=False, new=False, force=False,
+        allow_same_kind=False):
     cn = dict(SLOT.PLATFORMS)[platform]
     # 草稿箱即 FIFO 队列（用户定，2026-11-03）：先发**存入最久**的那条，
     # 箱空了才按当日档期新写。旧 SPEC 接成 `publish`（无脑新写）是错的——
@@ -628,9 +629,9 @@ def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
     if platform in FIFO_PLATFORMS and not new and not case:
         # 🚨 2026-11-04：FIFO 分支原本连档期都不看，直接 send-draft。
         #   「今日已到上限」时重跑一次就是第二篇 ⇒ 先把配额闸补上。
-        d = SLOT.decide(platform, day)
+        d = SLOT.decide(platform, day, allow_same_kind=allow_same_kind)
         if not d.get("kind"):
-            print("✗ %s 今天不发/已到上限：%s" % (cn, d.get("reason")))
+            print("✗ %s 今天不发/已到上限：%s" % (cn, d.get("blocked") or d.get("reason")))
             print("  （FIFO 发的是箱内存最久的一条；重跑前先按标题查已发表列表，别重发）")
             return 1
         print("▶ %s ｜ FIFO：发草稿箱里存入最久的一条（send-draft 默认）" % cn)
@@ -660,14 +661,29 @@ def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
             fifo_note(platform)
         return rc
 
-    case, row = pick(platform, case, day)
+    case, row = pick(platform, case, day, allow_same_kind=allow_same_kind)
     cn = dict(SLOT.PLATFORMS)[platform]
     if not row.get("kind"):
         print("✗ %s 今天不发：%s" % (cn, row.get("reason")))
         return 1
     if not case:
-        print("✗ %s 今日无稿可发：%s" % (cn, row.get("blocked") or row.get("reason")))
-        return 1
+        if row.get("need_draft"):
+            # 2026-11-05 用户定「无稿补写」：轮到 AI 无稿 => 从源补收录最久的一篇，不轮空。
+            if gen and platform in GEN_PLATFORMS:
+                import gen_case_drafts as _G
+                case = _G.pick_by_oldest(platform)
+                if not case:
+                    print("✗ %s 想补稿但库里挑不出 eligible 的未发 case" % cn)
+                    return 1
+                print("  无稿补写：从源挑收录最久 => %s（稿件随后按需生成）" % case)
+            else:
+                tip = ("按无稿补写规则需先产出稿件：四平台加 --gen 自动生成；"
+                       "腾讯云只收技术向稿，走人工重写（参照 drafts/newbatch/tencentcloud/mort.md 口径）")
+                print("✗ %s 「AI case」无现成稿。%s" % (cn, tip))
+                return 1
+        else:
+            print("✗ %s 今日无稿可发：%s" % (cn, row.get("blocked") or row.get("reason")))
+            return 1
 
     pack = pack_path(platform, case)
     print("▶ %s ｜ %s ｜ %s" % (cn, case, SLOT.KIND_LABEL.get(
@@ -687,7 +703,7 @@ def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
         if ai_wanted:
             if SLOT.kind_of(case) == "game":
                 import gen_case_drafts as _G
-                new_case = _G.pick_by_quality(platform)
+                new_case = _G.pick_by_oldest(platform)
                 if new_case:
                     case = new_case
                     pack = pack_path(platform, case)
@@ -795,6 +811,8 @@ def main(argv=None):
                     help="AI 稿缺货时按需生成（gen_case_drafts，模板拼装+LLM 只写标题）")
     ap.add_argument("--new", action="store_true",
                     help="B站/小红书跳过 FIFO 直发，按当日档期新写草稿（箱空时用）")
+    ap.add_argument("--allow-same-kind", action="store_true",
+                    help="轮到的类无稿时显式回退另一类（连发同类破坏交替，默认拦）")
     ap.add_argument("--force", action="store_true",
                     help="补发时只绕过 dedupe 闸（标题/形态/封面/remote 仍硬拦）；"
                          "默认不许对已发过或已有草稿的 case 再来一次")
@@ -804,22 +822,22 @@ def main(argv=None):
         ap.error("--all 与 --platform 只能二选一")
     if a.all:
         todo = [k for k, _ in SLOT.PLATFORMS
-                if SLOT.decide(k, a.day).get("kind") and (a.yes or True)]
+                if SLOT.decide(k, a.day, allow_same_kind=a.allow_same_kind).get("kind") and (a.yes or True)]
         if not a.yes:
-            return plan(a.day, todo, a.json)
+            return plan(a.day, todo, a.json, allow_same_kind=a.allow_same_kind)
         rc = 0
         for k in todo:
             rc |= run(k, None, True, a.timeout, a.day, a.upload, a.json, a.gen,
-                      a.new, a.force)
+                      a.new, a.force, a.allow_same_kind)
         return rc
     if not a.platform:
-        return plan(a.day, None, a.json)
+        return plan(a.day, None, a.json, allow_same_kind=a.allow_same_kind)
     if len(a.platform) > 1 and a.case:
         ap.error("--case 只能配单个 --platform")
     rc = 0
     for k in a.platform:
         rc |= run(k, a.case, a.yes, a.timeout, a.day, a.upload, a.json, a.gen,
-                  a.new, a.force)
+                  a.new, a.force, a.allow_same_kind)
     return rc
 
 
