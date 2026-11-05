@@ -344,25 +344,49 @@ def build_metric_note(rec, live, m, growth, ret=None, peak=None, last=None, over
     if trade.get("price"):
         bits.append("挂牌 %s、倍数 %s（要价不等于收入）。"
                     % (trade.get("price"), trade.get("multiple") or "未披露"))
-    # 快照说明要区分两种来源（红线 1：口径必须写清）
+    # 快照说明要区分三种情况（红线 1：口径必须写清）
     #
     # 🚨 判据是「**缓存里到底有没有数字**」，不是「有没有 added_at」。
     # 反例就在真实数据里：`cometly` 有 added_at=2026-09-11，但当时
     # `mrr=None`（收入未公开）—— 按 added_at 分支会说「队列缓存值是
     # 09-11 采集时的快照」，可那时根本没有值，空话会让人误以为
     # 「缓存里有旧数字，只是不准」。
-    old_mrr = (rec.get("metrics") or {}).get("mrr")
-    if old_mrr is None:
+    #
+    # 🚨 2026-11-05 修：旧版只要「有旧值 + 有 added_at」就无条件写
+    # 「与上述实测不同」。当天采集当天晋升的条目（11-05 那 4 条）旧值就是
+    # 本次实拉的值，数字完全相同却硬说不同 —— 这句会原样进站点数据卡与
+    # 正文，是事实错误。现在按**同一门面口径**先比数值再决定措辞。
+    def lead_of(mm):
+        """门面收入：订阅制取 MRR，非订阅制取近 30 天流水。"""
+        if not isinstance(mm, dict):
+            return None
+        v = mm.get("mrr")
+        if isinstance(v, (int, float)) and not isinstance(v, bool) and v > 0:
+            return float(v)
+        v = mm.get("last_30d_revenue")
+        if isinstance(v, (int, float)) and not isinstance(v, bool):
+            return float(v)
+        return None
+
+    old_lead = lead_of(rec.get("metrics") or {})
+    new_lead = lead_of(m)
+    snap_date = str(live.get("synced_at") or "")[:10] or "同步日"
+    if old_lead is None:
         bits.append("⚠ 刷新前该条目没有任何收入数字"
                     "（早期入库时收入未公开），本次首次补齐。")
+    elif new_lead is not None and abs(new_lead - old_lead) < 0.005:
+        bits.append("队列缓存值与本次核对一致（均 %s）；数据是截至 %s 的"
+                    "支付侧缓存快照，不是实时值。" % (fmt_money(old_lead), snap_date))
     elif rec.get("added_at"):
-        bits.append("⚠ 队列缓存值是 %s 采集时的快照（当时 %s），与上述实测不同；"
-                    "本条以实测为准。" % (rec["added_at"], fmt_money(old_mrr)))
+        bits.append("⚠ 队列缓存值是 %s 采集时的快照（当时 %s），本次核对为 %s，"
+                    "两者不同；本条以本次核对为准。" %
+                    (rec["added_at"], fmt_money(old_lead),
+                     fmt_money(new_lead) if new_lead is not None else "未取得"))
     else:
         # 走 --refresh-in-pool 时 rec 就是候选池里那条，更老的老条目可能没有
         # added_at，但总得说清旧值是多少。
-        bits.append("⚠ 刷新前记录的月收入为 %s，是旧快照；本条以本次实测为准。"
-                    % fmt_money(old_mrr))
+        bits.append("⚠ 刷新前记录的月收入为 %s，是旧快照；本条以本次核对为准。"
+                    % fmt_money(old_lead))
     return "".join(bits)
 
 
@@ -401,9 +425,18 @@ def to_candidate(rec, live, m, growth, ret=None, peak=None, last=None, override=
         # 非订阅制业务 MRR 恒 0，硬写「MRR $0」既难看也误导。
         # 库里 24 条 MRR=0 老案例的 headline 就是「近 30 天收入 $X」，
         # 这里与它们对齐；caliber 显式标 last_30d，机器可读。
-        "headline": ("MRR %s，TrustMRR 实时核对" % fmt_money(m.get("mrr"))
+        #
+        # 🚨 2026-11-05 修：去掉「实时」二字 —— TrustMRR 官方 .md 开头
+        # 写的是 `Cached snapshot`，收入是缓存快照不是实时值，写「实时核对」
+        # 属于失实。仍保留「TrustMRR … 核对」这个锚点：下游
+        # `make_article._clean_title_hook()` / `gen_platform_md._strip_meta()` /
+        # `clean_title_caliber.CALIBER` / `publish_guard` 的判据里 `(实时)?`
+        # 都是**可选组**，去掉后新旧两种 headline 都能被正确清掉旁注；
+        # 存量已发布产物带的是旧串，判据照旧生效。时点由 metric_note、
+        # note 与数据卡时点行负责，不塞进这个给编辑看的旁注。
+        "headline": ("MRR %s，TrustMRR 核对" % fmt_money(m.get("mrr"))
                      if (m.get("mrr") or 0) > 0 else
-                     "近 30 天收入 %s，TrustMRR 实时核对（非订阅制，MRR 恒 0）"
+                     "近 30 天收入 %s，TrustMRR 核对（非订阅制，MRR 恒 0）"
                      % fmt_money(m.get("last_30d_revenue"))),
         "metric_note": build_metric_note(rec, live, m, growth, ret, peak, last, override),
         "caliber": "mrr" if (m.get("mrr") or 0) > 0 else "last_30d",
@@ -419,17 +452,19 @@ def to_candidate(rec, live, m, growth, ret=None, peak=None, last=None, override=
         del out["refreshed_at"]
     # `note` 要改写：老 note 常写着「未拿到收入数字」——刷新后那句话已不成立，
     # 留着等于自己打自己的脸。
+    #
+    # 🚨 2026-11-05 修：旧文案写「由 audit_delisted.py 实拉 … 核对」，实际
+    # 执行者是本脚本的 AD.probe，provenance 不实；脚本名与 /startup/<slug>.md
+    # 这类内部路径也不该印给读者。改为只陈述可查证的来源（TrustMRR 公开
+    # 营收档案 + 支付服务商 API 直读）并写明「缓存快照、引用须带时点与口径」。
+    note_head = ("收入数字来自 TrustMRR 公开的官方营收档案，由支付服务商 "
+                 "API 直读计算（%s），非截图自报；该档案是缓存快照，"
+                 "引用须带时点与口径。" % (live.get("verified_via") or "支付网关"))
     if (rec.get("metrics") or {}).get("mrr") is None:
-        out["note"] = ("由 audit_delisted.py 实拉 TrustMRR 官方 "
-                       "/startup/<slug>.md 核对。收入由支付网关 API 直读"
-                       "（%s），非截图自报。此前该条目在候选池里没有任何"
-                       "收入数字，本次首次补齐。" % (live.get("verified_via")
-                                                  or "支付网关"))
+        out["note"] = (note_head + "此前该条目在候选池里没有任何收入数字，"
+                       "本次首次补齐。")
     else:
-        out["note"] = ("由 audit_delisted.py 实拉 TrustMRR 官方 "
-                       "/startup/<slug>.md 核对。收入由支付网关 API 直读"
-                       "（%s），非截图自报。" % (live.get("verified_via")
-                                              or "支付网关"))
+        out["note"] = note_head
     out["data_freshness"] = live.get("synced_at")
     return out
 
