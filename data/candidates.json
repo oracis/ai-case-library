@@ -1,1 +1,144 @@
-[]
+[
+  {
+    "id": "catering-funnels",
+    "name": "Catering Funnels",
+    "name_en": "Catering Funnels",
+    "origin": "美国",
+    "one_liner": "Catering Funnels is a done-for-you lead generation and automation platform built for restaurants with active catering operations.",
+    "category": "垂直行业 SaaS",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/catering-funnels",
+    "website": "https://cateringfunnels.com/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2025-11-18",
+    "trustmrr_slug": "catering-funnels",
+    "source_kind": "verified",
+    "added_at": "2026-11-05",
+    "metrics": {
+      "mrr": 3929.0,
+      "last_30d_revenue": 3865.0,
+      "all_time": 29861.0,
+      "subscriptions": 7,
+      "growth_30d": 61.4,
+      "mrr_growth_30d": 61.4,
+      "revenue_growth_30d": 14.5,
+      "headline": "MRR $3,929，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $3,929（TrustMRR 从支付网关 API 直读，2026-11-05 同步，Stripe (API key)）。近 30 天收入 $3,865、累计 $29,861、付费订阅 7 户。最近完整月环比 +104.4%（已剔除当月残月）。近 30 天 MRR 增速 +61.4%。⚠ 同期收入增速为 +14.5%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $4,862 → 最近完整月 $4,862，留存 100%。⚠ 队列缓存值是 2026-11-05 采集时的快照（当时 $3,929），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-11-05",
+    "refreshed_at": "2026-11-05",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-11-05T04:00:12.787Z"
+  },
+  {
+    "id": "talkeasy",
+    "name": "TalkEasy",
+    "name_en": "TalkEasy",
+    "origin": "加拿大",
+    "one_liner": "TalkEasy helps people practice spoken English through one-on-one voice conversations with an AI tutor. Learners speak out loud, work through guided lessons, and get feedback on their English. TalkEasy is available on the web and on iPhone.",
+    "category": "垂直行业 SaaS",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/talkeasy",
+    "website": "https://talk-easy.com/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2025-06-26",
+    "trustmrr_slug": "talkeasy",
+    "source_kind": "verified",
+    "added_at": "2026-11-05",
+    "metrics": {
+      "mrr": 1561.0,
+      "last_30d_revenue": 1301.0,
+      "all_time": 24423.0,
+      "subscriptions": 159,
+      "growth_30d": null,
+      "mrr_growth_30d": null,
+      "revenue_growth_30d": 0.0,
+      "headline": "MRR $1,561，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $1,561（TrustMRR 从支付网关 API 直读，2026-11-05 同步，Stripe (API key), Superwall (API key)）。近 30 天收入 $1,301、累计 $24,423、付费订阅 159 户。最近完整月环比 +22.8%（已剔除当月残月）。⚠ 历史峰值 $2,415 → 最近完整月 $2,213，留存 92%。⚠ 队列缓存值是 2026-11-05 采集时的快照（当时 $1,561），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-11-05",
+    "refreshed_at": "2026-11-05",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key), Superwall (API key)），非截图自报。",
+    "data_freshness": "2026-11-05T06:35:33.332Z"
+  },
+  {
+    "id": "bubblav",
+    "name": "BubblaV",
+    "name_en": "BubblaV",
+    "origin": "瑞典",
+    "one_liner": "AI support assistant that works both sides: a website chatbot that answers visitor questions 24/7 from your own content, and an AI Copilot that drafts replies for your team across email, chat, and tickets. Free plan, live in minutes, no per",
+    "category": "AI 工具",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/bubblav",
+    "website": "https://www.bubblav.com/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2026-04-01",
+    "founder_name": "BubblaV",
+    "trustmrr_slug": "bubblav",
+    "source_kind": "verified",
+    "added_at": "2026-11-05",
+    "metrics": {
+      "mrr": 441.0,
+      "last_30d_revenue": 368.0,
+      "all_time": 1133.0,
+      "subscriptions": 9,
+      "growth_30d": 28.6,
+      "mrr_growth_30d": 28.6,
+      "revenue_growth_30d": 21.2,
+      "headline": "MRR $441，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $441（TrustMRR 从支付网关 API 直读，2026-11-05 同步，Polar (API key)）。近 30 天收入 $368、累计 $1,133、付费订阅 9 户。最近完整月环比 +21.1%（已剔除当月残月）。近 30 天 MRR 增速 +28.6%。⚠ 同期收入增速为 +21.2%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $368 → 最近完整月 $368，留存 100%。⚠ 队列缓存值是 2026-11-05 采集时的快照（当时 $441），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-11-05",
+    "refreshed_at": "2026-11-05",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Polar (API key)），非截图自报。",
+    "data_freshness": "2026-11-05T06:49:02.099Z"
+  },
+  {
+    "id": "arq",
+    "name": "ARQ",
+    "name_en": "ARQ",
+    "origin": "英国",
+    "one_liner": "ARQ helps kitchen, bedroom and bathroom showrooms turn existing designs into photorealistic renders and branded client presentations. Teams can queue renders, review versions, collect client feedback and turn approved visuals into videos, m",
+    "category": "创作者经济",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/arq",
+    "website": "https://arq-renderer.com/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2026-05-24",
+    "founder_name": "Jordan Murray",
+    "trustmrr_slug": "arq",
+    "source_kind": "verified",
+    "added_at": "2026-11-05",
+    "metrics": {
+      "mrr": 397.0,
+      "last_30d_revenue": 366.0,
+      "all_time": 432.0,
+      "subscriptions": 6,
+      "growth_30d": 500.9,
+      "mrr_growth_30d": 500.9,
+      "revenue_growth_30d": 455.0,
+      "headline": "MRR $397，TrustMRR 实时核对",
+      "metric_note": "实测口径：MRR $397（TrustMRR 从支付网关 API 直读，2026-11-05 同步，Stripe (API key)）。近 30 天收入 $366、累计 $432、付费订阅 6 户。最近完整月环比 +269.6%（已剔除当月残月）。近 30 天 MRR 增速 +500.9%。⚠ 同期收入增速为 +455.0%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $244 → 最近完整月 $244，留存 100%。⚠ 队列缓存值是 2026-11-05 采集时的快照（当时 $397），与上述实测不同；本条以实测为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-11-05",
+    "refreshed_at": "2026-11-05",
+    "note": "由 audit_delisted.py 实拉 TrustMRR 官方 /startup/<slug>.md 核对。收入由支付网关 API 直读（Stripe (API key)），非截图自报。",
+    "data_freshness": "2026-11-05T06:50:59.465Z"
+  }
+]
