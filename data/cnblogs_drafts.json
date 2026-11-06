@@ -133,8 +133,15 @@
     "status": "published",
     "ts": "2026-11-06 15:37:42",
     "review_state": "pending_review_still_locked",
-    "review_at": "2026-11-06T16:57:41",
-    "review_evidence": "公开页 thing-explainer/p/23573051 与 .html 均 HTTP 404；metaWeblog.getRecentPosts 列表首条已是新标题「Freedoom：给《毁灭战士》重造一套免费素材」（证明后台写入成功，但按口径不算生效）。判据：公开页 200 且含新标题 + 「1372 star」才算 verified。",
-    "expect_public_contains": "1372 star"
+    "review_at": "2026-11-06T22:54:25",
+    "review_evidence": "22:54 四查（续排链最后一个时点）：公开页 thing-explainer/p/23573051 与 .html 均 HTTP 404（1074 字节错误页），HIT_TITLE False / HIT_1372 False；对照组同账号旧文 23559261(200/27900B)、23546485(200/23629B)、23558119(200/23487B) 全部 200 ⇒ 账号正常，是该篇仍在重新审核，非域名/账号问题。metaWeblog getRecentPosts 首条仍是 23573051 + 新标题（dateCreated 20261106T13:38:00）⇒ 文章在账号内、未被删除，只是公开页未放出。未重跑脚本（pending_review_still_locked 只记状态）。仍锁 ⇒ 待次日人工复核，续排到此终止。",
+    "expect_public_contains": "1372 star",
+    "review_count": 4,
+    "review_history": [
+      {"at": "2026-11-06T16:57:41", "state": "pending_review_still_locked", "note": "公开页 404；对照组 200"},
+      {"at": "2026-11-06T17:11:32", "state": "pending_review_still_locked", "note": "公开页 404；对照组 23559261/23546485/23558119 均 200"},
+      {"at": "2026-11-06T19:38:54", "state": "pending_review_still_locked", "note": "公开页 404；对照组 3 篇均 200；续排上限 20:00 前最后一个整点复查"},
+      {"at": "2026-11-06T22:54:25", "state": "pending_review_still_locked", "note": "公开页（含 .html）仍 404 / 1074B；对照组 3 篇均 200；后台列表仍有该篇新标题 ⇒ 仍在审核。续排链最后时点，转待次日人工复核，不再建复查任务"}
+    ]
   }
 }

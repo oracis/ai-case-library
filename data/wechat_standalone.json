@@ -161,5 +161,16 @@
     "status": "draft",
     "appmsgid": "100001362",
     "file": "ext-ep-002-2048.html"
+  },
+  "upvoty": {
+    "title": "用户反馈投票板把散落的反馈变成可执行的优先级，Upvoty",
+    "desc": "",
+    "tag": "万物解释者",
+    "published_at": "2026-11-06 13:52",
+    "status": "published",
+    "file": "upvoty.html",
+    "draft_appmsgid": "100001373",
+    "appmsgid": "2247485022",
+    "note": "群发成功：remote 已发表列表标题命中（sync 实读 appmsg_id=2247485022）；草稿 id 100001373"
   }
 }

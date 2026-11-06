@@ -684,5 +684,68 @@
   "cover": "https://case.ydtgo.top/covers/gojiberryai.png",
   "via": "cdp-9228",
   "ts": "2026-11-05 14:18:41"
+ },
+ "ext-ep-005-supertux-2026-11-06-1": {
+  "case": "ext-ep-005-supertux",
+  "title": "游戏厅：SuperTux，Linux 吉祥物当主角",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "341939",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=341939"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-06 13:47:15"
+ },
+ "ext-ep-002-2048-2026-11-06-1": {
+  "case": "ext-ep-002-2048",
+  "title": "游戏厅：2048，一个网页就能玩的数字合并",
+  "platforms": {
+   "aliyun": {
+    "ok": false,
+    "err": "等不到阿里云编辑器（#title 不出现）"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-06 13:50:53"
+ },
+ "gojiberryai-2026-11-06-1": {
+  "case": "gojiberryai",
+  "title": "公开事件信号管道怎么搭：采集调度、实体归一与时间衰减",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "341947",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=341947"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-06 13:51:47"
+ },
+ "ext-ep-002-2048-2026-11-06-2": {
+  "case": "ext-ep-002-2048",
+  "title": "游戏厅：2048，一个网页就能玩的数字合并",
+  "platforms": {
+   "aliyun": {
+    "ok": false,
+    "err": "等不到阿里云编辑器（#title 不出现）"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-06 14:03:42"
+ },
+ "ext-ep-002-2048-2026-11-06-3": {
+  "case": "ext-ep-002-2048",
+  "title": "游戏厅：2048，一个网页就能玩的数字合并",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1708201",
+    "url": "https://developer.aliyun.com/article/new?edit=1708201#/"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-06 14:04:32"
  }
 }

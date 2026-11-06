@@ -39,5 +39,11 @@
     "title": "没有原版素材的《毁灭战士》怎么造：读 Freedoom 的资源仓库",
     "url": "https://blog.csdn.net/sinat_32396037/article/details/170138487",
     "ts": "2026-11-05 14:05:34"
+  },
+  "shipfast": {
+    "article_id": null,
+    "title": "从零搭一个 Next.js SaaS 模板：登录态、支付 Webhook、邮件队列、数据库迁移的工程细节与踩坑清单",
+    "url": "https://blog.csdn.net/sinat_32396037/article/details/170193150",
+    "ts": "2026-11-06 13:59:55"
   }
 }

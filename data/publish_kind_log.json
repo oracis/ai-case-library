@@ -58,6 +58,11 @@
     "case_id": "ext-ep-002-2048",
     "kind": "game",
     "at": "2026-11-04 11:59"
+   },
+   {
+    "case_id": "ext-ep-003-freedoom",
+    "kind": "game",
+    "at": "2026-11-06 13:38"
    }
   ],
   "csdn": [
@@ -75,6 +80,11 @@
     "case_id": "ext-ep-003-freedoom",
     "kind": "game",
     "at": "2026-11-05 14:05"
+   },
+   {
+    "case_id": "shipfast",
+    "kind": "ai",
+    "at": "2026-11-06 13:59"
    }
   ],
   "wechat": [
@@ -87,6 +97,11 @@
     "case_id": "ext-ep-002-2048",
     "kind": "game",
     "at": "2026-11-05 09:59"
+   },
+   {
+    "case_id": "upvoty",
+    "kind": "ai",
+    "at": "2026-11-06 13:40"
    }
   ],
   "bilibili": [
@@ -101,6 +116,11 @@
     "case_id": "marc-lou-portfolio",
     "kind": "ai",
     "note": "send-draft FIFO 最久草稿"
+   },
+   {
+    "case_id": "ext-ep-001-super-mario-bros",
+    "kind": "game",
+    "at": "2026-11-06 13:41"
    }
   ],
   "cnblogs": [
