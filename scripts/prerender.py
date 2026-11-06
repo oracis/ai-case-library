@@ -293,6 +293,15 @@ def short(s, n):
 TITLE_LIMIT = 62          # 搜索结果页大约只显示 30 个汉字，超了等于白写
 TITLE_BREAKS = "，,、；;。：:·|｜！!？?"
 
+# 标题里**不许出现**的两类词（2026-11-06 定）：
+#   1. 金额 —— 收入是快照不是现值，写进标题两天就过期，还容易被平台原样抓走；
+#   2. 平台状态 —— 「App Store 在架」「已上架」是核验结论，不是产品说明。
+# 命中就整段丢掉（连分句一起丢），不做「把 $5,371.18 抠掉」这种半截处理：
+# 抠完会留下「当前 MRR 为」这种断头句，比不写更难看。
+MONEY_PAT = re.compile(r"[$¥€£￥]\s*\d|\b(?:MRR|ARR)\b", re.I)
+MONEY_WORD_PAT = re.compile(r"收入|营收|客单价|单价|定价|月费|年费|流水|买断")
+META_PAT = re.compile(r"在架|上架|下架|App\s*Store|Google\s*Play|Product\s*Hunt", re.I)
+
 
 def _title_word_char(ch):
     """ASCII 字母数字与 . _ - + $ % —— 切在这些字符中间会把一个词劈成两半。"""
@@ -345,12 +354,28 @@ def _unclosed_open(s, upto):
     return pos
 
 
-def clip_text(s, n):
+def _trim_dangling(s):
+    """去掉结尾的虚词：「…聊天记录自动同步至」这种断在半句上的收尾。
+
+    标题不许用省略号，所以硬截之后必须自己收干净 —— 停在「至 / 的 / and / to」
+    上，读者会以为后面还有字。宁可少一个词。
+    """
+    s = s.rstrip(" ，,、；;：:·|｜—-–")
+    while s and s[-1] in "至到为于与和及或并而但的了着在把被将从对以向让给用靠由就还也都很更最又":
+        s = s[:-1].rstrip(" ，,、；;：:·|｜—-–")
+    m = re.search(r"(?i)\s+(?:to|into|and|with|for|of|the|a|an|in|on|by|at|from|or|as|that|is|are|your|our)$", s)
+    if m:
+        s = s[:m.start()].rstrip(" ，,、；;：:")
+    return s
+
+
+def clip_text(s, n, ellipsis=True):
     """把一句话压到 n 个字符，**不切在词的中间**。
 
     先找分句边界（逗号/顿号/分号），且要求至少留住 55%：边界太靠前
     宁可继续往后截，否则标题会短得没信息量。找不到边界再退到词边界
-    （英文单词、金额 $5,371.18 都不许劈开）。以完整分句收尾时不加省略号。
+    （英文单词、金额 $5,371.18 都不许劈开）。以完整分句收尾时不加省略号；
+    `ellipsis=False` 时硬截也不加 —— 案例标题按规矩不许出现省略号。
     """
     s = re.sub(r"\s+", " ", s or "").strip()
     if n <= 0:
@@ -374,11 +399,100 @@ def clip_text(s, n):
     open_at = _unclosed_open(s, n)               # 没有分句边界：先甩掉半截括号
     if open_at >= max(6, n // 3):
         return s[:open_at].rstrip("。，,、；;：:（(")
-    cut = s[:n - 1] if len(s) > n else s      # 给省略号留一位，否则会返回 n+1
+    cut = s[:n - 1] if (len(s) > n and ellipsis) else s[:n]
     while cut and _inside_token(s, len(cut)):
         cut = cut[:-1]
     cut = cut.rstrip("。，,、；;：:（(")
-    return (cut + "…") if cut else s[:n - 1].rstrip() + "…"
+    if not cut:
+        return ""
+    return (cut + "…") if ellipsis else _trim_dangling(cut)
+
+
+def title_clauses(s):
+    """按分句切开标题素材；金额里的半角逗号不算边界（$5,371.18 是一个整体）。
+
+    括号里的顿号/逗号也不算边界：`App Store 在架（4.81 分、32 评）` 若在顿号处
+    切开，后半截「32 评）」会失去「App Store」这个特征，过滤时被漏过去，
+    标题就留下半截括号。
+    """
+    out, start, depth = [], 0, 0
+    for i, ch in enumerate(s or ""):
+        if ch in "（(":
+            depth += 1
+            continue
+        if ch in "）)":
+            depth = max(0, depth - 1)
+            continue
+        if depth == 0 and _is_break(s, i):
+            seg = s[start:i].strip()
+            if seg:
+                out.append(seg)
+            start = i + 1
+    tail = (s or "")[start:].strip()
+    if tail:
+        out.append(tail)
+    return out
+
+
+def _name_short(name):
+    """复合产品名的前半截：「Boothie: AI Photo Editor」→「Boothie」。
+
+    库里有 9 个名字是「短名 + 冒号/破折号 + 说明」，one_liner 只写短名，
+    只按全名去重会漏 ⇒ 标题里名字仍出现两次。
+    """
+    name = (name or "").strip()
+    short = re.split(r"[:：\-—–|]", name)[0].strip()
+    if len(short) >= 4 and short.lower() != name.lower():
+        return short
+    return ""
+
+
+def title_desc(text, name=""):
+    """把 one_liner 变成能进标题的一句话：去名字重复、去金额、去平台状态、去省略号。
+
+    按分句过滤而不是按字符抠，是为了不留「当前 MRR 为」这种断头句。全被过滤掉
+    就返回空串，交给 `case_title` 换下一个素材（what_it_does / verdict）。
+    """
+    raw = re.sub(r"\s+", " ", text or "").strip()
+    desc = strip_leading_name(raw, name)
+    short = _name_short(name)
+    if desc == raw and short:
+        rest = strip_leading_name(raw, short)
+        if rest != raw:
+            desc = re.sub(r"^(?:将|把|让)\s*", "", rest)
+    desc = strip_redundant_name(desc, name)
+    if short:
+        desc = strip_redundant_name(desc, short)
+    keep = []
+    for seg in title_clauses(desc):
+        seg = seg.strip(" 。，,、；;：:·|｜…")
+        if not seg:
+            continue
+        if MONEY_PAT.search(seg) or MONEY_WORD_PAT.search(seg) or META_PAT.search(seg):
+            continue
+        if seg.count("（") != seg.count("）") or seg.count("(") != seg.count(")"):
+            continue                      # 半截括号宁可不写
+        keep.append(seg)
+    if not keep:
+        return ""
+    out = "，".join(keep)
+    out = re.sub(r"^(?:但|而|且|并且|不过|同时|另外|以及|还有|所以)\s*", "", out)
+    out = re.sub(r"[，,、；;：:]{2,}", "，", out)
+    return out.strip("，,、；;：: ")
+
+
+def title_name(name, n):
+    """产品名压到 n 个字符：优先在连字符/空格处断开，绝不出省略号。"""
+    s = re.sub(r"\s+", " ", name or "").strip()
+    if len(s) <= n:
+        return s
+    head = s[:n]
+    for sep in " -_/·—":
+        i = head.rfind(sep)
+        if i >= max(6, n // 2):
+            return head[:i].rstrip(" -_/·—–")
+    return head.rstrip(" -_/·—–")
+
 
 
 def strip_leading_name(s, name):
@@ -430,7 +544,7 @@ def strip_redundant_name(desc, name):
     return rest
 
 
-def case_title(name, liner, site_name="", limit=TITLE_LIMIT):
+def case_title(name, liner, site_name="", limit=TITLE_LIMIT, fallbacks=()):
     """案例页标题，返回 `(headline, full_title)`，后者带站名。
 
     2026-11-06 修：旧写法是 `"%s — %s" % (short(name, 30), short(liner, 22))`，
@@ -438,28 +552,35 @@ def case_title(name, liner, site_name="", limit=TITLE_LIMIT):
     「TalkEasy — TalkEasy 是一个 AI 口语陪练产…」：名字重复，且说明停在
     半个词上（465 条里 441 条如此）。现在：
       1. 先去掉说明里重复的产品名与紧跟的判断词；
-      2. 按分句 / 词边界截断，不切词；
-      3. 超长只压说明，**站名永不被切断**（旧代码最后那道
-         `short(full_title, 62)` 会把「· 拆解海外」劈成「· 拆解海」）。
+      2. 金额段（$5,371.18 / MRR 578 / 近 30 天收入 …）整段丢掉 —— 收入是快照，
+         写进标题两天就过期；`fallbacks` 里再找一句能用的；
+      3. 平台状态段（「App Store 在架」「已上架」）同样丢掉，那是核验结论不是说明；
+      4. 按分句 / 词边界截断，**绝不出省略号**；超长只压说明，
+         **站名永不被切断**（旧代码最后那道 `short(full_title, 62)` 会把
+         「· 拆解海外」劈成「· 拆解海」）。
     """
     name = re.sub(r"\s+", " ", (name or "")).strip()
     tail = (" · %s" % site_name) if site_name else ""
     budget = max(20, limit - len(tail))
 
-    name_part = clip_text(name, max(12, budget // 2)) if name else ""
-    desc = strip_leading_name(liner, name)
-    desc = strip_redundant_name(desc, name).rstrip("。，,、；;：: ")
+    name_part = title_name(name, max(12, budget // 2)) if name else ""
+    desc = title_desc(liner, name)
+    for src in fallbacks:
+        if desc:
+            break
+        desc = title_desc(src, name)
 
     if name_part and desc:
         room = budget - len(name_part) - len(" — ")
         if room >= 10:
-            clipped = clip_text(desc, room)
+            clipped = clip_text(desc, room, ellipsis=False)
             if clipped:
                 head = "%s — %s" % (name_part, clipped)
                 return head, head + tail
     if name_part:
         return name_part, name_part + tail
     return "", ""
+
 
 
 def load_site(root):
@@ -800,9 +921,11 @@ def render_case_page(c, ctx):
     site = ctx["site"]
     name = c.get("name") or c.get("id")
     liner = c.get("one_liner") or ""
-    # 标题：「产品名 — 一句说明 · 站名」。去重、按分句/词边界截断、站名不切断，
-    # 全部收在 case_title 里（旧写法在这里硬拼 + short()，名字会重复两遍）。
-    headline, full_title = case_title(name, liner, site["title"])
+    # 标题：「产品名 — 一句说明 · 站名」。去重、去金额、去平台状态语、
+    # 按分句/词边界截断（不出省略号）、站名不切断，全部收在 case_title 里。
+    headline, full_title = case_title(
+        name, liner, site["title"],
+        fallbacks=(c.get("what_it_does"), c.get("verdict")))
 
     # description 优先用一句话判断——那段话是核过数字之后的结论，比 one_liner 有信息量
     desc_src = (c.get("verdict") or liner or c.get("what_it_does") or "")
