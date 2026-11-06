@@ -1,46 +1,46 @@
 {
   "ext-ep-001-super-mario-bros": {
     "summary": "1985 年任天堂 FC 的横版平台游戏，这个项目用 JavaScript 重写了一遍：踩敌人、顶砖块、吃蘑菇变大，代码可读可改。",
-    "title": "游戏厅：马力欧兄弟，被 JS 重写的 1985 经典"
+    "title": "马力欧兄弟，被 JS 重写的 1985 经典"
   },
   "ext-ep-002-2048": {
     "summary": "4×4 方格滑动合并相同数字，规则极简却上瘾；开源代码可本地运行，也能直接部署成网页版。",
-    "title": "游戏厅：2048，一个网页就能玩的数字合并"
+    "title": "2048，一个网页就能玩的数字合并"
   },
   "ext-ep-003-freedoom": {
     "summary": "1993 年《毁灭战士》的自由素材复刻，三个章节共数十个关卡，还能加载社区自制的 Doom 模组地图。",
-    "title": "游戏厅：Freedoom，免费合法的毁灭战士"
+    "title": "Freedoom，免费合法的毁灭战士"
   },
   "ext-ep-004-quake": {
     "summary": "id 在 1999 年以 GPL 公开源码，社区据此衍生出大量改进客户端，其网络代码是后来联机技术的基础。",
-    "title": "游戏厅：Quake，1999 年开源的雷神之锤"
+    "title": "Quake，1999 年开源的雷神之锤"
   },
   "ext-ep-005-supertux": {
     "summary": "企鹅 Tux 穿越冰雪世界与地牢营救伙伴，内置关卡编辑器可自制分享，预装在多数 Linux 发行版软件源里。",
-    "title": "游戏厅：SuperTux，Linux 吉祥物当主角"
+    "title": "SuperTux，Linux 吉祥物当主角"
   },
   "ext-ep-006-nethack": {
     "summary": "随机生成的多层地牢里寻找 Yendor 项坠，物品与怪物几乎任意组合，ASCII 画面下藏着惊人深度。",
-    "title": "游戏厅：NetHack，能玩死你的地牢模拟器"
+    "title": "NetHack，能玩死你的地牢模拟器"
   },
   "ext-ep-007-openttd": {
     "summary": "1995 年《运输大亨》的 C++ 社区重写版，更大的地图、多人联机、信号系统改进，开源游戏里维护最活跃的项目之一。",
-    "title": "游戏厅：OpenTTD，开源版运输大亨"
+    "title": "OpenTTD，开源版运输大亨"
   },
   "ext-ep-008-mindustry": {
     "summary": "开采铜煤、铺传送带把物料喂给炮塔，一边防守一边造兵反击；Java 编写，桌面与安卓都能跑。",
-    "title": "游戏厅：Mindustry，物流即防御的塔防"
+    "title": "Mindustry，物流即防御的塔防"
   },
   "ext-ep-009-lichess": {
     "summary": "HTML5 + WebSocket 的网页对弈，Scala 后端配 MongoDB，完全免费无广告，提供 AI 分析、谜题训练与等级分排名。",
-    "title": "游戏厅：Lichess，免费无广告的国际象棋"
+    "title": "Lichess，免费无广告的国际象棋"
   },
   "ext-ep-010-cataclysm-dark-days-ahead": {
     "summary": "灾变后的丧尸世界，车辆改装、制作系统、身体部位伤害、变异与技能成长一应俱全，深度生存 Roguelike 代表作。",
-    "title": "游戏厅：CDDA，末日丧尸生存 Roguelike"
+    "title": "CDDA，末日丧尸生存 Roguelike"
   },
   "ext-ep-011-minetest": {
     "summary": "现名 Luanti，开源免费的无限世界方块沙盒，常被当作《我的世界》的替代品；引擎轻量、模组生态活跃。",
-    "title": "游戏厅：Minetest，低配也能跑的开源我的世界"
+    "title": "Minetest，低配也能跑的开源我的世界"
   }
 }
