@@ -1,6 +1,8 @@
-<h1>游戏厅：Lichess，国际象棋平台也能开源</h1>
+<h1>Lichess：免费象棋平台的网页对局与 Scala 后端</h1>
 <p style="line-height:1.7;font-size:15px;color:#555;margin:0 0 22px;padding:12px 14px;background:#f5f7fb;border-radius:6px">Lichess（Libre Chess）是国际上最知名的免费开源国际象棋平台，其源码完整公开在 GitHub…</p>
 <p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">开源游戏拆解 · 它用的是什么技术</p>
+<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">先说清楚：这是源码索引，不是游戏下载站</h2>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">本文介绍的项目指向一个真实存在的源码仓库。仓库里只有代码：要自己装环境、自己编译；不少经典游戏的重实现项目，原版素材还要自备。它的价值在「能读、能改」，不在「下载即玩」。</p>
 <h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">它是什么</h2>
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">它使用 HTML5 与 WebSocket 实现流畅的网页对弈，后端基于 Scala、Play 2.8 框架构建，配合 MongoDB 与 Elasticsearch 存储和检索数据。作为完全免费、无广告的公益平台，Lichess 提供在线对弈、AI 分析、谜题训练、等级分排名等丰富功能，吸引全球数百万棋手，是开源软件服务社区的经典范例。</p>
 <h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">零成本能拿到什么</h2>
@@ -13,14 +15,12 @@
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">素材里没读到构建脚本和入口页面，跑法请以仓库 README 为准。</p>
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 编译/依赖：老项目常要旧版工具链，报错多半不是你的问题</p>
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 素材：经典游戏的重实现工程通常<strong>不自带</strong>原版图片与音效</p>
-<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">它用什么技术做的</h2>
-<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">后端 Scala（Play 框架）+ MongoDB，前端 TypeScript；对局靠 WebSocket 双向推消息，异常处理与棋规判定都在服务端。它的架构把「实时对局」「AI 分析」「开局库」拆成互相独立的部分，所以能同时撑住大量在线对局——想学实时 Web 应用的工程分层，这份代码很值得抄结构。</p>
 <h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">基本信息</h2>
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 一句话简介：免费国际象棋游戏，使用 HTML5 与 WebSocket，基于 Scala、Play 2.8、MongoDB 和 Elasticsearch 构建</p>
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 源码：<a href="https://github.com/ornicar/lila" style="color:#2f6fed;text-decoration:none;word-break:break-all">Lichess</a></p>
 <p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">（源码部分依据 ornicar/lila 的公开代码结构整理，部分读过；细节以仓库当前代码为准。）</p>
 <h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">版权与免责</h2>
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 每一条的源码许可证以<strong>各自仓库</strong>为准，二次分发与商用前请逐条核对。</p>
-<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 本文只讨论项目与代码，不托管任何游戏文件，也不提供素材包。</p>
-<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 代码与素材版权归各自作者所有，本文仅作技术介绍。</p>
-<p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">Lichess（Libre Chess）是国际上最知名的免费开源国际象棋平台，其源码完整公开在 GitHub…。源码都在各自仓库里，需自行编译，部分需自备原版素材。</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 本文只介绍项目与代码，不托管任何游戏文件，也不提供素材包。</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 收录项目版权归各自作者所有；你是作者且不希望被收录，可以联系删除。</p>
+<p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">Lichess（Libre Chess）免费开源，源码索引自编译，需原版素材。</p>

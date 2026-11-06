@@ -978,6 +978,64 @@ class TestPickTargetDraft(unittest.TestCase):
         self.assertNotIn("oldest = pool[0]", src)
 
 
+class TestFindDraftByTitle(unittest.TestCase):
+    """`draft` 建稿前先按标题找既有草稿 —— 同标题就该**就地更新**。
+
+    2026-11-06：二号箱里 8 条 10-31 旧稿改好标题后，若档期每跑一次都新建
+    一条，重复稿一天多一条；而 send-draft 按标题认亲只发最久那条，剩下的
+    永远留在箱里，迟早被 FIFO 当新稿再投一次。
+    """
+
+    POOL = [
+        {"article_id": 376919, "title": "SuperTux：带内置关卡编辑器的平台跳跃游戏"},
+        {"article_id": 376930, "title": "SuperTux：带内置关卡编辑器的平台跳跃游戏"},
+        {"article_id": 376917, "title": "Quake：读一份 1999 年开源的 3D 引擎源码"},
+    ]
+
+    def _with(self, pool, fn):
+        old = bp.bili_api.list_drafts
+        try:
+            bp.bili_api.list_drafts = lambda cdp: pool
+            return fn()
+        finally:
+            bp.bili_api.list_drafts = old
+
+    def test_同标题多条取aid最大的(self):
+        d = self._with(self.POOL, lambda: bp._find_draft_by_title(
+            None, "SuperTux：带内置关卡编辑器的平台跳跃游戏"))
+        self.assertEqual(d["article_id"], 376930, "后建那条更可能是最近写入的")
+
+    def test_空白差异也能认出来(self):
+        d = self._with(self.POOL, lambda: bp._find_draft_by_title(
+            None, "  SuperTux：带内置关卡编辑器的 平台跳跃游戏 "))
+        self.assertIsNotNone(d)
+        self.assertEqual(d["article_id"], 376930)
+
+    def test_箱里没有就返回None(self):
+        d = self._with(self.POOL, lambda: bp._find_draft_by_title(
+            None, "箱里没有的标题"))
+        self.assertIsNone(d)
+
+    def test_读不到列表退回新建不拦发布(self):
+        def boom(cdp):
+            raise RuntimeError("CDP 抽风")
+
+        old = bp.bili_api.list_drafts
+        try:
+            bp.bili_api.list_drafts = boom
+            d = bp._find_draft_by_title(None, self.POOL[0]["title"])
+        finally:
+            bp.bili_api.list_drafts = old
+        self.assertIsNone(d, "读不到列表不许抛，退回新建老行为")
+
+    def test_cmd_draft真的带article_id且留了_new逃生口(self):
+        import inspect
+        src = inspect.getsource(bp.cmd_draft)
+        self.assertIn("_find_draft_by_title", src)
+        self.assertIn("article_id=(reuse or {}).get(\"article_id\")", src)
+        self.assertIn('getattr(args, "new"', src)
+
+
 class TestPublishStateJs(unittest.TestCase):
     """挖状态/点击的三段 JS 必须真的查 iframe、真的判 disabled。
 

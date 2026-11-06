@@ -1886,6 +1886,30 @@ def send_draft(cdp=None, dry=False, cid=None):
                 pass
 
 
+def _find_draft_by_title(cdp, title):
+    """按标题找**既有**草稿，用于「就地更新而不是新建」（2026-11-06）。
+
+    为什么要有它：`draft` 以前无条件新建，而 send-draft 是按**标题**认亲的
+    ⇒ 同标题两条时只发走最久那条，另一条永远留在箱里；二号箱里 8 条 10-31
+    旧稿改好标题后，档期每跑一次就多一条重复稿，迟早被 FIFO 当成新稿再投。
+
+    同标题多条时取 `article_id` **最大**的（后建的那份通常是最近一次写入）。
+    读不到列表（CDP 抽风）时返回 None，退回「新建」老行为，不拦发布。
+    """
+    want = _norm_title(title)
+    if not want:
+        return None
+    try:
+        drafts = bili_api.list_drafts(cdp)
+    except Exception:                              # noqa: BLE001
+        return None
+    hit = [d for d in (drafts or []) if _norm_title(d.get("title")) == want]
+    if not hit:
+        return None
+    hit.sort(key=lambda d: int(d.get("article_id") or 0))
+    return hit[-1]
+
+
 def cmd_draft(args):
     """把**外部 markdown**（不走 cases.json 的独立稿）存成 B站专栏草稿。
 
@@ -1947,8 +1971,20 @@ def cmd_draft(args):
         #（那条路有 risk_check 硬拦，外部稿数据原文可能误中，见 cmd_draft
         #  上面的 warn 注释）。
         image_urls = None
+        # 同标题既有草稿 → **就地更新**，不新建（2026-11-06）
+        # send-draft 是按标题认亲的，同标题两条时它只发走最久那条，另一条
+        # 永远留在箱里；而档期每跑一次就新建一条 ⇒ 重复稿一天多一条，迟早
+        # 被 FIFO 当成新稿再投一次。`--new` 是想强制另起一条时的逃生口。
+        reuse = None if getattr(args, "new", False) else _find_draft_by_title(
+            cdp, title)
+        if reuse:
+            aid = reuse.get("article_id")
+            old = bili_api.view_draft(cdp, aid) or {}
+            # 旧稿建稿时传过图床就沿用，别重复占图床
+            image_urls = old.get("origin_image_urls") or old.get("image_urls")
+            print("  → 复用同标题草稿 aid=%s（就地更新正文，不新建重复稿）" % aid)
         cov = getattr(args, "cover", None)
-        if cov:
+        if cov and not image_urls:
             if not os.path.isfile(cov):
                 print("  [warn] 封面文件不存在，草稿将无封面：%s" % cov)
             else:
@@ -1958,7 +1994,9 @@ def cmd_draft(args):
                     print("  ✓ 封面已传图床：%s" % curl[:72])
                 else:
                     print("  [warn] 封面上传失败，草稿将无封面（发布时会再补）")
-        arg = bili_api.build_arg(title, body, image_urls=image_urls)
+        arg = bili_api.build_arg(title, body,
+                                 article_id=(reuse or {}).get("article_id"),
+                                 image_urls=image_urls)
         out = bili_api.save_draft(cdp, arg)
         if not isinstance(out, dict) or out.get("code") != 0:
             print("  ✗ draft/add 失败：%s"
@@ -1976,9 +2014,13 @@ def cmd_draft(args):
         if not got.strip():
             print("  ✗ 回读校验失败：草稿正文是空的（aid=%s）" % aid)
             return 1
+        if reuse and _norm_title(after.get("title")) != _norm_title(title):
+            print("  [warn] 回读标题不一致：《%s》（以重跑对账）"
+                  % (after.get("title") or ""))
         paras = len(arg["opus"]["content"]["paragraphs"])
-        print("  ✓ 已存草稿 aid=%s《%s》正文 %d 字 / %d 段"
-              % (aid, title, len(got), paras))
+        print("  ✓ %s aid=%s《%s》正文 %d 字 / %d 段"
+              % ("已更新草稿" if reuse else "已存草稿",
+                 aid, title, len(got), paras))
         print("ARTICLE_ID=%s" % aid)
         return 0
     finally:
@@ -2660,6 +2702,9 @@ def main():
                          "写进 image_urls，发布时不用再补封面。2026-10-30 新增")
     dr.add_argument("--dry", action="store_true",
                     help="只打印将要创建什么，不开浏览器")
+    dr.add_argument("--new", action="store_true",
+                    help="强制新建一条草稿（默认同标题既有草稿就地更新，"
+                         "避免草稿箱里堆重复稿。2026-11-06 新增）")
     args = ap.parse_args()
 
     # 127.0.0.1 必须绕开系统代理，否则 websocket 连 Chrome 调试端口会被掐
