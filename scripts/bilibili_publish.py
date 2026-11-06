@@ -1440,14 +1440,33 @@ def _record_draft(cid, aid, title=""):
         print("    ⚠ 台账写入失败（不影响已存的草稿）：%s" % str(e)[:80])
 
 
+def _plat():
+    """当前进程在操作**哪个账号的台账**：二号（9224）→ `bilibili2`，否则 `bilibili`。
+
+    为什么按端口判而不是按 cid 后缀：`send-draft` 走 FIFO 时**不带 `--case`**，
+    认亲之前手里没有 cid，只能靠「本进程连的是哪个浏览器」分账。端口由
+    `CDP_BILI_PORT` 决定（`bridge` 与 `publish_one.BILI2_ENV` 都设成 9224）。
+
+    ⚠ 混用的后果不是报错而是**写错账**：二号进程若按 `bilibili` 读，二号的
+    已发记录一条都读不到（它们记在 `bilibili2` 下）⇒ FIFO 的「排除已发布」
+    形同虚设；反之在一号进程里读 `bilibili2` 会把二号的稿当成一号发过。
+    """
+    return "bilibili2" if PUB_PORT == 9224 else "bilibili"
+
+
 def _load_manifest():
-    """读整本 manifest：JSON 为底座，db 的 bilibili 记录逐条覆盖其上。
+    """读整本 manifest：JSON 为底座，db 里**本账号**的记录逐条覆盖其上。
 
     ⚠ 2026-11-05 修：「db 有数据就只返回 db」曾把返回值裁成 bilibili 单平台子集，
     _mark_manifest_published 拿它当整本快照写回 ⇒ publish_manifest.json 被剪掉
     toutiao/wechat/xhs/aliyun/zhihu 等全部非 B站记录（101→74，实测事故）。
     返回值必须是**完整** {cid: {platform: {...}}}——快照写回与 send-draft 的
     published 去重过滤都依赖整本。
+
+    ⚠ 2026-11-06 晚：覆盖的平台从写死的 `bilibili` 改为 `_plat()`。二号进程
+    必须读到 `bilibili2` 的记录，否则：① FIFO 的「排除已发布」读不到二号的账；
+    ② `send_draft` 按标题反查 case 时在一号标题里空转（二号的标题记在
+    `bilibili2.title`）。JSON 底座仍是整本，不会因为换平台键而缺块。
     """
     p = os.path.join(ROOT, "data", "publish_manifest.json")
     try:
@@ -1458,12 +1477,13 @@ def _load_manifest():
     if not isinstance(result, dict):
         result = {}
 
+    plat = _plat()
     conn = db.get_conn()
     try:
-        posts = db.get_posts_by_platform(conn, "bilibili")
+        posts = db.get_posts_by_platform(conn, plat)
         for p_ in posts or []:
             cid = p_["case_id"]
-            result.setdefault(cid, {})["bilibili"] = {
+            result.setdefault(cid, {})[plat] = {
                 "state": p_.get("state") or "",
                 "remote_id": p_.get("remote_id") or "",
                 "url": p_.get("url") or "",
@@ -1861,11 +1881,13 @@ def send_draft(cdp=None, dry=False, cid=None):
         if not drafts:
             print("  ✗ 草稿箱是空的")
             return (False, None, None, None)
-        # 过滤已在清单标 published 的（按 remote_id 或标题），避免重复发
+        # 过滤已在清单标 published 的（按 remote_id 或标题），避免重复发。
+        # ⚠ 平台键必须跟本进程的账号走（见 `_plat`）：二号记录在 `bilibili2` 下。
         m = _load_manifest()
+        plat = _plat()
         published_ids, published_titles = set(), set()
         for _c, d in m.items():
-            b = d.get("bilibili") or {}
+            b = d.get(plat) or {}
             if b.get("state") == "published":
                 if b.get("remote_id"):
                     published_ids.add(str(b["remote_id"]))
@@ -1895,16 +1917,19 @@ def send_draft(cdp=None, dry=False, cid=None):
                                        dry=True)
             print("  → %s" % why)
             return (ok, None, aid, title)
-        # 反查 cid：先按清单 bilibili.title 精确匹配；失败则退化用案例名匹配
+        # 反查 cid：先按清单**本账号**的平台键精确匹配 title；失败则退化用案例名匹配
         # （线上草稿标题可能被改过，与清单记录不一致，如 divine-widgets）
         target = cid
         if not target:
             nw = re.sub(r"\s+", "", title)
             for _c, d in m.items():
-                b = d.get("bilibili") or {}
+                b = d.get(plat) or {}
                 if re.sub(r"\s+", "", b.get("title") or "") == nw:
                     target = _c
                     break
+        if not target and plat == "bilibili2":
+            # 二号的稿是游戏仓期次，`cases.json` 里没有它 ⇒ 补一路游戏仓反查
+            target = _cid_from_games(title)
         if not target:
             for c in load_cases():
                 nm = re.sub(r"\s+", "", c.get("name") or "")
@@ -1928,6 +1953,33 @@ def send_draft(cdp=None, dry=False, cid=None):
                 cdp.close()
             except Exception:                      # noqa: BLE001
                 pass
+
+
+def _cid_from_games(title):
+    """二号：按**游戏仓期次标题**反查产物 id（`ext-<slug>-b2`）；找不到返回 None。
+
+    为什么需要这一路（2026-11-06 晚）：二号进 FIFO 后 `send-draft` **不带
+    `--case`**，只能按标题反查。而二号的标题来自游戏仓 `meta.title_alt`
+    （写进 `-b2.html` 的 h1），**本仓 manifest 与 `cases.json` 里都没有它**
+    —— 游戏期不是 AI case。缺这一路就会在「反查不到 case，请用 --case 指定」
+    这一步直接失败，FIFO 等于开不了。
+
+    ⚠ 返回值**必须带 `-b2`**：`ledger_slot()` 靠这个后缀把账记到
+    `platform='bilibili2'` 并剥回 `ext-<slug>`。漏了后缀，二号的发布会被记进
+    **一号的账**（2026-11-06 当天实撞过一次）。
+    """
+    nw = re.sub(r"\s+", "", title or "")
+    if not nw:
+        return None
+    try:
+        import games_state as GS
+        rows = GS.entries("bilibili2")
+    except Exception:                                   # noqa: BLE001
+        return None
+    for r in rows:
+        if re.sub(r"\s+", "", r.get("title") or "") == nw:
+            return "ext-%s-b2" % r["case"]
+    return None
 
 
 def _find_draft_by_title(cdp, title):

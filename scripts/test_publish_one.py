@@ -17,8 +17,10 @@
 跑法：cd scripts && python -X utf8 -m unittest test_publish_one -v
 """
 
+import json
 import os
 import sys
+import tempfile
 import unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -176,7 +178,7 @@ class FifoQueue(unittest.TestCase):
     """
 
     def test_default_is_send_draft(self):
-        self.assertEqual(P.FIFO_PLATFORMS, ("bilibili", "xhs"))
+        self.assertEqual(P.FIFO_PLATFORMS, ("bilibili", "xhs", "bilibili2"))
 
     def test_fifo_dry_run_never_spawns_and_never_picks(self):
         def boom(*a, **kw):
@@ -196,6 +198,61 @@ class FifoQueue(unittest.TestCase):
                               "bilibili", None, yes=False, new=True)
         finally:
             P.pick = orig
+
+
+class Bili2Fifo(unittest.TestCase):
+    """二号进 FIFO 补齐的三件（2026-11-06 晚）。
+
+    二号原先不进 `FIFO_PLATFORMS`：箱里积着 10-31 批量建的 8 条旧栏目稿。
+    那 8 条已换技术向标题、正文对齐母版、删掉栏目标语（PRD #69/#73/#75）
+    ⇒ 理由消失。进 FIFO 后 `send-draft` **不带 `--case`**，三处必须跟着改：
+
+    1. **账号**：二号是另一个浏览器（9224 + chrome-bili2-profile），靠环境
+       变量切换。漏传不是报错，而是在**一号的箱子里**找二号草稿 ⇒ 看着像「箱空」。
+    2. **补账读口**：二号发完只写本仓 `platform_posts(platform='bilibili2')`，
+       游戏仓那本不增加条目 ⇒ `fifo_note` 按 manifest 找永远空。
+    3. **台账平台键**：见 `test_bilibili_publish.TestBili2Fifo`。
+    """
+
+    def test_二号环境指向另一个账号(self):
+        self.assertEqual(P.BILI2_ENV["CDP_BILI_PORT"], "9224")
+        self.assertIn("chrome-bili2-profile", P.BILI2_ENV["CDP_PLAT_PROFILE"])
+        env = P._fifo_env("bilibili2")
+        self.assertEqual(env["CDP_BILI_PORT"], "9224")
+        self.assertIn("PATH", env, "必须在 os.environ 基础上加，别只传两项")
+
+    def test_其他平台沿用当前环境(self):
+        self.assertIsNone(P._fifo_env("bilibili"))
+        self.assertIsNone(P._fifo_env("xhs"))
+
+    def test_二号干跑不落子进程(self):
+        def boom(*a, **kw):
+            raise AssertionError("FIFO 干跑居然真的执行了 send-draft")
+        orig = P.subprocess.call
+        P.subprocess.call = boom
+        try:
+            # 2026-11-07 无记录 ⇒ 档期给 game ⇒ 走到 FIFO 分支
+            rc = P.run("bilibili2", None, yes=False, day="2026-11-07")
+            self.assertEqual(rc, 0)
+        finally:
+            P.subprocess.call = orig
+
+    def test_fifo_note二号读并集台账(self):
+        """二号补账不许再走 manifest（那里没有它的记录）。"""
+        tmp = tempfile.mkdtemp()
+        orig_data, orig_rec = P.DATA, P.SLOT.records
+        P.DATA = tmp
+        P.SLOT.records = lambda plat: [(P.SLOT.today() + " 10:00", "ext-ep-004-quake")]
+        try:
+            P.fifo_note("bilibili2")
+            p = os.path.join(tmp, "publish_kind_log.json")
+            d = json.load(open(p, encoding="utf-8"))
+            rec = d["records"]["bilibili2"]
+            self.assertEqual(rec[0]["case_id"], "ext-ep-004-quake")
+            self.assertEqual(rec[0]["kind"], "game")
+        finally:
+            P.DATA = orig_data
+            P.SLOT.records = orig_rec
 
 
 class UploadRemote(unittest.TestCase):

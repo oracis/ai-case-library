@@ -329,40 +329,58 @@ def _rows_yun(which):
 
 
 def _rows_games_bili2():
-    """B站二号：读**游戏仓**台账（二号真账簿不在本仓）。
+    """B站二号：**两本账取并集** —— 游戏仓（bridge 写的）+ 本仓 db（send-draft 写的）。
 
-    读法已统一到 `games_state`（2026-11-06）：`publish_one` 的 `dedupe`
-    闸也在读同一个模块，两处口径不许再各写一份 —— 此前这里独自实现了一份
-    「只认 `published`、时间取 `verified_at`」的读法，而 dedupe 压根没读，
-    于是二号「发过没发过」只有档期知道、闸不知道。
+    2026-11-06 补第二本账：二号此前只走 `bridge publish`，记录落在游戏仓
+    `data/publish_state.json`，读口也只有 `games_state` 一个。一旦让二号走
+    FIFO（`publish_one` 直接 `bilibili_publish.py send-draft`、不经过 bridge），
+    发完只写本仓 `platform_posts(platform='bilibili2')`，**游戏仓那本不会多一条**
+    ⇒ 档期读不到今天的记录 ⇒ 日配额算成 0、`dedupe` 判「没发过」，重跑就是第二篇。
+    两本账各管一段（bridge 写游戏仓、send-draft 写本仓），判据必须取并集；
+    `records()` 会按「日期 + 归一 case」去重，同一篇不会算两条。
 
-    仍归一成产物侧写法 `ext-<slug>`（`_norm_id` 会再剥掉 `ext-`）。
+    读法统一到 `games_state`（2026-11-06）：`publish_one` 的 `dedupe` 闸也在读
+    同一个模块，口径不许各写一份。仍归一成产物侧写法 `ext-<slug>`
+    （`_norm_id` 会再剥掉 `ext-`）。
     """
+    rows = []
+    # ① 游戏仓（bridge 路径）
     try:
         import games_state as GS
     except ImportError:
         GS = None
     if GS is not None:
-        return [(r["at"], "ext-" + r["case"])
-                for r in GS.published("bilibili2") if r["at"]]
-    # 兜底：模块缺失时退回旧读法（宁可能跑，不许静默返回「今天没发过」）——
-    # ⚠ 这分支只该在部署残缺时出现，正常路径走上面。
-    p = os.path.join(GAMES_ROOT, "data", "publish_state.json")
+        rows += [(r["at"], "ext-" + r["case"])
+                 for r in GS.published("bilibili2") if r["at"]]
+    else:
+        # 兜底：模块缺失时退回旧读法（宁可能跑，不许静默返回「今天没发过」）——
+        # ⚠ 这分支只该在部署残缺时出现，正常路径走上面。
+        p = os.path.join(GAMES_ROOT, "data", "publish_state.json")
+        try:
+            with open(p, encoding="utf-8") as f:
+                d = json.load(f)
+        except Exception:                               # noqa: BLE001
+            d = {}
+        for slug, art in (d.get("articles") or {}).items():
+            r = ((art or {}).get("platforms") or {}).get("bilibili2") or {}
+            if r.get("state") != "published":
+                continue
+            at = str(r.get("published_at") or r.get("verified_at")
+                     or r.get("attempted_at") or "")
+            if at:
+                rows.append((at, "ext-" + slug))
+    # ② 本仓 db（FIFO 路径 / send-draft 直发）
+    conn = db.get_conn()
     try:
-        with open(p, encoding="utf-8") as f:
-            d = json.load(f)
+        for p_ in db.get_posts_by_platform(conn, "bilibili2", state="published") or []:
+            at = p_.get("published_at") or p_.get("updated_at") or ""
+            if at and p_.get("case_id"):
+                rows.append((str(at), p_["case_id"]))
     except Exception:                                   # noqa: BLE001
-        return []
-    out = []
-    for slug, art in (d.get("articles") or {}).items():
-        r = ((art or {}).get("platforms") or {}).get("bilibili2") or {}
-        if r.get("state") != "published":
-            continue
-        at = str(r.get("published_at") or r.get("verified_at")
-                 or r.get("attempted_at") or "")
-        if at:
-            out.append((at, "ext-" + slug))     # 归一成产物侧写法，_norm_id 会剥 ext-
-    return out
+        pass
+    finally:
+        db.close_conn()
+    return rows
 
 
 READERS = {

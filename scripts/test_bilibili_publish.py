@@ -5,11 +5,15 @@
 跑法（在 scripts/ 目录下）：
     python -m unittest test_bilibili_publish
 """
+import inspect
+import json
 import os
 import re
 import subprocess
 import sys
+import tempfile
 import unittest
+from unittest import mock
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -1087,6 +1091,81 @@ class TestLedgerSlot(unittest.TestCase):
         self.assertIn("ledger_slot(", src)
         self.assertNotIn('"bilibili", {', src)
         self.assertIn("setdefault(platform, {})", src)
+
+
+class TestBili2Fifo(unittest.TestCase):
+    """二号进 FIFO 后「哪个账号」必须从端口推出来（2026-11-06 晚）。
+
+    二号此前不进 FIFO（箱里积着 8 条旧栏目稿）；那批已换成技术向标题、
+    正文对齐母版、删掉栏目标语，理由消失。进 FIFO 后 `send-draft` 不带
+    `--case`，认亲之前手里没有 cid —— 身份只能靠「本进程连的是哪个浏览器」，
+    也就是 `PUB_PORT`。判错的后果不是报错而是**读错账**：
+
+    * 二号进程按 `bilibili` 读 ⇒ 二号的已发记录一条都读不到（它们记在
+      `bilibili2` 下）⇒ FIFO 的「排除已发布」形同虚设；
+    * 二号进程按 `bilibili` 反查标题 ⇒ 在**一号**的标题里空转 ⇒ 报
+      「反查不到 case」⇒ FIFO 根本开不起来。
+    """
+
+    def setUp(self):
+        self._port = bp.PUB_PORT
+        self._root = bp.ROOT
+        self._posts = bp.db.get_posts_by_platform
+        self._conn = bp.db.get_conn
+        self._close = bp.db.close_conn
+
+    def tearDown(self):
+        bp.PUB_PORT = self._port
+        bp.ROOT = self._root
+        bp.db.get_posts_by_platform = self._posts
+        bp.db.get_conn = self._conn
+        bp.db.close_conn = self._close
+
+    def test_按端口切台账平台键(self):
+        bp.PUB_PORT = 9224
+        self.assertEqual(bp._plat(), "bilibili2", "二号必须读自己的账")
+        bp.PUB_PORT = 9223
+        self.assertEqual(bp._plat(), "bilibili", "一号不许读到二号的账")
+
+    def test_二号清单含bilibili2记录且整本不残缺(self):
+        """二号进程的 `_load_manifest` 要覆盖 bilibili2，且不许把一号剪掉。"""
+        tmp = tempfile.mkdtemp()
+        os.makedirs(os.path.join(tmp, "data"))
+        with open(os.path.join(tmp, "data", "publish_manifest.json"),
+                  "w", encoding="utf-8") as f:
+            json.dump({"chessigma": {"bilibili": {"state": "published",
+                                                 "title": "国际象棋"}}}, f)
+        bp.ROOT = tmp
+        bp.PUB_PORT = 9224
+        bp.db.get_conn = lambda: None
+        bp.db.close_conn = lambda conn=None: None
+        bp.db.get_posts_by_platform = lambda conn, plat, **kw: (
+            [{"case_id": "ext-ep-004-quake", "state": "published",
+              "remote_id": "123", "title": "Quake 的引擎源码，够读一整年"}]
+            if plat == "bilibili2" else [])
+        m = bp._load_manifest()
+        self.assertEqual(m["ext-ep-004-quake"]["bilibili2"]["remote_id"], "123")
+        self.assertEqual(m["chessigma"]["bilibili"]["title"], "国际象棋",
+                         "JSON 底座里的其他平台记录不许被裁掉")
+
+    def test_反查游戏仓标题带b2后缀(self):
+        """二号标题来自游戏仓 meta.title_alt，cases.json 里没有它。"""
+        import games_state as GS
+        rows = [{"case": "ep-004-quake", "state": "drafted",
+                 "title": "Quake 的引擎源码，够读一整年"}]
+        with mock.patch.object(GS, "entries", lambda *a, **kw: rows):
+            self.assertEqual(
+                bp._cid_from_games("Quake 的引擎源码，够读一整年"),
+                "ext-ep-004-quake-b2",
+                "必须带 -b2，否则账会记进一号")
+            self.assertIsNone(bp._cid_from_games("完全不同的一条标题"))
+
+    def test_send_draft按账号读账_形变防护(self):
+        src = inspect.getsource(bp.send_draft)
+        self.assertIn("_plat()", src)
+        self.assertNotIn('d.get("bilibili")', src,
+                         "send_draft 里写死平台键 ⇒ 二号读不到自己的记录")
+        self.assertIn("_cid_from_games(", src, "二号反查那一路不许被删掉")
 
 
 class TestCoverOfForDraft(unittest.TestCase):
