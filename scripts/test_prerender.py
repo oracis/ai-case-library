@@ -304,7 +304,20 @@ def main():
         site_name)
     chk("标题不出省略号", "…" not in t and "..." not in t, t)
 
-    # one_liner 全是金额时，去 `fallbacks` 里再找一句
+    # 名字只差空格/大小写/emoji：字号变了但仍是同一个名字 ⇒ 也要去重
+    _, t = m.case_title("Mind Reach", "MindReach 是 Autogenic Training 冥想应用", site_name)
+    chk("驼峰写法不重复名字", "MindReach" not in t and t.count("Mind Reach") == 1, t)
+
+    _, t = m.case_title(
+        "reddit grow", "MRR $503，RedditGrow通过AI辅助在Reddit上寻找潜在客户", site_name)
+    chk("金额段挡在名字前也能去掉", "RedditGrow" not in t and "AI辅助" in t, t)
+    chk("去重后仍是完整短语", not t.split(" · ")[0].endswith("—"), t)
+
+    _, t = m.case_title("Screenshot to Code (WhimsyWorks, Inc.)",
+                        "Screenshot to Code 是 AI 前端代码生成工具", site_name)
+    chk("括号注释不进说明", t.count("Screenshot to Code") == 1, t)
+
+    # 素材全被过滤时，去 `fallbacks` 里再找一句
     _, t = m.case_title(
         "Piston", "当前 MRR 为 9079，近 30 天收入 $12,000。", site_name,
         fallbacks=("法国最大的求职搜索 SaaS",))
