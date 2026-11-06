@@ -7,6 +7,8 @@
 1. 每个平台的内容组合是**两类各一篇**：一篇 AI case、一篇游戏（游戏厅栏目）。
 2. 平台日配额只有 1 篇时 ⇒ **按天轮流**：今天发 AI case，隔天发游戏，再隔天 AI …
 3. 日配额 ≥2 的平台，可以同一天把两类各发一篇（先补「最近没发过的那类」）。
+   **只有两类稿，配额却是 3**（腾讯云）时，两类都发过之后没有「没发过的类」可补：
+   第三篇按「上一篇的对面」接着交替（ai→game→ai），不写「补另一类」（2026-11-06 修）。
 4. **两类必须交替（2026-11-05 用户定）**：连着两篇同类型（跨日或同日）都算破坏交替。
    轮到的类无稿时**默认不发**（blocked），不再自动回退另一类——正是旧 fallback 让
    B站 11-04/11-05 连发两天 AI case。确要连发同类，显式 `--allow-same-kind` 越过。
@@ -578,9 +580,23 @@ def decide(platform, day=None, allow_same_kind=False):
     if todays:
         # 配额还有剩：优先补今天没发过的那一类
         kinds = set(out["today_kinds"])
-        want = "game" if "ai" in kinds else "ai"
-        why = "今日已发 %s，配额还剩 %d ⇒ 补另一类" % (
-            "、".join(KIND_LABEL[k] for k in kinds), quota - len(todays))
+        remain = quota - len(todays)
+        kinds_s = "、".join(KIND_LABEL[k] for k in sorted(kinds))
+        if kinds == {"ai", "game"}:
+            # 全库只有两类稿。两类都发过之后（腾讯云配额 3），剩下的配额里
+            # **不存在「没发过的类」** —— 第三篇必然同类连发。旧逻辑固定
+            # want="game" 且 reason 写「补另一类」：既把原因说反（实际是再发
+            # 游戏），也没有按序列交替（上一篇是游戏时就成了连发两篇游戏）。
+            # 现在按「上一篇的对面」接着交替（ai→game→ai），理由如实写。
+            # 2026-11-06 用户指出。
+            prev = kind_of(todays[-1][1])
+            want = "game" if prev == "ai" else "ai"
+            why = ("今日已发 %s（配额还剩 %d），两类都发过 ⇒ 没有「没发过的类」可补，"
+                   "按交替接上一篇（%s）再发 %s" % (
+                       kinds_s, remain, KIND_LABEL[prev], KIND_LABEL[want]))
+        else:
+            want = "game" if "ai" in kinds else "ai"
+            why = "今日已发 %s，配额还剩 %d ⇒ 补另一类" % (kinds_s, remain)
     elif last:
         want = "game" if kind_of(last[1]) == "ai" else "ai"
         why = "上次（%s）发的是 %s ⇒ 轮到 %s" % (
@@ -666,7 +682,8 @@ def main(argv=None):
         print(json.dumps(rows, ensure_ascii=False, indent=1))
         return 0
 
-    print("档期 %s ｜ 规则：两类各一篇，日配额 1 篇的平台按天轮流\n" % today(args.day))
+    print("档期 %s ｜ 规则：两类交替（配额 1 的平台按天轮流；配额 ≥2 的先补没发过的类，"
+          "两类都发过后接着交替）\n" % today(args.day))
     print("%-8s %-6s %-6s %-12s %-12s %s" % ("平台", "今日", "上限", "上次发的", "今天该发", "依据 / 缺口"))
     print("-" * 104)
     for d in rows:

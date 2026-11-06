@@ -531,7 +531,8 @@ def plan(day=None, platforms=None, as_json=False, allow_same_kind=False):
         print(json.dumps(rows, ensure_ascii=False, indent=1))
         return 0
 
-    print("今日发布计划 %s ｜ 规矩：两类各一篇，日配额 1 篇的平台按天轮流\n" % SLOT.today(day))
+    print("今日发布计划 %s ｜ 规矩：两类交替（配额 1 的平台按天轮流；配额 ≥2 的先补没发过的类，"
+          "两类都发过后接着交替）\n" % SLOT.today(day))
     print("%-12s %-8s %-22s %-6s %s" % ("平台", "该发", "稿件", "闸", "说明"))
     print("-" * 108)
     for r in rows:
