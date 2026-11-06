@@ -131,6 +131,10 @@
     "title": "Freedoom：给《毁灭战士》重造一套免费素材",
     "url": "https://www.cnblogs.com/thing-explainer/p/23573051",
     "status": "published",
-    "ts": "2026-11-06 15:37:42"
+    "ts": "2026-11-06 15:37:42",
+    "review_state": "pending_review_still_locked",
+    "review_at": "2026-11-06T16:57:41",
+    "review_evidence": "公开页 thing-explainer/p/23573051 与 .html 均 HTTP 404；metaWeblog.getRecentPosts 列表首条已是新标题「Freedoom：给《毁灭战士》重造一套免费素材」（证明后台写入成功，但按口径不算生效）。判据：公开页 200 且含新标题 + 「1372 star」才算 verified。",
+    "expect_public_contains": "1372 star"
   }
 }
