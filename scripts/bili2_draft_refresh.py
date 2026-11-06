@@ -27,8 +27,10 @@ FIFO 发到它们时会原样重演「标题只有栏目名」的事故，所以
 
 幂等判据（重跑安全）
 ------------------
-远端标题 == meta.title_alt 且正文含 `MARK` 段落 ⇒ SKIP。MARK 是 11-02
-母版新增的那句「这里只有源码，没有游戏文件」，旧稿没有。
+远端标题 == meta.title_alt **且整篇正文与母版重建逐字一致**（去空白后比）⇒ SKIP。
+⚠ 旧判据只看「正文里有没有 `MARK` 那句」——MARK 是 11-02 母版新增的
+「这里只有源码，没有游戏文件」；锚点在 ≠ 正文对得上。2026-11-06 实拍它把
+「正文其实还多一整句栏目标语」判成 SKIP（归一后 775 vs 810 字），是假绿。
 
 用法
 ----
@@ -38,8 +40,10 @@ FIFO 发到它们时会原样重演「标题只有栏目名」的事故，所以
 """
 
 import argparse
+import html
 import json
 import os
+import re
 import sys
 import time
 
@@ -113,6 +117,29 @@ def cover_path(slug):
     return None
 
 
+def _norm_body(s):
+    """正文归一：去标签 → 解 HTML 实体 → 去空白。
+
+    B站存的是**纯文本 + 空行**、重建的是 HTML，两边排版不同，只能按
+    「内容」比。实体也要解：它把 `'` 存成 `&#39;`（ep-008 实测），
+    不解就永远判「有新内容」，每次跑都白改一遍。
+    """
+    t = re.sub(r"<[^>]+>", "", str(s or ""))
+    return re.sub(r"\s+", "", html.unescape(t)).strip()
+
+
+def body_same(old_body, new_html):
+    """箱里正文与母版重建**整篇**是否一致。
+
+    🚨 2026-11-06 修：旧判据只看「标题相等 + 正文含 MARK 那句」，于是
+    正文里多一整句栏目标语「「游戏厅」栏目，每期只讲一款游戏…」也照判
+    SKIP —— 典型的**假绿**（锚点在 ≠ 正文对得上）。实测 ep-004 归一后
+    重建 775 字 / 远端 810 字，差的正好是那 35 字的栏目标语。
+    现在逐字比：差一个字就要么更新、要么在输出里说清差在哪。
+    """
+    return _norm_body(new_html) == _norm_body(old_body)
+
+
 def refresh_one(cdp, aid, slug, title, body, go=False):
     """改一条。返回 (ok, msg)。"""
     plain = tt.strip_md(body)
@@ -126,8 +153,8 @@ def refresh_one(cdp, aid, slug, title, body, go=False):
         return False, "读不到草稿 aid=%s" % aid
     old_title = (old.get("title") or "").strip()
     old_body = old.get("content") or ""
-    if old_title == title and MARK in old_body:
-        return True, "SKIP：标题与正文都已是新口径"
+    if old_title == title and body_same(old_body, body):
+        return True, "SKIP：标题与正文都与母版一致"
 
     if not go:
         return True, "DRY 《%s》→《%s》 新正文 %d 字（远端现有 %d 字）" % (
