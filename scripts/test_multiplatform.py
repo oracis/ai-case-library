@@ -82,6 +82,30 @@ class TestManifest(TmpManifest):
         with open(self.path, encoding="utf-8") as f:
             json.load(f)                          # 必须是完整合法 JSON
 
+    def test_改状态不许洗掉remote_id等字段(self):
+        """2026-11-06 事故：`set()` 整条重建 4 个键 + `save()` 整本落盘
+        ⇒ 一次 mark_published 就把全库 9 条 remote_id 洗掉（实测 diff 里
+        HEAD 有、工作区没有）。现在必须以旧记录为底、只覆盖状态字段。
+        """
+        with open(self.path, "w", encoding="utf-8") as f:
+            json.dump({"a": {"zhihu": {"state": "draft_saved",
+                                       "remote_id": "2099",
+                                       "url": "https://zhuanlan.zhihu.com/p/2099",
+                                       "published_ts": "2026-11-02 23:28:58",
+                                       "title": "标题A"}},
+                       "b": {"bilibili": {"state": "published",
+                                          "remote_id": "53766079"}}}, f)
+        m = S.Manifest(self.path)
+        m.mark_published("a", "zhihu")
+        rec = m.data["a"]["zhihu"]
+        self.assertEqual(rec["state"], "published")
+        self.assertEqual(rec["remote_id"], "2099", "remote_id 不许被洗掉")
+        self.assertIn("zhuanlan", rec["url"])
+        self.assertEqual(rec["published_ts"], "2026-11-02 23:28:58",
+                         "状态机不认识的字段也必须原样留着")
+        self.assertEqual(m.data["b"]["bilibili"]["remote_id"], "53766079",
+                         "别的 case/平台更不许被顺手清掉")
+
     def test_reload_persists(self):
         self.m.mark_draft("z", "x", "标题Z")
         again = S.Manifest(self.path)
