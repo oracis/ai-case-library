@@ -1330,5 +1330,60 @@ class TestPublishAllIdempotent(unittest.TestCase):
         self.assertIn("bustem", done)
 
 
+class TestBili2LedgerWrite(unittest.TestCase):
+    """二号发布要补写游戏仓台账；一号不许串账（2026-11-06）。
+
+    `_mark_manifest_published` 是「已发表列表按 aid 回读命中」之后唯一的
+    写账点，补写只能挂在这里。下面把 db / JSON 快照隔开，只验
+    「谁被写了、写进哪本账」，不碰浏览器也不碰真台账。
+    """
+
+    @staticmethod
+    def _call(cid, rec_side_effect=None):
+        import contextlib
+        import io
+        out, err = io.StringIO(), io.StringIO()
+        rec = mock.Mock(return_value=("written", {"remote_id": "53790001"}))
+        if rec_side_effect:
+            rec.side_effect = rec_side_effect
+        with mock.patch.object(bp.db, "get_conn", return_value=object()), \
+                mock.patch.object(bp.db, "upsert_post") as upsert, \
+                mock.patch.object(bp.db, "close_conn"), \
+                mock.patch.object(bp, "_load_manifest", return_value={}), \
+                mock.patch("builtins.open", mock.mock_open()), \
+                mock.patch.object(bp.os, "replace"), \
+                mock.patch("games_state.record_published", rec), \
+                contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            bp._mark_manifest_published(cid, "53790001", "某标题")
+        return rec, upsert, out.getvalue(), err.getvalue()
+
+    def test_二号发布补写游戏仓台账(self):
+        rec, upsert, out, _err = self._call("ext-ep-004-quake-b2")
+        rec.assert_called_once()
+        self.assertEqual(rec.call_args.args[0], "bilibili2")
+        self.assertEqual(rec.call_args.args[1], "ext-ep-004-quake")  # 剥 -b2
+        self.assertEqual(rec.call_args.kwargs["remote_id"], "53790001")
+        self.assertTrue(rec.call_args.kwargs["at"])
+        self.assertEqual(upsert.call_args.args[2], "bilibili2")       # 本仓也记二号
+        self.assertIn("游戏仓台账补账：written", out)
+
+    def test_一号发布不碰游戏仓台账(self):
+        rec, upsert, _out, _err = self._call("chessigma")
+        rec.assert_not_called()
+        self.assertEqual(upsert.call_args.args[2], "bilibili")
+
+    def test_补写失败不判发布失败但必须留痕(self):
+        _rec, upsert, out, err = self._call(
+            "ext-ep-004-quake-b2", RuntimeError("台账被锁"))
+        self.assertIn("游戏仓台账补写失败", err)
+        self.assertIn("bili2_ledger_backfill.py --go", out)
+        self.assertEqual(upsert.call_args.args[2], "bilibili2")       # 本仓已写
+
+    def test_二号不再串进一号专属ledger(self):
+        """`ld.promote("bilibili")` 曾把二号记录写进 bili_published.json。"""
+        src = inspect.getsource(bp.ui_publish_draft)
+        self.assertIn('ledger_slot(cid)[0] == "bilibili"', src)
+
+
 if __name__ == "__main__":
     unittest.main()

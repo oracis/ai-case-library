@@ -1535,6 +1535,7 @@ def _mark_manifest_published(cid, remote_id, title=""):
     """
     platform, base = ledger_slot(cid)
     cid = base
+    stamp = time.strftime("%Y-%m-%d %H:%M")   # 三本账同一个发布时点，别各取 now()
     conn = db.get_conn()
     try:
         db.upsert_post(conn, cid, platform, {
@@ -1544,8 +1545,8 @@ def _mark_manifest_published(cid, remote_id, title=""):
             "title": title or "",
             "draft_id": "",
             "attempt": 0,
-            "published_at": time.strftime("%Y-%m-%d %H:%M"),
-            "updated_at": time.strftime("%Y-%m-%d %H:%M"),
+            "published_at": stamp,
+            "updated_at": stamp,
             "note": "草稿箱→发布（send-draft）",
         })
     finally:
@@ -1560,8 +1561,7 @@ def _mark_manifest_published(cid, remote_id, title=""):
         b["remote_id"] = remote_id
         if title:
             b["title"] = title
-        b["at"] = (time.strftime("%Y-%m-%d %H:%M")
-                   + " 草稿箱→发布（send-draft）")
+        b["at"] = stamp + " 草稿箱→发布（send-draft）"
         tmp = p + ".tmp"
         with open(tmp, "w", encoding="utf-8", newline="\n") as f:
             json.dump(m, f, ensure_ascii=False, indent=1, sort_keys=True)
@@ -1569,6 +1569,30 @@ def _mark_manifest_published(cid, remote_id, title=""):
     except Exception as e:                         # noqa: BLE001
         sys.stderr.write("⚠ manifest JSON 快照写失败(%s)：%s\n" % (cid, e))
         print("    ⚠ 清单写入失败（不影响已发布的草稿）：%s" % str(e)[:80])
+
+    # 🚨 二号的真账簿在**游戏仓**（2026-11-06）：FIFO 不经过 bridge，没人替
+    #    它写 `data/publish_state.json`。少了这一笔，游戏仓
+    #    `ledger.blocks_republish()` 看不见本次发布，手动
+    #    `bridge publish --slug <同一期>` 就会重发；`games_state.published()`
+    #    也少一路证据。收口在这里，因为本函数**只在「已发表列表按 aid
+    #    回读命中」之后**才被调用 —— toast「提交成功」不算发布。
+    if platform == "bilibili2":
+        try:
+            import games_state as GS
+            action, entry = GS.record_published(
+                "bilibili2", cid, remote_id=remote_id, title=title,
+                at=stamp,
+                note="send-draft：已发表列表按 aid 回读命中（FIFO 补账）")
+            print("    游戏仓台账补账：%s / aid=%s / %s"
+                  % (action, entry.get("remote_id"), GS.state_path()))
+        except Exception as e:                     # noqa: BLE001
+            # 文章已真发出去了，补写失败不能把发布判成失败；但必须显眼，
+            # 否则 blocks_republish 会一直漏判且不留痕迹。
+            sys.stderr.write(
+                "⚠ 游戏仓台账补写失败（本仓 db 已记 published，"
+                "但 blocks_republish 会漏判）：%s\n" % e)
+            print("    ⚠ 手动补账：python -X utf8 "
+                  "scripts/bili2_ledger_backfill.py --go")
 
 
 # --------------------------------------------------------------------------
@@ -1838,12 +1862,18 @@ def ui_publish_draft(cdp=None, aid=None, cid=None, title="", dry=False,
                            "**不记账**，去浏览器确认（可能撞了当日额度）" % aid)
 
         _mark_manifest_published(cid, aid, title)
-        try:
-            import ledger as ld
-            ld.promote("bilibili", cid, aid, title=title,
-                       evidence="editor-ui-publish")
-        except Exception as e:                     # noqa: BLE001
-            print("    ⚠ ledger 层同步失败（清单已记 published）：%s" % str(e)[:80])
+        # 🚨 本仓 `ledger` 的 PLATFORMS 只有 `bilibili`（一号专属的
+        #    bili_published.json），压根没有 `bilibili2`。此前这里写死一号，
+        #    二号发布会把 `ext-ep-xxx` 记进一号的账 ⇒ 一号判重误拦。
+        #    二号的真账簿在游戏仓，已由 `_mark_manifest_published` 补写。
+        if ledger_slot(cid)[0] == "bilibili":
+            try:
+                import ledger as ld
+                ld.promote("bilibili", cid, aid, title=title,
+                           evidence="editor-ui-publish")
+            except Exception as e:                 # noqa: BLE001
+                print("    ⚠ ledger 层同步失败（清单已记 published）：%s"
+                      % str(e)[:80])
         return True, "已发布并记账 aid=%s" % aid
     finally:
         if not keep_tab and tid:
