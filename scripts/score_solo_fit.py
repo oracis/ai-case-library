@@ -935,6 +935,32 @@ def quadrant_of(solo, china, threshold):
     return "skip"
 
 
+def fallback_delivery():
+    """缺 DELIVERY 时的兜底单人交付分（+ 理由）：取全库中位数。
+
+    2026-11-06 放宽（用户：「这两张表放宽」）：DELIVERY 不再强制人工逐条填。
+    兜底值取自既有 N 条人工判断的中位数 —— 是统计量，不是凭空编的判断；
+    它会写进 `delivery_note` 且在 `solo_fit.provisional` 上标死，
+    人工填了表就优先用表，兜底永不覆盖真实判断。
+    """
+    vals = [v[0] for v in DELIVERY.values()
+            if isinstance(v, (tuple, list)) and v and isinstance(v[0], int)]
+    score = _median_int(vals) if vals else 3
+    return (score, "未人工评分：单人交付分按全库 %d 条判断的中位数兜底（%d 分）。"
+                   "要精确结论请补进 DELIVERY。" % (len(vals), score))
+
+
+def _median_int(vals):
+    """中位数取整（.5 向上）。"""
+    vals = sorted(v for v in vals if isinstance(v, int))
+    if not vals:
+        return 3
+    mid = len(vals) // 2
+    if len(vals) % 2:
+        return vals[mid]
+    return int((vals[mid - 1] + vals[mid]) / 2 + 0.5)
+
+
 # ------------------------------------------------------------------ 主流程
 
 def main():
@@ -951,7 +977,9 @@ def main():
 
     today = datetime.now().strftime("%Y-%m-%d")
     no_rep, no_delivery, no_china = [], [], []
+    kept = []
     rows = []
+    fb_delivery = fallback_delivery()
 
     for c in cases:
         cid = c.get("id")
@@ -970,16 +998,33 @@ def main():
             no_rep.append(cid)
             continue
 
-        # 单人交付：人工判断
+        # 单人交付：人工判断优先，缺表则按全库中位数兜底（2026-11-06 放宽）。
+        # 以前这里是 `continue`，缺表案例直接不进榜 ⇒ 首页「个人可做性」视图空一块，
+        # 而且没有任何地方会因此失败。
         d = DELIVERY.get(cid)
+        provisional = False
+        preserve = False
+        prev_solo = c.get("solo_fit") or {}
         if not d:
-            no_delivery.append(cid)
-            continue
+            if prev_solo.get("score") is not None and not prev_solo.get("provisional"):
+                # 表里没有、库里已有真实判断 ⇒ 保留原分，只重排名次
+                kept.append(cid)
+                preserve = True
+                dv = (prev_solo.get("dims") or {}).get("delivery")
+                d = (dv if isinstance(dv, int) else fb_delivery[0],
+                     prev_solo.get("delivery_note") or "")
+            else:
+                d = fb_delivery
+                provisional = True
+                no_delivery.append(cid)
         dims["delivery"] = d[0]
         delivery_note = _plain(d[1])
 
         raw = round(sum(dims[k] * SOLO_WEIGHTS[k] for k in SOLO_WEIGHTS), 1)
         solo = to_score(raw, SOLO_MAX)
+        if preserve:                       # 保留原分，避免重算值盖掉人工判断
+            solo = prev_solo["score"]
+            raw = prev_solo.get("raw", raw)
 
         china = (c.get("china_fit") or {}).get("score")
         if china is None:
@@ -988,6 +1033,7 @@ def main():
         rows.append({
             "case": c, "dims": dims, "raw": raw, "solo": solo,
             "delivery_note": delivery_note, "china": china,
+            "provisional": provisional, "preserve": preserve,
         })
 
     # --- solo_fit 排名 ---
@@ -1009,6 +1055,22 @@ def main():
     # --- 写入 ---
     for r in rows:
         c = r["case"]
+        if r["preserve"]:
+            # 表里没有但库里已有判断：只更新名次，其余原样留着
+            c["solo_fit"]["rank"] = r["solo_rank"]
+            c["solo_fit"]["medal"] = r["solo_medal"]
+            if r["china"] is None:
+                c.pop("composite", None)
+                continue
+            c["composite"] = {
+                "score": r["composite"], "solo": r["solo"], "china": r["china"],
+                "rank": r["composite_rank"], "medal": r["composite_medal"],
+                "quadrant": r["quadrant"],
+                "quadrant_label": QUADRANTS[r["quadrant"]][0],
+                "formula": "0.6×min(solo,china) + 0.4×mean(solo,china)",
+                "threshold": args.threshold, "scored_at": today,
+            }
+            continue
         c["solo_fit"] = {
             "score": r["solo"],
             "raw": r["raw"],
@@ -1022,6 +1084,8 @@ def main():
                 "%s=6-%s" % (k, v) for k, v in INVERT.items()),
             "scored_at": today,
         }
+        if r["provisional"]:
+            c["solo_fit"]["provisional"] = True
         if r["china"] is None:
             c.pop("composite", None)
             continue
@@ -1095,7 +1159,12 @@ def main():
     if no_rep:
         print("\n[!] 缺 replicability，无法算 solo_fit：%s" % ", ".join(no_rep))
     if no_delivery:
-        print("\n[!] DELIVERY 表里没填（将跳过）：%s" % ", ".join(no_delivery))
+        print("\n[!] DELIVERY 表里没填，已按全库中位数兜底并标记 provisional（%d 条）：%s"
+              % (len(no_delivery), ", ".join(no_delivery)))
+        print("    页面照常显示；要精确结论就补进 DELIVERY。")
+    if kept:
+        print("\n[i] DELIVERY 表里没有、但库里已有判断，已保留原分（%d 条）：%s"
+              % (len(kept), ", ".join(kept)))
     if no_china:
         print("\n[i] 以下案例还没跑 score_china_fit.py，本次不算综合分：%s"
               % ", ".join(no_china))

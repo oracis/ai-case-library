@@ -55,6 +55,30 @@ DIMS = [
 
 MAX_RAW = 5 * sum(WEIGHTS.values())          # 34.5
 
+
+def _median_int(vals):
+    """中位数取整（.5 向上）。缺表兜底只求「全库的典型值」，不追求精度。"""
+    vals = sorted(v for v in vals if isinstance(v, int))
+    if not vals:
+        return 3
+    mid = len(vals) // 2
+    if len(vals) % 2:
+        return vals[mid]
+    return int((vals[mid - 1] + vals[mid]) / 2 + 0.5)
+
+
+def fallback_dims():
+    """缺表时的兜底六维：取全库既有评分的**中位数**。
+
+    2026-11-06 放宽（用户：「这两张表放宽」）：SCORES 不再强制人工逐条填。
+    兜底值来自既有 N 条人工判断的中位数 —— 是统计量，不是凭空编的判断；同时
+    在 note 与 `provisional: true` 上标死，一眼能看出「这条没人工评过」。
+    人工填了表就优先用表，兜底永不覆盖真实判断。
+    """
+    return {k: _median_int([s.get(k) for s in SCORES.values()])
+            for k, _label, _desc in DIMS}
+
+
 # ------------------------------------------------------------------ 评分表
 # 分数是主观判断，但每一条都写明了依据。要调整就改这里，然后重跑。
 def _plain(s):
@@ -3152,14 +3176,40 @@ def main():
 
     today = datetime.now().strftime("%Y-%m-%d")
     missing = []
+    kept = []
     scored = []
+    fb = fallback_dims()
 
     for c in cases:
         cid = c.get("id")
         s = SCORES.get(cid)
+        provisional = False
         if not s:
+            # 表里没有，但库里已经有一份**非兜底**的判断 ⇒ 保留原值，只重排 rank。
+            # 宁可少算一次，也不能用兜底分盖掉真实判断（表与库偶尔会不同步）。
+            prev = c.get("china_fit") or {}
+            if prev.get("score") is not None and not prev.get("provisional"):
+                kept.append(cid)
+                scored.append({
+                    "case": c,
+                    "preserve": True,
+                    "dims": prev.get("dims"),
+                    "raw": prev.get("raw"),
+                    "score": prev["score"],
+                    "note": prev.get("note", ""),
+                    "blocker": prev.get("blocker"),
+                    "provisional": False,
+                })
+                continue
+            # 放宽：没有人工判断也照样算分，用全库中位数兜底并标记 provisional。
+            # 2026-11-06 之前这里 `continue` + 末尾 `pop("china_fit")`，跑一次就把
+            # 未填案例的历史评分清空 —— 而 preflight 只是 WARN，没人会注意到。
+            s = dict(fb)
+            s["note"] = (
+                "未人工评分：六维按全库 %d 条已评分案例的中位数兜底（%s）。要精确结论请补进 SCORES。"
+                % (len(SCORES), "/".join(str(fb[k]) for k, _l, _d in DIMS)))
+            provisional = True
             missing.append(cid)
-            continue
         dims = {k: s[k] for k, _label, _desc in DIMS}
         raw = weighted_total(dims)
         scored.append({
@@ -3169,11 +3219,17 @@ def main():
             "score": to_score(raw),
             "note": _plain(s.get("note", "")),
             "blocker": s.get("blocker"),
+            "provisional": provisional,
+            "preserve": False,
         })
 
     if missing:
-        print("[!] 以下案例还没评分（%d 条）：%s" % (len(missing), ", ".join(missing)))
-        print("    请在 SCORES 里补上，否则它们的 china_fit 会被清空。\n")
+        print("[!] 以下案例尚无人工评分，本次按全库中位数兜底（%d 条）：%s"
+              % (len(missing), ", ".join(missing)))
+        print("    兜底结果带 provisional 标记，页面照常显示；要精确结论就补进 SCORES。\n")
+    if kept:
+        print("[i] 表里没有、但库里已有判断，已保留原值（%d 条）：%s\n"
+              % (len(kept), ", ".join(kept)))
 
     # 排名：分数降序；同分时把有 blocker 的排后面，再按名称
     scored.sort(key=lambda x: (-x["score"], 1 if x["blocker"] else 0,
@@ -3183,6 +3239,10 @@ def main():
         item["rank"] = i
         item["medal"] = medal_for(i)
         c = item["case"]
+        if item["preserve"]:
+            c["china_fit"]["rank"] = i            # 只重排，不动 dims / note / score
+            c["china_fit"]["medal"] = item["medal"]
+            continue
         c["china_fit"] = {
             "score": item["score"],
             "raw": item["raw"],
@@ -3195,11 +3255,12 @@ def main():
             "blocker": item["blocker"],
             "scored_at": today,
         }
+        if item["provisional"]:
+            c["china_fit"]["provisional"] = True
 
-    # 没评分的案例：清掉旧分，避免留下过期排名
-    for c in cases:
-        if c.get("id") in missing:
-            c.pop("china_fit", None)
+    # 2026-11-06 起不再「没评分就清掉旧分」：现在每条都会被算到（缺表走中位数
+    # 兜底），历史分不会被一次重跑抹掉。原先那段 pop 是 preflight 只报 WARN、
+    # 没人察觉丢分的根源。
 
     # --- 打印 ---
     print("=" * 78)

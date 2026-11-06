@@ -16,6 +16,8 @@
 只读，不写盘。
 """
 
+import contextlib
+import io
 import json
 import os
 import sys
@@ -166,6 +168,85 @@ class TestCheckReportsGaps(unittest.TestCase):
         self.assertEqual(FR.missing_solo(probe), [])
         probe2 = [{"id": "x"}]
         self.assertEqual(FR.missing_solo(probe2), ["x"])
+
+
+class TestRelaxedJudgement(unittest.TestCase):
+    """2026-11-06 放宽两张人工表（用户：「这两张表放宽」）。
+
+    放宽的前提是**不丢信息**，所以这里钉三条：
+      1. 缺表也要算得分（以前 score_china_fit 缺表 `continue` + 末尾 pop，
+         一跑就把未填案例的旧分清空；score_solo_fit 缺表直接跳过、不进榜）
+      2. 兜底分必须带 `provisional` 与「未人工评分」字样，不许冒充人工判断
+      3. 库里已有真实判断（表里没写）必须原样保留，兜底不能盖掉它
+    """
+
+    def test_fallback_dims_are_sane(self):
+        fb = CF.fallback_dims()
+        for key, _label, _desc in CF.DIMS:
+            with self.subTest(dim=key):
+                self.assertIsInstance(fb[key], int)
+                self.assertTrue(1 <= fb[key] <= 5, "%s=%s 越界" % (key, fb[key]))
+
+    def test_fallback_delivery_is_sane(self):
+        score, why = SF.fallback_delivery()
+        self.assertIsInstance(score, int)
+        self.assertTrue(1 <= score <= 5, score)
+        self.assertIn("未人工评分", why)
+
+    def _run(self, mod, cases):
+        """用假案例跑一遍 main()，拿回写出的 cases。"""
+        saved = {}
+        old = (mod.load_json, mod.save_json, list(sys.argv))
+        mod.load_json = lambda name, default=None: cases if name == "cases" else default
+        mod.save_json = lambda name, payload: saved.__setitem__(name, payload)
+        sys.argv = ["score"]
+        try:
+            with contextlib.redirect_stdout(io.StringIO()):
+                rc = mod.main()
+        finally:
+            mod.load_json, mod.save_json = old[0], old[1]
+            sys.argv = old[2]
+        self.assertEqual(rc, 0)
+        return saved["cases"]
+
+    def test_missing_table_still_scores(self):
+        probe = [{"id": "__probe_relax__", "name": "Probe",
+                  "replicability": {"tech": 3, "distribution": 3,
+                                    "capital": 3, "timing": 3}}]
+        cases = self._run(CF, probe)      # china 先写，solo 才能算出 composite
+        cases = self._run(SF, cases)
+        c = cases[0]
+
+        self.assertTrue(c.get("china_fit"), "缺 SCORES 也应该算出 china_fit")
+        self.assertTrue(c["china_fit"].get("provisional"))
+        self.assertIn("未人工评分", c["china_fit"]["note"])
+
+        self.assertTrue(c.get("solo_fit"), "缺 DELIVERY 也应该算出 solo_fit")
+        self.assertTrue(c["solo_fit"].get("provisional"))
+        self.assertIn("未人工评分", c["solo_fit"]["delivery_note"])
+        self.assertTrue(c.get("composite"), "双轴分也该算出来")
+
+    def test_stored_judgement_not_overwritten(self):
+        """表里没有、库里已有人工判断 ⇒ 保留原值，不许被兜底盖掉。"""
+        probe = [{"id": "__probe_keep__", "name": "ProbeKeep",
+                  "replicability": {"tech": 3, "distribution": 3,
+                                    "capital": 3, "timing": 3},
+                  "china_fit": {"score": 88.8, "raw": 30.6, "note": "人工判断",
+                                "dims": {k: 5 for k, _l, _d in CF.DIMS},
+                                "scored_at": "2026-01-01"},
+                  "solo_fit": {"score": 77.7, "raw": 22.5, "delivery_note": "人工判断",
+                               "dims": {"delivery": 5}, "scored_at": "2026-01-01"}}]
+        cases = self._run(CF, probe)
+        c = cases[0]
+        self.assertEqual(c["china_fit"]["score"], 88.8)
+        self.assertEqual(c["china_fit"]["note"], "人工判断")
+        self.assertNotIn("provisional", c["china_fit"])
+
+        cases = self._run(SF, cases)
+        c = cases[0]
+        self.assertEqual(c["solo_fit"]["score"], 77.7)
+        self.assertEqual(c["solo_fit"]["delivery_note"], "人工判断")
+        self.assertNotIn("provisional", c["solo_fit"])
 
 
 if __name__ == "__main__":
