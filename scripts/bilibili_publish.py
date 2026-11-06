@@ -1481,6 +1481,20 @@ def _load_manifest():
     return result
 
 
+def ledger_slot(cid):
+    """产物 id → `(台账平台, 台账 case_id)`。
+
+    `-b2` 是**二号产物 id 的后缀**（`bridge.ext_id` 定的，一号/二号不许落
+    同一个文件），不是第二个 case。台账必须记成
+    `('bilibili2', ext-ep-004-quake)` —— 记成 `('bilibili', ext-...-b2)`
+    会让一号读成「今天发过了」，而二号自己的账还是空的。
+    """
+    base = str(cid or "")
+    if base.endswith("-b2"):
+        return "bilibili2", base[:-3]
+    return "bilibili", base
+
+
 def _mark_manifest_published(cid, remote_id, title=""):
     """B站真发成功后写清单：state=published + remote_id（幂等真值）。
 
@@ -1491,10 +1505,19 @@ def _mark_manifest_published(cid, remote_id, title=""):
 
     ⚠ 2026-10-20 修格式回归：快照必须 `indent=1` + 显式 `newline="\n"`，
        乱改缩进会让 git diff 多出几千行纯格式噪音。
+
+    🚨 2026-11-06：`-b2` 是**二号产物 id 的后缀**（`bridge.ext_id` 定的），
+    不是第二个 case。写账前必须剥掉后缀、把平台改成 `bilibili2` ——
+    否则二号的发布记录会以 `ext-ep-004-quake-b2` 的身份写进
+    `platform='bilibili'`（**一号的账**）：一号据此算日配额、做判重，会读成
+    「今天这一篇已经发过了」；而二号自己的账仍是空的，`dedupe` 认不出来。
+    收口放在这里而不是各调用点，是因为 `ui_publish_draft` 也会写一次。
     """
+    platform, base = ledger_slot(cid)
+    cid = base
     conn = db.get_conn()
     try:
-        db.upsert_post(conn, cid, "bilibili", {
+        db.upsert_post(conn, cid, platform, {
             "state": "published",
             "remote_id": remote_id,
             "url": "",
@@ -1512,7 +1535,7 @@ def _mark_manifest_published(cid, remote_id, title=""):
     p = os.path.join(ROOT, "data", "publish_manifest.json")
     try:
         m = _load_manifest()
-        b = m.setdefault(cid, {}).setdefault("bilibili", {})
+        b = m.setdefault(cid, {}).setdefault(platform, {})
         b["state"] = "published"
         b["remote_id"] = remote_id
         if title:
@@ -1683,12 +1706,33 @@ def _match_case_draft(pool, cid, want_title):
                   "case 名）" % (cid, want_title or cid))
 
 
+def case_title(cid, html):
+    """「按 case 认亲」时用的期望标题。
+
+    🚨 二号（`-b2`）**不许走 `make_title`**（2026-11-06 实测）：
+    `make_title` 把标题硬截到 30 字，而二号的稿标题来自游戏仓
+    `meta.title_alt`（写进 `-b2.html` 的 h1，B站上限 40）。
+    33 字的「Cataclysm-DDA：数据驱动的末日生存 Roguelike」被截成
+    「…末日生存 Rog」后与箱里草稿标题不等 ⇒ 精确匹配失败、第二级
+    「含 case 名」也失败（标题里没有 `ext-ep-010-...-b2`）⇒
+    `send-draft --case` 认不出这条草稿，它会**永远躺在箱里**，而档期每天
+    还照选这一期（`dedupe` 认的是「已有草稿」）。实测 8 条里就这一条挂着。
+
+    「建稿用哪个标题」与「认亲用哪个标题」必须是**同一个函数**说了算：
+    建稿走 `cmd_draft --title`（bridge 传 `title_for()`，即 h1），
+    所以认亲也只能读 h1。
+    """
+    if str(cid or "").endswith("-b2"):
+        return extract_title(html) or ""
+    return make_title(cid, html) if html else ""
+
+
 def _pick_target_draft(pool, cid=None):
     """挑一条草稿：给了 cid 就挑它的，否则挑**存入最久**的（与小红书/头条同口径）。"""
     if not cid:
         return sorted(pool, key=lambda d: d.get("mtime") or 0)[0], "最久未发布草稿"
     html = load_article_html(cid)
-    d, why = _match_case_draft(pool, cid, make_title(cid, html) if html else "")
+    d, why = _match_case_draft(pool, cid, case_title(cid, html))
     return (d, "--case %s（%s）" % (cid, why)) if d else (None, why)
 
 
@@ -2021,6 +2065,15 @@ def cmd_draft(args):
         print("  ✓ %s aid=%s《%s》正文 %d 字 / %d 段"
               % ("已更新草稿" if reuse else "已存草稿",
                  aid, title, len(got), paras))
+        # 封面回读（2026-11-06）：草稿还在、`image_urls` 还读得到 —— 这是
+        # **唯一**能把「平台侧封面到底设上了没有」落进台账的时刻。发表后
+        # 草稿变成文章，草稿接口就查不到这一篇了（`cover_verify._probe_bilibili`
+        # 只能现场扫草稿箱，箱里没有 ⇒ 永远 unknown）。
+        # 调用方（`open-source-games/publish/bridge.py`）拿这两行写
+        # `data/cover_readback.json`：有 URL 记 ok、读到了但空记 empty、
+        # 两行都没有（回读失败/旧脚本）记 unknown。
+        _cu = _cover_of(after)
+        print("COVER_URL=%s" % _cu if _cu else "COVER_EMPTY=%s" % aid)
         print("ARTICLE_ID=%s" % aid)
         return 0
     finally:

@@ -112,6 +112,12 @@ PUBLISHED_STATES = ("published", "auditing", "blocked", "审核中")
 # 「远端已有草稿」态：命中就不许再建第二份
 DRAFT_STATES = ("draft", "draft_saved", "pending", "building")
 
+# 真账簿不在本仓的平台（2026-11-06）：B站二号由游戏仓
+# `publish/bridge.py --platform bilibili2` 发布，记录在
+# `<GAMES_ROOT>/data/publish_state.json`。判重要多读一路（见 `_games_dup`），
+# 否则本仓两路台账对二号永远「无记录」。
+GAMES_PLATFORMS = ("bilibili2",)
+
 # ---------------------------------------------------------------- 标题词表
 
 # 空壳/模板化标题（用户 2026-11-04 驳回「太笼统，没有给出必要合理的信息」；
@@ -240,15 +246,58 @@ def body_of(pack):
 
 # ---------------------------------------------------------------- ① 幂等
 
-def check_dupe(platform, case, db_path=None, sync_path=None):
+def _games_dup(platform, case, path=None):
+    """三号证据：**游戏仓台账**（B站二号的账簿在别的仓）。
+
+    为什么单列一路（2026-11-06）：二号由 `open-source-games/publish/bridge.py
+    --platform bilibili2` 发布，记录写在游戏仓 `data/publish_state.json`。
+    本仓 SQLite 与 `longtail_sync.json` 都不记它 ⇒ 原来的 `dedupe` 对二号
+    永远「无已发记录」，只能靠候选池先排除 + bridge 的 `blocks_republish`
+    兜底 —— 闸在纸上，不在路上。
+
+    返回 `(hit, note)`：`hit` 非空即拦；`note` 说明「查了没有」还是「没能查」，
+    两者不许混成一句话。
+    """
+    if platform not in GAMES_PLATFORMS:
+        return None, ""
+    try:
+        import games_state as GS
+    except ImportError:                        # 独立跑本模块时 sys.path 可能没带
+        sys.path.insert(0, os.path.join(ROOT, "scripts"))
+        import games_state as GS
+    p = GS.state_path(path)
+    rec = GS.find(platform, case, path=path)
+    if rec:
+        st = rec["state"]
+        rid = rec["remote_id"] or rec["at"] or "无 id"
+        if st == "published":
+            return {"ok": False, "level": "games", "hits": [rec],
+                    "detail": "游戏仓台账 %s 已是 published（%s）⇒ 再发就是第二篇"
+                              % (platform, rid)}, ""
+        if st == "drafted":
+            # `drafted` 不拦（2026-11-06）：`bilibili_publish.py draft` 现在按
+            # 归一标题查箱、命中就带 article_id **就地更新**，所以「箱里已有
+            # 这一篇」正是要发的那一篇，重跑一遍不会多一条。拦它会把二号箱里
+            # 8 条 10-31 陈旧稿永远锁死（档期选到就 block）。
+            return None, ("游戏仓台账 %s 已有草稿（%s）⇒ 建稿会就地复用，"
+                          "不会建第二份" % (platform, rid))
+        return None, "游戏仓台账 state=%s（不算发过）" % (st or "空")
+    if not os.path.isfile(p):
+        return None, "游戏仓台账缺失（%s）⇒ 这一路没查到" % p
+    return None, ""
+
+
+def check_dupe(platform, case, db_path=None, sync_path=None, games_path=None):
     """只读判「这个 case 在这个平台发过 / 建过草稿没有」。
 
-    两路证据，任一命中即拦：
+    三路证据，任一命中即拦：
     1. SQLite `platform_posts`（唯一键 (case_id, platform)）——真值。
     2. `longtail_sync.json` 的历史**批次**记录——兜底。它的键是
        `<case>-<日期>-<序号>` 而不是 (case, platform)，所以重复建稿会
        静默追加第二条，11-04 实测 43 条里有 12 组重复标题（chessigma
        在 tencentcloud 4 次、cod-dex 在 aliyun 2 次）。
+    3. **游戏仓台账**（`games_state`）——只对 `GAMES_PLATFORMS`（B站二号），
+       它的账簿不在本仓，前两路永远查不到（见 `_games_dup`）。
 
     返回 {ok, level, detail, hits}；ok=False 就是不许发。
     """
@@ -299,8 +348,14 @@ def check_dupe(platform, case, db_path=None, sync_path=None):
                 "detail": "longtail_sync.json 已有 %d 个建稿批次（%s）⇒ 先按标题查远端草稿箱，别再 --upload"
                           % (len(batches), ", ".join(str(k) for k, _ in batches[:2]))}
 
+    hit, note = _games_dup(platform, case, games_path)
+    if hit:
+        return hit
+
+    # note 非空时直接取代那句笼统的「无记录」：写得清楚点，别让人以为
+    # 「游戏仓已有草稿」也算干净（2026-11-06 二号入档期后这条才有内容）。
     return {"ok": True, "level": "ok", "hits": [],
-            "detail": "无已发/已有草稿记录"}
+            "detail": note or "无已发/已有草稿记录"}
 
 
 # ---------------------------------------------------------------- ② 标题

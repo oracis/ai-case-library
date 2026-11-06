@@ -1036,6 +1036,80 @@ class TestFindDraftByTitle(unittest.TestCase):
         self.assertIn('getattr(args, "new"', src)
 
 
+class TestCaseTitle(unittest.TestCase):
+    """「按 case 认亲」用哪个标题 —— 二号不许走 `make_title` 的 30 字截断。
+
+    2026-11-06 实测：二号第 10 期标题 33 字
+    「Cataclysm-DDA：数据驱动的末日生存 Roguelike」被 `make_title` 截成
+    30 字后与箱里草稿标题不等 ⇒ `send-draft --case` 认亲失败 ⇒ 那条草稿
+    永远躺在箱里，而档期每天还照选它（dedupe 认为「已有草稿，可以发」）。
+    """
+
+    LONG = ("<section><h1>Cataclysm-DDA：数据驱动的末日生存 Roguelike</h1>"
+            "<p>正文</p></section>")
+
+    def test_二号标题不截断_原样取h1(self):
+        t = bp.case_title("ext-ep-010-cataclysm-dark-days-ahead-b2", self.LONG)
+        self.assertEqual(t, "Cataclysm-DDA：数据驱动的末日生存 Roguelike")
+        self.assertEqual(len(t), 33, "33 字必须原样带回，截成 30 就认不出亲")
+
+    def test_一号仍走make_title(self):
+        cid = "ext-ep-001-super-mario-bros"
+        self.assertEqual(bp.case_title(cid, self.LONG),
+                         bp.make_title(cid, self.LONG))
+
+    def test_没有h1时返回空串而不是瞎猜(self):
+        self.assertEqual(bp.case_title("ext-x-b2", "<section></section>"), "")
+
+    def test_认亲函数被_pick_target_draft用上(self):
+        """形变防护：别哪天又被改回 make_title。"""
+        import inspect
+        self.assertIn("case_title(", inspect.getsource(bp._pick_target_draft))
+
+
+class TestLedgerSlot(unittest.TestCase):
+    """`-b2` 是二号产物后缀，不是第二个 case —— 台账要拆成两列。"""
+
+    def test_二号剥后缀并换平台(self):
+        self.assertEqual(bp.ledger_slot("ext-ep-004-quake-b2"),
+                         ("bilibili2", "ext-ep-004-quake"))
+
+    def test_一号不动(self):
+        self.assertEqual(bp.ledger_slot("ext-ep-001-super-mario-bros"),
+                         ("bilibili", "ext-ep-001-super-mario-bros"))
+        self.assertEqual(bp.ledger_slot("chessigma"),
+                         ("bilibili", "chessigma"))
+
+    def test_写账走ledger_slot而不是写死bilibili(self):
+        """二号的发布记录曾写进 platform='bilibili'（一号的账）。"""
+        import inspect
+        src = inspect.getsource(bp._mark_manifest_published)
+        self.assertIn("ledger_slot(", src)
+        self.assertNotIn('"bilibili", {', src)
+        self.assertIn("setdefault(platform, {})", src)
+
+
+class TestCoverOfForDraft(unittest.TestCase):
+    """`draft` 要在草稿还在时把封面读出来（`COVER_URL=` / `COVER_EMPTY=`）。
+
+    发表后草稿变文章，草稿接口就查不到这一篇 ⇒ cover_remote 永远 unknown。
+    """
+
+    def test_有封面返回URL(self):
+        self.assertEqual(
+            bp._cover_of({"origin_image_urls": ["http://a/1.jpg"]}), "http://a/1.jpg")
+        self.assertEqual(bp._cover_of({"image_urls": "http://a/2.jpg"}), "http://a/2.jpg")
+
+    def test_没有封面返回空串_且不看banner_url(self):
+        self.assertEqual(bp._cover_of({"banner_url": "http://a/b.jpg"}), "")
+
+    def test_cmd_draft会打印封面两行(self):
+        import inspect
+        src = inspect.getsource(bp.cmd_draft)
+        self.assertIn("COVER_URL=", src)
+        self.assertIn("COVER_EMPTY=", src)
+
+
 class TestPublishStateJs(unittest.TestCase):
     """挖状态/点击的三段 JS 必须真的查 iframe、真的判 disabled。
 

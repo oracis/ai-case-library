@@ -329,14 +329,22 @@ def _rows_yun(which):
 def _rows_games_bili2():
     """B站二号：读**游戏仓**台账（二号真账簿不在本仓）。
 
-    `open-source-games/data/publish_state.json` →
-    `articles.<slug>.platforms.bilibili2`。二号从 2026-10-31 起由
-    `publish/bridge.py --platform bilibili2` 发布，台账写在那边；
-    本仓 `bili_published.json` 是一号的（混读会把一号的期次算成二号发过）。
+    读法已统一到 `games_state`（2026-11-06）：`publish_one` 的 `dedupe`
+    闸也在读同一个模块，两处口径不许再各写一份 —— 此前这里独自实现了一份
+    「只认 `published`、时间取 `verified_at`」的读法，而 dedupe 压根没读，
+    于是二号「发过没发过」只有档期知道、闸不知道。
 
-    ⚠ 只认 `state=published`：`drafted` 是草稿，不算「发过这一类」。
-    ⚠ 时间取 `verified_at` 优先（补账时刻会污染日配额判断，见 `_rows_list` 注释）。
+    仍归一成产物侧写法 `ext-<slug>`（`_norm_id` 会再剥掉 `ext-`）。
     """
+    try:
+        import games_state as GS
+    except ImportError:
+        GS = None
+    if GS is not None:
+        return [(r["at"], "ext-" + r["case"])
+                for r in GS.published("bilibili2") if r["at"]]
+    # 兜底：模块缺失时退回旧读法（宁可能跑，不许静默返回「今天没发过」）——
+    # ⚠ 这分支只该在部署残缺时出现，正常路径走上面。
     p = os.path.join(GAMES_ROOT, "data", "publish_state.json")
     try:
         with open(p, encoding="utf-8") as f:

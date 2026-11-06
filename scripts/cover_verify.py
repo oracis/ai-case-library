@@ -49,6 +49,11 @@ PLAYBOOK 里那句 `⛔ 本地有 PNG ≠ 平台侧封面已设置` 一直只有
     python -X utf8 scripts/cover_verify.py --case chessigma --platform csdn --live
     python -X utf8 scripts/cover_verify.py --report          # 台账全览
     python -X utf8 scripts/cover_verify.py --matrix          # 九平台能力矩阵
+
+    发布链路写台账（草稿还在时读，别等发表后）::
+
+    python -X utf8 scripts/cover_verify.py --record --case ext-ep-004-quake \
+        --platform bilibili2 --state ok --evidence "aid=376917 image_urls=https://..."
 """
 
 import argparse
@@ -68,6 +73,18 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 STATES = ("ok", "empty", "unknown", "local", "none")
+
+
+def _key(case):
+    """台账键归一：`ext-ep-004-quake-b2` 与 `ext-ep-004-quake` 是同一篇。
+
+    二号产物 id 带 `-b2` 后缀（`bridge.ext_id` 定的，一号/二号不许落同一个
+    文件），但台账的 case 键必须是**同一篇** —— 否则发布链路用产物 id 写、
+    `publish_one` 用档期 case id 读，两边永远对不上，`cover_remote` 就只能
+    一直 `unknown`（2026-11-06 修的就是这个）。
+    """
+    c = str(case or "").strip()
+    return re.sub(r"-b2$", "", c)
 
 #: 台账记录的有效期（天）。超过就降级成 `unknown` ——
 #: 一条三个月前的 `ok` 不能替今天作证（文章可能被改过、封面可能被平台清掉）。
@@ -102,7 +119,9 @@ CAP = {
         "field": "origin_image_urls[0] / image_urls[0]",
         "why": "同一平台的第二个账号（9224 + chrome-bili2-profile）。字段口径与一号"
                "完全一致，但**必须连二号自己的浏览器**：拿一号的 CDP 去读，草稿箱里"
-               "没有这一篇 ⇒ 永远 unknown。封面由 bridge 建草稿时随图床上传写入。",
+               "没有这一篇 ⇒ 永远 unknown。封面由 bridge 建草稿时随图床上传写入，"
+               "bridge 建完草稿就拿 `COVER_URL=` 写本台账（source=publish-time）——"
+               "发表后草稿变文章，草稿接口就读不到 image_urls 了。",
     },
     "cnblogs": {
         "mode": "none", "probe": None, "field": "",
@@ -159,7 +178,7 @@ def record(case, platform, state, evidence="", source="", path=None):
         state, evidence = "unknown", "调用方声称 ok 但没给证据 ⇒ 降级为未回读"
     p = path or LEDGER
     d = load_ledger(p)
-    slot = d.setdefault(case, {})
+    slot = d.setdefault(_key(case), {})
     slot[platform] = {
         "state": state,
         "evidence": str(evidence or "")[:300],
@@ -177,7 +196,7 @@ def _save(d, path):
 
 
 def get_record(case, platform, path=None):
-    return (load_ledger(path).get(case) or {}).get(platform) or {}
+    return (load_ledger(path).get(_key(case)) or {}).get(platform) or {}
 
 
 def clear(case, platform, path=None):
@@ -189,11 +208,11 @@ def clear(case, platform, path=None):
     """
     p = path or LEDGER
     d = load_ledger(p)
-    slot = d.get(case) or {}
+    slot = d.get(_key(case)) or {}
     if platform in slot:
         del slot[platform]
         if not slot:
-            d.pop(case, None)
+            d.pop(_key(case), None)
         _save(d, p)
         return True
     return False
@@ -497,6 +516,14 @@ def main(argv=None):
     ap.add_argument("--case")
     ap.add_argument("--platform", choices=list(PLATFORMS))
     ap.add_argument("--live", action="store_true", help="现场去平台读一次（要 Chrome 登录态）")
+    ap.add_argument("--record", action="store_true",
+                    help="写一条回读结果（发布链路用：建完草稿、草稿还在时读 "
+                         "image_urls —— 发表后草稿变文章，就读不到了）")
+    ap.add_argument("--state", choices=list(STATES), help="配合 --record")
+    ap.add_argument("--evidence", default="",
+                    help="配合 --record：读了哪个字段、读到什么值（写 ok 必须有）")
+    ap.add_argument("--source", default="publish-time",
+                    help="配合 --record：谁写的（默认 publish-time）")
     ap.add_argument("--clear", action="store_true",
                     help="删掉这条记录（人工已在平台侧补好封面时用）")
     ap.add_argument("--report", action="store_true", help="台账全览")
@@ -509,6 +536,17 @@ def main(argv=None):
         return cmd_matrix()
     if a.report:
         return cmd_report()
+    if a.record:
+        if not (a.case and a.platform and a.state):
+            ap.error("--record 要 --case + --platform + --state")
+        rec = record(a.case, a.platform, a.state, a.evidence, source=a.source)
+        print("%s / %s → 记 %s（%s）" % (
+            _key(a.case), a.platform, rec["state"],
+            rec["evidence"][:100] or "无证据串"))
+        if a.state == "ok" and rec["state"] != "ok":
+            print("⚠ 声称 ok 却没给 --evidence ⇒ 已降级为 unknown（不许假绿）")
+            return 1
+        return 0
     if not (a.case and a.platform):
         ap.error("要 --case + --platform，或 --report / --matrix")
 
