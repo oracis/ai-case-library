@@ -1,78 +1,78 @@
 {
-  "ran_at": "2026-11-05 07:39:05",
-  "added": 52,
+  "ran_at": "2026-11-06 07:34:07",
+  "added": 69,
   "by_source": {
-    "hn": 43,
+    "hn": 50,
     "indiehackers": 1,
-    "trustmrr": 8
+    "trustmrr": 18
   },
   "inbox_total": 400,
-  "archived_this_run": 52,
-  "archive_total": 1451,
+  "archived_this_run": 69,
+  "archive_total": 1520,
   "top": [
     {
-      "name": "MAX Dating AI Suite (MAXREPLY + MAXED)",
-      "headline": "近 30 天收入 $923",
+      "name": "Penmo",
+      "headline": "MRR $6,725，TrustMRR 第 573 名",
+      "heat": 0,
+      "category": "创作者经济",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/penmo"
+    },
+    {
+      "name": "AiSDR INC.",
+      "headline": "MRR $198,514，TrustMRR 第 24 名",
+      "heat": 0,
+      "category": "AI 工具",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/aisdr-inc"
+    },
+    {
+      "name": "JustMacApps",
+      "headline": "近 30 天收入 $159",
       "heat": 0,
       "category": "垂直行业 SaaS",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/maxreply"
+      "url": "https://trustmrr.com/startup/justmacapps"
     },
     {
-      "name": "Lin & Lore",
-      "headline": "近 30 天收入 $2,019",
+      "name": "SaasCity",
+      "headline": "近 30 天收入 $3,137",
       "heat": 0,
-      "category": "电商",
+      "category": "交易市场",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/lin-lore"
+      "url": "https://trustmrr.com/startup/saascity"
     },
     {
-      "name": "UseHite",
-      "headline": "近 30 天收入 $961",
+      "name": "Frutti",
+      "headline": "近 30 天收入 $4,290",
       "heat": 0,
-      "category": "Health & Fitness",
+      "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/usehite"
+      "url": "https://trustmrr.com/startup/frutti"
     },
     {
-      "name": "TalkEasy",
-      "headline": "MRR $1,561",
+      "name": "AI Busted",
+      "headline": "近 30 天收入 $348",
       "heat": 0,
-      "category": "垂直行业 SaaS",
+      "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/talkeasy"
+      "url": "https://trustmrr.com/startup/ai-busted"
     },
     {
-      "name": "Equalizer - Bass Booster",
-      "headline": "MRR $220",
+      "name": "MotionVideo",
+      "headline": "近 30 天收入 $790",
       "heat": 0,
-      "category": "移动应用",
+      "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/equalizer-bass-booster"
+      "url": "https://trustmrr.com/startup/motionvideo"
     },
     {
-      "name": "Riffit",
-      "headline": "自报收入 $3 / mo（Indie Hackers）",
+      "name": "WriteSim",
+      "headline": "近 30 天收入 $240",
       "heat": 0,
-      "category": "未分类",
-      "source": "indiehackers",
-      "url": "https://www.indiehackers.com/product/riffit"
-    },
-    {
-      "name": "Gauge",
-      "headline": "未获取",
-      "heat": 29,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://github.com/gauge-sh/gauge-cli"
-    },
-    {
-      "name": "Chronosphere, a tool for understanding large PRs",
-      "headline": "未获取",
-      "heat": 5,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://getchronosphere.com/"
+      "category": "AI 工具",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/writesim"
     }
   ]
 }
