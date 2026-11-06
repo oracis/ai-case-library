@@ -265,6 +265,43 @@ def main():
     chk("description 非空", not no_desc, ",".join(no_desc[:3]))
     chk("canonical 指向自身绝对地址", not no_canon, ",".join(no_canon[:3]))
 
+    # ------------------------------------------------------- 4b 案例标题
+    # 2026-11-06：旧写法把 one_liner（本库 30% 以产品名开头）直接拼在名字后面，
+    # 结果 138 条标题变成「TalkEasy — TalkEasy 是…」，441 条停在半个词上。
+    print("\n[4b] 案例标题（去重 / 断词 / 站名）")
+    site_name = site["title"]
+
+    _, t = m.case_title("TalkEasy", "TalkEasy 是一个 AI 口语陪练产品，当前 MRR 为 $1,561。", site_name)
+    chk("说明开头的产品名不重复", t.count("TalkEasy") == 1, t)
+    chk("紧跟的判断词一并去掉", "— 是一个" not in t and "— AI 口语陪练" in t, t)
+
+    _, t = m.case_title("Admirror", "MRR $578，Admirror 让静态广告快速适应产品。", site_name)
+    chk("说明里第二次出现的名字被去掉", t.count("Admirror") == 1, t)
+
+    # 名字只是更长单词的前缀（Bolt / Bolty）—— 那不是重复，删了就丢信息
+    _, t = m.case_title("Bolty", "Bolt 是一个更容易记的名字", site_name)
+    chk("名字只是前缀时不误删", "Bolt 是" in t, t)
+
+    # 金额里的半角逗号不是分句边界：切在那里，标题里会出现一个**错的**钱数
+    _, t = m.case_title("RYN VPN", "Ryn VPN，高端 VPN 产品，当前 MRR 为 $5,371.18，近 30 天已验证收入 $6,641。", site_name)
+    chk("金额不被切断", "$6…" not in t and "$5,371.18" in t, t)
+
+    _, t = m.case_title("sotie: AI Best Friend", "AI 情感陪伴 App，App Store 在架（4.81 分、32 评），近 30 天收入 1566。", site_name)
+    chk("不留半截括号", t.count("（") == t.count("）"), t)
+
+    _, t = m.case_title("wpconvert-ai-convert-ai-sites-to-wordpress", "把整个网站转成 WordPress，MRR $1200。", site_name)
+    chk("超长名字也不切断站名", t.endswith(" · " + site_name) and len(t) <= 62, t)
+
+    _, t = m.case_title("仅名字", "", site_name)
+    chk("没有 one_liner 时只留名字", t == "仅名字 · " + site_name, t)
+
+    bad_tail = []
+    for c in cases:
+        full = m.case_title(c.get("name") or c["id"], c.get("one_liner") or "", site_name)[1]
+        if not full.endswith(" · " + site_name):
+            bad_tail.append(c["id"])
+    chk("全库标题都以站名收尾（站名永不被切断）", not bad_tail, ",".join(bad_tail[:3]))
+
     # 没配域名时，canonical 和 sitemap 都该干净地消失，而不是留个空 href
     bare = m.load_site(ROOT)
     bare["url"] = ""

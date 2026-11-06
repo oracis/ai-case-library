@@ -277,11 +277,189 @@ def txt_len(s):
 
 
 def short(s, n):
-    """压掉空白并截断到 n 个字符。用于 <title>——搜索引擎结果页只显示前 30 来个汉字。"""
+    """压掉空白并硬截到 n 个字符（会切在词的中间）。
+
+    ⚠ 案例页标题**不要**用它 —— 见 `clip_text` / `case_title`。
+    留着是给不关心中文断词的短串兜底用的。
+    """
     s = re.sub(r"\s+", " ", s or "").strip()
     if len(s) <= n:
         return s
     return s[:n - 1].rstrip("，,、。；; ") + "…"
+
+
+# ---------------------------------------------------------------- 标题
+
+TITLE_LIMIT = 62          # 搜索结果页大约只显示 30 个汉字，超了等于白写
+TITLE_BREAKS = "，,、；;。：:·|｜！!？?"
+
+
+def _title_word_char(ch):
+    """ASCII 字母数字与 . _ - + $ % —— 切在这些字符中间会把一个词劈成两半。"""
+    return ch.isascii() and (ch.isalnum() or ch in "._-+$%")
+
+
+def _inside_token(s, i):
+    """在第 i 个字符**前面**切开，会不会把一个「记号」劈成两半。
+
+    除了英文单词，还要防金额：`$5,371.18` 切在逗号前会变成 `$5` ——
+    标题里出现一个错的数字，比难看严重得多。
+    """
+    if i <= 0 or i >= len(s):
+        return False
+    a, b = s[i - 1], s[i]
+    if _title_word_char(a) and _title_word_char(b):
+        return True
+    if a == "$" and b.isdigit():
+        return True
+    if a.isdigit() and b in ",." and i + 1 < len(s) and s[i + 1].isdigit():
+        return True
+    if a in ",." and b.isdigit() and i >= 2 and s[i - 2].isdigit():
+        return True
+    return False
+
+
+def _is_break(s, i):
+    """第 i 个字符能不能当分句边界。
+
+    ⚠ 半角逗号要排除数字里的那个：`$5,371.18` 的逗号不是分句。
+    """
+    if s[i] not in TITLE_BREAKS:
+        return False
+    if s[i] == "," and 0 < i < len(s) - 1 and s[i - 1].isdigit() and s[i + 1].isdigit():
+        return False
+    return True
+
+
+def _unclosed_open(s, upto):
+    """s[:upto] 里最后一个没闭合的左括号位置；没有返回 -1。
+
+    没有它就会截出「App Store 在架（4.81 分…」这种半截括号。
+    """
+    pos = -1
+    for i in range(min(upto, len(s))):
+        if s[i] in "（(":
+            pos = i
+        elif s[i] in "）)":
+            pos = -1
+    return pos
+
+
+def clip_text(s, n):
+    """把一句话压到 n 个字符，**不切在词的中间**。
+
+    先找分句边界（逗号/顿号/分号），且要求至少留住 55%：边界太靠前
+    宁可继续往后截，否则标题会短得没信息量。找不到边界再退到词边界
+    （英文单词、金额 $5,371.18 都不许劈开）。以完整分句收尾时不加省略号。
+    """
+    s = re.sub(r"\s+", " ", s or "").strip()
+    if n <= 0:
+        return ""
+    if len(s) <= n:
+        return s.rstrip("。，,、；;：:")
+    head = s[:n]
+    floor = max(8, int(n * 0.55))
+    best = -1
+    for i in range(len(head) - 1, floor - 1, -1):
+        if _is_break(s, i):
+            best = i
+            break
+    if best > 0:
+        open_at = _unclosed_open(s, best)        # 边界落在括号中间 ⇒ 整个括号丢掉
+        if open_at >= 0:
+            best = open_at
+        out = s[:best].rstrip("。，,、；;：:（(")
+        if out:
+            return out
+    open_at = _unclosed_open(s, n)               # 没有分句边界：先甩掉半截括号
+    if open_at >= max(6, n // 3):
+        return s[:open_at].rstrip("。，,、；;：:（(")
+    cut = s[:n - 1] if len(s) > n else s      # 给省略号留一位，否则会返回 n+1
+    while cut and _inside_token(s, len(cut)):
+        cut = cut[:-1]
+    cut = cut.rstrip("。，,、；;：:（(")
+    return (cut + "…") if cut else s[:n - 1].rstrip() + "…"
+
+
+def strip_leading_name(s, name):
+    """去掉说明开头重复的产品名：「TalkEasy 是一个 AI 口语陪练…」→「AI 口语陪练…」。
+
+    紧跟其后的判断词（是 / 是一个 / 是款 …）一并去掉，否则会读成
+    「TalkEasy — 是一个 AI 口语陪练产品」。
+    """
+    s = re.sub(r"\s+", " ", s or "").strip()
+    name = (name or "").strip()
+    if not s or not name:
+        return s
+    m = re.match(re.escape(name), s, re.I)
+    if not m:
+        return s
+    rest = s[m.end():]
+    # 名字只是更长单词的一段（Bolt / Bolty）—— 那不是重复，不能切
+    if rest[:1] and rest[0].isascii() and (rest[0].isalnum() or rest[0] in "_-"):
+        return s
+    rest = re.sub(r"^[\s，,、。；;：:·|｜\-—–]+", "", rest)
+    rest = re.sub(r"^是(?:一个|一款|一家|一种|个|款|家)?\s*", "", rest)
+    return rest.strip()
+
+
+def strip_redundant_name(desc, name):
+    """说明里又提了一次产品名 ⇒ 去掉那一次（标题前面刚说完，不必再说一遍）。
+
+    「MRR $14,526 的 ColdSire，把 Google Workspace 与…」→
+    「MRR $14,526，把 Google Workspace 与…」。
+
+    只删**有边界**的那一次：左边不能是字母数字（否则 `Universe` 里的 `Verse`
+    会被削掉半边），右边也不能是字母数字（`Verses` 不算命中；紧跟中文汉字是
+    正常的边界，「Admirror让静态广告…」就该删）。删完剩不到 10 个字就放弃：
+    宁可重复一遍，也不能把说明删成半句话。
+    """
+    if not desc or not name:
+        return desc
+    pat = r"(?<![A-Za-z0-9])(?:的\s*)?%s(?![A-Za-z0-9])" % re.escape(name)
+    m = re.search(pat, desc, re.I)
+    if not m:
+        return desc
+    rest = desc[:m.start()] + desc[m.end():]
+    rest = re.sub(r"\s+", " ", rest).strip()
+    rest = re.sub(r"^[，,、；;：:]\s*", "", rest)
+    rest = re.sub(r"\s*([，,、；;：:])\s*", r"\1", rest)
+    rest = re.sub(r"([，,、；;：:])\1+", r"\1", rest)
+    if len(re.sub(r"\s+", "", rest)) < 10:
+        return desc
+    return rest
+
+
+def case_title(name, liner, site_name="", limit=TITLE_LIMIT):
+    """案例页标题，返回 `(headline, full_title)`，后者带站名。
+
+    2026-11-06 修：旧写法是 `"%s — %s" % (short(name, 30), short(liner, 22))`，
+    而本库 30% 的 one_liner 本身以产品名开头 ⇒ 标题长成
+    「TalkEasy — TalkEasy 是一个 AI 口语陪练产…」：名字重复，且说明停在
+    半个词上（465 条里 441 条如此）。现在：
+      1. 先去掉说明里重复的产品名与紧跟的判断词；
+      2. 按分句 / 词边界截断，不切词；
+      3. 超长只压说明，**站名永不被切断**（旧代码最后那道
+         `short(full_title, 62)` 会把「· 拆解海外」劈成「· 拆解海」）。
+    """
+    name = re.sub(r"\s+", " ", (name or "")).strip()
+    tail = (" · %s" % site_name) if site_name else ""
+    budget = max(20, limit - len(tail))
+
+    name_part = clip_text(name, max(12, budget // 2)) if name else ""
+    desc = strip_leading_name(liner, name)
+    desc = strip_redundant_name(desc, name).rstrip("。，,、；;：: ")
+
+    if name_part and desc:
+        room = budget - len(name_part) - len(" — ")
+        if room >= 10:
+            clipped = clip_text(desc, room)
+            if clipped:
+                head = "%s — %s" % (name_part, clipped)
+                return head, head + tail
+    if name_part:
+        return name_part, name_part + tail
+    return "", ""
 
 
 def load_site(root):
@@ -622,14 +800,9 @@ def render_case_page(c, ctx):
     site = ctx["site"]
     name = c.get("name") or c.get("id")
     liner = c.get("one_liner") or ""
-    # <title> 控制在 30 个汉字上下；og:title 带上站名，分享卡片才认得出是谁发的
-    title = "%s — %s" % (short(name, 30), short(liner, 22)) if liner else short(name, 40)
-    full_title = "%s · %s" % (title, site["title"])
-    # 最后再压一刀：名字特别长的案例（wpconvert-ai-convert-ai-sites-to-wordpress
-    # 实测 76 字符）会把 title 顶爆。超长不是美观问题 —— 搜索结果页会把它截断，
-    # 等于白写。宁可截掉站名尾巴，也要保证整条不超 62。
-    if len(full_title) > 62:
-        full_title = short(full_title, 62)
+    # 标题：「产品名 — 一句说明 · 站名」。去重、按分句/词边界截断、站名不切断，
+    # 全部收在 case_title 里（旧写法在这里硬拼 + short()，名字会重复两遍）。
+    headline, full_title = case_title(name, liner, site["title"])
 
     # description 优先用一句话判断——那段话是核过数字之后的结论，比 one_liner 有信息量
     desc_src = (c.get("verdict") or liner or c.get("what_it_does") or "")
@@ -646,7 +819,7 @@ def render_case_page(c, ctx):
     ld = {
         "@context": "https://schema.org",
         "@type": "Article",
-        "headline": title,
+        "headline": headline or full_title,
         "description": desc,
         "inLanguage": "zh-CN",
         "isPartOf": {"@type": "WebSite", "name": site["title"]},
@@ -777,7 +950,7 @@ def render_anti_page(anti, ctx):
     vols = anti.get("volumes") or []
     base = (site.get("url") or "").rstrip("/")
     url = "%s/%s/index.html" % (base, ANTI_DIR) if base else ""
-    title = short("这些别照着做 · %d 条抄不动的案例 · %s" % (len(cases), site["title"]), 60)
+    title = clip_text("这些别照着做 · %d 条抄不动的案例 · %s" % (len(cases), site["title"]), 60)
     desc = ("%d 条可以读、但不建议照抄的海外案例，按门槛类型分成 %d 篇："
             "账单、人头、苦力、社区、履历、执照，以及「那个数字根本不是收入」。"
             % (len(cases), len(vols)))
