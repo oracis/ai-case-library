@@ -4,7 +4,7 @@
 
 为什么有它
 ----------
-九平台的发布能力早就有了，但**每次都重头攒一遍**：先跑 `publish_slot.py` 看今天
+十平台（B站一号+二号）的发布能力早就有了，但**每次都重头攒一遍**：先跑 `publish_slot.py` 看今天
 该发哪一类，再自己判断该用哪个脚本、带哪些参数、要不要先跑 katex/合规/去导流、
 发完去哪个台账查是不是真落了。判断散在 9 个脚本的 argparse 和各篇
 `PLAYBOOK-*.md` 里，一次发布要读四五个文件 —— 这就是这个入口要收掉的东西。
@@ -94,6 +94,10 @@ GAME_FILE = {
     "wechat": "wechat.md", "toutiao": "toutiao.md", "xhs": "xhs.md",
     "bilibili": "bilibili.md", "cnblogs": "cnblogs.md", "zhihu": "zhihu.md",
     "csdn": "csdn.md", "tencentcloud": "tencentcloud.md", "aliyun": "aliyun.md",
+    # 🚨 二号**发布时不读这个文件**：它走 bridge 从免费变体（article-free.md）
+    #   生成 `out/articles/<cid>-b2.html`。这里登记只为「平台表不留洞」
+    #   （test_publish_one 要求每平台四张表齐全），改了它不影响二号发布。
+    "bilibili2": "bilibili2.md",
 }
 
 # 发布终点：draft = 脚本只能到草稿（后台还得人点一下），published = 真发表
@@ -102,6 +106,7 @@ TERMINAL = {
     "toutiao": "published",
     "xhs": "published",
     "bilibili": "published",
+    "bilibili2": "published",   # 走游戏仓 bridge，发表完自己回读补账
     "cnblogs": "published",
     "zhihu": "draft",        # publish 端点未开放（见 zhihu_publish.py）
     "csdn": "published",
@@ -110,7 +115,8 @@ TERMINAL = {
 }
 
 # 每平台必过的闸（顺序即执行顺序）
-# 🚨 2026-11-04：`dedupe` / `title` / `template` / `cover` 补到**全部九平台**。
+# 🚨 2026-11-04：`dedupe` / `title` / `template` / `cover` 补到**全部平台**。
+#   2026-11-06 加入 B站二号（bilibili2），闸与一号同一套。
 #   此前只有 4 个平台有 cover 闸、0 个平台有 case 级去重，B站/小红书的
 #   FIFO 分支更是一条闸都不进 —— 重复草稿与裸图就是从这两处漏出去的。
 GATES = {
@@ -122,6 +128,8 @@ GATES = {
             "cover_remote"],
     "bilibili": ["dedupe", "draft", "link", "title", "template", "cover",
                  "cover_remote"],
+    "bilibili2": ["dedupe", "draft", "link", "title", "template", "cover",
+                  "cover_remote"],
     "cnblogs": ["dedupe", "draft", "link", "title", "template", "cover",
                 "cover_remote"],
     "zhihu": ["dedupe", "draft", "link", "title", "template", "cover",
@@ -147,6 +155,8 @@ VERIFY_HINT = {
     "toutiao": "「已发表」列表按标题命中才算成功（内容管理里的草稿不算）",
     "xhs": "data/xhs_published.json 按标题；创作中心笔记列表复核",
     "bilibili": "data/bili_published.json + 创作中心稿件列表",
+    "bilibili2": "游戏仓 data/publish_state.json 的 bilibili2 列 + 二号创作中心稿件"
+                 "列表按标题（aid 会重分配，不按 aid 判）",
     "cnblogs": "python scripts/cnblogs_publish.py list --n 5",
     "zhihu": "只能到草稿：zhihu_drafts.json 有记录即成功，发表待人工",
     "csdn": "python scripts/csdn_publish.py list --query <标题片段>",
@@ -442,6 +452,15 @@ def build_cmd(platform, case, pack, yes):
             cmd.append("--yes")
     elif platform == "bilibili":
         cmd = s("bilibili_publish.py", "publish", "--case", case)
+    elif platform == "bilibili2":
+        # 🚨 二号**不能**走老仓 `bilibili_publish.py`：它按 `--case` 读
+        #   `out/bili/<cid>/`（一号的游戏版正文），发出去就是两号同稿 ⇒ 判重复投稿。
+        #   二号必须走游戏仓 bridge：按 free 变体取稿、把 h1 换成 title_alt、
+        #   stage 成 `out/articles/<cid>-b2.html`，再建草稿 + 发表 + 自己补账。
+        #   slug 要剥 `ext-`（游戏仓内容目录是 `content/ep-003-freedoom/`）。
+        slug = case[4:] if str(case).startswith("ext-") else case
+        cmd = s(os.path.join(SLOT.GAMES_ROOT, "publish", "bridge.py"),
+                "publish", "--slug", slug, "--platform", "bilibili2")
     elif platform == "csdn":
         cmd = s("csdn_publish.py", "publish", "--file", pack, "--case", case)
         # 封面必须随发表一起提交（saveArticle 的 cover_images）；
@@ -470,7 +489,8 @@ def build_cmd(platform, case, pack, yes):
     else:
         raise SystemExit("未知平台：%s" % platform)
     cmd = [os.path.normpath(c) for c in cmd]
-    if not yes and platform not in ("wechat", "bilibili", "csdn", "cnblogs", "zhihu"):
+    if not yes and platform not in ("wechat", "bilibili", "bilibili2", "csdn",
+                                    "cnblogs", "zhihu"):
         cmd.append("--dry")
     return [PY, "-X", "utf8"] + [os.path.join(SCRIPTS, cmd[0])] + cmd[1:]
 
@@ -556,6 +576,9 @@ def upload_remote(platform, case, dry=False):
 
 # 草稿箱即 FIFO 队列的平台（用户定，2026-11-03）：发最久草稿，箱空才新写。
 # 两家的 send-draft 都「默认取存入最久的一条」，正好是队列语义。
+# 🚨 **二号不进这张表**（2026-11-06）：它箱里积着 10-31 批量建的 8 条旧稿
+#   （旧栏目标题 + 旧口径正文），走 FIFO 就先把旧稿发出去。二号一律
+#   「按档期选稿 → bridge 新建草稿 → 发表」，旧稿要另走清理。
 FIFO_PLATFORMS = ("bilibili", "xhs")
 
 

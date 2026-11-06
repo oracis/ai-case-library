@@ -97,6 +97,13 @@ CAP = {
         "why": "草稿接口 origin_image_urls 优先、image_urls 兜底；"
                "⛔ banner_url 在该接口里恒为 \"\"，拿它判会永远误判成没封面",
     },
+    "bilibili2": {
+        "mode": "live", "probe": "live",
+        "field": "origin_image_urls[0] / image_urls[0]",
+        "why": "同一平台的第二个账号（9224 + chrome-bili2-profile）。字段口径与一号"
+               "完全一致，但**必须连二号自己的浏览器**：拿一号的 CDP 去读，草稿箱里"
+               "没有这一篇 ⇒ 永远 unknown。封面由 bridge 建草稿时随图床上传写入。",
+    },
     "cnblogs": {
         "mode": "none", "probe": None, "field": "",
         "why": "cnblogs_publish.py 里没有封面逻辑（metaweblog 发布也不返回封面字段）",
@@ -312,6 +319,18 @@ def _md_title(path):
     return ""
 
 
+def _html_h1(path):
+    """取文章 html 的 h1 —— 二号产物 `-b2.html` 的 h1 已被 bridge 换成 title_alt。"""
+    if not path:
+        return ""
+    try:
+        with open(path, encoding="utf-8", errors="replace") as f:
+            m = re.search(r"<h1[^>]*>(.*?)</h1>", f.read(), re.S)
+        return re.sub(r"<[^>]+>", "", m.group(1)).strip() if m else ""
+    except OSError:
+        return ""
+
+
 def expected_title(platform, case):
     """该 case 在这个平台上「应该叫什么名字」—— 回读要靠标题认亲。"""
     try:
@@ -320,6 +339,11 @@ def expected_title(platform, case):
             html = BP.load_article_html(case)
             if html:
                 return BP.make_title(case, html)
+        elif platform == "bilibili2":
+            # 二号标题在游戏仓 `meta.title_alt`，由 bridge.stage_bili 写进 -b2.html
+            # 的 h1。别用 make_title：那走一号的覆盖表/头条标题，取到的是另一句。
+            import publish_slot as SLOT
+            return _html_h1(SLOT.pack_of("bilibili2", case))
         else:
             import publish_slot as SLOT
             p = SLOT.pack_of(platform, case)
@@ -355,18 +379,30 @@ def _probe_csdn(case, statuses=("draft", "publish", "audit")):
     return "unknown", "CSDN 三个列表共 %d 条，没找到该标题 ⇒ 无从判断" % seen
 
 
-def _probe_bilibili(case):
-    """B站：草稿接口 origin_image_urls / image_urls（复用已实测定论的内部函数）。"""
+def _probe_bilibili(case, platform="bilibili"):
+    """B站：草稿接口 origin_image_urls / image_urls（复用已实测定论的内部函数）。
+
+    一号/二号**必须各连各的浏览器**：端口与 profile 成对给（见 bridge.PORTS /
+    base_env 注释）。只换端口不换 profile ⇒ 读的是二号端口上挂着的一号登录态。
+    """
     import time as _t
     import bilibili_publish as BP
+    import chrome_cdp_launch as L
     import wechat_publish as wp
-    want = _norm(expected_title("bilibili", case))
+    if platform == "bilibili2":
+        port = int(os.environ.get("CDP_BILI2_PORT", "9224"))
+        profile = os.path.expandvars(os.environ.get("CDP_BILI2_PROFILE")
+                                     or r"%USERPROFILE%\chrome-bili2-profile")
+    else:
+        port, profile = BP.PUB_PORT, L.PLAT_PROFILE
+    want = _norm(expected_title(platform, case))
     if not want:
-        return "unknown", "拿不到该 case 的 B站期望标题（缺 out/articles/%s.html）" % case
+        return "unknown", "拿不到该 case 的 %s 期望标题（缺产物）" % platform
     cdp = None
     tid = None
     try:
-        cdp = wp.CDP(BP.PUB_PORT)
+        wp._autostart_chrome_if_needed(port, profile=profile)
+        cdp = wp.CDP(port)
         tid = cdp.new_target(BP.BILI_DRAFT_LIST_PAGE)["id"]
         cdp.connect_target(tid)
         _t.sleep(5)
@@ -394,7 +430,8 @@ def _probe_bilibili(case):
 
 
 #: 能现场读的平台。其余 live 平台是 `publish-time`（发表时脚本自己判）。
-_PROBE = {"csdn": _probe_csdn, "bilibili": _probe_bilibili}
+_PROBE = {"csdn": _probe_csdn, "bilibili": _probe_bilibili,
+          "bilibili2": lambda case, **kw: _probe_bilibili(case, "bilibili2")}
 
 
 def probe(platform, case, **kw):

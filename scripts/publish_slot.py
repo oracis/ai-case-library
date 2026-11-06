@@ -29,7 +29,7 @@
 
 用法
 ----
-    python scripts/publish_slot.py                    # 九平台总览
+    python scripts/publish_slot.py                    # 十平台总览（B站一号+二号）
     python scripts/publish_slot.py --platform xhs     # 单平台
     python scripts/publish_slot.py --json             # 给别的脚本吃
 """
@@ -51,6 +51,7 @@ PLATFORMS = [
     ("toutiao", "头条"),
     ("xhs", "小红书"),
     ("bilibili", "B站"),
+    ("bilibili2", "B站二"),
     ("cnblogs", "博客园"),
     ("zhihu", "知乎"),
     ("csdn", "CSDN"),
@@ -64,6 +65,9 @@ DAILY_QUOTA = {
     "toutiao": 3,       # 2026-11-02 禁言后自设护栏（TT_DAILY_MAX 同值）
     "xhs": 1,           # 保守：真上限未测出，按「一天一篇」走
     "bilibili": 1,      # 实测「已达到当日投稿上限」
+    # 同一平台的第二个账号：**额度按账号各算各的**（B站 lv0~lv3 每天 1 篇
+    # 是按号算的），别以为一号发过了二号就不能发。
+    "bilibili2": 1,
     "cnblogs": 2,       # 社区积分每日 3 次发布，留 1 次余量
     "zhihu": 1,         # 保守
     "csdn": 2,          # 实测 400300011「今天发表文章数量已达到限制的2篇」
@@ -322,11 +326,41 @@ def _rows_yun(which):
     return out
 
 
+def _rows_games_bili2():
+    """B站二号：读**游戏仓**台账（二号真账簿不在本仓）。
+
+    `open-source-games/data/publish_state.json` →
+    `articles.<slug>.platforms.bilibili2`。二号从 2026-10-31 起由
+    `publish/bridge.py --platform bilibili2` 发布，台账写在那边；
+    本仓 `bili_published.json` 是一号的（混读会把一号的期次算成二号发过）。
+
+    ⚠ 只认 `state=published`：`drafted` 是草稿，不算「发过这一类」。
+    ⚠ 时间取 `verified_at` 优先（补账时刻会污染日配额判断，见 `_rows_list` 注释）。
+    """
+    p = os.path.join(GAMES_ROOT, "data", "publish_state.json")
+    try:
+        with open(p, encoding="utf-8") as f:
+            d = json.load(f)
+    except Exception:                                   # noqa: BLE001
+        return []
+    out = []
+    for slug, art in (d.get("articles") or {}).items():
+        r = ((art or {}).get("platforms") or {}).get("bilibili2") or {}
+        if r.get("state") != "published":
+            continue
+        at = str(r.get("published_at") or r.get("verified_at")
+                 or r.get("attempted_at") or "")
+        if at:
+            out.append((at, "ext-" + slug))     # 归一成产物侧写法，_norm_id 会剥 ext-
+    return out
+
+
 READERS = {
     "wechat": _rows_wechat,
     "toutiao": lambda: _rows_list("toutiao"),
     "xhs": lambda: _rows_list("xhs"),
     "bilibili": lambda: _rows_list("bilibili"),
+    "bilibili2": lambda: _rows_games_bili2(),
     "cnblogs": lambda: _rows_dict("cnblogs"),
     "zhihu": lambda: _rows_dict("zhihu"),
     "csdn": _rows_csdn,
@@ -351,7 +385,14 @@ def records(platform):
         if isinstance(it, dict) and it.get("at") and it.get("case_id"):
             rows.append((str(it["at"]), str(it["case_id"])))
     rows.sort()
-    return rows
+    # 同一篇在同一天被记了多条：台账的 `at` + 补账时刻（verified_at）、
+    # 台账 + kind_log 补记，都会各算一条。不去重则 `today_count` 虚高 ——
+    # 2026-11-06 B站一号就被记成「今日 2 篇」（ep-001 的 13:41 与 13:45）。
+    # quota=1 时结论不变，但 quota=2 的平台（博客园/CSDN）会因此少发一篇。
+    uniq = {}
+    for at, cid in rows:
+        uniq.setdefault((at[:10], _norm_id(cid)), (at, cid))
+    return sorted(uniq.values())
 
 
 # ---------------------------------------------------------------- 候选池
@@ -398,6 +439,12 @@ def game_pack(platform, case_id):
 
 def pack_of(platform, case_id):
     """该平台这一篇的产物路径（不存在返回 None）。发布与判档期共用这一个判据。"""
+    if platform == "bilibili2":
+        # 二号产物是**单文件** `out/articles/<cid>-b2.html`：`-b2` 后缀是防止
+        # 两号共用同一个 ext-<slug>.html（谁后摆位谁覆盖，一号会突然发出二号的
+        # 免费版，见 bridge.ext_id 注释）。不是目录、也不吃游戏仓 platform/*.md。
+        p = os.path.join(ROOT, "out", "articles", str(case_id) + "-b2.html")
+        return p if os.path.isfile(p) else None
     spec = PACK.get(platform)
     if spec:
         rel, style = spec
@@ -479,6 +526,17 @@ def frozen_until(platform, day=None):
     return until if until and today(day) < until else None
 
 
+# 只走单一类型的平台：**不参与「两类交替」**（2026-11-06 加二号时定）。
+#   bilibili2 目前只有游戏稿通道：`publish/bridge.py --platform bilibili2`
+#   从游戏仓取 free 变体、stage 出 `out/articles/<cid>-b2.html` 并换 h1；
+#   AI case 没有二号专属产物的生成路径。
+#   ⚠ 若让二号参与交替：上一轮发游戏 ⇒ 今天 want=ai ⇒ 池永远空 ⇒ 每天
+#     blocked，等于加了个永远轮不到的位置（就是这次要修的病）。
+ONLY_KINDS = {
+    "bilibili2": "game",
+}
+
+
 def decide(platform, day=None, allow_same_kind=False):
     """返回今天这个平台该发什么。
 
@@ -521,6 +579,13 @@ def decide(platform, day=None, allow_same_kind=False):
             last[0][:10], KIND_LABEL[kind_of(last[1])], KIND_LABEL[want])
     else:
         want, why = "ai", "该平台没有任何发布记录 ⇒ 从 AI case 起步"
+
+    # 单一类型平台：直接定死，不跟昨日/今日的类别走（见 ONLY_KINDS 注释）
+    forced = ONLY_KINDS.get(platform)
+    if forced:
+        why = "该平台只走「%s」单一通道 ⇒ 固定发这一类，不做两类交替" % (
+            KIND_LABEL[forced])
+        want = forced
 
     if want == "game":
         pool = game_pool(platform)

@@ -57,6 +57,9 @@ TITLE_MAX = {
     "toutiao": 30,
     "xhs": 20,
     "bilibili": 80,
+    # 二号口径同 B站（2026-11-06 加档期时补）：内部仍按 ≤30 字自我约束，
+    # 但闸的上限跟平台一致，别让二号比一号多一道硬拦。
+    "bilibili2": 80,
     "cnblogs": 100,
     "zhihu": 100,
     "csdn": 100,
@@ -101,7 +104,7 @@ TIMEPOINT = re.compile(
 MONEY_METRIC = re.compile(r"MRR|月经常性收入|年化收入|年经常性收入|\bARR\b")
 
 # 所有平台都要求有封面资源（用户 2026-11-04：「封面有可能没设置」）
-COVER_REQUIRED = ("wechat", "toutiao", "xhs", "bilibili", "cnblogs",
+COVER_REQUIRED = ("wechat", "toutiao", "xhs", "bilibili", "bilibili2", "cnblogs",
                   "zhihu", "csdn", "tencentcloud", "aliyun")
 
 # 「已发表」态：命中就不许再发
