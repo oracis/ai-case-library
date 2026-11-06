@@ -1160,6 +1160,44 @@ class TestBili2Fifo(unittest.TestCase):
                 "必须带 -b2，否则账会记进一号")
             self.assertIsNone(bp._cid_from_games("完全不同的一条标题"))
 
+    def test_反查游戏仓标题_台账是旧栏目写法也能命中(self):
+        """真实形状：台账 title 还是「游戏厅：Quake」，箱里已被刷新成技术向标题。
+
+        2026-11-06 实拍：只比台账 `title` 时 8 条一条都反查不到（ep-001/ep-002
+        没刷新过反而能中），send-draft 卡在「请用 --case 指定」。这里把台账
+        钉成旧写法、产物 h1 钉成新写法，要求**按箱里的标题**也能认出来。
+        """
+        import games_state as GS
+        rows = [{"case": "ep-004-quake", "state": "drafted",
+                 "title": "游戏厅：Quake"}]
+        html = ('<html><body><h1>Quake：读一份 1999 年开源的 3D 引擎源码</h1>'
+                '</body></html>')
+        with mock.patch.object(GS, "entries", lambda *a, **kw: rows), \
+                mock.patch.object(bp, "load_article_html", lambda cid: html), \
+                mock.patch.object(GS, "GAMES_ROOT", "Z:/no/such/games-repo"):
+            self.assertEqual(
+                bp._cid_from_games("Quake：读一份 1999 年开源的 3D 引擎源码"),
+                "ext-ep-004-quake-b2",
+                "箱里的标题（= 产物 h1）必须能认亲")
+            self.assertEqual(bp._cid_from_games("游戏厅：Quake"),
+                             "ext-ep-004-quake-b2",
+                             "没刷新过的旧稿仍按台账写法认亲")
+
+    def test_反查游戏仓标题_meta_title_alt兜底(self):
+        """产物 h1 读不到时（产物被删/重建过），退回母版 meta.title_alt。"""
+        import games_state as GS
+        rows = [{"case": "ep-004-quake", "state": "drafted", "title": "游戏厅：Quake"}]
+        tmp = tempfile.mkdtemp()
+        os.makedirs(os.path.join(tmp, "content", "ep-004-quake"))
+        with open(os.path.join(tmp, "content", "ep-004-quake", "meta.json"),
+                  "w", encoding="utf-8") as f:
+            json.dump({"title_alt": "Quake：从零读引擎"}, f)
+        with mock.patch.object(GS, "entries", lambda *a, **kw: rows), \
+                mock.patch.object(bp, "load_article_html", lambda cid: None), \
+                mock.patch.object(GS, "GAMES_ROOT", tmp):
+            self.assertEqual(bp._cid_from_games("Quake：从零读引擎"),
+                             "ext-ep-004-quake-b2")
+
     def test_send_draft按账号读账_形变防护(self):
         src = inspect.getsource(bp.send_draft)
         self.assertIn("_plat()", src)

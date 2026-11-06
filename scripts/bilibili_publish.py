@@ -2007,9 +2007,39 @@ def _cid_from_games(title):
     except Exception:                                   # noqa: BLE001
         return None
     for r in rows:
-        if re.sub(r"\s+", "", r.get("title") or "") == nw:
-            return "ext-%s-b2" % r["case"]
+        cid = "ext-%s-b2" % r["case"]
+        for cand in _b2_title_candidates(r, cid):
+            if re.sub(r"\s+", "", cand) == nw:
+                return cid
     return None
+
+
+def _b2_title_candidates(row, cid):
+    """二号一条期次**可能用的所有标题写法**，认亲时逐个比。
+
+    🚨 2026-11-06 实测：只比台账 `title` 会全军覆没。台账里存的是 2026-10-31
+    建稿时的旧栏目写法「游戏厅：Quake」，而箱里那 8 条已被
+    `bili2_draft_refresh.py` 换成 `meta.title_alt`（「Quake：读一份 1999 年
+    开源的 3D 引擎源码」）⇒ 8 条一条都反查不到，`send-draft` 卡在
+    「请用 --case 指定」。而 ep-001/ep-002 没刷新过、仍是栏目写法 ⇒ 只有它俩
+    能命中，正好是「假绿」的样子（单测只喂台账标题时会全过）。
+
+    顺序＝权威度：产物 h1（`-b2.html`，建稿与刷新都写它）→ meta.title_alt
+    （母版真源）→ 台账 title（历史遗留，保留只为兼容没刷新过的箱）。
+    """
+    out = []
+    html = load_article_html(cid)
+    if html:
+        out.append(case_title(cid, html))
+    try:
+        import games_state as GS
+        p = os.path.join(GS.GAMES_ROOT, "content", row["case"], "meta.json")
+        with open(p, encoding="utf-8") as f:
+            out.append(str(json.load(f).get("title_alt") or ""))
+    except Exception:                                   # noqa: BLE001
+        pass
+    out.append(row.get("title") or "")
+    return [t for t in out if t]
 
 
 def _find_draft_by_title(cdp, title):
