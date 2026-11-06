@@ -373,11 +373,14 @@ def run_fit(args):
 
 def run_score(args):
     print("── 算派生分 ──")
-    # 顺序固定：solo 先（它写 composite + quadrant），china 后。
-    # 两个脚本各自读写 cases.json，不能并行 —— 并发写会丢字段。
+    # 顺序固定：china 先、solo 后 —— solo 才算 composite（0.6×min + 0.4×mean），
+    # 它必须读到 china_fit。原来反着跑（solo→china），新晋升的案例在 solo 那步
+    # china 还是 None，被 `if china is None: pop("composite")` 丢掉，四象限里就
+    # 少一条、得再跑一遍才补上（2026-11-06 放宽两张表时顺手修掉）。
+    # 两个脚本各自读写 case_library，不能并行 —— 并发写会丢字段。
     extra = ["--dry-run"] if args.dry_run else []
-    for label, fn in (("solo_fit", score_solo_fit.main),
-                      ("china_fit", score_china_fit.main)):
+    for label, fn in (("china_fit", score_china_fit.main),
+                      ("solo_fit", score_solo_fit.main)):
         mod = {"solo_fit": "score_solo_fit.py",
                "china_fit": "score_china_fit.py"}[label]
         rc, _ = _call(fn, [mod] + extra)
