@@ -441,10 +441,49 @@ def _name_short(name):
     只按全名去重会漏 ⇒ 标题里名字仍出现两次。
     """
     name = (name or "").strip()
-    short = re.split(r"[:：\-—–|]", name)[0].strip()
+    short = re.split(r"[:：\-—–|（(,，]", name)[0].strip()
     if len(short) >= 4 and short.lower() != name.lower():
         return short
     return ""
+
+
+def _compact_key(s):
+    """去掉空格/标点/emoji 后的小写形态，用来比对「同一个名字的两种写法」。"""
+    return re.sub(r"[^0-9a-z\u4e00-\u9fff]", "", (s or "").lower())
+
+
+def strip_name_compact(desc, name):
+    """名字只差空格/大小写/emoji 时也要去重。
+
+    库里这几种写法都真实存在：`Mind Reach` vs `MindReach 是 …`、
+    `RankSpot ❤️` vs `RankSpot 是 …`、`reddit grow` vs `RedditGrow通过 …`。
+    按字符比对全都不命中 ⇒ 标题里名字出现两次。这里按「压缩后的字符序列」
+    对齐，边界仍要求不是字母数字（`Bolt` 不许吃掉 `Bolty`）。
+    """
+    key = _compact_key(name)
+    if len(key) < 4 or not desc:
+        return desc
+    acc = []
+    for i, ch in enumerate(desc):
+        c = _compact_key(ch)
+        if not c:
+            continue
+        acc.append(c)
+        got = "".join(acc)
+        if len(got) > len(key):
+            return desc
+        if got != key:
+            continue
+        nxt = desc[i + 1:i + 2]
+        if nxt and re.match(r"[0-9A-Za-z]", nxt):
+            return desc                       # 名字只是更长单词的前缀
+        rest = re.sub(r"^[\s，,、。；;：:·|｜\-—–❤️]+", "", desc[i + 1:])
+        rest = re.sub(r"^是(?:一个|一款|一家|一种|个|款|家)?\s*", "", rest)
+        rest = re.sub(r"^(?:将|把|让)\s*", "", rest)
+        if len(_compact_key(rest)) >= 6:
+            return rest
+        return desc
+    return desc
 
 
 def title_desc(text, name=""):
@@ -455,9 +494,13 @@ def title_desc(text, name=""):
     """
     raw = re.sub(r"\s+", " ", text or "").strip()
     desc = strip_leading_name(raw, name)
+    if desc == raw:
+        desc = strip_name_compact(raw, name)
     short = _name_short(name)
     if desc == raw and short:
         rest = strip_leading_name(raw, short)
+        if rest == raw:
+            rest = strip_name_compact(raw, short)
         if rest != raw:
             desc = re.sub(r"^(?:将|把|让)\s*", "", rest)
     desc = strip_redundant_name(desc, name)
@@ -478,7 +521,18 @@ def title_desc(text, name=""):
     out = "，".join(keep)
     out = re.sub(r"^(?:但|而|且|并且|不过|同时|另外|以及|还有|所以)\s*", "", out)
     out = re.sub(r"[，,、；;：:]{2,}", "，", out)
-    return out.strip("，,、；;：: ")
+    out = out.strip("，,、；;：: ")
+    # 金额段常常正好挡在名字前面（「MRR $503，RedditGrow通过…」）⇒ 过滤完要再试一次去名字
+    for cand in (name, short):
+        if not cand or not out:
+            continue
+        rest = strip_leading_name(out, cand)
+        if rest == out:
+            rest = strip_name_compact(out, cand)
+        if rest != out:
+            out = re.sub(r"^(?:将|把|让)\s*", "", rest).strip("，,、；;：: ")
+            break
+    return out
 
 
 def title_name(name, n):
