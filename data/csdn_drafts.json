@@ -45,5 +45,11 @@
     "title": "从零搭一个 Next.js SaaS 模板：登录态、支付 Webhook、邮件队列、数据库迁移的工程细节与踩坑清单",
     "url": "https://blog.csdn.net/sinat_32396037/article/details/170193150",
     "ts": "2026-11-06 13:59:55"
+  },
+  "ext-ep-004-quake": {
+    "article_id": null,
+    "title": "Quake，1999 年开源的雷神之锤",
+    "url": "https://blog.csdn.net/sinat_32396037/article/details/170239393",
+    "ts": "2026-11-07 10:48:55"
   }
 }

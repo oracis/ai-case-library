@@ -22,6 +22,7 @@ import os
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -178,7 +179,27 @@ class FifoQueue(unittest.TestCase):
     """
 
     def test_default_is_send_draft(self):
-        self.assertEqual(P.FIFO_PLATFORMS, ("bilibili", "xhs", "bilibili2"))
+        self.assertEqual(P.FIFO_PLATFORMS,
+                         ("bilibili", "xhs", "bilibili2", "wechat"))
+
+    def test_公众号FIFO走远端对账而不是新写草稿(self):
+        """2026-11-07：wechat 曾仍是 publish --file ⇒ 堆出同标题重复稿。"""
+        # 注入档期：今天公众号真发过 1 篇后，配额闸会把 run 提前判 rc=1，
+        # 测试不能依赖真实台账（与 Bili2Fifo 那条同一个坑）。
+        with mock.patch.object(P.SLOT, "decide", return_value={"kind": "ai"}), \
+                mock.patch.object(P.subprocess, "call", return_value=0) as sp, \
+                mock.patch.object(P, "fifo_note"):
+            P.run("wechat", None, yes=False)
+            cmd = sp.call_args.args[0]
+            self.assertIn("wechat_fifo.py", " ".join(cmd))
+            self.assertIn("--list", cmd)
+            self.assertNotIn("--go", cmd)          # 干跑绝不真发
+            self.assertNotIn("publish", cmd)       # 更不许新写草稿
+        with mock.patch.object(P.SLOT, "decide", return_value={"kind": "ai"}), \
+                mock.patch.object(P.subprocess, "call", return_value=0) as sp, \
+                mock.patch.object(P, "fifo_note"):
+            P.run("wechat", None, yes=True)
+            self.assertIn("--go", sp.call_args.args[0])
 
     def test_fifo_dry_run_never_spawns_and_never_picks(self):
         def boom(*a, **kw):
@@ -231,8 +252,11 @@ class Bili2Fifo(unittest.TestCase):
         orig = P.subprocess.call
         P.subprocess.call = boom
         try:
-            # 2026-11-07 无记录 ⇒ 档期给 game ⇒ 走到 FIFO 分支
-            rc = P.run("bilibili2", None, yes=False, day="2026-11-07")
+            # 原写死 day=2026-11-07：当天二号真发过 1 篇后，配额闸会拦成
+            # rc=1 ⇒ 测试变成「依赖真实台账」。这里注入档期，只钉「干跑不落子进程」。
+            with mock.patch.object(P.SLOT, "decide",
+                                   return_value={"kind": "game"}):
+                rc = P.run("bilibili2", None, yes=False)
             self.assertEqual(rc, 0)
         finally:
             P.subprocess.call = orig

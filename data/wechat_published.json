@@ -529,5 +529,13 @@
     "status": "published",
     "appmsgid": "",
     "file": ""
+  },
+  "wx-100000267": {
+    "title": "把「我知道要发内容，但没时间写」做成订阅：AI LinkedIn 代写 + 自动发布：给 B2B 顾问做 12 周内容策略",
+    "status": "published",
+    "published_at": "2026-11-07 10:45",
+    "appmsgid": "100000267",
+    "note": "｜publish模式自动发表，新 appmsgid=2247485034",
+    "verified_at": "2026-11-07 10:45"
   }
 }

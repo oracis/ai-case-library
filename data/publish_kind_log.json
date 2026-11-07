@@ -85,6 +85,11 @@
     "case_id": "shipfast",
     "kind": "ai",
     "at": "2026-11-06 13:59"
+   },
+   {
+    "case_id": "ext-ep-004-quake",
+    "kind": "game",
+    "at": "2026-11-07 10:48"
    }
   ],
   "wechat": [
@@ -102,6 +107,12 @@
     "case_id": "upvoty",
     "kind": "ai",
     "at": "2026-11-06 13:40"
+   },
+   {
+    "at": "2026-11-07 10:47",
+    "case_id": "wx-100000267",
+    "kind": "ai",
+    "note": "send-draft FIFO 最久草稿"
    }
   ],
   "bilibili": [

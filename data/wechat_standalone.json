@@ -172,5 +172,19 @@
     "draft_appmsgid": "100001373",
     "appmsgid": "2247485022",
     "note": "群发成功：remote 已发表列表标题命中（sync 实读 appmsg_id=2247485022）；草稿 id 100001373"
+  },
+  "wx-100000267": {
+    "title": "把「我知道要发内容，但没时间写」做成订阅：AI LinkedIn 代写 + 自动发布：给 B2B 顾问做 12 周内容策略",
+    "desc": "AI LinkedIn 代写 + 自动发布：给 B2B 顾问做 12 周内容策略",
+    "tag": "",
+    "published_at": "2026-11-07 10:45",
+    "status": "published",
+    "appmsgid": "100000267",
+    "file": "",
+    "note": "wechat_fifo 对账补登（远端草稿箱实存）",
+    "published_appmsgid": "2247485034",
+    "publish_type": "publish",
+    "sent_via": "send",
+    "send_reason": "草稿已消失且出现新记录（标题未比上，以新记录为准）"
   }
 }

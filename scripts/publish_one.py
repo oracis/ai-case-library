@@ -102,7 +102,8 @@ GAME_FILE = {
 
 # 发布终点：draft = 脚本只能到草稿（后台还得人点一下），published = 真发表
 TERMINAL = {
-    "wechat": "draft",       # 订阅号只能存草稿，群发必须后台点
+    # FIFO 默认路径是 send（真发表，但需管理员微信扫码）；只有 --new 新写才是草稿。
+    "wechat": "published",
     "toutiao": "published",
     "xhs": "published",
     "bilibili": "published",
@@ -151,7 +152,8 @@ BUILD = {
 
 # 回读：发完去哪查「是不是真落了」
 VERIFY_HINT = {
-    "wechat": "后台「草稿箱」可见即成功；群发要人工点（台账不记草稿）",
+    "wechat": "FIFO：已发表列表按标题命中 + 台账 status=published（发布模式需扫码）；"
+              "--new 路径只到草稿，群发仍要后台点",
     "toutiao": "「已发表」列表按标题命中才算成功（内容管理里的草稿不算）",
     "xhs": "data/xhs_published.json 按标题；创作中心笔记列表复核",
     "bilibili": "data/bili_published.json + 创作中心稿件列表",
@@ -585,7 +587,12 @@ def upload_remote(platform, case, dry=False):
 #   旧稿 —— 要同步得先跑 `bili2_draft_refresh.py` 再发。
 #   ⚠ 二号是**另一个账号**：端口 9224 + chrome-bili2-profile，靠环境变量切换，
 #   见 `BILI2_ENV`。漏传就会在一号的浏览器里找二号草稿箱（症状像「箱空」）。
-FIFO_PLATFORMS = ("bilibili", "xhs", "bilibili2")
+# 🚨 2026-11-07 补上公众号：11-03 定「草稿箱是 FIFO」时只接了 B站/小红书，
+#    wechat 仍是 `publish --file` 新写 ⇒ 11-07 又往箱里塞了第 12 条，且与
+#    10-31 已发表的《游戏厅：Freedoom》同标题重复（`ep-*` / `ext-ep-*` 两套
+#    id 让 dedupe 没拦住）。公众号走 `wechat_fifo.py`（远端对账 + 剔已发表
+#    同名 + 按 update_time 挑最久），不是 send-draft，见 FIFO 分支与脚本模块头。
+FIFO_PLATFORMS = ("bilibili", "xhs", "bilibili2", "wechat")
 
 # 二号账号的进程环境（与 `cover_verify` 的能力表、`_launch_cdp.py --name bili2` 同值）。
 # `bilibili_publish.PUB_PORT` 读 `CDP_BILI_PORT`，profile 读 `CDP_PLAT_PROFILE`。
@@ -627,6 +634,18 @@ def fifo_note(platform):
                         and (b.get("at") or "")[:10] == SLOT.today():
                     if (b.get("at") or "") > best:
                         best, cid = b.get("at"), c
+        elif platform == "wechat":
+            # send 自己写两本台账；这里按「今天 + sent_via=send」反查刚发的那条。
+            # 不补就会漏记档期（明天按上次类型又轮到同一类）。
+            today = SLOT.today()
+            best = ""
+            for path in ("wechat_published.json", "wechat_standalone.json"):
+                for c, r in (_load(path) or {}).items():
+                    r = r or {}
+                    at = str(r.get("published_at") or "")
+                    if (r.get("status") == "published" and at.startswith(today)
+                            and r.get("sent_via") == "send" and at > best):
+                        best, cid = at, c
         else:  # xhs：台账是 [{id, at}, …]，取今天最新一条
             rows = _load("xhs_published.json") or []
             today = SLOT.today()
@@ -692,6 +711,17 @@ def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
             print(json.dumps({"platform": platform, "mode": "fifo"},
                              ensure_ascii=False))
             return 0
+        if platform == "wechat":
+            # 公众号的「最久」必须按**远端对账**算：本地台账滞后，且草稿箱里
+            # 混着已发表过的同名旧稿。干跑也做一次只读对账，让人先看到今天
+            # 要发箱里哪一条；真发加 --go，最后一步仍需管理员扫码。
+            cmd = [PY, "-X", "utf8", os.path.join(SCRIPTS, "wechat_fifo.py"),
+                   "--list"] + (["--go"] if yes else [])
+            print("  ⚠ 终点=发表（发布模式不推送、不占额度）；扫码框出现后需管理员微信扫")
+            rc = subprocess.call(cmd, cwd=ROOT, env=_fifo_env(platform))
+            if rc == 0 and yes:
+                fifo_note(platform)
+            return rc
         script = ("xhs_publish.py" if platform == "xhs"
                   else "bilibili_publish.py")
         if platform == "bilibili2":
