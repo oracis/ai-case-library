@@ -1780,6 +1780,36 @@ def _pick_target_draft(pool, cid=None):
     return (d, "--case %s（%s）" % (cid, why)) if d else (None, why)
 
 
+def _draft_case_id(title, by_title, plat, cases, games_cache=None):
+    """草稿标题 → case_id。**挑稿剔重与发布记账共用这一份认亲口径**。
+
+    🚨 PRD #90：从前 `send_draft` 后半段自己反查一遍 case、前半段过滤却只按
+       manifest 的 `remote_id` / `title`（建稿时的标题镜像，#83）⇒ 两处口径
+       不同，挑稿时认不出「标题改过的已发案例」（二号箱内 8 条 11-06 全换过
+       标题）。抽成一个函数后，挑稿阶段就能按 (case_id, platform) 剔重。
+
+    by_title:  归一标题 → case_id，由本账号的 manifest 平台键构造
+    cases:     `load_cases()` 结果，只在标题反查不到时按案例名兜底
+    """
+    nw = re.sub(r"\s+", "", title or "")
+    if nw and nw in by_title:
+        return by_title[nw]
+    if plat == "bilibili2":
+        cache = games_cache if games_cache is not None else {}
+        if title not in cache:
+            try:
+                cache[title] = _cid_from_games(title) or ""
+            except Exception:                       # noqa: BLE001
+                cache[title] = ""
+        if cache[title]:
+            return cache[title]
+    for c in cases or []:
+        nm = re.sub(r"\s+", "", c.get("name") or "")
+        if nm and (nm in nw or nw in nm):
+            return c["id"]
+    return ""
+
+
 def ui_publish_draft(cdp=None, aid=None, cid=None, title="", dry=False,
                      keep_tab=False):
     """**真发布**一条已有草稿（编辑器 UI 点「发布」）。返回 (ok, 说明)。
@@ -1956,6 +1986,36 @@ def send_draft(cdp=None, dry=False, cid=None):
         if not pool:
             print("  ✗ 草稿箱里没有未发布的草稿了（全 published）")
             return (False, None, None, None)
+        # 🚨 PRD #90：FIFO 绕过 11 闸，上面那道只按 remote_id / title 剔重，
+        #    而 manifest 的 title 是**建稿时的镜像** —— 标题改过就认不出，
+        #    11-07 小红书 divine-widgets 就是这么重复发的。再按
+        #    (case_id, platform) 剔一次，读口与公众号 / 小红书共用。
+        import fifo_dedupe as FD
+        by_title = {}
+        for _c, d in m.items():
+            t = re.sub(r"\s+", "", (d.get(plat) or {}).get("title") or "")
+            if t:
+                by_title.setdefault(t, _c)
+        all_cases = load_cases()
+        games_cache = {}
+        extra = ()
+        if plat == "bilibili2":
+            # 二号的真账簿在游戏仓，本仓 db 里查不到（PRD #72 ②）
+            try:
+                import games_state as GS
+                extra = [r.get("case") for r in GS.published("bilibili2")]
+            except Exception:                       # noqa: BLE001
+                extra = ()
+        pub_cases = FD.published_case_ids(plat, extra=extra)
+        pool, _dup_cases = FD.filter_rows(
+            pool, plat,
+            lambda d: _draft_case_id(d.get("title") or "", by_title, plat,
+                                     all_cases, games_cache),
+            case_ids=pub_cases, label="B站FIFO")
+        if not pool:
+            print("  ✗ 草稿箱里 %d 条全是已发表案例的旧稿 ⇒ 先 `--new` 新写"
+                  % len(_dup_cases))
+            return (False, None, None, None)
         # 挑哪条：给了 cid 就挑**属于它**的那条，否则挑存入最久的。
         # ⚠ 早期版本不管 --case 取什么都发最久那条，cid 只用来反查 ——
         #   `send-draft --case foo` 实际发的是别人的草稿，还把账记到 foo 头上。
@@ -1974,25 +2034,10 @@ def send_draft(cdp=None, dry=False, cid=None):
                                        dry=True)
             print("  → %s" % why)
             return (ok, None, aid, title)
-        # 反查 cid：先按清单**本账号**的平台键精确匹配 title；失败则退化用案例名匹配
-        # （线上草稿标题可能被改过，与清单记录不一致，如 divine-widgets）
-        target = cid
-        if not target:
-            nw = re.sub(r"\s+", "", title)
-            for _c, d in m.items():
-                b = d.get(plat) or {}
-                if re.sub(r"\s+", "", b.get("title") or "") == nw:
-                    target = _c
-                    break
-        if not target and plat == "bilibili2":
-            # 二号的稿是游戏仓期次，`cases.json` 里没有它 ⇒ 补一路游戏仓反查
-            target = _cid_from_games(title)
-        if not target:
-            for c in load_cases():
-                nm = re.sub(r"\s+", "", c.get("name") or "")
-                if nm and (nm in nw or nw in nm):
-                    target = c["id"]
-                    break
+        # 反查 cid：与挑稿剔重**同一口径**（先本账号清单标题、再游戏仓
+        # 期次、最后案例名），别再各写一份导致两处认亲不一致。
+        target = cid or _draft_case_id(title, by_title, plat, all_cases,
+                                       games_cache)
         if not target:
             print("  ✗ 反查不到《%s》对应的 case（清单/案例名都匹配不上），"
                   "请用 --case 指定" % title)

@@ -2792,12 +2792,17 @@ def _published_case_ids_union():
     🚨 `_published_ids()` 是「db 有数据就只认 db」的迁移期读口：本机 db 只有
        8 条 xhs published、JSON 快照却有 32 条 ⇒ 拿它做剔重会漏掉 24 个已发
        案例。FIFO 判重必须取并集（与 B站二号「两本账并集算配额」同口径）。
+
+    📌 11-07 起其余 FIFO 入口统一走 `fifo_dedupe.published_case_ids()`；
+       本函数保留是因为 6 项既有单测按它 mock，且实测与共用读口**逐条一致**
+       （`test_fifo_dedupe.TestXhsSameCaliber` 锁死，真库 33 条）。别改口径。
     """
     ids = set(x for x in (_published_ids() or []) if x)
     p = _pub_file()
     if os.path.isfile(p):
         try:
-            d = json.load(open(p, encoding="utf-8"))
+            with open(p, encoding="utf-8") as f:
+                d = json.load(f)
             rows = (list(d.keys()) if isinstance(d, dict)
                     else [e.get("id") for e in d if isinstance(e, dict)])
             ids |= set(x for x in rows if x)

@@ -169,6 +169,12 @@
     "case_id": "coral",
     "kind": "ai",
     "note": "send-draft FIFO 最久草稿"
+   },
+   {
+    "at": "2026-11-07 17:00",
+    "case_id": "search1api",
+    "kind": "ai",
+    "note": "send-draft FIFO 最久草稿"
    }
   ]
  }

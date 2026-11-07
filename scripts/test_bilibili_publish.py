@@ -1204,7 +1204,12 @@ class TestBili2Fifo(unittest.TestCase):
         self.assertIn("_plat()", src)
         self.assertNotIn('d.get("bilibili")', src,
                          "send_draft 里写死平台键 ⇒ 二号读不到自己的记录")
-        self.assertIn("_cid_from_games(", src, "二号反查那一路不许被删掉")
+        # 11-07：反查抽到 `_draft_case_id`（挑稿剔重与记账共用），
+        # 等价保护改成「send_draft 调它 + 它内部仍保留游戏仓那一路」。
+        self.assertIn("_draft_case_id(", src, "共用认亲函数不许被绕开")
+        helper = inspect.getsource(bp._draft_case_id)
+        self.assertIn("_cid_from_games(", helper, "二号反查那一路不许被删掉")
+        self.assertIn('plat == "bilibili2"', helper)
 
 
 class TestCoverOfForDraft(unittest.TestCase):
@@ -1542,6 +1547,72 @@ class TestUiPublishReadback(unittest.TestCase):
         self.assertIn("_norm_title", src)
         # 记账用回读 id，不是草稿 aid
         self.assertIn("_mark_manifest_published(cid, published_id, title)", src)
+
+
+class TestFifoDedupeByCase(unittest.TestCase):
+    """PRD #90：B站 FIFO 原来只按 manifest 的 remote_id / title 剔重。
+
+    manifest 的 title 是建稿时的镜像（#83），线上标题 11-06 换过 8 条，
+    改过就认不出 ⇒ 同案例旧稿会被再发一次（小红书 divine-widgets 已踩）。
+    挑稿阶段必须按 (case_id, platform) 剔，且与发布记账共用认亲函数。
+    """
+
+    DRAFTS = [
+        {"article_id": "1", "title": "Divine：给站长卖网站挂件", "mtime": 100},
+        {"article_id": "2", "title": "最久未发稿", "mtime": 200},
+        {"article_id": "3", "title": "认不出的孤儿", "mtime": 300},
+    ]
+    MANIFEST = {
+        "divine-widgets": {"bilibili": {
+            "title": "Divine：给站长卖网站挂件"}},
+        "coral": {"bilibili": {"title": "最久未发稿"}},
+    }
+
+    def _run(self, published_cases):
+        with mock.patch.object(bp, "_api_tab"), \
+                mock.patch.object(bp.bili_api, "list_drafts",
+                                  return_value=list(self.DRAFTS)), \
+                mock.patch.object(bp, "_load_manifest",
+                                  return_value=self.MANIFEST), \
+                mock.patch.object(bp, "_plat", return_value="bilibili"), \
+                mock.patch.object(bp, "load_cases", return_value=[]), \
+                mock.patch("fifo_dedupe.published_case_ids",
+                           return_value=set(published_cases)), \
+                mock.patch.object(bp, "ui_publish_draft",
+                                  return_value=(True, "dry ok")) as ui:
+            rc = bp.send_draft(cdp=object(), dry=True)
+        return rc, ui
+
+    def test_已发案例的旧稿被跳过(self):
+        rc, ui = self._run({"divine-widgets"})
+        self.assertEqual(rc[2], "2")            # 最久的已发稿被剔，挑下一条
+        self.assertEqual(ui.call_args.kwargs["title"], "最久未发稿")
+
+    def test_认不出case的孤儿稿不被拦死(self):
+        rc, _ = self._run({"divine-widgets", "coral"})
+        self.assertEqual(rc[2], "3")
+
+    def test_没有已发案例时保持原口径(self):
+        rc, _ = self._run(set())
+        self.assertEqual(rc[2], "1")
+
+    def test_认亲函数挑稿与记账共用一份(self):
+        src = inspect.getsource(bp.send_draft)
+        self.assertIn("FD.filter_rows", src)
+        self.assertIn("_draft_case_id(title, by_title", src)
+        self.assertNotIn("for c in load_cases():", src,
+                         "记账处不许再写第二份认亲逻辑")
+
+    def test_归一标题与案例名兜底(self):
+        by_title = {"Divine：给站长卖网站挂件": "divine-widgets"}
+        self.assertEqual(bp._draft_case_id(
+            "Divine： 给站长卖网站挂件", by_title, "bilibili", []),
+            "divine-widgets")
+        self.assertEqual(bp._draft_case_id(
+            "Coral：托管你的开源 AI 助手", by_title, "bilibili",
+            [{"id": "coral", "name": "Coral"}]), "coral")
+        self.assertEqual(bp._draft_case_id(
+            "孤儿", by_title, "bilibili", []), "")
 
 
 if __name__ == "__main__":

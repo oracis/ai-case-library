@@ -41,6 +41,7 @@ ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 
 import atomicio  # noqa: E402
+import fifo_dedupe as FD  # noqa: E402
 import wechat_publish as wp  # noqa: E402
 import wechat_sync as ws  # noqa: E402
 
@@ -54,22 +55,30 @@ def norm_title(s):
     return re.sub(r"\s+", "", (s or "").lower())
 
 
-def pick_oldest(drafts, published):
-    """纯函数：从远端草稿里挑「最久且未在已发表列表出现同名」的一条。
+def pick_oldest(drafts, published, published_cases=None, case_of=None):
+    """纯函数：挑「最久且未发表过」的一条。
 
     drafts:    {appmsgid: {title, update_time, ...}}（fetch_draft_remote 的返回）
     published: [{title, appmsg_id, ...}]（fetch_published_remote 的返回）
+    published_cases: 已发案例集合（`fifo_dedupe.published_case_ids("wechat")`）
+    case_of:   callable(appmsgid) -> case_id；用 **appmsgid → 本地台账** 这个
+               稳定键认亲，不要用标题（标题会改，见 PRD #90）
 
     返回 (chosen, rows, stats)：chosen=(aid, item) 或 (None, None)；
     rows 是按存入时间升序排好的**全部可发候选**，供 --list 用。
 
     ⚠ 缺 `update_time` 的排到最后（不知道时间就不能自称「最久」）；
-    ⚠ 已发表列表只覆盖接口能翻到的页数（实测 45 条），更早的同名旧稿
-      剔不掉 —— 这是已知边界，send_one 里还有一道「编辑器说已发表」兜底。
+    ⚠ 两道剔重缺一不可：
+       ① 远端**已发表列表按标题**剔同名（发布模式发完列表可能滞后）；
+       ② 本地**按 (case_id, wechat)** 剔已发案例 —— ① 只翻得到接口给的
+          45 条，更早的旧稿、或标题被改过的旧稿（11-02 改过 xhs 那个）
+          全靠 ②。11-07 Freedoom 就是 ①没拦住、当时又没有 ② 才重复。
+    ⚠ 认不出 case_id 的孤儿草稿**保留**（`ensure_local_record` 补登的那些
+       `wx-<appmsgid>` 没有案例归属，拦了它们等于把箱锁死）。
     """
     pub_titles = {t for t in (norm_title(p.get("title")) for p in published) if t}
     stats = {"draft": len(drafts or {}), "published": len(published or []),
-             "dup": 0, "no_title": 0, "no_time": 0}
+             "dup": 0, "dup_case": 0, "no_title": 0, "no_time": 0}
     rows = []
     for aid, item in (drafts or {}).items():
         item = item or {}
@@ -87,6 +96,22 @@ def pick_oldest(drafts, published):
         if ts <= 0:
             stats["no_time"] += 1
         rows.append((ts, str(aid), item))
+    # 第二道：按 (case_id, wechat) 剔已发案例的旧标题稿
+    if published_cases is not None and case_of:
+        cache = {}
+
+        def _cid(_aid):
+            if _aid not in cache:
+                try:
+                    cache[_aid] = FD.norm(case_of(_aid))
+                except Exception:                       # noqa: BLE001
+                    cache[_aid] = ""
+            return cache[_aid]
+
+        before = len(rows)
+        rows = [r for r in rows
+                if not (_cid(r[1]) and _cid(r[1]) in published_cases)]
+        stats["dup_case"] = before - len(rows)
     rows.sort(key=lambda r: (r[0] <= 0, r[0], r[1]))
     stats["candidates"] = len(rows)
     return (rows[0][1], rows[0][2]) if rows else (None, None), rows, stats
@@ -178,11 +203,16 @@ def main(argv=None):
         os.environ["CHROME_HEADED"] = "1"
 
     drafts, pubs = read_remote(a.port)
-    (aid, item), rows, st = pick_oldest(drafts, pubs)
+    # 远端标题剔重之外，再按 (case_id, wechat) 剔一次：本地两本台账里的
+    # case_id 是稳定键，标题改过 / 远端列表翻不全时只有它认得出来。
+    pub_cases = FD.published_case_ids("wechat")
+    (aid, item), rows, st = pick_oldest(
+        drafts, pubs, published_cases=pub_cases,
+        case_of=lambda _aid: local_cid_of(_aid)[0])
     print("远端对账（只读）：草稿 %d 条 ｜ 已发表 %d 条 ｜ 同名已发剔除 %d 条 ｜ "
-          "无标题 %d ｜ 无时间戳 %d ⇒ 可发候选 %d 条"
-          % (st["draft"], st["published"], st["dup"], st["no_title"],
-             st["no_time"], st["candidates"]))
+          "已发案例剔除 %d 条 ｜ 无标题 %d ｜ 无时间戳 %d ⇒ 可发候选 %d 条"
+          % (st["draft"], st["published"], st["dup"], st["dup_case"],
+             st["no_title"], st["no_time"], st["candidates"]))
     if a.list:
         for ts, _aid, _it in rows[:10]:
             print("   %s  %s  《%s》" % (fmt_ts(ts), _aid, _it.get("title") or ""))
