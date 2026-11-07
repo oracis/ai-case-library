@@ -177,5 +177,12 @@
     "tc_state_at": "2026-11-07 16:23",
     "tc_article": "2778646",
     "updated": "2026-11-07 16:23:24"
+  },
+  "ext-ep-006-nethack": {
+    "tc_draft": "342483",
+    "tc_state": "published",
+    "tc_state_at": "2026-11-07 17:15",
+    "tc_article": "2778680",
+    "updated": "2026-11-07 17:15:25"
   }
 }

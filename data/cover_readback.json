@@ -49,6 +49,12 @@
    "evidence": "aid=376920 image_urls=http://article.biliimg.com/bfs/article/8b8f01b199b708858a440397f230a87f5432c04f.jpg",
    "source": "live",
    "state": "ok"
+  },
+  "tencentcloud": {
+   "at": "2026-11-07 17:15:25",
+   "evidence": "线上文章 2778680 卡片缩略图 background-image=https://developer.qcloudimg.com/http-save/yehe-12743977/9575430e5e52c383cdd664d00fffbcdf.jpg",
+   "source": "yun_finalize",
+   "state": "ok"
   }
  },
  "ext-ep-007-openttd": {

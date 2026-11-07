@@ -760,5 +760,18 @@
   },
   "via": "cdp-9228",
   "ts": "2026-11-07 16:17:14"
+ },
+ "ext-ep-006-nethack-2026-11-07-1": {
+  "case": "ext-ep-006-nethack",
+  "title": "NetHack，能玩死你的地牢模拟器",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "342483",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=342483"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-07 17:12:55"
  }
 }
