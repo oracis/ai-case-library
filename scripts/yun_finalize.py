@@ -1156,10 +1156,28 @@ def publish_aliyun(cdp, draft_id, community=None, cover_file="",
         import re
         m = re.search(r"/article/(\d+)", url)
         if m:
-            print("  ✅ 已发表: https://developer.aliyun.com/article/%s" % m.group(1))
-            ledger_set("__community__%s" % draft_id, published=m.group(1),
-                       published_at=time.strftime("%Y-%m-%d %H:%M:%S"))
-            return m.group(1)
+            aid = m.group(1)
+            # 🚨 2026-11-07：**跳转 ≠ 已公开**。阿里云新文发布后先进入
+            #   「内容审核中」：带登录态能看到全文与横幅，无登录态
+            #   /article/<id> 直接 404（实测 gojiberryai → 1780408，公开页
+            #   HTTP 404、登录态页头「内容审核中，请耐心等待」）。
+            #   旧写法把跳转写成「✅ 已发表」并落 published/published_at
+            #   ⇒ 台账假绿，公开页却打不开。按 PRD #70 口径：提交成功不算生效。
+            try:
+                page_txt = str(cdp.eval(
+                    "(document.body?document.body.innerText:'')") or "")
+            except Exception:                                  # noqa: BLE001
+                page_txt = ""
+            if "内容审核中" in page_txt:
+                print("  ⏳ 已提交，平台显示「内容审核中」⇒ 未公开、不算真发："
+                      "https://developer.aliyun.com/article/%s" % aid)
+                ledger_set("__community__%s" % draft_id, state="auditing",
+                           article=aid, published=None, published_at=None)
+            else:
+                print("  ✅ 已发表: https://developer.aliyun.com/article/%s" % aid)
+                ledger_set("__community__%s" % draft_id, published=aid,
+                           published_at=time.strftime("%Y-%m-%d %H:%M:%S"))
+            return aid
     raise SystemExit("阿里云发表：20s×2 内未见跳转，去页面人工确认（可能卡审核/弹窗）")
 
 

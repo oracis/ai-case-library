@@ -773,5 +773,18 @@
   },
   "via": "cdp-9228",
   "ts": "2026-11-07 17:12:55"
+ },
+ "gojiberryai-2026-11-07-1": {
+  "case": "gojiberryai",
+  "title": "GojiberryAI如何用云资源与工程实践构建AI获客引擎",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1708661",
+    "url": "https://developer.aliyun.com/article/new?edit=1708661#/"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-07 19:04:27"
  }
 }

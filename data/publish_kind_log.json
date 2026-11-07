@@ -176,6 +176,13 @@
     "kind": "ai",
     "note": "send-draft FIFO 最久草稿"
    }
+  ],
+  "aliyun": [
+   {
+    "case_id": "gojiberryai",
+    "kind": "ai",
+    "at": "2026-11-07 19:11"
+   }
   ]
  }
 }
