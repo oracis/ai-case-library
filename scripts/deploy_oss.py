@@ -47,6 +47,7 @@ import hashlib
 import hmac
 import json
 import os
+import re
 import sys
 import time
 import urllib.error
@@ -339,16 +340,18 @@ def _put_with_retry(oss, bucket, key, data, headers, tries=3):
     return last
 
 
-# 🚫 本脚本不做增量续传：`--resume` 参数与判据已于 2026-11-07 彻底移除（PRD #94）。
-# 原判据只比 Content-Length，同尺寸 ≠ 同内容；11-06 实测前台上传被 SIGTERM 留下
-# 半更新撕裂态（新页面 200 + 旧 data.json），续跑会把同尺寸坏对象当「已完成」跳过。
-# ⇒ 一律全量重传，传完跑 scripts/verify_deploy.py。
+# 🚫 默认入口永远是**全量重传**：`--resume` 参数与「只比 Content-Length」的判据已于
+# 2026-11-07 彻底移除（PRD #94）。11-06 实测前台上传被 SIGTERM 留下半更新撕裂态
+# （新页面 200 + 旧 data.json），只按尺寸续跑会把同尺寸坏对象当「已完成」跳过。
 # ⛔ 别再加回「弱网必加 --resume」或任何只按尺寸跳过的分支（历史证据见 PLAYBOOK-deploy.md 部署节 19）。
 # ✅ 2026-11-07 只读 + 最小化 PUT 实测（PRD #96）：OSS 普通 PUT 的**响应 ETag == 对象 MD5 的 hex**
 # （去引号、大小写归一），GET / HEAD 同样返回该 ETag；响应头 Content-MD5 是同一 digest 的 base64。
 # 带 Content-MD5 的 PUT 被 OSS 接受（sign() 的 StringToSign 已含该头，实测 200）。
 # ⇒ 每个对象 PUT 后直接比对响应 ETag，零额外请求即可确认「远端内容 == 本地」；
 #   不匹配 / 缺失一律判 FAIL，不许静默算成功。同尺寸不同内容 ETag 必不同（实测 A^64 vs B^64）。
+# ✅ 2026-11-07 23:5x 起增量/断点续传走**独立显式入口** scripts/deploy_incremental.py（PRD #98）：
+# 判据是 ListObjects 的 ETag == 本地 MD5 hex（且必须是普通 PUT 形态），不看尺寸；
+# 两条路径共用下面这个 put_verified()，不许各自复制一份校验逻辑。
 
 
 def _header(headers, name):
@@ -360,7 +363,58 @@ def _header(headers, name):
     return None
 
 
-def upload(oss, bucket, src_dir, prefix="", dry_run=False):
+# 普通 PUT 的 ETag == 对象内容 MD5 的 32 位 hex（PRD #96 实测，482/482）。
+# multipart 对象的 ETag 是 "<hex>-<分片数>"、Type=Multipart（PRD #98 实测），
+# 不等于内容 MD5 ⇒ 任何带后缀/非 hex 的 ETag 都不许拿来当「内容一致」的证据。
+_PLAIN_MD5_ETAG = re.compile(r"^[0-9a-f]{32}$")
+
+
+def norm_etag(value):
+    """去引号（OSS 的 ETag 带双引号）、去首尾空白、大小写归一。"""
+    return (value or "").strip().strip('"').strip("'").lower()
+
+
+def etag_is_plain_md5(value):
+    """是否普通 PUT 形态的 ETag；multipart 的 "-N" 后缀会在这里被拒。"""
+    return bool(_PLAIN_MD5_ETAG.match(norm_etag(value)))
+
+
+def put_verified(oss, bucket, key, data, ctype, cache):
+    """**唯一的写入口**：PUT 一个对象，并用实测语义确认「写进去的就是这份字节」。
+
+    全量重传（upload）与增量同步（deploy_incremental）都必须走这里，
+    否则两条路径的校验判据迟早漂移 —— 那正是 #94/#95 反复踩的坑。
+
+    返回 (ok, why, detail)：
+      True,  "OK",        etag                 远端 ETag == 本地 MD5
+      False, "NO-ETAG",   (expect, "")        响应没有 ETag
+      False, "BAD-ETAG",  (expect, remote)    ETag 不匹配（含同尺寸不同内容）
+      False, "FAIL",      (status, message)   非 200
+    """
+    digest = hashlib.md5(data).digest()
+    expect = digest.hex()
+    st, body, hd = _put_with_retry(oss, bucket, key, data, {
+        "Content-Type": ctype,
+        "Cache-Control": cache,
+        "Content-Length": str(len(data)),
+        # 服务端按 Content-MD5 校验 body 完整性；响应 ETag 再和本地 digest 对一次。
+        "Content-MD5": base64.b64encode(digest).decode("ascii"),
+        # 对象本身也要 public-read。Bucket 是 public-read 不代表对象自动继承。
+        "x-oss-acl": "public-read",
+    })
+    if st != 200:
+        msg = body.decode("utf-8", "replace")[:200].replace("\n", " ")
+        return False, "FAIL", (st, msg)
+    etag = norm_etag(_header(hd, "etag"))
+    if not etag:
+        return False, "NO-ETAG", (expect, "")
+    if etag != expect:
+        return False, "BAD-ETAG", (expect, etag)
+    return True, "OK", etag
+
+
+def collect_files(src_dir, prefix=""):
+    """扫描产物目录，返回按 key 排序的 [(本地路径, OSS key)]。"""
     files = []
     for root, _dirs, names in os.walk(src_dir):
         for n in sorted(names):
@@ -369,6 +423,11 @@ def upload(oss, bucket, src_dir, prefix="", dry_run=False):
             key = (prefix.strip("/") + "/" + rel).lstrip("/") if prefix else rel
             files.append((full, key))
     files.sort(key=lambda x: x[1])
+    return files
+
+
+def upload(oss, bucket, src_dir, prefix="", dry_run=False):
+    files = collect_files(src_dir, prefix)
 
     if not files:
         print("[!] %s 里没有文件，先跑 python scripts/build_static.py" % src_dir)
@@ -395,34 +454,19 @@ def upload(oss, bucket, src_dir, prefix="", dry_run=False):
             ok += 1
             continue
 
-
-        # 服务端按 Content-MD5 校验 body 完整性；响应 ETag 再和本地 digest 对一次，
-        # 双向确认「写进去的就是这份字节」。两者都是实测过的 OSS 语义，见模块头注释。
-        digest = hashlib.md5(data).digest()
-        expect_etag = digest.hex()
-        st, body, hd = _put_with_retry(oss, bucket, key, data, {
-            "Content-Type": ctype,
-            "Cache-Control": cache,
-            "Content-Length": str(len(data)),
-            "Content-MD5": base64.b64encode(digest).decode("ascii"),
-            # 对象本身也要 public-read。Bucket 是 public-read 不代表对象自动继承，
-            # 必须显式带 x-oss-acl，否则 OSS 给的 ACL 是 "default"，匿名 GET 会 403。
-            "x-oss-acl": "public-read",
-        })
-        if st == 200:
-            etag = (_header(hd, "etag") or "").strip('"').strip("'").lower()
-            if etag != expect_etag:
-                why = "NO-ETAG" if not etag else "BAD-ETAG"
-                print("  %-22s %10s  [%s] 本地 %s / 远端 %s"
-                      % (key, human(len(data)), why, expect_etag[:12], etag[:12] or "(无)"))
-                fail += 1
-                continue
+        good, why, detail = put_verified(oss, bucket, key, data, ctype, cache)
+        if good:
             verified += 1
             print("  %-22s %10s  %-10s %s" % (key, human(len(data)), cache.split(",")[0], ctype))
             ok += 1
-        else:
-            msg = body.decode("utf-8", "replace")[:200].replace("\n", " ")
+        elif why == "FAIL":
+            st, msg = detail
             print("  %-22s %10s  [FAIL] HTTP %s  %s" % (key, human(len(data)), st, msg))
+            fail += 1
+        else:
+            expect, remote = detail
+            print("  %-22s %10s  [%s] 本地 %s / 远端 %s"
+                  % (key, human(len(data)), why, expect[:12], remote[:12] or "(无)"))
             fail += 1
 
     print("  " + "-" * 74)
