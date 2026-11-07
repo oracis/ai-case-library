@@ -1790,7 +1790,15 @@ def ui_publish_draft(cdp=None, aid=None, cid=None, title="", dry=False,
       3. `publish_btn_state` + `publish_verdict` 判能不能点
          （投稿上限 / 按钮灰 都在这里中止，**不假装成功**）
       4. 点发布 → 可能有二次确认 → 等「提交成功」toast
-      5. **回读已发表列表**确认 aid 真出现了，才记账（清单 + ledger）
+      5. **回读已发表列表**确认这篇文章真出现了，才记账（清单 + ledger）
+
+    🚨 第 5 步不能只认建稿时的 aid（2026-11-07 实测踩过）：B站草稿一发表就
+    会**重分配专栏 cvid**（草稿 aid=376917 → 已发表 id=53797678），只按 aid
+    回读必然漏判 ⇒ 文章已经公开，脚本却报「失败」且不记账，第二天还可能重发。
+    现在两路认亲：aid 原样命中，或「标题精确命中 + 列表里新出现的 id」。
+    发布前先给已发表列表拍快照，是为了把「这次新发的」与「本来就有的同标题
+    旧文」分开 —— 否则按标题匹配会伪造成功（假绿）。快照抓不到时退回只认
+    aid，宁可报失败也不假绿。记账一律用**回读到的真实 id**，不是草稿 aid。
 
     ok=True 只在第 5 步命中时返回。返回 False 时说明里会写清卡在哪一步。
     """
@@ -1806,6 +1814,14 @@ def ui_publish_draft(cdp=None, aid=None, cid=None, title="", dry=False,
         if cid and not dry:
             if not _ensure_cover_remote(cdp, cid, draft):
                 return False, "封面没补上（不影响额度判断，但本次中止）"
+
+        # 1b) 发布前的「已发表列表」快照：按标题认亲时用来分辨新增 vs 旧文。
+        #     抓不到 ⇒ None（未知），第 5 步退回只认 aid，不假绿。
+        try:
+            before_ids = {str(a.get("id")) for a in
+                          (bili_api.list_published_articles(cdp, max_page=3) or [])}
+        except Exception:                                   # noqa: BLE001
+            before_ids = None
 
         # 2) 开编辑器
         tid = _open_editor_tab(cdp, aid)
@@ -1844,24 +1860,35 @@ def ui_publish_draft(cdp=None, aid=None, cid=None, title="", dry=False,
         if hint:
             print("    编辑器提示：%s" % hint)
 
-        # 5) 回读：只有「已发表列表里真的有这个 aid」才算成功
+        # 5) 回读：aid 原样命中，或「标题精确 + 列表里新出现的 id」命中。
         _api_tab(cdp)
-        found = False
+        published_id, how = None, ""
         end = time.time() + 40
         while time.time() < end:
             try:
-                pub = bili_api.list_published_articles(cdp, max_page=3)
+                pub = bili_api.list_published_articles(cdp, max_page=3) or []
             except Exception:                      # noqa: BLE001
                 pub = []
-            if any(str(a.get("id")) == str(aid) for a in pub):
-                found = True
+            for a in pub:
+                pid = str(a.get("id"))
+                if pid == str(aid):
+                    published_id, how = pid, "按草稿 aid 命中"
+                    break
+                if (before_ids is not None and pid not in before_ids and title
+                        and _norm_title(a.get("title")) == _norm_title(title)):
+                    published_id, how = pid, ("按标题命中（aid 重分配 %s → %s）"
+                                              % (aid, pid))
+                    break
+            if published_id:
                 break
             time.sleep(4)
-        if not found:
-            return False, ("点了发布但已发表列表里没找到 aid=%s —— "
-                           "**不记账**，去浏览器确认（可能撞了当日额度）" % aid)
+        if not published_id:
+            return False, ("点了发布但已发表列表里既没有 aid=%s，也没有新增的"
+                           "同标题文章 —— **不记账**，去浏览器确认（可能撞了"
+                           "当日额度或列表接口延迟）" % aid)
 
-        _mark_manifest_published(cid, aid, title)
+        # ⚠ 记账用回读到的真实 id：草稿 aid 在发表后已作废（2026-11-07 实测）。
+        _mark_manifest_published(cid, published_id, title)
         # 🚨 本仓 `ledger` 的 PLATFORMS 只有 `bilibili`（一号专属的
         #    bili_published.json），压根没有 `bilibili2`。此前这里写死一号，
         #    二号发布会把 `ext-ep-xxx` 记进一号的账 ⇒ 一号判重误拦。
@@ -1869,12 +1896,12 @@ def ui_publish_draft(cdp=None, aid=None, cid=None, title="", dry=False,
         if ledger_slot(cid)[0] == "bilibili":
             try:
                 import ledger as ld
-                ld.promote("bilibili", cid, aid, title=title,
+                ld.promote("bilibili", cid, published_id, title=title,
                            evidence="editor-ui-publish")
             except Exception as e:                 # noqa: BLE001
                 print("    ⚠ ledger 层同步失败（清单已记 published）：%s"
                       % str(e)[:80])
-        return True, "已发布并记账 aid=%s" % aid
+        return True, "已发布并记账 %s（%s）" % (published_id, how)
     finally:
         if not keep_tab and tid:
             try:
@@ -1973,7 +2000,9 @@ def send_draft(cdp=None, dry=False, cid=None):
         # 真发布：编辑器 UI 点「发布」→ 回读已发表列表
         ok, why = ui_publish_draft(cdp=cdp, aid=aid, cid=target, title=title)
         if ok:
-            print("  ✓ 《%s》已发布 aid=%s" % (title, aid))
+            # why 里带的是**回读到的真实 cvid**（发布后 aid 会重分配），
+            # 别只打印草稿 aid —— 否则日志看着像「发的是旧稿」。
+            print("  ✓ 《%s》已发布（草稿 aid=%s）：%s" % (title, aid, why))
         else:
             print("  ✗ 《%s》没发出去：%s" % (title, why))
         return (ok, target, aid, title)

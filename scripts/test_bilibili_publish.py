@@ -6,6 +6,7 @@
     python -m unittest test_bilibili_publish
 """
 import inspect
+import itertools
 import json
 import os
 import re
@@ -1421,6 +1422,126 @@ class TestBili2LedgerWrite(unittest.TestCase):
         """`ld.promote("bilibili")` 曾把二号记录写进 bili_published.json。"""
         src = inspect.getsource(bp.ui_publish_draft)
         self.assertIn('ledger_slot(cid)[0] == "bilibili"', src)
+
+
+class _FakeBiliCDP:
+    """ui_publish_draft 只用到 eval / close_target / close，不连浏览器。"""
+
+    def __init__(self):
+        self.closed = []
+
+    def eval(self, js, refresh_context=False):
+        if js == bp.JS_CLICK_PUBLISH:
+            return "clicked"
+        if js == bp.JS_CONFIRM_DIALOG:
+            return "no-dialog"
+        if js == bp.JS_SUCCESS_HINT:
+            return "提交成功"
+        return None
+
+    def close_target(self, tid):
+        self.closed.append(tid)
+
+    def close(self):
+        self.closed.append("cdp")
+
+
+class TestUiPublishReadback(unittest.TestCase):
+    """2026-11-07 事故回归：草稿 aid 发表后被重分配成专栏 cvid。
+
+    旧实现只按 aid 回读已发表列表 ⇒ 文章已公开却报「失败」且不记账
+    （草稿 376917 → 已发表 53797678，见 .workbuddy/memory/2026-11-07.md）。
+    修后两路认亲：aid 原样命中 / 标题精确命中且 id 是发布后新增的。
+    """
+
+    TITLE = "Quake：读一份 1999 年开源的 3D 引擎源码"
+    AID = "376917"
+    CVID = "53797678"
+    CID = "ext-ep-004-quake-b2"
+
+    def _run(self, before, after, title=None):
+        """跑完 ui_publish_draft 全流程（全部外部依赖打桩），返回 (ok, why, mark)。"""
+        cdp = _FakeBiliCDP()
+        title = self.TITLE if title is None else title
+        seq = iter([before] + [after] * 10)
+
+        def listed(*_a, **_k):
+            v = next(seq)
+            if isinstance(v, Exception):
+                raise v
+            return v
+
+        fake_time = mock.MagicMock()
+        fake_time.time.side_effect = itertools.count(0, 10).__next__
+        fake_time.sleep.return_value = None
+        patches = [
+            mock.patch.object(bp, "time", fake_time),
+            mock.patch.object(bp, "_api_tab", return_value=None),
+            mock.patch.object(bp.bili_api, "list_drafts", return_value=[]),
+            mock.patch.object(bp.bili_api, "list_published_articles",
+                              side_effect=listed),
+            mock.patch.object(bp, "_open_editor_tab", return_value="TAB1"),
+            mock.patch.object(bp, "_ensure_cover_remote", return_value=True),
+            mock.patch.object(bp, "publish_btn_state", return_value={}),
+            mock.patch.object(bp, "publish_verdict", return_value=(True, "可发布")),
+            mock.patch.object(bp, "ledger_slot",
+                              return_value=("bilibili2", "ext-ep-004-quake")),
+            mock.patch.object(bp, "_mark_manifest_published"),
+        ]
+        started = [p.start() for p in patches]
+        for p in patches:
+            self.addCleanup(p.stop)
+        ok, why = bp.ui_publish_draft(cdp=cdp, aid=self.AID, cid=self.CID,
+                                      title=title)
+        return ok, why, started[-1]
+
+    def _art(self, pid, title=None):
+        return [{"id": pid, "title": self.TITLE if title is None else title,
+                 "summary": ""}]
+
+    def test_aid重分配按标题命中且用真实cvid记账(self):
+        ok, why, mark = self._run([], self._art(self.CVID))
+        self.assertTrue(ok, why)
+        self.assertEqual(mark.call_args.args,
+                         (self.CID, self.CVID, self.TITLE))
+        self.assertIn("重分配", why)
+        self.assertIn(self.CVID, why)
+
+    def test_aid原样命中时不改变旧行为(self):
+        ok, why, mark = self._run([], self._art(self.AID))
+        self.assertTrue(ok, why)
+        self.assertEqual(mark.call_args.args[1], self.AID)
+        self.assertIn("按草稿 aid 命中", why)
+
+    def test_标题归一化后仍认亲(self):
+        spaced = "  Quake：读一份  1999 年开源的 3D 引擎源码 "
+        ok, why, mark = self._run([], self._art(self.CVID, spaced))
+        self.assertTrue(ok, why)
+        self.assertEqual(mark.call_args.args[1], self.CVID)
+
+    def test_历史同标题旧文不算这次发布成功(self):
+        old = self._art("999")
+        ok, why, mark = self._run(old, old)
+        self.assertFalse(ok)
+        self.assertIn("不记账", why)
+        mark.assert_not_called()
+
+    def test_新增的是别的文章不算成功(self):
+        ok, why, mark = self._run([], self._art(self.CVID, "另一篇完全不相干的文章"))
+        self.assertFalse(ok)
+        mark.assert_not_called()
+
+    def test_发布前快照抓不到时保守只认aid不假绿(self):
+        ok, why, mark = self._run(RuntimeError("CDP 抽风"), self._art(self.CVID))
+        self.assertFalse(ok)
+        mark.assert_not_called()
+
+    def test_源码必须保留双路认亲防回退(self):
+        src = inspect.getsource(bp.ui_publish_draft)
+        self.assertIn("before_ids", src)
+        self.assertIn("_norm_title", src)
+        # 记账用回读 id，不是草稿 aid
+        self.assertIn("_mark_manifest_published(cid, published_id, title)", src)
 
 
 if __name__ == "__main__":

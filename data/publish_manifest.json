@@ -1070,6 +1070,16 @@
   }
  },
  "ext-ep-004-quake": {
+  "bilibili2": {
+   "at": "2026-11-07 09:07 草稿箱→发布（send-draft）",
+   "attempt": 0,
+   "draft_id": "",
+   "note": "草稿箱→发布（send-draft）",
+   "remote_id": "53797678",
+   "state": "published",
+   "title": "Quake：读一份 1999 年开源的 3D 引擎源码",
+   "url": ""
+  },
   "tencentcloud": {
    "at": "2026-11-05 11:59",
    "attempt": 0,
