@@ -63,6 +63,11 @@
     "case_id": "ext-ep-003-freedoom",
     "kind": "game",
     "at": "2026-11-06 13:38"
+   },
+   {
+    "case_id": "gojiberryai",
+    "kind": "ai",
+    "at": "2026-11-07 11:05"
    }
   ],
   "csdn": [
