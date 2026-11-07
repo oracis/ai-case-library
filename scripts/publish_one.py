@@ -700,10 +700,22 @@ def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
         # 🚨 2026-11-04：FIFO 分支原本连档期都不看，直接 send-draft。
         #   「今日已到上限」时重跑一次就是第二篇 ⇒ 先把配额闸补上。
         d = SLOT.decide(platform, day, allow_same_kind=allow_same_kind)
-        if not d.get("kind"):
+        # 🚨 2026-11-07：`kind=None` 有三种来源，只有前两种是 FIFO 的真硬闸：
+        #   ① 平台冻结（frozen）② 当日配额已满（today_count >= quota）
+        #   ③ 「轮到的类无稿」——档期轮换/交替**只管新写选稿**（fifo_note 的
+        #      注释本来就写明「FIFO 发出的旧稿类型可能与当日档期不同」）。
+        #   旧代码三种一律 `return 1`，导致 11-07 小红书箱里明明存着 48 条草稿，
+        #   却因为「轮到游戏无稿」发不出去，与 11-03「草稿箱即 FIFO、箱空才新写」
+        #   的规则直接冲突（和公众号那次同源：入口按新写的判据卡住了旧稿）。
+        hard = (bool(d.get("frozen"))
+                or d.get("today_count", 0) >= d.get("quota", 1))
+        if not d.get("kind") and hard:
             print("✗ %s 今天不发/已到上限：%s" % (cn, d.get("blocked") or d.get("reason")))
             print("  （FIFO 发的是箱内存最久的一条；重跑前先按标题查已发表列表，别重发）")
             return 1
+        if not d.get("kind"):
+            print("  ⓘ 档期没有新稿可写（%s），但草稿箱里还有积压 ⇒ 按 FIFO 发最久一条"
+                  % (d.get("blocked") or d.get("reason")))
         print("▶ %s ｜ FIFO：发草稿箱里存入最久的一条（send-draft 默认）" % cn)
         print("  规则：箱空才新写 —— 那时加 --new 走当日档期选稿。")
         print("  ⚠ 这条路径不经过本地选稿；失败先查已发表列表，别原地重跑。")

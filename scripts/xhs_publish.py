@@ -1931,7 +1931,32 @@ def pick_draft(drafts, title=None, keyword=None):
             if want and want in norm_title(d.get("title")):
                 return d, "标题包含匹配"
         return None, "草稿箱里标题对不上「%s」" % title
-    return sorted(pool, key=lambda d: d.get("saved") or "")[0], "取存入最久的一条"
+    # 🚨 2026-11-07：FIFO 只按「存入最久」挑稿、不按案例剔已发 ⇒ 把 9-30
+    #   已发过的 divine-widgets 旧标题稿（《Divine：给站长卖网站挂件》）又发
+    #   了一遍。线上标题 11-02 被改成《每日经文放上锁屏…》，按标题比对同样
+    #   认不出来 ⇒ 必须走 `match_drafts` 认 case_id，再与两本账的并集比。
+    #   认不出案例的孤儿草稿**保留**：否则箱里那批孤儿永远发不出去。
+    #   显式 --title/--case 指定时不剔重（人工点名就是要发那一条）。
+    ordered = sorted(pool, key=lambda d: d.get("saved") or "")
+    pub = _published_case_ids_union()
+    try:
+        matched, _ = match_drafts(ordered)
+    except Exception:                                        # noqa: BLE001
+        matched = []
+    cid_by_title = {norm_title(m.get("title")): m.get("id")
+                    for m in matched if m.get("id")}
+    skipped = []
+    for d in ordered:
+        cid = cid_by_title.get(norm_title(d.get("title"))) or ""
+        if cid and cid in pub:
+            skipped.append("%s(%s)" % (d.get("title"), cid))
+            continue
+        if skipped:
+            print("[FIFO] 跳过 %d 条已发表案例的旧稿：%s"
+                  % (len(skipped), "；".join(skipped[:3])))
+        return d, "取存入最久且案例未发表过的一条"
+    return None, ("草稿箱里 %d 条全是已发表案例的旧稿 ⇒ 先 `--new` 新写"
+                  % len(skipped))
 
 
 def img_verdict(total, broken, fix=False):
@@ -2761,10 +2786,39 @@ def _published_ids():
     return [x.get("id") for x in d if isinstance(x, dict) and x.get("id")]
 
 
+def _published_case_ids_union():
+    """已发表案例 id 的**并集**（SQLite + JSON 快照），供 FIFO 剔重。
+
+    🚨 `_published_ids()` 是「db 有数据就只认 db」的迁移期读口：本机 db 只有
+       8 条 xhs published、JSON 快照却有 32 条 ⇒ 拿它做剔重会漏掉 24 个已发
+       案例。FIFO 判重必须取并集（与 B站二号「两本账并集算配额」同口径）。
+    """
+    ids = set(x for x in (_published_ids() or []) if x)
+    p = _pub_file()
+    if os.path.isfile(p):
+        try:
+            d = json.load(open(p, encoding="utf-8"))
+            rows = (list(d.keys()) if isinstance(d, dict)
+                    else [e.get("id") for e in d if isinstance(e, dict)])
+            ids |= set(x for x in rows if x)
+        except Exception:                                    # noqa: BLE001
+            pass
+    return ids
+
+
 def mark_published(cid):
-    """记账：xhs published。优先写 SQLite，双写 JSON 快照（供旧脚本只读兼容）。"""
+    """记账：xhs published。优先写 SQLite，双写 JSON 快照（供旧脚本只读兼容）。
+
+    🚨 2026-11-07：FIFO 挑出同案例旧稿重复发布时，这里对**已 published** 的
+       记录照样 `upsert_post` ⇒ 把 9-30 的 `published_at` 洗成当天（拿 now
+       覆盖历史快照日）。幂等记录整条跳过，与 JSON 层 `_mark` 同语义。
+    """
     conn = db.get_conn()
     try:
+        old = db.get_post(conn, cid, "xhs")
+        if (old or {}).get("state") == "published":
+            _mark(_pub_file(), cid)
+            return
         db.upsert_post(conn, cid, "xhs", {
             "state": "published",
             "remote_id": "",

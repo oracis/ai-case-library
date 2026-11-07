@@ -137,6 +137,12 @@
     "case_id": "ext-ep-001-super-mario-bros",
     "kind": "game",
     "at": "2026-11-06 13:41"
+   },
+   {
+    "at": "2026-11-07 11:21",
+    "case_id": "outrank",
+    "kind": "ai",
+    "note": "send-draft FIFO 最久草稿"
    }
   ],
   "cnblogs": [

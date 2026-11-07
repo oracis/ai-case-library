@@ -208,6 +208,42 @@ class FifoQueue(unittest.TestCase):
         # 不该走到 pick/闸：传一个必然让 pick 报错的假 day 也照样走 FIFO
         P.run("bilibili", None, yes=False, day="1999-01-01")
 
+    def test_轮到无稿但箱里有稿仍走FIFO(self):
+        """2026-11-07：小红书箱里 48 条，被「轮到游戏无稿」误挡。
+
+        档期轮换只管新写选稿；FIFO 发的是箱里的旧稿，与今天轮到哪类无关。
+        """
+        blocked = {"kind": None, "today_count": 0, "quota": 1,
+                   "blocked": "轮到「游戏」无稿可发", "reason": "轮到「游戏」无稿可发"}
+        with mock.patch.object(P.SLOT, "decide", return_value=blocked), \
+                mock.patch.object(P.subprocess, "call", return_value=0) as sp, \
+                mock.patch.object(P, "fifo_note"):
+            rc = P.run("xhs", None, yes=True)
+            self.assertEqual(rc, 0)
+            cmd = sp.call_args.args[0]
+            self.assertIn("xhs_publish.py", " ".join(cmd))
+            self.assertIn("send-draft", cmd)
+            self.assertNotIn("--dry", cmd)
+
+    def test_配额已满和冻结仍是硬闸(self):
+        """放行「无稿」不等于放行额度/禁言：这两条必须继续拒绝且不落子进程。"""
+        def boom(*a, **kw):
+            raise AssertionError("硬闸居然还起了 send-draft 子进程")
+        cases = [
+            {"kind": None, "today_count": 1, "quota": 1,
+             "reason": "今日已发 1 篇，达到上限 1"},           # B站二 11-07
+            {"kind": None, "today_count": 0, "quota": 3,
+             "frozen": "2026-11-10", "reason": "禁言冻结中"},  # 头条
+        ]
+        orig = P.subprocess.call
+        P.subprocess.call = boom
+        try:
+            for d in cases:
+                with mock.patch.object(P.SLOT, "decide", return_value=d):
+                    self.assertEqual(P.run("bilibili2", None, yes=True), 1)
+        finally:
+            P.subprocess.call = orig
+
     def test_new_flag_bypasses_fifo(self):
         # --new 必须走到「按档期选稿」；FIFO 默认路径则绝不碰 pick
         def boom_pick(*a, **kw):
