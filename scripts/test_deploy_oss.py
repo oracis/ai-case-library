@@ -6,7 +6,9 @@
 """
 
 import argparse
+import base64
 import contextlib
+import hashlib
 import io
 import json
 import os
@@ -439,7 +441,8 @@ class ResumeRemoved(unittest.TestCase):
             self.calls.append(method)
             if method == "HEAD":
                 return 200, b"", {"Content-Length": str(self.length)}
-            return 200, b"<ok/>", {}
+            # 真实 OSS 的 PUT 响应带 ETag == 对象 MD5（2026-11-07 实测，PRD #96）。
+            return 200, b"<ok/>", {"ETag": '"%s"' % hashlib.md5(body or b"").hexdigest().upper()}
 
     def _upload(self, n_files=2):
         with tempfile.TemporaryDirectory() as d:
@@ -488,6 +491,79 @@ class ResumeRemoved(unittest.TestCase):
         self.assertNotIn("HEAD", calls)
         self.assertNotIn("[SKIP]", out)
         self.assertNotIn("跳过", out)
+
+
+class ContentVerification(unittest.TestCase):
+    """逐对象内容校验（PRD #96）：PUT 带 `Content-MD5`，响应 ETag 与本地 MD5 硬比对。
+
+    实测依据：OSS 普通 PUT 响应 ETag == 对象 MD5 的 hex（大写、带引号），GET/HEAD 同值；
+    同尺寸不同内容 ETag 必不同。线上 `data.json` 与本地 `public/data.json` 曾同为
+    2584416 字节、只差末尾 generated_at 时间戳，MD5/ETag 完全不同 ⇒ 语义验收抓不到。
+    ⛔ 别退化成「HTTP 200 就算成功」或「只比 Content-Length」，也别让 NO-ETAG 静默通过。
+    """
+
+    class _OSS:
+        def __init__(self, mode="match"):
+            self.mode = mode                 # match / mismatch / missing
+            self.calls = []
+
+        def request(self, method, bucket="", key="", body=None, headers=None, subresource=""):
+            self.calls.append((method, dict(headers or {})))
+            d = hashlib.md5(body or b"").hexdigest()
+            if self.mode == "match":
+                hd = {"ETag": '"%s"' % d.upper()}
+            elif self.mode == "mismatch":
+                hd = {"ETag": '"%s"' % ("0" * 32)}   # 同尺寸、不同内容的远端
+            else:
+                hd = {}
+            return 200, b"<ok/>", hd
+
+    def _run(self, mode, n=2, dry_run=False):
+        with tempfile.TemporaryDirectory() as d:
+            for name in ["index.html", "app.css"][:n]:
+                with open(os.path.join(d, name), "wb") as f:
+                    f.write(b"x" * 64)
+            oss = self._OSS(mode)
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                rc = D.upload(oss, "bucket", d, dry_run=dry_run)
+            return rc, buf.getvalue(), oss.calls
+
+    def test_put_carries_content_md5(self):
+        rc, out, calls = self._run("match")
+        puts = [h for m, h in calls if m == "PUT"]
+        self.assertEqual(len(puts), 2)
+        for h in puts:
+            self.assertIn("Content-MD5", h)
+            self.assertEqual(base64.b64decode(h["Content-MD5"]),
+                             hashlib.md5(b"x" * 64).digest())
+
+    def test_matching_etag_passes_and_is_reported(self):
+        rc, out, calls = self._run("match")
+        self.assertEqual(rc, 0)
+        self.assertIn("ETag 校验通过 2", out)
+        self.assertNotIn("BAD-ETAG", out)
+        self.assertNotIn("NO-ETAG", out)
+
+    def test_mismatched_etag_is_a_hard_failure(self):
+        # 这正是「同尺寸 ≠ 同内容」的回归：HTTP 200 但远端 ETag 对不上，不许算成功。
+        rc, out, calls = self._run("mismatch")
+        self.assertNotEqual(rc, 0, "ETag 不匹配必须让整批返回非零")
+        self.assertIn("BAD-ETAG", out)
+        self.assertIn("失败 2", out)
+        self.assertNotIn("ETag 校验通过 2", out)
+
+    def test_missing_etag_is_a_hard_failure(self):
+        rc, out, calls = self._run("missing")
+        self.assertNotEqual(rc, 0, "拿不到 ETag 不许静默当成校验通过")
+        self.assertIn("NO-ETAG", out)
+
+    def test_dry_run_never_puts_or_claims_verification(self):
+        rc, out, calls = self._run("mismatch", dry_run=True)
+        self.assertEqual(rc, 0)
+        self.assertEqual(calls, [])
+        self.assertIn("未上传", out)
+        self.assertNotIn("ETag 校验通过", out)
 
 
 if __name__ == "__main__":

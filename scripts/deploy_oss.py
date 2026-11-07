@@ -344,6 +344,20 @@ def _put_with_retry(oss, bucket, key, data, headers, tries=3):
 # 半更新撕裂态（新页面 200 + 旧 data.json），续跑会把同尺寸坏对象当「已完成」跳过。
 # ⇒ 一律全量重传，传完跑 scripts/verify_deploy.py。
 # ⛔ 别再加回「弱网必加 --resume」或任何只按尺寸跳过的分支（历史证据见 PLAYBOOK-deploy.md 部署节 19）。
+# ✅ 2026-11-07 只读 + 最小化 PUT 实测（PRD #96）：OSS 普通 PUT 的**响应 ETag == 对象 MD5 的 hex**
+# （去引号、大小写归一），GET / HEAD 同样返回该 ETag；响应头 Content-MD5 是同一 digest 的 base64。
+# 带 Content-MD5 的 PUT 被 OSS 接受（sign() 的 StringToSign 已含该头，实测 200）。
+# ⇒ 每个对象 PUT 后直接比对响应 ETag，零额外请求即可确认「远端内容 == 本地」；
+#   不匹配 / 缺失一律判 FAIL，不许静默算成功。同尺寸不同内容 ETag 必不同（实测 A^64 vs B^64）。
+
+
+def _header(headers, name):
+    """大小写不敏感取响应头。用于读 PUT 响应的 ETag，**不是**续传判据用的辅助函数。"""
+    low = name.lower()
+    for k, v in (headers or {}).items():
+        if k.lower() == low:
+            return v
+    return None
 
 
 def upload(oss, bucket, src_dir, prefix="", dry_run=False):
@@ -366,7 +380,7 @@ def upload(oss, bucket, src_dir, prefix="", dry_run=False):
     print("  %-22s %10s  %-10s %s" % ("对象", "大小", "缓存", "Content-Type"))
     print("  " + "-" * 74)
 
-    ok = fail = 0
+    ok = fail = verified = 0
     total_bytes = 0
     for full, key in files:
         with open(full, "rb") as f:
@@ -382,15 +396,28 @@ def upload(oss, bucket, src_dir, prefix="", dry_run=False):
             continue
 
 
-        st, body, _hd = _put_with_retry(oss, bucket, key, data, {
+        # 服务端按 Content-MD5 校验 body 完整性；响应 ETag 再和本地 digest 对一次，
+        # 双向确认「写进去的就是这份字节」。两者都是实测过的 OSS 语义，见模块头注释。
+        digest = hashlib.md5(data).digest()
+        expect_etag = digest.hex()
+        st, body, hd = _put_with_retry(oss, bucket, key, data, {
             "Content-Type": ctype,
             "Cache-Control": cache,
             "Content-Length": str(len(data)),
+            "Content-MD5": base64.b64encode(digest).decode("ascii"),
             # 对象本身也要 public-read。Bucket 是 public-read 不代表对象自动继承，
             # 必须显式带 x-oss-acl，否则 OSS 给的 ACL 是 "default"，匿名 GET 会 403。
             "x-oss-acl": "public-read",
         })
         if st == 200:
+            etag = (_header(hd, "etag") or "").strip('"').strip("'").lower()
+            if etag != expect_etag:
+                why = "NO-ETAG" if not etag else "BAD-ETAG"
+                print("  %-22s %10s  [%s] 本地 %s / 远端 %s"
+                      % (key, human(len(data)), why, expect_etag[:12], etag[:12] or "(无)"))
+                fail += 1
+                continue
+            verified += 1
             print("  %-22s %10s  %-10s %s" % (key, human(len(data)), cache.split(",")[0], ctype))
             ok += 1
         else:
@@ -402,8 +429,8 @@ def upload(oss, bucket, src_dir, prefix="", dry_run=False):
     if dry_run:
         print("  dry-run：共 %d 个文件 / %s，未上传" % (ok, human(total_bytes)))
     else:
-        print("  上传完成：成功 %d · 失败 %d · 合计 %s"
-              % (ok, fail, human(total_bytes)))
+        print("  上传完成：成功 %d · 失败 %d · ETag 校验通过 %d · 合计 %s"
+              % (ok, fail, verified, human(total_bytes)))
     return 1 if fail else 0
 
 
