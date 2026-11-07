@@ -5,11 +5,15 @@
 跑法（在 scripts/ 目录下）：
     python -m unittest test_bilibili_publish
 """
+import inspect
+import json
 import os
 import re
 import subprocess
 import sys
+import tempfile
 import unittest
+from unittest import mock
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -978,6 +982,251 @@ class TestPickTargetDraft(unittest.TestCase):
         self.assertNotIn("oldest = pool[0]", src)
 
 
+class TestFindDraftByTitle(unittest.TestCase):
+    """`draft` 建稿前先按标题找既有草稿 —— 同标题就该**就地更新**。
+
+    2026-11-06：二号箱里 8 条 10-31 旧稿改好标题后，若档期每跑一次都新建
+    一条，重复稿一天多一条；而 send-draft 按标题认亲只发最久那条，剩下的
+    永远留在箱里，迟早被 FIFO 当新稿再投一次。
+    """
+
+    POOL = [
+        {"article_id": 376919, "title": "SuperTux：带内置关卡编辑器的平台跳跃游戏"},
+        {"article_id": 376930, "title": "SuperTux：带内置关卡编辑器的平台跳跃游戏"},
+        {"article_id": 376917, "title": "Quake：读一份 1999 年开源的 3D 引擎源码"},
+    ]
+
+    def _with(self, pool, fn):
+        old = bp.bili_api.list_drafts
+        try:
+            bp.bili_api.list_drafts = lambda cdp: pool
+            return fn()
+        finally:
+            bp.bili_api.list_drafts = old
+
+    def test_同标题多条取aid最大的(self):
+        d = self._with(self.POOL, lambda: bp._find_draft_by_title(
+            None, "SuperTux：带内置关卡编辑器的平台跳跃游戏"))
+        self.assertEqual(d["article_id"], 376930, "后建那条更可能是最近写入的")
+
+    def test_空白差异也能认出来(self):
+        d = self._with(self.POOL, lambda: bp._find_draft_by_title(
+            None, "  SuperTux：带内置关卡编辑器的 平台跳跃游戏 "))
+        self.assertIsNotNone(d)
+        self.assertEqual(d["article_id"], 376930)
+
+    def test_箱里没有就返回None(self):
+        d = self._with(self.POOL, lambda: bp._find_draft_by_title(
+            None, "箱里没有的标题"))
+        self.assertIsNone(d)
+
+    def test_读不到列表退回新建不拦发布(self):
+        def boom(cdp):
+            raise RuntimeError("CDP 抽风")
+
+        old = bp.bili_api.list_drafts
+        try:
+            bp.bili_api.list_drafts = boom
+            d = bp._find_draft_by_title(None, self.POOL[0]["title"])
+        finally:
+            bp.bili_api.list_drafts = old
+        self.assertIsNone(d, "读不到列表不许抛，退回新建老行为")
+
+    def test_cmd_draft真的带article_id且留了_new逃生口(self):
+        import inspect
+        src = inspect.getsource(bp.cmd_draft)
+        self.assertIn("_find_draft_by_title", src)
+        self.assertIn("article_id=(reuse or {}).get(\"article_id\")", src)
+        self.assertIn('getattr(args, "new"', src)
+
+
+class TestCaseTitle(unittest.TestCase):
+    """「按 case 认亲」用哪个标题 —— 二号不许走 `make_title` 的 30 字截断。
+
+    2026-11-06 实测：二号第 10 期标题 33 字
+    「Cataclysm-DDA：数据驱动的末日生存 Roguelike」被 `make_title` 截成
+    30 字后与箱里草稿标题不等 ⇒ `send-draft --case` 认亲失败 ⇒ 那条草稿
+    永远躺在箱里，而档期每天还照选它（dedupe 认为「已有草稿，可以发」）。
+    """
+
+    LONG = ("<section><h1>Cataclysm-DDA：数据驱动的末日生存 Roguelike</h1>"
+            "<p>正文</p></section>")
+
+    def test_二号标题不截断_原样取h1(self):
+        t = bp.case_title("ext-ep-010-cataclysm-dark-days-ahead-b2", self.LONG)
+        self.assertEqual(t, "Cataclysm-DDA：数据驱动的末日生存 Roguelike")
+        self.assertEqual(len(t), 33, "33 字必须原样带回，截成 30 就认不出亲")
+
+    def test_一号仍走make_title(self):
+        cid = "ext-ep-001-super-mario-bros"
+        self.assertEqual(bp.case_title(cid, self.LONG),
+                         bp.make_title(cid, self.LONG))
+
+    def test_没有h1时返回空串而不是瞎猜(self):
+        self.assertEqual(bp.case_title("ext-x-b2", "<section></section>"), "")
+
+    def test_认亲函数被_pick_target_draft用上(self):
+        """形变防护：别哪天又被改回 make_title。"""
+        import inspect
+        self.assertIn("case_title(", inspect.getsource(bp._pick_target_draft))
+
+
+class TestLedgerSlot(unittest.TestCase):
+    """`-b2` 是二号产物后缀，不是第二个 case —— 台账要拆成两列。"""
+
+    def test_二号剥后缀并换平台(self):
+        self.assertEqual(bp.ledger_slot("ext-ep-004-quake-b2"),
+                         ("bilibili2", "ext-ep-004-quake"))
+
+    def test_一号不动(self):
+        self.assertEqual(bp.ledger_slot("ext-ep-001-super-mario-bros"),
+                         ("bilibili", "ext-ep-001-super-mario-bros"))
+        self.assertEqual(bp.ledger_slot("chessigma"),
+                         ("bilibili", "chessigma"))
+
+    def test_写账走ledger_slot而不是写死bilibili(self):
+        """二号的发布记录曾写进 platform='bilibili'（一号的账）。"""
+        import inspect
+        src = inspect.getsource(bp._mark_manifest_published)
+        self.assertIn("ledger_slot(", src)
+        self.assertNotIn('"bilibili", {', src)
+        self.assertIn("setdefault(platform, {})", src)
+
+
+class TestBili2Fifo(unittest.TestCase):
+    """二号进 FIFO 后「哪个账号」必须从端口推出来（2026-11-06 晚）。
+
+    二号此前不进 FIFO（箱里积着 8 条旧栏目稿）；那批已换成技术向标题、
+    正文对齐母版、删掉栏目标语，理由消失。进 FIFO 后 `send-draft` 不带
+    `--case`，认亲之前手里没有 cid —— 身份只能靠「本进程连的是哪个浏览器」，
+    也就是 `PUB_PORT`。判错的后果不是报错而是**读错账**：
+
+    * 二号进程按 `bilibili` 读 ⇒ 二号的已发记录一条都读不到（它们记在
+      `bilibili2` 下）⇒ FIFO 的「排除已发布」形同虚设；
+    * 二号进程按 `bilibili` 反查标题 ⇒ 在**一号**的标题里空转 ⇒ 报
+      「反查不到 case」⇒ FIFO 根本开不起来。
+    """
+
+    def setUp(self):
+        self._port = bp.PUB_PORT
+        self._root = bp.ROOT
+        self._posts = bp.db.get_posts_by_platform
+        self._conn = bp.db.get_conn
+        self._close = bp.db.close_conn
+
+    def tearDown(self):
+        bp.PUB_PORT = self._port
+        bp.ROOT = self._root
+        bp.db.get_posts_by_platform = self._posts
+        bp.db.get_conn = self._conn
+        bp.db.close_conn = self._close
+
+    def test_按端口切台账平台键(self):
+        bp.PUB_PORT = 9224
+        self.assertEqual(bp._plat(), "bilibili2", "二号必须读自己的账")
+        bp.PUB_PORT = 9223
+        self.assertEqual(bp._plat(), "bilibili", "一号不许读到二号的账")
+
+    def test_二号清单含bilibili2记录且整本不残缺(self):
+        """二号进程的 `_load_manifest` 要覆盖 bilibili2，且不许把一号剪掉。"""
+        tmp = tempfile.mkdtemp()
+        os.makedirs(os.path.join(tmp, "data"))
+        with open(os.path.join(tmp, "data", "publish_manifest.json"),
+                  "w", encoding="utf-8") as f:
+            json.dump({"chessigma": {"bilibili": {"state": "published",
+                                                 "title": "国际象棋"}}}, f)
+        bp.ROOT = tmp
+        bp.PUB_PORT = 9224
+        bp.db.get_conn = lambda: None
+        bp.db.close_conn = lambda conn=None: None
+        bp.db.get_posts_by_platform = lambda conn, plat, **kw: (
+            [{"case_id": "ext-ep-004-quake", "state": "published",
+              "remote_id": "123", "title": "Quake 的引擎源码，够读一整年"}]
+            if plat == "bilibili2" else [])
+        m = bp._load_manifest()
+        self.assertEqual(m["ext-ep-004-quake"]["bilibili2"]["remote_id"], "123")
+        self.assertEqual(m["chessigma"]["bilibili"]["title"], "国际象棋",
+                         "JSON 底座里的其他平台记录不许被裁掉")
+
+    def test_反查游戏仓标题带b2后缀(self):
+        """二号标题来自游戏仓 meta.title_alt，cases.json 里没有它。"""
+        import games_state as GS
+        rows = [{"case": "ep-004-quake", "state": "drafted",
+                 "title": "Quake 的引擎源码，够读一整年"}]
+        with mock.patch.object(GS, "entries", lambda *a, **kw: rows):
+            self.assertEqual(
+                bp._cid_from_games("Quake 的引擎源码，够读一整年"),
+                "ext-ep-004-quake-b2",
+                "必须带 -b2，否则账会记进一号")
+            self.assertIsNone(bp._cid_from_games("完全不同的一条标题"))
+
+    def test_反查游戏仓标题_台账是旧栏目写法也能命中(self):
+        """真实形状：台账 title 还是「游戏厅：Quake」，箱里已被刷新成技术向标题。
+
+        2026-11-06 实拍：只比台账 `title` 时 8 条一条都反查不到（ep-001/ep-002
+        没刷新过反而能中），send-draft 卡在「请用 --case 指定」。这里把台账
+        钉成旧写法、产物 h1 钉成新写法，要求**按箱里的标题**也能认出来。
+        """
+        import games_state as GS
+        rows = [{"case": "ep-004-quake", "state": "drafted",
+                 "title": "游戏厅：Quake"}]
+        html = ('<html><body><h1>Quake：读一份 1999 年开源的 3D 引擎源码</h1>'
+                '</body></html>')
+        with mock.patch.object(GS, "entries", lambda *a, **kw: rows), \
+                mock.patch.object(bp, "load_article_html", lambda cid: html), \
+                mock.patch.object(GS, "GAMES_ROOT", "Z:/no/such/games-repo"):
+            self.assertEqual(
+                bp._cid_from_games("Quake：读一份 1999 年开源的 3D 引擎源码"),
+                "ext-ep-004-quake-b2",
+                "箱里的标题（= 产物 h1）必须能认亲")
+            self.assertEqual(bp._cid_from_games("游戏厅：Quake"),
+                             "ext-ep-004-quake-b2",
+                             "没刷新过的旧稿仍按台账写法认亲")
+
+    def test_反查游戏仓标题_meta_title_alt兜底(self):
+        """产物 h1 读不到时（产物被删/重建过），退回母版 meta.title_alt。"""
+        import games_state as GS
+        rows = [{"case": "ep-004-quake", "state": "drafted", "title": "游戏厅：Quake"}]
+        tmp = tempfile.mkdtemp()
+        os.makedirs(os.path.join(tmp, "content", "ep-004-quake"))
+        with open(os.path.join(tmp, "content", "ep-004-quake", "meta.json"),
+                  "w", encoding="utf-8") as f:
+            json.dump({"title_alt": "Quake：从零读引擎"}, f)
+        with mock.patch.object(GS, "entries", lambda *a, **kw: rows), \
+                mock.patch.object(bp, "load_article_html", lambda cid: None), \
+                mock.patch.object(GS, "GAMES_ROOT", tmp):
+            self.assertEqual(bp._cid_from_games("Quake：从零读引擎"),
+                             "ext-ep-004-quake-b2")
+
+    def test_send_draft按账号读账_形变防护(self):
+        src = inspect.getsource(bp.send_draft)
+        self.assertIn("_plat()", src)
+        self.assertNotIn('d.get("bilibili")', src,
+                         "send_draft 里写死平台键 ⇒ 二号读不到自己的记录")
+        self.assertIn("_cid_from_games(", src, "二号反查那一路不许被删掉")
+
+
+class TestCoverOfForDraft(unittest.TestCase):
+    """`draft` 要在草稿还在时把封面读出来（`COVER_URL=` / `COVER_EMPTY=`）。
+
+    发表后草稿变文章，草稿接口就查不到这一篇 ⇒ cover_remote 永远 unknown。
+    """
+
+    def test_有封面返回URL(self):
+        self.assertEqual(
+            bp._cover_of({"origin_image_urls": ["http://a/1.jpg"]}), "http://a/1.jpg")
+        self.assertEqual(bp._cover_of({"image_urls": "http://a/2.jpg"}), "http://a/2.jpg")
+
+    def test_没有封面返回空串_且不看banner_url(self):
+        self.assertEqual(bp._cover_of({"banner_url": "http://a/b.jpg"}), "")
+
+    def test_cmd_draft会打印封面两行(self):
+        import inspect
+        src = inspect.getsource(bp.cmd_draft)
+        self.assertIn("COVER_URL=", src)
+        self.assertIn("COVER_EMPTY=", src)
+
+
 class TestPublishStateJs(unittest.TestCase):
     """挖状态/点击的三段 JS 必须真的查 iframe、真的判 disabled。
 
@@ -1117,6 +1366,61 @@ class TestPublishAllIdempotent(unittest.TestCase):
         """_local_done_ids 对真实数据应返回非空（防读取路径写坏）。"""
         done = bp._local_done_ids()
         self.assertIn("bustem", done)
+
+
+class TestBili2LedgerWrite(unittest.TestCase):
+    """二号发布要补写游戏仓台账；一号不许串账（2026-11-06）。
+
+    `_mark_manifest_published` 是「已发表列表按 aid 回读命中」之后唯一的
+    写账点，补写只能挂在这里。下面把 db / JSON 快照隔开，只验
+    「谁被写了、写进哪本账」，不碰浏览器也不碰真台账。
+    """
+
+    @staticmethod
+    def _call(cid, rec_side_effect=None):
+        import contextlib
+        import io
+        out, err = io.StringIO(), io.StringIO()
+        rec = mock.Mock(return_value=("written", {"remote_id": "53790001"}))
+        if rec_side_effect:
+            rec.side_effect = rec_side_effect
+        with mock.patch.object(bp.db, "get_conn", return_value=object()), \
+                mock.patch.object(bp.db, "upsert_post") as upsert, \
+                mock.patch.object(bp.db, "close_conn"), \
+                mock.patch.object(bp, "_load_manifest", return_value={}), \
+                mock.patch("builtins.open", mock.mock_open()), \
+                mock.patch.object(bp.os, "replace"), \
+                mock.patch("games_state.record_published", rec), \
+                contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            bp._mark_manifest_published(cid, "53790001", "某标题")
+        return rec, upsert, out.getvalue(), err.getvalue()
+
+    def test_二号发布补写游戏仓台账(self):
+        rec, upsert, out, _err = self._call("ext-ep-004-quake-b2")
+        rec.assert_called_once()
+        self.assertEqual(rec.call_args.args[0], "bilibili2")
+        self.assertEqual(rec.call_args.args[1], "ext-ep-004-quake")  # 剥 -b2
+        self.assertEqual(rec.call_args.kwargs["remote_id"], "53790001")
+        self.assertTrue(rec.call_args.kwargs["at"])
+        self.assertEqual(upsert.call_args.args[2], "bilibili2")       # 本仓也记二号
+        self.assertIn("游戏仓台账补账：written", out)
+
+    def test_一号发布不碰游戏仓台账(self):
+        rec, upsert, _out, _err = self._call("chessigma")
+        rec.assert_not_called()
+        self.assertEqual(upsert.call_args.args[2], "bilibili")
+
+    def test_补写失败不判发布失败但必须留痕(self):
+        _rec, upsert, out, err = self._call(
+            "ext-ep-004-quake-b2", RuntimeError("台账被锁"))
+        self.assertIn("游戏仓台账补写失败", err)
+        self.assertIn("bili2_ledger_backfill.py --go", out)
+        self.assertEqual(upsert.call_args.args[2], "bilibili2")       # 本仓已写
+
+    def test_二号不再串进一号专属ledger(self):
+        """`ld.promote("bilibili")` 曾把二号记录写进 bili_published.json。"""
+        src = inspect.getsource(bp.ui_publish_draft)
+        self.assertIn('ledger_slot(cid)[0] == "bilibili"', src)
 
 
 if __name__ == "__main__":

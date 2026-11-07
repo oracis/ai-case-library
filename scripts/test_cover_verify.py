@@ -91,9 +91,10 @@ class TestStates(_Tmp):
 
 class TestCapability(unittest.TestCase):
 
-    def test_matrix_covers_all_nine(self):
-        self.assertEqual(len(CV.CAP), 9)
-        for p in ("wechat", "toutiao", "xhs", "bilibili", "cnblogs",
+    def test_matrix_covers_all_ten(self):
+        """九平台 + B站二号（同一平台两个账号，各占一个发布位）。"""
+        self.assertEqual(len(CV.CAP), 10)
+        for p in ("wechat", "toutiao", "xhs", "bilibili", "bilibili2", "cnblogs",
                   "zhihu", "csdn", "tencentcloud", "aliyun"):
             self.assertIn(p, CV.CAP)
 
@@ -114,10 +115,14 @@ class TestCapability(unittest.TestCase):
         self.assertIn("origin_image_urls", CV.CAP["bilibili"]["field"])
         self.assertIn("banner_url", CV.CAP["bilibili"]["why"])
 
-    def test_live_platforms_only_four(self):
+    def test_live_platforms_only_five(self):
+        """能真读的平台只有这五个；其余只能 `none` / `local`。
+
+        二号（`bilibili2`）与一号同字段，但必须连二号自己的浏览器。
+        """
         live = [p for p in CV.CAP if CV.CAP[p]["mode"] == "live"]
         self.assertEqual(sorted(live),
-                         ["aliyun", "bilibili", "csdn", "tencentcloud"])
+                         ["aliyun", "bilibili", "bilibili2", "csdn", "tencentcloud"])
 
 
 class TestFinding(_Tmp):
@@ -160,6 +165,71 @@ class TestProbeInjection(_Tmp):
         self.assertNotIn("tencentcloud", CV._PROBE)
         self.assertNotIn("aliyun", CV._PROBE)
         self.assertEqual(CV.CAP["tencentcloud"]["probe"], "publish-time")
+
+
+class TestCaseKey(_Tmp):
+    """`-b2` 是二号**产物 id** 的后缀，台账键必须是同一篇。
+
+    2026-11-06 之前两边各写各的：发布链路拿 `ext-ep-004-quake-b2`（产物 id）
+    写、`publish_one` 拿 `ext-ep-004-quake`（档期 case id）读 ⇒ 永远对不上，
+    `cover_remote` 恒 unknown。
+    """
+
+    def test_带b2后缀与不带是同一格(self):
+        self.rec("ext-ep-004-quake-b2", "bilibili2", "ok", "aid=376917 image_urls=https://x/1.jpg")
+        v = CV.verify("bilibili2", "ext-ep-004-quake", path=self.led)
+        self.assertEqual(v["state"], "ok")
+        self.assertIn("376917", v["evidence"])
+        self.assertEqual(sorted(CV.load_ledger(self.led)),
+                         ["ext-ep-004-quake"], "台账里不许出现 -b2 的重复格")
+
+    def test_键归一不碰普通case_id(self):
+        for c in ("chessigma", "ext-ep-001-super-mario-bros", "upvoty"):
+            self.assertEqual(CV._key(c), c)
+
+    def test_clear也按归一后的键删(self):
+        self.rec("ext-ep-004-quake-b2", "bilibili2", "ok", "aid=1")
+        self.assertTrue(CV.clear("ext-ep-004-quake", "bilibili2", path=self.led))
+        self.assertEqual(CV.verify("bilibili2", "ext-ep-004-quake-b2",
+                                   path=self.led)["state"], "unknown")
+
+
+class TestRecordCli(_Tmp):
+    """`--record`：发布链路在草稿还在时写一条（发表后就读不到 image_urls）。"""
+
+    def test_写ok要带证据_没有就降级且返回1(self):
+        import io
+        from contextlib import redirect_stdout
+        old = CV.LEDGER
+        try:
+            CV.LEDGER = self.led
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                rc = CV.main(["--record", "--case", "ext-ep-005-supertux-b2",
+                              "--platform", "bilibili2", "--state", "ok"])
+            self.assertEqual(rc, 1, "声称 ok 没证据 ⇒ 非零，别让调用方以为写成了")
+            self.assertIn("降级", buf.getvalue())
+            self.assertEqual(CV.verify("bilibili2", "ext-ep-005-supertux",
+                                       path=self.led)["state"], "unknown")
+        finally:
+            CV.LEDGER = old
+
+    def test_写ok带证据就落库(self):
+        import io
+        from contextlib import redirect_stdout
+        old = CV.LEDGER
+        try:
+            CV.LEDGER = self.led
+            with redirect_stdout(io.StringIO()):
+                rc = CV.main(["--record", "--case", "ext-ep-005-supertux-b2",
+                              "--platform", "bilibili2", "--state", "ok",
+                              "--evidence", "aid=376919 image_urls=https://x/1.jpg"])
+            self.assertEqual(rc, 0)
+            v = CV.verify("bilibili2", "ext-ep-005-supertux", path=self.led)
+            self.assertEqual(v["state"], "ok")
+            self.assertEqual(v["source"], "publish-time")
+        finally:
+            CV.LEDGER = old
 
 
 class TestLedgerHygiene(unittest.TestCase):

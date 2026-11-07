@@ -1,13 +1,13 @@
-<h1>游戏厅：Minetest，被叫做「开源版我的世界」</h1>
+<h1>Minetest：轻量方块沙盒的引擎与模组体系</h1>
 <p style="line-height:1.7;font-size:15px;color:#555;margin:0 0 22px;padding:12px 14px;background:#f5f7fb;border-radius:6px">一个用 C++/Lua 写的开源体素沙盒，被称为「开源版我的世界」，能自己加方块、加模组、搭服务器</p>
 <p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">开源游戏拆解 · 它用的是什么技术</p>
-<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">它用什么技术做的</h2>
-<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">引擎用 C++：体素世界的数据结构、区块加载、渲染、网络同步都在这一层；玩法层用 Lua——加方块、加工具、写一整套新游戏模式，全都通过 Lua API 挂进去。所以同一个引擎能跑出完全不同的游戏。想学「怎么把引擎和玩法解耦」，这是开源沙盒里最典型的样本。</p>
+<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">先说清楚：这是源码索引，不是游戏下载站</h2>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">本文介绍的项目指向一个真实存在的源码仓库。仓库里只有代码：要自己装环境、自己编译；不少经典游戏的重实现项目，原版素材还要自备。它的价值在「能读、能改」，不在「下载即玩」。</p>
 <h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">基本信息</h2>
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 一句话简介：无限世界方块沙盒游戏，含生存与合成要素</p>
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 源码：<a href="https://github.com/minetest/minetest" style="color:#2f6fed;text-decoration:none;word-break:break-all">Minetest</a></p>
 <h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">版权与免责</h2>
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 每一条的源码许可证以<strong>各自仓库</strong>为准，二次分发与商用前请逐条核对。</p>
-<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 本文只讨论项目与代码，不托管任何游戏文件，也不提供素材包。</p>
-<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 代码与素材版权归各自作者所有，本文仅作技术介绍。</p>
-<p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">一个用 C++/Lua 写的开源体素沙盒，被称为「开源版我的世界」，能自己加方块、加模组、搭服务器。源码都在各自仓库里，需自行编译，部分需自备原版素材。</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 本文只介绍项目与代码，不托管任何游戏文件，也不提供素材包。</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 收录项目版权归各自作者所有；你是作者且不希望被收录，可以联系删除。</p>
+<p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">C++/Lua 开源体素沙盒，类似我的世界，支持自定义方块与模组，源码编译，素材自备。</p>

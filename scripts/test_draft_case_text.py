@@ -19,6 +19,7 @@
 改守卫前先跑这个：python scripts/test_draft_case_text.py
 """
 
+import json
 import os
 import sys
 import unittest
@@ -238,6 +239,100 @@ class FactsCard(unittest.TestCase):
         self.assertIn("创始人：未公开", card)
 
 
+class Wording(unittest.TestCase):
+    """2026-11-05：4 条新草稿抽检发现的措辞事故。
+
+    根因不是模型自由发挥，而是素材卡抬头把「支付网关 API 直读」「已验证收入」
+    「（已算好）」当固定标签印给了模型，模型照抄后变成：
+    ① 缓存快照说成「截至 2026-11-05 实时直读」；
+    ② partial 证据等级写成「经 Stripe API 直读验证」；
+    ③ 给模型看的批注「（已算好）」印给读者；
+    ④ 客单价（推算值）写成「将订阅定价压在 $10 以下」。
+    改源头治未来、scrub_wording() 治已生成的稿，两者都要锁住。
+    """
+
+    REAL_BAD = {
+        "what_it_does": (
+            "截至 2026-11-05，支付网关直读显示当前 MRR 为 $3,929，活跃订阅数为 7。"
+            "收入数据来自 Polar 支付网关 API 直读。当前 MRR 为 $441，"
+            "近 30 天已验证收入 $368。"),
+        "how_it_makes_money": (
+            "按支付网关直读数据，当前 MRR $3,929 除以活跃订阅数 7，"
+            "得出客单价 $561.29。当前 MRR 为 $397，活跃订阅数 6，"
+            "客单价 $66.17（已算好）。用 MRR $441 除以活跃订阅数 9，"
+            "推算客单价约 $49。"),
+        "why_it_works": [
+            "活跃订阅 159 个，MRR $1,561，客单价 $9.82（支付网关直读）——低价订阅降低门槛。",
+            "支付网关直读：近 30 天已验证收入 $366，其中 2026-10-19 各 $66.01。",
+            "收入数据经 Stripe API 直读验证。",
+        ],
+        "playbook": ["将订阅定价压在 $10 以下，降低首次尝试的决策成本。"],
+        "replicability": {"tech": 2, "distribution": 3, "capital": 1, "timing": 3},
+    }
+
+    @staticmethod
+    def _money(data):
+        import re
+        return set(re.findall(r"\$[\d,]+(?:\.\d+)?",
+                              json.dumps(data, ensure_ascii=False)))
+
+    def test_facts_card_no_strong_claim_labels(self):
+        card = D.facts_card("x", {"cur_mrr": 12454.0, "active_subs": 407,
+                                  "rev_30d": 11550.0}, "")
+        for bad in ("支付网关 API 直读", "已算好", "已验证收入"):
+            self.assertNotIn(bad, card)
+        self.assertIn("缓存快照", card)
+        self.assertIn("不是本库实时直读", card)
+        self.assertIn("$30.6", card)  # 去掉批注不能把数值一起删掉
+
+    def test_system_bans_realtime_fabricated_date_and_arpu_as_price(self):
+        for rule in ("缓存快照", "不许自己编日期", "客单价不是定价",
+                     "素材卡里的批注", "不要重算"):
+            self.assertIn(rule, D.SYSTEM)
+        self.assertNotIn("客单价（已算好）", D.SYSTEM)
+        self.assertNotIn("订阅数 ÷ MRR", D.SYSTEM)  # 原式写反了，已改掉
+
+    def test_wording_bans_detects_every_real_case(self):
+        hits = D.wording_bans(self.REAL_BAD)
+        labels = {h.split(" @ ")[0] for h in hits}
+        self.assertEqual(labels, {"自编时点+实时直读", "实时直读强断言",
+                                  "已验证收入", "素材批注",
+                                  "客单价当定价", "复述除法过程"})
+
+    def test_scrub_cleans_every_real_case(self):
+        out, n = D.scrub_wording(self.REAL_BAD)
+        self.assertGreater(n, 0)
+        self.assertEqual(D.wording_bans(out), [])
+        self.assertIn("TrustMRR 缓存快照", out["what_it_does"])
+        self.assertIn("支付源为 Polar", out["what_it_does"])
+        self.assertIn("支付源为 Stripe", out["why_it_works"][2])
+        self.assertIn("把客单价控制在", out["playbook"][0])
+        self.assertNotIn("已算好", out["how_it_makes_money"])
+
+    def test_scrub_never_changes_money(self):
+        out, _n = D.scrub_wording(self.REAL_BAD)
+        self.assertEqual(self._money(out), self._money(self.REAL_BAD))
+
+    def test_scrub_drops_model_invented_date(self):
+        out, _n = D.scrub_wording(self.REAL_BAD)
+        self.assertNotIn("截至 2026-11-05", out["what_it_does"])
+
+    def test_scrub_is_idempotent(self):
+        once, _n = D.scrub_wording(self.REAL_BAD)
+        twice, n2 = D.scrub_wording(once)
+        self.assertEqual(n2, 0)
+        self.assertEqual(once, twice)
+
+    def test_scrub_keeps_other_fields_intact(self):
+        out, _n = D.scrub_wording(self.REAL_BAD)
+        self.assertEqual(out["replicability"], self.REAL_BAD["replicability"])
+        self.assertNotIn("replicability", dict(D._visible_texts(out)))
+        clean = _draft(one_liner="MRR $1,155 的订阅制工具", verdict="它卖的是节奏")
+        out2, n = D.scrub_wording(clean)
+        self.assertEqual(n, 0)
+        self.assertEqual(out2, clean)
+
+
 class FragmentWarning(unittest.TestCase):
     """档案残片要**点名**，不许静默当素材（2026-10-21 补）。
 
@@ -282,6 +377,151 @@ class FragmentWarning(unittest.TestCase):
         self._run("demo2", body + "\n## Related TrustMRR Pages\n"
                   "- [llms.txt](https://trustmrr.com/llms.txt)\n\n", out)
         self.assertNotIn("残片", out[0])
+
+
+class Revalidate(unittest.TestCase):
+    """全量 --revalidate 的素材缺失保护（2026-11-05）。
+
+    事故：summary.json 只剩 16 键时跑全量，177 条旧草稿拿空摘要回套，
+    171 条由净转脏；其中连 .md 都没有的 5 条把真实引用过的数字全报成
+    「素材里没有的数字」，apply 会因此把它们挡掉。
+    """
+
+    @staticmethod
+    def _entry(**kw):
+        base = _draft(
+            one_liner="这是一个中文定位句",
+            what_it_does="这个产品做一件具体的事。",
+            how_it_makes_money="靠订阅收费。",
+            verdict="值得继续观察。",
+            why_it_works=["中文理由一条"], playbook=["中文步骤一条"],
+            replicability={"tech": "", "distribution": "",
+                           "capital": "", "timing": ""},
+        )
+        base.update(kw)
+        return base
+
+    def test_无素材条目跳过且原状态不被改写(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as td:
+            stage = {"ghost": self._entry(
+                _slug="ghost", _problems=["哨兵：保持原样"], _needs_human=True)}
+            bad, skipped = D.revalidate_stage(
+                stage, {}, tm_dir=td, reporter=lambda *a: None)
+            self.assertEqual((bad, skipped), (0, 1))
+            self.assertEqual(stage["ghost"]["_problems"], ["哨兵：保持原样"])
+            self.assertTrue(stage["ghost"]["_needs_human"])
+
+    def test_有md的条目仍会被回套(self):
+        import io
+        import tempfile
+        with tempfile.TemporaryDirectory() as td:
+            with io.open(os.path.join(td, "ok.md"), "w", encoding="utf-8") as f:
+                f.write("# Ok\n\n| Last 30 days | $1,000 |\n"
+                        "\n## Related TrustMRR Pages\n- [llms.txt](x)\n")
+            stage = {"ok": self._entry(
+                _slug="ok", what_it_does="这个产品做一件事，收入 1000 元。")}
+            bad, skipped = D.revalidate_stage(
+                stage, {}, tm_dir=td, reporter=lambda *a: None)
+            self.assertEqual(skipped, 0)
+            self.assertEqual(bad, 1)
+            self.assertTrue(any("人民币" in p for p in stage["ok"]["_problems"]))
+            self.assertTrue(stage["ok"]["_needs_human"])
+
+    def test_只有摘要没有md也会回套(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as td:
+            summ = {"ok": {"slug": "ok", "cur_mrr": 1000,
+                           "active_subs": 0, "provider": "Stripe"}}
+            stage = {"ok": self._entry(_slug="ok")}
+            bad, skipped = D.revalidate_stage(
+                stage, summ, tm_dir=td, reporter=lambda *a: None)
+            self.assertEqual((bad, skipped), (0, 0))
+            self.assertEqual(stage["ok"]["_problems"], [])
+            self.assertFalse(stage["ok"]["_needs_human"])
+
+
+class StockWording(unittest.TestCase):
+    """2026-11-05 二轮：181 条存量草稿里 129 条带旧措辞，首版 SCRUB_RULES
+    只覆盖 4 条新稿的句式，全量预演有 38 条洗完仍违规。这里用**真实存量
+    原句**锁住补齐后的形态，防止规则再退回「只认一种写法」。
+    """
+
+    STOCK_BAD = {
+        "what_it_does": (
+            "收款走 Stripe，收入数字由支付网关 API 直读。当前 MRR $402，活跃订阅 22 个。"
+            "收入由 Whop 与 Stripe 两个支付网关 API 直读。"
+            "收入数据经 Stripe API 直读验证，当前 MRR 为 $28,579。"
+            "收入由支付网关 API 直读，非档案自述。"
+            "收入通过 RevenueCat 支付网关 API 直读，非订阅制。"
+            "付费订阅 217 份，由 Stripe 支付网关 API 直读。"),
+        "how_it_makes_money": (
+            "当前 MRR $618 除以活跃订阅数 148，得出客单价为 $4.18。"
+            "用 MRR $4,945 除以活跃订阅数 1068，得出客单价 $4.63。"
+            "客单价 $83.09（支付网关直读，已算好）。"
+            "另有客单价 $66.17（已算好），直接引用素材。"
+            "收入来自 Stripe 支付网关 API 直读，2026-11-03 同步。"
+            "MRR $531（支付网关 API 直读），活跃订阅数 13 个。"),
+        "why_it_works": [
+            "支付网关 API 直读：近 30 天已验证收入 $2,675，数据来自 Stripe。",
+            "近 30 天已验证收入 $2,786（支付网关直读），机制：买断制收入随时间衰减。",
+            "支付网关直读显示近 30 天收入 $6,680。",
+        ],
+        "playbook": [
+            "用支付网关 API 直读收入并公开：把实数摆出来。",
+            "使用 Paddle 等支付网关 API 直读收入，避免手动录入或截图。",
+            "将订阅定价压在 $10 以下，降低首次尝试的决策成本。",
+        ],
+        "replicability": {"tech": 2, "distribution": 3, "capital": 1, "timing": 3},
+    }
+
+    @staticmethod
+    def _money(data):
+        import re
+        return set(re.findall(r"\$[\d,]+(?:\.\d+)?",
+                              json.dumps(data, ensure_ascii=False)))
+
+    @staticmethod
+    def _text(data):
+        return "\n".join(t for _k, t in D._visible_texts(data))
+
+    def test_bans_catches_all_stock_shapes(self):
+        labels = {h.split(" @ ")[0] for h in D.wording_bans(self.STOCK_BAD)}
+        self.assertEqual(labels, {"实时直读强断言", "已验证收入", "素材批注",
+                                  "客单价当定价", "复述除法过程"})
+
+    def test_scrub_cleans_all_stock_shapes(self):
+        out, n = D.scrub_wording(self.STOCK_BAD)
+        self.assertGreater(n, 10)
+        self.assertEqual(D.wording_bans(out), [])
+
+    def test_scrub_never_changes_money(self):
+        out, _n = D.scrub_wording(self.STOCK_BAD)
+        self.assertEqual(self._money(out), self._money(self.STOCK_BAD))
+
+    def test_scrub_keeps_payment_sources(self):
+        out, _n = D.scrub_wording(self.STOCK_BAD)
+        text = self._text(out)
+        for src in ("支付源为 Stripe", "支付源为 Whop 与 Stripe",
+                    "支付源为 RevenueCat"):
+            self.assertIn(src, text)
+
+    def test_no_strong_claim_label_left(self):
+        out, _n = D.scrub_wording(self.STOCK_BAD)
+        text = self._text(out)
+        for bad in ("支付网关 API 直读", "已验证收入", "已算好",
+                    "除以活跃订阅数", "将订阅定价压在", "支付网关直读"):
+            self.assertNotIn(bad, text, bad)
+
+    def test_scrub_is_idempotent_on_stock(self):
+        once, _n = D.scrub_wording(self.STOCK_BAD)
+        twice, n2 = D.scrub_wording(once)
+        self.assertEqual(n2, 0)
+        self.assertEqual(once, twice)
+
+    def test_scrub_keeps_non_visible_fields(self):
+        out, _n = D.scrub_wording(self.STOCK_BAD)
+        self.assertEqual(out["replicability"], self.STOCK_BAD["replicability"])
 
 
 if __name__ == "__main__":

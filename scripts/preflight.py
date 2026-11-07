@@ -195,6 +195,16 @@ def main():
             "%d 条" % len(cases) + ("；缺 " + ", ".join(
                 "%s×%d" % (k, v) for k, v in bad.items()) if bad else "；四项齐备"))
 
+        # 2026-11-06 放宽两张人工表后，缺表不再清空/跳过，而是按全库中位数兜底。
+        # 兜底分带 provisional，这里必须报出来 —— 否则「放宽」会让人误以为
+        # 那些分是人工评的。
+        prov = sum(1 for c in cases
+                   if (c.get("china_fit") or {}).get("provisional")
+                   or (c.get("solo_fit") or {}).get("provisional"))
+        if prov:
+            say(WARN, "评分兜底（provisional）",
+                "%d 条缺人工表、按中位数兜底；要精确结论请补 SCORES / DELIVERY" % prov)
+
         # 库与镜像必须同源（2026-11-05）：真值在 SQLite，`data/cases.json` 是导出的
         # 镜像、进 git 供 review。两边条数不一致 ⇒ 有人手改了 JSON 没回库，或
         # 写库后镜像没重导 —— 两种情况都会让「review 看到的东西」不等于「实际数据」。

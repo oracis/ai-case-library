@@ -31,6 +31,20 @@ def test_post_struct_html_mode():
     assert "[Markdown]" not in st["categories"]
 
 
+def test_post_struct_excerpt():
+    """摘要（mt_excerpt）必须随 struct 走，否则博客园拿正文开头自动截取。
+
+    2026-11-06 实测：正文第 3 行是栏目标语「「游戏厅」栏目，每期只讲一款
+    游戏…」时，列表页摘要就是那句口号 —— 零信息量。
+    """
+    st = C._post_struct("标题", "# 正文", excerpt="一段具体摘要 1372 star")
+    assert st["mt_excerpt"] == "一段具体摘要 1372 star"
+    assert C._post_struct("标题", "# 正文")["mt_excerpt"] == "", "缺省应为空串"
+    # HTML 模式下摘要也要保留（它是独立字段，不随正文渲染方式变）
+    st2 = C._post_struct("标题", "**粗**", as_html=True, excerpt="摘要")
+    assert st2["mt_excerpt"] == "摘要"
+
+
 def test_reuses_csdn_pure_functions():
     """split_md/md_to_html 必须与 csdn_publish 同一实现（复用而非复制）。"""
     assert C.split_md is D.split_md
@@ -78,7 +92,8 @@ def test_ledger_roundtrip():
 if __name__ == "__main__":
     test_post_struct_markdown_default()
     test_post_struct_html_mode()
+    test_post_struct_excerpt()
     test_reuses_csdn_pure_functions()
     test_config_validation()
     test_ledger_roundtrip()
-    print("cnblogs_publish selftest: 5/5 PASS")
+    print("cnblogs_publish selftest: 6/6 PASS")

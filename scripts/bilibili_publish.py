@@ -1440,14 +1440,33 @@ def _record_draft(cid, aid, title=""):
         print("    ⚠ 台账写入失败（不影响已存的草稿）：%s" % str(e)[:80])
 
 
+def _plat():
+    """当前进程在操作**哪个账号的台账**：二号（9224）→ `bilibili2`，否则 `bilibili`。
+
+    为什么按端口判而不是按 cid 后缀：`send-draft` 走 FIFO 时**不带 `--case`**，
+    认亲之前手里没有 cid，只能靠「本进程连的是哪个浏览器」分账。端口由
+    `CDP_BILI_PORT` 决定（`bridge` 与 `publish_one.BILI2_ENV` 都设成 9224）。
+
+    ⚠ 混用的后果不是报错而是**写错账**：二号进程若按 `bilibili` 读，二号的
+    已发记录一条都读不到（它们记在 `bilibili2` 下）⇒ FIFO 的「排除已发布」
+    形同虚设；反之在一号进程里读 `bilibili2` 会把二号的稿当成一号发过。
+    """
+    return "bilibili2" if PUB_PORT == 9224 else "bilibili"
+
+
 def _load_manifest():
-    """读整本 manifest：JSON 为底座，db 的 bilibili 记录逐条覆盖其上。
+    """读整本 manifest：JSON 为底座，db 里**本账号**的记录逐条覆盖其上。
 
     ⚠ 2026-11-05 修：「db 有数据就只返回 db」曾把返回值裁成 bilibili 单平台子集，
     _mark_manifest_published 拿它当整本快照写回 ⇒ publish_manifest.json 被剪掉
     toutiao/wechat/xhs/aliyun/zhihu 等全部非 B站记录（101→74，实测事故）。
     返回值必须是**完整** {cid: {platform: {...}}}——快照写回与 send-draft 的
     published 去重过滤都依赖整本。
+
+    ⚠ 2026-11-06 晚：覆盖的平台从写死的 `bilibili` 改为 `_plat()`。二号进程
+    必须读到 `bilibili2` 的记录，否则：① FIFO 的「排除已发布」读不到二号的账；
+    ② `send_draft` 按标题反查 case 时在一号标题里空转（二号的标题记在
+    `bilibili2.title`）。JSON 底座仍是整本，不会因为换平台键而缺块。
     """
     p = os.path.join(ROOT, "data", "publish_manifest.json")
     try:
@@ -1458,12 +1477,13 @@ def _load_manifest():
     if not isinstance(result, dict):
         result = {}
 
+    plat = _plat()
     conn = db.get_conn()
     try:
-        posts = db.get_posts_by_platform(conn, "bilibili")
+        posts = db.get_posts_by_platform(conn, plat)
         for p_ in posts or []:
             cid = p_["case_id"]
-            result.setdefault(cid, {})["bilibili"] = {
+            result.setdefault(cid, {})[plat] = {
                 "state": p_.get("state") or "",
                 "remote_id": p_.get("remote_id") or "",
                 "url": p_.get("url") or "",
@@ -1481,6 +1501,20 @@ def _load_manifest():
     return result
 
 
+def ledger_slot(cid):
+    """产物 id → `(台账平台, 台账 case_id)`。
+
+    `-b2` 是**二号产物 id 的后缀**（`bridge.ext_id` 定的，一号/二号不许落
+    同一个文件），不是第二个 case。台账必须记成
+    `('bilibili2', ext-ep-004-quake)` —— 记成 `('bilibili', ext-...-b2)`
+    会让一号读成「今天发过了」，而二号自己的账还是空的。
+    """
+    base = str(cid or "")
+    if base.endswith("-b2"):
+        return "bilibili2", base[:-3]
+    return "bilibili", base
+
+
 def _mark_manifest_published(cid, remote_id, title=""):
     """B站真发成功后写清单：state=published + remote_id（幂等真值）。
 
@@ -1491,18 +1525,28 @@ def _mark_manifest_published(cid, remote_id, title=""):
 
     ⚠ 2026-10-20 修格式回归：快照必须 `indent=1` + 显式 `newline="\n"`，
        乱改缩进会让 git diff 多出几千行纯格式噪音。
+
+    🚨 2026-11-06：`-b2` 是**二号产物 id 的后缀**（`bridge.ext_id` 定的），
+    不是第二个 case。写账前必须剥掉后缀、把平台改成 `bilibili2` ——
+    否则二号的发布记录会以 `ext-ep-004-quake-b2` 的身份写进
+    `platform='bilibili'`（**一号的账**）：一号据此算日配额、做判重，会读成
+    「今天这一篇已经发过了」；而二号自己的账仍是空的，`dedupe` 认不出来。
+    收口放在这里而不是各调用点，是因为 `ui_publish_draft` 也会写一次。
     """
+    platform, base = ledger_slot(cid)
+    cid = base
+    stamp = time.strftime("%Y-%m-%d %H:%M")   # 三本账同一个发布时点，别各取 now()
     conn = db.get_conn()
     try:
-        db.upsert_post(conn, cid, "bilibili", {
+        db.upsert_post(conn, cid, platform, {
             "state": "published",
             "remote_id": remote_id,
             "url": "",
             "title": title or "",
             "draft_id": "",
             "attempt": 0,
-            "published_at": time.strftime("%Y-%m-%d %H:%M"),
-            "updated_at": time.strftime("%Y-%m-%d %H:%M"),
+            "published_at": stamp,
+            "updated_at": stamp,
             "note": "草稿箱→发布（send-draft）",
         })
     finally:
@@ -1512,13 +1556,12 @@ def _mark_manifest_published(cid, remote_id, title=""):
     p = os.path.join(ROOT, "data", "publish_manifest.json")
     try:
         m = _load_manifest()
-        b = m.setdefault(cid, {}).setdefault("bilibili", {})
+        b = m.setdefault(cid, {}).setdefault(platform, {})
         b["state"] = "published"
         b["remote_id"] = remote_id
         if title:
             b["title"] = title
-        b["at"] = (time.strftime("%Y-%m-%d %H:%M")
-                   + " 草稿箱→发布（send-draft）")
+        b["at"] = stamp + " 草稿箱→发布（send-draft）"
         tmp = p + ".tmp"
         with open(tmp, "w", encoding="utf-8", newline="\n") as f:
             json.dump(m, f, ensure_ascii=False, indent=1, sort_keys=True)
@@ -1526,6 +1569,30 @@ def _mark_manifest_published(cid, remote_id, title=""):
     except Exception as e:                         # noqa: BLE001
         sys.stderr.write("⚠ manifest JSON 快照写失败(%s)：%s\n" % (cid, e))
         print("    ⚠ 清单写入失败（不影响已发布的草稿）：%s" % str(e)[:80])
+
+    # 🚨 二号的真账簿在**游戏仓**（2026-11-06）：FIFO 不经过 bridge，没人替
+    #    它写 `data/publish_state.json`。少了这一笔，游戏仓
+    #    `ledger.blocks_republish()` 看不见本次发布，手动
+    #    `bridge publish --slug <同一期>` 就会重发；`games_state.published()`
+    #    也少一路证据。收口在这里，因为本函数**只在「已发表列表按 aid
+    #    回读命中」之后**才被调用 —— toast「提交成功」不算发布。
+    if platform == "bilibili2":
+        try:
+            import games_state as GS
+            action, entry = GS.record_published(
+                "bilibili2", cid, remote_id=remote_id, title=title,
+                at=stamp,
+                note="send-draft：已发表列表按 aid 回读命中（FIFO 补账）")
+            print("    游戏仓台账补账：%s / aid=%s / %s"
+                  % (action, entry.get("remote_id"), GS.state_path()))
+        except Exception as e:                     # noqa: BLE001
+            # 文章已真发出去了，补写失败不能把发布判成失败；但必须显眼，
+            # 否则 blocks_republish 会一直漏判且不留痕迹。
+            sys.stderr.write(
+                "⚠ 游戏仓台账补写失败（本仓 db 已记 published，"
+                "但 blocks_republish 会漏判）：%s\n" % e)
+            print("    ⚠ 手动补账：python -X utf8 "
+                  "scripts/bili2_ledger_backfill.py --go")
 
 
 # --------------------------------------------------------------------------
@@ -1683,12 +1750,33 @@ def _match_case_draft(pool, cid, want_title):
                   "case 名）" % (cid, want_title or cid))
 
 
+def case_title(cid, html):
+    """「按 case 认亲」时用的期望标题。
+
+    🚨 二号（`-b2`）**不许走 `make_title`**（2026-11-06 实测）：
+    `make_title` 把标题硬截到 30 字，而二号的稿标题来自游戏仓
+    `meta.title_alt`（写进 `-b2.html` 的 h1，B站上限 40）。
+    33 字的「Cataclysm-DDA：数据驱动的末日生存 Roguelike」被截成
+    「…末日生存 Rog」后与箱里草稿标题不等 ⇒ 精确匹配失败、第二级
+    「含 case 名」也失败（标题里没有 `ext-ep-010-...-b2`）⇒
+    `send-draft --case` 认不出这条草稿，它会**永远躺在箱里**，而档期每天
+    还照选这一期（`dedupe` 认的是「已有草稿」）。实测 8 条里就这一条挂着。
+
+    「建稿用哪个标题」与「认亲用哪个标题」必须是**同一个函数**说了算：
+    建稿走 `cmd_draft --title`（bridge 传 `title_for()`，即 h1），
+    所以认亲也只能读 h1。
+    """
+    if str(cid or "").endswith("-b2"):
+        return extract_title(html) or ""
+    return make_title(cid, html) if html else ""
+
+
 def _pick_target_draft(pool, cid=None):
     """挑一条草稿：给了 cid 就挑它的，否则挑**存入最久**的（与小红书/头条同口径）。"""
     if not cid:
         return sorted(pool, key=lambda d: d.get("mtime") or 0)[0], "最久未发布草稿"
     html = load_article_html(cid)
-    d, why = _match_case_draft(pool, cid, make_title(cid, html) if html else "")
+    d, why = _match_case_draft(pool, cid, case_title(cid, html))
     return (d, "--case %s（%s）" % (cid, why)) if d else (None, why)
 
 
@@ -1774,12 +1862,18 @@ def ui_publish_draft(cdp=None, aid=None, cid=None, title="", dry=False,
                            "**不记账**，去浏览器确认（可能撞了当日额度）" % aid)
 
         _mark_manifest_published(cid, aid, title)
-        try:
-            import ledger as ld
-            ld.promote("bilibili", cid, aid, title=title,
-                       evidence="editor-ui-publish")
-        except Exception as e:                     # noqa: BLE001
-            print("    ⚠ ledger 层同步失败（清单已记 published）：%s" % str(e)[:80])
+        # 🚨 本仓 `ledger` 的 PLATFORMS 只有 `bilibili`（一号专属的
+        #    bili_published.json），压根没有 `bilibili2`。此前这里写死一号，
+        #    二号发布会把 `ext-ep-xxx` 记进一号的账 ⇒ 一号判重误拦。
+        #    二号的真账簿在游戏仓，已由 `_mark_manifest_published` 补写。
+        if ledger_slot(cid)[0] == "bilibili":
+            try:
+                import ledger as ld
+                ld.promote("bilibili", cid, aid, title=title,
+                           evidence="editor-ui-publish")
+            except Exception as e:                 # noqa: BLE001
+                print("    ⚠ ledger 层同步失败（清单已记 published）：%s"
+                      % str(e)[:80])
         return True, "已发布并记账 aid=%s" % aid
     finally:
         if not keep_tab and tid:
@@ -1817,11 +1911,13 @@ def send_draft(cdp=None, dry=False, cid=None):
         if not drafts:
             print("  ✗ 草稿箱是空的")
             return (False, None, None, None)
-        # 过滤已在清单标 published 的（按 remote_id 或标题），避免重复发
+        # 过滤已在清单标 published 的（按 remote_id 或标题），避免重复发。
+        # ⚠ 平台键必须跟本进程的账号走（见 `_plat`）：二号记录在 `bilibili2` 下。
         m = _load_manifest()
+        plat = _plat()
         published_ids, published_titles = set(), set()
         for _c, d in m.items():
-            b = d.get("bilibili") or {}
+            b = d.get(plat) or {}
             if b.get("state") == "published":
                 if b.get("remote_id"):
                     published_ids.add(str(b["remote_id"]))
@@ -1851,16 +1947,19 @@ def send_draft(cdp=None, dry=False, cid=None):
                                        dry=True)
             print("  → %s" % why)
             return (ok, None, aid, title)
-        # 反查 cid：先按清单 bilibili.title 精确匹配；失败则退化用案例名匹配
+        # 反查 cid：先按清单**本账号**的平台键精确匹配 title；失败则退化用案例名匹配
         # （线上草稿标题可能被改过，与清单记录不一致，如 divine-widgets）
         target = cid
         if not target:
             nw = re.sub(r"\s+", "", title)
             for _c, d in m.items():
-                b = d.get("bilibili") or {}
+                b = d.get(plat) or {}
                 if re.sub(r"\s+", "", b.get("title") or "") == nw:
                     target = _c
                     break
+        if not target and plat == "bilibili2":
+            # 二号的稿是游戏仓期次，`cases.json` 里没有它 ⇒ 补一路游戏仓反查
+            target = _cid_from_games(title)
         if not target:
             for c in load_cases():
                 nm = re.sub(r"\s+", "", c.get("name") or "")
@@ -1884,6 +1983,87 @@ def send_draft(cdp=None, dry=False, cid=None):
                 cdp.close()
             except Exception:                      # noqa: BLE001
                 pass
+
+
+def _cid_from_games(title):
+    """二号：按**游戏仓期次标题**反查产物 id（`ext-<slug>-b2`）；找不到返回 None。
+
+    为什么需要这一路（2026-11-06 晚）：二号进 FIFO 后 `send-draft` **不带
+    `--case`**，只能按标题反查。而二号的标题来自游戏仓 `meta.title_alt`
+    （写进 `-b2.html` 的 h1），**本仓 manifest 与 `cases.json` 里都没有它**
+    —— 游戏期不是 AI case。缺这一路就会在「反查不到 case，请用 --case 指定」
+    这一步直接失败，FIFO 等于开不了。
+
+    ⚠ 返回值**必须带 `-b2`**：`ledger_slot()` 靠这个后缀把账记到
+    `platform='bilibili2'` 并剥回 `ext-<slug>`。漏了后缀，二号的发布会被记进
+    **一号的账**（2026-11-06 当天实撞过一次）。
+    """
+    nw = re.sub(r"\s+", "", title or "")
+    if not nw:
+        return None
+    try:
+        import games_state as GS
+        rows = GS.entries("bilibili2")
+    except Exception:                                   # noqa: BLE001
+        return None
+    for r in rows:
+        cid = "ext-%s-b2" % r["case"]
+        for cand in _b2_title_candidates(r, cid):
+            if re.sub(r"\s+", "", cand) == nw:
+                return cid
+    return None
+
+
+def _b2_title_candidates(row, cid):
+    """二号一条期次**可能用的所有标题写法**，认亲时逐个比。
+
+    🚨 2026-11-06 实测：只比台账 `title` 会全军覆没。台账里存的是 2026-10-31
+    建稿时的旧栏目写法「游戏厅：Quake」，而箱里那 8 条已被
+    `bili2_draft_refresh.py` 换成 `meta.title_alt`（「Quake：读一份 1999 年
+    开源的 3D 引擎源码」）⇒ 8 条一条都反查不到，`send-draft` 卡在
+    「请用 --case 指定」。而 ep-001/ep-002 没刷新过、仍是栏目写法 ⇒ 只有它俩
+    能命中，正好是「假绿」的样子（单测只喂台账标题时会全过）。
+
+    顺序＝权威度：产物 h1（`-b2.html`，建稿与刷新都写它）→ meta.title_alt
+    （母版真源）→ 台账 title（历史遗留，保留只为兼容没刷新过的箱）。
+    """
+    out = []
+    html = load_article_html(cid)
+    if html:
+        out.append(case_title(cid, html))
+    try:
+        import games_state as GS
+        p = os.path.join(GS.GAMES_ROOT, "content", row["case"], "meta.json")
+        with open(p, encoding="utf-8") as f:
+            out.append(str(json.load(f).get("title_alt") or ""))
+    except Exception:                                   # noqa: BLE001
+        pass
+    out.append(row.get("title") or "")
+    return [t for t in out if t]
+
+
+def _find_draft_by_title(cdp, title):
+    """按标题找**既有**草稿，用于「就地更新而不是新建」（2026-11-06）。
+
+    为什么要有它：`draft` 以前无条件新建，而 send-draft 是按**标题**认亲的
+    ⇒ 同标题两条时只发走最久那条，另一条永远留在箱里；二号箱里 8 条 10-31
+    旧稿改好标题后，档期每跑一次就多一条重复稿，迟早被 FIFO 当成新稿再投。
+
+    同标题多条时取 `article_id` **最大**的（后建的那份通常是最近一次写入）。
+    读不到列表（CDP 抽风）时返回 None，退回「新建」老行为，不拦发布。
+    """
+    want = _norm_title(title)
+    if not want:
+        return None
+    try:
+        drafts = bili_api.list_drafts(cdp)
+    except Exception:                              # noqa: BLE001
+        return None
+    hit = [d for d in (drafts or []) if _norm_title(d.get("title")) == want]
+    if not hit:
+        return None
+    hit.sort(key=lambda d: int(d.get("article_id") or 0))
+    return hit[-1]
 
 
 def cmd_draft(args):
@@ -1947,8 +2127,20 @@ def cmd_draft(args):
         #（那条路有 risk_check 硬拦，外部稿数据原文可能误中，见 cmd_draft
         #  上面的 warn 注释）。
         image_urls = None
+        # 同标题既有草稿 → **就地更新**，不新建（2026-11-06）
+        # send-draft 是按标题认亲的，同标题两条时它只发走最久那条，另一条
+        # 永远留在箱里；而档期每跑一次就新建一条 ⇒ 重复稿一天多一条，迟早
+        # 被 FIFO 当成新稿再投一次。`--new` 是想强制另起一条时的逃生口。
+        reuse = None if getattr(args, "new", False) else _find_draft_by_title(
+            cdp, title)
+        if reuse:
+            aid = reuse.get("article_id")
+            old = bili_api.view_draft(cdp, aid) or {}
+            # 旧稿建稿时传过图床就沿用，别重复占图床
+            image_urls = old.get("origin_image_urls") or old.get("image_urls")
+            print("  → 复用同标题草稿 aid=%s（就地更新正文，不新建重复稿）" % aid)
         cov = getattr(args, "cover", None)
-        if cov:
+        if cov and not image_urls:
             if not os.path.isfile(cov):
                 print("  [warn] 封面文件不存在，草稿将无封面：%s" % cov)
             else:
@@ -1958,7 +2150,9 @@ def cmd_draft(args):
                     print("  ✓ 封面已传图床：%s" % curl[:72])
                 else:
                     print("  [warn] 封面上传失败，草稿将无封面（发布时会再补）")
-        arg = bili_api.build_arg(title, body, image_urls=image_urls)
+        arg = bili_api.build_arg(title, body,
+                                 article_id=(reuse or {}).get("article_id"),
+                                 image_urls=image_urls)
         out = bili_api.save_draft(cdp, arg)
         if not isinstance(out, dict) or out.get("code") != 0:
             print("  ✗ draft/add 失败：%s"
@@ -1976,9 +2170,22 @@ def cmd_draft(args):
         if not got.strip():
             print("  ✗ 回读校验失败：草稿正文是空的（aid=%s）" % aid)
             return 1
+        if reuse and _norm_title(after.get("title")) != _norm_title(title):
+            print("  [warn] 回读标题不一致：《%s》（以重跑对账）"
+                  % (after.get("title") or ""))
         paras = len(arg["opus"]["content"]["paragraphs"])
-        print("  ✓ 已存草稿 aid=%s《%s》正文 %d 字 / %d 段"
-              % (aid, title, len(got), paras))
+        print("  ✓ %s aid=%s《%s》正文 %d 字 / %d 段"
+              % ("已更新草稿" if reuse else "已存草稿",
+                 aid, title, len(got), paras))
+        # 封面回读（2026-11-06）：草稿还在、`image_urls` 还读得到 —— 这是
+        # **唯一**能把「平台侧封面到底设上了没有」落进台账的时刻。发表后
+        # 草稿变成文章，草稿接口就查不到这一篇了（`cover_verify._probe_bilibili`
+        # 只能现场扫草稿箱，箱里没有 ⇒ 永远 unknown）。
+        # 调用方（`open-source-games/publish/bridge.py`）拿这两行写
+        # `data/cover_readback.json`：有 URL 记 ok、读到了但空记 empty、
+        # 两行都没有（回读失败/旧脚本）记 unknown。
+        _cu = _cover_of(after)
+        print("COVER_URL=%s" % _cu if _cu else "COVER_EMPTY=%s" % aid)
         print("ARTICLE_ID=%s" % aid)
         return 0
     finally:
@@ -2660,6 +2867,9 @@ def main():
                          "写进 image_urls，发布时不用再补封面。2026-10-30 新增")
     dr.add_argument("--dry", action="store_true",
                     help="只打印将要创建什么，不开浏览器")
+    dr.add_argument("--new", action="store_true",
+                    help="强制新建一条草稿（默认同标题既有草稿就地更新，"
+                         "避免草稿箱里堆重复稿。2026-11-06 新增）")
     args = ap.parse_args()
 
     # 127.0.0.1 必须绕开系统代理，否则 websocket 连 Chrome 调试端口会被掐

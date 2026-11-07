@@ -265,6 +265,89 @@ def main():
     chk("description 非空", not no_desc, ",".join(no_desc[:3]))
     chk("canonical 指向自身绝对地址", not no_canon, ",".join(no_canon[:3]))
 
+    # ------------------------------------------------------- 4b 案例标题
+    # 2026-11-06 二审：标题里**不许出现金额 / 省略号 / 平台状态语**
+    # （「当前 MRR 为 $5,371.18」「MRR $578」「App Store 在架」都是不合格标题）
+    print("\n[4b] 案例标题（去重 / 断词 / 去金额 / 无省略号 / 站名）")
+    site_name = site["title"]
+
+    _, t = m.case_title("TalkEasy", "TalkEasy 是一个 AI 口语陪练产品，当前 MRR 为 $1,561。", site_name)
+    chk("说明开头的产品名不重复", t.count("TalkEasy") == 1, t)
+    chk("紧跟的判断词一并去掉", "— 是一个" not in t and "— AI 口语陪练" in t, t)
+    chk("标题不带金额（$ / MRR）", "$" not in t and "MRR" not in t and "1,561" not in t, t)
+
+    _, t = m.case_title("Admirror", "MRR $578，Admirror 让静态广告快速适应产品。", site_name)
+    chk("说明里第二次出现的名字被去掉", t.count("Admirror") == 1, t)
+    chk("金额砍掉后仍留得住说明", "静态广告" in t, t)
+
+    # 名字只是更长单词的前缀（Bolt / Bolty）—— 那不是重复，删了就丢信息
+    _, t = m.case_title("Bolty", "Bolt 是一个更容易记的名字", site_name)
+    chk("名字只是前缀时不误删", "Bolt 是" in t, t)
+
+    # $5,371.18 里的半角逗号不是分句边界；金额段整段丢掉，不能只抠掉数字
+    _, t = m.case_title(
+        "RYN VPN",
+        "Ryn VPN，高端 VPN 产品，当前 MRR 为 $5,371.18，近 30 天已验证收入 $6,641。", site_name)
+    chk("金额整段丢弃且不留断头句", "$" not in t and "MRR 为" not in t, t)
+    chk("金额旁边的事实性描述保留", "高端 VPN 产品" in t, t)
+
+    _, t = m.case_title(
+        "sotie: AI Best Friend",
+        "AI 情感陪伴 App，App Store 在架（4.81 分、32 评），近 30 天收入 1566。", site_name)
+    chk("平台状态语不进标题", "App Store" not in t and "在架" not in t, t)
+    chk("不留半截括号", t.count("（") == t.count("）"), t)
+
+    # 超长说明：只能截断，不许用省略号收尾
+    _, t = m.case_title(
+        "Selfie Validator",
+        "把一张自拍变成合规证件照，自动换背景并检查面部是否被遮挡，同时给出各国签证尺寸模板。",
+        site_name)
+    chk("标题不出省略号", "…" not in t and "..." not in t, t)
+
+    # 名字只差空格/大小写/emoji：字号变了但仍是同一个名字 ⇒ 也要去重
+    _, t = m.case_title("Mind Reach", "MindReach 是 Autogenic Training 冥想应用", site_name)
+    chk("驼峰写法不重复名字", "MindReach" not in t and t.count("Mind Reach") == 1, t)
+
+    _, t = m.case_title(
+        "reddit grow", "MRR $503，RedditGrow通过AI辅助在Reddit上寻找潜在客户", site_name)
+    chk("金额段挡在名字前也能去掉", "RedditGrow" not in t and "AI辅助" in t, t)
+    chk("去重后仍是完整短语", not t.split(" · ")[0].endswith("—"), t)
+
+    _, t = m.case_title("Screenshot to Code (WhimsyWorks, Inc.)",
+                        "Screenshot to Code 是 AI 前端代码生成工具", site_name)
+    chk("括号注释不进说明", t.count("Screenshot to Code") == 1, t)
+
+    # 素材全被过滤时，去 `fallbacks` 里再找一句
+    _, t = m.case_title(
+        "Piston", "当前 MRR 为 9079，近 30 天收入 $12,000。", site_name,
+        fallbacks=("法国最大的求职搜索 SaaS",))
+    chk("素材全被过滤时换下一条", "求职搜索" in t, t)
+
+    _, t = m.case_title("wpconvert-ai-convert-ai-sites-to-wordpress", "把整个网站转成 WordPress，MRR $1200。", site_name)
+    chk("超长名字也不切断站名", t.endswith(" · " + site_name) and len(t) <= 62, t)
+    chk("超长名字截断也不出省略号", "…" not in t, t)
+
+    _, t = m.case_title("仅名字", "", site_name)
+    chk("没有 one_liner 时只留名字", t == "仅名字 · " + site_name, t)
+
+    bad_tail, bad_money, bad_dots, bad_meta = [], [], [], []
+    for c in cases:
+        full = m.case_title(
+            c.get("name") or c["id"], c.get("one_liner") or "", site_name,
+            fallbacks=(c.get("what_it_does"), c.get("verdict")))[1]
+        if not full.endswith(" · " + site_name):
+            bad_tail.append(c["id"])
+        if m.MONEY_PAT.search(full) or m.MONEY_WORD_PAT.search(full):
+            bad_money.append("%s=%s" % (c["id"], full))
+        if "…" in full or "..." in full:
+            bad_dots.append("%s=%s" % (c["id"], full))
+        if m.META_PAT.search(full):
+            bad_meta.append("%s=%s" % (c["id"], full))
+    chk("全库标题都以站名收尾（站名永不被切断）", not bad_tail, ",".join(bad_tail[:3]))
+    chk("全库标题不含金额", not bad_money, " | ".join(bad_money[:2]))
+    chk("全库标题不含省略号", not bad_dots, " | ".join(bad_dots[:2]))
+    chk("全库标题不含平台状态语", not bad_meta, " | ".join(bad_meta[:2]))
+
     # 没配域名时，canonical 和 sitemap 都该干净地消失，而不是留个空 href
     bare = m.load_site(ROOT)
     bare["url"] = ""

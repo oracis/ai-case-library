@@ -300,6 +300,85 @@ class Dedupe(unittest.TestCase):
         self.assertIn("--force", detail)
 
 
+# ---------------------------------------------------------------- 游戏仓判重（B站二号）
+
+class DedupeGamesRepo(unittest.TestCase):
+    """二号的真账簿在**游戏仓**（`publish/bridge.py --platform bilibili2`）。
+
+    本仓 SQLite / longtail 两路对它永远查不到 —— 2026-11-06 之前 `dedupe`
+    对二号恒「无已发记录」，只能靠候选池先排除 + bridge 的
+    `blocks_republish` 兜底，闸在纸上不在路上。
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp(prefix="guard_games_")
+        self.db_path = os.path.join(self.tmp, "ledger.db")
+        self.games_path = os.path.join(self.tmp, "publish_state.json")
+        self._env = os.environ.get("LEDGER_DB")
+        os.environ["LEDGER_DB"] = self.db_path
+        db.close_conn()
+
+    def tearDown(self):
+        if self._env is None:
+            os.environ.pop("LEDGER_DB", None)
+        else:
+            os.environ["LEDGER_DB"] = self._env
+        db.close_conn()
+        for name in os.listdir(self.tmp):
+            os.remove(os.path.join(self.tmp, name))
+        os.rmdir(self.tmp)
+
+    def _games(self, slug, platform="bilibili2", state="published", **kw):
+        d = {"articles": {slug: {"title": "x", "platforms": {
+            platform: dict({"state": state}, **kw)}}}}
+        with open(self.games_path, "w", encoding="utf-8") as f:
+            json.dump(d, f, ensure_ascii=False)
+
+    def test_已发布就拦(self):
+        self._games("ep-003-freedoom", remote_id="53787305")
+        r = G.check_dupe("bilibili2", "ext-ep-003-freedoom",
+                         games_path=self.games_path)
+        self.assertFalse(r["ok"])
+        self.assertEqual(r["level"], "games")
+        self.assertIn("53787305", r["detail"])
+
+    def test_已有草稿不拦但要说清(self):
+        """`draft` 建稿会按标题就地复用，所以「箱里有这一篇」正是要发的那篇。
+
+        拦它会把二号箱里 8 条陈旧稿永远锁死（档期选到就 block）。
+        """
+        self._games("ep-004-quake", state="drafted", remote_id="376917")
+        r = G.check_dupe("bilibili2", "ext-ep-004-quake",
+                         games_path=self.games_path)
+        self.assertTrue(r["ok"])
+        self.assertIn("就地复用", r["detail"])
+        self.assertIn("376917", r["detail"])
+
+    def test_产物id带b2后缀也认得出(self):
+        self._games("ep-004-quake", remote_id="376917")
+        for case in ("ext-ep-004-quake", "ext-ep-004-quake-b2", "ep-004-quake"):
+            self.assertFalse(
+                G.check_dupe("bilibili2", case, games_path=self.games_path)["ok"],
+                "%s 应命同一条" % case)
+
+    def test_台账缺失也要说出来(self):
+        r = G.check_dupe("bilibili2", "ext-ep-004-quake",
+                         games_path=os.path.join(self.tmp, "nope.json"))
+        self.assertTrue(r["ok"], "读不到账不许当「有问题」硬拦")
+        self.assertIn("缺失", r["detail"], "但也不许说成「无记录」")
+
+    def test_一号不读游戏仓(self):
+        """游戏仓只记二号；一号的判重仍走本仓台账。"""
+        self._games("ep-003-freedoom", remote_id="53787305")
+        self.assertTrue(G.check_dupe("bilibili", "ext-ep-003-freedoom",
+                                     games_path=self.games_path)["ok"])
+
+    def test_别的状态不算发过(self):
+        self._games("ep-004-quake", state="failed")
+        self.assertTrue(G.check_dupe("bilibili2", "ext-ep-004-quake",
+                                     games_path=self.games_path)["ok"])
+
+
 # ---------------------------------------------------------------- 唯一约束 / upsert
 
 class UniqueLedger(unittest.TestCase):

@@ -1,6 +1,8 @@
-<h1>游戏厅：Mindustry，塔防和流水线一起上</h1>
+<h1>Mindustry：注解自动生成实体类的 Java 沙盒塔防</h1>
 <p style="line-height:1.7;font-size:15px;color:#555;margin:0 0 22px;padding:12px 14px;background:#f5f7fb;border-radius:6px">Mindustry 是一款开源的沙盒塔防与资源管理游戏，融合了塔防、即时战略和工厂自动化玩法。</p>
 <p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">开源游戏拆解 · 它用的是什么技术</p>
+<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">先说清楚：这是源码索引，不是游戏下载站</h2>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">本文介绍的项目指向一个真实存在的源码仓库。仓库里只有代码：要自己装环境、自己编译；不少经典游戏的重实现项目，原版素材还要自备。它的价值在「能读、能改」，不在「下载即玩」。</p>
 <h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">它是什么</h2>
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">玩家在一张张地图上开采铜、煤等资源，建造传送带网络把物料输送给各类炮塔，抵御一波波敌人的进攻，同时还可以生产单位主动出击摧毁敌方核心。游戏使用 Java 编写，支持 Windows、Linux、Android 等多平台，拥有单人战役、生存模式和多人联机，凭借独特的'物流即防御'设计广受好评。</p>
 <h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">零成本能拿到什么</h2>
@@ -13,14 +15,12 @@
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">素材里没读到构建脚本和入口页面，跑法请以仓库 README 为准。</p>
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 编译/依赖：老项目常要旧版工具链，报错多半不是你的问题</p>
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 素材：经典游戏的重实现工程通常<strong>不自带</strong>原版图片与音效</p>
-<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">它用什么技术做的</h2>
-<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">Java + libGDX：同一份代码可以打包成桌面版、安卓版，也能在浏览器里跑。地图是网格，传送带、管道、工厂构成有向图，物流与生产在每帧里推一遍；塔防的敌人寻路跑在同一套网格上。想学「怎么让几千个实体同时跑而不卡」，它的调度与数据结构是很实用的参考。</p>
 <h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">基本信息</h2>
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 一句话简介：开源沙盒塔防游戏</p>
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 源码：<a href="https://github.com/Anuken/Mindustry" style="color:#2f6fed;text-decoration:none;word-break:break-all">Mindustry</a></p>
 <p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">（源码部分依据 Anuken/Mindustry 的公开代码结构整理，部分读过；细节以仓库当前代码为准。）</p>
 <h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">版权与免责</h2>
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 每一条的源码许可证以<strong>各自仓库</strong>为准，二次分发与商用前请逐条核对。</p>
-<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 本文只讨论项目与代码，不托管任何游戏文件，也不提供素材包。</p>
-<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 代码与素材版权归各自作者所有，本文仅作技术介绍。</p>
-<p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">Mindustry 是一款开源的沙盒塔防与资源管理游戏，融合了塔防、即时战略和工厂自动化玩法。源码都在各自仓库里，需自行编译，部分需自备原版素材。</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 本文只介绍项目与代码，不托管任何游戏文件，也不提供素材包。</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 收录项目版权归各自作者所有；你是作者且不希望被收录，可以联系删除。</p>
+<p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">开源沙盒游戏，塔防+即时战略，源码索引，自编译，需原版素材。</p>

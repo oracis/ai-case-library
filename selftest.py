@@ -26,6 +26,7 @@ import urllib.request
 ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 import atomicio                                               # noqa: E402
+import candidate_store as CSt                                 # noqa: E402
 
 DATA = os.path.join(ROOT, "data")
 BACKUP = os.path.join(ROOT, ".selftest_backup")
@@ -278,8 +279,7 @@ def seed_fixtures():
     git 管辖、git checkout 救不回来（已实测丢了一条，找不回）。
     """
     p = os.path.join(DATA, "candidates.json")
-    with open(p, encoding="utf-8") as f:
-        cands = json.load(f)
+    cands = CSt.load_candidates(path=p)
     have = {c.get("id") for c in cands}
     tmpl = {
         "added_at": "2026-10-15",
@@ -307,10 +307,10 @@ def seed_fixtures():
         cands.insert(0, rec)
         added.append(fid)
     if added:
-        # 保留原换行 + 原子写：这一步是**往真实 data/ 里写**，万一最后还原
+        # 保留原格式 + 原子写：这一步是**往真实 data/ 里写**，万一最后还原
         # 失败，至少要保证不会额外把整个文件的 LF 换成 CRLF（2026-10-21）。
-        atomicio.write_json(p, cands, indent=2,
-                            newline=atomicio.detect_newline(p))
+        # 格式探测/原子写统一交给 candidate_store，不再自己拼 indent+newline。
+        CSt.save_candidates(cands, path=p)
         print("已注入自测固件候选：%s" % " / ".join(added))
 
     # ---- 采集队列固件（让 [4] 不再消费真实素材）----

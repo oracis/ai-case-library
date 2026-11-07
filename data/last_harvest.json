@@ -1,78 +1,78 @@
 {
-  "ran_at": "2026-11-06 07:34:07",
-  "added": 69,
+  "ran_at": "2026-11-07 06:47:26",
+  "added": 58,
   "by_source": {
-    "hn": 50,
+    "hn": 42,
     "indiehackers": 1,
-    "trustmrr": 18
+    "trustmrr": 15
   },
   "inbox_total": 400,
-  "archived_this_run": 69,
-  "archive_total": 1520,
+  "archived_this_run": 58,
+  "archive_total": 1578,
   "top": [
     {
-      "name": "Penmo",
-      "headline": "MRR $6,725，TrustMRR 第 573 名",
+      "name": "Usagebar",
+      "headline": "近 30 天收入 $1,622",
       "heat": 0,
-      "category": "创作者经济",
+      "category": "开发者工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/penmo"
+      "url": "https://trustmrr.com/startup/usagebar"
     },
     {
-      "name": "AiSDR INC.",
-      "headline": "MRR $198,514，TrustMRR 第 24 名",
+      "name": "Whis AI",
+      "headline": "近 30 天收入 $5,705",
       "heat": 0,
       "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/aisdr-inc"
+      "url": "https://trustmrr.com/startup/whis-ai"
     },
     {
-      "name": "JustMacApps",
-      "headline": "近 30 天收入 $159",
+      "name": "Noonlaunch - Product Hunt Alternative to Launch Your SaaS",
+      "headline": "近 30 天收入 $454",
       "heat": 0,
       "category": "垂直行业 SaaS",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/justmacapps"
+      "url": "https://trustmrr.com/startup/noonlaunch"
     },
     {
-      "name": "SaasCity",
-      "headline": "近 30 天收入 $3,137",
+      "name": "Mat: Photo Widget Maker",
+      "headline": "近 30 天收入 $404",
       "heat": 0,
-      "category": "交易市场",
+      "category": "创作者经济",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/saascity"
+      "url": "https://trustmrr.com/startup/mat-photo-widget-maker"
     },
     {
-      "name": "Frutti",
-      "headline": "近 30 天收入 $4,290",
-      "heat": 0,
-      "category": "AI 工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/frutti"
-    },
-    {
-      "name": "AI Busted",
-      "headline": "近 30 天收入 $348",
+      "name": "AsmuthAI",
+      "headline": "累计收入 $1（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
       "heat": 0,
       "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/ai-busted"
+      "url": "https://trustmrr.com/startup/asmuthai"
     },
     {
-      "name": "MotionVideo",
-      "headline": "近 30 天收入 $790",
-      "heat": 0,
-      "category": "AI 工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/motionvideo"
+      "name": "I tried to connect every GPU on the planet together (kinda)",
+      "headline": "疑似金额 $50k",
+      "heat": 4,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://news.ycombinator.com/item?id=50394231"
     },
     {
-      "name": "WriteSim",
-      "headline": "近 30 天收入 $240",
+      "name": "Tape",
+      "headline": "自报收入 $40,000 / mo（Indie Hackers）",
       "heat": 0,
-      "category": "AI 工具",
+      "category": "未分类",
+      "source": "indiehackers",
+      "url": "https://www.indiehackers.com/product/tape"
+    },
+    {
+      "name": "Bencho",
+      "headline": "近 30 天收入 $29,653",
+      "heat": 0,
+      "category": "企业服务",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/writesim"
+      "url": "https://trustmrr.com/startup/bencho"
     }
   ]
 }

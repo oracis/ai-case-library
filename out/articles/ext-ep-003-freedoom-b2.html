@@ -1,8 +1,10 @@
-<h1>游戏厅：Freedoom，用免费素材替掉 DOOM</h1>
+<h1>Freedoom：给《毁灭战士》重造一套免费素材</h1>
 <p style="line-height:1.7;font-size:15px;color:#555;margin:0 0 22px;padding:12px 14px;background:#f5f7fb;border-radius:6px">Freedoom 是一个自由开源的第一人称射击游戏项目，目标是提供一套完全自由授权的游戏资源，配合任何经典…</p>
 <p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">开源游戏拆解 · 它用的是什么技术</p>
+<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">先说清楚：这是源码索引，不是游戏下载站</h2>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">本文介绍的项目指向一个真实存在的源码仓库。仓库里只有代码：要自己装环境、自己编译；不少经典游戏的重实现项目，原版素材还要自备。它的价值在「能读、能改」，不在「下载即玩」。</p>
 <h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">它是什么</h2>
-<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">原版《毁灭战士》是 id Software 1993 年推出的传奇 FPS，开创了第一人称射击这一类型。Freedoom 复刻了原作的核心玩法：在迷宫般的关卡中用霰弹枪、火箭筒等武器消灭成群的恶魔，并包含三个章节共数十个关卡，还能兼容游玩海量社区自制的 Doom 模组地图。</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">原版《毁灭战士》是 id Software 1993 年推出的传奇 FPS，开创了第一人称射击这一类型。Freedoom 复刻了原作的核心玩法：在迷宫般的关卡中用各类武器消灭成群的恶魔，并包含三个章节共数十个关卡，还能兼容游玩海量社区自制的 Doom 模组地图。</p>
 <h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">零成本能拿到什么</h2>
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 许可证：<strong>NOASSERTION</strong> —— 具体条款以仓库 LICENSE 原文为准</p>
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 语言：Python</p>
@@ -13,14 +15,12 @@
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">素材里没读到构建脚本和入口页面，跑法请以仓库 README 为准。</p>
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 编译/依赖：老项目常要旧版工具链，报错多半不是你的问题</p>
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 素材：经典游戏的重实现工程通常<strong>不自带</strong>原版图片与音效</p>
-<h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">它用什么技术做的</h2>
-<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">要注意：它本身**不是引擎**，而是一整套自由授权的游戏资源（WAD：贴图、音效、关卡地图）。想跑起来得配一个 Doom 引擎，比如 PrBoom+ 或 GZDoom。技术看点正是这种「资源与引擎彻底分离」的老架构——同一份 WAD 能在十几个不同引擎里复用，这也是它能在没有源码的情况下被重制出来的前提。</p>
 <h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">基本信息</h2>
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 一句话简介：基于经典 Doom 引擎的自由软件 FPS</p>
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 源码：<a href="https://github.com/freedoom/freedoom" style="color:#2f6fed;text-decoration:none;word-break:break-all">Freedoom</a></p>
 <p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">（源码部分依据 freedoom/freedoom 的公开代码结构整理，部分读过；细节以仓库当前代码为准。）</p>
 <h2 style="font-size:18px;line-height:1.5;color:#111;margin:30px 0 12px;padding-left:10px;border-left:4px solid #2f6fed">版权与免责</h2>
 <p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 每一条的源码许可证以<strong>各自仓库</strong>为准，二次分发与商用前请逐条核对。</p>
-<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 本文只讨论项目与代码，不托管任何游戏文件，也不提供素材包。</p>
-<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 代码与素材版权归各自作者所有，本文仅作技术介绍。</p>
-<p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">Freedoom 是一个自由开源的第一人称射击游戏项目，目标是提供一套完全自由授权的游戏资源，配合任何经典…。源码都在各自仓库里，需自行编译，部分需自备原版素材。</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 本文只介绍项目与代码，不托管任何游戏文件，也不提供素材包。</p>
+<p style="line-height:1.75;font-size:16px;color:#333;margin:0 0 16px">· 收录项目版权归各自作者所有；你是作者且不希望被收录，可以联系删除。</p>
+<p style="line-height:1.7;font-size:14px;color:#888;margin:0 0 6px">Freedoom开源FPS游戏，资源自由授权，需编译运行，部分素材需自备。</p>

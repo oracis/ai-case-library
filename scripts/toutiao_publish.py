@@ -2803,14 +2803,14 @@ def cmd_draft(args):
         raise SystemExit("✗ 拿不到标题：md 里没有「# 标题」，也没给 --title")
     _t2 = strip_episode_no(title)
     if _t2 != title:
-        print("  标题去期号：%s → %s（10-31 定的口径：所有期统一「栏目：名字」）"
-              % (title, _t2))
+        print("  标题去期号：%s → %s（10-31 口径：统一不写期号；11-06 起也不带"
+              "「游戏厅：」栏目前缀，见 PRD #79）" % (title, _t2))
         title = _t2
     # 概要（2026-11-02 用户要求「标题需要加概要介绍」）：头条的
     # `search_info.abstract` 字段。表里没登记就不硬编，交给正文首段提示人工补。
     abstract = tab_summary
     if title.count("，") == 0 and not abstract:
-        print("  [!] 标题只有栏目+名字、没有概要，且表里没登记 summary：")
+        print("  [!] 标题只有名字、没有概要，且表里没登记 summary：")
         print("      在 data/toutiao_titles.json 补 %s 的 {title, summary}" % (cid_hint or "<cid>"))
     blocks = md_to_blocks(md)
     body_html = blocks_to_html(blocks, footer=False)
@@ -2881,12 +2881,16 @@ _TITLES_CACHE = {"at": 0.0, "d": None}
 def titles_table():
     """`data/toutiao_titles.json`：`{cid: {title, summary}}`（2026-11-02 新增）。
 
-    用户口径（11-02 定，两条）：
+    用户口径（11-02 定，11-06 修订第 2 条）：
       1. **标题必须带概要**，只有「游戏厅：Minetest」这种裸名算缺陷 ——
          读者在信息流里只看到标题，不知道这篇讲什么、值不值得点。
-      2. **永不出现「第N期」**：系列感靠栏目名「游戏厅」维持，不靠编号。
-         （上游 open-source-games 的 md 一级标题还带着期号，所以
-         `strip_episode_no` 保留为最后一道兜底。）
+      2. **永不出现「第N期」**；2026-11-06 起也不再用「游戏厅：」栏目前缀
+         （A 档 / PRD #79：`strip_title_prefix.py` 已把本表 11 条 title 与
+         游戏仓 97 份 platform 稿 h1 的前缀去掉）——系列感靠每期的技术钩子，
+         不靠统一品牌前缀。上游 md 仍可能带期号，`strip_episode_no` 保留兜底。
+         ⚠ 本表是**待发标题**源；`cmd_retitle` 会拿它去改线上已发布标题
+         （改已发布 = 重新送审），头条冻结期内被 `freeze_guard()` 拦住，
+         解禁后口径是「不改已发布稿件」，别把它当自动同步开关。
 
     优先级：`--title` > 本表 > `out/toutiao/<cid>/meta.json` > cid。
     放表里而不是改 meta.json：meta 由 `build_article` 每次重算会覆盖，

@@ -983,6 +983,9 @@ def summarize(items):
 # 读数据 / CLI
 # ---------------------------------------------------------------------------
 def load(name):
+    if name == "candidates":
+        import candidate_store as CSt
+        return CSt.load_candidates(path=os.path.join(ROOT, "data", name + ".json"))
     with open(os.path.join(ROOT, "data", name + ".json"), encoding="utf-8") as f:
         return json.load(f)
 

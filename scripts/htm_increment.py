@@ -173,6 +173,9 @@ def parse_index(path):
 
 
 def load_lib_table(name):
+    if name == "candidates":
+        import candidate_store as CSt
+        return CSt.load_candidates(path=os.path.join(ROOT, "data", name + ".json"))
     p = os.path.join(ROOT, "data", name + ".json")
     if not os.path.exists(p):
         return []

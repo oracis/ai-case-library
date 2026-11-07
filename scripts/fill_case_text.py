@@ -16,10 +16,9 @@
 铁律（来自项目记忆）
 --------------------
 1. **补正文从候选侧补，不是放宽闸门。** 本脚本只写 data/candidates.json。
-2. **改 data/*.json 必须匹配原缩进**：本文件实测 candidates.json 是
-   `indent=2` + **CRLF** + **无末尾换行**。用 json.dump 直接写会把
-   整个文件炸成全量diff（2026-10-05 实测三种 indent + 3 种换行组合，
-   只有这一种能字节级还原）。
+2. **写盘统一走 `candidate_store`**（2026-11-06）：旧注释写「CRLF」与磁盘
+   事实相反（实测是 **LF + indent=2 + 无末尾换行**），且各脚本各写一份
+   探测/原子写逻辑，口径互相传递。现在由 CSt 按磁盘字节探测格式并原子落盘。
 3. **`human_read` 绝不代勾** —— 那是人替数字背书的动作。
 
 用法
@@ -29,7 +28,6 @@
 """
 
 import argparse
-import io
 import json
 import os
 import sys
@@ -37,7 +35,7 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
-CAND = os.path.join(ROOT, "data", "candidates.json")
+import candidate_store as CSt  # noqa: E402  候选池唯一读写入口（2026-11-06 收口）
 
 # ---------------------------------------------------------------------------
 # 正文素材。全部来自一手来源（TrustMRR 支付网关档案 + 官网正文），
@@ -1060,44 +1058,22 @@ TEXT = {
 }
 
 
-def load_json_raw(path):
-    """读回原始文本（序列化格式必须原样还原，所以不能只留解析结果）。"""
-    with io.open(path, "r", encoding="utf-8", newline="") as f:
-        return f.read()
-
-
-def save_like(raw, obj):
-    """按 candidates.json 的**现有**格式写回 + 原子替换。
-
-    ⚠ 2026-10-21 修两处：
-    1. 换行风格不再写死 CRLF —— 实测磁盘是 **LF**（旧 docstring 声称
-       CRLF 与事实相反），写死会把整文件换行风格翻转成 CRLF，格式分裂
-       还会顺着 promote_to_candidates 的探测链路继续传递。以磁盘 raw
-       里有没有 CRLF 为准。
-    2. 不再原地截断写：先写 tmp 再 os.replace。旧的字节级自检比的是
-       自己刚写的输出，永远通过；进程被杀/磁盘满时半截 JSON 就留在
-       磁盘上，triage 那边还会把它静默当空库。
-    """
-    s = json.dumps(obj, ensure_ascii=False, indent=2)
-    if "\r\n" in (raw or ""):
-        s = s.replace("\n", "\r\n")
-    tmp = CAND + ".tmp"
-    with io.open(tmp, "w", encoding="utf-8", newline="") as f:
-        f.write(s)
-    os.replace(tmp, CAND)
-    # 字节级自检：不还原成原格式就会炸成全量 diff
-    back = load_json_raw(CAND)
-    if back != s:
-        raise SystemExit("[!] 写回格式与预期不一致，已中止")
-
+# ---------------------------------------------------------------------------
+# 读写已收口到 `candidate_store`（2026-11-06）。
+#
+# 原先这里有 `load_json_raw()` + `save_like()` 一对自制写盘函数：手写
+# tmp+replace（无 fsync）、只探换行不探缩进/末尾换行、字节级自检比的是
+# 自己刚写的输出（永远通过）。实现与 `contentpack_ready` / `promote_to_
+# candidates` 各写一遍，三份口径还会互相传递。统一交给 CSt 后，格式
+# 探测与原子写只存在一个版本。
+# ---------------------------------------------------------------------------
 
 def main():
     ap = argparse.ArgumentParser(description="给候选补齐正文（数据源：一手档案 + 官网）")
     ap.add_argument("--dry", action="store_true", help="只检查不写盘")
     args = ap.parse_args()
 
-    raw = load_json_raw(CAND)
-    cands = json.loads(raw)
+    cands = CSt.load_candidates()
     by_id = {c.get("id"): c for c in cands}
 
     # 2026-10-15：TEXT 现在是**累积存档**（写过的正文留着当底稿），
@@ -1134,8 +1110,9 @@ def main():
         print("\n(--dry 未写盘)")
         return 0
 
-    save_like(raw, cands)
-    print("\n已写入 data/candidates.json（indent=2 / CRLF / 无尾换行）")
+    ind, nl, tail_nl = CSt.save_candidates(cands)
+    print("\n已写入 data/candidates.json（按磁盘原生格式：indent=%d / %s / 末尾换行=%s）"
+          % (ind, "CRLF" if nl == "\r\n" else "LF", "有" if tail_nl else "无"))
     return 0
 
 

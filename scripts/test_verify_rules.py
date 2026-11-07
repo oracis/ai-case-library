@@ -825,5 +825,48 @@ class MergeSources(unittest.TestCase):
         self.assertEqual(len(merged), 2)
 
 
+class ResolveTimepoint(unittest.TestCase):
+    """晋升时「快照日不许被晋升当天覆盖」（2026-11-05）。
+
+    `server.py` 原本硬写 `verified_at = now`；今天回源、明天晋升就会把
+    「截至 2026-11-05 的缓存快照」印成 11-06。`timepoint_row()` 的
+    文案是「截至 X（抓取日快照）」，所以日期必须是核对/抓取那天。
+    """
+
+    def test_候选已登记核对日优先于now(self):
+        c = {"id": "x", "verified_at": "2026-11-05", "caliber": "mrr",
+             "metrics": {"caliber": "last_30d"}}
+        d = {"caliber": "mrr"}
+        self.assertEqual(R.resolve_case_timepoint(c, d, "2026-11-06"),
+                         ("2026-11-05", "mrr"))
+
+    def test_人工核实草稿的口径优先(self):
+        c = {"verified_at": "2026-11-05", "caliber": "last_30d",
+             "metrics": {"caliber": "arr"}}
+        self.assertEqual(R.resolve_case_timepoint(c, {"caliber": "mrr"}, "x"),
+                         ("2026-11-05", "mrr"))
+        self.assertEqual(R.resolve_case_timepoint(c, {}, "x"),
+                         ("2026-11-05", "last_30d"))
+
+    def test_旧候选没时点就回落now且行为不变(self):
+        c = {"id": "old", "metrics": {"caliber": "last_30d"}}
+        self.assertEqual(R.resolve_case_timepoint(c, {}, "2026-11-06"),
+                         ("2026-11-06", "last_30d"))
+        self.assertEqual(R.resolve_case_timepoint({}, {}, "2026-11-06"),
+                         ("2026-11-06", ""))
+
+    def test_同步时间戳只取日期部分(self):
+        c = {"verified_at": "2026-11-05T04:00:12Z", "caliber": "mrr"}
+        self.assertEqual(R.resolve_case_timepoint(c, {}, "2026-11-06"),
+                         ("2026-11-05", "mrr"))
+
+    def test_脏日期不采信(self):
+        for bad in ("昨天", "2026/11/05", "2026-13-45", "2026-11-00", ""):
+            c = {"verified_at": bad, "caliber": "mrr"}
+            self.assertEqual(
+                R.resolve_case_timepoint(c, {}, "2026-11-06")[0],
+                "2026-11-06", bad)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

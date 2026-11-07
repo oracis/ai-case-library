@@ -1076,9 +1076,18 @@ def publish_aliyun(cdp, draft_id, community=None, cover_file="",
     #   输入框；照它找 input 会一无所获，于是摘要永远空着 ⇒ 点「发布文章」被
     #   客户端校验静默拦下（无弹窗、无请求、不跳转，只闪一个「消息」提示）。
     if abstract:
-        cur = cdp.eval("(function(){var t=document.querySelector('#abstractContent');"
-                       "return t?t.value.length:-1;})()")
-        if isinstance(cur, int) and cur == 0:
+        # 🚨 2026-11-06 修：旧写法只在 `cur == 0` 时注入 ⇒ 草稿建稿时已写了
+        #   一句兜底摘要（first_paragraph 抓到的栏目口号），显式传入的
+        #   --abstract 就被**静默丢弃**，脚本只打印「摘要长度: N」，
+        #   调用方看到一个长度就以为写进去了（2048 那篇实际发出去的是
+        #   「「游戏厅」栏目，每期只讲一款游戏…」这句模板口号）。
+        #   改成：按**内容**比对，不一致就覆盖；回读不一致直接停手。
+        cur_text = cdp.eval(
+            "(function(){var t=document.querySelector('#abstractContent');"
+            "return t?t.value:'NO_FIELD';})()")
+        if cur_text == "NO_FIELD":
+            raise SystemExit("阿里云发表：找不到 #abstractContent 摘要字段")
+        if cur_text != abstract:
             r = cdp.eval("""
             (function(){
               var t = document.querySelector('#abstractContent');
@@ -1090,13 +1099,17 @@ def publish_aliyun(cdp, draft_id, community=None, cover_file="",
               t.dispatchEvent(new Event('change', {bubbles: true}));
               return 'ok len=' + t.value.length;
             })()""" % json.dumps(abstract))
-            print("  摘要注入: %s" % r)
+            print("  摘要覆盖: 原 %d 字 → %s" % (len(cur_text), r))
             time.sleep(1)
-        got = cdp.eval("(function(){var t=document.querySelector('#abstractContent');"
-                       "return t?t.value.length:-1;})()")
-        print("  摘要长度: %s" % got)
-        if not isinstance(got, int) or got == 0:
-            raise SystemExit("阿里云发表：摘要仍为空，会被必填校验拦住，不点发布")
+        got_text = cdp.eval(
+            "(function(){var t=document.querySelector('#abstractContent');"
+            "return t?t.value:'';})()")
+        print("  摘要长度: %s（期望 %d）"
+              % (len(got_text or ""), len(abstract)))
+        if got_text != abstract:
+            raise SystemExit(
+                "阿里云发表：摘要回读不一致（期望 %d 字，实际 %d 字），不点发布"
+                % (len(abstract), len(got_text or "")))
     # 文章图片（firstImg，页面态必传）：显式路径 > 台账反查
     # 🚨 2026-11-05：这里的失败原来是**静默**的（`if u:` 没有 else），
     #   于是「本地有图、文章里没图」可以一路发出去而没人知道。
@@ -1155,13 +1168,26 @@ def first_paragraph(body, limit=300):
 
     ⚠ 跳过 `>` 引用段与 `---` 分隔线：公众号稿的导语常写成引用块，
       原样塞进阿里云摘要框会带出一个 `&gt;` 前缀（2026-11-01 实拍踩到）。
+
+    🚨 2026-11-06 补：跳过**栏目标语 / 自述句**。游戏稿正文固定有一行
+      「「游戏厅」栏目，每期只讲一款游戏：它是什么、怎么玩、它用的是什么技术。」
+      —— 每期一字不差，抓它当摘要等于摘要跟这篇文章无关（2048 那篇就这么发出去的）。
+      这类段落没有本篇任何专有信息，一律 continue，取下一段真正讲这个项目的。
+
+      2026-11-06 晚：这句已从 106 份存量稿删掉（游戏仓 `strip_column_line.py`，
+      PRD #75）—— 删后抽 ep-004/008/011 实测摘要仍是讲项目本身的段落。
+      表里的「栏目」「每期只讲」**保留作防御**：平台草稿箱和外部来稿还可能有旧稿。
     """
     import re
+    BOILER = ("栏目", "每期只讲", "本文介绍", "先说清楚", "这里只有源码",
+              "不用付费解锁", "以下是正文")
     for para in body.split("\n"):
         p = para.strip()
         if not p or p.startswith("#") or p.startswith("!["):
             continue
         if p.startswith(">") or p.startswith("---"):
+            continue
+        if any(k in p for k in BOILER):
             continue
         p = re.sub(r"[*`\[\]]|\[([^\]]*)\]\([^)]*\)", r"\1", p)
         return p[:limit]

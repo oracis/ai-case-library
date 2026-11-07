@@ -241,7 +241,7 @@ def verify(cfg):
     return blogs
 
 
-def _post_struct(title, body, as_html=False, categories=None):
+def _post_struct(title, body, as_html=False, categories=None, excerpt=""):
     cats = list(categories or [])
     if as_html:
         description = md_to_html(body)
@@ -254,11 +254,12 @@ def _post_struct(title, body, as_html=False, categories=None):
         "description": description,
         "categories": cats,
         "mt_keywords": "AI,独立开发,产品拆解",   # 标签，按需覆盖
+        "mt_excerpt": excerpt or "",
     }
 
 
-def new_post(cfg, title, body, publish, as_html=False):
-    st = _post_struct(title, body, as_html=as_html)
+def new_post(cfg, title, body, publish, as_html=False, excerpt=""):
+    st = _post_struct(title, body, as_html=as_html, excerpt=excerpt)
     post_id = _call(cfg, "metaWeblog.newPost",
                     cfg.get("blogid") or "", cfg["username"], cfg["token"],
                     st, publish)
@@ -363,7 +364,12 @@ def _do_post(args, publish):
     if re.search(r"[$¥€£]\s*\d|\d[\d,.]*\s*(?:美元|美金|美刀|元|万|亿|RMB|USD|MRR|ARR)",
                  title, re.I):
         print("⚠ 标题疑似含金额（「标题禁金额」铁律）：", title)
-    post_id = new_post(cfg, title, body, publish=publish, as_html=args.html)
+    excerpt = getattr(args, "excerpt", "") or ""
+    if not excerpt:
+        print("⚠ 未给 --excerpt：博客园列表页/摘要位会用正文开头自动截取，"
+              "正文第 3 行若有栏目标语就会截出那句口号")
+    post_id = new_post(cfg, title, body, publish=publish, as_html=args.html,
+                       excerpt=excerpt)
     case_id = args.case or os.path.splitext(os.path.basename(args.file))[0]
     url = ""
     if publish:                                     # 发表后从回读里带出链接
@@ -427,9 +433,15 @@ def cmd_edit(args):
         with open(args.html_file, "r", encoding="utf-8") as f:
             body = f.read()
         as_html = True
+    elif not args.file:
+        # 只改标题/摘要时正文原样回传：editPost 是整篇替换，重渲染正文会带来
+        # 无关 diff（甚至改动已发布内容），能不动就不动。
+        body = cur.get("description") or ""
+        if not body:
+            raise SystemExit("线上正文为空，给 --file 或 --html-file")
+        as_html = _is_html(body)
+        print("ℹ 未给 --file：正文沿用线上现值（%d 字）" % len(body))
     else:
-        if not args.file:
-            raise SystemExit("给 --file 或 --html-file")
         md = _load_md_strip_watermark(args.file)
         md_title, body = split_md(md)
         as_html = bool(args.html) or _is_html(body)
@@ -445,16 +457,21 @@ def cmd_edit(args):
     elif "[Markdown]" not in cats:
         cats.insert(0, "[Markdown]")
 
+    excerpt = cur.get("mt_excerpt") or ""
+    if args.excerpt is not None:
+        excerpt = args.excerpt
     st = {
         "title": title,
         "description": body,
         "categories": cats,
         "mt_keywords": cur.get("mt_keywords") or "",
+        "mt_excerpt": excerpt,
     }
 
     print("→ post_id=%s「%s」" % (post_id, title))
     print("  正文 %d 字 / 分类 %s / 标签 %s"
           % (len(st["description"]), st["categories"] or "[]", st["mt_keywords"]))
+    print("  摘要 %d 字：%s" % (len(excerpt), excerpt[:60] + ("…" if len(excerpt) > 60 else "")))
     if args.dry_run:
         print("（--dry-run，未提交）")
         return
@@ -464,8 +481,13 @@ def cmd_edit(args):
     url = cur.get("link") or cur.get("permalink") or ""
     after = get_post(cfg, post_id)
     same = (after.get("description") or "") == st["description"]
+    ex_now = after.get("mt_excerpt") or ""
     print("✓ 已更新: %s %s" % (post_id, url))
     print("  回读正文一致: %s (%d 字)" % (same, len(after.get("description") or "")))
+    print("  回读摘要一致: %s (%d 字)" % (ex_now == excerpt, len(ex_now)))
+    if excerpt and ex_now != excerpt:
+        print("  ⚠ 摘要回读不一致（提交 %d 字 / 线上 %d 字）—— 别当成功"
+              % (len(excerpt), len(ex_now)))
     if not same:
         print("  ⚠ 回读与提交不一致 —— 可能是 Markdown 渲染改写了 HTML，去线上看一眼")
     case_id = args.case or post_id
@@ -496,12 +518,16 @@ def main():
     p.add_argument("--case", default="")
     p.add_argument("--html", action="store_true",
                    help="正文转 HTML 发送（默认发 MD 原文 + [Markdown] 分类）")
+    p.add_argument("--excerpt", default="",
+                   help="文章摘要（mt_excerpt）。不给则博客园拿正文开头自动截取，"
+                        "正文第 3 行是栏目标语时截出来就是一句没信息量的口号")
     p.set_defaults(fn=lambda a: _do_post(a, publish=False))
 
     p = sub.add_parser("publish", help="直接发表（publish=True）")
     p.add_argument("--file", required=True)
     p.add_argument("--case", default="")
     p.add_argument("--html", action="store_true")
+    p.add_argument("--excerpt", default="")
     p.set_defaults(fn=lambda a: _do_post(a, publish=True))
 
     p = sub.add_parser("release", help="放行已有草稿（editPost publish=True，不产生重复稿）")
@@ -517,6 +543,10 @@ def main():
                    help="直接用现成 HTML（只换某一段时先本地改好再整篇回传）")
     p.add_argument("--html", action="store_true", help="--file 时强制转 HTML 发送")
     p.add_argument("--title", default="", help="覆盖标题（默认沿用线上现值）")
+    p.add_argument("--excerpt", default=None,
+                   help="设置/覆盖「摘要」（mt_excerpt）。省略=沿用线上现值；"
+                        "传空串=清空。不设摘要时博客园会拿正文开头自动截取，"
+                        "正文第 3 行是栏目标语时截出来就是一句没信息量的口号")
     p.add_argument("--draft", action="store_true", help="改成草稿（默认保持已发表）")
     p.add_argument("--dry-run", action="store_true", help="只打印不提交")
     p.set_defaults(fn=cmd_edit)

@@ -55,6 +55,30 @@ DIMS = [
 
 MAX_RAW = 5 * sum(WEIGHTS.values())          # 34.5
 
+
+def _median_int(vals):
+    """中位数取整（.5 向上）。缺表兜底只求「全库的典型值」，不追求精度。"""
+    vals = sorted(v for v in vals if isinstance(v, int))
+    if not vals:
+        return 3
+    mid = len(vals) // 2
+    if len(vals) % 2:
+        return vals[mid]
+    return int((vals[mid - 1] + vals[mid]) / 2 + 0.5)
+
+
+def fallback_dims():
+    """缺表时的兜底六维：取全库既有评分的**中位数**。
+
+    2026-11-06 放宽（用户：「这两张表放宽」）：SCORES 不再强制人工逐条填。
+    兜底值来自既有 N 条人工判断的中位数 —— 是统计量，不是凭空编的判断；同时
+    在 note 与 `provisional: true` 上标死，一眼能看出「这条没人工评过」。
+    人工填了表就优先用表，兜底永不覆盖真实判断。
+    """
+    return {k: _median_int([s.get(k) for s in SCORES.values()])
+            for k, _label, _desc in DIMS}
+
+
 # ------------------------------------------------------------------ 评分表
 # 分数是主观判断，但每一条都写明了依据。要调整就改这里，然后重跑。
 def _plain(s):
@@ -3034,6 +3058,51 @@ SCORES = {
              "本地化 2：索引源、质量评分、去重规则都要重做，而资源本身不合法。"
              "竞争 3：同类工具少，但空位来自不敢做，不是没人想到。可借的只有质量评分这个产品思路。",
     ),
+    # ── 2026-11-06 晋升的 4 条（人工裁定，依据 tmp/tm_md/*.md；草拟见 tmp/htm_screen/fit_scores_draft_20261106.md） ──
+    "catering-funnels": dict(
+        demand=3, payment=3, compliance=3, acquisition=2, localization=2, competition=2,
+        blocker="本地生活渠道与代运营交付",
+        note="它的卖点是「代运营」而不是软件：三档定价都带一笔一次性上线费，要替餐厅把询价捕获、自动跟进和企业团餐报价的链路配"
+             "好；活跃订阅只有个位数、客单价却不低，说明这是重服务的小客户盘。国内「餐厅多接一单」的预算确实在，但采购口完全不"
+             "同——线索主要落在美团、抖音和企业微信，本地代运营公司靠人力就能做同样的事，很难卖到这个价位，付费意愿给 3。收"
+             "款要接微信/对公与发票，给 3；自动跟进一旦从邮件扩到短信或回拨就碰营销触达治理，合规给 3。最重的是获客与改造"
+             "两维：海外那套直销与代理商渠道在国内要换成地推与本地生活服务商体系（2），线索入口、跟进话术、宴席报价流程都得按"
+             "国内团餐场景重做（2）。竞争 2：SCRM 与餐饮系统已经占住「线索自动化」，空位只在「宴会/团餐线索」这一窄层"
+             "。",
+    ),
+    "talkeasy": dict(
+        demand=3, payment=3, compliance=4, acquisition=4, localization=3, competition=2,
+        blocker="国内免费口语陪练挤压",
+        note="AI 一对一语音陪练，一人团队、自助订阅、靠短视频引流，产品形态本身很轻。国内练英语口语是长期需求，但付费理由不"
+             "同：国内更认外教一对一和应试提分，AI 陪练要重新论证「为什么不用真人」，付费意愿给 3。C 端收款渠道现成，可"
+             "微信/支付宝与 App Store 的订阅、对账、分成都得重搭，支付给 3；只涉及学习数据、按成人定位不碰学科培"
+             "训红线，合规 4。最占便宜的是获客——它靠 Facebook / Instagram / TikTok 的短视频"
+             "与内容营销，换成小红书、抖音、B站几乎可以平移，给 4。本地化 3：练的是英语，教材不必重写（比小语种产品轻得多"
+             "），但要接微信登录分享、国内语音服务与 App 上架备案，发音评测也要按中式口音调。竞争给 2：流利说、讯飞以及"
+             "大厂语音助手里的免费口语陪练已经把这个位置挤得很满。",
+    ),
+    "bubblav": dict(
+        demand=3, payment=4, compliance=2, acquisition=2, localization=2, competition=2,
+        blocker="海外集成生态与生成式服务备案",
+        note="官网聊天机器人 + 替团队起草回复的 Copilot，卖点是「不按解决量或坐席收费」，免费版引流、Pro 按月订"
+             "阅。客服降本在国内是成熟采购项，但客户习惯按坐席/按年包买，这个差异点在国内反而不稀奇，付费意愿给 3；小额 B"
+             "2B 自助订阅走微信/支付宝很顺，支付 4。两处硬成本：一是合规——它一半价值在替团队读邮件和工单，会碰到客户个"
+             "人信息，国内还要考虑生成式服务备案与数据出境，给 2；二是它列了 30+ 原生集成与Zapier 数千应用，这些"
+             "海外 SaaS 在国内大多用不上，要换成企业微信、钉钉、飞书、千牛与公众号，集成层等于重做，本地化给 2。获客靠"
+             " SEO、博客与 X，国内搜索与社交生态完全不同，内容资产几乎要重来，给 2。竞争 2：智齿、网易七鱼和云厂商的"
+             "智能客服已经把通用位置占住，空位只在「固定月费、不按解决量或坐席计费」这个定价主张。",
+    ),
+    "arq": dict(
+        demand=4, payment=4, compliance=4, acquisition=3, localization=3, competition=2,
+        blocker=None,
+        note="给厨卫卧室展厅把已有设计图转成照片级渲染和品牌化客户提案，按月/年订阅、按渲染额度分档，Windows 桌面端接"
+             "现有设计软件的图片导出。国内家居门店与展厅愿意为「出图效率」掏钱，预算口清晰，付费意愿给 4；B2B 对公订阅与"
+             "发票链路成熟，支付 4；只处理设计图和提案、不碰内容红线，轻度涉及生成式服务备案与客户图纸版权，合规 4。获客给"
+             " 3：国内小红书与抖音的家居内容池比海外更成熟，但它靠的是设计社区与搜索流量，B2B 展厅客户更吃行业渠道与线下"
+             "展会，这套要重建。本地化 3：不绑定特定海外设计软件是优势，但国内展厅常用酷家乐、三维家与 3ds Max，提案"
+             "模板和报价流程要按国内审美重做。竞争 2：酷家乐、三维家、D5 已把家居渲染占得很满，空位只在「展厅提案 + 版"
+             "本反馈」这一段窄流程。",
+    ),
 }
 
 
@@ -3107,14 +3176,40 @@ def main():
 
     today = datetime.now().strftime("%Y-%m-%d")
     missing = []
+    kept = []
     scored = []
+    fb = fallback_dims()
 
     for c in cases:
         cid = c.get("id")
         s = SCORES.get(cid)
+        provisional = False
         if not s:
+            # 表里没有，但库里已经有一份**非兜底**的判断 ⇒ 保留原值，只重排 rank。
+            # 宁可少算一次，也不能用兜底分盖掉真实判断（表与库偶尔会不同步）。
+            prev = c.get("china_fit") or {}
+            if prev.get("score") is not None and not prev.get("provisional"):
+                kept.append(cid)
+                scored.append({
+                    "case": c,
+                    "preserve": True,
+                    "dims": prev.get("dims"),
+                    "raw": prev.get("raw"),
+                    "score": prev["score"],
+                    "note": prev.get("note", ""),
+                    "blocker": prev.get("blocker"),
+                    "provisional": False,
+                })
+                continue
+            # 放宽：没有人工判断也照样算分，用全库中位数兜底并标记 provisional。
+            # 2026-11-06 之前这里 `continue` + 末尾 `pop("china_fit")`，跑一次就把
+            # 未填案例的历史评分清空 —— 而 preflight 只是 WARN，没人会注意到。
+            s = dict(fb)
+            s["note"] = (
+                "未人工评分：六维按全库 %d 条已评分案例的中位数兜底（%s）。要精确结论请补进 SCORES。"
+                % (len(SCORES), "/".join(str(fb[k]) for k, _l, _d in DIMS)))
+            provisional = True
             missing.append(cid)
-            continue
         dims = {k: s[k] for k, _label, _desc in DIMS}
         raw = weighted_total(dims)
         scored.append({
@@ -3124,11 +3219,17 @@ def main():
             "score": to_score(raw),
             "note": _plain(s.get("note", "")),
             "blocker": s.get("blocker"),
+            "provisional": provisional,
+            "preserve": False,
         })
 
     if missing:
-        print("[!] 以下案例还没评分（%d 条）：%s" % (len(missing), ", ".join(missing)))
-        print("    请在 SCORES 里补上，否则它们的 china_fit 会被清空。\n")
+        print("[!] 以下案例尚无人工评分，本次按全库中位数兜底（%d 条）：%s"
+              % (len(missing), ", ".join(missing)))
+        print("    兜底结果带 provisional 标记，页面照常显示；要精确结论就补进 SCORES。\n")
+    if kept:
+        print("[i] 表里没有、但库里已有判断，已保留原值（%d 条）：%s\n"
+              % (len(kept), ", ".join(kept)))
 
     # 排名：分数降序；同分时把有 blocker 的排后面，再按名称
     scored.sort(key=lambda x: (-x["score"], 1 if x["blocker"] else 0,
@@ -3138,6 +3239,10 @@ def main():
         item["rank"] = i
         item["medal"] = medal_for(i)
         c = item["case"]
+        if item["preserve"]:
+            c["china_fit"]["rank"] = i            # 只重排，不动 dims / note / score
+            c["china_fit"]["medal"] = item["medal"]
+            continue
         c["china_fit"] = {
             "score": item["score"],
             "raw": item["raw"],
@@ -3150,11 +3255,12 @@ def main():
             "blocker": item["blocker"],
             "scored_at": today,
         }
+        if item["provisional"]:
+            c["china_fit"]["provisional"] = True
 
-    # 没评分的案例：清掉旧分，避免留下过期排名
-    for c in cases:
-        if c.get("id") in missing:
-            c.pop("china_fit", None)
+    # 2026-11-06 起不再「没评分就清掉旧分」：现在每条都会被算到（缺表走中位数
+    # 兜底），历史分不会被一次重跑抹掉。原先那段 pop 是 preflight 只报 WARN、
+    # 没人察觉丢分的根源。
 
     # --- 打印 ---
     print("=" * 78)

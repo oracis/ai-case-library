@@ -25,6 +25,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
 import ai_verify as A                                              # noqa: E402
+import candidate_store as CSt                                      # noqa: E402
 
 
 def main():
@@ -40,7 +41,7 @@ def main():
     print("模型配置：", st if isinstance(st, dict) else st)
     print()
 
-    cands = json.load(open(os.path.join(ROOT, "data", "candidates.json"), encoding="utf-8"))
+    cands = CSt.load_candidates()
     cand = next((c for c in cands if c.get("id") == CID), None)
     if not cand:
         print("没有这条候选：", CID)

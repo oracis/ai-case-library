@@ -4,7 +4,7 @@
 
 为什么有它
 ----------
-九平台的发布能力早就有了，但**每次都重头攒一遍**：先跑 `publish_slot.py` 看今天
+十平台（B站一号+二号）的发布能力早就有了，但**每次都重头攒一遍**：先跑 `publish_slot.py` 看今天
 该发哪一类，再自己判断该用哪个脚本、带哪些参数、要不要先跑 katex/合规/去导流、
 发完去哪个台账查是不是真落了。判断散在 9 个脚本的 argparse 和各篇
 `PLAYBOOK-*.md` 里，一次发布要读四五个文件 —— 这就是这个入口要收掉的东西。
@@ -94,6 +94,10 @@ GAME_FILE = {
     "wechat": "wechat.md", "toutiao": "toutiao.md", "xhs": "xhs.md",
     "bilibili": "bilibili.md", "cnblogs": "cnblogs.md", "zhihu": "zhihu.md",
     "csdn": "csdn.md", "tencentcloud": "tencentcloud.md", "aliyun": "aliyun.md",
+    # 🚨 二号**发布时不读这个文件**：它走 bridge 从免费变体（article-free.md）
+    #   生成 `out/articles/<cid>-b2.html`。这里登记只为「平台表不留洞」
+    #   （test_publish_one 要求每平台四张表齐全），改了它不影响二号发布。
+    "bilibili2": "bilibili2.md",
 }
 
 # 发布终点：draft = 脚本只能到草稿（后台还得人点一下），published = 真发表
@@ -102,6 +106,7 @@ TERMINAL = {
     "toutiao": "published",
     "xhs": "published",
     "bilibili": "published",
+    "bilibili2": "published",   # 走游戏仓 bridge，发表完自己回读补账
     "cnblogs": "published",
     "zhihu": "draft",        # publish 端点未开放（见 zhihu_publish.py）
     "csdn": "published",
@@ -110,7 +115,8 @@ TERMINAL = {
 }
 
 # 每平台必过的闸（顺序即执行顺序）
-# 🚨 2026-11-04：`dedupe` / `title` / `template` / `cover` 补到**全部九平台**。
+# 🚨 2026-11-04：`dedupe` / `title` / `template` / `cover` 补到**全部平台**。
+#   2026-11-06 加入 B站二号（bilibili2），闸与一号同一套。
 #   此前只有 4 个平台有 cover 闸、0 个平台有 case 级去重，B站/小红书的
 #   FIFO 分支更是一条闸都不进 —— 重复草稿与裸图就是从这两处漏出去的。
 GATES = {
@@ -122,6 +128,8 @@ GATES = {
             "cover_remote"],
     "bilibili": ["dedupe", "draft", "link", "title", "template", "cover",
                  "cover_remote"],
+    "bilibili2": ["dedupe", "draft", "link", "title", "template", "cover",
+                  "cover_remote"],
     "cnblogs": ["dedupe", "draft", "link", "title", "template", "cover",
                 "cover_remote"],
     "zhihu": ["dedupe", "draft", "link", "title", "template", "cover",
@@ -147,6 +155,8 @@ VERIFY_HINT = {
     "toutiao": "「已发表」列表按标题命中才算成功（内容管理里的草稿不算）",
     "xhs": "data/xhs_published.json 按标题；创作中心笔记列表复核",
     "bilibili": "data/bili_published.json + 创作中心稿件列表",
+    "bilibili2": "游戏仓 data/publish_state.json 的 bilibili2 列 + 二号创作中心稿件"
+                 "列表按标题（aid 会重分配，不按 aid 判）",
     "cnblogs": "python scripts/cnblogs_publish.py list --n 5",
     "zhihu": "只能到草稿：zhihu_drafts.json 有记录即成功，发表待人工",
     "csdn": "python scripts/csdn_publish.py list --query <标题片段>",
@@ -442,6 +452,15 @@ def build_cmd(platform, case, pack, yes):
             cmd.append("--yes")
     elif platform == "bilibili":
         cmd = s("bilibili_publish.py", "publish", "--case", case)
+    elif platform == "bilibili2":
+        # 🚨 二号**不能**走老仓 `bilibili_publish.py`：它按 `--case` 读
+        #   `out/bili/<cid>/`（一号的游戏版正文），发出去就是两号同稿 ⇒ 判重复投稿。
+        #   二号必须走游戏仓 bridge：按 free 变体取稿、把 h1 换成 title_alt、
+        #   stage 成 `out/articles/<cid>-b2.html`，再建草稿 + 发表 + 自己补账。
+        #   slug 要剥 `ext-`（游戏仓内容目录是 `content/ep-003-freedoom/`）。
+        slug = case[4:] if str(case).startswith("ext-") else case
+        cmd = s(os.path.join(SLOT.GAMES_ROOT, "publish", "bridge.py"),
+                "publish", "--slug", slug, "--platform", "bilibili2")
     elif platform == "csdn":
         cmd = s("csdn_publish.py", "publish", "--file", pack, "--case", case)
         # 封面必须随发表一起提交（saveArticle 的 cover_images）；
@@ -470,7 +489,8 @@ def build_cmd(platform, case, pack, yes):
     else:
         raise SystemExit("未知平台：%s" % platform)
     cmd = [os.path.normpath(c) for c in cmd]
-    if not yes and platform not in ("wechat", "bilibili", "csdn", "cnblogs", "zhihu"):
+    if not yes and platform not in ("wechat", "bilibili", "bilibili2", "csdn",
+                                    "cnblogs", "zhihu"):
         cmd.append("--dry")
     return [PY, "-X", "utf8"] + [os.path.join(SCRIPTS, cmd[0])] + cmd[1:]
 
@@ -511,7 +531,8 @@ def plan(day=None, platforms=None, as_json=False, allow_same_kind=False):
         print(json.dumps(rows, ensure_ascii=False, indent=1))
         return 0
 
-    print("今日发布计划 %s ｜ 规矩：两类各一篇，日配额 1 篇的平台按天轮流\n" % SLOT.today(day))
+    print("今日发布计划 %s ｜ 规矩：两类交替（配额 1 的平台按天轮流；配额 ≥2 的先补没发过的类，"
+          "两类都发过后接着交替）\n" % SLOT.today(day))
     print("%-12s %-8s %-22s %-6s %s" % ("平台", "该发", "稿件", "闸", "说明"))
     print("-" * 108)
     for r in rows:
@@ -556,7 +577,29 @@ def upload_remote(platform, case, dry=False):
 
 # 草稿箱即 FIFO 队列的平台（用户定，2026-11-03）：发最久草稿，箱空才新写。
 # 两家的 send-draft 都「默认取存入最久的一条」，正好是队列语义。
-FIFO_PLATFORMS = ("bilibili", "xhs")
+# 🚨 **二号 2026-11-06 晚进表**：此前不进的理由是「箱里积着 10-31 批量建的 8 条
+#   旧稿（旧栏目标题 + 旧口径正文），走 FIFO 就先把旧稿发出去」。那 8 条已全部
+#   换技术向标题、正文对齐母版、删掉栏目标语（PRD #69/#73/#75）⇒ 理由消失。
+#   现在走 FIFO 省掉每天的 bridge 建稿/复用，直接发箱里最久一条。
+#   ⚠ 代价：FIFO **不经过 bridge**，母版以后再改（如再动正文）不会同步到箱里
+#   旧稿 —— 要同步得先跑 `bili2_draft_refresh.py` 再发。
+#   ⚠ 二号是**另一个账号**：端口 9224 + chrome-bili2-profile，靠环境变量切换，
+#   见 `BILI2_ENV`。漏传就会在一号的浏览器里找二号草稿箱（症状像「箱空」）。
+FIFO_PLATFORMS = ("bilibili", "xhs", "bilibili2")
+
+# 二号账号的进程环境（与 `cover_verify` 的能力表、`_launch_cdp.py --name bili2` 同值）。
+# `bilibili_publish.PUB_PORT` 读 `CDP_BILI_PORT`，profile 读 `CDP_PLAT_PROFILE`。
+BILI2_ENV = {
+    "CDP_BILI_PORT": "9224",
+    "CDP_PLAT_PROFILE": os.path.expandvars(r"%USERPROFILE%\chrome-bili2-profile"),
+}
+
+
+def _fifo_env(platform):
+    """FIFO 子进程要带的环境：二号切账号，其余平台沿用当前环境。"""
+    if platform == "bilibili2":
+        return dict(os.environ, **BILI2_ENV)
+    return None
 
 
 def fifo_note(platform):
@@ -564,10 +607,18 @@ def fifo_note(platform):
 
     档期轮换（AI/游戏按天轮流）只管「新写」时的选稿；FIFO 发出的旧稿类型
     可能与当日档期不同，如实按台账记，别让轮换计数失真。
+
+    二号直接读 `SLOT.records('bilibili2')`（游戏仓 ∪ 本仓 db 的并集，见
+    `publish_slot._rows_games_bili2`）—— 它发完只写本仓 db，
+    本仓 `publish_manifest.json` 里没有它的记录，按 manifest 找永远是空。
     """
     try:
         cid = None
-        if platform == "bilibili":
+        if platform == "bilibili2":
+            today = SLOT.today()
+            hit = [r for r in SLOT.records("bilibili2") if r[0].startswith(today)]
+            cid = hit[-1][1] if hit else None
+        elif platform == "bilibili":
             m = _load("publish_manifest.json") or {}
             best = ""
             for c, plats in m.items():
@@ -643,6 +694,9 @@ def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
             return 0
         script = ("xhs_publish.py" if platform == "xhs"
                   else "bilibili_publish.py")
+        if platform == "bilibili2":
+            # 干跑也要说：二号和一号是两个浏览器，看错账号会以为「箱空」
+            print("  账号：二号 9224 / chrome-bili2-profile（不是一号）")
         if not yes:
             print("\n（干跑）将会执行：\n  %s" % _q(os.path.join(
                 SCRIPTS, script)) + " send-draft")
@@ -650,11 +704,17 @@ def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
         print("\n执行 send-draft…")
         rc = subprocess.call([PY, "-X", "utf8",
                               os.path.join(SCRIPTS, script), "send-draft"],
-                             cwd=ROOT)
+                             cwd=ROOT, env=_fifo_env(platform))
         if rc != 0:
             print("\n✗ send-draft 未成功。两种常见情形：")
-            print("  · 箱空 → 新写：python scripts/publish_one.py "
-                  "--platform %s --new --yes" % platform)
+            if platform == "bilibili2":
+                print("  · 箱空 → 先按档期建稿：python scripts/publish_one.py "
+                      "--platform bilibili2 --new --yes")
+                print("  · 反查不到 case（「请用 --case 指定」）→ 箱里那条标题"
+                      "与游戏仓 meta.title_alt 不一致，先跑 bili2_draft_refresh.py")
+            else:
+                print("  · 箱空 → 新写：python scripts/publish_one.py "
+                      "--platform %s --new --yes" % platform)
             print("  · 点了发布但回读没命中 → B站常见 toast「提交成功」+ aid "
                   "重分配，按标题查已发表列表补账（别重发）")
         else:

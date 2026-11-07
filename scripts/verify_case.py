@@ -43,6 +43,7 @@ sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
 import auth                                                            # noqa: E402
 import ai_verify as AV                                                 # noqa: E402
+import candidate_store as CSt                                         # noqa: E402
 import verify_rules as VR                                              # noqa: E402
 
 ARGS = [a for a in sys.argv[1:] if not a.startswith("--")]
@@ -99,14 +100,11 @@ def main():
     }
     cand["source_kind"] = source_kind_of(cand)
 
-    cpath = os.path.join(ROOT, "data", "candidates.json")
-    with open(cpath, encoding="utf-8") as f:
-        cands = json.load(f)
-    cands = [c for c in cands if c.get("id") != cid]
-    cands.insert(0, cand)
-    with open(cpath, "w", encoding="utf-8") as f:
-        json.dump(cands, f, ensure_ascii=False, indent=2)
-        f.write("\n")
+    cpath = os.path.join(ROOT, "data", "candidates.json")  # 清场时逐字节还原备份用
+    # 旧版这里是文本模式 open(...,"w") + json.dump + f.write("\n")：
+    # Windows 上换行被翻译，还凭空补末尾换行（磁盘本来没有）。统一走 CSt，
+    # prepend=True 保留「新候选置顶」的既有展示顺序。
+    cands, _ = CSt.upsert_candidate(cand, replace=True, prepend=True)
     print("[2] 已插入候选 %s（共 %d 条）" % (cid, len(cands)))
 
     # ---------------------------------------------------------- 3. 铸 cookie
@@ -184,8 +182,9 @@ def main():
     if KEEP:
         print("    候选 %s 已保留在候选池（--keep）" % cid)
     else:
+        # 逐字节还原备份，刻意绕过序列化层（要的是原文件，不是重新 dumps 的结果）
         shutil.copy2(os.path.join(bak_dir, "candidates.json.bak-%s" % ts), cpath)
-        n = len(json.load(open(cpath, encoding="utf-8")))
+        n = CSt.count()
         print("    候选池已还原为 %d 条（--keep 可留下）" % n)
     return 0
 

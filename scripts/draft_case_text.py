@@ -47,6 +47,7 @@ sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
 import ai_verify  # noqa: E402  —— 复用它的 LLM 配置链与 llm()
 import atomicio   # noqa: E402  原子写盘：半截 stage 会让「续跑」重花 AI 额度
+import candidate_store as CSt  # noqa: E402  候选池唯一读写入口
 import fetch_tm_md as F  # noqa: E402  档案完整性判据（残片不许当素材用）
 
 TM_DIR = os.path.join(ROOT, "tmp", "tm_md")
@@ -66,12 +67,13 @@ SYSTEM = """你是一个只写事实、不写形容词的案例库撰稿人。
 
 2. 【口径不许混用】收入只能按素材给的口径写：
    - 若「当前 MRR」> 0 → 写「MRR $X」；
-   - 若「当前 MRR」= 0（非订阅制）→ 只能写「近 30 天已验证收入 $Y」，
+   - 若「当前 MRR」= 0（非订阅制）→ 只能写「近 30 天收入 $Y」，
      不许把近 30 天收入乘 12 当年化，也不许叫它 MRR。
 
 3. 【不许编增长故事】素材没给增速就不写增速。给了「近 30 天增速」也要谨慎：
    上线首月的高增速不是增长故事，写的时候必须同时说明「月度时间线不足」。
-   近 30 天增速与 MRR 增速不一致时，只写 MRR 口径。
+   近 30 天增速与 MRR 增速不一致时，只写 MRR 口径 —— uncertain 里也不许
+   把两个口径的增速并列，只留 MRR 那条。
 
 4. 【禁止复述式空话】下面这类句子一律不许出现——它们只是把素材重说一遍，
    没有任何判断：
@@ -91,24 +93,35 @@ SYSTEM = """你是一个只写事实、不写形容词的案例库撰稿人。
 6. 【playbook 必须是可搬走的做法】写「换一个行业也能用的动作」，
    不写「这个产品做得好的地方」。
 
-7. 【数字要带来源】写数字时顺带说明它是「支付网关直读」还是「档案自述」。
-   档案自述的用户数、毛利率等未经二次核实，引用必须标明。
+7. 【数字带口径，不带来历断言】素材是 TrustMRR **缓存快照**，不是本库实时直读。
+   写数字时只说它是什么口径（MRR / 近 30 天收入 / 累计 / 档案自述）：
+   ✗「实时直读」「已验证收入」「经 Stripe API 直读验证」「收入由支付网关 API 直读」
+   ✗「截至 YYYY-MM-DD，支付网关直读显示」—— 时点由发布层统一生成，不许自己编日期。
+   来源统一写「TrustMRR 档案记录」；档案自述的用户数、团队规模等必须标明「档案自述」。
 
 8. 【一句话定位里不许写增速】one_liner 只写收入数字（MRR 或近 30 天收入）
    和业务是什么。近 30 天的高增速可能只是上线首月，写进定位就是误导。
 
-9. 【客单价用素材里算好的那个】素材里给了「客单价（已算好）」就直接引用，
-   不要自己再做除法。没给就写「无法推算」。
+9. 【客单价用素材里算好的那个】素材里给了「客单价」就直接引用数值，
+   不要自己再做除法、也不要把「除以活跃订阅数」的过程写进正文。
+   没给就写「无法推算」。
 
 10. 【货币与数字格式】库里所有收入都是 USD，金额一律用「$」符号 +
     千分位（如 $31,677），**绝不许写「元」**（排除欧洲生意的「欧元」）。
     整数不要带 .0 浮点尾（写 $1,408，不要写 1408.0）。小数（如 $7.76）照常保留。
 
+11. 【客单价不是定价】客单价是 MRR ÷ 活跃订阅数的推算值，不等于定价档位。
+    档案没给档位就写「具体定价档位未公开」，不许把客单价写成「定价 $X」
+    或「把定价压在 $X 以下」。
+
+12. 【素材卡里的批注不是正文】「脚本核算」「不得重算」这类写给模型看的
+    批注一律不许出现在输出里，只引用它给出的数值。
+
 输出**严格**为如下 JSON，不要任何额外文字、不要 markdown 代码块：
 {
   "one_liner": "一句话定位（含最硬的那个数字，30-60 字）",
   "what_it_does": "它到底做什么（100-200 字，说清产品形态、创始人/上线时间、订阅数）",
-  "how_it_makes_money": "怎么赚钱（80-160 字，说清定价档位，并用「订阅数 ÷ MRR」推算客单价）",
+  "how_it_makes_money": "怎么赚钱（80-160 字，说清定价档位，直接引用素材已给出的客单价，不要重算）",
   "verdict": "一句话结论：它真正卖的是什么（40-90 字，判断不是复述）",
   "why_it_works": ["含具体数字+机制的原因1", "原因2", "原因3"],
   "playbook": ["可搬走的做法1", "做法2", "做法3"],
@@ -131,6 +144,117 @@ BAN_PHRASES = (
     "提供免费套餐来吸引用户", "面向广泛的用户群体", "有机增长",
     "功能强大", "易于使用", "解决了用户的痛点", "满足用户需求",
 )
+
+
+# ---------------------------------------------------------------- 措辞守卫
+# 2026-11-05 抽检 4 条新草稿发现的一整类问题，根因不在模型而在素材卡抬头：
+# 「支付网关 API 直读」「近 30 天已验证收入」「（已算好）」是写给模型的固定
+# 标签，被照抄进正文就成了「超出证据等级的强断言」「缓存快照说成实时直读」
+# 「给模型看的批注印给读者」。源头已收紧 SYSTEM + facts_card；下面两条确定性
+# 规则管已生成的稿与未来兜底 —— 措辞是事实裁定，归代码，不许交给模型自己改。
+WORDING_BANS = (
+    ("自编时点+实时直读", r"截至\s*\d{4}-\d{2}-\d{2}\s*[，,]\s*支付网关直读显示"),
+    ("实时直读强断言", r"支付网关\s*API\s*直读|经\s*\S+\s*API\s*直读验证|"
+                    r"收入数据由支付网关\s*API\s*直读|支付网关直读\s*[：:]|"
+                    r"支付网关直读显示|按支付网关直读数据|（支付网关直读）"),
+    ("已验证收入", r"近\s*30\s*天已验证收入"),
+    ("素材批注", r"（已算好）"),
+    ("客单价当定价", r"将订阅定价压在"),
+    ("复述除法过程", r"(?:用|当前)\s*MRR\s*\$[\d,\.]+\s*除以活跃订阅数\s*\d+\s*[，,]\s*"
+                  r"(?:推算客单价约|得出客单价)"),
+)
+
+VISIBLE_FIELDS = ("one_liner", "what_it_does", "how_it_makes_money", "verdict",
+                  "why_it_works", "playbook", "uncertain")
+
+
+def _visible_texts(data):
+    """产出 (字段名, 文本)；列表字段按下标展开。"""
+    for k in VISIBLE_FIELDS:
+        v = data.get(k)
+        if isinstance(v, str):
+            yield k, v
+        elif isinstance(v, list):
+            for i, x in enumerate(v):
+                if isinstance(x, str):
+                    yield "%s[%d]" % (k, i), x
+
+
+def wording_bans(data):
+    """返回「超出素材的措辞」命中列表；空列表 = 干净。
+
+    只判机器能判的形状，不判语义。修法见 scrub_wording()。
+    刻意**不接入 validate()**：一句措辞错误不值得触发最多 3 次 LLM 重写。
+    """
+    return ["%s @ %s" % (label, k)
+            for label, pat in WORDING_BANS
+            for k, t in _visible_texts(data) if re.search(pat, t)]
+
+
+# 顺序敏感：先整句（带来源/时点）再零散标签，最后兜底。含金额的替换全部用
+# 反向引用原样带回数字；只有「自编时点」那条会删掉模型自己编的日期（不是金额）。
+#
+# 2026-11-05 二轮：拿 181 条存量草稿全量预演，发现首版只覆盖 4 条新稿的句式，
+# 129 条里 38 条洗完仍违规（旧稿的「收入由…」「用支付网关 API 直读收入」
+# 「得出客单价为」「（支付网关直读，已算好）」等变体）。规则按真实形态补齐，
+# 锁在 test_draft_case_text.py::StockWording，别再退回逐条打补丁。
+SCRUB_RULES = (
+    # ① 整句：自编时点 + 实时直读
+    (r"截至\s*\d{4}-\d{2}-\d{2}\s*[，,]\s*支付网关直读显示", "按 TrustMRR 缓存快照，"),
+    # ② 带支付源的整句：保留支付源，去掉「API 直读 / 直读验证」强断言
+    (r"收入(?:数据|数字)?\s*经\s*(\S+)\s*API\s*直读验证",
+     r"收入数字来自 TrustMRR 档案记录（缓存快照），支付源为 \1"),
+    (r"收入由\s*([\w\s与和、]+?)\s*两个支付网关\s*API\s*直读",
+     r"收入数字来自 TrustMRR 档案记录（缓存快照），支付源为 \1"),
+    (r"收入(?:数据|数字)?\s*(?:由|来自|通过)\s*([^，。]{1,24}?)\s*支付网关\s*API\s*直读",
+     r"收入数字来自 TrustMRR 档案记录（缓存快照），支付源为 \1"),
+    (r"收入(?:数据|数字)\s*(?:由|来自|通过)\s*支付网关\s*API\s*直读",
+     "收入数字来自 TrustMRR 档案记录（缓存快照）"),
+    (r"收入由\s*支付网关\s*API\s*直读", "收入数字来自 TrustMRR 档案记录（缓存快照）"),
+    (r"，由\s*(\S+)\s*支付网关\s*API\s*直读",
+     r"，数据来自 TrustMRR 档案记录（缓存快照），支付源为 \1"),
+    # ③ playbook 把「用 API 直读收入」当方法论复述
+    (r"(?:使用|用|通过|采用)\s*(?:[\w\-]+\s*等\s*)?支付网关\s*API\s*直读收入",
+     "引用 TrustMRR 档案记录（缓存快照）中的收入数字"),
+    # ④ 括号标签（含「（支付网关直读，已算好）」这类混合批注）
+    (r"（支付网关[^）$]{0,14}）", "（TrustMRR 档案记录）"),
+    # ⑤ 零散标签
+    (r"支付网关直读显示", "TrustMRR 档案记录（缓存快照）显示"),
+    (r"按支付网关直读数据", "按 TrustMRR 档案记录"),
+    (r"支付网关直读\s*[：:]", "TrustMRR 档案记录："),
+    (r"近\s*30\s*天已验证收入", "近 30 天收入"),
+    (r"（已算好）", ""),
+    (r"将订阅定价压在", "把客单价控制在"),
+    # ⑥ 除法复述：金额全用反向引用带回，产出只陈述事实不重算
+    (r"(?:用|当前)\s*MRR\s*(\$[\d,\.]+)\s*除以活跃订阅数\s*(\d+)\s*[，,]\s*"
+     r"(?:推算客单价约|推算客单价为|得出客单价为|得出客单价)\s*(\$[\d,\.]+)",
+     r"按 MRR \1 与活跃订阅 \2 个，素材给出的客单价为 \3"),
+    # ⑦ 兜底：任何剩余「支付网关 API 直读」形状都不许带进正文
+    (r"支付网关\s*API\s*直读", "TrustMRR 档案记录（缓存快照）"),
+)
+
+
+def scrub_wording(data):
+    """确定性清洗违禁措辞。返回 (新 dict, 命中规则数)；**不改任何金额**。"""
+    out = dict(data)
+    applied = 0
+
+    def fix(t):
+        nonlocal applied
+        for pat, repl in SCRUB_RULES:
+            t2 = re.sub(pat, repl, t)
+            if t2 != t:
+                applied += 1
+                t = t2
+        return t
+
+    for k in VISIBLE_FIELDS:
+        v = out.get(k)
+        if isinstance(v, str):
+            out[k] = fix(v)
+        elif isinstance(v, list):
+            out[k] = [fix(x) if isinstance(x, str) else x for x in v]
+    return out, applied
 
 
 def _has_cjk(s):
@@ -366,7 +490,13 @@ def facts_card(slug, s, md):
         v = s.get(k)
         return v if v not in (None, "", 0) else None
 
-    lines = ["== 一手档案素材（TrustMRR，支付网关 API 直读）=="]
+    # ⚠ 2026-11-05：原抬头写「支付网关 API 直读」，被模型照抄成
+    #    「收入数据来自 Polar 支付网关 API 直读」「经 Stripe API 直读验证」——
+    #    对每条案例一视同仁的强断言，而 verifications.json 里明明有 partial 档。
+    #    同一份 .md 只是 TrustMRR 的**缓存快照**，不是本库实时直读。
+    lines = ["== 一手档案素材（TrustMRR 缓存快照，不是实时值）=="]
+    lines.append("⚠ 收入数字是缓存快照；「收入同步时间」是页面标注的同步日，"
+                 "不是本库实时直读，正文不许写成「截至今日直读」。")
     lines.append("产品名 / slug：%s" % slug)
     if g("description"):
         lines.append("官网一句话：%s" % g("description"))
@@ -380,7 +510,7 @@ def facts_card(slug, s, md):
     lines.append("当前 MRR：%s" % (s.get("cur_mrr") if s.get("cur_mrr") else 0))
     lines.append("近 24 小时：%s" % s.get("rev_24h"))
     lines.append("近 7 天：%s" % s.get("rev_7d"))
-    lines.append("近 30 天已验证收入：%s" % (s.get("rev_30d") or "未公开"))
+    lines.append("近 30 天收入（快照）：%s" % (s.get("rev_30d") or "未公开"))
     lines.append("累计：%s" % (s.get("all_time") or "未公开"))
     lines.append("活跃订阅数：%s" % (s.get("active_subs") if s.get("active_subs") else "未公开/非订阅制"))
     lines.append("毛利率：%s"
@@ -397,7 +527,7 @@ def facts_card(slug, s, md):
     subs = s.get("active_subs") or 0
     if mrr > 0 and subs > 0:
         arpu = round(mrr / subs, 2)
-        lines.append("客单价（MRR ÷ 活跃订阅数，已算好，直接用）：$%s" % arpu)
+        lines.append("客单价（MRR ÷ 活跃订阅数）：$%s" % arpu)
     else:
         lines.append("客单价：非订阅制或订阅数未公开，无法推算——不要硬算")
 
@@ -503,6 +633,10 @@ def draft_one(cid, slug, summ, retries=2):
             last = "返回缺 one_liner"
             continue
 
+        # 措辞清洗归代码：模型照抄素材卡抬头写出的强断言/批注，在这里确定性
+        # 改掉，不为此再花一次 LLM 重写（见 WORDING_BANS 注释）。
+        data, scrubbed = scrub_wording(data)
+
         problems = validate(data, src_numbers, s)
         if problems and attempt < retries:
             # 把校验结果塞回提示词让它重来——比直接丢弃有用。
@@ -518,11 +652,53 @@ def draft_one(cid, slug, summ, retries=2):
 
         data["_slug"] = slug
         data["_drafted_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
+        data["_wording_scrubbed"] = scrubbed
+        data["_wording_hits"] = wording_bans(data)
         # 仍有问题也留着，但打上标记 —— apply 步骤会跳过这些，交人工改
         data["_problems"] = problems
         data["_needs_human"] = bool(problems)
         return data, None
     return None, last or "未知失败"
+
+
+def revalidate_stage(stage, summ, tm_dir=None, reporter=print):
+    """把守卫回套到暂存区已有草稿，只更新 _problems / _needs_human。
+
+    返回 (bad, skipped)；**不写盘**，由 main 调 save_stage()。
+
+    ⚠ 素材完全缺失（没有 summary 键、也没有 .md）时跳过这一条：事实卡里
+      除了「未公开」什么都没有，数字守卫会把历史草稿里真实引用过的数字
+      全报成「素材里没有的数字」。那是素材丢了，不是正文有问题——给它
+      打上 _needs_human 会让 apply 步骤把这类存量稿一起挡掉。
+      2026-11-05 全量回套实测 5 条中招：ton-piston / ryn-vpn /
+      changelogfy / citron-app / sotie-ai-best-friend。
+    """
+    if tm_dir is None:
+        tm_dir = TM_DIR
+    bad = skipped = 0
+    for cid, v in stage.items():
+        slug = v.get("_slug") or cid
+        s = lookup_summary(summ, slug, cid) or {}
+        # ⚠ 必须与起草时喂给模型的素材**完全一致**（含 .md 原文），
+        # 否则素材里的数字会被误判成「凭空出现」—— 回套第一次就踩了：
+        # 漏掉 .md 后把日期（2026）和 .md 里的收入数字报成了编造。
+        md = ""
+        md_path = os.path.join(tm_dir, slug + ".md")
+        if os.path.exists(md_path):
+            with open(md_path, "r", encoding="utf-8") as f:
+                md = f.read()
+        if not s and not md:
+            skipped += 1
+            reporter("  ⏭ %-34s 素材缺失（无摘要、无 .md），跳过回套" % cid[:34])
+            continue
+        card_src = extract_numbers(facts_card(slug, s, md))
+        problems = validate(v, card_src, s)
+        v["_problems"] = problems
+        v["_needs_human"] = bool(problems)
+        if problems:
+            bad += 1
+            reporter("  ⚠ %-34s %s" % (cid[:34], "；".join(problems)[:80]))
+    return bad, skipped
 
 
 def main():
@@ -537,34 +713,17 @@ def main():
                          "只更新 _problems / _needs_human")
     args = ap.parse_args()
 
-    cands = load_json(os.path.join(ROOT, "data", "candidates.json"), [])
+    cands = CSt.load_candidates()
     summ = load_json(os.path.join(TM_DIR, "summary.json"), {})
     stage = load_json(STAGE, {})
 
     # 守卫升级后不必重跑 LLM：把新规则回套到已有草稿即可。
     # （口径守卫就是这么加的 —— 重跑要一小时，回套只要一秒。）
     if args.revalidate:
-        bad = 0
-        for cid, v in stage.items():
-            slug = v.get("_slug") or cid
-            s = lookup_summary(summ, slug, cid) or {}
-            # ⚠ 必须与起草时喂给模型的素材**完全一致**（含 .md 原文），
-            # 否则素材里的数字会被误判成「凭空出现」—— 回套第一次就踩了：
-            # 漏掉 .md 后把日期（2026）和 .md 里的收入数字报成了编造。
-            md = ""
-            md_path = os.path.join(TM_DIR, slug + ".md")
-            if os.path.exists(md_path):
-                with open(md_path, "r", encoding="utf-8") as f:
-                    md = f.read()
-            card_src = extract_numbers(facts_card(slug, s, md))
-            problems = validate(v, card_src, s)
-            v["_problems"] = problems
-            v["_needs_human"] = bool(problems)
-            if problems:
-                bad += 1
-                print("  ⚠ %-34s %s" % (cid[:34], "；".join(problems)[:80]))
+        bad, skipped = revalidate_stage(stage, summ)
         save_stage(stage)
-        print("\n回套完成：%d 条草稿，其中 %d 条被守卫拦下" % (len(stage), bad))
+        print("\n回套完成：%d 条草稿，其中 %d 条被守卫拦下；"
+              "素材缺失跳过 %d 条" % (len(stage), bad, skipped))
         return 0
 
     targets = []

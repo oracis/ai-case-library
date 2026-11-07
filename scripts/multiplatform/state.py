@@ -100,39 +100,54 @@ class Manifest:
 
     def load(self):
         if self.path == MANIFEST:
-            # 从 SQLite ledger 读（platform_posts 全平台），转成 Manifest 格式
+            # 🚨 2026-11-06 事故：这里原来**只**从 db 投影出 4~5 个字段
+            #   （state/at/title/attempt/error），`save()` 又把整本 dump 回 JSON
+            #   ⇒ 一次 `mark_*` 就把 `remote_id`/`url`/`draft_id`/`published_ts`
+            #   全洗掉（实测 9 条 remote_id、8 条 note/published_ts 消失，
+            #   diff 549 行）。现在改成：**JSON 底座 + db 覆盖**，
+            #   只覆盖状态类字段，其余原样保留。
+            base = self._load_json()
             conn = db.get_conn()
             try:
                 cur = conn.execute("SELECT * FROM platform_posts ORDER BY updated_at DESC")
                 rows = cur.fetchall()
                 if rows:
-                    data = {}
+                    cols = set(rows[0].keys())
                     for r in rows:
                         cid = r["case_id"]
                         plat = r["platform"]
-                        rec = {
+                        rec = dict((base.get(cid) or {}).get(plat) or {})
+                        rec.update({
                             "state": _norm_state(r["state"]),
-                            "at": r["updated_at"] or r["published_at"] or "",
-                            "title": r["title"] or "",
+                            "at": r["updated_at"] or r["published_at"]
+                            or rec.get("at", ""),
+                            "title": r["title"] or rec.get("title", ""),
                             "attempt": r["attempt"] or 0,
-                        }
-                        if r["note"]:
+                        })
+                        # db 有值就带上（JSON 里没有这些字段时尤其重要）
+                        for k in ("remote_id", "url", "draft_id"):
+                            if k in cols and r[k]:
+                                rec[k] = r[k]
+                        if "note" in cols and r["note"]:
                             rec["error"] = r["note"]
-                        data.setdefault(cid, {})[plat] = rec
-                    self.data = data
+                        base.setdefault(cid, {})[plat] = rec
+                    self.data = base
                     return self
             except Exception:  # noqa: BLE001
                 pass
             finally:
                 db.close_conn()
-        # fallback：从 JSON 读（测试用临时文件或迁移期兼容）
+        self.data = self._load_json()
+        return self
+
+    def _load_json(self):
+        """JSON 底座（缺失/坏文件一律当空，不让它连累调用方）。"""
         try:
             with open(self.path, encoding="utf-8") as f:
                 d = json.load(f)
-            self.data = d if isinstance(d, dict) else {}
+            return d if isinstance(d, dict) else {}
         except (OSError, ValueError):
-            self.data = {}
-        return self
+            return {}
 
     def save(self):
         """JSON 快照落盘（原子替换）。
@@ -234,13 +249,18 @@ class Manifest:
             raise ValueError("未知状态：%s" % state)
         rec = self.data.setdefault(cid, {})
         old = rec.get(plat) or {}
-        rec[plat] = {
+        # 🚨 2026-11-06 事故：这里原来是**整条重建**成 4 个键，`remote_id`/`url`/
+        #   `draft_id`/`published_ts` 当场丢，而 `save()` 又是整本落盘 ⇒ 一次
+        #   `mark_published` 就把全库 9 条 remote_id 洗掉（HEAD 有、工作区没有）。
+        #   现在以旧记录为底，只覆盖状态类字段。
+        rec[plat] = dict(old)
+        rec[plat].update({
             "state": state,
             "at": _now(),
             "title": title or old.get("title", ""),
             "attempt": (int(old.get("attempt", 0) or 0) + 1)
             if bump else int(old.get("attempt", 0) or 0),
-        }
+        })
         if error:
             rec[plat]["error"] = error[:300]
         elif state not in ("failed", "blocked"):

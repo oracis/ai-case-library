@@ -128,6 +128,26 @@ guaranteed present; everything else may be `null`, `""` or `[]`.
 | `verification_downgraded` | object \| null | Present only when `audit_evidence.py` lowered `verification`. See below. |
 | `china_fit` | object \| null | China-portability score. See below. |
 
+#### `verified_at` / `caliber` — candidate → case
+
+Both fields are defined on the **case** above, but a candidate may carry them
+early (2026-11-05). When promoted, `server.py` resolves them through
+`verify_rules.resolve_case_timepoint(candidate, draft, now)`:
+
+- `verified_at` is **the day the revenue numbers were last checked / fetched**,
+  not the promotion day. `make_article.timepoint_row()` prints it as
+  `截至 <date>（抓取日快照）`, so stamping the promotion day would silently
+  date a stale cached snapshot forward. A candidate-carried valid `YYYY-MM-DD`
+  wins; invalid values fall back to the server's `now`; ISO timestamps keep
+  their date part only.
+- `caliber` resolution order: the human verification draft
+  (`verifications.json`) → candidate top level → candidate `metrics.caliber`.
+- Candidates without these fields keep the old behaviour (`verified_at = now`).
+
+⚠ Do **not** back-fill `verified_at` into `data/verifications.json` — that
+store deliberately has no such field (37/37 entries). And `verified_at` is
+unrelated to the three meanings of `verification` described above.
+
 #### `tier`, `tier_reason`
 
 Three shelves, from strongest to weakest evidence:
@@ -204,6 +224,25 @@ python scripts/audit_evidence.py --apply    # downgrade, with a backup and a rec
 
 An applied downgrade never deletes the old value — it moves into
 `verification_downgraded` (see below), so restoring it is removing one field.
+
+#### Same key, three stores, three meanings — never back-fill one from another
+
+The key `verification` also exists in the *internal* stores. The values look alike
+but answer different questions; they are **not** copies of one field:
+
+| Store | Written by | What the value means |
+|---|---|---|
+| `candidates.json` | `promote_to_candidates.to_candidate()` (hardcodes `stripe`) | Provenance of the number: read from the payment-gateway side (a TrustMRR cached snapshot). **Not** an evidence-grade ruling. |
+| `verifications.json` | `PUT /api/candidates/:id/verification`, `ai_verify.py` | Evidence grade (`stripe` / `official` / `partial` / `founder` / `disputed`) derived from the registered `source_kinds`. |
+| `cases.json` | `POST /api/candidates/:id/promote` in `server.py` | Published grade: the draft's grade takes precedence over the candidate value, then `evidence_gap()` clamps it to what the sources carry. |
+
+So one case may legitimately read `stripe` in the candidate pool and `partial` in
+`verifications.json` — e.g. `bubblav` (Polar payment source, registered sources
+`homepage` + `review`). **Do not "fix" this by copying either value into the other:**
+neither file is rewritten by the other, and `import_to_db.py` maps them into separate
+SQLite tables (`verifications` vs the case tables). The only place they meet is
+promotion, which builds a *new* `cases.json` object and deliberately uses the
+evidence-grade side for the public case.
 
 ### `metrics` object
 
@@ -371,6 +410,27 @@ Inbox adds `source_url` and `harvest_source` (`hn` \| `trustmrr` \| `producthunt
 `indiehackers` \| `arrclub` — depends on which collectors ran with credentials).
 
 Neither array contains scores.
+
+### Candidate pool: single I/O entry (2026-11-06)
+
+`data/candidates.json` 的读写**只走 `scripts/candidate_store.py`**，三个接口：
+
+| 接口 | 语义 |
+|---|---|
+| `load_candidates(path=None)` | 返回 `list[dict]`（保序）；文件不存在 → `[]`；**解析失败响亮抛错**，半截 JSON 不许当空池 |
+| `save_candidates(cands, path=None, fmt=None)` | 整批写回；按原格式原子落盘；返回 `(indent, newline, trailing_newline)`（兼容 `contentpack_ready.cmd_apply`） |
+| `upsert_candidate(cand, path=None, replace=False, prepend=False)` | 按 `id` 单条增改，**读-改-写全程持文件锁**；默认合并字段、原位，新增追加末尾；`prepend=True` 置顶（`server` / `verify_case` 的既有展示顺序） |
+
+四条口径：
+
+1. **格式不写死。** 写盘前按现有字节枚举 `indent∈{1,2,4}` × 末尾换行 `{有,无}` 找逐字节匹配的那一种，再按它写回。2026-11-06 实测磁盘是 **LF + indent=2 + 无末尾换行**；仓库里若干旧注释写 CRLF 是历史漂移，**别照注释改代码**，跑 `python scripts/candidate_store.py --check` 看磁盘。
+2. **原子性归 `atomicio`**（tmp + fsync + `os.replace`）。收口前 `apply_draft_text` 写死 CRLF、`verify_case` 文本模式写并补尾换行、`sync_headline_numbers` / `audit_delisted` 原地截断写，同一份文件被写成三种形态。
+3. **收口的是「读写实现」，不是「路径解析」。** 所有带 `name` 的通用层（`server.load_json/save_json`、`harvest`、`ai_verify`、`triage`、`htm_increment`、`promote_ready`、`audit_delisted`）必须**显式传 `path=`**，否则测试替换 `F.ROOT` / `H.DATA_DIR` 后会读到真台账 —— 2026-11-06 实测把 `test_fetch_tm_md` 打挂并触发了联网抓取。
+4. **兼容层**：`contentpack_ready.load_candidates/save_candidates/detect_fmt` 保留为薄封装，`CAND_PATH` 模块级常量**不许删**（`test_atomicio` / `test_publish_ready` 靠替换它把写盘引到临时目录）。
+
+刻意不收口的例外（不是漏网）：`scripts/test_*.py` 与 `e2e_verify_write.py` 的独立验证 / 写脏再恢复固件（用被测层读就失去独立性）；`verify_case.py` 清场时用 `shutil.copy2` **逐字节还原备份**（要原字节，不是重新序列化）；`tmp/` 下一次性历史脚本是复现证据，不回改。
+
+⚠️ 本层只管「怎么读怎么写」，**不做事实裁定、不改字段口径**。`verification` 同名三义见上文「Same key, three stores, three meanings」。
 
 ---
 
