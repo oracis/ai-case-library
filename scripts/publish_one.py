@@ -441,6 +441,12 @@ def run_gates(platform, case, pack, force=False):
 
 def build_cmd(platform, case, pack, yes):
     """真正的发布命令。每个平台的参数口径都来自该脚本自己的 argparse。"""
+    if not pack:
+        # 2026-11-07：显式 `--case` 指向一个还没写稿的 AI case 时，pack=None
+        # 会一路流到末尾 os.path.normpath(None) 抛 TypeError —— 既不是被闸拦
+        # 下、也没给任何修复提示。run_gates 会把 SystemExit 收成该闸的红灯。
+        raise SystemExit("缺稿件（pack=None）：先补 drafts/newbatch/%s/%s.md，"
+                         "别拿空路径组发布命令" % (platform, case))
     s = lambda *a: list(a)
     if platform == "wechat":
         cmd = s("wechat_publish.py", "publish", "--file", pack, "--slug", case)

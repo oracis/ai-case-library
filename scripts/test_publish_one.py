@@ -351,5 +351,21 @@ class UploadRemote(unittest.TestCase):
         self.assertEqual(P.upload_remote("tencentcloud", "demo", dry=True), 0)
 
 
+class MissingPack(unittest.TestCase):
+    """2026-11-07：腾讯云显式 --case 指定未写稿的 AI case 时崩 TypeError。"""
+
+    def test_缺稿时抛明确错误而不是TypeError(self):
+        with self.assertRaises(SystemExit) as cm:
+            P.build_cmd("tencentcloud", "no-such-case", None, True)
+        self.assertIn("缺稿件", str(cm.exception))
+        self.assertIn("no-such-case", str(cm.exception))
+
+    def test_无稿时十闸逐条给结论而不是崩(self):
+        rows = P.run_gates("tencentcloud", "no-such-case", None)
+        self.assertEqual(len(rows), len(P.GATES["tencentcloud"]))
+        self.assertFalse([r for r in rows if r["gate"] == "draft"][0]["ok"])
+        self.assertTrue(all("detail" in r for r in rows))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
