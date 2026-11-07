@@ -347,6 +347,16 @@ def _put_with_retry(oss, bucket, key, data, headers, tries=3):
     return last
 
 
+# `--resume` 只比 Content-Length，同尺寸 ≠ 同内容。2026-11-06 半更新实测后弃用：
+# 保留参数兼容旧命令，但每次使用都把风险摆到眼前，别再当「弱网续跑」推荐出去。
+RESUME_WARNING = (
+    "  ⚠ --resume 已弃用：只比 Content-Length，同尺寸 ≠ 同内容。\n"
+    "    2026-11-06 实测：前台上传被 SIGTERM 留下半更新撕裂态（新页面 200 + 旧 data.json），\n"
+    "    续跑会把同尺寸的坏对象当「已完成」跳过。\n"
+    "    ⇒ 中断 / 弱网一律不带 --resume 全量重传，传完跑 scripts/verify_deploy.py。"
+)
+
+
 def upload(oss, bucket, src_dir, prefix="", dry_run=False, resume=False):
     files = []
     for root, _dirs, names in os.walk(src_dir):
@@ -367,6 +377,9 @@ def upload(oss, bucket, src_dir, prefix="", dry_run=False, resume=False):
     print("  %-22s %10s  %-10s %s" % ("对象", "大小", "缓存", "Content-Type"))
     print("  " + "-" * 74)
 
+    if resume:
+        print(RESUME_WARNING)
+
     ok = skip = fail = 0
     total_bytes = 0
     for full, key in files:
@@ -382,13 +395,15 @@ def upload(oss, bucket, src_dir, prefix="", dry_run=False, resume=False):
             ok += 1
             continue
 
-        # --resume：远端已有同尺寸对象就跳过。弱网下重跑不用把 300 个文件再传一遍。
-        # 只比大小不比 ETag：本脚本上传的是生成产物，尺寸相同基本就是同一份；
-        # 真要强一致就加 --no-resume 全量重传。
+        # 🚫 --resume 已弃用（口径见 MEMORY.md 本机/部署段、PLAYBOOK-deploy.md 部署节 19）。
+        # 判据仍只比 Content-Length：2026-11-06 实测前台上传被 SIGTERM 留下半更新撕裂态
+        # （新页面 200 + 旧 data.json），同尺寸的坏对象会被当作「已完成」跳过。
+        # 参数保留仅为兼容旧命令；默认不带即为全量重传，传完跑 verify_deploy.py。
+        # 别写「弱网必加 --resume」，也别再提并不存在的 --no-resume。
         if resume:
             st, _b, hd = oss.request("HEAD", bucket, key)
             if st == 200 and str(_hdr(hd, "Content-Length")) == str(len(data)):
-                print("  %-22s %10s  [SKIP] 远端同尺寸" % (key, human(len(data))))
+                print("  %-22s %10s  [SKIP] 远端同尺寸（内容未校验）" % (key, human(len(data))))
                 skip += 1
                 continue
 
@@ -463,7 +478,8 @@ def main(argv=None):
     ap.add_argument("--allow-inbox", action="store_true",
                     help="允许上传带未核实队列的预览版（dist）。对外发布不要加这个")
     ap.add_argument("--resume", action="store_true",
-                    help="远端已有同尺寸对象就跳过（弱网重跑用，不必从头再传一遍）")
+                    help="🚫 不推荐 / 已弃用：只比 Content-Length 就跳过，同尺寸 ≠ 同内容。"
+                         "中断或弱网一律不带本参数全量重传，传完跑 scripts/verify_deploy.py")
     ap.add_argument("--prefix", default="", help="传到 Bucket 下的子路径，如 ai-cases")
     ap.add_argument("--env-file", help="从指定的 .env 读凭证")
     ap.add_argument("--check", action="store_true", help="只验证凭证并列出 Bucket，不写任何东西")

@@ -6,6 +6,8 @@
 """
 
 import argparse
+import contextlib
+import io
 import json
 import os
 import sys
@@ -416,6 +418,75 @@ class InboxGate(unittest.TestCase):
         self.assertIsNotNone(n_clean, "对外版必须能读出 inbox 字段（恒 0，不是缺失）")
         self.assertEqual(n_clean, 0, "对外版必须不含未核实队列")
         self.assertGreaterEqual(n_full, n_clean, "完整版的队列不该少于对外版")
+
+
+class ResumeDeprecation(unittest.TestCase):
+    """`--resume` 只比 Content-Length；11-06 半更新实测后代码侧同步为「弃用」。
+
+    钉住四件事（PRD #93）：help 不再推荐、`resume=True` 现场警告、
+    默认不带参数就是全量重传、判据仍只比尺寸（别把弃用误读成「已修成强一致」）。
+    参数与行为保持不变只为兼容旧命令，**不许悄悄改回「弱网必加」的语气**。
+    """
+
+    class _FakeOSS:
+        """HEAD 报指定尺寸、PUT 一律 200；记录所有请求供断言。"""
+
+        def __init__(self, length):
+            self.length = length
+            self.calls = []
+
+        def request(self, method, bucket="", key="", body=None, headers=None, subresource=""):
+            self.calls.append(method)
+            if method == "HEAD":
+                return 200, b"", {"Content-Length": str(self.length)}
+            return 200, b"<ok/>", {}
+
+    def _upload(self, resume, remote_length=64):
+        with tempfile.TemporaryDirectory() as d:
+            with open(os.path.join(d, "index.html"), "wb") as f:
+                f.write(b"x" * 64)
+            oss = self._FakeOSS(remote_length)
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                rc = D.upload(oss, "bucket", d, resume=resume)
+            return rc, buf.getvalue(), oss.calls
+
+    def test_help_marks_resume_deprecated(self):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            with self.assertRaises(SystemExit) as cm:
+                D.main(["--help"])
+        self.assertEqual(cm.exception.code, 0)
+        out = buf.getvalue()
+        self.assertIn("不推荐", out)
+        self.assertIn("Content-Length", out)
+        self.assertIn("verify_deploy.py", out)
+
+    def test_resume_warns_and_skips_same_size(self):
+        rc, out, calls = self._upload(True)
+        self.assertEqual(rc, 0)
+        self.assertIn("已弃用", out)
+        self.assertIn("同尺寸 ≠ 同内容", out)
+        self.assertIn("内容未校验", out)
+        self.assertIn("HEAD", calls)
+        self.assertNotIn("PUT", calls, "同尺寸应被跳过（行为保持兼容）")
+
+    def test_default_is_full_upload_without_warning(self):
+        rc, out, calls = self._upload(False)
+        self.assertEqual(rc, 0)
+        self.assertNotIn("已弃用", out)
+        self.assertNotIn("[SKIP]", out)
+        self.assertIn("PUT", calls, "默认必须是全量重传")
+        self.assertNotIn("HEAD", calls)
+
+    def test_resume_still_only_compares_length(self):
+        # 尺寸不同 ⇒ 即使 resume=True 也照传。钉住判据没有改成 ETag/MD5 强一致，
+        # 别把「标记为弃用」误读成「已经修好了」。
+        rc, out, calls = self._upload(True, remote_length=63)
+        self.assertEqual(rc, 0)
+        self.assertIn("已弃用", out)
+        self.assertIn("PUT", calls)
+        self.assertIn("HEAD", calls)
 
 
 if __name__ == "__main__":
