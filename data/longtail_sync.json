@@ -786,5 +786,43 @@
   },
   "via": "cdp-9228",
   "ts": "2026-11-07 19:04:27"
+ },
+ "autoreels-ai-2026-11-08-1": {
+  "case": "autoreels-ai",
+  "title": "批量生成短视频的流水线：任务编排、素材幂等与配额回退",
+  "platforms": {
+   "tencentcloud": {
+    "ok": false,
+    "err": "未抓到建稿接口，草稿箱也没匹配到"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-08 14:06:59"
+ },
+ "autoreels-ai-2026-11-08-2": {
+  "case": "autoreels-ai",
+  "title": "批量生成短视频的流水线：任务编排、素材幂等与配额回退",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "342800",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=342800"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-08 14:08:37"
+ },
+ "ext-ep-003-freedoom-2026-11-08-1": {
+  "case": "ext-ep-003-freedoom",
+  "title": "Freedoom，免费合法的毁灭战士",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1709459",
+    "url": "https://developer.aliyun.com/article/new?edit=1709459#/"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-08 14:11:58"
  }
 }

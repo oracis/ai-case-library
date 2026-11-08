@@ -63,6 +63,12 @@
    "evidence": "aid=376921 image_urls=http://article.biliimg.com/bfs/article/e9feb475bd62b80fb9e7546a036cca6f8d50d17f.jpg",
    "source": "live",
    "state": "ok"
+  },
+  "tencentcloud": {
+   "at": "2026-11-08 16:26:09",
+   "evidence": "线上文章 2779036 卡片缩略图 background-image=https://developer.qcloudimg.com/http-save/yehe-12743977/a984837036f5d079d5ca5ad999687dce.jpg",
+   "source": "yun_finalize",
+   "state": "ok"
   }
  },
  "ext-ep-008-mindustry": {
@@ -90,6 +96,12 @@
   }
  },
  "ext-ep-011-minetest": {
+  "aliyun": {
+   "at": "2026-11-08 15:56:42",
+   "evidence": "文章首图 firstImg=https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_c7f847a9b9cb4013a1f4ed263cbaa5e3.png",
+   "source": "yun_finalize",
+   "state": "ok"
+  },
   "bilibili2": {
    "at": "2026-11-06 15:49:24",
    "evidence": "aid=376927 image_urls=http://article.biliimg.com/bfs/article/42586b262489ac1d1e930cd0cd499bef86c81cb9.jpg",
@@ -115,6 +127,14 @@
   "tencentcloud": {
    "at": "2026-11-07 16:23:24",
    "evidence": "线上文章 2778646 卡片缩略图 background-image=https://developer.qcloudimg.com/http-save/yehe-12743977/9be7c5cf4c541aa1fb8975466c76b3d4.jpg",
+   "source": "yun_finalize",
+   "state": "ok"
+  }
+ },
+ "plausible-analytics": {
+  "tencentcloud": {
+   "at": "2026-11-08 15:07:49",
+   "evidence": "线上文章 2779001 卡片缩略图 background-image=https://developer.qcloudimg.com/http-save/yehe-12743977/c5fb8eb1c215a1f9e0fd92bbbb932669.jpg",
    "source": "yun_finalize",
    "state": "ok"
   }

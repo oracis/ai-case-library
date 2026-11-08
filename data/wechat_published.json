@@ -537,5 +537,13 @@
     "appmsgid": "100000267",
     "note": "｜publish模式自动发表，新 appmsgid=2247485034",
     "verified_at": "2026-11-07 10:45"
+  },
+  "wx-100000212": {
+    "title": "StartClaw：不用买服务器、不用配 API key，就能跑起一个托管 agent",
+    "status": "published",
+    "published_at": "2026-11-08 16:09",
+    "appmsgid": "100000212",
+    "note": "｜publish模式自动发表，新 appmsgid=2247485035",
+    "verified_at": "2026-11-08 16:09"
   }
 }

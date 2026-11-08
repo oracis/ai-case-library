@@ -990,7 +990,7 @@
    "url": "https://developer.aliyun.com/article/1778894"
   },
   "bilibili": {
-   "at": "2026-11-06 13:45",
+   "at": "2026-11-06 13:41",
    "attempt": 0,
    "draft_id": "346183",
    "note": "｜更新草稿 aid=346183（draft/add 回读校验通过）",
@@ -1116,7 +1116,7 @@
  },
  "ext-ep-004-quake": {
   "bilibili2": {
-   "at": "2026-11-07 09:07 草稿箱→发布（send-draft）",
+   "at": "2026-11-07 09:07",
    "attempt": 0,
    "draft_id": "",
    "note": "草稿箱→发布（send-draft）",
@@ -1143,6 +1143,16 @@
   }
  },
  "ext-ep-005-supertux": {
+  "bilibili2": {
+   "at": "2026-11-08 14:27 草稿箱→发布（send-draft）",
+   "attempt": 0,
+   "draft_id": "",
+   "note": "草稿箱→发布（send-draft）",
+   "remote_id": "53813599",
+   "state": "published",
+   "title": "SuperTux：带内置关卡编辑器的平台跳跃游戏",
+   "url": ""
+  },
   "toutiao": {
    "at": "2026-10-31 20:01",
    "attempt": 0,
@@ -1789,8 +1799,7 @@
    "remote_id": "344840",
    "state": "draft",
    "title": "用麦当劳官方接口查了一下，我的积分正在悄悄过期",
-   "url": "",
-   "error": "｜更新草稿 aid=344840（draft/add 回读校验通过）"
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-25 09:57",
@@ -1947,10 +1956,10 @@
  },
  "outrank": {
   "bilibili": {
-   "at": "2026-11-07 11:21 草稿箱→发布（send-draft）",
+   "at": "2026-10-10 01:26",
    "attempt": 0,
    "draft_id": "342415",
-   "note": "草稿箱→发布（send-draft）",
+   "note": "｜草稿同步(2026-10-10 01:26): title 认领 aid=342415",
    "remote_id": "53799597",
    "state": "published",
    "title": "Outrank：自动化 SEO 引擎",
@@ -2044,12 +2053,12 @@
  },
  "pieter-levels": {
   "bilibili": {
-   "at": "2026-10-10 01:27",
+   "at": "2026-11-08 14:25 草稿箱→发布（send-draft）",
    "attempt": 0,
    "draft_id": "342416",
-   "note": "｜草稿同步(2026-10-10 01:27): title 认领 aid=342416",
-   "remote_id": "342416",
-   "state": "draft",
+   "note": "草稿箱→发布（send-draft）",
+   "remote_id": "53813580",
+   "state": "published",
    "title": "Pieter Levels：一个人做成的产品组合",
    "url": ""
   },
@@ -2962,8 +2971,7 @@
    "remote_id": "345869",
    "state": "draft",
    "title": "Upvoty",
-   "url": "",
-   "error": "｜更新草稿 aid=345869（draft/add 回读校验通过）"
+   "url": ""
   },
   "juejin": {
    "at": "2026-10-28 14:54",
