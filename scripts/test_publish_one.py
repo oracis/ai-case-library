@@ -22,6 +22,7 @@ import os
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -178,7 +179,27 @@ class FifoQueue(unittest.TestCase):
     """
 
     def test_default_is_send_draft(self):
-        self.assertEqual(P.FIFO_PLATFORMS, ("bilibili", "xhs", "bilibili2"))
+        self.assertEqual(P.FIFO_PLATFORMS,
+                         ("bilibili", "xhs", "bilibili2", "wechat"))
+
+    def test_公众号FIFO走远端对账而不是新写草稿(self):
+        """2026-11-07：wechat 曾仍是 publish --file ⇒ 堆出同标题重复稿。"""
+        # 注入档期：今天公众号真发过 1 篇后，配额闸会把 run 提前判 rc=1，
+        # 测试不能依赖真实台账（与 Bili2Fifo 那条同一个坑）。
+        with mock.patch.object(P.SLOT, "decide", return_value={"kind": "ai"}), \
+                mock.patch.object(P.subprocess, "call", return_value=0) as sp, \
+                mock.patch.object(P, "fifo_note"):
+            P.run("wechat", None, yes=False)
+            cmd = sp.call_args.args[0]
+            self.assertIn("wechat_fifo.py", " ".join(cmd))
+            self.assertIn("--list", cmd)
+            self.assertNotIn("--go", cmd)          # 干跑绝不真发
+            self.assertNotIn("publish", cmd)       # 更不许新写草稿
+        with mock.patch.object(P.SLOT, "decide", return_value={"kind": "ai"}), \
+                mock.patch.object(P.subprocess, "call", return_value=0) as sp, \
+                mock.patch.object(P, "fifo_note"):
+            P.run("wechat", None, yes=True)
+            self.assertIn("--go", sp.call_args.args[0])
 
     def test_fifo_dry_run_never_spawns_and_never_picks(self):
         def boom(*a, **kw):
@@ -186,6 +207,42 @@ class FifoQueue(unittest.TestCase):
         P.subprocess.call = boom
         # 不该走到 pick/闸：传一个必然让 pick 报错的假 day 也照样走 FIFO
         P.run("bilibili", None, yes=False, day="1999-01-01")
+
+    def test_轮到无稿但箱里有稿仍走FIFO(self):
+        """2026-11-07：小红书箱里 48 条，被「轮到游戏无稿」误挡。
+
+        档期轮换只管新写选稿；FIFO 发的是箱里的旧稿，与今天轮到哪类无关。
+        """
+        blocked = {"kind": None, "today_count": 0, "quota": 1,
+                   "blocked": "轮到「游戏」无稿可发", "reason": "轮到「游戏」无稿可发"}
+        with mock.patch.object(P.SLOT, "decide", return_value=blocked), \
+                mock.patch.object(P.subprocess, "call", return_value=0) as sp, \
+                mock.patch.object(P, "fifo_note"):
+            rc = P.run("xhs", None, yes=True)
+            self.assertEqual(rc, 0)
+            cmd = sp.call_args.args[0]
+            self.assertIn("xhs_publish.py", " ".join(cmd))
+            self.assertIn("send-draft", cmd)
+            self.assertNotIn("--dry", cmd)
+
+    def test_配额已满和冻结仍是硬闸(self):
+        """放行「无稿」不等于放行额度/禁言：这两条必须继续拒绝且不落子进程。"""
+        def boom(*a, **kw):
+            raise AssertionError("硬闸居然还起了 send-draft 子进程")
+        cases = [
+            {"kind": None, "today_count": 1, "quota": 1,
+             "reason": "今日已发 1 篇，达到上限 1"},           # B站二 11-07
+            {"kind": None, "today_count": 0, "quota": 3,
+             "frozen": "2026-11-10", "reason": "禁言冻结中"},  # 头条
+        ]
+        orig = P.subprocess.call
+        P.subprocess.call = boom
+        try:
+            for d in cases:
+                with mock.patch.object(P.SLOT, "decide", return_value=d):
+                    self.assertEqual(P.run("bilibili2", None, yes=True), 1)
+        finally:
+            P.subprocess.call = orig
 
     def test_new_flag_bypasses_fifo(self):
         # --new 必须走到「按档期选稿」；FIFO 默认路径则绝不碰 pick
@@ -231,8 +288,11 @@ class Bili2Fifo(unittest.TestCase):
         orig = P.subprocess.call
         P.subprocess.call = boom
         try:
-            # 2026-11-07 无记录 ⇒ 档期给 game ⇒ 走到 FIFO 分支
-            rc = P.run("bilibili2", None, yes=False, day="2026-11-07")
+            # 原写死 day=2026-11-07：当天二号真发过 1 篇后，配额闸会拦成
+            # rc=1 ⇒ 测试变成「依赖真实台账」。这里注入档期，只钉「干跑不落子进程」。
+            with mock.patch.object(P.SLOT, "decide",
+                                   return_value={"kind": "game"}):
+                rc = P.run("bilibili2", None, yes=False)
             self.assertEqual(rc, 0)
         finally:
             P.subprocess.call = orig
@@ -289,6 +349,22 @@ class UploadRemote(unittest.TestCase):
             raise AssertionError("干跑居然真的执行了上传")
         P.subprocess.call = boom
         self.assertEqual(P.upload_remote("tencentcloud", "demo", dry=True), 0)
+
+
+class MissingPack(unittest.TestCase):
+    """2026-11-07：腾讯云显式 --case 指定未写稿的 AI case 时崩 TypeError。"""
+
+    def test_缺稿时抛明确错误而不是TypeError(self):
+        with self.assertRaises(SystemExit) as cm:
+            P.build_cmd("tencentcloud", "no-such-case", None, True)
+        self.assertIn("缺稿件", str(cm.exception))
+        self.assertIn("no-such-case", str(cm.exception))
+
+    def test_无稿时十闸逐条给结论而不是崩(self):
+        rows = P.run_gates("tencentcloud", "no-such-case", None)
+        self.assertEqual(len(rows), len(P.GATES["tencentcloud"]))
+        self.assertFalse([r for r in rows if r["gate"] == "draft"][0]["ok"])
+        self.assertTrue(all("detail" in r for r in rows))
 
 
 if __name__ == "__main__":

@@ -108,5 +108,59 @@ class QuotaAlternation(unittest.TestCase):
         self.assertIn("达到上限", d["reason"])
 
 
+class DraftMustNotCountAsPublished(unittest.TestCase):
+    """2026-11-07：刚建的草稿被误算成「今日已发 1 篇」，挡住真发。
+
+    根因：db.upsert_post 给所有行 setdefault published_at=now，而
+    _rows_yun('aliyun') 判「已发」只看 `published_at or remote_id`
+    （不看 state）。实测 gojiberryai / aliyun / draftId=1708661 建完草稿，
+    decide() 立刻变成 today_count=1、quota=1 ⇒ 「达到上限」。
+    修法：显式 state=draft 时 published_at 默认 None（其余行为不变）。
+    """
+
+    def _fresh_db(self):
+        import sqlite3
+        import db
+        src = db.get_conn()
+        schemas = src.execute(
+            "select sql from sqlite_master where type='table' "
+            "and name in ('cases','platform_posts')").fetchall()
+        db.close_conn()
+        conn = sqlite3.connect(':memory:')
+        for (sql,) in schemas:
+            conn.execute(sql)
+        return conn, db
+
+    def test_draft_row_has_no_published_at(self):
+        conn, db = self._fresh_db()
+        db.upsert_post(conn, 'probe-draft', 'aliyun',
+                       {'state': 'draft', 'draft_id': '1708661'})
+        row = conn.execute(
+            "select state,published_at from platform_posts "
+            "where case_id='probe-draft'").fetchone()
+        self.assertEqual(row, ('draft', None))
+
+    def test_published_row_still_gets_published_at(self):
+        conn, db = self._fresh_db()
+        db.upsert_post(conn, 'probe-pub', 'aliyun', {'state': 'published'})
+        self.assertTrue(conn.execute(
+            "select published_at from platform_posts "
+            "where case_id='probe-pub'").fetchone()[0])
+
+    def test_rows_yun_skips_plain_draft(self):
+        from unittest.mock import patch
+        import db
+        conn, _ = self._fresh_db()
+        db.upsert_post(conn, 'probe-draft', 'aliyun',
+                       {'state': 'draft', 'draft_id': '1'})
+        cur = conn.execute("select * from platform_posts")
+        cols = [d[0] for d in cur.description]
+        post = dict(zip(cols, cur.fetchone()))
+        with patch.object(db, 'get_conn', return_value=conn), \
+             patch.object(db, 'get_posts_by_platform', return_value=[post]), \
+             patch.object(db, 'close_conn', return_value=None):
+            self.assertEqual(S._rows_yun('aliyun'), [])
+
+
 if __name__ == "__main__":
     unittest.main()

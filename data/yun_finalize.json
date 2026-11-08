@@ -23,14 +23,15 @@
   "shipfast": {
     "al_draft": "1698462",
     "al_article": "1777090",
-    "al_state": "auditing",
+    "al_state": "published",
     "al_published_at": "2026-10-30 12:15:00",
     "tc_draft": "338031",
     "tc_state": "published",
     "tc_article": "2772404",
     "tc_published_at": "2026-10-30 12:50:00",
     "note": "阿里云软文换技术稿后发表；tc 338031 已发表（审核中）",
-    "tc_note": "发表被「请选择文章标签」拦 → 用户授权自拟标签 → React value setter + input 事件 + onKeyDown Enter 实际已建 chip（前端框架/next.js/前端/React/Next.js/SaaS 共 6 个，早期判据选择器 tag-item 写错漏检）；确认发布后弹「发布成功！文章正在审核中，审核通过前仅自己可见」，article 2772404"
+    "tc_note": "发表被「请选择文章标签」拦 → 用户授权自拟标签 → React value setter + input 事件 + onKeyDown Enter 实际已建 chip（前端框架/next.js/前端/React/Next.js/SaaS 共 6 个，早期判据选择器 tag-item 写错漏检）；确认发布后弹「发布成功！文章正在审核中，审核通过前仅自己可见」，article 2772404",
+    "al_verify": "2026-11-07 公开页回读 https://developer.aliyun.com/article/1777090 → HTTP 200，title《从模板源码反推工程决策…》，正文含 Next.js/ShipFast，无「审核中/仅自己可见」⇒ 审核通过已发表，补登 auditing→published"
   },
   "trustmrr": {
     "tc_draft": "338565",
@@ -169,5 +170,27 @@
     "tc_state_at": "2026-11-06 14:16",
     "tc_article": "2777788",
     "updated": "2026-11-06 14:16:50"
+  },
+  "insect-bite-id": {
+    "tc_draft": "342458",
+    "tc_state": "published",
+    "tc_state_at": "2026-11-07 16:23",
+    "tc_article": "2778646",
+    "updated": "2026-11-07 16:23:24"
+  },
+  "ext-ep-006-nethack": {
+    "tc_draft": "342483",
+    "tc_state": "published",
+    "tc_state_at": "2026-11-07 17:15",
+    "tc_article": "2778680",
+    "updated": "2026-11-07 17:15:25"
+  },
+  "__community__1708661": {
+    "uploaded_img": "https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_96f94d2b63b5487d952a4ee2039cf1dd.png",
+    "updated": "2026-11-07 19:25:35",
+    "published": null,
+    "published_at": null,
+    "state": "auditing",
+    "article": "1780408"
   }
 }

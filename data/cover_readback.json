@@ -49,6 +49,12 @@
    "evidence": "aid=376920 image_urls=http://article.biliimg.com/bfs/article/8b8f01b199b708858a440397f230a87f5432c04f.jpg",
    "source": "live",
    "state": "ok"
+  },
+  "tencentcloud": {
+   "at": "2026-11-07 17:15:25",
+   "evidence": "线上文章 2778680 卡片缩略图 background-image=https://developer.qcloudimg.com/http-save/yehe-12743977/9575430e5e52c383cdd664d00fffbcdf.jpg",
+   "source": "yun_finalize",
+   "state": "ok"
   }
  },
  "ext-ep-007-openttd": {
@@ -92,9 +98,23 @@
   }
  },
  "gojiberryai": {
+  "aliyun": {
+   "at": "2026-11-07 19:11:38",
+   "evidence": "文章首图 firstImg=https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_96f94d2b63b5487d952a4ee2039cf1dd.png",
+   "source": "yun_finalize",
+   "state": "ok"
+  },
   "tencentcloud": {
    "at": "2026-11-06 13:57:00",
    "evidence": "线上文章 2777761 卡片缩略图 background-image=抽屉封面：https://developer-private-1258344699.cos.ap-guangzhou.myqcloud.com/editor/image/12743977/20261106-18087ad5.jpeg?x-cos-security-token=7lDbSTaCiTvzjsFPauYoCD8t92llh6ha6109b2b0d779ca6e5518b41eafd8242aomoFtZ-YI8LHghQZ_4JNhJWWKZexpxgwoQFfEv_8kvU75BJDpz4IpYoU-AW1hq",
+   "source": "yun_finalize",
+   "state": "ok"
+  }
+ },
+ "insect-bite-id": {
+  "tencentcloud": {
+   "at": "2026-11-07 16:23:24",
+   "evidence": "线上文章 2778646 卡片缩略图 background-image=https://developer.qcloudimg.com/http-save/yehe-12743977/9be7c5cf4c541aa1fb8975466c76b3d4.jpg",
    "source": "yun_finalize",
    "state": "ok"
   }

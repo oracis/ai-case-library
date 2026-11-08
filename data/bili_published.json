@@ -182,5 +182,14 @@
     "verified_at": "2026-11-06 13:45",
     "evidence": "editor-ui-publish(按标题补账 346183→53786328)",
     "note": "｜更新草稿 aid=346183（draft/add 回读校验通过）"
+  },
+  {
+    "id": "outrank",
+    "at": "2026-10-10 01:26",
+    "article_id": "53799597",
+    "title": "Outrank：自动化 SEO 引擎",
+    "verified_at": "2026-11-07 11:21",
+    "evidence": "editor-ui-publish",
+    "note": "｜草稿同步(2026-10-10 01:26): title 认领 aid=342415"
   }
 ]

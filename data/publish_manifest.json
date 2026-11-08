@@ -3,10 +3,12 @@
   "bilibili": {
    "at": "2026-10-17 22:06",
    "attempt": 0,
-   "error": "对账补登: 读公开页正文确认(cv53482719) → 1Lookup：一个 API 查电话、邮箱、IP 实时数据",
+   "draft_id": "",
+   "note": "对账补登: 读公开页正文确认(cv53482719) → 1Lookup：一个 API 查电话、邮箱、IP 实时数据",
    "remote_id": "53482719",
    "state": "published",
-   "title": "1Lookup：一个 API 查电话、邮箱、IP 实时数据"
+   "title": "1Lookup：一个 API 查电话、邮箱、IP 实时数据",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-23 15:56",
@@ -70,12 +72,14 @@
  },
  "aeo-engine": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-15 21:37",
    "attempt": 0,
    "draft_id": "342370",
+   "note": "｜草稿同步(2026-10-15 21:37): title 认领 aid=342370",
    "remote_id": "342370",
-   "state": "draft_saved",
-   "title": "月收$53K：让品牌被 AI 答案提到"
+   "state": "draft",
+   "title": "AEO Engine：让品牌出现在 AI 答案里",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-09-29 21:17",
@@ -99,13 +103,14 @@
  },
  "agentsguild": {
   "bilibili": {
-   "at": "2026-10-27 13:01 草稿箱→发布（send-draft）",
+   "at": "2026-10-26 13:14",
    "attempt": 1,
    "draft_id": "344958",
-   "error": "｜更新草稿 aid=344958（draft/add 回读校验通过）",
+   "note": "｜更新草稿 aid=344958（draft/add 回读校验通过）",
    "remote_id": "53628187",
    "state": "published",
-   "title": "AgentsGuild：近 30 天已验证收入 ，为游戏开发"
+   "title": "AgentsGuild：近 30 天已验证收入 ，为游戏开发",
+   "url": ""
   },
   "juejin": {
    "at": "2026-10-26 12:56",
@@ -138,12 +143,14 @@
  },
  "ai-math-solver": {
   "bilibili": {
-   "at": "2026-10-25 02:11",
+   "at": "2026-10-25 02:04",
    "attempt": 1,
    "draft_id": "344829",
+   "note": "｜更新草稿 aid=344829（draft/add 回读校验通过）",
    "remote_id": "344829",
-   "state": "draft_saved",
-   "title": "AI Math Solver+：AI数学解题工具，为师生、家"
+   "state": "draft",
+   "title": "AI Math Solver+：AI数学解题工具，为师生、家",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-25 00:33",
@@ -171,9 +178,11 @@
    "at": "2026-10-26 14:38",
    "attempt": 2,
    "draft_id": "344830",
+   "note": "｜更新草稿 aid=344830（draft/add 回读校验通过）",
    "remote_id": "344830",
    "state": "published",
-   "title": "AI Prank Call：AI 语音恶作剧服务，32 活跃"
+   "title": "AI Prank Call：AI 语音恶作剧服务，32 活跃",
+   "url": ""
   },
   "juejin": {
    "at": "2026-10-26 14:18",
@@ -203,12 +212,14 @@
  },
  "ai-smart-decor": {
   "bilibili": {
-   "at": "2026-10-25 02:11",
+   "at": "2026-10-25 02:06",
    "attempt": 1,
    "draft_id": "344831",
+   "note": "｜更新草稿 aid=344831（draft/add 回读校验通过）",
    "remote_id": "344831",
-   "state": "draft_saved",
-   "title": "AI Smart Decor：AI智能室内设计工具，让用户预"
+   "state": "draft",
+   "title": "AI Smart Decor：AI智能室内设计工具，让用户预",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-25 00:35",
@@ -233,12 +244,14 @@
  },
  "ai-voice-calls": {
   "bilibili": {
-   "at": "2026-10-25 02:11",
+   "at": "2026-10-25 02:06",
    "attempt": 1,
    "draft_id": "344832",
+   "note": "｜更新草稿 aid=344832（draft/add 回读校验通过）",
    "remote_id": "344832",
-   "state": "draft_saved",
-   "title": "AI voice calls：AI语音平台，支持50+语言"
+   "state": "draft",
+   "title": "AI voice calls：AI语音平台，支持50+语言",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-25 00:18",
@@ -263,12 +276,14 @@
  },
  "augora-ai": {
   "bilibili": {
-   "at": "2026-10-10 19:39",
+   "at": "2026-10-14 12:05",
    "attempt": 2,
    "draft_id": "343497",
+   "note": "｜草稿同步(2026-10-14 12:05): body 认领 aid=343497",
    "remote_id": "343497",
-   "state": "draft_saved",
-   "title": "Augora AI：Shopify 服务端广告追踪"
+   "state": "draft",
+   "title": "Augora AI：Shopify 服务端广告追踪",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-10 15:48",
@@ -293,13 +308,14 @@
  },
  "autoreels-ai": {
   "bilibili": {
-   "at": "2026-10-20 同步（用户手动发布，已通过列表回读命中）",
+   "at": "2026-10-10 01:12",
    "attempt": 0,
    "draft_id": "342371",
-   "error": "2026-10-20 00:55 发现已在已通过列表（非本次自动发布，应为 10-19 深夜编辑器打开后的人工点击，具体时间未知）",
+   "note": "2026-10-20 00:55 发现已在已通过列表（非本次自动发布，应为 10-19 深夜编辑器打开后的人工点击，具体时间未知）",
    "remote_id": "342371",
    "state": "published",
-   "title": "AutoReels.AI：一键把素材剪成短视频"
+   "title": "AutoReels.AI：一键把素材剪成短视频",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-21 12:38",
@@ -324,12 +340,14 @@
  },
  "betting-tips": {
   "bilibili": {
-   "at": "2026-10-25 02:11",
+   "at": "2026-10-25 02:07",
    "attempt": 1,
    "draft_id": "344833",
+   "note": "｜更新草稿 aid=344833（draft/add 回读校验通过）",
    "remote_id": "344833",
-   "state": "draft_saved",
-   "title": "Betting Tips：为足球、篮球、网球、美式足球和棒球"
+   "state": "draft",
+   "title": "Betting Tips：为足球、篮球、网球、美式足球和棒球",
+   "url": ""
   },
   "juejin": {
    "at": "2026-10-29 11:49",
@@ -370,12 +388,14 @@
  },
  "boothie-ai-photo-editor": {
   "bilibili": {
-   "at": "2026-10-13 22:48",
+   "at": "2026-10-15 21:20",
    "attempt": 3,
    "draft_id": "343826",
+   "note": "｜草稿同步(2026-10-15 21:20): title 认领 aid=343826",
    "remote_id": "343826",
-   "state": "draft_saved",
-   "title": "Boothie：给自拍换相机和胶片风格"
+   "state": "draft",
+   "title": "Boothie：给自拍换相机和胶片风格",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-13 22:35",
@@ -402,12 +422,14 @@
  },
  "bustem": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-19 01:36",
    "attempt": 0,
    "draft_id": "342372",
+   "note": "｜草稿同步(2026-10-19 01:36): title 认领 aid=342372",
    "remote_id": "342372",
-   "state": "draft_saved",
-   "title": "月收$398K：帮品牌删仿品和窜货链接"
+   "state": "draft",
+   "title": "Bustem：帮电商品牌全网打假，找仿品、窜货、下架链接",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-09-28 20:40",
@@ -437,10 +459,12 @@
   "bilibili": {
    "at": "2026-10-18 14:59",
    "attempt": 0,
-   "error": "对账补登: 读公开页正文确认(cv53490089) → Chatbase：上传文档就得到一个客服机器人",
+   "draft_id": "",
+   "note": "对账补登: 读公开页正文确认(cv53490089) → Chatbase：上传文档就得到一个客服机器人",
    "remote_id": "53490089",
    "state": "published",
-   "title": "Chatbase：上传文档就得到一个客服机器人"
+   "title": "Chatbase：上传文档就得到一个客服机器人",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-09-29 21:17",
@@ -466,12 +490,14 @@
  },
  "chatsell-co": {
   "bilibili": {
-   "at": "2026-10-25 02:11",
+   "at": "2026-10-25 02:08",
    "attempt": 1,
    "draft_id": "344834",
+   "note": "｜更新草稿 aid=344834（draft/add 回读校验通过）",
    "remote_id": "344834",
-   "state": "draft_saved",
-   "title": "Chatsell.co：为WooCommerce店铺提供自然"
+   "state": "draft",
+   "title": "Chatsell.co：为WooCommerce店铺提供自然",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-25 00:22",
@@ -496,13 +522,14 @@
  },
  "checkvibe": {
   "bilibili": {
-   "at": "2026-10-20 同步（用户手动发布，已通过列表回读命中）",
+   "at": "2026-10-10 01:15",
    "attempt": 0,
    "draft_id": "342374",
-   "error": "2026-10-20 00:52 编辑器点「发布」→「你的专栏已提交成功」→ 已通过列表回读命中（草稿箱最老，10-10 01:15）",
+   "note": "2026-10-20 00:52 编辑器点「发布」→「你的专栏已提交成功」→ 已通过列表回读命中（草稿箱最老，10-10 01:15）",
    "remote_id": "342374",
    "state": "published",
-   "title": "CheckVibe：扫描 vibe-coded 应用漏洞"
+   "title": "CheckVibe：扫描 vibe-coded 应用漏洞",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-09-29 21:17",
@@ -538,9 +565,11 @@
    "at": "2026-11-01 17:03",
    "attempt": 0,
    "draft_id": "345679",
+   "note": "｜更新草稿 aid=345663（draft/add 回读校验通过）｜更新草稿 aid=345679（draft/add 回读校验通过）",
    "remote_id": "345679",
    "state": "published",
-   "title": "Chessigma：「免费版 Chess.com」拿下 10（世界逻辑 aid=345663，审核中）"
+   "title": "Chessigma：「免费版 Chess.com」拿下 10",
+   "url": ""
   },
   "cnblogs": {
    "at": "2026-11-01 17:17",
@@ -610,10 +639,10 @@
    "at": "2026-10-31 22:22",
    "attempt": 1,
    "draft_id": "376928",
-   "error": "二号(国会图书馆/9224)。提交时 toast「提交成功」但已发表列表为空 ⇒ 当时判「审核中」未记账；2026-10-31 23:30 回读已发表列表命中，aid=53699085，改判 published。⚠ 教训：B站专栏有审核延迟，提交后当天的「列表为空」不等于失败，别重发。",
+   "note": "｜更新草稿 aid=376928（draft/add 回读校验通过）",
    "remote_id": "376928",
    "state": "published",
-   "title": "ClawLink：MRR $2,219，聊天窗口直连百个应用",
+   "title": "ClawLink：MRR $2,219，TrustMRR 实",
    "url": "https://www.bilibili.com/read/cv53699085"
   }
  },
@@ -628,12 +657,14 @@
    "url": "https://developer.aliyun.com/article/1778138"
   },
   "bilibili": {
-   "at": "2026-11-01 17:03",
+   "at": "2026-11-01 13:24",
    "attempt": 2,
    "draft_id": "345680",
+   "note": "｜更新草稿 aid=345664（draft/add 回读校验通过）｜更新草稿 aid=345680（draft/add 回读校验通过）",
    "remote_id": "345680",
-   "state": "draft_saved",
-   "title": "Codédex（国会图书馆草稿 345664，今日额度满待明发）"
+   "state": "draft",
+   "title": "Codédex：把学编程包装成「冒险旅程」的互动课程平台，免",
+   "url": ""
   },
   "cnblogs": {
    "at": "2026-11-01 17:17",
@@ -700,12 +731,14 @@
  },
  "cometly": {
   "bilibili": {
-   "at": "2026-10-10 19:39",
+   "at": "2026-10-15 21:25",
    "attempt": 2,
    "draft_id": "343498",
+   "note": "｜草稿同步(2026-10-15 21:25): title 认领 aid=343498",
    "remote_id": "343498",
-   "state": "draft_saved",
-   "title": "Cometly：把广告和收入对上号"
+   "state": "draft",
+   "title": "Cometly：把广告和收入对上号",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-13 23:41",
@@ -734,12 +767,14 @@
  },
  "comp-ai": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-15 21:35",
    "attempt": 0,
    "draft_id": "342397",
+   "note": "｜草稿同步(2026-10-15 21:35): title 认领 aid=342397",
    "remote_id": "342397",
-   "state": "draft_saved",
-   "title": "月收$540K：帮公司几周过合规审计"
+   "state": "draft",
+   "title": "Comp AI：帮公司过 SOC 2 / ISO 审计",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-09-29 21:17",
@@ -764,12 +799,14 @@
  },
  "coral": {
   "bilibili": {
-   "at": "2026-09-30 09:37",
+   "at": "2026-10-15 21:47",
    "attempt": 0,
    "draft_id": "342398",
+   "note": "｜草稿同步(2026-10-15 21:47): title 认领 aid=342398",
    "remote_id": "342398",
-   "state": "draft_saved",
-   "title": "旧标题"
+   "state": "draft",
+   "title": "Coral：帮你部署托管开源 AI agent",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-17 对账补登",
@@ -795,12 +832,14 @@
  },
  "demopolish": {
   "bilibili": {
-   "at": "2026-10-25 02:11",
+   "at": "2026-10-25 02:09",
    "attempt": 1,
    "draft_id": "344835",
+   "note": "｜更新草稿 aid=344835（draft/add 回读校验通过）",
    "remote_id": "344835",
-   "state": "draft_saved",
-   "title": "DemoPolish：Demopolish帮助软件和SaaS"
+   "state": "draft",
+   "title": "DemoPolish：Demopolish帮助软件和SaaS",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-25 00:20",
@@ -825,13 +864,14 @@
  },
  "divine-widgets": {
   "bilibili": {
-   "at": "2026-10-28 14:37 草稿箱→发布（send-draft）",
+   "at": "2026-10-10 01:17",
    "attempt": 0,
    "draft_id": "342399",
-   "error": "｜草稿同步(2026-10-10 01:17): title 认领 aid=342399｜更新草稿 aid=342399（draft/add 回读校验通过）｜更新草稿 aid=342399（draft/add 回读校验通过）",
+   "note": "｜草稿同步(2026-10-10 01:17): title 认领 aid=342399｜更新草稿 aid=342399（draft/add 回读校验通过）｜更新草稿 aid=342399（draft/add 回读校验通过）",
    "remote_id": "53645998",
    "state": "published",
-   "title": "Divine Widgets：圣经小组件，每日经文祷告上锁屏"
+   "title": "Divine Widgets：圣经小组件，每日经文祷告上锁屏",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-17 01:20",
@@ -862,10 +902,12 @@
   "bilibili": {
    "at": "2026-10-14 13:25",
    "attempt": 1,
-   "error": "2026-10-24 21:2x 编辑器点「发布」→ toast「提交成功」→ 草稿箱 44→43（aid=343827 消失）→ 已发表列表按标题命中 cv53590385《DownConvert：SketchUp 文件转旧版》。⚠ 脚本按 aid 回读未命中是判据缺陷：B站发布后 read id 会变（343827→53590385），已发表列表回读必须按标题匹配。",
+   "draft_id": "",
+   "note": "2026-10-24 21:2x 编辑器点「发布」→ toast「提交成功」→ 草稿箱 44→43（aid=343827 消失）→ 已发表列表按标题命中 cv53590385《DownConvert：SketchUp 文件转旧版》。⚠ 脚本按 aid 回读未命中是判据缺陷：B站发布后 read id 会变（343827→53590385），已发表列表回读必须按标题匹配。",
    "remote_id": "343827",
    "state": "published",
-   "title": "DownConvert：SketchUp 文件转旧版"
+   "title": "DownConvert：SketchUp 文件转旧版",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-24 21:32",
@@ -894,10 +936,12 @@
   "bilibili": {
    "at": "2026-10-17 10:10",
    "attempt": 1,
-   "error": "P1对账: 语义匹配(混音订阅, cv53335667) → 法国录音棚收 250 欧一单，有人把混音做成了订阅",
+   "draft_id": "",
+   "note": "P1对账: 语义匹配(混音订阅, cv53335667) → 法国录音棚收 250 欧一单，有人把混音做成了订阅",
    "remote_id": "53335667",
    "state": "published",
-   "title": "法国录音棚收 250 欧一单，有人把混音做成了订阅"
+   "title": "法国录音棚收 250 欧一单，有人把混音做成了订阅",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-17 01:20",
@@ -949,10 +993,11 @@
    "at": "2026-11-06 13:45",
    "attempt": 0,
    "draft_id": "346183",
+   "note": "｜更新草稿 aid=346183（draft/add 回读校验通过）",
    "remote_id": "53786328",
    "state": "published",
    "title": "用 Backbone 游戏引擎复刻超级马力欧兄弟",
-   "url": "https://www.bilibili.com/read/cv53786328"
+   "url": ""
   },
   "tencentcloud": {
    "at": "2026-11-03 21:33:42",
@@ -1070,6 +1115,16 @@
   }
  },
  "ext-ep-004-quake": {
+  "bilibili2": {
+   "at": "2026-11-07 09:07 草稿箱→发布（send-draft）",
+   "attempt": 0,
+   "draft_id": "",
+   "note": "草稿箱→发布（send-draft）",
+   "remote_id": "53797678",
+   "state": "published",
+   "title": "Quake：读一份 1999 年开源的 3D 引擎源码",
+   "url": ""
+  },
   "tencentcloud": {
    "at": "2026-11-05 11:59",
    "attempt": 0,
@@ -1159,12 +1214,14 @@
  },
  "fastwrite-io": {
   "bilibili": {
-   "at": "2026-10-13 22:48",
+   "at": "2026-10-14 13:25",
    "attempt": 1,
    "draft_id": "343828",
+   "note": "｜草稿同步(2026-10-14 13:25): title 认领 aid=343828",
    "remote_id": "343828",
-   "state": "draft_saved",
-   "title": "fastwrite.io：AI 帮学生写学术文本"
+   "state": "draft",
+   "title": "fastwrite.io：AI 帮学生写学术文本",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-13 23:41",
@@ -1221,12 +1278,14 @@
  },
  "genius-ai": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-10 01:18",
    "attempt": 0,
    "draft_id": "342400",
+   "note": "｜草稿同步(2026-10-10 01:18): title 认领 aid=342400",
    "remote_id": "342400",
-   "state": "draft_saved",
-   "title": "年收$200M：美发店的预约收银后台"
+   "state": "draft",
+   "title": "Genius AI：给美发店做预约、收银、发短信的一体化后台",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-29 11:46",
@@ -1282,12 +1341,14 @@
  },
  "gojiberryai": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-15 21:28",
    "attempt": 0,
    "draft_id": "342401",
+   "note": "｜草稿同步(2026-10-15 21:28): title 认领 aid=342401",
    "remote_id": "342401",
-   "state": "draft_saved",
-   "title": "月收$424K：挖高意向客户再自动触达"
+   "state": "draft",
+   "title": "GojiberryAI：B2B 团队的 AI GTM 平台",
+   "url": ""
   },
   "tencentcloud": {
    "at": "2026-11-05 14:22",
@@ -1322,12 +1383,14 @@
  },
  "growingupvideo": {
   "bilibili": {
-   "at": "2026-10-13 22:48",
+   "at": "2026-10-14 13:26",
    "attempt": 1,
    "draft_id": "343829",
+   "note": "｜草稿同步(2026-10-14 13:26): title 认领 aid=343829",
    "remote_id": "343829",
-   "state": "draft_saved",
-   "title": "GrowingUpVideo：旧照片做成变脸视频"
+   "state": "draft",
+   "title": "GrowingUpVideo：旧照片做成变脸视频",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-13 23:41",
@@ -1356,10 +1419,12 @@
   "bilibili": {
    "at": "2026-10-06 00:17",
    "attempt": 1,
-   "error": "对账补登: 读公开页正文确认(cv53304680) → 正文首句『Harper 把英国公开的公司抵押记录…』 ⇒ HarperAI",
+   "draft_id": "",
+   "note": "对账补登: 读公开页正文确认(cv53304680) → 正文首句『Harper 把英国公开的公司抵押记录…』 ⇒ HarperAI",
    "remote_id": "53304680",
    "state": "published",
-   "title": "把英国公开抵押记录连成一张网，然后卖给贷款经纪"
+   "title": "把英国公开抵押记录连成一张网，然后卖给贷款经纪",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-05 14:54",
@@ -1414,12 +1479,14 @@
  },
  "homy": {
   "bilibili": {
-   "at": "2026-10-13 22:48",
+   "at": "2026-10-14 13:27",
    "attempt": 1,
    "draft_id": "343830",
+   "note": "｜草稿同步(2026-10-14 13:27): title 认领 aid=343830",
    "remote_id": "343830",
-   "state": "draft_saved",
-   "title": "Homy：Mac 上更快的文件搜索"
+   "state": "draft",
+   "title": "Homy：Mac 上更快的文件搜索",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-13 23:06",
@@ -1447,9 +1514,11 @@
    "at": "2026-10-21 12:35 草稿箱→发布（send-draft；回读滞后，人工核实空间公开列表 id=53536366 后补账）",
    "attempt": 0,
    "draft_id": "342403",
+   "note": "｜草稿同步(2026-10-10 01:20): title 认领 aid=342403",
    "remote_id": "342403",
    "state": "published",
-   "title": "Insect Bite ID：拍张照认出被什么咬"
+   "title": "Insect Bite ID：拍张照认出被什么咬",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-20 15:31",
@@ -1477,9 +1546,11 @@
    "at": "2026-10-22 11:29 草稿箱→发布（send-draft；回读滞后，人工核实空间公开列表 id=53551964 后补账）",
    "attempt": 0,
    "draft_id": "342405",
+   "note": "｜草稿同步(2026-10-10 01:21): title 认领 aid=342405",
    "remote_id": "342405",
    "state": "published",
-   "title": "Kibu：给智障与发育障碍机构做的内容与电子病历系统"
+   "title": "Kibu：给智障与发育障碍机构做的内容与电子病历系统",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-09-30 17:44",
@@ -1537,12 +1608,14 @@
  },
  "lancer-app": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-15 21:39",
    "attempt": 0,
    "draft_id": "342408",
+   "note": "｜草稿同步(2026-10-15 21:39): title 认领 aid=342408",
    "remote_id": "342408",
-   "state": "draft_saved",
-   "title": "月收$20K：替自由职业者写提案接单"
+   "state": "draft",
+   "title": "Lancer.app：AI 替自由职业者干完接单最烦的那段",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-09-29 21:17",
@@ -1570,9 +1643,11 @@
    "at": "2026-10-23 15:05",
    "attempt": 0,
    "draft_id": "342410",
+   "note": "｜草稿同步(2026-10-10 01:22): title 认领 aid=342410",
    "remote_id": "342410",
    "state": "published",
-   "title": "月收$842：高尔夫造型的开瓶器"
+   "title": "le19emetrou：高尔夫造型的开瓶器",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-09-29 21:17",
@@ -1597,12 +1672,14 @@
  },
  "macwall": {
   "bilibili": {
-   "at": "2026-10-13 22:48",
+   "at": "2026-10-14 13:28",
    "attempt": 1,
    "draft_id": "343831",
+   "note": "｜草稿同步(2026-10-14 13:28): title 认领 aid=343831",
    "remote_id": "343831",
-   "state": "draft_saved",
-   "title": "MacWall：给 Mac 的 4K 动态壁纸"
+   "state": "draft",
+   "title": "MacWall：给 Mac 的 4K 动态壁纸",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-14 15:26",
@@ -1627,13 +1704,14 @@
  },
  "magicslides-app": {
   "bilibili": {
-   "at": "2026-10-29 11:46",
+   "at": "2026-10-10 01:23",
    "attempt": 0,
    "draft_id": "342411",
-   "error": "2026-10-29 发布时 B站重分配 aid：342411 → 53660838；脚本按旧 aid 回读误报失败，已人工回读已发表列表命中补账",
+   "note": "2026-10-29 发布时 B站重分配 aid：342411 → 53660838；脚本按旧 aid 回读误报失败，已人工回读已发表列表命中补账",
    "remote_id": "53660838",
    "state": "published",
-   "title": "MagicSlides.app：输入主题自动做 PPT"
+   "title": "MagicSlides.app：输入主题自动做 PPT",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-11-03 01:20",
@@ -1659,12 +1737,14 @@
  },
  "marc-lou-portfolio": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-10 01:23",
    "attempt": 0,
    "draft_id": "342412",
+   "note": "｜草稿同步(2026-10-10 01:23): title 认领 aid=342412",
    "remote_id": "342412",
-   "state": "draft_saved",
-   "title": "月收$1.03M：靠一堆小产品组合赚钱"
+   "state": "draft",
+   "title": "Marc Lou 的产品矩阵：三年发 25 个产品",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-09-28 20:40",
@@ -1705,10 +1785,12 @@
    "at": "2026-10-25 03:16",
    "attempt": 0,
    "draft_id": "344840",
-   "error": "｜更新草稿 aid=344840（draft/add 回读校验通过）",
+   "note": "｜更新草稿 aid=344840（draft/add 回读校验通过）",
    "remote_id": "344840",
-   "state": "draft_saved",
-   "title": "用麦当劳官方接口查了一下，我的积分正在悄悄过期"
+   "state": "draft",
+   "title": "用麦当劳官方接口查了一下，我的积分正在悄悄过期",
+   "url": "",
+   "error": "｜更新草稿 aid=344840（draft/add 回读校验通过）"
   },
   "toutiao": {
    "at": "2026-10-25 09:57",
@@ -1726,12 +1808,14 @@
  },
  "meerkats-ai": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-15 21:44",
    "attempt": 0,
    "draft_id": "342413",
+   "note": "｜草稿同步(2026-10-15 21:44): title 认领 aid=342413",
    "remote_id": "342413",
-   "state": "draft_saved",
-   "title": "月收$3.0K：替营销公司跑获客流程"
+   "state": "draft",
+   "title": "Meerkats.ai：替营销机构自动跑获客流程",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-09-29 21:17",
@@ -1757,13 +1841,14 @@
  },
  "mort": {
   "bilibili": {
-   "at": "2026-11-03 21:27",
+   "at": "2026-10-17 10:10",
    "attempt": 2,
    "draft_id": "342369",
-   "error": "P1对账: 标题直接命中(cv53280245) → MORT：AI 求职代理，自动投遍企业招聘页",
+   "note": "P1对账: 标题直接命中(cv53280245) → MORT：AI 求职代理，自动投遍企业招聘页",
    "remote_id": "53280245",
    "state": "published",
-   "title": "MORT：AI 产品"
+   "title": "MORT：AI 产品",
+   "url": ""
   },
   "tencentcloud": {
    "at": "2026-11-04 19:34",
@@ -1799,13 +1884,14 @@
  },
  "nitra": {
   "bilibili": {
-   "at": "2026-11-05 11:15:00",
+   "at": "2026-10-10 01:26",
    "attempt": 0,
    "draft_id": "342414",
-   "error": "补账修正：published_at 曾错记 2026-10-10；真实为 11-05 上午批次，时刻为日志近似（档期只需日期精度）",
+   "note": "｜草稿同步(2026-10-10 01:26): title 认领 aid=342414",
    "remote_id": "53766079",
    "state": "published",
-   "title": "Nitra：给独立小诊所做管钱、管合规、管库存的后台"
+   "title": "Nitra：给独立小诊所做管钱、管合规、管库存的后台",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-09-29 21:17",
@@ -1829,12 +1915,14 @@
  },
  "nutria-9e3eaa": {
   "bilibili": {
-   "at": "2026-10-13 22:48",
+   "at": "2026-10-14 13:29",
    "attempt": 1,
    "draft_id": "343832",
+   "note": "｜草稿同步(2026-10-14 13:29): title 认领 aid=343832",
    "remote_id": "343832",
-   "state": "draft_saved",
-   "title": "Nutria：AI 记饮食和运动的卡路里"
+   "state": "draft",
+   "title": "Nutria：AI 记饮食和运动的卡路里",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-13 23:37",
@@ -1859,12 +1947,14 @@
  },
  "outrank": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-11-07 11:21 草稿箱→发布（send-draft）",
    "attempt": 0,
    "draft_id": "342415",
-   "remote_id": "342415",
-   "state": "draft_saved",
-   "title": "月收$250K：自动写博客把排名做上去"
+   "note": "草稿箱→发布（send-draft）",
+   "remote_id": "53799597",
+   "state": "published",
+   "title": "Outrank：自动化 SEO 引擎",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-09-28 20:40",
@@ -1922,12 +2012,14 @@
  },
  "pet-plus-us": {
   "bilibili": {
-   "at": "2026-10-13 22:48",
+   "at": "2026-10-14 13:30",
    "attempt": 1,
    "draft_id": "343833",
+   "note": "｜草稿同步(2026-10-14 13:30): title 认领 aid=343833",
    "remote_id": "343833",
-   "state": "draft_saved",
-   "title": "Pet Plus Us：AI 生成宠物与主人合影"
+   "state": "draft",
+   "title": "Pet Plus Us：AI 生成宠物与主人合影",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-13 23:41",
@@ -1952,12 +2044,14 @@
  },
  "pieter-levels": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-10 01:27",
    "attempt": 0,
    "draft_id": "342416",
+   "note": "｜草稿同步(2026-10-10 01:27): title 认领 aid=342416",
    "remote_id": "342416",
-   "state": "draft_saved",
-   "title": "月收$250K：靠几个网站收租"
+   "state": "draft",
+   "title": "Pieter Levels：一个人做成的产品组合",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-09-30 17:44",
@@ -2015,12 +2109,14 @@
  },
  "podawaa": {
   "bilibili": {
-   "at": "2026-10-10 19:39",
+   "at": "2026-10-14 12:09",
    "attempt": 2,
    "draft_id": "343499",
+   "note": "｜草稿同步(2026-10-14 12:09): body 认领 aid=343499",
    "remote_id": "343499",
-   "state": "draft_saved",
-   "title": "Podawaa：LinkedIn 排期与受众增长"
+   "state": "draft",
+   "title": "Podawaa：LinkedIn 排期与受众增长",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-17 01:20",
@@ -2049,12 +2145,14 @@
  },
  "postiz": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-10 01:28",
    "attempt": 0,
    "draft_id": "342417",
+   "note": "｜草稿同步(2026-10-10 01:28): title 认领 aid=342417",
    "remote_id": "342417",
-   "state": "draft_saved",
-   "title": "月收$202K：一条内容发遍所有平台"
+   "state": "draft",
+   "title": "Postiz：社媒一键多平台排期发布",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-09-29 21:17",
@@ -2080,12 +2178,14 @@
  },
  "promptmonitor-io": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-10 01:28",
    "attempt": 0,
    "draft_id": "342418",
+   "note": "｜草稿同步(2026-10-10 01:28): title 认领 aid=342418",
    "remote_id": "342418",
-   "state": "draft_saved",
-   "title": "$85K成交：盯住 AI 怎么提你品牌"
+   "state": "draft",
+   "title": "Promptmonitor.io：监测 AI 里的品牌曝光",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-17 01:20",
@@ -2113,13 +2213,14 @@
  },
  "prosp": {
   "bilibili": {
-   "at": "2026-11-03 13:56 草稿箱→发布（send-draft）",
+   "at": "2026-10-16 14:10",
    "attempt": 0,
    "draft_id": "342364",
-   "error": "｜草稿同步(2026-10-16 14:10): title 认领 aid=342364",
+   "note": "｜草稿同步(2026-10-16 14:10): title 认领 aid=342364",
    "remote_id": "53736510",
    "state": "published",
-   "title": "PROSP：把找人、写话术、发出去压成一个按钮"
+   "title": "PROSP：把找人、写话术、发出去压成一个按钮",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-17 01:20",
@@ -2148,12 +2249,14 @@
  },
  "publbee": {
   "bilibili": {
-   "at": "2026-10-10 19:39",
+   "at": "2026-10-14 12:12",
    "attempt": 2,
    "draft_id": "343500",
+   "note": "｜草稿同步(2026-10-14 12:12): body 认领 aid=343500",
    "remote_id": "343500",
-   "state": "draft_saved",
-   "title": "Publbee：给 KDP 自助出版作者的 AI 工具"
+   "state": "draft",
+   "title": "Publbee：给 KDP 自助出版作者的 AI 工具",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-17 01:20",
@@ -2180,12 +2283,14 @@
  },
  "quotedeck": {
   "bilibili": {
-   "at": "2026-10-13 22:48",
+   "at": "2026-10-14 13:31",
    "attempt": 1,
    "draft_id": "343834",
+   "note": "｜草稿同步(2026-10-14 13:31): title 认领 aid=343834",
    "remote_id": "343834",
-   "state": "draft_saved",
-   "title": "QuoteDeck：保险代理的专业报价工具"
+   "state": "draft",
+   "title": "QuoteDeck：保险代理的专业报价工具",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-13 23:15",
@@ -2210,12 +2315,14 @@
  },
  "quran-unlock": {
   "bilibili": {
-   "at": "2026-10-02 17:41",
+   "at": "2026-10-10 01:30",
    "attempt": 2,
    "draft_id": "342559",
+   "note": "｜草稿同步(2026-10-10 01:30): title 认领 aid=342559",
    "remote_id": "342559",
-   "state": "draft_saved",
-   "title": "Quran Unlock：移动 app"
+   "state": "draft",
+   "title": "Quran Unlock：读古兰经解锁习惯打卡的 App",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-28 14:54",
@@ -2270,12 +2377,14 @@
  },
  "rezi": {
   "bilibili": {
-   "at": "2026-11-03 21:27",
+   "at": "2026-10-17 10:10",
    "attempt": 0,
-   "error": "P1对账: 标题直接命中(cv53385991) → Rezi：AI 简历生成器，最不酷却验证收入最高",
+   "draft_id": "",
+   "note": "P1对账: 标题直接命中(cv53385991) → Rezi：AI 简历生成器，最不酷却验证收入最高",
    "remote_id": "53385991",
    "state": "published",
-   "title": "月收$293K：帮你写出能过筛的简历"
+   "title": "月收$293K：帮你写出能过筛的简历",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-09-29 21:17",
@@ -2299,12 +2408,14 @@
  },
  "roster-for-slack": {
   "bilibili": {
-   "at": "2026-10-25 02:11",
+   "at": "2026-10-25 02:09",
    "attempt": 1,
    "draft_id": "344836",
+   "note": "｜更新草稿 aid=344836（draft/add 回读校验通过）",
    "remote_id": "344836",
-   "state": "draft_saved",
-   "title": "Roster for Slack：为 Slack 团队提供持"
+   "state": "draft",
+   "title": "Roster for Slack：为 Slack 团队提供持",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-25 00:27",
@@ -2329,12 +2440,14 @@
  },
  "search1api": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-10 01:31",
    "attempt": 0,
    "draft_id": "342420",
+   "note": "｜草稿同步(2026-10-10 01:31): title 认领 aid=342420",
    "remote_id": "342420",
-   "state": "draft_saved",
-   "title": "月收$1.3K：给 AI 用的搜索接口"
+   "state": "draft",
+   "title": "Search1API：给 AI 用的搜索接口",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-19 23:14",
@@ -2365,17 +2478,19 @@
    "attempt": 0,
    "draft_id": "1698462",
    "error": " | longtail_key=shipfast-al-cdp-2026-10-30-1",
-   "state": "draft_saved",
+   "state": "published",
    "title": "",
    "url": "https://developer.aliyun.com/article/1777090"
   },
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-10 01:32",
    "attempt": 0,
    "draft_id": "342421",
+   "note": "｜草稿同步(2026-10-10 01:32): title 认领 aid=342421",
    "remote_id": "342421",
-   "state": "draft_saved",
-   "title": "月收$1.27M：卖给程序员的开站模板"
+   "state": "draft",
+   "title": "ShipFast：Next.js SaaS 脚手架",
+   "url": ""
   },
   "cnblogs": {
    "at": "2026-11-05 13:50:14",
@@ -2437,12 +2552,14 @@
  },
  "sierra": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-10 01:32",
    "attempt": 0,
    "draft_id": "342422",
+   "note": "｜草稿同步(2026-10-10 01:32): title 认领 aid=342422",
    "remote_id": "342422",
-   "state": "draft_saved",
-   "title": "年收$200M：AI 客服解决才收钱"
+   "state": "draft",
+   "title": "Sierra：企业级 AI 客服，只在问题解决时才收钱",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-09-30 17:44",
@@ -2498,12 +2615,14 @@
  },
  "speel-co": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-15 21:42",
    "attempt": 0,
    "draft_id": "342423",
+   "note": "｜草稿同步(2026-10-15 21:42): title 认领 aid=342423",
    "remote_id": "342423",
-   "state": "draft_saved",
-   "title": "月收$66K：商品图秒变投放广告片"
+   "state": "draft",
+   "title": "Speel.co：上传商品图，3 分钟出投放广告片",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-09-29 21:17",
@@ -2527,12 +2646,14 @@
  },
  "stan": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-10 01:34",
    "attempt": 0,
    "draft_id": "342424",
+   "note": "｜草稿同步(2026-10-10 01:34): title 认领 aid=342424",
    "remote_id": "342424",
-   "state": "draft_saved",
-   "title": "月收$3.57M：帮创作者靠粉丝养活自己"
+   "state": "draft",
+   "title": "Stan：帮创作者靠粉丝养活自己的平台",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-09-28 20:40",
@@ -2558,12 +2679,14 @@
  },
  "startclaw": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-15 21:49",
    "attempt": 0,
    "draft_id": "342426",
+   "note": "｜草稿同步(2026-10-15 21:49): title 认领 aid=342426",
    "remote_id": "342426",
-   "state": "draft_saved",
-   "title": "月收$1.6K：零配置跑起自己的 AI"
+   "state": "draft",
+   "title": "StartClaw：零配置跑起自己的 AI 助手",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-09-29 21:17",
@@ -2589,12 +2712,14 @@
  },
  "static-run": {
   "bilibili": {
-   "at": "2026-10-25 02:11",
+   "at": "2026-10-25 02:10",
    "attempt": 1,
    "draft_id": "344837",
+   "note": "｜更新草稿 aid=344837（draft/add 回读校验通过）",
    "remote_id": "344837",
-   "state": "draft_saved",
-   "title": "Static.run：静态网站托管服务，免费易用"
+   "state": "draft",
+   "title": "Static.run：静态网站托管服务，免费易用",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-25 00:29",
@@ -2619,12 +2744,14 @@
  },
  "stealth-rdp": {
   "bilibili": {
-   "at": "2026-10-13 22:48",
+   "at": "2026-10-14 13:32",
    "attempt": 1,
    "draft_id": "343835",
+   "note": "｜草稿同步(2026-10-14 13:32): title 认领 aid=343835",
    "remote_id": "343835",
-   "state": "draft_saved",
-   "title": "Stealth RDP：跨美欧的 VPS 托管"
+   "state": "draft",
+   "title": "Stealth RDP：跨美欧的 VPS 托管",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-13 23:39",
@@ -2657,12 +2784,14 @@
  },
  "storyshort-ai": {
   "bilibili": {
-   "at": "2026-09-29 22:06",
+   "at": "2026-10-10 01:35",
    "attempt": 0,
    "draft_id": "342427",
+   "note": "｜草稿同步(2026-10-10 01:35): title 认领 aid=342427",
    "remote_id": "342427",
-   "state": "draft_saved",
-   "title": "月收$20K：批量做不露脸短视频"
+   "state": "draft",
+   "title": "StoryShort.ai：自动生成无需真人出镜的短视频",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-09-29 21:17",
@@ -2698,13 +2827,14 @@
    "url": "https://developer.aliyun.com/article/new?edit=1701410#/"
   },
   "bilibili": {
-   "at": "2026-10-31 18:26 草稿箱→发布（send-draft）",
+   "at": "2026-10-17 10:10",
    "attempt": 0,
    "draft_id": "345579",
-   "error": "P1对账: 标题直接命中(cv53460777) → TrustMRR：验证过的创业公司收入数据库｜同案例另有一条旧稿『TrustMRR：验证过的创业公司收入数据库』(cv53352783, 2026-10-09 12:58，正文与新篇相同)｜更新草稿 aid=345579（draft/add 回读校验通过）",
+   "note": "P1对账: 标题直接命中(cv53460777) → TrustMRR：验证过的创业公司收入数据库｜同案例另有一条旧稿『TrustMRR：验证过的创业公司收入数据库』(cv53352783, 2026-10-09 12:58，正文与新篇相同)｜更新草稿 aid=345579（draft/add 回读校验通过）",
    "remote_id": "53696865",
    "state": "published",
-   "title": "TrustMRR：验证过的创业公司收入数据库"
+   "title": "TrustMRR：验证过的创业公司收入数据库",
+   "url": ""
   },
   "cnblogs": {
    "at": "2026-11-03 21:04:52",
@@ -2782,10 +2912,12 @@
   "bilibili": {
    "at": "2026-10-07 00:05",
    "attempt": 0,
-   "error": "对账补登: 读公开页正文确认(cv53315883) → UpLinked B.V.：在领英上自动加客户｜同案例另有一条旧标题稿『月收$2.4K：在领英上自动加客户』(cv53245351, 2026-09-30 15:19)",
+   "draft_id": "",
+   "note": "对账补登: 读公开页正文确认(cv53315883) → UpLinked B.V.：在领英上自动加客户｜同案例另有一条旧标题稿『月收$2.4K：在领英上自动加客户』(cv53245351, 2026-09-30 15:19)",
    "remote_id": "53315883",
    "state": "published",
-   "title": "UpLinked B.V.：在领英上自动加客户"
+   "title": "UpLinked B.V.：在领英上自动加客户",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-17 对账补登",
@@ -2826,10 +2958,12 @@
    "at": "2026-11-03 13:42",
    "attempt": 0,
    "draft_id": "345869",
-   "error": "｜更新草稿 aid=345869（draft/add 回读校验通过）",
+   "note": "｜更新草稿 aid=345869（draft/add 回读校验通过）",
    "remote_id": "345869",
-   "state": "draft_saved",
-   "title": "Upvoty：收集用户反馈并投票排序的看板"
+   "state": "draft",
+   "title": "Upvoty",
+   "url": "",
+   "error": "｜更新草稿 aid=345869（draft/add 回读校验通过）"
   },
   "juejin": {
    "at": "2026-10-28 14:54",
@@ -2865,12 +2999,14 @@
  },
  "vectosolve": {
   "bilibili": {
-   "at": "2026-10-10 19:39",
+   "at": "2026-10-14 12:14",
    "attempt": 2,
    "draft_id": "343501",
+   "note": "｜草稿同步(2026-10-14 12:14): body 认领 aid=343501",
    "remote_id": "343501",
-   "state": "draft_saved",
-   "title": "VectoSolve：位图转可编辑 SVG"
+   "state": "draft",
+   "title": "VectoSolve：位图转可编辑 SVG",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-10 15:51",
@@ -2898,9 +3034,11 @@
    "at": "2026-10-25 02:11",
    "attempt": 1,
    "draft_id": "344838",
+   "note": "｜更新草稿 aid=344838（draft/add 回读校验通过）",
    "remote_id": "344838",
-   "state": "draft_saved",
-   "title": "Verse：Verse 以单次提示构建自主 AI 员工"
+   "state": "draft",
+   "title": "Verse：Verse 以单次提示构建自主 AI 员工",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-25 00:39",
@@ -2925,12 +3063,14 @@
  },
  "vid-ai": {
   "bilibili": {
-   "at": "2026-10-10 19:39",
+   "at": "2026-10-14 12:16",
    "attempt": 2,
    "draft_id": "343502",
+   "note": "｜草稿同步(2026-10-14 12:16): body 认领 aid=343502",
    "remote_id": "343502",
-   "state": "draft_saved",
-   "title": "Vid.AI：一段脚本直接变成短视频"
+   "state": "draft",
+   "title": "Vid.AI：一段脚本直接变成短视频",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-13 23:41",
@@ -2959,10 +3099,12 @@
   "bilibili": {
    "at": "2026-10-05 12:11",
    "attempt": 0,
-   "error": "对账补登: 读公开页正文确认(cv53298456) → Viktor：住进 Slack 的 AI 同事",
+   "draft_id": "",
+   "note": "对账补登: 读公开页正文确认(cv53298456) → Viktor：住进 Slack 的 AI 同事",
    "remote_id": "53298456",
    "state": "published",
-   "title": "Viktor：住进 Slack 的 AI 同事"
+   "title": "Viktor：住进 Slack 的 AI 同事",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-09-29 21:17",
@@ -2988,10 +3130,12 @@
   "bilibili": {
    "at": "2026-10-17 10:10",
    "attempt": 0,
-   "error": "P1对账: 标题直接命中(cv53283349) → Visualizee.ai：给建筑师做效果图云渲染",
+   "draft_id": "",
+   "note": "P1对账: 标题直接命中(cv53283349) → Visualizee.ai：给建筑师做效果图云渲染",
    "remote_id": "53283349",
    "state": "published",
-   "title": "月收$8.6K：帮设计师渲染效果图"
+   "title": "月收$8.6K：帮设计师渲染效果图",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-09-30 17:44",
@@ -3017,13 +3161,14 @@
  },
  "voklit": {
   "bilibili": {
-   "at": "2026-11-03 21:27",
+   "at": "2026-10-17 10:10",
    "attempt": 0,
    "draft_id": "342350",
-   "error": "P1对账: 标题直接命中(cv53375028) → Voklit：给跨境团队搭的云通信",
+   "note": "P1对账: 标题直接命中(cv53375028) → Voklit：给跨境团队搭的云通信",
    "remote_id": "53375028",
    "state": "published",
-   "title": "月收$1.6K：给跨境团队搭云通信"
+   "title": "月收$1.6K：给跨境团队搭云通信",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-09-28 20:40",
@@ -3053,12 +3198,14 @@
  },
  "wagiff-app": {
   "bilibili": {
-   "at": "2026-10-13 22:48",
+   "at": "2026-10-14 13:32",
    "attempt": 1,
    "draft_id": "343836",
+   "note": "｜草稿同步(2026-10-14 13:32): title 认领 aid=343836",
    "remote_id": "343836",
-   "state": "draft_saved",
-   "title": "Wagiff：中东北非男性的戒断社区"
+   "state": "draft",
+   "title": "Wagiff：中东北非男性的戒断社区",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-13 23:12",
@@ -3083,12 +3230,14 @@
  },
  "white-glove-content": {
   "bilibili": {
-   "at": "2026-10-13 22:48",
+   "at": "2026-10-14 13:33",
    "attempt": 1,
    "draft_id": "343875",
+   "note": "｜草稿同步(2026-10-14 13:33): title 认领 aid=343875",
    "remote_id": "343875",
-   "state": "draft_saved",
-   "title": "White Glove：社媒内容外包代运营"
+   "state": "draft",
+   "title": "White Glove：社媒内容外包代运营",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-10-13 23:09",
@@ -3113,13 +3262,14 @@
  },
  "wpconvert-ai-convert-ai-sites-to-wordpress": {
   "bilibili": {
-   "at": "2026-11-02 20:20",
+   "at": "2026-10-15 21:22",
    "attempt": 2,
    "draft_id": "343876",
-   "error": "｜草稿同步(2026-10-15 21:22): title 认领 aid=343876",
+   "note": "｜草稿同步(2026-10-15 21:22): title 认领 aid=343876",
    "remote_id": "53725626",
    "state": "published",
-   "title": "WPConvert：AI 建的站转成 WordPress"
+   "title": "WPConvert：AI 建的站转成 WordPress",
+   "url": ""
   },
   "toutiao": {
    "at": "2026-11-02 20:16",

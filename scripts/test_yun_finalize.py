@@ -127,5 +127,33 @@ class DraftLedgerBridge(unittest.TestCase):
                              "draft 的排位不能高于 published")
 
 
+class SubmitIsNotPublished(unittest.TestCase):
+    """2026-11-07：跳转到 /article/<id> 不等于已公开。
+
+    阿里云新文发布后先「内容审核中」：带登录态能看到全文与横幅，
+    无登录态 /article/<id> 直接 404（实测 gojiberryai → 1780408）。
+    旧代码把跳转写成「✅ 已发表」并落 published/published_at ⇒ 假绿。
+    检查方式沿用本文件的静态源码断言，不依赖浏览器。
+    """
+
+    def _jump_segment(self):
+        src = _src()
+        fn = src[src.find("def publish_aliyun"):]
+        i = fn.find('re.search(r"/article/')
+        self.assertGreater(i, 0, "找不到 /article/<id> 跳转判据")
+        return fn[i:i + 1500]
+
+    def test_jump_branch_checks_auditing_banner(self):
+        seg = self._jump_segment()
+        self.assertIn("内容审核中", seg, "跳转分支没检测审核中横幅")
+        self.assertIn('state="auditing"', seg, "审核中没落 auditing 台账")
+
+    def test_auditing_branch_writes_no_published_fields(self):
+        seg = self._jump_segment()
+        self.assertIn("published=None", seg, "审核中分支没清掉旧的 published")
+        self.assertIn("published_at=None", seg, "审核中分支仍写了 published_at")
+        self.assertIn("不算真发", seg, "审核中提示文案没写清「不算真发」")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

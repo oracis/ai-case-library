@@ -492,7 +492,14 @@ def upsert_post(conn, case_id, platform, row):
     row = dict(row)
     force = bool(row.pop("force_state", False))
     row["updated_at"] = now
-    row.setdefault("published_at", now)
+    # 🚨 2026-11-07：显式 state=draft 的记录不许带 published_at。
+    #   upsert_post 原本给所有行默认填 now，而 publish_slot._rows_yun('aliyun')
+    #   判「已发」只看 `published_at or remote_id`（不看 state）⇒ 刚建好的
+    #   草稿会被算成「今日已发 1 篇」，quota=1 时直接把真发挡掉（19:04 实测：
+    #   gojiberryai / aliyun / draftId=1708661）。未指定 state 的调用方保持
+    #   旧行为，避免改动面外溢。
+    if "published_at" not in row:
+        row["published_at"] = None if row.get("state") == "draft" else now
 
     # 先查是否存在
     cur = conn.execute(

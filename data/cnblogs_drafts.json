@@ -138,10 +138,33 @@
     "expect_public_contains": "1372 star",
     "review_count": 4,
     "review_history": [
-      {"at": "2026-11-06T16:57:41", "state": "pending_review_still_locked", "note": "公开页 404；对照组 200"},
-      {"at": "2026-11-06T17:11:32", "state": "pending_review_still_locked", "note": "公开页 404；对照组 23559261/23546485/23558119 均 200"},
-      {"at": "2026-11-06T19:38:54", "state": "pending_review_still_locked", "note": "公开页 404；对照组 3 篇均 200；续排上限 20:00 前最后一个整点复查"},
-      {"at": "2026-11-06T22:54:25", "state": "pending_review_still_locked", "note": "公开页（含 .html）仍 404 / 1074B；对照组 3 篇均 200；后台列表仍有该篇新标题 ⇒ 仍在审核。续排链最后时点，转待次日人工复核，不再建复查任务"}
+      {
+        "at": "2026-11-06T16:57:41",
+        "state": "pending_review_still_locked",
+        "note": "公开页 404；对照组 200"
+      },
+      {
+        "at": "2026-11-06T17:11:32",
+        "state": "pending_review_still_locked",
+        "note": "公开页 404；对照组 23559261/23546485/23558119 均 200"
+      },
+      {
+        "at": "2026-11-06T19:38:54",
+        "state": "pending_review_still_locked",
+        "note": "公开页 404；对照组 3 篇均 200；续排上限 20:00 前最后一个整点复查"
+      },
+      {
+        "at": "2026-11-06T22:54:25",
+        "state": "pending_review_still_locked",
+        "note": "公开页（含 .html）仍 404 / 1074B；对照组 3 篇均 200；后台列表仍有该篇新标题 ⇒ 仍在审核。续排链最后时点，转待次日人工复核，不再建复查任务"
+      }
     ]
+  },
+  "gojiberryai": {
+    "post_id": "23583113",
+    "title": "窄客群信号模型：用人工验证支撑千级用户增长",
+    "url": "https://www.cnblogs.com/thing-explainer/p/23583113",
+    "status": "published",
+    "ts": "2026-11-07 11:05:31"
   }
 }

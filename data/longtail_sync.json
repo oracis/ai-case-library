@@ -747,5 +747,44 @@
   },
   "via": "cdp-9228",
   "ts": "2026-11-06 14:04:32"
+ },
+ "insect-bite-id-2026-11-07-1": {
+  "case": "insect-bite-id",
+  "title": "移动端图像分类的置信度表达：端侧推理、时序记录与免责边界",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "342458",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=342458"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-07 16:17:14"
+ },
+ "ext-ep-006-nethack-2026-11-07-1": {
+  "case": "ext-ep-006-nethack",
+  "title": "NetHack，能玩死你的地牢模拟器",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "342483",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=342483"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-07 17:12:55"
+ },
+ "gojiberryai-2026-11-07-1": {
+  "case": "gojiberryai",
+  "title": "GojiberryAI如何用云资源与工程实践构建AI获客引擎",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1708661",
+    "url": "https://developer.aliyun.com/article/new?edit=1708661#/"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-07 19:04:27"
  }
 }

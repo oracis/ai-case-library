@@ -2,16 +2,26 @@
 # -*- coding: utf-8 -*-
 """按需生成一篇 case 的平台稿（cnblogs / zhihu / csdn / aliyun）。
 
-为什么是「模板拼装 + 只让 LLM 写标题」：
+为什么是「模板拼装 + LLM 只写标题和栏目名」：
 
   现有 chessigma / cod-dex / shipfast 那三批稿，逐段与 cases.json 字段一一对应——
   `playbook` →「工程上值得抄的点」、`why_it_works` →「为什么能跑起来」、
   `verdict` →「一句话总结」、`what_it_does` →「这个产品是什么」、
   `how_it_makes_money` →「商业模型怎么搭」。也就是说**正文本来就是拼的**。
 
-  拼装的好处正好对上这个库的红线：零编造（没有一个字是模型写的）、零成本、
+  拼装的好处正好对上这个库的红线：零编造（没有一个事实是模型写的）、零成本、
   可复现。不用担心模型把 `$7,306` 拿去做除法、也不用担心它把案例业绩写成
-  「我赚了多少」。LLM 只负责标题一行，失败就回退模板标题，稿件照样出。
+  「我赚了多少」。LLM 只负责标题一行和几个栏目名，**事实、数字、时点、出处
+  全由代码从 cases.json 填**；失败就回退确定性变体。
+
+  🚨 2026-11-07 修「生成即被闸拦」：旧版固定产出
+  `> 平台：X ｜ 状态：本地稿`（管线水印）、
+  `数据来源：…，数字带口径带修正。`（罐头来源句）、
+  以及每篇一模一样的 5 个小标题（机械栏目骨架）⇒ `publish_guard.scan_content`
+  直接 3 条 block，`--gen` 补出来的稿根本发不出去。现在：
+  ① 水印头删掉（`drafts/newbatch/` 这个路径本身就是「本地稿」标记）；
+  ② 来源句改成带真实 `verified_at` 的时点行 + 具体出处，不再写罐头短语；
+  ③ 栏目名让 LLM 按这篇案例写（或回退带产品名的变体），各篇不同。
 
 ⛔ tencentcloud 不在本脚本范围：它只收技术向（标题禁金额、正文讲实现取舍、
   可贴代码），而 cases.json 里**没有技术栈字段**——硬拼只能拼出「伪技术稿」，
@@ -63,6 +73,25 @@ SYS_GUARD = (
     "增长率、百分比**——数字只允许是用户量、订阅数这类规模量；"
     "3) 不写「我」「我们」；4) 不出现网址、品牌引流语。"
 )
+
+# 每个平台需要几个 `##` 栏目。改这里必须同步改 render() 里的 h(i) 序号。
+SECTION_SLOTS = {"cnblogs": 4, "csdn": 4, "zhihu": 5, "aliyun": 4}
+
+SYS_SECTIONS = (
+    "只输出 %d 行小标题，每行一个，不要序号、不要 #、不要引号、不要解释。"
+    "硬性要求：1) 每行 4~16 个汉字，要贴合这个案例的具体做法，"
+    "不同案例的栏目必须不同；2) 不许出现金额、货币符号、MRR、ARR、百分比、"
+    "网址、品牌引流语；3) 不要用「这个产品是什么」「商业模型怎么搭」"
+    "「工程上值得抄的点」「为什么能跑起来」「总结」这类通用栏目名。"
+)
+
+# 与 publish_guard.MECHANICAL_SECTIONS 同值：LLM 万一吐回通用栏目名要退回变体。
+_GENERIC_SECTIONS = {
+    "这个产品是什么", "商业模型怎么搭", "工程上值得抄的点", "为什么能跑起来",
+    "总结", "背景", "数据与口径", "可复制的工程实践",
+    "它到底解决了什么", "钱从哪来", "为什么它能成", "能抄的做法",
+    "给想做类似产品的你",
+}
 
 
 # ---------------------------------------------------------------- 数据
@@ -185,9 +214,109 @@ def fallback_title(c):
     return ("%s：%s" % (name, one))[:38] if one else str(name)
 
 
+def _timepoint_row(c):
+    """数据时点行：只取 cases.json 里真实的快照日与口径，**不许编**。
+
+    没有 `verified_at` 就返回空串（宁可留一条 warn，也不编个日期糊过去）。
+    `TIMEPOINT` 闸认「数据时点 / 截至 20xx」这类写法，这行两种都带。
+    """
+    d = str(c.get("verified_at") or "").strip()
+    if not d:
+        return ""
+    cal = str(c.get("caliber") or "").strip().upper() or "见正文公开口径"
+    return "数据时点 ｜ 截至 %s（抓取日快照）｜口径：%s" % (d, cal)
+
+
+def fallback_sections(c, platform):
+    """确定性变体栏目名：带产品名 ⇒ 各篇不同，且不与机械栏目表撞。
+
+    LLM 不可用或输出不合格时用。只换栏目名，正文事实一个字都不改。
+    """
+    name = str(c.get("name") or c.get("id") or "这个产品").strip()
+    rows = [
+        "%s 在解决什么问题" % name,
+        "%s 怎么把服务变成订阅" % name,
+        "从 %s 里能抄的工程做法" % name,
+        "%s 跑起来的原因" % name,
+        "做同类产品前先想清楚的事",
+    ]
+    return rows[:SECTION_SLOTS[platform]]
+
+
+def llm_sections(c, platform, timeout=60):
+    """让模型只写 N 个栏目名；失败/不合格一律回退 `fallback_sections`。
+
+    ⚠ HTTP 配置与 `llm_title()` 同一套（secrets.json + `CASE_LIB_AI_*` +
+    `ai_extra[model]`）；改一端要同步改另一端。这里刻意复制而不抽公共函数，
+    是为了不动已经跑通的标题链路。模型只输出栏目**名字**，事实/数字/时点
+    全由代码填 —— 「改写归模型、事实裁定归代码」。
+    """
+    n = SECTION_SLOTS[platform]
+    fallback = fallback_sections(c, platform)
+    try:
+        sec = _load("secrets.json")
+    except Exception:                                       # noqa: BLE001
+        return fallback
+    key = os.environ.get("CASE_LIB_AI_KEY") or sec.get("ai_key")
+    base = (os.environ.get("CASE_LIB_AI_BASE") or sec.get("ai_base")
+            or "https://discovery-api.intern-ai.org.cn/v1").rstrip("/")
+    model = os.environ.get("CASE_LIB_AI_MODEL") or sec.get("ai_model")
+    if not (key and model):
+        return fallback
+    facts = {
+        "name": c.get("name"), "one_liner": c.get("one_liner"),
+        "what_it_does": (c.get("what_it_does") or "")[:300],
+        "playbook": (c.get("playbook") or [])[:3],
+        "why_it_works": (c.get("why_it_works") or [])[:2],
+    }
+    prompt = ("%s\n\n案例事实（只许用这些，不许编）：\n%s"
+              % (SYS_SECTIONS % n, json.dumps(facts, ensure_ascii=False)))
+    body = {"model": model, "temperature": 0.7, "max_tokens": 1200,
+            "messages": [{"role": "system", "content": SYS_SECTIONS % n},
+                         {"role": "user", "content": prompt}]}
+    try:
+        extra = (json.loads(os.environ["CASE_LIB_AI_EXTRA"])
+                 if "CASE_LIB_AI_EXTRA" in os.environ
+                 else sec.get("ai_extra") or {})
+    except Exception:                                        # noqa: BLE001
+        extra = {}
+    if isinstance(extra, dict) and isinstance(extra.get(model), dict):
+        body.update({k: v for k, v in extra[model].items()
+                     if k not in ("model", "messages")})
+    req = urllib.request.Request(
+        base + "/chat/completions", data=json.dumps(body).encode("utf-8"),
+        headers={"Content-Type": "application/json",
+                 "Authorization": "Bearer " + key, "User-Agent": UA})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            d = json.loads(r.read().decode("utf-8"))
+        text = (d["choices"][0]["message"]["content"] or "").strip()
+    except Exception as e:                                  # noqa: BLE001
+        print("  ⚠ 栏目生成失败（%s），用确定性变体" % type(e).__name__)
+        return fallback
+    rows = []
+    for line in text.splitlines():
+        x = re.sub(r"^\s*(?:\d+\s*[.、)]|[一二三四五六七八九十]+\s*、|[-*#>＞]+)\s*",
+                   "", line).strip()
+        x = x.strip("「」\"'《》：:。-— ").strip()
+        if not (4 <= len(x) <= 20):
+            continue
+        if re.search(r"[$¥€£]|MRR|ARR|https?://|\d", x, re.I):
+            continue
+        if x in _GENERIC_SECTIONS or x in rows:
+            continue
+        rows.append(x)
+        if len(rows) >= n:
+            break
+    if len(rows) != n:
+        print("  ⚠ 栏目不合格（%d/%d），用确定性变体" % (len(rows), n))
+        return fallback
+    return rows
+
+
 # ---------------------------------------------------------------- 正文
 
-def render(platform, c, title):
+def render(platform, c, title, sections=None):
     what = _need(c, "what_it_does")
     how = _need(c, "how_it_makes_money")
     why = _bullets(_need(c, "why_it_works"))
@@ -196,37 +325,53 @@ def render(platform, c, title):
     m = c.get("metrics") or {}
     head = m.get("headline") or ""
     src = _sources(c)
+    sec = sections or fallback_sections(c, platform)
+    if len(sec) < SECTION_SLOTS[platform]:
+        sec = fallback_sections(c, platform)
+
+    def h(i, default):
+        return "## %s" % (sec[i] if i < len(sec) else default)
+
+    tp = _timepoint_row(c)
+    stamp = str(c.get("verified_at") or "").strip()
+    # 「出处：…（抓取日快照）」带时点且是具体出处，不是 `数据来源：官网…` 罐头句。
+    credit = "出处：%s（%s 快照）。" % (src, stamp or "抓取日")
 
     if platform in ("cnblogs", "csdn"):
-        body = ["## 这个产品是什么", what]
+        body = [h(0, "这个产品是什么"), what]
         if head:
             body += ["", "公开口径：%s。" % head.rstrip("。")]
-        body += ["", "## 商业模型怎么搭", how,
-                 "", "## 工程上值得抄的点", play,
-                 "", "## 为什么能跑起来", why,
-                 "", "一句话总结：%s" % verdict.rstrip("。") + "。",
-                 "", "数据来源：%s，数字带口径带修正。" % src]
+        if tp:
+            body += ["", tp]
+        body += ["", h(1, "商业模型怎么搭"), how,
+                 "", h(2, "工程上值得抄的点"), play,
+                 "", h(3, "为什么能跑起来"), why,
+                 "", "一句话总结：%s。" % verdict.rstrip("。"),
+                 "", credit]
     elif platform == "zhihu":
-        body = ["## 一、它到底解决了什么", what,
-                "", "## 二、钱从哪来", how]
+        body = [h(0, "一、它到底解决了什么"), what,
+                "", h(1, "二、钱从哪来"), how]
         if head:
             body += ["", "口径：%s。" % head.rstrip("。")]
-        body += ["", "## 三、为什么它能成", why,
-                 "", "## 四、能抄的做法", play,
-                 "", "## 五、给想做类似产品的你", verdict,
-                 "", "数据来源：%s。" % src]
+        if tp:
+            body += ["", tp]
+        body += ["", h(2, "三、为什么它能成"), why,
+                 "", h(3, "四、能抄的做法"), play,
+                 "", h(4, "五、给想做类似产品的你"), verdict,
+                 "", credit]
     elif platform == "aliyun":
-        body = ["## 背景", what,
-                "", "## 数据与口径"]
+        body = [h(0, "背景"), what,
+                "", h(1, "数据与口径")]
         # ⚠ 只写 headline，**不要把 metric_note 塞进来**：那是内部工作口径
-        # （「队列缓存值是 2026-10-14 采集时的快照…⚠ 同期收入增速为 -0.1%」），
-        # 读者不需要，写进去等于把内部标注当正文。
-        body += ["公开口径：%s。" % (head.rstrip("。") if head else "无公开数字"), "",
-                 "口径说明：数字直接取自支付侧或官方页面，不做汇率换算、不把累计收入"
+        # （「队列缓存值是 2026-10-14 采集时的快照…」），读者不需要。
+        body += ["公开口径：%s。" % (head.rstrip("。") if head else "无公开数字"), ""]
+        if tp:
+            body += [tp, ""]
+        body += ["口径说明：数字直接取自支付侧或官方页面，不做汇率换算、不把累计收入"
                  "当当期收入；同一篇里只用一个口径，不混用 ARR 与 MRR。",
-                 "", "## 可复制的工程实践", play,
-                 "", "## 总结", verdict,
-                 "", "数据来源：%s。" % src]
+                 "", h(2, "可复制的工程实践"), play,
+                 "", h(3, "总结"), verdict,
+                 "", credit]
     else:
         raise SystemExit("不支持的平台：%s" % platform)
 
@@ -237,13 +382,16 @@ def render(platform, c, title):
 
 
 def header(platform, c, title):
-    return "# %s\n\n> 平台：%s ｜ 案例：%s（%s）｜ 状态：本地稿，未推送\n" % (
-        title, platform, c.get("name") or c.get("id"), c.get("id"))
+    # 🚨 2026-11-07 删掉 `> 平台：X ｜ 状态：本地稿，未推送` 水印头：
+    #    `publish_guard.WATERMARK` 见它就 block，而 `drafts/newbatch/` 这个
+    #    路径本身已经说明「本地稿」，不需要把流水线状态印给读者看。
+    return "# %s\n" % title
 
 
-def write_one(platform, c, title, dry=False):
+def write_one(platform, c, title, dry=False, sections=None):
     """返回落盘路径；dry 时返回空串。"""
-    text = header(platform, c, title) + "\n" + render(platform, c, title) + "\n"
+    text = (header(platform, c, title) + "\n"
+            + render(platform, c, title, sections=sections) + "\n")
     if dry:
         print("\n" + "=" * 70 + "\n" + text)
         return ""
@@ -403,8 +551,11 @@ def main(argv=None):
         else:
             title = fallback_title(c)
             print("  标题[%s] 模板：%s" % (p, title))
+        sec_rows = None if a.no_llm else llm_sections(c, p)
+        if sec_rows:
+            print("  栏目[%s] LLM：%s" % (p, " / ".join(sec_rows)))
         try:
-            path = write_one(p, c, title, dry=a.dry)
+            path = write_one(p, c, title, dry=a.dry, sections=sec_rows)
         except SystemExit as e:
             print("  ✗ %s：%s" % (p, e))
             continue

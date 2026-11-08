@@ -1780,6 +1780,36 @@ def _pick_target_draft(pool, cid=None):
     return (d, "--case %s（%s）" % (cid, why)) if d else (None, why)
 
 
+def _draft_case_id(title, by_title, plat, cases, games_cache=None):
+    """草稿标题 → case_id。**挑稿剔重与发布记账共用这一份认亲口径**。
+
+    🚨 PRD #90：从前 `send_draft` 后半段自己反查一遍 case、前半段过滤却只按
+       manifest 的 `remote_id` / `title`（建稿时的标题镜像，#83）⇒ 两处口径
+       不同，挑稿时认不出「标题改过的已发案例」（二号箱内 8 条 11-06 全换过
+       标题）。抽成一个函数后，挑稿阶段就能按 (case_id, platform) 剔重。
+
+    by_title:  归一标题 → case_id，由本账号的 manifest 平台键构造
+    cases:     `load_cases()` 结果，只在标题反查不到时按案例名兜底
+    """
+    nw = re.sub(r"\s+", "", title or "")
+    if nw and nw in by_title:
+        return by_title[nw]
+    if plat == "bilibili2":
+        cache = games_cache if games_cache is not None else {}
+        if title not in cache:
+            try:
+                cache[title] = _cid_from_games(title) or ""
+            except Exception:                       # noqa: BLE001
+                cache[title] = ""
+        if cache[title]:
+            return cache[title]
+    for c in cases or []:
+        nm = re.sub(r"\s+", "", c.get("name") or "")
+        if nm and (nm in nw or nw in nm):
+            return c["id"]
+    return ""
+
+
 def ui_publish_draft(cdp=None, aid=None, cid=None, title="", dry=False,
                      keep_tab=False):
     """**真发布**一条已有草稿（编辑器 UI 点「发布」）。返回 (ok, 说明)。
@@ -1790,7 +1820,15 @@ def ui_publish_draft(cdp=None, aid=None, cid=None, title="", dry=False,
       3. `publish_btn_state` + `publish_verdict` 判能不能点
          （投稿上限 / 按钮灰 都在这里中止，**不假装成功**）
       4. 点发布 → 可能有二次确认 → 等「提交成功」toast
-      5. **回读已发表列表**确认 aid 真出现了，才记账（清单 + ledger）
+      5. **回读已发表列表**确认这篇文章真出现了，才记账（清单 + ledger）
+
+    🚨 第 5 步不能只认建稿时的 aid（2026-11-07 实测踩过）：B站草稿一发表就
+    会**重分配专栏 cvid**（草稿 aid=376917 → 已发表 id=53797678），只按 aid
+    回读必然漏判 ⇒ 文章已经公开，脚本却报「失败」且不记账，第二天还可能重发。
+    现在两路认亲：aid 原样命中，或「标题精确命中 + 列表里新出现的 id」。
+    发布前先给已发表列表拍快照，是为了把「这次新发的」与「本来就有的同标题
+    旧文」分开 —— 否则按标题匹配会伪造成功（假绿）。快照抓不到时退回只认
+    aid，宁可报失败也不假绿。记账一律用**回读到的真实 id**，不是草稿 aid。
 
     ok=True 只在第 5 步命中时返回。返回 False 时说明里会写清卡在哪一步。
     """
@@ -1806,6 +1844,14 @@ def ui_publish_draft(cdp=None, aid=None, cid=None, title="", dry=False,
         if cid and not dry:
             if not _ensure_cover_remote(cdp, cid, draft):
                 return False, "封面没补上（不影响额度判断，但本次中止）"
+
+        # 1b) 发布前的「已发表列表」快照：按标题认亲时用来分辨新增 vs 旧文。
+        #     抓不到 ⇒ None（未知），第 5 步退回只认 aid，不假绿。
+        try:
+            before_ids = {str(a.get("id")) for a in
+                          (bili_api.list_published_articles(cdp, max_page=3) or [])}
+        except Exception:                                   # noqa: BLE001
+            before_ids = None
 
         # 2) 开编辑器
         tid = _open_editor_tab(cdp, aid)
@@ -1844,24 +1890,35 @@ def ui_publish_draft(cdp=None, aid=None, cid=None, title="", dry=False,
         if hint:
             print("    编辑器提示：%s" % hint)
 
-        # 5) 回读：只有「已发表列表里真的有这个 aid」才算成功
+        # 5) 回读：aid 原样命中，或「标题精确 + 列表里新出现的 id」命中。
         _api_tab(cdp)
-        found = False
+        published_id, how = None, ""
         end = time.time() + 40
         while time.time() < end:
             try:
-                pub = bili_api.list_published_articles(cdp, max_page=3)
+                pub = bili_api.list_published_articles(cdp, max_page=3) or []
             except Exception:                      # noqa: BLE001
                 pub = []
-            if any(str(a.get("id")) == str(aid) for a in pub):
-                found = True
+            for a in pub:
+                pid = str(a.get("id"))
+                if pid == str(aid):
+                    published_id, how = pid, "按草稿 aid 命中"
+                    break
+                if (before_ids is not None and pid not in before_ids and title
+                        and _norm_title(a.get("title")) == _norm_title(title)):
+                    published_id, how = pid, ("按标题命中（aid 重分配 %s → %s）"
+                                              % (aid, pid))
+                    break
+            if published_id:
                 break
             time.sleep(4)
-        if not found:
-            return False, ("点了发布但已发表列表里没找到 aid=%s —— "
-                           "**不记账**，去浏览器确认（可能撞了当日额度）" % aid)
+        if not published_id:
+            return False, ("点了发布但已发表列表里既没有 aid=%s，也没有新增的"
+                           "同标题文章 —— **不记账**，去浏览器确认（可能撞了"
+                           "当日额度或列表接口延迟）" % aid)
 
-        _mark_manifest_published(cid, aid, title)
+        # ⚠ 记账用回读到的真实 id：草稿 aid 在发表后已作废（2026-11-07 实测）。
+        _mark_manifest_published(cid, published_id, title)
         # 🚨 本仓 `ledger` 的 PLATFORMS 只有 `bilibili`（一号专属的
         #    bili_published.json），压根没有 `bilibili2`。此前这里写死一号，
         #    二号发布会把 `ext-ep-xxx` 记进一号的账 ⇒ 一号判重误拦。
@@ -1869,12 +1926,12 @@ def ui_publish_draft(cdp=None, aid=None, cid=None, title="", dry=False,
         if ledger_slot(cid)[0] == "bilibili":
             try:
                 import ledger as ld
-                ld.promote("bilibili", cid, aid, title=title,
+                ld.promote("bilibili", cid, published_id, title=title,
                            evidence="editor-ui-publish")
             except Exception as e:                 # noqa: BLE001
                 print("    ⚠ ledger 层同步失败（清单已记 published）：%s"
                       % str(e)[:80])
-        return True, "已发布并记账 aid=%s" % aid
+        return True, "已发布并记账 %s（%s）" % (published_id, how)
     finally:
         if not keep_tab and tid:
             try:
@@ -1929,6 +1986,36 @@ def send_draft(cdp=None, dry=False, cid=None):
         if not pool:
             print("  ✗ 草稿箱里没有未发布的草稿了（全 published）")
             return (False, None, None, None)
+        # 🚨 PRD #90：FIFO 绕过 11 闸，上面那道只按 remote_id / title 剔重，
+        #    而 manifest 的 title 是**建稿时的镜像** —— 标题改过就认不出，
+        #    11-07 小红书 divine-widgets 就是这么重复发的。再按
+        #    (case_id, platform) 剔一次，读口与公众号 / 小红书共用。
+        import fifo_dedupe as FD
+        by_title = {}
+        for _c, d in m.items():
+            t = re.sub(r"\s+", "", (d.get(plat) or {}).get("title") or "")
+            if t:
+                by_title.setdefault(t, _c)
+        all_cases = load_cases()
+        games_cache = {}
+        extra = ()
+        if plat == "bilibili2":
+            # 二号的真账簿在游戏仓，本仓 db 里查不到（PRD #72 ②）
+            try:
+                import games_state as GS
+                extra = [r.get("case") for r in GS.published("bilibili2")]
+            except Exception:                       # noqa: BLE001
+                extra = ()
+        pub_cases = FD.published_case_ids(plat, extra=extra)
+        pool, _dup_cases = FD.filter_rows(
+            pool, plat,
+            lambda d: _draft_case_id(d.get("title") or "", by_title, plat,
+                                     all_cases, games_cache),
+            case_ids=pub_cases, label="B站FIFO")
+        if not pool:
+            print("  ✗ 草稿箱里 %d 条全是已发表案例的旧稿 ⇒ 先 `--new` 新写"
+                  % len(_dup_cases))
+            return (False, None, None, None)
         # 挑哪条：给了 cid 就挑**属于它**的那条，否则挑存入最久的。
         # ⚠ 早期版本不管 --case 取什么都发最久那条，cid 只用来反查 ——
         #   `send-draft --case foo` 实际发的是别人的草稿，还把账记到 foo 头上。
@@ -1947,25 +2034,10 @@ def send_draft(cdp=None, dry=False, cid=None):
                                        dry=True)
             print("  → %s" % why)
             return (ok, None, aid, title)
-        # 反查 cid：先按清单**本账号**的平台键精确匹配 title；失败则退化用案例名匹配
-        # （线上草稿标题可能被改过，与清单记录不一致，如 divine-widgets）
-        target = cid
-        if not target:
-            nw = re.sub(r"\s+", "", title)
-            for _c, d in m.items():
-                b = d.get(plat) or {}
-                if re.sub(r"\s+", "", b.get("title") or "") == nw:
-                    target = _c
-                    break
-        if not target and plat == "bilibili2":
-            # 二号的稿是游戏仓期次，`cases.json` 里没有它 ⇒ 补一路游戏仓反查
-            target = _cid_from_games(title)
-        if not target:
-            for c in load_cases():
-                nm = re.sub(r"\s+", "", c.get("name") or "")
-                if nm and (nm in nw or nw in nm):
-                    target = c["id"]
-                    break
+        # 反查 cid：与挑稿剔重**同一口径**（先本账号清单标题、再游戏仓
+        # 期次、最后案例名），别再各写一份导致两处认亲不一致。
+        target = cid or _draft_case_id(title, by_title, plat, all_cases,
+                                       games_cache)
         if not target:
             print("  ✗ 反查不到《%s》对应的 case（清单/案例名都匹配不上），"
                   "请用 --case 指定" % title)
@@ -1973,7 +2045,9 @@ def send_draft(cdp=None, dry=False, cid=None):
         # 真发布：编辑器 UI 点「发布」→ 回读已发表列表
         ok, why = ui_publish_draft(cdp=cdp, aid=aid, cid=target, title=title)
         if ok:
-            print("  ✓ 《%s》已发布 aid=%s" % (title, aid))
+            # why 里带的是**回读到的真实 cvid**（发布后 aid 会重分配），
+            # 别只打印草稿 aid —— 否则日志看着像「发的是旧稿」。
+            print("  ✓ 《%s》已发布（草稿 aid=%s）：%s" % (title, aid, why))
         else:
             print("  ✗ 《%s》没发出去：%s" % (title, why))
         return (ok, target, aid, title)

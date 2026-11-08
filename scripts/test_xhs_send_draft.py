@@ -11,6 +11,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import xhs_publish as x
@@ -534,6 +535,85 @@ class TestCliRegistered(unittest.TestCase):
         self.assertEqual(p.returncode, 0, p.stderr)
         self.assertIn("send-draft", p.stdout)
         self.assertIn("--dry", p.stdout)
+
+
+class TestFifoDedupeByCase(unittest.TestCase):
+    """2026-11-07：FIFO 必须按**案例**剔已发，不能只按存入时间或标题。
+
+    事故：箱里《Divine：给站长卖网站挂件》是 9-30 已发过的 divine-widgets
+    旧标题稿（线上 11-02 改成《每日经文放上锁屏…》），按标题认不出来，
+    `pick_draft` 只按时间取最久 ⇒ 又发了一遍重复笔记。
+    """
+
+    DRAFTS = [
+        {"title": "Divine：给站长卖网站挂件", "saved": "2026-10-20 01:08:16"},
+        {"title": "Coral：托管你的开源 AI 助手", "saved": "2026-10-20 08:01:06"},
+        {"title": "认不出的孤儿稿", "saved": "2026-10-21 00:00:00"},
+    ]
+    KNOWN = {"Divine：给站长卖网站挂件": "divine-widgets",
+             "Coral：托管你的开源 AI 助手": "coral"}
+
+    def _matched(self, drafts):
+        return ([{"id": self.KNOWN[d["title"]], "title": d["title"]}
+                 for d in drafts if d["title"] in self.KNOWN], [])
+
+    def test_已发案例的旧稿被跳过(self):
+        with mock.patch.object(x, "_published_case_ids_union",
+                               return_value={"divine-widgets"}), \
+                mock.patch.object(x, "match_drafts", side_effect=self._matched):
+            d, why = x.pick_draft(list(self.DRAFTS))
+        self.assertEqual(d["title"], "Coral：托管你的开源 AI 助手")
+        self.assertIn("未发表过", why)
+
+    def test_认不出案例的孤儿稿不被拦死(self):
+        with mock.patch.object(x, "_published_case_ids_union",
+                               return_value={"divine-widgets", "coral"}), \
+                mock.patch.object(x, "match_drafts", side_effect=self._matched):
+            d, _ = x.pick_draft(list(self.DRAFTS))
+        self.assertEqual(d["title"], "认不出的孤儿稿")
+
+    def test_全是已发案例就拒选而不是重复发(self):
+        with mock.patch.object(x, "_published_case_ids_union",
+                               return_value={"divine-widgets", "coral"}), \
+                mock.patch.object(x, "match_drafts", side_effect=self._matched):
+            d, why = x.pick_draft(list(self.DRAFTS[:2]))
+        self.assertIsNone(d)
+        self.assertIn("--new", why)
+
+    def test_显式指定标题时不剔重(self):
+        with mock.patch.object(x, "_published_case_ids_union",
+                               return_value={"divine-widgets"}) as pub, \
+                mock.patch.object(x, "match_drafts", side_effect=self._matched):
+            d, why = x.pick_draft(list(self.DRAFTS),
+                                  title="Divine：给站长卖网站挂件")
+        self.assertEqual(d["title"], "Divine：给站长卖网站挂件")
+        self.assertFalse(pub.called, "人工点名不该走剔重")
+
+    def test_并集读口不能只认SQLite那几条(self):
+        tmp = tempfile.mkdtemp()
+        try:
+            p = os.path.join(tmp, "xhs_published.json")
+            with open(p, "w", encoding="utf-8") as f:
+                json.dump([{"id": "json-only"}, {"id": "divine-widgets"}], f)
+            with mock.patch.object(x, "_published_ids",
+                                   return_value=["db-only"]), \
+                    mock.patch.object(x, "_pub_file", return_value=p):
+                ids = x._published_case_ids_union()
+            self.assertEqual(ids, {"db-only", "json-only", "divine-widgets"})
+        finally:
+            shutil.rmtree(tmp)
+
+    def test_已published记录不许再用now覆盖历史发布时间(self):
+        with mock.patch.object(x.db, "get_conn", return_value=object()), \
+                mock.patch.object(x.db, "get_post",
+                                  return_value={"state": "published",
+                                                "published_at": "2026-09-30 15:20"}), \
+                mock.patch.object(x.db, "upsert_post") as upsert, \
+                mock.patch.object(x.db, "close_conn"), \
+                mock.patch.object(x, "_mark") as mark:
+            x.mark_published("divine-widgets")
+        self.assertFalse(upsert.called, "幂等记录再 upsert 会把快照日洗成当天")
+        self.assertTrue(mark.called)
 
 
 if __name__ == "__main__":

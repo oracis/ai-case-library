@@ -1,78 +1,78 @@
 {
-  "ran_at": "2026-11-07 06:47:26",
-  "added": 58,
+  "ran_at": "2026-11-08 06:54:19",
+  "added": 60,
   "by_source": {
-    "hn": 42,
-    "indiehackers": 1,
-    "trustmrr": 15
+    "hn": 40,
+    "indiehackers": 2,
+    "trustmrr": 18
   },
   "inbox_total": 400,
-  "archived_this_run": 58,
-  "archive_total": 1578,
+  "archived_this_run": 60,
+  "archive_total": 1638,
   "top": [
     {
-      "name": "Usagebar",
-      "headline": "近 30 天收入 $1,622",
-      "heat": 0,
-      "category": "开发者工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/usagebar"
-    },
-    {
-      "name": "Whis AI",
-      "headline": "近 30 天收入 $5,705",
-      "heat": 0,
-      "category": "AI 工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/whis-ai"
-    },
-    {
-      "name": "Noonlaunch - Product Hunt Alternative to Launch Your SaaS",
-      "headline": "近 30 天收入 $454",
-      "heat": 0,
-      "category": "垂直行业 SaaS",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/noonlaunch"
-    },
-    {
-      "name": "Mat: Photo Widget Maker",
-      "headline": "近 30 天收入 $404",
+      "name": "cuedesign: the taste layer for AI",
+      "headline": "近 30 天收入 $2,040",
       "heat": 0,
       "category": "创作者经济",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/mat-photo-widget-maker"
+      "url": "https://trustmrr.com/startup/cuedesign"
     },
     {
-      "name": "AsmuthAI",
-      "headline": "累计收入 $1（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
+      "name": "Regiere Deutschland",
+      "headline": "近 30 天收入 $233",
       "heat": 0,
-      "category": "AI 工具",
+      "category": "Entertainment",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/asmuthai"
+      "url": "https://trustmrr.com/startup/regiere-deutschland"
     },
     {
-      "name": "I tried to connect every GPU on the planet together (kinda)",
-      "headline": "疑似金额 $50k",
-      "heat": 4,
+      "name": "AI labs are paying $100K–$2M for internal company workflow data",
+      "headline": "疑似金额 $100K",
+      "heat": 2,
       "category": "未分类",
       "source": "hn",
-      "url": "https://news.ycombinator.com/item?id=50394231"
+      "url": "https://calendly.com/d/d3ss-w9w-7vs"
     },
     {
-      "name": "Tape",
-      "headline": "自报收入 $40,000 / mo（Indie Hackers）",
+      "name": "Review nudge",
+      "headline": "TrustMRR 收录（收入未公开）",
       "heat": 0,
-      "category": "未分类",
-      "source": "indiehackers",
-      "url": "https://www.indiehackers.com/product/tape"
-    },
-    {
-      "name": "Bencho",
-      "headline": "近 30 天收入 $29,653",
-      "heat": 0,
-      "category": "企业服务",
+      "category": "营销工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/bencho"
+      "url": "https://trustmrr.com/startup/review-nudge"
+    },
+    {
+      "name": "StalkMail",
+      "headline": "TrustMRR 收录（收入未公开）",
+      "heat": 0,
+      "category": "营销工具",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/stalkmail"
+    },
+    {
+      "name": "UGC MATCH",
+      "headline": "累计收入 $38（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
+      "heat": 0,
+      "category": "创作者经济",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/closya-fz-llc"
+    },
+    {
+      "name": "240fps",
+      "headline": "累计收入 $39（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
+      "heat": 0,
+      "category": "创作者经济",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/240fps"
+    },
+    {
+      "name": "Conductor sold to Meta. Rebuilding the app (3 days, $170) (MIT)",
+      "headline": "疑似金额 $170",
+      "heat": 2,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://github.com/jahala/conducted/"
     }
   ]
 }

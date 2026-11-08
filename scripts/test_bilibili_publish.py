@@ -6,6 +6,7 @@
     python -m unittest test_bilibili_publish
 """
 import inspect
+import itertools
 import json
 import os
 import re
@@ -1203,7 +1204,12 @@ class TestBili2Fifo(unittest.TestCase):
         self.assertIn("_plat()", src)
         self.assertNotIn('d.get("bilibili")', src,
                          "send_draft 里写死平台键 ⇒ 二号读不到自己的记录")
-        self.assertIn("_cid_from_games(", src, "二号反查那一路不许被删掉")
+        # 11-07：反查抽到 `_draft_case_id`（挑稿剔重与记账共用），
+        # 等价保护改成「send_draft 调它 + 它内部仍保留游戏仓那一路」。
+        self.assertIn("_draft_case_id(", src, "共用认亲函数不许被绕开")
+        helper = inspect.getsource(bp._draft_case_id)
+        self.assertIn("_cid_from_games(", helper, "二号反查那一路不许被删掉")
+        self.assertIn('plat == "bilibili2"', helper)
 
 
 class TestCoverOfForDraft(unittest.TestCase):
@@ -1421,6 +1427,192 @@ class TestBili2LedgerWrite(unittest.TestCase):
         """`ld.promote("bilibili")` 曾把二号记录写进 bili_published.json。"""
         src = inspect.getsource(bp.ui_publish_draft)
         self.assertIn('ledger_slot(cid)[0] == "bilibili"', src)
+
+
+class _FakeBiliCDP:
+    """ui_publish_draft 只用到 eval / close_target / close，不连浏览器。"""
+
+    def __init__(self):
+        self.closed = []
+
+    def eval(self, js, refresh_context=False):
+        if js == bp.JS_CLICK_PUBLISH:
+            return "clicked"
+        if js == bp.JS_CONFIRM_DIALOG:
+            return "no-dialog"
+        if js == bp.JS_SUCCESS_HINT:
+            return "提交成功"
+        return None
+
+    def close_target(self, tid):
+        self.closed.append(tid)
+
+    def close(self):
+        self.closed.append("cdp")
+
+
+class TestUiPublishReadback(unittest.TestCase):
+    """2026-11-07 事故回归：草稿 aid 发表后被重分配成专栏 cvid。
+
+    旧实现只按 aid 回读已发表列表 ⇒ 文章已公开却报「失败」且不记账
+    （草稿 376917 → 已发表 53797678，见 .workbuddy/memory/2026-11-07.md）。
+    修后两路认亲：aid 原样命中 / 标题精确命中且 id 是发布后新增的。
+    """
+
+    TITLE = "Quake：读一份 1999 年开源的 3D 引擎源码"
+    AID = "376917"
+    CVID = "53797678"
+    CID = "ext-ep-004-quake-b2"
+
+    def _run(self, before, after, title=None):
+        """跑完 ui_publish_draft 全流程（全部外部依赖打桩），返回 (ok, why, mark)。"""
+        cdp = _FakeBiliCDP()
+        title = self.TITLE if title is None else title
+        seq = iter([before] + [after] * 10)
+
+        def listed(*_a, **_k):
+            v = next(seq)
+            if isinstance(v, Exception):
+                raise v
+            return v
+
+        fake_time = mock.MagicMock()
+        fake_time.time.side_effect = itertools.count(0, 10).__next__
+        fake_time.sleep.return_value = None
+        patches = [
+            mock.patch.object(bp, "time", fake_time),
+            mock.patch.object(bp, "_api_tab", return_value=None),
+            mock.patch.object(bp.bili_api, "list_drafts", return_value=[]),
+            mock.patch.object(bp.bili_api, "list_published_articles",
+                              side_effect=listed),
+            mock.patch.object(bp, "_open_editor_tab", return_value="TAB1"),
+            mock.patch.object(bp, "_ensure_cover_remote", return_value=True),
+            mock.patch.object(bp, "publish_btn_state", return_value={}),
+            mock.patch.object(bp, "publish_verdict", return_value=(True, "可发布")),
+            mock.patch.object(bp, "ledger_slot",
+                              return_value=("bilibili2", "ext-ep-004-quake")),
+            mock.patch.object(bp, "_mark_manifest_published"),
+        ]
+        started = [p.start() for p in patches]
+        for p in patches:
+            self.addCleanup(p.stop)
+        ok, why = bp.ui_publish_draft(cdp=cdp, aid=self.AID, cid=self.CID,
+                                      title=title)
+        return ok, why, started[-1]
+
+    def _art(self, pid, title=None):
+        return [{"id": pid, "title": self.TITLE if title is None else title,
+                 "summary": ""}]
+
+    def test_aid重分配按标题命中且用真实cvid记账(self):
+        ok, why, mark = self._run([], self._art(self.CVID))
+        self.assertTrue(ok, why)
+        self.assertEqual(mark.call_args.args,
+                         (self.CID, self.CVID, self.TITLE))
+        self.assertIn("重分配", why)
+        self.assertIn(self.CVID, why)
+
+    def test_aid原样命中时不改变旧行为(self):
+        ok, why, mark = self._run([], self._art(self.AID))
+        self.assertTrue(ok, why)
+        self.assertEqual(mark.call_args.args[1], self.AID)
+        self.assertIn("按草稿 aid 命中", why)
+
+    def test_标题归一化后仍认亲(self):
+        spaced = "  Quake：读一份  1999 年开源的 3D 引擎源码 "
+        ok, why, mark = self._run([], self._art(self.CVID, spaced))
+        self.assertTrue(ok, why)
+        self.assertEqual(mark.call_args.args[1], self.CVID)
+
+    def test_历史同标题旧文不算这次发布成功(self):
+        old = self._art("999")
+        ok, why, mark = self._run(old, old)
+        self.assertFalse(ok)
+        self.assertIn("不记账", why)
+        mark.assert_not_called()
+
+    def test_新增的是别的文章不算成功(self):
+        ok, why, mark = self._run([], self._art(self.CVID, "另一篇完全不相干的文章"))
+        self.assertFalse(ok)
+        mark.assert_not_called()
+
+    def test_发布前快照抓不到时保守只认aid不假绿(self):
+        ok, why, mark = self._run(RuntimeError("CDP 抽风"), self._art(self.CVID))
+        self.assertFalse(ok)
+        mark.assert_not_called()
+
+    def test_源码必须保留双路认亲防回退(self):
+        src = inspect.getsource(bp.ui_publish_draft)
+        self.assertIn("before_ids", src)
+        self.assertIn("_norm_title", src)
+        # 记账用回读 id，不是草稿 aid
+        self.assertIn("_mark_manifest_published(cid, published_id, title)", src)
+
+
+class TestFifoDedupeByCase(unittest.TestCase):
+    """PRD #90：B站 FIFO 原来只按 manifest 的 remote_id / title 剔重。
+
+    manifest 的 title 是建稿时的镜像（#83），线上标题 11-06 换过 8 条，
+    改过就认不出 ⇒ 同案例旧稿会被再发一次（小红书 divine-widgets 已踩）。
+    挑稿阶段必须按 (case_id, platform) 剔，且与发布记账共用认亲函数。
+    """
+
+    DRAFTS = [
+        {"article_id": "1", "title": "Divine：给站长卖网站挂件", "mtime": 100},
+        {"article_id": "2", "title": "最久未发稿", "mtime": 200},
+        {"article_id": "3", "title": "认不出的孤儿", "mtime": 300},
+    ]
+    MANIFEST = {
+        "divine-widgets": {"bilibili": {
+            "title": "Divine：给站长卖网站挂件"}},
+        "coral": {"bilibili": {"title": "最久未发稿"}},
+    }
+
+    def _run(self, published_cases):
+        with mock.patch.object(bp, "_api_tab"), \
+                mock.patch.object(bp.bili_api, "list_drafts",
+                                  return_value=list(self.DRAFTS)), \
+                mock.patch.object(bp, "_load_manifest",
+                                  return_value=self.MANIFEST), \
+                mock.patch.object(bp, "_plat", return_value="bilibili"), \
+                mock.patch.object(bp, "load_cases", return_value=[]), \
+                mock.patch("fifo_dedupe.published_case_ids",
+                           return_value=set(published_cases)), \
+                mock.patch.object(bp, "ui_publish_draft",
+                                  return_value=(True, "dry ok")) as ui:
+            rc = bp.send_draft(cdp=object(), dry=True)
+        return rc, ui
+
+    def test_已发案例的旧稿被跳过(self):
+        rc, ui = self._run({"divine-widgets"})
+        self.assertEqual(rc[2], "2")            # 最久的已发稿被剔，挑下一条
+        self.assertEqual(ui.call_args.kwargs["title"], "最久未发稿")
+
+    def test_认不出case的孤儿稿不被拦死(self):
+        rc, _ = self._run({"divine-widgets", "coral"})
+        self.assertEqual(rc[2], "3")
+
+    def test_没有已发案例时保持原口径(self):
+        rc, _ = self._run(set())
+        self.assertEqual(rc[2], "1")
+
+    def test_认亲函数挑稿与记账共用一份(self):
+        src = inspect.getsource(bp.send_draft)
+        self.assertIn("FD.filter_rows", src)
+        self.assertIn("_draft_case_id(title, by_title", src)
+        self.assertNotIn("for c in load_cases():", src,
+                         "记账处不许再写第二份认亲逻辑")
+
+    def test_归一标题与案例名兜底(self):
+        by_title = {"Divine：给站长卖网站挂件": "divine-widgets"}
+        self.assertEqual(bp._draft_case_id(
+            "Divine： 给站长卖网站挂件", by_title, "bilibili", []),
+            "divine-widgets")
+        self.assertEqual(bp._draft_case_id(
+            "Coral：托管你的开源 AI 助手", by_title, "bilibili",
+            [{"id": "coral", "name": "Coral"}]), "coral")
+        self.assertEqual(bp._draft_case_id(
+            "孤儿", by_title, "bilibili", []), "")
 
 
 if __name__ == "__main__":

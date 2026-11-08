@@ -63,6 +63,11 @@
     "case_id": "ext-ep-003-freedoom",
     "kind": "game",
     "at": "2026-11-06 13:38"
+   },
+   {
+    "case_id": "gojiberryai",
+    "kind": "ai",
+    "at": "2026-11-07 11:05"
    }
   ],
   "csdn": [
@@ -85,6 +90,11 @@
     "case_id": "shipfast",
     "kind": "ai",
     "at": "2026-11-06 13:59"
+   },
+   {
+    "case_id": "ext-ep-004-quake",
+    "kind": "game",
+    "at": "2026-11-07 10:48"
    }
   ],
   "wechat": [
@@ -102,6 +112,12 @@
     "case_id": "upvoty",
     "kind": "ai",
     "at": "2026-11-06 13:40"
+   },
+   {
+    "at": "2026-11-07 10:47",
+    "case_id": "wx-100000267",
+    "kind": "ai",
+    "note": "send-draft FIFO 最久草稿"
    }
   ],
   "bilibili": [
@@ -121,6 +137,12 @@
     "case_id": "ext-ep-001-super-mario-bros",
     "kind": "game",
     "at": "2026-11-06 13:41"
+   },
+   {
+    "at": "2026-11-07 11:21",
+    "case_id": "outrank",
+    "kind": "ai",
+    "note": "send-draft FIFO 最久草稿"
    }
   ],
   "cnblogs": [
@@ -147,6 +169,19 @@
     "case_id": "coral",
     "kind": "ai",
     "note": "send-draft FIFO 最久草稿"
+   },
+   {
+    "at": "2026-11-07 17:00",
+    "case_id": "search1api",
+    "kind": "ai",
+    "note": "send-draft FIFO 最久草稿"
+   }
+  ],
+  "aliyun": [
+   {
+    "case_id": "gojiberryai",
+    "kind": "ai",
+    "at": "2026-11-07 19:11"
    }
   ]
  }
