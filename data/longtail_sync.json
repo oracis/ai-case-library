@@ -204,7 +204,8 @@
    "tencentcloud": {
     "ok": true,
     "draftId": "338082",
-    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338082"
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338082",
+    "deleted": "2026-11-09 误删（草稿无回收站）；重建见 refactoringui-2026-11-09-1 / draftId=343506"
    }
   },
   "category": "人工智能",
@@ -854,5 +855,20 @@
   "cover": "https://case.ydtgo.top/covers/flodesk.png",
   "via": "cdp-9228",
   "ts": "2026-11-09 21:34:06"
+ },
+ "refactoringui-2026-11-09-1": {
+  "case": "refactoringui",
+  "title": "卖给开发者的设计书：没有试用层的内容产品怎么定价与交付",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "343506",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=343506"
+   }
+  },
+  "category": "人工智能",
+  "cover": "",
+  "via": "cdp-9228",
+  "ts": "2026-11-09 22:46:55"
  }
 }

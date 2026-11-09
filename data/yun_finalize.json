@@ -243,5 +243,12 @@
     "tc_state": "draft",
     "tc_state_at": "2026-11-09 21:34",
     "updated": "2026-11-09 21:34:06"
+  },
+  "refactoringui": {
+    "title": "卖给开发者的设计书：没有试用层的内容产品怎么定价与交付",
+    "tc_draft": "343506",
+    "tc_state": "draft",
+    "tc_state_at": "2026-11-09 22:46",
+    "updated": "2026-11-09 22:46:56"
   }
 }
