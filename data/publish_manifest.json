@@ -555,11 +555,11 @@
   "aliyun": {
    "at": "2026-11-05 11:05:00",
    "attempt": 0,
-   "draft_id": "1700270",
+   "draft_id": "1711205",
    "error": "补账：published_at 缺失导致 slot 今日计数漏（11-05 上午批次，时刻为日志近似）",
-   "state": "published",
-   "title": "aid=1700270",
-   "url": "https://developer.aliyun.com/article/new?edit=1700270#/"
+   "state": "draft",
+   "title": "Chessigma：百万用户级实时对弈的负载形状与算力成本",
+   "url": "https://developer.aliyun.com/article/new?edit=1711205#/"
   },
   "bilibili": {
    "at": "2026-11-01 17:03",
@@ -598,7 +598,7 @@
    "draft_id": "339489",
    "error": " | longtail_key=chessigma-2026-11-03-1",
    "state": "published",
-   "title": "draftId=338751",
+   "title": "浏览器端棋类分析引擎的工程取舍：WASM 引擎、PGN 增量解析与对局状态同步",
    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=339483"
   },
   "toutiao": {
@@ -653,7 +653,7 @@
    "draft_id": "1701663",
    "error": "补账：published_at 缺失导致 slot 今日计数漏（11-05 上午批次，时刻为日志近似）",
    "state": "published",
-   "title": "aid=1701241",
+   "title": "交互式编程课程的运行时设计：代码执行沙箱、事件溯源进度与内容权限门控",
    "url": "https://developer.aliyun.com/article/1778138"
   },
   "bilibili": {
@@ -692,7 +692,7 @@
    "draft_id": "339491",
    "error": " | longtail_key=cod-dex-2026-11-03-2",
    "state": "published",
-   "title": "draftId=338752",
+   "title": "交互式编程课程的运行时设计：代码执行沙箱、事件溯源进度与内容权限门控",
    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338752"
   },
   "toutiao": {
