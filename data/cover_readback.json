@@ -1,4 +1,12 @@
 {
+ "autoreels-ai": {
+  "tencentcloud": {
+   "at": "2026-11-09 11:14:02",
+   "evidence": "线上文章 2779407 卡片缩略图 background-image=https://developer.qcloudimg.com/http-save/yehe-12743977/9caa4f1b80d95d6f078ef1b7af32ed09.jpg",
+   "source": "yun_finalize",
+   "state": "ok"
+  }
+ },
  "chessigma": {
   "csdn": {
    "at": "2026-11-05 00:57:18",
@@ -124,6 +132,12 @@
   }
  },
  "insect-bite-id": {
+  "aliyun": {
+   "at": "2026-11-09 11:18:26",
+   "evidence": "文章首图 firstImg=https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_a5108fa81e054bb78d93285d29f1837f.png",
+   "source": "yun_finalize",
+   "state": "ok"
+  },
   "tencentcloud": {
    "at": "2026-11-07 16:23:24",
    "evidence": "线上文章 2778646 卡片缩略图 background-image=https://developer.qcloudimg.com/http-save/yehe-12743977/9be7c5cf4c541aa1fb8975466c76b3d4.jpg",

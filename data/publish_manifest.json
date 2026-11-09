@@ -1144,7 +1144,7 @@
  },
  "ext-ep-005-supertux": {
   "bilibili2": {
-   "at": "2026-11-08 14:27 草稿箱→发布（send-draft）",
+   "at": "2026-11-08 14:27",
    "attempt": 0,
    "draft_id": "",
    "note": "草稿箱→发布（send-draft）",
@@ -1163,6 +1163,16 @@
   }
  },
  "ext-ep-006-nethack": {
+  "bilibili2": {
+   "at": "2026-11-09 10:43 草稿箱→发布（send-draft）",
+   "attempt": 0,
+   "draft_id": "",
+   "note": "草稿箱→发布（send-draft）",
+   "remote_id": "53824259",
+   "state": "published",
+   "title": "NetHack：ASCII 画面下的数据表与显示层分离",
+   "url": ""
+  },
   "toutiao": {
    "at": "2026-10-31 20:05",
    "attempt": 0,
@@ -2053,10 +2063,10 @@
  },
  "pieter-levels": {
   "bilibili": {
-   "at": "2026-11-08 14:25 草稿箱→发布（send-draft）",
+   "at": "2026-10-10 01:27",
    "attempt": 0,
    "draft_id": "342416",
-   "note": "草稿箱→发布（send-draft）",
+   "note": "｜草稿同步(2026-10-10 01:27): title 认领 aid=342416",
    "remote_id": "53813580",
    "state": "published",
    "title": "Pieter Levels：一个人做成的产品组合",
@@ -2154,12 +2164,12 @@
  },
  "postiz": {
   "bilibili": {
-   "at": "2026-10-10 01:28",
+   "at": "2026-11-09 10:46 草稿箱→发布（send-draft）",
    "attempt": 0,
    "draft_id": "342417",
-   "note": "｜草稿同步(2026-10-10 01:28): title 认领 aid=342417",
-   "remote_id": "342417",
-   "state": "draft",
+   "note": "草稿箱→发布（send-draft）",
+   "remote_id": "53824331",
+   "state": "published",
    "title": "Postiz：社媒一键多平台排期发布",
    "url": ""
   },
