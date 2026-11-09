@@ -824,5 +824,20 @@
   },
   "via": "cdp-9228",
   "ts": "2026-11-08 14:11:58"
+ },
+ "getdavid-2026-11-09-1": {
+  "case": "getdavid",
+  "title": "批量给本地小店造站的流水线：名单判定、模板渲染与直邮归因",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "343479",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=343479"
+   }
+  },
+  "category": "人工智能",
+  "cover": "https://case.ydtgo.top/covers/getdavid.png",
+  "via": "cdp-9228",
+  "ts": "2026-11-09 20:51:27"
  }
 }

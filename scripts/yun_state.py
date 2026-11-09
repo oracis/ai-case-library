@@ -230,6 +230,16 @@ def record_publish(platform, case, draft_id, article_id, title,
                     "allow_downgrade=True" % (state, j.get("evidence")))
             note += "｜⚠ 人工确认降级（原 published_at=%s）" % (old.get("published_at") or "")
         if old:
+            # 🚨 2026-11-09 #119：note 是**审计链**，只许追加不许覆盖。
+            #   旧写法直接 `note=新串` ⇒ 11-09 getdavid 那条的「对账/驳回/改稿重投」
+            #   三段共 600+ 字在发布成功那一刻被洗成 154 字，事后只能靠 db 备份复原。
+            #   同一行从 draft 走到 published 会经历多次 record_publish（裁定失败重试、
+            #   驳回后重投），每段都要留下，否则「这篇为什么被驳过」永远查不到。
+            old_note = (old.get("note") or "").strip()
+            if old_note and note not in old_note:
+                # 同一段（同一天同一篇重跑）已经记过就别叠第二遍：
+                # old_note 里已经含新段 ⇒ 保持原样；否则老段在前、新段在后。
+                note = old_note if old_note in note else old_note + " ‖ " + note
             fields = ("state", "remote_id", "url", "published_at", "draft_id",
                       "title", "note", "updated_at")
             old_url = old.get("url") or ""

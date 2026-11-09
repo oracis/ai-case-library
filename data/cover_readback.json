@@ -117,6 +117,14 @@
    "state": "ok"
   }
  },
+ "getdavid": {
+  "tencentcloud": {
+   "at": "2026-11-09 20:55:56",
+   "evidence": "线上文章 2779993 卡片缩略图 background-image=https://developer.qcloudimg.com/http-save/yehe-12743977/76715fd3f33878486d0ef030570363a5.jpg",
+   "source": "yun_finalize",
+   "state": "ok"
+  }
+ },
  "gojiberryai": {
   "aliyun": {
    "at": "2026-11-07 19:11:38",

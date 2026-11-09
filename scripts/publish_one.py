@@ -418,6 +418,22 @@ def _gate_remote(platform, case, pack, draft_override=None, **kw):
     if state == "published":
         art = row.get("tc_article" if platform == "tencentcloud" else "al_article") or "?"
         return False, "台账已是 published（article %s）⇒ 重复发会出第二篇" % art
+    # 🚨 2026-11-09 #119：**复用草稿 ≠ 正文已是新稿**。
+    #   两朵云「导入MD」在**已有草稿**上不替换正文（静默留旧文），发布抽屉只填
+    #   来源/标签/摘要/封面。于是本地新稿过了全部内容闸，平台却把旧稿发出去 ——
+    #   11-09 getdavid 复用 338079 就是这样，20:42 判「内容包含广告/引流信息」驳回，
+    #   而驳回的那篇根本不是本地新写的技术稿。
+    #   判据：台账 `title` 是**平台草稿标题镜像**（建稿时写进去的），与本地稿 h1
+    #   不一致 ⇒ 正文几乎肯定没刷进平台。标题为空（对账前老行）放行，避免误拦。
+    if draft_override and pack:
+        want = G.title_of(pack)
+        have = (row.get("tc_title" if platform == "tencentcloud" else "al_title")
+                or "").strip()
+        if want and have and have != want.strip():
+            return False, ("复用草稿 %s 的平台标题是旧镜像（%r），与本地稿 h1（%r）不一致 ⇒ "
+                           "正文很可能没刷进平台（「导入MD」在已有草稿上不替换正文）。"
+                           "先新建草稿再发，或在编辑器里全选替换正文+改标题并回读一致"
+                           % (did, have[:20], want.strip()[:20]))
     if draft_override:
         return True, "draftId=%s（显式 --%s 覆盖台账）" % (
             did, key.replace("_", "-"))

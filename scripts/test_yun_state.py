@@ -251,6 +251,35 @@ class Record(_DbFixture):
                                  db_path=self.db, fetch=self.fetch_ok)
         self.assertEqual(self._rows()[0]["title"], "旧镜像")
 
+    def test_note_is_appended_never_overwritten(self):
+        """note 是审计链：发布成功不许把「被驳回/对账」那几段洗掉（2026-11-09 实撞）。
+
+        getdavid 那行从 `published` 降级为 `draft`、绑定新草稿、再发成功，
+        每步都该留痕；旧写法在最后一次 record_publish 时把 600+ 字洗成 154 字，
+        只能靠 db 备份复原。
+        """
+        old_note = "[11-09 20:45 驳回] 2779989 判「内容包含广告/引流信息」"
+        self._ins(case_id="chessigma", platform="aliyun", state="draft",
+                  draft_id="1711205", title="旧镜像", published_at=None,
+                  note=old_note)
+        YS.record_aliyun_publish("chessigma", "1711205", "1789999", self.TITLE,
+                                 db_path=self.db, now="2026-11-11 10:00:00",
+                                 fetch=self.fetch_ok)
+        note = self._rows()[0]["note"]
+        self.assertTrue(note.startswith(old_note), "旧 note 必须留在最前面：%r" % note)
+        self.assertIn(" ‖ ", note, "两段之间要用 ‖ 分隔（#118 起的约定）")
+        self.assertIn("1789999", note, "新发布记录也要在")
+
+    def test_note_not_doubled_when_same(self):
+        """重复裁定同一篇不许把同一段 note 叠加两次。"""
+        self._ins(case_id="chessigma", platform="aliyun", state="draft",
+                  draft_id="1711205", title="旧镜像", published_at=None)
+        kw = dict(db_path=self.db, now="2026-11-11 10:00:00", fetch=self.fetch_ok)
+        YS.record_aliyun_publish("chessigma", "1711205", "1789999", self.TITLE, **kw)
+        first = self._rows()[0]["note"]
+        YS.record_aliyun_publish("chessigma", "1711205", "1789999", self.TITLE, **kw)
+        self.assertEqual(self._rows()[0]["note"], first)
+
     def test_refuses_downgrade_published_to_auditing(self):
         """状态只前进：网络抖动/风控 404 不许把真 published 洗成 auditing。"""
         self._ins(case_id="chessigma", platform="aliyun", state="published",

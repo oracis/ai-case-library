@@ -227,5 +227,14 @@
     "article": "1780780",
     "published": null,
     "published_at": null
+  },
+  "getdavid": {
+    "tc_draft": "343479",
+    "tc_article": "2779993",
+    "updated": "2026-11-09 20:55:55",
+    "title": "批量给本地小店造站的流水线：名单判定、模板渲染与直邮归因",
+    "tc_state": "published",
+    "tc_state_at": "2026-11-09 20:55:56",
+    "tc_published_at": "2026-11-09 20:55:56"
   }
 }
