@@ -50,11 +50,13 @@ def _set_cover(state, evidence=""):
     LAST_COVER["evidence"] = str(evidence or "")[:300]
 
 
-def _record_cover(case, platform):
+def _record_cover(case, platform, remote_id=None):
     """把 `LAST_COVER` 落进 `data/cover_readback.json`。
 
     `state` 为空 = 这条链路这次没判过封面（比如没走到封面那一步），
     **不记录**比记一条假的更安全 —— 空着会被闸判成 `unknown`。
+    `remote_id` 就是这次发布的文章 id：回读证据必须钉在这篇文章上，
+    否则同一 case 重发后旧文章的 `ok` 会让闸继续放行（2026-11-09 #119）。
     """
     st = LAST_COVER.get("state") or ""
     if not (case and st):
@@ -62,8 +64,9 @@ def _record_cover(case, platform):
     try:
         import cover_verify as CV
         CV.record(case, platform, st, LAST_COVER.get("evidence", ""),
-                  source="yun_finalize")
-        print("  封面台账：%s / %s ← %s" % (case, platform, st))
+                  source="yun_finalize", remote_id=remote_id)
+        print("  封面台账：%s / %s ← %s（article %s）"
+              % (case, platform, st, remote_id or "?"))
     except Exception as e:                             # noqa: BLE001
         # 台账写不进去不该让已经发出去的文章变成「发布失败」
         print("  ⚠ 封面回读结果没写进台账（不影响发表）：%s" % str(e)[:80])
@@ -1361,6 +1364,7 @@ if __name__ == "__main__":
                 from csdn_publish import split_md
                 title, body = split_md(open(src, encoding="utf-8").read())
             abstract = a.abstract or first_paragraph(body)
+            aid = ""          # 封面记录要钉文章 id；发表失败时它保持空
             proc, cdp = _connect()
             try:
                 ok, info = publish_tencent(cdp, int(a.tc_draft), abstract=abstract,
@@ -1392,7 +1396,7 @@ if __name__ == "__main__":
                 else:
                     print("  ⚠ 没抓到 articleId ⇒ 不写 published（提交是否过审未知）；"
                           "跑 python scripts/tc_manage.py status 认领文章 id 后补账")
-            _record_cover(a.case, "tencentcloud")
+            _record_cover(a.case, "tencentcloud", remote_id=aid)
             sys.exit(0 if ok else 1)
         if not a.al_draft:
             raise SystemExit("🚫 拒绝发表：--publish 需要 --al-draft 或 --tc-draft")
@@ -1428,7 +1432,7 @@ if __name__ == "__main__":
                 pass
             # 放在 finally 里：publish_aliyun 失败时 raise SystemExit，
             # 「封面传没传上」这个事实仍然要落库（否则永远停在 unknown）。
-            _record_cover(a.case, "aliyun")
+            _record_cover(a.case, "aliyun", remote_id=locals().get("aid", ""))
         # 🚨 跳转只算「已提交」：三态由 yun_state 按匿名公开页裁定后落库
         #   （published 才写 published_at；auditing 留空、url 留空）。
         if aid and a.case:
