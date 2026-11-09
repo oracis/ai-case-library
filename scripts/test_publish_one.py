@@ -81,6 +81,23 @@ class BuildCmd(unittest.TestCase):
         cmd = " ".join(P.build_cmd("aliyun", "x", os.path.join(HERE, "x.md"), True))
         self.assertIn("--headed", cmd, "阿里云发表漏了 --headed ⇒ 用户看不见滑块")
 
+    def test_explicit_cloud_draft_is_passed_through(self):
+        """显式 --al-draft/--tc-draft 必须进命令，否则会去新建第二份草稿。
+
+        腾讯云此前没有任何显式入口，台账 draft_id 一落后就必然新建重复稿
+        （2026-11-09 #115 补）。
+        """
+        al = " ".join(P.build_cmd("aliyun", "x", os.path.join(HERE, "x.md"),
+                                  True, draft_override="1710840",
+                                  captcha_wait=600))
+        self.assertIn("--al-draft 1710840", al)
+        self.assertIn("--captcha-wait 600", al, "滑块等待没透传 ⇒ 只能改源码默认值")
+        tc = " ".join(P.build_cmd("tencentcloud", "x", os.path.join(HERE, "x.md"),
+                                  True, draft_override="342800"))
+        self.assertIn("--tc-draft 342800", tc)
+        self.assertNotIn("--al-draft", tc)
+        self.assertNotIn("--headed", tc, "腾讯云没有滑块，别照抄阿里云的参数")
+
 
 class GamePack(unittest.TestCase):
     """游戏仓产物只在「--file 取稿」的平台认账。"""

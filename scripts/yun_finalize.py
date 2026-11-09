@@ -22,6 +22,7 @@ import base64
 import json
 import os
 import re
+import sqlite3
 import subprocess
 import sys
 import time
@@ -97,15 +98,31 @@ def _db_sync(case, rec):
             draft = rec.get(prefix + "_draft") or ""
             if not (state or article or draft):
                 continue
+            new_state = state or ("published" if article else "draft")
+            # 🚨 2026-11-09 #115：`published_at` 只认**显式证据时间**
+            #   `*_published_at`（由 yun_state 按匿名公开页写入）。
+            #   旧写法 `... or rec[prefix_state_at] or now` 有三个坑：
+            #   ① `now` = 本地时钟，不是平台证据（PRD #109 19:47 脏写事故）；
+            #   ② `_state_at` 是分钟精度，写进秒级字段污染档期统计；
+            #   ③ 建草稿也会顺手写一个 published_at ⇒ 假满档。
+            pat = rec.get(prefix + "_published_at") or ""
+            if not pat and new_state == "published":
+                # 没有证据时间：沿用行里已有的（别用 now 顶），没有就留空
+                try:
+                    r = conn.execute(
+                        "select coalesce(published_at,'') from platform_posts "
+                        "where case_id=? and platform=?", (case, plat)).fetchone()
+                    pat = (r[0] if r else "") or ""
+                except sqlite3.Error:
+                    pat = ""
             db.upsert_post(conn, case, plat, {
-                "state": state or ("published" if article else "draft"),
+                "state": new_state,
                 "remote_id": article,
                 "url": "",
                 "title": rec.get("title") or "",
                 "draft_id": draft,
                 "attempt": 0,
-                "published_at": rec.get(prefix + "_published_at")
-                                or rec.get(prefix + "_state_at") or now,
+                "published_at": pat if new_state == "published" else None,
                 "updated_at": rec.get(prefix + "_state_at") or now,
                 "note": "",
             })
@@ -1212,12 +1229,16 @@ def first_paragraph(body, limit=300):
     return ""
 
 
-def _record_publish_state(case, draft_id, article_id, title):
+def _record_publish_state(case, draft_id, article_id, title,
+                          platform="aliyun"):
     """发布后按**匿名公开页**三态落 `platform_posts`（唯一写入口 `yun_state`）。
 
     为什么必须在这里做：`publish_aliyun()` 只往 `data/yun_finalize.json` 的
     `__community__<draft>` 键里写结果（该前缀跳过 `_db_sync`），SQLite 真值不会
     动 ⇒ 发完台账还停在 draft，「今日已发几篇」全错（PRD #113）。
+    腾讯云此前更糟：拿到 `articleId` 就直接写 `tc_state="published"` +
+    `_db_sync` 用 `tc_state_at or now` 当 `published_at` ⇒ 提交成功即已发布，
+    驳回/审核中永远发现不了（PRD #115）。
 
     ⚠ 台账写失败**不改变**「文章已发出」这一事实：只告警 + 给修复入口，
     绝不 raise（否则 publish_one 会把已上线的文章报成发布失败）。
@@ -1228,19 +1249,19 @@ def _record_publish_state(case, draft_id, article_id, title):
         return
     try:
         import yun_state as YS                                # noqa: PLC0415
-        r = YS.record_aliyun_publish(case, draft_id, article_id, title)
+        r = YS.record_publish(platform, case, draft_id, article_id, title)
         print("  台账：%s → state=%s ｜ %s" % (case, r["state"], r["evidence"]))
         if r["state"] == "published":
             print("  台账：remote_id=%s、published_at=%s"
                   % (r["after"].get("remote_id"), r["after"].get("published_at")))
         else:
             print("  ⏳ 台账记 auditing、published_at 留空、url 留空（公开页此刻 404）；"
-                  "过审后跑 python scripts/yun_state.py %s '%s' 复核再补"
-                  % (article_id, title))
+                  "过审后跑 python scripts/yun_state.py %s '%s' --platform %s 复核再补"
+                  % (article_id, title, platform))
     except Exception as e:                                    # noqa: BLE001
         print("  ⚠ 台账没落库（文章已发出，不影响上线）：%s" % str(e)[:160])
-        print("    修复：python scripts/yun_state.py %s '%s' 看裁定，"
-              "再按 PRD #113 单行补" % (article_id, title))
+        print("    修复：python scripts/yun_state.py %s '%s' --platform %s 看裁定，"
+              "再按 PRD #113 单行补" % (article_id, title, platform))
 
 
 def run(case=None, file=None, tc_draft=None, al_draft=None, abstract=None,
@@ -1335,9 +1356,10 @@ if __name__ == "__main__":
             src = a.file or os.path.join(ROOT, "drafts", "wechat",
                                          "%s.md" % (a.case or ""))
             body = ""
+            title = ""
             if os.path.isfile(src):
                 from csdn_publish import split_md
-                body = split_md(open(src, encoding="utf-8").read())[1]
+                title, body = split_md(open(src, encoding="utf-8").read())
             abstract = a.abstract or first_paragraph(body)
             proc, cdp = _connect()
             try:
@@ -1354,10 +1376,22 @@ if __name__ == "__main__":
                 # 原来从首 token 取，拿到的是文章 URL，tc_article 恒空）。
                 import re as _re
                 m = _re.search(r"articleId=(\d+)", str(info or ""))
-                ledger_set(a.case, tc_draft=str(a.tc_draft),
-                           tc_state="published",
-                           tc_state_at=time.strftime("%Y-%m-%d %H:%M"),
-                           tc_article=m.group(1) if m else "")
+                aid = m.group(1) if m else ""
+                # 🚨 2026-11-09 #116：**不再**直接写 tc_state="published"。
+                #   旧写法等于「提交成功即已发布」，`_db_sync` 又拿
+                #   `tc_state_at or now` 当 published_at ⇒ 驳回/审核中永远查不出
+                #   （腾讯云创作中心确有「审核中 / 已驳回」卡片文案）。
+                #   JSON 快照只记 id，状态与时间统一由 yun_state 按匿名公开页写。
+                kv = {"tc_draft": str(a.tc_draft)}
+                if aid:
+                    kv["tc_article"] = aid
+                ledger_set(a.case, **kv)
+                if aid:
+                    _record_publish_state(a.case, a.tc_draft, aid, title,
+                                          platform="tencentcloud")
+                else:
+                    print("  ⚠ 没抓到 articleId ⇒ 不写 published（提交是否过审未知）；"
+                          "跑 python scripts/tc_manage.py status 认领文章 id 后补账")
             _record_cover(a.case, "tencentcloud")
             sys.exit(0 if ok else 1)
         if not a.al_draft:
