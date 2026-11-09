@@ -236,5 +236,12 @@
     "tc_state": "published",
     "tc_state_at": "2026-11-09 20:55:56",
     "tc_published_at": "2026-11-09 20:55:56"
+  },
+  "flodesk": {
+    "title": "「无限发送」的邮件平台，实际在做的是送达率工程",
+    "tc_draft": "343489",
+    "tc_state": "draft",
+    "tc_state_at": "2026-11-09 21:34",
+    "updated": "2026-11-09 21:34:06"
   }
 }

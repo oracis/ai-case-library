@@ -839,5 +839,20 @@
   "cover": "https://case.ydtgo.top/covers/getdavid.png",
   "via": "cdp-9228",
   "ts": "2026-11-09 20:51:27"
+ },
+ "flodesk-2026-11-09-1": {
+  "case": "flodesk",
+  "title": "「无限发送」的邮件平台，实际在做的是送达率工程",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "343489",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=343489"
+   }
+  },
+  "category": "人工智能",
+  "cover": "https://case.ydtgo.top/covers/flodesk.png",
+  "via": "cdp-9228",
+  "ts": "2026-11-09 21:34:06"
  }
 }
