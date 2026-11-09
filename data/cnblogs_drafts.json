@@ -166,5 +166,26 @@
     "url": "https://www.cnblogs.com/thing-explainer/p/23583113",
     "status": "published",
     "ts": "2026-11-07 11:05:31"
+  },
+  "ext-ep-004-quake": {
+    "post_id": "23592402",
+    "title": "Quake，1999 年开源的雷神之锤",
+    "url": "https://www.cnblogs.com/thing-explainer/p/23592402",
+    "status": "published",
+    "ts": "2026-11-08 14:07:05"
+  },
+  "insect-bite-id": {
+    "post_id": "23593074",
+    "title": "用 AI 识别虫咬类型：一个 iOS 单点工具的收入结构",
+    "url": "https://www.cnblogs.com/thing-explainer/p/23593074",
+    "status": "published",
+    "ts": "2026-11-08 16:18:36"
+  },
+  "ext-ep-005-supertux": {
+    "post_id": "23599642",
+    "title": "SuperTux，Linux 吉祥物当主角",
+    "url": "https://www.cnblogs.com/thing-explainer/p/23599642",
+    "status": "published",
+    "ts": "2026-11-09 10:37:49"
   }
 }

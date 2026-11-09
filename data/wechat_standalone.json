@@ -186,5 +186,33 @@
     "publish_type": "publish",
     "sent_via": "send",
     "send_reason": "草稿已消失且出现新记录（标题未比上，以新记录为准）"
+  },
+  "wx-100000212": {
+    "title": "StartClaw：不用买服务器、不用配 API key，就能跑起一个托管 agent",
+    "desc": "不用买服务器、不用配 API key，就能跑起一个托管 agent",
+    "tag": "",
+    "published_at": "2026-11-08 16:09",
+    "status": "published",
+    "appmsgid": "100000212",
+    "file": "",
+    "note": "wechat_fifo 对账补登（远端草稿箱实存）",
+    "published_appmsgid": "2247485035",
+    "publish_type": "publish",
+    "sent_via": "send",
+    "send_reason": "已发表列表出现新记录，标题一致"
+  },
+  "wx-100000204": {
+    "title": "Meerkats.ai：替营销机构自动跑「找线索 → 补数据 → 个性化触达 → 跟进」的 AI agent",
+    "desc": "替营销机构自动跑「找线索 → 补数据 → 个性化触达 → 跟进」的 AI agent",
+    "tag": "",
+    "published_at": "2026-11-09 11:29",
+    "status": "published",
+    "appmsgid": "100000204",
+    "file": "",
+    "note": "wechat_fifo 对账补登（远端草稿箱实存）",
+    "published_appmsgid": "2247485036",
+    "publish_type": "publish",
+    "sent_via": "send",
+    "send_reason": "已发表列表出现新记录，标题一致"
   }
 }

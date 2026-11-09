@@ -1,78 +1,77 @@
 {
-  "ran_at": "2026-11-08 06:54:19",
+  "ran_at": "2026-11-09 07:33:02",
   "added": 60,
   "by_source": {
-    "hn": 40,
-    "indiehackers": 2,
-    "trustmrr": 18
+    "hn": 43,
+    "trustmrr": 17
   },
   "inbox_total": 400,
   "archived_this_run": 60,
-  "archive_total": 1638,
+  "archive_total": 1698,
   "top": [
     {
-      "name": "cuedesign: the taste layer for AI",
-      "headline": "近 30 天收入 $2,040",
+      "name": "CatalogoHoy",
+      "headline": "近 30 天收入 $1,726",
       "heat": 0,
-      "category": "创作者经济",
+      "category": "电商",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/cuedesign"
+      "url": "https://trustmrr.com/startup/catalogohoy"
     },
     {
-      "name": "Regiere Deutschland",
-      "headline": "近 30 天收入 $233",
+      "name": "objekto",
+      "headline": "近 30 天收入 $351",
       "heat": 0,
-      "category": "Entertainment",
+      "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/regiere-deutschland"
+      "url": "https://trustmrr.com/startup/objekto"
     },
     {
-      "name": "AI labs are paying $100K–$2M for internal company workflow data",
-      "headline": "疑似金额 $100K",
-      "heat": 2,
+      "name": "Chart Scanner AI",
+      "headline": "近 30 天收入 $2,638",
+      "heat": 0,
+      "category": "AI 工具",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/chart-scanner-ai"
+    },
+    {
+      "name": "OG Bombs Europe",
+      "headline": "近 30 天收入 $1,438",
+      "heat": 0,
+      "category": "电商",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/og-bombs-europe-ivan-flores-hurtado"
+    },
+    {
+      "name": "Grade or Skip",
+      "headline": "未获取",
+      "heat": 1,
       "category": "未分类",
       "source": "hn",
-      "url": "https://calendly.com/d/d3ss-w9w-7vs"
+      "url": "https://github.com/0x4rch/gradeorskip"
     },
     {
-      "name": "Review nudge",
-      "headline": "TrustMRR 收录（收入未公开）",
-      "heat": 0,
-      "category": "营销工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/review-nudge"
-    },
-    {
-      "name": "StalkMail",
-      "headline": "TrustMRR 收录（收入未公开）",
-      "heat": 0,
-      "category": "营销工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/stalkmail"
-    },
-    {
-      "name": "UGC MATCH",
-      "headline": "累计收入 $38（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
-      "heat": 0,
-      "category": "创作者经济",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/closya-fz-llc"
-    },
-    {
-      "name": "240fps",
-      "headline": "累计收入 $39（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
-      "heat": 0,
-      "category": "创作者经济",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/240fps"
-    },
-    {
-      "name": "Conductor sold to Meta. Rebuilding the app (3 days, $170) (MIT)",
-      "headline": "疑似金额 $170",
-      "heat": 2,
+      "name": "The AI Reputation Manager",
+      "headline": "疑似金额 $170,000 ",
+      "heat": 1,
       "category": "未分类",
       "source": "hn",
-      "url": "https://github.com/jahala/conducted/"
+      "url": "https://moregoodreviews.com/ai"
+    },
+    {
+      "name": "PlugKit",
+      "headline": "近 30 天收入 $6,555",
+      "heat": 0,
+      "category": "AI 工具",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/plugkit"
+    },
+    {
+      "name": "Love Letter",
+      "headline": "近 30 天收入 $23,308",
+      "heat": 0,
+      "category": "电商",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/love-letter"
     }
   ]
 }

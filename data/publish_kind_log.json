@@ -68,6 +68,16 @@
     "case_id": "gojiberryai",
     "kind": "ai",
     "at": "2026-11-07 11:05"
+   },
+   {
+    "case_id": "ext-ep-004-quake",
+    "kind": "game",
+    "at": "2026-11-08 14:11"
+   },
+   {
+    "case_id": "insect-bite-id",
+    "kind": "ai",
+    "at": "2026-11-09 10:38"
    }
   ],
   "csdn": [
@@ -95,6 +105,21 @@
     "case_id": "ext-ep-004-quake",
     "kind": "game",
     "at": "2026-11-07 10:48"
+   },
+   {
+    "case_id": "gojiberryai",
+    "kind": "ai",
+    "at": "2026-11-08 14:15"
+   },
+   {
+    "case_id": "ext-ep-005-supertux",
+    "kind": "game",
+    "at": "2026-11-08 15:13"
+   },
+   {
+    "case_id": "insect-bite-id",
+    "kind": "ai",
+    "at": "2026-11-09 10:40"
    }
   ],
   "wechat": [
@@ -143,6 +168,18 @@
     "case_id": "outrank",
     "kind": "ai",
     "note": "send-draft FIFO 最久草稿"
+   },
+   {
+    "at": "2026-11-08 14:25",
+    "case_id": "pieter-levels",
+    "kind": "ai",
+    "note": "send-draft FIFO 最久草稿"
+   },
+   {
+    "at": "2026-11-09 10:46",
+    "case_id": "postiz",
+    "kind": "ai",
+    "note": "send-draft FIFO 最久草稿"
    }
   ],
   "cnblogs": [
@@ -175,6 +212,18 @@
     "case_id": "search1api",
     "kind": "ai",
     "note": "send-draft FIFO 最久草稿"
+   },
+   {
+    "at": "2026-11-08 14:21",
+    "case_id": "insect-bite-id",
+    "kind": "ai",
+    "note": "send-draft FIFO 最久草稿"
+   },
+   {
+    "at": "2026-11-09 10:52",
+    "case_id": "autoreels-ai",
+    "kind": "ai",
+    "note": "send-draft FIFO 最久草稿"
    }
   ],
   "aliyun": [
@@ -182,6 +231,30 @@
     "case_id": "gojiberryai",
     "kind": "ai",
     "at": "2026-11-07 19:11"
+   },
+   {
+    "case_id": "ext-ep-011-minetest",
+    "kind": "game",
+    "at": "2026-11-08 15:56"
+   },
+   {
+    "case_id": "insect-bite-id",
+    "kind": "ai",
+    "at": "2026-11-09 11:18"
+   }
+  ],
+  "bilibili2": [
+   {
+    "at": "2026-11-08 14:27",
+    "case_id": "ext-ep-005-supertux",
+    "kind": "game",
+    "note": "send-draft FIFO 最久草稿"
+   },
+   {
+    "at": "2026-11-09 10:43",
+    "case_id": "ext-ep-006-nethack",
+    "kind": "game",
+    "note": "send-draft FIFO 最久草稿"
    }
   ]
  }
