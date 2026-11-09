@@ -2817,6 +2817,14 @@ def mark_published(cid):
     🚨 2026-11-07：FIFO 挑出同案例旧稿重复发布时，这里对**已 published** 的
        记录照样 `upsert_post` ⇒ 把 9-30 的 `published_at` 洗成当天（拿 now
        覆盖历史快照日）。幂等记录整条跳过，与 JSON 层 `_mark` 同语义。
+
+    🚨 2026-11-09（PRD #107）：小红书发布接口不返回 noteId，所以这里
+       `remote_id` 先留空 —— **不许猜、不许拿标题凑**。发布后跑
+       `python -X utf8 scripts/xhs_backfill_remote_ids.py --yes`
+       按平台 `user/posted?tab=0` 全量列表做三方逐字配对回填（缺省干跑）；
+       `url` 在公开页被风控时一律留空不编。⛔ 别用
+       `xhs_sync_ledger.py --apply` 回填：它会整本重建镜像、丢 `title_old`
+       等扩展字段并回写全库 SQLite。
     """
     conn = db.get_conn()
     try:

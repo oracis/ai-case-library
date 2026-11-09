@@ -370,24 +370,24 @@
     "id": "coral",
     "at": "2026-11-05 10:47",
     "note_id": "6aebee370000000015017dd1",
-    "note": "[11-09 镜像同步] note_id 按平台 user/posted?tab=0 全量列表补齐；配对依据 json.at == 平台 time 唯一候选；SQLite remote_id 保持空（既有平台特性，本轮不回写真值）"
+    "note": "[11-09 镜像同步] note_id 按平台 user/posted?tab=0 全量列表补齐；配对依据 json.at == 平台 time 唯一候选；SQLite remote_id 已按 #107 回写真值（同一 noteId）"
   },
   {
     "id": "search1api",
     "at": "2026-11-07 17:00",
     "note_id": "6aeee8b5000000000e035886",
-    "note": "[11-09 镜像同步] note_id 按平台 user/posted?tab=0 全量列表补齐；配对依据 json.at == 平台 time 唯一候选；SQLite remote_id 保持空（既有平台特性，本轮不回写真值）"
+    "note": "[11-09 镜像同步] note_id 按平台 user/posted?tab=0 全量列表补齐；配对依据 json.at == 平台 time 唯一候选；SQLite remote_id 已按 #107 回写真值（同一 noteId）"
   },
   {
     "id": "insect-bite-id",
     "at": "2026-11-08 14:21",
     "note_id": "6af014ec00000000200082d9",
-    "note": "[11-09 镜像同步] note_id 按平台 user/posted?tab=0 全量列表补齐；配对依据 json.at == 平台 time 唯一候选；SQLite remote_id 保持空（既有平台特性，本轮不回写真值）"
+    "note": "[11-09 镜像同步] note_id 按平台 user/posted?tab=0 全量列表补齐；配对依据 json.at == 平台 time 唯一候选；SQLite remote_id 已按 #107 回写真值（同一 noteId）"
   },
   {
     "id": "autoreels-ai",
     "at": "2026-11-09 10:52",
     "note_id": "6af1355a000000002c01a910",
-    "note": "[11-09 镜像同步] note_id 按平台 user/posted?tab=0 全量列表补齐；配对依据 json.at == 平台 time 唯一候选；SQLite remote_id 保持空（既有平台特性，本轮不回写真值）"
+    "note": "[11-09 镜像同步] note_id 按平台 user/posted?tab=0 全量列表补齐；配对依据 json.at == 平台 time 唯一候选；SQLite remote_id 已按 #107 回写真值（同一 noteId）"
   }
 ]
