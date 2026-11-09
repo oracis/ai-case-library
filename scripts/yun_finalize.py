@@ -1212,6 +1212,37 @@ def first_paragraph(body, limit=300):
     return ""
 
 
+def _record_publish_state(case, draft_id, article_id, title):
+    """发布后按**匿名公开页**三态落 `platform_posts`（唯一写入口 `yun_state`）。
+
+    为什么必须在这里做：`publish_aliyun()` 只往 `data/yun_finalize.json` 的
+    `__community__<draft>` 键里写结果（该前缀跳过 `_db_sync`），SQLite 真值不会
+    动 ⇒ 发完台账还停在 draft，「今日已发几篇」全错（PRD #113）。
+
+    ⚠ 台账写失败**不改变**「文章已发出」这一事实：只告警 + 给修复入口，
+    绝不 raise（否则 publish_one 会把已上线的文章报成发布失败）。
+    """
+    if not title:
+        print("  ⚠ 台账未落库：本地稿没解析出标题，无法做匿名页标题命中比对；"
+              "文章 id=%s 请人工回读后补账" % article_id)
+        return
+    try:
+        import yun_state as YS                                # noqa: PLC0415
+        r = YS.record_aliyun_publish(case, draft_id, article_id, title)
+        print("  台账：%s → state=%s ｜ %s" % (case, r["state"], r["evidence"]))
+        if r["state"] == "published":
+            print("  台账：remote_id=%s、published_at=%s"
+                  % (r["after"].get("remote_id"), r["after"].get("published_at")))
+        else:
+            print("  ⏳ 台账记 auditing、published_at 留空、url 留空（公开页此刻 404）；"
+                  "过审后跑 python scripts/yun_state.py %s '%s' 复核再补"
+                  % (article_id, title))
+    except Exception as e:                                    # noqa: BLE001
+        print("  ⚠ 台账没落库（文章已发出，不影响上线）：%s" % str(e)[:160])
+        print("    修复：python scripts/yun_state.py %s '%s' 看裁定，"
+              "再按 PRD #113 单行补" % (article_id, title))
+
+
 def run(case=None, file=None, tc_draft=None, al_draft=None, abstract=None,
         cover_url="", community=None, headed=False):
     """入口：sync_longtail --finalize 调这里。"""
@@ -1336,6 +1367,7 @@ if __name__ == "__main__":
         #   （原代码这里调 `_connect()` 丢了 headed 参数，默认无头，
         #   导致「用户说看不到滑块」——实为无头实例在跑。）
         proc, cdp = _connect(headed=a.headed)
+        aid = None
         try:
             # 兜底正文：草稿没回填时用它重新注入
             body_md = ""
@@ -1350,11 +1382,11 @@ if __name__ == "__main__":
                 #   必填卡住（表现：点「发布文章」不跳转、20s×2 超时）。
                 #   标题必须取 split_md 的第 0 项。
                 title, body_md = split_md(open(src, encoding="utf-8").read())
-            publish_aliyun(cdp, int(a.al_draft), a.community or None,
-                           a.cover or "", captcha_wait=a.captcha_wait,
-                           body_md=body_md, title=title,
-                           abstract=(a.abstract or first_paragraph(body_md)
-                                     or ledger_get(a.case or "").get("abstract", "")))
+            aid = publish_aliyun(cdp, int(a.al_draft), a.community or None,
+                                 a.cover or "", captcha_wait=a.captcha_wait,
+                                 body_md=body_md, title=title,
+                                 abstract=(a.abstract or first_paragraph(body_md)
+                                           or ledger_get(a.case or "").get("abstract", "")))
         finally:
             try:
                 cdp.bws.close()
@@ -1363,6 +1395,10 @@ if __name__ == "__main__":
             # 放在 finally 里：publish_aliyun 失败时 raise SystemExit，
             # 「封面传没传上」这个事实仍然要落库（否则永远停在 unknown）。
             _record_cover(a.case, "aliyun")
+        # 🚨 跳转只算「已提交」：三态由 yun_state 按匿名公开页裁定后落库
+        #   （published 才写 published_at；auditing 留空、url 留空）。
+        if aid and a.case:
+            _record_publish_state(a.case, a.al_draft, aid, title)
     else:
         run(case=a.case, file=a.file, tc_draft=a.tc_draft, al_draft=a.al_draft,
             abstract=a.abstract or None, cover_url=a.cover_url,

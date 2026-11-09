@@ -112,6 +112,10 @@ PUBLISHED_STATES = ("published", "auditing", "blocked", "审核中")
 # 「远端已有草稿」态：命中就不许再建第二份
 DRAFT_STATES = ("draft", "draft_saved", "pending", "building")
 
+# 两朵云的正道是「草稿箱里已有一份，直接发出去」（其余平台都是「发=新建」）：
+# 只有这两个平台允许 `check_dupe(allow_existing_draft=True)` 复用草稿（PRD #113）。
+CLOUD_DRAFT_PLATFORMS = ("aliyun", "tencentcloud")
+
 # 真账簿不在本仓的平台（2026-11-06）：B站二号由游戏仓
 # `publish/bridge.py --platform bilibili2` 发布，记录在
 # `<GAMES_ROOT>/data/publish_state.json`。判重要多读一路（见 `_games_dup`），
@@ -287,7 +291,8 @@ def _games_dup(platform, case, path=None):
     return None, ""
 
 
-def check_dupe(platform, case, db_path=None, sync_path=None, games_path=None):
+def check_dupe(platform, case, db_path=None, sync_path=None, games_path=None,
+               allow_existing_draft=False):
     """只读判「这个 case 在这个平台发过 / 建过草稿没有」。
 
     三路证据，任一命中即拦：
@@ -300,9 +305,21 @@ def check_dupe(platform, case, db_path=None, sync_path=None, games_path=None):
        它的账簿不在本仓，前两路永远查不到（见 `_games_dup`）。
 
     返回 {ok, level, detail, hits}；ok=False 就是不许发。
+
+    `allow_existing_draft`：两朵云（阿里云/腾讯云）的**正常**流程是「草稿箱里
+    已经有一份，直接把它发出去」，而下面第 1 路见到 `draft_id` 非空就 ok=False
+    （语义是「别再建第二份」）⇒ 这条正道被自己的判重闸拦死（PRD #113 实测）。
+    只有**调用方显式给了远端草稿 id** 时才传 True：
+      · 仅当台账 `state` 属于 DRAFT_STATES（draft 等）时放行，level='draft-reuse'；
+      · `published / auditing / blocked` 仍然硬拦（那是真发过/真在审）；
+      · `longtail_sync.json` 的建稿批次降级为提示（它就是「草稿已建」的证据，
+        正是我们要复用的那一份），不再算拦截。
+    ⛔ 默认 False，历史语义一字不变（其他平台/其他调用方不受影响）。
     """
     cid = norm_id(case)
     hits = []
+    # 平台白名单在守卫内部收口：调用方误传 True 也开不了别的平台的口子。
+    allow = bool(allow_existing_draft) and platform in CLOUD_DRAFT_PLATFORMS
 
     conn = _ro_conn(db_path)
     if conn is not None:
@@ -314,6 +331,13 @@ def check_dupe(platform, case, db_path=None, sync_path=None, games_path=None):
                 if norm_id(r["case_id"]) != cid:
                     continue
                 state = (r["state"] or "").strip()
+                if allow and state in DRAFT_STATES:
+                    return {"ok": True, "level": "draft-reuse", "hits": [dict(r)],
+                            "detail": "台账 state=%s、已有远端草稿%s ⇒ 复用这一份"
+                                      "（沿用 draft id 直接发，不新建）"
+                                      % (state,
+                                         " draftId=%s" % r["draft_id"]
+                                         if r["draft_id"] else "")}
                 if state in PUBLISHED_STATES or r["remote_id"]:
                     return {"ok": False, "level": "published", "hits": [dict(r)],
                             "detail": "台账已是 %s%s ⇒ 再发就是第二篇"
@@ -343,7 +367,7 @@ def check_dupe(platform, case, db_path=None, sync_path=None, games_path=None):
                 batches.append((key, plats[platform]))
             elif isinstance(plats, list) and platform in plats:
                 batches.append((key, None))
-    if batches:
+    if batches and not allow:
         return {"ok": False, "level": "json", "hits": batches,
                 "detail": "longtail_sync.json 已有 %d 个建稿批次（%s）⇒ 先按标题查远端草稿箱，别再 --upload"
                           % (len(batches), ", ".join(str(k) for k, _ in batches[:2]))}

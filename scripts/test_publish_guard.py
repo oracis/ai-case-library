@@ -270,6 +270,41 @@ class Dedupe(unittest.TestCase):
         self.assertFalse(r["ok"])
         self.assertEqual(r["level"], "draft")
 
+    def test_draft_reuse_allowed_for_cloud_with_explicit_id(self):
+        """两朵云「发已有草稿」的正道：显式给了 draft id ⇒ 复用，不再拦。"""
+        for plat in ("aliyun", "tencentcloud"):
+            self._add("reusecase", plat, "draft", draft_id="1711205")
+            r = G.check_dupe(plat, "reusecase", allow_existing_draft=True)
+            self.assertTrue(r["ok"], "%s 应放行草稿复用" % plat)
+            self.assertEqual(r["level"], "draft-reuse")
+
+    def test_draft_reuse_does_not_open_other_platforms(self):
+        """默认 False：别的平台看到草稿记录仍按「别建第二份」拦。"""
+        self._add("reusecase", "csdn", "draft", draft_id="1")
+        self.assertFalse(G.check_dupe("csdn", "reusecase")["ok"])
+        self.assertFalse(
+            G.check_dupe("csdn", "reusecase", allow_existing_draft=True)["ok"])
+
+    def test_published_still_blocked_when_reuse(self):
+        """复用只对 draft 态开口；published / auditing 仍硬拦。"""
+        for state in ("published", "auditing"):
+            self._add("reusecase", "aliyun", state, remote_id="1789999")
+            r = G.check_dupe("aliyun", "reusecase", allow_existing_draft=True)
+            self.assertFalse(r["ok"], "%s 不该被复用放行" % state)
+            self.assertEqual(r["level"], "published")
+
+    def test_json_batch_not_blocking_when_reuse(self):
+        """longtail_sync 的建稿批次就是「草稿已存在」的证据 ⇒ 复用时降级为提示。"""
+        self._sync({"reusecase-2026-11-01-1": {
+            "case": "reusecase",
+            "platforms": {"aliyun": {"ok": True, "draftId": "1711205"}}}})
+        r0 = G.check_dupe("aliyun", "reusecase", sync_path=self.sync_path)
+        self.assertFalse(r0["ok"])
+        self.assertEqual(r0["level"], "json")
+        r = G.check_dupe("aliyun", "reusecase", sync_path=self.sync_path,
+                         allow_existing_draft=True)
+        self.assertTrue(r["ok"])
+
     def test_other_platform_not_blocked(self):
         self._add("chessigma", "csdn", "published", remote_id="169850647")
         self.assertTrue(G.check_dupe("zhihu", "chessigma")["ok"],
