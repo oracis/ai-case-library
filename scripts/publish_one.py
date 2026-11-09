@@ -451,7 +451,8 @@ def run_gates(platform, case, pack, force=False, allow_existing_draft=False,
 
 # ---------------------------------------------------------------- 命令
 
-def build_cmd(platform, case, pack, yes, draft_override=None):
+def build_cmd(platform, case, pack, yes, draft_override=None,
+             captcha_wait=0):
     """真正的发布命令。每个平台的参数口径都来自该脚本自己的 argparse。"""
     if not pack:
         # 2026-11-07：显式 `--case` 指向一个还没写稿的 AI case 时，pack=None
@@ -504,6 +505,10 @@ def build_cmd(platform, case, pack, yes, draft_override=None):
         #   起了无头实例，用户报告「看不到滑块」。
         if platform == "aliyun":
             cmd.append("--headed")
+            # 滑块人工等待秒数（0 = 用 yun_finalize 自带默认 300s）。真发前
+            # 人在电脑前也可能走开两分钟，publish_one 不透传就只能去改默认值。
+            if captcha_wait:
+                cmd += ["--captcha-wait", str(int(captcha_wait))]
         c = cover_of(case)
         if c:
             cmd += ["--cover", c]
@@ -708,7 +713,7 @@ def gen_pack(platform, case):
 
 def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
         as_json=False, gen=False, new=False, force=False,
-        allow_same_kind=False, draft_override=None):
+        allow_same_kind=False, draft_override=None, captcha_wait=0):
     cn = dict(SLOT.PLATFORMS)[platform]
     # 草稿箱即 FIFO 队列（用户定，2026-11-03）：先发**存入最久**的那条，
     # 箱空了才按当日档期新写。旧 SPEC 接成 `publish`（无脑新写）是错的——
@@ -867,14 +872,15 @@ def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
         print("\n✗ 被闸拦下，未执行任何写操作。修完再来。")
         return 1
     if not yes:
-        cmd = build_cmd(platform, case, pack, False, draft_override)
+        cmd = build_cmd(platform, case, pack, False, draft_override,
+                        captcha_wait)
         print("\n（干跑）将会执行：\n  %s" % " ".join(_q(c) for c in cmd))
         print("\n加 --yes 才真发。")
         return 0
 
     if force:
         print("\n⚠ --force 只绕过 dedupe 闸；title / template / cover / remote 照常硬拦。")
-    cmd = build_cmd(platform, case, pack, True, draft_override)
+    cmd = build_cmd(platform, case, pack, True, draft_override, captcha_wait)
     print("\n执行：%s\n" % " ".join(_q(c) for c in cmd))
     t0 = time.time()
     rc = subprocess.call(cmd, cwd=ROOT)
@@ -952,6 +958,8 @@ def main(argv=None):
                          "台账 draft_id 与平台不一致时用它，仍走全套闸")
     ap.add_argument("--tc-draft", metavar="ID",
                     help="腾讯云：显式指定要发布的草稿 draftId（同上）")
+    ap.add_argument("--captcha-wait", type=int, default=0, metavar="SEC",
+                    help="阿里云滑块人工等待秒数（缺省 0 = 用 yun_finalize 的 300s）")
     a = ap.parse_args(argv)
 
     # 两朵云「发已有草稿」：显式 id 才放行 dedupe 的草稿分支（PRD #113）。
@@ -990,7 +998,8 @@ def main(argv=None):
     for k in a.platform:
         rc |= run(k, a.case, a.yes, a.timeout, a.day, a.upload, a.json, a.gen,
                   a.new, a.force, a.allow_same_kind,
-                  a.al_draft if k == "aliyun" else a.tc_draft)
+                  a.al_draft if k == "aliyun" else a.tc_draft,
+                  a.captcha_wait)
     return rc
 
 
