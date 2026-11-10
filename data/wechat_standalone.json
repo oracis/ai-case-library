@@ -214,5 +214,33 @@
     "publish_type": "publish",
     "sent_via": "send",
     "send_reason": "已发表列表出现新记录，标题一致"
+  },
+  "wx-100000514": {
+    "title": "把 AI 建站工具生成的网站，转成 WordPress——一个工程师的生意",
+    "desc": "把 Lovable、Cursor、v0 生成的网站转成可上线的 WordPress，帮客户拿回主机、域名和代码。这是这批案例里唯一一个人就能接住的生意，需求有明确触发时刻，交付是纯工程；天花板却取决于 AI 建站工具会不会自己把导出做好。",
+    "tag": "",
+    "published_at": null,
+    "status": "deleted",
+    "appmsgid": "100000514",
+    "file": "",
+    "note": "wechat_fifo 对账补登（远端草稿箱实存） ‖ 11-10 摘要改中文（平台侧已提交+双回读，119字）｜[11-10 对账] 平台 appmsgpublish 回读 is_deleted=true（appmsgid=2247485037）；删除时刻平台未披露，deleted_at 为对账时点；原 published_at=2026-11-10 12:29 已迁出",
+    "published_appmsgid": "2247485037",
+    "publish_type": "publish",
+    "sent_via": "send",
+    "send_reason": "已发表列表出现新记录，标题一致",
+    "deleted_at": "2026-11-10 17:25"
+  },
+  "wx-wpconvert-clean": {
+    "title": "把 AI 建站工具生成的网站转成 WordPress，是一个工程师就能接住的生意",
+    "desc": "把 Lovable、Cursor、v0 生成的网站转成可上线的 WordPress，帮客户拿回主机、域名和代码。这是这批案例里唯一一个人就能接住的生意，需求有明确触发时刻，交付是纯工程；天花板却取决于 AI 建站工具会不会自己把导出做好。",
+    "tag": "万物解释者",
+    "published_at": "2026-11-10 15:32",
+    "status": "published",
+    "appmsgid": "100001402",
+    "file": "wechat_wpconvert_clean.html",
+    "published_appmsgid": "2247485051",
+    "publish_type": "publish",
+    "sent_via": "send",
+    "send_reason": "已发表列表出现新记录，标题一致"
   }
 }

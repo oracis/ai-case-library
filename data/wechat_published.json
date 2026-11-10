@@ -4,7 +4,8 @@
     "published_at": "2026-11-02 20:33",
     "status": "published",
     "appmsgid": "",
-    "file": ""
+    "file": "",
+    "note": "｜[11-10 对账] 平台回读 is_deleted=false（appmsgid=2247484987 仍在发表记录）；status 由 draft 纠正为 published，误加的 deleted_at 已移除"
   },
   "cod-dex": {
     "title": "Codédex：把学编程包装成「冒险旅程」的互动课程平台，免费 250+ 小时内容引流，Club 订阅 /月变现",
@@ -553,5 +554,22 @@
     "appmsgid": "100000204",
     "note": "｜publish模式自动发表，新 appmsgid=2247485036",
     "verified_at": "2026-11-09 11:29"
+  },
+  "wx-100000514": {
+    "title": "把 AI 建站工具生成的网站，转成 WordPress——一个工程师的生意",
+    "status": "deleted",
+    "published_at": null,
+    "appmsgid": "100000514",
+    "note": "｜publish模式自动发表，新 appmsgid=2247485037｜[11-10 对账] 平台 appmsgpublish 回读 is_deleted=true（appmsgid=2247485037）；删除时刻平台未披露，deleted_at 为对账时点；原 published_at=2026-11-10 12:29 已迁出",
+    "verified_at": "2026-11-10 12:29",
+    "deleted_at": "2026-11-10 17:25"
+  },
+  "wx-wpconvert-clean": {
+    "title": "把 AI 建站工具生成的网站转成 WordPress，是一个工程师就能接住的生意",
+    "status": "published",
+    "published_at": "2026-11-10 15:32",
+    "appmsgid": "100001402",
+    "note": "｜publish模式自动发表，新 appmsgid=2247485051",
+    "verified_at": "2026-11-10 15:32"
   }
 }

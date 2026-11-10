@@ -133,8 +133,9 @@
  },
  "gojiberryai": {
   "aliyun": {
-   "at": "2026-11-07 19:11:38",
-   "evidence": "文章首图 firstImg=https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_96f94d2b63b5487d952a4ee2039cf1dd.png",
+   "at": "2026-11-10 12:47:26",
+   "evidence": "文章首图 firstImg=https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_d6342f6911c1408db7d78b2001f0c16f.png",
+   "remote_id": "1781420",
    "source": "yun_finalize",
    "state": "ok"
   },
