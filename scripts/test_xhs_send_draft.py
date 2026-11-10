@@ -151,6 +151,27 @@ DRAFTS = [
 
 
 class TestPickDraft(unittest.TestCase):
+    """挑选口径（FIFO / 关键词 / 标题匹配）。
+
+    🚨 2026-11-10：这一组只验**挑哪一条**，必须与真实的已发表台账隔离。
+    事故：`pick_draft` 在 11-07 加了「按案例剔已发」（见 TestFifoDedupeByCase），
+    而这里的固定池里 AutoReels(autoReels-ai) 后来真的在小红书发过了 ⇒
+    `test_默认取最久` 变成「取决于库里谁被发过」的假红，跟排序逻辑无关。
+    剔重行为本身有专门用例覆盖，这里把账读口和认亲都打到空，才量得准。
+    """
+
+    def setUp(self):
+        self._p1 = mock.patch.object(x, "_published_case_ids_union",
+                                     return_value=set())
+        self._p2 = mock.patch.object(x, "match_drafts",
+                                     return_value=([], []))
+        self._p1.start()
+        self._p2.start()
+
+    def tearDown(self):
+        self._p2.stop()
+        self._p1.stop()
+
     def test_默认取最久(self):
         d, why = x.pick_draft(DRAFTS)
         self.assertEqual(d["title"], "AutoReels：素材一键剪成短视频")

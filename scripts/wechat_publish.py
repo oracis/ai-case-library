@@ -3988,6 +3988,80 @@ def _open_draft_editor(cdp, appmsgid, tok, timeout=30, strict=False):
     return tid
 
 
+_BODY_SCAN_JS = r"""(function(){
+  var eds=document.querySelectorAll('[contenteditable="true"],[contenteditable=""]');
+  var out=[];
+  for(var i=0;i<eds.length;i++){
+    var e=eds[i], t=e.innerText||'';
+    out.push({len:t.length, html_len:(e.innerHTML||'').length,
+              cls:(e.className||'').toString().slice(0,60), text:t});
+  }
+  return JSON.stringify(out);
+})()"""
+
+
+def pick_body_from_blocks(blocks, expect_title=""):
+    """从编辑页 `[contenteditable]` 列表里挑**正文**纯文本。
+
+    2026-11-10 实测（appmsgid=100000530）编辑页有 3 个 contenteditable：
+      · 第 1 个 `.ProseMirror`                  innerText 49 字  ← **标题**
+      · 第 2 个 `.original_primary_tips_input`  空               ← 转载推荐语
+      · 第 3 个 `.ProseMirror ProseMirror-focused` 993 字        ← **正文**
+    ⛔ 不能按下标取（版本一变顺序就换）；也不能用固定 class 取 —— 标题和正文
+    的 class 都以 `ProseMirror` 开头。按 `innerText` **长度取最大**最稳。
+    ⛔ 但「最大」在**空稿**上会命中标题框 ⇒ 必须与 `expect_title` 比对：
+    归一后相同就说明正文还没渲染/本来就是空的，返回 ""。
+    """
+    best = ""
+    for b in blocks or []:
+        t = (b or {}).get("text") or ""
+        if len(t) > len(best):
+            best = t
+    if not best:
+        return ""
+    norm = lambda s: re.sub(r"\s+", "", s or "")          # noqa: E731
+    if expect_title and norm(best) == norm(expect_title):
+        return ""
+    return best
+
+
+def read_draft_body(cdp, tok, appmsgid, expect_title="", timeout=45, settle=15):
+    """读**平台草稿的真实正文**（纯文本）。失败抛异常，由调用方降级。
+
+    为什么要它（2026-11-10）
+    ------------------------
+    `wechat_fifo.py` 过 `fifo_content_gate` 时**没传 text**，闸只能反查本地产物：
+    本地干净、平台草稿脏 ⇒ 闸放过，脏稿照发。11-10 一号 B站就踩过这个坑
+    （`promptmonitor-io` 旧稿带着「我去核了一遍」内部注记发出去了），公众号
+    这边一样会踩。B站的解法是 `draft/view` 拿 `content` 传给闸；公众号没有
+    等价的读正文接口（`list_ex` 只给 digest），只能开编辑页读 DOM。
+
+    读法依据实测（见 `pick_body_from_blocks`），不是猜选择器。
+    `settle` 是给富文本编辑器的渲染宽限：`_editor_ready` 只判了 `#title`，
+    正文 ProseMirror 往往晚几秒才挂上，读早了会拿到空串。
+    """
+    tid = _open_draft_editor(cdp, appmsgid, tok, timeout=timeout, strict=True)
+    try:
+        last = ""
+        for _ in range(settle):
+            time.sleep(1)
+            try:
+                raw = cdp.eval(_BODY_SCAN_JS, refresh_context=True)
+                blocks = json.loads(raw) if isinstance(raw, str) else []
+            except Exception:                              # noqa: BLE001
+                continue
+            got = pick_body_from_blocks(blocks, expect_title)
+            if got:
+                return got
+            last = got
+        return last
+    finally:
+        try:
+            cdp.close_target(tid)
+        except Exception:                                  # noqa: BLE001
+            pass
+
+
 def cmd_fix_cover(args):
     """给已有草稿补封面；`--force` 时**重设**（封面已有也换掉）。
 

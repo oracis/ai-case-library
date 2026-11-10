@@ -116,7 +116,14 @@ def _subs(c):
 
 
 def _title_tpl(platform, c, hook):
-    """每个平台的**标题句式**不同，不再是同一串模板换名字。"""
+    """每个平台的**标题句式**不同，不再是同一串模板换名字。
+
+    ⛔ 产品名后缀不许再用「—— 名字」（2026-11-10 用户裁定标题禁破折号）。
+    旧模板三个技术平台都是 `主标题 —— 产品名`，是 `publish_guard.TITLE_DASH`
+    的直接来源：生成即被闸拦，`test_platform_tone` 里
+    `test_generated_titles_pass_guard_and_tone` 因此红。现在统一改成
+    句末括号署名 `（产品名）`——读得通、不带破折号、产品名也不丢。
+    """
     name = c.get("name") or c.get("id")
     n = _subs(c)
     if platform == "zhihu":
@@ -126,11 +133,11 @@ def _title_tpl(platform, c, hook):
     if platform == "cnblogs":
         return "读 %s：%s 的形态与边界" % (name, hook)
     if platform == "csdn":
-        return "%s：工程上要过哪几道关 —— %s" % (hook, name)
+        return "%s：工程上要过哪几道关（%s）" % (hook, name)
     if platform == "tencentcloud":
-        return "%s 的架构取舍：状态、幂等与成本 —— %s" % (hook, name)
+        return "%s 的架构取舍：状态、幂等与成本（%s）" % (hook, name)
     if platform == "aliyun":
-        return "%s：负载形状怎么反过来约束架构 —— %s" % (hook, name)
+        return "%s：负载形状怎么反过来约束架构（%s）" % (hook, name)
     return "%s：%s" % (name, hook)
 
 

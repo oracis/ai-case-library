@@ -169,7 +169,15 @@ def fmt_ts(ts):
 
 
 def read_remote(port):
-    """只读拉远端草稿箱 + 已发表列表。两侧都必须读成功，否则拒绝对账。"""
+    """只读拉远端草稿箱 + 已发表列表。两侧都必须读成功，否则拒绝对账。
+
+    返回 `(drafts, pubs, cdp, tok)` —— 比原来多两个：11-10 起过形态闸时要用
+    `wp.read_draft_body(cdp, tok, aid)` 读**平台草稿实际正文**（本地干净、
+    平台脏时只有它能拦住，见 `fifo_content_gate` 的 text 参数）。
+
+    ⚠ 调用方不要自己再 `CDP(port)`：本机 Chrome 是命令内拉起的，命令结束就
+    被回收，重复连接会拿到空 target 列表。
+    """
     for k in ("http_proxy", "https_proxy", "HTTP_PROXY", "HTTPS_PROXY",
               "all_proxy", "ALL_PROXY", "ftp_proxy", "FTP_PROXY"):
         os.environ.pop(k, None)
@@ -185,7 +193,7 @@ def read_remote(port):
     pubs, pok = ws.fetch_published_remote(cdp, tok)
     if not (dok and pok):
         raise SystemExit("✗ 草稿箱/已发表列表没读全 ⇒ 拒绝按 FIFO 选稿（宁可不发，不盲发）")
-    return drafts, pubs
+    return drafts, pubs, cdp, tok
 
 
 def main(argv=None):
@@ -202,7 +210,7 @@ def main(argv=None):
     if a.go:
         os.environ["CHROME_HEADED"] = "1"
 
-    drafts, pubs = read_remote(a.port)
+    drafts, pubs, cdp, tok = read_remote(a.port)
     # 远端标题剔重之外，再按 (case_id, wechat) 剔一次：本地两本台账里的
     # case_id 是稳定键，标题改过 / 远端列表翻不全时只有它认得出来。
     pub_cases = FD.published_case_ids("wechat")
@@ -222,10 +230,43 @@ def main(argv=None):
     print("→ 最久未发：appmsgid=%s ｜ %s ｜《%s》"
           % (aid, fmt_ts(item.get("update_time")), item.get("title") or ""))
     if not a.go:
+        # 干跑也把闸结果打出来，但**只按本地产物**（不读平台正文，省掉一次
+        # 开编辑页的 20 秒）。所以这里必须说清它不代表平台草稿。
+        import fifo_content_gate as FCG
+        print("（干跑）本地产物预检（不代表平台草稿；真发时会读平台正文再验）：")
+        FCG.report(FCG.guard("wechat", local_cid_of(aid)[0],
+                             item.get("title") or ""),
+                   "wechat", item.get("title") or "")
         print("（干跑）真发命令：python -X utf8 scripts/wechat_fifo.py --go"
               "%s" % (" --notify" if a.notify else ""))
         print("⚠ 终点需管理员微信扫码；默认发布模式不推送、不占每日群发额度。")
         return 0
+
+    # 🚨 PRD #124：调 `send` 之前过内容形态闸（判据复用 publish_guard）。
+    #    ⛔ 必须放在 ensure_local_record **之前**：拦下时不许留下「补登」写盘。
+    #    case 用 appmsgid → 本地两本台账这个稳定键反查；认不出的孤儿保留，
+    #    guard 会 checked=False 明确 warn，不假装验过（同 #90 的孤儿口径）。
+    #    🚨 11-10 起闸验的是**平台草稿实际正文**（开编辑页读 DOM），不是本地
+    #    产物：本地干净、平台脏正是 B站 `promptmonitor-io` 那次出事的原因。
+    #    读失败就退回本地产物并**明说降级**，不许假装验过平台正文。
+    import fifo_content_gate as FCG
+    _hint = local_cid_of(aid)[0]
+    _title = item.get("title") or ""
+    _body = ""
+    try:
+        _body = wp.read_draft_body(cdp, tok, aid, expect_title=_title)
+    except Exception as e:                               # noqa: BLE001
+        print("  ⚠ [FIFO 形态闸] 读平台草稿正文失败（%s），退回本地产物"
+              % str(e)[:80])
+    if not _body:
+        print("  ⚠ [FIFO 形态闸] 平台草稿正文为空/未读到（appmsgid=%s），"
+              "退回本地产物" % aid)
+    _verdict = FCG.guard("wechat", _hint, _title,
+                         text=_body or None, text_src="platform:appmsg_edit")
+    FCG.report(_verdict, "wechat", _title)
+    if not _verdict["ok"]:
+        print("✗ " + FCG.block_reason(_verdict, "wechat", _title))
+        return 3
 
     cid, created = ensure_local_record(aid, item)
     print("本地台账：%s ← appmsgid=%s%s"

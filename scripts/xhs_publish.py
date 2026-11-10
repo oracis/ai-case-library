@@ -2429,6 +2429,20 @@ def _send_draft_on(sub, args):
                   "请先去浏览器手动处理。")
             raise SystemExit(2)
 
+    # 🚨 PRD #124：FIFO 发布前过内容形态闸（判据复用 publish_guard，不另立）。
+    #    `_send_draft_on` 是小红书唯一的发布动作，publish_one 的 FIFO 分支
+    #    直接 subprocess 调它 ⇒ run_gates() 十一闸一条都不跑。11-10 B站一号
+    #    就是把带「我去核了一遍」内部核验注记的旧稿发了出去。
+    #    ⛔ 命中即停：不点发布、不记账、不自动跳到草稿箱下一条。
+    import fifo_content_gate as FCG
+    try:
+        _matched, _orphans = match_drafts([d])
+        _cid = (_matched[0].get("id") or "") if _matched else ""
+    except Exception:                                    # noqa: BLE001
+        _cid = ""
+    _verdict = FCG.guard("xhs", _cid, d.get("title") or "")
+    FCG.report(_verdict, "xhs", d.get("title") or "")
+
     if getattr(args, "dry", False):
         print("DRY：编辑器已就位、图片正常，未点发布。")
         st = publish_btn_state(sub)
@@ -2452,6 +2466,9 @@ def _send_draft_on(sub, args):
                          if coord else "—"))
         return
 
+    if not _verdict["ok"]:                     # PRD #124：干跑只报告，真发硬拦
+        raise SystemExit("[err] " + FCG.block_reason(
+            _verdict, "xhs", d.get("title") or ""))
     strategy, clicked = _click_publish(sub)
     print("点发布（策略=%s）" % strategy)
     if not clicked and (strategy.startswith("btn-disabled")

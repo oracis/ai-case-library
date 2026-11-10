@@ -112,6 +112,30 @@ class TestUnion(_Env):
             "xhs", db_path=missing, data_dir=self.data), set())
         self.assertFalse(os.path.exists(missing))
 
+    def test_deleted也算已占用不许被自动重发(self):
+        """2026-11-10：公众号 `wx-100000514`（appmsgid=2247485037）平台侧
+        `is_deleted=true`（用户截图 + 接口回读双证）。
+
+        删一篇是**人工决定**（删的是带破折号的重复稿，另建了一篇替代）。
+        FIFO 不该把它当「这个 case 没发过」再自动发一次 —— 那等于替人
+        撤销删除决定。所以 `deleted` 进 `OCCUPIED_STATES`。
+        ⚠ 与「草稿带 remote_id 不许判已发」不冲突：那条讲的是**草稿**，
+          这里讲的是 `state='deleted'` 本身。
+        """
+        self.add_post("wx-100000514", "wechat", "deleted", "100000514")
+        self.put("wechat_published.json",
+                 {"wx-100000514": {"status": "deleted"},
+                  "still-draft": {"status": "draft"}})
+        got = self.ids("wechat")
+        self.assertIn("wx-100000514", got)
+        self.assertNotIn("still-draft", got)
+
+    def test_deleted不许污染published集合的语义(self):
+        """`deleted` 只在「已占用」里；`PUBLISHED_STATES` 保持纯「已发表」。"""
+        self.assertNotIn("deleted", FD.PUBLISHED_STATES)
+        self.assertIn("deleted", FD.OCCUPIED_STATES)
+        self.assertTrue(FD.PUBLISHED_STATES <= FD.OCCUPIED_STATES)
+
 
 class TestFilterRows(_Env):
     ROWS = [

@@ -58,6 +58,18 @@ class TitleScan(unittest.TestCase):
         self.assertEqual([f for f in G.scan_title("cnblogs", t)
                           if f["level"] == "block"], [])
 
+    def test_title_dash_blocked(self):
+        t = "把 AI 建站工具生成的网站，转成 WordPress——一个工程师的生意"
+        fs = G.scan_title("wechat", t)
+        self.assertIn("标题含破折号", {f["rule"] for f in fs})
+        self.assertTrue(any(f["level"] == "block" for f in fs))
+        # 单个 ASCII 连字符是正当写法，不许误伤
+        self.assertNotIn("标题含破折号",
+                         self.rules("cnblogs", "AI-native 建站工具的导出链路"))
+        # 已发表产物降 warn，别把全仓体检锁死
+        self.assertFalse(any(f["level"] == "block"
+                             for f in G.scan_title("wechat", t, published=True)))
+
     def test_over_limit_blocked(self):
         t = "用麦当劳官方接口查了一下，我的积分正在悄悄过期" * 2
         self.assertIn("标题超平台上限", self.rules("toutiao", t))
@@ -159,6 +171,46 @@ class ContentScan(unittest.TestCase):
         text = "# 标题\n\n## 问题边界\n\n具体的工程取舍……\n\n## 适用前提\n\n……\n"
         self.assertEqual([f for f in G.scan_content("tencentcloud", text)
                           if f["level"] == "block"], [])
+
+    # ---- 内部核验注记（PRD #124）------------------------------------
+    # 11-10 B站一号 FIFO 发出 10-20 积压旧稿，正文开头带这段内部核查说明。
+    VERIFY_MD = ("# 标题\n\n> 我去核了一遍：所给原文中不存在任何 TrustMRR "
+                 "成交记录，该数字目前无任何来源。\n\n## 它是干什么的\n\n正文。\n")
+    VERIFY_HTML = ('<h1>标题</h1>\n<blockquote style="color:#57606a;">'
+                   '我去核了一遍：所给原文中不存在任何成交记录</blockquote>'
+                   '\n<p>正文</p>')
+
+    def test_verify_note_blocked_in_md_quote(self):
+        self.assertIn("内部核验注记",
+                      self.rules("bilibili", self.VERIFY_MD, "block"))
+
+    def test_verify_note_blocked_in_html_blockquote(self):
+        self.assertIn("内部核验注记",
+                      self.rules("wechat", self.VERIFY_HTML, "block"))
+
+    def test_verify_note_blocked_as_plain_text(self):
+        """平台 draft/view 把引用块转成纯文本后 `> ` 前缀会消失，判据不能只认引用块。"""
+        text = "标题\n我去核了一遍：所给原文中不存在该数字\n正文"
+        self.assertIn("内部核验注记", self.rules("bilibili", text, "block"))
+
+    def test_verify_note_blocks_on_all_platforms(self):
+        """FIFO 四入口都不在 TECH_PLATFORMS，降级成 warn 就拦不住旧稿。"""
+        for p, _ in S.PLATFORMS:
+            self.assertIn("内部核验注记",
+                          self.rules(p, self.VERIFY_MD, "block"), p)
+
+    def test_html_comment_verify_note_is_not_blocked(self):
+        """生成器的固定尾巴在 `<!-- -->` 里、不渲染；256/293 篇产物都带它。"""
+        text = ("# 标题\n\n正文。\n\n<!--\n核对用来源（发布前逐个点开确认，别进正文）：\n"
+                "  · 官网 <https://example.com>\n-->\n")
+        self.assertNotIn("内部核验注记",
+                         self.rules("wechat", text), "注释被当成正文，会误伤整批新稿")
+
+    def test_verify_note_other_phrases(self):
+        for phrase in ("所给原文中不存在", "无任何来源", "查无实据", "核对用来源"):
+            self.assertIn("内部核验注记",
+                          self.rules("xhs", "# 标题\n\n" + phrase + "。\n"),
+                          phrase)
 
     def test_strip_marks_is_deterministic(self):
         out = G.strip_pipeline_marks(self.WATER + self.CANNED.split("\n")[2])

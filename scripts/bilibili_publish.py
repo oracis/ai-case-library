@@ -2029,6 +2029,10 @@ def send_draft(cdp=None, dry=False, cid=None):
         print("  → %s：aid=%s《%s》mtime=%s（候选 %d 条）"
               % (why, aid, title, oldest.get("mtime"), len(pool)))
         if dry:
+            # PRD #124：干跑也把形态闸结果打印出来（只按本地产物，不碰 CDP）。
+            # 干跑本来就 return，这里只读报告、不拦，避免改变既有 dry 语义。
+            import fifo_content_gate as FCG
+            FCG.report(FCG.guard(plat, cid, title), plat, title)
             print("  [dry] 开到编辑器看发布按钮能不能点（不补封面、不点发布）")
             ok, why = ui_publish_draft(cdp=cdp, aid=aid, cid=None, title=title,
                                        dry=True)
@@ -2041,6 +2045,24 @@ def send_draft(cdp=None, dry=False, cid=None):
         if not target:
             print("  ✗ 反查不到《%s》对应的 case（清单/案例名都匹配不上），"
                   "请用 --case 指定" % title)
+            return (False, None, aid, title)
+        # 🚨 PRD #124：FIFO 发布前过内容形态闸，验的是 **draft/view 读回的平台
+        #    实际正文**（纯文本 content），不是本地产物 —— 本地干净、平台脏
+        #    正是 #119 两朵云踩过的坑。11-10 一号把 10-20 积压的
+        #    promptmonitor-io 旧稿发出去，正文开头带「我去核了一遍」内部核验
+        #    注记，就是因为 publish_one 的 FIFO 分支整条绕过 run_gates()。
+        #    ⛔ 闸只读：命中就停，不补封面、不改正文、不记账、不跳到下一条。
+        import fifo_content_gate as FCG
+        try:
+            remote_body = (bili_api.view_draft(cdp, aid) or {}).get("content") or ""
+        except Exception as e:                           # noqa: BLE001
+            remote_body = ""
+            print("  ⚠ [FIFO 形态闸] draft/view 读正文失败（%s），退回本地产物"
+                  % str(e)[:80])
+        verdict = FCG.guard(plat, target, title, text=remote_body or None)
+        FCG.report(verdict, plat, title)
+        if not verdict["ok"]:
+            print("  ✗ %s" % FCG.block_reason(verdict, plat, title))
             return (False, None, aid, title)
         # 真发布：编辑器 UI 点「发布」→ 回读已发表列表
         ok, why = ui_publish_draft(cdp=cdp, aid=aid, cid=target, title=title)

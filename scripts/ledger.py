@@ -75,6 +75,12 @@ _DB_PLATFORM = {"xiaohongshu": "xhs"}
 DRAFT = "draft"
 PUBLISHED = "published"
 UNVERIFIED = "unverified"
+DELETED = "deleted"
+
+# 公众号 dict 布局里 `status` 允许的取值。`deleted` 必须在内：平台侧删除是
+# 终态（`db._STATE_RANK` 里 rank=5，不许被 draft/published 冲掉），
+# 台账若把它降成 draft，去重与档期都会误判成「没发过」（2026-11-10 实测）。
+_WECHAT_STATES = (DRAFT, PUBLISHED, UNVERIFIED, DELETED, "auditing", "blocked")
 
 # 平台 → 文件规格。layout=dict 的（公众号）状态与 ID 都在 value 里。
 _SPEC = {
@@ -175,7 +181,14 @@ def _rec_from_wechat(cid, v):
     st = v.get("status") or DRAFT
     rec = dict(v)
     rec["id"] = cid
-    rec["state"] = PUBLISHED if st == PUBLISHED else DRAFT
+    # 🚨 2026-11-10：原来写死 `PUBLISHED if st == PUBLISHED else DRAFT`，
+    #   **`deleted` 被静默降成 `draft`** ⇒ `load()` 一进来状态就丢了，
+    #   紧接着 `save()` 把 `status` 写回 `draft`。实测代价：公众号
+    #   `wx-100000514`（appmsgid=2247485037，平台 `is_deleted=true`）在
+    #   `L.save("wechat")` 之后从 `deleted` 掉回 `draft`，而档期/去重都是按
+    #   状态判的 ⇒ 一篇**已删除的文章可能被当成「没发过的草稿」再发一次**。
+    #   现在改成白名单透传：认识的照原样留，不认识才按草稿兜底（宁可保留）。
+    rec["state"] = st if st in _WECHAT_STATES else DRAFT
     rec["at"] = v.get("published_at") or v.get("at") or ""
     rid = ""
     for k in REMOTE_ID_FIELD["wechat"]:
@@ -269,7 +282,11 @@ def _serialize(platform, recs):
             r = recs[cid]
             v = dict(old.get(cid) or {})
             v["title"] = r.get("title") or v.get("title") or ""
-            v["status"] = r["state"] if r["state"] in (DRAFT, PUBLISHED) else PUBLISHED
+            # ⚠ `deleted` 必须显式列出（2026-11-10）：原来只放行 draft/published，
+            #   其余一律写 `published`；配合同函数上一版把 deleted 读成 draft，
+            #   等于「已删稿」在 JSON 里**存不住也不可信**。
+            v["status"] = (r["state"] if r["state"] in (DRAFT, PUBLISHED, DELETED)
+                           else PUBLISHED)
             if r.get("at"):
                 v["published_at"] = r["at"]
             rid = r.get("remote_id") or ""
@@ -381,16 +398,29 @@ def _db_sync(platform, rec):
     if not _db_enabled():
         return
     plat = _DB_PLATFORM.get(platform, platform)
+    state = rec.get("state") or DRAFT
+    # 🚨 2026-11-10：草稿行不许写 `published_at`。
+    #   这里原来无条件 `rec.get("at")`，而 JSON 统一视图的 `at` 对草稿就是
+    #   「建稿/同步时间」（`set_draft_id` 的 at 参数、`mark(DRAFT)` 的 now）
+    #   ⇒ 每调一次 `save()`，整本记录逐条 upsert，把 11-09 已经置 NULL 的
+    #   `published_at` 又刷回旧值（实测残留 82 行：bilibili 46 + wechat 36，
+    #   note 里还留着「[11-09 错账清理] 原 published_at 已迁出」，是被二次写脏）。
+    #   与 `db.upsert_post` 2026-11-07 的修法同一口径：显式 state=draft 时置空。
+    # 🚨 2026-11-10 补 `deleted`：平台侧已删的行，`published_at` 也必须为空
+    #   （库里既有 deleted 行 `magicslides-app/toutiao` 就是 NULL + note 记原值）。
+    #   不加这条的话，只要有人在 JSON 里给 deleted 行留着发表时间，下一次
+    #   `save()` 就会把 db 里已经置空的 pt 覆盖回去 —— 与上面 82 行同一个出口。
+    pub_at = None if state in ("draft", "deleted") else (rec.get("at") or "")
     conn = _db.get_conn()
     try:
         _db.upsert_post(conn, rec["id"], plat, {
-            "state": rec.get("state") or DRAFT,
+            "state": state,
             "remote_id": rec.get("remote_id") or "",
             "url": "",
             "title": rec.get("title") or "",
             "draft_id": rec.get("draft_remote_id") or "",
             "attempt": 0,
-            "published_at": rec.get("at") or "",
+            "published_at": pub_at,
             "updated_at": rec.get("at") or "",
             "note": rec.get("note") or "",
         })
