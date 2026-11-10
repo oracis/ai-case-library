@@ -22,6 +22,7 @@ import base64
 import json
 import os
 import re
+import sqlite3
 import subprocess
 import sys
 import time
@@ -49,11 +50,13 @@ def _set_cover(state, evidence=""):
     LAST_COVER["evidence"] = str(evidence or "")[:300]
 
 
-def _record_cover(case, platform):
+def _record_cover(case, platform, remote_id=None):
     """把 `LAST_COVER` 落进 `data/cover_readback.json`。
 
     `state` 为空 = 这条链路这次没判过封面（比如没走到封面那一步），
     **不记录**比记一条假的更安全 —— 空着会被闸判成 `unknown`。
+    `remote_id` 就是这次发布的文章 id：回读证据必须钉在这篇文章上，
+    否则同一 case 重发后旧文章的 `ok` 会让闸继续放行（2026-11-09 #119）。
     """
     st = LAST_COVER.get("state") or ""
     if not (case and st):
@@ -61,8 +64,9 @@ def _record_cover(case, platform):
     try:
         import cover_verify as CV
         CV.record(case, platform, st, LAST_COVER.get("evidence", ""),
-                  source="yun_finalize")
-        print("  封面台账：%s / %s ← %s" % (case, platform, st))
+                  source="yun_finalize", remote_id=remote_id)
+        print("  封面台账：%s / %s ← %s（article %s）"
+              % (case, platform, st, remote_id or "?"))
     except Exception as e:                             # noqa: BLE001
         # 台账写不进去不该让已经发出去的文章变成「发布失败」
         print("  ⚠ 封面回读结果没写进台账（不影响发表）：%s" % str(e)[:80])
@@ -97,15 +101,31 @@ def _db_sync(case, rec):
             draft = rec.get(prefix + "_draft") or ""
             if not (state or article or draft):
                 continue
+            new_state = state or ("published" if article else "draft")
+            # 🚨 2026-11-09 #115：`published_at` 只认**显式证据时间**
+            #   `*_published_at`（由 yun_state 按匿名公开页写入）。
+            #   旧写法 `... or rec[prefix_state_at] or now` 有三个坑：
+            #   ① `now` = 本地时钟，不是平台证据（PRD #109 19:47 脏写事故）；
+            #   ② `_state_at` 是分钟精度，写进秒级字段污染档期统计；
+            #   ③ 建草稿也会顺手写一个 published_at ⇒ 假满档。
+            pat = rec.get(prefix + "_published_at") or ""
+            if not pat and new_state == "published":
+                # 没有证据时间：沿用行里已有的（别用 now 顶），没有就留空
+                try:
+                    r = conn.execute(
+                        "select coalesce(published_at,'') from platform_posts "
+                        "where case_id=? and platform=?", (case, plat)).fetchone()
+                    pat = (r[0] if r else "") or ""
+                except sqlite3.Error:
+                    pat = ""
             db.upsert_post(conn, case, plat, {
-                "state": state or ("published" if article else "draft"),
+                "state": new_state,
                 "remote_id": article,
                 "url": "",
                 "title": rec.get("title") or "",
                 "draft_id": draft,
                 "attempt": 0,
-                "published_at": rec.get(prefix + "_published_at")
-                                or rec.get(prefix + "_state_at") or now,
+                "published_at": pat if new_state == "published" else None,
                 "updated_at": rec.get(prefix + "_state_at") or now,
                 "note": "",
             })
@@ -1212,6 +1232,41 @@ def first_paragraph(body, limit=300):
     return ""
 
 
+def _record_publish_state(case, draft_id, article_id, title,
+                          platform="aliyun"):
+    """发布后按**匿名公开页**三态落 `platform_posts`（唯一写入口 `yun_state`）。
+
+    为什么必须在这里做：`publish_aliyun()` 只往 `data/yun_finalize.json` 的
+    `__community__<draft>` 键里写结果（该前缀跳过 `_db_sync`），SQLite 真值不会
+    动 ⇒ 发完台账还停在 draft，「今日已发几篇」全错（PRD #113）。
+    腾讯云此前更糟：拿到 `articleId` 就直接写 `tc_state="published"` +
+    `_db_sync` 用 `tc_state_at or now` 当 `published_at` ⇒ 提交成功即已发布，
+    驳回/审核中永远发现不了（PRD #115）。
+
+    ⚠ 台账写失败**不改变**「文章已发出」这一事实：只告警 + 给修复入口，
+    绝不 raise（否则 publish_one 会把已上线的文章报成发布失败）。
+    """
+    if not title:
+        print("  ⚠ 台账未落库：本地稿没解析出标题，无法做匿名页标题命中比对；"
+              "文章 id=%s 请人工回读后补账" % article_id)
+        return
+    try:
+        import yun_state as YS                                # noqa: PLC0415
+        r = YS.record_publish(platform, case, draft_id, article_id, title)
+        print("  台账：%s → state=%s ｜ %s" % (case, r["state"], r["evidence"]))
+        if r["state"] == "published":
+            print("  台账：remote_id=%s、published_at=%s"
+                  % (r["after"].get("remote_id"), r["after"].get("published_at")))
+        else:
+            print("  ⏳ 台账记 auditing、published_at 留空、url 留空（公开页此刻 404）；"
+                  "过审后跑 python scripts/yun_state.py %s '%s' --platform %s 复核再补"
+                  % (article_id, title, platform))
+    except Exception as e:                                    # noqa: BLE001
+        print("  ⚠ 台账没落库（文章已发出，不影响上线）：%s" % str(e)[:160])
+        print("    修复：python scripts/yun_state.py %s '%s' --platform %s 看裁定，"
+              "再按 PRD #113 单行补" % (article_id, title, platform))
+
+
 def run(case=None, file=None, tc_draft=None, al_draft=None, abstract=None,
         cover_url="", community=None, headed=False):
     """入口：sync_longtail --finalize 调这里。"""
@@ -1304,10 +1359,12 @@ if __name__ == "__main__":
             src = a.file or os.path.join(ROOT, "drafts", "wechat",
                                          "%s.md" % (a.case or ""))
             body = ""
+            title = ""
             if os.path.isfile(src):
                 from csdn_publish import split_md
-                body = split_md(open(src, encoding="utf-8").read())[1]
+                title, body = split_md(open(src, encoding="utf-8").read())
             abstract = a.abstract or first_paragraph(body)
+            aid = ""          # 封面记录要钉文章 id；发表失败时它保持空
             proc, cdp = _connect()
             try:
                 ok, info = publish_tencent(cdp, int(a.tc_draft), abstract=abstract,
@@ -1323,11 +1380,23 @@ if __name__ == "__main__":
                 # 原来从首 token 取，拿到的是文章 URL，tc_article 恒空）。
                 import re as _re
                 m = _re.search(r"articleId=(\d+)", str(info or ""))
-                ledger_set(a.case, tc_draft=str(a.tc_draft),
-                           tc_state="published",
-                           tc_state_at=time.strftime("%Y-%m-%d %H:%M"),
-                           tc_article=m.group(1) if m else "")
-            _record_cover(a.case, "tencentcloud")
+                aid = m.group(1) if m else ""
+                # 🚨 2026-11-09 #116：**不再**直接写 tc_state="published"。
+                #   旧写法等于「提交成功即已发布」，`_db_sync` 又拿
+                #   `tc_state_at or now` 当 published_at ⇒ 驳回/审核中永远查不出
+                #   （腾讯云创作中心确有「审核中 / 已驳回」卡片文案）。
+                #   JSON 快照只记 id，状态与时间统一由 yun_state 按匿名公开页写。
+                kv = {"tc_draft": str(a.tc_draft)}
+                if aid:
+                    kv["tc_article"] = aid
+                ledger_set(a.case, **kv)
+                if aid:
+                    _record_publish_state(a.case, a.tc_draft, aid, title,
+                                          platform="tencentcloud")
+                else:
+                    print("  ⚠ 没抓到 articleId ⇒ 不写 published（提交是否过审未知）；"
+                          "跑 python scripts/tc_manage.py status 认领文章 id 后补账")
+            _record_cover(a.case, "tencentcloud", remote_id=aid)
             sys.exit(0 if ok else 1)
         if not a.al_draft:
             raise SystemExit("🚫 拒绝发表：--publish 需要 --al-draft 或 --tc-draft")
@@ -1336,6 +1405,7 @@ if __name__ == "__main__":
         #   （原代码这里调 `_connect()` 丢了 headed 参数，默认无头，
         #   导致「用户说看不到滑块」——实为无头实例在跑。）
         proc, cdp = _connect(headed=a.headed)
+        aid = None
         try:
             # 兜底正文：草稿没回填时用它重新注入
             body_md = ""
@@ -1350,11 +1420,11 @@ if __name__ == "__main__":
                 #   必填卡住（表现：点「发布文章」不跳转、20s×2 超时）。
                 #   标题必须取 split_md 的第 0 项。
                 title, body_md = split_md(open(src, encoding="utf-8").read())
-            publish_aliyun(cdp, int(a.al_draft), a.community or None,
-                           a.cover or "", captcha_wait=a.captcha_wait,
-                           body_md=body_md, title=title,
-                           abstract=(a.abstract or first_paragraph(body_md)
-                                     or ledger_get(a.case or "").get("abstract", "")))
+            aid = publish_aliyun(cdp, int(a.al_draft), a.community or None,
+                                 a.cover or "", captcha_wait=a.captcha_wait,
+                                 body_md=body_md, title=title,
+                                 abstract=(a.abstract or first_paragraph(body_md)
+                                           or ledger_get(a.case or "").get("abstract", "")))
         finally:
             try:
                 cdp.bws.close()
@@ -1362,7 +1432,11 @@ if __name__ == "__main__":
                 pass
             # 放在 finally 里：publish_aliyun 失败时 raise SystemExit，
             # 「封面传没传上」这个事实仍然要落库（否则永远停在 unknown）。
-            _record_cover(a.case, "aliyun")
+            _record_cover(a.case, "aliyun", remote_id=locals().get("aid", ""))
+        # 🚨 跳转只算「已提交」：三态由 yun_state 按匿名公开页裁定后落库
+        #   （published 才写 published_at；auditing 留空、url 留空）。
+        if aid and a.case:
+            _record_publish_state(a.case, a.al_draft, aid, title)
     else:
         run(case=a.case, file=a.file, tc_draft=a.tc_draft, al_draft=a.al_draft,
             abstract=a.abstract or None, cover_url=a.cover_url,

@@ -310,13 +310,17 @@ def _gate_cover_remote(platform, case, pack, **kw):
     return True, "⚠ %s" % v["detail"][:150]
 
 
-def _gate_dedupe(platform, case, pack, force=False, **kw):
+def _gate_dedupe(platform, case, pack, force=False, allow_existing_draft=False,
+                 **kw):
     """case 级幂等：已发过 / 已有远端草稿都不许再来一次。
 
     `--force` 只绕这一道闸（补发确有其事），且必须显式给；标题/形态/封面
     三道不许绕 —— 那是内容质量，不是「要不要重发」的选择题。
+
+    `allow_existing_draft`：两朵云「发已有草稿」的正道（显式 `--al-draft` /
+    `--tc-draft`）走这里，只把「草稿已存在」判成复用；published/auditing 仍拦。
     """
-    r = G.check_dupe(platform, case)
+    r = G.check_dupe(platform, case, allow_existing_draft=allow_existing_draft)
     if r["ok"]:
         return True, r["detail"]
     if force:
@@ -400,10 +404,12 @@ def _yun_row(case, platform):
         db.close_conn()
 
 
-def _gate_remote(platform, case, pack, **kw):
+def _gate_remote(platform, case, pack, draft_override=None, **kw):
     row = _yun_row(case, platform) or {}
     key = "tc_draft" if platform == "tencentcloud" else "al_draft"
-    did = str(row.get(key) or "")
+    # 显式 --al-draft/--tc-draft 优先：台账 draft_id 可能还没跟上平台（#113 才
+    # 对齐过两行），而「发哪一份草稿」是操作者当场看着平台决定的。
+    did = str(draft_override or row.get(key) or "")
     if not did:
         return False, "台账没有远端草稿 id（还没上传到 %s 草稿箱）" % platform
     state = row.get("tc_state" if platform == "tencentcloud" else "al_state") or ""
@@ -412,6 +418,25 @@ def _gate_remote(platform, case, pack, **kw):
     if state == "published":
         art = row.get("tc_article" if platform == "tencentcloud" else "al_article") or "?"
         return False, "台账已是 published（article %s）⇒ 重复发会出第二篇" % art
+    # 🚨 2026-11-09 #119：**复用草稿 ≠ 正文已是新稿**。
+    #   两朵云「导入MD」在**已有草稿**上不替换正文（静默留旧文），发布抽屉只填
+    #   来源/标签/摘要/封面。于是本地新稿过了全部内容闸，平台却把旧稿发出去 ——
+    #   11-09 getdavid 复用 338079 就是这样，20:42 判「内容包含广告/引流信息」驳回，
+    #   而驳回的那篇根本不是本地新写的技术稿。
+    #   判据：台账 `title` 是**平台草稿标题镜像**（建稿时写进去的），与本地稿 h1
+    #   不一致 ⇒ 正文几乎肯定没刷进平台。标题为空（对账前老行）放行，避免误拦。
+    if draft_override and pack:
+        want = G.title_of(pack)
+        have = (row.get("tc_title" if platform == "tencentcloud" else "al_title")
+                or "").strip()
+        if want and have and have != want.strip():
+            return False, ("复用草稿 %s 的平台标题是旧镜像（%r），与本地稿 h1（%r）不一致 ⇒ "
+                           "正文很可能没刷进平台（「导入MD」在已有草稿上不替换正文）。"
+                           "先新建草稿再发，或在编辑器里全选替换正文+改标题并回读一致"
+                           % (did, have[:20], want.strip()[:20]))
+    if draft_override:
+        return True, "draftId=%s（显式 --%s 覆盖台账）" % (
+            did, key.replace("_", "-"))
     return True, "draftId=%s" % did
 
 
@@ -425,12 +450,15 @@ GATE_FN = {
 }
 
 
-def run_gates(platform, case, pack, force=False):
+def run_gates(platform, case, pack, force=False, allow_existing_draft=False,
+              draft_override=None):
     rows = []
     for name in GATES.get(platform, ["dedupe", "draft"]):
         fn = GATE_FN[name]
         try:
-            ok, detail = fn(platform, case, pack, force=force)
+            ok, detail = fn(platform, case, pack, force=force,
+                            allow_existing_draft=allow_existing_draft,
+                            draft_override=draft_override)
         except SystemExit as e:                     # 闸自己 raise 也算拦下
             ok, detail = False, str(e).strip().splitlines()[0][:120]
         rows.append({"gate": name, "ok": bool(ok), "detail": detail})
@@ -439,7 +467,8 @@ def run_gates(platform, case, pack, force=False):
 
 # ---------------------------------------------------------------- 命令
 
-def build_cmd(platform, case, pack, yes):
+def build_cmd(platform, case, pack, yes, draft_override=None,
+             captcha_wait=0):
     """真正的发布命令。每个平台的参数口径都来自该脚本自己的 argparse。"""
     if not pack:
         # 2026-11-07：显式 `--case` 指向一个还没写稿的 AI case 时，pack=None
@@ -483,14 +512,19 @@ def build_cmd(platform, case, pack, yes):
     elif platform in ("tencentcloud", "aliyun"):
         row = _yun_row(case, platform) or {}
         key = "tc_draft" if platform == "tencentcloud" else "al_draft"
+        did = str(draft_override or row.get(key) or "")
         cmd = s("yun_finalize.py", "--case", case, "--file", pack,
                 "--publish", "--i-said-publish", "i-said-publish",
-                "--" + key.replace("_", "-"), str(row.get(key) or ""))
+                "--" + key.replace("_", "-"), did)
         # ⚠ 阿里云必带 --headed：滑块验证码是人机验证，无头窗口用户看不见
         #   ⇒ 拖不了。2026-11-03 踩过：build_cmd 漏传，yun_finalize 自己
         #   起了无头实例，用户报告「看不到滑块」。
         if platform == "aliyun":
             cmd.append("--headed")
+            # 滑块人工等待秒数（0 = 用 yun_finalize 自带默认 300s）。真发前
+            # 人在电脑前也可能走开两分钟，publish_one 不透传就只能去改默认值。
+            if captcha_wait:
+                cmd += ["--captcha-wait", str(int(captcha_wait))]
         c = cover_of(case)
         if c:
             cmd += ["--cover", c]
@@ -695,7 +729,7 @@ def gen_pack(platform, case):
 
 def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
         as_json=False, gen=False, new=False, force=False,
-        allow_same_kind=False):
+        allow_same_kind=False, draft_override=None, captcha_wait=0):
     cn = dict(SLOT.PLATFORMS)[platform]
     # 草稿箱即 FIFO 队列（用户定，2026-11-03）：先发**存入最久**的那条，
     # 箱空了才按当日档期新写。旧 SPEC 接成 `publish`（无脑新写）是错的——
@@ -797,6 +831,12 @@ def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
     print("▶ %s ｜ %s ｜ %s" % (cn, case, SLOT.KIND_LABEL.get(
         SLOT.kind_of(case), "?")))
     print("  档期：%s" % row.get("reason"))
+    # 两朵云「发已有草稿」：显式 draft id 才允许复用（PRD #113）。别把
+    # allow_existing_draft 默认打开 —— 那等于给其他平台开后门。
+    draft_override = str(draft_override or "").strip() or None
+    allow_existing = bool(draft_override) and platform in ("tencentcloud", "aliyun")
+    if allow_existing:
+        print("  远端草稿：显式指定 %s ⇒ 复用这一份（不新建）" % draft_override)
     if row.get("note"):
         print("  ⚠ %s" % row["note"])
     if not pack and gen and platform in GEN_PLATFORMS:
@@ -823,7 +863,9 @@ def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
                     print("  稿件：%s（新生成）" % pack)
     print("  稿件：%s" % (pack or "（缺）"))
 
-    gates = run_gates(platform, case, pack, force=force)
+    gates = run_gates(platform, case, pack, force=force,
+                      allow_existing_draft=allow_existing,
+                      draft_override=draft_override)
     if as_json:
         print(json.dumps({"platform": platform, "case": case, "pack": pack,
                           "gates": gates,
@@ -833,7 +875,9 @@ def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
     if upload and platform in ("tencentcloud", "aliyun") and any(
             g["gate"] == "remote" and not g["ok"] for g in gates):
         if upload_remote(platform, case, dry=not yes) == 0:
-            gates = run_gates(platform, case, pack, force=force)
+            gates = run_gates(platform, case, pack, force=force,
+                              allow_existing_draft=allow_existing,
+                              draft_override=draft_override)
         else:
             print("✗ 上传失败（CDP 通道）：查 9228 Chrome 是否常驻、"
                   "chrome-yun-profile 登录态是否还在，按上面报错处理")
@@ -844,14 +888,15 @@ def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
         print("\n✗ 被闸拦下，未执行任何写操作。修完再来。")
         return 1
     if not yes:
-        cmd = build_cmd(platform, case, pack, False)
+        cmd = build_cmd(platform, case, pack, False, draft_override,
+                        captcha_wait)
         print("\n（干跑）将会执行：\n  %s" % " ".join(_q(c) for c in cmd))
         print("\n加 --yes 才真发。")
         return 0
 
     if force:
         print("\n⚠ --force 只绕过 dedupe 闸；title / template / cover / remote 照常硬拦。")
-    cmd = build_cmd(platform, case, pack, True)
+    cmd = build_cmd(platform, case, pack, True, draft_override, captcha_wait)
     print("\n执行：%s\n" % " ".join(_q(c) for c in cmd))
     t0 = time.time()
     rc = subprocess.call(cmd, cwd=ROOT)
@@ -924,7 +969,30 @@ def main(argv=None):
     ap.add_argument("--force", action="store_true",
                     help="补发时只绕过 dedupe 闸（标题/形态/封面/remote 仍硬拦）；"
                          "默认不许对已发过或已有草稿的 case 再来一次")
+    ap.add_argument("--al-draft", metavar="AID",
+                    help="阿里云：显式指定要发布的草稿 aid（复用这一份、不新建）。"
+                         "台账 draft_id 与平台不一致时用它，仍走全套闸")
+    ap.add_argument("--tc-draft", metavar="ID",
+                    help="腾讯云：显式指定要发布的草稿 draftId（同上）")
+    ap.add_argument("--captcha-wait", type=int, default=0, metavar="SEC",
+                    help="阿里云滑块人工等待秒数（缺省 0 = 用 yun_finalize 的 300s）")
     a = ap.parse_args(argv)
+
+    # 两朵云「发已有草稿」：显式 id 才放行 dedupe 的草稿分支（PRD #113）。
+    # ⛔ 不做成默认 —— 别的平台看到 draft 记录就该拦住「再来一份」。
+    for flag, val, plat in (("--al-draft", a.al_draft, "aliyun"),
+                            ("--tc-draft", a.tc_draft, "tencentcloud")):
+        if not val:
+            continue
+        if not str(val).isdigit():
+            ap.error("%s 只收纯数字草稿 id（平台 aid / draftId），收到 %r"
+                     % (flag, val))
+        if a.all:
+            ap.error("%s 不能与 --all 同用（一次只发一份已知草稿）" % flag)
+        if not a.platform or plat not in a.platform:
+            ap.error("%s 必须与 --platform %s 同用" % (flag, plat))
+        if len(a.platform) > 1:
+            ap.error("%s 只能配单个 --platform" % flag)
 
     if a.all and a.platform:
         ap.error("--all 与 --platform 只能二选一")
@@ -945,7 +1013,9 @@ def main(argv=None):
     rc = 0
     for k in a.platform:
         rc |= run(k, a.case, a.yes, a.timeout, a.day, a.upload, a.json, a.gen,
-                  a.new, a.force, a.allow_same_kind)
+                  a.new, a.force, a.allow_same_kind,
+                  a.al_draft if k == "aliyun" else a.tc_draft,
+                  a.captcha_wait)
     return rc
 
 

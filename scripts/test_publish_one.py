@@ -81,6 +81,73 @@ class BuildCmd(unittest.TestCase):
         cmd = " ".join(P.build_cmd("aliyun", "x", os.path.join(HERE, "x.md"), True))
         self.assertIn("--headed", cmd, "阿里云发表漏了 --headed ⇒ 用户看不见滑块")
 
+    def test_explicit_cloud_draft_is_passed_through(self):
+        """显式 --al-draft/--tc-draft 必须进命令，否则会去新建第二份草稿。
+
+        腾讯云此前没有任何显式入口，台账 draft_id 一落后就必然新建重复稿
+        （2026-11-09 #115 补）。
+        """
+        al = " ".join(P.build_cmd("aliyun", "x", os.path.join(HERE, "x.md"),
+                                  True, draft_override="1710840",
+                                  captcha_wait=600))
+        self.assertIn("--al-draft 1710840", al)
+        self.assertIn("--captcha-wait 600", al, "滑块等待没透传 ⇒ 只能改源码默认值")
+        tc = " ".join(P.build_cmd("tencentcloud", "x", os.path.join(HERE, "x.md"),
+                                  True, draft_override="342800"))
+        self.assertIn("--tc-draft 342800", tc)
+        self.assertNotIn("--al-draft", tc)
+        self.assertNotIn("--headed", tc, "腾讯云没有滑块，别照抄阿里云的参数")
+
+
+class DraftTitleGuard(unittest.TestCase):
+    """复用已有草稿时，平台标题必须与本地稿 h1 一致（2026-11-09 #119）。
+
+    实撞：getdavid 用 `--tc-draft 338079` 复用旧草稿，闸全绿，发出去的是
+    **旧标题的旧正文**，21 分钟后判「内容包含广告/引流信息」驳回；本地新写的
+    技术稿只在摘要/封面上生效。根因是两朵云「导入MD」在已有草稿上不替换正文。
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.pack = os.path.join(self.tmp.name, "p.md")
+        with open(self.pack, "w", encoding="utf-8") as f:
+            f.write("# 新标题：技术向的流水线拆解\n\n正文\n")
+        self._yun_row = P._yun_row
+
+    def tearDown(self):
+        P._yun_row = self._yun_row
+        self.tmp.cleanup()
+
+    def _row(self, title, state="draft", draft="343479"):
+        return {"tc_draft": draft, "tc_state": state, "tc_title": title}
+
+    def test_平台标题是旧镜像必须拦下(self):
+        P._yun_row = lambda case, platform: self._row(
+            "旧标题：一家给小店做网站的公司怎么用线下动作获客")
+        ok, why = P._gate_remote("tencentcloud", "getdavid", self.pack,
+                                 draft_override="343479")
+        self.assertFalse(ok, "标题不一致还敢放行 ⇒ 平台会发出旧正文，重演 11-09 驳回")
+        self.assertIn("旧镜像", why)
+
+    def test_标题一致放行(self):
+        P._yun_row = lambda case, platform: self._row("新标题：技术向的流水线拆解")
+        ok, why = P._gate_remote("tencentcloud", "getdavid", self.pack,
+                                 draft_override="343479")
+        self.assertTrue(ok, why)
+
+    def test_台账没标题时不误拦(self):
+        """#118 对账前的老行 title 可能是空的，空就放行（不能因为缺记录拦发布）。"""
+        P._yun_row = lambda case, platform: self._row("")
+        ok, _ = P._gate_remote("tencentcloud", "getdavid", self.pack,
+                               draft_override="343479")
+        self.assertTrue(ok)
+
+    def test_不传显式草稿不跑这道闸(self):
+        """走台账 draft_id（非显式复用）时标题本就来自同一份台账，别重复拦。"""
+        P._yun_row = lambda case, platform: self._row("旧标题：随便")
+        ok, _ = P._gate_remote("tencentcloud", "getdavid", self.pack)
+        self.assertTrue(ok)
+
 
 class GamePack(unittest.TestCase):
     """游戏仓产物只在「--file 取稿」的平台认账。"""

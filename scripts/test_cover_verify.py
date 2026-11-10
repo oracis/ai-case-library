@@ -33,6 +33,15 @@ class _Tmp(unittest.TestCase):
     def setUp(self):
         self.dir = tempfile.mkdtemp(prefix="cv_")
         self.led = os.path.join(self.dir, "cover_readback.json")
+        # 判据会去查 SQLite 台账里的当前文章 id；离线测试不许碰真库。
+        self._cur = CV._current_article_id
+        CV._current_article_id = lambda case, plat: ""
+
+    def tearDown(self):
+        CV._current_article_id = self._cur
+        for f in os.listdir(self.dir):
+            os.remove(os.path.join(self.dir, f))
+        os.rmdir(self.dir)
 
     def rec(self, case, plat, state, ev="", source="test"):
         return CV.record(case, plat, state, ev, source=source, path=self.led)
@@ -87,6 +96,63 @@ class TestStates(_Tmp):
         CV._save(d, self.led)
         self.assertEqual(CV.verify("csdn", "a", path=self.led, max_age=0)["state"],
                          "ok")
+
+
+class TestArticleBinding(_Tmp):
+    """回读证据必须属于**当前这篇**（2026-11-09 #119 实撞）。
+
+    getdavid 的 `ok` 记录属于文章 2779989，那篇被删、重发成 2779993 后，
+    `cover_remote` 闸还把旧记录当本篇证据（干跑输出「线上文章 2779989 卡片
+    缩略图 background-image=…」）⇒ 典型假绿。
+    """
+
+    def test_record_stores_remote_id(self):
+        CV.record("a", "tencentcloud", "ok", "线上文章 2779993 卡片缩略图=x",
+                  path=self.led, remote_id="2779993")
+        rec = CV.get_record("a", "tencentcloud", path=self.led)
+        self.assertEqual(rec["remote_id"], "2779993")
+
+    def test_record_without_id_still_allowed(self):
+        """老调用方不传 id 不许炸 —— 但证据里没 id 就只能算「无从比对」。"""
+        rec = CV.record("a", "tencentcloud", "ok", "读了卡片背景图=x", path=self.led)
+        self.assertEqual(rec["state"], "ok")
+        self.assertEqual(rec["remote_id"], "")
+
+    def test_id_mismatch_downgrades(self):
+        """记录属于旧文章、台账已换新文章 ⇒ 旧 ok 失效。"""
+        CV.record("a", "tencentcloud", "ok", "线上文章 2779989 卡片缩略图=x",
+                  path=self.led, remote_id="2779989")
+        v = CV.verify("tencentcloud", "a", path=self.led, remote_id="2779993")
+        self.assertEqual(v["state"], "unknown")
+        self.assertIn("2779989", v["detail"])
+        self.assertIn("2779993", v["detail"])
+
+    def test_id_match_keeps_ok(self):
+        CV.record("a", "tencentcloud", "ok", "线上文章 2779993 卡片缩略图=x",
+                  path=self.led, remote_id="2779993")
+        v = CV.verify("tencentcloud", "a", path=self.led, remote_id="2779993")
+        self.assertEqual(v["state"], "ok")
+
+    def test_legacy_record_id_from_evidence(self):
+        """改动前写下的记录没有 remote_id 字段，靠证据串里的「文章 2779989」兜底。"""
+        CV.record("a", "tencentcloud", "ok", "线上文章 2779989 卡片缩略图=x",
+                  path=self.led)                       # 故意不传 remote_id
+        v = CV.verify("tencentcloud", "a", path=self.led, remote_id="2779993")
+        self.assertEqual(v["state"], "unknown", "老记录也必须能失效，否则等于没修")
+
+    def test_no_id_anywhere_does_not_block(self):
+        """证据里也抠不出 id（别的平台字段名）⇒ 无从比对，保持原判，不误拦。"""
+        CV.record("a", "csdn", "ok", "coverImage=https://img/x.png", path=self.led)
+        v = CV.verify("csdn", "a", path=self.led, remote_id="999999")
+        self.assertEqual(v["state"], "ok")
+
+    def test_current_id_autodetected_from_ledger(self):
+        """不给 remote_id 时自动查 SQLite（这里用注入替身模拟台账里的 id）。"""
+        CV.record("a", "tencentcloud", "ok", "线上文章 2779989 卡片缩略图=x",
+                  path=self.led, remote_id="2779989")
+        CV._current_article_id = lambda case, plat: "2779993"
+        v = CV.verify("tencentcloud", "a", path=self.led)
+        self.assertEqual(v["state"], "unknown")
 
 
 class TestCapability(unittest.TestCase):

@@ -1,77 +1,78 @@
 {
-  "ran_at": "2026-11-09 07:33:02",
-  "added": 60,
+  "ran_at": "2026-11-10 07:56:49",
+  "added": 64,
   "by_source": {
-    "hn": 43,
-    "trustmrr": 17
+    "hn": 44,
+    "indiehackers": 1,
+    "trustmrr": 19
   },
   "inbox_total": 400,
-  "archived_this_run": 60,
-  "archive_total": 1698,
+  "archived_this_run": 64,
+  "archive_total": 1762,
   "top": [
     {
-      "name": "CatalogoHoy",
-      "headline": "近 30 天收入 $1,726",
+      "name": "Goldn - Bronzage & UV",
+      "headline": "MRR $286，TrustMRR 第 2971 名",
       "heat": 0,
-      "category": "电商",
+      "category": "Health & Fitness",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/catalogohoy"
+      "url": "https://trustmrr.com/startup/goldn-bronzage-uv"
     },
     {
-      "name": "objekto",
-      "headline": "近 30 天收入 $351",
-      "heat": 0,
-      "category": "AI 工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/objekto"
-    },
-    {
-      "name": "Chart Scanner AI",
-      "headline": "近 30 天收入 $2,638",
+      "name": "Scalereach.ai",
+      "headline": "近 30 天收入 $3,049",
       "heat": 0,
       "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/chart-scanner-ai"
+      "url": "https://trustmrr.com/startup/scalereach"
     },
     {
-      "name": "OG Bombs Europe",
-      "headline": "近 30 天收入 $1,438",
+      "name": "Sportii App",
+      "headline": "近 30 天收入 $960",
       "heat": 0,
-      "category": "电商",
+      "category": "Community",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/og-bombs-europe-ivan-flores-hurtado"
+      "url": "https://trustmrr.com/startup/sportii-app"
     },
     {
-      "name": "Grade or Skip",
-      "headline": "未获取",
+      "name": "MacPip",
+      "headline": "近 30 天收入 $265",
+      "heat": 0,
+      "category": "交易市场",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/macpip"
+    },
+    {
+      "name": "JanusPrep.AI",
+      "headline": "近 30 天收入 $1,898",
+      "heat": 0,
+      "category": "未分类",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/janusprep-ai"
+    },
+    {
+      "name": "Business QR Scanner",
+      "headline": "MRR $350",
+      "heat": 0,
+      "category": "营销工具",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/pankaj-maurya-llc"
+    },
+    {
+      "name": "Brick Atlas",
+      "headline": "疑似金额 $50 ",
+      "heat": 5,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://showcase.zoomhub.net/ecommerce/brick-atlas"
+    },
+    {
+      "name": "Kinsona",
+      "headline": "疑似金额 $54.53",
       "heat": 1,
       "category": "未分类",
       "source": "hn",
-      "url": "https://github.com/0x4rch/gradeorskip"
-    },
-    {
-      "name": "The AI Reputation Manager",
-      "headline": "疑似金额 $170,000 ",
-      "heat": 1,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://moregoodreviews.com/ai"
-    },
-    {
-      "name": "PlugKit",
-      "headline": "近 30 天收入 $6,555",
-      "heat": 0,
-      "category": "AI 工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/plugkit"
-    },
-    {
-      "name": "Love Letter",
-      "headline": "近 30 天收入 $23,308",
-      "heat": 0,
-      "category": "电商",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/love-letter"
+      "url": "https://kinsona.com/"
     }
   ]
 }

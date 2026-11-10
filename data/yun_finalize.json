@@ -227,5 +227,28 @@
     "article": "1780780",
     "published": null,
     "published_at": null
+  },
+  "getdavid": {
+    "tc_draft": "343479",
+    "tc_article": "2779993",
+    "updated": "2026-11-09 20:55:55",
+    "title": "批量给本地小店造站的流水线：名单判定、模板渲染与直邮归因",
+    "tc_state": "published",
+    "tc_state_at": "2026-11-09 20:55:56",
+    "tc_published_at": "2026-11-09 20:55:56"
+  },
+  "flodesk": {
+    "title": "「无限发送」的邮件平台，实际在做的是送达率工程",
+    "tc_draft": "343489",
+    "tc_state": "draft",
+    "tc_state_at": "2026-11-09 21:34",
+    "updated": "2026-11-09 21:34:06"
+  },
+  "refactoringui": {
+    "title": "卖给开发者的设计书：没有试用层的内容产品怎么定价与交付",
+    "tc_draft": "343506",
+    "tc_state": "draft",
+    "tc_state_at": "2026-11-09 22:46",
+    "updated": "2026-11-09 22:46:56"
   }
 }

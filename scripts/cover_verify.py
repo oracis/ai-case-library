@@ -165,12 +165,17 @@ def load_ledger(path=None):
         return {}
 
 
-def record(case, platform, state, evidence="", source="", path=None):
+def record(case, platform, state, evidence="", source="", path=None, remote_id=None):
     """写一条回读结果。`state` 必须是 STATES 里的值。
 
     🚨 **只有真读过才许写 `ok`**。写 `ok` 的调用方必须能说出「读了哪个字段、
     读到什么值」——`evidence` 为空时本函数直接把 `ok` 降级成 `unknown`，
     这是对「结果打印了但没人读」那类假绿的最后一道闸。
+
+    🚨 **回读结果必须绑定文章 id**（2026-11-09 #119）：同一 case 会重发（驳回后
+    删稿重投、或换平台重发），`ok` 记录若不带 id，旧文章删了它还在，闸照样放行 ——
+    11-09 getdavid 就是拿已删的 2779989 报「平台侧已落库」。`remote_id` 为空时
+    仍允许写（老调用方兼容），但 `verify()` 会按「无从比对」处理，不再当强证据。
     """
     if state not in STATES:
         raise ValueError("未知封面状态：%r" % (state,))
@@ -184,9 +189,43 @@ def record(case, platform, state, evidence="", source="", path=None):
         "evidence": str(evidence or "")[:300],
         "at": time.strftime("%Y-%m-%d %H:%M:%S"),
         "source": source or "manual",
+        "remote_id": str(remote_id or "").strip(),
     }
     _save(d, p)
     return slot[platform]
+
+
+def _current_article_id(case, platform):
+    """台账（SQLite `platform_posts`）里这一行现在的远端文章 id；读不到返回 ""。
+
+    只读、失败静默：`cover_verify` 的判据不许因为查不到库就崩掉整条发布链。
+    """
+    try:
+        import db                                        # noqa: PLC0415
+        conn = db.get_conn()
+        try:
+            p = db.get_post(conn, case, platform) or {}
+        finally:
+            db.close_conn()
+        return str(p.get("remote_id") or "").strip()
+    except Exception:                                    # noqa: BLE001
+        return ""
+
+
+def _evidence_article_id(evidence):
+    """从证据串里抠文章 id —— 老记录没 `remote_id` 字段时的兜底。
+
+    两朵云的证据串都长这样：
+      `线上文章 2779993 卡片缩略图 background-image=...`
+      `draftDetail.coverUrl=...（article 1789999）`
+    没有这条兜底，改动前写下的 `ok` 记录会永远「无 id 可对」，等于没修。
+    """
+    s = str(evidence or "")
+    for pat in (r"文章\s*(\d{5,})", r"/article/(\d{5,})", r"article[Id_\s]*[:=]\s*(\d{5,})"):
+        m = re.search(pat, s, re.I)
+        if m:
+            return m.group(1)
+    return ""
 
 
 def _save(d, path):
@@ -234,10 +273,17 @@ def cap_of(platform):
     return CAP.get(platform)
 
 
-def verify(platform, case, path=None, probe=None, max_age=TTL_DAYS):
+_UNSET = object()
+
+
+def verify(platform, case, path=None, probe=None, max_age=TTL_DAYS,
+           remote_id=_UNSET):
     """纯判据（默认不联网）：返回一条结论。
 
     `probe` 传 `(state, evidence)` 用于测试注入；不传则读台账。
+    `remote_id` 是**当前台账里的文章 id**（缺省自动查库）——用来把缓存记录
+    钉在同一篇文章上：记录属于 2779989、台账现在是 2779993 时，旧 `ok` 不许
+    再当本篇的证据（2026-11-09 #119 实测的假绿）。
     """
     r = {"platform": platform, "case": case, "state": "unknown",
          "field": "", "why": "", "evidence": "", "at": "", "source": "",
@@ -278,6 +324,18 @@ def verify(platform, case, path=None, probe=None, max_age=TTL_DAYS):
         r["state"] = "unknown"
         r["detail"] = ("回读记录已 %d 天（上限 %d）⇒ 降级为未回读，请重跑 --live"
                        % (age, max_age))
+        return r
+    # 🚨 记录必须属于**当前这篇**：同一 case 换过文章 id 后，旧证据即失效。
+    rec_id = (str(rec.get("remote_id") or "").strip()
+              or _evidence_article_id(rec.get("evidence")))
+    cur_id = (_current_article_id(case, platform) if remote_id is _UNSET
+              else str(remote_id or "").strip())
+    if rec_id and cur_id and rec_id != cur_id:
+        r["state"], r["source"] = "unknown", rec.get("source") or ""
+        r["evidence"] = rec.get("evidence", "")
+        r["detail"] = ("回读记录属于文章 %s，台账现在是 %s ⇒ 不是同一篇，"
+                       "降级为未回读（重跑 --live 或发布链路重记）"
+                       % (rec_id, cur_id))
         return r
     st = rec.get("state")
     r["state"] = st if st in STATES else "unknown"
@@ -465,10 +523,15 @@ def probe(platform, case, **kw):
 
 
 def verify_live(platform, case, path=None, **kw):
-    """`--live`：现场读一次，写台账，再走同一套判据（避免两套口径）。"""
+    """`--live`：现场读一次，写台账，再走同一套判据（避免两套口径）。
+
+    `remote_id` 若给了就一起钉进记录，并在判据里按它比对（不给则自动查台账）。
+    """
+    rid = kw.pop("remote_id", None)
     st, ev = probe(platform, case, **kw)
-    record(case, platform, st, ev, source="live", path=path)
-    return verify(platform, case, path=path)
+    record(case, platform, st, ev, source="live", path=path, remote_id=rid)
+    extra = {} if rid is None else {"remote_id": rid}
+    return verify(platform, case, path=path, **extra)
 
 
 # ---------------------------------------------------------------- CLI
@@ -524,6 +587,8 @@ def main(argv=None):
                     help="配合 --record：读了哪个字段、读到什么值（写 ok 必须有）")
     ap.add_argument("--source", default="publish-time",
                     help="配合 --record：谁写的（默认 publish-time）")
+    ap.add_argument("--remote-id", default="",
+                    help="这条回读记录属于哪篇文章（必给：换过文章 id 后旧证据要失效）")
     ap.add_argument("--clear", action="store_true",
                     help="删掉这条记录（人工已在平台侧补好封面时用）")
     ap.add_argument("--report", action="store_true", help="台账全览")
@@ -539,7 +604,8 @@ def main(argv=None):
     if a.record:
         if not (a.case and a.platform and a.state):
             ap.error("--record 要 --case + --platform + --state")
-        rec = record(a.case, a.platform, a.state, a.evidence, source=a.source)
+        rec = record(a.case, a.platform, a.state, a.evidence, source=a.source,
+                     remote_id=a.remote_id)
         print("%s / %s → 记 %s（%s）" % (
             _key(a.case), a.platform, rec["state"],
             rec["evidence"][:100] or "无证据串"))
@@ -556,8 +622,9 @@ def main(argv=None):
                                  "已删除" if gone else "本来就没有"))
         return 0
 
-    v = (verify_live(a.platform, a.case) if a.live
-         else verify(a.platform, a.case, max_age=a.max_age))
+    extra = {"remote_id": a.remote_id} if a.remote_id else {}
+    v = (verify_live(a.platform, a.case, **extra) if a.live
+         else verify(a.platform, a.case, max_age=a.max_age, **extra))
     if a.json:
         print(json.dumps(v, ensure_ascii=False, indent=1))
         return 0 if v["state"] == "ok" else 1

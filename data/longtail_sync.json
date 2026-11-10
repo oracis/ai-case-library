@@ -204,7 +204,8 @@
    "tencentcloud": {
     "ok": true,
     "draftId": "338082",
-    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338082"
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338082",
+    "deleted": "2026-11-09 误删（草稿无回收站）；重建见 refactoringui-2026-11-09-1 / draftId=343506"
    }
   },
   "category": "人工智能",
@@ -824,5 +825,50 @@
   },
   "via": "cdp-9228",
   "ts": "2026-11-08 14:11:58"
+ },
+ "getdavid-2026-11-09-1": {
+  "case": "getdavid",
+  "title": "批量给本地小店造站的流水线：名单判定、模板渲染与直邮归因",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "343479",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=343479"
+   }
+  },
+  "category": "人工智能",
+  "cover": "https://case.ydtgo.top/covers/getdavid.png",
+  "via": "cdp-9228",
+  "ts": "2026-11-09 20:51:27"
+ },
+ "flodesk-2026-11-09-1": {
+  "case": "flodesk",
+  "title": "「无限发送」的邮件平台，实际在做的是送达率工程",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "343489",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=343489"
+   }
+  },
+  "category": "人工智能",
+  "cover": "https://case.ydtgo.top/covers/flodesk.png",
+  "via": "cdp-9228",
+  "ts": "2026-11-09 21:34:06"
+ },
+ "refactoringui-2026-11-09-1": {
+  "case": "refactoringui",
+  "title": "卖给开发者的设计书：没有试用层的内容产品怎么定价与交付",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "343506",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=343506"
+   }
+  },
+  "category": "人工智能",
+  "cover": "",
+  "via": "cdp-9228",
+  "ts": "2026-11-09 22:46:55"
  }
 }
