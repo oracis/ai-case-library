@@ -171,11 +171,27 @@ class Wiring(unittest.TestCase):
         self.assertIn("return (False, None, aid, title)", src)
 
     def test_xhs_guards_before_click_publish(self):
+        """闸必须在点发布之前，且**验的是平台正文**。
+
+        2026-11-10 改：闸那一小段抽成了 `gate_draft(sub, d)`（原来埋在
+        `_send_draft_on` 里 60 行发布流程中间，除了 grep 源码没法测）。
+        断言随之改严，不是放宽：
+          · 发布路径必须调 `gate_draft`；
+          · `gate_draft` 里必须 `FCG.guard` **且带 `text=`** —— 只传 case 不传
+            text 正是这个洞本身（闸只能反查本地产物，平台草稿脏时直接放行）。
+        """
         src = _func_src("xhs_publish.py", "_send_draft_on")
-        self.assertIn("FCG.guard", src)
-        self.assertLess(src.index("_verdict = FCG.guard"),
-                        src.index("strategy, clicked = _click_publish"))
+        self.assertIn("gate_draft(sub, d)", src)
+        self.assertLess(src.index("_verdict = gate_draft(sub, d)"),
+                        src.index("strategy, clicked = _click_publish"),
+                        "闸必须在点发布之前")
         self.assertIn("if not _verdict[\"ok\"]", src)
+
+        gate = _func_src("xhs_publish.py", "gate_draft")
+        self.assertIn("FCG.guard", gate)
+        self.assertIn("text=", gate, "必须把平台正文交给闸，不能只给 case")
+        self.assertIn("read_editor_body", gate,
+                      "正文必须从编辑器现读（平台侧真值），不能只信本地产物")
 
     def test_wechat_guards_before_ensure_local_record(self):
         """拦下时不许留下「补登」写盘。"""

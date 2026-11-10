@@ -2079,6 +2079,76 @@ def _img_health(sub):
     return 0, 0, []
 
 
+#: 读编辑器**正文**的 JS。返回 JSON 字符串，交给 `_js()` 解析。
+#:
+#: ⚠ 为什么这里用**精确选择器**，不抄公众号「取最长 contenteditable」那套：
+#:   公众号必须按 innerText 长度取最长，是因为它标题与正文的 class **都以**
+#:   `ProseMirror` 开头、无法区分（见 `wechat_publish.pick_body_from_blocks`）。
+#:   小红书不是这种情况——正文是 `.tiptap.ProseMirror[contenteditable='true']`，
+#:   标题是 `input.d-text[placeholder*='标题']`，标签都不同。精确选择器更稳，
+#:   为「统一」去改用长度猜反而会引入误判（笔记正文本来就可能比标题短）。
+JS_READ_BODY = """(function(){
+  var ed = document.querySelector(%s);
+  if (!ed) return JSON.stringify({ok:false, why:'no_editor'});
+  var t = ed.innerText || '';
+  return JSON.stringify({ok:true, len:t.length, text:t});
+})()""" % json.dumps(SEL_BODY)
+
+
+def read_editor_body(sub):
+    """读小红书编辑器里的**正文**（草稿箱里这一份的实际内容）。读不到返回 ""。
+
+    为什么闸需要它
+    --------------
+    本地母版清干净了，不代表箱里这份也干净 —— 平台草稿是**建稿那一刻的副本**，
+    之后本地怎么改都影响不到它。11-10 B站一号 `promptmonitor-io` 就是把带
+    「我去核了一遍」内部核验注记的旧稿发了出去，原因正是闸只反查本地产物。
+
+    返回 "" 的三种情况（调用方必须说清楚，别静默当「验过了」）：
+      · 页面上找不到正文容器（编辑器空壳 / 改版）
+      · 正文确实为空（空草稿）
+      · eval 异常（tab 掉了）
+    """
+    try:
+        r = _js(sub, JS_READ_BODY)
+    except Exception:                                    # noqa: BLE001
+        return ""
+    if not isinstance(r, dict) or not r.get("ok"):
+        return ""
+    return (r.get("text") or "").strip()
+
+
+def gate_draft(sub, d):
+    """FIFO 形态闸：**正文以编辑器里这一份为准**，本地产物只在读不到时兜底。
+
+    为什么顺序不能反
+    ----------------
+    本地母版是「以后要发的样子」，编辑器里是「**这次真要发的样子**」。
+    闸必须验后者 —— 11-10 B站一号出的就是这个洞：本地清了注记，
+    平台草稿还是建稿时的旧副本，闸只反查本地 ⇒ 脏稿照发。
+
+    成本：编辑器在前面的 `_open_draft_editor` 已经开好了，这里只多一次 eval，
+    不额外开页面、不额外等渲染。
+
+    退化行为：读不到正文就**明说**并退回本地产物验（`checked` 会是本地产物或
+    False），不许静默当「平台已验过」——同 PRD #90「孤儿不许假装验过」。
+    """
+    import fifo_content_gate as FCG
+    try:
+        _matched, _orphans = match_drafts([d])
+        _cid = (_matched[0].get("id") or "") if _matched else ""
+    except Exception:                                    # noqa: BLE001
+        _cid = ""
+    _body = read_editor_body(sub)
+    if _body:
+        print("平台正文：%d 字（编辑器现读，不是本地母版）" % len(_body))
+    else:
+        print("[warn] 编辑器正文读不到（正文容器失联 / 空稿）⇒ 退回本地产物验，"
+              "**不代表平台侧已验过**。")
+    return FCG.guard("xhs", _cid, d.get("title") or "",
+                     text=_body or None, text_src="platform:editor")
+
+
 def _open_draft_editor(sub, title, timeout=40):
     """点草稿卡片的「编辑」→ 等编辑器就绪。返回 (ok, 编辑器标题)。
 
@@ -2435,12 +2505,7 @@ def _send_draft_on(sub, args):
     #    就是把带「我去核了一遍」内部核验注记的旧稿发了出去。
     #    ⛔ 命中即停：不点发布、不记账、不自动跳到草稿箱下一条。
     import fifo_content_gate as FCG
-    try:
-        _matched, _orphans = match_drafts([d])
-        _cid = (_matched[0].get("id") or "") if _matched else ""
-    except Exception:                                    # noqa: BLE001
-        _cid = ""
-    _verdict = FCG.guard("xhs", _cid, d.get("title") or "")
+    _verdict = gate_draft(sub, d)
     FCG.report(_verdict, "xhs", d.get("title") or "")
 
     if getattr(args, "dry", False):
