@@ -140,6 +140,11 @@
     "case_id": "autoreels-ai",
     "kind": "ai",
     "at": "2026-11-11 08:39"
+   },
+   {
+    "case_id": "ext-ep-007-openttd",
+    "kind": "game",
+    "at": "2026-11-11 10:43"
    }
   ],
   "wechat": [
