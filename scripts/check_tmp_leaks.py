@@ -32,7 +32,7 @@ SKIP_DIRS = {"__pycache__", ".git", "node_modules"}
 
 RE_PATH_TOKEN = re.compile(r"[A-Za-z0-9_./\\-]+\.py")
 # 文档里的示例占位符，不是真实路径
-PLACEHOLDERS = {"xxx.py", "foo.py", "bar.py", "your_script.py", "name.py", "a.py"}
+PLACEHOLDERS = {"xxx.py", "x.py", "foo.py", "bar.py", "your_script.py", "name.py", "a.py"}
 # 「把脚本从 tmp 搬到 scripts」这类叙述里允许出现 tmp 路径：写成了 mv 句式即视为迁移记录
 MIGRATION_MARK = "mv tmp/"
 
@@ -84,25 +84,41 @@ def write_baseline(names):
         "legacy_tmp_scripts": sorted(names),
     }
     BASELINE.write_text(
-        json.dumps(payload, indent=1, ensure_ascii=False) + "\n", encoding="utf-8"
+        json.dumps(payload, indent=1, ensure_ascii=False) + "\n",
+        encoding="utf-8", newline="\n",
     )
+
+
+def iter_doc_refs(line):
+    """从一行 markdown 里取脚本路径引用，产出 (kind, token)。
+
+    kind: 'tmp'（不该出现）/ 'scripts'（应当真实存在）。
+    只认本仓库相对路径：`open-source-games/scripts/x.py` 属于别的仓库，跳过。
+    """
+    for token in RE_PATH_TOKEN.findall(line):
+        tok = token.replace("\\", "/")
+        while tok.startswith("./"):
+            tok = tok[2:]
+        if tok.startswith("/"):
+            tok = tok[1:]
+        if not tok or tok.split("/")[-1] in PLACEHOLDERS:
+            continue
+        if tok.startswith("tmp/"):
+            if MIGRATION_MARK in line:
+                continue  # 「mv tmp/a.py scripts/a.py」式的迁移记录
+            yield "tmp", tok
+        elif tok.startswith("scripts/"):
+            yield "scripts", tok
 
 
 def check_docs(fails):
     tmp_hits, missing = [], []
     for rel, lineno, line in doc_lines():
-        for token in RE_PATH_TOKEN.findall(line):
-            tok = token.replace("\\", "/").lstrip("./")
-            if not tok or tok.split("/")[-1] in PLACEHOLDERS:
-                continue
-            # 只认本仓库的相对路径；`open-source-games/scripts/x.py` 属于别的仓库
-            if tok.startswith("tmp/"):
-                if MIGRATION_MARK in line:
-                    continue  # 「mv tmp/a.py scripts/a.py」式的迁移记录
+        for kind, tok in iter_doc_refs(line):
+            if kind == "tmp":
                 tmp_hits.append("%s:%d  引用 %s" % (rel, lineno, tok))
-            elif tok.startswith("scripts/"):
-                if not (ROOT / tok).exists():
-                    missing.append("%s:%d  引用 %s（不存在）" % (rel, lineno, tok))
+            elif not (ROOT / tok).exists():
+                missing.append("%s:%d  引用 %s（不存在）" % (rel, lineno, tok))
     if tmp_hits:
         fails.append(
             "① docs 仍在引用 tmp/ 脚本（%d 处）—— 这些脚本不在仓库里，"

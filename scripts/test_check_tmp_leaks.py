@@ -56,7 +56,8 @@ class TestTmpRefs(unittest.TestCase):
 
 class TestFalsePositiveGuards(unittest.TestCase):
     def test_placeholder_skipped(self):
-        for line in ("例：`scripts/xxx.py`（占位）", "`tmp/foo.py` 这种写法"):
+        for line in ("例：`scripts/xxx.py`（占位）", "`tmp/foo.py` 这种写法",
+                     "`scripts/_oneoff/x.py` 比 `tmp/x.py` 深一层"):
             self.assertEqual(refs(line), [], line)
 
     def test_other_repo_path_skipped(self):
