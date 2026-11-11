@@ -214,7 +214,7 @@ TITLE_OVERRIDES = {
     ],
     "wpconvert-ai-convert-ai-sites-to-wordpress": [
         "WPConvert：AI 建站转 WP",
-        "把 AI 建站工具生成的网站，转成 WordPress——一个工程师的生意",
+        "把 AI 建站工具生成的网站转成 WordPress，是一个工程师就能接住的生意",
         "WPConvert.ai：客户被平台锁住的那一刻，就是需求触发的那一刻",
         "这批里唯一能一个人做的案例，但上游风险不小",
     ],

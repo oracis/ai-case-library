@@ -134,7 +134,10 @@ class PickOldestByCase(unittest.TestCase):
 
     def test_main必须把case级剔重接进真发路径(self):
         """只改纯函数、main 忘传 ⇒ 真发仍然没有这道闸（最容易回退的地方）。"""
-        with mock.patch.object(WF, "read_remote", return_value=({}, [])), \
+        # read_remote 11-10 起多返回 (cdp, tok)：过闸要读平台草稿正文。
+        # mock 点跟着接口走，断言一字不改。
+        with mock.patch.object(WF, "read_remote",
+                              return_value=({}, [], None, None)), \
                 mock.patch.object(WF.FD, "published_case_ids",
                                   return_value={"divine-widgets"}) as pub, \
                 mock.patch.object(WF, "pick_oldest",
@@ -206,6 +209,142 @@ class EnsureLocalRecord(unittest.TestCase):
                 cid, created = WF.ensure_local_record(
                     "100000251", {"title": "PROSP"})
                 self.assertEqual((cid, created), ("prosp", False))
+
+
+class PickBodyFromBlocks(unittest.TestCase):
+    """编辑页 contenteditable 里挑正文：按长度取最大，空稿必须返回 ""。
+
+    2026-11-10 实测结构（appmsgid=100000530）：
+      标题 `.ProseMirror` 49 字 ／ 转载推荐语 空 ／ 正文 `.ProseMirror` 993 字
+    ⛔ 按下标或按 class 取，版本一变就错拿标题 —— 标题和正文都以 `ProseMirror`
+    开头，`#js_content` 在新编辑器里根本不存在（实测 hit=false）。
+    """
+
+    def test_取最长的那块而不是标题(self):
+        blocks = [
+            {"len": 12, "text": "Coral：帮你把开源 AI"},
+            {"len": 0, "text": ""},
+            {"len": 40, "text": "拆解海外 · 第 24 篇\n\n底层 agent 已经开源…"},
+        ]
+        self.assertTrue(
+            WF.wp.pick_body_from_blocks(blocks).startswith("拆解海外"))
+
+    def test_顺序反转也取最长(self):
+        blocks = [
+            {"len": 900, "text": "正文" * 450},
+            {"len": 12, "text": "标题"},
+        ]
+        self.assertTrue(WF.wp.pick_body_from_blocks(blocks).startswith("正文"))
+
+    def test_空稿只命中标题框时返回空(self):
+        t = "Coral：帮你把开源 AI agent 部署"
+        self.assertEqual(
+            WF.wp.pick_body_from_blocks([{"len": len(t), "text": t}],
+                                        expect_title=t), "")
+
+    def test_正文里恰好含标题时不误判(self):
+        t = "标题"
+        blocks = [{"len": 2, "text": t},
+                  {"len": 500, "text": "标题\n" + "正文" * 249}]
+        self.assertTrue(
+            WF.wp.pick_body_from_blocks(blocks, expect_title=t).startswith("标题"))
+
+    def test_全空返回空(self):
+        self.assertEqual(WF.wp.pick_body_from_blocks([]), "")
+        self.assertEqual(WF.wp.pick_body_from_blocks([{"text": ""}]), "")
+
+
+class ReadDraftBody(unittest.TestCase):
+    """开编辑页读平台正文：读完必须关 tab（否则每发一篇留一个 tab）。"""
+
+    def test_读到正文并关掉tab(self):
+        closed = []
+
+        class FakeCdp(object):
+            def eval(self, expr, refresh_context=False):
+                return json.dumps([{"len": 40,
+                                    "text": "拆解海外 · 第 24 篇\n\n正文……"}])
+
+            def close_target(self, tid):
+                closed.append(tid)
+
+        with mock.patch.object(WF.wp, "_open_draft_editor",
+                              return_value="T1"), \
+                mock.patch.object(WF.wp.time, "sleep", return_value=None):
+            got = WF.wp.read_draft_body(FakeCdp(), "tok", "100001",
+                                        expect_title="标题")
+        self.assertEqual(got, "拆解海外 · 第 24 篇\n\n正文……")
+        self.assertEqual(closed, ["T1"])
+
+    def test_编辑器打不开时抛异常交给调用方降级(self):
+        with mock.patch.object(WF.wp, "_open_draft_editor",
+                              side_effect=WF.wp.DraftEditorError("没打开")):
+            with self.assertRaises(WF.wp.DraftEditorError):
+                WF.wp.read_draft_body(object(), "tok", "100000001")
+
+    def test_读到的只有标题时按空稿返回(self):
+        class FakeCdp(object):
+            def eval(self, expr, refresh_context=False):
+                return json.dumps([{"len": 2, "text": "标题"}])
+
+            def close_target(self, tid):
+                pass
+
+        with mock.patch.object(WF.wp, "_open_draft_editor",
+                              return_value="T1"), \
+                mock.patch.object(WF.wp.time, "sleep", return_value=None):
+            got = WF.wp.read_draft_body(FakeCdp(), "tok", "100001",
+                                        expect_title="标题", settle=3)
+        self.assertEqual(got, "")
+
+
+class FifoGateUsesPlatformBody(unittest.TestCase):
+    """真发路径必须把**平台草稿正文**传给闸，不能只看本地产物。
+
+    本地干净 / 平台脏 = 11-10 B站 `promptmonitor-io` 旧稿带着「我去核了一遍」
+    内部核验注记发出去的那次事故。公众号这边 11-10 补上同一条判据：闸的正文
+    源是 `appmsg_edit` 读回的 DOM 文本，而不是 `out/articles/*.md`。
+    """
+
+    DIRTY = ("拆解海外 · 第 24 篇\n\n"
+             "> 我去核了一遍：所给原文中不存在任何 TrustMRR 成交记录。\n\n"
+             "底层 agent 已经开源，人人可下载。\n")
+    CLEAN = "拆解海外 · 第 24 篇\n\n底层 agent 已经开源，人人可下载。\n"
+
+    def _run(self, body=None, body_exc=None):
+        drafts = {"100001": {"title": "最久未发", "update_time": 1700000000}}
+        kw = {"side_effect": body_exc} if body_exc else {"return_value": body}
+        with mock.patch.object(WF, "read_remote",
+                              return_value=(drafts, [], object(), "tok")), \
+                mock.patch.object(WF.FD, "published_case_ids",
+                                  return_value=set()), \
+                mock.patch.object(WF, "local_cid_of",
+                                  return_value=("ep-001", False)), \
+                mock.patch.object(WF.wp, "read_draft_body", **kw) as rd, \
+                mock.patch.object(WF, "ensure_local_record",
+                                  return_value=("ep-001", False)) as ensure, \
+                mock.patch.object(WF.subprocess, "call", return_value=0), \
+                mock.patch("builtins.print"), \
+                mock.patch.dict(os.environ, {}, clear=False):
+            rc = WF.main(["--go"])
+        return rc, ensure, rd
+
+    def test_平台正文带核验注记时拦下且不补登(self):
+        rc, ensure, rd = self._run(body=self.DIRTY)
+        self.assertEqual(rc, 3)
+        self.assertFalse(ensure.called)
+        self.assertEqual(rd.call_args.args[2], "100001")
+
+    def test_平台正文干净时放行到补登(self):
+        rc, ensure, _ = self._run(body=self.CLEAN)
+        self.assertEqual(rc, 0)
+        self.assertTrue(ensure.called)
+
+    def test_读平台正文失败时降级不阻断(self):
+        """读不到只能退回本地产物 —— 但绝不能因此崩掉或假装验过（同 #90）。"""
+        rc, ensure, _ = self._run(body_exc=RuntimeError("编辑器超时"))
+        self.assertEqual(rc, 0)
+        self.assertTrue(ensure.called)
 
 
 class ReadRemoteGuard(unittest.TestCase):

@@ -134,9 +134,22 @@ _*.py
 # 「测试全绿」这句话对仓库而言是假的。git 的忽略规则只认路径、读不出文件用途，
 # 所以必须显式放行，否则新写的测试又会静默消失。
 !/scripts/_t_*.py
-# 一次性排障脚本归档（2026-10-18 从 scripts/ 根目录挪进来）。
-# `/scripts/_*.py` 只匹配根目录下一层，归档里的文件不会被覆盖到，必须单独挡。
-/scripts/_oneoff/
+# ⚠️ 例外 2：`_launch_*.py` 是**活工具**（CDP Chrome 启动器，preflight 和多个发布
+# 脚本会直接调；`_launch_9223.py` 被 16 个文件引用）。2026-11-11 普查发现它们
+# 被 `/scripts/_*.py` 静默挡在库外 —— 换机后一条发布命令都起不来。
+!/scripts/_launch_*.py
+# ⛔ 2026-11-11 起 `scripts/_oneoff/` 不再忽略 —— 反转 2026-10-18 的决定。
+# 原因：docs/PRD.md 把这些一次性脚本当作「复现证据」引用，而归档被忽略 ⇒
+# clone / 换机后脚本不存在，同一个修复被反复重写（rewrite_yun_draft.py 就是
+# 修过两次的例子）。归档本身是排障记录，属于仓库资产，必须入库。
+# 规则没删干净；取而代之的是 scripts/check_tmp_leaks.py：docs 一旦引用
+# tmp/*.py 直接 FAIL。
+# ⚠️ 上面的 `_*.py`（第 128 行，未锚定）会递归匹配归档里 50 个 `_diag_*` /
+# `_probe_*` / `_fix_*`，所以必须单独放行整个归档目录，否则「已入库」是假的。
+!/scripts/_oneoff/**
+# ⚠️ 上一条放行整目录会连带把 __pycache__ 也放出来（gitignore 最后匹配者胜），
+# 实测一次冒出 281 个 .pyc，必须单独再挡回去。
+scripts/_oneoff/__pycache__/
 # 本地备份与探针目录：含 data/ 快照和 admin.json 备份（后者带签名密钥），
 # 也含抓下来的原始响应（大文件、随时可重抓）。都不入库。
 _backfill_backup/
@@ -153,7 +166,10 @@ _backups/
 # 与 out/ 同理：随时可由 cases.json 重算，提交进来只会天天变。
 发布队列-*.md
 
-# 本地探针目录（CDP 截图 + 一次性调试脚本）：产物随时可重生成，不入库
+# 本地临时目录：**只放产物**（截图 / 抓包 / 备份 json / 日志 / 干跑输出）。
+# ⛔ 不许在里面写「修复脚本」：tmp/ 不进仓库，写进去就等于下次重写一遍。
+# 一次性排障脚本一律放 scripts/_oneoff/（已入库）；常驻工具放 scripts/。
+# 由 scripts/check_tmp_leaks.py 兜底：docs 引用 tmp/*.py 直接 FAIL。
 tmp/
 
 # 探针缓存：抓下来的真实请求体 / 远端草稿正文（.cache/bili_save_capture.json

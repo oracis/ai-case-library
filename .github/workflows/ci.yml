@@ -205,6 +205,18 @@ jobs:
         continue-on-error: true
         run: python -m unittest scripts.test_agnes_cover
 
+      - name: 测试 check_tmp_leaks.py（修复脚本不许散在仓库外）
+        # 2026-11-11：`rewrite_yun_draft.py` 写在 `tmp/` 里、`scripts/_oneoff/`
+        # 整个被 .gitignore 挡着，而 docs/PRD.md 把它们当复现证据引用 ⇒
+        # 换机 / clone 后脚本不在，同一个修复被反复重写。
+        # 守四条线：① docs 不许引用 tmp/ 脚本；② 引用的 scripts 文件必须存在；
+        # ③ tmp/ 不许出现基线外的新脚本；④ scripts/ 下 .py 必须被 git 跟踪。
+        # ⚠️ CI 里 tmp/ 不存在（被忽略、不 checkout），第 ③ 项自动跳过 ——
+        # 这一项的作用域是本机，CI 只兜 ①②④。
+        id: tmp_leaks
+        continue-on-error: true
+        run: python scripts/check_tmp_leaks.py && python -m unittest scripts.test_check_tmp_leaks
+
       - name: 汇总（任一步失败即判红，但每一步都跑到了）
         # 上面每步都 continue-on-error，所以它们谁也挡不住谁；判红统一由这里做。
         # 「跳过」也一起打出来 —— 静默 pass 是假绿的另一种。
@@ -229,6 +241,7 @@ jobs:
             "harvest:${{ steps.harvest.outcome }}" \
             "prerender:${{ steps.prerender.outcome }}" \
             "agnes:${{ steps.agnes.outcome }}" \
+            "tmp_leaks:${{ steps.tmp_leaks.outcome }}" \
           ; do
             printf '  %-16s %s\n' "${pair%%:*}" "${pair#*:}"
             [ "${pair#*:}" = "failure" ] && bad=1

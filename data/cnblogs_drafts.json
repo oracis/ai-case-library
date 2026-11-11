@@ -187,5 +187,26 @@
     "url": "https://www.cnblogs.com/thing-explainer/p/23599642",
     "status": "published",
     "ts": "2026-11-09 10:37:49"
+  },
+  "autoreels-ai": {
+    "post_id": "23614180",
+    "title": "用流水线架构支撑批量短视频生产",
+    "url": "https://www.cnblogs.com/thing-explainer/p/23614180",
+    "status": "published",
+    "ts": "2026-11-10 12:48:22"
+  },
+  "ext-ep-006-nethack": {
+    "post_id": "23623555",
+    "title": "NetHack，能玩死你的地牢模拟器",
+    "url": "https://www.cnblogs.com/thing-explainer/p/23623555",
+    "status": "published",
+    "ts": "2026-11-11 08:19:03"
+  },
+  "magicslides-app": {
+    "post_id": "23625794",
+    "title": "AI 一键生成演示文稿：借编辑器杠杆省成本",
+    "url": "https://www.cnblogs.com/thing-explainer/p/23625794",
+    "status": "published",
+    "ts": "2026-11-11 10:47:34"
   }
 }

@@ -7,8 +7,6 @@
 
 > 「该 App 在 TrustMRR 挂牌，售价 $75K、倍数 1.6x」
 
-> 我去核了一遍：所给 TrustMRR 页面摘录中只出现 All-time revenue $62,352、MRR $2,869、115 active subscriptions 和 App Store 3.6/5（116 评分），页顶标注为 Startup；下方 "More startups for sale" 的 FOR SALE 卡片是 AppAlchemy、Cliptude、VECTOSOLVE 等其它项
-
 ## 它是干什么的
 
 拍照识别虫咬类型的 iOS 应用：给出可能的虫种、置信度、护理建议，并记录咬痕随时间的变化。免费下载，核心功能靠内购订阅解锁。

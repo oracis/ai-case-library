@@ -6,8 +6,6 @@
 
 > 「Chatbase 年入 $20M」
 
-> 我去核了一遍：$20M 是累计收入（lifetime），不是年收入。当前 ARR 约 $10M。TrustMRR 验证的累计值 $19.21M 加上一个月正常收入刚好越过 $20M，数字是自洽的。把「累计」写成「年入」会夸大十倍。
-
 ## 它是干什么的
 
 把你的网站、PDF、Notion、帮助文档、甚至已有的 Zendesk / Salesforce 工单灌进去，几分钟内训出一个能回答客户问题的机器人。2026 年扩展成完整客服 agent 平台，含语音 agent、WhatsApp 外呼、轻量 helpdesk。

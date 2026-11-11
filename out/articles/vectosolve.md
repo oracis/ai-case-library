@@ -6,8 +6,6 @@
 
 > 「近 30 天收入 $2,975 是当前核验表中的 verified revenue。」
 
-> 我去核了一遍：TrustMRR 核验收入表列出的近 30 天收入为 $2,903；$2,975 是另行存储的“Last 30 days revenue snapshot”，两者不应混为同一个当前核验值。
-
 ## 它是干什么的
 
 把 PNG / JPG / WEBP 位图转成可编辑的 SVG 矢量图，并可导出 DXF、EPS、AI、PDF、G-code 以及刺绣用的 DST/PES/JEF 等格式。服务两类客户：需要矢量化的独立开发者/小商家，以及做定制刺绣、激光切割的加工方。

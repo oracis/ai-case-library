@@ -7,8 +7,6 @@
 
 > 「MagicSlides 收入 $9.1K、要价 $500K、倍数 4.6x」
 
-> 我去核了一遍：TrustMRR 的 MagicSlides.app 页显示 MRR $11,332、825 个活跃订阅、All-time revenue $714,537；页面 'FOR SALE' 区块列的是 Cliptude、Vid.AI、White Glove Content 等其它项目，并未显示 MagicSlides 自身的要价与倍数。
-
 ## 它是干什么的
 
 把一个主题或一段文档直接变成演示文稿：AI 生成大纲和每页文案，再通过 Google Slides / PowerPoint 集成导出成可直接编辑的 PPT。

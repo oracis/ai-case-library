@@ -67,6 +67,12 @@ TITLE_MAX = {
     "aliyun": 100,
 }
 
+# 标题禁破折号（2026-11-10 用户裁定）。中文破折号 / 连接号 / 双连字符一律拦：
+# 破折号后面挂名词短语读着断，且 10-17 已因「——一」硬截残渣出过事故；
+# 已发表文章标题微信只让改 3 个字 ⇒ 必须在建稿前挡住，事后改不动。
+# 单个 ASCII `-` 放行（AI-native / v0 之类正当写法）。
+TITLE_DASH = re.compile(r"——|—|–|－|--")
+
 # 一段里 ≥2 个 `$` 会被 KaTeX 吃成公式（PLAYBOOK-platforms）
 KATEX_PLATFORMS = ("csdn", "tencentcloud", "aliyun")
 
@@ -175,6 +181,21 @@ MECHANICAL_SECTIONS = (
 ZHIHU_CTA = re.compile(
     r"加我|私信我|扫码|二维码|加群|进群|公众号|vx\b|v信|点击.{0,6}(链接|官网)|"
     r"前往.{0,6}官网|领取资料|关注我|完整版.{0,6}(公众号|博客|站)", re.I)
+
+# 内部核验注记（2026-11-10，PRD #124）：旧生成器把**内部核查说明**当成正文
+# 开头的引用块印了出去 —— 「> 我去核了一遍：所给原文中不存在任何 TrustMRR
+# 成交记录…」。读者不知道「所给原文」指什么，它又常与旁边的数字自相矛盾。
+# 11-10 B站一号 FIFO 把 10-20 积压的 promptmonitor-io 旧稿发了出去，正文
+# 就带着这段（out/articles/*.html 里的 <blockquote>）。与 #55「内部黑话」
+# 同类，但措辞不同，JARGON 认不出来。
+# 🚨 两条判据精度（都拿全仓语料回扫过，别凭空改）：
+#    ① 必须先剥 HTML 注释：`<!-- 核对用来源（发布前逐个点开确认，别进正文） -->`
+#       是生成器的固定尾巴，256/293 篇产物都有，但它**不渲染**。剥前误伤 256 篇，
+#       剥后命中恰好 37 篇 md + 37 篇 html，drafts/newbatch 66 篇新稿 0 命中。
+#    ② 不锚定 `> ` / `<blockquote>`：平台草稿把引用块转成纯文本后前缀会消失，
+#       只认引用块形状会让「平台实际正文」漏网（B站 draft/view 返回纯文本）。
+VERIFY_NOTE = re.compile(
+    r"我去核了一遍|所给原文(?:中|里)?不存在|无任何来源|查无实据|核对用来源")
 
 
 # ---------------------------------------------------------------- 工具
@@ -405,6 +426,12 @@ def scan_title(platform, title, pack=None, published=False):
         out.append({"level": "warn", "rule": "标题尾字可疑",
                     "detail": "以「%s」收尾，核一下是不是被切了半个词" % t[-1]})
 
+    if TITLE_DASH.search(t):
+        out.append({"level": "warn" if published else "block",
+                    "rule": "标题含破折号",
+                    "detail": "命中「%s」⇒ 标题不能用破折号，改成冒号/逗号或完整句子；"
+                              "已发表文章只让改 3 个字，事后改不动"
+                              % TITLE_DASH.search(t).group(0)})
     if re.search(TITLE_TEMPLATE, t):
         out.append({"level": "block", "rule": "空壳/机械模板标题",
                     "detail": "命中笼统模板（%s）⇒ 要给「做什么 + 可核验数字」，不是栏目名"
@@ -442,6 +469,10 @@ def scan_title(platform, title, pack=None, published=False):
 def scan_content(platform, text, pack=None):
     """返回 findings；技术平台把「自曝批量」判成 block，其余判 warn。"""
     s = text if text is not None else (body_of(pack) if pack else "")
+    # 产物里的 `<!-- ... -->` 是给写稿人看的注释，不渲染给读者。先剥再判，
+    # 否则「核对用来源（发布前逐个点开确认，别进正文）」这个固定尾巴会把
+    # 256 篇正常产物误判成内部核验注记（见 VERIFY_NOTE 的语料实测）。
+    s = re.sub(r"<!--.*?-->", "", s, flags=re.S)
     strict = platform in TECH_PLATFORMS
     lvl = "block" if strict else "warn"
     out = []
@@ -477,6 +508,16 @@ def scan_content(platform, text, pack=None):
         out.append({"level": "block", "rule": "内部黑话",
                     "detail": "命中「%s」⇒ 这是流水线自用词汇/字段名，读者看不懂；"
                               "跑 `scripts/scrub_jargon.py --check` 看清单" % m.group(0)})
+    # 内部核验注记：与上面「内部黑话」同类，但措辞是核查说明而非字段/流水线词，
+    # JARGON 认不出。九平台一律 block —— FIFO 发的社交平台（wechat/xhs/bilibili）
+    # 不在 TECH_PLATFORMS，若按 strict 降级成 warn 就拦不住 11-10 那篇旧稿。
+    mv = VERIFY_NOTE.search(s)
+    if mv:
+        out.append({"level": "block", "rule": "内部核验注记",
+                    "detail": "正文带「%s」⇒ 这是写稿时的内部核查说明，读者看不懂且常与"
+                              "正文数字自相矛盾；按 11-08 裁定「在旧稿上改稿再发，"
+                              "不许另起新稿」，跑 `python scripts/fifo_content_gate.py "
+                              "--scan-backlog` 看存量清单" % mv.group(0)})
     # 数据时点（2026-11-05，用户口径：「金额不准确，并且是动态的」）。
     # 只要正文引了 MRR / 年化收入，就必须说清「这是哪天的数、按什么口径」——
     # 否则读者会把抓取当天的快照当现值。只 warn 不 block：存量 261 篇产物都

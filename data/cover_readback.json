@@ -9,6 +9,13 @@
   }
  },
  "chessigma": {
+  "aliyun": {
+   "at": "2026-11-11 08:54:52",
+   "evidence": "文章首图 firstImg=https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_5d65b73c64fd4afeb6feeb7b486537cb.png",
+   "remote_id": "1781861",
+   "source": "yun_finalize",
+   "state": "ok"
+  },
   "csdn": {
    "at": "2026-11-05 00:57:18",
    "evidence": "CSDN 列表读取失败（✗ Chrome CDP 没起来（端口 9224））",
@@ -90,6 +97,13 @@
    "evidence": "aid=376923 image_urls=http://article.biliimg.com/bfs/article/a4eae224dc77f7aea8164f7860fd73a1a86450d2.jpg",
    "source": "live",
    "state": "ok"
+  },
+  "tencentcloud": {
+   "at": "2026-11-11 10:57:20",
+   "evidence": "线上文章 2781234 卡片缩略图 background-image=https://developer.qcloudimg.com/http-save/yehe-12743977/0ac066e13d8f753fcf22426e4521f6b5.jpg",
+   "remote_id": "2781234",
+   "source": "yun_finalize",
+   "state": "ok"
   }
  },
  "ext-ep-009-lichess": {
@@ -133,8 +147,9 @@
  },
  "gojiberryai": {
   "aliyun": {
-   "at": "2026-11-07 19:11:38",
-   "evidence": "文章首图 firstImg=https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_96f94d2b63b5487d952a4ee2039cf1dd.png",
+   "at": "2026-11-10 12:47:26",
+   "evidence": "文章首图 firstImg=https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_d6342f6911c1408db7d78b2001f0c16f.png",
+   "remote_id": "1781420",
    "source": "yun_finalize",
    "state": "ok"
   },

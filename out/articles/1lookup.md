@@ -7,8 +7,6 @@
 
 > 「1Lookup 同时处于 FOR SALE 状态」
 
-> 我去核了一遍：抓取到的 TrustMRR 页面里，FOR SALE 标签挂在 Vid.AI、White Glove Content、Confidential Startup、AppAlchemy、Cliptude、Stealth Venture 等「More startups for sale」列表项上，这些是其他待售项目；1Lookup 自身页面的状态与价格均未在原文中标注为待售。因此不能据此判定 1Look
-
 ## 它是干什么的
 
 一个 API 解决「这个电话/邮箱/IP 是不是真的、值不值得联系」：实时校验号码有效性、邮箱可达性、IP 风控画像，按调用量计费。卖的不是数据列表，是「调用那一刻的判定」。

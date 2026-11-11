@@ -7,8 +7,6 @@
 
 > 「AutoReels.AI 在 TrustMRR 市场挂牌，售价 $50K、倍数 3.5x」
 
-> 我去核了一遍：该页面 AutoReels.AI 的数据块中没有任何 asking price 或 multiple 字段；页面下方 FOR SALE 列表的 $28k/$200k/$40k/$160k/$80k 等价格分别属于 AppAlchemy、Cliptude、Stealth Venture、Anonymous Startup、UpLinked、VECTOSOLVE 等其他项目，与本案例无关。$50K 售
-
 ## 它是干什么的
 
 无人出镜的短视频批量生产工具：输入主题或链接，自动生成脚本、配音、素材和成片，按时长和产量分档订阅，主要卖给做红人号、电商号的批量内容生产者。

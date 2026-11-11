@@ -151,6 +151,27 @@ DRAFTS = [
 
 
 class TestPickDraft(unittest.TestCase):
+    """挑选口径（FIFO / 关键词 / 标题匹配）。
+
+    🚨 2026-11-10：这一组只验**挑哪一条**，必须与真实的已发表台账隔离。
+    事故：`pick_draft` 在 11-07 加了「按案例剔已发」（见 TestFifoDedupeByCase），
+    而这里的固定池里 AutoReels(autoReels-ai) 后来真的在小红书发过了 ⇒
+    `test_默认取最久` 变成「取决于库里谁被发过」的假红，跟排序逻辑无关。
+    剔重行为本身有专门用例覆盖，这里把账读口和认亲都打到空，才量得准。
+    """
+
+    def setUp(self):
+        self._p1 = mock.patch.object(x, "_published_case_ids_union",
+                                     return_value=set())
+        self._p2 = mock.patch.object(x, "match_drafts",
+                                     return_value=([], []))
+        self._p1.start()
+        self._p2.start()
+
+    def tearDown(self):
+        self._p2.stop()
+        self._p1.stop()
+
     def test_默认取最久(self):
         d, why = x.pick_draft(DRAFTS)
         self.assertEqual(d["title"], "AutoReels：素材一键剪成短视频")
@@ -368,6 +389,192 @@ class TestImgHealth(unittest.TestCase):
         o = self._run([dict(self.IMG, src="https://cdn/broken", nw=0)])
         self.assertTrue(o["bad"])
         self.assertIn("cdn/broken", o["bad"][0])
+
+
+#: 正文读取专用的迷你 DOM —— 只实现 `querySelector` 的**单条复合选择器**
+#: （tag + .class + [attr=val]），因为 `JS_READ_BODY` 只用到这一种。
+#:
+#: ⚠ 为什么另起一个 harness 而不去扩 `_JS_HARNESS`：那个是发布按钮 / 图片体检
+#:   共用的，给它的 `matches()` 加属性选择器会让既有用例的匹配结果变样
+#:   （`input[type=file]`、`img.preview` 之类会从不命中变成命中）⇒ 为了不动
+#:   别人的断言，这里单独开一份。断言标准一条都没放宽。
+_JS_QS_HARNESS = """
+var NODES = __NODES__.map(function(o){
+  return {tag: (o.tag || ''), cls: (o.cls || ''), innerText: (o.text || ''),
+          _a: (o.attr || {})};
+});
+function _parse(sel){
+  var m = /^([a-zA-Z0-9]*)((?:\\.[\\w-]+)*)((?:\\[[^\\]]+\\])*)$/.exec(sel.trim());
+  if (!m) return null;
+  var cls = m[2] ? m[2].split('.').filter(Boolean) : [];
+  var attrs = [], s = (m[3] || ''), re = /\\[([\\w-]+)(?:=(?:"([^"]*)"|'([^']*)'|([^\\]]*)))?\\]/g, x;
+  while ((x = re.exec(s))) {
+    attrs.push([x[1], (x[2] !== undefined ? x[2] : (x[3] !== undefined ? x[3] : x[4]))]);
+  }
+  return {tag: m[1], cls: cls, attrs: attrs};
+}
+function _ok(n, p){
+  if (p.tag && n.tag.toLowerCase() !== p.tag.toLowerCase()) return false;
+  for (var i = 0; i < p.cls.length; i++) {
+    if (n.cls.split(/\\s+/).indexOf(p.cls[i]) < 0) return false;
+  }
+  for (var j = 0; j < p.attrs.length; j++) {
+    var k = p.attrs[j][0], v = p.attrs[j][1];
+    if (!(k in n._a)) return false;
+    if (v !== undefined && String(n._a[k]) !== v) return false;
+  }
+  return true;
+}
+function _all(sel){
+  var p = _parse(sel);
+  return p ? NODES.filter(function(n){ return _ok(n, p); }) : [];
+}
+var document = {
+  querySelector: function(sel){ return _all(sel)[0] || null; },
+  querySelectorAll: function(sel){ return _all(sel); }
+};
+console.log(JSON.stringify({r: (__JS__)}));
+"""
+
+
+def _run_body_js(nodes):
+    """用一张迷你 DOM 跑 `JS_READ_BODY`。没有 node 就明说跳过（不静默 pass）。"""
+    node = shutil.which("node")
+    if not node:
+        return None
+    src = (_JS_QS_HARNESS.replace("__NODES__", json.dumps(nodes))
+                         .replace("__JS__", x.JS_READ_BODY))
+    fd, path = tempfile.mkstemp(suffix=".js")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            f.write(src)
+        p = subprocess.run([node, path], capture_output=True, text=True,
+                           encoding="utf-8")
+        if p.returncode != 0:
+            raise AssertionError("node 跑正文读取 JS 失败：%s" % p.stderr)
+        out = json.loads(p.stdout.strip().splitlines()[-1])
+        return json.loads(out["r"])          # JS 自己 return 的是 JSON 字符串
+    finally:
+        os.unlink(path)
+
+
+class TestReadEditorBody(unittest.TestCase):
+    """小红书正文读取：必须读到**正文那一块**，不许拿标题充数。
+
+    这个洞的来历（PRD #129 / 11-10）：闸只反查本地产物，平台草稿箱里的旧副本
+    没人验 ⇒ B站一号 `promptmonitor-io` 把带「我去核了一遍」内部核验注记的旧稿
+    发了出去。小红书同一处也是不传 text，属于同款。
+    """
+
+    TITLE = {"tag": "input", "cls": "d-text", "text": "",
+             "attr": {"placeholder": "填写标题会有更多赞哦"}}
+    BODY = {"tag": "div", "cls": "tiptap ProseMirror",
+            "text": "正文第一段\n正文第二段",
+            "attr": {"contenteditable": "true"}}
+
+    def _run(self, nodes):
+        r = _run_body_js(nodes)
+        if r is None:
+            self.skipTest("本机没有 node，正文读取 JS 未验证（不是通过）")
+        return r
+
+    def test_读到正文(self):
+        o = self._run([self.TITLE, self.BODY])
+        self.assertTrue(o["ok"], o)
+        self.assertEqual(o["text"], "正文第一段\n正文第二段")
+        # len 由 JS 侧算（它报的是 innerText 原长），断言按同一字符串实算，
+        # 别手写常数 —— 上一版这里写成 9+1+5=15，实际 11，是断言自己错了。
+        self.assertEqual(o["len"], len(self.BODY["text"]))
+
+    def test_只有标题时不算命中(self):
+        """编辑器是空壳（正文还没渲染）⇒ 必须明确 no_editor，不能返回标题。"""
+        o = self._run([self.TITLE])
+        self.assertFalse(o["ok"])
+        self.assertEqual(o["why"], "no_editor")
+
+    def test_同名class但不可编辑的块不算正文(self):
+        """公众号那种「标题和正文都叫 ProseMirror」的坑，靠 contenteditable 排除。"""
+        fake = {"tag": "div", "cls": "tiptap ProseMirror", "text": "标题文字",
+                "attr": {}}
+        o = self._run([self.TITLE, fake])
+        self.assertFalse(o["ok"])
+
+    def test_空正文返回空串由调用方退化(self):
+        o = self._run([dict(self.BODY, text="")])
+        self.assertTrue(o["ok"])
+        self.assertEqual(o["text"], "")
+
+    def test_元素顺序无关(self):
+        """正文排在标题前面也要取到正文（按选择器取，不按下标猜）。"""
+        o = self._run([self.BODY, self.TITLE])
+        self.assertEqual(o["text"], "正文第一段\n正文第二段")
+
+
+class TestReadEditorBodyFallback(unittest.TestCase):
+    """`read_editor_body` 的三种退化都要返回 ""，让调用方说「没验过」。"""
+
+    def test_eval抛异常返回空(self):
+        class Boom(object):
+            def eval(self, expr, refresh_context=False):
+                raise RuntimeError("target closed")
+        self.assertEqual(x.read_editor_body(Boom()), "")
+
+    def test_返回非dict返回空(self):
+        self.assertEqual(x.read_editor_body(_FakeSub(["none"])), "")
+
+    def test_ok为false返回空(self):
+        self.assertEqual(
+            x.read_editor_body(_FakeSub(['{"ok":false,"why":"no_editor"}'])), "")
+
+    def test_全文只有空白返回空(self):
+        self.assertEqual(
+            x.read_editor_body(_FakeSub(['{"ok":true,"len":3,"text":"   "}'])), "")
+
+    def test_正常返回去掉首尾空白的正文(self):
+        self.assertEqual(
+            x.read_editor_body(_FakeSub(
+                ['{"ok":true,"len":9,"text":"  正文 \\n"}'])), "正文")
+
+
+class TestGateDraftUsesPlatformBody(unittest.TestCase):
+    """闸必须收到**编辑器里那一份**正文，而不是只拿到 case 去反查本地。
+
+    这是 PRD #124 那个洞的正面用例：改前 `FCG.guard("xhs", cid, title)`
+    一个 text 都不传，本地干净 / 平台脏时闸直接放行。
+    """
+
+    D = {"title": "Bustem：帮电商品牌全网打假", "saved": "2026-10-19 01:36:44"}
+
+    def _call(self, body):
+        import fifo_content_gate as FCG
+        got = {}
+
+        def fake_guard(platform, case=None, title="", text=None, pack=None,
+                       text_src=None):
+            got.update(platform=platform, case=case, title=title, text=text,
+                       text_src=text_src)
+            return {"ok": True, "checked": True, "source": text_src,
+                    "blocks": [], "warns": [], "detail": ""}
+
+        with mock.patch.object(x, "read_editor_body", return_value=body), \
+                mock.patch.object(x, "match_drafts",
+                                  return_value=([{"id": "bustem"}], [])), \
+                mock.patch.object(FCG, "guard", side_effect=fake_guard):
+            x.gate_draft(_FakeSub([]), self.D)
+        return got
+
+    def test_正文来自编辑器(self):
+        got = self._call("正文里带着注记")
+        self.assertEqual(got["text"], "正文里带着注记")
+        self.assertEqual(got["text_src"], "platform:editor")
+        self.assertEqual(got["platform"], "xhs")
+        self.assertEqual(got["case"], "bustem")
+
+    def test_读不到正文时不传text_退回本地(self):
+        """退化要显式：text=None ⇒ guard 走本地反查，`checked` 不是 platform。"""
+        got = self._call("")
+        self.assertIsNone(got["text"])
+        self.assertEqual(got["text_src"], "platform:editor")
 
 
 class TestPublishComponentState(unittest.TestCase):

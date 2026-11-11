@@ -6,8 +6,6 @@
 
 > 「收入 $6.2K，并据此与 $15K 售价配出 0.2x 倍数」
 
-> 我去核了一遍：页面经支付商 Superwall API 验证的口径是：Current MRR $1,254、近 30 天收入 $4,382、近 7 天 $1,535、累计（=近12个月）$16,591。$6.2K 既不等于 MRR 也不等于近30天或累计收入；用 $15K÷0.2x÷12 可反推为月均约 $6.25K，说明它是「倍数反推的年化/月均数」被写成收入。另外，抓到的摘录中并未出现 Divine Wid
-
 ## 它是干什么的
 
 Divine Widgets 是一款面向基督教女性的小组件 App（TrustMRR 描述：Christian Bible Widget App for Women）。它把定制的圣经经文、祷告与基督教肯定句放到 iPhone 的桌面与锁屏上，把用户每一次解锁手机变成与神相遇的时刻；支持离线圣经、可自定义的桌面/锁屏小组件、每日提醒，无广告。2026-03-03 上架 App Store，评分 4.8/5，1 人团队、自筹资金，技术栈 React Native + Expo + Supabase + Vercel，支付走 Superwall。

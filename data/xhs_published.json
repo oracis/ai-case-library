@@ -389,5 +389,13 @@
     "at": "2026-11-09 10:52",
     "note_id": "6af1355a000000002c01a910",
     "note": "[11-09 镜像同步] note_id 按平台 user/posted?tab=0 全量列表补齐；配对依据 json.at == 平台 time 唯一候选；SQLite remote_id 已按 #107 回写真值（同一 noteId）"
+  },
+  {
+    "id": "shipfast",
+    "at": "2026-11-10 12:58"
+  },
+  {
+    "id": "rezi",
+    "at": "2026-11-11 08:22"
   }
 ]

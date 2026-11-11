@@ -26,7 +26,7 @@ python scripts/verify_cover_edge.py --dir tmp/covers/audit --port 9222
 ```
 
 批量 `refresh --cover --cover-api` 跑完后**必须**重抓线上封面再体检一遍
-（`tmp/wx_draft_audit.py` 抓图 + 本脚本判脏），别只看命令返回成功。
+（`wx_draft_audit.py` 抓图 + 本脚本判脏（该脚本当时写在 `tmp/`，未随仓库留存）），别只看命令返回成功。
 
 ---
 
@@ -93,7 +93,7 @@ resp: {"code":0,"data":{"pgc_id":"…"},"message":"保存成功"}
 
 校验：`verify_draft_cover()` 回读 `draft_list` 的 `cover_image.image_uri`，
 与第①步 uri 一致才算真落库（`code:0` 不算数 —— 头条的老毛病）。
-端到端实测 `tmp/tt_cover_e2e.py` RC=0：上传 → 存稿 → 编辑器封面区出图。
+端到端实测 `tt_cover_e2e.py` RC=0（该脚本未留存）：上传 → 存稿 → 编辑器封面区出图。
 
 ### API 覆盖：**六项全通**（2026-10-18 补上最后两处，别再对外说「部分」）
 
@@ -243,7 +243,7 @@ Delete(t){                                  // vendors.d1505bc60ce087d047b1.js
 
 ### 🚨 四段对照实验：推翻「需逆向 token」的旧结论
 
-`tmp/tt_fresh_replay.py`。上午一度判定「token 带时效 ⇒ 纯 API 化不可行」，
+`tt_fresh_replay.py`（该脚本未留存）。上午一度判定「token 带时效 ⇒ 纯 API 化不可行」，
 **错在把「token 过期」和「token 缺失」的 7050 当成一回事** —— 两者报文完全
 一样，光看状态码根本分不开。同会话对照：
 
@@ -737,7 +737,75 @@ python -X utf8 scripts/wechat_verify_refresh.py --since 1790856240
 `refresh --cover` 常报「封面处理异常: timed out」+「CDP 页面连接断开，已重连」，
 但最终 `OK (CLICKED:保存为草稿)` 且封面确实换了 —— 要回读 img src 核实。
 
+### 🚨 已发表文章修改页 UI 改版 ＋ 摘要改中文（2026-11-10 实测）
+
+**入口**：`cgi-bin/masssendmodify?action=edit_new&appmsgid=<id>&idx=1&lang=zh_CN&token=<tok>`。
+⚠ **不带 `token` 会显示「请重新登录」，但那不是掉登录** —— 同 profile 里 `appmsgpublish` 列表 /
+`_connect_mp()` 都正常，只是这个 CGI 的入口参数校验。
+
+**UI 已换**：旧版草稿编辑器的 `#js_description` textarea 在修改页**完全不存在**；摘要被渲染成
+Vue 逐字符 `<span class="character digest_char">`，点单个字只弹「修改 / 删除」菜单，
+「原文 / 修改为」输入框**一次只准替换 1 个字**（实测填 119 字中文 ⇒
+「已超出限定字数 118 个字」）。点封面只弹「裁剪 / 替换 → 从正文选择／图片库／扫码上传」，
+底部「修改封面和摘要」是 `.back-to-top-btn` 悬浮锚点，只滚动不弹编辑器。
+
+**提交链路**（读页面 `msg_modify_fe.*.js` 实证）：
+`POST masssendmodify?action=content_check` → `POST masssendmodify?action=submit`。
+`content_check` 的 `digest` 参数就是**最终摘要全文**，取自 Vue 组件 `pageData.digest`；
+`preview=1` 只校验、返回 `seq`，**不消耗修改次数**；`submit(seq)` 才真正落库。
+规则：每篇可改 3 次、摘要总数 ≤120 字、改后文章底部显示修改时间、
+**新摘要只在新转发卡片生效**（历史转发卡片不变）。
+
+**工具**：`scripts/wechat_set_digest.py` —— 缺省干跑（改编辑态 → preview → 恢复原值），
+`--yes` 才提交，`--wait` 等管理员扫码；回归锁 `scripts/test_wechat_set_digest.py`。
+判据只认**独立进程**回读 `appmsgpublish` 原始
+`publish_info.appmsg_info[0].digest` 逐字命中 ＋ `remain_modify_count` 递减。
+⛔ **匿名公开页不可作回读源**：`https://mp.weixin.qq.com/s/...` 匿名 GET 返回
+HTTP 200 / 18KB 的「环境异常 → 去验证」墙，既无 `meta description` 也无文章正文。
+
+**11-10 实测**：`2247485037` 原 digest 是 120 字硬截英文 `…into production-rea`
+（根因是 `data/wechat_standalone.json` 里 10-20 积压旧稿的 `desc`，FIFO 原样带过去）。
+干跑 `ret=0 / diff_count=0 / seq=4776472634958316000`；真提交后独立回读
+`digest` 逐字等于 119 字中文、`remain_modify_count 3→2`、`appmsg_modified=1`、
+`modify_wording=还可以修改2次`、`cover` 与 `pic_cdn_url_235_1` **均未变**（封面没动）。
+本地 `desc` 用 `atomicio.update_json` 单字段同步并备份
+`tmp/wechat_standalone_backup_20261110-143335.json`（20 键、其余零改动、LF/无尾换行不变）。
+
+**边界**：以上只验证「已发表文章修改页」；**新建草稿编辑器的 `#js_description` 是否仍有效未复测**
+（不擅自打开 `appmsg_edit` 新建页，避免平台侧凭空建空白草稿），需单独授权探测。
+
 ---
+
+
+### 🚨 标题禁破折号 / 已发表文章的修改上限与删除扫码（2026-11-10）
+
+用户裁定：**标题不能用破折号**（`——` / `—` / `--`），语句要通顺准确。已落进
+`publish_guard.TITLE_DASH` + `scan_title()`：新稿一律 block，存量已发表产物降 warn
+（`published=True`），因为已发表标题改不动。单个 ASCII `-` 放行（AI-native 之类）。
+
+「已发表文章修改页」的三条硬上限（从页面 Vue 实例实读，不是猜）：
+`maxModifyTitleCount=3`（标题最多改 3 个字）、`maxModifyTextCount=120`
+（正文最多改 120 字）、`maxDigestTextCount=120`（摘要 120 字），每篇共 3 次机会。
+把 `title` / `content` 整体替换写进 `content_check` 的参数确实能发出请求，但服务端
+拒绝（error 回调、`modify_detail` 的 `list` / `title_list` / `digest_list` 全空）
+⇒ 想整句重写标题或删掉大段正文，只能「删了重建」，别在 UI 里逐字磨。
+
+⛔ **再次进入修改页必须带 `appmsgId` + `modify_version=1`**：
+`action=edit_new&appmsgid=<群发id>&idx=1&appmsgId=<编辑页id>&modify_version=1&token=...`。
+改过一次后只给 `appmsgid/idx/token` 会拿到「内容已修改」空壳页
+（`vm.content=0`、`pageTitle` 为空），极易误判成掉登录。已给
+`scripts/wechat_set_digest.py` 加 `--appmsg-id`。
+
+⛔ **删除已发表文章强制管理员扫码，API 绕不过**：发表记录页点删除走
+`$bus.emit('del-item:delete')` → `delQr=true` → `<mp-qrcheck typeid=65 :extra=delData>`
+→ 扫码且**在手机上点确认** → `delDone` 置 `is_deleted=true`。直调
+`operate_appmsg?sub=del` 对群发 id 返「参数错误」、对编辑页 id 只删草稿。
+本机脚本退出会整组回收 Chrome、页面重载 ⇒ 扫码会话容易丢，自动化两轮均失败；
+务实做法是**人在浏览器里手工点删**，删完再按列表 `is_deleted` 独立回读同步台账。
+
+重建模板：干净 HTML → `wechat_publish.py publish --file ... --title ... --desc ... --slug ...`
+→ 独立回读草稿 → `send --appmsgid <草稿id>`（发布模式，不推送、不占额度，仍要管理员
+扫码，但常复用已有会话）→ 独立回读已发表列表按标题命中。
 
 ## 五、对账（`scripts/wechat_reconcile.py`）
 

@@ -75,6 +75,28 @@ class TestRoundTrip(_TmpData):
         self.assertEqual(self.read("xhs_published.json"),
                          [{"id": "a", "at": "t", "note_id": "123", "title": "标题"}])
 
+    def test_wechat_deleted_survives_round_trip(self):
+        """公众号 `status=deleted` 必须能存住（2026-11-10）。
+
+        出处：`wx-100000514`（appmsgid=2247485037）平台 `is_deleted=true`。
+        改之前 `_rec_from_wechat` 写死 `PUBLISHED if st == PUBLISHED else DRAFT`，
+        `deleted` 一 `load` 就变 draft，`save` 又把 `status` 写回 draft ⇒
+        实测掉成草稿。后果不是显示问题：FIFO 去重与档期都按状态判，
+        一篇**已删除**的文章会被当成「没发过的草稿」再发一次。
+        """
+        self.write("wechat_published.json",
+                   {"wx-del": {"title": "已删稿", "status": "deleted",
+                               "published_at": None,
+                               "deleted_at": "2026-11-10 17:25",
+                               "appmsgid": "100000514"}})
+        rec = L.load("wechat")["wx-del"]
+        self.assertEqual(rec["state"], "deleted", "load 阶段就不许降级")
+        L.save("wechat", L.load("wechat"))
+        v = self.read("wechat_published.json")["wx-del"]
+        self.assertEqual(v["status"], "deleted", "save 阶段也不许归一成草稿/已发")
+        self.assertEqual(v["deleted_at"], "2026-11-10 17:25", "对账时点不能丢")
+        self.assertIsNone(v["published_at"])
+
 
 class TestTransition(_TmpData):
     def test_promote_moves_record_atomically(self):
@@ -230,6 +252,129 @@ class TestMissingRemoteId(_TmpData):
         self.write("toutiao_drafts.json", [])
         got = [r["id"] for r in L.missing_remote_id("toutiao")]
         self.assertEqual(got, ["old"])
+
+
+class TestDbSyncDraftHasNoPublishedAt(unittest.TestCase):
+    """2026-11-10：`_db_sync` 把草稿的 `at`（建稿时间）写成 `published_at`。
+
+    实测残留 82 行（bilibili 46 + wechat 36）`state='draft'` 却带
+    `published_at`；wechat 那批 note 里还留着「[11-09 错账清理] 原
+    published_at 已迁出」——说明 11-09 清过，之后每次 `L.save()` 全本
+    upsert 又刷回旧值（`set_draft_id(at=…)` / `mark(DRAFT)` 都把草稿时间
+    放在 `at` 里）。
+
+    修法：与 `db.upsert_post` 2026-11-07 同一口径 —— 显式 draft 时置 None。
+    """
+
+    def _mem_db(self):
+        """内存库 + patch 掉 ledger 的 db 出口（照 test_publish_slot 的先例）。"""
+        import sqlite3
+        import db
+        conn = db.get_conn()
+        schemas = conn.execute(
+            "select sql from sqlite_master where type='table' "
+            "and name in ('cases','platform_posts')").fetchall()
+        db.close_conn()
+        mem = sqlite3.connect(':memory:')
+        for (sql,) in schemas:
+            mem.execute(sql)
+        return mem, db
+
+    def test_draft_sync_leaves_published_at_null(self):
+        from unittest.mock import patch
+        mem, db = self._mem_db()
+        rec = {"id": "probe-draft", "state": "draft", "at": "2026-10-25 01:21",
+               "remote_id": "100001090", "draft_remote_id": "100001090",
+               "title": "草稿标题", "note": "｜按远端草稿箱回填"}
+        with patch.object(L, "DATA", os.path.join(L.ROOT, "data")), \
+             patch.object(db, "get_conn", return_value=mem), \
+             patch.object(db, "close_conn", return_value=None):
+            L._db_sync("wechat", rec)
+        row = mem.execute(
+            "select state,published_at,remote_id from platform_posts "
+            "where case_id='probe-draft'").fetchone()
+        self.assertEqual(row[0], "draft")
+        self.assertIsNone(row[1], "草稿行被写了 published_at（会按「已发」算档期）")
+        self.assertEqual(row[2], "100001090", "草稿的远端 ID 仍要留着")
+
+    def test_published_sync_keeps_published_at(self):
+        from unittest.mock import patch
+        mem, db = self._mem_db()
+        rec = {"id": "probe-pub", "state": "published", "at": "2026-11-03 13:42",
+               "remote_id": "345869", "title": "已发标题"}
+        with patch.object(L, "DATA", os.path.join(L.ROOT, "data")), \
+             patch.object(db, "get_conn", return_value=mem), \
+             patch.object(db, "close_conn", return_value=None):
+            L._db_sync("bilibili", rec)
+        row = mem.execute(
+            "select state,published_at from platform_posts "
+            "where case_id='probe-pub'").fetchone()
+        self.assertEqual(row, ("published", "2026-11-03 13:42"),
+                         "已发布行的真实发表时点不能被清")
+
+    def test_draft_sync_does_not_wipe_existing_published_at_when_already_published(self):
+        """先 published 后 draft：状态不许回退，published_at 也不许被清。"""
+        from unittest.mock import patch
+        mem, db = self._mem_db()
+        mem.execute("insert into cases (id,type,status) values ('probe-mix','case','ok')")
+        mem.execute(
+            "insert into platform_posts (case_id,platform,state,remote_id,published_at,updated_at) "
+            "values ('probe-mix','bilibili','published','345869','2026-11-03 13:42','2026-11-03 13:42')")
+        rec = {"id": "probe-mix", "state": "draft", "at": "2026-11-10 09:00",
+               "remote_id": "345869"}
+        with patch.object(L, "DATA", os.path.join(L.ROOT, "data")), \
+             patch.object(db, "get_conn", return_value=mem), \
+             patch.object(db, "close_conn", return_value=None):
+            L._db_sync("bilibili", rec)
+        row = mem.execute(
+            "select state,published_at from platform_posts "
+            "where case_id='probe-mix'").fetchone()
+        self.assertEqual(row, ("published", "2026-11-03 13:42"),
+                         "draft 的同步不得把已发布行打回未发")
+
+    def test_deleted_sync_leaves_published_at_null(self):
+        """平台已删的行，`published_at` 也必须为空（2026-11-10 补）。
+
+        出处：公众号 `wx-100000514`（appmsgid=2247485037）平台 `is_deleted=true`，
+        对账时 `state` 降 `deleted`、`published_at` 置 NULL。但 JSON 台账里
+        是可能留着发表时间的（那确实是历史事实），一旦 `L.save()` 全本 upsert，
+        `_db_sync` 就会把 pt 写回 —— 和那 82 行草稿脏数据同一个出口。
+        库里既有 deleted 行（`magicslides-app/toutiao`）就是 NULL + note 记原值。
+        """
+        from unittest.mock import patch
+        mem, db = self._mem_db()
+        rec = {"id": "probe-del", "state": "deleted", "at": "2026-11-10 12:29",
+               "remote_id": "100000514", "title": "已删标题",
+               "note": "｜[11-10 对账] is_deleted=true"}
+        with patch.object(L, "DATA", os.path.join(L.ROOT, "data")), \
+             patch.object(db, "get_conn", return_value=mem), \
+             patch.object(db, "close_conn", return_value=None):
+            L._db_sync("wechat", rec)
+        row = mem.execute(
+            "select state,published_at from platform_posts "
+            "where case_id='probe-del'").fetchone()
+        self.assertEqual(row[0], "deleted")
+        self.assertIsNone(row[1], "已删行被写了 published_at（会按「已发」算档期）")
+
+    def test_deleted_is_not_downgraded_by_later_draft(self):
+        """deleted 是终态（rank=5）：后续 draft 同步不许把状态打回、也不许补 pt。"""
+        from unittest.mock import patch
+        mem, db = self._mem_db()
+        mem.execute("insert into cases (id,type,status) values ('probe-del2','case','ok')")
+        mem.execute(
+            "insert into platform_posts (case_id,platform,state,remote_id,published_at,updated_at) "
+            "values ('probe-del2','wechat','deleted','100000514',NULL,'2026-11-10 17:25')")
+        rec = {"id": "probe-del2", "state": "draft", "at": "2026-11-10 18:00",
+               "remote_id": "100000514"}
+        with patch.object(L, "DATA", os.path.join(L.ROOT, "data")), \
+             patch.object(db, "get_conn", return_value=mem), \
+             patch.object(db, "close_conn", return_value=None):
+            L._db_sync("wechat", rec)
+        row = mem.execute(
+            "select state,published_at from platform_posts "
+            "where case_id='probe-del2'").fetchone()
+        self.assertEqual(row, ("deleted", None),
+                         "已删行被 draft 同步打回或补了 pt")
 
 
 if __name__ == "__main__":

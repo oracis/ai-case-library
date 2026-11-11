@@ -759,6 +759,11 @@ def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
         print("▶ %s ｜ FIFO：发草稿箱里存入最久的一条（send-draft 默认）" % cn)
         print("  规则：箱空才新写 —— 那时加 --new 走当日档期选稿。")
         print("  ⚠ 这条路径不经过本地选稿；失败先查已发表列表，别原地重跑。")
+        # PRD #124：FIFO 分支仍是 subprocess 直调平台脚本，run_gates() 不跑。
+        # 内容形态闸因此下沉到四个入口「点发布之前」（B站验平台 draft/view
+        # 真实正文），这里只提示，不在干跑里起浏览器/挑稿（#88 的教训）。
+        print("  ⚠ 内容形态闸在四个入口的发布动作之前硬拦（PRD #124）：命中内部"
+              "核验注记等 block ⇒ 不发布、不记账、不跳到下一条。")
         if as_json:
             print(json.dumps({"platform": platform, "mode": "fifo"},
                              ensure_ascii=False))

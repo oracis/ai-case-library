@@ -6,8 +6,6 @@
 
 > 「网上流传的资料 headline 称「收入 $676」」
 
-> 我去核了一遍：2026-09-30 复核 TrustMRR 官方 .md：Current MRR $659、近 30 天收入 $470、近 12 个月与 All time 均为 $13,381，原文不存在 $676 这一数字。
-
 ## 它是干什么的
 
 Quran Unlock 是一款「用读经换解锁手机功能」的习惯养成 App。官网描述一句话说清机制：Read Quran to Unlock Apps。用户在 app 里读古兰经（真实文本，非生成内容），攒够阅读量就能解锁原本被锁住的社交 / 游戏 / 娱乐 app。与常见的番茄钟、Habitica 不同，它把「戒掉分心」这件事换成了一个可交易、可炫耀、家人可共享的进度条。覆盖 iOS 与 Android（React Native），信任体系用 Firebase，订阅与内购走 RevenueCat。TrustMRR 记录创始人 Yacine，常驻迪拜，主打海湾与南亚穆斯林人群。

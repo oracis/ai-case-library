@@ -69,5 +69,23 @@
     "title": "拍照识别虫咬类型的 iOS 应用：实现思路与边界",
     "url": "https://blog.csdn.net/sinat_32396037/article/details/170341853",
     "ts": "2026-11-09 10:40:23"
+  },
+  "ext-ep-006-nethack": {
+    "article_id": null,
+    "title": "NetHack，能玩死你的地牢模拟器",
+    "url": "https://blog.csdn.net/sinat_32396037/article/details/170429391",
+    "ts": "2026-11-10 12:17:04"
+  },
+  "autoreels-ai": {
+    "article_id": null,
+    "title": "AutoReels.AI 用产量型交付做短视频批量生产工具",
+    "url": "https://blog.csdn.net/sinat_32396037/article/details/170484691",
+    "ts": "2026-11-11 08:39:50"
+  },
+  "ext-ep-007-openttd": {
+    "article_id": null,
+    "title": "OpenTTD，开源版运输大亨",
+    "url": "https://blog.csdn.net/sinat_32396037/article/details/170501859",
+    "ts": "2026-11-11 10:43:10"
   }
 }

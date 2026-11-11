@@ -47,6 +47,13 @@ PUBLISHED_STATES = frozenset({
     "published", "publish", "sent", "success", "audited", "auditing_passed",
 })
 
+# 「已占用」= 发过、且没有被撤回。"deleted" 也要算进来（2026-11-10）：
+# 平台侧删一篇是**人工决定**（公众号 `wx-100000514` 就是删了带破折号的重复稿，
+# 另建一篇替代），FIFO **不该**替人决定「删了就该自动重发」。
+# 只把它写进 PUBLISHED_STATES 会污染那个集合的语义（deleted ≠ published），
+# 所以单独一个集合，只在「算不算已占用」的两处用它。
+OCCUPIED_STATES = PUBLISHED_STATES | frozenset({"deleted"})
+
 DATA = os.path.join(ROOT, "data")
 
 
@@ -74,9 +81,9 @@ def _ids_from_rows(data):
         for k, v in data.items():
             if str(k).startswith("_"):
                 continue
-            # dict 值带状态字段时只收已发表的；纯 dict 快照视为全已发
+            # dict 值带状态字段时只收「已占用」的；纯 dict 快照视为全已发
             if isinstance(v, dict) and v.get("status"):
-                if str(v["status"]).strip().lower() in PUBLISHED_STATES:
+                if str(v["status"]).strip().lower() in OCCUPIED_STATES:
                     out.add(norm(k))
             else:
                 out.add(norm(k))
@@ -105,7 +112,9 @@ def _db_ids(platform, db_path=None):
         #    2026-11-07 实跑：加了 `or remote_id` 会把公众号草稿箱里
         #    36 条 status=draft、远端已发表列表无同名的**待发稿**全误杀
         #    （可发候选 49→12）。逐条核三证才抓出来 ⇒ 这里只认状态。
-        if state in PUBLISHED_STATES:
+        # ⚠ 用 OCCUPIED_STATES 而不是 PUBLISHED_STATES：`deleted` 也要占位，
+        #   否则「发过又被删」的稿会被当成没发过，FIFO 自动再发一次。
+        if state in OCCUPIED_STATES:
             out.add(norm(r["case_id"]))
     return {x for x in out if x}
 
@@ -139,8 +148,11 @@ def _snapshot_ids(platform, data_dir):
 
 
 def published_case_ids(platform, extra=(), db_path=None, data_dir=None):
-    """已发表案例 id 的**并集**。extra 供调用方补自己平台的旁证。
+    """已发表案例 id 的**并集**（实际语义：「这个 case 在该平台别再自动发了」）。
 
+    ⚠ 集合里也包含 `deleted`（发过又被平台删掉）—— 删是人工决定，FIFO 不该
+      自动把它再发一遍（见 `OCCUPIED_STATES` 的注释）。
+    extra 供调用方补自己平台的旁证。
     db_path / data_dir 可注入，单测不必碰真库真台账。
     """
     data_dir = data_dir or DATA

@@ -1,0 +1,42 @@
+#!/bin/sh
+# 提交前拦住「修复脚本还躺在 tmp/ 里」的情况（PRD #138 / #139）。
+#
+# 为什么要有这一道：`tmp/` 被 .gitignore 忽略、又不进 CI 的工作区，
+# 所以 check_tmp_leaks 的第 ③ 项在 CI 里恒为空 —— 拦不住，只能在本机拦。
+# 见到 FAIL 就照提示跑：
+#   python -X utf8 scripts/check_tmp_leaks.py --archive
+# 它会归档 + git add，然后重新提交即可。
+#
+# 启用（每个 clone 一次）：
+#   git config core.hooksPath .githooks
+# 临时跳过（不推荐，等于自愿丢文件）：
+#   git commit --no-verify
+
+set -e
+
+# 找得到解释器才跑；找不到就放行，不能因为环境问题把提交全堵死
+PY="${PYTHON:-python}"
+if ! command -v "$PY" >/dev/null 2>&1; then
+    if command -v py >/dev/null 2>&1; then
+        PY="py -3"
+    else
+        echo "[pre-commit] 未找到 python，跳过 check_tmp_leaks 检查"
+        exit 0
+    fi
+fi
+
+cd "$(git rev-parse --show-toplevel)"
+
+# --staged-ok：本次提交的改动在钩子运行时处于 staged 态，⑤ 若不豁免
+# staged 条目，每次提交 scripts/docs 都会误报「有改动未提交」
+if ! $PY -X utf8 scripts/check_tmp_leaks.py --staged-ok; then
+    echo ""
+    echo "──────────────────────────────────────────────────────────"
+    echo "提交被拦：上面的问题都是「文件留不住」类。"
+    echo "  · 只是 tmp/ 里新脚本 → python -X utf8 scripts/check_tmp_leaks.py --archive"
+    echo "    （自动搬进 scripts/_oneoff/、修 ROOT 层级、git add，然后重新提交）"
+    echo "  · 是 docs 引用了不存在的路径 → 把引用改成现址"
+    echo "  · 确认无关想跳过 → git commit --no-verify（后果自负）"
+    echo "──────────────────────────────────────────────────────────"
+    exit 1
+fi
