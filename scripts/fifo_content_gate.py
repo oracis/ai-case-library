@@ -22,9 +22,13 @@ PRD #90 修掉了「FIFO 绕过 11 闸」里**重复发布**那一半（case 级
   · xhs / wechat：按 case 反查本地正文源（out/articles/*.html、out/xhs/*/note.json）
 
 ⛔ 边界（必须如实说，不许写成「全部修好」）：
-  · 只补**内容形态闸**。dedupe 已由 `fifo_dedupe` 覆盖；title / cover / draft
-    等十闸属于「新写选稿」路径，FIFO 发的就是箱里建好的草稿，照搬会误杀
-    （#90 实跑抓到 `check_dupe` 把公众号候选从 49 误杀到 12）。
+  · 只补**内容形态闸 + 标题破折号闸**（后者 PRD #135 新增）。dedupe 已由
+    `fifo_dedupe` 覆盖；cover / draft / 其余 title 规则仍属「新写选稿」路径，
+    FIFO 发的就是箱里建好的草稿，照搬会误杀（#90 实跑抓到 `check_dupe`
+    把公众号候选从 49 误杀到 12）。
+  · 标题破折号闸**单独前置**：标题来自平台草稿箱、与正文源无关，
+    必须在「找不到正文源 ⇒ checked=False 放行」之前判；孤儿草稿也要拦。
+    2026-11-11 公众号 FIFO 发出的 Coral 旧稿标题带「——」就是漏在这里。
   · 找不到正文源（孤儿草稿认不出 case、平台接口没给正文）时 `checked=False`
     并 **warn 放行**：一律拦下会让箱里那批孤儿永远发不出去（同 #90
     `filter_rows` 的「认不出的孤儿保留」）。但绝不打印「已验过」。
@@ -112,6 +116,19 @@ def guard(platform, case=None, title="", text=None, pack=None, text_src=None):
       ok=False      ⇒ 调用方必须停住，不发布、不记账
       checked=False ⇒ 正文源没拿到，闸**未生效**，只 warn 放行
     """
+    # 🚨 PRD #135（2026-11-11）：FIFO 草稿标题来自平台草稿箱，`run_gates()`
+    #   的 title 闸整条被绕过 ⇒ 11-11 公众号发出带「——」的 Coral 旧稿。
+    #   判据复用 `publish_guard.TITLE_DASH`，不另立一套。
+    #   ⚠ 必须放在正文源判定之前：孤儿草稿 `checked=False` 那条提前 return
+    #   会把标题闸一起跳过（标题与有没有正文源完全无关）。
+    title_blocks = []
+    if title and G.TITLE_DASH.search(title):
+        title_blocks.append({
+            "level": "block", "rule": "标题含破折号",
+            "detail": "命中「%s」⇒ 11-10 用户裁定九平台标题禁破折号；"
+                      "在平台草稿上改成冒号/逗号后再发，不许另起新稿"
+                      % G.TITLE_DASH.search(title).group(0)})
+
     body = text
     src = (text_src or "platform:draft/view") if text else None
     if not body and pack:
@@ -127,13 +144,15 @@ def guard(platform, case=None, title="", text=None, pack=None, text_src=None):
                     src = p
                 break
     if not body:
-        return {"ok": True, "checked": False, "source": None,
-                "blocks": [], "warns": [],
+        return {"ok": not title_blocks, "checked": False, "source": None,
+                "blocks": title_blocks, "warns": [],
                 "detail": "找不到正文源（case=%r，本地产物与平台接口都没给正文）"
-                          "⇒ 本次形态闸未生效，不假装验过" % (case or "")}
+                          "⇒ 本次内容形态闸未生效，不假装验过%s"
+                          % (case or "",
+                             "；标题破折号闸已独立生效" if title else "")}
 
     fs = G.scan_content(platform, body)
-    blocks = [f for f in fs if f["level"] == "block"]
+    blocks = title_blocks + [f for f in fs if f["level"] == "block"]
     warns = [f for f in fs if f["level"] == "warn"]
     return {"ok": not blocks, "checked": True, "source": src,
             "blocks": blocks, "warns": warns,
@@ -144,18 +163,20 @@ def guard(platform, case=None, title="", text=None, pack=None, text_src=None):
 def report(v, platform, title=""):
     """把闸结果打给操作者。`checked=False` 必须显式说「未生效」。"""
     head = "[FIFO 形态闸/%s] %s" % (platform, (title or "")[:36])
+    # ⚠ block 优先于 checked：孤儿草稿 checked=False 但标题带破折号时，
+    #   必须先说清「被什么拦下」，不能只打印「闸未生效」让人以为放行了。
+    if v["blocks"]:
+        for b in v["blocks"]:
+            print("  ✗ %s 拦下【%s】：%s" % (head, b["rule"], b["detail"]))
+        print("  ⇒ 不发布、不记账。按 11-08 裁定「在旧稿上改稿再发，不许另起新稿」，"
+              "也不许自动跳到草稿箱下一条。")
+        return
     if not v["checked"]:
         print("  ⚠ %s 未生效：%s" % (head, v["detail"]))
         return
-    if v["ok"]:
-        print("  ✓ %s：%s（源 %s）" % (head, v["detail"], v["source"]))
-        for w in v["warns"][:2]:
-            print("      warn %s：%s" % (w["rule"], w["detail"][:80]))
-        return
-    for b in v["blocks"]:
-        print("  ✗ %s 拦下【%s】：%s" % (head, b["rule"], b["detail"]))
-    print("  ⇒ 不发布、不记账。按 11-08 裁定「在旧稿上改稿再发，不许另起新稿」，"
-          "也不许自动跳到草稿箱下一条。")
+    print("  ✓ %s：%s（源 %s）" % (head, v["detail"], v["source"]))
+    for w in v["warns"][:2]:
+        print("      warn %s：%s" % (w["rule"], w["detail"][:80]))
 
 
 def block_reason(v, platform, title=""):

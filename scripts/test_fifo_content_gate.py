@@ -254,5 +254,56 @@ class EndToEnd(unittest.TestCase):
         ui.assert_called_once()
 
 
+class TitleDashGate(unittest.TestCase):
+    """PRD #135：FIFO 发的草稿箱旧稿，标题也要过破折号闸。
+
+    2026-11-11 公众号 FIFO 发出《Coral…——卖的是「配置」》，因为
+    `run_gates()` 的 title 闸整条被绕过、而旧 guard 只验正文。
+    """
+
+    DASH_TITLE = ("Coral：帮你把开源 AI agent 部署、托管、接上各种业务系统"
+                  "——卖的是「配置」，不是模型")
+
+    def test_dash_title_blocked_when_body_present(self):
+        v = F.guard("wechat", None, self.DASH_TITLE, text=CLEAN)
+        self.assertTrue(v["checked"])
+        self.assertFalse(v["ok"])
+        self.assertIn("标题含破折号", [b["rule"] for b in v["blocks"]])
+
+    def test_dash_title_blocked_even_without_body(self):
+        """孤儿草稿 checked=False 也不许把标题闸一起跳过（最关键的一条）。"""
+        v = F.guard("wechat", "wx-no-such-draft-998877", "标题——副题")
+        self.assertFalse(v["checked"])
+        self.assertFalse(v["ok"])
+        self.assertIn("标题含破折号", [b["rule"] for b in v["blocks"]])
+        self.assertIn("标题破折号闸已独立生效", v["detail"])
+
+    def test_clean_title_passes(self):
+        v = F.guard("xhs", None, "Coral：托管你的开源 AI 助手", text=CLEAN)
+        self.assertTrue(v["ok"], v["blocks"])
+        self.assertEqual(v["blocks"], [])
+
+    def test_single_ascii_hyphen_allowed(self):
+        """AI-native 这类单个 ASCII 连字符是正当写法，不许误杀。"""
+        v = F.guard("xhs", None, "AI-native 工具", text=CLEAN)
+        self.assertTrue(v["ok"], v["blocks"])
+
+    def test_all_dash_variants_blocked(self):
+        for dash in ("——", "—", "–", "－", "--"):
+            v = F.guard("bilibili", None, "标题" + dash + "副题", text=CLEAN)
+            self.assertFalse(v["ok"], dash)
+            self.assertIn("标题含破折号", [b["rule"] for b in v["blocks"]])
+
+    def test_report_shows_block_even_when_unchecked(self):
+        """report 不能只打印「闸未生效」就把拦下原因吞掉。"""
+        v = F.guard("wechat", "wx-no-such-draft-998877", "标题——副题")
+        buf = io.StringIO()
+        with mock.patch("sys.stdout", buf):
+            F.report(v, "wechat", "标题——副题")
+        out = buf.getvalue()
+        self.assertIn("标题含破折号", out)
+        self.assertIn("不发布、不记账", out)
+
+
 if __name__ == "__main__":
     unittest.main()
