@@ -217,7 +217,7 @@ invalid   上面都不成立的混用（例如融资口径混乱、数字与任�
 ## 5. 复跑清单：下一批线索进来，按这个顺序做
 
 1. **抓全页，不只抓卡片。** 卡片上的「💰 月收入」不可信（第 1.2 节），
-   必须拿到页面自己的「数据口径」段。参考实现：`tmp/parse_neg_pages.py`。
+   必须拿到页面自己的「数据口径」段。参考实现：`scripts/_oneoff/parse_neg_pages.py`。
 2. **先定口径，再排序。** 每条先填 `caliber`，`unknown` / `invalid` 的一律不进排序。
 3. **过四道筛子，出 T1/T2/T3。** 判据不许临时改；要改就改这份文档并留变更记录。
 4. **对 T3 打三类标签**（`structural` / `license` / `caliber`），进 `data/anti_cases.json`。

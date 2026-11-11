@@ -26,7 +26,7 @@ python scripts/verify_cover_edge.py --dir tmp/covers/audit --port 9222
 ```
 
 批量 `refresh --cover --cover-api` 跑完后**必须**重抓线上封面再体检一遍
-（`tmp/wx_draft_audit.py` 抓图 + 本脚本判脏），别只看命令返回成功。
+（`wx_draft_audit.py` 抓图 + 本脚本判脏（该脚本当时写在 `tmp/`，未随仓库留存）），别只看命令返回成功。
 
 ---
 
@@ -93,7 +93,7 @@ resp: {"code":0,"data":{"pgc_id":"…"},"message":"保存成功"}
 
 校验：`verify_draft_cover()` 回读 `draft_list` 的 `cover_image.image_uri`，
 与第①步 uri 一致才算真落库（`code:0` 不算数 —— 头条的老毛病）。
-端到端实测 `tmp/tt_cover_e2e.py` RC=0：上传 → 存稿 → 编辑器封面区出图。
+端到端实测 `tt_cover_e2e.py` RC=0（该脚本未留存）：上传 → 存稿 → 编辑器封面区出图。
 
 ### API 覆盖：**六项全通**（2026-10-18 补上最后两处，别再对外说「部分」）
 
@@ -243,7 +243,7 @@ Delete(t){                                  // vendors.d1505bc60ce087d047b1.js
 
 ### 🚨 四段对照实验：推翻「需逆向 token」的旧结论
 
-`tmp/tt_fresh_replay.py`。上午一度判定「token 带时效 ⇒ 纯 API 化不可行」，
+`tt_fresh_replay.py`（该脚本未留存）。上午一度判定「token 带时效 ⇒ 纯 API 化不可行」，
 **错在把「token 过期」和「token 缺失」的 7050 当成一回事** —— 两者报文完全
 一样，光看状态码根本分不开。同会话对照：
 
