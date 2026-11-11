@@ -9,6 +9,13 @@
   }
  },
  "chessigma": {
+  "aliyun": {
+   "at": "2026-11-11 08:54:52",
+   "evidence": "文章首图 firstImg=https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_5d65b73c64fd4afeb6feeb7b486537cb.png",
+   "remote_id": "1781861",
+   "source": "yun_finalize",
+   "state": "ok"
+  },
   "csdn": {
    "at": "2026-11-05 00:57:18",
    "evidence": "CSDN 列表读取失败（✗ Chrome CDP 没起来（端口 9224））",
@@ -89,6 +96,13 @@
    "at": "2026-11-06 15:48:28",
    "evidence": "aid=376923 image_urls=http://article.biliimg.com/bfs/article/a4eae224dc77f7aea8164f7860fd73a1a86450d2.jpg",
    "source": "live",
+   "state": "ok"
+  },
+  "tencentcloud": {
+   "at": "2026-11-11 08:46:05",
+   "evidence": "线上文章 2781011 卡片缩略图 background-image=https://developer.qcloudimg.com/http-save/yehe-12743977/ffc24aa869019d3270f74a23d9371c34.jpg",
+   "remote_id": "2781011",
+   "source": "yun_finalize",
    "state": "ok"
   }
  },

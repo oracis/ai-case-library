@@ -242,5 +242,19 @@
     "publish_type": "publish",
     "sent_via": "send",
     "send_reason": "已发表列表出现新记录，标题一致"
+  },
+  "wx-100000530": {
+    "title": "Coral：帮你把开源 AI agent 部署、托管、接上各种业务系统——卖的是「配置」，不是模型",
+    "desc": "帮你把开源 AI agent 部署、托管、接上各种业务系统——卖的是「配置」，不是模型",
+    "tag": "",
+    "published_at": "2026-11-11 09:03",
+    "status": "published",
+    "appmsgid": "100000530",
+    "file": "",
+    "note": "wechat_fifo 对账补登（远端草稿箱实存）",
+    "published_appmsgid": "2247485052",
+    "publish_type": "publish",
+    "sent_via": "send",
+    "send_reason": "已发表列表出现新记录，标题一致"
   }
 }

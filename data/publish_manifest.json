@@ -1203,6 +1203,16 @@
   }
  },
  "ext-ep-008-mindustry": {
+  "bilibili2": {
+   "at": "2026-11-11 08:32 草稿箱→发布（send-draft）",
+   "attempt": 0,
+   "draft_id": "",
+   "note": "草稿箱→发布（send-draft）",
+   "remote_id": "53854700",
+   "state": "published",
+   "title": "Mindustry：注解自动生成实体类的 Java 沙盒塔防",
+   "url": ""
+  },
   "toutiao": {
    "at": "2026-10-31 20:12",
    "attempt": 0,
@@ -2138,12 +2148,12 @@
  },
  "podawaa": {
   "bilibili": {
-   "at": "2026-10-14 12:09",
+   "at": "2026-11-11 08:26 草稿箱→发布（send-draft）",
    "attempt": 2,
    "draft_id": "343499",
-   "note": "｜草稿同步(2026-10-14 12:09): body 认领 aid=343499｜[11-09 错账清理] 原 published_at='2026-10-14 12:09' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
-   "remote_id": "343499",
-   "state": "draft",
+   "note": "草稿箱→发布（send-draft）",
+   "remote_id": "53854649",
+   "state": "published",
    "title": "Podawaa：LinkedIn 排期与受众增长",
    "url": ""
   },

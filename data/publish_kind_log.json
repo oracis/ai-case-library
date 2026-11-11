@@ -83,6 +83,11 @@
     "case_id": "ext-ep-005-supertux",
     "kind": "game",
     "at": "2026-11-10 12:18"
+   },
+   {
+    "case_id": "autoreels-ai",
+    "kind": "ai",
+    "at": "2026-11-11 08:38"
    }
   ],
   "csdn": [
@@ -130,6 +135,11 @@
     "case_id": "ext-ep-006-nethack",
     "kind": "game",
     "at": "2026-11-10 12:17"
+   },
+   {
+    "case_id": "autoreels-ai",
+    "kind": "ai",
+    "at": "2026-11-11 08:39"
    }
   ],
   "wechat": [
@@ -196,6 +206,12 @@
     "case_id": "promptmonitor-io",
     "kind": "ai",
     "note": "send-draft FIFO 最久草稿"
+   },
+   {
+    "at": "2026-11-11 08:26",
+    "case_id": "podawaa",
+    "kind": "ai",
+    "note": "send-draft FIFO 最久草稿"
    }
   ],
   "cnblogs": [
@@ -246,6 +262,12 @@
     "case_id": "shipfast",
     "kind": "ai",
     "note": "send-draft FIFO 最久草稿"
+   },
+   {
+    "at": "2026-11-11 08:22",
+    "case_id": "rezi",
+    "kind": "ai",
+    "note": "send-draft FIFO 最久草稿"
    }
   ],
   "aliyun": [
@@ -281,6 +303,12 @@
    {
     "at": "2026-11-10 12:21",
     "case_id": "ext-ep-007-openttd",
+    "kind": "game",
+    "note": "send-draft FIFO 最久草稿"
+   },
+   {
+    "at": "2026-11-11 08:32",
+    "case_id": "ext-ep-008-mindustry",
     "kind": "game",
     "note": "send-draft FIFO 最久草稿"
    }

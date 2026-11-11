@@ -571,5 +571,13 @@
     "appmsgid": "100001402",
     "note": "｜publish模式自动发表，新 appmsgid=2247485051",
     "verified_at": "2026-11-10 15:32"
+  },
+  "wx-100000530": {
+    "title": "Coral：帮你把开源 AI agent 部署、托管、接上各种业务系统——卖的是「配置」，不是模型",
+    "status": "published",
+    "published_at": "2026-11-11 09:03",
+    "appmsgid": "100000530",
+    "note": "｜publish模式自动发表，新 appmsgid=2247485052",
+    "verified_at": "2026-11-11 09:03"
   }
 }

@@ -174,5 +174,21 @@
       "total_keywords": 0
     },
     "fetched_at": "2026-11-09T21:48:32+08:00"
+  },
+  "2026-11-09": {
+    "keyword": "31",
+    "day": {
+      "present": false,
+      "exp_count": null,
+      "rank": null,
+      "total_keywords": 0
+    },
+    "rolling7": {
+      "present": false,
+      "exp_count": null,
+      "rank": null,
+      "total_keywords": 0
+    },
+    "fetched_at": "2026-11-10T21:43:27+08:00"
   }
 }
