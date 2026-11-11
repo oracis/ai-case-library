@@ -6,11 +6,15 @@
 而 `docs/PRD.md` 却把它当「复现证据」引用 —— 换机 / 重装 / clone 之后凭据失效，
 同一个修复被迫重写一遍。
 
-四道检查（任一不过即非零退出）：
+四道硬闸（任一不过即非零退出）+ 一条提醒：
   1. `docs/**.md` 引用 `tmp/xxx.py`      → 脚本不在仓库里，下次必重写
   2. 引用了 `scripts/...` 但文件不存在    → 陈旧引用，读者找不到
   3. `tmp/` 下出现基线之外的新脚本/笔记    → 又开始往临时目录里写修复
   4. `scripts/` 下 `.py` 未被 git 跟踪    → 最隐蔽的一种：本地能跑，clone 就没了
+  ⑤ scripts/ 或 docs/ 有未提交改动 / 未推送的提交 → 仅 WARN，不拦提交
+
+  ⚠ ⑤ 在 pre-commit 钩子里会误报（本次提交的改动处于 staged 态），所以钩子
+  传 `--staged-ok`：staged 且工作区干净的条目视为「正在提交」，不计入。
 
 光「拦」不够（拦了还得分手搬一次）。`--archive` 是配套的「捞」：
 把第 3 条命中的文件直接移进已跟踪的 `scripts/_oneoff/`，`.py` 自动把
@@ -50,8 +54,10 @@ NOTE_EXTS = {".md"}
 RE_PATH_TOKEN = re.compile(r"[A-Za-z0-9_./\\-]+\.py")
 # 文档里的示例占位符，不是真实路径
 PLACEHOLDERS = {"xxx.py", "x.py", "foo.py", "bar.py", "your_script.py", "name.py", "a.py"}
-# 「把脚本从 tmp 搬到 scripts」这类叙述里允许出现 tmp 路径：写成了 mv 句式即视为迁移记录
-MIGRATION_MARK = "mv tmp/"
+# 「把脚本从 tmp 搬到 scripts」这类叙述里允许出现 tmp 路径：必须是
+# 「mv tmp/xx.py scripts/...」完整句式才算迁移记录（只写「mv tmp/」不算，
+# 否则「别盲目 mv tmp/ 下的东西」会连带豁免整行的真引用）。
+MIGRATION_RE = re.compile(r"mv\s+tmp/\S+\s+scripts/", re.I)
 
 
 def git_tracked(prefixes):
@@ -151,7 +157,7 @@ def iter_doc_refs(line):
         if not tok or tok.split("/")[-1] in PLACEHOLDERS:
             continue
         if tok.startswith("tmp/"):
-            if MIGRATION_MARK in line:
+            if MIGRATION_RE.search(line):
                 continue  # 「mv tmp/a.py scripts/a.py」式的迁移记录
             yield "tmp", tok
         elif tok.startswith("scripts/"):
@@ -233,6 +239,8 @@ def verify_root(path):
     """用新路径当 __file__，就地 exec 头部赋值行，断言 ROOT 仍是仓库根。
 
     只校验真正用到 ROOT 的文件；返回 (仓库根 or None, 错误说明 or None)。
+    ⚠ 实现会把头部赋值行真的 exec 一遍 —— 仅适用于本机自写的 tmp 脚本
+    （--archive 的输入源），别拿去跑来路不明的文件。
     """
     text = path.read_text(encoding="utf-8", errors="replace")
     if not re.search(r"\bROOT\b", text):
@@ -265,6 +273,11 @@ def verify_root(path):
 
     got = ns.get("ROOT")
     if got is None:
+        # 文件里确实写了 ROOT 赋值却没算出来 ⇒ 多行写法 / 依赖被过滤，
+        # 绝不能按「未定义」豁免 —— 那会让层级错的脚本静默入库
+        # （2026-10-18 那批 _oneoff 脚本就是这么坏的）。
+        if re.search(r"(?m)^\s*ROOT\s*=", text):
+            return None, "ROOT 赋值存在但无法逐行验证（可能多行写法）"
         return None, "头部未定义 ROOT"
     got_path = Path(str(got)).resolve()
     if got_path != ROOT.resolve():
@@ -277,7 +290,7 @@ def _md5(path):
 
 
 def _free_name(dest_dir, name):
-    """目标重名时加日期与序号，绝不覆盖已有归档。"""
+    """目标重名时加序号 __2/__3，绝不覆盖已有归档。"""
     cand = dest_dir / name
     if not cand.exists():
         return cand
@@ -322,7 +335,11 @@ def archive_fresh(apply=False, include_notes=False):
                 dest.write_text(new, encoding="utf-8", newline="\n")
             _, err = verify_root(dest)
             if err and "未定义" not in err:
-                shutil.move(str(dest), str(src))  # 校验不过原样退回 tmp
+                # 校验不过原样退回 tmp：先把改写过的 ROOT 层级还原成原文，
+                # 否则退回去的是三层写法，在 tmp/ 里反而是错的
+                if hits:
+                    dest.write_text(text, encoding="utf-8", newline="\n")
+                shutil.move(str(dest), str(src))
                 fails.append((rel, err))
                 continue
         done.append((rel, dest.name))
@@ -335,7 +352,30 @@ def archive_fresh(apply=False, include_notes=False):
     return done, dups, fails
 
 
-def check_uncommitted(warns):
+def _problematic_status(porcelain, staged_ok=False):
+    """从 `git status --porcelain` 输出里挑出「不在本次提交里」的改动行。
+
+    XY 两列：X=staged 态、Y=工作区态。
+    - Y 非（空格/问号）  → 工作区还有提交之外的改动，必算
+    - `??`（untracked）  → 没人管它，必算
+    - 仅 staged（形如 `M `）→ staged_ok=True（pre-commit 场景）时视为
+      「正在提交」跳过；False 时算未提交（--archive 之后提醒 commit 用）
+    """
+    out = []
+    for line in porcelain.splitlines():
+        if len(line) < 4:
+            continue
+        x, y = line[0], line[1]
+        if x == "?" and y == "?":
+            out.append(line)
+        elif y not in (" ", "?"):
+            out.append(line)
+        elif not staged_ok and x not in (" ", "?"):
+            out.append(line)
+    return out
+
+
+def check_uncommitted(warns, staged_ok=False):
     """第 5 条：归档了但没提交 / 没推远端，等于没保住。"""
     try:
         st = subprocess.run(
@@ -344,11 +384,11 @@ def check_uncommitted(warns):
         ).stdout.decode("utf-8", "replace").strip()
     except (OSError, subprocess.CalledProcessError):
         return
-    if st:
-        n = len(st.splitlines())
+    prob = _problematic_status(st, staged_ok=staged_ok)
+    if prob:
         warns.append(
-            "⑤ scripts/ 或 docs/ 有 %d 处改动未提交 —— 已归档但不提交，"
-            "换机 / clone 仍会丢，记得 git commit" % n
+            "⑤ scripts/ 或 docs/ 有 %d 处未提交改动 —— 已归档但不提交，"
+            "换机 / clone 仍会丢，记得 git commit" % len(prob)
         )
         return
     try:
@@ -394,6 +434,8 @@ def main():
                     help="配 --archive 用：只报告会归档什么，不动盘")
     ap.add_argument("--include-notes", action="store_true",
                     help="归档时额外收 tmp 顶层 .md（默认只收脚本）")
+    ap.add_argument("--staged-ok", action="store_true",
+                    help="staged 且工作区干净的改动视为「正在提交」（pre-commit 钩子专用）")
     args = ap.parse_args()
 
     if args.write_baseline:
@@ -430,7 +472,7 @@ def main():
         check_docs(fails2)
         check_tmp_new(fails2, warns2)
         check_tracked(fails2, warns2)
-        check_uncommitted(warns2)
+        check_uncommitted(warns2, staged_ok=args.staged_ok)
         for w in warns2:
             print("[WARN] " + w)
         if fails2:
@@ -443,7 +485,7 @@ def main():
     check_docs(fails)
     check_tmp_new(fails, warns)
     check_tracked(fails, warns)
-    check_uncommitted(warns)
+    check_uncommitted(warns, staged_ok=args.staged_ok)
 
     for w in warns:
         print("[WARN] " + w)

@@ -67,6 +67,13 @@ class TestFalsePositiveGuards(unittest.TestCase):
     def test_dot_slash_normalized(self):
         self.assertEqual(refs("`./scripts/release.py`"), [("scripts", "scripts/release.py")])
 
+    def test_bare_mv_tmp_mention_not_exempt(self):
+        """只提「mv tmp/」而没有 scripts/ 目标的行，tmp 引用照判（不能整行豁免）。"""
+        self.assertEqual(
+            refs("不要随手 `mv tmp/fix.py` 到别处"),
+            [("tmp", "tmp/fix.py")],
+        )
+
     def test_non_py_untouched(self):
         self.assertEqual(refs("产物 `tmp/ledger_cleanup.json`"), [])
 
@@ -171,6 +178,54 @@ class TestVerifyRoot(unittest.TestCase):
             p.unlink()
         self.assertIsNone(err)
         self.assertEqual(got, C.ROOT.resolve())
+
+    def test_multiline_root_assignment_is_rejected(self):
+        """多行 ROOT 赋值算不出来 ⇒ 必须报错，不能按「未定义」豁免。
+
+        否则层级错的脚本会被 --archive 静默入库（2026-10-18 事故形态）。
+        """
+        import tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "x.py"
+            p.write_text(
+                "from pathlib import Path\n"
+                "ROOT = (\n"
+                "    Path(__file__)\n"
+                "    .parent.parent\n"
+                ")\n",
+                encoding="utf-8",
+            )
+            got, err = C.verify_root(p)
+        self.assertIsNone(got)
+        self.assertIsNotNone(err)
+        self.assertNotIn("未定义", err or "")  # 豁免只许给真·没有 ROOT 的文件
+
+
+class TestProblematicStatus(unittest.TestCase):
+    """⑤ 的 porcelain 分拣：pre-commit 场景 staged 条目不算「未提交」。"""
+
+    STAGED = "M  scripts/a.py\nA  docs/x.md\n"
+
+    def test_staged_only_skipped_with_flag(self):
+        self.assertEqual(C._problematic_status(self.STAGED, staged_ok=True), [])
+
+    def test_staged_only_counts_without_flag(self):
+        """--archive 之后手动跑：staged 未提交要提醒。"""
+        self.assertEqual(len(C._problematic_status(self.STAGED)), 2)
+
+    def test_untracked_always_problematic(self):
+        st = self.STAGED + "?? scripts/new.py\n"
+        self.assertEqual(
+            C._problematic_status(st, staged_ok=True), ["?? scripts/new.py"]
+        )
+
+    def test_worktree_changes_always_problematic(self):
+        st = "MM scripts/a.py\n M docs/x.md\n"
+        self.assertEqual(len(C._problematic_status(st, staged_ok=True)), 2)
+
+    def test_short_lines_ignored(self):
+        self.assertEqual(C._problematic_status("M\n"), [])
 
 
 class TestCandidateScope(unittest.TestCase):

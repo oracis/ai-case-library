@@ -39,7 +39,8 @@ a = ap.parse_args()
 src = a.file if os.path.isabs(a.file) else os.path.join(ROOT, a.file)
 raw = open(src, encoding="utf-8").read()
 title, body = split_md(raw)
-assert title and body, "稿件标题或正文为空"
+if not title or not body:
+    raise SystemExit("✗ 稿件标题或正文为空：%s" % src)  # 别用 assert，-O 会被剥离
 head = body.strip().split("\n")[0][:24]
 # 平台草稿列表的 plain 字段会把空格全部压掉（2026-11-08 实测：
 # '> OpenTTD 是经典…' 回读成 'OpenTTD是经典…'）。判据必须归一化，
@@ -126,19 +127,26 @@ def independent_list_rows():
     11-11 事故：改稿脚本在 `write-new?draftId=...` **编辑器页内** fetch 列表，
     拿到的是页面内存里的乐观值，自报「title=新稿、OLD_GONE、总数不变」全绿；
     换个进程打开首页再列箱，标题仍是旧稿 ⇒ 保存根本没落库，随后发出旧文。
-    正解：保存后**导航离开编辑器页**、重新加载首页，在新页面上下文里拉两次，
+    正解：保存后**导航离开编辑器页**、重新加载，在新页面上下文里拉两次，
     两次一致才算服务端真值。
+
+    两朵云都必须离开编辑器页：
+    - 腾讯云：回 write-new 编辑器首页。
+    - 阿里云：回 developer.aliyun.com **首页**。不能用 `article/new` ——
+      打开新编辑器有新建空草稿的风险，会把 NO_NEW_DRAFT 判据
+      （len(rows_after)==len(rows_before)）打假红。
     """
-    if a.platform != "tencentcloud":
-        return list_rows()
-    cdp.open("https://cloud.tencent.com/developer/article/write-new")
+    if a.platform == "tencentcloud":
+        cdp.open("https://cloud.tencent.com/developer/article/write-new")
+    else:
+        cdp.open("https://developer.aliyun.com/")
     time.sleep(8)
     r1 = list_rows()
     time.sleep(2)
     r2 = list_rows()
     if r1 != r2:
         raise SystemExit("✗ 独立列箱两次结果不一致 ⇒ 服务端状态不稳定，判 FAIL")
-    print("独立列箱: 已离开编辑器页重新加载首页，连拉两次一致（%d 条）" % len(r1))
+    print("独立列箱: 已离开编辑器页重新加载，连拉两次一致（%d 条）" % len(r1))
     return r1
 
 

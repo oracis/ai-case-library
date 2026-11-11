@@ -27,7 +27,9 @@ fi
 
 cd "$(git rev-parse --show-toplevel)"
 
-if ! $PY -X utf8 scripts/check_tmp_leaks.py; then
+# --staged-ok：本次提交的改动在钩子运行时处于 staged 态，⑤ 若不豁免
+# staged 条目，每次提交 scripts/docs 都会误报「有改动未提交」
+if ! $PY -X utf8 scripts/check_tmp_leaks.py --staged-ok; then
     echo ""
     echo "──────────────────────────────────────────────────────────"
     echo "提交被拦：上面的问题都是「文件留不住」类。"
