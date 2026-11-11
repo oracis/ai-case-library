@@ -9,16 +9,24 @@
 四道检查（任一不过即非零退出）：
   1. `docs/**.md` 引用 `tmp/xxx.py`      → 脚本不在仓库里，下次必重写
   2. 引用了 `scripts/...` 但文件不存在    → 陈旧引用，读者找不到
-  3. `tmp/` 下出现基线之外的新 `.py`      → 又开始往临时目录里写修复
+  3. `tmp/` 下出现基线之外的新脚本/笔记    → 又开始往临时目录里写修复
   4. `scripts/` 下 `.py` 未被 git 跟踪    → 最隐蔽的一种：本地能跑，clone 就没了
 
+光「拦」不够（拦了还得分手搬一次）。`--archive` 是配套的「捞」：
+把第 3 条命中的文件直接移进已跟踪的 `scripts/_oneoff/`，`.py` 自动把
+`ROOT` 上跳层数 +1 并用新 `__file__` 校验，然后 `git add` —— 一条命令托底。
+
 用法：
-  python -X utf8 scripts/check_tmp_leaks.py                # 全量检查
-  python -X utf8 scripts/check_tmp_leaks.py --write-baseline   # tmp 遗留脚本入库基线
+  python -X utf8 scripts/check_tmp_leaks.py                     # 全量检查
+  python -X utf8 scripts/check_tmp_leaks.py --archive --dry-run # 看会归档什么
+  python -X utf8 scripts/check_tmp_leaks.py --archive           # 真归档并 git add
+  python -X utf8 scripts/check_tmp_leaks.py --write-baseline    # tmp 遗留文件基线
 """
 import argparse
+import hashlib
 import json
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -27,8 +35,17 @@ ROOT = Path(__file__).resolve().parents[1]
 DOCS = ROOT / "docs"
 TMP = ROOT / "tmp"
 SCRIPTS = ROOT / "scripts"
+ARCHIVE = SCRIPTS / "_oneoff"
 BASELINE = SCRIPTS / "tmp_leaks_baseline.json"
 SKIP_DIRS = {"__pycache__", ".git", "node_modules"}
+
+# 判据：只有「丢了得重写」的脚本才硬拦（.py/.sh/.ps1，任意深度）。
+# 刻意不拦的：.md（顶层 38 个里 20+ 是导入正文快照 / .old 备份，属产物；
+# 拦它必然假红，而假红会让闸被无视 —— 比漏报更坏）；.txt（命令输出重定向）、
+# .js（抓包 / dist 副本）、.json/.log/.png/.html（快照与产物）。
+# 笔记要留档就跑 `--archive --include-notes`（显式 opt-in，只收顶层 .md）。
+SCRIPT_EXTS = {".py", ".sh", ".ps1"}
+NOTE_EXTS = {".md"}
 
 RE_PATH_TOKEN = re.compile(r"[A-Za-z0-9_./\\-]+\.py")
 # 文档里的示例占位符，不是真实路径
@@ -60,28 +77,58 @@ def doc_lines():
 
 
 def load_baseline():
+    """基线里允许留在 tmp/ 的历史文件（相对 tmp 的 posix 路径）。
+
+    兼容 2026-11-11 首版只记裸文件名（`legacy_tmp_scripts`）的格式。
+    """
     if not BASELINE.exists():
         return None
     try:
         data = json.loads(BASELINE.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return None
-    return set(data.get("legacy_tmp_scripts") or [])
+    names = set(data.get("legacy_tmp_files") or [])
+    names |= set(data.get("legacy_tmp_scripts") or [])
+    return names
 
 
-def tmp_scripts():
+def tmp_candidates(include_notes=False):
+    """tmp/ 里「丢了就得重写」的文件，返回相对 tmp 的 posix 路径。
+
+    默认只算脚本；include_notes=True 时连顶层 .md 一起（备份/快照由调用方自担）。
+    """
     if not TMP.is_dir():
         return []
-    return sorted(p.name for p in TMP.glob("*.py"))
+    out = []
+    for p in TMP.rglob("*"):
+        if not p.is_file() or any(part in SKIP_DIRS for part in p.parts):
+            continue
+        rel = p.relative_to(TMP)
+        ext = p.suffix.lower()
+        if ext in SCRIPT_EXTS:
+            out.append(rel.as_posix())
+        elif include_notes and ext in NOTE_EXTS and len(rel.parts) == 1:
+            out.append(rel.as_posix())
+    return sorted(out)
 
 
-def write_baseline(names):
+def fresh_tmp_files(include_notes=False):
+    """基线之外的新文件 —— 这些才是「下次会丢」的。基线缺失时返回全部。"""
+    names = tmp_candidates(include_notes)
+    base = load_baseline()
+    if base is None:
+        return names
+    return [n for n in names if n not in base]
+
+
+def write_baseline(paths):
     payload = {
         "_comment": (
-            "tmp/ 里允许存在的历史遗留脚本名单（2026-11-11 建档）。"
-            "新增 .py 不在名单里就算泄漏，必须移到 scripts/ 或 scripts/_oneoff/。"
+            "tmp/ 里允许存在的历史遗留文件名单（2026-11-11 建档）。"
+            "新增脚本 / 顶层笔记不在名单里就算泄漏 —— 跑 --archive 归档，"
+            "或手工移到 scripts/ / scripts/_oneoff/。"
         ),
-        "legacy_tmp_scripts": sorted(names),
+        "legacy_tmp_files": sorted(paths),
     }
     BASELINE.write_text(
         json.dumps(payload, indent=1, ensure_ascii=False) + "\n",
@@ -132,20 +179,188 @@ def check_docs(fails):
 
 
 def check_tmp_new(fails, warns):
-    names = tmp_scripts()
-    base = load_baseline()
-    if base is None:
+    fresh = fresh_tmp_files()
+    if not fresh:
+        return
+    if load_baseline() is None:
         warns.append(
-            "③ 未找到基线 %s，跳过「tmp 新增脚本」检查（跑 --write-baseline 建档）"
+            "③ 未找到基线 %s，跳过「tmp 新增」检查（跑 --write-baseline 建档）"
             % BASELINE.relative_to(ROOT).as_posix()
         )
         return
-    fresh = [n for n in names if n not in base]
-    if fresh:
-        fails.append(
-            "③ tmp/ 下新增了 %d 个未入库脚本 —— tmp/ 不进仓库，写在这里等于下次重写。"
-            "请移到 scripts/_oneoff/（一次性）或 scripts/（常驻）：\n      %s"
-            % (len(fresh), "\n      ".join(fresh))
+    fails.append(
+        "③ tmp/ 下新增了 %d 个未入库文件 —— tmp/ 不进仓库，写在这里等于下次重写。\n"
+        "      一条命令托底：python -X utf8 scripts/check_tmp_leaks.py --archive\n"
+        "      %s" % (len(fresh), "\n      ".join(fresh))
+    )
+
+
+# --- 归档：把 tmp 里的新文件搬进已跟踪目录 ---------------------------------
+# 目录深一层 ⇒ ROOT / HERE 的上跳层数要 +1，否则 ROOT 会静默指向 scripts/
+DEPTH_REWRITES = [
+    (
+        re.compile(
+            r"^(?P<ind>[ \t]*)ROOT\s*=\s*os\.path\.dirname\(\s*"
+            r"os\.path\.dirname\(\s*os\.path\.abspath\(__file__\)\s*\)\s*\)\s*$",
+            re.M,
+        ),
+        lambda m: "%sROOT = os.path.dirname(os.path.dirname(os.path.dirname("
+        "os.path.abspath(__file__))))" % m.group("ind"),
+    ),
+    (
+        re.compile(r"^(?P<ind>[ \t]*)ROOT\s*=\s*os\.path\.dirname\(HERE\)\s*$", re.M),
+        lambda m: "%sROOT = os.path.dirname(os.path.dirname(HERE))" % m.group("ind"),
+    ),
+    (
+        re.compile(
+            r"^(?P<ind>[ \t]*)ROOT\s*=\s*Path\(__file__\)\.parent\.parent\s*$", re.M
+        ),
+        lambda m: "%sROOT = Path(__file__).parent.parent.parent" % m.group("ind"),
+    ),
+]
+
+
+def rewrite_depth(src):
+    """上跳层数 +1，返回 (新文本, 命中条数)。"""
+    hits = 0
+    for pat, repl in DEPTH_REWRITES:
+        src, n = pat.subn(repl, src)
+        hits += n
+    return src, hits
+
+
+def verify_root(path):
+    """用新路径当 __file__，就地 exec 头部赋值行，断言 ROOT 仍是仓库根。
+
+    只校验真正用到 ROOT 的文件；返回 (仓库根 or None, 错误说明 or None)。
+    """
+    text = path.read_text(encoding="utf-8", errors="replace")
+    if not re.search(r"\bROOT\b", text):
+        return None, "未定义 ROOT"
+    lines = []
+    for line in text.splitlines():
+        s = line.strip()
+        if re.match(r"^(ROOT|HERE|_HERE|BASE|BASE_DIR)\s*=", s) or s.startswith(
+            ("import ", "from ")
+        ):
+            if s.startswith(("import ", "from ")) and not re.search(
+                r"\b(os|sys|pathlib|Path)\b", s
+            ):
+                continue
+            lines.append(line)
+
+    ns = {"__file__": str(path), "__name__": "__verify__"}
+    pending = lines[:]
+    for _ in range(len(pending) + 1):
+        rest, progressed = [], False
+        for line in pending:
+            try:
+                exec(compile(line, "<verify>", "exec"), ns)  # noqa: S102
+                progressed = True
+            except Exception:
+                rest.append(line)
+        pending = rest
+        if not progressed:
+            break
+
+    got = ns.get("ROOT")
+    if got is None:
+        return None, "头部未定义 ROOT"
+    got_path = Path(str(got)).resolve()
+    if got_path != ROOT.resolve():
+        return None, "ROOT 解析为 %s（应为仓库根）" % got_path
+    return got_path, None
+
+
+def _md5(path):
+    return hashlib.md5(path.read_bytes()).hexdigest()
+
+
+def _free_name(dest_dir, name):
+    """目标重名时加日期与序号，绝不覆盖已有归档。"""
+    cand = dest_dir / name
+    if not cand.exists():
+        return cand
+    stem, ext = cand.stem, cand.suffix
+    for n in range(2, 100):
+        cand = dest_dir / ("%s__%s%s" % (stem, n, ext))
+        if not cand.exists():
+            return cand
+    raise RuntimeError("重名过多：%s" % name)
+
+
+def archive_fresh(apply=False, include_notes=False):
+    """把 tmp 里基线之外的文件搬进 scripts/_oneoff/ 并 git add。
+
+    返回 (done, dups, fails) 三个清单；apply=False 时只预览不动盘。
+    """
+    done, dups, fails = [], [], []
+    for rel in fresh_tmp_files(include_notes):
+        src = TMP / rel
+        if not src.exists():
+            continue
+        flat = rel.replace("/", "__")  # 子目录文件拍平，避免归档里再长目录
+        dest = ARCHIVE / flat
+        if dest.exists():
+            if _md5(dest) == _md5(src):
+                dups.append(rel)  # 内容一致：仓库里已有一份，可安全舍源
+                if apply:
+                    src.unlink()
+                continue
+            dest = _free_name(ARCHIVE, flat)
+
+        if not apply:
+            done.append((rel, dest.name))
+            continue
+
+        ARCHIVE.mkdir(parents=True, exist_ok=True)
+        shutil.move(str(src), str(dest))
+        if dest.suffix.lower() == ".py":
+            text = dest.read_text(encoding="utf-8", errors="replace")
+            new, hits = rewrite_depth(text)
+            if hits:
+                dest.write_text(new, encoding="utf-8", newline="\n")
+            _, err = verify_root(dest)
+            if err and "未定义" not in err:
+                shutil.move(str(dest), str(src))  # 校验不过原样退回 tmp
+                fails.append((rel, err))
+                continue
+        done.append((rel, dest.name))
+
+    if apply and done:
+        subprocess.run(
+            ["git", "add", "--", ARCHIVE.relative_to(ROOT).as_posix()],
+            cwd=str(ROOT), check=False,
+        )
+    return done, dups, fails
+
+
+def check_uncommitted(warns):
+    """第 5 条：归档了但没提交 / 没推远端，等于没保住。"""
+    try:
+        st = subprocess.run(
+            ["git", "status", "--porcelain", "--", "scripts", "docs"],
+            cwd=str(ROOT), capture_output=True, check=True,
+        ).stdout.decode("utf-8", "replace").strip()
+    except (OSError, subprocess.CalledProcessError):
+        return
+    if st:
+        n = len(st.splitlines())
+        warns.append(
+            "⑤ scripts/ 或 docs/ 有 %d 处改动未提交 —— 已归档但不提交，"
+            "换机 / clone 仍会丢，记得 git commit" % n
+        )
+        return
+    try:
+        ahead = subprocess.run(
+            ["git", "rev-list", "--count", "@{u}..HEAD"],
+            cwd=str(ROOT), capture_output=True, check=True,
+        ).stdout.decode().strip()
+    except (OSError, subprocess.CalledProcessError):
+        return
+    if ahead and ahead.isdigit() and int(ahead) > 0:
+        warns.append(
+            "⑤ 本地有 %s 个提交未推送 —— 只在本机磁盘上，换机就没了" % ahead
         )
 
 
@@ -172,20 +387,63 @@ def check_tracked(fails, warns):
 def main():
     ap = argparse.ArgumentParser(description="检查脚本是否散落在仓库外")
     ap.add_argument("--write-baseline", action="store_true",
-                    help="把当前 tmp/*.py 写成遗留基线（新增文件仍会被拦）")
+                    help="把当前 tmp 里的历史文件写成基线（新增文件仍会被拦）")
+    ap.add_argument("--archive", action="store_true",
+                    help="把 tmp 里基线之外的新脚本/笔记移进 scripts/_oneoff/ 并 git add")
+    ap.add_argument("--dry-run", action="store_true",
+                    help="配 --archive 用：只报告会归档什么，不动盘")
+    ap.add_argument("--include-notes", action="store_true",
+                    help="归档时额外收 tmp 顶层 .md（默认只收脚本）")
     args = ap.parse_args()
 
     if args.write_baseline:
-        names = tmp_scripts()
-        write_baseline(names)
-        print("已写基线 %s：%d 个遗留脚本"
-              % (BASELINE.relative_to(ROOT).as_posix(), len(names)))
+        paths = tmp_candidates(include_notes=args.include_notes)
+        write_baseline(paths)
+        print("已写基线 %s：%d 个历史遗留文件"
+              % (BASELINE.relative_to(ROOT).as_posix(), len(paths)))
+        return 0
+
+    if args.archive:
+        apply = not args.dry_run
+        done, dups, fails = archive_fresh(apply=apply,
+                                          include_notes=args.include_notes)
+        head = "已归档" if apply else "将归档"
+        for rel, dest in done:
+            print("  %s %s -> scripts/_oneoff/%s" % (head, rel, dest))
+        for rel in dups:
+            print("  %s %s（仓库里已有同内容副本，%s）"
+                  % ("清理" if apply else "可清理", rel,
+                     "已删源" if apply else "加 --archive 后删源"))
+        for rel, err in fails:
+            print("  [FAIL] %s 无法归档：%s（已退回 tmp）" % (rel, err))
+        print("\n合计：%s %d / 重复 %d / 失败 %d"
+              % (head, len(done), len(dups), len(fails)))
+        if not apply:
+            print("（干跑，未动盘；③ 仍会红是预期的。去掉 --dry-run 真归档）")
+            return 1 if fails else 0
+        if done:
+            print("已 git add scripts/_oneoff —— 记得 git commit，否则换机仍会丢。")
+        if fails:
+            return 1
+        # 归档后重跑检查，确认闸转绿
+        fails2, warns2 = [], []
+        check_docs(fails2)
+        check_tmp_new(fails2, warns2)
+        check_tracked(fails2, warns2)
+        check_uncommitted(warns2)
+        for w in warns2:
+            print("[WARN] " + w)
+        if fails2:
+            for f in fails2:
+                print("[FAIL] " + f)
+            return 1
         return 0
 
     fails, warns = [], []
     check_docs(fails)
     check_tmp_new(fails, warns)
     check_tracked(fails, warns)
+    check_uncommitted(warns)
 
     for w in warns:
         print("[WARN] " + w)

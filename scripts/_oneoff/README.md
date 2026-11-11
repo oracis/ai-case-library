@@ -28,7 +28,26 @@ profile、数据版本、当天台账状态）。
 | 入档校验 | 新增文件后跑 `python -X utf8 scripts/check_tmp_leaks.py`，再跑下面的 ROOT 自检 |
 | 复用方式 | `git log --follow -- scripts/_oneoff/<name>.py` 看当时改了什么，别凭记忆重写 |
 
-### ROOT 自检（新增文件后必跑）
+## 🛟 又写进 tmp 了？一条命令捞回来
+
+```bash
+python -X utf8 scripts/check_tmp_leaks.py --archive --dry-run   # 先看会搬什么
+python -X utf8 scripts/check_tmp_leaks.py --archive             # 真搬 + git add
+```
+
+它会：搬进本目录 → `.py` 自动把 `ROOT` 上跳层数 **+1** → 用新 `__file__` 校验
+（解析不到仓库根就**原样退回 tmp**，不会把坏文件塞进仓库）→ `git add`。
+重名不覆盖（自动加 `__2` 后缀）；内容完全相同的副本判为重复并舍掉源。
+加 `--include-notes` 可顺带收 `tmp/` 顶层的 `.md` 笔记（默认只收脚本）。
+
+**还有一道自动闸**：仓库带了 `.githooks/pre-commit`，`tmp/` 里出现新脚本时
+`git commit` 直接失败并提示上面那条命令。启用一次即可（每个 clone 各一次）：
+
+```bash
+git config core.hooksPath .githooks
+```
+
+## ROOT 自检（新增文件后必跑）
 
 ```bash
 python -X utf8 - <<'PY'
@@ -52,6 +71,9 @@ PY
 - 2026-11-11：取消忽略；把 `docs/` 引用到的 60 个 `tmp/*.py` 全部迁入本目录
   （`migrate_tmp_to_oneoff_20261111.py`，含 ROOT 层数 +1 与逐文件校验）；顺手修掉
   归档里 15 个 `ROOT` 误指 `scripts/` 的老脚本。
+- 2026-11-11 晚：`check_tmp_leaks.py` 从「只拦」升级为「能捞」——
+  新增 `--archive` 与 `.githooks/pre-commit`（PRD #139）。至此 `tmp/` 里
+  新出现的脚本，**不归档就提交不了**，且归档一步到位。
 
 **保留在 `scripts/` 根目录的（不在本归档里）：**
 
