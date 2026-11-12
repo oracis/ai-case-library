@@ -1483,7 +1483,8 @@ def _load_manifest():
         posts = db.get_posts_by_platform(conn, plat)
         for p_ in posts or []:
             cid = p_["case_id"]
-            result.setdefault(cid, {})[plat] = {
+            existing = (result.get(cid) or {}).get(plat) or {}
+            entry = {
                 "state": p_.get("state") or "",
                 "remote_id": p_.get("remote_id") or "",
                 "url": p_.get("url") or "",
@@ -1493,6 +1494,12 @@ def _load_manifest():
                 "at": p_.get("updated_at") or "",
                 "note": p_.get("note") or "",
             }
+            # 2026-11-12：published_at 是独立的远端真值时点，投影是整条重建，
+            # 必须保住它，否则 _mark_manifest_published 整本写回时会把字段洗掉。
+            # 只保留磁盘上已有的值，不从 db 批量补（不引入未核实的时点）。
+            if existing.get("published_at"):
+                entry["published_at"] = existing["published_at"]
+            result.setdefault(cid, {})[plat] = entry
     except Exception:
         pass
     finally:
@@ -1562,6 +1569,8 @@ def _mark_manifest_published(cid, remote_id, title=""):
         if title:
             b["title"] = title
         b["at"] = stamp + " 草稿箱→发布（send-draft）"
+        # 独立的远端发表时点（无说明文字），供 import_to_db 重建时使用。
+        b["published_at"] = stamp
         tmp = p + ".tmp"
         with open(tmp, "w", encoding="utf-8", newline="\n") as f:
             json.dump(m, f, ensure_ascii=False, indent=1, sort_keys=True)
