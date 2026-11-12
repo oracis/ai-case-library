@@ -17,6 +17,14 @@
 
 导入是幂等的：重复运行会覆盖同一记录，不会重复插入。
 
+发表时点口径（2026-11-12 起）
+------------------------------
+`publish_manifest.json` 的 `at` 是**记账时点**（发布脚本落账时刻，有的还带
+「草稿箱→发布（send-draft）」这类说明文字），不是远端真值；而 `data/ledger.db`
+不入库，按远端补正过的 `published_at` 换机即失。为此 manifest 增加独立字段
+`published_at`：有它时优先用它，没有才退回 `at` / `ts`，历史文件仍可重建。
+`_to_platform_post()` 的 `updated_at` 与 `published_at` 共用这个时点。
+
 现有 JSON 文件**不删除、不改动**，仅作为导出/备份保留。
 
 用法::
@@ -58,7 +66,9 @@ def _to_platform_post(case_id, platform, row):
     if not isinstance(row, dict):
         return None
 
-    at = row.get("at") or row.get("published_at") or row.get("ts") or ""
+    # 2026-11-12：published_at = 远端真值时点（独立字段）；at = 记账时点。
+    # 优先读独立字段，缺失时退回旧口径，保证历史 JSON 仍可重建。
+    at = row.get("published_at") or row.get("at") or row.get("ts") or ""
     state = row.get("state") or row.get("status") or ("published" if row.get("ok") else "draft")
     if state == "draft_saved":
         state = "draft"

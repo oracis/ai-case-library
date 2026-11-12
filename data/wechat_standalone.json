@@ -94,10 +94,14 @@
     "title": "游戏厅：SuperTux",
     "desc": "致敬超级马里奥，2D横版，源码自编译，含素材。",
     "tag": "游戏厅",
-    "published_at": "2026-10-31 20:48",
-    "status": "draft",
+    "published_at": "2026-11-12 10:17:16",
+    "status": "published",
     "appmsgid": "100001219",
-    "file": "article.html"
+    "file": "article.html",
+    "published_appmsgid": "2247485054",
+    "publish_type": "publish",
+    "sent_via": "wechat_publish.py send --appmsgid 100001219",
+    "note": "2026-11-12 显式指定游戏稿真发；远端已发表列表命中 appmsgid=2247485054"
   },
   "ep-006-nethack": {
     "title": "游戏厅：NetHack",
@@ -149,8 +153,9 @@
     "desc": "",
     "tag": "万物解释者",
     "published_at": "2026-11-03 13:18",
-    "status": "draft",
-    "appmsgid": "100001350",
+    "status": "deleted",
+    "deleted_appmsgid": "100001350",
+    "note": "2026-11-12 清理：已发 case 的重复草稿，远端草稿 100001350 已删除；同名文章已发表 appmsgid=2247484934，原 id 移入 deleted_appmsgid 留痕",
     "file": "ext-ep-001-super-mario-bros.html"
   },
   "ext-ep-002-2048": {
@@ -158,8 +163,9 @@
     "desc": "",
     "tag": "万物解释者",
     "published_at": "2026-11-05 09:59",
-    "status": "draft",
-    "appmsgid": "100001362",
+    "status": "deleted",
+    "deleted_appmsgid": "100001362",
+    "note": "2026-11-12 清理：已发 case 的重复草稿，远端草稿 100001362 已删除；同名文章已发表 appmsgid=2247484935，原 id 移入 deleted_appmsgid 留痕",
     "file": "ext-ep-002-2048.html"
   },
   "upvoty": {

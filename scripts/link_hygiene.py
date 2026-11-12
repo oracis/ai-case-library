@@ -4,8 +4,9 @@
 
 ## 为什么有这个文件
 
-11-02 头条判「包含营销推广类信息」，禁言 7 天，点名 2 篇游戏厅稿。根因不是发得
-多，而是正文在给自家索引站导流（`https://games.ydtgo.top`）。当时只在
+11-02 22:26 头条判「包含营销推广类信息」，**禁言 30 天**（不是 7 天，从未在 11-09
+到期），点名 2 篇游戏厅稿。诱因是 2 小时连发 11 篇同栏目同结构稿 ＋ 正文给自家
+索引站导流（`https://games.ydtgo.top`）。当时只在
 `toutiao_publish.strip_source_links()` 里做了剥离，**其他平台没有闸**——公众号、
 B站、小红书只要从 `out/articles/*.html` 取稿，就会把同样的段落原样搬过去。
 
@@ -125,7 +126,7 @@ def assert_clean(text, where="正文", asset_ok=True):
     lines.append("  · 自动清理：python scripts/link_hygiene.py --strip <文件或目录>")
     lines.append("  · 游戏稿另可跑 scripts/game_rebrand.py")
     lines.append("  · 确认要放行：ALLOW_SELF_LINK=1 重跑（想清楚再说，"
-                 "头条 11-02 就是按「包含营销推广类信息」禁言 7 天、并下架 2 篇）")
+                 "头条 11-02 22:26 就是按「包含营销推广类信息」禁言 30 天、并下架 2 篇）")
     raise SystemExit("\n".join(lines))
 
 

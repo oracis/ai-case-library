@@ -1251,7 +1251,7 @@ def cmd_publish(args):
         build_case(BUILD_PORT, c)
     note = json.load(open(nj, encoding="utf-8"))
     # 发布前硬闸（2026-11-02）：正文/标题里不许出现自家站点导流或索引站口气。
-    # 头条已因「包含营销推广类信息」被禁言 7 天；小红书对站外引流的处置更狠
+    # 头条 11-02 22:26 起因「包含营销推广类信息」被禁言 30 天；小红书对站外引流的处置更狠
     # （限推荐 + 搜索降权），所以宁可发不出去，也不能带出去。
     _lh.assert_clean(json.dumps(note, ensure_ascii=False), "小红书稿 %s" % c["id"])
     if not _port_up(PUB_PORT):
