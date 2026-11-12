@@ -152,8 +152,10 @@
     "article_id": "2100938408583611480",
     "title": "游戏厅：马力欧兄弟，被 JS 重写的 1985 经典",
     "url": "https://zhuanlan.zhihu.com/p/2100938408583611480",
-    "status": "draft",
-    "ts": "2026-11-03 13:12:30"
+    "status": "published",
+    "ts": "2026-11-03 13:12:30",
+    "published_ts": "2026-11-06 13:38:51",
+    "verified_at": "2026-11-12 10:36:59"
   },
   "ext-ep-002-2048": {
     "article_id": "2101282414362472778",
@@ -203,5 +205,14 @@
     "url": "https://zhuanlan.zhihu.com/p/2103768513915654967",
     "status": "draft",
     "ts": "2026-11-11 08:38:20"
+  },
+  "ext-ep-006-nethack": {
+    "article_id": "2104117564607615798",
+    "title": "NetHack，能玩死你的地牢模拟器",
+    "url": "https://zhuanlan.zhihu.com/p/2104117564607615798",
+    "status": "published",
+    "ts": "2026-11-12 07:45:21",
+    "published_ts": "2026-11-12 08:21:21",
+    "verified_at": "2026-11-12 08:22:59"
   }
 }
