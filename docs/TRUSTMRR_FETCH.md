@@ -39,3 +39,32 @@
    两条路径交叉印证（founder 页给「共几个 startup / 合计收入 / MRR / 粉丝」，
    startup `.md` 给「逐日收入 / 订阅数 / 口径 / 挂牌状态」—— 互补而非重复），
    拼接时两边数字必须对得上（Hypit 案例两边 MRR 同为 $14,124，交叉通过）。
+
+7d. 🚨 **`.md` 返回 5xx 时的 HTML/JSON-LD 回落（2026-11-12 加，PRD #142）**
+   —— 这是对第 7 条「别爬渲染后的 HTML」的**严格受限例外**，不是改口径：
+   - **触发条件极窄**：`audit_delisted.probe()` 只在 `.md` 重试 3 次仍
+     **HTTP 5xx** 时回落一次 `GET /startup/<slug>`。429 是限流（不许借更大的
+     HTML 页绕过）、4xx 是拒绝、404 是下架、本机网络抖动都不回落。
+   - **不爬渲染文本、不起无头浏览器**：只读 HTML 里内嵌的 schema.org
+     `application/ld+json` → `Organization.additionalProperty`（官方结构化
+     字段，按 `name` 取值，不按位置）。入口 `AD.parse_html_fallback()`。
+   - **三重校验**：含 `NEXT_HTTP_ERROR_FALLBACK` 的 200 伪 404 页不认；
+     页面 `@id`/`url` 必须带请求的 slug（防 CDN 串页，同 7b 的教训）；
+     至少要有 `Verified revenue, last 30 days` 或 `Current MRR`。
+   - 🚨 **它不能替 `.md` 作判定**：HTML 页**没有**
+     `### Monthly revenue timeline`，而 `check_one()` 的完整月环比（COLLAPSE）
+     与峰值留存（PEAK_RETENTION）只吃那条时间线。所以回落结果带
+     `channel="html_fallback"` / `monthly_available=False`，由
+     `promote_to_candidates.check_one()` **挂起**（`ok=None`）并打印实测数字，
+     绝不自动通过。收入低于 `MIN_MRR` 的仍可直接判拒绝（那道闸不需要时间线）。
+   - ⛔ **不许冒充 provenance**：JSON-LD 只有 `Payment provider = Stripe`，
+     没有 `.md` 的 `Verified payment provider API source: ... (API key)`；
+     `verified_via` 留 `None`，支付商另存 `payment_provider`。
+   - ✅ **交叉对账（同刻、同 slug、`.md` 200 时）**：`meltkit` / `cliputils`
+     两条的 mrr / 近 30 天 / 累计 / 订阅 / 两个 growth / 利润率逐项一致
+     （仅取整差，如 $497.00 vs $497.39），`revenueLastSyncedAt` 与 `.md` 的
+     `Revenue last synced` **逐字相同** ⇒ 数字同源，不是另编一套。
+   - ✅ **反证「为什么必须挂起」**：11-12 13:4x 平台 `.md` 全面恢复后重跑
+     110 条干跑，原先 27 条 500 挂起里 **8 条被完整月环比 / 峰值留存判拒**
+     （`framenet` 完整月环比 −50.5%、`elyx-ai` 留存 35%、`failment` 4%…）。
+     若当初拿 HTML 数字直接放行，这 8 条腰斩/萎缩生意会被写成案例。

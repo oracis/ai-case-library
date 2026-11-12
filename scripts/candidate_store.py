@@ -100,10 +100,18 @@ def detect_fmt(path=None, default_indent=2):
         data = json.loads(raw.decode("utf-8"))
     except (ValueError, UnicodeDecodeError):
         return default_indent, nl, False
+    # 🚨 退化输入（空列表 / 空字典 / 纯标量）在 1/2/4 三种 indent 下序列化
+    # 结果**逐字节相同**，下面循环的第一次「匹配」只是碰巧，不能把 ind=1
+    # 当成磁盘格式。2026-11-12 实测：候选池为空（文件就是 `[]`）时晋升 81 条，
+    # detect_fmt 误判 indent=1 → 整本写成单空格缩进，而仓库历史非空版本
+    # 一直是 indent=2。此时按文档承诺回落 default_indent，只保留换行探测。
+    bodies = {ind: json.dumps(data, ensure_ascii=False, indent=ind)
+              for ind in (1, 2, 4)}
+    if len(set(bodies.values())) == 1:
+        return default_indent, nl, False
     for ind in (1, 2, 4):
         for tail_nl in (True, False):
-            body = json.dumps(data, ensure_ascii=False, indent=ind)
-            cand = (body + ("\n" if tail_nl else "")).replace("\n", nl)
+            cand = (bodies[ind] + ("\n" if tail_nl else "")).replace("\n", nl)
             if cand.encode("utf-8") == raw:
                 return ind, nl, tail_nl
     return default_indent, nl, False

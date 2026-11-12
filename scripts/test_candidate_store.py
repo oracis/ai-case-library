@@ -97,6 +97,30 @@ class TestFormatRoundTrip(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn("格式不一致", msg)
 
+    def test_空数组不许被误判成indent1(self):
+        """2026-11-12 实测：`[]` 在 1/2/4 三种 indent 下字节完全相同，
+        旧实现把循环第一个枚举值 1 当成「磁盘格式」，空候选池晋升 81 条后
+        整本写成单空格缩进，与仓库历史非空版本（indent=2）漂移。
+        """
+        self._seed(b"[]")
+        self.assertEqual(CSt.detect_fmt(self.p), CSt.DEFAULT_FMT)
+        CSt.save_candidates([{"id": "a"}, {"id": "b"}], path=self.p)
+        self.assertEqual(CSt.detect_fmt(self.p), CSt.DEFAULT_FMT)
+        with open(self.p, "rb") as f:
+            self.assertEqual(
+                f.read(),
+                json.dumps([{"id": "a"}, {"id": "b"}],
+                           ensure_ascii=False, indent=2).encode("utf-8"))
+        self.assertTrue(CSt.check(self.p)[0])
+
+    def test_非空文件仍按真实字节探测格式(self):
+        """根因修复只管退化输入，不许改变非空文件的既有行为。"""
+        obj = [{"id": "a", "name": "中文"}]
+        self._seed(json.dumps(obj, ensure_ascii=False, indent=1).encode("utf-8"))
+        self.assertEqual(CSt.detect_fmt(self.p), (1, "\n", False))
+        CSt.save_candidates(obj, path=self.p)
+        self.assertEqual(CSt.detect_fmt(self.p), (1, "\n", False))
+
 
 class TestUpsert(unittest.TestCase):
 
