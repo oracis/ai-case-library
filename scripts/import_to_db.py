@@ -168,6 +168,18 @@ def import_platform_posts(conn):
         for item in items:
             if not item:
                 continue
+            # 2026-11-12：同一 (case_id, platform) 在 longtail_sync 等来源里会有
+            # 多条记录，排在后面的「建稿」行常不带任何时点；若照原样 upsert，
+            # 会把 manifest 里已按远端补正的 published_at 冲成空串（实测 3 条）。
+            # 空时点一律继承库里已有的非空值，与 db.upsert_post 既有的
+            # 「空字段回填：新数据没带的东西不要冲掉已有的」保持同一语义。
+            if not item.get("published_at"):
+                old = conn.execute(
+                    "SELECT published_at FROM platform_posts "
+                    "WHERE case_id=? AND platform=?",
+                    (item["case_id"], item["platform"])).fetchone()
+                if old is not None and old[0]:
+                    item["published_at"] = old[0]
             db.upsert_post(conn, item["case_id"], item["platform"], item)
             total += 1
         conn.commit()
