@@ -689,7 +689,8 @@ def revalidate_stage(stage, summ, tm_dir=None, reporter=print):
                 md = f.read()
         if not s and not md:
             skipped += 1
-            reporter("  ⏭ %-34s 素材缺失（无摘要、无 .md），跳过回套" % cid[:34])
+            reporter("  ⏭ %-34s 素材缺失（无摘要、无 .md），跳过回套"
+                     "（源站已下架的补不回来，不是待办）" % cid[:34])
             continue
         card_src = extract_numbers(facts_card(slug, s, md))
         problems = validate(v, card_src, s)
