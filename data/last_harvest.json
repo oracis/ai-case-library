@@ -1,77 +1,77 @@
 {
-  "ran_at": "2026-11-12 07:56:58",
-  "added": 61,
+  "ran_at": "2026-11-13 07:33:57",
+  "added": 57,
   "by_source": {
-    "hn": 49,
-    "trustmrr": 12
+    "hn": 48,
+    "trustmrr": 9
   },
   "inbox_total": 400,
-  "archived_this_run": 61,
-  "archive_total": 1887,
+  "archived_this_run": 57,
+  "archive_total": 1944,
   "top": [
     {
-      "name": "TBreak",
-      "headline": "MRR $767，TrustMRR 第 1735 名",
+      "name": "Hydrofy",
+      "headline": "近 30 天收入 $289",
       "heat": 0,
-      "category": "Health & Fitness",
+      "category": "移动应用",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/tbreak"
+      "url": "https://trustmrr.com/startup/hydrofypt"
     },
     {
-      "name": "CanvasNinja",
-      "headline": "近 30 天收入 $2,271",
+      "name": "Native Templates",
+      "headline": "近 30 天收入 $1,011",
       "heat": 0,
-      "category": "垂直行业 SaaS",
+      "category": "开发者工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/canvasninjaapp"
+      "url": "https://trustmrr.com/startup/native-templates"
     },
     {
-      "name": "ThreadFox",
-      "headline": "近 30 天收入 $1,304",
+      "name": "Ranki",
+      "headline": "MRR $3,003",
       "heat": 0,
       "category": "营销工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/threadfox"
+      "url": "https://trustmrr.com/startup/ranki"
     },
     {
-      "name": "Cryptalycs",
-      "headline": "累计收入 $26（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
+      "name": "PromoLifetime",
+      "headline": "累计收入 $1（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
       "heat": 0,
-      "category": "Analytics",
+      "category": "营销工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/cryptalycs"
+      "url": "https://trustmrr.com/startup/promolifetime"
     },
     {
-      "name": "GetCopy.ai",
-      "headline": "累计收入 $208（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
-      "heat": 0,
-      "category": "垂直行业 SaaS",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/getcopyai"
-    },
-    {
-      "name": "Craftled, MB",
-      "headline": "累计收入 $67,415（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
-      "heat": 0,
-      "category": "垂直行业 SaaS",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/craftled-mb"
-    },
-    {
-      "name": "Quad Chat",
-      "headline": "近 30 天收入 $236",
-      "heat": 0,
-      "category": "AI 工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/quad-chat"
-    },
-    {
-      "name": "Pots",
+      "name": "Real-time inventory of natural stone slabs in US",
       "headline": "未获取",
-      "heat": 7,
+      "heat": 3,
       "category": "未分类",
       "source": "hn",
-      "url": "https://github.com/Crokily/pi-durable-bot"
+      "url": "https://slabby.org/"
+    },
+    {
+      "name": "Wonderchat",
+      "headline": "未获取",
+      "heat": 2,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://wonderchat.io/"
+    },
+    {
+      "name": "I built a Rick and Morty explainer video generator",
+      "headline": "未获取",
+      "heat": 11,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://usediorama.com/rick-and-morty"
+    },
+    {
+      "name": "Cerulion",
+      "headline": "未获取",
+      "heat": 11,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://github.com/cerulion-inc/cerulion"
     }
   ]
 }

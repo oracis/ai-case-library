@@ -234,9 +234,12 @@
   "stealth-rdp": {
     "title": "Stealth RDP：跨美欧的 Windows/Linux VPS 托管服务",
     "published_at": "2026-10-14 01:47",
-    "status": "draft",
+    "status": "published",
     "appmsgid": "100000490",
-    "file": ""
+    "file": "",
+    "group_sent": true,
+    "synced_at": "2026-11-13 07:44",
+    "sync_note": "远端已发表列表里存在，本地由 sync 回写；[11-13 修复] --case --apply 曾把整本 81 条覆盖成 1 条，已按 .bak 恢复其余 80 条"
   },
   "homy": {
     "title": "Homy：Mac 文件搜索优化工具，小众市场潜力待挖掘",

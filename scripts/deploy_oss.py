@@ -176,6 +176,30 @@ def sign(ak, sk, method, bucket, key, headers, subresource=""):
     return "OSS %s:%s" % (ak, base64.b64encode(digest).decode("ascii"))
 
 
+def _make_opener():
+    """部署用的 urllib opener：默认绕代理，可用环境变量改走代理。
+
+    两个事实都实测过，所以给开关、不把任何一边写死：
+      · 历史：本机代理会炸 TLS ⇒ 默认 `ProxyHandler({})` 强制直连；
+      · 2026-11-13：直连本身也会被阻断（TLS 握手 0/8、仅偶发成功，
+        同一 IP 的明文 80 端口却 200）⇒ 必须能改走本地可用代理，
+        否则上传根本发不出去。
+
+    `DEPLOY_PROXY_URL`（如 `http://127.0.0.1:10808`）**显式**指定代理，优先于
+    `DEPLOY_FOLLOW_ENV_PROXY=1`（遵循 HTTP(S)_PROXY）。显式优先是因为实测坑：
+    外部注入的 `HTTPS_PROXY` 会盖掉命令行前缀、`getproxies()` 还会把以
+    `_PROXY` 结尾的自定义变量误读成一个代理条目 —— 别依赖环境继承。
+    """
+    url = os.environ.get("DEPLOY_PROXY_URL", "").strip()
+    if url:
+        return urllib.request.build_opener(
+            urllib.request.ProxyHandler({"http": url, "https": url}))
+    flag = os.environ.get("DEPLOY_FOLLOW_ENV_PROXY", "").strip().lower()
+    if flag not in ("", "0", "false", "no"):
+        return urllib.request.build_opener()
+    return urllib.request.build_opener(urllib.request.ProxyHandler({}))
+
+
 class OSS(object):
     def __init__(self, ak, sk, region, verbose=False):
         self.ak = ak
@@ -183,8 +207,9 @@ class OSS(object):
         self.region = region
         self.endpoint = "https://oss-%s.aliyuncs.com" % region
         self.verbose = verbose
-        # 本机代理会炸 TLS，显式绕开（和 harvest.py 一个处理）
-        self.opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+        # 本机代理历史上会炸 TLS，默认显式绕开（和 harvest.py 一个处理）；
+        # 直连被阻断时用 DEPLOY_PROXY_URL 指定代理（见 _make_opener）。
+        self.opener = _make_opener()
 
     def _host_for(self, bucket):
         """选 host：列账号下的所有 Bucket 走二级域名；任何带 Bucket 的请求
@@ -303,7 +328,7 @@ def verify_public(bucket, region, prefix=""):
     key = (prefix.strip("/") + "/" if prefix else "") + "index.html"
     url = "https://%s.oss-%s.aliyuncs.com/%s" % (bucket, region, urllib.parse.quote(key))
     # 关键：不带任何签名头，模拟一个陌生访客
-    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+    opener = _make_opener()
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (verify)"})
     try:
         with opener.open(req, timeout=30) as r:

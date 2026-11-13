@@ -5,6 +5,7 @@
    "attempt": 0,
    "draft_id": "",
    "note": "对账补登: 读公开页正文确认(cv53482719) → 1Lookup：一个 API 查电话、邮箱、IP 实时数据",
+   "published_at": "2026-10-17 22:06:34",
    "remote_id": "53482719",
    "state": "published",
    "title": "1Lookup：一个 API 查电话、邮箱、IP 实时数据",
@@ -22,6 +23,7 @@
    "at": "2026-10-02 01:09",
    "attempt": 0,
    "error": "远端已发表列表里存在，本地由 sync 回写",
+   "published_at": "2026-10-02 01:09",
    "state": "published",
    "title": "1Lookup：一个 API 做电话、邮箱、IP 的实时数据校验"
   },
@@ -54,6 +56,7 @@
   "zhihu": {
    "draft_id": "2099504180557768154",
    "note": "status=published",
+   "published_at": "2026-11-02 23:28:58",
    "published_ts": "2026-11-02 23:28:58",
    "remote_id": "2099504180557768154",
    "state": "published",
@@ -91,6 +94,7 @@
    "at": "2026-09-21 22:57",
    "attempt": 0,
    "error": "远端已发表列表里存在，本地由 sync 回写",
+   "published_at": "2026-09-21 22:57",
    "state": "published",
    "title": "AEO Engine"
   },
@@ -107,6 +111,7 @@
    "attempt": 1,
    "draft_id": "344958",
    "note": "｜更新草稿 aid=344958（draft/add 回读校验通过）",
+   "published_at": "2026-10-27 12:56:48",
    "remote_id": "53628187",
    "state": "published",
    "title": "AgentsGuild：近 30 天已验证收入 ，为游戏开发",
@@ -130,6 +135,7 @@
    "at": "2026-10-27 13:24",
    "attempt": 0,
    "error": "｜publish模式自动发表，新 appmsgid=2247484764",
+   "published_at": "2026-10-27 13:24",
    "state": "published",
    "title": "AgentsGuild：卖给游戏开发者的 AI 技能工具包，靠一次性付费赚钱"
   },
@@ -200,6 +206,7 @@
    "at": "2026-10-25 00:43",
    "attempt": 0,
    "error": "远端已发表列表里存在，本地由 sync 回写",
+   "published_at": "2026-10-25 00:43",
    "state": "published",
    "title": "AI Prank Call：AI 语音恶作剧服务，32 活跃订阅数"
   },
@@ -328,6 +335,7 @@
   "wechat": {
    "at": "2026-09-21 21:09",
    "attempt": 0,
+   "published_at": "2026-09-21 21:09",
    "state": "published",
    "title": "AutoReels.AI：AI 自动生成短视频"
   },
@@ -443,6 +451,7 @@
    "at": "2026-10-16 08:35",
    "attempt": 0,
    "error": "远端已发表列表里存在，本地由 sync 回写",
+   "published_at": "2026-10-16 08:35",
    "state": "published",
    "title": "Bustem：帮电商品牌全网打假"
   },
@@ -461,6 +470,7 @@
    "attempt": 0,
    "draft_id": "",
    "note": "对账补登: 读公开页正文确认(cv53490089) → Chatbase：上传文档就得到一个客服机器人",
+   "published_at": "2026-10-18 15:00:26",
    "remote_id": "53490089",
    "state": "published",
    "title": "Chatbase：上传文档就得到一个客服机器人",
@@ -476,6 +486,7 @@
    "at": "2026-09-21 21:59",
    "attempt": 0,
    "error": "远端已发表列表里存在，本地由 sync 回写",
+   "published_at": "2026-09-21 21:59",
    "state": "published",
    "title": "「年入 $20M」和「累计 $20M」，差了一整个量级"
   },
@@ -541,6 +552,7 @@
    "at": "2026-09-21 23:19",
    "attempt": 0,
    "error": "远端已发表列表里存在，本地由 sync 回写",
+   "published_at": "2026-09-21 23:19",
    "state": "published",
    "title": "CheckVibe：扫描 vibe-coded 应用的安全漏洞——转换率翻三倍靠的不是产品，是付费墙的写法"
   },
@@ -612,6 +624,7 @@
   "wechat": {
    "at": "2026-11-01 19:59",
    "attempt": 0,
+   "published_at": "2026-11-01 19:59",
    "state": "published",
    "title": "Chessigma：「免费版 Chess.com」拿下 100 万+ 用户，576 个订阅"
   },
@@ -626,6 +639,7 @@
   "zhihu": {
    "draft_id": "2100211498438104962",
    "note": "status=published",
+   "published_at": "2026-11-01 19:11:46",
    "published_ts": "2026-11-01 19:11:46",
    "remote_id": "2100211498438104962",
    "state": "published",
@@ -707,6 +721,7 @@
    "at": "2026-11-01 20:05",
    "attempt": 1,
    "error": "｜publish模式自动发表，新 appmsgid=2247484986",
+   "published_at": "2026-11-01 20:05",
    "state": "published",
    "title": "Codédex：把学编程包装成「冒险旅程」的互动课程平台，免费 250+ 小时内容引流，Club 订阅 /月变现"
   },
@@ -721,6 +736,7 @@
   "zhihu": {
    "draft_id": "2100211505627242739",
    "note": "status=published",
+   "published_at": "2026-11-02 11:12:03",
    "published_ts": "2026-11-02 11:12:03",
    "remote_id": "2100211505627242739",
    "state": "published",
@@ -786,6 +802,7 @@
    "at": "2026-09-22 00:10",
    "attempt": 0,
    "error": "远端已发表列表里存在，本地由 sync 回写",
+   "published_at": "2026-09-22 00:10",
    "state": "published",
    "title": "Comp AI：帮公司过 SOC 2 / ISO 27001 合规审计，把六个月的流程压到几周"
   },
@@ -820,6 +837,7 @@
    "at": "2026-10-20 22:32",
    "attempt": 0,
    "error": "｜publish模式自动发表，新 appmsgid=2247484557",
+   "published_at": "2026-10-20 22:32",
    "state": "published",
    "title": "Coral：托管你的开源 AI 助手"
   },
@@ -868,6 +886,7 @@
    "attempt": 0,
    "draft_id": "342399",
    "note": "｜草稿同步(2026-10-10 01:17): title 认领 aid=342399｜更新草稿 aid=342399（draft/add 回读校验通过）｜更新草稿 aid=342399（draft/add 回读校验通过）",
+   "published_at": "2026-10-28 14:12:04",
    "remote_id": "53645998",
    "state": "published",
    "title": "Divine Widgets：圣经小组件，每日经文祷告上锁屏",
@@ -921,6 +940,7 @@
    "at": "2026-10-24 21:54",
    "attempt": 0,
    "error": "｜publish模式自动发表，新 appmsgid=2247484627",
+   "published_at": "2026-10-24 21:54",
    "state": "published",
    "title": "DOWNCONVERT SKETCHUP FILES：SketchUp 文件版本转换工具"
   },
@@ -938,6 +958,7 @@
    "attempt": 1,
    "draft_id": "",
    "note": "P1对账: 语义匹配(混音订阅, cv53335667) → 法国录音棚收 250 欧一单，有人把混音做成了订阅",
+   "published_at": "2026-10-08 12:13:59",
    "remote_id": "53335667",
    "state": "published",
    "title": "法国录音棚收 250 欧一单，有人把混音做成了订阅",
@@ -984,6 +1005,7 @@
    "at": "2026-11-04 13:54",
    "attempt": 0,
    "draft_id": "1703041",
+   "published_at": "2026-11-04 13:51:34",
    "remote_id": "1778894",
    "state": "published",
    "title": "游戏厅：马力欧兄弟，被 JS 重写的 1985 经典",
@@ -994,6 +1016,7 @@
    "attempt": 0,
    "draft_id": "346183",
    "note": "｜更新草稿 aid=346183（draft/add 回读校验通过）",
+   "published_at": "2026-11-06 13:43:21",
    "remote_id": "53786328",
    "state": "published",
    "title": "用 Backbone 游戏引擎复刻超级马力欧兄弟",
@@ -1071,6 +1094,7 @@
   "aliyun": {
    "draft_id": "1709459",
    "note": "过审后匿名公开页 200 + 标题命中 + 无审核横幅 ⇒ yun_state.record_publish 补正",
+   "published_at": "2026-11-12 10:20:07",
    "published_ts": "2026-11-12 10:20:07",
    "remote_id": "1782459",
    "state": "published",
@@ -1130,6 +1154,7 @@
    "attempt": 0,
    "draft_id": "",
    "note": "草稿箱→发布（send-draft）",
+   "published_at": "2026-11-07 09:03:48",
    "remote_id": "53797678",
    "state": "published",
    "title": "Quake：读一份 1999 年开源的 3D 引擎源码",
@@ -1158,6 +1183,7 @@
    "attempt": 0,
    "draft_id": "",
    "note": "草稿箱→发布（send-draft）",
+   "published_at": "2026-11-08 14:27:29",
    "remote_id": "53813599",
    "state": "published",
    "title": "SuperTux：带内置关卡编辑器的平台跳跃游戏",
@@ -1174,6 +1200,7 @@
   "wechat": {
    "draft_id": "100001219",
    "note": "2026-11-12 显式指定游戏稿真发（管理员扫码）；远端已发表列表命中 + 草稿箱消失",
+   "published_at": "2026-11-12 10:17:16",
    "published_ts": "2026-11-12 10:17:16",
    "remote_id": "2247485054",
    "state": "published",
@@ -1187,6 +1214,7 @@
    "attempt": 0,
    "draft_id": "",
    "note": "草稿箱→发布（send-draft）",
+   "published_at": "2026-11-09 10:42:51",
    "remote_id": "53824259",
    "state": "published",
    "title": "NetHack：ASCII 画面下的数据表与显示层分离",
@@ -1202,6 +1230,7 @@
   },
   "zhihu": {
    "note": "2026-11-12 UI 通道真发；远端已发表列表 + 匿名 state=published 双回读命中",
+   "published_at": "2026-11-12 08:21:21",
    "published_ts": "2026-11-12 08:21:21",
    "remote_id": "2104117564607615798",
    "state": "published",
@@ -1216,6 +1245,7 @@
    "attempt": 0,
    "draft_id": "",
    "note": "草稿箱→发布（send-draft）",
+   "published_at": "2026-11-10 12:20:41",
    "remote_id": "53842614",
    "state": "published",
    "title": "OpenTTD：用 C++ 重写运输大亨的模拟引擎",
@@ -1236,6 +1266,7 @@
    "attempt": 0,
    "draft_id": "",
    "note": "草稿箱→发布（send-draft）",
+   "published_at": "2026-11-11 08:31:45",
    "remote_id": "53854700",
    "state": "published",
    "title": "Mindustry：注解自动生成实体类的 Java 沙盒塔防",
@@ -1252,10 +1283,11 @@
  },
  "ext-ep-009-lichess": {
   "bilibili2": {
-   "at": "2026-11-12 07:49 草稿箱→发布（send-draft）",
+   "at": "2026-11-12 07:49",
    "attempt": 0,
    "draft_id": "",
    "note": "草稿箱→发布（send-draft）",
+   "published_at": "2026-11-12 07:49:03",
    "remote_id": "53870969",
    "state": "published",
    "title": "Lichess：免费象棋平台的网页对局与 Scala 后端",
@@ -1271,6 +1303,17 @@
   }
  },
  "ext-ep-010-cataclysm-dark-days-ahead": {
+  "bilibili2": {
+   "at": "2026-11-13 07:20 草稿箱→发布（send-draft）",
+   "attempt": 0,
+   "draft_id": "",
+   "note": "草稿箱→发布（send-draft）",
+   "published_at": "2026-11-13 07:20",
+   "remote_id": "53887916",
+   "state": "published",
+   "title": "Cataclysm-DDA：数据驱动的末日生存 Roguelike",
+   "url": ""
+  },
   "toutiao": {
    "at": "2026-10-31 20:23",
    "attempt": 0,
@@ -1346,6 +1389,7 @@
   "zhihu": {
    "draft_id": "2098799999773570136",
    "note": "status=published",
+   "published_at": "2026-10-29 12:17:15",
    "published_ts": "2026-10-29 12:17:15",
    "remote_id": "2098799999773570136",
    "state": "published",
@@ -1377,6 +1421,7 @@
    "at": "2026-10-02 01:32",
    "attempt": 0,
    "error": "远端已发表列表里存在，本地由 sync 回写",
+   "published_at": "2026-10-02 01:32",
    "state": "published",
    "title": "Genius AI（原 GlossGenius）：给美发店、美甲店、理疗诊所做的一体化后台：预约、收银、发短信"
   },
@@ -1409,6 +1454,7 @@
   "zhihu": {
    "draft_id": "2099504191156893329",
    "note": "status=published",
+   "published_at": "2026-11-05 12:51:47",
    "published_ts": "2026-11-05 12:51:47",
    "remote_id": "2099504191156893329",
    "state": "published",
@@ -1447,6 +1493,7 @@
    "at": "2026-10-02 01:14",
    "attempt": 0,
    "error": "远端已发表列表里存在，本地由 sync 回写",
+   "published_at": "2026-10-02 01:14",
    "state": "published",
    "title": "GojiberryAI：面向 B2B 团队的 AI GTM 平台：找高意向线索，把购买信号变成对话"
   },
@@ -1499,6 +1546,7 @@
    "attempt": 1,
    "draft_id": "",
    "note": "对账补登: 读公开页正文确认(cv53304680) → 正文首句『Harper 把英国公开的公司抵押记录…』 ⇒ HarperAI",
+   "published_at": "2026-10-06 00:17:42",
    "remote_id": "53304680",
    "state": "published",
    "title": "把英国公开抵押记录连成一张网，然后卖给贷款经纪",
@@ -1609,6 +1657,7 @@
   "wechat": {
    "at": "2026-09-21 20:41",
    "attempt": 0,
+   "published_at": "2026-09-21 20:41",
    "state": "published",
    "title": "Insect Bite ID：用 AI 识别虫咬类型"
   },
@@ -1642,6 +1691,7 @@
    "at": "2026-10-29 12:10",
    "attempt": 0,
    "error": "｜publish模式自动发表，新 appmsgid=2247484766",
+   "published_at": "2026-10-29 12:10",
    "state": "published",
    "title": "Kibu：专给智障与发育障碍（I/DD）服务机构做的内容、合规与电子病历系统"
   },
@@ -1705,6 +1755,7 @@
    "at": "2026-09-21 23:03",
    "attempt": 0,
    "error": "远端已发表列表里存在，本地由 sync 回写",
+   "published_at": "2026-09-21 23:03",
    "state": "published",
    "title": "Lancer.app：AI 替自由职业者干完接单最烦的那一段：找活、筛活、写提案、投出去"
   },
@@ -1786,6 +1837,7 @@
    "attempt": 0,
    "draft_id": "342411",
    "note": "2026-10-29 发布时 B站重分配 aid：342411 → 53660838；脚本按旧 aid 回读误报失败，已人工回读已发表列表命中补账",
+   "published_at": "2026-10-29 11:43:28",
    "remote_id": "53660838",
    "state": "published",
    "title": "MagicSlides.app：输入主题自动做 PPT",
@@ -1803,6 +1855,7 @@
    "at": "2026-10-02 00:56",
    "attempt": 0,
    "error": "远端已发表列表里存在，本地由 sync 回写",
+   "published_at": "2026-10-02 00:56",
    "state": "published",
    "title": "MagicSlides.app：AI 一键生成演示文稿"
   },
@@ -1836,6 +1889,7 @@
    "at": "2026-10-23 15:54",
    "attempt": 0,
    "error": "｜publish模式自动发表，新 appmsgid=2247484626",
+   "published_at": "2026-10-23 15:54",
    "state": "published",
    "title": "Marc Lou 的产品矩阵：三年发 25 个产品、12 个赚钱、1 个大成——靠「组合」而不是「单品」活着"
   },
@@ -1904,6 +1958,7 @@
    "at": "2026-10-16 08:02",
    "attempt": 0,
    "error": "远端已发表列表里存在，本地由 sync 回写",
+   "published_at": "2026-10-16 08:02",
    "state": "published",
    "title": "Meerkats：替营销公司跑获客"
   },
@@ -1922,6 +1977,7 @@
    "attempt": 2,
    "draft_id": "342369",
    "note": "P1对账: 标题直接命中(cv53280245) → MORT：AI 求职代理，自动投遍企业招聘页",
+   "published_at": "2026-10-03 17:37:07",
    "remote_id": "53280245",
    "state": "published",
    "title": "MORT：AI 产品",
@@ -1965,6 +2021,7 @@
    "attempt": 0,
    "draft_id": "342414",
    "note": "｜草稿同步(2026-10-10 01:26): title 认领 aid=342414",
+   "published_at": "2026-11-05 10:01:14",
    "remote_id": "53766079",
    "state": "published",
    "title": "Nitra：给独立小诊所做管钱、管合规、管库存的后台",
@@ -1980,6 +2037,7 @@
    "at": "2026-09-21 21:48",
    "attempt": 0,
    "error": "远端已发表列表里存在，本地由 sync 回写",
+   "published_at": "2026-09-21 21:48",
    "state": "published",
    "title": "中文媒体把这家美国医疗公司的客户数，写多了 10 倍"
   },
@@ -2028,6 +2086,7 @@
    "attempt": 0,
    "draft_id": "342415",
    "note": "｜草稿同步(2026-10-10 01:26): title 认领 aid=342415",
+   "published_at": "2026-11-07 11:21:21",
    "remote_id": "53799597",
    "state": "published",
    "title": "Outrank：自动化 SEO 引擎",
@@ -2045,6 +2104,7 @@
    "at": "2026-10-22 11:47",
    "attempt": 0,
    "error": "｜publish模式自动发表，新 appmsgid=2247484559",
+   "published_at": "2026-10-22 11:47",
    "state": "published",
    "title": "Outrank：从 AI 博客生成器到自动化 SEO 引擎"
   },
@@ -2125,6 +2185,7 @@
    "attempt": 0,
    "draft_id": "342416",
    "note": "｜草稿同步(2026-10-10 01:27): title 认领 aid=342416",
+   "published_at": "2026-11-08 14:25:14",
    "remote_id": "53813580",
    "state": "published",
    "title": "Pieter Levels：一个人做成的产品组合",
@@ -2142,6 +2203,7 @@
    "at": "2026-10-30 13:29",
    "attempt": 0,
    "error": "｜publish模式自动发表，新 appmsgid=2247484767",
+   "published_at": "2026-10-30 13:29",
    "state": "published",
    "title": "Pieter Levels 的产品矩阵"
   },
@@ -2176,6 +2238,7 @@
   "zhihu": {
    "draft_id": "2099503506575078355",
    "note": "status=published",
+   "published_at": "2026-11-01 17:49:49",
    "published_ts": "2026-11-01 17:49:49",
    "remote_id": "2099503506575078355",
    "state": "published",
@@ -2190,6 +2253,7 @@
    "attempt": 2,
    "draft_id": "343499",
    "note": "｜草稿同步(2026-10-14 12:09): body 认领 aid=343499 ｜ [11-11 收尾] published_at 由建稿时点改回真发时点",
+   "published_at": "2026-11-11 08:26:05",
    "remote_id": "53854649",
    "state": "published",
    "title": "Podawaa：LinkedIn 排期与受众增长",
@@ -2226,6 +2290,7 @@
    "attempt": 0,
    "draft_id": "342417",
    "note": "｜草稿同步(2026-10-10 01:28): title 认领 aid=342417",
+   "published_at": "2026-11-09 10:45:55",
    "remote_id": "53824331",
    "state": "published",
    "title": "Postiz：社媒一键多平台排期发布",
@@ -2241,6 +2306,7 @@
    "at": "2026-09-21 22:10",
    "attempt": 0,
    "error": "远端已发表列表里存在，本地由 sync 回写",
+   "published_at": "2026-09-21 22:10",
    "state": "published",
    "title": "Postiz：社媒一键多平台排期发布，靠 agent 营销把 MRR 从 1.7 万推到 20 万"
   },
@@ -2259,6 +2325,7 @@
    "attempt": 0,
    "draft_id": "342418",
    "note": "｜草稿同步(2026-10-10 01:28): title 认领 aid=342418",
+   "published_at": "2026-11-10 13:00:46",
    "remote_id": "53842967",
    "state": "published",
    "title": "Promptmonitor.io：监测 AI 里的品牌曝光",
@@ -2294,6 +2361,7 @@
    "attempt": 0,
    "draft_id": "342364",
    "note": "｜草稿同步(2026-10-16 14:10): title 认领 aid=342364",
+   "published_at": "2026-11-03 13:54:47",
    "remote_id": "53736510",
    "state": "published",
    "title": "PROSP：把找人、写话术、发出去压成一个按钮",
@@ -2459,6 +2527,7 @@
    "attempt": 0,
    "draft_id": "",
    "note": "P1对账: 标题直接命中(cv53385991) → Rezi：AI 简历生成器，最不酷却验证收入最高",
+   "published_at": "2026-10-11 19:46:05",
    "remote_id": "53385991",
    "state": "published",
    "title": "月收$293K：帮你写出能过筛的简历",
@@ -2474,6 +2543,7 @@
    "at": "2026-09-21 22:04",
    "attempt": 0,
    "error": "远端已发表列表里存在，本地由 sync 回写",
+   "published_at": "2026-09-21 22:04",
    "state": "published",
    "title": "Rezi：AI 简历生成器——最不酷的需求，却是验证收入最高的 AI 产品"
   },
@@ -2594,6 +2664,7 @@
    "attempt": 0,
    "draft_id": "338031",
    "error": "tag search 平台侧 404 → 用户授权自拟标签 → React setter+Enter 建 chip 后 UI 发布成功，弹窗「发布成功！文章正在审核中」 | longtail_key=shipfast-2026-10-30-1",
+   "published_at": "2026-10-30 12:50:00",
    "state": "published",
    "title": "",
    "url": "https://cloud.tencent.com/developer/article/2772404"
@@ -2608,6 +2679,7 @@
    "at": "2026-09-21 22:39",
    "attempt": 0,
    "error": "远端已发表列表里存在，本地由 sync 回写",
+   "published_at": "2026-09-21 22:39",
    "state": "published",
    "title": "被吹爆的 ShipFast，近 30 天收入只剩约 $3,000"
   },
@@ -2620,6 +2692,7 @@
   "zhihu": {
    "draft_id": "2099470396764451624",
    "note": "status=published",
+   "published_at": "2026-10-30 12:13:52",
    "published_ts": "2026-10-30 12:13:52",
    "remote_id": "2099470396764451624",
    "state": "published",
@@ -2651,6 +2724,7 @@
    "at": "2026-10-02 01:23",
    "attempt": 0,
    "error": "远端已发表列表里存在，本地由 sync 回写",
+   "published_at": "2026-10-02 01:23",
    "state": "published",
    "title": "Sierra：企业级 AI 客服代理，只在问题被真正解决时才收钱"
   },
@@ -2712,6 +2786,7 @@
    "at": "2026-10-02 14:35",
    "attempt": 0,
    "error": "远端已发表列表里存在，本地由 sync 回写",
+   "published_at": "2026-10-02 14:35",
    "state": "published",
    "title": "$65K MRR 是真的，但它已经停止增长了"
   },
@@ -2745,6 +2820,7 @@
    "at": "2026-10-02 01:02",
    "attempt": 0,
    "error": "远端已发表列表里存在，本地由 sync 回写",
+   "published_at": "2026-10-02 01:02",
    "state": "published",
    "title": "Stan：帮创作者「靠自己活着和工作」的平台"
   },
@@ -2776,6 +2852,7 @@
    "at": "2026-10-21 12:47",
    "attempt": 0,
    "error": "｜publish模式自动发表，新 appmsgid=2247484558",
+   "published_at": "2026-10-21 12:47",
    "state": "published",
    "title": "StartClaw：零配置跑 AI 助手"
   },
@@ -2881,6 +2958,7 @@
    "at": "2026-09-21 23:25",
    "attempt": 0,
    "error": "远端已发表列表里存在，本地由 sync 回写",
+   "published_at": "2026-09-21 23:25",
    "state": "published",
    "title": "StoryShort.ai：自动生成无露脸短视频，靠 TikTok 图文轮播拿到 100+ 付费用户"
   },
@@ -2899,6 +2977,7 @@
    "attempt": 0,
    "draft_id": "1701410",
    "error": " | longtail_key=trustmrr-2026-11-01-1",
+   "published_at": "2026-11-01 00:44",
    "remote_id": "1777577",
    "state": "published",
    "title": "",
@@ -2909,6 +2988,7 @@
    "attempt": 0,
    "draft_id": "345579",
    "note": "P1对账: 标题直接命中(cv53460777) → TrustMRR：验证过的创业公司收入数据库｜同案例另有一条旧稿『TrustMRR：验证过的创业公司收入数据库』(cv53352783, 2026-10-09 12:58，正文与新篇相同)｜更新草稿 aid=345579（draft/add 回读校验通过）",
+   "published_at": "2026-10-31 18:26:17",
    "remote_id": "53696865",
    "state": "published",
    "title": "TrustMRR：验证过的创业公司收入数据库",
@@ -2946,6 +3026,7 @@
    "attempt": 0,
    "draft_id": "338565",
    "error": " | longtail_key=trustmrr-2026-10-31-1",
+   "published_at": "2026-11-01 00:34:21",
    "remote_id": "2773308",
    "state": "published",
    "title": "TrustMRR：把「可核验」做成产品的海外小站",
@@ -2963,6 +3044,7 @@
    "at": "2026-09-29 21:17",
    "attempt": 0,
    "error": "发布模式",
+   "published_at": "2026-09-29 21:17",
    "remote_id": "2247484801",
    "state": "published",
    "title": "TrustMRR：把「验证收入」本身做成了产品：连 Stripe 才能上榜的创业公司收入数据库 + 交易市场",
@@ -2978,6 +3060,7 @@
   "zhihu": {
    "draft_id": "2099933712293028149",
    "note": "status=published",
+   "published_at": "2026-10-31 23:24:44",
    "published_ts": "2026-10-31 23:24:44",
    "remote_id": "2099933712293028149",
    "state": "published",
@@ -2992,6 +3075,7 @@
    "attempt": 0,
    "draft_id": "",
    "note": "对账补登: 读公开页正文确认(cv53315883) → UpLinked B.V.：在领英上自动加客户｜同案例另有一条旧标题稿『月收$2.4K：在领英上自动加客户』(cv53245351, 2026-09-30 15:19)",
+   "published_at": "2026-10-07 00:05:13",
    "remote_id": "53315883",
    "state": "published",
    "title": "UpLinked B.V.：在领英上自动加客户",
@@ -3053,6 +3137,7 @@
    "attempt": 0,
    "draft_id": "338085",
    "error": " | longtail_key=upvoty-2026-10-30-1",
+   "published_at": "2026-10-29 14:06:20",
    "state": "published",
    "title": "",
    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338085"
@@ -3178,6 +3263,7 @@
    "attempt": 0,
    "draft_id": "",
    "note": "对账补登: 读公开页正文确认(cv53298456) → Viktor：住进 Slack 的 AI 同事",
+   "published_at": "2026-10-05 12:11:15",
    "remote_id": "53298456",
    "state": "published",
    "title": "Viktor：住进 Slack 的 AI 同事",
@@ -3193,6 +3279,7 @@
    "at": "2026-09-21 21:53",
    "attempt": 0,
    "error": "远端已发表列表里存在，本地由 sync 回写",
+   "published_at": "2026-09-21 21:53",
    "state": "published",
    "title": "Viktor：住进 Slack / Teams 的 AI 同事，你 @ 它，它把活干完再贴回来"
   },
@@ -3209,6 +3296,7 @@
    "attempt": 0,
    "draft_id": "",
    "note": "P1对账: 标题直接命中(cv53283349) → Visualizee.ai：给建筑师做效果图云渲染",
+   "published_at": "2026-10-04 00:03:46",
    "remote_id": "53283349",
    "state": "published",
    "title": "月收$8.6K：帮设计师渲染效果图",
@@ -3226,6 +3314,7 @@
    "at": "2026-10-16 20:18",
    "attempt": 0,
    "error": "｜后台已发表（编辑器页面确认），本地由 send 修正",
+   "published_at": "2026-10-16 20:18",
    "state": "published",
    "title": "Visualizee.ai：建筑与室内设计的效果图渲染工具"
   },
@@ -3242,6 +3331,7 @@
    "attempt": 0,
    "draft_id": "342350",
    "note": "P1对账: 标题直接命中(cv53375028) → Voklit：给跨境团队搭的云通信",
+   "published_at": "2026-10-10 21:05:05",
    "remote_id": "53375028",
    "state": "published",
    "title": "月收$1.6K：给跨境团队搭云通信",
@@ -3260,6 +3350,7 @@
    "attempt": 0,
    "draft_id": "100000242",
    "error": "｜publish模式自动发表，新 appmsgid=2247484999",
+   "published_at": "2026-11-04 14:07",
    "remote_id": "100000242",
    "state": "published",
    "title": "卖海外虚拟号码这门生意，最后为什么停机挂牌"
@@ -3343,6 +3434,7 @@
    "attempt": 2,
    "draft_id": "343876",
    "note": "｜草稿同步(2026-10-15 21:22): title 认领 aid=343876",
+   "published_at": "2026-11-02 20:18:32",
    "remote_id": "53725626",
    "state": "published",
    "title": "WPConvert：AI 建的站转成 WordPress",
@@ -3360,6 +3452,7 @@
    "at": "2026-11-02 20:33",
    "attempt": 1,
    "error": "｜publish模式自动发表，新 appmsgid=2247484987",
+   "published_at": "2026-11-02 20:33",
    "state": "published",
    "title": "WPConvert：AI 建站转 WP"
   },

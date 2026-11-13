@@ -41,6 +41,7 @@
 import argparse
 import concurrent.futures as cf
 import gzip
+import html as htmlmod
 import json
 import os
 import re
@@ -62,9 +63,22 @@ CANDS = os.path.join(ROOT, "data", "candidates.json")
 
 SITEMAP = "https://trustmrr.com/startup-sitemap.xml"
 MD = "https://trustmrr.com/startup/%s.md"
+HTML = "https://trustmrr.com/startup/%s"
 
 # `.md` 只对 /startup/ 有效；HTTP 200 也可能返回 404 骨架页（见 docs/TRUSTMRR_FETCH.md 7c）
 NOT_FOUND_MARK = "NEXT_HTTP_ERROR_FALLBACK"
+
+# 2026-11-12：官方 JSON-LD `Organization.additionalProperty` 的 name → 本项目字段。
+# 只认**页面自己声明的名字**，不按位置取数（顺序变了不会串字段）。
+LD_METRIC_NAMES = {
+    "Verified revenue, last 30 days": "last_30d_revenue",
+    "Current MRR": "mrr",
+    "Verified revenue, all time": "all_time",
+    "Current customers/subscriptions": "subscriptions",
+    "Revenue growth, last 30 days": "revenue_growth_30d",
+    "MRR growth, last 30 days": "mrr_growth_30d",
+    "Profit margin, last 30 days": "profit_margin",
+}
 
 
 def _get(url, timeout=60):
@@ -92,6 +106,100 @@ def load_sitemap():
     return set(re.findall(r"/startup/([A-Za-z0-9\-_]+)</loc>", xml))
 
 
+def parse_html_fallback(page, slug):
+    """从 `/startup/<slug>` 的 HTML 页解析官方 JSON-LD 营收指标。
+
+    🚨 2026-11-12：平台对**部分** slug 的 `.md` 生成端点返回 HTTP 500
+    （`{"error":"Something went wrong"}`，32 字节；走代理 / 绕代理都一样），
+    而同一 slug 的 HTML 页是 200，且内嵌 schema.org JSON-LD，字段与 `.md`
+    同源。500 是「没读到」，不是「下架」（红线 5 / 29），所以加这条回落。
+
+    ⚠ 为什么不能把它当 `.md` 的等价替代：
+      · HTML 页**没有** `### Monthly revenue timeline` —— 而 `check_one()`
+        的完整月环比（COLLAPSE）与峰值留存（PEAK_RETENTION）两道判据
+        都只吃那条时间线。缺它却照常放行＝静默跳过两道闸（假绿）。
+        ⇒ 本函数显式给 `monthly_available=False`，由 `check_one` 挂起。
+      · JSON-LD 只有 `Payment provider = Stripe`，没有 `.md` 的
+        `Verified payment provider API source: ... (API key)`。
+        **不冒充** provenance：`verified_via` 留 None，另存 payment_provider。
+
+    返回 out 字典或 None（None = 这页不能当证据，调用方保持 unknown）。
+    """
+    if not page or len(page) < 1000:
+        return None
+    # HTTP 200 完全掩盖 404（docs/TRUSTMRR_FETCH.md 7c）
+    if NOT_FOUND_MARK in page:
+        return None
+    # 页面自证身份：CDN 串页 / 重定向到别的产品时不许拿它的数字
+    if not re.search(r"trustmrr\.com/startup/" + re.escape(slug) + r'(?=["\\?#<])',
+                     page):
+        return None
+
+    blocks = re.findall(
+        r'<script[^>]+type="application/ld\+json"[^>]*>(.*?)</script>',
+        page, re.S)
+    if not blocks:
+        return None
+    props, org_name = {}, None
+    for block in blocks:
+        try:
+            data = json.loads(htmlmod.unescape(block))
+        except (ValueError, TypeError):
+            continue
+        graph = (data.get("@graph") or [data]) if isinstance(data, dict) else []
+        for node in graph:
+            if not isinstance(node, dict):
+                continue
+            if node.get("@type") == "Organization":
+                org_name = org_name or node.get("name")
+                for p in node.get("additionalProperty") or []:
+                    if isinstance(p, dict) and p.get("name"):
+                        props[p["name"]] = p.get("value")
+    # 至少要有收入主字段，否则是残缺页（例如只有面包屑）
+    if not any(k in props for k in ("Verified revenue, last 30 days",
+                                    "Current MRR")):
+        return None
+
+    metrics = {}
+    for ld_name, key in LD_METRIC_NAMES.items():
+        val = props.get(ld_name)
+        if val is None:
+            continue
+        try:
+            num = float(val)
+        except (TypeError, ValueError):
+            continue
+        metrics[key] = int(num) if key == "subscriptions" else round(num, 2)
+    # 与 .md 口径一致：旧名 growth_30d 锁死为 MRR 增速（红线 12）
+    metrics["growth_30d"] = metrics.get("mrr_growth_30d")
+
+    # 同步时点取自页面自身的 RSC payload，语义与 .md 的
+    # `Revenue last synced` 一致；拿不到就留 None，绝不用 dateModified 顶替
+    m = re.search(r"revenueLastSyncedAt[^0-9]{0,12}"
+                  r"(20\d\d-\d\d-\d\dT[\d:.]+Z)", page)
+    title = org_name
+    if not title:
+        t = re.search(r"<title>\s*(.+?)\s+revenue:", page, re.S)
+        title = t.group(1).strip() if t else None
+
+    return {
+        "slug": slug,
+        "state": "live",
+        "title": title,
+        "metrics": metrics,
+        "synced_at": m.group(1) if m else None,
+        # 不冒充 .md 的 "Verified payment provider API source"
+        "verified_via": None,
+        "payment_provider": props.get("Payment provider"),
+        "listed_for_sale": None,
+        # 🚨 HTML 通道没有月度时间线 ⇒ 两道趋势判据必须判「没跑」
+        "monthly": [],
+        "monthly_available": False,
+        "channel": "html_fallback",
+        "http": 200,
+    }
+
+
 def probe(slug, retries=3):
     """返回 (状态, 标题, 实测数字字典)。状态 ∈ live / gone / unknown。
 
@@ -101,6 +209,12 @@ def probe(slug, retries=3):
     429 / 5xx 属于**暂时**失败，必须退避重试；只有 404（或 200 但带
     NOT_FOUND_MARK）才配叫 gone。重试也失败的，老实报 unknown + http 码，
     让调用方知道「没判定」而不是「判死了」。
+
+    🚨 2026-11-12 加 `.md` 500 的 HTML 回落：部分 slug 的 `.md` 稳定 500，
+    但 `/startup/<slug>` HTML 页 200 且带官方 JSON-LD 营收字段。仅对
+    **5xx** 回落；429 是限流（不许借更大的 HTML 页绕过限流）、4xx 是拒绝、
+    404 是下架，三者都不回落。`channel="html_fallback"` 的结果缺月度时间线，
+    由 `promote_to_candidates.check_one()` 挂起，不许当成完整判定。
     """
     out = {"slug": slug, "state": "unknown", "title": None, "metrics": {}}
     last_code = None
@@ -120,12 +234,24 @@ def probe(slug, retries=3):
                 continue
             out["http"] = e.code
             out["err"] = "HTTPError"
+            # 只对平台 5xx 回落：429 是限流、4xx 是拒绝，都不该被 HTML 页洗白
+            if 500 <= e.code < 600:
+                try:
+                    page = _get(HTML % slug, timeout=60)
+                    fb = parse_html_fallback(page, slug)
+                    if fb:
+                        fb["fallback_from"] = e.code
+                        return fb
+                    out["html_fallback_err"] = "parse-failed"
+                except Exception as he:                          # noqa: BLE001
+                    out["html_fallback_err"] = type(he).__name__
             return out
         except Exception as e:                                  # noqa: BLE001
             last_code = None
             if attempt < retries - 1:
                 time.sleep(1.5 * (2 ** attempt))
                 continue
+            # 本机网络抖动不回落：别在这种时候去拉 230KB 的 HTML 页
             out["err"] = type(e).__name__
             return out
     else:                                                       # pragma: no cover
@@ -141,6 +267,8 @@ def probe(slug, retries=3):
     m = re.search(r"^#\s*(.+)$", txt, re.M)
     out["title"] = m.group(1).strip() if m else None
     out["state"] = "live"
+    out["channel"] = "md"                 # 一手通道：月度时间线齐全
+    out["monthly_available"] = True
 
     def g(pat, cast=float):
         mm = re.search(pat, txt)

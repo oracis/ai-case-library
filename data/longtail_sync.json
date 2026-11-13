@@ -870,5 +870,35 @@
   "cover": "",
   "via": "cdp-9228",
   "ts": "2026-11-09 22:46:55"
+ },
+ "ext-ep-009-lichess-2026-11-13-1": {
+  "case": "ext-ep-009-lichess",
+  "title": "Lichess，免费无广告的国际象棋",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "345626",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=345626"
+   }
+  },
+  "category": "人工智能",
+  "cover": "https://case.ydtgo.top/covers/ext-ep-009-lichess.png",
+  "via": "cdp-9228",
+  "ts": "2026-11-13 07:22:03"
+ },
+ "flodesk-2026-11-13-1": {
+  "case": "flodesk",
+  "title": "「无限发送」的邮件平台，实际在做的是送达率工程",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "345642",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=345642"
+   }
+  },
+  "category": "人工智能",
+  "cover": "https://case.ydtgo.top/covers/flodesk.png",
+  "via": "cdp-9228",
+  "ts": "2026-11-13 08:23:49"
  }
 }

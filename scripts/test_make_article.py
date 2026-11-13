@@ -107,10 +107,11 @@ def main():
     b = [c["id"] for _, c in m.pick(list(reversed(cases)), args)]
     chk("同一批案例排序一致", a == b, "%s vs %s" % (a[:3], b[:3]))
     chk("nitra 排第一", a[0] == "nitra", "实际 %s" % a[0])
-    # 同分两条的先后必须稳定：gojiberryai 与 aeo-engine 都是 4.0
-    ties = [(round(m.virality_score(c), 2), c["id"]) for c in cases]
-    tie_ids = [i for s, i in ties if s == round(m.virality_score(
-        next(x for x in cases if x["id"] == "aeo-engine")), 2)]
+    # 同分两条的先后必须稳定（2026-11-12 修）：必须检查 pick() 的**排序输出**，
+    # 不能扫 cases 原始数组。库是追加式写入，新案例排在尾部；用原序判
+    # 「按 id 定先后」在同分组只有 1 条时恰好通过，一旦新案例同分就误报。
+    aeo_score = round(m.virality_score(by_id["aeo-engine"]), 2)
+    tie_ids = [i for i in a if round(m.virality_score(by_id[i]), 2) == aeo_score]
     if len(tie_ids) > 1:
         chk("并列的两条按 id 定先后", tie_ids == sorted(tie_ids), "、".join(tie_ids))
 

@@ -16,6 +16,7 @@
 方法论：全部用固件，不联网（与 test_triage.py 一致）。
 """
 
+import json
 import os
 import re
 import sys
@@ -389,6 +390,152 @@ class TestGrowthCaliber(unittest.TestCase):
         # MRR 在跌这件事必须被如实反映，不能被收入增速盖掉
         self.assertLess(live_cometly["mrr_growth_30d"], 0)
         self.assertGreater(live_cometly["revenue_growth_30d"], 0)
+
+
+class TestHtmlFallback(unittest.TestCase):
+    """🚨 2026-11-12：`.md` 500 时的 HTML/JSON-LD 回落（PRD #142）。
+
+    这批 27 条 hang 的根因是平台 `.md` 生成端点 HTTP 500，不是 429 也不是下架。
+    回落只解决「拿数字」，**解决不了月度时间线** —— 而完整月环比 / 峰值留存
+    两道判据只吃时间线。这组测试钉死的是：不许把「判据没跑」写成「通过」。
+    """
+
+    PROPS = [
+        ("Verified revenue, all time", 16245.080013022485),
+        ("Verified revenue, last 30 days", 317.9461557872518),
+        ("Current MRR", 555.63),
+        ("Current customers/subscriptions", 26),
+        ("Revenue growth, last 30 days", -55.27809432102615),
+        ("MRR growth, last 30 days", -14.74909854356669),
+        ("Profit margin, last 30 days", 60),
+        ("Payment provider", "DodoPayment"),
+    ]
+
+    def page(self, slug="framenet", url_slug=None, not_found=False,
+             drop_income=False, synced=True):
+        props = [p for p in self.PROPS
+                 if not (drop_income and p[0] in
+                         ("Verified revenue, last 30 days", "Current MRR"))]
+        ld = {"@context": "https://schema.org", "@graph": [
+            {"@type": "WebPage",
+             "url": "https://trustmrr.com/startup/%s" % (url_slug or slug)},
+            {"@type": "Organization", "name": "Framenet",
+             "additionalProperty": [
+                 {"@type": "PropertyValue", "name": n, "value": v}
+                 for n, v in props]}]}
+        rsc = (r'\"revenueLastSyncedAt\":\"2026-11-11T14:46:05.674Z\"'
+               if synced else "")
+        return ("<html><head><title>Framenet revenue: $318 in the last 30 days"
+                " | TrustMRR</title>"
+                '<script type="application/ld+json">%s</script></head>'
+                "<body>%s%s</body></html>"
+                % (json.dumps(ld, ensure_ascii=False), rsc,
+                   "NEXT_HTTP_ERROR_FALLBACK" if not_found else ""))
+
+    def test_官方JSONLD字段全部解析且口径不混(self):
+        out = AD.parse_html_fallback(self.page(), "framenet")
+        self.assertIsNotNone(out)
+        m = out["metrics"]
+        self.assertEqual(m["mrr"], 555.63)
+        self.assertEqual(m["last_30d_revenue"], 317.95)
+        self.assertEqual(m["all_time"], 16245.08)
+        self.assertEqual(m["subscriptions"], 26)
+        # 两个 growth 必须分开存，且旧名锁死为 MRR 口径（红线 12）
+        self.assertAlmostEqual(m["revenue_growth_30d"], -55.28, places=2)
+        self.assertAlmostEqual(m["mrr_growth_30d"], -14.75, places=2)
+        self.assertEqual(m["growth_30d"], m["mrr_growth_30d"])
+        self.assertEqual(out["synced_at"], "2026-11-11T14:46:05.674Z")
+        self.assertEqual(out["payment_provider"], "DodoPayment")
+
+    def test_回落必须自报缺月度时间线_且不冒充一手provenance(self):
+        out = AD.parse_html_fallback(self.page(), "framenet")
+        self.assertEqual(out["channel"], "html_fallback")
+        self.assertEqual(out["state"], "live")
+        self.assertFalse(out["monthly_available"])
+        self.assertEqual(out["monthly"], [])
+        # JSON-LD 只有 Payment provider，没有 `.md` 的 "API source"
+        self.assertIsNone(out["verified_via"])
+        self.assertIsNone(out["listed_for_sale"])
+
+    def test_200伪装404_串页_残缺页一律不当证据(self):
+        self.assertIsNone(AD.parse_html_fallback(
+            self.page(not_found=True), "framenet"))
+        self.assertIsNone(AD.parse_html_fallback(
+            self.page(url_slug="another-product"), "framenet"))
+        self.assertIsNone(AD.parse_html_fallback(
+            self.page(drop_income=True), "framenet"))
+        self.assertIsNone(AD.parse_html_fallback("<html></html>", "framenet"))
+
+    def test_缺同步时点不编日期(self):
+        out = AD.parse_html_fallback(self.page(synced=False), "framenet")
+        self.assertIsNotNone(out)
+        self.assertIsNone(out["synced_at"])
+
+    def test_check_one_对回落条目挂起且摆出实测数字(self):
+        out = AD.parse_html_fallback(self.page(), "framenet")
+        rec = {"id": "framenet", "trade": None, "metrics": {}}
+        ok, why, m, _ = PC.check_one(rec, out)
+        self.assertIsNone(ok)                       # 不是 True，也不是 False
+        self.assertIn("未跑", why)
+        self.assertIn("HTML 回落", why)
+        self.assertEqual(m["mrr"], 555.63)          # 数字仍然交得出来
+
+    def test_回落但收入不够门槛_直接判拒绝不需要时间线(self):
+        out = AD.parse_html_fallback(self.page(), "framenet")
+        out["metrics"]["mrr"] = 100.0
+        out["metrics"]["last_30d_revenue"] = 120.0
+        ok, why, _, _ = PC.check_one({"id": "framenet", "trade": None,
+                                      "metrics": {}}, out)
+        self.assertFalse(ok)
+        self.assertIn("低于成案门槛", why)
+
+    def test_一手md通道行为不变_不受新分支影响(self):
+        lv = live()
+        lv["channel"] = "md"
+        lv["monthly_available"] = True
+        lv["monthly"] = []
+        ok, why, _, _ = PC.check_one({"id": "x", "trade": None,
+                                      "metrics": {}}, lv)
+        self.assertTrue(ok, why)
+
+    def test_probe_仅5xx回落_404与429都不回落(self):
+        import urllib.error
+        from unittest import mock
+
+        def http_err(code):
+            # fp=None 时 HTTPError 仍会自带一个 BytesIO；显式 close 掉，
+            # 免得每个用例都刷一条 ResourceWarning 噪声（probe 只读 e.code）
+            e = urllib.error.HTTPError("u", code, "err", {}, None)
+            e.close()
+            return e
+
+        calls = []
+
+        def fake_get(url, timeout=60):
+            calls.append(url)
+            if url.endswith(".md"):
+                raise http_err(500)
+            return self.page()
+
+        with mock.patch.object(AD, "_get", side_effect=fake_get), \
+             mock.patch.object(AD.time, "sleep", return_value=None):
+            out = AD.probe("framenet", retries=1)
+        self.assertEqual(out["channel"], "html_fallback")
+        self.assertEqual(out["fallback_from"], 500)
+        self.assertEqual(len(calls), 2)             # 一次 .md + 一次 HTML
+
+        for code, expect in ((404, "gone"), (429, "unknown")):
+            calls.clear()
+
+            def fake2(url, timeout=60, code=code):
+                calls.append(url)
+                raise http_err(code)
+
+            with mock.patch.object(AD, "_get", side_effect=fake2), \
+                 mock.patch.object(AD.time, "sleep", return_value=None):
+                o = AD.probe("framenet", retries=1)
+            self.assertEqual(o["state"], expect)
+            self.assertEqual(len(calls), 1)         # 绝不去拉 HTML 页
 
 
 if __name__ == "__main__":

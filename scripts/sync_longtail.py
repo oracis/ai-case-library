@@ -38,6 +38,9 @@ import time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
+# _probe_csdn_sync 已被 check_tmp_leaks.py --archive 搬进 scripts/_oneoff/，
+# 但本文件仍按顶层模块名导入 ⇒ 必须把该目录补进 sys.path，否则 ModuleNotFoundError。
+sys.path.insert(0, os.path.join(ROOT, "scripts", "_oneoff"))
 
 from _probe_csdn_sync import MCP          # noqa: E402
 from csdn_publish import split_md         # noqa: E402

@@ -186,21 +186,71 @@ def _click_real(cdp, pos):
         time.sleep(0.08)
 
 
+def _headless_pid():
+    """在线 9228 若是无头实例，返回它的主进程 PID；否则 None。
+
+    🚨 为什么必须查：`_connect()` 原来「端口在线就直连」，把 `headed` 参数
+    整个跳过了 —— 11-13 实测，9228 上残留一个 `--headless` 实例，两次阿里云
+    发布分别空等 300s / 460s 等人工拖滑块，而窗口压根不存在（滑块在无头
+    浏览器里画，人看不到也拖不到）。判据只能看进程命令行，CDP 侧拿不到
+    headless 标志。
+    """
+    if os.name != "nt":
+        return None
+    ps = ("(Get-CimInstance Win32_Process -Filter \"Name='chrome.exe'\" | "
+          "Where-Object { $_.CommandLine -like '*chrome-yun-profile*' "
+          "-and $_.CommandLine -like '*--headless*' "
+          "-and $_.CommandLine -like '*remote-debugging-port=*' }).ProcessId")
+    try:
+        out = subprocess.run(["powershell", "-NoProfile", "-Command", ps],
+                             capture_output=True, text=True, timeout=25).stdout
+    except Exception:                                       # noqa: BLE001
+        return None
+    for tok in (out or "").split():
+        if tok.isdigit():
+            return int(tok)
+    return None
+
+
+def _port_up(port=PORT):
+    op = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+    try:
+        op.open("http://127.0.0.1:%d/json/version" % port, timeout=3).read()
+        return True
+    except Exception:                                       # noqa: BLE001
+        return False
+
+
 def _connect(headed=False):
     """9228 已起就直连；否则起带登录态 profile。返回 (proc|None, cdp)。
 
     默认无头（--headless=new，2026-10-28 实测：登录态/draftDetail/社区
     下拉/fileChooser 传图全通，需 --window-size=1440,900 防小视口点偏）。
     headed=True 或环境 CHROME_HEADED=1 走有头（扫码登录、风控兜底）。
+
+    🚨 要求 headed 时**不许**复用无头实例：会静默空等人工滑块（11-13 事故）。
+    在线无头实例先关掉，再按 headed 重新拉起。
     """
-    op = urllib.request.build_opener(urllib.request.ProxyHandler({}))
-    try:
-        op.open("http://127.0.0.1:%d/json/version" % PORT, timeout=3).read()
-        return None, _CDP(PORT)
-    except Exception:
-        pass
     headed = headed or str(os.environ.get("CHROME_HEADED", "")).lower() \
         in ("1", "true", "yes")
+    if _port_up():
+        if not headed:
+            return None, _CDP(PORT)
+        pid = _headless_pid()
+        if not pid:
+            # 在线实例不是无头（可能是上一次 headed 残留）⇒ 可以直接用
+            return None, _CDP(PORT)
+        print("  ⚠ 9228 上是无头实例（pid=%s）⇒ 滑块窗口人看不到，先关掉再起有头"
+              % pid)
+        subprocess.run(["taskkill", "/F", "/T", "/PID", str(pid)],
+                       capture_output=True)
+        for _ in range(30):
+            if not _port_up():
+                break
+            time.sleep(0.5)
+        else:
+            raise SystemExit("✗ 无头实例关不掉（端口 9228 仍在线），"
+                             "请手动关掉再跑")
     L.clear_proxy()
     L.remove_lock(PROFILE)
     chrome, _ = L.pick_chrome()

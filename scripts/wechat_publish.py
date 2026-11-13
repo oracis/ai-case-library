@@ -4401,9 +4401,14 @@ def cmd_sync(args):
     only = set(x.strip() for x in (getattr(args, "case", "") or "").split(",")
                if x.strip())
 
-    local = ws.load_local()
+    # 🚨 `apply_fixes` → `save_local` 是**整本覆盖**：`--case` 只能过滤「参与
+    # 对账的视图」，绝不能把过滤后的子集交给写盘。11-13 实测 `sync --case
+    # stealth-rdp --apply` 把 81 条台账洗成 1 条（PRD #156），80 条靠
+    # `git show HEAD:` + `.bak` 才找回。全量留在这里，写盘只认 local_all。
+    local_all = ws.load_local()
+    local = local_all
     if only:
-        local = {k: v for k, v in local.items() if k in only}
+        local = {k: v for k, v in local_all.items() if k in only}
         print("只看 %d 条：%s" % (len(local), "、".join(sorted(local))))
 
     def _tmatch(cid, c):
@@ -4417,9 +4422,9 @@ def cmd_sync(args):
     if not tok:
         raise SystemExit("✗ 拿不到 token：确认调试窗口里 mp.weixin.qq.com 已登录")
 
-    diffs, local, meta = ws.run_sync(cdp, tok, local=local,
-                                    cases_by_id=cases_by_id,
-                                    title_matcher=_tmatch)
+    diffs, local_view, meta = ws.run_sync(cdp, tok, local=local,
+                                         cases_by_id=cases_by_id,
+                                         title_matcher=_tmatch)
     print(ws.render_report(diffs, len(meta["remote_draft"]),
                            len(meta["remote_pub"]), len(local),
                            draft_ok=meta["draft_ok"], pub_ok=meta["pub_ok"]))
@@ -4431,7 +4436,7 @@ def cmd_sync(args):
         if fix:
             print("\n这是只读报告，未改任何文件。确认无误后加 --apply 回写。")
         return
-    n_pub, n_missing = ws.apply_fixes(diffs, local)
+    n_pub, n_missing = ws.apply_fixes(diffs, local_all)
     print("\n已回写 data/wechat_published.json："
           "status→published %d 条 · 标missing %d 条（备份见 .bak）"
           % (n_pub, n_missing))

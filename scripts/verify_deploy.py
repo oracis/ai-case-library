@@ -44,7 +44,13 @@ def local_case_count():
 
 
 def build_opener():
-    # 绕开本机代理：目标是公网站点，走代理反而会因为 TLS 拦截误报
+    # 默认绕开本机代理：目标是公网站点，历史上有代理会炸 TLS
+    # 但直连也可能被阻断（2026-11-13 实测 TLS 握手 0/8），此时用
+    # DEPLOY_PROXY_URL 显式指定代理，开关与 priority 同 deploy_oss._make_opener。
+    url = os.environ.get("DEPLOY_PROXY_URL", "").strip()
+    if url:
+        return urllib.request.build_opener(
+            urllib.request.ProxyHandler({"http": url, "https": url}))
     return urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
 

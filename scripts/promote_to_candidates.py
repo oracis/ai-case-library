@@ -260,6 +260,19 @@ def check_one(rec, live):
         return False, ("实测门面收入 %s 低于成案门槛 %s"
                        % (fmt_money(lead), fmt_money(MIN_MRR))), m, extra
 
+    # 🚨 2026-11-12：`.md` 返回 500 时 `audit_delisted.probe()` 会回落到
+    # HTML 页的官方 JSON-LD。金额/增速拿得到，但 HTML 页**没有**
+    # `### Monthly revenue timeline` —— 下面的完整月环比（COLLAPSE）与
+    # 峰值留存（PEAK_RETENTION）两道判据会静默跳过（数据不足返回 None）。
+    # 「判据没跑」≠「判据通过」：这里老实挂起，把实测数字摆出来等
+    # `.md` 恢复或人工裁定，不许拿缺时间线的结果报绿。见 PRD #142。
+    if live.get("channel") == "html_fallback" and not live.get("monthly_available"):
+        return None, (
+            "HTML 回落拿到实测数字（门面 %s：MRR %s / 近30天 %s），"
+            "但该通道缺月度时间线 ⇒ 完整月环比、峰值留存两道判据未跑，"
+            "不作自动结论（等 .md 恢复或人工裁定）"
+            % (fmt_money(lead), fmt_money(mrr), fmt_money(last30))), m, extra
+
     growth, mth = calendar_month_growth(live.get("monthly"), live.get("synced_at"))
     if growth is not None and growth <= COLLAPSE:
         return False, ("%s 完整月环比 %+.1f%%（已剔除残月）—— 产品在萎缩，"
@@ -725,9 +738,12 @@ def main():
 
     print("\n通过 %d / 拒绝 %d / 未判定 %d" % (len(passed), len(rejected), len(pending)))
     if pending and len(pending) > len(targets) * 0.3:
-        print("⚠ 未判定占比过高 —— 大概率是 TrustMRR 429 限流，"
-              "**不是**这些生意下架了。请降低并发或稍后重跑，"
-              "别把「读不到」当成「不存在」。")
+        # 🚨 2026-11-12 订正：旧文案写死「大概率 429 限流」，实测这批
+        # 27 条是平台 `.md` 端点 HTTP 500（走代理/绕代理都一样），
+        # 与限流无关。别凭占比猜原因，逐条看 why。
+        print("⚠ 未判定占比过高 —— **不等于**这些生意下架了。"
+              "逐条看上面的原因：429 限流 / `.md` 500 / HTML 回落缺月度时间线 "
+              "各是不同处置，别把「读不到」当成「不存在」。")
     if not passed:
         return
 
