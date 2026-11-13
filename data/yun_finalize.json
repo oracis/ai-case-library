@@ -239,10 +239,11 @@
   },
   "flodesk": {
     "title": "「无限发送」的邮件平台，实际在做的是送达率工程",
-    "tc_draft": "343489",
+    "tc_draft": "345642",
     "tc_state": "draft",
-    "tc_state_at": "2026-11-09 21:34",
-    "updated": "2026-11-09 21:34:06"
+    "tc_state_at": "2026-11-13 08:23",
+    "updated": "2026-11-13 08:27:16",
+    "tc_article": "2783001"
   },
   "refactoringui": {
     "title": "卖给开发者的设计书：没有试用层的内容产品怎么定价与交付",
@@ -281,6 +282,22 @@
     "updated": "2026-11-12 09:20:36",
     "state": "auditing",
     "article": "1782459",
+    "published": null,
+    "published_at": null
+  },
+  "ext-ep-009-lichess": {
+    "title": "Lichess，免费无广告的国际象棋",
+    "tc_draft": "345626",
+    "tc_state": "draft",
+    "tc_state_at": "2026-11-13 07:22",
+    "updated": "2026-11-13 07:26:26",
+    "tc_article": "2782968"
+  },
+  "__community__1699451": {
+    "uploaded_img": "https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_8b96e1177cf24a74855a7c78162359c8.png",
+    "updated": "2026-11-13 08:18:51",
+    "state": "auditing",
+    "article": "1782978",
     "published": null,
     "published_at": null
   }

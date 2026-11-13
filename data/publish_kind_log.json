@@ -93,6 +93,11 @@
     "case_id": "ext-ep-006-nethack",
     "kind": "game",
     "at": "2026-11-12 07:45"
+   },
+   {
+    "case_id": "magicslides-app",
+    "kind": "ai",
+    "at": "2026-11-13 07:27"
    }
   ],
   "csdn": [
@@ -155,6 +160,16 @@
     "case_id": "magicslides-app",
     "kind": "ai",
     "at": "2026-11-12 07:46"
+   },
+   {
+    "case_id": "ext-ep-008-mindustry",
+    "kind": "game",
+    "at": "2026-11-13 07:17"
+   },
+   {
+    "case_id": "stan",
+    "kind": "ai",
+    "at": "2026-11-13 08:22"
    }
   ],
   "wechat": [
@@ -336,6 +351,12 @@
    {
     "at": "2026-11-12 07:49",
     "case_id": "ext-ep-009-lichess",
+    "kind": "game",
+    "note": "send-draft FIFO 最久草稿"
+   },
+   {
+    "at": "2026-11-13 07:20",
+    "case_id": "ext-ep-010-cataclysm-dark-days-ahead",
     "kind": "game",
     "note": "send-draft FIFO 最久草稿"
    }

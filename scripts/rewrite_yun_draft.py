@@ -46,6 +46,23 @@ head = body.strip().split("\n")[0][:24]
 # '> OpenTTD 是经典…' 回读成 'OpenTTD是经典…'）。判据必须归一化，
 # 否则改稿明明成功也会假报「双回读未通过」。
 norm = lambda s: "".join((s or "").split()).lstrip(">")  # noqa: E731
+
+
+def old_only_probe(old, new, win=30):
+    """从旧稿里挑第一个「新稿中不存在」的 win 字窗口，作为 OLD_GONE 探针。
+
+    🚨 别再用「旧稿前 20 字是否还在」判 OLD_GONE：同一案例重写时首段常被
+    原样沿用（11-13 headshotpro 实测），那个判据恒为 False ⇒ 平台正文明明
+    已是新稿（标题已换、2518 字、新稿结尾在正文、旧稿专属段落消失），仍报
+    「服务端仍是旧稿」的假红，把一次成功的改稿判成失败。
+    """
+    o, n = norm(old), norm(new)
+    for i in range(0, max(1, len(o) - win), 10):
+        seg = o[i:i + win]
+        if len(seg) == win and seg not in n:
+            return seg
+    return ""
+
 print("新标题:", title)
 print("新正文首句:", head)
 print("正文长度:", len(body))
@@ -265,14 +282,16 @@ print("草稿箱总数(改后/独立列箱):", len(rows_after))
 if not new_row:
     raise SystemExit("✗ 改后目标草稿消失")
 rid, rtitle, rbody = new_row[0]
+probe = old_only_probe(old_body, body)
+old_gone = (not probe) or (probe not in norm(rbody))
 ok = (rid == a.draft and rtitle.strip() == title.strip()
       and norm(head[:12]) in norm(rbody)
-      and (not old_body[:20] or norm(old_body[:20]) not in norm(rbody))
+      and old_gone
       and len(rows_after) == len(rows_before))
 print("独立双回读: id=%s title=%r body_head=%r OLD_GONE=%s NO_NEW_DRAFT=%s"
-      % (rid, rtitle[:50], rbody[:50],
-         norm(old_body[:20]) not in norm(rbody),
+      % (rid, rtitle[:50], rbody[:50], old_gone,
          len(rows_after) == len(rows_before)))
+print("  旧稿专属探针=%r ⇒ 仍在正文? %s" % (probe[:30], probe and probe in norm(rbody)))
 if not ok:
     raise SystemExit("✗ 独立列箱判 FAIL（服务端仍是旧稿）⇒ 不登记台账、不发表。"
                      "看上面「保存请求响应」定位保存失败原因")

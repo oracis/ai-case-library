@@ -1283,7 +1283,7 @@
  },
  "ext-ep-009-lichess": {
   "bilibili2": {
-   "at": "2026-11-12 07:49 草稿箱→发布（send-draft）",
+   "at": "2026-11-12 07:49",
    "attempt": 0,
    "draft_id": "",
    "note": "草稿箱→发布（send-draft）",
@@ -1303,6 +1303,17 @@
   }
  },
  "ext-ep-010-cataclysm-dark-days-ahead": {
+  "bilibili2": {
+   "at": "2026-11-13 07:20 草稿箱→发布（send-draft）",
+   "attempt": 0,
+   "draft_id": "",
+   "note": "草稿箱→发布（send-draft）",
+   "published_at": "2026-11-13 07:20",
+   "remote_id": "53887916",
+   "state": "published",
+   "title": "Cataclysm-DDA：数据驱动的末日生存 Roguelike",
+   "url": ""
+  },
   "toutiao": {
    "at": "2026-10-31 20:23",
    "attempt": 0,

@@ -121,6 +121,13 @@
    "evidence": "aid=376924 image_urls=http://article.biliimg.com/bfs/article/cd7d619b67aaa5fe24b235d344235b465bad266d.jpg",
    "source": "live",
    "state": "ok"
+  },
+  "tencentcloud": {
+   "at": "2026-11-13 07:26:26",
+   "evidence": "线上文章 2782968 卡片缩略图 background-image=抽屉封面：https://developer-private-1258344699.cos.ap-guangzhou.myqcloud.com/editor/image/12743977/20261113-3d8d6c50.jpeg?x-cos-security-token=71OpBiLRYinYcZOufEOJi6N6HHBlO5Qaf34fa96e3a70a673e8b96a26545a1330_Hu4Ec8cGxRl-sDnyRKrKPwv-4_Whmcfj8ax2lQ8dmpTekdVzbYDXrIB02IN-9",
+   "remote_id": "2782968",
+   "source": "yun_finalize",
+   "state": "ok"
   }
  },
  "ext-ep-010-cataclysm-dark-days-ahead": {
@@ -142,6 +149,15 @@
    "at": "2026-11-06 15:49:24",
    "evidence": "aid=376927 image_urls=http://article.biliimg.com/bfs/article/42586b262489ac1d1e930cd0cd499bef86c81cb9.jpg",
    "source": "live",
+   "state": "ok"
+  }
+ },
+ "flodesk": {
+  "tencentcloud": {
+   "at": "2026-11-13 08:27:17",
+   "evidence": "线上文章 2783001 卡片缩略图 background-image=https://developer.qcloudimg.com/http-save/yehe-12743977/468d625a43f38d3d7b56abce91699925.jpg",
+   "remote_id": "2783001",
+   "source": "yun_finalize",
    "state": "ok"
   }
  },
@@ -171,6 +187,13 @@
   }
  },
  "headshotpro": {
+  "aliyun": {
+   "at": "2026-11-13 08:18:51",
+   "evidence": "文章首图 firstImg=https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_8b96e1177cf24a74855a7c78162359c8.png",
+   "remote_id": "1782978",
+   "source": "yun_finalize",
+   "state": "ok"
+  },
   "tencentcloud": {
    "at": "2026-11-12 07:54:20",
    "evidence": "线上文章 2781983 卡片缩略图 background-image=抽屉封面：https://developer-private-1258344699.cos.ap-guangzhou.myqcloud.com/editor/image/12743977/20261112-f4732a69.jpeg?x-cos-security-token=<redacted>",
