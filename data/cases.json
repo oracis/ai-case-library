@@ -81660,5 +81660,624 @@
       "threshold": 70.0,
       "scored_at": "2026-11-12"
     }
+  },
+  {
+    "id": "getamiora",
+    "name": "GetAmiora",
+    "name_en": "GetAmiora",
+    "origin": "",
+    "one_liner": "AI口语陪练应用，MRR $12,242，活跃订阅1,120，客单价$10.93。",
+    "category": "未分类",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 12242.0,
+      "last_30d_revenue": 48726.0,
+      "all_time": 63590.0,
+      "subscriptions": 1120,
+      "growth_30d": null,
+      "mrr_growth_30d": null,
+      "revenue_growth_30d": 0.0,
+      "headline": "MRR $12,242，TrustMRR 核对",
+      "metric_note": "实测口径：MRR $12,242（TrustMRR 从支付网关 API 直读，2026-11-12 同步，RevenueCat (API key)）。近 30 天收入 $48,726、累计 $63,590、付费订阅 1120 户。最近完整月环比 +5100.0%（已剔除当月残月）。⚠ 历史峰值 $52,572 → 最近完整月 $52,572，留存 100%。⚠ 队列缓存值是 2026-11-13 采集时的快照（当时 $12,242），本次核对为 $12,242，两者不同；本条以本次核对为准。",
+      "caliber": "mrr"
+    },
+    "models": [
+      "订阅制"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 3
+    },
+    "verdict": "它卖的不是语言课程，而是低客单价的持续订阅——用 $10.93 的定价把试错成本压到最低，靠活跃订阅数而非单价赚钱。",
+    "what_it_does": "GetAmiora 是 Marcel Moraru 于 2026-07-13 上线的移动应用，用户通过 AI 导师进行口语练习并获取纠错反馈。支付网关为 RevenueCat，收入同步日为 2026-11-12。当前 MRR 为 $12,242，活跃订阅数 1,120，近 30 天收入 $48,726，累计收入 $63,590。",
+    "how_it_makes_money": "通过 App Store 与 Google Play 分发，由 RevenueCat 处理订阅支付。客单价为 $10.93（MRR 除以活跃订阅数）。具体定价档位未公开。",
+    "why_it_works": [
+      "客单价 $10.93 是 MRR $12,242 除以活跃订阅数 1,120 的推算值，低价降低了用户的决策门槛，使订阅数能快速积累。",
+      "近 30 天收入 $48,726 与 MRR $12,242 并存，说明收入主要来自当月新增订阅，而非历史用户的持续续费。",
+      "上线首月（2026-07-13）后，2026-09 月收入仅 $1,011，2026-10 月收入跃升至 $52,572，显示增长集中在特定月份，而非稳定爬坡。"
+    ],
+    "playbook": [
+      "将客单价定在 $10 以下，用低价订阅降低用户首次尝试的阻力，适合工具类应用冷启动。",
+      "用 AI 导师替代真人教师，把单次服务的边际成本压到接近零，使低价订阅在规模扩大后仍能盈利。",
+      "在应用商店上架时，突出 '纠错反馈' 这一具体功能点，而非泛泛的 '提高口语'，让用户感知到可量化的改进。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [],
+    "sources": [
+      {
+        "label": "TrustMRR 官方档案",
+        "url": "https://trustmrr.com/startup/getamiora.md",
+        "kind": "stripe"
+      }
+    ],
+    "published_from": "getamiora",
+    "verified_at": "2026-11-13",
+    "updated_at": "2026-11-13",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（stripe），按默认政策进精品池",
+    "quality_score": 45,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "omnira-focus-sleep-sounds",
+    "name": "Omnira : Focus & Sleep Sounds",
+    "name_en": "Omnira : Focus & Sleep Sounds",
+    "origin": "美国",
+    "one_liner": "Omnira 是 iOS 睡眠专注应用，MRR $20,389，活跃订阅 3,522，靠 8D 音频创作与订阅变现。",
+    "category": "Health & Fitness",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 20389.0,
+      "last_30d_revenue": 17322.0,
+      "all_time": 303977.0,
+      "subscriptions": 3522,
+      "growth_30d": -5.5,
+      "mrr_growth_30d": -5.5,
+      "revenue_growth_30d": -5.0,
+      "headline": "MRR $20,389，TrustMRR 核对",
+      "metric_note": "实测口径：MRR $20,389（TrustMRR 从支付网关 API 直读，2026-11-12 同步，RevenueCat (API key)）。近 30 天收入 $17,322、累计 $303,977、付费订阅 3522 户。最近完整月环比 +3.0%（已剔除当月残月）。近 30 天 MRR 增速 -5.5%。⚠ 历史峰值 $43,931 → 最近完整月 $17,884，留存 41%。挂牌 $410,000、倍数 1.98x（要价不等于收入）。⚠ 队列缓存值是 2026-11-13 采集时的快照（当时 $20,322），本次核对为 $20,389，两者不同；本条以本次核对为准。",
+      "caliber": "mrr"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 2
+    },
+    "verdict": "它卖的不是冥想内容，而是用户自我创作的音频工具——客户买的是 8D 音频创作能力，而非被动收听。",
+    "what_it_does": "Omnira 是一款 iOS 健康类应用，主打睡眠、专注与放松，核心功能为 8D Audio Creator，可将音乐转化为沉浸式听觉体验，同时支持用户创建个性化冥想、肯定语、睡眠故事、祷告词及原创歌曲。产品采用月度与年度订阅制，由创始人 Sleeping 于 2025-02-01 创建，通过 RevenueCat 接入支付。档案自述活跃订阅数为 3,522，用户数 3,523，团队规模 2–5 人，融资方式为自筹。",
+    "how_it_makes_money": "通过月度与年度订阅收费，定价档位为每周 $14.99、每年 $44.99。按 MRR 除以活跃订阅数推算，客单价为 $5.79。毛利率 65%。",
+    "why_it_works": [
+      "8D Audio Creator 是差异化功能，将普通音乐转为沉浸式体验，形成产品辨识度，支撑订阅留存。",
+      "用户可创建个性化冥想、睡眠故事等内容，增强使用黏性，降低流失。",
+      "MRR $20,389 与活跃订阅 3,522 对应客单价 $5.79，说明低价订阅策略覆盖大量用户。"
+    ],
+    "playbook": [
+      "在工具类应用中嵌入一个可分享的创作功能，让用户生成可传播的内容，降低获客成本。",
+      "采用低价周/月订阅档位，降低决策门槛，快速积累活跃订阅数。",
+      "利用用户生成内容（UGC）作为自然传播节点，替代部分付费广告支出。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "候选资料 headline 称 'MRR $20,389，TrustMRR 核对'，但 metric_note 同时列出近 30 天收入 $17,322、累计 $303,977",
+        "truth": "MRR $20,389 为当前经常性收入指标；近 30 天收入 $17,322 为滚动流水，两者口径不同，不应混淆。",
+        "source": "https://trustmrr.com/startup/private-enterprise-10.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 档案",
+        "url": "https://trustmrr.com/startup/private-enterprise-10.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "官网",
+        "url": "https://omnira.app",
+        "kind": "official"
+      }
+    ],
+    "published_from": "omnira-focus-sleep-sounds",
+    "verified_at": "2026-11-13",
+    "updated_at": "2026-11-13",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 35,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "seenless",
+    "name": "Seenless",
+    "name_en": "Seenless",
+    "origin": "",
+    "one_liner": "Seenless 是 iOS 端匿名浏览 Instagram Stories 的工具，当前 MRR $3,077，活跃订阅 595。",
+    "category": "创作者经济",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 3077.0,
+      "last_30d_revenue": 5795.0,
+      "all_time": 17575.0,
+      "subscriptions": 595,
+      "growth_30d": null,
+      "mrr_growth_30d": null,
+      "revenue_growth_30d": 0.0,
+      "headline": "MRR $3,077，TrustMRR 核对",
+      "metric_note": "实测口径：MRR $3,077（TrustMRR 从支付网关 API 直读，2026-11-12 同步，RevenueCat (API key)）。近 30 天收入 $5,795、累计 $17,575、付费订阅 595 户。最近完整月环比 +22.8%（已剔除当月残月）。⚠ 历史峰值 $5,194 → 最近完整月 $5,194，留存 100%。挂牌 $65,000、倍数 0.99x（要价不等于收入）。⚠ 队列缓存值是 2026-11-13 采集时的快照（当时 $3,065），本次核对为 $3,077，两者不同；本条以本次核对为准。",
+      "caliber": "mrr"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 4
+    },
+    "verdict": "它卖的不是匿名浏览，而是社交窥探的确定性——用户买的是不被追踪的安全感，而非内容本身。",
+    "what_it_does": "Seenless 是一款 iOS 应用，允许用户在不显示于“已阅”列表的情况下观看 Instagram Stories，并支持下载 Stories、Reels、Highlights、帖子及高清头像。产品由 Leanid Hreska 开发，成立时间未公开。根据档案自述，其目标用户为希望匿名浏览 Instagram 内容或保存内容的人群，客群类型为 B2C。当前活跃订阅数为 595，累计收入 $17,575。",
+    "how_it_makes_money": "通过订阅制收费，收入来源为应用内购买。素材未公开具体定价档位，但档案记录显示客单价为 $5.17（由 MRR 除以活跃订阅数得出）。当前 MRR 为 $3,077，近 30 天收入为 $5,795。",
+    "why_it_works": [
+      "素材显示活跃订阅 595 对应 MRR $3,077，客单价 $5.17。机制：低价订阅降低决策门槛，使工具类应用能在小众需求中积累稳定现金流。",
+      "近 30 天收入 $5,795，但 MRR 增速未给。机制：工具类应用依赖持续功能更新维持用户留存，而非依赖增长故事。",
+      "毛利率 50%。机制：iOS 应用无需实体库存，主要成本为服务器与支付手续费，因此毛利结构相对健康。"
+    ],
+    "playbook": [
+      "将核心功能拆分为低价订阅层级，降低用户首次付费门槛。",
+      "利用用户隐私需求作为差异化卖点，而非功能本身。",
+      "保持低运营成本结构，确保毛利空间。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "候选资料 headline 称 'MRR $3,077，TrustMRR 核对'，metric_note 中提及 '历史峰值 $5,194 → 最近完整月 $5,194，留存 100%' 及 '挂牌 $65,000、倍数 0.99x'",
+        "truth": "近 30 天收入 $5,795（2026-11-12 快照），2026-10 月收入 $5,194；$65,000 为卖家挂牌价，非收入或估值。",
+        "source": "https://trustmrr.com/startup/seenless.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 档案",
+        "url": "https://trustmrr.com/startup/seenless.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "Seenless 官网",
+        "url": "https://anonstoryviewer.app/",
+        "kind": "official"
+      }
+    ],
+    "published_from": "seenless",
+    "verified_at": "2026-11-13",
+    "updated_at": "2026-11-13",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 60,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "fluxsales",
+    "name": "Fluxsales",
+    "name_en": "Fluxsales",
+    "origin": "",
+    "one_liner": "FluxSales 是墨西哥餐厅的 AI 增长平台，MRR $5,545，37 个活跃订阅，帮餐厅摆脱外卖平台依赖。",
+    "category": "AI 工具",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 5545.0,
+      "last_30d_revenue": 5421.0,
+      "all_time": 230785.0,
+      "subscriptions": 37,
+      "growth_30d": -36.7,
+      "mrr_growth_30d": -36.7,
+      "revenue_growth_30d": -20.2,
+      "headline": "MRR $5,545，TrustMRR 核对",
+      "metric_note": "实测口径：MRR $5,545（TrustMRR 从支付网关 API 直读，2026-11-12 同步，Stripe (API key)）。近 30 天收入 $5,421、累计 $230,785、付费订阅 37 户。最近完整月环比 +2.8%（已剔除当月残月）。近 30 天 MRR 增速 -36.7%。⚠ 同期收入增速为 -20.2%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $9,717 → 最近完整月 $6,641，留存 68%。⚠ 队列缓存值是 2026-11-13 采集时的快照（当时 $5,545），本次核对为 $5,545，两者不同；本条以本次核对为准。",
+      "caliber": "mrr"
+    },
+    "models": [
+      "订阅制"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 2,
+      "timing": 3
+    },
+    "verdict": "它卖的不是 AI 工具，而是「把顾客数据留在自己手里」的控制权——餐厅买的是摆脱外卖平台抽成的能力。",
+    "what_it_does": "FluxSales 是一个面向墨西哥及拉美餐厅的 AI 驱动增长平台，成立于 2023 年 10 月 9 日。它连接品牌化订单渠道与顾客数据，帮助餐厅直接获客、减少对外卖平台的依赖。当前有 37 个活跃订阅，MRR 为 $5,545。创始人未公开，团队规模未公开，融资情况未公开。",
+    "how_it_makes_money": "按订阅收费，分 Clutch 与 Acelerador 两档，均为按月付费、无合同，年付可享 8 折。WhatsApp 点单代理为增值项。客单价为 $149.86。具体定价档位未公开。",
+    "why_it_works": [
+      "素材显示 MRR $5,545 对应 37 个活跃订阅，客单价 $149.86；机制：餐厅为每单节省的外卖佣金通常高于此费，直接经济账成立。",
+      "档案自述定价为按月付费、无合同，年付 8 折；机制：低门槛签约降低餐厅决策阻力，年付折扣锁定长期收入。",
+      "近 30 天收入 $5,421，MRR 增速 -36.7%；机制：收入下滑与订阅数减少同步，说明留存或续费是核心变量。"
+    ],
+    "playbook": [
+      "把产品定价与客户的直接成本节省挂钩：向餐厅展示每单外卖佣金对比，而非只讲功能。",
+      "提供按月无合同选项，降低首次尝试门槛，用年付折扣锁定长期订阅。",
+      "将 WhatsApp 等高频渠道作为增值项，而非核心功能，提高客单价。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "近 30 天收入增速 -20.2% 可代表 MRR 增长",
+        "truth": "近 30 天收入增速 -20.2% 与 MRR 增速 -36.7% 不一致，因一次性入账/退款等造成背离，讲增长应使用 MRR 口径",
+        "source": "https://trustmrr.com/startup/fluxsales.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 档案",
+        "url": "https://trustmrr.com/startup/fluxsales.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "FluxSales 官网",
+        "url": "https://fluxsales.co/",
+        "kind": "official"
+      }
+    ],
+    "published_from": "fluxsales",
+    "verified_at": "2026-11-13",
+    "updated_at": "2026-11-13",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 60,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "second-dot-llc",
+    "name": "Second Dot LLC",
+    "name_en": "Second Dot LLC",
+    "origin": "",
+    "one_liner": "StockFit API 提供 SEC 文件点-in-time 数据，MRR $1,843，35 个活跃订阅，单人 Bootstrapped 运营。",
+    "category": "垂直行业 SaaS",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 1843.0,
+      "last_30d_revenue": 3398.0,
+      "all_time": 13524.0,
+      "subscriptions": 35,
+      "growth_30d": 3.8,
+      "mrr_growth_30d": 3.8,
+      "revenue_growth_30d": 44.2,
+      "headline": "MRR $1,843，TrustMRR 核对",
+      "metric_note": "实测口径：MRR $1,843（TrustMRR 从支付网关 API 直读，2026-11-12 同步，Stripe (API key)）。近 30 天收入 $3,398、累计 $13,524、付费订阅 35 户。最近完整月环比 -13.5%（已剔除当月残月）。近 30 天 MRR 增速 +3.8%。⚠ 同期收入增速为 +44.2%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $2,586 → 最近完整月 $2,235，留存 86%。⚠ 队列缓存值是 2026-11-13 采集时的快照（当时 $2,009），本次核对为 $1,843，两者不同；本条以本次核对为准。",
+      "caliber": "mrr"
+    },
+    "models": [
+      "订阅制"
+    ],
+    "replicability": {
+      "tech": 3,
+      "distribution": 4,
+      "capital": 2,
+      "timing": 3
+    },
+    "verdict": "它卖的不是数据本身，而是可审计的 SEC 数据引用——客户买的是避免前视偏差和幸存者偏差的合规数据管道。",
+    "what_it_does": "Second Dot LLC 成立于 2026-03-10，由 Andy Reimann 创建，提供 StockFit API。该 API 包含美股及基金的点-in-time 基本面数据、内部交易、所有权数据、高管信息、财报电话会议、拆股、股息、每日 ETF 持仓等。数据源自 SEC 文件，每日更新。档案自述团队规模为 1 人，融资方式为 Bootstrapped。当前活跃订阅数为 35。",
+    "how_it_makes_money": "通过 Stripe 收取订阅费。档案自述定价未公开，但素材给出客单价为 $52.66（MRR ÷ 活跃订阅数）。当前 MRR 为 $1,843。",
+    "why_it_works": [
+      "素材显示近 30 天收入 $3,398，MRR $1,843，客单价 $52.66。机制：API 订阅模式将一次性数据需求转化为持续现金流，降低客户获取成本。",
+      "档案自述价值主张为 'Provides an auditable API for US stock and fund data sourced from SEC filings with point-in-time financials and traceable citations'。机制：可审计的引用链解决金融数据信任问题，形成 B2B 客户粘性。",
+      "团队规模档案自述为 1 人，融资 Bootstrapped。机制：单人运营降低固定成本，使低 MRR 也能维持正现金流。"
+    ],
+    "playbook": [
+      "将 SEC 等公开数据源包装为带时间戳的 API 服务，解决数据时效性和可追溯性问题。",
+      "采用订阅制定价，将数据访问权与持续更新绑定，提升客户生命周期价值。",
+      "利用档案自述的 'traceable citations' 作为差异化卖点，建立数据信任壁垒。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "近 30 天收入 $3,398 可代表经常性收入",
+        "truth": "近 30 天收入 $3,398 含一次性入账/退款，与 MRR 增速不一致；经常性收入应看 MRR $1,843。",
+        "source": "https://trustmrr.com/startup/second-dot-llc.md"
+      },
+      {
+        "claim": "累计收入 $13,524 可年化",
+        "truth": "累计收入 $13,524 为 2026-04 至 2026-11 已发生收入，不是 ARR，不可直接乘 12。",
+        "source": "https://trustmrr.com/startup/second-dot-llc.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 档案",
+        "url": "https://trustmrr.com/startup/second-dot-llc.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "官网",
+        "url": "https://developer.stockfit.io/",
+        "kind": "official"
+      }
+    ],
+    "published_from": "second-dot-llc",
+    "verified_at": "2026-11-13",
+    "updated_at": "2026-11-13",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 80,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "tapnoise",
+    "name": "TapNoise",
+    "name_en": "TapNoise",
+    "origin": "",
+    "one_liner": "TapNoise 是 macOS 菜单栏应用，近 30 天收入 $1,279，一次性买断，10 月 10 日上线。",
+    "category": "Utilities",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "last_30d",
+    "metrics": {
+      "mrr": 0.0,
+      "last_30d_revenue": 1279.0,
+      "all_time": 1284.0,
+      "subscriptions": 0,
+      "growth_30d": 0.0,
+      "mrr_growth_30d": 0.0,
+      "revenue_growth_30d": 25532.4,
+      "headline": "近 30 天收入 $1,279，TrustMRR 核对（非订阅制，MRR 恒 0）",
+      "metric_note": "实测口径：近 30 天已验证收入 $1,279（非订阅制/买断制业务，MRR 恒 0，本条门面口径为近 30 天流水，含一次性与用量收入，别当经常性收入引用；TrustMRR 从支付网关 API 直读，2026-11-12 同步，Dodo Payments (API key)）。近 30 天收入 $1,279、累计 $1,284、付费订阅 0 户。月度时间线不足两个月，不给环比结论。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 +25532.4%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 队列缓存值是 2026-11-13 采集时的快照（当时 $1,279），本次核对为 $1,279，两者不同；本条以本次核对为准。",
+      "caliber": "last_30d"
+    },
+    "models": [],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 4
+    },
+    "verdict": "它卖的不是音效，是「打字反馈的确定性」——把机械键盘的听觉满足感塞进安静笔记本，买的是手感补偿，不是工具。",
+    "what_it_does": "TapNoise 是 macOS 菜单栏应用，提供 20 种键盘音效、点击声和 Tappy 桌面键帽伙伴，包含压力感应音效、Song Mode、充电与 USB 提示音、Agent Sounds（适配 Claude Code、Codex CLI、Cursor）、Knock 指令、Guard Mode、Clean Mode、快捷键备忘、休息提醒和实时打字速度。自动在通话中静音。创始人 Rudra Satani，2026 年 10 月 10 日成立，非订阅制，按 1 台或 2 台 Mac 一次性付费，更新包含在内。活跃订阅数未公开。",
+    "how_it_makes_money": "采用一次性买断定价：Solo $14.99（1 台 Mac），Duo $20.99（2 台 Mac），含税。限时首发价 $5.99/$7.99。无试用，7 天退款。非订阅制，因此 MRR 为 0，近 30 天收入 $1,279。客单价未公开，无法推算。",
+    "why_it_works": [
+      "素材显示定价为一次性买断（Solo $14.99 / Duo $20.99），机制：买断制降低决策门槛，适合低频但高感知的硬件交互产品，避免订阅制下用户反复权衡。",
+      "素材显示近 30 天收入 $1,279，其中 10 月 19 日单日 $291、10 月 20 日 $190，机制：上线首月出现销售高峰，说明产品依赖发布初期的注意力红利，而非持续复购。",
+      "素材显示创始人 X 粉丝 650，机制：小基数社交资产配合一次性低价（首发 $5.99），用低客单换取早期用户和口碑，适合个人开发者冷启动。"
+    ],
+    "playbook": [
+      "用一次性买断 + 限时低价（如 $5.99）替代订阅制，降低硬件交互类产品的首次决策门槛。",
+      "在菜单栏/桌面层做「感知增强」功能（音效、视觉反馈），而非核心生产力工具，利用用户日常高频接触点建立习惯。",
+      "上线首月集中投放注意力（如社交媒体、产品社区），把首月销量峰值作为主要收入来源，后续靠更新维持。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "近 30 天收入 $1,279 是 MRR 或经常性收入",
+        "truth": "实际是近 30 天已验证收入（买断制一次性入账），MRR 为 $0，不可当作经常性收入引用",
+        "source": "https://trustmrr.com/startup/tapnoise.md"
+      },
+      {
+        "claim": "收入增速 +25532.4% 反映业务健康增长",
+        "truth": "该增速由一次性收入或退款等造成，与 MRR 增速（0.0%）背离，讲增长应使用 MRR 口径",
+        "source": "https://trustmrr.com/startup/tapnoise.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 档案",
+        "url": "https://trustmrr.com/startup/tapnoise.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "TapNoise 官网",
+        "url": "https://tapnoise.com/",
+        "kind": "official"
+      }
+    ],
+    "published_from": "tapnoise",
+    "verified_at": "2026-11-13",
+    "updated_at": "2026-11-13",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 80,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "visomapper",
+    "name": "VisoMapper",
+    "name_en": "VisoMapper",
+    "origin": "",
+    "one_liner": "VisoMapper 是 iOS 投影映射应用，近 30 天收入 $984，活跃订阅 112。",
+    "category": "移动应用",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "last_30d",
+    "metrics": {
+      "mrr": 568.0,
+      "last_30d_revenue": 984.0,
+      "all_time": 5290.0,
+      "subscriptions": 112,
+      "growth_30d": -11.8,
+      "mrr_growth_30d": -11.8,
+      "revenue_growth_30d": 17.3,
+      "headline": "近 30 天收入 $984，TrustMRR 核对",
+      "metric_note": "实测口径：近 30 天收入 $984（TrustMRR 从支付网关 API 直读，2026-11-12 同步，RevenueCat (API key)）。近 30 天收入 $984、累计 $5,290、付费订阅 112 户。最近完整月环比 +9.9%（已剔除当月残月）。近 30 天 MRR 增速 -11.8%。⚠ 同期收入增速为 +17.3%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $912 → 最近完整月 $912，留存 100%。挂牌 $5,900、倍数 0.50x（要价不等于收入）。⚠ 队列缓存值是 2026-11-13 采集时的快照（当时 $568），本次核对为 $568，两者不同；本条以本次核对为准。 ⚠ 口径裁定 2026-11-13：AI 核验判该条不适用 MRR 门面口径，改以支付侧近 30 天已验证收入为准；MRR 仅作缓存快照保留。",
+      "caliber": "last_30d"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 3
+    },
+    "verdict": "它卖的不是投影映射，而是把手机变成便携投影工作室的替代方案——客户买的是无需电脑和剪辑软件的轻量级现场演出工具。",
+    "what_it_does": "VisoMapper 是运行在 iPhone 和 iPad 上的投影映射应用，可将视频、图像和实时视觉特效映射到物理表面，并输出至兼容投影仪。创始人和成立时间均未公开。应用通过 RevenueCat 接入 App Store 订阅，当前活跃订阅数为 112。",
+    "how_it_makes_money": "采用免费增值模式，免费下载，美国区订阅定价为每周 $5.99、每年 $29.99。",
+    "why_it_works": [
+      "定价锚点低：每周 $5.99 的订阅门槛，使目标用户（投影艺术家、VJ、活动操作员）无需企业采购即可尝试，降低决策成本。",
+      "硬件替代：档案自述称其让 iPhone/iPad 和投影仪替代电脑与视频编辑器，直接削减了传统投影映射对昂贵硬件的依赖。",
+      "收入结构：近 30 天收入 $984，活跃订阅 112 户；美国区周订阅 $5.99、年订阅 $29.99 构成主要收入来源。"
+    ],
+    "playbook": [
+      "将专业工具拆解为移动端轻量应用，以低门槛订阅替代高价软件授权，降低用户尝试成本。",
+      "瞄准现有工作流中的硬件冗余环节，用移动设备替代专用电脑，提供即插即用的现场解决方案。",
+      "采用周/年双轨订阅定价，周订阅降低首次付费门槛，年订阅锁定长期用户，平衡现金流与留存。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "MRR $568 是主要收入指标",
+        "truth": "近 30 天收入 $984（据 TrustMRR 档案），MRR 与近 30 天收入存在背离，因存在一次性入账/退款",
+        "source": "https://trustmrr.com/startup/visomapper.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 档案",
+        "url": "https://trustmrr.com/startup/visomapper.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "官网",
+        "url": "https://www.visomapper.com/",
+        "kind": "official"
+      }
+    ],
+    "published_from": "visomapper",
+    "verified_at": "2026-11-13",
+    "updated_at": "2026-11-13",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 50,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "homeschool-reports-australia",
+    "name": "Homeschool Reports Australia",
+    "name_en": "Homeschool Reports Australia",
+    "origin": "",
+    "one_liner": "Homeschool Reports Australia 近 30 天收入 $372，为昆士兰家长生成符合要求的家庭教育报告。",
+    "category": "垂直行业 SaaS",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "last_30d",
+    "metrics": {
+      "mrr": 0.0,
+      "last_30d_revenue": 372.0,
+      "all_time": 708.0,
+      "subscriptions": 0,
+      "growth_30d": 0.0,
+      "mrr_growth_30d": 0.0,
+      "revenue_growth_30d": 121.5,
+      "headline": "近 30 天收入 $372，TrustMRR 核对（非订阅制，MRR 恒 0）",
+      "metric_note": "实测口径：近 30 天已验证收入 $372（非订阅制/买断制业务，MRR 恒 0，本条门面口径为近 30 天流水，含一次性与用量收入，别当经常性收入引用；TrustMRR 从支付网关 API 直读，2026-11-12 同步，Stripe (API key)）。近 30 天收入 $372、累计 $708、付费订阅 0 户。最近完整月环比 +304.7%（已剔除当月残月）。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 +121.5%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $135 → 最近完整月 $135，留存 100%。⚠ 队列缓存值是 2026-11-13 采集时的快照（当时 $372），本次核对为 $372，两者不同；本条以本次核对为准。",
+      "caliber": "last_30d"
+    },
+    "models": [],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 4
+    },
+    "verdict": "它卖的不是报告生成，而是合规确定性——家长买的是通过官方审核的把握，而非文档本身。",
+    "what_it_does": "该产品面向昆士兰州 homeschooling 家长，根据家长提供的回答和工作样本，生成符合昆士兰家庭教育要求的注册申请报告和学习计划。创始人 ndmrau 于 2026-06-08 成立该项目。当前 MRR 为 0，非订阅制，活跃订阅数未公开。",
+    "how_it_makes_money": "采用一次性付费模式，不设订阅。定价档位为：标准 $99（48 小时）、加急 $149（24 小时）、紧急 $299（12 小时），每增加一名儿童享受 25% 折扣，其他需求从 $149 起。客单价未公开。",
+    "why_it_works": [
+      "定价分档（标准 $99 / 加急 $149 / 紧急 $299）对应不同交付时效，机制是：用时间换价格，让预算不同的家长各取所需。",
+      "每增加一名儿童享受 25% 折扣，机制是：降低多子女家庭的边际成本，鼓励家庭内多人购买。",
+      "近 30 天收入 $372，机制是：收入来自 Stripe 支付记录，非订阅制下靠单次订单累积。"
+    ],
+    "playbook": [
+      "将服务拆分为标准/加急/紧急三档，每档绑定明确交付时效，用时间差异区分价格。",
+      "为多用户场景设置阶梯折扣（如每增加一人降价 25%），降低家庭或团队购买门槛。",
+      "在合规敏感领域，将‘通过审核’作为核心卖点，而非‘生成文档’。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "近 30 天收入 $372 是 MRR 或经常性收入",
+        "truth": "近 30 天收入 $372 是买断制一次性入账的滚动流水，MRR 为 $0，不能按经常性收入引用",
+        "source": "https://trustmrr.com/startup/homeschool-reports-australia.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 档案",
+        "url": "https://trustmrr.com/startup/homeschool-reports-australia.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "官方网站",
+        "url": "https://homeschoolreports.com.au/",
+        "kind": "official"
+      }
+    ],
+    "published_from": "homeschool-reports-australia",
+    "verified_at": "2026-11-13",
+    "updated_at": "2026-11-13",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 35,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
   }
 ]
