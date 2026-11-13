@@ -1061,8 +1061,16 @@ def render_index_page(cases, ctx, rank_key="composite"):
     """case/index.html —— 静态总目录。给爬虫的内链入口，也是 SPA 的降级导航。"""
     site = ctx["site"]
     title = "全部案例 · %s" % site["title"]
-    desc = "%s 共 %d 条已核实的海外 AI 软件生意案例，每条都标了数字可信度、" \
-           "国内移植可行性和个人可做性。" % (site["tagline"], len(cases))
+    # 「已核实」不能一概而论：HN 证据通道会有收入未披露的案例。
+    # 把未披露数单独写出来，读者才知道「已核实」指的是来源可回源，
+    # 不是「每一条都有收入数字」。
+    n_undisclosed = sum(
+        1 for c in cases
+        if str((c.get("metrics") or {}).get("caliber") or "") == "undisclosed")
+    extra = ("；其中 %d 条收入未披露，已单独标出，不当作收入已核实"
+             % n_undisclosed) if n_undisclosed else ""
+    desc = "%s 共 %d 条海外 AI 软件生意案例，每条都标了数字可信度、" \
+           "国内移植可行性和个人可做性%s。" % (site["tagline"], len(cases), extra)
 
     def rank_of(c):
         s = c.get(rank_key) or {}

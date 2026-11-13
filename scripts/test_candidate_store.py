@@ -220,6 +220,185 @@ class TestFailureAndIsolation(unittest.TestCase):
         self.assertEqual(CSt.count(self.p), 2)
 
 
+def _hn_lead(**over):
+    """合规 HN 线索的最小形状（字段口径见 scripts/hn_leads.py to_lead）。"""
+    d = {
+        "id": "hn-12345678",
+        "harvest_source": "hn",
+        "verification": "unverified",
+        "source_kind": "self_reported",
+        "metrics": {"headline": "未获取"},
+        "hn_role": "lead",
+    }
+    d.update(over)
+    return d
+
+
+class TestWriteAdmissionGate(unittest.TestCase):
+    """写盘准入闸（2026-11-13，PRD #164）。
+
+    钉住的事：#162 那条 HN 线索绕过 `promote_to_candidates.py` 的
+    `harvest_source=="trustmrr"` 安全阀直接写进主候选池，只因为当时
+    `upsert_candidate()` 只校验 `id`。此后主池被污染、triage 全 0 分、
+    `pipeline_status` 跳到永远清不掉的 S3。这里把两路的隔离钉在存储层。
+    """
+
+    def setUp(self):
+        self.d = tempfile.mkdtemp()
+        self.p = os.path.join(self.d, "candidates.json")
+        raw = json.dumps([{"id": "a", "n": 1}], ensure_ascii=False,
+                         indent=2).encode("utf-8")
+        with open(self.p, "wb") as f:
+            f.write(raw)
+        self.before = raw
+
+    def tearDown(self):
+        shutil.rmtree(self.d, ignore_errors=True)
+
+    # ---- 池判定 ----
+
+    def test_池判定_默认主池_线索池按文件名(self):
+        self.assertEqual(CSt.infer_pool(), CSt.POOL_MAIN)
+        self.assertEqual(CSt.infer_pool(self.p), CSt.POOL_MAIN)
+        self.assertEqual(
+            CSt.infer_pool(os.path.join(ROOT, "data", "hn_leads.json")),
+            CSt.POOL_LEADS)
+        # 临时文件名不匹配已知池 ⇒ 保守落到主池，不会变成无闸
+        self.assertEqual(
+            CSt.infer_pool(os.path.join(self.d, "_probe.json")), CSt.POOL_MAIN)
+
+    # ---- 主候选池：拒绝 ----
+
+    def test_主池拒绝HN来源_正是162事故(self):
+        errs = CSt.validate_candidate(_hn_lead(), path=self.p)
+        self.assertTrue(any("hn_leads.json" in e for e in errs), errs)
+        with self.assertRaises(ValueError) as ctx:
+            CSt.upsert_candidate(_hn_lead(), path=self.p)
+        self.assertIn("HN 线索", str(ctx.exception))
+        with open(self.p, "rb") as f:
+            self.assertEqual(f.read(), self.before)   # 拒绝时零写盘
+
+    def test_主池拒绝hn前缀id_即使来源标签被抹掉(self):
+        errs = CSt.validate_candidate(
+            _hn_lead(harvest_source=""), path=self.p)
+        self.assertTrue(any("hn_leads.json" in e for e in errs), errs)
+
+    def test_主池拒绝线索形状_即使来源写成trustmrr(self):
+        errs = CSt.validate_candidate(
+            _hn_lead(id="x1", harvest_source="trustmrr"), path=self.p)
+        self.assertTrue(any("未获取" in e for e in errs), errs)
+
+    def test_主池拒绝非白名单来源(self):
+        for src in ("indiehackers", "producthunt", "arrclub"):
+            errs = CSt.validate_candidate(
+                {"id": "x", "harvest_source": src}, path=self.p)
+            self.assertTrue(any("主候选池不收来源" in e for e in errs), (src, errs))
+
+    # ---- 主候选池：放行（不许误伤合法流程）----
+
+    def test_主池放行trustmrr候选(self):
+        self.assertEqual(
+            CSt.validate_candidate(
+                {"id": "tm-1", "harvest_source": "trustmrr",
+                 "trustmrr_slug": "foo", "metrics": {"mrr": 1000}}, path=self.p),
+            [])
+        cands, added = CSt.upsert_candidate(
+            {"id": "tm-1", "harvest_source": "trustmrr"}, path=self.p)
+        self.assertTrue(added)
+        self.assertEqual([c["id"] for c in cands], ["a", "tm-1"])
+
+    def test_主池放行legacy空来源_verify_case路径(self):
+        # verify_case.py 造的脚手架候选在没有 trustmrr 引用时 harvest_source=""
+        self.assertEqual(CSt.validate_candidate({"id": "legacy"}, path=self.p), [])
+        self.assertEqual(
+            CSt.validate_candidate({"id": "legacy", "harvest_source": ""},
+                                   path=self.p), [])
+
+    # ---- 主候选池：HN 证据通道（PRD #166）----
+
+    def test_主池放行已登记证据的HN条目(self):
+        c = {"id": "hn-1", "harvest_source": "hn_evidence",
+             "verification": "founder",
+             "metrics": {"headline": "收入未披露", "caliber": "undisclosed"},
+             "hn_evidence": {"evidence_url": "https://example.com/pricing",
+                             "source_kind": "homepage"}}
+        self.assertEqual(CSt.validate_candidate(c, path=self.p), [])
+
+    def test_主池拒绝缺证据块的hn_evidence(self):
+        c = {"id": "hn-2", "harvest_source": "hn_evidence", "verification": "founder",
+             "metrics": {"headline": "收入未披露"}}
+        errs = CSt.validate_candidate(c, path=self.p)
+        self.assertTrue(any("证据块" in e for e in errs), errs)
+
+    def test_主池拒绝未定级的hn_evidence(self):
+        c = {"id": "hn-3", "harvest_source": "hn_evidence", "verification": "unverified",
+             "metrics": {"headline": "收入未披露", "caliber": "undisclosed"},
+             "hn_evidence": {"evidence_url": "https://example.com/p",
+                             "source_kind": "homepage"}}
+        errs = CSt.validate_candidate(c, path=self.p)
+        self.assertTrue(any("证据定级" in e for e in errs), errs)
+
+    def test_新通道没有重新打开162的老口子(self):
+        errs = CSt.validate_candidate({"id": "hn-4", "harvest_source": "hn"}, path=self.p)
+        self.assertTrue(any("hn_leads.json" in e for e in errs), errs)
+
+    # ---- 独立线索池 ----
+
+    def test_线索池放行合规HN线索(self):
+        self.assertEqual(
+            CSt.validate_candidate(_hn_lead(), pool=CSt.POOL_LEADS), [])
+        # 关键：显式 pool 让「路径重定向到 tmp 探针」也能过闸，不靠文件名
+        probe = os.path.join(self.d, "_probe.json")
+        cands, added = CSt.upsert_candidate(
+            _hn_lead(), path=probe, pool=CSt.POOL_LEADS)
+        self.assertTrue(added)
+        self.assertEqual(cands[0]["id"], "hn-12345678")
+
+    def test_线索池拒绝trustmrr候选(self):
+        errs = CSt.validate_candidate(
+            {"id": "tm-1", "harvest_source": "trustmrr",
+             "verification": "unverified", "source_kind": "self_reported"},
+            pool=CSt.POOL_LEADS)
+        self.assertTrue(any("只收 HN 线索" in e for e in errs), errs)
+
+    def test_线索池拒绝收入数字_数字必须回源走正式流程(self):
+        errs = CSt.validate_candidate(
+            _hn_lead(metrics={"headline": "未获取", "mrr": 5000}),
+            pool=CSt.POOL_LEADS)
+        self.assertTrue(any("禁止收入数字字段" in e for e in errs), errs)
+
+    def test_线索池拒绝冒充已核验(self):
+        errs = CSt.validate_candidate(
+            _hn_lead(verification="stripe"), pool=CSt.POOL_LEADS)
+        self.assertTrue(any("verification=unverified" in e for e in errs), errs)
+        errs = CSt.validate_candidate(
+            _hn_lead(source_kind="verified"), pool=CSt.POOL_LEADS)
+        self.assertTrue(any("source_kind=self_reported" in e for e in errs), errs)
+
+    # ---- 整批写与逃生口 ----
+
+    def test_整批写默认不校验_显式开启才拦(self):
+        CSt.save_candidates([{"id": "legacy"}], path=self.p)     # 默认放行
+        with self.assertRaises(ValueError):
+            CSt.save_candidates([{"id": "a"}, _hn_lead()],
+                               path=self.p, validate=True)
+        with open(self.p, "rb") as f:
+            self.assertEqual(json.loads(f.read().decode("utf-8")),
+                             [{"id": "legacy"}])                  # 未被半途写坏
+
+    def test_validate显式False可豁免_仅一次性修复用(self):
+        cands, added = CSt.upsert_candidate(
+            _hn_lead(), path=self.p, validate=False)
+        self.assertTrue(added)
+        self.assertEqual([c["id"] for c in cands], ["a", "hn-12345678"])
+
+    def test_准入是纯函数_不读盘不写盘(self):
+        p = os.path.join(self.d, "does_not_exist.json")
+        CSt.validate_candidate(_hn_lead(), path=p)
+        CSt.validate_candidate(_hn_lead(), pool=CSt.POOL_LEADS, path=p)
+        self.assertEqual(sorted(os.listdir(self.d)), ["candidates.json"])
+
+
 class TestCallSitesStayClosed(unittest.TestCase):
     """静态闸：生产脚本不许退回各自 open/json.dump 候选池。
 

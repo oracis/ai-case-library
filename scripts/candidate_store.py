@@ -47,7 +47,19 @@
 `CAND_PATH`（`test_atomicio` / `test_publish_ready` 用的就是这种）。
 单测请用临时目录，别拿真台账练手。
 
-⚠️ 边界：本层只管「怎么读怎么写」，**不做事实裁定、不改字段口径**。
+写盘准入（2026-11-13，PRD #164）
+-------------------------------
+`upsert_candidate()` 默认过 `validate_candidate()`：HN 自述线索只能写独立
+线索池，主候选池只收 trustmrr（或 legacy 空来源）。PRD #162 的教训是
+「只校验 id」让 HN 线索绕过 `promote_to_candidates.py` 的
+`harvest_source=="trustmrr"` 安全阀直接进主池，污染 triage 并造成 S3 死循环。
+这里把「记录形状 + 目标池」的一致性钉在存储层，两路数据不许倒进同一张表。
+
+校验只看**来源标签与字段形状**，不判断数字真假、不改字段口径。
+整批写 `save_candidates()` 默认不校验（主流水线内部通道），外来记录须显式
+`validate=True`；`validate=False` 仅供一次性数据修复，且会往 stderr 留痕。
+
+⚠️ 边界：本层管「怎么读怎么写」+「谁准写进来」，**不做事实裁定**。
 `verification` 同名三义（候选池 = 支付侧直读标记）见 `docs/DATA_SCHEMA.md`。
 """
 
@@ -77,9 +89,108 @@ def _resolve(path):
 
 def _rel(path):
     try:
-        return os.path.relpath(path, ROOT)
+        # 统一正斜杠：错误消息会进 PRD / 日志，别让 Windows 反斜杠混进留痕
+        return os.path.relpath(path, ROOT).replace("\\", "/")
     except ValueError:                    # 跨盘符
         return path
+
+
+# ------------------------------------------------------- 池与写盘准入（PRD #164）
+
+HN_LEADS_BASENAME = "hn_leads.json"     # PRD #163 新建的独立线索池
+POOL_MAIN = "main"
+POOL_LEADS = "leads"
+
+#: 主候选池允许的来源标签。空串 = legacy 手工录入（`verify_case.py` 造的
+#: 脚手架候选在案例里没有 trustmrr 引用时会留空），不放宽成任意来源。
+#: `hn_evidence` 是 PRD #166 新增的证据通道：线索必须先在
+#: `data/hn_evidence.json` 登记可回源证据，才允许以这个来源进主池。
+#: 它不等于「HN 自述」——`hn` 仍然只许写线索池。
+MAIN_POOL_SOURCES = frozenset(("trustmrr", "hn_evidence", ""))
+
+#: 线索池禁止出现的收入数字字段。HN 自述数字是发帖当时的快照，
+#: 只能回源拿一手证据后按正常采集流程重进 inbox，不许在线索池里补数。
+_REVENUE_KEYS = frozenset((
+    "mrr", "arr", "revenue", "last_30d_revenue", "all_time",
+    "all_time_revenue", "customers", "current_subscriptions",
+))
+
+
+def infer_pool(path=None):
+    """按目标文件推断池类型；只看文件名，不要求文件存在（测试可传临时路径）。
+
+    未命中 `hn_leads.json` 一律按主候选池处理 —— 这是**保守**方向：
+    临时文件、脚本新拼的路径都走主池严格准入，换个文件名不会变成无闸。
+    """
+    base = os.path.basename(os.path.abspath(_resolve(path)))
+    return POOL_LEADS if base == HN_LEADS_BASENAME else POOL_MAIN
+
+
+def _is_hn_lead(cand):
+    src = str(cand.get("harvest_source") or "").strip().lower()
+    cid = str(cand.get("id") or "")
+    # 双信号：来源标签 + id 前缀。只认一个的话，删掉 harvest_source
+    # 或改个 id 就能绕过去。
+    return src == "hn" or cid.startswith("hn-")
+
+
+def validate_candidate(cand, pool=None, path=None):
+    """写盘准入：返回错误列表，空列表 = 放行。**不判断数字真假。**
+
+    `pool` 可显式给（用于把路径临时重定向到 tmp 的探针/测试）；
+    不给就按 `path` 推断。刻意做成纯函数：不联网、不读盘、不写盘。
+    """
+    if not isinstance(cand, dict) or not cand.get("id"):
+        return ["需要带 id 的 dict"]
+    errs = []
+    pool = pool or infer_pool(path)
+    is_hn = _is_hn_lead(cand)
+    cid = str(cand.get("id") or "")
+    src = str(cand.get("harvest_source") or "").strip().lower()
+    metrics = cand.get("metrics") or {}
+    if not isinstance(metrics, dict):
+        errs.append("metrics 必须是 dict")
+        metrics = {}
+
+    if pool == POOL_LEADS:
+        if not is_hn:
+            errs.append("独立线索池只收 HN 线索"
+                        "（harvest_source=hn 或 id 以 hn- 开头）")
+        if str(cand.get("verification") or "") != "unverified":
+            errs.append("线索池要求 verification=unverified"
+                        "（HN 自述不许冒充已核验）")
+        if str(cand.get("source_kind") or "") != "self_reported":
+            errs.append("线索池要求 source_kind=self_reported")
+        bad = sorted(_REVENUE_KEYS & set(metrics))
+        if bad:
+            errs.append("线索池禁止收入数字字段 %s："
+                        "数字须回源后走正式采集流程" % ",".join(bad))
+    else:
+        # `hn_evidence` 保留 `hn-` 前缀（血缘不断），但它已经不是「未回源的
+        # HN 自述」——区别在证据字段，不在 id 前缀。只按前缀打死会把新通道
+        # 一起打死，#162 的教训是「别把线索混进主池」，不是「永远不许 HN 进来」。
+        is_raw_hn = src == "hn" or (cid.startswith("hn-") and src != "hn_evidence")
+        if is_raw_hn:
+            errs.append("HN 线索只允许写 data/hn_leads.json；"
+                        "主候选池由 promote_to_candidates 的安全阀准入"
+                        "（PRD #162/#163；已回源的走 hn_evidence，PRD #166）")
+        if src and src not in MAIN_POOL_SOURCES:
+            errs.append("主候选池不收来源 %s（允许 trustmrr / hn_evidence / legacy 空串）" % src)
+        if src == "hn_evidence":
+            ev = cand.get("hn_evidence")
+            if not isinstance(ev, dict):
+                errs.append("hn_evidence 来源必须带 hn_evidence 证据块")
+            else:
+                url = str(ev.get("evidence_url") or "")
+                if not url.startswith(("http://", "https://")):
+                    errs.append("hn_evidence.evidence_url 必须是 http(s) 链接")
+                if not str(ev.get("source_kind") or "").strip():
+                    errs.append("hn_evidence.source_kind 必填")
+            if str(cand.get("verification") or "") in ("", "unverified"):
+                errs.append("hn_evidence 候选必须已由证据定级（不能是 unverified）")
+        if metrics.get("headline") == "未获取":
+            errs.append("带「未获取」指标占位的是线索不是候选，请写独立线索池")
+    return errs
 
 
 def detect_fmt(path=None, default_indent=2):
@@ -165,23 +276,38 @@ def count(path=None):
 
 # ------------------------------------------------------------------ 写
 
-def save_candidates(cands, path=None, fmt=None):
+def save_candidates(cands, path=None, fmt=None, validate=False):
     """整批写回，**按文件原生格式**原子落盘。
 
     返回 `(indent, newline, trailing_newline)` —— `contentpack_ready.cmd_apply`
     会打印它，保持既有返回值不变。
 
+    `validate=True` 时逐条过 `validate_candidate()`；默认关闭，因为这是主
+    流水线自己的整批写通道，历史脚本写回时字段未必齐全。外部来源的数据
+    写回主池（如 PRD #163 迁移）须显式开启。
+
     ⚠️ 语义是「把我手上这份完整列表写进去」，读-改-写整段不在锁内；
     并发场景下请改用 `upsert_candidate()`（单条）或先自行持锁。
     """
     path = _resolve(path)
+    if validate:
+        pool = infer_pool(path)
+        bad = []
+        for c in cands:
+            errs = validate_candidate(c, pool=pool, path=path)
+            if errs:
+                bad.append("%s: %s" % (c.get("id"), "; ".join(errs)))
+        if bad:
+            raise ValueError("拒绝整批写入 %s（%d 条不合规）：\n  - %s"
+                             % (_rel(path), len(bad), "\n  - ".join(bad[:5])))
     fmt = fmt or detect_fmt(path)
     text = serialize(cands, fmt=fmt)
     atomicio.write_text(path, text)
     return fmt
 
 
-def upsert_candidate(cand, path=None, replace=False, prepend=False):
+def upsert_candidate(cand, path=None, replace=False, prepend=False,
+                     pool=None, validate=True):
     """按 `id` 插入/更新一条候选，**读-改-写全程持文件锁**。
 
     默认字段合并（`dict.update`，不会误删调用方没带的字段）；
@@ -192,10 +318,22 @@ def upsert_candidate(cand, path=None, replace=False, prepend=False):
     返回 `(cands, added)`，`added=True` 表示是新插入。
     缺 `id` 直接抛 ValueError —— 静默追加一条无 id 的脏数据，
     后面所有按 id 的索引都会错位。
+
+    写盘准入（PRD #164）：默认先过 `validate_candidate()`，不合规直接抛
+    ValueError，**一个字节都不写**。`pool=` 可显式指定目标池（探针/迁移把
+    路径重定向到 tmp 时用）；`validate=False` 仅限一次性数据修复，会留痕。
     """
     if not isinstance(cand, dict) or not cand.get("id"):
         raise ValueError("upsert_candidate() 需要带 id 的 dict")
     path = _resolve(path)
+    if validate:
+        errs = validate_candidate(cand, pool=pool, path=path)
+        if errs:
+            raise ValueError("拒绝写入 %s：\n  - %s"
+                             % (_rel(path), "\n  - ".join(errs)))
+    else:
+        print("[!] candidate_store: validate=False 已跳过写盘准入闸"
+              "（仅限一次性数据修复）", file=sys.stderr)
     lock_path = path + ".lock"
     with atomicio.file_lock(lock_path):
         cands = load_candidates(path)

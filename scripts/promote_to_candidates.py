@@ -52,7 +52,9 @@ sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
 import audit_delisted as AD                                   # noqa: E402
 import candidate_store as CSt                                  # noqa: E402
+import hn_evidence as HNE                                      # noqa: E402
 import triage as T                                             # noqa: E402
+import verify_rules as VR                                      # noqa: E402
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -68,8 +70,15 @@ def _write_like(path, rows):
     实测 2026-10-10：`inbox.json` / `cases.json` 是 CRLF，`candidates.json` 是 LF。
     用默认 `open()` 写会把整份文件的换行全部改掉，diff 全红。
     """
-    with open(path, "rb") as f:
-        crlf = f.read().count(b"\r\n") > 0
+    # 目标文件可能还不存在（首次建归档 / 测试重定向到新路径）。原实现无条件
+    # open 嗅换行 ⇒ FileNotFoundError 抛在**候选池已写、inbox 还没排空**的
+    # 中间态上，正是本模块注释里警告的「晋升只做了一半」。
+    # 2026-11-13 实测：tmp/hnev_e2e_undisclosed 的 --archive 首次晋升即踩到。
+    if os.path.exists(path):
+        with open(path, "rb") as f:
+            crlf = f.read().count(b"\r\n") > 0
+    else:
+        crlf = False   # 新文件按仓库主格式 LF 建（data/inbox_archive.json 即 LF）
     nl = "\r\n" if crlf else "\n"
     out = json.dumps(rows, ensure_ascii=False, indent=2).replace("\n", nl)
     tmp = path + ".tmp"
@@ -221,12 +230,60 @@ def peak_retention(live):
     return last / peak, peak, last
 
 
+def check_one_hn(rec):
+    """HN 证据通道的晋升判据：**证据可回源**，而不是收入数字。
+
+    返回 (是否通过, 原因, metrics, extra)。拒绝只有三类：
+    - 证据链接或来源类型缺失/不合法；
+    - 等级与证据推导不一致（手改虚标）；
+    - 有金额却缺口径或时点。
+
+    无金额**不是**拒绝理由：案例库 525 条里已有 93 条无收入数字，
+    `caliber=undisclosed` 是一句明确声明，不是待补的缺口。
+    """
+    extra = {}
+    ev = rec.get("hn_evidence") or {}
+    url = str(ev.get("evidence_url") or "").strip()
+    if not re.match(r"^https?://", url, re.I):
+        return False, "证据链接缺失或不合法（%r）" % url, None, extra
+    kind = str(ev.get("source_kind") or "").strip()
+    if kind not in VR.SOURCE_TIER_KEYS:
+        return False, "来源类型未登记：%r" % kind, None, extra
+    lvl = str(ev.get("verification") or "").strip()
+    rev = ev.get("revenue")
+    want = HNE.derive_verification(kind, rev is not None)
+    if want is None:
+        return False, "这组证据撑不起任何等级（只有二手转述？）", None, extra
+    if lvl != want:
+        return False, ("核实等级 %s 与证据推导 %s 不一致（手改虚标）"
+                       % (lvl, want)), None, extra
+    if rev is not None:
+        if str(rev.get("caliber") or "") not in VR.CALIBER_KEYS or not rev.get("as_of"):
+            return False, "金额缺口径或时点（红线 1：数字必须带口径与时点）", None, extra
+    elif str(ev.get("caliber") or "") != "undisclosed":
+        return False, "无金额时 caliber 必须是 undisclosed", None, extra
+
+    m = dict(rec.get("metrics") or {})
+    if rev is not None:
+        return True, ("证据齐全：%s / %s，金额 %s %s（时点 %s）"
+                      % (kind, lvl, rev.get("caliber"),
+                         fmt_money(rev.get("value")), rev.get("as_of"))), m, extra
+    return True, "证据齐全：%s / %s，收入未披露" % (kind, lvl), m, extra
+
+
 def check_one(rec, live):
     """核一条。返回 (是否通过, 原因, 实测数字dict, 附加信息dict)。
 
     附加信息里带破例说明与留存率，好让它们能写进口径备注 ——
     破例不是「悄悄放行」，必须在读者能看到的地方留痕。
     """
+    # HN 证据通道走独立判据：它的证据不是 TrustMRR 支付侧快照，而是人工回源
+    # 登记在 `data/hn_evidence.json` 的链接与来源类型。用 TrustMRR 那套
+    # 「实测 MRR ≥ 300」去拦它，等于拿一个渠道的尺子量另一个渠道的证据 ——
+    # 大量 HN 产品根本不披露收入，会被系统性误杀（PRD #166）。
+    if str(rec.get("harvest_source") or "") == "hn_evidence":
+        return check_one_hn(rec)
+
     rid = rec.get("id")
     extra = {}
     # 🚨 2026-10-15 修：原来一句 `!= "live"` 把 gone 和 unknown 混成
@@ -404,6 +461,31 @@ def build_metric_note(rec, live, m, growth, ret=None, peak=None, last=None, over
         bits.append("⚠ 刷新前记录的月收入为 %s，是旧快照；本条以本次核对为准。"
                     % fmt_money(old_lead))
     return "".join(bits)
+
+
+def to_candidate_hn(rec):
+    """HN 证据通道 → 候选池条目。
+
+    刻意与 `to_candidate()` 分开，因为那条函数的每个关键字段都假定
+    「数字来自 TrustMRR 支付侧快照」：`verification` 写死 stripe、
+    `metrics` 只从 mrr/last_30d 构造、headline 带「TrustMRR 核对」。
+    把这些假设套到 HN 上就是虚标（PRD #166）。
+    """
+    ev = dict(rec.get("hn_evidence") or {})
+    keep = ("id", "name", "name_en", "origin", "one_liner", "category",
+            "models", "source_url", "website", "harvest_source", "added_at",
+            "promoted_from_inbox", "hn_id", "hn_title", "hn_points",
+            "hn_comments", "hn_created_at", "hn_discussion", "hn_flags",
+            "hidden_urls", "note")
+    out = {k: rec.get(k) for k in keep if rec.get(k) not in (None, "")}
+    out["metrics"] = dict(rec.get("metrics") or {})
+    out["verification"] = ev.get("verification")
+    out["source_kind"] = ev.get("source_kind")
+    out["hn_evidence"] = ev
+    out.setdefault("promoted_from_inbox", datetime.now().strftime("%Y-%m-%d"))
+    if ev.get("checked_at"):
+        out["refreshed_at"] = ev["checked_at"]
+    return out
 
 
 def to_candidate(rec, live, m, growth, ret=None, peak=None, last=None, override=None):
@@ -635,10 +717,15 @@ def pick_targets(inbox, have, index=None):
         rid = i.get("id")
         if not rid or rid in have:
             continue
-        if str(i.get("harvest_source") or "") != "trustmrr":
+        src = str(i.get("harvest_source") or "")
+        if src == "trustmrr":
+            if not str(i.get("trustmrr_slug") or "").strip():
+                continue                  # 没有 slug 就没法实拉，进不来
+        elif src == "hn_evidence":
+            if not str((i.get("hn_evidence") or {}).get("evidence_url") or "").strip():
+                continue                  # 没登记证据，别占晋升名额
+        else:
             continue
-        if not str(i.get("trustmrr_slug") or "").strip():
-            continue                      # 没有 slug 就没法实拉，进不来
         s = T.score_record(i, "inbox", index)
         if s["grade"] != "deep":
             continue
@@ -661,7 +748,19 @@ def main():
                          "补齐实测数字 + 口径说明 + 清掉过期的 blocking，"
                          "不新增条目、不归档。典型场景：早期入库时数字没抓到"
                          "（mrr=None），后来 TrustMRR 公开了。")
+    # 路径重定向只为测试与演练，默认永远是 data/ 下的正式台账。
+    ap.add_argument("--inbox", default="", help="inbox 路径（测试用）")
+    ap.add_argument("--archive", default="", help="inbox 归档路径（测试用）")
+    ap.add_argument("--cand", default="", help="候选池路径（测试用）")
     args = ap.parse_args()
+
+    global INBOX, ARCHIVE
+    if args.inbox:
+        INBOX = os.path.abspath(args.inbox)
+    if args.archive:
+        ARCHIVE = os.path.abspath(args.archive)
+    if args.cand:
+        CSt.CAND_PATH = os.path.abspath(args.cand)
 
     with open(INBOX, encoding="utf-8", newline="") as f:
         inbox = json.load(f)
@@ -706,8 +805,15 @@ def main():
         # `.get(...) or ""`：`--ids` 点名的条目未必带 slug（人工补录的），
         # 用下标取值会直接 KeyError 把整批探针掀掉 —— 空 slug 让 probe
         # 自己给出 unknown，落进「未判定」而不是崩。
-        futs = {ex.submit(AD.probe, inbox_idx[i].get("trustmrr_slug") or ""): i
-                for i in targets}
+        futs = {}
+        for i in targets:
+            rec = inbox_idx[i]
+            if str(rec.get("harvest_source") or "") == "hn_evidence":
+                # 证据通道不走 TrustMRR 探针：空 slug 只会换来 3 次重试 +
+                # unknown，最后落进「未判定」，纯属白等。
+                live_by_id[i] = {"state": "hn_evidence", "metrics": {}}
+                continue
+            futs[ex.submit(AD.probe, rec.get("trustmrr_slug") or "")] = i
         for fut in cf.as_completed(futs):
             rid = futs[fut]
             try:
@@ -725,7 +831,10 @@ def main():
         # 自动挑的条目带上分数：不然「为什么先核这条」在输出里看不出来。
         tag = "[%2d] " % picked[rid] if rid in picked else ""
         line = "  %s%-22s %s" % (tag, rid[:22], why)
-        if m and m.get("mrr"):
+        # 「实测」只属于 TrustMRR 支付侧；HN 那个数是人工回源登记的证据，
+        # 用同一个词会让日志读起来像我们亲眼看过支付后台。
+        if (m and m.get("mrr")
+                and str(rec.get("harvest_source") or "") != "hn_evidence"):
             line += "  (实测 MRR %s)" % fmt_money(m.get("mrr"))
         if extra.get("override"):
             line += "  ⚠ 已人工破例"
@@ -753,9 +862,12 @@ def main():
 
     added = []
     for rid, rec, live, m, extra in passed:
-        new = to_candidate(rec, live, m, extra.get("growth"),
-                           extra.get("ret"), extra.get("peak"),
-                           extra.get("last"), extra.get("override"))
+        if str(rec.get("harvest_source") or "") == "hn_evidence":
+            new = to_candidate_hn(rec)
+        else:
+            new = to_candidate(rec, live, m, extra.get("growth"),
+                               extra.get("ret"), extra.get("peak"),
+                               extra.get("last"), extra.get("override"))
         cands.append(new)
         added.append(rid)
 

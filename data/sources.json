@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-23",
+  "updated_at": "2026-11-13",
   "principle": "一手证据 > 二手转述。凡是能在支付网关或公司官方口径里核到的数字，才允许进精写库；只有创始人自述的，降级标注。",
   "sources": [
     {
@@ -152,8 +152,8 @@
       "kind": "community",
       "tier": "B",
       "enabled": true,
-      "auth": "Algolia 公开 API，无需 key（当前唯一零门槛可直接跑通的源）",
-      "how": "用 Algolia Search API 搜 Show HN 与收入关键词；拿到 objectID 后再调 items/<id> 抓「完整评论树」 —— 真话（成本、获客、翻车）都在评论里，标题只是「我做了个 X」。支持 numericFilters=points>50 做质量过滤。",
+      "auth": "Algolia 公开 API 免 key（2026-11-13 本机实测 3/3 通）；HN 主站 news.ycombinator.com 的隐藏端点即使绕代理也 4/4 超时，只能生成链接供人工 / CDP 打开，不能当抓取通道",
+      "how": "用 Algolia Search API 搜 Show HN 与收入关键词；拿到 objectID 后再调 items/<id> 抓「完整评论树」 —— 真话（成本、获客、翻车）都在评论里，标题只是「我做了个 X」。支持 numericFilters=points>50 做质量过滤。 【2026-11-13 新增独立线索支线，PRD #159/#163/#164】`scripts/hn_leads.py` 走 Algolia `/search_by_date?tags=show_hn&numericFilters=points>100` 拉高分 Show HN；`--domain <域名>` 用 `restrictSearchableAttributes=url` 做域名历史回溯（README 未文档化端点 `/from?site=` 的可达等价物）；把隐性降权规则（骂战 / 无 URL / 教程 / 拉票）打成 `hn_flags`，并生成 `/over?points=`、`/front?day=`、`/latest?id=` 等隐藏端点 URL。默认纯只读，只有 `--apply --yes` 才写**独立线索池 `data/hn_leads.json`**（30 条），⛔ 不写 `data/candidates.json`。存储复用 `candidate_store` 通用层且每处显式传 `path=`，写盘准入闸（PRD #164）按目标池校验来源与字段形状。",
       "fields": [
         "title",
         "url",
@@ -162,10 +162,16 @@
         "created_at",
         "story_text",
         "object_id",
-        "hn_discussion"
+        "hn_discussion",
+        "hn_id",
+        "hn_role",
+        "hn_flags",
+        "hidden_urls",
+        "verification",
+        "source_kind"
       ],
       "why": "技术圈里最诚实的自曝渠道，且 API 免费无鉴权，适合做每日自动采集的第一站。",
-      "caveat": "噪音大，混有大量新闻稿、融资公告、招聘帖；必须过一层过滤器。评论区虽免费，但只有「已入选」的条目才值得抓（见 --hn-comments）。自曝数字仍是自报，标 self_reported。",
+      "caveat": "噪音大，混有大量新闻稿、融资公告、招聘帖；必须过一层过滤器。评论区虽免费，但只有「已入选」的条目才值得抓（见 --hn-comments）。自曝数字仍是自报，标 self_reported。 🚨 2026-11-13 实测与机制发现（PRD #159/#162/#163）：① 主站首页与 `/over` `/front` `/from` 隐藏端点在本机 4/4 超时（直连 + 绕代理均不通），脚本只生成链接、不假装抓到，`--probe-html` 是可选探测；② `harvest.py --source hn` 写进 `inbox.json` 的条目带 `harvest_source=hn`，但 `promote_to_candidates.py:638` 硬条件只认 `harvest_source==\"trustmrr\"` + 非空 `trustmrr_slug` ⇒ **老链路采得进、晋升不了**，inbox 里的 HN 条目只会堆积，别按「已入库」计数；③ HN 自述数字是发帖当时的快照、不是现值，一律 `verification=unverified` / `source_kind=self_reported` / `metrics` 恒「未获取」，必须回源拿一手收入证据后按正常采集流程重进 inbox，⛔ 不许把 `harvest_source` 改成 `trustmrr` 伪造来源绕过安全阀；④ `data/hn_leads.json` 不参与 S0–S7，`pipeline_status.py` 硬编码只读 `candidates.json`、不扫它是设计，别给它加统计，否则主池又被线索污染（#162 的 S3 死循环）。",
       "endpoints": [
         {
           "label": "按日期搜 Show HN",
@@ -178,6 +184,26 @@
         {
           "label": "条目 + 完整评论树（免 key）",
           "url": "https://hn.algolia.com/api/v1/items/<objectID>"
+        },
+        {
+          "label": "域名历史回溯（/from?site= 的可达等价物，Algolia）",
+          "url": "https://hn.algolia.com/api/v1/search?query=<domain>&restrictSearchableAttributes=url"
+        },
+        {
+          "label": "高分榜（仅生成链接；本机实测主站 4/4 超时）",
+          "url": "https://news.ycombinator.com/over?points=100"
+        },
+        {
+          "label": "任意历史首页快照（仅生成链接）",
+          "url": "https://news.ycombinator.com/front?day=YYYY-MM-DD"
+        },
+        {
+          "label": "某域名全部投稿（仅生成链接；回溯走上面的 Algolia 通道）",
+          "url": "https://news.ycombinator.com/from?site=<domain>"
+        },
+        {
+          "label": "长讨论按时间倒序（仅生成链接）",
+          "url": "https://news.ycombinator.com/latest?id=<objectID>"
         }
       ],
       "source_kind": "self_reported"

@@ -15,6 +15,25 @@
   3. **隐藏端点 URL 生成**：`/over?points=` `/front?day=` `/from?site=`
      `/latest?id=` 等生成可点击链接，交给人工或 CDP 在能连通的机器上打开。
 
+独立线索池（2026-11-13 方案 A，改链路前必读）
+---------------------------------------------
+HN 是创始人自述（`self_reported`），而主候选池 `data/candidates.json` 是按
+**TrustMRR 支付侧直读证据**形状写死的状态机：`promote_to_candidates.py` 只挑
+`harvest_source=="trustmrr"` + 非空 `trustmrr_slug`；`ai_verify.py` 见
+`metrics.headline="未获取"` 就跳过；`fetch_tm_md.py` 会给 `hn-*` id 拼出
+`trustmrr.com/startup/hn-*.md` 的 404。把 HN 线索写进主池的后果是
+`pipeline_status` 跳到 S3，而唯一能补草稿的预核把 30 条全跳过 —— **S3
+永远清不掉的死循环**（#162 写入 / #163 迁移的实测）。
+
+所以写盘**只落 `data/hn_leads.json`**，与主池物理隔离。存储实现仍复用
+`candidate_store` 的通用层并**显式传 `path=`**（DATA_SCHEMA.md §428 的硬规矩），
+不另造第二套格式/锁口径。`pipeline_status.py` 硬编码读 candidates.json，
+迁出后主池回空、阶段自动回 S7，triage 不再被 30 条 0 分记录污染。
+
+⛔ **转轨不许伪造来源**：HN 线索要进正式库，只能人工回源拿到一手收入证据后
+按正常采集流程重新进 inbox、由 `promote_to_candidates` 判定；直接把
+`harvest_source` 改成 `trustmrr` 绕过安全阀是数据造假，禁止。
+
 网络事实（2026-11-13 本机实测，见 docs/PRD.md §159）
 ---------------------------------------------------
   * `hn.algolia.com/api/v1/*` 可达（走 `harvest.http_json`，绕开本机环境代理）。
@@ -34,9 +53,13 @@
 --------
   * **默认纯只读**：只打报告到 stdout，不写任何文件。
   * `--out <path>` 才写 JSON 产物（走 atomicio，属于产物不属台账）。
-  * 只有 `--apply --yes` 才碰 `data/candidates.json`，且必须过三道硬闸：
-    候选池格式自检通过、候选池无未提交改动、记录是 lead 而非 history。
-    单条走 `candidate_store.upsert_candidate()`（持锁），绝不整本覆盖写。
+  * 只有 `--apply --yes` 才碰 **`data/hn_leads.json`**（独立线索池），且过三道
+    硬闸：线索池格式自检通过、线索池无「未暂存的工作区改动」、记录是 lead
+    而非 history。单条走 `candidate_store.upsert_candidate(path=LEADS_PATH)`
+    （持锁），绝不整本覆盖写。**主候选池永远只读、一个字节都不写。**
+  * `--migrate-from-candidates --yes` 是一次性迁移（#163）：把 #162 误写进
+    主池的 HN 条目搬到线索池，主池留全量非 HN 记录。先逐字节备份、逐条
+    upsert、逐键比对，全部通过才写主池；失败时主池不动、重跑按 id 幂等。
 
 用法
 ----
@@ -47,7 +70,8 @@
     python scripts/hn_leads.py --probe-html                 # 只探测 HN 主站可达性
     python scripts/hn_leads.py --self-test                  # 离线断言，不联网不写盘
     python scripts/hn_leads.py --out tmp/hn_leads/today.json
-    python scripts/hn_leads.py --apply --yes               # 真正写候选池（不自动提交）
+    python scripts/hn_leads.py --apply --yes               # 写独立线索池（不写主池）
+    python scripts/hn_leads.py --migrate-from-candidates --yes  # 一次性迁移，可重跑
 
 依赖：仅 Python 标准库 + 仓库内 harvest / candidate_store / atomicio。
 """
@@ -58,6 +82,7 @@ import io
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import urllib.parse
@@ -75,6 +100,11 @@ import harvest as H  # noqa: E402
 
 HN_WEB = "https://news.ycombinator.com"
 ALGOLIA = "https://hn.algolia.com/api/v1"
+
+#: 独立线索池（方案 A）：HN 自述线索与 TrustMRR 支付侧证据物理隔离。
+#: 所有 candidate_store 调用都显式传 path=，绝不靠模块级 CAND_PATH 兜底。
+LEADS_PATH = os.path.join(ROOT, "data", "hn_leads.json")
+#: 主候选池只在「已在库」交叉核对时**只读**，任何写盘都不许指向它。
 CAND_PATH = CSt.CAND_PATH
 
 #: README「Hacker News Lists / Public URLs」里那些导航看不到的入口。
@@ -331,12 +361,18 @@ def _dedup(hits, role="lead"):
 # ---------------------------------------------------------------- 只读去重视图
 
 def existing_ids():
-    """只读已有 id，用来标「已在库」。绝不写，也绝不拿子集去整本覆盖。"""
+    """只读已有 id，用来标「已在库」。绝不写，也绝不拿子集去整本覆盖。
+
+    三个只读来源：独立线索池（本脚本的写盘目标）、inbox（采集队列）、
+    主候选池（**只读交叉核对**：万一某条 HN 线索已经人工回源、走正常流程
+    晋升进主池，就别再当新线索重复采集；写盘永远只落 LEADS_PATH）。
+    """
     ids = set()
-    try:
-        ids |= set(CSt.load_ids(path=CAND_PATH))
-    except (OSError, ValueError) as e:
-        print("[!] 候选池读取失败（不阻断干跑）：%s" % e, file=sys.stderr)
+    for label, p in (("线索池", LEADS_PATH), ("主候选池（只读）", CAND_PATH)):
+        try:
+            ids |= set(CSt.load_ids(path=p))
+        except (OSError, ValueError) as e:
+            print("[!] %s 读取失败（不阻断干跑）：%s" % (label, e), file=sys.stderr)
     inbox = os.path.join(ROOT, "data", "inbox.json")
     if os.path.isfile(inbox):
         try:
@@ -383,34 +419,132 @@ def print_report(leads, meta, ids, show=15):
           "隐藏端点链接在 hidden_urls 字段，本机 HN 主站不可达，未做抓取。")
 
 
-# ---------------------------------------------------------------- 写候选池（硬闸）
+# ---------------------------------------------------------------- 来源分流（纯函数）
 
-def _cand_dirty():
+def is_hn_lead(rec):
+    """是否属于「#162 误写进主候选池的 HN 自述线索」。
+
+    判定要两个条件同时成立：只看 `harvest_source=="hn"` 会误伤
+    `harvest.py --source hn` 正常采进 inbox / 主池的条目；只看 `hn-` 前缀
+    又会漏掉将来换 id 规则的记录。这批 #162 数据的特征正是两者兼有。
+    """
+    return (isinstance(rec, dict)
+            and str(rec.get("harvest_source") or "").strip() == "hn"
+            and str(rec.get("id") or "").startswith("hn-"))
+
+
+def split_by_source(cands):
+    """把主池**全量**拆成 (迁出到线索池的 HN 条目, 原样保留的其余条目)。"""
+    move, keep = [], []
+    for c in cands:
+        (move if is_hn_lead(c) else keep).append(c)
+    return move, keep
+
+
+# ---------------------------------------------------------------- 写线索池（硬闸）
+
+def _pool_dirty(path):
+    """只拦「未暂存的工作区改动」，返回拦截说明（空串 = 放行）。
+
+    `A `（已暂存的新文件）与 `??`（未跟踪的新池）没有历史基线可比，且
+    `upsert_candidate()` 是持锁读-改-写，不会覆盖别人尚未落盘的改动；
+    真正危险的是 ` M` / `MM`：上一轮刚写还没定稿，或字段被洗还没分辨。
+    """
+    rel = os.path.relpath(path, ROOT).replace("\\", "/")
     try:
-        out = subprocess.run(["git", "status", "--porcelain", "--", "data/candidates.json"],
+        out = subprocess.run(["git", "status", "--porcelain", "--", rel],
                              cwd=ROOT, capture_output=True, check=False)
-        return (out.stdout or b"").decode("utf-8", "replace").strip()
     except (OSError, ValueError):
         return ""
+    lines = [l for l in (out.stdout or b"").decode("utf-8", "replace").splitlines()
+             if l.strip() and not l.startswith("??")]
+    return "\n".join(l for l in lines if len(l) >= 2 and l[1] not in (" ", "?"))
 
 
 def apply_to_pool(leads, ids):
-    if not CSt.check(path=CAND_PATH)[0]:
-        raise SystemExit("拒绝写入：候选池格式自检未通过，先跑 "
-                         "python scripts/candidate_store.py --check")
-    dirty = _cand_dirty()
+    """写独立线索池 `data/hn_leads.json`。主候选池永不触碰。"""
+    if os.path.isfile(LEADS_PATH) and not CSt.check(path=LEADS_PATH)[0]:
+        raise SystemExit("拒绝写入：线索池格式自检未通过，先跑 "
+                         "python scripts/candidate_store.py --path data/hn_leads.json --check")
+    dirty = _pool_dirty(LEADS_PATH)
     if dirty:
-        raise SystemExit("拒绝写入：data/candidates.json 有未提交改动（%s）。"
-                         "先分辨是真推进还是字段被洗，确认后再来。" % dirty.strip())
+        raise SystemExit("拒绝写入：data/hn_leads.json 有未暂存改动（%s）。"
+                         "先提交或人工确认，别绕过。" % dirty.strip())
     todo = [c for c in leads if c["hn_role"] == "lead" and c["id"] not in ids]
     if not todo:
         print("没有需要写入的新线索。")
         return 0
     for c in todo:
-        CSt.upsert_candidate(c, path=CAND_PATH)
-    print("已写入 %d 条新线索（单条 upsert / 持锁 / 未整本覆盖）。"
-          "未自动提交，提交前请核 git diff --cached --stat。" % len(todo))
+        # 显式声明目标池：不靠文件名猜，路径被重定向到 tmp 探针时同样过闸
+        CSt.upsert_candidate(c, path=LEADS_PATH, pool=CSt.POOL_LEADS)
+    print("已写入 %d 条新线索到 %s"
+          "（单条 upsert / 持锁 / 未整本覆盖；主候选池未触碰）。未自动提交。"
+          % (len(todo), os.path.relpath(LEADS_PATH, ROOT).replace("\\", "/")))
     return len(todo)
+
+
+# ---------------------------------------------------------------- 一次性迁移（#163）
+
+def migrate_from_candidates():
+    """把 #162 误写进主候选池的 HN 条目搬到独立线索池（可重跑、幂等）。
+
+    安全顺序：**逐字节备份 → 逐条 upsert → 逐键比对 → 才写主池**。
+    任何一步失败都不写主池；线索池的半成品按 id 幂等，重跑即可补齐。
+    主池此刻的 dirty 状态正是本轮要迁出的数据，故不做 dirty 闸，
+    改由「备份成功 + 全量读取 + 保留项原样」三重约束兜底。
+    """
+    if not CSt.check(path=CAND_PATH)[0]:
+        raise SystemExit("拒绝迁移：主候选池格式自检未通过")
+    cands = CSt.load_candidates(path=CAND_PATH)      # 全量，不是 --filter 子集视图
+    move, keep = split_by_source(cands)
+    if not move:
+        print("主候选池已无 hn-<id> 线索，无需迁移（当前 %d 条原样保留）。" % len(keep))
+        return 0
+    print("迁移预演：主池全量 %d 条 → 迁出 %d 条 / 保留 %d 条"
+          % (len(cands), len(move), len(keep)))
+
+    # ① 逐字节备份（原字节，不重新序列化；DATA_SCHEMA.md §431 的刻意例外）
+    bk = os.path.join(ROOT, "tmp", "candidates_before_hn_migrate_%s.json"
+                      % datetime.now().strftime("%Y%m%d_%H%M%S"))
+    os.makedirs(os.path.dirname(bk), exist_ok=True)
+    with open(CAND_PATH, "rb") as f:
+        orig_bytes = f.read()
+    shutil.copy2(CAND_PATH, bk)
+    with open(bk, "rb") as f:
+        if f.read() != orig_bytes:
+            raise SystemExit("拒绝迁移：备份逐字节校验失败 %s" % bk)
+    print("备份：%s（%d bytes，逐字节一致）"
+          % (os.path.relpath(bk, ROOT), len(orig_bytes)))
+
+    # ② 逐条 upsert 到线索池（持锁，默认字段合并，不整本覆盖）
+    for c in move:
+        CSt.upsert_candidate(c, path=LEADS_PATH, pool=CSt.POOL_LEADS)
+
+    # ③ 逐键比对：原记录每个键都必须在线索池里逐字相同（允许多出人工批注键）
+    written = CSt.load_by_id(path=LEADS_PATH)
+    for c in move:
+        w = written.get(c["id"])
+        if not w or any(w.get(k) != v for k, v in c.items()):
+            raise SystemExit("拒绝写主池：线索池 %s 与原记录不一致（主池未动）"
+                             % c["id"])
+    if not CSt.check(path=LEADS_PATH)[0]:
+        raise SystemExit("拒绝写主池：线索池格式自检未通过（主池未动）")
+
+    # ④ 才写主池：keep = 全量减去迁出项，仍是完整列表，不是子集视图。
+    # 显式开写盘准入（PRD #164）：万一还有 hn 线索混在 keep 里，这里再挡一次。
+    CSt.save_candidates(keep, path=CAND_PATH, validate=True)
+
+    # ⑤ 独立双回读
+    after = CSt.load_candidates(path=CAND_PATH)
+    if after != keep:
+        raise SystemExit("迁移后主池回读不一致，请从备份 %s 逐字节恢复" % bk)
+    if not CSt.check(path=CAND_PATH)[0]:
+        raise SystemExit("迁移后主池格式自检未通过，请检查 %s" % bk)
+    print("已迁移 %d 条 → data/hn_leads.json；主候选池 %d → %d 条；"
+          "线索池现共 %d 条；备份 %s"
+          % (len(move), len(cands), len(after), len(written),
+             os.path.relpath(bk, ROOT)))
+    return len(move)
 
 
 # ---------------------------------------------------------------- 离线自测
@@ -461,6 +595,21 @@ def self_test():
     chk("since 日期解析按 UTC 且相邻两天差 86400 秒",
         _since_ts("1970-01-02") - _since_ts("1970-01-01") == 86400)
     chk("原文标题保留", lead["hn_title"] == hit["title"])
+    chk("线索池与主候选池物理隔离",
+        LEADS_PATH != CAND_PATH
+        and LEADS_PATH.endswith(os.path.join("data", "hn_leads.json")))
+    chk("is_hn_lead 只认 hn 来源 + hn- 前缀",
+        is_hn_lead({"id": "hn-1", "harvest_source": "hn"})
+        and not is_hn_lead({"id": "hn-1", "harvest_source": "trustmrr"})
+        and not is_hn_lead({"id": "c-1", "harvest_source": "hn"}))
+    mv, kp = split_by_source([
+        {"id": "hn-1", "harvest_source": "hn"},
+        {"id": "c-1", "harvest_source": "trustmrr"},
+        {"id": "c-2"},
+    ])
+    chk("split_by_source 迁出/保留原样且保序",
+        [c["id"] for c in mv] == ["hn-1"]
+        and [c["id"] for c in kp] == ["c-1", "c-2"])
     buf = io.StringIO()
     with contextlib.redirect_stderr(buf):
         no_tag = _dedup([dict(hit, _tags=["story"])], role="lead")
@@ -488,19 +637,29 @@ def main(argv=None):
     ap.add_argument("--show", type=int, default=15, help="报告里展示条数")
     ap.add_argument("--out", default="", help="把线索写成 JSON 产物（不写则只打报告）")
     ap.add_argument("--probe-html", action="store_true", help="探测 HN 主站隐藏端点可达性")
-    ap.add_argument("--apply", action="store_true", help="写候选池，必须同时给 --yes")
-    ap.add_argument("--yes", action="store_true", help="写候选池的二次确认")
+    ap.add_argument("--apply", action="store_true",
+                    help="写独立线索池 data/hn_leads.json（不碰主候选池），必须同时给 --yes")
+    ap.add_argument("--migrate-from-candidates", action="store_true",
+                    help="一次性：把误写进主候选池的 HN 条目迁到线索池，必须同时给 --yes")
+    ap.add_argument("--yes", action="store_true", help="写盘动作的二次确认")
     ap.add_argument("--self-test", action="store_true", help="离线断言，不联网不写盘")
     a = ap.parse_args(argv)
 
     if a.self_test:
         return self_test()
+    if a.migrate_from_candidates:
+        if not a.yes:
+            raise SystemExit("--migrate-from-candidates 必须同时给 --yes")
+        if a.apply:
+            raise SystemExit("--migrate-from-candidates 与 --apply 互斥")
+        migrate_from_candidates()
+        return 0
     if a.limit < 1 or a.limit > 100:
         raise SystemExit("--limit 需要 1..100（Algolia 单次 hitsPerPage 上限），收到 %d" % a.limit)
     if a.apply and not a.yes:
         raise SystemExit("--apply 必须同时给 --yes（写前先跑干跑核报告）")
     if a.apply and a.domain:
-        raise SystemExit("域名回溯是历史讨论，不许写候选池（去掉 --apply）")
+        raise SystemExit("域名回溯是历史讨论，不许写线索池（去掉 --apply）")
 
     if a.domain:
         dm = 0 if a.min_points is None else a.min_points

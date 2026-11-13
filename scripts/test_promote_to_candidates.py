@@ -117,5 +117,44 @@ class TestIndexFor(unittest.TestCase):
         self.assertEqual(idx.duplicate_of(self.DUP, "inbox"), "与候选池条目同名")
 
 
+class TestWriteLike(unittest.TestCase):
+    """`_write_like` 在目标文件**还不存在**时不能炸（2026-11-13 修）。
+
+    原实现无条件 `open(path, "rb")` 嗅换行，归档文件缺失时抛
+    FileNotFoundError，而这个异常发生在「候选池已写、inbox 还没排空」之后 ——
+    正是 archive_from_inbox 注释里警告的「晋升只做了一半」。
+    """
+
+    def setUp(self):
+        import tempfile
+        self.d = tempfile.mkdtemp(prefix="promote_wl_")
+
+    def tearDown(self):
+        import shutil
+        shutil.rmtree(self.d, ignore_errors=True)
+
+    def test_文件不存在按LF新建且不抛(self):
+        p = os.path.join(self.d, "archive.json")
+        crlf = P._write_like(p, [{"id": "a"}, {"id": "b"}])
+        self.assertFalse(crlf)
+        with open(p, "rb") as f:
+            raw = f.read()
+        self.assertNotIn(b"\r\n", raw)
+        self.assertTrue(raw.startswith(b"[\n  {"))
+        self.assertFalse(raw.endswith(b"\n"), "台账一律不写尾换行")
+        self.assertEqual(len(__import__("json").loads(raw)), 2)
+
+    def test_已存在的CRLF保持CRLF(self):
+        p = os.path.join(self.d, "inbox.json")
+        with open(p, "wb") as f:
+            f.write(b'[\r\n  {\r\n    "id": "x"\r\n  }\r\n]')
+        crlf = P._write_like(p, [{"id": "y"}])
+        self.assertTrue(crlf)
+        with open(p, "rb") as f:
+            raw = f.read()
+        self.assertIn(b"\r\n", raw)
+        self.assertNotIn(b"\n  {", raw.replace(b"\r\n", b""), "不应混入裸 LF")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

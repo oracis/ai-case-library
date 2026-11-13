@@ -374,7 +374,7 @@ if (!statEl.hidden) {
 
   $('side-meta').innerHTML =
     `<div>案例 <b>${s.curated || 0}</b> · 候选 <b>${s.candidates || 0}</b></div>` +
-    `<div>已核实 <b>${s.verified || 0}</b> · 修正 <b>${s.flagged || 0}</b></div>` +
+    `<div>已核实 <b>${s.verified || 0}</b> · 修正 <b>${s.flagged || 0}</b>${s.undisclosed ? ` · 未披露 <b>${s.undisclosed}</b>` : ''}</div>` +
     `<div style="margin-top:6px">生成 <b>${esc(DATA.generated_at || '')}</b></div>` +
     (IS_STATIC ? '<div class="ro-mode">只读快照 · 静态部署</div>' : '');
 
