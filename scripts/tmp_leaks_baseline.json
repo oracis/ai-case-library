@@ -283,8 +283,6 @@
   "inc_e2e.py",
   "keep_9223.py",
   "keep_9228_headed.py",
-  "list_ali_drafts.py",
-  "list_tc_drafts.py",
   "merge_b_tables.py",
   "merge_fix8_tables.py",
   "mk_case_cover.py",

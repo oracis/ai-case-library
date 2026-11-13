@@ -646,7 +646,10 @@ SUMMARY = {
 def load_parsed():
     if not os.path.exists(PARSED):
         raise SystemExit(
-            "缺 %s\n先跑：python tmp/parse_neg_pages.py（需要 tmp/neg/*.html 页面快照）" % PARSED)
+            "缺 %s\n需要 tmp/neg/parsed.json（由 tmp/neg/*.html 页面快照解析得到）。\n"
+            "页面解析脚本原先写在 tmp/ 未入库、现已不存在；重建请按 "
+            "docs/SELECTION_PLAYBOOK.md 的字段口径，脚本放 scripts/_oneoff/，别再写回 tmp/"
+            % PARSED)
     with open(PARSED, encoding="utf-8") as f:
         return json.load(f)
 
