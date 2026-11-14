@@ -604,6 +604,79 @@ fetch(%s, {credentials: "include"})
 # --------------------------------------------------------------------------
 # 腾讯云
 # --------------------------------------------------------------------------
+def _mc_nid(cdp, selector):
+    """DOM.getDocument → DOM.querySelector 拿 nodeId（0 表示没找到）。"""
+    doc = cdp.send("DOM.getDocument")
+    root = doc["result"]["root"]["nodeId"]
+    q = cdp.send("DOM.querySelector", {"nodeId": root, "selector": selector})
+    return (q.get("result") or {}).get("nodeId") or 0
+
+
+def _feed_md_file(cdp, md_path, wait=45):
+    """把 .md 灌进腾讯云 CodeMirror：「拦截文件对话框 → 点导入MD → 喂文件」。
+
+    返回 "ok" / 失败原因。
+
+    🚨 2026-11-14 实测（探针 `scripts/_oneoff/probe_tc_import_md.py`）：
+      工具栏那个 `input[type=file][accept=".md,.markdown"]` 虽然**页面加载就
+      常驻**（display:none，父节点 `.cdc-article-editor__tool-list`），但真正
+      能用的 onChange 是**点击「导入MD」时才挂到重建后的 input 上**的 ——
+        · 不点击直接 `DOM.setFileInputFiles` ⇒ 正文 30 秒仍空（静默无效）
+        · 不点击、页内构造 File 赋 `input.files` + 派发 change ⇒ 同样无效
+        · **点一次**后该 input 被 React 重建（nodeId 变了），此时喂文件 2 秒载入
+      所以「绕开点击」这条路是死的，只能点击。
+
+    🚨 但点击会弹 **Windows 原生文件选择框**（原来是人工点取消；无人值守时
+      整条命令卡住）。解法是 `Page.setInterceptFileChooserDialog` 把对话框拦在
+      CDP 里：页面收不到系统框，onChange 照常触发 —— 与
+      `yun_finalize.upload_image()` 对阿里云用的是同一姿势。
+    """
+    files = [md_path.replace("\\", "/")]
+    cdp.send("Page.enable")
+    cdp.send("DOM.enable")
+    cdp.send("Page.setInterceptFileChooserDialog", {"enabled": True})
+    try:
+        if not _click_by_text(cdp, "导入MD",
+                              tags="button,[role=button],div,span,a"):
+            return "没找到「导入MD」按钮"
+        print("    已点「导入MD」（对话框已被 CDP 拦截，不弹窗）", flush=True)
+        time.sleep(2)                   # 等 React 重建 input 并挂上 onChange
+        nid = _mc_nid(cdp, "input[type=file]")
+        if not nid:
+            return "点击后仍找不到 file input"
+        cdp.send("DOM.setFileInputFiles", {"nodeId": nid, "files": files})
+        print("    导入MD 文件: %s" % md_path)
+    finally:
+        try:
+            cdp.send("Page.setInterceptFileChooserDialog", {"enabled": False})
+        except Exception:                                   # noqa: BLE001
+            pass
+
+    def loaded():
+        return bool(cdp.eval(
+            "(function(){var e=document.querySelector('.cm-content');"
+            "return !!(e && (e.innerText||'').length>20);})()"))
+
+    deadline = time.time() + wait
+    while time.time() < deadline:
+        time.sleep(1)
+        if loaded():
+            return "ok"
+    # 一次性重试：input 可能又被重建，重新取一次再喂
+    nid = _mc_nid(cdp, "input[type=file]")
+    if nid:
+        try:
+            cdp.send("DOM.setFileInputFiles", {"nodeId": nid, "files": files})
+        except Exception:                                   # noqa: BLE001
+            pass
+        deadline = time.time() + 15
+        while time.time() < deadline:
+            time.sleep(1)
+            if loaded():
+                return "ok"
+    return "导入MD 后正文未载入（.cm-content 为空）"
+
+
 def create_tencent(cdp, title, body_md, abstract=""):
     r"""腾讯云建草稿。返回 (draftId, 失败原因)。
 
@@ -611,9 +684,13 @@ def create_tencent(cdp, title, body_md, abstract=""):
     编辑器」）已下线，换成 CodeMirror（cm-content）。旧注入流程整体失效
     （#cdc-rich-editor 永不出现 ⇒ 原先报「等不到编辑器」假失败）。
     新流程（实测可用）：标题仍走 textarea.cdc-article-editor__title-input；
-    正文走工具栏「导入MD」的文件入口 —— 用 CDP DOM.setFileInputFiles 直接喂
-    清理后的 .md，绕过系统文件对话框，CodeMirror 完整载入 markdown（含 \$ 正确
-    显示为字面 $，不触发数学渲染）。
+    正文走工具栏「导入MD」的文件入口 —— 点完按钮用 CDP DOM.setFileInputFiles
+    喂清理后的 .md，CodeMirror 完整载入 markdown（含 \$ 正确显示为字面 $，
+    不触发数学渲染）。
+
+    🚨 那一下点击会弹系统文件选择框 —— 现由 `_feed_md_file()` 用
+      `Page.setInterceptFileChooserDialog` 拦掉，全程无需人工点取消。
+      别改成「不点击直接喂文件」，实测静默无效（见该函数注释）。
     """
     cdp.open(TENCENT_NEW)
     time.sleep(3)
@@ -638,32 +715,12 @@ def create_tencent(cdp, title, body_md, abstract=""):
     with open(tmp_md, "w", encoding="utf-8") as f:
         f.write(clean_md)
 
-    if not _click_by_text(cdp, "导入MD",
-                          tags="button,[role=button],div,span,a"):
-        return "", "没找到「导入MD」按钮"
-    print("    已点「导入MD」", flush=True)
-    time.sleep(2.5)
-    try:
-        doc = cdp.send("DOM.getDocument")
-        root = doc["result"]["root"]["nodeId"]
-        q = cdp.send("DOM.querySelector",
-                     {"nodeId": root, "selector": "input[type=file]"})
-        nid = (q.get("result") or {}).get("nodeId")
-        if nid:
-            cdp.send("DOM.setFileInputFiles",
-                     {"nodeId": nid, "files": [tmp_md.replace("\\", "/")]})
-            print("    导入MD 文件: %s" % tmp_md)
-        else:
-            print("    ⚠ 没找到 file input（导入MD 入口）")
-    except Exception as e:                          # noqa: BLE001
-        print("    ⚠ 导入MD 设文件失败: %s" % str(e)[:80])
-    # 等 CodeMirror 载入正文
-    if not _wait_for(cdp,
-            "(function(){var e=document.querySelector('.cm-content');"
-            "return !!(e && (e.innerText||'').length>20);})()", timeout=45):
-        return "", "导入MD 后正文未载入（.cm-content 为空）"
+    fed = _feed_md_file(cdp, tmp_md)
+    if fed != "ok":
+        return "", fed
     print("    正文载入: %s 字" % cdp.eval(
         "(document.querySelector('.cm-content')||{innerText:''}).innerText.length"))
+
 
     if not _click_by_text(cdp, "存草稿"):
         return "", "没找到「存草稿」按钮"

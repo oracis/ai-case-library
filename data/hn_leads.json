@@ -1,0 +1,2402 @@
+[
+  {
+    "id": "hn-50340088",
+    "name": "Subvocal",
+    "name_en": "Subvocal",
+    "origin": "",
+    "one_liner": "Hi HN, we're Aarush and Arnav from The Subvocal Company (YC F26) ( https://subvocal.company/ ). We’re building smart glasses that let you talk to your computer without talking out loud. You can mouth words silently and discreetly and the gl",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-11-02，抓取时 848 分 / 395 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://news.ycombinator.com/item?id=50340088",
+    "website": "https://news.ycombinator.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "50340088",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Subvocal – Talk to your computer without making noise",
+    "hn_points": 848,
+    "hn_comments": 395,
+    "hn_created_at": "2026-11-02",
+    "hn_discussion": "https://news.ycombinator.com/item?id=50340088",
+    "hn_flags": [
+      "no_url:纯文字帖（README: 无 URL 隐性降权）"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-11-02",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=50340088",
+      "latest": "https://news.ycombinator.com/latest?id=50340088",
+      "from": "https://news.ycombinator.com/from?site=news.ycombinator.com"
+    }
+  },
+  {
+    "id": "hn-50346755",
+    "name": "HackerTV",
+    "name_en": "HackerTV",
+    "origin": "",
+    "one_liner": "I saw HackerTube ( https://news.ycombinator.com/item?id=50319510 ) a few days ago, the YouTube videos HN keeps recommending, pulled from 19 years of comments. It made me want to flip through them instead of picking, so I built a TV for it. ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-11-03，抓取时 490 分 / 83 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://hackertv.org",
+    "website": "https://hackertv.org",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "50346755",
+    "hn_role": "lead",
+    "hn_title": "Show HN: HackerTV – HN's most-recommended Youtube videos as 24/7 TV channels",
+    "hn_points": 490,
+    "hn_comments": 83,
+    "hn_created_at": "2026-11-03",
+    "hn_discussion": "https://news.ycombinator.com/item?id=50346755",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-11-03",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=50346755",
+      "latest": "https://news.ycombinator.com/latest?id=50346755",
+      "from": "https://news.ycombinator.com/from?site=hackertv.org"
+    }
+  },
+  {
+    "id": "hn-50428907",
+    "name": "Every satellite that passed over any place this week, and its photos",
+    "name_en": "Every satellite that passed over any place this week, and its photos",
+    "origin": "",
+    "one_liner": "hey HN, i built this because I'm a satellite nerd who was bored this past weekend. type in any place and it finds every satellite that passed over it in the last 7 days (SGP4 on the CelesTrak catalog, tracking 17k+ objects and runs in your ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-11-09，抓取时 485 分 / 84 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://www.watched.earth",
+    "website": "https://watched.earth",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "50428907",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Every satellite that passed over any place this week, and its photos",
+    "hn_points": 485,
+    "hn_comments": 84,
+    "hn_created_at": "2026-11-09",
+    "hn_discussion": "https://news.ycombinator.com/item?id=50428907",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-11-09",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=50428907",
+      "latest": "https://news.ycombinator.com/latest?id=50428907",
+      "from": "https://news.ycombinator.com/from?site=watched.earth"
+    }
+  },
+  {
+    "id": "hn-50470488",
+    "name": "My $300 embroidery machine needed a subscription, so I built my own app",
+    "name_en": "My $300 embroidery machine needed a subscription, so I built my own app",
+    "origin": "",
+    "one_liner": "https://x.com/simpsoka/status/2115254318161182876",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-11-12，抓取时 479 分 / 176 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://github.com/simpsoka/zigzag",
+    "website": "https://github.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "50470488",
+    "hn_role": "lead",
+    "hn_title": "Show HN: My $300 embroidery machine needed a subscription, so I built my own app",
+    "hn_points": 479,
+    "hn_comments": 176,
+    "hn_created_at": "2026-11-12",
+    "hn_discussion": "https://news.ycombinator.com/item?id=50470488",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-11-12",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=50470488",
+      "latest": "https://news.ycombinator.com/latest?id=50470488",
+      "from": "https://news.ycombinator.com/from?site=github.com"
+    }
+  },
+  {
+    "id": "hn-50346981",
+    "name": "Hacker Times, a New York Times-inspired version of Hacker News",
+    "name_en": "Hacker Times, a New York Times-inspired version of Hacker News",
+    "origin": "",
+    "one_liner": "I thought it would be fun to browse HN as if it were a newspaper. The site updates once an hour. Enjoy!",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-11-03，抓取时 476 分 / 149 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://hackertimes.ca/",
+    "website": "https://hackertimes.ca",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "50346981",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Hacker Times, a New York Times-inspired version of Hacker News",
+    "hn_points": 476,
+    "hn_comments": 149,
+    "hn_created_at": "2026-11-03",
+    "hn_discussion": "https://news.ycombinator.com/item?id=50346981",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-11-03",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=50346981",
+      "latest": "https://news.ycombinator.com/latest?id=50346981",
+      "from": "https://news.ycombinator.com/from?site=hackertimes.ca"
+    }
+  },
+  {
+    "id": "hn-50443812",
+    "name": "Get your coding agent off ~2019 JavaScript, onto modern web primitives",
+    "name_en": "Get your coding agent off ~2019 JavaScript, onto modern web primitives",
+    "origin": "",
+    "one_liner": "Browsers natively handle a lot of what used to take 50 lines of JS (or a dependency): `CSS.highlights` for text range highlighting without <span>s everywhere, `<dialog>` and showModal() give you backdrops and ideal focus management, `field-",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-11-10，抓取时 436 分 / 145 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://github.com/GoogleChrome/modern-web-guidance",
+    "website": "https://github.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "50443812",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Get your coding agent off ~2019 JavaScript, onto modern web primitives",
+    "hn_points": 436,
+    "hn_comments": 145,
+    "hn_created_at": "2026-11-10",
+    "hn_discussion": "https://news.ycombinator.com/item?id=50443812",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-11-10",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=50443812",
+      "latest": "https://news.ycombinator.com/latest?id=50443812",
+      "from": "https://news.ycombinator.com/from?site=github.com"
+    }
+  },
+  {
+    "id": "hn-50333339",
+    "name": "Wikihack",
+    "name_en": "Wikihack",
+    "origin": "",
+    "one_liner": "After seeing Karpathy's Hackertube and Hackerbooks, I just had to make Wikihack. I scraped all mentions of wikipedia on hackernews and ranked them, and turn them into a scrollable feed to make it a bit more easy to digest / interact with. Y",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-11-02，抓取时 339 分 / 104 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://wikihack.netlify.app",
+    "website": "https://wikihack.netlify.app",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "50333339",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Wikihack – HackerTube, but for Wikipedia articles mentioned on HN",
+    "hn_points": 339,
+    "hn_comments": 104,
+    "hn_created_at": "2026-11-02",
+    "hn_discussion": "https://news.ycombinator.com/item?id=50333339",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-11-02",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=50333339",
+      "latest": "https://news.ycombinator.com/latest?id=50333339",
+      "from": "https://news.ycombinator.com/from?site=wikihack.netlify.app"
+    }
+  },
+  {
+    "id": "hn-50339221",
+    "name": "Warsaw in voxels",
+    "name_en": "Warsaw in voxels",
+    "origin": "",
+    "one_liner": "Explore central Warsaw in voxels - slightly inspired by Minecraft, and MagicaVoxel. You can change the date, time of day and weather, explore the city, or click on a pedestrian to control them (here a bit of inspiration from Dungeon Keeper)",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-11-02，抓取时 327 分 / 55 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://p.migdal.pl/warsaw-vibe-voxel/",
+    "website": "https://p.migdal.pl",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "50339221",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Warsaw in voxels – An interactive 3D map of the city centre",
+    "hn_points": 327,
+    "hn_comments": 55,
+    "hn_created_at": "2026-11-02",
+    "hn_discussion": "https://news.ycombinator.com/item?id=50339221",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-11-02",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=50339221",
+      "latest": "https://news.ycombinator.com/latest?id=50339221",
+      "from": "https://news.ycombinator.com/from?site=p.migdal.pl"
+    }
+  },
+  {
+    "id": "hn-50454625",
+    "name": "Yogurt",
+    "name_en": "Yogurt",
+    "origin": "",
+    "one_liner": "Hey HN, I’m Eric and I want to share an OSS project that I’ve been building in my free time. Yogurt is a free, MIT licensed desktop app that uses on-device AI models to transcribe, summarize, and chat with your meetings. Here's a quick demo",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-11-11，抓取时 290 分 / 111 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://github.com/FrigadeHQ/yogurt",
+    "website": "https://github.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "50454625",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Yogurt – Free, private, open-source alternative to Granola",
+    "hn_points": 290,
+    "hn_comments": 111,
+    "hn_created_at": "2026-11-11",
+    "hn_discussion": "https://news.ycombinator.com/item?id=50454625",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-11-11",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=50454625",
+      "latest": "https://news.ycombinator.com/latest?id=50454625",
+      "from": "https://news.ycombinator.com/from?site=github.com"
+    }
+  },
+  {
+    "id": "hn-50406292",
+    "name": "Coldframe, a honeypot that poses as a supermarket fridge controller",
+    "name_en": "Coldframe, a honeypot that poses as a supermarket fridge controller",
+    "origin": "",
+    "one_liner": "I built Coldframe, a honeypot that pretends to be a supermarket refrigeration controller. Inspired by the events on industrial fridge installations in the past weeks, I wanted to see what people would try against a convincing fake. To learn",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-11-07，抓取时 289 分 / 70 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://github.com/hedgerow-dev/coldframe",
+    "website": "https://github.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "50406292",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Coldframe, a honeypot that poses as a supermarket fridge controller",
+    "hn_points": 289,
+    "hn_comments": 70,
+    "hn_created_at": "2026-11-07",
+    "hn_discussion": "https://news.ycombinator.com/item?id=50406292",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-11-07",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=50406292",
+      "latest": "https://news.ycombinator.com/latest?id=50406292",
+      "from": "https://news.ycombinator.com/from?site=github.com"
+    }
+  },
+  {
+    "id": "hn-50368208",
+    "name": "A decent text-to-image model trained for ~$20K (Apache 2.0 Weights)",
+    "name_en": "A decent text-to-image model trained for ~$20K (Apache 2.0 Weights)",
+    "origin": "",
+    "one_liner": "My brother and I run a 2-person lab that trains our own generative video models from scratch. The ultimate goal is a set of creative tools that make it easier for anyone to make animation. Video models today are too slow/expensive and lack ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-11-04，抓取时 286 分 / 30 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://www.linum.ai/field-notes/pjit-21k",
+    "website": "https://linum.ai",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "50368208",
+    "hn_role": "lead",
+    "hn_title": "Show HN: A decent text-to-image model trained for ~$20K (Apache 2.0 Weights)",
+    "hn_points": 286,
+    "hn_comments": 30,
+    "hn_created_at": "2026-11-04",
+    "hn_discussion": "https://news.ycombinator.com/item?id=50368208",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-11-04",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=50368208",
+      "latest": "https://news.ycombinator.com/latest?id=50368208",
+      "from": "https://news.ycombinator.com/from?site=linum.ai"
+    }
+  },
+  {
+    "id": "hn-50369895",
+    "name": "After a decade of reversing, I got co-op working in DOS Wing Commander",
+    "name_en": "After a decade of reversing, I got co-op working in DOS Wing Commander",
+    "origin": "",
+    "one_liner": "Show HN: After a decade of reversing, I got co-op working in DOS Wing Commander",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-11-04，抓取时 256 分 / 41 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://fireflyk64.github.io/wcmulti/",
+    "website": "https://fireflyk64.github.io",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "50369895",
+    "hn_role": "lead",
+    "hn_title": "Show HN: After a decade of reversing, I got co-op working in DOS Wing Commander",
+    "hn_points": 256,
+    "hn_comments": 41,
+    "hn_created_at": "2026-11-04",
+    "hn_discussion": "https://news.ycombinator.com/item?id=50369895",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-11-04",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=50369895",
+      "latest": "https://news.ycombinator.com/latest?id=50369895",
+      "from": "https://news.ycombinator.com/from?site=fireflyk64.github.io"
+    }
+  },
+  {
+    "id": "hn-50441518",
+    "name": "Valencia, Spain in Sim City/Isometric View",
+    "name_en": "Valencia, Spain in Sim City/Isometric View",
+    "origin": "",
+    "one_liner": "Show HN: Valencia, Spain in Sim City/Isometric View",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-11-10，抓取时 251 分 / 62 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://tinyvalencia.com/",
+    "website": "https://tinyvalencia.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "50441518",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Valencia, Spain in Sim City/Isometric View",
+    "hn_points": 251,
+    "hn_comments": 62,
+    "hn_created_at": "2026-11-10",
+    "hn_discussion": "https://news.ycombinator.com/item?id=50441518",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-11-10",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=50441518",
+      "latest": "https://news.ycombinator.com/latest?id=50441518",
+      "from": "https://news.ycombinator.com/from?site=tinyvalencia.com"
+    }
+  },
+  {
+    "id": "hn-50457230",
+    "name": "I recreated Papers Please but you're deciding which YC startups to fund",
+    "name_en": "I recreated Papers Please but you're deciding which YC startups to fund",
+    "origin": "",
+    "one_liner": "Show HN: I recreated Papers Please but you're deciding which YC startups to fund",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-11-11，抓取时 239 分 / 94 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://termsheetplease.com/",
+    "website": "https://termsheetplease.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "50457230",
+    "hn_role": "lead",
+    "hn_title": "Show HN: I recreated Papers Please but you're deciding which YC startups to fund",
+    "hn_points": 239,
+    "hn_comments": 94,
+    "hn_created_at": "2026-11-11",
+    "hn_discussion": "https://news.ycombinator.com/item?id=50457230",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-11-11",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=50457230",
+      "latest": "https://news.ycombinator.com/latest?id=50457230",
+      "from": "https://news.ycombinator.com/from?site=termsheetplease.com"
+    }
+  },
+  {
+    "id": "hn-50334704",
+    "name": "I've updated my Linux System Call website and API",
+    "name_en": "I've updated my Linux System Call website and API",
+    "origin": "",
+    "one_liner": "I first released those in back in 2020 and now I finally added more architectures, Kernel selector, syscall descriptions and a few other niceties. It should work a bit better on mobile devices too but I am no CSS expert. The API is at https",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-11-02，抓取时 238 分 / 58 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://syscall.sh/",
+    "website": "https://syscall.sh",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "50334704",
+    "hn_role": "lead",
+    "hn_title": "Show HN: I've updated my Linux System Call website and API",
+    "hn_points": 238,
+    "hn_comments": 58,
+    "hn_created_at": "2026-11-02",
+    "hn_discussion": "https://news.ycombinator.com/item?id=50334704",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-11-02",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=50334704",
+      "latest": "https://news.ycombinator.com/latest?id=50334704",
+      "from": "https://news.ycombinator.com/from?site=syscall.sh"
+    }
+  },
+  {
+    "id": "hn-50362963",
+    "name": "Vegetable Gardening for Engineers",
+    "name_en": "Vegetable Gardening for Engineers",
+    "origin": "",
+    "one_liner": "Show HN: Vegetable Gardening for Engineers",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-11-04，抓取时 219 分 / 43 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://jrcpl.us/contrib/2020/gardening-for-engineers/",
+    "website": "https://jrcpl.us",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "50362963",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Vegetable Gardening for Engineers",
+    "hn_points": 219,
+    "hn_comments": 43,
+    "hn_created_at": "2026-11-04",
+    "hn_discussion": "https://news.ycombinator.com/item?id=50362963",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-11-04",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=50362963",
+      "latest": "https://news.ycombinator.com/latest?id=50362963",
+      "from": "https://news.ycombinator.com/from?site=jrcpl.us"
+    }
+  },
+  {
+    "id": "hn-50333877",
+    "name": "HackerHack",
+    "name_en": "HackerHack",
+    "origin": "",
+    "one_liner": "No AI used for this btw.",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-11-02，抓取时 185 分 / 25 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://news.ycombinator.com/",
+    "website": "https://news.ycombinator.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "50333877",
+    "hn_role": "lead",
+    "hn_title": "Show HN: HackerHack – HackerBooks but for Posts Posted on HN",
+    "hn_points": 185,
+    "hn_comments": 25,
+    "hn_created_at": "2026-11-02",
+    "hn_discussion": "https://news.ycombinator.com/item?id=50333877",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-11-02",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=50333877",
+      "latest": "https://news.ycombinator.com/latest?id=50333877",
+      "from": "https://news.ycombinator.com/from?site=news.ycombinator.com"
+    }
+  },
+  {
+    "id": "hn-50378643",
+    "name": "Firenook",
+    "name_en": "Firenook",
+    "origin": "",
+    "one_liner": "Hi HN, we have been developing with Firebase for a long time, and the only way Firebase developers can build apps without directly costing them is using the official Firebase Emulator Suite. However, the issue with this suite is, it's depen",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-11-05，抓取时 176 分 / 30 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://firenook.dev/",
+    "website": "https://firenook.dev",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "50378643",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Firenook – Firebase emulators in Rust: 40× faster writes, 10× less RAM",
+    "hn_points": 176,
+    "hn_comments": 30,
+    "hn_created_at": "2026-11-05",
+    "hn_discussion": "https://news.ycombinator.com/item?id=50378643",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-11-05",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=50378643",
+      "latest": "https://news.ycombinator.com/latest?id=50378643",
+      "from": "https://news.ycombinator.com/from?site=firenook.dev"
+    }
+  },
+  {
+    "id": "hn-50439000",
+    "name": "A 15 MB self-hosted Netflix and Spotify for your media server",
+    "name_en": "A 15 MB self-hosted Netflix and Spotify for your media server",
+    "origin": "",
+    "one_liner": "Show HN: A 15 MB self-hosted Netflix and Spotify for your media server",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-11-10，抓取时 168 分 / 137 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://github.com/HolyArrs/HolyArrs",
+    "website": "https://github.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "50439000",
+    "hn_role": "lead",
+    "hn_title": "Show HN: A 15 MB self-hosted Netflix and Spotify for your media server",
+    "hn_points": 168,
+    "hn_comments": 137,
+    "hn_created_at": "2026-11-10",
+    "hn_discussion": "https://news.ycombinator.com/item?id=50439000",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-11-10",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=50439000",
+      "latest": "https://news.ycombinator.com/latest?id=50439000",
+      "from": "https://news.ycombinator.com/from?site=github.com"
+    }
+  },
+  {
+    "id": "hn-50449891",
+    "name": "Black Ops II statically recompiled to native ARM64 macOS",
+    "name_en": "Black Ops II statically recompiled to native ARM64 macOS",
+    "origin": "",
+    "one_liner": "I grew up with Black Ops 2 and wanted to see if I could make it work on my 2020 MacBook Pro. So I used Claude Opus 5.5 to create a tool that converts your copy of the game (from Steam) to a native ARM64 Mac app, with almost 60fps in all are",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-11-11，抓取时 149 分 / 66 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://github.com/adrbn/bo2-mac",
+    "website": "https://github.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "50449891",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Black Ops II statically recompiled to native ARM64 macOS",
+    "hn_points": 149,
+    "hn_comments": 66,
+    "hn_created_at": "2026-11-11",
+    "hn_discussion": "https://news.ycombinator.com/item?id=50449891",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-11-11",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=50449891",
+      "latest": "https://news.ycombinator.com/latest?id=50449891",
+      "from": "https://news.ycombinator.com/from?site=github.com"
+    }
+  },
+  {
+    "id": "hn-50358352",
+    "name": "Uncracked City, detective game where you question LLM suspects that lie",
+    "name_en": "Uncracked City, detective game where you question LLM suspects that lie",
+    "origin": "",
+    "one_liner": "To give you some context on the project. I'm a solo founder and I use AI heavily in my work. The idea came from wanting players to discover cities. Each city has its own history, so every case is set in a real city with real public places. ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-11-03，抓取时 128 分 / 70 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://uncracked.city",
+    "website": "https://uncracked.city",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "50358352",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Uncracked City, detective game where you question LLM suspects that lie",
+    "hn_points": 128,
+    "hn_comments": 70,
+    "hn_created_at": "2026-11-03",
+    "hn_discussion": "https://news.ycombinator.com/item?id=50358352",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-11-03",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=50358352",
+      "latest": "https://news.ycombinator.com/latest?id=50358352",
+      "from": "https://news.ycombinator.com/from?site=uncracked.city"
+    }
+  },
+  {
+    "id": "hn-50427934",
+    "name": "DBDelve",
+    "name_en": "DBDelve",
+    "origin": "",
+    "one_liner": "Hi HN, I’m Shayan and a few months ago I started building a DB Client DBDelve with a focus on performance and just making something that feels good to use (in the spirit of Zed, Ghostty, and other tools that just feel pleasant to use). For ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-11-09，抓取时 124 分 / 49 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://news.ycombinator.com/item?id=50427934",
+    "website": "https://news.ycombinator.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "50427934",
+    "hn_role": "lead",
+    "hn_title": "Show HN: DBDelve – Open-Source DB Client Made with Rust and GPUI",
+    "hn_points": 124,
+    "hn_comments": 49,
+    "hn_created_at": "2026-11-09",
+    "hn_discussion": "https://news.ycombinator.com/item?id=50427934",
+    "hn_flags": [
+      "no_url:纯文字帖（README: 无 URL 隐性降权）"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-11-09",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=50427934",
+      "latest": "https://news.ycombinator.com/latest?id=50427934",
+      "from": "https://news.ycombinator.com/from?site=news.ycombinator.com"
+    }
+  },
+  {
+    "id": "hn-50421155",
+    "name": "Flide",
+    "name_en": "Flide",
+    "origin": "",
+    "one_liner": "Decision models need their own inference engine. So we developed Flide, a high-performance and exact inference engine for Jev-like decision models. Flide achieves up to a 9.5x speedup over vLLM and SGLang. It now supports 30+ popular local ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-11-09，抓取时 124 分 / 30 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://github.com/OmniJev/Flide",
+    "website": "https://github.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "50421155",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Flide: Make Jev-like decision models up to 9.5x faster",
+    "hn_points": 124,
+    "hn_comments": 30,
+    "hn_created_at": "2026-11-09",
+    "hn_discussion": "https://news.ycombinator.com/item?id=50421155",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-11-09",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=50421155",
+      "latest": "https://news.ycombinator.com/latest?id=50421155",
+      "from": "https://news.ycombinator.com/from?site=github.com"
+    }
+  },
+  {
+    "id": "hn-50366929",
+    "name": "I built a tool that prices a pre-built PC part by part",
+    "name_en": "I built a tool that prices a pre-built PC part by part",
+    "origin": "",
+    "one_liner": "I've missed out on an awesome computer that I could use for a project because figuring out value took too long. Users paste a listing and receive a value grade, dated component estimates and a shareable report. AI reads the listing but my c",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-11-04，抓取时 122 分 / 86 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://pcdealcheck.com/",
+    "website": "https://pcdealcheck.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "50366929",
+    "hn_role": "lead",
+    "hn_title": "Show HN: I built a tool that prices a pre-built PC part by part",
+    "hn_points": 122,
+    "hn_comments": 86,
+    "hn_created_at": "2026-11-04",
+    "hn_discussion": "https://news.ycombinator.com/item?id=50366929",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-11-04",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=50366929",
+      "latest": "https://news.ycombinator.com/latest?id=50366929",
+      "from": "https://news.ycombinator.com/from?site=pcdealcheck.com"
+    }
+  },
+  {
+    "id": "hn-50429636",
+    "name": "MeowDisplay Is iPhone Mirroring, but in Reverse",
+    "name_en": "MeowDisplay Is iPhone Mirroring, but in Reverse",
+    "origin": "",
+    "one_liner": "Hey HN and Cats, thank you for checking this out! Github: https://github.com/raiseCatError/meowdisplay EDIT 2: I should've mentioned that MeowDisplay started as a fork of OpenDisplay: https://github.com/peetzweg/opendisplay which provided t",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-11-09，抓取时 120 分 / 45 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://meowdisplay.app/",
+    "website": "https://meowdisplay.app",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "50429636",
+    "hn_role": "lead",
+    "hn_title": "Show HN: MeowDisplay Is iPhone Mirroring, but in Reverse",
+    "hn_points": 120,
+    "hn_comments": 45,
+    "hn_created_at": "2026-11-09",
+    "hn_discussion": "https://news.ycombinator.com/item?id=50429636",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-11-09",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=50429636",
+      "latest": "https://news.ycombinator.com/latest?id=50429636",
+      "from": "https://news.ycombinator.com/from?site=meowdisplay.app"
+    }
+  },
+  {
+    "id": "hn-50414117",
+    "name": "Ghanaian street games you can play in the browser",
+    "name_en": "Ghanaian street games you can play in the browser",
+    "origin": "",
+    "one_liner": "Show HN: Ghanaian street games you can play in the browser",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-11-08，抓取时 115 分 / 22 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://www.ghanastreetgames.com/",
+    "website": "https://ghanastreetgames.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "50414117",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Ghanaian street games you can play in the browser",
+    "hn_points": 115,
+    "hn_comments": 22,
+    "hn_created_at": "2026-11-08",
+    "hn_discussion": "https://news.ycombinator.com/item?id=50414117",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-11-08",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=50414117",
+      "latest": "https://news.ycombinator.com/latest?id=50414117",
+      "from": "https://news.ycombinator.com/from?site=ghanastreetgames.com"
+    }
+  },
+  {
+    "id": "hn-50429812",
+    "name": "Someone Was Here",
+    "name_en": "Someone Was Here",
+    "origin": "",
+    "one_liner": "Many thanks to my ex for inspiring my new MacOS app, Someone Was Here. It takes a photo of whoever uses your Mac while you're away, whether you left it unlocked or they know your password, and sends their photo to your iPhone if the face is",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-11-09，抓取时 115 分 / 46 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://someonewashere.app/",
+    "website": "https://someonewashere.app",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "50429812",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Someone Was Here – Find out who used your Mac while you were away",
+    "hn_points": 115,
+    "hn_comments": 46,
+    "hn_created_at": "2026-11-09",
+    "hn_discussion": "https://news.ycombinator.com/item?id=50429812",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-11-09",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=50429812",
+      "latest": "https://news.ycombinator.com/latest?id=50429812",
+      "from": "https://news.ycombinator.com/from?site=someonewashere.app"
+    }
+  },
+  {
+    "id": "hn-50429144",
+    "name": "STE80 Humanizer",
+    "name_en": "STE80 Humanizer",
+    "origin": "",
+    "one_liner": "Show HN: STE80 Humanizer – de-AI text by writing 80% of the way to ASD-STE100",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-11-09，抓取时 112 分 / 43 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://github.com/Dodaios/ste80-humanizer",
+    "website": "https://github.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "50429144",
+    "hn_role": "lead",
+    "hn_title": "Show HN: STE80 Humanizer – de-AI text by writing 80% of the way to ASD-STE100",
+    "hn_points": 112,
+    "hn_comments": 43,
+    "hn_created_at": "2026-11-09",
+    "hn_discussion": "https://news.ycombinator.com/item?id=50429144",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-11-09",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=50429144",
+      "latest": "https://news.ycombinator.com/latest?id=50429144",
+      "from": "https://news.ycombinator.com/from?site=github.com"
+    }
+  },
+  {
+    "id": "hn-50358314",
+    "name": "Kairos",
+    "name_en": "Kairos",
+    "origin": "",
+    "one_liner": "Hey HN, Ayan here from Finic. We’re launching Kairos, an open source alternative to Sift, Sardine, and other real-time fraud decisioning platforms. Kairos addresses two of the biggest problems facing traditional decisioning tools: a lack of",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-11-03，抓取时 107 分 / 37 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://github.com/finic-ai/kairos",
+    "website": "https://github.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "50358314",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Kairos – Open-source risk and fraud decisioning platform",
+    "hn_points": 107,
+    "hn_comments": 37,
+    "hn_created_at": "2026-11-03",
+    "hn_discussion": "https://news.ycombinator.com/item?id=50358314",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-11-03",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=50358314",
+      "latest": "https://news.ycombinator.com/latest?id=50358314",
+      "from": "https://news.ycombinator.com/from?site=github.com"
+    }
+  },
+  {
+    "id": "hn-50453229",
+    "name": "Godbolt-in-a-floating-window for Neovim (C, C++, Rust)",
+    "name_en": "Godbolt-in-a-floating-window for Neovim (C, C++, Rust)",
+    "origin": "",
+    "one_liner": "No internet connection needed. Uses a locally-installed compiler for assembly generation.",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-11-11，抓取时 104 分 / 20 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://github.com/0xdeadf1sh/AssemblyForNeovim",
+    "website": "https://github.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "50453229",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Godbolt-in-a-floating-window for Neovim (C, C++, Rust)",
+    "hn_points": 104,
+    "hn_comments": 20,
+    "hn_created_at": "2026-11-11",
+    "hn_discussion": "https://news.ycombinator.com/item?id=50453229",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-11-11",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=50453229",
+      "latest": "https://news.ycombinator.com/latest?id=50453229",
+      "from": "https://news.ycombinator.com/from?site=github.com"
+    }
+  },
+  {
+    "id": "hn-41710227",
+    "name": "A real time AI video agent with under 1 second of latency",
+    "name_en": "A real time AI video agent with under 1 second of latency",
+    "origin": "",
+    "one_liner": "Hey it’s Hassaan & Quinn – co-founders of Tavus, an AI research company and developer platform for video APIs. We’ve been building AI video models for ‘digital twins’ or ‘avatars’ since 2020. We’re sharing some of the challenges we faced bu",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2024-10-01，抓取时 455 分 / 256 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://news.ycombinator.com/item?id=41710227",
+    "website": "https://news.ycombinator.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "41710227",
+    "hn_role": "lead",
+    "hn_title": "Show HN: A real time AI video agent with under 1 second of latency",
+    "hn_points": 455,
+    "hn_comments": 256,
+    "hn_created_at": "2024-10-01",
+    "hn_discussion": "https://news.ycombinator.com/item?id=41710227",
+    "hn_flags": [
+      "no_url:纯文字帖（README: 无 URL 隐性降权）"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2024-10-01",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=41710227",
+      "latest": "https://news.ycombinator.com/latest?id=41710227",
+      "from": "https://news.ycombinator.com/from?site=news.ycombinator.com"
+    }
+  },
+  {
+    "id": "hn-50018817",
+    "name": "Let your AI agents paint big arrows, boxes and text on your screen",
+    "name_en": "Let your AI agents paint big arrows, boxes and text on your screen",
+    "origin": "",
+    "one_liner": "Show HN: Let your AI agents paint big arrows, boxes and text on your screen",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-10-09，抓取时 421 分 / 194 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://github.com/franzenzenhofer/big-arrow-on-the-screen",
+    "website": "https://github.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "50018817",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Let your AI agents paint big arrows, boxes and text on your screen",
+    "hn_points": 421,
+    "hn_comments": 194,
+    "hn_created_at": "2026-10-09",
+    "hn_discussion": "https://news.ycombinator.com/item?id=50018817",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-10-09",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=50018817",
+      "latest": "https://news.ycombinator.com/latest?id=50018817",
+      "from": "https://news.ycombinator.com/from?site=github.com"
+    }
+  },
+  {
+    "id": "hn-48308376",
+    "name": "Continue? Y/N",
+    "name_en": "Continue? Y/N",
+    "origin": "",
+    "one_liner": "Show HN: Continue? Y/N: A 60-second game about AI agent permission fatigue",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-05-28，抓取时 386 分 / 162 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://llmgame.scalex.dev",
+    "website": "https://llmgame.scalex.dev",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "48308376",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Continue? Y/N: A 60-second game about AI agent permission fatigue",
+    "hn_points": 386,
+    "hn_comments": 162,
+    "hn_created_at": "2026-05-28",
+    "hn_discussion": "https://news.ycombinator.com/item?id=48308376",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-05-28",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=48308376",
+      "latest": "https://news.ycombinator.com/latest?id=48308376",
+      "from": "https://news.ycombinator.com/from?site=llmgame.scalex.dev"
+    }
+  },
+  {
+    "id": "hn-48834924",
+    "name": "Microsoft releases Flint, a visualization language for AI agents",
+    "name_en": "Microsoft releases Flint, a visualization language for AI agents",
+    "origin": "",
+    "one_liner": "Data visualizations are the bridge between user and data. But building AI agents that can generate visualizations reliably can be very tricky: - simple chart specs can be reliable, but generated charts are often of low quality due to relian",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-07-08，抓取时 350 分 / 137 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://microsoft.github.io/flint-chart/#/",
+    "website": "https://microsoft.github.io",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "48834924",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Microsoft releases Flint, a visualization language for AI agents",
+    "hn_points": 350,
+    "hn_comments": 137,
+    "hn_created_at": "2026-07-08",
+    "hn_discussion": "https://news.ycombinator.com/item?id=48834924",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-07-08",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=48834924",
+      "latest": "https://news.ycombinator.com/latest?id=48834924",
+      "from": "https://news.ycombinator.com/from?site=microsoft.github.io"
+    }
+  },
+  {
+    "id": "hn-47536761",
+    "name": "I put an AI agent on a $7/month VPS with IRC as its transport layer",
+    "name_en": "I put an AI agent on a $7/month VPS with IRC as its transport layer",
+    "origin": "",
+    "one_liner": "The stack: two agents on separate boxes. The public one (nullclaw) is a 678 KB Zig binary using ~1 MB RAM, connected to an Ergo IRC server. Visitors talk to it via a gamja web client embedded in my site. The private one (ironclaw) handles e",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-03-26，抓取时 340 分 / 96 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://georgelarson.me/writing/2026-03-23-nullclaw-doorman/",
+    "website": "https://georgelarson.me",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "47536761",
+    "hn_role": "lead",
+    "hn_title": "Show HN: I put an AI agent on a $7/month VPS with IRC as its transport layer",
+    "hn_points": 340,
+    "hn_comments": 96,
+    "hn_created_at": "2026-03-26",
+    "hn_discussion": "https://news.ycombinator.com/item?id=47536761",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-03-26",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=47536761",
+      "latest": "https://news.ycombinator.com/latest?id=47536761",
+      "from": "https://news.ycombinator.com/from?site=georgelarson.me"
+    }
+  },
+  {
+    "id": "hn-43710576",
+    "name": "Plandex v2",
+    "name_en": "Plandex v2",
+    "origin": "",
+    "one_liner": "Hey HN! I’m Dane, the creator of Plandex ( https://github.com/plandex-ai/plandex ), an open source AI coding agent focused especially on tackling large tasks in real world software projects. You can watch a 2 minute demo of Plandex in actio",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2025-04-16，抓取时 257 分 / 81 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://github.com/plandex-ai/plandex",
+    "website": "https://github.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "43710576",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Plandex v2 – open source AI coding agent for large projects and tasks",
+    "hn_points": 257,
+    "hn_comments": 81,
+    "hn_created_at": "2025-04-16",
+    "hn_discussion": "https://news.ycombinator.com/item?id=43710576",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2025-04-16",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=43710576",
+      "latest": "https://news.ycombinator.com/latest?id=43710576",
+      "from": "https://news.ycombinator.com/from?site=github.com"
+    }
+  },
+  {
+    "id": "hn-43988381",
+    "name": "Muscle-Mem, a behavior cache for AI agents",
+    "name_en": "Muscle-Mem, a behavior cache for AI agents",
+    "origin": "",
+    "one_liner": "Hi HN! Erik here from Pig.dev, and today I'd like to share a new project we've just open sourced: Muscle Mem is an SDK that records your agent's tool-calling patterns as it solves tasks, and will deterministically replay those learned traje",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2025-05-14，抓取时 226 分 / 51 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://github.com/pig-dot-dev/muscle-mem",
+    "website": "https://github.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "43988381",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Muscle-Mem, a behavior cache for AI agents",
+    "hn_points": 226,
+    "hn_comments": 51,
+    "hn_created_at": "2025-05-14",
+    "hn_discussion": "https://news.ycombinator.com/item?id=43988381",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2025-05-14",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=43988381",
+      "latest": "https://news.ycombinator.com/latest?id=43988381",
+      "from": "https://news.ycombinator.com/from?site=github.com"
+    }
+  },
+  {
+    "id": "hn-47491466",
+    "name": "Cq",
+    "name_en": "Cq",
+    "origin": "",
+    "one_liner": "Hi all, I'm Peter at Staff Engineer and Mozilla.ai and I want to share our idea for a standard for shared agent learning, conceptually it seemed to fit easily in my mental model as a Stack Overflow for agents. The project is trying to see i",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-03-23，抓取时 225 分 / 103 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://blog.mozilla.ai/cq-stack-overflow-for-agents/",
+    "website": "https://blog.mozilla.ai",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "47491466",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Cq – Stack Overflow for AI coding agents",
+    "hn_points": 225,
+    "hn_comments": 103,
+    "hn_created_at": "2026-03-23",
+    "hn_discussion": "https://news.ycombinator.com/item?id=47491466",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-03-23",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=47491466",
+      "latest": "https://news.ycombinator.com/latest?id=47491466",
+      "from": "https://news.ycombinator.com/from?site=blog.mozilla.ai"
+    }
+  },
+  {
+    "id": "hn-47149586",
+    "name": "A real-time strategy game that AI agents can play",
+    "name_en": "A real-time strategy game that AI agents can play",
+    "origin": "",
+    "one_liner": "I've liked all the projects that put LLMs into game environments. It's been a weird juxtaposition, though: frontier LLMs can one-shot full coding projects, and those same models struggle to get out of Pokémon Red's Mt. Moon. Because of this",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-02-25，抓取时 220 分 / 78 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://llmskirmish.com/",
+    "website": "https://llmskirmish.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "47149586",
+    "hn_role": "lead",
+    "hn_title": "Show HN: A real-time strategy game that AI agents can play",
+    "hn_points": 220,
+    "hn_comments": 78,
+    "hn_created_at": "2026-02-25",
+    "hn_discussion": "https://news.ycombinator.com/item?id=47149586",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-02-25",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=47149586",
+      "latest": "https://news.ycombinator.com/latest?id=47149586",
+      "from": "https://news.ycombinator.com/from?site=llmskirmish.com"
+    }
+  },
+  {
+    "id": "hn-46946593",
+    "name": "AI agents play SimCity through a REST API",
+    "name_en": "AI agents play SimCity through a REST API",
+    "origin": "",
+    "one_liner": "This is a weekend project that spiraled out of control. I was originally trying to get Claude to play a ROM of the SNES SimCity. I struggled with it and that led me to Micropolis (the open-sourced SimCity engine) and was able to get it to w",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-02-09，抓取时 216 分 / 72 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://hallucinatingsplines.com",
+    "website": "https://hallucinatingsplines.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "46946593",
+    "hn_role": "lead",
+    "hn_title": "Show HN: AI agents play SimCity through a REST API",
+    "hn_points": 216,
+    "hn_comments": 72,
+    "hn_created_at": "2026-02-09",
+    "hn_discussion": "https://news.ycombinator.com/item?id=46946593",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-02-09",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=46946593",
+      "latest": "https://news.ycombinator.com/latest?id=46946593",
+      "from": "https://news.ycombinator.com/from?site=hallucinatingsplines.com"
+    }
+  },
+  {
+    "id": "hn-46611348",
+    "name": "OSS AI agent that indexes and searches the Epstein files",
+    "name_en": "OSS AI agent that indexes and searches the Epstein files",
+    "origin": "",
+    "one_liner": "Hi HN, I built an open-source AI agent that has already indexed and can search the entire Epstein files, roughly 100M words of publicly released documents. The goal was simple: make a large, messy corpus of PDFs and text files immediately s",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-01-14，抓取时 211 分 / 97 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://epstein.trynia.ai/",
+    "website": "https://epstein.trynia.ai",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "46611348",
+    "hn_role": "lead",
+    "hn_title": "Show HN: OSS AI agent that indexes and searches the Epstein files",
+    "hn_points": 211,
+    "hn_comments": 97,
+    "hn_created_at": "2026-01-14",
+    "hn_discussion": "https://news.ycombinator.com/item?id=46611348",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-01-14",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=46611348",
+      "latest": "https://news.ycombinator.com/latest?id=46611348",
+      "from": "https://news.ycombinator.com/from?site=epstein.trynia.ai"
+    }
+  },
+  {
+    "id": "hn-44533004",
+    "name": "Vibe Kanban",
+    "name_en": "Vibe Kanban",
+    "origin": "",
+    "one_liner": "Hey HN! I'm Louis, one of the creators of Vibe Kanban. We started working on this a few weeks ago. Personally, I was feeling pretty useless working synchronously with coding agents. The 2-5 minutes that they take to complete their work ofte",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2025-07-11，抓取时 195 分 / 132 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://github.com/BloopAI/vibe-kanban",
+    "website": "https://github.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "44533004",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Vibe Kanban – Kanban board to manage your AI coding agents",
+    "hn_points": 195,
+    "hn_comments": 132,
+    "hn_created_at": "2025-07-11",
+    "hn_discussion": "https://news.ycombinator.com/item?id=44533004",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2025-07-11",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=44533004",
+      "latest": "https://news.ycombinator.com/latest?id=44533004",
+      "from": "https://news.ycombinator.com/from?site=github.com"
+    }
+  },
+  {
+    "id": "hn-43137248",
+    "name": "While the world builds AI Agents, I'm just building calculators",
+    "name_en": "While the world builds AI Agents, I'm just building calculators",
+    "origin": "",
+    "one_liner": "I figured I needed to work on my coding skills before building the next groundbreaking AI app, so I started working on this free tool site. Its basically just an aggregation of various commonly used calculators and unit convertors. Link: ht",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2025-02-22，抓取时 191 分 / 109 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://www.calcverse.live",
+    "website": "https://calcverse.live",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "43137248",
+    "hn_role": "lead",
+    "hn_title": "Show HN: While the world builds AI Agents, I'm just building calculators",
+    "hn_points": 191,
+    "hn_comments": 109,
+    "hn_created_at": "2025-02-22",
+    "hn_discussion": "https://news.ycombinator.com/item?id=43137248",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2025-02-22",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=43137248",
+      "latest": "https://news.ycombinator.com/latest?id=43137248",
+      "from": "https://news.ycombinator.com/from?site=calcverse.live"
+    }
+  },
+  {
+    "id": "hn-37433218",
+    "name": "Rivet",
+    "name_en": "Rivet",
+    "origin": "",
+    "one_liner": "We just launched Rivet, the open-source visual AI programming environment! We built Rivet, because we were building complex AI Agent applications at Ironclad. It unlocked our abilities here, and we're excited to make available to the entire",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2023-09-08，抓取时 176 分 / 30 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://rivet.ironcladapp.com/",
+    "website": "https://rivet.ironcladapp.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "37433218",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Rivet – open-source AI Agent dev env with real-world applications",
+    "hn_points": 176,
+    "hn_comments": 30,
+    "hn_created_at": "2023-09-08",
+    "hn_discussion": "https://news.ycombinator.com/item?id=37433218",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2023-09-08",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=37433218",
+      "latest": "https://news.ycombinator.com/latest?id=37433218",
+      "from": "https://news.ycombinator.com/from?site=rivet.ironcladapp.com"
+    }
+  },
+  {
+    "id": "hn-47353558",
+    "name": "OneCLI",
+    "name_en": "OneCLI",
+    "origin": "",
+    "one_liner": "We built OneCLI because AI agents are being given raw API keys. And it's going about as well as you'd expect. We figured the answer isn't \"don't give agents access,\" it's \"give them access without giving them secrets.\" OneCLI is an open-sou",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-03-12，抓取时 161 分 / 52 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://github.com/onecli/onecli",
+    "website": "https://github.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "47353558",
+    "hn_role": "lead",
+    "hn_title": "Show HN: OneCLI – Vault for AI Agents in Rust",
+    "hn_points": 161,
+    "hn_comments": 52,
+    "hn_created_at": "2026-03-12",
+    "hn_discussion": "https://news.ycombinator.com/item?id=47353558",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-03-12",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=47353558",
+      "latest": "https://news.ycombinator.com/latest?id=47353558",
+      "from": "https://news.ycombinator.com/from?site=github.com"
+    }
+  },
+  {
+    "id": "hn-47499672",
+    "name": "ProofShot",
+    "name_en": "ProofShot",
+    "origin": "",
+    "one_liner": "I use AI agents to build UI features daily. The thing that kept annoying me: the agent writes code but never sees what it actually looks like in the browser. It can’t tell if the layout is broken or if the console is throwing errors. So I b",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-03-24，抓取时 161 分 / 106 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://github.com/AmElmo/proofshot",
+    "website": "https://github.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "47499672",
+    "hn_role": "lead",
+    "hn_title": "Show HN: ProofShot – Give AI coding agents eyes to verify the UI they build",
+    "hn_points": 161,
+    "hn_comments": 106,
+    "hn_created_at": "2026-03-24",
+    "hn_discussion": "https://news.ycombinator.com/item?id=47499672",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-03-24",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=47499672",
+      "latest": "https://news.ycombinator.com/latest?id=47499672",
+      "from": "https://news.ycombinator.com/from?site=github.com"
+    }
+  },
+  {
+    "id": "hn-42299098",
+    "name": "Flow",
+    "name_en": "Flow",
+    "origin": "",
+    "one_liner": "I think graph is a wrong abstraction for building AI agents. Just look at how incredibly hard it is to make routing using LangGraph - conditional edges are a mess. I built Laminar Flow to solve a common frustration with traditional workflow",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2024-12-02，抓取时 160 分 / 50 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://github.com/lmnr-ai/flow",
+    "website": "https://github.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "42299098",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Flow – A dynamic task engine for building AI agents",
+    "hn_points": 160,
+    "hn_comments": 50,
+    "hn_created_at": "2024-12-02",
+    "hn_discussion": "https://news.ycombinator.com/item?id=42299098",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2024-12-02",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=42299098",
+      "latest": "https://news.ycombinator.com/latest?id=42299098",
+      "from": "https://news.ycombinator.com/from?site=github.com"
+    }
+  },
+  {
+    "id": "hn-47336171",
+    "name": "Open-source browser for AI agents",
+    "name_en": "Open-source browser for AI agents",
+    "origin": "",
+    "one_liner": "Hi HN, I forked chromium and built agent-browser-protocol (ABP) after noticing that most browser-agent failures aren’t really about the model misunderstanding the page. Instead, the problem is that the model is reasoning from a stale state.",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-03-11，抓取时 155 分 / 55 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://github.com/theredsix/agent-browser-protocol",
+    "website": "https://github.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "47336171",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Open-source browser for AI agents",
+    "hn_points": 155,
+    "hn_comments": 55,
+    "hn_created_at": "2026-03-11",
+    "hn_discussion": "https://news.ycombinator.com/item?id=47336171",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-03-11",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=47336171",
+      "latest": "https://news.ycombinator.com/latest?id=47336171",
+      "from": "https://news.ycombinator.com/from?site=github.com"
+    }
+  },
+  {
+    "id": "hn-47376584",
+    "name": "GitAgent",
+    "name_en": "GitAgent",
+    "origin": "",
+    "one_liner": "We built GitAgent because we kept seeing the same problem: every agent framework defines agents differently, and switching frameworks means rewriting everything. GitAgent is a spec that defines an AI agent as files in a git repo. Three core",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-03-14，抓取时 147 分 / 39 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://www.gitagent.sh/",
+    "website": "https://gitagent.sh",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "47376584",
+    "hn_role": "lead",
+    "hn_title": "Show HN: GitAgent – An open standard that turns any Git repo into an AI agent",
+    "hn_points": 147,
+    "hn_comments": 39,
+    "hn_created_at": "2026-03-14",
+    "hn_discussion": "https://news.ycombinator.com/item?id=47376584",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-03-14",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=47376584",
+      "latest": "https://news.ycombinator.com/latest?id=47376584",
+      "from": "https://news.ycombinator.com/from?site=gitagent.sh"
+    }
+  },
+  {
+    "id": "hn-46824877",
+    "name": "Amla Sandbox",
+    "name_en": "Amla Sandbox",
+    "origin": "",
+    "one_liner": "WASM sandbox for running LLM-generated code safely. Agents get a bash-like shell and can only call tools you provide, with constraints you define. No Docker, no subprocess, no SaaS — just pip install amla-sandbox",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-01-30，抓取时 146 分 / 73 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://github.com/amlalabs/amla-sandbox",
+    "website": "https://github.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "46824877",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Amla Sandbox – WASM bash shell sandbox for AI agents",
+    "hn_points": 146,
+    "hn_comments": 73,
+    "hn_created_at": "2026-01-30",
+    "hn_discussion": "https://news.ycombinator.com/item?id=46824877",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-01-30",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=46824877",
+      "latest": "https://news.ycombinator.com/latest?id=46824877",
+      "from": "https://news.ycombinator.com/from?site=github.com"
+    }
+  },
+  {
+    "id": "hn-43872761",
+    "name": "Blast",
+    "name_en": "Blast",
+    "origin": "",
+    "one_liner": "Hi HN! BLAST is a high-performance serving engine for browser-augmented LLMs, designed to make deploying web-browsing AI easy, fast, and cost-manageable. The goal with BLAST is to ultimately achieve google search level latencies for tasks t",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2025-05-02，抓取时 145 分 / 66 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://github.com/stanford-mast/blast",
+    "website": "https://github.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "43872761",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Blast – Fast, multi-threaded serving engine for web browsing AI agents",
+    "hn_points": 145,
+    "hn_comments": 66,
+    "hn_created_at": "2025-05-02",
+    "hn_discussion": "https://news.ycombinator.com/item?id=43872761",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2025-05-02",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=43872761",
+      "latest": "https://news.ycombinator.com/latest?id=43872761",
+      "from": "https://news.ycombinator.com/from?site=github.com"
+    }
+  },
+  {
+    "id": "hn-49119274",
+    "name": "What should the GUI for AI agents look like?",
+    "name_en": "What should the GUI for AI agents look like?",
+    "origin": "",
+    "one_liner": "Hi HN! We’re Akilan and Miguel, the creators of MarbleOS. The inspiration for Marble comes from the GUI work at Xerox PARC, the 1984 Macintosh, and later NeXTSTEP, which became the foundation for Mac OS X. Before GUIs, interacting with a co",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-07-31，抓取时 139 分 / 85 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://marbleos.com/demo",
+    "website": "https://marbleos.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "49119274",
+    "hn_role": "lead",
+    "hn_title": "Show HN: What should the GUI for AI agents look like?",
+    "hn_points": 139,
+    "hn_comments": 85,
+    "hn_created_at": "2026-07-31",
+    "hn_discussion": "https://news.ycombinator.com/item?id=49119274",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-07-31",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=49119274",
+      "latest": "https://news.ycombinator.com/latest?id=49119274",
+      "from": "https://news.ycombinator.com/from?site=marbleos.com"
+    }
+  },
+  {
+    "id": "hn-46620358",
+    "name": "Tabstack",
+    "name_en": "Tabstack",
+    "origin": "",
+    "one_liner": "Hi HN, My team and I are building Tabstack to handle the \"web layer\" for AI agents. Launch Post: https://tabstack.ai/blog/intro-browsing-infrastructure-ai-ag... Maintaining a complex infrastructure stack for web browsing is one of the bigge",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-01-14，抓取时 130 分 / 24 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://news.ycombinator.com/item?id=46620358",
+    "website": "https://news.ycombinator.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "46620358",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Tabstack – Browser infrastructure for AI agents (by Mozilla)",
+    "hn_points": 130,
+    "hn_comments": 24,
+    "hn_created_at": "2026-01-14",
+    "hn_discussion": "https://news.ycombinator.com/item?id=46620358",
+    "hn_flags": [
+      "no_url:纯文字帖（README: 无 URL 隐性降权）"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-01-14",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=46620358",
+      "latest": "https://news.ycombinator.com/latest?id=46620358",
+      "from": "https://news.ycombinator.com/from?site=news.ycombinator.com"
+    }
+  },
+  {
+    "id": "hn-48063548",
+    "name": "Git for AI Agents",
+    "name_en": "Git for AI Agents",
+    "origin": "",
+    "one_liner": "hi guys. been working on something i think is fundamentally missing in today's workflow with ai agents. vcs. i find myself struggling with questions that agents can't answer like \"why did you do it?\", \"when did u delete this folder? why?\", ",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-05-08，抓取时 129 分 / 67 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://github.com/regent-vcs/re_gent",
+    "website": "https://github.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "48063548",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Git for AI Agents",
+    "hn_points": 129,
+    "hn_comments": 67,
+    "hn_created_at": "2026-05-08",
+    "hn_discussion": "https://news.ycombinator.com/item?id=48063548",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-05-08",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=48063548",
+      "latest": "https://news.ycombinator.com/latest?id=48063548",
+      "from": "https://news.ycombinator.com/from?site=github.com"
+    }
+  },
+  {
+    "id": "hn-47667672",
+    "name": "Hippo, biologically inspired memory for AI agents",
+    "name_en": "Hippo, biologically inspired memory for AI agents",
+    "origin": "",
+    "one_liner": "Show HN: Hippo, biologically inspired memory for AI agents",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-04-06，抓取时 128 分 / 29 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://github.com/kitfunso/hippo-memory",
+    "website": "https://github.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "47667672",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Hippo, biologically inspired memory for AI agents",
+    "hn_points": 128,
+    "hn_comments": 29,
+    "hn_created_at": "2026-04-06",
+    "hn_discussion": "https://news.ycombinator.com/item?id=47667672",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-04-06",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=47667672",
+      "latest": "https://news.ycombinator.com/latest?id=47667672",
+      "from": "https://news.ycombinator.com/from?site=github.com"
+    }
+  },
+  {
+    "id": "hn-48108778",
+    "name": "Statewright",
+    "name_en": "Statewright",
+    "origin": "",
+    "one_liner": "Agentic problem solving in its current state is very brittle. I fell in love with it, but it creates as many problems as it solves. I'm Ben Cochran, I spent 20+ years in the trenches with full-stack Engineering, DevOps, high performance com",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-05-12，抓取时 126 分 / 59 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://github.com/statewright/statewright",
+    "website": "https://github.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "48108778",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Statewright – Visual state machines that make AI agents reliable",
+    "hn_points": 126,
+    "hn_comments": 59,
+    "hn_created_at": "2026-05-12",
+    "hn_discussion": "https://news.ycombinator.com/item?id=48108778",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-05-12",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=48108778",
+      "latest": "https://news.ycombinator.com/latest?id=48108778",
+      "from": "https://news.ycombinator.com/from?site=github.com"
+    }
+  },
+  {
+    "id": "hn-49145934",
+    "name": "Sprocket",
+    "name_en": "Sprocket",
+    "origin": "",
+    "one_liner": "Hey HN, I am 16y/o and have been working on Sprocket for a while. It's an open-source AI agent that beats every other agent out there at both hardware and software. And here's the best part: Sprocket can (on its own) buy anything from any w",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-08-02，抓取时 124 分 / 15 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://sprocket-demo.spikonado.com",
+    "website": "https://sprocket-demo.spikonado.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "49145934",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Sprocket – The Best AI Agent for Hardware and Software Development",
+    "hn_points": 124,
+    "hn_comments": 15,
+    "hn_created_at": "2026-08-02",
+    "hn_discussion": "https://news.ycombinator.com/item?id=49145934",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-08-02",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=49145934",
+      "latest": "https://news.ycombinator.com/latest?id=49145934",
+      "from": "https://news.ycombinator.com/from?site=sprocket-demo.spikonado.com"
+    }
+  },
+  {
+    "id": "hn-46592344",
+    "name": "Yolobox",
+    "name_en": "Yolobox",
+    "origin": "",
+    "one_liner": "Show HN: Yolobox – Run AI coding agents with full sudo without nuking home dir",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-01-12，抓取时 122 分 / 99 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://github.com/finbarr/yolobox",
+    "website": "https://github.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "46592344",
+    "hn_role": "lead",
+    "hn_title": "Show HN: Yolobox – Run AI coding agents with full sudo without nuking home dir",
+    "hn_points": 122,
+    "hn_comments": 99,
+    "hn_created_at": "2026-01-12",
+    "hn_discussion": "https://news.ycombinator.com/item?id=46592344",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-01-12",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=46592344",
+      "latest": "https://news.ycombinator.com/latest?id=46592344",
+      "from": "https://news.ycombinator.com/from?site=github.com"
+    }
+  },
+  {
+    "id": "hn-44745820",
+    "name": "AgentMail",
+    "name_en": "AgentMail",
+    "origin": "",
+    "one_liner": "Hey HN, we're Haakam, Michael, and Adi. We're building AgentMail ( https://agentmail.to/ ), an API to give AI agents their own email inboxes. We’re not talking about AI for your email, this is email for your AI. We started building email ag",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2025-07-31，抓取时 121 分 / 70 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://chat.agentmail.to/",
+    "website": "https://chat.agentmail.to",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "44745820",
+    "hn_role": "lead",
+    "hn_title": "Show HN: AgentMail – Email infra for AI agents",
+    "hn_points": 121,
+    "hn_comments": 70,
+    "hn_created_at": "2025-07-31",
+    "hn_discussion": "https://news.ycombinator.com/item?id=44745820",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2025-07-31",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=44745820",
+      "latest": "https://news.ycombinator.com/latest?id=44745820",
+      "from": "https://news.ycombinator.com/from?site=chat.agentmail.to"
+    }
+  },
+  {
+    "id": "hn-49867775",
+    "name": "TinyAIArena watch AI agents battle it out",
+    "name_en": "TinyAIArena watch AI agents battle it out",
+    "origin": "",
+    "one_liner": "Did you ever click on an “AI Arena” expecting glorious battle and instead get a boring benchmark? If so, this project is for you: proper life-or-death fights between four models on a picturesque 8×8 grid. May the most intelligent one win! C",
+    "category": "未分类",
+    "verification": "unverified",
+    "metrics": {
+      "headline": "未获取"
+    },
+    "models": [],
+    "note": "HN 线索：发布于 2026-09-27，抓取时 120 分 / 45 条讨论。分数与评论数是发帖后某个时刻的快照，不是现值，也不是收入证据。",
+    "blocking": "尚未人工核实：金额/定价/客户数一律回源官网或原帖核对，HN 自述不可直接采信",
+    "source_url": "https://tinyaiarena.com/",
+    "website": "https://tinyaiarena.com",
+    "harvest_source": "hn",
+    "source_kind": "self_reported",
+    "added_at": "2026-11-13",
+    "hn_id": "49867775",
+    "hn_role": "lead",
+    "hn_title": "Show HN: TinyAIArena watch AI agents battle it out",
+    "hn_points": 120,
+    "hn_comments": 45,
+    "hn_created_at": "2026-09-27",
+    "hn_discussion": "https://news.ycombinator.com/item?id=49867775",
+    "hn_flags": [
+      "healthy:分数高于评论数且带外链"
+    ],
+    "hidden_urls": {
+      "over": "https://news.ycombinator.com/over?points=100",
+      "front": "https://news.ycombinator.com/front?day=2026-09-27",
+      "best": "https://news.ycombinator.com/best",
+      "pool": "https://news.ycombinator.com/pool",
+      "shownew": "https://news.ycombinator.com/shownew",
+      "item": "https://news.ycombinator.com/item?id=49867775",
+      "latest": "https://news.ycombinator.com/latest?id=49867775",
+      "from": "https://news.ycombinator.com/from?site=tinyaiarena.com"
+    }
+  }
+]

@@ -303,7 +303,9 @@ def pick_candidates(cands, limit=None, ids=None, include_small=False,
         blocking = c.get("blocking") or ""
         if name.startswith("（"):                 # （待发现）（方法论）（基准线）…
             continue
-        if "未获取" in head:
+        # HN 证据通道的候选可能仍带「未获取」占位（历史线索），但它已有
+        # 可回源证据，不该被这条「占位条目」规则挡在预核门外（PRD #166）。
+        if "未获取" in head and not c.get("hn_evidence"):
             continue
         if not include_small and "体量太小" in blocking:
             continue
@@ -499,6 +501,16 @@ def map_ai_to_draft(cand, ai, publish_mode, model_name="", ep_tag=""):
                         if ai.get("verification") in VR.VERIFICATION_KEYS else "partial")
     if verification == "stripe" and "stripe" not in kinds:
         verification = "partial"
+
+    # HN 证据通道：等级以人工登记的证据为准。AI 这轮没抓到官方页，
+    # 不代表那条证据不存在 —— 让它把 official 洗成 partial 等于
+    # 「用一次抓取失败否定一次人工回源」。允许 AI 因**发现反证**而降级
+    # （比登记值弱），但不允许它在没有新证据时升级。
+    if str(cand.get("harvest_source") or "") == "hn_evidence":
+        registered = str((cand.get("hn_evidence") or {}).get("verification") or "")
+        if (registered in VR.VERIFICATION_KEYS
+                and VR.LEVEL_RANK.get(verification, 0) > VR.LEVEL_RANK.get(registered, 0)):
+            verification = registered
 
     corrections = []
     for x in (ai.get("corrections") or [])[:4]:
@@ -1161,7 +1173,7 @@ SYSTEM_PROMPT = """你是「拆解海外」案例库的核实研究员。给你�
  "is_business": "yes|no|unknown", "is_business_evidence": "str",
  "solo_possible": "yes|no|unknown", "solo_possible_evidence": "str",
  "verification": "stripe|official|partial|founder|disputed",
- "caliber": "arr|mrr|run_rate|lifetime|annual|gmv|gross|last_30d",
+ "caliber": "arr|mrr|run_rate|lifetime|annual|gmv|gross|last_30d|undisclosed",
  "caliber_reason": "str", "caliber_consistent": bool,
  "number": "写进库的那个数字，带 $ 与单位",
  "sources": [{"label":"str","url":"str","kind":"stripe|official|press|review|founder|secondary"}],

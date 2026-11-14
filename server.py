@@ -480,6 +480,14 @@ def build_payload(include_private=False):
 
     # 已核实 = stripe + official
     verified = by_verification.get("stripe", 0) + by_verification.get("official", 0)
+    # 收入未披露 = 证据只能证产品/定价存在，不能为收入背书。
+    # 它**不计入** verified —— 那个数的语义是「有人看过支付或官方披露」，
+    # 把未披露算进去等于把两个完全不同的承诺混成一个（PRD #166）。
+    undisclosed = sum(
+        1 for c in cases
+        if str((c.get("metrics") or {}).get("caliber") or "") == "undisclosed"
+        or str((c.get("metrics") or {}).get("revenue_status") or "") == "undisclosed"
+    )
 
     # 国内移植可行性排行（由 scripts/score_china_fit.py 写入 cases[].china_fit）
     china_ranked = [c for c in cases if isinstance(c.get("china_fit"), dict)]
@@ -536,6 +544,7 @@ def build_payload(include_private=False):
         "candidates": len(candidates),
         "inbox": len(inbox),
         "verified": verified,
+        "undisclosed": undisclosed,
         "china_scored": len(china_ranked),
         "china_blocked": sum(1 for c in china_ranked if c["china_fit"].get("blocker")),
         "china_top3": china_top3,

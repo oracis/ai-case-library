@@ -98,6 +98,11 @@
     "case_id": "magicslides-app",
     "kind": "ai",
     "at": "2026-11-13 07:27"
+   },
+   {
+    "case_id": "ext-ep-007-openttd",
+    "kind": "game",
+    "at": "2026-11-14 12:50"
    }
   ],
   "csdn": [
@@ -170,6 +175,16 @@
     "case_id": "stan",
     "kind": "ai",
     "at": "2026-11-13 08:22"
+   },
+   {
+    "case_id": "ext-ep-009-lichess",
+    "kind": "game",
+    "at": "2026-11-14 12:52"
+   },
+   {
+    "case_id": "1lookup",
+    "kind": "ai",
+    "at": "2026-11-14 13:16"
    }
   ],
   "wechat": [
@@ -246,6 +261,12 @@
    {
     "at": "2026-11-12 11:46",
     "case_id": "publbee",
+    "kind": "ai",
+    "note": "send-draft FIFO 最久草稿"
+   },
+   {
+    "at": "2026-11-14 13:29",
+    "case_id": "fastwrite-io",
     "kind": "ai",
     "note": "send-draft FIFO 最久草稿"
    }
@@ -357,6 +378,12 @@
    {
     "at": "2026-11-13 07:20",
     "case_id": "ext-ep-010-cataclysm-dark-days-ahead",
+    "kind": "game",
+    "note": "send-draft FIFO 最久草稿"
+   },
+   {
+    "at": "2026-11-14 12:49",
+    "case_id": "ext-ep-011-minetest",
     "kind": "game",
     "note": "send-draft FIFO 最久草稿"
    }

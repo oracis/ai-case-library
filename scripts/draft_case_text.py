@@ -550,6 +550,49 @@ def facts_card(slug, s, md):
     return "\n".join(lines)
 
 
+def hn_facts_card(slug, ev, md):
+    """HN 证据通道的事实卡。
+
+    与 `facts_card()` 的根本区别：那张卡的前提是「收入数字来自 TrustMRR
+    支付侧快照」，这张卡的前提是「收入可能根本没有公开」。所以它第一件事
+    是把「未披露」写成一条**约束**，而不是留空等模型自己脑补。
+    """
+    rev = ev.get("revenue") or {}
+    lines = [
+        "== 人工回源证据（HN 线索，不是 TrustMRR）==",
+        "⚠ 这是人工打开的公开页面，不是支付网关直读；下方「核实等级」只代表"
+        "这条证据能撑到什么程度，不代表我们看过后台。",
+        "产品名 / slug：%s" % slug,
+        "证据链接：%s" % ev.get("evidence_url"),
+        "来源类型：%s；核实等级：%s；登记日：%s"
+        % (ev.get("source_kind"), ev.get("verification"), ev.get("checked_at")),
+    ]
+    if ev.get("note"):
+        lines.append("回源备注：%s" % ev["note"])
+    lines += [
+        "",
+        "-- 收入（不同口径不可混用）--",
+    ]
+    if rev:
+        lines += [
+            "口径：%s；数字：$%s；时点：%s"
+            % (rev.get("caliber"), "{:,.0f}".format(rev.get("value") or 0),
+               rev.get("as_of")),
+            "⚠ 正文引用这个数字时必须同时写口径与「%s」这个时点，不得说成现值；"
+            "不得乘 12、不得换算成其他口径。" % rev.get("as_of"),
+        ]
+    else:
+        lines += [
+            "收入未披露。这是**事实**，不是待补的空格。",
+            "⚠ 正文不得出现任何金额、ARR/MRR 推算、增速、客户数、付费用户数；"
+            "只能写产品做了什么、怎么收费（若定价页可查），以及下面原文里"
+            "出现的事实。",
+        ]
+    if md:
+        lines += ["", "-- 回源正文摘录（只许引用这里出现的事实）--", md[:6000]]
+    return "\n".join(lines)
+
+
 def load_json(path, default):
     if not os.path.exists(path):
         return default
@@ -581,23 +624,40 @@ def save_stage(obj):
     atomicio.write_json(STAGE, obj, indent=2)
 
 
-def draft_one(cid, slug, summ, retries=2):
-    s = lookup_summary(summ, slug, cid) or {}
-    md_path = os.path.join(TM_DIR, slug + ".md")
-    md = ""
-    if os.path.exists(md_path):
-        with open(md_path, "r", encoding="utf-8") as f:
-            md = f.read()
-        # ⚠ 残片也要点名（2026-10-21 补）：抓取被掐断留下的半截档案照样读得
-        #    进来，素材会静默少一半，模型拿残片照样写。fetch_tm_md 现在会重抓
-        #    并原子覆盖，这里只负责把「还没修好」这件事喊出来。
-        if not F.is_complete(md):
-            print("    ⚠ %s 的档案是残片（缺页脚），素材可能不全 —— "
-                  "先跑 python scripts/fetch_tm_md.py 重抓" % slug)
-    if not s and not md:
-        return None, "无素材"
+def draft_one(cid, slug, summ, retries=2, ev=None):
+    """起草一条。`ev` 非空时走 HN 证据通道，不读 TrustMRR 素材目录。
 
-    card = facts_card(slug, s, md)
+    HN 候选没有 `summary.json` 键，也没有 `tmp/tm_md/<slug>.md`，
+    按老路径一律落到「无素材」——那不是素材丢了，是这条证据本来就不在
+    TrustMRR 里（PRD #166）。
+    """
+    if ev:
+        s = {}
+        md = ""
+        tp = str(ev.get("text_path") or "").strip()
+        if tp and os.path.exists(os.path.join(ROOT, tp)):
+            with open(os.path.join(ROOT, tp), "r", encoding="utf-8") as f:
+                md = f.read()
+        if not ev.get("evidence_url"):
+            return None, "HN 证据缺链接（不该走到这里，先查 data/hn_evidence.json）"
+        card = hn_facts_card(slug, ev, md)
+    else:
+        s = lookup_summary(summ, slug, cid) or {}
+        md_path = os.path.join(TM_DIR, slug + ".md")
+        md = ""
+        if os.path.exists(md_path):
+            with open(md_path, "r", encoding="utf-8") as f:
+                md = f.read()
+            # ⚠ 残片也要点名（2026-10-21 补）：抓取被掐断留下的半截档案照样读得
+            #    进来，素材会静默少一半，模型拿残片照样写。fetch_tm_md 现在会重抓
+            #    并原子覆盖，这里只负责把「还没修好」这件事喊出来。
+            if not F.is_complete(md):
+                print("    ⚠ %s 的档案是残片（缺页脚），素材可能不全 —— "
+                      "先跑 python scripts/fetch_tm_md.py 重抓" % slug)
+        if not s and not md:
+            return None, "无素材"
+        card = facts_card(slug, s, md)
+
     src_numbers = extract_numbers(card)
     last = ""
     for attempt in range(retries + 1):
@@ -689,7 +749,8 @@ def revalidate_stage(stage, summ, tm_dir=None, reporter=print):
                 md = f.read()
         if not s and not md:
             skipped += 1
-            reporter("  ⏭ %-34s 素材缺失（无摘要、无 .md），跳过回套" % cid[:34])
+            reporter("  ⏭ %-34s 素材缺失（无摘要、无 .md），跳过回套"
+                     "（源站已下架的补不回来，不是待办）" % cid[:34])
             continue
         card_src = extract_numbers(facts_card(slug, s, md))
         problems = validate(v, card_src, s)
@@ -747,7 +808,10 @@ def main():
 
     ok = fail = 0
     for i, (cid, slug) in enumerate(targets, 1):
-        data, err = draft_one(cid, slug, summ)
+        cand = by_id.get(cid) or {}
+        ev = (cand.get("hn_evidence")
+              if str(cand.get("harvest_source") or "") == "hn_evidence" else None)
+        data, err = draft_one(cid, slug, summ, ev=ev)
         if err:
             fail += 1
             print("  [%d/%d] ✗ %-32s %s" % (i, len(targets), cid[:32], err))

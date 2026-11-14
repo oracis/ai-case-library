@@ -430,7 +430,73 @@ Neither array contains scores.
 
 刻意不收口的例外（不是漏网）：`scripts/test_*.py` 与 `e2e_verify_write.py` 的独立验证 / 写脏再恢复固件（用被测层读就失去独立性）；`verify_case.py` 清场时用 `shutil.copy2` **逐字节还原备份**（要原字节，不是重新序列化）；`tmp/` 下一次性历史脚本是复现证据，不回改。
 
-⚠️ 本层只管「怎么读怎么写」，**不做事实裁定、不改字段口径**。`verification` 同名三义见上文「Same key, three stores, three meanings」。
+⚠️ 本层管「怎么读怎么写」+「谁准写进来」（PRD #164 写盘准入闸），**不做事实裁定、不改字段口径**。`verification` 同名三义见上文「Same key, three stores, three meanings」。
+
+### HN 线索池：与主候选池物理隔离（2026-11-13，PRD #163）
+
+`data/hn_leads.json` 只装 `harvest_source=hn` 的**创始人自述线索**，与
+`data/candidates.json` 的支付侧直读候选分开存。原因是主池下游整套是按
+TrustMRR 形状写死的状态机：`promote_to_candidates.py` 只挑
+`harvest_source=="trustmrr"` + 非空 `trustmrr_slug`；`ai_verify.py` 见
+`metrics.headline="未获取"` 就跳过；`fetch_tm_md.py` 会给 `hn-*` id 拼出
+`trustmrr.com/startup/hn-*.md` 的 404。HN 记录混进主池会让
+`pipeline_status` 跳到 S3，而唯一能补核实草稿的预核把它们全跳过 ⇒
+**永远清不掉的死循环**（#162 误写 / #163 迁出实测）。
+
+| 项 | 口径 |
+|---|---|
+| 唯一消费口 | `scripts/hn_leads.py`（`--apply --yes` 写；`--migrate-from-candidates --yes` 一次性迁移） |
+| 存储实现 | 复用 `candidate_store` 通用层，**每处显式传 `path=LEADS_PATH`**（见上文口径 3）；刻意不另造第二套格式/锁 |
+| 格式 | LF + indent=2 + 无尾换行；`python scripts/candidate_store.py --path data/hn_leads.json --check` |
+| 记录形状 | 顶层 `list[dict]`；`id=hn-<objectID>`、`verification=unverified`、`source_kind=self_reported`、`metrics={"headline":"未获取"}`、附 `hn_*` 线索字段 |
+| 阶段 | `pipeline_status.py` 硬编码只读 `data/candidates.json`、不扫描本文件 ⇒ 线索池**不参与 S0–S7**，主池空了阶段自然回 S7 |
+| 转轨 | 人工回源拿到一手收入证据后，按正常采集流程重新进 inbox、由 `promote_to_candidates` 判定；⛔ 不许把 `harvest_source` 改成 `trustmrr` 伪造来源绕过安全阀 |
+
+`--apply` 三道闸：线索池格式自检（文件不存在视作新建放行）、线索池无
+**未暂存的工作区改动**（`git status` 第二列 `M` 才拦；`A ` / `??` 没有历史
+基线可比，放行）、记录 `hn_role=lead`。写盘一律单条
+`upsert_candidate(path=...)`（持锁，不整本覆盖），**主候选池永远只读**。
+
+#### 写盘准入闸：两路不许倒进同一张表（2026-11-13，PRD #164）
+
+#163 只是把数据迁走，**写入通道本身仍然无闸**：任何脚本都能再调一次
+`upsert_candidate()` 把 HN 线索写回主池。现在在通用层加准入：
+
+| 目标池 | 判定 | 放行 | 拒绝 |
+|---|---|---|---|
+| 主候选池 `data/candidates.json` | `infer_pool()` 默认落这里（含临时路径，保守方向） | `harvest_source=trustmrr`；`harvest_source=hn_evidence`（**必须带 `hn_evidence` 证据块**，PRD #166）；或空串（legacy，`verify_case.py` 脚手架） | `harvest_source=hn`、非 `hn_evidence` 的 `hn-` 前缀 id、`metrics.headline=未获取`、白名单外来源、缺证据块的 `hn_evidence` |
+| 独立线索池 `data/hn_leads.json` | 文件名命中 `hn_leads.json`，或调用方显式 `pool=POOL_LEADS` | `verification=unverified` + `source_kind=self_reported` + `metrics` 无收入数字键 | trustmrr 候选、冒充已核验、带 `mrr`/`arr`/`revenue` 等数字 |
+
+`validate_candidate()` 是纯函数（不联网 / 不读盘 / 不写盘），返回错误列表；
+`upsert_candidate()` 默认 `validate=True`，不合规抛 `ValueError` 且一个字节
+都不写。`save_candidates()` 默认不校验（主流水线自己的整批写通道），外部
+来源写回主池须显式 `validate=True`；`validate=False` 仅供一次性数据修复，
+会往 stderr 留痕。
+
+⛔ 闸只核对**来源标签与字段形状**，不判断数字真假、不改字段口径，也不
+替代 `promote_to_candidates.py:638` 的事实安全阀。它挡的是「无意写错池」；
+要防故意绕过，仍靠 code review + `check_tmp_leaks`。
+
+### HN 证据通道：从线索池到候选池（2026-11-13，PRD #166）
+
+`data/hn_evidence.json` 是**人工回源登记表**，与自动采集的 `hn_leads.json`
+刻意分开：线索重采会整条覆盖，人工批注混进去迟早被冲掉，也没法分辨哪句是
+机器抓的、哪句是人填的。
+
+| 项 | 口径 |
+|---|---|
+| 结构 | `{version, updated_at, items:{hn-<objectID>: {...}}}`；LF + indent=2 + 无尾换行 |
+| 每条字段 | `evidence_url`（必填，http(s)）、`source_kind`（`verify_rules.SOURCE_TIER_KEYS`）、`verification`（**推导值，禁止手填**）、`revenue`（可空）、`caliber`、`text_path`、`checked_at`、`checked_by`、`note` |
+| 有金额 | `revenue={value,caliber,as_of,currency}`；`caliber` ∈ `CALIBER_KEYS` 且 ≠ `undisclosed`；`as_of` 必填（红线 1：金额必须带口径与时点） |
+| 无金额 | `caliber=undisclosed`；`verification` 最高 `founder` —— 官网/官方页只证产品与定价存在，不给「收入已核实」背书 |
+| 等级推导 | `verify_rules.best_supported_level([source_kind])`；`homepage` 局部映射到 `founder`；手改值与推导不一致 ⇒ `--check` 判错 |
+| 写 inbox | `hn_evidence.py --promote <id> --yes` → `harvest_source=hn_evidence`，内嵌 `hn_evidence` 块；按 id 幂等 |
+| 进主池 | `promote_to_candidates.py --ids <id> --write` → `check_one_hn()` 只查证据完整性，**不套 `MIN_MRR`** |
+| 等级保护 | `ai_verify` 对 `hn_evidence` 候选只允许维持或降级，不允许无新证据升级 |
+| 展示 | `metrics.caliber=undisclosed` / `revenue_status=undisclosed`；`stats.undisclosed` 单独计数，**不计入** `stats.verified` |
+
+⛔ `hn_leads.json` 仍不许直接写主池；转轨必须经过本表登记，不许改
+`harvest_source` 伪造 `trustmrr`（#162/#163 的教训不变）。
 
 ---
 
