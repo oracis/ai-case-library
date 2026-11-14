@@ -1,11 +1,73 @@
 {
+  "stealth-rdp": {
+    "title": "Stealth RDP：跨美欧的 Windows/Linux VPS 托管服务",
+    "published_at": "2026-11-13 07:35",
+    "status": "published",
+    "appmsgid": "2247485055",
+    "file": ""
+  },
+  "ext-ep-005-supertux": {
+    "title": "游戏厅：SuperTux",
+    "published_at": "2026-11-12 10:17:16",
+    "status": "published",
+    "appmsgid": "100001219",
+    "file": ""
+  },
+  "wx-100000514": {
+    "title": "把 AI 建站工具生成的网站，转成 WordPress——一个工程师的生意",
+    "published_at": "",
+    "status": "deleted",
+    "appmsgid": "100000514",
+    "file": ""
+  },
+  "wx-100000530": {
+    "title": "Coral：帮你把开源 AI agent 部署、托管、接上各种业务系统，卖的是「配置」，不是模型",
+    "published_at": "2026-11-11 09:03",
+    "status": "published",
+    "appmsgid": "100000530",
+    "file": ""
+  },
+  "wx-wpconvert-clean": {
+    "title": "把 AI 建站工具生成的网站转成 WordPress，是一个工程师就能接住的生意",
+    "published_at": "2026-11-10 15:32",
+    "status": "published",
+    "appmsgid": "100001402",
+    "file": ""
+  },
+  "wx-100000204": {
+    "title": "Meerkats.ai：替营销机构自动跑「找线索 → 补数据 → 个性化触达 → 跟进」的 AI agent",
+    "published_at": "2026-11-09 11:29",
+    "status": "published",
+    "appmsgid": "100000204",
+    "file": ""
+  },
+  "wx-100000212": {
+    "title": "StartClaw：不用买服务器、不用配 API key，就能跑起一个托管 agent",
+    "published_at": "2026-11-08 16:09",
+    "status": "published",
+    "appmsgid": "100000212",
+    "file": ""
+  },
+  "wx-100000267": {
+    "title": "把「我知道要发内容，但没时间写」做成订阅：AI LinkedIn 代写 + 自动发布：给 B2B 顾问做 12 周内容策略",
+    "published_at": "2026-11-07 10:45",
+    "status": "published",
+    "appmsgid": "100000267",
+    "file": ""
+  },
+  "voklit": {
+    "title": "卖海外虚拟号码这门生意，最后为什么停机挂牌",
+    "published_at": "2026-11-04 14:07",
+    "status": "published",
+    "appmsgid": "100000242",
+    "file": ""
+  },
   "wpconvert-ai-convert-ai-sites-to-wordpress": {
     "title": "WPConvert：AI 建站转 WP",
     "published_at": "2026-11-02 20:33",
     "status": "published",
     "appmsgid": "",
-    "file": "",
-    "note": "｜[11-10 对账] 平台回读 is_deleted=false（appmsgid=2247484987 仍在发表记录）；status 由 draft 纠正为 published，误加的 deleted_at 已移除"
+    "file": ""
   },
   "cod-dex": {
     "title": "Codédex：把学编程包装成「冒险旅程」的互动课程平台，免费 250+ 小时内容引流，Club 订阅 /月变现",
@@ -58,63 +120,63 @@
   },
   "verse": {
     "title": "Verse：Verse 以单次提示构建自主 AI 员工。",
-    "published_at": "2026-10-25 01:21",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100001090",
     "file": ""
   },
   "ai-smart-decor": {
     "title": "AI Smart Decor：AI智能室内设计工具，让用户预览装修效果",
-    "published_at": "2026-10-25 01:17",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100001079",
     "file": ""
   },
   "ai-math-solver": {
     "title": "AI Math Solver+：AI数学解题工具，为师生、家长和数学爱好者提供即时解决方案",
-    "published_at": "2026-10-25 01:13",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100001068",
     "file": ""
   },
   "static-run": {
     "title": "Static.run：静态网站托管服务，免费易用",
-    "published_at": "2026-10-25 01:09",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100001057",
     "file": ""
   },
   "roster-for-slack": {
     "title": "Roster for Slack：为 Slack 团队提供持续排班，提升生产力。",
-    "published_at": "2026-10-25 01:04",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100001046",
     "file": ""
   },
   "chatsell-co": {
     "title": "Chatsell.co：为WooCommerce店铺提供自然语言产品搜索和即时答案的AI聊天机器人。",
-    "published_at": "2026-10-25 01:00",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100001035",
     "file": ""
   },
   "demopolish": {
     "title": "DemoPolish：Demopolish帮助软件和SaaS创始人60秒内制作专业演示视频",
-    "published_at": "2026-10-25 00:56",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100001024",
     "file": ""
   },
   "ai-voice-calls": {
     "title": "AI voice calls：AI语音平台，支持50+语言",
-    "published_at": "2026-10-25 00:51",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100001013",
     "file": ""
   },
   "betting-tips": {
     "title": "Betting Tips：为足球、篮球、网球、美式足球和棒球爱好者提供每日专家投注建议",
-    "published_at": "2026-10-25 00:47",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100001002",
     "file": ""
@@ -184,143 +246,139 @@
   },
   "uplinked-b-v": {
     "title": "UpLinked：领英上自动加客户",
-    "published_at": "2026-10-16 07:56",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100000522",
     "file": ""
   },
   "cometly": {
     "title": "Cometly：广告数据归因分析",
-    "published_at": "2026-10-16 07:50",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100000518",
     "file": ""
   },
   "boothie-ai-photo-editor": {
     "title": "Boothie：AI 照片编辑器",
-    "published_at": "2026-10-15 22:34",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100000510",
     "file": ""
   },
   "quotedeck": {
     "title": "QuoteDeck：为保险代理提供专业报价工具",
-    "published_at": "2026-10-14 02:09",
-    "status": "draft",
+    "published_at": "2026-11-14 12:38",
+    "status": "published",
     "appmsgid": "100000506",
-    "file": ""
+    "file": "",
+    "publish_type": "publish",
+    "published_appmsgid": "2247485056",
+    "sent_via": "send",
+    "send_reason": "已发表列表出现新记录，标题一致",
+    "note": "｜publish模式自动发表，新 appmsgid=2247485056",
+    "verified_at": "2026-11-14 12:38"
   },
   "wagiff-app": {
     "title": "Wagiff App：中东北非地区男性用户戒除不良习惯的社交应用",
-    "published_at": "2026-10-14 02:03",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100000502",
     "file": ""
   },
   "pet-plus-us": {
     "title": "Pet Plus Us：AI 生成宠物与主人个性化肖像",
-    "published_at": "2026-10-14 01:58",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100000498",
     "file": ""
   },
   "white-glove-content": {
     "title": "White Glove Content：为创作者和品牌提供社交媒体无脸视频内容订阅服务",
-    "published_at": "2026-10-14 01:52",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100000494",
     "file": ""
   },
-  "stealth-rdp": {
-    "title": "Stealth RDP：跨美欧的 Windows/Linux VPS 托管服务",
-    "published_at": "2026-10-14 01:47",
-    "status": "published",
-    "appmsgid": "100000490",
-    "file": "",
-    "group_sent": true,
-    "synced_at": "2026-11-13 07:44",
-    "sync_note": "远端已发表列表里存在，本地由 sync 回写；[11-13 修复] --case --apply 曾把整本 81 条覆盖成 1 条，已按 .bak 恢复其余 80 条"
-  },
   "homy": {
     "title": "Homy：Mac 文件搜索优化工具，小众市场潜力待挖掘",
-    "published_at": "2026-10-14 01:41",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100000486",
     "file": ""
   },
   "growingupvideo": {
     "title": "GrowingUpVideo：5分钟内将照片变成电影级AI变脸视频",
-    "published_at": "2026-10-14 01:36",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100000482",
     "file": ""
   },
   "macwall": {
     "title": "MacWall：为 Mac 用户提供 4K 电影感动态壁纸的订阅产品",
-    "published_at": "2026-10-14 01:30",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100000478",
     "file": ""
   },
   "fastwrite-io": {
     "title": "fastwrite.io：AI写作工具SaaS，辅助学生学术写作",
-    "published_at": "2026-10-14 01:19",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100000470",
     "file": ""
   },
   "nutria-9e3eaa": {
     "title": "Nutria：AI 卡路里追踪应用",
-    "published_at": "2026-10-14 01:13",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100000466",
     "file": ""
   },
   "vid-ai": {
     "title": "Vid.AI：脚本一键变短视频",
-    "published_at": "2026-10-10 16:55",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100000446",
     "file": ""
   },
   "podawaa": {
     "title": "Podawaa：把 LinkedIn 发布做成订阅",
-    "published_at": "2026-10-10 16:40",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100000440",
     "file": ""
   },
   "publbee": {
     "title": "Publbee：KDP 作者的 AI 工具箱",
-    "published_at": "2026-10-10 16:33",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100000436",
     "file": ""
   },
   "vectosolve": {
     "title": "VectoSolve：位图一键转可编辑 SVG",
-    "published_at": "2026-10-10 16:24",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100000432",
     "file": ""
   },
   "augora-ai": {
     "title": "Augora AI：Shopify 广告追踪自动化",
-    "published_at": "2026-10-10 16:17",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100000428",
     "file": ""
   },
   "harperai": {
     "title": "把英国公开抵押记录连成一张网，然后卖给贷款经纪",
-    "published_at": "2026-10-05 14:22",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100000415",
     "file": ""
   },
   "easymix": {
     "title": "法国录音棚的一单，有人把混音做成了订阅",
-    "published_at": "2026-10-05 14:06",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100000407",
     "file": ""
@@ -376,14 +434,14 @@
   },
   "mort": {
     "title": "MORT：AI 求职代理：盯 5 万个企业招聘页，按简历打分并自动投递",
-    "published_at": "2026-09-30 19:50",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100000329",
     "file": ""
   },
   "quran-unlock": {
     "title": "Quran Unlock：读古兰经解锁其他 App",
-    "published_at": "2026-09-30 17:00",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100000318",
     "file": ""
@@ -397,51 +455,38 @@
   },
   "search1api": {
     "title": "Search1API：不赌哪个 AI 会赢，只卖它们都需要的那次联网",
-    "published_at": "2026-09-25 00:33",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100000279",
     "file": ""
   },
   "le19emetrou": {
     "title": "一笔广告费，卖一支高尔夫开瓶器",
-    "published_at": "2026-09-25 00:27",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100000275",
     "file": ""
   },
   "promptmonitor-io": {
     "title": "品牌开始问「AI 回答里提不提我」，于是有了这门生意",
-    "published_at": "2026-09-25 00:04",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100000259",
     "file": ""
   },
   "divine-widgets": {
     "title": "Divine Widgets：一个人做的圣经小组件，锁屏上每天一句",
-    "published_at": "2026-09-24 23:59",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100000255",
     "file": ""
   },
   "prosp": {
     "title": "PROSP：把 B2B 销售的一整天，压成一个按钮",
-    "published_at": "2026-09-24 23:53",
+    "published_at": "",
     "status": "draft",
     "appmsgid": "100000251",
     "file": ""
-  },
-  "voklit": {
-    "title": "卖海外虚拟号码这门生意，最后为什么停机挂牌",
-    "published_at": "2026-11-04 14:07",
-    "status": "published",
-    "appmsgid": "100000242",
-    "file": "",
-    "publish_type": "publish",
-    "published_appmsgid": "2247484999",
-    "sent_via": "send",
-    "send_reason": "已发表列表出现新记录，标题一致",
-    "note": "｜publish模式自动发表，新 appmsgid=2247484999",
-    "verified_at": "2026-11-04 14:07"
   },
   "comp-ai": {
     "title": "Comp AI：帮公司过 SOC 2 / ISO 27001 合规审计，把六个月的流程压到几周",
@@ -533,54 +578,5 @@
     "status": "published",
     "appmsgid": "",
     "file": ""
-  },
-  "wx-100000267": {
-    "title": "把「我知道要发内容，但没时间写」做成订阅：AI LinkedIn 代写 + 自动发布：给 B2B 顾问做 12 周内容策略",
-    "status": "published",
-    "published_at": "2026-11-07 10:45",
-    "appmsgid": "100000267",
-    "note": "｜publish模式自动发表，新 appmsgid=2247485034",
-    "verified_at": "2026-11-07 10:45"
-  },
-  "wx-100000212": {
-    "title": "StartClaw：不用买服务器、不用配 API key，就能跑起一个托管 agent",
-    "status": "published",
-    "published_at": "2026-11-08 16:09",
-    "appmsgid": "100000212",
-    "note": "｜publish模式自动发表，新 appmsgid=2247485035",
-    "verified_at": "2026-11-08 16:09"
-  },
-  "wx-100000204": {
-    "title": "Meerkats.ai：替营销机构自动跑「找线索 → 补数据 → 个性化触达 → 跟进」的 AI agent",
-    "status": "published",
-    "published_at": "2026-11-09 11:29",
-    "appmsgid": "100000204",
-    "note": "｜publish模式自动发表，新 appmsgid=2247485036",
-    "verified_at": "2026-11-09 11:29"
-  },
-  "wx-100000514": {
-    "title": "把 AI 建站工具生成的网站，转成 WordPress——一个工程师的生意",
-    "status": "deleted",
-    "published_at": null,
-    "appmsgid": "100000514",
-    "note": "｜publish模式自动发表，新 appmsgid=2247485037｜[11-10 对账] 平台 appmsgpublish 回读 is_deleted=true（appmsgid=2247485037）；删除时刻平台未披露，deleted_at 为对账时点；原 published_at=2026-11-10 12:29 已迁出",
-    "verified_at": "2026-11-10 12:29",
-    "deleted_at": "2026-11-10 17:25"
-  },
-  "wx-wpconvert-clean": {
-    "title": "把 AI 建站工具生成的网站转成 WordPress，是一个工程师就能接住的生意",
-    "status": "published",
-    "published_at": "2026-11-10 15:32",
-    "appmsgid": "100001402",
-    "note": "｜publish模式自动发表，新 appmsgid=2247485051",
-    "verified_at": "2026-11-10 15:32"
-  },
-  "wx-100000530": {
-    "title": "Coral：帮你把开源 AI agent 部署、托管、接上各种业务系统，卖的是「配置」，不是模型",
-    "status": "published",
-    "published_at": "2026-11-11 09:03",
-    "appmsgid": "100000530",
-    "note": "｜publish模式自动发表，新 appmsgid=2247485052",
-    "verified_at": "2026-11-11 09:03"
   }
 }

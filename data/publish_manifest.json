@@ -1304,7 +1304,7 @@
  },
  "ext-ep-010-cataclysm-dark-days-ahead": {
   "bilibili2": {
-   "at": "2026-11-13 07:20 草稿箱→发布（send-draft）",
+   "at": "2026-11-13 07:20",
    "attempt": 0,
    "draft_id": "",
    "note": "草稿箱→发布（send-draft）",
@@ -1324,6 +1324,17 @@
   }
  },
  "ext-ep-011-minetest": {
+  "bilibili2": {
+   "at": "2026-11-14 12:49 草稿箱→发布（send-draft）",
+   "attempt": 0,
+   "draft_id": "",
+   "note": "草稿箱→发布（send-draft）",
+   "published_at": "2026-11-14 12:49",
+   "remote_id": "53908680",
+   "state": "published",
+   "title": "Minetest：轻量方块沙盒的引擎与模组体系",
+   "url": ""
+  },
   "toutiao": {
    "at": "2026-10-31 18:51",
    "attempt": 0,
@@ -1335,12 +1346,13 @@
  },
  "fastwrite-io": {
   "bilibili": {
-   "at": "2026-10-14 13:25",
+   "at": "2026-11-14 13:29 草稿箱→发布（send-draft）",
    "attempt": 1,
    "draft_id": "343828",
-   "note": "｜草稿同步(2026-10-14 13:25): title 认领 aid=343828",
-   "remote_id": "343828",
-   "state": "draft",
+   "note": "草稿箱→发布（send-draft）",
+   "published_at": "2026-11-14 13:29",
+   "remote_id": "53909042",
+   "state": "published",
    "title": "fastwrite.io：AI 帮学生写学术文本",
    "url": ""
   },
@@ -2252,7 +2264,7 @@
    "at": "2026-10-14 12:09",
    "attempt": 2,
    "draft_id": "343499",
-   "note": "｜草稿同步(2026-10-14 12:09): body 认领 aid=343499 ｜ [11-11 收尾] published_at 由建稿时点改回真发时点",
+   "note": "｜草稿同步(2026-10-14 12:09): body 认领 aid=343499",
    "published_at": "2026-11-11 08:26:05",
    "remote_id": "53854649",
    "state": "published",
@@ -2394,10 +2406,10 @@
  },
  "publbee": {
   "bilibili": {
-   "at": "2026-11-12 11:46 草稿箱→发布（send-draft）",
+   "at": "2026-11-12 11:47:47",
    "attempt": 2,
    "draft_id": "343500",
-   "note": "草稿箱→发布（send-draft）",
+   "note": "｜草稿同步(2026-10-14 12:12): body 认领 aid=343500｜[11-12 补正] published_at 由建稿时点改回远端真发时点 2026-11-12 11:45:27（免签空间公开列表 publish_time）；草稿 aid 343500 重分配为 53875740",
    "published_at": "2026-11-12 11:45:27",
    "remote_id": "53875740",
    "state": "published",

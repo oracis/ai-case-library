@@ -236,5 +236,14 @@
     "verified_at": "2026-11-12 11:46",
     "evidence": "editor-ui-publish",
     "note": "｜草稿同步(2026-10-14 12:12): body 认领 aid=343500"
+  },
+  {
+    "id": "fastwrite-io",
+    "at": "2026-10-14 13:25",
+    "article_id": "53909042",
+    "title": "fastwrite.io：AI 帮学生写学术文本",
+    "verified_at": "2026-11-14 13:29",
+    "evidence": "editor-ui-publish",
+    "note": "｜草稿同步(2026-10-14 13:25): title 认领 aid=343828"
   }
 ]

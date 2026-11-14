@@ -1,5 +1,116 @@
 {
   "version": 1,
   "updated_at": "2026-11-13",
-  "items": {}
+  "items": {
+    "hn-50340088": {
+      "evidence_url": "https://subvocal.company/preorder",
+      "source_kind": "homepage",
+      "verification": "founder",
+      "revenue": null,
+      "caliber": "undisclosed",
+      "text_path": "",
+      "checked_at": "2026-11-13",
+      "checked_by": "ai-assisted",
+      "note": "官方预购页原话：Total Early Bird price $699→$499；$199 due today, fully refundable；Estimated shipping Q1 2027；Delivery subject to FCC approval。无收入披露；HN 帖内「500 台预购」是创始人自述，不采信"
+    },
+    "hn-50454625": {
+      "evidence_url": "https://www.yogurt.so",
+      "source_kind": "homepage",
+      "verification": "founder",
+      "revenue": null,
+      "caliber": "undisclosed",
+      "text_path": "",
+      "checked_at": "2026-11-13",
+      "checked_by": "ai-assisted",
+      "note": "官网 FAQ 原话：Is Yogurt free? Yes. Yogurt is free and open source under the MIT license.；页首 Backed by Y Combinator；全页无付费档"
+    },
+    "hn-50368208": {
+      "evidence_url": "https://www.linum.ai/about",
+      "source_kind": "homepage",
+      "verification": "founder",
+      "revenue": null,
+      "caliber": "undisclosed",
+      "text_path": "",
+      "checked_at": "2026-11-13",
+      "checked_by": "ai-assisted",
+      "note": "About 页原话：Backed by Y Combinator / a two-person research lab training generative video models from scratch；无定价无收入披露"
+    },
+    "hn-50421155": {
+      "evidence_url": "https://github.com/OmniJev/Flide",
+      "source_kind": "homepage",
+      "verification": "founder",
+      "revenue": null,
+      "caliber": "undisclosed",
+      "text_path": "",
+      "checked_at": "2026-11-13",
+      "checked_by": "ai-assisted",
+      "note": "README 原话：fast inference infrastructure for Jev-style decision models…up to 9.5 times faster than vLLM and SGLang；License: Apache-2.0；无任何商业化信息"
+    },
+    "hn-50358314": {
+      "evidence_url": "https://kairos.finic.ai",
+      "source_kind": "homepage",
+      "verification": "founder",
+      "revenue": null,
+      "caliber": "undisclosed",
+      "text_path": "",
+      "checked_at": "2026-11-13",
+      "checked_by": "ai-assisted",
+      "note": "产品控制台页仅 Sign in to Kairos / No account? Create one，产品真实存在但无公开定价页"
+    },
+    "hn-50429812": {
+      "evidence_url": "https://someonewashere.app",
+      "source_kind": "homepage",
+      "verification": "founder",
+      "revenue": null,
+      "caliber": "undisclosed",
+      "text_path": "",
+      "checked_at": "2026-11-13",
+      "checked_by": "ai-assisted",
+      "note": "官网原话：Hearing about it when you're back is free. Phone Alerts is a one-time $4.99 purchase, no subscription.；Mac 应用本体免费"
+    },
+    "hn-50358352": {
+      "evidence_url": "https://uncracked.city",
+      "source_kind": "homepage",
+      "verification": "founder",
+      "revenue": null,
+      "caliber": "undisclosed",
+      "text_path": "",
+      "checked_at": "2026-11-13",
+      "checked_by": "ai-assisted",
+      "note": "官网：Play in your browser（浏览器直接玩），全页无任何定价/付费入口"
+    },
+    "hn-41710227": {
+      "evidence_url": "https://www.tavus.io/pricing",
+      "source_kind": "homepage",
+      "verification": "founder",
+      "revenue": null,
+      "caliber": "undisclosed",
+      "text_path": "",
+      "checked_at": "2026-11-13",
+      "checked_by": "ai-assisted",
+      "note": "官方定价页：开发者档 Free / Starter $59/mo / Growth $397/mo / Enterprise Custom；PALs 档 $0 / $20/mo；无收入数字。HN 帖即 Tavus 实时视频 agent（帖文链接 tavus.io，作者 Hassaan Raza 为 Tavus 创始人）"
+    },
+    "hn-50018817": {
+      "evidence_url": "https://github.com/franzenzenhofer/big-arrow-on-the-screen",
+      "source_kind": "homepage",
+      "verification": "founder",
+      "revenue": null,
+      "caliber": "undisclosed",
+      "text_path": "",
+      "checked_at": "2026-11-13",
+      "checked_by": "ai-assisted",
+      "note": "README 原话：macOS command-line tool…MIT licensed. Point responsibly.；no account, no telemetry；无商业化信息"
+    },
+    "hn-50470488": {
+      "evidence_url": "https://github.com/simpsoka/zigzag",
+      "source_kind": "homepage",
+      "verification": "founder",
+      "revenue": null,
+      "caliber": "undisclosed",
+      "text_path": "",
+      "checked_at": "2026-11-13",
+      "checked_by": "ai-assisted",
+      "note": "README 原话：Free, open-source embroidery software…with built-in MCP support so AI agents can create and edit designs alongside you；无任何付费/定价信息"
+    }
+  }
 }

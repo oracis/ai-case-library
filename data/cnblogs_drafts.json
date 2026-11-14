@@ -229,5 +229,19 @@
     "url": "https://www.cnblogs.com/thing-explainer/p/23649447",
     "status": "published",
     "ts": "2026-11-13 08:19:11"
+  },
+  "1lookup": {
+    "post_id": "23664155",
+    "title": "1Lookup：把实时校验做成按调用量计费的接口",
+    "url": "https://www.cnblogs.com/thing-explainer/p/23664155",
+    "status": "published",
+    "ts": "2026-11-14 12:53:39"
+  },
+  "ext-ep-009-lichess": {
+    "post_id": "23664293",
+    "title": "Lichess，免费无广告的国际象棋",
+    "url": "https://www.cnblogs.com/thing-explainer/p/23664293",
+    "status": "published",
+    "ts": "2026-11-14 13:13:23"
   }
 }

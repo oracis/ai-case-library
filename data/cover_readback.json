@@ -1,4 +1,13 @@
 {
+ "1lookup": {
+  "tencentcloud": {
+   "at": "2026-11-14 13:51:38",
+   "evidence": "线上文章 2784170 卡片缩略图 background-image=https://developer.qcloudimg.com/http-save/yehe-12743977/f3f1536df63fb1b9bb8457b8b0aa7613.jpg",
+   "remote_id": "2784170",
+   "source": "yun_finalize",
+   "state": "ok"
+  }
+ },
  "autoreels-ai": {
   "tencentcloud": {
    "at": "2026-11-09 11:14:02",
@@ -41,6 +50,13 @@
   }
  },
  "ext-ep-004-quake": {
+  "aliyun": {
+   "at": "2026-11-14 12:44:15",
+   "evidence": "文章首图 firstImg=https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_ea05b83853f7471fa3c79607461a2bc9.png",
+   "remote_id": "1783543",
+   "source": "yun_finalize",
+   "state": "ok"
+  },
   "bilibili2": {
    "at": "2026-11-06 15:47:13",
    "evidence": "aid=376917 image_urls=http://article.biliimg.com/bfs/article/01155699ed322d5fce2403adfdefccb8aaa66a7b.jpg",
@@ -136,6 +152,13 @@
    "evidence": "aid=376925 image_urls=http://article.biliimg.com/bfs/article/e26d98350e53fbce1a98151d06f8f083d2afc8d4.jpg",
    "source": "live",
    "state": "ok"
+  },
+  "tencentcloud": {
+   "at": "2026-11-14 12:46:57",
+   "evidence": "线上文章 2784145 卡片缩略图 background-image=https://developer.qcloudimg.com/http-save/yehe-12743977/d1552c742e1b6562f42bc931e7b5d32b.jpg",
+   "remote_id": "2784145",
+   "source": "yun_finalize",
+   "state": "ok"
   }
  },
  "ext-ep-011-minetest": {
@@ -149,6 +172,13 @@
    "at": "2026-11-06 15:49:24",
    "evidence": "aid=376927 image_urls=http://article.biliimg.com/bfs/article/42586b262489ac1d1e930cd0cd499bef86c81cb9.jpg",
    "source": "live",
+   "state": "ok"
+  },
+  "tencentcloud": {
+   "at": "2026-11-14 13:54:26",
+   "evidence": "线上文章 2784172 卡片缩略图 background-image=https://developer.qcloudimg.com/http-save/yehe-12743977/e60a07bf3536efe3426c95c5e64eec25.jpg",
+   "remote_id": "2784172",
+   "source": "yun_finalize",
    "state": "ok"
   }
  },

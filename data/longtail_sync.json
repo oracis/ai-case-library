@@ -900,5 +900,69 @@
   "cover": "https://case.ydtgo.top/covers/flodesk.png",
   "via": "cdp-9228",
   "ts": "2026-11-13 08:23:49"
+ },
+ "ext-ep-004-quake-2026-11-14-1": {
+  "case": "ext-ep-004-quake",
+  "title": "Quake，1999 年开源的雷神之锤",
+  "platforms": {
+   "aliyun": {
+    "ok": false,
+    "err": "等不到阿里云编辑器（#title 不出现）"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-14 12:42:26"
+ },
+ "ext-ep-004-quake-2026-11-14-2": {
+  "case": "ext-ep-004-quake",
+  "title": "Quake，1999 年开源的雷神之锤",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1717048",
+    "url": "https://developer.aliyun.com/article/new?edit=1717048#/"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-14 12:43:31"
+ },
+ "ext-ep-010-cataclysm-dark-days-ahead-2026-11-14-1": {
+  "case": "ext-ep-010-cataclysm-dark-days-ahead",
+  "title": "CDDA，末日丧尸生存 Roguelike",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "346518",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=346518"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-14 12:44:57"
+ },
+ "1lookup-2026-11-14-1": {
+  "case": "1lookup",
+  "title": "校验 API 的三级级联：延迟预算、结果缓存与计量幂等",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "346534",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=346534"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-14 13:48:03"
+ },
+ "ext-ep-011-minetest-2026-11-14-1": {
+  "case": "ext-ep-011-minetest",
+  "title": "Minetest，低配也能跑的开源我的世界",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "346536",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=346536"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-14 13:52:33"
  }
 }
