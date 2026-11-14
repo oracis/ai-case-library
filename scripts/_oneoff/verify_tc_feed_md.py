@@ -6,8 +6,10 @@
 
 判据（三条全过才算修好）：
   1. 返回 "ok"（内部等 .cm-content 载入）
-  2. `.cm-content` innerText 长度 ≈ 源 .md 字符数（长文不能只进开头几行）
-  3. 首段特征串出现在编辑器里
+  2. 首段特征串出现在编辑器里
+  3. `Ctrl+End` 跳文末后，末段特征串也命中（证明全文载入，不是只进了开头几行）
+     ⚠ 别用 `.cm-content` innerText 长度当判据：CodeMirror 6 是虚拟滚动，
+       只渲染视口内的行，3878 字的稿子只读回 768~1452 字（首版就误判过一次）。
 另外：点击「导入MD」后脚本能立刻往下跑且 2~3 秒内正文就位 ⇒ 说明没有卡在
 Windows 原生文件对话框上（被 `Page.setInterceptFileChooserDialog` 拦掉了）。
 
