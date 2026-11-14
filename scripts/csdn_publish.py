@@ -305,8 +305,13 @@ def save_cookie(cookie_string):
 
 
 def remember(case_id, article_id, title, url=""):
-    """记账：CSDN draft。优先写 SQLite（platform_posts, platform='csdn'），
+    """记账：CSDN 发表。优先写 SQLite（platform_posts, platform='csdn'），
     同时双写 JSON 快照（供 publish_slot 等旧脚本只读兼容）。
+
+    🚨 这里必须是 `state="published"`：`saveArticle` 没有草稿语义（见文件头
+    「无草稿语义」条），调用本函数时文章已在公开博客列表上、配额已按发表计。
+    2026-11-14 前误写 `draft` + `published_at` 同时存在，导致 dedupe 漏判、
+    每发一篇都要手工补账（ext-ep-009-lichess、1lookup 各补一次）。
 
     ⚠ db 写仅当 `DRAFT_FILE` 是默认路径时生效（测试注入临时文件时不碰真库，
     与 `Manifest._db_write` 同一先例）。
@@ -315,7 +320,7 @@ def remember(case_id, article_id, title, url=""):
         conn = db.get_conn()
         try:
             db.upsert_post(conn, case_id, "csdn", {
-                "state": "draft",
+                "state": "published",
                 "remote_id": str(article_id) if article_id else "",
                 "url": url or "",
                 "title": title or "",
