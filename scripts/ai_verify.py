@@ -1582,6 +1582,11 @@ def known_urls(cand):
         add(info.get("website"))
 
     add(cand.get("source_url"))
+    # HN 证据通道（PRD #166）：人工回源登记的 evidence_url 是这条案例最可靠的
+    # 一手地址，旧实现只认 source_url / website / sources ⇒ 11-14 实测 Linum 的
+    # /about 页 HTTP 200 且正文可读，却因候选只带着抓不到的 field-notes 页被判
+    # 「没抓到任何原文」而跳过预核。排在详情页之后、官网之前：它比官网更具体。
+    add((cand.get("hn_evidence") or {}).get("evidence_url"))
     add(cand.get("website"))
     for s in (cand.get("sources") or []):
         if isinstance(s, dict):

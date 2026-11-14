@@ -428,6 +428,27 @@ class Revalidate(unittest.TestCase):
             self.assertTrue(any("人民币" in p for p in stage["ok"]["_problems"]))
             self.assertTrue(stage["ok"]["_needs_human"])
 
+    def test_HN证据条目走事实卡回套_不当素材缺失跳过(self):
+        """11-14：HN 草稿被当「素材缺失」跳过，改完正文仍挂着旧 needs_human。"""
+        import tempfile
+        cand = {"id": "hn-x", "harvest_source": "hn_evidence",
+                "hn_evidence": {"evidence_url": "https://x.example/about",
+                                "source_kind": "homepage",
+                                "verification": "founder",
+                                "caliber": "undisclosed",
+                                "checked_at": "2026-11-14",
+                                "note": "官网无定价页，收入未披露"}}
+        with tempfile.TemporaryDirectory() as td:
+            stage = {"hn-x": self._entry(
+                _slug="hn-x", _problems=["哨兵：保持原样"], _needs_human=True)}
+            bad, skipped = D.revalidate_stage(
+                stage, {}, tm_dir=td, reporter=lambda *a: None, cands=[cand])
+            self.assertEqual(skipped, 0, "HN 证据条目不该被算成素材缺失")
+            self.assertEqual(bad, 0)
+            self.assertEqual(stage["hn-x"]["_problems"], [],
+                             "哨兵应被真实守卫结论替换：%r" % stage["hn-x"]["_problems"])
+            self.assertFalse(stage["hn-x"]["_needs_human"])
+
     def test_只有摘要没有md也会回套(self):
         import tempfile
         with tempfile.TemporaryDirectory() as td:
