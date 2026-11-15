@@ -468,10 +468,20 @@ def game_pack(platform, case_id):
 def pack_of(platform, case_id):
     """该平台这一篇的产物路径（不存在返回 None）。发布与判档期共用这一个判据。"""
     if platform == "bilibili2":
-        # 二号产物是**单文件** `out/articles/<cid>-b2.html`：`-b2` 后缀是防止
+        cid = str(case_id or "")
+        if not cid.startswith("ext-"):
+            # AI case（2026-11-15 开通道）：二号没有自己的 AI 产物生成线，
+            # 复用一号 `publish --case` **真正发出去的正文源**
+            # `out/articles/<cid>.html`（save_via_api → load_article_html）。
+            # ⚠ 别指 `out/bili/<cid>/article.html`：那只是 build_one 的二版
+            #   片段，不是建草稿读的文件，指过去闸就检查了另一份正文。
+            # 两号发的是**不同 case**（ai_pool 排除一号已发）⇒ 不同稿不同标题。
+            p = os.path.join(ROOT, "out", "articles", cid + ".html")
+            return p if os.path.isfile(p) else None
+        # 游戏稿产物是**单文件** `out/articles/<cid>-b2.html`：`-b2` 后缀是防止
         # 两号共用同一个 ext-<slug>.html（谁后摆位谁覆盖，一号会突然发出二号的
         # 免费版，见 bridge.ext_id 注释）。不是目录、也不吃游戏仓 platform/*.md。
-        p = os.path.join(ROOT, "out", "articles", str(case_id) + "-b2.html")
+        p = os.path.join(ROOT, "out", "articles", cid + "-b2.html")
         return p if os.path.isfile(p) else None
     spec = PACK.get(platform)
     if spec:
@@ -529,6 +539,11 @@ def game_missing_pack(platform):
 def ai_pool(platform, ready_only=True):
     """该平台还没发过的 AI case，按 cases.json 顺序。"""
     sent = {cid for _, cid in records(platform)}
+    if platform == "bilibili2":
+        # 🚨 两个 B站账号是**独立投稿位**：同一篇 AI case 一号已发、二号再发
+        # 就是跨平台同稿（判搬运）。二号候选池要同时排除一号的已发记录。
+        # 游戏稿不受影响：ext-ep-* 与 AI case id 不撞，且 game_pool 另算。
+        sent |= {cid for _, cid in records("bilibili")}
     cases = _load("cases.json") or []
     ids = [c.get("id") for c in cases
            if c.get("id") and c.get("id") not in sent]
@@ -560,15 +575,16 @@ def frozen_until(platform, day=None):
     return until if until and today(day) < until else None
 
 
-# 只走单一类型的平台：**不参与「两类交替」**（2026-11-06 加二号时定）。
-#   bilibili2 目前只有游戏稿通道：`publish/bridge.py --platform bilibili2`
-#   从游戏仓取 free 变体、stage 出 `out/articles/<cid>-b2.html` 并换 h1；
-#   AI case 没有二号专属产物的生成路径。
-#   ⚠ 若让二号参与交替：上一轮发游戏 ⇒ 今天 want=ai ⇒ 池永远空 ⇒ 每天
-#     blocked，等于加了个永远轮不到的位置（就是这次要修的病）。
-ONLY_KINDS = {
-    "bilibili2": "game",
-}
+# 只走单一类型的平台：**不参与「两类交替」**。
+#   2026-11-06 加二号时这里曾是 {"bilibili2": "game"}：当时二号只有游戏仓
+#   bridge 通道，AI case 没有二号产物 ⇒ 让它交替就会每天轮到空 AI 池、永远
+#   blocked，等于一个永远轮不到的发布位。
+#   2026-11-15 用户要求「给二号建 AI 通道，像其他平台一样轮流发」：二号 AI
+#   稿复用 `out/bili/<cid>/` 二版产物（只发一号没发过的 case，见 ai_pool 的
+#   跨账号排除），由 `bilibili_publish.py publish-ai` 在 9224 账号下建草稿 +
+#   发表，故解除限制，二号回到通用「两类交替」逻辑。
+#   ⚠ 空表保留机制别删：将来若再有「只有一类通道」的平台可直接登记。
+ONLY_KINDS = {}
 
 
 def decide(platform, day=None, allow_same_kind=False):

@@ -157,8 +157,11 @@ VERIFY_HINT = {
     "toutiao": "「已发表」列表按标题命中才算成功（内容管理里的草稿不算）",
     "xhs": "data/xhs_published.json 按标题；创作中心笔记列表复核",
     "bilibili": "data/bili_published.json + 创作中心稿件列表",
-    "bilibili2": "游戏仓 data/publish_state.json 的 bilibili2 列 + 二号创作中心稿件"
-                 "列表按标题（aid 会重分配，不按 aid 判）",
+    "bilibili2": "匿名空间文章 API（mid 409825959）按标题命中 + 同接口 "
+                 "summary/words/image_urls 核正文与封面；B站 opus 公开页是 SPA 壳、"
+                 "匿名 GET 与 CDP 渲染都拿不到正文，别拿 200 当正文回读。"
+                 "台账 platform_posts(platform='bilibili2', state=published)"
+                 "（aid 会重分配，不按 aid 判）",
     "cnblogs": "python scripts/cnblogs_publish.py list --n 5",
     "zhihu": "只能到草稿：zhihu_drafts.json 有记录即成功，发表待人工",
     "csdn": "python scripts/csdn_publish.py list --query <标题片段>",
@@ -490,14 +493,22 @@ def build_cmd(platform, case, pack, yes, draft_override=None,
     elif platform == "bilibili":
         cmd = s("bilibili_publish.py", "publish", "--case", case)
     elif platform == "bilibili2":
-        # 🚨 二号**不能**走老仓 `bilibili_publish.py`：它按 `--case` 读
-        #   `out/bili/<cid>/`（一号的游戏版正文），发出去就是两号同稿 ⇒ 判重复投稿。
-        #   二号必须走游戏仓 bridge：按 free 变体取稿、把 h1 换成 title_alt、
-        #   stage 成 `out/articles/<cid>-b2.html`，再建草稿 + 发表 + 自己补账。
-        #   slug 要剥 `ext-`（游戏仓内容目录是 `content/ep-003-freedoom/`）。
-        slug = case[4:] if str(case).startswith("ext-") else case
-        cmd = s(os.path.join(SLOT.GAMES_ROOT, "publish", "bridge.py"),
-                "publish", "--slug", slug, "--platform", "bilibili2")
+        if not str(case).startswith("ext-"):
+            # AI case（2026-11-15 开通道）：走本仓 B站二版产物，由 publish-ai
+            # 在 9224 账号下「存草稿 → UI 发布 → 已发表列表回读 → 记账」。
+            # ⚠ 不能走一号 `publish --case` 的直连：那条不串发布步，且账号由
+            #   CDP_BILI_PORT 决定，漏传 BILI2_ENV 就会发到一号。
+            cmd = s("bilibili_publish.py", "publish-ai", "--case", case)
+        else:
+            # 🚨 游戏稿不能走老仓 `bilibili_publish.py`：它按 `--case` 读
+            #   `out/bili/<cid>/`（一号的游戏版正文），发出去就是两号同稿 ⇒
+            #   判重复投稿。二号必须走游戏仓 bridge：按 free 变体取稿、把 h1
+            #   换成 title_alt、stage 成 `out/articles/<cid>-b2.html`，再建草稿
+            #   + 发表 + 自己补账。slug 要剥 `ext-`（游戏仓内容目录是
+            #   `content/ep-003-freedoom/`）。
+            slug = case[4:] if str(case).startswith("ext-") else case
+            cmd = s(os.path.join(SLOT.GAMES_ROOT, "publish", "bridge.py"),
+                    "publish", "--slug", slug, "--platform", "bilibili2")
     elif platform == "csdn":
         cmd = s("csdn_publish.py", "publish", "--file", pack, "--case", case)
         # 封面必须随发表一起提交（saveArticle 的 cover_images）；
@@ -643,7 +654,11 @@ BILI2_ENV = {
 
 
 def _fifo_env(platform):
-    """FIFO 子进程要带的环境：二号切账号，其余平台沿用当前环境。"""
+    """发布子进程要带的环境：二号切账号，其余平台沿用当前环境。
+
+    FIFO 与档期新写两条路径都调它 —— 二号 AI 通道走的是档期新写，
+    漏传同样会把稿发进一号账号。
+    """
     if platform == "bilibili2":
         return dict(os.environ, **BILI2_ENV)
     return None
@@ -736,7 +751,16 @@ def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
     # B站一天只烧 1 篇额度，新写等于把箱里积压的稿晾着、额度拿去发新稿；
     # 小红书同病：箱里 48 条还往里塞第 49 条。send-draft 本来就「默认取
     # 存入最久的一条」，这里只是把入口接对。
-    if platform in FIFO_PLATFORMS and not new and not case:
+    # 二号轮到 AI case 时不进 FIFO（2026-11-15 开 AI 通道）：FIFO 箱里是
+    # 游戏稿，直接 send-draft 会把「今天该发 AI」变成又发一篇游戏，交替失效。
+    # 只有二号有这条分支，其余三个 FIFO 入口行为不变。
+    _d0 = (SLOT.decide(platform, day, allow_same_kind=allow_same_kind)
+           if platform in FIFO_PLATFORMS and not new and not case else None)
+    _ai2 = (platform == "bilibili2" and _d0 is not None
+            and _d0.get("kind") == "ai")
+    if _ai2:
+        print("  ⓘ 二号今天轮到 AI case ⇒ 走档期选稿 + publish-ai（不进游戏 FIFO 箱）")
+    if platform in FIFO_PLATFORMS and not new and not case and not _ai2:
         # 🚨 2026-11-04：FIFO 分支原本连档期都不看，直接 send-draft。
         #   「今日已到上限」时重跑一次就是第二篇 ⇒ 先把配额闸补上。
         d = SLOT.decide(platform, day, allow_same_kind=allow_same_kind)
@@ -904,7 +928,10 @@ def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
     cmd = build_cmd(platform, case, pack, True, draft_override, captcha_wait)
     print("\n执行：%s\n" % " ".join(_q(c) for c in cmd))
     t0 = time.time()
-    rc = subprocess.call(cmd, cwd=ROOT)
+    # ⚠ 子进程必须带二号账号环境（CDP_BILI_PORT=9224 + bili2 profile）。
+    #   档期路径以前不传 env，二号 AI 命令会在默认 9223 的一号浏览器里建草稿
+    #   并发表 —— 不报错，只是发错账号、台账还判不出错。
+    rc = subprocess.call(cmd, cwd=ROOT, env=_fifo_env(platform))
     dt = time.time() - t0
     print("\n%s 退出码 %d，用时 %.0fs" % (cn, rc, dt))
     if rc == 0:

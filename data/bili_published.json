@@ -245,5 +245,14 @@
     "verified_at": "2026-11-14 13:29",
     "evidence": "editor-ui-publish",
     "note": "｜草稿同步(2026-10-14 13:25): title 认领 aid=343828"
+  },
+  {
+    "id": "growingupvideo",
+    "at": "2026-10-14 13:26",
+    "article_id": "53920085",
+    "title": "GrowingUpVideo：旧照片做成变脸视频",
+    "verified_at": "2026-11-15 11:49:33",
+    "evidence": "space-article-list",
+    "note": "｜草稿同步(2026-10-14 13:26): title 认领 aid=343829 ‖ [11-15] send-draft 报 failed 属列表延迟，独立回读首条命中后补账，未重发"
   }
 ]

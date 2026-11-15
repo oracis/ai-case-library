@@ -234,7 +234,8 @@ def _load_json(path, default):
 
 
 def title_of(pack):
-    """从产物取标题：md 首行 `# `、html `<h1>`、产物目录里的 `meta.json`。
+    """从产物取标题：md 首行 `# `、html `<h1>`、产物目录里的 `meta.json`，
+    以及 B站二版产物同目录 `note.json` 的 `title`（纯正文片段的兜底）。
 
     ⚠ HTML 实体要反转：`&amp;` 是 5 个字符但读者只看到 1 个 `&`，
     不反转会把「实际 61 字」误报成「65 字超上限」（判据要量人看到的东西）。
@@ -256,6 +257,13 @@ def title_of(pack):
     m = re.search(r"<h1[^>]*>(.*?)</h1>", txt, re.S | re.I)
     if m:
         return html.unescape(re.sub(r"<[^>]+>", "", m.group(1))).strip()
+    # B站二版产物 `out/bili/<cid>/article.html` 是**纯正文片段**，标题写在
+    # 同目录 `note.json`（build_one 生成）。2026-11-15 二号 AI 通道复用这批
+    # 产物，没有这一步 `title` 闸会硬报「取不到标题」。
+    # 只认 note.json 且必须有 title，别把别的 json 当标题源。
+    note = _load_json(os.path.join(os.path.dirname(pack), "note.json"), {}) or {}
+    if isinstance(note, dict) and note.get("title"):
+        return html.unescape(str(note["title"])).strip()
     return ""
 
 

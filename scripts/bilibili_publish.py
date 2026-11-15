@@ -1431,6 +1431,11 @@ def _record_draft(cid, aid, title=""):
     """
     try:
         import ledger as ld
+        if _plat() != "bilibili":
+            # 🚨 ledger.PLATFORMS 只有一号专属的老台账（bili_published.json）。
+            # 二号进程建草稿别写它，否则二号记录会混进一号账；二号真值在
+            # platform_posts，由发表后的 _mark_manifest_published 写。
+            return
         # 用 set_draft_id 而不是 mark(DRAFT)：后者会把已经发过的 case 拉回
         # 草稿态。这里要的是"多一个 ID"，不是"改判状态"。
         ld.set_draft_id("bilibili", cid, aid, title=title,
@@ -1517,7 +1522,15 @@ def ledger_slot(cid):
     会让一号读成「今天发过了」，而二号自己的账还是空的。
     """
     base = str(cid or "")
-    if base.endswith("-b2"):
+    # 🚨 2026-11-15 开二号 AI 通道后，cid 不再是判账号的可靠依据：AI case
+    # 不带 `-b2`，但它是 9224 账号发的，必须记进 bilibili2。改按进程端口
+    # （= 实际操作的账号，见 `_plat`）分账；`-b2` 后缀仍要剥（游戏产物 id）。
+    # 漏改的后果：二号发的 AI 稿被记进 platform_posts(platform='bilibili')，
+    # 一号据此判重/算额度会读成「今天这篇发过了」，而二号自己的账仍是空的。
+    plat = _plat()
+    if plat == "bilibili2":
+        return "bilibili2", (base[:-3] if base.endswith("-b2") else base)
+    if base.endswith("-b2"):        # 兼容：一号进程误传二号产物 id
         return "bilibili2", base[:-3]
     return "bilibili", base
 
@@ -1585,7 +1598,12 @@ def _mark_manifest_published(cid, remote_id, title=""):
     #    `bridge publish --slug <同一期>` 就会重发；`games_state.published()`
     #    也少一路证据。收口在这里，因为本函数**只在「已发表列表按 aid
     #    回读命中」之后**才被调用 —— toast「提交成功」不算发布。
-    if platform == "bilibili2":
+    # 🚨 2026-11-15 开二号 AI 通道后的收窄：游戏仓台账只收**游戏期**
+    #   （`ext-ep-NNN-*`）。AI case 不是游戏仓期次，写进去会凭空多一条伪期次，
+    #   `GS.entries('bilibili2')` / bridge 遍历 articles 时把它当游戏稿；
+    #   而 `blocks_republish()` 要防的正是「同一期游戏重发」，对 AI case 无意义。
+    #   本仓真值 `platform_posts(platform='bilibili2')` 上面已写好，不受影响。
+    if platform == "bilibili2" and str(cid).startswith("ext-ep-"):
         try:
             import games_state as GS
             action, entry = GS.record_published(
@@ -1602,6 +1620,8 @@ def _mark_manifest_published(cid, remote_id, title=""):
                 "但 blocks_republish 会漏判）：%s\n" % e)
             print("    ⚠ 手动补账：python -X utf8 "
                   "scripts/bili2_ledger_backfill.py --go")
+    elif platform == "bilibili2":
+        print("    二号 AI case 不写游戏仓台账（本仓 db 已记 published）")
 
 
 # --------------------------------------------------------------------------
@@ -2975,6 +2995,12 @@ def main():
     dr.add_argument("--new", action="store_true",
                     help="强制新建一条草稿（默认同标题既有草稿就地更新，"
                          "避免草稿箱里堆重复稿。2026-11-06 新增）")
+    pa = sub.add_parser(
+        "publish-ai",
+        help="二号 AI 通道：用 out/bili/<case>/ 二版产物在**当前账号**建草稿并发表"
+             "（2026-11-15 新增；两步都复用既有 publish_one/send_draft）")
+    pa.add_argument("--case", required=True, help="AI case id")
+    pa.add_argument("--dry", action="store_true", help="只探建草稿入口，不写不发布")
     args = ap.parse_args()
 
     # 127.0.0.1 必须绕开系统代理，否则 websocket 连 Chrome 调试端口会被掐
@@ -2994,7 +3020,7 @@ def main():
     # `build` 是纯离线（只拼 HTML），不需要浏览器。
     # ⚠ `draft --dry` 同理（2026-10-30）：只打印将要建什么，起 Chrome 既慢
     #    又和「dry 不开浏览器」的承诺不符。
-    if args.cmd != "build" and not (args.cmd == "draft"
+    if args.cmd != "build" and not (args.cmd in ("draft", "publish-ai")
                                    and getattr(args, "dry", False)):
         try:
             # ⚠ B站的登录态在 `chrome-debug-profile`，**不是**公众号那个
@@ -3056,6 +3082,21 @@ def main():
         # 上游 bridge.py 靠它判断「草稿真的建了」。
         if cmd_draft(args):
             sys.exit(1)
+    elif args.cmd == "publish-ai":
+        # 二号 AI 通道（2026-11-15）：不新造发布器，串起两条既有通道 ——
+        #   ① publish_one(cid)：draft/add 存草稿 + view_draft 回读校验 + 封面；
+        #   ② send_draft(cid=...)：编辑器 UI 点发布 + 已发表列表回读 + 记账。
+        # 账号由 CDP_BILI_PORT / CDP_PLAT_PROFILE 决定（9224 + bili2 profile），
+        # publish_one.py 的 BILI2_ENV 会传进来；不在这里写死端口。
+        if not publish_one(args.case, dry=args.dry):
+            sys.exit(1)
+        if args.dry:
+            print("  [dry] 只探了建草稿入口，未建草稿、未发布")
+        else:
+            ok, _c, _aid, _title = send_draft(cid=args.case)
+            if not ok:
+                print("  ✗ 草稿已建但没发出去：先按标题查已发表列表，别原地重跑")
+                sys.exit(1)
     else:
         ap.print_help()
 
