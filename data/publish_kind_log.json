@@ -103,6 +103,11 @@
     "case_id": "ext-ep-007-openttd",
     "kind": "game",
     "at": "2026-11-14 12:50"
+   },
+   {
+    "case_id": "stan",
+    "kind": "ai",
+    "at": "2026-11-15 11:58"
    }
   ],
   "csdn": [
@@ -323,6 +328,12 @@
    {
     "at": "2026-11-11 08:22",
     "case_id": "rezi",
+    "kind": "ai",
+    "note": "send-draft FIFO 最久草稿"
+   },
+   {
+    "at": "2026-11-15 11:34",
+    "case_id": "visualizee-ai",
     "kind": "ai",
     "note": "send-draft FIFO 最久草稿"
    }

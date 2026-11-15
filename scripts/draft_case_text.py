@@ -721,7 +721,7 @@ def draft_one(cid, slug, summ, retries=2, ev=None):
     return None, last or "未知失败"
 
 
-def revalidate_stage(stage, summ, tm_dir=None, reporter=print):
+def revalidate_stage(stage, summ, tm_dir=None, reporter=print, cands=None):
     """把守卫回套到暂存区已有草稿，只更新 _problems / _needs_human。
 
     返回 (bad, skipped)；**不写盘**，由 main 调 save_stage()。
@@ -736,8 +736,30 @@ def revalidate_stage(stage, summ, tm_dir=None, reporter=print):
     if tm_dir is None:
         tm_dir = TM_DIR
     bad = skipped = 0
+    by_id = {c.get("id"): c for c in (cands or [])}
     for cid, v in stage.items():
         slug = v.get("_slug") or cid
+        # HN 证据通道（11-14）：起草时喂给模型的是 hn_facts_card(ev)，不是
+        # TrustMRR 的 facts_card(summary, md)。旧实现只认 summary/.md ⇒ 10 条
+        # HN 草稿全被判「素材缺失」跳过回套，人工改完正文后 _needs_human 仍是
+        # 旧值、apply 继续拦。按候选来源还原同一张事实卡再回套，标志才可信。
+        cand = by_id.get(cid) or {}
+        ev = (cand.get("hn_evidence")
+              if str(cand.get("harvest_source") or "") == "hn_evidence" else None)
+        if ev and ev.get("evidence_url"):
+            md = ""
+            tp = str(ev.get("text_path") or "").strip()
+            if tp and os.path.exists(os.path.join(ROOT, tp)):
+                with open(os.path.join(ROOT, tp), "r", encoding="utf-8") as f:
+                    md = f.read()
+            card_src = extract_numbers(hn_facts_card(slug, ev, md))
+            problems = validate(v, card_src, {})
+            v["_problems"] = problems
+            v["_needs_human"] = bool(problems)
+            if problems:
+                bad += 1
+                reporter("  ⚠ %-34s %s" % (cid[:34], "；".join(problems)[:80]))
+            continue
         s = lookup_summary(summ, slug, cid) or {}
         # ⚠ 必须与起草时喂给模型的素材**完全一致**（含 .md 原文），
         # 否则素材里的数字会被误判成「凭空出现」—— 回套第一次就踩了：
@@ -781,7 +803,7 @@ def main():
     # 守卫升级后不必重跑 LLM：把新规则回套到已有草稿即可。
     # （口径守卫就是这么加的 —— 重跑要一小时，回套只要一秒。）
     if args.revalidate:
-        bad, skipped = revalidate_stage(stage, summ)
+        bad, skipped = revalidate_stage(stage, summ, cands=cands)
         save_stage(stage)
         print("\n回套完成：%d 条草稿，其中 %d 条被守卫拦下；"
               "素材缺失跳过 %d 条" % (len(stage), bad, skipped))

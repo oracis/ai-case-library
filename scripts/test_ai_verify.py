@@ -337,6 +337,19 @@ class KnownUrlTest(unittest.TestCase):
         self.assertEqual(A.known_urls(cand),
                          ["https://a.example/", "https://b.example/x"])
 
+    def test_HN证据URL进抓取名单(self):
+        """hn_evidence.evidence_url 必须进 known_urls（11-14 两条预核被跳过）。"""
+        cand = {"id": "hn-50368208", "harvest_source": "hn_evidence",
+                "source_url": "https://www.linum.ai/field-notes/pjit-21k",
+                "website": "https://linum.ai",
+                "hn_evidence": {"evidence_url": "https://www.linum.ai/about",
+                                "source_kind": "homepage",
+                                "verification": "founder"}}
+        urls = A.known_urls(cand)
+        self.assertIn("https://www.linum.ai/about", urls)
+        self.assertEqual(urls[1], "https://www.linum.ai/about",
+                         "证据页要排在详情页之后、官网之前：%r" % urls)
+
     def test_已知地址_去重且只收http(self):
         cand = {"website": "gojiberry.ai",              # 没协议头，不收
                 "source_url": "https://x.example/",

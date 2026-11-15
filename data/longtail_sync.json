@@ -964,5 +964,18 @@
   },
   "via": "cdp-9228",
   "ts": "2026-11-14 13:52:33"
+ },
+ "checkvibe-2026-11-15-1": {
+  "case": "checkvibe",
+  "title": "CheckVibe：给 AI 生成的应用做安全扫描，工程上要拆解的六个问题",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "346859",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=346859"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-15 12:00:33"
  }
 }

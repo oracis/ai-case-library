@@ -1325,7 +1325,7 @@
  },
  "ext-ep-011-minetest": {
   "bilibili2": {
-   "at": "2026-11-14 12:49 草稿箱→发布（send-draft）",
+   "at": "2026-11-14 12:49",
    "attempt": 0,
    "draft_id": "",
    "note": "草稿箱→发布（send-draft）",
@@ -3136,6 +3136,17 @@
    "remote_id": "345869",
    "state": "draft",
    "title": "Upvoty",
+   "url": ""
+  },
+  "bilibili2": {
+   "at": "2026-11-15 12:45 草稿箱→发布（send-draft）",
+   "attempt": 0,
+   "draft_id": "",
+   "note": "草稿箱→发布（send-draft）",
+   "published_at": "2026-11-15 12:45",
+   "remote_id": "53920577",
+   "state": "published",
+   "title": "Upvoty：收集用户反馈并投票排序的看板",
    "url": ""
   },
   "juejin": {

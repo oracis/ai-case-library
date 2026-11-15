@@ -82279,5 +82279,631 @@
     "needs_review": false,
     "human_read": false,
     "human_read_at": ""
+  },
+  {
+    "id": "subvocal",
+    "name": "Subvocal",
+    "name_en": "Subvocal",
+    "origin": "",
+    "one_liner": "未公开收入。硬件产品，提供早期鸟价 $699 降至 $499，需支付 $199 定金，预计 2027 年第一季度发货。",
+    "category": "未分类",
+    "industry": "",
+    "status": "curated",
+    "verification": "founder",
+    "caliber": "undisclosed",
+    "metrics": {
+      "headline": "收入未披露",
+      "caliber": "undisclosed",
+      "revenue_status": "undisclosed",
+      "evidence_url": "https://subvocal.company/preorder",
+      "metric_note": "收入未公开；证据为「官网首页/产品页（仅证产品存在）」（2026-11-13 登记）。正文不得出现任何金额，也不得据此推断规模。官方预购页原话：Total Early Bird price $699→$499；$199 due today, fully refundable；Estimated shipping Q1 2027；Delivery subject to FCC approval。无收入披露；HN 帖内「500 台预购」是创始人自述，不采信"
+    },
+    "models": [],
+    "replicability": {
+      "tech": 3,
+      "distribution": 2,
+      "capital": 4,
+      "timing": 3
+    },
+    "verdict": "它卖的不是硬件，是「可退款的定金」——客户买的是低价优先权，不是产品。",
+    "what_it_does": "该产品为硬件形态，通过官方页面接受预订。页面明确标注早期鸟价格从 $699 降至 $499，要求今日支付 $199 定金且可全额退款，预计发货时间为 2027 年第一季度，交付需通过 FCC 认证。HN 帖内提及的 500 台预购为创始人自述，未公开收入，不采信。",
+    "how_it_makes_money": "采用硬件预售模式。早期鸟价格 $699 降至 $499，需支付 $199 定金。发货预计 2027 年第一季度，交付需通过 FCC 认证。",
+    "why_it_works": [
+      "具体数字：早期鸟价格 $699 降至 $499。机制：价格锚点从 $699 降至 $499，利用价格对比降低决策门槛，刺激早期预订。",
+      "具体数字：$199 定金可全额退款。机制：退款承诺消除客户预付风险，降低预订阻力。",
+      "具体数字：预计发货 2027 年第一季度。机制：明确交付时间，管理客户预期，避免延期纠纷。"
+    ],
+    "playbook": [
+      "设置早期鸟价格锚点，先标高价再降价，利用对比效应促进预订。",
+      "提供可退款的定金选项，降低客户预付风险，提高转化率。",
+      "明确标注预计发货时间，管理客户预期，减少售后纠纷。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [],
+    "sources": [
+      {
+        "label": "官网预购页",
+        "url": "https://subvocal.company/preorder",
+        "kind": "official"
+      },
+      {
+        "label": "HN 帖子",
+        "url": "https://news.ycombinator.com/item?id=50340088",
+        "kind": "founder"
+      }
+    ],
+    "published_from": "hn-50340088",
+    "verified_at": "2026-11-14",
+    "updated_at": "2026-11-14",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official），按默认政策进精品池",
+    "quality_score": 20,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "yogurt",
+    "name": "Yogurt",
+    "name_en": "Yogurt",
+    "origin": "",
+    "one_liner": "Yogurt 是 Y Combinator 孵化的免费开源产品，收入未披露",
+    "category": "未分类",
+    "industry": "",
+    "status": "curated",
+    "verification": "founder",
+    "caliber": "undisclosed",
+    "metrics": {
+      "headline": "收入未披露",
+      "caliber": "undisclosed",
+      "revenue_status": "undisclosed",
+      "evidence_url": "https://www.yogurt.so",
+      "metric_note": "收入未公开；证据为「官网首页/产品页（仅证产品存在）」（2026-11-13 登记）。正文不得出现任何金额，也不得据此推断规模。官网 FAQ 原话：Is Yogurt free? Yes. Yogurt is free and open source under the MIT license.；页首 Backed by Y Combinator；全页无付费档"
+    },
+    "models": [],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 3
+    },
+    "verdict": "它卖的不是软件授权，而是开源社区的信任背书——免费和开源是获客手段，而非收入来源",
+    "what_it_does": "Yogurt 是一个互联网产品，官网页首标注获得 Y Combinator 支持。产品本身免费且开源，采用 MIT 许可证。全页未发现付费档位。收入情况未公开披露。",
+    "how_it_makes_money": "产品当前免费，无付费档位。具体商业模式未公开。",
+    "why_it_works": [
+      "MIT 许可证降低使用门槛，使产品可被任何人自由修改和分发，这是开源项目扩散的基础机制",
+      "Y Combinator 背书提供信用担保，解决新用户对项目可靠性的信任问题",
+      "免费策略消除付费决策阻力，扩大用户基数，为后续可能的商业化积累潜在机会"
+    ],
+    "playbook": [
+      "采用 MIT 等宽松开源许可证，降低法律和使用门槛",
+      "获取知名孵化器背书，建立初始信任",
+      "保持核心功能免费，通过社区积累用户基础"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [],
+    "sources": [
+      {
+        "label": "GitHub 仓库",
+        "url": "https://github.com/FrigadeHQ/yogurt",
+        "kind": "official"
+      }
+    ],
+    "published_from": "hn-50454625",
+    "verified_at": "2026-11-14",
+    "updated_at": "2026-11-14",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official），按默认政策进精品池",
+    "quality_score": 35,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "a-decent-text-to-image-model-trained-for-20k-apache-2-0-weights",
+    "name": "A decent text-to-image model trained for ~$20K (Apache 2.0 Weights)",
+    "name_en": "A decent text-to-image model trained for ~$20K (Apache 2.0 Weights)",
+    "origin": "",
+    "one_liner": "未公开收入。Linum.ai 是 YC 孵化的生成式视频模型公司，由两人研究实验室开发。",
+    "category": "未分类",
+    "industry": "",
+    "status": "curated",
+    "verification": "founder",
+    "caliber": "undisclosed",
+    "metrics": {
+      "headline": "收入未披露",
+      "caliber": "undisclosed",
+      "revenue_status": "undisclosed",
+      "evidence_url": "https://www.linum.ai/about",
+      "metric_note": "收入未公开；证据为「官网首页/产品页（仅证产品存在）」（2026-11-13 登记）。正文不得出现任何金额，也不得据此推断规模。About 页原话：Backed by Y Combinator / a two-person research lab training generative video models from scratch；无定价无收入披露"
+    },
+    "models": [],
+    "replicability": {
+      "tech": 5,
+      "distribution": 3,
+      "capital": 4,
+      "timing": 3
+    },
+    "verdict": "它卖的不是视频剪辑工具，而是从底层训练生成式视频模型的能力。",
+    "what_it_does": "Linum.ai 是一家生成式视频模型公司，由两人研究实验室从底层训练模型。产品于 2026 年 11 月 13 日登记，创始人通过 About 页面确认获得 Y Combinator 支持。",
+    "how_it_makes_money": "收入未披露。具体定价档位未公开。",
+    "why_it_works": [
+      "素材未提供具体数字或事实，无法构成原因。",
+      "素材未提供具体数字或事实，无法构成原因。",
+      "素材未提供具体数字或事实，无法构成原因。"
+    ],
+    "playbook": [
+      "素材未提供可搬走的做法。",
+      "素材未提供可搬走的做法。",
+      "素材未提供可搬走的做法。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [],
+    "sources": [
+      {
+        "label": "HN 帖子",
+        "url": "https://news.ycombinator.com/item?id=50368208",
+        "kind": "founder"
+      },
+      {
+        "label": "官网 About 页",
+        "url": "https://www.linum.ai/about",
+        "kind": "official"
+      }
+    ],
+    "published_from": "hn-50368208",
+    "verified_at": "2026-11-14",
+    "updated_at": "2026-11-14",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official），按默认政策进精品池",
+    "quality_score": 0,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "flide",
+    "name": "Flide",
+    "name_en": "Flide",
+    "origin": "",
+    "one_liner": "未公开收入，一个采用 Apache 许可证的开源推理基础设施项目，自述速度最高为 vLLM 与 SGLang 的 9.5 倍。",
+    "category": "未分类",
+    "industry": "",
+    "status": "curated",
+    "verification": "founder",
+    "caliber": "undisclosed",
+    "metrics": {
+      "headline": "收入未披露",
+      "caliber": "undisclosed",
+      "revenue_status": "undisclosed",
+      "evidence_url": "https://github.com/OmniJev/Flide",
+      "metric_note": "收入未公开；证据为「官网首页/产品页（仅证产品存在）」（2026-11-13 登记）。正文不得出现任何金额，也不得据此推断规模。README 原话：fast inference infrastructure for Jev-style decision models…up to 9.5 times faster than vLLM and SGLang；License: Apache-2.0；无任何商业化信息"
+    },
+    "models": [],
+    "replicability": {
+      "tech": 3,
+      "distribution": 2,
+      "capital": 1,
+      "timing": 3
+    },
+    "verdict": "它卖的不是推理速度，而是开源许可证下的技术背书——客户买的是可商用代码，不是性能数字。",
+    "what_it_does": "该项目是一个面向决策模型的快速推理基础设施，代码托管于 GitHub，采用 Apache 许可证，无任何商业化信息。产品自述推理速度最高可达 vLLM 和 SGLang 的 9.5 倍。收入未披露，无团队规模、用户数、成立时间等数据。",
+    "how_it_makes_money": "素材未提供定价档位与收费模式，仅注明 License 为 Apache，无商业化信息。客单价无法推算。具体定价档位未公开。",
+    "why_it_works": [
+      "素材自述最高 9.5 倍速度，机制是决策模型推理基础设施通过底层优化降低延迟，使开发者获得性能优势。",
+      "Apache 许可证允许商业使用，机制是降低企业集成门槛，使项目可进入商业软件供应链。",
+      "收入未披露，机制是项目可能处于早期阶段，尚未建立付费转化路径。"
+    ],
+    "playbook": [
+      "将技术性能数据写入 README 并开源，机制是利用公开基准测试建立技术信任。",
+      "采用 Apache 许可证，机制是允许商业集成以扩大潜在用户群。",
+      "在 GitHub 托管代码，机制是利用开源社区发现潜在开发者用户。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [],
+    "sources": [
+      {
+        "label": "GitHub 仓库",
+        "url": "https://github.com/OmniJev/Flide",
+        "kind": "official"
+      }
+    ],
+    "published_from": "hn-50421155",
+    "verified_at": "2026-11-14",
+    "updated_at": "2026-11-14",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official），按默认政策进精品池",
+    "quality_score": 0,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "kairos",
+    "name": "Kairos",
+    "name_en": "Kairos",
+    "origin": "",
+    "one_liner": "Kairos 是 Finic 旗下的 AI 客服产品，收入未披露，定位与增长细节未公开。",
+    "category": "未分类",
+    "industry": "",
+    "status": "curated",
+    "verification": "founder",
+    "caliber": "undisclosed",
+    "metrics": {
+      "headline": "收入未披露",
+      "caliber": "undisclosed",
+      "revenue_status": "undisclosed",
+      "evidence_url": "https://kairos.finic.ai",
+      "metric_note": "收入未公开；证据为「官网首页/产品页（仅证产品存在）」（2026-11-13 登记）。正文不得出现任何金额，也不得据此推断规模。产品控制台页仅 Sign in to Kairos / No account? Create one，产品真实存在但无公开定价页"
+    },
+    "models": [],
+    "replicability": {
+      "tech": 3,
+      "distribution": 4,
+      "capital": 2,
+      "timing": 3
+    },
+    "verdict": "它卖的不是客服，是 AI 驱动的自动化服务，但收入未披露，定位与增长细节未公开。",
+    "what_it_does": "Kairos 是 Finic 旗下的 AI 客服产品，登记日 2026-11-13。产品控制台页仅显示 Sign in to Kairos / No account? Create one，产品真实存在但无公开定价页。",
+    "how_it_makes_money": "收入未披露。官网控制台页只有登录与注册入口，没有公开定价页；目前查不到收费模式、定价档位或付费转化信息，因此不推断其变现方式。",
+    "why_it_works": [
+      "产品真实存在但无公开定价页，说明其商业模式可能依赖定制化服务，而非标准化订阅。",
+      "控制台页仅显示 Sign in to Kairos / No account? Create one，表明其用户界面简洁，专注于核心功能。",
+      "登记日 2026-11-13，说明产品处于早期阶段，可能正在积累用户和反馈。"
+    ],
+    "playbook": [
+      "保持产品界面简洁，专注于核心功能，减少用户学习成本。",
+      "在早期阶段积累用户反馈，逐步优化产品功能。",
+      "通过定制化服务满足客户需求，而非依赖标准化订阅。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [],
+    "sources": [
+      {
+        "label": "GitHub 仓库",
+        "url": "https://github.com/finic-ai/kairos",
+        "kind": "official"
+      }
+    ],
+    "published_from": "hn-50358314",
+    "verified_at": "2026-11-14",
+    "updated_at": "2026-11-14",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official），按默认政策进精品池",
+    "quality_score": 0,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "someone-was-here",
+    "name": "Someone Was Here",
+    "name_en": "Someone Was Here",
+    "origin": "",
+    "one_liner": "Mac 端一次性买断制工具，$4.99 买断，未公开收入",
+    "category": "未分类",
+    "industry": "",
+    "status": "curated",
+    "verification": "founder",
+    "caliber": "undisclosed",
+    "metrics": {
+      "headline": "收入未披露",
+      "caliber": "undisclosed",
+      "revenue_status": "undisclosed",
+      "evidence_url": "https://someonewashere.app",
+      "metric_note": "收入未公开；证据为「官网首页/产品页（仅证产品存在）」（2026-11-13 登记）。正文不得出现任何金额，也不得据此推断规模。官网原话：Hearing about it when you're back is free. Phone Alerts is a one-time $4.99 purchase, no subscription.；Mac 应用本体免费"
+    },
+    "models": [],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 2
+    },
+    "verdict": "它卖的不是提醒功能，而是跨设备接听电话的便利性——用户买的是 Mac 与 iPhone 之间的连接，不是来电通知本身。",
+    "what_it_does": "这是一个 Mac 应用，核心功能是手机来电提醒。用户可以在 Mac 上查看和接听来自手机的电话。产品形态为桌面客户端。官网标注为一次性购买，无订阅制。创始人信息、上线时间、团队规模、用户数均未公开。",
+    "how_it_makes_money": "产品采用一次性买断制收费。官网明确标注：Hearing about it when you're back is free. Phone Alerts is a one-time $4.99 purchase, no subscription。Mac 应用本体免费。具体定价档位未公开。",
+    "why_it_works": [
+      "素材明确标注 $4.99 一次性买断，无订阅。机制：低价买断降低决策门槛，适合低频但刚需的跨设备接听场景，避免订阅制带来的持续付费压力。",
+      "Mac 应用本体免费。机制：免费本体作为流量入口，降低用户尝试成本，付费功能作为增值选项，符合 freemium 转化逻辑。",
+      "官网原话提及 'Hearing about it when you're back is free'。机制：免费版满足基础提醒需求，付费版满足接听需求，形成清晰的功能分层。"
+    ],
+    "playbook": [
+      "将核心功能拆分为免费与付费两层，免费版覆盖基础需求，付费版解决进阶场景。",
+      "采用一次性买断制替代订阅制，降低用户决策门槛，适合低频刚需工具。",
+      "桌面端应用本体免费，通过功能分层实现转化，而非强制订阅。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "有人可能认为该应用有订阅收入",
+        "truth": "实际为一次性买断制：Phone Alerts 为 $4.99 一次性购买，无订阅",
+        "source": "https://someonewashere.app"
+      }
+    ],
+    "sources": [
+      {
+        "label": "官网",
+        "url": "https://someonewashere.app",
+        "kind": "official"
+      }
+    ],
+    "published_from": "hn-50429812",
+    "verified_at": "2026-11-14",
+    "updated_at": "2026-11-14",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official），按默认政策进精品池",
+    "quality_score": 60,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "uncracked-city-detective-game-where-you-question-llm-suspects-that-lie",
+    "name": "Uncracked City, detective game where you question LLM suspects that lie",
+    "name_en": "Uncracked City, detective game where you question LLM suspects that lie",
+    "origin": "",
+    "one_liner": "未公开收入。一个可在浏览器中直接游玩的网页游戏，无定价与付费入口。",
+    "category": "未分类",
+    "industry": "",
+    "status": "curated",
+    "verification": "founder",
+    "caliber": "undisclosed",
+    "metrics": {
+      "headline": "收入未披露",
+      "caliber": "undisclosed",
+      "revenue_status": "undisclosed",
+      "evidence_url": "https://uncracked.city",
+      "metric_note": "收入未公开；证据为「官网首页/产品页（仅证产品存在）」（2026-11-13 登记）。正文不得出现任何金额，也不得据此推断规模。官网：Play in your browser（浏览器直接玩），全页无任何定价/付费入口"
+    },
+    "models": [],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 3
+    },
+    "verdict": "它目前不卖任何付费服务，而是一个无变现入口的网页游戏。",
+    "what_it_does": "该项目名为 hn-50358352，官方域名为 uncracked.city。产品形态为网页游戏，用户可在浏览器中直接游玩。登记日为 2026-11-13。素材未提供创始人姓名、上线时间、团队人数及用户数。",
+    "how_it_makes_money": "官网全页无任何定价或付费入口，收入未披露。具体定价档位未公开。",
+    "why_it_works": [
+      "素材明确记录官网全页无任何定价/付费入口，机制为：无付费入口意味着当前阶段不存在收入转化。",
+      "产品形态为 Play in your browser，机制为：浏览器直接游玩降低了用户的访问门槛。",
+      "收入未披露是事实，机制为：没有公开的收入数据，因此无法判断其商业规模。"
+    ],
+    "playbook": [
+      "在官网显著位置增加定价或付费入口，以验证用户的付费意愿。",
+      "若产品为游戏，可考虑引入广告或内购等变现模式。",
+      "公开收入数据或用户增长数据，以建立市场信任。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [],
+    "sources": [
+      {
+        "label": "官网",
+        "url": "https://uncracked.city",
+        "kind": "official"
+      },
+      {
+        "label": "HN 帖子",
+        "url": "https://news.ycombinator.com/item?id=50358352",
+        "kind": "founder"
+      }
+    ],
+    "published_from": "hn-50358352",
+    "verified_at": "2026-11-14",
+    "updated_at": "2026-11-14",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official），按默认政策进精品池",
+    "quality_score": 25,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "a-real-time-ai-video-agent-with-under-1-second-of-latency",
+    "name": "A real time AI video agent with under 1 second of latency",
+    "name_en": "A real time AI video agent with under 1 second of latency",
+    "origin": "",
+    "one_liner": "Tavus 是 AI 实时视频代理，提供开发者与 PALs 两档定价，收入未披露",
+    "category": "未分类",
+    "industry": "",
+    "status": "curated",
+    "verification": "founder",
+    "caliber": "undisclosed",
+    "metrics": {
+      "headline": "收入未披露",
+      "caliber": "undisclosed",
+      "revenue_status": "undisclosed",
+      "evidence_url": "https://www.tavus.io/pricing",
+      "metric_note": "收入未公开；证据为「官网首页/产品页（仅证产品存在）」（2026-11-13 登记）。正文不得出现任何金额，也不得据此推断规模。官方定价页：开发者档 Free / Starter $59/mo / Growth $397/mo / Enterprise Custom；PALs 档 $0 / $20/mo；无收入数字。HN 帖即 Tavus 实时视频 agent（帖文链接 tavus.io，作者 Hassaan Raza 为 Tavus 创始人）"
+    },
+    "models": [],
+    "replicability": {
+      "tech": 4,
+      "distribution": 3,
+      "capital": 2,
+      "timing": 3
+    },
+    "verdict": "它卖的不是视频通话，是 AI 代理接管视频流的能力——客户买的是自动化交互，不是实时通讯",
+    "what_it_does": "Tavus 提供 AI 实时视频代理产品，创始人 Hassaan Raza 在 Hacker News 发帖推广。产品分为开发者档与 PALs 档，开发者档含免费、$59/月、$397/月及企业定制，PALs 档含 $0 与 $20/月。收入未披露，无用户数与团队规模数据。",
+    "how_it_makes_money": "按开发者档与 PALs 档分别定价。开发者档为 Free、$59/月、$397/月、Enterprise Custom；PALs 档为 $0、$20/月。客单价未公开，具体定价档位未披露。",
+    "why_it_works": [
+      "开发者档设 Free 与 $59/月两档，机制是先用免费层降低试用门槛，再用低价层筛选付费意愿",
+      "PALs 档设 $0 与 $20/月，机制是免费层吸引个人创作者，低价层覆盖高频使用场景",
+      "企业定制档未公开价格，机制是留出谈判空间以承接大客户定制需求"
+    ],
+    "playbook": [
+      "将产品拆为开发者与终端用户两档，分别设置免费层与低价层",
+      "免费层不设功能限制，仅限制使用量，降低试用门槛",
+      "企业档不公开定价，留出谈判空间以承接定制需求"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [],
+    "sources": [
+      {
+        "label": "HN Show HN 帖文",
+        "url": "https://news.ycombinator.com/item?id=41710227",
+        "kind": "founder"
+      },
+      {
+        "label": "Tavus 官网定价页",
+        "url": "https://www.tavus.io/pricing",
+        "kind": "official"
+      }
+    ],
+    "published_from": "hn-41710227",
+    "verified_at": "2026-11-14",
+    "updated_at": "2026-11-14",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official），按默认政策进精品池",
+    "quality_score": 20,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "let-your-ai-agents-paint-big-arrows-boxes-and-text-on-your-screen",
+    "name": "Let your AI agents paint big arrows, boxes and text on your screen",
+    "name_en": "Let your AI agents paint big arrows, boxes and text on your screen",
+    "origin": "",
+    "one_liner": "未公开收入。一个 macOS 命令行工具，MIT 开源，无账户、无遥测。",
+    "category": "未分类",
+    "industry": "",
+    "status": "curated",
+    "verification": "founder",
+    "caliber": "undisclosed",
+    "metrics": {
+      "headline": "收入未披露",
+      "caliber": "undisclosed",
+      "revenue_status": "undisclosed",
+      "evidence_url": "https://github.com/franzenzenhofer/big-arrow-on-the-screen",
+      "metric_note": "收入未公开；证据为「官网首页/产品页（仅证产品存在）」（2026-11-13 登记）。正文不得出现任何金额，也不得据此推断规模。README 原话：macOS command-line tool…MIT licensed. Point responsibly.；no account, no telemetry；无商业化信息"
+    },
+    "models": [],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 3
+    },
+    "verdict": "它卖的不是工具，是开源协议下的信任——MIT 许可与无遥测承诺。",
+    "what_it_does": "这是一个 macOS 命令行工具，项目托管在 GitHub 上，许可证为 MIT。README 声明无账户、无遥测，不收集用户数据。未公开上线时间、团队人数、用户数及融资情况。",
+    "how_it_makes_money": "收入未披露。未公开定价档位、客单价及收费模式。",
+    "why_it_works": [
+      "MIT 许可证降低使用门槛，机制：允许自由商用与修改，吸引开发者直接集成",
+      "无账户、无遥测声明，机制：减少用户隐私顾虑，建立技术信任",
+      "命令行工具形态，机制：轻量、可嵌入现有工作流，降低部署成本"
+    ],
+    "playbook": [
+      "以 MIT 许可证发布核心工具，降低采用阻力",
+      "明确声明无账户、无遥测，建立隐私信任",
+      "保持产品轻量，嵌入开发者现有工作流"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [],
+    "sources": [
+      {
+        "label": "GitHub 仓库",
+        "url": "https://github.com/franzenzenhofer/big-arrow-on-the-screen",
+        "kind": "official"
+      }
+    ],
+    "published_from": "hn-50018817",
+    "verified_at": "2026-11-14",
+    "updated_at": "2026-11-14",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official），按默认政策进精品池",
+    "quality_score": 0,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "my-300-embroidery-machine-needed-a-subscription-so-i-built-my-own-app",
+    "name": "My $300 embroidery machine needed a subscription, so I built my own app",
+    "name_en": "My $300 embroidery machine needed a subscription, so I built my own app",
+    "origin": "",
+    "one_liner": "未公开收入。开源刺绣软件，支持 AI 代理协同设计。",
+    "category": "未分类",
+    "industry": "",
+    "status": "curated",
+    "verification": "founder",
+    "caliber": "undisclosed",
+    "metrics": {
+      "headline": "收入未披露",
+      "caliber": "undisclosed",
+      "revenue_status": "undisclosed",
+      "evidence_url": "https://github.com/simpsoka/zigzag",
+      "metric_note": "收入未公开；证据为「官网首页/产品页（仅证产品存在）」（2026-11-13 登记）。正文不得出现任何金额，也不得据此推断规模。README 原话：Free, open-source embroidery software…with built-in MCP support so AI agents can create and edit designs alongside you；无任何付费/定价信息"
+    },
+    "models": [],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 3
+    },
+    "verdict": "它卖的不是刺绣软件，是 AI 代理与人类设计师的协作接口。",
+    "what_it_does": "该项目为开源刺绣软件，提供内置 MCP 支持，允许 AI 代理创建和编辑设计。产品页面未披露收入、团队规模、上线时间或用户数。",
+    "how_it_makes_money": "素材未提供定价信息，仅注明为免费开源软件，具体定价档位未公开。",
+    "why_it_works": [
+      "MCP 协议使 AI 代理能直接读写设计文件，降低集成成本。",
+      "开源模式降低用户尝试门槛，无需付费即可验证工作流。",
+      "刺绣设计属于垂直领域，AI 代理介入可处理重复性排版任务。"
+    ],
+    "playbook": [
+      "将 AI 能力嵌入现有专业软件工作流，而非独立开发新工具。",
+      "通过开源核心功能获取开发者社区反馈，再决定商业化路径。",
+      "在垂直设计领域提供标准化接口，使 AI 代理能无缝接入。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [],
+    "sources": [
+      {
+        "label": "GitHub 仓库",
+        "url": "https://github.com/simpsoka/zigzag",
+        "kind": "official"
+      }
+    ],
+    "published_from": "hn-50470488",
+    "verified_at": "2026-11-14",
+    "updated_at": "2026-11-14",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official），按默认政策进精品池",
+    "quality_score": 15,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
   }
 ]

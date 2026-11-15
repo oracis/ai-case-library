@@ -1,77 +1,77 @@
 {
-  "ran_at": "2026-11-14 07:18:22",
-  "added": 52,
+  "ran_at": "2026-11-15 07:28:12",
+  "added": 50,
   "by_source": {
     "hn": 41,
-    "trustmrr": 11
+    "trustmrr": 9
   },
   "inbox_total": 400,
-  "archived_this_run": 52,
-  "archive_total": 1996,
+  "archived_this_run": 50,
+  "archive_total": 2046,
   "top": [
     {
-      "name": "Pattes & Moi",
-      "headline": "近 30 天收入 $2,624",
+      "name": "SmartlyCV",
+      "headline": "近 30 天收入 $417",
       "heat": 0,
       "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/pattes-moi"
+      "url": "https://trustmrr.com/startup/smartlycv"
     },
     {
-      "name": "PlasticAI",
-      "headline": "MRR $190，TrustMRR 第 4129 名",
+      "name": "DeepSearch AI - People Finder",
+      "headline": "近 30 天收入 $633",
       "heat": 0,
       "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/private-enterprise-32"
+      "url": "https://trustmrr.com/startup/deepsearch"
     },
     {
-      "name": "Nose Job - Plastic Surgery AI",
-      "headline": "近 30 天收入 $3,573",
+      "name": "Superpower for AI",
+      "headline": "近 30 天收入 $2,156",
       "heat": 0,
       "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/plastic-surgery-ai"
+      "url": "https://trustmrr.com/startup/superpower-for-ai"
     },
     {
-      "name": "MOGOFF",
-      "headline": "近 30 天收入 $134",
+      "name": "Private Enterprise",
+      "headline": "近 30 天收入 $329",
       "heat": 0,
-      "category": "AI 工具",
+      "category": "Entertainment",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/mogoff"
+      "url": "https://trustmrr.com/startup/regiere-deutschland"
     },
     {
-      "name": "JASP LLC",
-      "headline": "累计收入 $81（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
-      "heat": 0,
-      "category": "Utilities",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/jasp-llc"
-    },
-    {
-      "name": "Anvil builds premium websites at lower cost",
+      "name": "Gawain",
       "headline": "未获取",
-      "heat": 3,
+      "heat": 31,
       "category": "未分类",
       "source": "hn",
-      "url": "https://www.tryanvil.dev/"
+      "url": "https://github.com/matheuzgomes/gawain"
     },
     {
-      "name": "RewritePal",
-      "headline": "近 30 天收入 $188",
-      "heat": 0,
-      "category": "AI 工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/rewritepal"
+      "name": "A custom font based on the Jamaican flag alphabet",
+      "headline": "未获取",
+      "heat": 27,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://bobbiec.github.io/jamaican-font.html"
     },
     {
-      "name": "Sextant",
-      "headline": "近 30 天收入 $348",
-      "heat": 0,
-      "category": "Analytics",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/sextant"
+      "name": "Turbo-Browser-MCP",
+      "headline": "未获取",
+      "heat": 24,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://github.com/Tthanh2k6/turbo-browser-mcp"
+    },
+    {
+      "name": "Umbrella",
+      "headline": "未获取",
+      "heat": 10,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://umbrella.pixelegg.me/"
     }
   ]
 }
