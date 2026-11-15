@@ -1,6 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""把确认过的 4 条人工裁定写进 SCORES / DELIVERY 两张表（幂等、保格式）。
+"""⛔ 已封存，禁止运行（PRD #186）—— 历史一次性脚本，仅留作复现留档。
+
+PRD #184 之后 SCORES / DELIVERY 只存数值，文案唯一真值在 case_library；本脚本
+生成的条目自带 note= 与理由文案，重跑或当模板复用都会把副本写回静态表，使
+test_tables_have_no_note_copies 报红 —— 那是真污染，不是误报。入口已接
+score_table_guard.refuse_legacy_writer()，任何运行都会在读写文件之前被拒。
+正确做法与历史依据见 scripts/score_table_guard.py 与 docs/PRD.md #186。
+
+──────────────── 以下为 2026-11-06 原始说明，仅作留档 ────────────────
+把确认过的 4 条人工裁定写进 SCORES / DELIVERY 两张表（幂等、保格式）。
 
 只改 scripts/score_china_fit.py 与 scripts/score_solo_fit.py 两个文件的字典尾部，
 不改任何 data/ 数据；派生分由两个评分脚本自己算。
@@ -15,6 +24,9 @@ import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.join(ROOT, "scripts"))
+import score_table_guard as guard   # noqa: E402  PRD #186 封存口
+
 SRC = os.path.join(ROOT, "tmp", "htm_screen", "fit_scores_draft_20261106.json")
 CHINA = os.path.join(ROOT, "scripts", "score_china_fit.py")
 SOLO = os.path.join(ROOT, "scripts", "score_solo_fit.py")
@@ -61,6 +73,7 @@ def insert(path, varname, block, ids):
 
 
 def main():
+    guard.refuse_legacy_writer(os.path.basename(__file__))   # PRD #186：入口封存，读写之前
     d = json.load(open(SRC, encoding="utf-8"))
     scores, delivery = d["SCORES"], d["DELIVERY"]
 

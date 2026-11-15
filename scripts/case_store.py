@@ -42,6 +42,7 @@ SCRIPTS = os.path.join(ROOT, "scripts")
 if SCRIPTS not in sys.path:
     sys.path.insert(0, SCRIPTS)
 
+import case_name  # noqa: E402  展示名金额硬闸（PRD #183）
 import db  # noqa: E402
 
 #: JSON 镜像路径（进 git，供 diff 评审 / 回滚）
@@ -202,6 +203,20 @@ def count():
 
 # ------------------------------------------------------------------ 写
 
+def _guard_case_name(case):
+    """写库前最后一道硬闸：展示名不许带金额（PRD #183）。
+
+    标题 / 头条封面禁金额是渲染侧的判据，但判据只在全量测试时才跑得到；
+    入库侧一直没人拦，HN 帖子标题带 `~$20K` 就原样进了 `name`。这里对
+    **任何**调用方（评分脚本、清洗脚本、一次性修复、导入）统一生效。
+    """
+    for key in ("name", "name_en"):
+        val = case.get(key)
+        if val:
+            case_name.assert_clean_name(
+                val, "case[%s].%s" % (case.get("id"), key))
+
+
 def save_cases(cases, prune=False):
     """把一批案例写进库，**然后重导 JSON 镜像**。
 
@@ -218,6 +233,7 @@ def save_cases(cases, prune=False):
     for c in cases:
         if not isinstance(c, dict) or not c.get("id"):
             continue
+        _guard_case_name(c)
         db.upsert_case(conn, c)
         ids.add(c["id"])
     if prune:
@@ -233,6 +249,8 @@ def save_cases(cases, prune=False):
 def save_case(case):
     """单条写入（改一个案例时用它，比整批 save_cases 省事）。"""
     _guard_real_write("save_case()")
+    if isinstance(case, dict):
+        _guard_case_name(case)
     conn = db.get_conn()
     db.upsert_case(conn, case)
     conn.commit()

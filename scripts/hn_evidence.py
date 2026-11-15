@@ -43,6 +43,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
 import atomicio          # noqa: E402  原子写 + 文件锁
+import case_name as CN    # noqa: E402  展示名金额闸（PRD #183）
 import verify_rules as VR  # noqa: E402  证据等级与口径枚举的唯一来源
 
 LEADS_PATH = os.path.join(ROOT, "data", "hn_leads.json")
@@ -237,10 +238,17 @@ def build_inbox_entry(lead, ev):
                             % (label, ev["checked_at"], ev.get("note") or "")),
         }
 
+    # 线索池可能是旧数据 / 人工登记的，名称再过一次金额闸（PRD #183）。
+    # 证据字段 hn_title 保留原帖标题，不受影响。
+    disp_name = CN.clean_or_raise(
+        lead.get("name") or lead["id"], "hn_evidence.name")
+    disp_name_en = CN.clean_or_raise(
+        lead.get("name_en") or disp_name, "hn_evidence.name_en")
+
     entry = {
         "id": lead["id"],
-        "name": lead.get("name") or lead["id"],
-        "name_en": lead.get("name_en") or lead.get("name") or "",
+        "name": disp_name,
+        "name_en": disp_name_en,
         "origin": lead.get("origin") or "",
         "one_liner": lead.get("one_liner") or "",
         "category": lead.get("category") or "未分类",
