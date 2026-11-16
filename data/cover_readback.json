@@ -41,6 +41,15 @@
    "state": "unknown"
   }
  },
+ "easymix": {
+  "csdn": {
+   "at": "2026-11-15 23:52:03",
+   "evidence": "CSDN 列表读取失败（✗ Chrome CDP 没起来（端口 9224））",
+   "remote_id": "170822047",
+   "source": "live",
+   "state": "unknown"
+  }
+ },
  "ext-ep-002-2048": {
   "aliyun": {
    "at": "2026-11-06 14:11:20",
@@ -81,6 +90,13 @@
   }
  },
  "ext-ep-005-supertux": {
+  "aliyun": {
+   "at": "2026-11-16 11:30:36",
+   "evidence": "个人主页卡片 div.dynamic-image=https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_3bd6080be4a44a758a89d943bbd85c4f.jpg",
+   "remote_id": "1783930",
+   "source": "independent",
+   "state": "ok"
+  },
   "bilibili2": {
    "at": "2026-11-06 15:47:32",
    "evidence": "aid=376919 image_urls=http://article.biliimg.com/bfs/article/be1b2f6565cf478e6cd0e6accbe1df8b4498eef9.jpg",
@@ -188,6 +204,22 @@
    "evidence": "线上文章 2784172 pic 字段=https://developer.qcloudimg.com/http-save/yehe-12743977/edb5b4271646d546392079f12b36d79a.jpg",
    "note": "14:41 改摘要提交时封面重新上传，COS key 由 e60a07bf3536efe3426c95c5e64eec25 变为 edb5b4271646d546392079f12b36d79a（同一张图，平台换 key）",
    "remote_id": "2784172",
+   "source": "yun_finalize",
+   "state": "ok"
+  }
+ },
+ "ext-ep-012-openra": {
+  "bilibili2": {
+   "at": "2026-11-16 10:06:06",
+   "evidence": "匿名空间 API mid=409825959 首条 aid=53930055 image_urls=[https://i0.hdslb.com/bfs/article/bb3b441d7c07016529d53b11874c6847900ec7fb.png]",
+   "remote_id": "53930055",
+   "source": "independent",
+   "state": "ok"
+  },
+  "tencentcloud": {
+   "at": "2026-11-16 09:58:19",
+   "evidence": "线上文章 2785068 卡片缩略图 background-image=抽屉封面：https://developer-private-1258344699.cos.ap-guangzhou.myqcloud.com/editor/image/12743977/20261116-a159d665.jpeg?x-cos-security-token=4uzIuHLxErCbIil8qENEtLgT8A99jkKa985bdf53c067c45480ae213326d374b76sP5SxojKYGbv4fNzmj72vaU5tM6zriULM8VEr_DVu3wEjLQRXg25cYhIYBdTe",
+   "remote_id": "2785068",
    "source": "yun_finalize",
    "state": "ok"
   }

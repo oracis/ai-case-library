@@ -399,44 +399,116 @@ def upload_image(cdp, cover):
     cdp.send("Page.enable")
     cdp.send("DOM.enable")
     cdp.send("Page.setInterceptFileChooserDialog", {"enabled": True})
+    backend = None
     try:
-        pos = _pos_of(cdp, """
-          [].filter.call(document.querySelectorAll('button'),
-            function(e){ return (e.textContent||'').trim() === '上传图片'; })[0]""")
-        if not isinstance(pos, dict):
-            print("  阿里云传图: 没找到「上传图片」按钮")
-            return ""
-        _click_real(cdp, pos)
-        backend = None
-        deadline = time.time() + 12
-        while time.time() < deadline:
-            try:
-                msg = json.loads(cdp.ws.recv_text())
-            except Exception:
-                continue
-            if msg.get("method") == "Page.fileChooserOpened":
-                backend = msg["params"].get("backendNodeId")
+        # 🚨 优先直接给页面里的 `input[type=file]` 塞文件（2026-11-16）：
+        #   「上传图片」按钮点了不弹 fileChooser 时（页面态变化 / 按钮被别的
+        #   浮层挡住），点击这条路整条废掉，但 input 还在 DOM 里 ——
+        #   `DOM.setFileInputFiles` 直接置文件同样会触发 change，是最稳的一条。
+        try:
+            doc = cdp.send("DOM.getDocument", {"depth": -1})
+            root = ((doc or {}).get("result") or {}).get("root") or {}
+            node = cdp.send("DOM.querySelector", {
+                "nodeId": root.get("nodeId"),
+                "selector": "input[type=file]"})
+            nid = ((node or {}).get("result") or {}).get("nodeId")
+            if nid:
+                cdp.send("DOM.setFileInputFiles", {
+                    "files": [os.path.abspath(cover)],
+                    "nodeId": nid})
+                backend = "direct-input"
+                print("  阿里云传图: 直接写入 input[type=file]（跳过文件选择器）")
+            else:
+                print("  阿里云传图: 页面里没有 input[type=file]，回退点击路径")
+        except Exception as e:                             # noqa: BLE001
+            print("  阿里云传图: 直写 input 失败（%s），回退点击路径" % str(e)[:80])
+        # 回退：点「上传图片」→ 拦 fileChooser（最多 3 次：先滚动到可见）
+        for attempt in range(1, 4) if not backend else range(0):
+            cdp.eval("""
+(function(){var b=[].filter.call(document.querySelectorAll('button'),
+  function(e){ return (e.textContent||'').trim() === '上传图片'; })[0];
+  if(b) b.scrollIntoView({block:'center'}); return !!b;})()""")
+            time.sleep(1)
+            pos = _pos_of(cdp, """
+              [].filter.call(document.querySelectorAll('button'),
+                function(e){ return (e.textContent||'').trim() === '上传图片'; })[0]""")
+            if not isinstance(pos, dict):
+                print("  阿里云传图: 没找到「上传图片」按钮")
+                return ""
+            _click_real(cdp, pos)
+            deadline = time.time() + 10
+            while time.time() < deadline:
+                try:
+                    msg = json.loads(cdp.ws.recv_text())
+                except Exception:
+                    continue
+                if msg.get("method") == "Page.fileChooserOpened":
+                    backend = msg["params"].get("backendNodeId")
+                    break
+            if backend:
                 break
+            print("  阿里云传图: 第 %d 次没触发 fileChooser，2 秒后重试" % attempt)
+            time.sleep(2)
         if not backend:
-            print("  阿里云传图: fileChooser 未触发")
+            print("  阿里云传图: fileChooser 未触发（3 次）")
             return ""
-        cdp.send("DOM.setFileInputFiles",
-                 {"files": [os.path.abspath(cover)], "backendNodeId": backend})
+        if backend != "direct-input":
+            cdp.send("DOM.setFileInputFiles",
+                     {"files": [os.path.abspath(cover)], "backendNodeId": backend})
     finally:
         cdp.send("Page.setInterceptFileChooserDialog", {"enabled": False})
     # 等上传出列表项
+    # 🚨 2026-11-16：原版只等 25 秒、只读 `.next-upload-list-item img` 的
+    #   `src`，一旦列表项先出现而 `src` 还是空/blob 就返回 ""，于是
+    #   「图其实已传到 ucc、只是没拿到地址」被记成「上传失败」
+    #   （supertux 1783930 实测：日志是「列表项出现但没抓到 URL」，
+    #   台账却写成了 upload_image 返回空 ⇒ cover_readback=empty）。
+    #   现在改成轮询到 75 秒 + 多策略取址 + 每轮打印诊断，
+    #   并且**只认 http(s) 地址**，blob:/data: 一律当「还没好」继续等。
     url = ""
-    deadline = time.time() + 25
+    deadline = time.time() + 75
+    seen = []
     while time.time() < deadline:
         time.sleep(2)
-        n = cdp.eval(
-            "document.querySelectorAll('.next-upload-list-item').length") or 0
-        if isinstance(n, int) and n > 0:
-            url = cdp.eval(r"""
+        try:
+            probe = cdp.eval(r"""
 (function(){
-  var it = document.querySelector('.next-upload-list-item img');
-  return it ? (it.src || '') : '';
-})()""") or ""
+  var items = [].slice.call(document.querySelectorAll('.next-upload-list-item'));
+  var rows = items.map(function(it){
+    var img = it.querySelector('img');
+    var bg = getComputedStyle(it).backgroundImage || '';
+    var m = bg.match(/url\("?([^")]+)"?\)/);
+    return {
+      src: img ? (img.src || '') : '',
+      dataSrc: img ? (img.getAttribute('data-src') || img.getAttribute('data-original') || '') : '',
+      bg: m ? m[1] : '',
+      html: (it.outerHTML || '').slice(0, 260)
+    };
+  });
+  return JSON.stringify({n: items.length, rows: rows});
+})()""")
+        except Exception:
+            continue
+        try:
+            info = json.loads(str(probe))
+        except (ValueError, TypeError):
+            continue
+        rows = info.get("rows") or []
+        if not rows:
+            continue
+        if not seen and rows:
+            seen = rows
+            print("  阿里云传图列表项（诊断）: %d 条 ｜ %s"
+                  % (len(rows), str(rows[0].get("html") or "")[:200]))
+        for r in rows:
+            for k in ("src", "dataSrc", "bg"):
+                v = str(r.get(k) or "")
+                if v.startswith("http") and "/avatar/" not in v:
+                    url = v
+                    break
+            if url:
+                break
+        if url:
             break
     print("  阿里云传图: %s" % (url or "(列表项出现但没抓到 URL)"))
     return url

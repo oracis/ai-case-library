@@ -254,5 +254,14 @@
     "verified_at": "2026-11-15 11:49:33",
     "evidence": "space-article-list",
     "note": "｜草稿同步(2026-10-14 13:26): title 认领 aid=343829 ‖ [11-15] send-draft 报 failed 属列表延迟，独立回读首条命中后补账，未重发"
+  },
+  {
+    "id": "homy",
+    "at": "2026-11-16 09:29",
+    "article_id": "53930235",
+    "title": "Homy：Mac 上更快的文件搜索",
+    "verified_at": "2026-11-16 09:40",
+    "evidence": "space-article-list",
+    "note": "｜2026-11-16 全平台一轮：远端独立回读命中后补账（中断丢写）"
   }
 ]
