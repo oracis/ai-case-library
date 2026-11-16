@@ -1,77 +1,78 @@
 {
-  "ran_at": "2026-11-15 07:28:12",
-  "added": 50,
+  "ran_at": "2026-11-16 07:34:04",
+  "added": 48,
   "by_source": {
     "hn": 41,
-    "trustmrr": 9
+    "indiehackers": 1,
+    "trustmrr": 6
   },
   "inbox_total": 400,
-  "archived_this_run": 50,
-  "archive_total": 2046,
+  "archived_this_run": 48,
+  "archive_total": 2094,
   "top": [
     {
-      "name": "SmartlyCV",
-      "headline": "近 30 天收入 $417",
+      "name": "SubmitSaaS",
+      "headline": "近 30 天收入 $2,402",
+      "heat": 0,
+      "category": "营销工具",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/submitsaas"
+    },
+    {
+      "name": "CozyRoom",
+      "headline": "近 30 天收入 $2,058",
+      "heat": 0,
+      "category": "企业服务",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/cozyroom"
+    },
+    {
+      "name": "Screeny: Mockup & Product Demo",
+      "headline": "近 30 天收入 $2,555",
+      "heat": 0,
+      "category": "移动应用",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/screeny"
+    },
+    {
+      "name": "Headroom AI Editor",
+      "headline": "MRR $984",
       "heat": 0,
       "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/smartlycv"
+      "url": "https://trustmrr.com/startup/evenflow"
     },
     {
-      "name": "DeepSearch AI - People Finder",
-      "headline": "近 30 天收入 $633",
+      "name": "Herd: Social Listening Tool",
+      "headline": "TrustMRR 收录（收入未公开）",
       "heat": 0,
-      "category": "AI 工具",
+      "category": "未分类",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/deepsearch"
+      "url": "https://trustmrr.com/startup/herd"
     },
     {
-      "name": "Superpower for AI",
-      "headline": "近 30 天收入 $2,156",
-      "heat": 0,
-      "category": "AI 工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/superpower-for-ai"
-    },
-    {
-      "name": "Private Enterprise",
-      "headline": "近 30 天收入 $329",
-      "heat": 0,
-      "category": "Entertainment",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/regiere-deutschland"
-    },
-    {
-      "name": "Gawain",
+      "name": "The Last Complication, a Zachtronics-style watchmaking puzzle game",
       "headline": "未获取",
-      "heat": 31,
+      "heat": 69,
       "category": "未分类",
       "source": "hn",
-      "url": "https://github.com/matheuzgomes/gawain"
+      "url": "https://lastcomplication.com/"
     },
     {
-      "name": "A custom font based on the Jamaican flag alphabet",
+      "name": "Rbit",
       "headline": "未获取",
-      "heat": 27,
+      "heat": 7,
       "category": "未分类",
       "source": "hn",
-      "url": "https://bobbiec.github.io/jamaican-font.html"
+      "url": "https://rbit.sh/"
     },
     {
-      "name": "Turbo-Browser-MCP",
+      "name": "Minute",
       "headline": "未获取",
-      "heat": 24,
+      "heat": 7,
       "category": "未分类",
       "source": "hn",
-      "url": "https://github.com/Tthanh2k6/turbo-browser-mcp"
-    },
-    {
-      "name": "Umbrella",
-      "headline": "未获取",
-      "heat": 10,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://umbrella.pixelegg.me/"
+      "url": "https://minutenotes.app/"
     }
   ]
 }

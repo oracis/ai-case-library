@@ -1,6 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""把 C 档（综合 < 50，别搬）22 条合并进 score_solo_fit.DELIVERY / score_china_fit.SCORES。
+"""⛔ 已封存，禁止运行（PRD #186）—— 历史一次性脚本，仅留作复现留档。
+
+PRD #184 之后 SCORES / DELIVERY 只存数值，文案唯一真值在 case_library；本脚本
+生成的条目自带 note= 与理由文案，重跑或当模板复用都会把副本写回静态表，使
+test_tables_have_no_note_copies 报红 —— 那是真污染，不是误报。入口已接
+score_table_guard.refuse_legacy_writer()，任何运行都会在读写文件之前被拒。
+正确做法与历史依据见 scripts/score_table_guard.py 与 docs/PRD.md #186。
+
+──────────────── 以下为 2026-11-04 原始说明，仅作留档（用法已作废）────────────────
+把 C 档（综合 < 50，别搬）22 条合并进 score_solo_fit.DELIVERY / score_china_fit.SCORES。
 
 分数一律取 tmp/fit_proposal_2026-11-04.json 的原值，只补写理由文案 ——
 B 档那次「写理由时二次判断导致 53 条分数与提案不同」不重演。
@@ -15,6 +24,9 @@ import sys
 import py_compile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.join(ROOT, "scripts"))
+import score_table_guard as guard   # noqa: E402  PRD #186 封存口
+
 KEYS = ["demand", "payment", "compliance", "acquisition", "localization", "competition"]
 PUNCT = "。，；、：」，）"
 LABEL = {"demand": "需求", "payment": "付费", "compliance": "合规",
@@ -342,6 +354,7 @@ def check_roundtrip(entries):
 
 
 def main():
+    guard.refuse_legacy_writer(os.path.basename(__file__))   # PRD #186：入口封存，读写之前
     dry = "--dry" in sys.argv
     entries, ids = build_entries()
     validate(entries, ids)

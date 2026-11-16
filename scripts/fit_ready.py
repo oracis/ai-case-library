@@ -47,6 +47,7 @@ sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
 import score_china_fit as CF          # noqa: E402
 import score_solo_fit as SF           # noqa: E402
+import score_value_parity as SVP      # noqa: E402  表↔库数值对账（PRD #185）
 import atomicio                       # noqa: E402  原子写盘：半截 cases.json 整库失效
 
 if hasattr(sys.stdout, "reconfigure"):
@@ -247,6 +248,21 @@ def cmd_check():
     for cid in REPLICABILITY:
         if cid in rep:
             print("  本文件已备好 replicability：%s → %s" % (cid, REPLICABILITY[cid]))
+
+    # PRD #185：数值层面的表↔库对账。上面三行只查「有没有判断」，查不出
+    # 「判断表改了却没重跑」或「库里的派生数值被手改过」——那类漂移以前只能
+    # 靠人肉对账。发布前体检顺手跑一遍，有错就返回非 0（只读，不改任何数据）。
+    print()
+    parity = SVP.audit(cases)
+    s = parity["stats"]
+    print("  数值对账：表判断 %d 条 / 中位数兜底 %d 条 / preserve %d 条"
+          % (s["table_scored"], s["fallback_provisional"], s["preserved"]))
+    if parity["errors"]:
+        print("  [FAIL] 表↔库数值不一致 %d 处：" % len(parity["errors"]))
+        for e in parity["errors"][:10]:
+            print("    · %-28s %s | %s" % (e["kind"], e["case_id"], e["detail"]))
+        return 1
+    print("  [OK] 表↔库数值逐键一致，缺表案例按 11-06 中位数兜底。")
     return 0
 
 

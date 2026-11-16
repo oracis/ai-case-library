@@ -63,6 +63,25 @@ CDP_PORT = int(os.environ.get("CDP_TOUTIAO_PORT", 9223))
 TITLE_MAX = 30          # 头条标题硬上限（实测后台 30 字，超了会被截断/拦）
 BODY_MIN = 300          # 头条推荐 1000+ 字，低于这个数建议别发
 
+# 封面金额判据（2026-11-15 提到生成器里，判据单一源）。
+# 原先只定义在 test_toutiao_publish.TestTtCoverNum._MONEY 与 out/cover_audit.py，
+# 想复用它的清洗脚本一 import 测试模块就会带进 unittest，被 case_store 的
+# 「测试进程不许写真库」闸拦下。现在测试类与脚本都引用这一份正则。
+# 自带「正例必抓 / 反例不误报」自测（B2B 曾被当成 B2 金额，见测试）。
+COVER_MONEY_PAT = re.compile(
+    r"(?:"
+    r"\$" + r"\d[\d,.]*"
+    + r"|" + r"\d[\d,.]*" + r"\s*(?:美元|美金|元|人民币|刀|usd|rmb|cny)"
+    + r"|(?:" + r"\d[\d,.]*" + r"\s*(?:万|千)\s*(?:美元|美金|元|人民币))"
+    + r"|(?:" + r"\d[\d,.]*" + r"\s*(?:万|千)"
+                    r"(?=\s*(?:MRR|收入|营收|流水|用户|月)))"
+    + r"|(?:" + r"\d[\d,.]*" + r"\s*(?:K|M|B)\s*(?:MRR|ARR)?"
+                    r"(?=\s*(?:收入|营收|流水|/月|月)))"
+    + r"|(?:月入|年收入|营收|月收入|收入|流水|MRR|ARR)"
+                    r"\s*(?:达|到|从|为|[:：])?\s*\$?" + r"\d[\d,.]*"
+    + r")",
+    re.I)
+
 TT_HOME = "https://mp.toutiao.com/"
 # 发文页（创作端「写文章」）。2026-09-27 实测：新版创作端的发文页是
 #   /profile_v4/graphic/publish

@@ -121,8 +121,8 @@
   },
   {
     "id": "hn-50470488",
-    "name": "My $300 embroidery machine needed a subscription, so I built my own app",
-    "name_en": "My $300 embroidery machine needed a subscription, so I built my own app",
+    "name": "My embroidery machine needed a subscription, so I built my own app",
+    "name_en": "My embroidery machine needed a subscription, so I built my own app",
     "origin": "",
     "one_liner": "https://x.com/simpsoka/status/2115254318161182876",
     "category": "未分类",
@@ -401,8 +401,8 @@
   },
   {
     "id": "hn-50368208",
-    "name": "A decent text-to-image model trained for ~$20K (Apache 2.0 Weights)",
-    "name_en": "A decent text-to-image model trained for ~$20K (Apache 2.0 Weights)",
+    "name": "A decent text-to-image model (Apache 2.0 Weights)",
+    "name_en": "A decent text-to-image model (Apache 2.0 Weights)",
     "origin": "",
     "one_liner": "My brother and I run a 2-person lab that trains our own generative video models from scratch. The ultimate goal is a set of creative tools that make it easier for anyone to make animation. Video models today are too slow/expensive and lack ",
     "category": "未分类",
@@ -1361,8 +1361,8 @@
   },
   {
     "id": "hn-47536761",
-    "name": "I put an AI agent on a $7/month VPS with IRC as its transport layer",
-    "name_en": "I put an AI agent on a $7/month VPS with IRC as its transport layer",
+    "name": "I put an AI agent on a VPS with IRC as its transport layer",
+    "name_en": "I put an AI agent on a VPS with IRC as its transport layer",
     "origin": "",
     "one_liner": "The stack: two agents on separate boxes. The public one (nullclaw) is a 678 KB Zig binary using ~1 MB RAM, connected to an Ergo IRC server. Visitors talk to it via a gamja web client embedded in my site. The private one (ironclaw) handles e",
     "category": "未分类",

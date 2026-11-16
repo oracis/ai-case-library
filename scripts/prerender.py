@@ -41,6 +41,7 @@ from datetime import date
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
+import case_name as _CN                              # noqa: E402  金额判据单一源
 from text_clean import clean_snapshot_marks          # noqa: E402
 
 CASE_DIR = "case"                 # 案例页所在的子目录
@@ -298,8 +299,10 @@ TITLE_BREAKS = "，,、；;。：:·|｜！!？?"
 #   2. 平台状态 —— 「App Store 在架」「已上架」是核验结论，不是产品说明。
 # 命中就整段丢掉（连分句一起丢），不做「把 $5,371.18 抠掉」这种半截处理：
 # 抠完会留下「当前 MRR 为」这种断头句，比不写更难看。
-MONEY_PAT = re.compile(r"[$¥€£￥]\s*\d|\b(?:MRR|ARR)\b", re.I)
-MONEY_WORD_PAT = re.compile(r"收入|营收|客单价|单价|定价|月费|年费|流水|买断")
+# 2026-11-15（PRD #183）：金额判据上移到 `case_name`，入库口与渲染口共用同一份，
+# 免得「入库时放行、渲染时才炸」。下面两行是别名，`m.MONEY_PAT` 的老用法不变。
+MONEY_PAT = _CN.MONEY_PAT
+MONEY_WORD_PAT = _CN.MONEY_WORD_PAT
 META_PAT = re.compile(r"在架|上架|下架|App\s*Store|Google\s*Play|Product\s*Hunt", re.I)
 
 

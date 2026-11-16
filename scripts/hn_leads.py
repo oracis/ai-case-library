@@ -96,6 +96,7 @@ if SCRIPTS not in sys.path:
 
 import atomicio  # noqa: E402
 import candidate_store as CSt  # noqa: E402
+import case_name as CN  # noqa: E402  展示名金额闸（PRD #183）
 import harvest as H  # noqa: E402
 
 HN_WEB = "https://news.ycombinator.com"
@@ -229,7 +230,13 @@ def to_lead(hit, role="lead"):
     oid = str(hit.get("objectID") or "").strip()
     title = H.clean(hit.get("title") or "")
     body = H.clean(hit.get("story_text") or "")
-    name = H.split_title(SHOW_HN_RE.sub("", title))[0][:90] or ("hn-%s" % oid)
+    raw_name = H.split_title(SHOW_HN_RE.sub("", title))[0]
+    # 展示名不许带金额（PRD #183）：帖子里的「训练花了 ~$20K」「$300 的机器」
+    # 是成本/售价，不是产品名的一部分，写进 name 会一路带进标题与封面。
+    # ⚠️ 原帖标题原样留在 hn_title，证据链一个字不丢；清洗不掉的（例如名称
+    # 本身就是「收入管理」这类词）留给后续 hn_evidence / case_store 硬闸打回人工，
+    # 自动采集不因一条标题中断整批。
+    name = CN.clean_display_name(raw_name)[:90].strip() or ("hn-%s" % oid)
     url = hit.get("url") or ("%s/item?id=%s" % (HN_WEB, oid))
     website, domain = _website_of(url)
     created = (hit.get("created_at") or "")[:10]

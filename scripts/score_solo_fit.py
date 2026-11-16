@@ -51,6 +51,8 @@ import os
 import sys
 from datetime import datetime
 
+import score_note_policy as SNP   # 文案裁定单一源（PRD #183）
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(ROOT, "data")
 
@@ -102,128 +104,85 @@ def _plain(s):
     return (s or "").replace("**", "")
 
 
+# ------------------------------------------------------------------ 评分表
+# PRD #184：文案（delivery_note）的唯一真值在 case_library。表里第二位恒为
+# NOTE_IN_LIBRARY（空串），只为维持 (分数, 理由) 的历史 tuple 形状；要改文案
+# 请回库里改，不要写回这张表 —— 库里的数字会随快照刷新，源码副本必然漂移。
+NOTE_IN_LIBRARY = ""
+
 DELIVERY = {
     # ── 2026-10-26 backlog「有条件」档入库的 6 条 ──
-    "serviceform": (2, "卖出后要接官网、接 CRM、接企业微信/WhatsApp，还要按客户所在行业配"
-                       "预约与线索流转规则——这是有实施环节的 B2B，一个人做不了。它自己用"
-                       "145+ 家代理商承担交付，正是因为这个活不能靠产品自助完成。"),
-    "salesrobot": (3, "开通是自助的，负担在**天天处理封号与限速**：平台风控一变，用户发不出去"
-                      "就来找你，申诉、换 IP、调节奏都得做，没法外包也不能排期。"),
-    "jobright": (4, "C 端自助，没有实施环节；长期负担在数据与匹配质量——职位数据要持续清洗、"
-                    "匹配规则要跟着招聘季调，属「长期小修」而不是「一次性上线」。"),
-    "sandra-ai": (3, "每家车行的 DMS、排班、话术都不一样，上线要陪客户核对一遍，"
-                     "但接听是 AI 做，不需要值守——比纯人肉的语音前台轻，比纯 SaaS 重。"),
-    "outward": (2, "项目制交付：问卷设计、抽样、质控、出报告，每个项目都有人工判断环节，"
-                   "AI 压的是流程成本不是交付责任；一个人只能做到很窄的品类。"),
-    "workhero": (1, "本质是**服务外包**：AI 执行 + 真人办公室经理复核，每个客户都要一个"
-                    "懂 HVAC 的人盯着。它的 11 人团队就是交付能力本身，不是可选项。"),
+    "serviceform": (2, NOTE_IN_LIBRARY),
+    "salesrobot": (3, NOTE_IN_LIBRARY),
+    "jobright": (4, NOTE_IN_LIBRARY),
+    "sandra-ai": (3, NOTE_IN_LIBRARY),
+    "outward": (2, NOTE_IN_LIBRARY),
+    "workhero": (1, NOTE_IN_LIBRARY),
     # ── 2026-10-26 backlog「形态可抄」第一梯队入库的 3 条 ──
-    "autoshorts": (3, "自助订阅，开通零实施；负担在分发管道——TikTok/YouTube/IG 的接口、"
-                      "限额与风控三天两头变，用户发不出去第一个找的是你，这部分没法外包。"),
-    "rosie": (4, "自助配置为主：读商家资料、设预约规则，几分钟上线；"
-                 "偶尔要帮客户做号码转移与日历对接，但不需要实施团队，也没有 7×24 值守"
-                 "（电话是 AI 接，不是人接）。"),
-    "boredhumans": (3, "零交付：工具即开即用，没有 onboarding。真正的负担在**持续上新与 SEO 维护**——"
-                       "100+ 个页面要跟着搜索规则改，停更就开始掉流量，这是慢性的活。"),
+    "autoshorts": (3, NOTE_IN_LIBRARY),
+    "rosie": (4, NOTE_IN_LIBRARY),
+    "boredhumans": (3, NOTE_IN_LIBRARY),
     # ── 2026-10-26 TrustMRR 档案已下架的两条 ──
-    "gistly": (2, "卖法是 Book a demo 的企业单：要接通话系统与 CRM、过安全评审、按客户定 QA 规则，"
-                  "客户流失时还要有人复盘为什么评分不准——一个人扛不住交付与售后，"
-                  "这也是它 155 个客户就得配直销的原因。"),
-    "research-match": (4, "纯自助订阅，没有实施环节，一个人能交付；真正的负担在维护——"
-                          "2.5 亿篇论文索引要持续更新、20+ 位教授沉淀的检查规则要跟着修订，"
-                          "是「长期小修」而不是「一次性上线」。"),
+    "gistly": (2, NOTE_IN_LIBRARY),
+    "research-match": (4, NOTE_IN_LIBRARY),
     # ── 2026-10-26 从 howtomakemi 官方披露线入库的 8 条 ──
-    "arcads": (4, "自助订阅为主；客户是投放团队，素材跑不动会来问怎么调，"
-                  "有一点顾问成分，但不是实施。"),
-    "instantly": (4, "自助开通；只有暖箱与可交付性出问题时才需要人介入排障。"),
-    "ahron": (2, "卖的是流程挖掘 + 集成，必须有人做实施、对接 ATS/绩效系统，"
-                 "4 人团队已经到极限——这也解释了它为什么零销售。"),
-    "fyxer": (3, "个人版自助，企业版要过 IT 审批与邮箱域授权，得有人配合客户 IT。"),
-    "heyreach": (3, "客户是 agency，账号被封、轮换策略失效都要人处理申诉与重配。"),
-    "campfire": (1, "替换 ERP 涉及总账迁移、历史数据核对、审计口径确认，"
-                    "没有实施团队根本交付不了。"),
-    "wispr-flow": (5, "装完即用，零交付、零运维。"),
-    "build-concierge": (2, "要接客户的电话系统与工单系统，还要按行业调流程，"
-                           "实施与调优省不掉。"),
-    "gojiberryai": (3, "自动触达要天天盯：发送限频、封号申诉、话术迭代，客户还会追着问"
-                       "线索质量——售后省不掉。它自己就经历过「支持过载、几乎不睡」那一阵。"),
-    "sierra": (1, "交付对象是美国财富 500 强：要 SLA、要合规审计、要 7×24 待命。"
-                  "这不是「忙一点」，是要养一个交付团队。"),
-    "genius-ai": (3, "多租户 SaaS 单人能维护，但门店客户会打电话、要上门教，"
-                     "客服人力省不掉。"),
-    "nitra": (1, "医疗软件要过资质、数据不出院、HIS 对接，"
-                 "合规和技术支持都必须有团队和法人主体。"),
-    "viktor": (2, "产品本身一个人写得出来，但企业客户要采购流程、要约演示、"
-                  "要有人在群里响应。"),
-    "chatbase": (4, "自助式 SaaS，用户自己注册自己配。人工交付几乎为零。"),
-    "rezi": (5, "纯自助工具，付钱就能用，没有交付环节。"),
-    "postiz": (4, "开源自部署，社区和文档替你承担了大量售后。"),
-    "shipfast": (5, "数字商品，买完就走。零交付、零运维。"),
-    "trustmrr": (5, "纯信息展示站，没有交付。"),
-    "comp-ai": (2, "合规审计结论要有资质背书，客户买的是「谁来签字」，不是工具。"),
-    "aeo-engine": (5, "纯 SaaS 自助，客户自己看报表。"),
-    "lancer-app": (4, "数据订阅，只需定期维护采集管道。"),
-    "speel-co": (4, "SaaS 自助，但生成质量偶尔要人工兜底，留一点人力。"),
-    "visualizee-ai": (4, "渲染服务自助化，出图不满意客户会来找，但不算重人力。"),
-    "checkvibe": (5, "工具型产品，跑完出报告，没有交付环节。"),
-    "storyshort-ai": (4, "自助生成，人工介入很少。"),
-    "meerkats-ai": (2, "自动外呼要呼叫基础设施 + 合规审核 + 话术迭代，"
-                      "而且出问题要有人兜。"),
-    "coral": (4, "开源可自部署，售后被社区分担。"),
-    "startclaw": (4, "托管平台，自助开通。"),
-    "outrank": (5, "SaaS 自助。"),
-    "marc-lou-portfolio": (5, "全是数字产品和轻 SaaS，天然无交付。"),
-    "bustem": (4, "投诉流程可以自动化，但平台申诉要按规则人工调整策略。"),
-    "kibu": (1, "客户是机构，采购要走关系、走评审，还要有人驻场培训。"),
-    "pieter-levels": (5, "Photo AI 这类纯自助，付钱即用。"),
+    "arcads": (4, NOTE_IN_LIBRARY),
+    "instantly": (4, NOTE_IN_LIBRARY),
+    "ahron": (2, NOTE_IN_LIBRARY),
+    "fyxer": (3, NOTE_IN_LIBRARY),
+    "heyreach": (3, NOTE_IN_LIBRARY),
+    "campfire": (1, NOTE_IN_LIBRARY),
+    "wispr-flow": (5, NOTE_IN_LIBRARY),
+    "build-concierge": (2, NOTE_IN_LIBRARY),
+    "gojiberryai": (3, NOTE_IN_LIBRARY),
+    "sierra": (1, NOTE_IN_LIBRARY),
+    "genius-ai": (3, NOTE_IN_LIBRARY),
+    "nitra": (1, NOTE_IN_LIBRARY),
+    "viktor": (2, NOTE_IN_LIBRARY),
+    "chatbase": (4, NOTE_IN_LIBRARY),
+    "rezi": (5, NOTE_IN_LIBRARY),
+    "postiz": (4, NOTE_IN_LIBRARY),
+    "shipfast": (5, NOTE_IN_LIBRARY),
+    "trustmrr": (5, NOTE_IN_LIBRARY),
+    "comp-ai": (2, NOTE_IN_LIBRARY),
+    "aeo-engine": (5, NOTE_IN_LIBRARY),
+    "lancer-app": (4, NOTE_IN_LIBRARY),
+    "speel-co": (4, NOTE_IN_LIBRARY),
+    "visualizee-ai": (4, NOTE_IN_LIBRARY),
+    "checkvibe": (5, NOTE_IN_LIBRARY),
+    "storyshort-ai": (4, NOTE_IN_LIBRARY),
+    "meerkats-ai": (2, NOTE_IN_LIBRARY),
+    "coral": (4, NOTE_IN_LIBRARY),
+    "startclaw": (4, NOTE_IN_LIBRARY),
+    "outrank": (5, NOTE_IN_LIBRARY),
+    "marc-lou-portfolio": (5, NOTE_IN_LIBRARY),
+    "bustem": (4, NOTE_IN_LIBRARY),
+    "kibu": (1, NOTE_IN_LIBRARY),
+    "pieter-levels": (5, NOTE_IN_LIBRARY),
 
     # ---- 2026-09-20 发布的一批 ----
-    "1lookup": (4, "纯按量调用的 API，客户接进去就不再来找你了。"
-                   "唯一的人工地带是数据准确率被投诉时要去查样本 —— 那是偶尔的，不是常态。"),
-    "stan": (2, "创作者平台的交付重在地推和客服：要拉创作者入驻、帮他们配好收银页、"
-                "处理提现与纠纷。支付类产品出问题就是钱的纠纷，必须有人接。"),
-    "magicslides-app": (5, "自助 SaaS，输入主题出 PPT，没有交付环节。"
-                           "导出坏图这类偶发问题不足以养人。"),
-    "autoreels-ai": (4, "批量生成基本自助，但成片质量不达标时客户会要求重生成或调参，"
-                        "留一点人工兜底。"),
-    "insect-bite-id": (5, "拍照出结果的单点工具，用完即走，零交付。"
-                          "唯一的售后是识别错误的反馈，量小且异步。"),
+    "1lookup": (4, NOTE_IN_LIBRARY),
+    "stan": (2, NOTE_IN_LIBRARY),
+    "magicslides-app": (5, NOTE_IN_LIBRARY),
+    "autoreels-ai": (4, NOTE_IN_LIBRARY),
+    "insect-bite-id": (5, NOTE_IN_LIBRARY),
 
     # ---- 2026-09-25 补的一批（TrustMRR 挂牌标的为主）----
-    "voklit": (2, "通信服务要 7×24 值守：号码被封、通道波动、客户收不到验证码"
-                  "都是当天的紧急工单，还要持续对接上游运营商与各国合规。"
-                  "它的终局（停机挂牌）本身就是这条最有力的证据。"),
-    "prosp": (3, "SaaS 部分基本自助，但自动外呼要天天盯发送限频、封号申诉和"
-                 "话术迭代，客户还会追着问线索质量 —— 和 gojiberryai、meerkats-ai"
-                 "是同一类负担，只是它的数据是 AI 生成的，人工稍轻。"),
-    "divine-widgets": (5, "内容是现成经文与配图，推送全自动，1 人已跑起来。"
-                          "没有交付环节，也没有客服人力。"),
-    "promptmonitor-io": (4, "定时跑批出报告，自助订阅为主；"
-                            "偶尔要向客户解释「这个曝光数据是怎么采的」，"
-                            "属于支持成本，不是交付人力。"),
-    "uplinked-b-v": (2, "它已经不是一个人的项目：团队 2–5 人、web + iOS + Android "
-                        "三端并行，而顾问型客户买的是「有人帮我搞定」，"
-                        " onboarding 与陪跑省不掉。"),
-    "le19emetrou": (5, "履约全自动——供应商下单、物流跟踪、客户邮件全部自动触发，"
-                       "1 人已跑通 26 单。唯一的活是调广告，那属于获客不是交付。"),
-    "search1api": (4, "无状态 API，客户接进去就不再来找你；"
-                      "人工只在故障与上游成本波动时出现，非常态。"),
+    "voklit": (2, NOTE_IN_LIBRARY),
+    "prosp": (3, NOTE_IN_LIBRARY),
+    "divine-widgets": (5, NOTE_IN_LIBRARY),
+    "promptmonitor-io": (4, NOTE_IN_LIBRARY),
+    "uplinked-b-v": (2, NOTE_IN_LIBRARY),
+    "le19emetrou": (5, NOTE_IN_LIBRARY),
+    "search1api": (4, NOTE_IN_LIBRARY),
 
     # ---- 2026-09-30 补的两条 ----
-    "mort": (4, "求职工具本身是自助订阅，但自动投递是「代用户操作」："
-                "投错公司、投到已关闭的岗位、或被 ATS 判为异常投递，都要有人兜。"
-                "交付量不大，但因为是替人做一件有后果的事，不能做到零人力。"),
-    "quran-unlock": (5, "纯自助 App：免费下载、进度全自动、订阅走 RevenueCat，"
-                        "用户不会来问任何问题。1 人团队（TrustMRR 记 1 person）已跑起来。"),
+    "mort": (4, NOTE_IN_LIBRARY),
+    "quran-unlock": (5, NOTE_IN_LIBRARY),
 
     # ---- 2026-10-05 补的两条（premium 晋升时漏了，卡住 fit_ready 闸门）----
-    "harperai": (2, "产品是数据对齐加AI 检索，但它的客户是贷款经纪与再融资顾问："
-                    " £300/月 买的是「别错过这次再融资窗口」，出了漏提醒就是真金白银的损失，"
-                    "客户会追着问某笔 charge 到底解没解押。这类生意要有人接需求、"
-                    "做培训、扛数据源变更，一个人能跑，但跑不满。"),
-    "easymix": (2, "上传音轨就能出成品，自助程度高；可音乐人会在意「这版到底干不干净」，"
-                   "要求重调EQ / 换母带是常态。人工带宽压得住，不等于零 —— "
-                   "定价对着录音棚的 120–250 € 打，交付体验就是产品的一部分。"),
+    "harperai": (2, NOTE_IN_LIBRARY),
+    "easymix": (2, NOTE_IN_LIBRARY),
 
     # ---- 2026-10-11 补：Stripe 深核通过的 7 条 ----
     # delivery 判「单人交付难度」，1 = 最难（要养团队），5 = 最轻（零交付）。
@@ -236,635 +195,469 @@ DELIVERY = {
     # Enterprise 还配专属 solutions engineer 与 onboarding。
     # 🚨 这条同时被标了 segment="赛道样本" / exclude_from_solo_cases=true，
     # 就是因为它的交付结构一个人根本接不住 —— delivery 判 1 与那个标记同源。
-    "cometly": (1, "企业销售 + 实施 + 客户成功的完整交付：约演示、建群、"
-                   "盯数据接入、季度复盘会。官网挂着 2 位创始人 + CTO + 2 CSM + AE + "
-                   "实施专员共 9 人，Enterprise 还有专属 solutions engineer 与 onboarding。"
-                   "一个人能卖第一单，接不了第二单。"),
+    "cometly": (1, NOTE_IN_LIBRARY),
 
     # vid-ai 判 3：产品侧是自助的，但内容质量要人兜。
     # AI 出的片子客户总要人看一遍、要改，批量客户（一天要10 条）会持续提要求。
     # 团队 2–5 人 —— 一个人能跑，但要有人接需求、改流程。
-    "vid-ai": (3, "生成是自助的，但「能不能发」要人看：脚本、画幅、口播节奏都得过一遍。"
-                  "做批量内容的客户一天要十几条，会持续提改稿要求。"
-                  "公开资料称团队 2–5 人 —— 一个人能跑量，接不住规模化客户的定制诉求。"),
+    "vid-ai": (3, NOTE_IN_LIBRARY),
 
     # podawaa 判 4：LinkedIn 工具本身是自助订阅，分析报告由平台出。
     # 交付轻，唯一重的地方是账号封禁申诉—— 那要人跟。
-    "podawaa": (4, "订阅制自助 SaaS：排期、发布、分析都由产品完成，人工交付很少。"
-                   "唯一吃人力的地带是 LinkedIn 账号被限制后的申诉 —— "
-                   "那要有人拿着身份证明和申诉材料反复跟，且官方不保证通道畅通。"),
+    "podawaa": (4, NOTE_IN_LIBRARY),
 
     # publbee 判 4：纯自助工具，作者自己配关键词与生成。
     # 交付几乎为零，只有出版合规类问题（会不会被 KDP 拒）偶尔要答。
-    "publbee": (4, "月/年订阅自助：调研、关键词、写作、配图都在后台，"
-                   "作者自己动手。唯一可能要回话的是KDP 拒稿原因这类问题，"
-                   "属偶发答疑，不是常态交付。"),
+    "publbee": (4, NOTE_IN_LIBRARY),
 
     # vectosolve 判 5：纯转换工具，跑完出文件，没有交付环节。
     # 反推单价约 $7，这个价位不可能也不需要有交付。
-    "vectosolve": (5, "纯自助转换：传图、出SVG/DXF/DST/G-code，付钱就用。"
-                      "MRR $1,808 配 260 个订阅反推单价约 $7 —— "
-                      "这个价位天然不该有人工交付，也不该有。"),
+    "vectosolve": (5, NOTE_IN_LIBRARY),
 
     # augora-ai 判 4：追踪配置可在后台自助完成。
     # 但 Shopify 商家接不好追踪会来问「为什么我的数字对不上」，
     # 这类问题一半是配置一半是 Meta 侧的事，答起来琐碎但不需要驻场。
-    "augora-ai": (4, "追踪配置与自动化都在后台自助完成。吃人力的地方是"
-                     "「我的数字为什么对不上」这类问题 —— 一半答配置、"
-                     "一半其实是 Meta 侧的事，琐碎但不需要驻场，带宽压得住。"),
+    "augora-ai": (4, NOTE_IN_LIBRARY),
 
     # wpconvert 判 4：这批里最接近自助的一条，也是唯一拿到 solo_possible 的。
     # 转换本身是纯工程交付（站点转好就完事）；偶尔要答「某个页面没转对」。
     "wpconvert-ai-convert-ai-sites-to-wordpress": (
-        4, "交付是纯工程：站点转好、部署上线、给一份说明，完事。"
-           "偶尔要处理「这个页面没转对」这类返工，量不大。"
-           "页面标注团队规模 1 人 —— 这批里唯一拿到 solo_possible 的一条。"),
+        4, NOTE_IN_LIBRARY),
 
     # ---- 2026-10-15 补：门槛放宽后新晋升的 29 条 ----
     # 判据一律按**交付形态**，不按收入高低：体量大往往正因为它需要团队。
-    "alchie": (5, "纯自助：输入想法、出 LinkedIn 帖子、付费用额度，没有交付环节。"
-                  "一人 Bootstrapped，成本只有模型调用。"),
-    "ae-intelligence": (5, "改写工具纯自助，免费档不限字数也不产生服务义务。"
-                           "100 万用户配 1,065 个付费订阅，靠产品自己接住流量。"),
-    "abmaxx": (5, "App 内订阅，拍照出计划全自动，零人工。唯一售后是识别/"
-                  "计划不准的反馈，量小且异步。"),
-    "autocontent-api": (5, "无状态 API，客户接进去就跑，故障与上游波动才需要人，"
-                           "非常态交付。"),
-    "apiframe": (5, "视频生成 API，按调用计费，自助接入。算力是成本不是交付人力。"),
-    "ai-toolbox": (5, "工具导航/聚合站，信息组织即产品，没有交付环节，"
-                      "SEO 是唯一渠道。"),
-    "chessigma": (5, "教学 App 自助订阅，对弈与课程全自动。"),
-    "storyshort": (4, "批量生成自助为主，但成片不达标时客户会要求重生成或调参数，"
-                      "留一点人工兜底 —— 与 autoreels-ai 同型。"),
-    "based-labs-ai": (4, "生成工具自助，且社区替它承担了一部分答疑。"
-                         "吃算力成本，不吃交付人力。"),
-    "draftly": (4, "一句话生成站点是自助的，但导出/部署/接域名这类最后一公里"
-                   "会让非技术客户回来问，有一点支持成本。"),
-    "audn-ai": (4, "音频生成自助，偶尔要解释生成结果与音色参数。"),
-    "hypit-ai": (4, "自助内容工具，出图出文全自动，人工只在异常时出现。"),
-    "chatseo": (4, "SEO 工具自助订阅，报表自动跑；客户会问「排名怎么采的」，"
-                   "属答疑不是交付。"),
-    "brawler": (4, "自助内容生成，人工介入很少。"),
-    "amicited": (4, "AI 引用监控 SaaS，定时跑批出报告，自助为主。"),
-    "angel-match": (4, "投资人数据库订阅，数据维护有一点持续人力，"
-                       "但不需要按客户交付。"),
-    "calendesk": (4, "预约 SaaS 自助开通，客户支持有一点，不需要驻场。"),
-    "capgo": (4, "开发者工具 + 开源：文档与社区替它承担了大量售后，"
-                 "与 postiz / coral 同型。"),
+    "alchie": (5, NOTE_IN_LIBRARY),
+    "ae-intelligence": (5, NOTE_IN_LIBRARY),
+    "abmaxx": (5, NOTE_IN_LIBRARY),
+    "autocontent-api": (5, NOTE_IN_LIBRARY),
+    "apiframe": (5, NOTE_IN_LIBRARY),
+    "ai-toolbox": (5, NOTE_IN_LIBRARY),
+    "chessigma": (5, NOTE_IN_LIBRARY),
+    "storyshort": (4, NOTE_IN_LIBRARY),
+    "based-labs-ai": (4, NOTE_IN_LIBRARY),
+    "draftly": (4, NOTE_IN_LIBRARY),
+    "audn-ai": (4, NOTE_IN_LIBRARY),
+    "hypit-ai": (4, NOTE_IN_LIBRARY),
+    "chatseo": (4, NOTE_IN_LIBRARY),
+    "brawler": (4, NOTE_IN_LIBRARY),
+    "amicited": (4, NOTE_IN_LIBRARY),
+    "angel-match": (4, NOTE_IN_LIBRARY),
+    "calendesk": (4, NOTE_IN_LIBRARY),
+    "capgo": (4, NOTE_IN_LIBRARY),
     # ⚠ 这里原来误写成「OTA 热更新」——那是 capgo 的判据，串条了。
     # cod-dex 是互动编程学习平台（课程 + 练习 + 勋章 + Club 订阅），
     # 交付形态是「内容一次性做好、后续自助学」，不是按客户交付。
-    "cod-dex": (4, "课程、练习与勋章体系做好之后是全自动的，学员自助学；"
-                   "持续投入在内容更新与社区，不是按客户交付。"),
-    "backlinker-ai": (4, "外链建设自助化程度高，但外链资源本身要持续维护，"
-                         "留一点人力。"),
-    "cartboss": (4, "接入即用，弃单短信全自动触发；人工只在通道/送达异常时出现。"),
-    "adspirer": (3, "投放由 AI 自动跑，但客户会追着问 ROAS 与策略调整，"
-                    "这类「结果解释」省不掉 —— 与 prosp 同型，只是 AI 让它轻一些。"),
-    "avenue-ticketing-inc": (3, "出票与对账可自动化，但主办方接入、结算周期、"
-                                "退改纠纷都要有人接，平台型生意的中量交付。"),
-    "corsidia": (3, "垂直行业服务 + 软件：案子要人对接，客户买的不是纯工具。"),
-    "applyall": (2, "代投服务是**替用户做一件有后果的事**：投错公司、投到已关闭"
-                    "岗位都要有人兜，与 mort 同型。$249–299 一次性买断对应的是"
-                    "人工交付，不是软件。"),
-    "analytics-mates": (2, "MRR 只占月流水一小部分，主体是 $999/站点起的"
-                           "一次性审计项目 —— 那是人工交付，规模受限于人的时间。"),
-    "adelante-ltd": (2, "卖的是「我们替你跑」：配置、培训、持续优化都由它做，"
-                        "$900/月起的价格里含的就是这份人力。客户越多越要人。"),
-    "brevilabs": (1, "$45k 四周冲刺 + $45k/月顾问费，是标准的项目制咨询，"
-                     "必须团队交付。95% 毛利只是因为人力成本没挂进这条口径。"),
-    "backpedal-ltd": (1, "线下 GPS 找回团队 + 硬件设备，是重履约生意："
-                         "偷车发生后才能交付，且受本地能力限制，一个人做不来。"),
+    "cod-dex": (4, NOTE_IN_LIBRARY),
+    "backlinker-ai": (4, NOTE_IN_LIBRARY),
+    "cartboss": (4, NOTE_IN_LIBRARY),
+    "adspirer": (3, NOTE_IN_LIBRARY),
+    "avenue-ticketing-inc": (3, NOTE_IN_LIBRARY),
+    "corsidia": (3, NOTE_IN_LIBRARY),
+    "applyall": (2, NOTE_IN_LIBRARY),
+    "analytics-mates": (2, NOTE_IN_LIBRARY),
+    "adelante-ltd": (2, NOTE_IN_LIBRARY),
+    "brevilabs": (1, NOTE_IN_LIBRARY),
+    "backpedal-ltd": (1, NOTE_IN_LIBRARY),
 
     # ---- 同日补：上一批里只有 DELIVERY 没有 replicability 的 12 条 ----
-    "boothie-ai-photo-editor": (4, "选风格、传自拍、出图全自动，零人工交付。"
-                                   "持续成本在风格模型的迭代与上新，是产品投入不是交付。"),
-    "nutria-9e3eaa": (5, "拍照/搜索记一餐，出热量与建议全自动，纯自助 App。"
-                         "食物库维护是产品工作，不占交付人力。"),
-    "fastwrite-io": (5, "输入草稿、出改写结果，纯自助，没有交付环节。"),
-    "downconvert-sketchup-files": (5, "上传文件、转换、下载，纯工具零交付；"
-                                      "吃力的是把各版本格式吃透，那是研发不是交付。"),
-    "macwall": (5, "数字商品，付费用下载，零交付。"),
-    "growingupvideo": (4, "上传照片、出成片是自助的，但用户对「像不像」"
-                          "主观性强，不满意要重生成或调参，留一点兜底人力。"),
-    "homy": (5, "装了就用，纯工具，零交付。"),
-    "stealth-rdp": (2, "VPS 是托管生意：机器宕机、网络抖动、客户连不上"
-                       "都要有人响应，7×24 值守跑不掉 —— 这与「产品交付」是两回事。"),
-    "white-glove-content": (2, "名字里的 White Glove 就是答案：客户会审稿、要改、"
-                               "要按自己的品牌调性调整，人工交付省不掉。"
-                               "MRR $70K 对应的是一支内容团队，不是一个人。"),
-    "pet-plus-us": (4, "上传照片、选风格、出图全自动；"
-                       "但肖像类商品的主观满意率低，退款与重生成要有人处理。"),
-    "wagiff-app": (3, "打卡与社区本身自助，但 UGC 社区要持续审核内容、"
-                      "要有人运营氛围 —— 这是它唯一的人力支出。"),
-    "quotedeck": (3, "只有 4 个客户，但每个客户都要把自家保险产品的"
-                     "条款与费率配进系统，实施是一次性的、省不掉的。"),
-    "private-venture-1": (5, '偏自助的交付形态，人工介入少。'),
-    "adawcag": (5, '自助式产品（App/API/工具），用户自注册自配置，人工交付极少，与同型自助工具一致。'),
-    "aeo-checker": (3, '偏自助的交付形态，人工介入少。'),
-    "ad-machine": (2, '交付偏重：要人接需求、做实施或驻场，一个人能吃下但规模受限于时间，与 agency_service 同型。'),
-    "advanced-gsc-mcp": (5, '偏自助的交付形态，人工介入少。'),
-    "3d-agent": (5, '偏自助的交付形态，人工介入少。'),
-    "adtruffle": (4, '偏自助的交付形态，人工介入少。'),
-    "ai-designer": (3, '偏自助的交付形态，人工介入少。'),
-    "acquire-community": (4, '偏自助的交付形态，人工介入少。'),
-    "atelier-nuage": (5, '偏自助的交付形态，人工介入少。'),
-    "fireply-ai": (3, '偏自助的交付形态，人工介入少。'),
-    "ismalicious": (5, '自助式产品（App/API/工具），用户自注册自配置，人工交付极少，与同型自助工具一致。'),
-    "uizze": (5, '偏自助的交付形态，人工介入少。'),
-    "barron-tech-llc": (2, '交付偏重：要人接需求、做实施或驻场，一个人能吃下但规模受限于时间，与 agency_service 同型。'),
-    "autoclip": (3, '偏自助的交付形态，人工介入少。'),
-    "chariot-ai": (5, '偏自助的交付形态，人工介入少。'),
-    "openalternative": (3, '自助式产品（App/API/工具），用户自注册自配置，人工交付极少，与同型自助工具一致。'),
-    "breadsync": (2, '交付偏重：要人接需求、做实施或驻场，一个人能吃下但规模受限于时间，与 finance_trading 同型。'),
-    "cbt-artificial-intelligence-technology-inc-dba-zuuz": (4, '偏自助的交付形态，人工介入少。'),
-    "firecert": (3, '偏自助的交付形态，人工介入少。'),
-    "arcton": (4, '偏自助的交付形态，人工介入少。'),
-    "captureflow": (2, '交付偏重：要人接需求、做实施或驻场，一个人能吃下但规模受限于时间，与 agency_service 同型。'),
-    "corey-chiu": (5, '偏自助的交付形态，人工介入少。'),
-    "opentweet": (2, '交付偏重：要人接需求、做实施或驻场，一个人能吃下但规模受限于时间，与 agency_service 同型。'),
-    "apogee": (3, '偏自助的交付形态，人工介入少。'),
-    "blawgy-com": (5, '偏自助的交付形态，人工介入少。'),
-    "autosubtitles": (4, '偏自助的交付形态，人工介入少。'),
-    "axis-labc2026": (3, '偏自助的交付形态，人工介入少。'),
-    "astonish-email-limited": (3, '偏自助的交付形态，人工介入少。'),
-    "bluff-ai": (4, '偏自助的交付形态，人工介入少。'),
-    "baller": (4, '偏自助的交付形态，人工介入少。'),
-    "athenify": (4, '偏自助的交付形态，人工介入少。'),
-    "christian-tech-jobs": (3, '偏自助的交付形态，人工介入少。'),
-    "bouncer": (4, '自助式产品（App/API/工具），用户自注册自配置，人工交付极少，与同型自助工具一致。'),
-    "blitzcut": (4, '偏自助的交付形态，人工介入少。'),
-    "bidva-buy-linkedin-accounts": (5, '偏自助的交付形态，人工介入少。'),
-    "coprep-ai": (4, '偏自助的交付形态，人工介入少。'),
-    "canopy-api": (4, '自助式产品（App/API/工具），用户自注册自配置，人工交付极少，与同型自助工具一致。'),
-    "billionverify": (5, '偏自助的交付形态，人工介入少。'),
-    "algofuse-ai": (4, '偏自助的交付形态，人工介入少。'),
-    "botric": (5, '偏自助的交付形态，人工介入少。'),
-    "checkform-gymnastics": (4, '偏自助的交付形态，人工介入少。'),
-    "claws-host": (5, '偏自助的交付形态，人工介入少。'),
-    "coco": (4, '自助式产品（App/API/工具），用户自注册自配置，人工交付极少，与同型自助工具一致。'),
-    "blogr-ai": (5, '偏自助的交付形态，人工介入少。'),
-    "client-one": (5, '偏自助的交付形态，人工介入少。'),
-    "coralflavor": (5, '偏自助的交付形态，人工介入少。'),
-    "apexvol": (2, '交付偏重：要人接需求、做实施或驻场，一个人能吃下但规模受限于时间，与 finance_trading 同型。'),
-    "kitchendesign": (5, '偏自助的交付形态，人工介入少。'),
-    "blacktwist": (2, '交付偏重：要人接需求、做实施或驻场，一个人能吃下但规模受限于时间，与 agency_service 同型。'),
-    "cloud-backup-for-podio": (5, '偏自助的交付形态，人工介入少。'),
-    "spark-playground": (4, '偏自助的交付形态，人工介入少。'),
-    "clawlink": (4, '自助式产品（App/API/工具），用户自注册自配置，人工交付极少，与同型自助工具一致。'),
-    "ai-text-humanizer-netherlands-belgium": (4, '偏自助的交付形态，人工介入少。'),
-    "agentskit": (3, '偏自助的交付形态，人工介入少。'),
-    "altitude-cleaning-crew": (1, '交付偏重：要人接需求、做实施或驻场，一个人能吃下但规模受限于时间，与 local_service 同型。'),
-    "anyapi": (5, '自助式产品（App/API/工具），用户自注册自配置，人工交付极少，与同型自助工具一致。'),
-    "aprs-conseil": (2, '交付偏重：要人接需求、做实施或驻场，一个人能吃下但规模受限于时间，与 agency_service 同型。'),
-    "athletiks": (3, '偏自助的交付形态，人工介入少。'),
-    "bakering-app-sl": (1, '交付偏重：要人接需求、做实施或驻场，一个人能吃下但规模受限于时间，与 local_service 同型。'),
-    "bettrbot": (5, '偏自助的交付形态，人工介入少。'),
-    "brandmylaptop": (3, '偏自助的交付形态，人工介入少。'),
-    "brandmymac": (3, '偏自助的交付形态，人工介入少。'),
-    "brokenstudios": (5, '偏自助的交付形态，人工介入少。'),
-    "chronoid": (5, '偏自助的交付形态，人工介入少。'),
-    "firstrep": (4, '偏自助的交付形态，人工介入少。'),
-    "orbio": (5, '偏自助的交付形态，人工介入少。'),
-    "ai-prank-call": (5, '偏自助的交付形态，人工介入少。'),
-    "betting-tips": (5, '偏自助的交付形态，人工介入少。'),
-    "ai-voice-calls": (3, '自助式产品（App/API/工具），用户自注册自配置，人工交付极少，与同型自助工具一致。'),
-    "demopolish": (4, '自助式产品（App/API/工具），用户自注册自配置，人工交付极少，与同型自助工具一致。'),
-    "chatsell-co": (4, '偏自助的交付形态，人工介入少。'),
-    "roster-for-slack": (4, '偏自助的交付形态，人工介入少。'),
-    "static-run": (5, '偏自助的交付形态，人工介入少。'),
-    "ai-math-solver": (5, '偏自助的交付形态，人工介入少。'),
-    "ai-smart-decor": (5, '偏自助的交付形态，人工介入少。'),
-    "verse": (4, '偏自助的交付形态，人工介入少。'),
-    "clawbox": (5, '自助式产品（App/API/工具），用户自注册自配置，人工交付极少，与同型自助工具一致。'),
-    "bankstatemently": (1, '交付偏重：要人接需求、做实施或驻场，一个人能吃下但规模受限于时间，与 local_service 同型。'),
-    "fit-it-on": (2, '交付偏重：要人接需求、做实施或驻场，一个人能吃下但规模受限于时间，与 agency_service 同型。'),
-    "ai-influencer-generator": (3, '偏自助的交付形态，人工介入少。'),
-    "flowy": (3, '偏自助的交付形态，人工介入少。'),
-    "check-id": (5, '自助式产品（App/API/工具），用户自注册自配置，人工交付极少，与同型自助工具一致。'),
-    "chat-whisperer": (2, '交付偏重：要人接需求、做实施或驻场，一个人能吃下但规模受限于时间，与 agency_service 同型。'),
-    "quickvoc": (3, '偏自助的交付形态，人工介入少。'),
-    "blue-esim": (5, '偏自助的交付形态，人工介入少。'),
-    "captime": (4, '偏自助的交付形态，人工介入少。'),
-    "alodata": (5, '偏自助的交付形态，人工介入少。'),
-    "chiptune": (5, '偏自助的交付形态，人工介入少。'),
-    "calsy": (5, '偏自助的交付形态，人工介入少。'),
-    "firsto": (5, '偏自助的交付形态，人工介入少。'),
-    "atslebenslauf-com": (4, '偏自助的交付形态，人工介入少。'),
-    "anymelo": (4, '偏自助的交付形态，人工介入少。'),
-    "reddit-grow": (3, '偏自助的交付形态，人工介入少。'),
-    "cleaner": (4, '偏自助的交付形态，人工介入少。'),
-    "arbichat-s-l": (5, '偏自助的交付形态，人工介入少。'),
-    "bromeai": (5, '偏自助的交付形态，人工介入少。'),
-    "fire-tech-apps-llc": (5, '自助式产品（App/API/工具），用户自注册自配置，人工交付极少，与同型自助工具一致。'),
-    "bolsai": (2, '交付偏重：要人接需求、做实施或驻场，一个人能吃下但规模受限于时间，与 finance_trading 同型。'),
-    "sportsjobs-online": (3, '偏自助的交付形态，人工介入少。'),
-    "chartvio": (5, '偏自助的交付形态，人工介入少。'),
-    "brikk": (3, '自助式产品（App/API/工具），用户自注册自配置，人工交付极少，与同型自助工具一致。'),
-    "elispeak": (4, '偏自助的交付形态，人工介入少。'),
-    "myterrace-net": (5, '偏自助的交付形态，人工介入少。'),
-    "cat-games": (5, '偏自助的交付形态，人工介入少。'),
-    "c12s-ai": (3, '自助式产品（App/API/工具），用户自注册自配置，人工交付极少，与同型自助工具一致。'),
-    "forage": (5, '偏自助的交付形态，人工介入少。'),
-    "aiwith-me": (3, '偏自助的交付形态，人工介入少。'),
-    "june": (4, '偏自助的交付形态，人工介入少。'),
-    "blockit": (4, '自助式产品（App/API/工具），用户自注册自配置，人工交付极少，与同型自助工具一致。'),
-    "orbit-ai": (5, '偏自助的交付形态，人工介入少。'),
-    "aidelly": (2, '交付偏重：要人接需求、做实施或驻场，一个人能吃下但规模受限于时间，与 agency_service 同型。'),
-    "car-docs-ro": (3, '偏自助的交付形态，人工介入少。'),
-    "ai-swap-facetik": (4, '偏自助的交付形态，人工介入少。'),
-    "climbx": (3, '偏自助的交付形态，人工介入少。'),
-    "blainy": (4, '偏自助的交付形态，人工介入少。'),
-    "aistudios": (4, '偏自助的交付形态，人工介入少。'),
-    "car-dealer-tracker": (4, '偏自助的交付形态，人工介入少。'),
-    "careerkit": (4, '偏自助的交付形态，人工介入少。'),
-    "chunks-microlearning": (4, '偏自助的交付形态，人工介入少。'),
-    "alienart-io": (3, '偏自助的交付形态，人工介入少。'),
-    "chartsgpt": (2, '交付偏重：要人接需求、做实施或驻场，一个人能吃下但规模受限于时间，与 finance_trading 同型。'),
-    "brandiseer": (5, '偏自助的交付形态，人工介入少。'),
-    "clear-food": (5, '偏自助的交付形态，人工介入少。'),
-    "bolty": (4, '自助式产品（App/API/工具），用户自注册自配置，人工交付极少，与同型自助工具一致。'),
-    "chefgpt": (4, '偏自助的交付形态，人工介入少。'),
-    "basincheck": (4, '自助式产品（App/API/工具），用户自注册自配置，人工交付极少，与同型自助工具一致。'),
-    "alphascope": (4, '偏自助的交付形态，人工介入少。'),
-    "business-freelance": (4, '偏自助的交付形态，人工介入少。'),
-    "aura-ai-ai-video-image-generator": (4, '偏自助的交付形态，人工介入少。'),
-    "coaching-marketing-kit": (4, '偏自助的交付形态，人工介入少。'),
-    "fishingai": (4, '偏自助的交付形态，人工介入少。'),
-    "cooldock": (5, '偏自助的交付形态，人工介入少。'),
-    "auraclaw": (5, '偏自助的交付形态，人工介入少。'),
-    "bloxg-roblox-marketing-agency": (5, '偏自助的交付形态，人工介入少。'),
-    "archifruits-ai": (5, '自助式产品（App/API/工具），用户自注册自配置，人工交付极少，与同型自助工具一致。'),
-    "cheatmate": (4, '偏自助的交付形态，人工介入少。'),
-    "chatedu-inc": (4, '偏自助的交付形态，人工介入少。'),
-    "agentsguild": (5, '偏自助的交付形态，人工介入少。'),
-    "ai-baby-generator": (5, '自助式产品（App/API/工具），用户自注册自配置，人工交付极少，与同型自助工具一致。'),
-    "adstudio": (4, '偏自助的交付形态，人工介入少。'),
-    "adriselab": (3, '自助式产品（App/API/工具），用户自注册自配置，人工交付极少，与同型自助工具一致。'),
-    "ai-cover-music-video": (4, '自助式产品（App/API/工具），用户自注册自配置，人工交付极少，与同型自助工具一致。'),
-    "affililist": (3, '偏自助的交付形态，人工介入少。'),
-    "ai-detector-image-checker": (4, '偏自助的交付形态，人工介入少。'),
-    "admirror": (3, '偏自助的交付形态，人工介入少。'),
-    "account-expense-manager": (4, '自助式产品（App/API/工具），用户自注册自配置，人工交付极少，与同型自助工具一致。'),
-    "anon-2": (2, '交付偏重：要人接需求、做实施或驻场，一个人能吃下但规模受限于时间，与 agency_service 同型。'),
-    "7running": (4, '偏自助的交付形态，人工介入少。'),
-    "private-venture": (5, '偏自助的交付形态，人工介入少。'),
-    "aftersora": (4, '偏自助的交付形态，人工介入少。'),
-    "3dplotter": (5, '偏自助的交付形态，人工介入少。'),
-    "agence-web-abstract27": (5, '偏自助的交付形态，人工介入少。'),
-    "20-0": (5, '偏自助的交付形态，人工介入少。'),
-    "ai-directories": (3, '偏自助的交付形态，人工介入少。'),
-    "adstellar": (2, '交付偏重：要人接需求、做实施或驻场，一个人能吃下但规模受限于时间，与 agency_service 同型。'),
-    "aesty": (5, '偏自助的交付形态，人工介入少。'),
-    "adle": (4, '偏自助的交付形态，人工介入少。'),
-    "acsperf": (5, '偏自助的交付形态，人工介入少。'),
-    "the-stealthiest-of-ventures": (5, '偏自助的交付形态，人工介入少。'),
-    "gtm-help": (3, '偏自助的交付形态，人工介入少。'),
-    "mac-duo": (5, '自助式产品（App/API/工具），用户自注册自配置，人工交付极少，与同型自助工具一致。'),
-    "dope-data": (5, '自助式产品（App/API/工具），用户自注册自配置，人工交付极少，与同型自助工具一致。'),
-    "orior-ai": (3, '自助式产品（App/API/工具），用户自注册自配置，人工交付极少，与同型自助工具一致。'),
-    "agenkit": (5, '偏自助的交付形态，人工介入少。'),
-    "kreapro": (4, '偏自助的交付形态，人工介入少。'),
-    "toonthis": (3, '自助式产品（App/API/工具），用户自注册自配置，人工交付极少，与同型自助工具一致。'),
+    "boothie-ai-photo-editor": (4, NOTE_IN_LIBRARY),
+    "nutria-9e3eaa": (5, NOTE_IN_LIBRARY),
+    "fastwrite-io": (5, NOTE_IN_LIBRARY),
+    "downconvert-sketchup-files": (5, NOTE_IN_LIBRARY),
+    "macwall": (5, NOTE_IN_LIBRARY),
+    "growingupvideo": (4, NOTE_IN_LIBRARY),
+    "homy": (5, NOTE_IN_LIBRARY),
+    "stealth-rdp": (2, NOTE_IN_LIBRARY),
+    "white-glove-content": (2, NOTE_IN_LIBRARY),
+    "pet-plus-us": (4, NOTE_IN_LIBRARY),
+    "wagiff-app": (3, NOTE_IN_LIBRARY),
+    "quotedeck": (3, NOTE_IN_LIBRARY),
+    # PRD #185：删掉 "private-venture-1" —— 166 条晋升时留下的库外幽灵 id，
+    # git 历史里从未进过 data/cases.json。它会混进 fallback_delivery() 的
+    # 中位数样本，让兜底文案虚报「全库 466 条判断」（真实 465 条），且与
+    # SCORES 的 465 条对不上。中位数实测不变（4），99 条兜底分值零影响。
+    "adawcag": (5, NOTE_IN_LIBRARY),
+    "aeo-checker": (3, NOTE_IN_LIBRARY),
+    "ad-machine": (2, NOTE_IN_LIBRARY),
+    "advanced-gsc-mcp": (5, NOTE_IN_LIBRARY),
+    "3d-agent": (5, NOTE_IN_LIBRARY),
+    "adtruffle": (4, NOTE_IN_LIBRARY),
+    "ai-designer": (3, NOTE_IN_LIBRARY),
+    "acquire-community": (4, NOTE_IN_LIBRARY),
+    "atelier-nuage": (5, NOTE_IN_LIBRARY),
+    "fireply-ai": (3, NOTE_IN_LIBRARY),
+    "ismalicious": (5, NOTE_IN_LIBRARY),
+    "uizze": (5, NOTE_IN_LIBRARY),
+    "barron-tech-llc": (2, NOTE_IN_LIBRARY),
+    "autoclip": (3, NOTE_IN_LIBRARY),
+    "chariot-ai": (5, NOTE_IN_LIBRARY),
+    "openalternative": (3, NOTE_IN_LIBRARY),
+    "breadsync": (2, NOTE_IN_LIBRARY),
+    "cbt-artificial-intelligence-technology-inc-dba-zuuz": (4, NOTE_IN_LIBRARY),
+    "firecert": (3, NOTE_IN_LIBRARY),
+    "arcton": (4, NOTE_IN_LIBRARY),
+    "captureflow": (2, NOTE_IN_LIBRARY),
+    "corey-chiu": (5, NOTE_IN_LIBRARY),
+    "opentweet": (2, NOTE_IN_LIBRARY),
+    "apogee": (3, NOTE_IN_LIBRARY),
+    "blawgy-com": (5, NOTE_IN_LIBRARY),
+    "autosubtitles": (4, NOTE_IN_LIBRARY),
+    "axis-labc2026": (3, NOTE_IN_LIBRARY),
+    "astonish-email-limited": (3, NOTE_IN_LIBRARY),
+    "bluff-ai": (4, NOTE_IN_LIBRARY),
+    "baller": (4, NOTE_IN_LIBRARY),
+    "athenify": (4, NOTE_IN_LIBRARY),
+    "christian-tech-jobs": (3, NOTE_IN_LIBRARY),
+    "bouncer": (4, NOTE_IN_LIBRARY),
+    "blitzcut": (4, NOTE_IN_LIBRARY),
+    "bidva-buy-linkedin-accounts": (5, NOTE_IN_LIBRARY),
+    "coprep-ai": (4, NOTE_IN_LIBRARY),
+    "canopy-api": (4, NOTE_IN_LIBRARY),
+    "billionverify": (5, NOTE_IN_LIBRARY),
+    "algofuse-ai": (4, NOTE_IN_LIBRARY),
+    "botric": (5, NOTE_IN_LIBRARY),
+    "checkform-gymnastics": (4, NOTE_IN_LIBRARY),
+    "claws-host": (5, NOTE_IN_LIBRARY),
+    "coco": (4, NOTE_IN_LIBRARY),
+    "blogr-ai": (5, NOTE_IN_LIBRARY),
+    "client-one": (5, NOTE_IN_LIBRARY),
+    "coralflavor": (5, NOTE_IN_LIBRARY),
+    "apexvol": (2, NOTE_IN_LIBRARY),
+    "kitchendesign": (5, NOTE_IN_LIBRARY),
+    "blacktwist": (2, NOTE_IN_LIBRARY),
+    "cloud-backup-for-podio": (5, NOTE_IN_LIBRARY),
+    "spark-playground": (4, NOTE_IN_LIBRARY),
+    "clawlink": (4, NOTE_IN_LIBRARY),
+    "ai-text-humanizer-netherlands-belgium": (4, NOTE_IN_LIBRARY),
+    "agentskit": (3, NOTE_IN_LIBRARY),
+    "altitude-cleaning-crew": (1, NOTE_IN_LIBRARY),
+    "anyapi": (5, NOTE_IN_LIBRARY),
+    "aprs-conseil": (2, NOTE_IN_LIBRARY),
+    "athletiks": (3, NOTE_IN_LIBRARY),
+    "bakering-app-sl": (1, NOTE_IN_LIBRARY),
+    "bettrbot": (5, NOTE_IN_LIBRARY),
+    "brandmylaptop": (3, NOTE_IN_LIBRARY),
+    "brandmymac": (3, NOTE_IN_LIBRARY),
+    "brokenstudios": (5, NOTE_IN_LIBRARY),
+    "chronoid": (5, NOTE_IN_LIBRARY),
+    "firstrep": (4, NOTE_IN_LIBRARY),
+    "orbio": (5, NOTE_IN_LIBRARY),
+    "ai-prank-call": (5, NOTE_IN_LIBRARY),
+    "betting-tips": (5, NOTE_IN_LIBRARY),
+    "ai-voice-calls": (3, NOTE_IN_LIBRARY),
+    "demopolish": (4, NOTE_IN_LIBRARY),
+    "chatsell-co": (4, NOTE_IN_LIBRARY),
+    "roster-for-slack": (4, NOTE_IN_LIBRARY),
+    "static-run": (5, NOTE_IN_LIBRARY),
+    "ai-math-solver": (5, NOTE_IN_LIBRARY),
+    "ai-smart-decor": (5, NOTE_IN_LIBRARY),
+    "verse": (4, NOTE_IN_LIBRARY),
+    "clawbox": (5, NOTE_IN_LIBRARY),
+    "bankstatemently": (1, NOTE_IN_LIBRARY),
+    "fit-it-on": (2, NOTE_IN_LIBRARY),
+    "ai-influencer-generator": (3, NOTE_IN_LIBRARY),
+    "flowy": (3, NOTE_IN_LIBRARY),
+    "check-id": (5, NOTE_IN_LIBRARY),
+    "chat-whisperer": (2, NOTE_IN_LIBRARY),
+    "quickvoc": (3, NOTE_IN_LIBRARY),
+    "blue-esim": (5, NOTE_IN_LIBRARY),
+    "captime": (4, NOTE_IN_LIBRARY),
+    "alodata": (5, NOTE_IN_LIBRARY),
+    "chiptune": (5, NOTE_IN_LIBRARY),
+    "calsy": (5, NOTE_IN_LIBRARY),
+    "firsto": (5, NOTE_IN_LIBRARY),
+    "atslebenslauf-com": (4, NOTE_IN_LIBRARY),
+    "anymelo": (4, NOTE_IN_LIBRARY),
+    "reddit-grow": (3, NOTE_IN_LIBRARY),
+    "cleaner": (4, NOTE_IN_LIBRARY),
+    "arbichat-s-l": (5, NOTE_IN_LIBRARY),
+    "bromeai": (5, NOTE_IN_LIBRARY),
+    "fire-tech-apps-llc": (5, NOTE_IN_LIBRARY),
+    "bolsai": (2, NOTE_IN_LIBRARY),
+    "sportsjobs-online": (3, NOTE_IN_LIBRARY),
+    "chartvio": (5, NOTE_IN_LIBRARY),
+    "brikk": (3, NOTE_IN_LIBRARY),
+    "elispeak": (4, NOTE_IN_LIBRARY),
+    "myterrace-net": (5, NOTE_IN_LIBRARY),
+    "cat-games": (5, NOTE_IN_LIBRARY),
+    "c12s-ai": (3, NOTE_IN_LIBRARY),
+    "forage": (5, NOTE_IN_LIBRARY),
+    "aiwith-me": (3, NOTE_IN_LIBRARY),
+    "june": (4, NOTE_IN_LIBRARY),
+    "blockit": (4, NOTE_IN_LIBRARY),
+    "orbit-ai": (5, NOTE_IN_LIBRARY),
+    "aidelly": (2, NOTE_IN_LIBRARY),
+    "car-docs-ro": (3, NOTE_IN_LIBRARY),
+    "ai-swap-facetik": (4, NOTE_IN_LIBRARY),
+    "climbx": (3, NOTE_IN_LIBRARY),
+    "blainy": (4, NOTE_IN_LIBRARY),
+    "aistudios": (4, NOTE_IN_LIBRARY),
+    "car-dealer-tracker": (4, NOTE_IN_LIBRARY),
+    "careerkit": (4, NOTE_IN_LIBRARY),
+    "chunks-microlearning": (4, NOTE_IN_LIBRARY),
+    "alienart-io": (3, NOTE_IN_LIBRARY),
+    "chartsgpt": (2, NOTE_IN_LIBRARY),
+    "brandiseer": (5, NOTE_IN_LIBRARY),
+    "clear-food": (5, NOTE_IN_LIBRARY),
+    "bolty": (4, NOTE_IN_LIBRARY),
+    "chefgpt": (4, NOTE_IN_LIBRARY),
+    "basincheck": (4, NOTE_IN_LIBRARY),
+    "alphascope": (4, NOTE_IN_LIBRARY),
+    "business-freelance": (4, NOTE_IN_LIBRARY),
+    "aura-ai-ai-video-image-generator": (4, NOTE_IN_LIBRARY),
+    "coaching-marketing-kit": (4, NOTE_IN_LIBRARY),
+    "fishingai": (4, NOTE_IN_LIBRARY),
+    "cooldock": (5, NOTE_IN_LIBRARY),
+    "auraclaw": (5, NOTE_IN_LIBRARY),
+    "bloxg-roblox-marketing-agency": (5, NOTE_IN_LIBRARY),
+    "archifruits-ai": (5, NOTE_IN_LIBRARY),
+    "cheatmate": (4, NOTE_IN_LIBRARY),
+    "chatedu-inc": (4, NOTE_IN_LIBRARY),
+    "agentsguild": (5, NOTE_IN_LIBRARY),
+    "ai-baby-generator": (5, NOTE_IN_LIBRARY),
+    "adstudio": (4, NOTE_IN_LIBRARY),
+    "adriselab": (3, NOTE_IN_LIBRARY),
+    "ai-cover-music-video": (4, NOTE_IN_LIBRARY),
+    "affililist": (3, NOTE_IN_LIBRARY),
+    "ai-detector-image-checker": (4, NOTE_IN_LIBRARY),
+    "admirror": (3, NOTE_IN_LIBRARY),
+    "account-expense-manager": (4, NOTE_IN_LIBRARY),
+    "anon-2": (2, NOTE_IN_LIBRARY),
+    "7running": (4, NOTE_IN_LIBRARY),
+    "private-venture": (5, NOTE_IN_LIBRARY),
+    "aftersora": (4, NOTE_IN_LIBRARY),
+    "3dplotter": (5, NOTE_IN_LIBRARY),
+    "agence-web-abstract27": (5, NOTE_IN_LIBRARY),
+    "20-0": (5, NOTE_IN_LIBRARY),
+    "ai-directories": (3, NOTE_IN_LIBRARY),
+    "adstellar": (2, NOTE_IN_LIBRARY),
+    "aesty": (5, NOTE_IN_LIBRARY),
+    "adle": (4, NOTE_IN_LIBRARY),
+    "acsperf": (5, NOTE_IN_LIBRARY),
+    "the-stealthiest-of-ventures": (5, NOTE_IN_LIBRARY),
+    "gtm-help": (3, NOTE_IN_LIBRARY),
+    "mac-duo": (5, NOTE_IN_LIBRARY),
+    "dope-data": (5, NOTE_IN_LIBRARY),
+    "orior-ai": (3, NOTE_IN_LIBRARY),
+    "agenkit": (5, NOTE_IN_LIBRARY),
+    "kreapro": (4, NOTE_IN_LIBRARY),
+    "toonthis": (3, NOTE_IN_LIBRARY),
     # ── 2026-10-27 批次漏补的两条（2026-10-29 补）──
     # ⚠ 537b443 把 upvoty / flodesk 写进 cases.json 时只带了 replicability，
     # 没跟 SOLO / CHINA 两张判断表 ⇒ test_fit_ready 的「不许缺判断」从 10-27
     # 起一直红（本地与 CI 同红，不是环境差异）。补的时候没套下面的通用文案：
     # 这两条都是自助订阅，但交付负担不同 —— 一条在集成维护，一条在送达率。
-    "upvoty": (4, '自助订阅，开通零实施：用户在页面里自己贴脚本、装集成，投票板与'
-                  '路线图开箱即用。负担在**集成与 AI 辅助的长期小修** —— '
-                  'GitHub/Slack/Jira 的授权与接口会变，推荐规则要跟着用户反馈调，'
-                  '属「长期小修」而非「一次性上线」；不需要交付团队，也不需要值守。'),
-    "flodesk": (3, '自助上手，设计器与模板库本来就是让用户自己动手的；但它有一块躲不掉'
-                   '的交付负担 —— **送达率**。发信 IP 信誉、退信与投诉率、各大邮箱'
-                   '服务商的过滤规则都要长期盯着，掉进垃圾箱客户当天就来，而它没有'
-                   '销售团队可以分担这层售后。比纯工具重，比项目制轻。'),
+    "upvoty": (4, NOTE_IN_LIBRARY),
+    "flodesk": (3, NOTE_IN_LIBRARY),
     # ── 2026-10-29 补：fit_ready --check 报的 26 条 ──
     # 18 条是本轮晋升进来的，8 条是更早发布时漏掉的。判据一律按**交付形态**
     # 而不是收入高低：有些案子体量很大（headshotpro、conductor），但交付仍然是
     # 自助的；有些体量很小（freelance-writing-club、agent-media），交付却是
     # 每天要有人真干活 —— 后者才是「一个人做不了」的那类。
-    "flowmance-templates": (4, "卖的是模板与区块文件，付款即下载，没有实施环节。负担在"
-                               "持续出新品：模板库一停更，长尾关键词带来的订单立刻变少，"
-                               "属于长期小修而不是一次性上线。"),
-    "neoscene": (4, "iOS 自助订阅，开通零人工。负担在推理成本与模型迭代——图生视频按次"
-                    "烧算力，模型换代后效果落后就掉订，而档案自述毛利率只有 10%，"
-                    "这块成本没有缓冲空间。"),
-    "boxer-ai": (4, "下载即用，没有交付团队。负担在机型适配：靠 iPhone 摄像头做动作识别，"
-                    "每代新机型的摄像头与算力都要重测，安卓碎片化会更重，所以它只做 iOS"
-                    "不是保守而是必然。"),
-    "kori": (4, "自助订阅，零交付。负担在内容：口语课要按场景一节节写，停更就是产品贬值，"
-                "但一个人一天写一节是可持续的节奏，不需要团队。"),
-    "admitodds-ai-college-admissions-platform": (3, "自助上传、自助出结果，但有两块躲不掉的"
-                                                "人工负担：一是录取数据与判断规则要按年更新，"
-                                                "二是判断错了家长会来追问，这是要背后果的售后，"
-                                                "不能当成纯工具。"),
-    "clamshell": (5, "卖的是一个二进制文件，$9.99 一次买断，交付成本为零。唯一负担是"
-                     "macOS 大版本升级后重测一次，一年几次，一个人完全扛得住。"),
-    "colorcraft": (4, "一句话进、PDF 出，全自助。负担在模板与规则：KDP 的排版校验规则"
-                      "会变，PDF 内嵌字体与出血也要跟着调，属长期小修。"),
-    "kodo": (4, "浏览器里自助使用，没有实施环节。负担在算力与生成质量——AI 生成要"
-                "持续调模型与提示词，成本按 credits 走，量一上来毛利就被压。"),
-    "freelance-writing-club": (2, "本质是人工编辑：每个工作日都要有人真读一遍稿、筛出"
-                                  "值得写的约稿线索，再写成一封邮件。这个「人肉筛选」"
-                                  "就是产品本身，自动化掉之后订阅理由也就没了，一个人"
-                                  "最多撑到几千订。"),
-    "agent-media": (2, "订阅卖的是**连续更新的剧集**，不是工具。固定演员阵容的短剧要"
-                       "一集集写、一集集生成，停更就掉订；这是内容生产的活，不是软件"
-                       "交付，一个人做不成一门订阅生意。"),
-    "lapsula": (3, "诊所自助开户，但两处要人：一是各家诊所的排班与流程差异要陪客户配一遍，"
-                   "二是涉及病患数据，出事要有人负责合规。比纯 SaaS 重，比定制项目轻。"),
-    "lyro": (4, "自助订阅，交付零人工。负担在算力与版权边界：歌曲生成按次烧算力，"
-                "生成内容的版权归属要盯平台规则，但都不需要团队。"),
-    "flint": (3, "订阅自助，走 iMessage 分发省掉了 App 发行那一整套。负担在内容与通道："
-                 "灵修内容要持续写，iMessage 通道的投递与 Apple 的政策变动不归自己管。"),
-    "pdf-vault": (3, "交付是授权文件 + 托管销售页，自助完成。负担在授权纠纷与被转售滥用："
-                     "卖「可转售授权」意味着要处理买家之间转手带来的客服与追责，"
-                     "这块没法完全自动化。"),
-    "coldcaller-pro": (3, "订阅自助，但产品就是线索库——数据要持续抓、持续清洗，"
-                          "过期数据等于产品失效。这是长期的运营负担，不需要团队但需要"
-                          "天天干。"),
-    "coldsire": (3, "技术上是自动开通（配 DNS、接 Instantly），但邮箱商与反垃圾规则一变，"
-                    "客户当天就收不到信、就来找你。运维式交付，比纯 SaaS 重。"),
-    "knightvision": (4, "自助上传需求出素材，没有实施环节。负担在算力成本与素材合规："
-                        "广告素材要过平台审核，违规词与虚假宣传的风险由你兜。"),
-    "conductor": (3, "面向公司客户，接入要文档与技术支持，但不需要实施团队——API 产品"
-                     "的交付是「文档写好 + 出问题能定位」。比 C 端工具重，比项目制轻。"),
-    "headshotpro": (4, "全自助：上传照片、出图、下载，没有人工环节。负担在模型效果与退款——"
-                       "证件照对「像不像」极敏感，不满意就退，这是长期的效果调优工作。"),
-    "klar": (3, "学生自助订阅，没有交付团队。负担在题库：要按本地考试大纲持续补题、"
-                "跟着考纲改版重做，内容量比代码重。"),
-    "refactoring-ui": (5, "一本电子书，卖文件，交付成本为零，也不需要维护。极端地说："
-                          "写完之后可以十年不管。"),
-    "pdf-ai": (4, "自助上传、自助问答。负担在解析质量与成本：文档格式千奇百怪，"
-                  "解析出错用户立刻感知，模型调用又按量计费，两头都要长期盯。"),
-    "david-ai": (2, "有线下人工环节：AI 批量造站只是前半段，后半段是寄明信片、接来电、"
-                    "真跟进。这条路本质是本地 BD，一个人只能覆盖极窄的一片区域，"
-                    "扩不了量。"),
-    "sleek": (4, "自助使用，没有实施。负担在 credits 成本与生成质量，与 kodo 同类，"
-                 "一个人可以维持，但量大了算力账单要先算清楚。"),
-    "3ak-track": (4, "学生自助订阅。负担在训练计划内容：田径项目多、周期长，计划要按"
-                     "赛季写，一个人能写但会占掉大部分时间。"),
-    "plausible-analytics": (3, "云托管是自助订阅，但开源这一层带来躲不掉的负担：issue、"
-                              "PR、自托管用户的提问都来找你，还要跟浏览器与 CMS 的"
-                              "兼容性变化。长期小修，且没有上限。"),
+    "flowmance-templates": (4, NOTE_IN_LIBRARY),
+    "neoscene": (4, NOTE_IN_LIBRARY),
+    "boxer-ai": (4, NOTE_IN_LIBRARY),
+    "kori": (4, NOTE_IN_LIBRARY),
+    "admitodds-ai-college-admissions-platform": (3, NOTE_IN_LIBRARY),
+    "clamshell": (5, NOTE_IN_LIBRARY),
+    "colorcraft": (4, NOTE_IN_LIBRARY),
+    "kodo": (4, NOTE_IN_LIBRARY),
+    "freelance-writing-club": (2, NOTE_IN_LIBRARY),
+    "agent-media": (2, NOTE_IN_LIBRARY),
+    "lapsula": (3, NOTE_IN_LIBRARY),
+    "lyro": (4, NOTE_IN_LIBRARY),
+    "flint": (3, NOTE_IN_LIBRARY),
+    "pdf-vault": (3, NOTE_IN_LIBRARY),
+    "coldcaller-pro": (3, NOTE_IN_LIBRARY),
+    "coldsire": (3, NOTE_IN_LIBRARY),
+    "knightvision": (4, NOTE_IN_LIBRARY),
+    "conductor": (3, NOTE_IN_LIBRARY),
+    "headshotpro": (4, NOTE_IN_LIBRARY),
+    "klar": (3, NOTE_IN_LIBRARY),
+    "refactoring-ui": (5, NOTE_IN_LIBRARY),
+    "pdf-ai": (4, NOTE_IN_LIBRARY),
+    "david-ai": (2, NOTE_IN_LIBRARY),
+    "sleek": (4, NOTE_IN_LIBRARY),
+    "3ak-track": (4, NOTE_IN_LIBRARY),
+    "plausible-analytics": (3, NOTE_IN_LIBRARY),
 
     # ── 2026-11-04 晋升批 A 档（可搬性综合 ≥70）的 3 条 ──
     # 三条都是「传文件—出文件」的纯工具，交付环节天然为零；要长期盯的
     # 都不是客户，而是版本（机型尺寸、解析格式、浏览器内核）。
-    "appmockupgenerator": (5, "按次出图，没有交付环节：选模板、传截图、出整套尺寸，付钱即走。"
-                              "长期负担只有一样——App Store 与各安卓商店的机型/尺寸规范"
-                              "每年都在变，模板要跟着改；这属于定期更新素材，不是接客户，"
-                              "一个人加一台电脑就能维持。"),
-    "blazedocs-io": (5, "传 PDF、出 Markdown/表格，纯自助，连账号体系都不重。"
-                        "长期负担是解析质量与 API 成本：扫描件、双栏论文、表格线断开的"
-                        "版式天天有，出错了用户立刻感知，得持续调规则；这属于坐在电脑前"
-                        "修代码的活，不构成交付。"),
-    "ihatepdf-cv": (5, "60+ 个工具全在浏览器本地跑，文件不出设备，没有人工环节。"
-                       "负担只在浏览器兼容与 OCR 模型的包体积/速度：手机端内存一紧张就"
-                       "崩，得按机型调；同样是自己改代码，不是接需求。零交付可成立，"
-                       "但要注意它的收入口径存疑（见 score_china_fit 的 note），"
-                       "判的是可搬性，不是这门生意已跑通。"),
+    "appmockupgenerator": (5, NOTE_IN_LIBRARY),
+    "blazedocs-io": (5, NOTE_IN_LIBRARY),
+    "ihatepdf-cv": (5, NOTE_IN_LIBRARY),
 
     # ── 2026-11-04 B 档（综合 50–70）合并，共 121 条 ──
-    "abstract27-ltd": (3, "Ghost 建站 + 托管维护，要帮客户迁移内容、配域名与邮件，属轻实施。"),
-    "adverse-monitor": (2, "威胁情报要接客户的资产清单、配告警规则、做误报调优，还要出报告。这是安全服务，"
-                      "有实施与值守。"),
-    "aerie": (1, "GTM 工程服务，按订阅收 $373 的月费，实际是持续交付工程与增长动作。"
-                      "责任在人，不在软件。"),
-    "agent-berlin": (4, "自动化代理跑 SEO 任务，开通后要人看结果、调策略，客户看不懂自动做了什么。"),
-    "ai-money-group": (2, "订阅制培训，交付是直播、答疑、案例陪跑，全是人力。103 个订阅意味着每周都有大量提问要回。"),
-    "ai-song-clip-generator": (5, "输入主题出歌与短片，订阅即用零交付。负担在模型与版权提示。"),
-    "ai-suitup": (5, "上传照片、出职业头像，纯自助零交付。负担在模型效果与退款。"),
-    "aicasadesign-com": (4, "经纪人自助生成房源视频，交付轻。要人处理的是画面与房源真实性，出了偏差要返工。"),
-    "aiselfi-es": (5, "上传自拍、出图、下载，纯自助零交付。负担在模型效果与退款，不需要接客户。"),
-    "aiwritebook": (4, "自助生成书稿与排版，交付轻。要人处理的是出版格式与客户对成品的要求（封面、"
-                      "章节、字数），偶尔要陪改。"),
-    "all-love-here": (1, "实物礼品电商：设计、生产、包装、发货、售后全在手里。供应链就是交付，"
-                      "跟软件无关。"),
-    "anon-1": (4, "按项目接 AI 代理任务，交付靠人接需求、验结果。公开资料很少，从收入结构看是按次结算的服务"
-                      "型项目。"),
-    "apparelai": (4, "上传平铺图出模特图，自助为主。要教的是「什么图能出好结果」——面料、"
-                      "光影、姿态，前几单得陪客户试。"),
-    "appitstudio-apps-bundle-and-services": (5, "macOS 三件套，买断即用，零交付。负担在跟着 macOS 大版本适配。"),
-    "archirise": (4, "出图是自助的，但要教会建筑师把普通渲染调成「像摄影」——参考图、参数、"
-                      "批量出片，前几单基本是陪跑。录一批模板后能减负，但不会归零。"),
-    "artkit-cc": (4, "AI 代理的文档站，靠收录与流量变现，交付是内容维护。要人持续写与更新页面。"),
-    "assignmentgpt-ai": (4, "自助问答与代写，交付轻。要人处理的是内容质量与学术诚信提示。"),
-    "aswati-studio": (5, "音频素材库，订阅即下载，零交付。负担在素材生产。"),
-    "august": (4, "配好流程就能用，但客户要的是「帮我自动化这几个环节」，前几单得人肉梳理流程。"
-                      "之后维护轻。"),
-    "aura-for-creators": (5, "按 credits 生成图与视频，自助零交付。负担在模型与算力成本。"),
-    "authex-labs": (3, "卖的是「托管 + 人工修 DNS」：客户不会自己配 SPF/DKIM/DMARC，"
-                      "开通时你要进他们的域名后台，出问题还要跟邮件服务商扯皮。"),
-    "authoritystack-ai": (3, "终身买断 + 托管站点，开通后要给客户配站点、接域名、做内容迁移，还要按 SEO 规则持续调"
-                      "——一个人能带几十个站，再多就顶住。"),
-    "automate-chill": (4, "给本地商家批量建站，开通后要配域名、接电话与表单，还要按客户行业改内容。"
-                      "一个人能带几十个站，再多运维就顶住。"),
-    "autoprintemail": (4, "装客户端、连邮箱就自动打印，交付轻。麻烦在客户的环境：老打印机驱动、"
-                      "邮箱授权、断线重连，都要远程排障。"),
-    "autotube": (5, "选题、生成、配音全自动，零交付。负担在模型与模板。"),
-    "babelbot": (4, "装到 Discord 服务器就能用，自助为主。要人答的是翻译质量与权限配置。"),
-    "beautyflow": (4, "美业店主自己开号就能用，但上手要教：排班规则、会员卡、员工权限，每个店都不一样。"
-                      "前几家要陪着配。"),
-    "bidder-iq": (4, "查拍卖数据、给估值区间，自助为主。要人答的是「这台车值不值」，属轻度咨询。"),
-    "blabla": (3, "要接客户的 Facebook/Instagram/WhatsApp 账号、"
-                      "配話术与转人工规则，出问题第一时间找你。有实施与值守成分。"),
-    "blipix": (5, "选题、生成、导出全自动，零交付。负担在模型与素材库，属产品迭代。"),
-    "blitzreels": (5, "上传长内容、自动切片、导出，零交付。负担在模型与模板，不需要面对客户。"),
-    "blog2video": (5, "贴链接出视频，纯自助零交付。负担在模板与配音质量，属产品迭代。"),
-    "bobby": (4, "自助做投资分析，交付轻。要人答的是「这算不算投资建议」，边界要自己守。"),
-    "brainote": (5, "学习工具 App，内购即用，零交付。负担在题库与效果。"),
-    "brainrot-mov": (5, "选模板、出片、导出，纯自助零交付。负担在模型与热门模板更新。"),
-    "buma-baby-tracker": (5, "记录喂养睡眠、家庭同步，订阅即用零交付。负担在 App 稳定性与家长群答疑。"),
-    "calma": (5, "语音输入 + 任务记录，订阅即用零交付。负担在语音识别效果。"),
-    "car-identifier": (5, "拍照识车，纯自助零交付。负担在车型库更新，属数据活。"),
-    "car-play-connect": (5, "iOS 车载仪表盘 App，内购解锁即用，零交付。负担是跟着 iOS 与车企车机版本适配，"
-                      "属技术维护。"),
-    "carry-save-chatgpt-claude-grok-to-markdown-automatically": (5, "装个扩展就同步，卖家不介入任何环节。负担在跟着三家聊天站的前端改版修选择器，"
-                      "属定期维护，不是交付。"),
-    "casa-fran-concepts-llc": (2, "代运营 LinkedIn：选题、写稿、发帖、回评论都要人。2 个客户 $998，"
-                      "说明卖的是人力，不是软件。"),
-    "castplus": (4, "播客托管与分发，自助为主。要人处理的是分发失败与 RSS 校验，属技术答疑。"),
-    "catalister": (5, "绑店铺、批量上架，自助零交付。负担在跟着 Shopify 与平台规则改。"),
-    "cattus-ai": (5, "多模型聚合，订阅即用零交付。负担在接口接入与额度成本。"),
-    "chatdash-llc": (3, "白标交付给代理商，开通后要给代理商做培训、配话术库、处理客户投诉，还要随平台接口改版修。"
-                      "一个人能带几个代理商，带不动规模化。"),
-    "chateasy": (3, "全渠道客服要接 Facebook/LINE/IG，配话术、设转人工，"
-                      "客户上线后天天有调优需求。"),
-    "chatium": (2, "企业应用操作系统，要接客户现有系统、做实施与培训，交付重。近 30 天只有 $698。"),
-    "chatwith": (4, "自助上传文档就能用，交付轻。负担在「答不准」的调优与嵌入代码的排障，"
-                      "客户会反复来找。"),
-    "check-position": (5, "纯自助：填域名、收每日排名报告，没有实施环节。负担全在抓取层——结果页结构一改、"
-                      "撞上验证码就得修，属于长期改代码，不是接客户。"),
-    "clairon-ai": (4, "自助配置，但要给 B2B 客户解释数据口径、出改进建议，属半咨询。"),
-    "clarity-search-ai-inc": (4, "自助接入看板，但品牌客户要人做「可见度诊断」与月度复盘。工具给数据，"
-                      "判断要人给。"),
-    "claude-cowork-course": (2, "课程 + 咨询捆绑，交付是答疑与作业点评，属人力。录播能复用，但卖高价必须有人答疑。"),
-    "claw-mart": (5, "卖配置好的 AI 技能包，买完即用，零交付。负担在持续上新与兼容性。"),
-    "clawdi": (3, "卖的是「可部署的安全 VPS 环境」，开通后要配权限、装依赖、处理环境问题。"
-                      "这有实施成分，不是纯自助。"),
-    "clawhost": (5, "一键托管，零交付。负担在服务器与客户环境排障，属长期运维。但 $10/月的定价连运维成本都盖"
-                      "不住，这条路不要照抄定价。"),
-    "clawhosters-com": (5, "一键托管，装完即用零交付。负担在服务器运维与客户环境问题。"),
-    "clawrapid": (5, "一键开 VPS 跑代理，零交付。负担在服务器与客户环境排障。$45/月只有 6 户，"
-                      "说明这类托管的天花板就是框架的用户数。"),
-    "cleopatra-ai": (5, "上传照片看鼻型效果，自助零交付。负担在模型效果。"),
-    "clipspal": (1, "卖的是「每月 30 条视频」的代运营，脚本、剪辑、发布都要人做。这不是工具，"
-                      "是内容工厂，一个人顶多带几个客户。"),
-    "cnvs": (4, "开发者工具，$199 买断，装完即用。要人答的是集成与报错，属技术答疑。"),
-    "codefast": (2, "录播课 + 社群答疑，交付是答疑与作业点评。课程能复用，但要卖高价必须有人回话。"),
-    "codowave": (4, "装到仓库里跑代理，自助为主。要人处理的是误改代码与权限设置。"),
-    "cole-striler": (5, "生成音乐 riff，订阅即用零交付。负担在模型与版权提示。"),
-    "coloring-book": (5, "照片转涂色页、导出打印，纯自助零交付。负担在模型效果与素材版权提示，"
-                      "不需要接客户。"),
-    "comic-translator": (4, "上传漫画、自动翻译嵌字，自助为主。要人工盯的是嵌字质量与语种效果，出问题客户会拿截图来问。"),
-    "comicsai": (4, "自助生成漫画分镜，交付轻。要人处理的是画风一致性与版权素材，改稿需求会持续。"),
-    "conecta-fitness": (3, "双边撮合要运营：教练入驻审核、课程排期、纠纷处理、退款。平台型生意没有「交付为零」"
-                      "这回事。"),
-    "connor-cedro-seo-tampa-seo-consultant": (1, "创始人亲自交付：策略、改稿、外链、月报全是他一个人的判断。这不是软件，"
-                      "是人力服务，一个人顶多带 10 个客户。"),
-    "contextbolt": (5, "装连接器就能给 AI 代理喂数据，零交付。负担在跟着 Claude/Cursor 的接口改版"
-                      "修。"),
-    "controlresell": (2, "给二手卖家做销售与合规账本，要接平台订单、对账、报税口径，实施与维护都重。"
-                      "449 个订阅说明是团队在跑。"),
-    "convertlabs": (2, "给本地家政公司做预订与营销系统，要接电话、排班、评价、短信，还要按客户所在城市的服务流程配。"
-                      "这是有实施与培训的 B2B。"),
-    "convitede": (4, "自助做请柬、生成链接，交付很轻。要做的是模板设计与客服答疑——婚礼旺季会集中来一波问「怎么改"
-                      "日期」。"),
-    "cosden-code": (4, "课程 + AI 导师答疑，交付在答疑。录播能复用，但 AI 导师答不准时要人接手。"),
-    "coupleai": (5, "AI 伴侣 App，订阅即用零交付。负担在模型与内容审核。"),
-    "cramberry": (4, "自助做题、自动出闪卡，交付轻。要人答的是「这题答案对不对」，内容质量要盯。"),
-    "crawlbyte": (3, "无代码抓取，但要帮客户配选择器、处理反爬、调数据结构，属半实施。"),
-    "creads": (4, "自助生成社媒内容，交付轻。要人答的是「为什么这条不火」，属轻度陪跑。"),
-    "creativeclaw": (3, "给创意团队用，要帮客户配工作流、接素材库、定 credits 规则，"
-                      "出问题还要调。这是有实施环节的团队工具。"),
-    "creator-creator": (5, "iOS 写作助手，订阅即用，零交付。负担在模型效果与内容风格调优。"),
-    "creatorskit": (4, "给创作者做作品集与品牌对接页，自助为主。要人处理的是数据对接与品牌方提问。"),
-    "dewstack": (4, "自助建文档站，交付轻。要人答的是同步与权限问题。"),
-    "dreamini-ai": (5, "聚合多模型，订阅即用零交付。负担在模型接入与额度成本。"),
-    "elmo": (4, "自助开通，但「品牌在 AI 回答里被提到几次」这件事客户不会自己看——要人解释口径、"
-                      "给改进建议。工具出一半，诊断出一半。"),
-    "fitcal": (5, "拍照记账卡路里，纯自助零交付。负担在食物库与识别模型，属数据与算法维护。"),
-    "frontrun": (4, "数据订阅，自助为主。要人处理的是数据源变动与解释口径。"),
-    "garagelab": (5, "传照片出图，纯自助零交付。负担在模型效果与算力，不需要接客户。"),
-    "getmentioned": (4, "自助配置提示词就能看结果，交付轻。但客户看不懂「为什么 AI 不提我」，"
-                      "要人解释与给建议。"),
-    "guidanz-inc": (2, "BI 连接器要接客户的 ERP、数据库、权限体系，实施周期以周计，出问题要远程调。"
-                      "这是典型的企业集成活。"),
-    "hand-off": (2, "说是 SaaS，实际帮客户管店铺：上架、客服、发货协调都要人。6 个订阅 $1,136，"
-                      "等于每人每月 $189 的代运营费。"),
-    "leadmetrics": (3, "要给客户接广告平台、埋点、核对归因口径，出问题就是「数字对不上」的排查。"
-                      "这是有实施环节的工具，一个人带得动十几家。"),
-    "lina": (5, "用药记录与提醒，订阅即用零交付。负担在内容准确性，出错是医疗风险。"),
-    "linkerflow": (5, "连上 Webflow 自动做内链，零交付。负担在平台 API 变动。"),
-    "lunarbuild": (1, "按里程碑交付的低代码建站服务：需求沟通、设计、开发、上线全流程都要人，"
-                      "本质是小外包团队。"),
-    "mausbot": (4, "装桌面客户端、给它权限就能跑，交付轻。但代理出错时要人看日志、改流程，"
-                      "客户的环境千差万别，前几单得陪。"),
-    "mentiondesk": (3, "要帮客户设好提示词、解释「为什么 AI 不提你」，还要按周出改进建议——这是半咨询，"
-                      "一个人接得了几家，接不了几十家。"),
-    "mind-reach": (5, "冥想音频 + 练习计划，订阅即用零交付。负担在内容录制，属一次性生产 + 定期更新。"),
-    "nagringa": (3, "社区型产品：要审核会员、维护职位信息、组织活动，还得人工撮合。不是软件交付，"
-                      "是社群运营。"),
-    "parlai": (5, "WhatsApp 上练口语，订阅即用零交付。负担在对话质量与语种。"),
-    "pluma": (4, "记账 App，自助为主；要人答的是「为什么这笔归类错了」，属轻度客服。"),
-    "rankspot": (4, "连上站点就能按篇出稿自动发，交付偏自助。但客户会盯着「发了为什么没排名」，"
-                      "要人看数据、调选题——这是持续陪跑，不是一次性开通。"),
-    "rareui": (4, "开源组件库 + 付费支持，交付在答疑与定制。基础库免费，付费的是「有人管」。"),
-    "rock-identifier": (5, "拍照即识别，纯自助，零交付。负担在识别库与知识内容更新，属内容活。"),
-    "sbc-crafter": (5, "填阵容、出方案，纯自助零交付。负担在游戏数据更新。"),
-    "screenshot-to-code-whimsyworks-inc": (4, "自助上传截图出代码，但要人教客户「怎么描述才出得来」——截图质量、组件库选择、"
-                      "后续调试都会来回。前几单是陪跑。"),
-    "selltora": (5, "自动生成并发布 Pinterest 内容，零交付。负担在平台接口。"),
-    "social-genius-text-analyzer": (5, "贴一段聊天记录出建议，纯自助零交付。负担在模型语气调优。"),
-    "social-post-flow": (5, "装插件、连账号就自动发，零交付。负担在各平台接口变动，属定期修。"),
-    "sprinta-ai": (3, "WhatsApp 销售代理要接客户号码、配产品知识、设人工接管，账号被封还得处理。"
-                      "有实施与运维。"),
-    "stampsnap": (5, "拍照识别、自动归档，卖完即走。负担在识别模型与邮票目录数据，属内容维护而不是客户服务。"),
-    "static-forms": (5, "贴一段代码就能收表单，零交付。负担在邮件送达与反垃圾，属运维式小修。"),
-    "studio-zero": (5, "手机拍、AI 出图、导出即用，零交付。负担在模型效果与算力成本，不需要面对客户。"),
-    "supascribe": (4, "给 Substack 作者做增长工具，自助为主，要人答的是「为什么没涨粉」。"),
-    "themedrop": (5, "贴商品链接生成主题，自助零交付。负担在模板与平台接口。"),
-    "url2pin": (5, "批量生成 Pinterest 内容，自助零交付。负担在平台接口变动。"),
-    "velisto": (4, "给房产经纪人生成社媒内容，自助为主，要人配模板与账号。"),
-    "vibeling": (5, "背单词 App，订阅即用，零交付。负担在词库与复习算法。"),
-    "videototext": (5, "本地转写，装完即用零交付。负担在模型与格式兼容。"),
-    "vincere-dev": (1, "驻场工程师，按月收 $3,200 一个人头。这是人力外包，交付就是人的时间，"
-                      "永远不可能自动化。"),
-    "volume-booster-louder-sound": (5, "iOS 本地音频增益，装完即用，零服务器也零客服。唯一负担是跟着 iOS 大版本改音频会话权"
-                      "限，一年几次。"),
-    "walldecor-io": (4, "上传墙面照片看效果，自助为主；要人答「这个尺寸合不合适」，属轻度答疑。"),
-    "webclaw": (4, "给 API key 就能抓，自助为主。要人处理的是「抓不到怎么办」——站点反爬、"
-                      "登录墙、限流，客户会拿具体网址来问。"),
+    "abstract27-ltd": (3, NOTE_IN_LIBRARY),
+    "adverse-monitor": (2, NOTE_IN_LIBRARY),
+    "aerie": (1, NOTE_IN_LIBRARY),
+    "agent-berlin": (4, NOTE_IN_LIBRARY),
+    "ai-money-group": (2, NOTE_IN_LIBRARY),
+    "ai-song-clip-generator": (5, NOTE_IN_LIBRARY),
+    "ai-suitup": (5, NOTE_IN_LIBRARY),
+    "aicasadesign-com": (4, NOTE_IN_LIBRARY),
+    "aiselfi-es": (5, NOTE_IN_LIBRARY),
+    "aiwritebook": (4, NOTE_IN_LIBRARY),
+    "all-love-here": (1, NOTE_IN_LIBRARY),
+    "anon-1": (4, NOTE_IN_LIBRARY),
+    "apparelai": (4, NOTE_IN_LIBRARY),
+    "appitstudio-apps-bundle-and-services": (5, NOTE_IN_LIBRARY),
+    "archirise": (4, NOTE_IN_LIBRARY),
+    "artkit-cc": (4, NOTE_IN_LIBRARY),
+    "assignmentgpt-ai": (4, NOTE_IN_LIBRARY),
+    "aswati-studio": (5, NOTE_IN_LIBRARY),
+    "august": (4, NOTE_IN_LIBRARY),
+    "aura-for-creators": (5, NOTE_IN_LIBRARY),
+    "authex-labs": (3, NOTE_IN_LIBRARY),
+    "authoritystack-ai": (3, NOTE_IN_LIBRARY),
+    "automate-chill": (4, NOTE_IN_LIBRARY),
+    "autoprintemail": (4, NOTE_IN_LIBRARY),
+    "autotube": (5, NOTE_IN_LIBRARY),
+    "babelbot": (4, NOTE_IN_LIBRARY),
+    "beautyflow": (4, NOTE_IN_LIBRARY),
+    "bidder-iq": (4, NOTE_IN_LIBRARY),
+    "blabla": (3, NOTE_IN_LIBRARY),
+    "blipix": (5, NOTE_IN_LIBRARY),
+    "blitzreels": (5, NOTE_IN_LIBRARY),
+    "blog2video": (5, NOTE_IN_LIBRARY),
+    "bobby": (4, NOTE_IN_LIBRARY),
+    "brainote": (5, NOTE_IN_LIBRARY),
+    "brainrot-mov": (5, NOTE_IN_LIBRARY),
+    "buma-baby-tracker": (5, NOTE_IN_LIBRARY),
+    "calma": (5, NOTE_IN_LIBRARY),
+    "car-identifier": (5, NOTE_IN_LIBRARY),
+    "car-play-connect": (5, NOTE_IN_LIBRARY),
+    "carry-save-chatgpt-claude-grok-to-markdown-automatically": (5, NOTE_IN_LIBRARY),
+    "casa-fran-concepts-llc": (2, NOTE_IN_LIBRARY),
+    "castplus": (4, NOTE_IN_LIBRARY),
+    "catalister": (5, NOTE_IN_LIBRARY),
+    "cattus-ai": (5, NOTE_IN_LIBRARY),
+    "chatdash-llc": (3, NOTE_IN_LIBRARY),
+    "chateasy": (3, NOTE_IN_LIBRARY),
+    "chatium": (2, NOTE_IN_LIBRARY),
+    "chatwith": (4, NOTE_IN_LIBRARY),
+    "check-position": (5, NOTE_IN_LIBRARY),
+    "clairon-ai": (4, NOTE_IN_LIBRARY),
+    "clarity-search-ai-inc": (4, NOTE_IN_LIBRARY),
+    "claude-cowork-course": (2, NOTE_IN_LIBRARY),
+    "claw-mart": (5, NOTE_IN_LIBRARY),
+    "clawdi": (3, NOTE_IN_LIBRARY),
+    "clawhost": (5, NOTE_IN_LIBRARY),
+    "clawhosters-com": (5, NOTE_IN_LIBRARY),
+    "clawrapid": (5, NOTE_IN_LIBRARY),
+    "cleopatra-ai": (5, NOTE_IN_LIBRARY),
+    "clipspal": (1, NOTE_IN_LIBRARY),
+    "cnvs": (4, NOTE_IN_LIBRARY),
+    "codefast": (2, NOTE_IN_LIBRARY),
+    "codowave": (4, NOTE_IN_LIBRARY),
+    "cole-striler": (5, NOTE_IN_LIBRARY),
+    "coloring-book": (5, NOTE_IN_LIBRARY),
+    "comic-translator": (4, NOTE_IN_LIBRARY),
+    "comicsai": (4, NOTE_IN_LIBRARY),
+    "conecta-fitness": (3, NOTE_IN_LIBRARY),
+    "connor-cedro-seo-tampa-seo-consultant": (1, NOTE_IN_LIBRARY),
+    "contextbolt": (5, NOTE_IN_LIBRARY),
+    "controlresell": (2, NOTE_IN_LIBRARY),
+    "convertlabs": (2, NOTE_IN_LIBRARY),
+    "convitede": (4, NOTE_IN_LIBRARY),
+    "cosden-code": (4, NOTE_IN_LIBRARY),
+    "coupleai": (5, NOTE_IN_LIBRARY),
+    "cramberry": (4, NOTE_IN_LIBRARY),
+    "crawlbyte": (3, NOTE_IN_LIBRARY),
+    "creads": (4, NOTE_IN_LIBRARY),
+    "creativeclaw": (3, NOTE_IN_LIBRARY),
+    "creator-creator": (5, NOTE_IN_LIBRARY),
+    "creatorskit": (4, NOTE_IN_LIBRARY),
+    "dewstack": (4, NOTE_IN_LIBRARY),
+    "dreamini-ai": (5, NOTE_IN_LIBRARY),
+    "elmo": (4, NOTE_IN_LIBRARY),
+    "fitcal": (5, NOTE_IN_LIBRARY),
+    "frontrun": (4, NOTE_IN_LIBRARY),
+    "garagelab": (5, NOTE_IN_LIBRARY),
+    "getmentioned": (4, NOTE_IN_LIBRARY),
+    "guidanz-inc": (2, NOTE_IN_LIBRARY),
+    "hand-off": (2, NOTE_IN_LIBRARY),
+    "leadmetrics": (3, NOTE_IN_LIBRARY),
+    "lina": (5, NOTE_IN_LIBRARY),
+    "linkerflow": (5, NOTE_IN_LIBRARY),
+    "lunarbuild": (1, NOTE_IN_LIBRARY),
+    "mausbot": (4, NOTE_IN_LIBRARY),
+    "mentiondesk": (3, NOTE_IN_LIBRARY),
+    "mind-reach": (5, NOTE_IN_LIBRARY),
+    "nagringa": (3, NOTE_IN_LIBRARY),
+    "parlai": (5, NOTE_IN_LIBRARY),
+    "pluma": (4, NOTE_IN_LIBRARY),
+    "rankspot": (4, NOTE_IN_LIBRARY),
+    "rareui": (4, NOTE_IN_LIBRARY),
+    "rock-identifier": (5, NOTE_IN_LIBRARY),
+    "sbc-crafter": (5, NOTE_IN_LIBRARY),
+    "screenshot-to-code-whimsyworks-inc": (4, NOTE_IN_LIBRARY),
+    "selltora": (5, NOTE_IN_LIBRARY),
+    "social-genius-text-analyzer": (5, NOTE_IN_LIBRARY),
+    "social-post-flow": (5, NOTE_IN_LIBRARY),
+    "sprinta-ai": (3, NOTE_IN_LIBRARY),
+    "stampsnap": (5, NOTE_IN_LIBRARY),
+    "static-forms": (5, NOTE_IN_LIBRARY),
+    "studio-zero": (5, NOTE_IN_LIBRARY),
+    "supascribe": (4, NOTE_IN_LIBRARY),
+    "themedrop": (5, NOTE_IN_LIBRARY),
+    "url2pin": (5, NOTE_IN_LIBRARY),
+    "velisto": (4, NOTE_IN_LIBRARY),
+    "vibeling": (5, NOTE_IN_LIBRARY),
+    "videototext": (5, NOTE_IN_LIBRARY),
+    "vincere-dev": (1, NOTE_IN_LIBRARY),
+    "volume-booster-louder-sound": (5, NOTE_IN_LIBRARY),
+    "walldecor-io": (4, NOTE_IN_LIBRARY),
+    "webclaw": (4, NOTE_IN_LIBRARY),
 
     # ── 2026-11-04 守卫拦下 8 条，人工重写后晋升，共 8 条 ──
-    "adscriptly": (4, "要接客户的广告账户与成交回填，有一次性实施。一个人能接，但接不了多个大客户。"),
-    "aera-browser": (4, "装扩展就能跑，但长任务失败要看日志、要调步骤，实际有人工。"),
-    "arc-raiders-map": (5, "App 下载即用，零交付。负担在游戏更新时同步数据。"),
-    "dropapost": (4, "要授权各平台账号、处理发布失败与品牌素材，属于半自助。代理商客户会带一次性配置。"),
-    "pageturner": (5, "App 下载即用，一次买断完成交易。负担只剩系统兼容与文件解析的偶发问题。"),
-    "picoo": (5, "Studio 插件，装上就用，零交付。生成失败由用户自己重试。"),
-    "stat-ai": (5, "App 上架即交付，用户自己下载订阅。负担在数据源与模型调用，不在客户。"),
-    "stivio": (5, "传图出图，全自助。生成失败由用户重试，没有人工环节；负担只在推理成本。"),
+    "adscriptly": (4, NOTE_IN_LIBRARY),
+    "aera-browser": (4, NOTE_IN_LIBRARY),
+    "arc-raiders-map": (5, NOTE_IN_LIBRARY),
+    "dropapost": (4, NOTE_IN_LIBRARY),
+    "pageturner": (5, NOTE_IN_LIBRARY),
+    "picoo": (5, NOTE_IN_LIBRARY),
+    "stat-ai": (5, NOTE_IN_LIBRARY),
+    "stivio": (5, NOTE_IN_LIBRARY),
 
     # ── 2026-11-04 404 档案 4 条降级口径入库 ──
-    "changelogfy": (5, "纯 SaaS 自助开通、零交付；负担在集成与企业账户设置上。"),
-    "citron-app": (5, "App Store 上架即交付、零交付；生成失败由用户自行重试，无人工环节。"),
-    "ryn-vpn": (5, "VPN 是纯软件交付，App Store 装上即用，零交付；负担只剩服务器与节点维护。"),
-    "ton-piston": (4, "求职搜索零交付，但 Pro 套餐的简历优化与求职信生成要保证输出质量，"
-                      "属于自助为主。"),
+    "changelogfy": (5, NOTE_IN_LIBRARY),
+    "citron-app": (5, NOTE_IN_LIBRARY),
+    "ryn-vpn": (5, NOTE_IN_LIBRARY),
+    "ton-piston": (4, NOTE_IN_LIBRARY),
 
     # ── 2026-11-04 sotie 人工确认 still_alive 后入库 ──
-    "sotie-ai-best-friend": (5, "App Store 上架即交付，零交付；生成内容由模型返回，无人工环节。"),
+    "sotie-ai-best-friend": (5, NOTE_IN_LIBRARY),
 
     # ── 2026-11-04 C 档（综合 < 50，别搬）合并，共 22 条 ──
-    "100percentmarket": (2, "双边市场，一边要谈字体作者授权、一边要维护按需印刷的供给与结算，上架审核、"
-                      "版权链、分成都要人盯，不是装完即用的工具。"),
-    "access-labs-pty-ltd": (1, "主体是周付的定制开发公司，交付即团队：需求澄清、排期、验收都靠人，产品化部分只是获客入口。"),
-    "akari-tickets": (3, "票务转售社区要同时运营买家与卖家、处理履约与纠纷，供需两端都得有人盯，"
-                      "不是挂上去就自动成交的工具。"),
-    "anonymous-bot-for-slack": (4, "机器人装上即用，没有实施环节；负担在权限配置与内容审核，企业客户会要求审计与留痕。"),
-    "apparate-pty-ltd": (1, "按效果付费的 B2B 外呼获客，交付就是一支打电话的团队；高额部署档靠人做 GTM，"
-                      "规模与人力同步增长，不是可自助的软件。"),
-    "asta": (1, "实物电商，选品、备货、跨境物流、售后与合规注册都是交付本身，软件只占很小一环，"
-                      "一个人扛不动整条供应链。"),
-    "berace": (5, "App 内自助订阅，装上即用、零实施；长期负担是赛事数据要跟着赛程更新，"
-                      "预测模型与结果页也要维护。"),
-    "bibly": (5, "App 自助订阅，装上即用、零交付；长期负担是经文版本、阅读计划与内容校对的维护，"
-                      "属于内容型轻产品。"),
-    "book-the-move": (1, "卖的是线索不是软件：每条搬家需求都要人工核实、跟单、跟搬家公司对账，"
-                      "交付本身就是一支销售团队，一个人接不住，收入也随跟单人力线性增长。"),
-    "buzzrush": (5, "App 内小游戏，下载即用、零交付；负担只在关卡与题库更新，属于最轻的一类 C 端产品。"),
-    "cash-cow-inc": (2, "AI 外呼代理含人工运营环节：话术配置、名单清洗、结果复核都要人参与，"
-                      "按结果付费意味着交付责任在你这边。"),
-    "classyaction": (4, "纯信息型 App，用户自助订阅，零实施；负担在和解金项目库要持续收录与核验，"
-                      "属于内容维护型产品。"),
-    "commentions-automated-comments-with-mentions": (4, "自助订阅工具，配置好账号即可跑，没有实施环节；但账号被限制后要用户自己处理，"
-                      "售后压力集中在平台风控上。"),
-    "copykitten": (4, "Discord 机器人装上即用，不需要实施；负担在语音模型调用成本与服务器维护，"
-                      "属于轻量自助工具。"),
-    "cosmo": (3, "插件加支付，安装后要维护商品、订单与服务器权限，有持续运维但不需要实施团队。"),
-    "deeplead-io": (2, "外展送达率要持续运维：域名预热、发信额度、退信处理都在链条上，另有单价很高的代运营档，"
-                      "说明产品做不轻、服务比重不低。"),
-    "esim-panel": (2, "白标 SaaS 要接运营商、配流量套餐与结算，每加一个客户都要做实施与合规对接，"
-                      "不是纯自助的产品。"),
-    "fill": (4, "App 自助，装上即用；负担在内容审核与社区治理，匿名形态下这块的成本会随用户量涨。"),
-    "jarvis-bet": (4, "自助订阅的分析工具，注册即用、零交付；负担在赛事数据与模型更新，属于内容维护型产品。"),
-    "polyalerthub": (4, "自助订阅的警报终端，注册即用、零交付；负担在行情接口与推送稳定性的持续维护。"),
-    "replymer": (3, "工具本身自助开通，但要持续对抗平台风控：规则一变就得改匹配与回复策略，"
-                      "用户发不出去第一个找的是你。"),
-    "torrentclaw": (4, "纯搜索工具，用户自助订阅，没有实施环节；负担在索引源要持续维护，链接失效与资源下架都得跟着更"
-                      "新。"),
+    "100percentmarket": (2, NOTE_IN_LIBRARY),
+    "access-labs-pty-ltd": (1, NOTE_IN_LIBRARY),
+    "akari-tickets": (3, NOTE_IN_LIBRARY),
+    "anonymous-bot-for-slack": (4, NOTE_IN_LIBRARY),
+    "apparate-pty-ltd": (1, NOTE_IN_LIBRARY),
+    "asta": (1, NOTE_IN_LIBRARY),
+    "berace": (5, NOTE_IN_LIBRARY),
+    "bibly": (5, NOTE_IN_LIBRARY),
+    "book-the-move": (1, NOTE_IN_LIBRARY),
+    "buzzrush": (5, NOTE_IN_LIBRARY),
+    "cash-cow-inc": (2, NOTE_IN_LIBRARY),
+    "classyaction": (4, NOTE_IN_LIBRARY),
+    "commentions-automated-comments-with-mentions": (4, NOTE_IN_LIBRARY),
+    "copykitten": (4, NOTE_IN_LIBRARY),
+    "cosmo": (3, NOTE_IN_LIBRARY),
+    "deeplead-io": (2, NOTE_IN_LIBRARY),
+    "esim-panel": (2, NOTE_IN_LIBRARY),
+    "fill": (4, NOTE_IN_LIBRARY),
+    "jarvis-bet": (4, NOTE_IN_LIBRARY),
+    "polyalerthub": (4, NOTE_IN_LIBRARY),
+    "replymer": (3, NOTE_IN_LIBRARY),
+    "torrentclaw": (4, NOTE_IN_LIBRARY),
     # ── 2026-11-06 晋升的 4 条（人工裁定，依据 tmp/tm_md/*.md；草拟见 tmp/htm_screen/fit_scores_draft_20261106.md） ──
-    "catering-funnels": (2, "三档定价都收一次性上线费，说明卖出后要替客户接询价入口、配跟进话术与报价规则；「代运营」本身就意味着持续替餐厅管"
-                            "线索，不是装完就走。这类带实施环节的 B2B 一个人接不了几个客户，更没法同时做交付和获客。"),
-    "talkeasy": (4, "注册即用、订阅即付，没有实施与值守；它自己就是一人团队做出来的。真正的持续负担在内容侧：短视频要不断投、对话场景"
-                    "与反馈要持续调，停更就掉量，但这是一个人能长期扛的节奏，不需要团队。"),
-    "bubblav": (4, "自助注册、上传知识库就能跑，主流程没有实施；偶尔要帮客户接邮箱或工单系统、清洗一遍知识库，但不需要值守也不用团队"
-                   "。它自己两到五个人的规模也说明这个形态撑得住小团队——负担在集成维护，不在交付。"),
-    "arq": (3, "自助订阅的桌面工具，但高价档明确包含上线支持：要陪展厅把设计软件的导出接进来、配品牌提案模板、教销售用这套流程收"
-               "客户反馈。比纯自助工具重一档，好在渲染是机器做、不需要 7×24 值守，一个人带少量客户还撑得住。"),
+    "catering-funnels": (2, NOTE_IN_LIBRARY),
+    "talkeasy": (4, NOTE_IN_LIBRARY),
+    "bubblav": (4, NOTE_IN_LIBRARY),
+    "arq": (3, NOTE_IN_LIBRARY),
 }
 
 
@@ -978,6 +771,7 @@ def main():
     today = datetime.now().strftime("%Y-%m-%d")
     no_rep, no_delivery, no_china = [], [], []
     kept = []
+    notes_kept = []
     rows = []
     fb_delivery = fallback_delivery()
 
@@ -1012,13 +806,18 @@ def main():
                 preserve = True
                 dv = (prev_solo.get("dims") or {}).get("delivery")
                 d = (dv if isinstance(dv, int) else fb_delivery[0],
-                     prev_solo.get("delivery_note") or "")
+                     NOTE_IN_LIBRARY)
             else:
                 d = fb_delivery
                 provisional = True
                 no_delivery.append(cid)
         dims["delivery"] = d[0]
-        delivery_note = _plain(d[1])
+        # 文案以库里为唯一真值（PRD #182 → #183 → #184）：DELIVERY 第二位恒为
+        # 空串，表里已无理由副本；库里没判断才用中位数兜底说明当初值。
+        delivery_note, note_kept = SNP.resolve_note(
+            c, "solo_fit", fb_delivery[1])
+        if note_kept:
+            notes_kept.append(cid)
 
         raw = round(sum(dims[k] * SOLO_WEIGHTS[k] for k in SOLO_WEIGHTS), 1)
         solo = to_score(raw, SOLO_MAX)
@@ -1165,6 +964,10 @@ def main():
     if kept:
         print("\n[i] DELIVERY 表里没有、但库里已有判断，已保留原分（%d 条）：%s"
               % (len(kept), ", ".join(kept)))
+    if notes_kept:
+        print("\n[i] 库里 delivery_note 是唯一真值，已保留文案（%d 条）；"
+              "DELIVERY 表已无理由副本，也没有覆盖开关（PRD #184）。"
+              % len(notes_kept))
     if no_china:
         print("\n[i] 以下案例还没跑 score_china_fit.py，本次不算综合分：%s"
               % ", ".join(no_china))

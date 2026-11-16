@@ -52,6 +52,7 @@ sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
 import audit_delisted as AD                                   # noqa: E402
 import candidate_store as CSt                                  # noqa: E402
+import case_name as CN                                         # noqa: E402  展示名金额闸
 import hn_evidence as HNE                                      # noqa: E402
 import triage as T                                             # noqa: E402
 import verify_rules as VR                                      # noqa: E402
@@ -478,6 +479,12 @@ def to_candidate_hn(rec):
             "hn_comments", "hn_created_at", "hn_discussion", "hn_flags",
             "hidden_urls", "note")
     out = {k: rec.get(k) for k in keep if rec.get(k) not in (None, "")}
+    # 展示名金额闸（PRD #183）：inbox 里的名称可能来自旧线索池或人工补录，
+    # 进候选池前再过一次。`hn_title` 是证据字段，原样保留不动。
+    for key in ("name", "name_en"):
+        if out.get(key):
+            out[key] = CN.clean_or_raise(
+                out[key], "to_candidate_hn[%s].%s" % (rec.get("id"), key))
     out["metrics"] = dict(rec.get("metrics") or {})
     out["verification"] = ev.get("verification")
     out["source_kind"] = ev.get("source_kind")
