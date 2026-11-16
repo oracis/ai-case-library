@@ -1,1 +1,488 @@
-[]
+[
+  {
+    "id": "cozyroom",
+    "name": "CozyRoom",
+    "name_en": "CozyRoom",
+    "origin": "美国",
+    "one_liner": "A Chrome companion for DAT One that helps freight brokers spot new and changed loads, filter results, and keep call notes with less manual work.",
+    "category": "企业服务",
+    "models": [
+      "交易市场"
+    ],
+    "source_url": "https://trustmrr.com/startup/cozyroom",
+    "website": "https://dat-auto-preview-gill.gillcodes209.chatgpt.site/",
+    "harvest_source": "trustmrr",
+    "founded_at": "2026-11-10",
+    "founder_x_followers": "0",
+    "trustmrr_slug": "cozyroom",
+    "trade": {
+      "price": "$100,000",
+      "multiple": "4.05x",
+      "revenue": "$2,058"
+    },
+    "source_kind": "verified",
+    "added_at": "2026-11-16",
+    "metrics": {
+      "mrr": 0.0,
+      "last_30d_revenue": 2058.0,
+      "all_time": 2058.0,
+      "subscriptions": 0,
+      "growth_30d": null,
+      "mrr_growth_30d": null,
+      "revenue_growth_30d": 0.0,
+      "headline": "近 30 天收入 $2,058，TrustMRR 核对（非订阅制，MRR 恒 0）",
+      "metric_note": "实测口径：近 30 天已验证收入 $2,058（非订阅制/买断制业务，MRR 恒 0，本条门面口径为近 30 天流水，含一次性与用量收入，别当经常性收入引用；TrustMRR 从支付网关 API 直读，2026-11-16 同步，Stripe (API key)）。近 30 天收入 $2,058、累计 $2,058、付费订阅 0 户。月度时间线不足两个月，不给环比结论。挂牌 $100,000、倍数 4.05x（要价不等于收入）。⚠ 队列缓存值是 2026-11-16 采集时的快照（当时 $2,058），本次核对为 $2,058，两者不同；本条以本次核对为准。",
+      "caliber": "last_30d"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-11-16",
+    "refreshed_at": "2026-11-16",
+    "note": "收入数字来自 TrustMRR 公开的官方营收档案，由支付服务商 API 直读计算（Stripe (API key)），非截图自报；该档案是缓存快照，引用须带时点与口径。",
+    "data_freshness": "2026-11-16T00:06:24.985Z"
+  },
+  {
+    "id": "deepsearch-ai-people-finder",
+    "name": "DeepSearch AI - People Finder",
+    "name_en": "DeepSearch AI - People Finder",
+    "origin": "加拿大",
+    "one_liner": "Performs a deep AI search on people and compiles information about them.",
+    "category": "AI 工具",
+    "models": [
+      "交易市场"
+    ],
+    "source_url": "https://trustmrr.com/startup/deepsearch",
+    "website": "https://deepsearchapp.co",
+    "harvest_source": "trustmrr",
+    "founder_x_followers": "0",
+    "trustmrr_slug": "deepsearch",
+    "trade": {
+      "price": "$12,000",
+      "multiple": "1.60x",
+      "revenue": "$625"
+    },
+    "source_kind": "verified",
+    "added_at": "2026-11-16",
+    "metrics": {
+      "mrr": 416.0,
+      "last_30d_revenue": 632.0,
+      "all_time": 1868.0,
+      "subscriptions": 19,
+      "growth_30d": -14.9,
+      "mrr_growth_30d": -14.9,
+      "revenue_growth_30d": -13.7,
+      "headline": "MRR $416，TrustMRR 核对",
+      "metric_note": "实测口径：MRR $416（TrustMRR 从支付网关 API 直读，2026-11-16 同步，RevenueCat (API key)）。近 30 天收入 $632、累计 $1,868、付费订阅 19 户。最近完整月环比 +31.3%（已剔除当月残月）。近 30 天 MRR 增速 -14.9%。⚠ 历史峰值 $750 → 最近完整月 $750，留存 100%。挂牌 $12,000、倍数 1.60x（要价不等于收入）。⚠ 队列缓存值是 2026-11-16 采集时的快照（当时 $416），本次核对为 $416，两者不同；本条以本次核对为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-11-16",
+    "refreshed_at": "2026-11-16",
+    "note": "收入数字来自 TrustMRR 公开的官方营收档案，由支付服务商 API 直读计算（RevenueCat (API key)），非截图自报；该档案是缓存快照，引用须带时点与口径。",
+    "data_freshness": "2026-11-16T06:56:30.323Z"
+  },
+  {
+    "id": "nose-job-plastic-surgery-ai",
+    "name": "Nose Job - Plastic Surgery AI",
+    "name_en": "Nose Job - Plastic Surgery AI",
+    "one_liner": "AI face preview app for people considering facial aesthetic procedures. Users upload a selfie and see a realistic preview of rhinoplasty, eyelid, chin, lip, jawline and other facial changes on their o",
+    "category": "AI 工具",
+    "models": [
+      "交易市场"
+    ],
+    "source_url": "https://trustmrr.com/startup/plastic-surgery-ai",
+    "website": "https://apps.apple.com/us/app/nose-job-plastic-surgery-ai/id6756514211?uo=4",
+    "harvest_source": "trustmrr",
+    "founded_at": "2025-12-17",
+    "founder_x_followers": "0",
+    "trustmrr_slug": "plastic-surgery-ai",
+    "trade": {
+      "price": "$45,000",
+      "multiple": "1.06x",
+      "revenue": "$3,531"
+    },
+    "source_kind": "verified",
+    "added_at": "2026-11-16",
+    "metrics": {
+      "mrr": 3256.0,
+      "last_30d_revenue": 3597.0,
+      "all_time": 41754.0,
+      "subscriptions": 189,
+      "growth_30d": -6.0,
+      "mrr_growth_30d": -6.0,
+      "revenue_growth_30d": -20.1,
+      "headline": "MRR $3,256，TrustMRR 核对",
+      "metric_note": "实测口径：MRR $3,256（TrustMRR 从支付网关 API 直读，2026-11-15 同步，RevenueCat (API key)）。近 30 天收入 $3,597、累计 $41,754、付费订阅 189 户。最近完整月环比 -2.3%（已剔除当月残月）。近 30 天 MRR 增速 -6.0%。⚠ 同期收入增速为 -20.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $5,297 → 最近完整月 $4,447，留存 84%。挂牌 $45,000、倍数 1.06x（要价不等于收入）。⚠ 队列缓存值是 2026-11-16 采集时的快照（当时 $3,211），本次核对为 $3,256，两者不同；本条以本次核对为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-11-16",
+    "refreshed_at": "2026-11-15",
+    "note": "收入数字来自 TrustMRR 公开的官方营收档案，由支付服务商 API 直读计算（RevenueCat (API key)），非截图自报；该档案是缓存快照，引用须带时点与口径。",
+    "data_freshness": "2026-11-15T18:55:33.201Z"
+  },
+  {
+    "id": "pattes-moi",
+    "name": "Pattes & Moi",
+    "name_en": "Pattes & Moi",
+    "origin": "加拿大",
+    "one_liner": "Pattes & Moi turns a photo of you and your pet into a custom AI portrait, delivered digitally or printed on keepsake products, launched October 2026. 100+ paid orders and ~3,650 CAD in revenue in unde",
+    "category": "AI 工具",
+    "models": [
+      "交易市场"
+    ],
+    "source_url": "https://trustmrr.com/startup/pattes-moi",
+    "website": "https://pattesetmoi.ca",
+    "harvest_source": "trustmrr",
+    "founded_at": "2026-10-19",
+    "founder_x_followers": "0",
+    "trustmrr_slug": "pattes-moi",
+    "trade": {
+      "price": "$3,998",
+      "multiple": "0.12x",
+      "revenue": "$2,674"
+    },
+    "source_kind": "verified",
+    "added_at": "2026-11-16",
+    "metrics": {
+      "mrr": 0.0,
+      "last_30d_revenue": 2688.0,
+      "all_time": 2688.0,
+      "subscriptions": 0,
+      "growth_30d": 0.0,
+      "mrr_growth_30d": 0.0,
+      "revenue_growth_30d": 0.0,
+      "headline": "近 30 天收入 $2,688，TrustMRR 核对（非订阅制，MRR 恒 0）",
+      "metric_note": "实测口径：近 30 天已验证收入 $2,688（非订阅制/买断制业务，MRR 恒 0，本条门面口径为近 30 天流水，含一次性与用量收入，别当经常性收入引用；TrustMRR 从支付网关 API 直读，2026-11-16 同步，Stripe (API key)）。近 30 天收入 $2,688、累计 $2,688、付费订阅 0 户。月度时间线不足两个月，不给环比结论。近 30 天 MRR 增速 +0.0%。挂牌 $3,998、倍数 0.12x（要价不等于收入）。⚠ 队列缓存值是 2026-11-16 采集时的快照（当时 $2,674），本次核对为 $2,688，两者不同；本条以本次核对为准。",
+      "caliber": "last_30d"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-11-16",
+    "refreshed_at": "2026-11-16",
+    "note": "收入数字来自 TrustMRR 公开的官方营收档案，由支付服务商 API 直读计算（Stripe (API key)），非截图自报；该档案是缓存快照，引用须带时点与口径。",
+    "data_freshness": "2026-11-16T06:55:33.183Z"
+  },
+  {
+    "id": "private-enterprise",
+    "name": "Private Enterprise",
+    "name_en": "Private Enterprise",
+    "one_liner": "Become the chancellor, win elections, and govern Germany in this political simulation game.",
+    "category": "Entertainment",
+    "models": [
+      "交易市场"
+    ],
+    "source_url": "https://trustmrr.com/startup/regiere-deutschland",
+    "harvest_source": "trustmrr",
+    "trustmrr_slug": "regiere-deutschland",
+    "trade": {
+      "price": "$5,000",
+      "multiple": "1.18x",
+      "revenue": "$352"
+    },
+    "source_kind": "verified",
+    "added_at": "2026-11-16",
+    "metrics": {
+      "mrr": 0.0,
+      "last_30d_revenue": 352.0,
+      "all_time": 397.0,
+      "subscriptions": 0,
+      "growth_30d": 0.0,
+      "mrr_growth_30d": 0.0,
+      "revenue_growth_30d": 1140.1,
+      "headline": "近 30 天收入 $352，TrustMRR 核对（非订阅制，MRR 恒 0）",
+      "metric_note": "实测口径：近 30 天已验证收入 $352（非订阅制/买断制业务，MRR 恒 0，本条门面口径为近 30 天流水，含一次性与用量收入，别当经常性收入引用；TrustMRR 从支付网关 API 直读，2026-11-16 同步，RevenueCat (API key)）。近 30 天收入 $352、累计 $397、付费订阅 0 户。最近完整月环比 +108.8%（已剔除当月残月）。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 +1140.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $84 → 最近完整月 $84，留存 100%。挂牌 $5,000、倍数 1.18x（要价不等于收入）。⚠ 队列缓存值是 2026-11-16 采集时的快照（当时 $352），本次核对为 $352，两者不同；本条以本次核对为准。",
+      "caliber": "last_30d"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-11-16",
+    "refreshed_at": "2026-11-16",
+    "note": "收入数字来自 TrustMRR 公开的官方营收档案，由支付服务商 API 直读计算（RevenueCat (API key)），非截图自报；该档案是缓存快照，引用须带时点与口径。",
+    "data_freshness": "2026-11-16T06:33:58.620Z"
+  },
+  {
+    "id": "screeny-mockup-product-demo",
+    "name": "Screeny: Mockup & Product Demo",
+    "name_en": "Screeny: Mockup & Product Demo",
+    "origin": "比利时",
+    "one_liner": "The simplest way to make beautiful product demos. Screeny is an iOS and macOS app that turns raw screenshots and screen recordings into polished mockups and 3D animations in seconds, ready for social",
+    "category": "移动应用",
+    "models": [
+      "交易市场"
+    ],
+    "source_url": "https://trustmrr.com/startup/screeny",
+    "website": "https://getscreeny.app",
+    "harvest_source": "trustmrr",
+    "founded_at": "2026-02-19",
+    "founder_x_followers": "0",
+    "trustmrr_slug": "screeny",
+    "trade": {
+      "price": "$60,000",
+      "multiple": "1.96x",
+      "revenue": "$2,555"
+    },
+    "source_kind": "verified",
+    "added_at": "2026-11-16",
+    "metrics": {
+      "mrr": 458.0,
+      "last_30d_revenue": 2558.0,
+      "all_time": 6815.0,
+      "subscriptions": 114,
+      "growth_30d": 86.0,
+      "mrr_growth_30d": 86.0,
+      "revenue_growth_30d": 301.9,
+      "headline": "MRR $458，TrustMRR 核对",
+      "metric_note": "实测口径：MRR $458（TrustMRR 从支付网关 API 直读，2026-11-16 同步，RevenueCat (API key)）。近 30 天收入 $2,558、累计 $6,815、付费订阅 114 户。最近完整月环比 +59.8%（已剔除当月残月）。近 30 天 MRR 增速 +86.0%。⚠ 同期收入增速为 +301.9%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $1,735 → 最近完整月 $1,735，留存 100%。挂牌 $60,000、倍数 1.96x（要价不等于收入）。⚠ 队列缓存值是 2026-11-16 采集时的快照（当时 $463），本次核对为 $458，两者不同；本条以本次核对为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-11-16",
+    "refreshed_at": "2026-11-16",
+    "note": "收入数字来自 TrustMRR 公开的官方营收档案，由支付服务商 API 直读计算（RevenueCat (API key)），非截图自报；该档案是缓存快照，引用须带时点与口径。",
+    "data_freshness": "2026-11-16T06:57:02.078Z"
+  },
+  {
+    "id": "smartlycv",
+    "name": "SmartlyCV",
+    "name_en": "SmartlyCV",
+    "origin": "法国",
+    "one_liner": "AI tools to tailor ATS-friendly resumes and cover letters to job postings, practice interviews, and manage applications in one workspace.",
+    "category": "AI 工具",
+    "models": [
+      "交易市场"
+    ],
+    "source_url": "https://trustmrr.com/startup/smartlycv",
+    "website": "https://smartlycv.com",
+    "harvest_source": "trustmrr",
+    "founded_at": "2026-09-01",
+    "founder_x_followers": "0",
+    "trustmrr_slug": "smartlycv",
+    "trade": {
+      "price": "$19,000",
+      "multiple": "3.87x",
+      "revenue": "$409"
+    },
+    "source_kind": "verified",
+    "added_at": "2026-11-16",
+    "metrics": {
+      "mrr": 431.0,
+      "last_30d_revenue": 409.0,
+      "all_time": 481.0,
+      "subscriptions": 32,
+      "growth_30d": 714.1,
+      "mrr_growth_30d": 714.1,
+      "revenue_growth_30d": 462.1,
+      "headline": "MRR $431，TrustMRR 核对",
+      "metric_note": "实测口径：MRR $431（TrustMRR 从支付网关 API 直读，2026-11-16 同步，Stripe (API key)）。近 30 天收入 $409、累计 $481、付费订阅 32 户。最近完整月环比 +867.3%（已剔除当月残月）。近 30 天 MRR 增速 +714.1%。⚠ 同期收入增速为 +462.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $213 → 最近完整月 $213，留存 100%。挂牌 $19,000、倍数 3.87x（要价不等于收入）。⚠ 队列缓存值是 2026-11-16 采集时的快照（当时 $431），本次核对为 $431，两者不同；本条以本次核对为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-11-16",
+    "refreshed_at": "2026-11-16",
+    "note": "收入数字来自 TrustMRR 公开的官方营收档案，由支付服务商 API 直读计算（Stripe (API key)），非截图自报；该档案是缓存快照，引用须带时点与口径。",
+    "data_freshness": "2026-11-16T06:56:31.785Z"
+  },
+  {
+    "id": "superpower-for-ai",
+    "name": "Superpower for AI",
+    "name_en": "Superpower for AI",
+    "origin": "捷克",
+    "one_liner": "Superpower for AI are 5 Chrome extensions that add the missing power-user features to the major AI chat tools: Superpower for Gemini, Superpower for Claude, Superpower for NotebookLM, Superpower for G",
+    "category": "AI 工具",
+    "models": [
+      "交易市场"
+    ],
+    "source_url": "https://trustmrr.com/startup/superpower-for-ai",
+    "website": "https://superpowerforai.com/Gemini/Home",
+    "harvest_source": "trustmrr",
+    "founded_at": "2025-12-11",
+    "founder_x_followers": "0",
+    "trustmrr_slug": "superpower-for-ai",
+    "trade": {
+      "price": "$75,000",
+      "multiple": "2.77x",
+      "revenue": "$2,259"
+    },
+    "source_kind": "verified",
+    "added_at": "2026-11-16",
+    "metrics": {
+      "mrr": 470.0,
+      "last_30d_revenue": 2206.0,
+      "all_time": 16774.0,
+      "subscriptions": 67,
+      "growth_30d": -3.3,
+      "mrr_growth_30d": -3.3,
+      "revenue_growth_30d": 79.8,
+      "headline": "MRR $470，TrustMRR 核对",
+      "metric_note": "实测口径：MRR $470（TrustMRR 从支付网关 API 直读，2026-11-15 同步，Lemon Squeezy (API key)）。近 30 天收入 $2,206、累计 $16,774、付费订阅 67 户。最近完整月环比 -4.1%（已剔除当月残月）。近 30 天 MRR 增速 -3.3%。⚠ 同期收入增速为 +79.8%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $3,448 → 最近完整月 $1,816，留存 53%。挂牌 $75,000、倍数 2.77x（要价不等于收入）。⚠ 队列缓存值是 2026-11-16 采集时的快照（当时 $470），本次核对为 $470，两者不同；本条以本次核对为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-11-16",
+    "refreshed_at": "2026-11-15",
+    "note": "收入数字来自 TrustMRR 公开的官方营收档案，由支付服务商 API 直读计算（Lemon Squeezy (API key)），非截图自报；该档案是缓存快照，引用须带时点与口径。",
+    "data_freshness": "2026-11-15T22:11:17.696Z"
+  },
+  {
+    "id": "headroom-ai-editor",
+    "name": "Headroom AI Editor",
+    "name_en": "Headroom AI Editor",
+    "one_liner": "Turns raw talking videos into polished, reel-ready edits with AI captions, animated emphasis, and motion graphics, including support for Hinglish and Indian languages.",
+    "category": "AI 工具",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/evenflow",
+    "website": "https://apps.apple.com/us/app/auto-captions-edit-headroom/id6754892454?uo=4",
+    "harvest_source": "trustmrr",
+    "trustmrr_slug": "evenflow",
+    "source_kind": "verified",
+    "added_at": "2026-11-16",
+    "metrics": {
+      "mrr": 984.0,
+      "last_30d_revenue": 920.0,
+      "all_time": 3286.0,
+      "subscriptions": 270,
+      "growth_30d": 41.0,
+      "mrr_growth_30d": 41.0,
+      "revenue_growth_30d": 32.1,
+      "headline": "MRR $984，TrustMRR 核对",
+      "metric_note": "实测口径：MRR $984（TrustMRR 从支付网关 API 直读，2026-11-16 同步，RevenueCat (API key)）。近 30 天收入 $920、累计 $3,286、付费订阅 270 户。最近完整月环比 +10.1%（已剔除当月残月）。近 30 天 MRR 增速 +41.0%。⚠ 同期收入增速为 +32.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $786 → 最近完整月 $786，留存 100%。⚠ 队列缓存值是 2026-11-16 采集时的快照（当时 $984），本次核对为 $984，两者不同；本条以本次核对为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-11-16",
+    "refreshed_at": "2026-11-16",
+    "note": "收入数字来自 TrustMRR 公开的官方营收档案，由支付服务商 API 直读计算（RevenueCat (API key)），非截图自报；该档案是缓存快照，引用须带时点与口径。",
+    "data_freshness": "2026-11-16T05:34:39.775Z"
+  },
+  {
+    "id": "optello-leads",
+    "name": "Optello Leads",
+    "name_en": "Optello Leads",
+    "one_liner": "Website leasing, and leads buying platform.",
+    "category": "交易市场",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/optello",
+    "website": "https://leads.optello.co/",
+    "harvest_source": "trustmrr",
+    "trustmrr_slug": "optello",
+    "source_kind": "verified",
+    "added_at": "2026-11-16",
+    "metrics": {
+      "mrr": 2981.0,
+      "last_30d_revenue": 2982.0,
+      "all_time": 3863.0,
+      "subscriptions": 6,
+      "growth_30d": 238.2,
+      "mrr_growth_30d": 238.2,
+      "revenue_growth_30d": 238.3,
+      "headline": "MRR $2,981，TrustMRR 核对",
+      "metric_note": "实测口径：MRR $2,981（TrustMRR 从支付网关 API 直读，2026-11-15 同步，Stripe (API key)）。近 30 天收入 $2,982、累计 $3,863、付费订阅 6 户。最近完整月环比 +419.8%（已剔除当月残月）。近 30 天 MRR 增速 +238.2%。⚠ 历史峰值 $1,762 → 最近完整月 $1,762，留存 100%。⚠ 队列缓存值是 2026-11-16 采集时的快照（当时 $2,971），本次核对为 $2,981，两者不同；本条以本次核对为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-11-16",
+    "refreshed_at": "2026-11-15",
+    "note": "收入数字来自 TrustMRR 公开的官方营收档案，由支付服务商 API 直读计算（Stripe (API key)），非截图自报；该档案是缓存快照，引用须带时点与口径。",
+    "data_freshness": "2026-11-15T23:17:01.613Z"
+  },
+  {
+    "id": "reception",
+    "name": "Reception",
+    "name_en": "Reception",
+    "one_liner": "Helping apps make more money.",
+    "category": "客户服务",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/reception",
+    "website": "https://reception.sh/",
+    "harvest_source": "trustmrr",
+    "trustmrr_slug": "reception",
+    "source_kind": "verified",
+    "added_at": "2026-11-16",
+    "metrics": {
+      "mrr": 1017.0,
+      "last_30d_revenue": 2895.0,
+      "all_time": 2920.0,
+      "subscriptions": 44,
+      "growth_30d": 3966.7,
+      "mrr_growth_30d": 3966.7,
+      "revenue_growth_30d": 11479.7,
+      "headline": "MRR $1,017，TrustMRR 核对",
+      "metric_note": "实测口径：MRR $1,017（TrustMRR 从支付网关 API 直读，2026-11-16 同步，Stripe (API key)）。近 30 天收入 $2,895、累计 $2,920、付费订阅 44 户。月度时间线不足两个月，不给环比结论。近 30 天 MRR 增速 +3966.7%。⚠ 同期收入增速为 +11479.7%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 队列缓存值是 2026-11-16 采集时的快照（当时 $1,017），本次核对为 $1,017，两者不同；本条以本次核对为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-11-16",
+    "refreshed_at": "2026-11-16",
+    "note": "收入数字来自 TrustMRR 公开的官方营收档案，由支付服务商 API 直读计算（Stripe (API key)），非截图自报；该档案是缓存快照，引用须带时点与口径。",
+    "data_freshness": "2026-11-16T06:28:04.533Z"
+  },
+  {
+    "id": "synq-tcg-pricing-inventory",
+    "name": "Synq ‑ TCG Pricing & Inventory",
+    "name_en": "Synq ‑ TCG Pricing & Inventory",
+    "category": "电商",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/synq-tcg-pricing-inventory",
+    "website": "https://synq.cards/",
+    "harvest_source": "trustmrr",
+    "trustmrr_slug": "synq-tcg-pricing-inventory",
+    "source_kind": "verified",
+    "added_at": "2026-11-16",
+    "metrics": {
+      "mrr": 1459.0,
+      "last_30d_revenue": 1210.0,
+      "all_time": 8112.0,
+      "subscriptions": 33,
+      "growth_30d": 0.0,
+      "mrr_growth_30d": 0.0,
+      "revenue_growth_30d": -25.6,
+      "headline": "MRR $1,459，TrustMRR 核对",
+      "metric_note": "实测口径：MRR $1,459（TrustMRR 从支付网关 API 直读，2026-11-16 同步，Shopify (API key)）。近 30 天收入 $1,210、累计 $8,112、付费订阅 33 户。最近完整月环比 -18.6%（已剔除当月残月）。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 -25.6%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $2,253 → 最近完整月 $1,214，留存 54%。⚠ 队列缓存值是 2026-11-16 采集时的快照（当时 $1,459），本次核对为 $1,459，两者不同；本条以本次核对为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-11-16",
+    "refreshed_at": "2026-11-16",
+    "note": "收入数字来自 TrustMRR 公开的官方营收档案，由支付服务商 API 直读计算（Shopify (API key)），非截图自报；该档案是缓存快照，引用须带时点与口径。",
+    "data_freshness": "2026-11-16T06:57:30.331Z"
+  },
+  {
+    "id": "wenaughty",
+    "name": "WeNaughty",
+    "name_en": "WeNaughty",
+    "one_liner": "Spice up date night with WeNaughty, the truth or dare game made only for couples.",
+    "category": "Entertainment",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://trustmrr.com/startup/naughty",
+    "website": "https://apps.apple.com/us/app/dirty-truth-or-dare-wenaughty/id6817063947?uo=4",
+    "harvest_source": "trustmrr",
+    "trustmrr_slug": "naughty",
+    "source_kind": "verified",
+    "added_at": "2026-11-16",
+    "metrics": {
+      "mrr": 412.0,
+      "last_30d_revenue": 531.0,
+      "all_time": 539.0,
+      "subscriptions": 33,
+      "growth_30d": 1049.6,
+      "mrr_growth_30d": 1049.6,
+      "revenue_growth_30d": 5827.4,
+      "headline": "MRR $412，TrustMRR 核对",
+      "metric_note": "实测口径：MRR $412（TrustMRR 从支付网关 API 直读，2026-11-16 同步，RevenueCat (API key)）。近 30 天收入 $531、累计 $539、付费订阅 33 户。月度时间线不足两个月，不给环比结论。近 30 天 MRR 增速 +1049.6%。⚠ 同期收入增速为 +5827.4%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $153 → 最近完整月 $153，留存 100%。⚠ 队列缓存值是 2026-11-16 采集时的快照（当时 $412），本次核对为 $412，两者不同；本条以本次核对为准。",
+      "caliber": "mrr"
+    },
+    "verification": "stripe",
+    "promoted_from_inbox": "2026-11-16",
+    "refreshed_at": "2026-11-16",
+    "note": "收入数字来自 TrustMRR 公开的官方营收档案，由支付服务商 API 直读计算（RevenueCat (API key)），非截图自报；该档案是缓存快照，引用须带时点与口径。",
+    "data_freshness": "2026-11-16T06:27:00.370Z"
+  }
+]
