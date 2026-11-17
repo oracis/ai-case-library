@@ -141,21 +141,27 @@
   "at": "2026-10-14 13:28",
   "article_id": "343831",
   "title": "MacWall：给 Mac 的 4K 动态壁纸",
+  "verified_at": "2026-11-17 09:42",
+  "evidence": "editor-ui-publish",
   "note": "｜草稿同步(2026-10-14 13:28): title 认领 aid=343831"
  },
  {
   "id": "homy",
-  "at": "2026-10-14 13:27",
+  "at": "2026-11-16 09:29",
   "article_id": "343830",
   "title": "Homy：Mac 上更快的文件搜索",
-  "note": "｜草稿同步(2026-10-14 13:27): title 认领 aid=343830"
+  "verified_at": "2026-11-16 09:40",
+  "evidence": "space-article-list",
+  "note": "｜2026-11-16 全平台一轮：远端独立回读命中后补账（中断丢写）"
  },
  {
   "id": "growingupvideo",
   "at": "2026-10-14 13:26",
   "article_id": "343829",
   "title": "GrowingUpVideo：旧照片做成变脸视频",
-  "note": "｜草稿同步(2026-10-14 13:26): title 认领 aid=343829"
+  "verified_at": "2026-11-15 11:49:33",
+  "evidence": "space-article-list",
+  "note": "｜草稿同步(2026-10-14 13:26): title 认领 aid=343829 ‖ [11-15] send-draft 报 failed 属列表延迟，独立回读首条命中后补账，未重发"
  },
  {
   "id": "fastwrite-io",

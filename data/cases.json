@@ -84057,5 +84057,1024 @@
       "threshold": 70.0,
       "scored_at": "2026-11-15"
     }
+  },
+  {
+    "id": "nose-job-plastic-surgery-ai",
+    "name": "Nose Job - Plastic Surgery AI",
+    "name_en": "Nose Job - Plastic Surgery AI",
+    "origin": "",
+    "one_liner": "Nose Job 是 AI 面部整形预览应用，当前 MRR $3,256，活跃订阅 189 人，2025 年 12 月上线。",
+    "category": "AI 工具",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 3256.0,
+      "last_30d_revenue": 3597.0,
+      "all_time": 41754.0,
+      "subscriptions": 189,
+      "growth_30d": -6.0,
+      "mrr_growth_30d": -6.0,
+      "revenue_growth_30d": -20.1,
+      "headline": "MRR $3,256，TrustMRR 核对",
+      "metric_note": "实测口径：MRR $3,256（TrustMRR 从支付网关 API 直读，2026-11-15 同步，RevenueCat (API key)）。近 30 天收入 $3,597、累计 $41,754、付费订阅 189 户。最近完整月环比 -2.3%（已剔除当月残月）。近 30 天 MRR 增速 -6.0%。⚠ 同期收入增速为 -20.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $5,297 → 最近完整月 $4,447，留存 84%。挂牌 $45,000、倍数 1.06x（要价不等于收入）。⚠ 队列缓存值是 2026-11-16 采集时的快照（当时 $3,211），本次核对为 $3,256，两者不同；本条以本次核对为准。",
+      "caliber": "mrr"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 3,
+      "distribution": 4,
+      "capital": 2,
+      "timing": 3
+    },
+    "verdict": "它卖的不是整形手术，而是术前决策的确定性——用户买的是在见医生前看清自己效果的能力。",
+    "what_it_does": "Nose Job - Plastic Surgery AI 是一款移动端应用，用户自拍后可在 1 分钟内预览隆鼻、双眼皮、下巴、嘴唇、下颌线等整形效果。产品于 2025 年 12 月 17 日上线，支持 iOS 和 Android，提供 14 种语言。通过 RevenueCat 以周度和年度订阅收费。档案自述团队规模为 1 人，用户数 30000，融资方式为自筹资金。",
+    "how_it_makes_money": "采用周度和年度订阅制，通过 RevenueCat 收费。直接引用素材给出的客单价为 $17.23。具体定价档位未公开，但档案自述定价为 $9.99/周、$69.99/年（按生成次数计费）。",
+    "why_it_works": [
+      "素材显示近 30 天收入 $3,491，活跃订阅 189 人，客单价 $17.23。机制：低价周订阅降低决策门槛，让犹豫期用户先付费试用，再转化为年度订阅。",
+      "素材显示毛利率 60%。机制：AI 生成替代真人医生面诊，边际成本极低，广告支出可被高毛利覆盖。",
+      "素材显示自 2026 年 1 月起在广告和运营成本后实现盈利。机制：产品上线首月即盈利，说明获客成本低于用户生命周期价值，形成正向循环。"
+    ],
+    "playbook": [
+      "在用户决策链的早期介入：在客户尚未联系服务商前，提供低成本的可视化预览工具，锁定犹豫期付费。",
+      "用周订阅作为入口，年度订阅作为利润：设置 $9.99/周的低门槛价格，引导用户先体验再续费。",
+      "控制获客成本：在毛利率 60% 的前提下，将广告支出控制在用户首月付费金额以内，确保单月盈利。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "近 30 天收入 $3,597 可代表经常性收入",
+        "truth": "近 30 天收入 $3,597 含一次性入账/退款，与 MRR $3,256 背离；讲增长应使用 MRR 口径",
+        "source": "https://trustmrr.com/startup/plastic-surgery-ai.md"
+      },
+      {
+        "claim": "累计收入 $41,754 可年化",
+        "truth": "累计收入 $41,754 是 2025-12 至 2026-11 的已发生总和，不是 ARR，不可直接乘系数折算为年度经常性收入",
+        "source": "https://trustmrr.com/startup/plastic-surgery-ai.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 档案",
+        "url": "https://trustmrr.com/startup/plastic-surgery-ai.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "App Store  listing",
+        "url": "https://apps.apple.com/us/app/nose-job-plastic-surgery-ai/id6756514211?uo=4",
+        "kind": "official"
+      }
+    ],
+    "published_from": "nose-job-plastic-surgery-ai",
+    "verified_at": "2026-11-16",
+    "updated_at": "2026-11-16",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 60,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "optello-leads",
+    "name": "Optello Leads",
+    "name_en": "Optello Leads",
+    "origin": "",
+    "one_liner": "Optello 是澳大利亚本地服务企业的竞价获客平台，当前 MRR $2,981，6 个活跃订阅。",
+    "category": "交易市场",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "last_30d",
+    "metrics": {
+      "mrr": 2981.0,
+      "last_30d_revenue": 2982.0,
+      "all_time": 3863.0,
+      "subscriptions": 6,
+      "growth_30d": 238.2,
+      "mrr_growth_30d": 238.2,
+      "revenue_growth_30d": 238.3,
+      "headline": "近 30 天收入 $2,982，TrustMRR 核对",
+      "metric_note": "实测口径：近 30 天收入 $2,982（TrustMRR 从支付网关 API 直读，2026-11-15 同步，Stripe (API key)）。近 30 天收入 $2,982、累计 $3,863、付费订阅 6 户。最近完整月环比 +419.8%（已剔除当月残月）。近 30 天 MRR 增速 +238.2%。⚠ 历史峰值 $1,762 → 最近完整月 $1,762，留存 100%。⚠ 队列缓存值是 2026-11-16 采集时的快照（当时 $2,971），本次核对为 $2,981，两者不同；本条以本次核对为准。 ⚠ 口径裁定 2026-11-16：AI 核验判该条不适用 MRR 门面口径，改以支付侧近 30 天已验证收入为准；MRR 仅作缓存快照保留。",
+      "caliber": "last_30d"
+    },
+    "models": [
+      "订阅制"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 4,
+      "capital": 1,
+      "timing": 3
+    },
+    "verdict": "它卖的不是流量，是排他权——企业买的是‘这条咨询只给我’，而非线索数量。",
+    "what_it_does": "Optello 由创始人 jsd 于 2026 年 9 月 24 日上线，运营于澳大利亚市场。平台连接两类用户：本地服务企业（如空调、车库门、拆除公司）与流量来源。企业通过竞价获取独家客户咨询，平台同时提供网站租赁服务。档案自述团队规模为 1 人，融资方式为自筹资金。截至 2026 年 11 月 15 日，当前 MRR 为 $2,981，活跃订阅数为 6。",
+    "how_it_makes_money": "收入来自两项：一是按条计费的线索购买，线索起步价为 $30，企业需设置不低于平台最低价的竞价，且需充值至少 $50 信用额度；二是可选的月度网站租赁。素材已给出客单价为 $496.83（MRR 除以活跃订阅数），具体定价档位未公开。",
+    "why_it_works": [
+      "素材显示线索起步价 $30 且需充值 $50 信用额度，机制在于设置最低门槛过滤低意向买家，使竞价聚焦于有真实预算的企业。",
+      "活跃订阅数仅 6 但 MRR 达 $2,981，客单价 $496.83，机制在于高客单价依赖独家线索的稀缺性，而非大规模获客。",
+      "平台提供网站租赁作为可选附加服务，机制在于将一次性线索交易转化为持续性收入，提升客户生命周期价值。"
+    ],
+    "playbook": [
+      "设置最低充值门槛（如 $50）和起步竞价（如 $30），筛选高意向买家，降低低质量咨询对卖家的干扰。",
+      "将独家线索作为核心卖点，明确承诺‘每条咨询只分配给一家企业’，以此建立差异化并支撑高客单价。",
+      "在核心交易之外提供附加服务（如网站租赁），将单次交易客户转化为月度订阅客户，平滑收入波动。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "MRR $2,981",
+        "truth": "实际是近 30 天收入 $2,982（按线索付费的用量制生意，非经常性订阅收入）",
+        "source": "https://trustmrr.com/startup/optello.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 档案",
+        "url": "https://trustmrr.com/startup/optello.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "官网",
+        "url": "https://leads.optello.co/",
+        "kind": "official"
+      }
+    ],
+    "published_from": "optello-leads",
+    "verified_at": "2026-11-16",
+    "updated_at": "2026-11-16",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 60,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "reception",
+    "name": "Reception",
+    "name_en": "Reception",
+    "origin": "",
+    "one_liner": "Reception 为 iOS 应用提供应用内评论与 Upsell 工具，当前 MRR $1,017，累计收入 $2,920。",
+    "category": "客户服务",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "last_30d",
+    "metrics": {
+      "mrr": 1017.0,
+      "last_30d_revenue": 2895.0,
+      "all_time": 2920.0,
+      "subscriptions": 44,
+      "growth_30d": 3966.7,
+      "mrr_growth_30d": 3966.7,
+      "revenue_growth_30d": 11479.7,
+      "headline": "近 30 天收入 $2,895，TrustMRR 核对",
+      "metric_note": "实测口径：近 30 天收入 $2,895（TrustMRR 从支付网关 API 直读，2026-11-16 同步，Stripe (API key)）。近 30 天收入 $2,895、累计 $2,920、付费订阅 44 户。月度时间线不足两个月，不给环比结论。近 30 天 MRR 增速 +3966.7%。⚠ 同期收入增速为 +11479.7%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 队列缓存值是 2026-11-16 采集时的快照（当时 $1,017），本次核对为 $1,017，两者不同；本条以本次核对为准。 ⚠ 口径裁定 2026-11-16：AI 核验判该条不适用 MRR 门面口径，改以支付侧近 30 天已验证收入为准；MRR 仅作缓存快照保留。",
+      "caliber": "last_30d"
+    },
+    "models": [
+      "订阅制"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 3
+    },
+    "verdict": "它卖的不是评论工具，而是应用内的流量变现能力——开发者买的是把现有用户转化为收入的能力。",
+    "what_it_does": "Reception 是一个面向 iOS 开发者的 B2B 工具，由 Frederick James 于 2026 年 10 月 2 日创建，官网定位是帮助应用赚钱。产品以 SDK 形式嵌入应用，核心功能包括引导用户评价、跨订阅层级 Upsell 以及提供折扣。根据档案自述，团队规模为 2–5 人，融资方式为自筹资金。截至 2026 年 11 月 16 日，活跃订阅数为 44。",
+    "how_it_makes_money": "产品采用订阅制，档案自述定价为每月 $25。根据 TrustMRR 收入快照，当前 MRR 为 $1,017，活跃订阅数 44，据此推算客单价为 $23.11。",
+    "why_it_works": [
+      "嵌入原生 SDK 降低接入成本：产品以 SDK 形式嵌入应用，直接触达用户，减少跳转流失。",
+      "订阅制收入结构稳定：当前 MRR $1,017，活跃订阅数 44，客单价 $23.11，形成可预测的经常性收入。",
+      "功能组合覆盖用户生命周期：从引导评价到跨层级 Upsell，覆盖用户留存与变现两个环节。"
+    ],
+    "playbook": [
+      "将工具嵌入现有产品生态，降低用户接入成本。",
+      "设计跨层级 Upsell 机制，提升单用户生命周期价值。",
+      "提供可预测的订阅制收入模型，稳定现金流。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "MRR $1,017 是主要收入指标",
+        "truth": "近 30 天收入 $2,895（据 TrustMRR 档案），MRR 数据需登录才能查看完整时间线",
+        "source": "https://trustmrr.com/startup/reception.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 档案",
+        "url": "https://trustmrr.com/startup/reception.md",
+        "kind": "stripe"
+      }
+    ],
+    "published_from": "reception",
+    "verified_at": "2026-11-16",
+    "updated_at": "2026-11-16",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（stripe），按默认政策进精品池",
+    "quality_score": 60,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "pattes-moi",
+    "name": "Pattes & Moi",
+    "name_en": "Pattes & Moi",
+    "origin": "加拿大",
+    "one_liner": "Pattes & Moi 是加拿大 AI 宠物肖像生意，上线不到一个月近 30 天收入 $2,688，由 Meta 广告驱动。",
+    "category": "AI 工具",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "last_30d",
+    "metrics": {
+      "mrr": 0.0,
+      "last_30d_revenue": 2688.0,
+      "all_time": 2688.0,
+      "subscriptions": 0,
+      "growth_30d": 0.0,
+      "mrr_growth_30d": 0.0,
+      "revenue_growth_30d": 0.0,
+      "headline": "近 30 天收入 $2,688，TrustMRR 核对（非订阅制，MRR 恒 0）",
+      "metric_note": "实测口径：近 30 天已验证收入 $2,688（非订阅制/买断制业务，MRR 恒 0，本条门面口径为近 30 天流水，含一次性与用量收入，别当经常性收入引用；TrustMRR 从支付网关 API 直读，2026-11-16 同步，Stripe (API key)）。近 30 天收入 $2,688、累计 $2,688、付费订阅 0 户。月度时间线不足两个月，不给环比结论。近 30 天 MRR 增速 +0.0%。挂牌 $3,998、倍数 0.12x（要价不等于收入）。⚠ 队列缓存值是 2026-11-16 采集时的快照（当时 $2,674），本次核对为 $2,688，两者不同；本条以本次核对为准。",
+      "caliber": "last_30d"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 4
+    },
+    "verdict": "它卖的不是 AI 绘画，是宠物主的即时情感纪念品——用自动化流程把一次性冲动消费变成可复制的订单。",
+    "what_it_does": "Pattes & Moi 于 2026 年 10 月 19 日上线，将用户与宠物的照片生成定制 AI 肖像，以数字文件或印刷纪念品形式交付。档案自述团队规模为 1 人，用户数为 100。当前 MRR 为 0，近 30 天收入 $2,688，由 Stripe 支付网关记录。",
+    "how_it_makes_money": "非订阅制，按单计费。档案自述数字肖像 $19 CAD 起，印刷套餐约 $70–167。毛利率 45%。客单价无法推算。",
+    "why_it_works": [
+      "近 30 天收入 $2,688 且全部来自 Meta 广告，说明低客单价产品可通过付费流量快速验证需求，机制是广告直接触达宠物主人群。",
+      "毛利率 45% 且流程全自动化（上传、AI 生成、Stripe 结账），机制是边际成本极低，单人可承载百单订单。",
+      "数字与印刷双交付形态，数字版 $19 CAD 起降低决策门槛，机制是价格分层覆盖冲动消费与礼品场景。"
+    ],
+    "playbook": [
+      "用低客单价数字产品测试付费流量，验证需求后再扩展高客单价印刷品。",
+      "将交付流程全自动化，减少人工干预，使单人可管理百单级订单。",
+      "设计价格分层：低价数字版引流，高价印刷版提升客单价。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "候选资料 headline 称 '近 30 天收入 $2,688，TrustMRR 核对（非订阅制，MRR 恒 0）'",
+        "truth": "实际为滚动 30 天已验证收入 $2,688（据 TrustMRR 档案），非经常性收入，MRR 确实为 0",
+        "source": "https://trustmrr.com/startup/pattes-moi.md"
+      },
+      {
+        "claim": "候选资料 metric_note 称 '近 30 天收入 $2,688、累计 $2,688'",
+        "truth": "累计收入应为 ~$3,650 CAD（首月），$2,688 仅为最近 30 天滚动收入",
+        "source": "https://trustmrr.com/startup/pattes-moi.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 档案",
+        "url": "https://trustmrr.com/startup/pattes-moi.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "官网",
+        "url": "https://pattesetmoi.ca",
+        "kind": "official"
+      }
+    ],
+    "published_from": "pattes-moi",
+    "verified_at": "2026-11-16",
+    "updated_at": "2026-11-16",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 60,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "screeny-mockup-product-demo",
+    "name": "Screeny: Mockup & Product Demo",
+    "name_en": "Screeny: Mockup & Product Demo",
+    "origin": "比利时",
+    "one_liner": "Screeny 是 iOS/macOS 应用，将截图和录屏转为演示动画，当前 MRR $458。",
+    "category": "移动应用",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "last_30d",
+    "metrics": {
+      "mrr": 458.0,
+      "last_30d_revenue": 2558.0,
+      "all_time": 6815.0,
+      "subscriptions": 114,
+      "growth_30d": 86.0,
+      "mrr_growth_30d": 86.0,
+      "revenue_growth_30d": 301.9,
+      "headline": "近 30 天收入 $2,558，TrustMRR 核对",
+      "metric_note": "实测口径：近 30 天收入 $2,558（TrustMRR 从支付网关 API 直读，2026-11-16 同步，RevenueCat (API key)）。近 30 天收入 $2,558、累计 $6,815、付费订阅 114 户。最近完整月环比 +59.8%（已剔除当月残月）。近 30 天 MRR 增速 +86.0%。⚠ 同期收入增速为 +301.9%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $1,735 → 最近完整月 $1,735，留存 100%。挂牌 $60,000、倍数 1.96x（要价不等于收入）。⚠ 队列缓存值是 2026-11-16 采集时的快照（当时 $463），本次核对为 $458，两者不同；本条以本次核对为准。 ⚠ 口径裁定 2026-11-16：AI 核验判该条不适用 MRR 门面口径，改以支付侧近 30 天已验证收入为准；MRR 仅作缓存快照保留。",
+      "caliber": "last_30d"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 3
+    },
+    "verdict": "它卖的不是剪辑，是发布节奏——客户买的是把 UI 改动同步到演示素材的能力，不是画质。",
+    "what_it_does": "Screeny 是一款 iOS 和 macOS 应用，将原始截图和录屏转为带 mockup 和 3D 动画的演示内容，面向 App Store 和社交媒体发布。产品于 2026-02-19 上线，由 1 人团队运营，采用 RevenueCat 订阅制。截至 2026-11-16 的 TrustMRR 缓存快照显示，活跃订阅数为 114，当前 MRR 为 $458。",
+    "how_it_makes_money": "采用免费增值 + 订阅制：免费套餐提供 10 credits（10 张图片/3 个视频）；积分包 $2.99/20 credits；月度订阅 $3.99/月；年度 $22.99/年；终身授权 $29.99。素材给出的客单价为 $4.02（MRR ÷ 活跃订阅数），具体定价档位未公开。",
+    "why_it_works": [
+      "素材显示客单价 $4.02，机制：低价订阅降低决策门槛，使开发者愿意为每次 UI 改动重复购买，而非一次性买断。",
+      "素材显示 2026-10-26 单日收入 $583，机制：单日峰值来自用户集中发布新截图或更新演示，说明产品与发布周期强绑定。",
+      "素材显示毛利率 85%，机制：iOS/macOS 原生应用边际成本低，无需垫资或备货，收入主要覆盖服务器和分发成本。"
+    ],
+    "playbook": [
+      "将产品嵌入用户发布流程：在用户每次 UI 改动后提醒更新演示素材，形成重复购买理由。",
+      "设置低价入门门槛：提供免费套餐和 $2.99 积分包，让新用户以最小成本尝试，再引导至月度订阅。",
+      "利用发布周期做营销：在用户准备上架或更新应用时推送产品，而非泛泛的内容营销。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "MRR $458 是该生意的经常性收入",
+        "truth": "Screeny 是混合定价（买断/积分包/订阅），近 30 天已验证收入 $2,558 包含一次性入账，不是 MRR；MRR $458 只是当前订阅值",
+        "source": "https://trustmrr.com/startup/screeny.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 档案",
+        "url": "https://trustmrr.com/startup/screeny.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "官网",
+        "url": "https://getscreeny.app",
+        "kind": "official"
+      }
+    ],
+    "published_from": "screeny-mockup-product-demo",
+    "verified_at": "2026-11-16",
+    "updated_at": "2026-11-16",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 80,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "superpower-for-ai",
+    "name": "Superpower for AI",
+    "name_en": "Superpower for AI",
+    "origin": "捷克",
+    "one_liner": "MRR $470 的 Chrome 扩展组合，为 Gemini、Claude 等主流 AI 聊天工具补齐缺失的快捷键与导出功能。",
+    "category": "AI 工具",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "last_30d",
+    "metrics": {
+      "mrr": 470.0,
+      "last_30d_revenue": 2206.0,
+      "all_time": 16774.0,
+      "subscriptions": 67,
+      "growth_30d": -3.3,
+      "mrr_growth_30d": -3.3,
+      "revenue_growth_30d": 79.8,
+      "headline": "近 30 天收入 $2,206，TrustMRR 核对",
+      "metric_note": "实测口径：近 30 天收入 $2,206（TrustMRR 从支付网关 API 直读，2026-11-15 同步，Lemon Squeezy (API key)）。近 30 天收入 $2,206、累计 $16,774、付费订阅 67 户。最近完整月环比 -4.1%（已剔除当月残月）。近 30 天 MRR 增速 -3.3%。⚠ 同期收入增速为 +79.8%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $3,448 → 最近完整月 $1,816，留存 53%。挂牌 $75,000、倍数 2.77x（要价不等于收入）。⚠ 队列缓存值是 2026-11-16 采集时的快照（当时 $470），本次核对为 $470，两者不同；本条以本次核对为准。 ⚠ 口径裁定 2026-11-16：AI 核验判该条不适用 MRR 门面口径，改以支付侧近 30 天已验证收入为准；MRR 仅作缓存快照保留。",
+      "caliber": "last_30d"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 1,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 2
+    },
+    "verdict": "它卖的不是 AI 功能，而是对现有 AI 工具的「快捷键」——客户买的是操作效率，不是新模型。",
+    "what_it_does": "Superpower for AI 是 5 个 Chrome 扩展的集合，为 Gemini、Claude、NotebookLM、Grok 和 ChatGPT 补齐缺失的 Power-user 功能。成立于 2025-12-11，当前活跃订阅数 67，MRR $470。其中 Superpower for Gemini 贡献约 76% 收入，NotebookLM 约 13%。",
+    "how_it_makes_money": "采用 Freemium 模式：免费版 $0/月，Pro 版 $7.99/月，终身版 $99 一次性。素材给出客单价 $7.01（MRR 除以活跃订阅数），具体定价档位未公开。",
+    "why_it_works": [
+      "素材显示毛利率 99%，机制是：Chrome 扩展无需训练模型或垫付算力，边际成本趋近于零，收入几乎全部留存。",
+      "素材显示 Superpower for Gemini 贡献约 76% 收入，机制是：将流量集中在单一高需求入口，降低多产品线维护成本。",
+      "素材显示近 30 天收入 $2,206，机制是：利用 Google 搜索长尾词（如「Gemini 快捷键」）获取免费流量，而非付费广告。"
+    ],
+    "playbook": [
+      "找到主流 SaaS 工具中用户抱怨最多的「缺失功能」，用插件补齐，而非自建平台。",
+      "将收入来源集中在单一高需求入口（如 Gemini），降低多产品线维护成本。",
+      "利用免费增值模式（Free: $0）降低试用门槛，通过 Pro 版 $7.99 实现转化。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "MRR $470 是主要收入指标",
+        "truth": "近 30 天收入 $2,206（据 TrustMRR 档案，Lemon Squeezy API 直读）",
+        "source": "https://trustmrr.com/startup/superpower-for-ai.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 档案",
+        "url": "https://trustmrr.com/startup/superpower-for-ai.md",
+        "kind": "stripe"
+      }
+    ],
+    "published_from": "superpower-for-ai",
+    "verified_at": "2026-11-16",
+    "updated_at": "2026-11-16",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（stripe），按默认政策进精品池",
+    "quality_score": 30,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "cozyroom",
+    "name": "CozyRoom",
+    "name_en": "CozyRoom",
+    "origin": "美国",
+    "one_liner": "CozyRoom 是 DAT One 的 Chrome 插件，上线 6 天近 30 天收入 $2,058，非订阅制。",
+    "category": "企业服务",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "last_30d",
+    "metrics": {
+      "mrr": 0.0,
+      "last_30d_revenue": 2058.0,
+      "all_time": 2058.0,
+      "subscriptions": 0,
+      "growth_30d": null,
+      "mrr_growth_30d": null,
+      "revenue_growth_30d": 0.0,
+      "headline": "近 30 天收入 $2,058，TrustMRR 核对（非订阅制，MRR 恒 0）",
+      "metric_note": "实测口径：近 30 天已验证收入 $2,058（非订阅制/买断制业务，MRR 恒 0，本条门面口径为近 30 天流水，含一次性与用量收入，别当经常性收入引用；TrustMRR 从支付网关 API 直读，2026-11-16 同步，Stripe (API key)）。近 30 天收入 $2,058、累计 $2,058、付费订阅 0 户。月度时间线不足两个月，不给环比结论。挂牌 $100,000、倍数 4.05x（要价不等于收入）。⚠ 队列缓存值是 2026-11-16 采集时的快照（当时 $2,058），本次核对为 $2,058，两者不同；本条以本次核对为准。",
+      "caliber": "last_30d"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 4
+    },
+    "verdict": "它卖的不是插件，是 DAT One 的付费订阅捆绑——客户买的是使用 DAT One 的资格，而非插件本身。",
+    "what_it_does": "CozyRoom 是一个 Chrome 插件，作为 DAT One 的配套工具，帮助货运经纪人筛选新订单和变更订单、过滤结果并记录通话笔记，减少手动操作。创始人未公开，成立于 2026-11-10。当前 MRR 为 0，活跃订阅数未公开，属于非订阅制。",
+    "how_it_makes_money": "按用户收费，定价为 $29/月/用户，但需单独购买 DAT One 订阅，无免费试用。因活跃订阅数未公开，客单价无法推算。",
+    "why_it_works": [
+      "素材显示近 30 天收入 $2,058，机制是：插件本身免费或低价，但强制绑定 DAT One 付费订阅，收入来自高客单价的 DAT One 订阅分成。",
+      "素材显示毛利率 95%，机制是：Chrome 插件开发成本低，主要成本为 Stripe 支付手续费，因此收入大部分转化为利润。",
+      "素材显示上线首月（2026-11-12 至 2026-11-16）收入从 $19.98 增至 $2,028，机制是：早期用户通过 DAT One 现有客户群转化，但月度时间线不足，增速不可持续。"
+    ],
+    "playbook": [
+      "将免费工具与高价值第三方订阅捆绑，利用现有付费用户群降低获客成本。",
+      "保持低毛利率结构，通过高毛利产品（如插件）提升整体利润率。",
+      "在上线初期快速验证收入，通过短期高增长吸引早期用户，但需明确时间线限制。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "MRR 为 $2,058",
+        "truth": "实际为近 30 天已验证收入 $2,058，MRR 恒为 $0（非订阅制业务）",
+        "source": "https://trustmrr.com/startup/cozyroom.md"
+      },
+      {
+        "claim": "累计收入 $2,058 是年度经常性收入",
+        "truth": "实际为近 30 天滚动收入，非年度经常性收入（ARR）",
+        "source": "https://trustmrr.com/startup/cozyroom.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 官方档案",
+        "url": "https://trustmrr.com/startup/cozyroom.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "官方网站",
+        "url": "https://dat-auto-preview-gill.gillcodes209.chatgpt.site/",
+        "kind": "official"
+      }
+    ],
+    "published_from": "cozyroom",
+    "verified_at": "2026-11-16",
+    "updated_at": "2026-11-16",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 50,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "synq-tcg-pricing-inventory",
+    "name": "Synq ‑ TCG Pricing & Inventory",
+    "name_en": "Synq ‑ TCG Pricing & Inventory",
+    "origin": "",
+    "one_liner": "Synq 为 Shopify 卡牌店提供自动定价与库存管理，MRR $1,459，活跃订阅 33 个",
+    "category": "电商",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 1459.0,
+      "last_30d_revenue": 1210.0,
+      "all_time": 8112.0,
+      "subscriptions": 33,
+      "growth_30d": 0.0,
+      "mrr_growth_30d": 0.0,
+      "revenue_growth_30d": -25.6,
+      "headline": "MRR $1,459，TrustMRR 核对",
+      "metric_note": "实测口径：MRR $1,459（TrustMRR 从支付网关 API 直读，2026-11-16 同步，Shopify (API key)）。近 30 天收入 $1,210、累计 $8,112、付费订阅 33 户。最近完整月环比 -18.6%（已剔除当月残月）。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 -25.6%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $2,253 → 最近完整月 $1,214，留存 54%。⚠ 队列缓存值是 2026-11-16 采集时的快照（当时 $1,459），本次核对为 $1,459，两者不同；本条以本次核对为准。",
+      "caliber": "mrr"
+    },
+    "models": [
+      "订阅制"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 3
+    },
+    "verdict": "它卖的不是定价工具，而是库存与价格的一致性——客户买的是消除线上线下数据不同步的确定性",
+    "what_it_does": "Synq 是 Telmo Beroiz 开发的 Shopify 插件，面向交易卡牌游戏（TCG）商店。产品功能包括自动添加库存、根据市场行情自动调整卡牌价格，以及统一管理线上与线下门店的销售数据。档案自述其目标用户为销售单卡及密封产品的 Shopify 店铺。当前活跃订阅数为 33，累计收入 $8,112。",
+    "how_it_makes_money": "采用阶梯订阅制，档案自述定价为：免费套餐支持 100 张卡牌；Starter 版 $29/月，支持 2,000 张；Pro 版 $79/月，支持 15,000 张；Scale 版 $149/月，支持 50,000 张。付费计划含 7 天免费试用，年付可节省 33%。基于 MRR 与活跃订阅数推算，客单价为 $44.21。",
+    "why_it_works": [
+      "具体事实：免费套餐上限为 100 张卡牌，付费起步价 $29/月。机制解释：低门槛免费额度让小店先跑通流程，$29 的低价降低了决策成本，使价格敏感型卡牌店主愿意尝试。",
+      "具体事实：产品统一管理线上与线下门店销售。机制解释：TCG 行业存在大量线下实体店，解决多渠道库存与价格同步问题，直接降低了店主手动对账的时间成本。",
+      "具体事实：毛利率 80%。机制解释：作为 SaaS 插件，边际复制成本极低，每增加一个订阅用户的成本几乎为零，因此高毛利结构成立。"
+    ],
+    "playbook": [
+      "在免费套餐中设置明确的低数量上限（如 100 张），让目标用户无压力试用，再通过低价付费档（如 $29）转化。",
+      "针对拥有线下实体的行业，提供线上线下数据同步功能，解决多渠道管理痛点。",
+      "利用低客单价策略覆盖长尾市场，通过高毛利率维持软件业务的盈利模型。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "近 30 天收入 $1,210 可代表经常性收入",
+        "truth": "近 30 天收入 $1,210 是滚动流水，包含一次性入账/退款，不等于 MRR；MRR 为 $1,459。",
+        "source": "https://trustmrr.com/startup/synq-tcg-pricing-inventory.md"
+      },
+      {
+        "claim": "累计收入 $8,112 可年化",
+        "truth": "累计收入 $8,112 是历史总和（Last 12 months 与 All time 相同），不是年度经常性收入，不可直接年化。",
+        "source": "https://trustmrr.com/startup/synq-tcg-pricing-inventory.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 档案",
+        "url": "https://trustmrr.com/startup/synq-tcg-pricing-inventory.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "Synq 官网",
+        "url": "https://synq.cards/",
+        "kind": "official"
+      }
+    ],
+    "published_from": "synq-tcg-pricing-inventory",
+    "verified_at": "2026-11-16",
+    "updated_at": "2026-11-16",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 50,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "headroom-ai-editor",
+    "name": "Headroom AI Editor",
+    "name_en": "Headroom AI Editor",
+    "origin": "",
+    "one_liner": "MRR $984 的 AI 视频剪辑工具，270 个活跃订阅，客单价 $3.64",
+    "category": "AI 工具",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "last_30d",
+    "metrics": {
+      "mrr": 984.0,
+      "last_30d_revenue": 920.0,
+      "all_time": 3286.0,
+      "subscriptions": 270,
+      "growth_30d": 41.0,
+      "mrr_growth_30d": 41.0,
+      "revenue_growth_30d": 32.1,
+      "headline": "近 30 天收入 $920，TrustMRR 核对",
+      "metric_note": "实测口径：近 30 天收入 $920（TrustMRR 从支付网关 API 直读，2026-11-16 同步，RevenueCat (API key)）。近 30 天收入 $920、累计 $3,286、付费订阅 270 户。最近完整月环比 +10.1%（已剔除当月残月）。近 30 天 MRR 增速 +41.0%。⚠ 同期收入增速为 +32.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $786 → 最近完整月 $786，留存 100%。⚠ 队列缓存值是 2026-11-16 采集时的快照（当时 $984），本次核对为 $984，两者不同；本条以本次核对为准。 ⚠ 口径裁定 2026-11-16：AI 核验判该条不适用 MRR 门面口径，改以支付侧近 30 天已验证收入为准；MRR 仅作缓存快照保留。",
+      "caliber": "last_30d"
+    },
+    "models": [
+      "订阅制"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 3
+    },
+    "verdict": "它卖的不是剪辑，是字幕自动化——客户买的是把口播视频变成可发布内容的速度，不是画质。",
+    "what_it_does": "Headroom AI Editor（evenflow）是一款移动端应用，将原始口播视频转为带 AI 字幕、动态强调和运动图形的短视频。产品支持 Hinglish 及印度语言。档案自述团队规模为 1 人，融资方式为 Bootstrapped。当前活跃订阅数为 270，MRR 为 $984。",
+    "how_it_makes_money": "采用免费增值模式，内购定价为 Lite $2.99、Plus $4.99、Pro $7.99，年付 Lite $22.99、Pro $59.99。按 MRR 除以活跃订阅数推算，客单价为 $3.64。",
+    "why_it_works": [
+      "素材显示 MRR 为 $984，活跃订阅 270 个，客单价 $3.64。机制：低价位降低尝试门槛，使订阅数能快速积累，形成规模效应。",
+      "素材显示近 30 天收入 $920，近 30 天增速 32.1%。机制：内容创作者对短视频需求持续，产品切入字幕自动化这一具体痛点，带动收入增长。",
+      "素材显示累计收入 $3,286，近 12 个月收入 $3,281。机制：长期稳定的收入曲线表明产品具备持续获客能力，而非短期波动。"
+    ],
+    "playbook": [
+      "将产品定价设在 $3.99 以下，降低用户首次尝试的心理门槛，快速获取早期订阅用户。",
+      "针对特定语言市场（如 Hinglish）提供本地化功能，切入细分市场，避免与通用工具直接竞争。",
+      "提供免费的字幕预览功能，让用户在付费前体验核心功能，提高转化率。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "MRR $984 是最近 30 天实际收入",
+        "truth": "MRR $984 是缓存快照值；近 30 天实际已验证收入为 $920（Last 30 days revenue snapshot）",
+        "source": "https://trustmrr.com/startup/evenflow.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 档案",
+        "url": "https://trustmrr.com/startup/evenflow.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "App Store 列表",
+        "url": "https://apps.apple.com/us/app/auto-captions-edit-headroom/id6754892454?uo=4",
+        "kind": "official"
+      }
+    ],
+    "published_from": "headroom-ai-editor",
+    "verified_at": "2026-11-16",
+    "updated_at": "2026-11-16",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 60,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "deepsearch-ai-people-finder",
+    "name": "DeepSearch AI - People Finder",
+    "name_en": "DeepSearch AI - People Finder",
+    "origin": "加拿大",
+    "one_liner": "DeepSearch AI 是加拿大一款 AI 人物搜索工具，当前 MRR $416，活跃订阅 19 个。",
+    "category": "AI 工具",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 416.0,
+      "last_30d_revenue": 632.0,
+      "all_time": 1868.0,
+      "subscriptions": 19,
+      "growth_30d": -14.9,
+      "mrr_growth_30d": -14.9,
+      "revenue_growth_30d": -13.7,
+      "headline": "MRR $416，TrustMRR 核对",
+      "metric_note": "实测口径：MRR $416（TrustMRR 从支付网关 API 直读，2026-11-16 同步，RevenueCat (API key)）。近 30 天收入 $632、累计 $1,868、付费订阅 19 户。最近完整月环比 +31.3%（已剔除当月残月）。近 30 天 MRR 增速 -14.9%。⚠ 历史峰值 $750 → 最近完整月 $750，留存 100%。挂牌 $12,000、倍数 1.60x（要价不等于收入）。⚠ 队列缓存值是 2026-11-16 采集时的快照（当时 $416），本次核对为 $416，两者不同；本条以本次核对为准。",
+      "caliber": "mrr"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 2
+    },
+    "verdict": "它卖的不是搜索工具，而是「省时间」——客户买的是把几小时人肉搜索压缩成一次点击的确定性。",
+    "what_it_does": "DeepSearch AI 是一款面向 C 端用户的移动应用，提供基于 AI 的人物搜索服务。用户输入姓名即可检索公开网络信息，生成包含社交账号、职位和置信度的档案。该应用上架于 Apple App Store 和 Google Play，由 1 人团队独立运营，采用订阅制收费。",
+    "how_it_makes_money": "该应用通过订阅模式向用户收费，具体定价档位未公开。根据 MRR 与活跃订阅数推算，客单价为 $21.89。",
+    "why_it_works": [
+      "客单价 $21.89 低于多数 SaaS 工具，降低了 C 端用户的尝试门槛，使一次性搜索需求转化为持续订阅。",
+      "毛利率 97% 表明其边际成本极低，AI 搜索的算力成本被压缩在收入的大部分之外，保证了每单订阅的利润空间。",
+      "活跃订阅数 19 个对应 MRR $416，说明用户留存依赖于持续的信息更新需求，而非一次性工具使用。"
+    ],
+    "playbook": [
+      "将高价工具拆解为低价订阅：参考 $21.89 的客单价，将复杂服务拆分为可重复购买的小额订阅单元。",
+      "利用高毛利覆盖获客成本：97% 的毛利率允许将更多收入投入渠道测试，而非依赖自然流量。",
+      "建立持续更新机制：通过提供持续更新的信息档案，将一次性搜索需求转化为长期订阅关系。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "候选资料 headline 称 'MRR $416，TrustMRR 核对'",
+        "truth": "TrustMRR 原文 'Current MRR: $416'，但最近完整月（2026-10）收入为 $750，MRR 与当月收入存在差异，可能因订阅周期或残月未对齐。",
+        "source": "https://trustmrr.com/startup/deepsearch.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 档案",
+        "url": "https://trustmrr.com/startup/deepsearch.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "官网",
+        "url": "https://deepsearchapp.co",
+        "kind": "official"
+      }
+    ],
+    "published_from": "deepsearch-ai-people-finder",
+    "verified_at": "2026-11-16",
+    "updated_at": "2026-11-16",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 60,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "wenaughty",
+    "name": "WeNaughty",
+    "name_en": "WeNaughty",
+    "origin": "",
+    "one_liner": "WeNaughty 是面向情侣的真人真话大冒险 App，MRR $412，活跃订阅 33 单。",
+    "category": "Entertainment",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "last_30d",
+    "metrics": {
+      "mrr": 412.0,
+      "last_30d_revenue": 531.0,
+      "all_time": 539.0,
+      "subscriptions": 33,
+      "growth_30d": 1049.6,
+      "mrr_growth_30d": 1049.6,
+      "revenue_growth_30d": 5827.4,
+      "headline": "近 30 天收入 $531，TrustMRR 核对",
+      "metric_note": "实测口径：近 30 天收入 $531（TrustMRR 从支付网关 API 直读，2026-11-16 同步，RevenueCat (API key)）。近 30 天收入 $531、累计 $539、付费订阅 33 户。月度时间线不足两个月，不给环比结论。近 30 天 MRR 增速 +1049.6%。⚠ 同期收入增速为 +5827.4%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $153 → 最近完整月 $153，留存 100%。⚠ 队列缓存值是 2026-11-16 采集时的快照（当时 $412），本次核对为 $412，两者不同；本条以本次核对为准。 ⚠ 口径裁定 2026-11-16：AI 核验判该条不适用 MRR 门面口径，改以支付侧近 30 天已验证收入为准；MRR 仅作缓存快照保留。",
+      "caliber": "last_30d"
+    },
+    "models": [
+      "订阅制"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 3
+    },
+    "verdict": "它卖的不是游戏内容，而是约会场景的付费解锁权——客户买的是关系互动的仪式感，而非娱乐本身。",
+    "what_it_does": "WeNaughty 是一款上架于 Apple App Store 的移动应用，由创始人 Furkan 开发，定位为情侣专属的真人真话大冒险游戏。产品提供基础免费内容与 VIP 付费订阅，旨在通过游戏化互动增强情侣约会体验。根据 TrustMRR 缓存快照，当前活跃订阅数为 33，当前 MRR 为 $412。",
+    "how_it_makes_money": "采用免费增值模式，基础功能免费，VIP 订阅分为周 $3.99、月 $6.99、年 $29.99 三档。当前 MRR 为 $412，活跃订阅数 33，据此推算客单价为 $12.48。",
+    "why_it_works": [
+      "素材显示 VIP 周订阅仅 $3.99，低价降低决策门槛，机制是让小预算情侣也能尝试付费，从而快速积累初始订阅数。",
+      "近 30 天收入 $531 且 MRR 增速 1049.6%，但上线首月即出现高增速，说明月度时间线不足，数据可能受冷启动波动影响。",
+      "毛利率 100% 且无库存，机制是数字产品边际成本为零，每多一单订阅无需额外硬件或物流支出。"
+    ],
+    "playbook": [
+      "将产品定价拆分为周、月、年三档，利用周付低价作为引流入口，降低首次付费阻力。",
+      "在应用商店描述中明确目标人群为特定关系场景（如情侣），而非泛娱乐用户，以精准匹配搜索意图。",
+      "保持基础功能免费，仅将核心互动内容放入 VIP，用免费层维持用户活跃度，再用付费层转化高意愿用户。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "MRR $412 是主要收入指标",
+        "truth": "近 30 天收入 $531（据 TrustMRR 档案），MRR $412 为快照值且与收入增速背离",
+        "source": "https://trustmrr.com/startup/naughty.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 档案",
+        "url": "https://trustmrr.com/startup/naughty.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "App Store 页面",
+        "url": "https://apps.apple.com/us/app/dirty-truth-or-dare-wenaughty/id6817063947?uo=4",
+        "kind": "official"
+      }
+    ],
+    "published_from": "wenaughty",
+    "verified_at": "2026-11-16",
+    "updated_at": "2026-11-16",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 70,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "smartlycv",
+    "name": "SmartlyCV",
+    "name_en": "SmartlyCV",
+    "origin": "法国",
+    "one_liner": "SmartlyCV 是 AI 简历工具，MRR $431，32 个活跃订阅，2026 年 9 月上线。",
+    "category": "AI 工具",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 431.0,
+      "last_30d_revenue": 409.0,
+      "all_time": 481.0,
+      "subscriptions": 32,
+      "growth_30d": 714.1,
+      "mrr_growth_30d": 714.1,
+      "revenue_growth_30d": 462.1,
+      "headline": "MRR $431，TrustMRR 核对",
+      "metric_note": "实测口径：MRR $431（TrustMRR 从支付网关 API 直读，2026-11-16 同步，Stripe (API key)）。近 30 天收入 $409、累计 $481、付费订阅 32 户。最近完整月环比 +867.3%（已剔除当月残月）。近 30 天 MRR 增速 +714.1%。⚠ 同期收入增速为 +462.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $213 → 最近完整月 $213，留存 100%。挂牌 $19,000、倍数 3.87x（要价不等于收入）。⚠ 队列缓存值是 2026-11-16 采集时的快照（当时 $431），本次核对为 $431，两者不同；本条以本次核对为准。",
+      "caliber": "mrr"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 3
+    },
+    "verdict": "它卖的不是简历修改，是求职确定性——客户买的是通过 ATS 筛选的概率，不是文本质量。",
+    "what_it_does": "SmartlyCV 是一个面向求职者的 AI 工具，提供 ATS 友好型简历和求职信定制、模拟面试和应用管理功能。产品于 2026 年 9 月 1 日上线，由 1 人团队运营（档案自述）。截至 2026 年 11 月 16 日，当前 MRR 为 $431，活跃订阅数 32。",
+    "how_it_makes_money": "采用订阅制收费，客单价为 $13.47（MRR 除以活跃订阅数）。定价档位包括学生版 €8.99/月、标准版 €30/月、Agent 版 €39.99/月，并提供三个月套餐。具体定价档位未公开。",
+    "why_it_works": [
+      "档案自述团队规模仅 1 人，说明产品依赖自动化 AI 工具而非人工服务，边际成本极低。",
+      "近 30 天 MRR 增速 714.1%，但上线首月时间不足，增速可能受基数影响。",
+      "毛利率 97% 表明数字产品无需库存或物流，收入几乎全部转化为利润。"
+    ],
+    "playbook": [
+      "将产品定位为 ATS 筛选通过率工具，而非简历写作工具，瞄准求职者对结果的不确定性。",
+      "提供免费 CV 分析作为引流入口，降低用户尝试门槛。",
+      "设置学生版低价档位，覆盖预算有限的学生群体。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "近 30 天收入增速 +462.1% 可代表经常性增长",
+        "truth": "近 30 天收入增速 +462.1% 与 MRR 增速 +714.1% 不一致，因含一次性入账/退款，讲增长应使用 MRR 口径",
+        "source": "https://trustmrr.com/startup/smartlycv.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 档案",
+        "url": "https://trustmrr.com/startup/smartlycv.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "官网定价页",
+        "url": "https://smartlycv.com",
+        "kind": "official"
+      }
+    ],
+    "published_from": "smartlycv",
+    "verified_at": "2026-11-16",
+    "updated_at": "2026-11-16",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 60,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "private-enterprise",
+    "name": "Private Enterprise",
+    "name_en": "Private Enterprise",
+    "origin": "",
+    "one_liner": "一款政治模拟手游，近30天收入$352，非订阅制，团队1人。",
+    "category": "Entertainment",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "last_30d",
+    "metrics": {
+      "mrr": 0.0,
+      "last_30d_revenue": 352.0,
+      "all_time": 397.0,
+      "subscriptions": 0,
+      "growth_30d": 0.0,
+      "mrr_growth_30d": 0.0,
+      "revenue_growth_30d": 1140.1,
+      "headline": "近 30 天收入 $352，TrustMRR 核对（非订阅制，MRR 恒 0）",
+      "metric_note": "实测口径：近 30 天已验证收入 $352（非订阅制/买断制业务，MRR 恒 0，本条门面口径为近 30 天流水，含一次性与用量收入，别当经常性收入引用；TrustMRR 从支付网关 API 直读，2026-11-16 同步，RevenueCat (API key)）。近 30 天收入 $352、累计 $397、付费订阅 0 户。最近完整月环比 +108.8%（已剔除当月残月）。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 +1140.1%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $84 → 最近完整月 $84，留存 100%。挂牌 $5,000、倍数 1.18x（要价不等于收入）。⚠ 队列缓存值是 2026-11-16 采集时的快照（当时 $352），本次核对为 $352，两者不同；本条以本次核对为准。",
+      "caliber": "last_30d"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 3
+    },
+    "verdict": "它卖的不是政治模拟，而是低客单价的碎片化娱乐——靠高频小额 IAP 而非订阅留存赚钱。",
+    "what_it_does": "这是一款移动端政治模拟游戏，用户可扮演德国或美国总理进行选举与治国决策。产品以免费+应用内购买（IAP）模式运营，无活跃订阅数。档案自述团队规模为1人，用户数为440。收入由 RevenueCat API 同步，当前 MRR 为 0，近 30 天收入为 $352，累计收入为 $397。",
+    "how_it_makes_money": "采用免费增值模式，基础游戏免费，通过应用内购买（IAP）变现。因非订阅制，无活跃订阅数，客单价无法推算。毛利率为 85%。具体定价档位未公开。",
+    "why_it_works": [
+      "近30天收入$352，其中11月单月$273，说明收入集中在近期，但月度时间线不足，可能是上线首月效应。",
+      "毛利率85%，IAP 模式无订阅续费成本，边际成本低，适合单人团队维持。",
+      "用户数440，近30天增速1140.1%，但增速来源为上线首月，不可视为持续增长信号。"
+    ],
+    "playbook": [
+      "单人团队可复制：用免费+IAP模式降低用户门槛，避免订阅制带来的续费压力。",
+      "高毛利产品优先：选择边际成本接近零的数字产品，如游戏、工具类应用。",
+      "关注早期收入集中：若收入在上线首月快速上升，需判断是否可持续，避免误判增长趋势。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "MRR 为经常性收入",
+        "truth": "实际为近 30 天已验证收入 $352（买断/内购制，MRR 恒为 0）",
+        "source": "https://trustmrr.com/startup/regiere-deutschland.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 档案",
+        "url": "https://trustmrr.com/startup/regiere-deutschland.md",
+        "kind": "stripe"
+      }
+    ],
+    "published_from": "private-enterprise",
+    "verified_at": "2026-11-16",
+    "updated_at": "2026-11-16",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（stripe），按默认政策进精品池",
+    "quality_score": 40,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
   }
 ]

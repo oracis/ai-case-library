@@ -41,6 +41,15 @@
    "state": "unknown"
   }
  },
+ "coral": {
+  "tencentcloud": {
+   "at": "2026-11-17 10:36:57",
+   "evidence": "线上文章 2786121 卡片缩略图 background-image=https://developer.qcloudimg.com/http-save/yehe-12743977/9e5881ab080e1ae0e857a30470e5d178.jpg",
+   "remote_id": "2786121",
+   "source": "yun_finalize",
+   "state": "ok"
+  }
+ },
  "easymix": {
   "csdn": {
    "at": "2026-11-15 23:52:03",
@@ -303,6 +312,15 @@
    "at": "2026-11-08 15:07:49",
    "evidence": "线上文章 2779001 卡片缩略图 background-image=https://developer.qcloudimg.com/http-save/yehe-12743977/c5fb8eb1c215a1f9e0fd92bbbb932669.jpg",
    "remote_id": "2779001",
+   "source": "yun_finalize",
+   "state": "ok"
+  }
+ },
+ "upvoty": {
+  "aliyun": {
+   "at": "2026-11-17 09:58:48",
+   "evidence": "文章首图 firstImg=https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_ecea25a6c30b48e59080672b4faaf52c.png",
+   "remote_id": "1784384",
    "source": "yun_finalize",
    "state": "ok"
   }

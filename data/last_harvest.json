@@ -1,78 +1,77 @@
 {
-  "ran_at": "2026-11-16 07:34:04",
-  "added": 48,
+  "ran_at": "2026-11-17 08:45:52",
+  "added": 56,
   "by_source": {
-    "hn": 41,
-    "indiehackers": 1,
-    "trustmrr": 6
+    "hn": 47,
+    "trustmrr": 9
   },
   "inbox_total": 400,
-  "archived_this_run": 48,
-  "archive_total": 2094,
+  "archived_this_run": 56,
+  "archive_total": 2150,
   "top": [
     {
-      "name": "SubmitSaaS",
-      "headline": "近 30 天收入 $2,402",
-      "heat": 0,
-      "category": "营销工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/submitsaas"
-    },
-    {
-      "name": "CozyRoom",
-      "headline": "近 30 天收入 $2,058",
-      "heat": 0,
-      "category": "企业服务",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/cozyroom"
-    },
-    {
-      "name": "Screeny: Mockup & Product Demo",
-      "headline": "近 30 天收入 $2,555",
-      "heat": 0,
-      "category": "移动应用",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/screeny"
-    },
-    {
-      "name": "Headroom AI Editor",
-      "headline": "MRR $984",
+      "name": "AIRIX",
+      "headline": "MRR $902，TrustMRR 第 1909 名",
       "heat": 0,
       "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/evenflow"
+      "url": "https://trustmrr.com/startup/airix"
     },
     {
-      "name": "Herd: Social Listening Tool",
-      "headline": "TrustMRR 收录（收入未公开）",
+      "name": "Muglaunch.com",
+      "headline": "近 30 天收入 $209",
       "heat": 0,
-      "category": "未分类",
+      "category": "电商",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/herd"
+      "url": "https://trustmrr.com/startup/muglaunch"
     },
     {
-      "name": "The Last Complication, a Zachtronics-style watchmaking puzzle game",
-      "headline": "未获取",
-      "heat": 69,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://lastcomplication.com/"
+      "name": "GPT Scrambler",
+      "headline": "近 30 天收入 $149",
+      "heat": 0,
+      "category": "AI 工具",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/gpt-scrambler"
     },
     {
-      "name": "Rbit",
-      "headline": "未获取",
-      "heat": 7,
+      "name": "Looking for a remote CTO for my micro SaaS ($600K ARR, $250k Profit)",
+      "headline": "疑似金额 $600K",
+      "heat": 1,
       "category": "未分类",
       "source": "hn",
-      "url": "https://rbit.sh/"
+      "url": "https://news.ycombinator.com/item?id=50518749"
     },
     {
-      "name": "Minute",
+      "name": "Sutra-OS",
       "headline": "未获取",
-      "heat": 7,
+      "heat": 54,
       "category": "未分类",
       "source": "hn",
-      "url": "https://minutenotes.app/"
+      "url": "https://github.com/0nelight/sutra-os"
+    },
+    {
+      "name": "Zigzag, a native Mac browser for people leaving Arc",
+      "headline": "未获取",
+      "heat": 27,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://github.com/ZigaoWang/zigzag"
+    },
+    {
+      "name": "Win98 PE Interpreter in WebAssembly",
+      "headline": "未获取",
+      "heat": 18,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://wine-assembly.berrry.app/"
+    },
+    {
+      "name": "Pulsar",
+      "headline": "未获取",
+      "heat": 14,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://github.com/yocontra/pulsar"
     }
   ]
 }

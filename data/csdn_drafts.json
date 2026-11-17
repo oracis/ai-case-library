@@ -135,5 +135,17 @@
     "title": "Minetest，低配也能跑的开源我的世界",
     "url": "https://blog.csdn.net/sinat_32396037/article/details/170843268",
     "ts": "2026-11-16 09:08:48"
+  },
+  "harperai": {
+    "article_id": null,
+    "title": "把英国抵押登记与产权登记对齐：再融资线索系统的数据管线",
+    "url": "https://blog.csdn.net/sinat_32396037/article/details/170901782",
+    "ts": "2026-11-17 09:48:54"
+  },
+  "ext-ep-012-openra": {
+    "article_id": null,
+    "title": "用 C# 重写红警：读 OpenRA 的 Mod 机制",
+    "url": "https://blog.csdn.net/sinat_32396037/article/details/170905465",
+    "ts": "2026-11-17 10:17:19"
   }
 }
