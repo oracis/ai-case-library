@@ -977,5 +977,18 @@
   },
   "via": "cdp-9228",
   "ts": "2026-11-15 12:00:33"
+ },
+ "coral-2026-11-17-1": {
+  "case": "coral",
+  "title": "把开源 agent 跑进生产：沙箱、凭据代理与长任务状态机",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "347764",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=347764"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-17 10:34:06"
  }
 }

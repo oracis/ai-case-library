@@ -41,6 +41,15 @@
    "state": "unknown"
   }
  },
+ "coral": {
+  "tencentcloud": {
+   "at": "2026-11-17 10:36:57",
+   "evidence": "线上文章 2786121 卡片缩略图 background-image=https://developer.qcloudimg.com/http-save/yehe-12743977/9e5881ab080e1ae0e857a30470e5d178.jpg",
+   "remote_id": "2786121",
+   "source": "yun_finalize",
+   "state": "ok"
+  }
+ },
  "easymix": {
   "csdn": {
    "at": "2026-11-15 23:52:03",
