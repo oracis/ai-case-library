@@ -648,6 +648,19 @@
    "url": "https://zhuanlan.zhihu.com/p/2100211498438104962"
   }
  },
+ "clawbox": {
+  "bilibili2": {
+   "at": "2026-11-17 09:39 草稿箱→发布（send-draft）",
+   "attempt": 0,
+   "draft_id": "",
+   "note": "草稿箱→发布（send-draft）",
+   "published_at": "2026-11-17 09:39",
+   "remote_id": "53947599",
+   "state": "published",
+   "title": "ClawBox 提供托管 AI 聊天机器人基础设施",
+   "url": ""
+  }
+ },
  "clawlink": {
   "bilibili": {
    "at": "2026-10-31 22:22",
@@ -1344,6 +1357,18 @@
    "title": ""
   }
  },
+ "ext-ep-012-openra": {
+  "bilibili2": {
+   "at": "2026-11-16 09:40",
+   "attempt": 0,
+   "draft_id": "",
+   "note": "[2026-11-16 补账] 2026-11-16 全平台一轮：远端独立回读命中后补账（中断丢写）",
+   "remote_id": "53930055",
+   "state": "published",
+   "title": "OpenRA：红警引擎复刻的 Mod 与单位配置",
+   "url": "https://www.bilibili.com/read/cv53930055"
+  }
+ },
  "fastwrite-io": {
   "bilibili": {
    "at": "2026-11-14 13:29 草稿箱→发布（send-draft）",
@@ -1523,9 +1548,9 @@
    "at": "2026-10-14 13:26",
    "attempt": 1,
    "draft_id": "343829",
-   "note": "｜草稿同步(2026-10-14 13:26): title 认领 aid=343829",
-   "remote_id": "343829",
-   "state": "draft",
+   "note": "｜草稿同步(2026-10-14 13:26): title 认领 aid=343829 ‖ [11-15 独立回读] 匿名空间文章列表首条命中 53920085，publish_time=11:49:33；脚本发时回读没命中属列表延迟假红，未重发",
+   "remote_id": "53920085",
+   "state": "published",
    "title": "GrowingUpVideo：旧照片做成变脸视频",
    "url": ""
   },
@@ -1617,14 +1642,14 @@
  },
  "homy": {
   "bilibili": {
-   "at": "2026-10-14 13:27",
+   "at": "2026-11-16 09:40",
    "attempt": 1,
    "draft_id": "343830",
-   "note": "｜草稿同步(2026-10-14 13:27): title 认领 aid=343830",
-   "remote_id": "343830",
-   "state": "draft",
+   "note": "｜草稿同步(2026-10-14 13:27): title 认领 aid=343830｜[2026-11-16 补账] 2026-11-16 全平台一轮：远端独立回读命中后补账（中断丢写）",
+   "remote_id": "53930235",
+   "state": "published",
    "title": "Homy：Mac 上更快的文件搜索",
-   "url": ""
+   "url": "https://www.bilibili.com/read/cv53930235"
   },
   "toutiao": {
    "at": "2026-10-13 23:06",
@@ -1813,12 +1838,13 @@
  },
  "macwall": {
   "bilibili": {
-   "at": "2026-10-14 13:28",
+   "at": "2026-11-17 09:42 草稿箱→发布（send-draft）",
    "attempt": 1,
    "draft_id": "343831",
-   "note": "｜草稿同步(2026-10-14 13:28): title 认领 aid=343831",
-   "remote_id": "343831",
-   "state": "draft",
+   "note": "草稿箱→发布（send-draft）",
+   "published_at": "2026-11-17 09:42",
+   "remote_id": "53947661",
+   "state": "published",
    "title": "MacWall：给 Mac 的 4K 动态壁纸",
    "url": ""
   },

@@ -263,5 +263,14 @@
     "verified_at": "2026-11-16 09:40",
     "evidence": "space-article-list",
     "note": "｜2026-11-16 全平台一轮：远端独立回读命中后补账（中断丢写）"
+  },
+  {
+    "id": "macwall",
+    "at": "2026-10-14 13:28",
+    "article_id": "53947661",
+    "title": "MacWall：给 Mac 的 4K 动态壁纸",
+    "verified_at": "2026-11-17 09:42",
+    "evidence": "editor-ui-publish",
+    "note": "｜草稿同步(2026-10-14 13:28): title 认领 aid=343831"
   }
 ]

@@ -108,6 +108,11 @@
     "case_id": "stan",
     "kind": "ai",
     "at": "2026-11-15 11:58"
+   },
+   {
+    "case_id": "ext-ep-009-lichess",
+    "kind": "game",
+    "at": "2026-11-17 09:35"
    }
   ],
   "csdn": [
@@ -274,6 +279,12 @@
     "case_id": "fastwrite-io",
     "kind": "ai",
     "note": "send-draft FIFO 最久草稿"
+   },
+   {
+    "at": "2026-11-17 09:42",
+    "case_id": "macwall",
+    "kind": "ai",
+    "note": "send-draft FIFO 最久草稿"
    }
   ],
   "cnblogs": [
@@ -334,6 +345,12 @@
    {
     "at": "2026-11-15 11:34",
     "case_id": "visualizee-ai",
+    "kind": "ai",
+    "note": "send-draft FIFO 最久草稿"
+   },
+   {
+    "at": "2026-11-17 09:45",
+    "case_id": "white-glove-content",
     "kind": "ai",
     "note": "send-draft FIFO 最久草稿"
    }

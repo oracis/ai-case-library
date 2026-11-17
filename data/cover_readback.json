@@ -306,5 +306,14 @@
    "source": "yun_finalize",
    "state": "ok"
   }
+ },
+ "upvoty": {
+  "aliyun": {
+   "at": "2026-11-17 09:58:48",
+   "evidence": "文章首图 firstImg=https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_ecea25a6c30b48e59080672b4faaf52c.png",
+   "remote_id": "1784384",
+   "source": "yun_finalize",
+   "state": "ok"
+  }
  }
 }
