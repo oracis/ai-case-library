@@ -113,6 +113,11 @@
     "case_id": "ext-ep-009-lichess",
     "kind": "game",
     "at": "2026-11-17 09:35"
+   },
+   {
+    "case_id": "1lookup",
+    "kind": "ai",
+    "at": "2026-11-18 13:02"
    }
   ],
   "csdn": [
@@ -285,6 +290,12 @@
     "case_id": "macwall",
     "kind": "ai",
     "note": "send-draft FIFO 最久草稿"
+   },
+   {
+    "at": "2026-11-18 13:30",
+    "case_id": "nutria-9e3eaa",
+    "kind": "ai",
+    "note": "send-draft FIFO 最久草稿"
    }
   ],
   "cnblogs": [
@@ -297,6 +308,16 @@
     "case_id": "clawlink",
     "kind": "ai",
     "at": "2026-11-04 14:45"
+   },
+   {
+    "case_id": "wpconvert-ai-convert-ai-sites-to-wordpress",
+    "kind": "ai",
+    "at": "2026-11-18 13:02"
+   },
+   {
+    "case_id": "ext-ep-012-openra",
+    "kind": "game",
+    "at": "2026-11-18 14:29"
    }
   ],
   "xhs": [
@@ -413,6 +434,12 @@
     "at": "2026-11-14 12:49",
     "case_id": "ext-ep-011-minetest",
     "kind": "game",
+    "note": "send-draft FIFO 最久草稿"
+   },
+   {
+    "at": "2026-11-18 11:57",
+    "case_id": "betting-tips",
+    "kind": "ai",
     "note": "send-draft FIFO 最久草稿"
    }
   ]

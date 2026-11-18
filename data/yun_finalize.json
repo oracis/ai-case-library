@@ -183,7 +183,11 @@
     "tc_state": "published",
     "tc_state_at": "2026-11-07 17:15",
     "tc_article": "2778680",
-    "updated": "2026-11-07 17:15:25"
+    "updated": "2026-11-18 12:12:36",
+    "al_draft": "1721846",
+    "cover_url": "https://case.ydtgo.top/covers/ext-ep-006-nethack.png",
+    "abstract": "",
+    "community": ""
   },
   "__community__1708661": {
     "uploaded_img": "https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_96f94d2b63b5487d952a4ee2039cf1dd.png",
@@ -365,5 +369,18 @@
     "tc_draft": "347764",
     "tc_article": "2786121",
     "updated": "2026-11-17 10:36:56"
+  },
+  "ext-ep-013-0-a-d": {
+    "tc_draft": "348471",
+    "tc_article": "2787249",
+    "updated": "2026-11-18 12:09:27"
+  },
+  "__community__1721846": {
+    "uploaded_img": "https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_5fcbdf7f74c6407692b30c260fa501ff.png",
+    "updated": "2026-11-18 12:16:34",
+    "state": "auditing",
+    "article": "1784983",
+    "published": null,
+    "published_at": null
   }
 }

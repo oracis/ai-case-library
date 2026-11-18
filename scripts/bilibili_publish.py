@@ -525,7 +525,12 @@ def clean_body(html):
 
 
 def cover_path(cid):
-    """横版封面复用头条已生成的 cover.png。"""
+    """横版封面复用头条已生成的 cover.png；超 5MB 时优先用压过的 -bili.jpg
+    （bili_cover_shrink.py 的产物，2026-11-18：Agnes 4K 封面 5.8MB 直接
+    upcover 会被 5MB 上限拒掉，草稿只好裸存）。"""
+    small = os.path.join(OUT_TT, cid, "cover-bili.jpg")
+    if os.path.isfile(small):
+        return small
     p = os.path.join(OUT_TT, cid, "cover.png")
     return p if os.path.isfile(p) else None
 

@@ -838,7 +838,17 @@ def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
         print("✗ %s 今天不发：%s" % (cn, row.get("reason")))
         return 1
     if not case:
-        if row.get("need_draft"):
+        if row.get("need_draft") and row.get("kind") == "game":
+            # 2026-11-18 用户定「没有轮空」：轮到游戏而平台产物缺 ⇒ 从游戏仓源
+            # 补产物再发（取编号最久的缺产物一期；产物补建在下面 pack 缺失分支）。
+            _miss = SLOT.game_missing_pack(platform)
+            if not _miss:
+                print("✗ %s 游戏期全部发完，也没有可补的平台产物" % cn)
+                return 1
+            case = _miss[0]
+            print("  无稿补写（游戏线）：缺平台产物 %d 篇 ⇒ 取编号最久的一期 %s"
+                  "（产物按需补建）" % (len(_miss), case))
+        elif row.get("need_draft"):
             # 2026-11-05 用户定「无稿补写」：轮到 AI 无稿 => 从源补收录最久的一篇，不轮空。
             if gen and platform in GEN_PLATFORMS:
                 import gen_case_drafts as _G
@@ -890,6 +900,21 @@ def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
                 pack = gen_pack(platform, case)
                 if pack:
                     print("  稿件：%s（新生成）" % pack)
+    if not pack and platform in BUILD and str(case).startswith("ext-"):
+        # 游戏线「无稿补写」（2026-11-18 用户定）：产物是确定性排版/二版图，
+        # 不含 AI 改写 ⇒ 按需补建一次再过闸。补建失败如实报闸，不假装有稿。
+        bargv = BUILD[platform](case)
+        print("  产物缺 ⇒ 确定性补建：python scripts/%s" % " ".join(bargv))
+        try:
+            rc_b = subprocess.call(
+                [PY, "-X", "utf8", os.path.join(SCRIPTS, bargv[0])] + bargv[1:],
+                cwd=ROOT, env=dict(os.environ, NO_PROXY="*", no_proxy="*"))
+        except OSError as e:
+            print("  ✗ 补建失败：%s" % e)
+            rc_b = 1
+        pack = pack_path(platform, case) if rc_b == 0 else None
+        if pack:
+            print("  稿件：%s（新补建）" % pack)
     print("  稿件：%s" % (pack or "（缺）"))
 
     gates = run_gates(platform, case, pack, force=force,

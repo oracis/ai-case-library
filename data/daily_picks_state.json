@@ -1,19 +1,4 @@
 {
-  "2026-10-31": [
-    "pluma",
-    "screenshot-to-code-whimsyworks-inc",
-    "selltora",
-    "social-genius-text-analyzer",
-    "stampsnap"
-  ],
-  "2026-11-01": [
-    "pluma",
-    "screenshot-to-code-whimsyworks-inc",
-    "selltora",
-    "social-genius-text-analyzer",
-    "stampsnap",
-    "static-forms"
-  ],
   "2026-11-08": [
     "pushoff-ranked-pushups",
     "recently-followed-ig-tracker",
@@ -56,5 +41,12 @@
     "native-templates",
     "sportii-app",
     "usehite"
+  ],
+  "2026-11-17": [
+    "elyx-ai",
+    "framenet",
+    "native-templates",
+    "sportii-app",
+    "submitsaas"
   ]
 }

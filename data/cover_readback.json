@@ -233,6 +233,15 @@
    "state": "ok"
   }
  },
+ "ext-ep-013-0-a-d": {
+  "tencentcloud": {
+   "at": "2026-11-18 12:09:28",
+   "evidence": "线上文章 2787249 卡片缩略图 background-image=抽屉封面：https://developer-private-1258344699.cos.ap-guangzhou.myqcloud.com/editor/image/12743977/20261118-b2700b37.jpeg?x-cos-security-token=nWntosD4l7Oi7TXbaIzqC9ok1BFis7Lafb33dd2aebd99ba5c1071f2ccdfb51e03b-sCEG6nZiXngwqHcWeMNdMDW1nwZWgeGlaEFIicngoNDfdY0HuSXCg2WWuZ6",
+   "remote_id": "2787249",
+   "source": "yun_finalize",
+   "state": "ok"
+  }
+ },
  "flodesk": {
   "tencentcloud": {
    "at": "2026-11-13 08:27:17",

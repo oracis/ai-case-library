@@ -134,6 +134,8 @@
   "at": "2026-10-14 13:29",
   "article_id": "343832",
   "title": "Nutria：AI 记饮食和运动的卡路里",
+  "verified_at": "2026-11-18 13:30",
+  "evidence": "editor-ui-publish",
   "note": "｜草稿同步(2026-10-14 13:29): title 认领 aid=343832"
  },
  {
@@ -500,5 +502,12 @@
   "verified_at": "2026-11-06 13:45",
   "evidence": "editor-ui-publish(按标题补账 346183→53786328)",
   "note": "｜更新草稿 aid=346183（draft/add 回读校验通过）"
+ },
+ {
+  "id": "ext-ep-002-2048",
+  "at": "2026-11-18 13:23",
+  "article_id": "347251",
+  "title": "游戏厅：2048",
+  "note": "｜更新草稿 aid=347251（draft/add 回读校验通过）｜更新草稿 aid=347251（draft/add 回读校验通过）"
  }
 ]

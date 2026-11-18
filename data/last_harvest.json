@@ -1,77 +1,77 @@
 {
-  "ran_at": "2026-11-17 08:45:52",
+  "ran_at": "2026-11-18 08:10:25",
   "added": 56,
   "by_source": {
-    "hn": 47,
-    "trustmrr": 9
+    "hn": 45,
+    "trustmrr": 11
   },
   "inbox_total": 400,
   "archived_this_run": 56,
-  "archive_total": 2150,
+  "archive_total": 2206,
   "top": [
     {
-      "name": "AIRIX",
-      "headline": "MRR $902，TrustMRR 第 1909 名",
-      "heat": 0,
-      "category": "AI 工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/airix"
-    },
-    {
-      "name": "Muglaunch.com",
-      "headline": "近 30 天收入 $209",
+      "name": "FoundGPT",
+      "headline": "近 30 天收入 $158",
       "heat": 0,
       "category": "电商",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/muglaunch"
+      "url": "https://trustmrr.com/startup/foundgpt"
     },
     {
-      "name": "GPT Scrambler",
-      "headline": "近 30 天收入 $149",
+      "name": "Ace Pitcher",
+      "headline": "近 30 天收入 $1,556",
+      "heat": 0,
+      "category": "Health & Fitness",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/ace-pitcher"
+    },
+    {
+      "name": "House Goals",
+      "headline": "近 30 天收入 $9,511",
+      "heat": 0,
+      "category": "移动应用",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/house-goals"
+    },
+    {
+      "name": "ChadMe",
+      "headline": "近 30 天收入 $1,489",
       "heat": 0,
       "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/gpt-scrambler"
+      "url": "https://trustmrr.com/startup/chadme"
     },
     {
-      "name": "Looking for a remote CTO for my micro SaaS ($600K ARR, $250k Profit)",
-      "headline": "疑似金额 $600K",
-      "heat": 1,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://news.ycombinator.com/item?id=50518749"
+      "name": "ToMotion",
+      "headline": "近 30 天收入 $3,594",
+      "heat": 0,
+      "category": "AI 工具",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/tomotion"
     },
     {
-      "name": "Sutra-OS",
+      "name": "12testers14day",
+      "headline": "近 30 天收入 $122",
+      "heat": 0,
+      "category": "开发者工具",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/12testers14day"
+    },
+    {
+      "name": "Motif, a tracker thin enough to be a sticker",
       "headline": "未获取",
-      "heat": 54,
+      "heat": 6,
       "category": "未分类",
       "source": "hn",
-      "url": "https://github.com/0nelight/sutra-os"
+      "url": "https://motif.blog"
     },
     {
-      "name": "Zigzag, a native Mac browser for people leaving Arc",
+      "name": "I Cannot Let You In",
       "headline": "未获取",
-      "heat": 27,
+      "heat": 5,
       "category": "未分类",
       "source": "hn",
-      "url": "https://github.com/ZigaoWang/zigzag"
-    },
-    {
-      "name": "Win98 PE Interpreter in WebAssembly",
-      "headline": "未获取",
-      "heat": 18,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://wine-assembly.berrry.app/"
-    },
-    {
-      "name": "Pulsar",
-      "headline": "未获取",
-      "heat": 14,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://github.com/yocontra/pulsar"
+      "url": "https://i-cannot-let-you-in.nodolabs.co.uk/"
     }
   ]
 }
