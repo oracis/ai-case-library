@@ -271,5 +271,12 @@
     "url": "https://www.cnblogs.com/thing-explainer/p/23705352",
     "status": "published",
     "ts": "2026-11-18 13:01:48"
+  },
+  "ext-ep-012-openra": {
+    "post_id": "23706286",
+    "title": "用 C# 重写红警：读 OpenRA 的 Mod 机制",
+    "url": "https://www.cnblogs.com/thing-explainer/p/23706286",
+    "status": "published",
+    "ts": "2026-11-18 14:29:22"
   }
 }

@@ -308,6 +308,16 @@
     "case_id": "clawlink",
     "kind": "ai",
     "at": "2026-11-04 14:45"
+   },
+   {
+    "case_id": "wpconvert-ai-convert-ai-sites-to-wordpress",
+    "kind": "ai",
+    "at": "2026-11-18 13:02"
+   },
+   {
+    "case_id": "ext-ep-012-openra",
+    "kind": "game",
+    "at": "2026-11-18 14:29"
    }
   ],
   "xhs": [
