@@ -12,11 +12,17 @@
 4. **两类必须交替（2026-11-05 用户定）**：连着两篇同类型（跨日或同日）都算破坏交替。
    轮到的类无稿时**默认不发**（blocked），不再自动回退另一类——正是旧 fallback 让
    B站 11-04/11-05 连发两天 AI case。确要连发同类，显式 `--allow-same-kind` 越过。
-5. **轮到无稿 ⇒ 从源补稿，不轮空（2026-11-05 用户定）**：AI 线无现成稿时输出
-   `need_draft=True`，从案例库挑**收录最久**（verified_at 最早）的 eligible case 补写
-   草稿再发布——发的是轮到的类，与交替规则不冲突。四平台走 `--gen`（gen_case_drafts，
-   选稿 `pick_by_oldest`）；腾讯云只收技术向稿，走人工重写流程（参照 mort.md 口径），
-   模板拼装会被驳「技术无关」。
+5. **轮到无稿 ⇒ 从源补稿，不轮空（2026-11-05 用户定；游戏线 2026-11-18 用户定）**：
+   AI 线无现成稿时输出 `need_draft=True`，从案例库挑**收录最久**（verified_at 最早）
+   的 eligible case 补写草稿再发布——发的是轮到的类，与交替规则不冲突。四平台走
+   `--gen`（gen_case_drafts，选稿 `pick_by_oldest`）；腾讯云只收技术向稿，走人工
+   重写流程（参照 mort.md 口径），模板拼装会被驳「技术无关」。
+   **游戏线同理（2026-11-18 用户定「没有轮空」）**：轮到游戏但平台产物缺（游戏仓
+   源稿在、二版产物没做）⇒ 同样输出 `need_draft=True`，取编号最久的缺产物一期
+   （game_all 升序 = 发布时间顺序），产物由 publish_one 按确定性补建命令（BUILD）
+   现做——B站一号 build 出 `out/bili/<case>/`，小红书从游戏仓 `platform/xhs.md`
+   + `xhs-N.png` 拼 `out/xhs/<case>/`（配图没做的期次如实报缺，不假装能发）。
+   只有游戏期**全部发完**（缺产物清单也为空）才算真无稿，才走 blocked。
 
 为什么要有这个文件
 ------------------
@@ -658,18 +664,33 @@ def decide(platform, day=None, allow_same_kind=False):
         pool = ai_pool(platform)
         missing = []
 
-    # 轮到的那一类没稿，分两种（2026-11-05 用户定）：
+    # 轮到的那一类没稿，分两种（2026-11-05 用户定；游戏线 2026-11-18 用户定）：
     # ① 轮到 AI 且 AI 池空 ⇒ 不轮空、也不回退游戏（破坏交替），输出 need_draft=True，
     #   由 publish_one --gen 从案例库补写「收录最久」的 eligible case（腾讯云走
     #   技术向人工重写，见 gen_case_drafts 模块 docstring 的⛔说明）。
-    # ② 轮到游戏且游戏池空（头条式源耗尽）⇒ 默认 blocked；连发同类要显式
-    #   allow_same_kind=True（实测教训：B站 11-04 AI → 11-05 fallback 又发 AI）。
+    # ② 轮到游戏且游戏池空 ⇒ **分两种**（2026-11-18 用户定「没有轮空」）：
+    #   a. 还有没发过、只是缺平台产物的期次（game_missing_pack 非空）⇒ need_draft=True
+    #      从源补产物再发，不轮空、不回退；
+    #   b. 游戏期全部发完（缺产物清单也空）⇒ 才算真无稿：默认 blocked；连发同类
+    #      要显式 allow_same_kind=True（实测教训：B站 11-04 AI → 11-05 fallback
+    #      又发 AI）。
     if not pool and want == "ai":
         out["need_draft"] = True
         out.update(kind="ai", reason=why + "；「AI case」无现成稿 ⇒ 按「无稿补写」规则"
                                       "从源生成收录最久的一篇（publish_one --gen）")
         return out
-    if not pool:
+    if not pool and want == "game":
+        _missing = game_missing_pack(platform)
+        if _missing:
+            out["need_draft"] = True
+            out.update(kind="game",
+                       reason=why + "；「游戏」无现成平台产物 ⇒ 按「无稿补写」规则"
+                                    "从游戏仓源补产物（缺 %d 篇，取编号最久的一期）"
+                                    % len(_missing),
+                       candidates=_missing[:5], pool_size=len(_missing),
+                       missing_pack=len(_missing))
+            return out
+        # 游戏期全部发过：真的没稿了，才走回退/blocked
         alt = "ai" if want == "game" else "game"
         alt_pool = ai_pool(platform) if alt == "ai" else game_pool(platform)
         if alt_pool and allow_same_kind:

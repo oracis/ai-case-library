@@ -100,12 +100,102 @@ def find_case_fuzzy(q):
            or low in (c.get("name") or "").lower()
            or low in (c.get("title") or "" if isinstance(c.get("title"), str) else "").lower()]
     if not hit:
+        # 游戏厅案例不在 cases.json（游戏仓独立账本，2026-11-18 接入）：
+        # `--case ext-ep-001-super-mario-bros` / `ep-001-super-mario-bros`
+        # 都能认，找不到再报错。
+        g = load_game_case(q)
+        if g:
+            return g
         raise SystemExit("没匹配到案例：%s" % q)
     if len(hit) > 1:
         raise SystemExit("「%s」匹配到多个案例，请写全一点：\n  %s"
                          % (q, "\n  ".join("%s —— %s" % (c["id"], c.get("name", ""))
                                            for c in hit)))
     return hit[0]
+
+
+# ---- 游戏厅案例（游戏仓直读，2026-11-18）-----------------------------------
+# 档期轮到游戏而小红书无现成产物时，从游戏仓补稿（用户定「没有轮空」）：
+#   正文 = content/<slug>/platform/xhs.md（platform_drafts 已做平台差异：
+#   短标题 / 删导流行 / 去期号 / 话题行收尾，标题≤20 字正文≤1000 字）；
+#   配图 = content/<slug>/xhs-N.png（截图管线没做的期次如实报缺，不假装能发）。
+# ⛔ 不在这里做 AI 改写：小红书稿的内容裁定权在游戏仓 platform_drafts。
+
+GAME_ROOT = os.environ.get("GAMES_ROOT", r"D:/open-source-games")
+XHS_TITLE_MAX = 20
+XHS_BODY_MAX = 1000
+
+
+def load_game_case(q):
+    """认游戏仓案例：`ext-ep-NNN-slug` / `ep-NNN-slug` 都行；不存在返回 None。"""
+    q = str(q or "").strip()
+    slug = q[4:] if q.startswith("ext-") else q
+    if not slug or slug.startswith("..") or "/" in slug or "\\" in slug:
+        return None
+    d = os.path.join(GAME_ROOT, "content", slug)
+    md = os.path.join(d, "platform", "xhs.md")
+    if not os.path.isfile(md):
+        return None
+    lines = open(md, encoding="utf-8").read().split("\n")
+    title = lines[0].lstrip("#").strip() if lines else ""
+    body = "\n".join(lines[1:]).strip()
+    if not title or not body:
+        return None
+    imgs = sorted(f for f in os.listdir(d)
+                  if re.match(r"^xhs-\d+\.png$", f))
+    return {
+        "id": "ext-" + slug,
+        "name": title,
+        "game": True,
+        "title": title,
+        "body": body,
+        "game_images": imgs,
+    }
+
+
+def build_game_case(c, used=None):
+    """游戏稿产物 = note.json/note.md + 配图（不渲染卡片图）。"""
+    cid = c["id"]
+    d = os.path.join(OUT, cid)
+    os.makedirs(d, exist_ok=True)
+    title = (c.get("title") or "").strip()
+    body = (c.get("body") or "").strip()
+    if len(title) > XHS_TITLE_MAX:
+        title = title[:XHS_TITLE_MAX]
+    if len(body) > XHS_BODY_MAX:
+        body = body[:XHS_BODY_MAX].rstrip() + "…"
+    note = {"id": cid, "title": title, "body": body, "game": True}
+    hits = xhs_compliance(note)
+    if hits:
+        print("  [合规警告] %s 命中 %d 条：" % (cid, len(hits)))
+        for cat, w, frag in hits[:8]:
+            print("    - [%s] %s← %s" % (cat, w, frag.replace("\n", " ")))
+        print("    ⚠ 游戏仓 platform_drafts 已删导流行仍命中 ⇒ 人工看一眼再发。")
+    slug = cid[4:] if cid.startswith("ext-") else cid
+    imgs = []
+    for fn in c.get("game_images") or []:
+        src = os.path.join(GAME_ROOT, "content", slug, fn)
+        dst = os.path.join(d, fn)
+        if os.path.isfile(src) and not os.path.isfile(dst):
+            import shutil
+            shutil.copyfile(src, dst)
+        if os.path.isfile(dst):
+            imgs.append(fn)
+    if not imgs:
+        raise SystemExit(
+            "游戏稿缺配图（1–9 张必须）：%s —— 游戏仓 content/%s/ 里没有 "
+            "xhs-N.png，截图清单见 content/%s/xhs-images.md，配好图再跑"
+            % (cid, slug, slug))
+    note["images"] = imgs
+    if used is not None:
+        used.add(title)
+    with open(os.path.join(d, "note.md"), "w", encoding="utf-8") as f:
+        f.write(title + "\n\n" + body + "\n")
+    with open(os.path.join(d, "note.json"), "w", encoding="utf-8") as f:
+        json.dump(note, f, ensure_ascii=False, indent=2)
+    print("  ✓ %s《%s》正文 %d 字 · %d 张配图（游戏仓直读）"
+          % (cid, title, len(body), len(imgs)))
+    return note
 
 
 # ---- 纯函数：文案改写 ------------------------------------------------------
@@ -906,6 +996,8 @@ def render_case_pngs(port, c, out_dir, cards=5):
 
 
 def build_case(port, c, cards=5, used=None):
+    if c.get("game"):
+        return build_game_case(c, used)      # 游戏稿：游戏仓直读，不开浏览器
     cid = c["id"]
     d = os.path.join(OUT, cid)
     os.makedirs(d, exist_ok=True)
@@ -3156,10 +3248,12 @@ def pending_cases(need_cards=True):
 def cmd_build(args):
     cases = load_cases()
     if args.case:
-        todo = [find_case(args.case)]
+        # fuzzy 版带游戏仓兜底（2026-11-18）：ext-ep-* 认游戏稿
+        todo = [find_case_fuzzy(args.case)]
     else:
         todo = list(cases)
-    proc = ensure_chrome(BUILD_PORT)
+    # 游戏稿不渲染卡片 ⇒ 不需要浏览器；只有 AI case 才起渲染 Chrome
+    proc = None if all(c.get("game") for c in todo) else ensure_chrome(BUILD_PORT)
     used = set()
     try:
         for i, c in enumerate(todo, 1):

@@ -990,5 +990,31 @@
   },
   "via": "cdp-9228",
   "ts": "2026-11-17 10:34:06"
+ },
+ "ext-ep-013-0-a-d-2026-11-18-1": {
+  "case": "ext-ep-013-0-a-d",
+  "title": "古代文明 RTS：读 0 A.D. 的资源与时代",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "348471",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=348471"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-18 12:04:08"
+ },
+ "ext-ep-006-nethack-2026-11-18-1": {
+  "case": "ext-ep-006-nethack",
+  "title": "NetHack，能玩死你的地牢模拟器",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1721846",
+    "url": "https://developer.aliyun.com/article/new?edit=1721846#/"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-18 12:12:12"
  }
 }
