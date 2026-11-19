@@ -118,9 +118,10 @@ PUBLISHED_STATES = ("published", "auditing", "blocked", "审核中")
 # 「远端已有草稿」态：命中就不许再建第二份
 DRAFT_STATES = ("draft", "draft_saved", "pending", "building")
 
-# 两朵云的正道是「草稿箱里已有一份，直接发出去」（其余平台都是「发=新建」）：
-# 只有这两个平台允许 `check_dupe(allow_existing_draft=True)` 复用草稿（PRD #113）。
-CLOUD_DRAFT_PLATFORMS = ("aliyun", "tencentcloud")
+# 「草稿箱里已有一份，直接发出去」是正常流程的平台（其余平台都是「发=新建」）：
+# 两朵云（PRD #113）+ 知乎（2026-11-19 用户裁定：终点=发表，积压 draft 是
+# 待发表队列，遇到就该发表这一份而不是拦下；规则固定见 publish_one.TERMINAL）。
+CLOUD_DRAFT_PLATFORMS = ("aliyun", "tencentcloud", "zhihu")
 
 # 真账簿不在本仓的平台（2026-11-06）：B站二号由游戏仓
 # `publish/bridge.py --platform bilibili2` 发布，记录在

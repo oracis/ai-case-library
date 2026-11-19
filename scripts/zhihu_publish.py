@@ -10,15 +10,23 @@
 |    | 只读端点 404/401（业务层响应）证明请求过了签名层 |
 | 风控 | ⚠ 匿名 d_c0 打数据端点（feeds/followers）会 403 40362「请求异常」——登录 cookie 后大概率缓解 |
 | 建稿 | `POST /api/v4/articles`（title + content[HTML]），需登录 cookie + x-xsrftoken |
-| 发布 | `POST /api/v4/articles/{id}/publish`（⚠ 2026-05-30 后无公开实测成功案例，先建稿验证再上） |
-| 回读 | 待定稿：发布成功判据 = 文章页 URL 按标题命中（/p/<id>） |
+| 发布 | ✅ `PUT zhuanlan/api/articles/{id}/publish` body `{}`（2026-11-19 实测成功：mindustry 2105588389919580273，免 x-zse-96 只要 cookie+x-xsrftoken；2026-05-30 的「无公开实测」疑虑解除） |
+| 回读 | 发布成功判据 = **登录态已发表列表命中 + 草稿箱移出**（`zhihu_creator.py articles/list`）；匿名公开页被知乎反爬全挡（API 404 / curl 403 / 无头渲染 40362），不可当回读通道 |
+
+## 发布规则（2026-11-19 用户裁定，推翻 PRD #25「终点=草稿」）
+
+知乎终点 = **发表**。每天一篇消化积压：轮到知乎时优先发表台账（platform_posts
+zhihu state=draft）里**最久**的一条；草稿积压 0 时按当日档期新写，**新写即发表**
+（`draft` 命令建稿后自动 PUT publish；`--draft-only` 是逃生口）。入口收口在
+`publish_one.py --platform zhihu`。
 
 ## 用法
 
 ```bash
 python scripts/zhihu_publish.py login --wait 480   # 开浏览器登录一次（独立 profile）
 python scripts/zhihu_publish.py whoami             # 验 cookie + 签名（GET /api/v4/me）
-python scripts/zhihu_publish.py draft --file drafts/wechat/x.md --case x
+python scripts/zhihu_publish.py draft --file x.md --case x   # 新写并发表
+python scripts/zhihu_publish.py publish --id <aid> --case x  # 发表已有草稿（补发/积压）
 ```
 """
 
@@ -107,7 +115,12 @@ def remember(case_id, article_id, title, url="", status="draft"):
                 "title": title or "",
                 "draft_id": str(article_id) if article_id else "",
                 "attempt": 0,
-                "published_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+                # 🚨 published_at 只属于 published 行（PRD #92）：
+                #   draft 不许带时点，否则档期把草稿算成「今日已发」假满。
+                #   （remember 原来恒填 now，绕过了 upsert_post 2026-11-07
+                #   的「published_at not in row 才按 state 决定」修法。）
+                "published_at": (time.strftime("%Y-%m-%d %H:%M:%S")
+                                 if status == "published" else None),
                 "updated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
                 "note": "status=" + status,
             })
@@ -181,6 +194,45 @@ def _call_zhuanlan(method, path, payload):
         return json.loads(raw) if raw.strip() else {}
     except ValueError:
         return {"_raw": raw}
+
+
+def publish_draft(article_id):
+    """发表已有草稿（2026-11-19 用户裁定：知乎终点=发表，固定本规则）。
+
+    `PUT zhuanlan.zhihu.com/api/articles/<id>/publish` body `{}` —— 与
+    `zhihu_creator.py` 同一路径，2026-11-19 实测成功（mindustry 2105588389919580273）。
+    ⚠ 判据：登录态已发表列表命中 + 草稿箱移出；匿名公开页被知乎反爬全挡
+    （API 404 / curl 403 / 无头渲染 40362），不能当回读通道。
+    """
+    return _call_zhuanlan("PUT", "/api/articles/%s/publish" % article_id, {})
+
+
+def publish_existing(article_id, case_id=""):
+    """发发表前先落台账的已有草稿（积压消化路径的记账口）。
+
+    case_id 缺省时从 zhihu_drafts.json 按 article_id 反查；发表成功后按
+    status=published 记账（状态只前进，published 盖 draft 由 upsert_post 仲裁）。
+    """
+    aid = str(article_id)
+    d = publish_draft(aid)
+    if not case_id:
+        try:
+            with open(DRAFT_FILE, "r", encoding="utf-8") as f:
+                ledger = json.load(f)
+            case_id = next((k for k, v in (ledger or {}).items()
+                            if isinstance(v, dict)
+                            and str(v.get("article_id")) == aid), "")
+        except (OSError, ValueError):
+            case_id = ""
+    if case_id:
+        remember(case_id, aid, (d.get("title") or ""), status="published")
+    else:
+        print("⚠ 发表成功但反查不到 case_id（article %s）⇒ 台账未记，"
+              "请人工按 --case 补记" % aid)
+    return d
+
+
+
 
 
 def whoami():
@@ -286,18 +338,20 @@ def main():
     p = sub.add_parser("whoami", help="验登录态 + 签名")
     p.set_defaults(fn=lambda a: print(json.dumps(whoami(), ensure_ascii=False)[:500]))
 
-    p = sub.add_parser("draft", help="建草稿（只建稿不发表）")
+    p = sub.add_parser("draft", help="建草稿并**自动发表**（2026-11-19 规则固定："
+                                     "新写稿 → 发表；--draft-only 才只建稿）")
     p.add_argument("--file", required=True, help="markdown 文件")
     p.add_argument("--case", default="")
+    p.add_argument("--draft-only", action="store_true",
+                   help="只建稿不发表（逃生口，默认发表）")
 
-    p = sub.add_parser("publish", help="🚫 未开放：publish 端点 2026-05-30 后无公开实测，"
-                                        "先跑通 draft 再评估")
-    p.set_defaults(fn=lambda a: None)
+    p = sub.add_parser("publish", help="发表已有草稿（PUT publish，2026-11-19 实测可用；"
+                                       "知乎积压消化的主通道）")
+    p.add_argument("--id", required=True, help="article id（草稿或已建未发的）")
+    p.add_argument("--case", default="",
+                   help="case id；缺省从 zhihu_drafts.json 按 article id 反查")
 
     args = ap.parse_args()
-    if args.cmd == "publish":
-        raise SystemExit("🚫 publish 未开放：`POST /api/v4/articles/{id}/publish` 在 "
-                         "2026-05-30 后无公开实测成功案例。先跑 draft，建稿稳定后再评估。")
     if args.cmd == "draft":
         with open(args.file, "r", encoding="utf-8") as f:
             md = f.read()
@@ -309,8 +363,29 @@ def main():
             print("⚠ 标题疑似含金额（「标题禁金额」铁律）：", title)
         aid, url = create_draft(title, md_to_html(body_md))
         case_id = args.case or os.path.splitext(os.path.basename(args.file))[0]
-        remember(case_id, aid, title, url=url, status="draft")
-        print("✓ 草稿: article_id=%s url=%s" % (aid, url))
+        if args.draft_only:
+            remember(case_id, aid, title, url=url, status="draft")
+            print("✓ 草稿（未发表）: article_id=%s url=%s" % (aid, url))
+            print("  补发：python scripts/zhihu_publish.py publish --id %s --case %s"
+                  % (aid, case_id))
+            return
+        # 2026-11-19 规则固定：新写稿 → 直接发表（终点=published，推翻 PRD #25
+        # 「终点=草稿」。发表失败时台账落 draft，可再跑 publish --id 补发）
+        try:
+            publish_draft(aid)
+        except (LoginRequired, ApiError) as e:
+            remember(case_id, aid, title, url=url, status="draft")
+            print("✓ 草稿已建但发表失败: %s" % str(e)[:200])
+            print("  补发：python scripts/zhihu_publish.py publish --id %s --case %s"
+                  % (aid, case_id))
+            raise SystemExit(1)
+        remember(case_id, aid, title, url=url, status="published")
+        print("✓ 已发表: article_id=%s url=%s" % (aid, url))
+        print("  复核：登录态已发表列表命中 + 草稿箱移出"
+              "（zhihu_creator.py articles）；匿名公开页被反爬挡，不可用")
+        return
+    if args.cmd == "publish":
+        publish_existing(args.id, case_id=args.case)
         return
     args.fn(args)
 

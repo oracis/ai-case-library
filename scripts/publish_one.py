@@ -109,7 +109,10 @@ TERMINAL = {
     "bilibili": "published",
     "bilibili2": "published",   # 走游戏仓 bridge，发表完自己回读补账
     "cnblogs": "published",
-    "zhihu": "draft",        # publish 端点未开放（见 zhihu_publish.py）
+    "zhihu": "published",    # 2026-11-19 用户裁定：终点=发表（推翻 PRD #25「终点=草稿」）。
+                             # 规则：每天一篇消化积压——优先发台账最久 draft，箱空才按
+                             # 档期新写（zhihu_publish draft 建稿后自动 PUT publish）。
+                             # publish 端点已实测可用（zhihu_publish.publish_draft）。
     "csdn": "published",
     "tencentcloud": "published",
     "aliyun": "published",
@@ -163,7 +166,10 @@ VERIFY_HINT = {
                  "台账 platform_posts(platform='bilibili2', state=published)"
                  "（aid 会重分配，不按 aid 判）",
     "cnblogs": "python scripts/cnblogs_publish.py list --n 5",
-    "zhihu": "只能到草稿：zhihu_drafts.json 有记录即成功，发表待人工",
+    "zhihu": "登录态已发表列表命中（zhihu_creator.py articles）+ 草稿箱移出"
+             "（zhihu_creator.py list）；匿名公开页被知乎反爬全挡"
+             "（API 404 / curl 403 / 无头渲染 40362），不可当回读通道。"
+             "台账 platform_posts(platform='zhihu', state='published')",
     "csdn": "python scripts/csdn_publish.py list --query <标题片段>",
     "tencentcloud": "脚本内已校验封面落库；python scripts/tc_manage.py status",
     "aliyun": "data/yun_finalize.json 的 al_draft；公开文章页复核",
@@ -470,6 +476,27 @@ def run_gates(platform, case, pack, force=False, allow_existing_draft=False,
 
 # ---------------------------------------------------------------- 命令
 
+def _zhihu_backlog():
+    """知乎草稿积压（2026-11-19 新规则）：platform_posts 里 state=draft 的行，
+    按 updated_at 升序（最久在前）。返回 [(case_id, remote_id, updated_at)]。
+
+    只认 db（zhihu_drafts.json 是镜像，remote_id 以 db 为真值）；remote_id
+    为空的 draft 行跳过（没有远端 id 没法发表，留给人工）。
+    """
+    try:
+        conn = db.get_conn()
+        try:
+            rows = conn.execute(
+                "SELECT case_id, remote_id, updated_at FROM platform_posts "
+                "WHERE platform='zhihu' AND state='draft' AND remote_id != '' "
+                "ORDER BY COALESCE(updated_at, '') ASC").fetchall()
+        finally:
+            db.close_conn()
+    except Exception:                                          # noqa: BLE001
+        return []
+    return [(r[0], r[1], r[2] or "") for r in rows]
+
+
 def build_cmd(platform, case, pack, yes, draft_override=None,
              captcha_wait=0):
     """真正的发布命令。每个平台的参数口径都来自该脚本自己的 argparse。"""
@@ -523,7 +550,22 @@ def build_cmd(platform, case, pack, yes, draft_override=None,
     elif platform == "cnblogs":
         cmd = s("cnblogs_publish.py", "publish", "--file", pack, "--case", case)
     elif platform == "zhihu":
-        cmd = s("zhihu_publish.py", "draft", "--file", pack, "--case", case)
+        # 2026-11-19 规则固定：终点=发表。已有草稿 ⇒ 发表这一份（不新建）；
+        # 没有草稿 ⇒ 新写（zhihu_publish draft 建稿后自动 PUT publish）。
+        rid = ""
+        try:
+            c2 = db.get_conn()
+            _r = c2.execute(
+                "SELECT remote_id FROM platform_posts "
+                "WHERE platform='zhihu' AND case_id=? AND state='draft' "
+                "AND remote_id != '' LIMIT 1", (case,)).fetchone()
+            rid = _r[0] if _r else ""
+        finally:
+            db.close_conn()
+        if rid:
+            cmd = s("zhihu_publish.py", "publish", "--id", rid, "--case", case)
+        else:
+            cmd = s("zhihu_publish.py", "draft", "--file", pack, "--case", case)
     elif platform in ("tencentcloud", "aliyun"):
         row = _yun_row(case, platform) or {}
         key = "tc_draft" if platform == "tencentcloud" else "al_draft"
@@ -573,6 +615,25 @@ def plan(day=None, platforms=None, as_json=False, allow_same_kind=False):
     for key, cn in SLOT.PLATFORMS:
         if platforms and key not in platforms:
             continue
+        # 知乎积压消化（2026-11-19 规则固定）：有积压时今天发的是「台账最久
+        # draft」，不是档期候选——按候选跑闸只会出 dedupe 假红。显示积压目标。
+        if key == "zhihu":
+            bl = _zhihu_backlog()
+            if bl:
+                cid, rid, ups = bl[0]
+                rows.append({
+                    "platform": key, "name": cn, "kind": SLOT.kind_of(cid),
+                    "case": cid, "pack": None, "terminal": TERMINAL[key],
+                    "reason": "积压消化：每天发表一篇（最久优先）",
+                    "blocked": None,
+                    "note": "草稿积压 %d 篇 ⇒ 今天发表 %s（remote_id=%s，"
+                            "updated_at=%s）；箱空才按档期新写"
+                            % (len(bl), cid, rid, ups),
+                    "gates": [{"gate": "dedupe", "ok": True,
+                               "detail": "draft-reuse：发表这份已有草稿"}],
+                    "ready": True,
+                })
+                continue
         d = SLOT.decide(key, day, allow_same_kind=allow_same_kind)
         case, _ = pick(key, day=day, allow_same_kind=allow_same_kind)
         pack = pack_path(key, case) if case else None
@@ -836,6 +897,68 @@ def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
             fifo_note(platform)
         return rc
 
+    # 知乎积压消化（2026-11-19 用户裁定：终点=发表，每天一篇消化积压）：
+    # 轮到知乎（无显式 --case）时优先发表台账里**最久**的 draft；草稿积压 0
+    # 才落到主路径按当日档期新写（新写后 zhihu_publish 自动发表）。类别交替
+    # 在积压消化期让位——积压发什么类别算什么（与 FIFO「发箱内存最久」同理）。
+    if platform == "zhihu" and not case and not new:
+        d = SLOT.decide(platform, day, allow_same_kind=allow_same_kind)
+        if d.get("frozen") or d.get("today_count", 0) >= d.get("quota", 1):
+            print("✗ 知乎今天不发/已到上限：%s" % (
+                d.get("blocked") or d.get("reason")))
+            return 1
+        # ⛔ 隔日预演（--day 非今天）只读不写：预演是验稿工具，真发只许今天。
+        _is_today = SLOT.today(day) == SLOT.today(None)
+        if _is_today and yes:
+            pass          # 今天 + 显式 --yes ⇒ 允许真发
+        else:
+            yes = False   # 隔日 / 干跑 ⇒ 一律只读
+        bl = _zhihu_backlog()
+        if bl:
+            cid, rid, ups = bl[0]
+            print("▶ 知乎 ｜ 积压消化：草稿积压 %d 篇 ⇒ 今天发表最久的一条"
+                  % len(bl))
+            print("  目标：%s（remote_id=%s，updated_at=%s）" % (cid, rid, ups))
+            print("  规则：每天发表一篇；箱空才按当日档期新写并直接发表。")
+            print("  ⚠ 发布成功判据：登录态已发表列表命中 + 草稿箱移出"
+                  "（匿名公开页被知乎反爬挡，不可用）")
+            if as_json:
+                print(json.dumps({"platform": platform, "mode": "zhihu-backlog",
+                                  "case": cid, "remote_id": rid,
+                                  "backlog": len(bl)}, ensure_ascii=False))
+                return 0
+            if not yes:
+                # 🚨 干跑铁律（默认干跑，--yes 才写）：2026-11-19 实测教训——
+                #   本分支最初漏掉这道门，`--day` 隔日预演直接真发了
+                #   headshotpro（旧草稿 10-30）。任何写路径必须先过 not yes。
+                print("\n（干跑）将会执行：\n  %s %s" % (
+                    _q(os.path.join(SCRIPTS, "zhihu_publish.py")),
+                    "publish --id %s --case %s" % (rid, cid)))
+                print("\n加 --yes 才真发。")
+                return 0
+            cmd = [PY, "-X", "utf8", os.path.join(SCRIPTS, "zhihu_publish.py"),
+                   "publish", "--id", rid, "--case", cid]
+            print("\n执行：%s\n" % " ".join(_q(c) for c in cmd))
+            rc = subprocess.call(cmd, cwd=ROOT, env=dict(
+                os.environ, NO_PROXY="*", no_proxy="*"))
+            if rc == 0:
+                # 复核：登录态已发表列表按 id 命中（zhihu_creator articles 走
+                # 同一 API 且含标题；这里只读回读一次，失败只提示不翻账——
+                # publish_existing 的记账以 PUT 200 为准，假绿人工核）
+                try:
+                    rc_v = subprocess.call(
+                        [PY, "-X", "utf8",
+                         os.path.join(SCRIPTS, "zhihu_creator.py"),
+                         "articles"], cwd=ROOT, env=dict(
+                            os.environ, NO_PROXY="*", no_proxy="*"),
+                        stdout=subprocess.DEVNULL)
+                    print("  回读已发表列表：rc=%d%s" % (
+                        rc_v, "" if rc_v == 0 else "（⚠ 请人工核对）"))
+                except OSError as e:
+                    print("  ⚠ 回读失败：%s —— 请人工跑 zhihu_creator.py articles" % e)
+            return rc
+        print("  ⓘ 草稿积压 0 篇 ⇒ 按当日档期新写（新写后自动发表）")
+
     case, row = pick(platform, case, day, allow_same_kind=allow_same_kind)
     cn = dict(SLOT.PLATFORMS)[platform]
     if not row.get("kind"):
@@ -877,7 +1000,11 @@ def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
     # 两朵云「发已有草稿」：显式 draft id 才允许复用（PRD #113）。别把
     # allow_existing_draft 默认打开 —— 那等于给其他平台开后门。
     draft_override = str(draft_override or "").strip() or None
-    allow_existing = bool(draft_override) and platform in ("tencentcloud", "aliyun")
+    # 知乎 2026-11-19 起恒允许复用已有草稿（新规则：遇 draft 就发表这一份，
+    # 不拦不新建）；两朵云仍要求显式 draft id（PRD #113 原语义不变）。
+    allow_existing = ((bool(draft_override)
+                       and platform in ("tencentcloud", "aliyun"))
+                      or platform == "zhihu")
     if allow_existing:
         print("  远端草稿：显式指定 %s ⇒ 复用这一份（不新建）" % draft_override)
     if row.get("note"):
