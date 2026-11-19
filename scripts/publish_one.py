@@ -509,6 +509,10 @@ def build_cmd(platform, case, pack, yes, draft_override=None,
             slug = case[4:] if str(case).startswith("ext-") else case
             cmd = s(os.path.join(SLOT.GAMES_ROOT, "publish", "bridge.py"),
                     "publish", "--slug", slug, "--platform", "bilibili2")
+            # bridge 的 publish 子命令硬性要求显式 --yes（内部确认门）；
+            # publish_one 层已过 --yes 门，必须透传，否则 rc=1 空跑（2026-11-19 实测）
+            if yes:
+                cmd.append("--yes")
     elif platform == "csdn":
         cmd = s("csdn_publish.py", "publish", "--file", pack, "--case", case)
         # 封面必须随发表一起提交（saveArticle 的 cover_images）；
