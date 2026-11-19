@@ -330,6 +330,15 @@
    "state": "ok"
   }
  },
+ "magicslides-app": {
+  "tencentcloud": {
+   "at": "2026-11-19 13:57:39",
+   "evidence": "线上文章 2788361 卡片缩略图 background-image=抽屉封面：https://developer.qcloudimg.com/http-save/yehe-12743977/fb31dfa51ef645418886cfdd08ef2b5c.jpg",
+   "remote_id": "2788361",
+   "source": "yun_finalize",
+   "state": "ok"
+  }
+ },
  "plausible-analytics": {
   "tencentcloud": {
    "at": "2026-11-08 15:07:49",

@@ -390,5 +390,13 @@
     "article": "1785586",
     "published": null,
     "published_at": null
+  },
+  "magicslides-app": {
+    "title": "借别人的编辑器交付：AI 生成演示文稿的插件架构、结构化输出与排版兜底",
+    "tc_draft": "349134",
+    "tc_state": "draft",
+    "tc_state_at": "2026-11-19 13:52",
+    "updated": "2026-11-19 13:57:38",
+    "tc_article": "2788361"
   }
 }

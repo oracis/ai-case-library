@@ -1016,5 +1016,20 @@
   },
   "via": "cdp-9228",
   "ts": "2026-11-18 12:12:12"
+ },
+ "magicslides-app-2026-11-19-1": {
+  "case": "magicslides-app",
+  "title": "借别人的编辑器交付：AI 生成演示文稿的插件架构、结构化输出与排版兜底",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "349134",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=349134"
+   }
+  },
+  "category": "人工智能",
+  "cover": "https://case.ydtgo.top/covers/magicslides-app.png",
+  "via": "cdp-9228",
+  "ts": "2026-11-19 13:52:58"
  }
 }
