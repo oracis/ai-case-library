@@ -1,77 +1,77 @@
 {
-  "ran_at": "2026-11-18 08:10:25",
-  "added": 56,
+  "ran_at": "2026-11-19 08:16:09",
+  "added": 60,
   "by_source": {
-    "hn": 45,
-    "trustmrr": 11
+    "hn": 48,
+    "trustmrr": 12
   },
   "inbox_total": 400,
-  "archived_this_run": 56,
-  "archive_total": 2206,
+  "archived_this_run": 60,
+  "archive_total": 2266,
   "top": [
     {
-      "name": "FoundGPT",
-      "headline": "近 30 天收入 $158",
+      "name": "CozyMac",
+      "headline": "近 30 天收入 $5,185",
       "heat": 0,
-      "category": "电商",
+      "category": "Utilities",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/foundgpt"
+      "url": "https://trustmrr.com/startup/cozymac"
     },
     {
-      "name": "Ace Pitcher",
-      "headline": "近 30 天收入 $1,556",
+      "name": "1explain.com",
+      "headline": "累计收入 $38（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
       "heat": 0,
-      "category": "Health & Fitness",
+      "category": "utilities",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/ace-pitcher"
+      "url": "https://trustmrr.com/startup/1explain-com"
     },
     {
-      "name": "House Goals",
-      "headline": "近 30 天收入 $9,511",
+      "name": "The FODMAP mistake most health writers make",
+      "headline": "未获取",
+      "heat": 1,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://news.ycombinator.com/item?id=50555919"
+    },
+    {
+      "name": "LINUXCERT.GURU",
+      "headline": "近 30 天收入 $2,146",
+      "heat": 0,
+      "category": "垂直行业 SaaS",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/linuxcert-guru"
+    },
+    {
+      "name": "90Fix",
+      "headline": "近 30 天收入 $127",
       "heat": 0,
       "category": "移动应用",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/house-goals"
+      "url": "https://trustmrr.com/startup/90fix"
     },
     {
-      "name": "ChadMe",
-      "headline": "近 30 天收入 $1,489",
-      "heat": 0,
-      "category": "AI 工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/chadme"
-    },
-    {
-      "name": "ToMotion",
-      "headline": "近 30 天收入 $3,594",
-      "heat": 0,
-      "category": "AI 工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/tomotion"
-    },
-    {
-      "name": "12testers14day",
-      "headline": "近 30 天收入 $122",
-      "heat": 0,
-      "category": "开发者工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/12testers14day"
-    },
-    {
-      "name": "Motif, a tracker thin enough to be a sticker",
+      "name": "Prototype of a product management tool for AI agent companies",
       "headline": "未获取",
-      "heat": 6,
+      "heat": 2,
       "category": "未分类",
       "source": "hn",
-      "url": "https://motif.blog"
+      "url": "https://featurestream-prototype.vercel.app/"
     },
     {
-      "name": "I Cannot Let You In",
+      "name": "ADE Index",
       "headline": "未获取",
-      "heat": 5,
+      "heat": 16,
       "category": "未分类",
       "source": "hn",
-      "url": "https://i-cannot-let-you-in.nodolabs.co.uk/"
+      "url": "https://adeindex.com"
+    },
+    {
+      "name": "Try Vibe Robotics! (IRL or MuJoCo SIM)",
+      "headline": "未获取",
+      "heat": 11,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://github.com/google-deepmind/robotics-antigravity-plugin"
     }
   ]
 }

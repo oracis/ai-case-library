@@ -358,7 +358,7 @@
    "url": ""
   },
   "bilibili2": {
-   "at": "2026-11-18 11:57 草稿箱→发布（send-draft）",
+   "at": "2026-11-18 11:57",
    "attempt": 0,
    "draft_id": "",
    "note": "草稿箱→发布（send-draft）",
@@ -1388,6 +1388,19 @@
    "state": "published",
    "title": "OpenRA：红警引擎复刻的 Mod 与单位配置",
    "url": "https://www.bilibili.com/read/cv53930055"
+  }
+ },
+ "ext-ep-013-0-a-d": {
+  "bilibili2": {
+   "at": "2026-11-19 12:56 草稿箱→发布（send-draft）",
+   "attempt": 0,
+   "draft_id": "",
+   "note": "草稿箱→发布（send-draft）",
+   "published_at": "2026-11-19 12:56",
+   "remote_id": "53985568",
+   "state": "published",
+   "title": "0 A.D.：古文明 RTS 的资源与时代推进",
+   "url": ""
   }
  },
  "fastwrite-io": {
