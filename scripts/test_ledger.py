@@ -244,6 +244,26 @@ class TestDuplicates(_TmpData):
         # 公众号是 dict 布局、状态在 value 里，天然没有第二本账
         self.assertEqual(L.duplicates("wechat"), [])
 
+    def test_two_real_objects_is_not_dup(self):
+        """B站「一篇已发布 + 草稿箱残留另一条」是两个真实对象，不是错账。
+
+        2026-11-20 之前这里按「id 有交集就算 DUP」报，导致 `--apply` 把
+        20 条合法的双 ID 记录合并掉（还写了句假的「台账不再重复记」）。
+        """
+        self.write("bili_published.json",
+                   [{"id": "mort", "at": "t", "article_id": "53280245"}])
+        self.write("bili_drafts.json",
+                   [{"id": "mort", "at": "t", "article_id": "342369"}])
+        self.assertEqual(L.duplicates("bilibili"), [])
+
+    def test_same_remote_id_twice_is_dup(self):
+        """同一个远端 ID 记在两本账里（草稿 id 当已发 id）= 真冗余。"""
+        self.write("bili_published.json",
+                   [{"id": "checkvibe", "at": "t", "article_id": "342374"}])
+        self.write("bili_drafts.json",
+                   [{"id": "checkvibe", "at": "t", "article_id": "342374"}])
+        self.assertEqual(L.duplicates("bilibili"), ["checkvibe"])
+
 
 class TestMissingRemoteId(_TmpData):
     def test_lists_legacy_records(self):

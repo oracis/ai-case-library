@@ -570,21 +570,46 @@ def missing_remote_id(platform, state=PUBLISHED):
 
 
 def duplicates(platform):
-    """同时挂在「草稿」和「已发布」两处的 case（历史两本账的遗留冗余）。
+    """同一个**远端对象**同时登记在「草稿」和「已发布」两本账里（真冗余）。
 
-    统一视图里这类 case 只存一条（已发布优先），所以不会再造成状态歧义，
-    但值得列出来 —— 它们是下一次 `save` 时会被规整掉的对象。
+    ⚠ 必须与「双 ID 并存」区分（2026-11-20 修口径）：
+      · 双 ID 并存 = 一篇已发布文章 + 草稿箱里残留的另一条稿，两个
+        `article_id` 不同（B站 34xxxx vs 53xxxxxx）⇒ **两个真实对象**，
+        `_bucket_item` 故意两边都写，不是错账，不许当 DUP 合并。
+      · 真重复 = 两本账记的是**同一个远端 ID**（草稿 id 被当成已发 id
+        记下来），这才是需要规整的冗余。
+
+    草稿侧查不到远端 ID 的平台（小红书草稿只存在浏览器 IndexedDB）无法
+    证明是两个对象，按「有交集即冗余」处理，合并时 `_dup_sidecar` 会把
+    草稿侧时间写进 note 留痕。
     """
     spec = _SPEC[platform]
     if not spec.get("draft"):
         return []
-    out = []
+    fld = (REMOTE_ID_FIELD.get(platform) or ("remote_id",))[0]
+    sides = []
     for st in (DRAFT, PUBLISHED):
         _, entries, _, _ = _read_file(_path(platform, st))
-        ids_ = set()
+        m = {}
         for it in (entries or []):
-            cid = it if isinstance(it, str) else (it or {}).get("id")
-            if cid:
-                ids_.add(cid)
-        out.append(ids_)
-    return sorted(out[0] & out[1])
+            if isinstance(it, str):
+                m.setdefault(it, None)
+                continue
+            if not isinstance(it, dict):
+                continue
+            cid = it.get("id")
+            if not cid:
+                continue
+            rid = str(it.get(fld) or it.get("remote_id") or "") or None
+            # 同一个 case 出现两次（重复行）时，认得任一远端 ID 都算有证据
+            m[cid] = m.get(cid) or rid
+        sides.append(m)
+    d, p = sides
+    out = []
+    for cid in d:
+        if cid not in p:
+            continue
+        if d[cid] and p[cid] and d[cid] != p[cid]:
+            continue                      # 双 ID 并存，两个真实对象
+        out.append(cid)
+    return sorted(out)
