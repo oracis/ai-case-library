@@ -1031,5 +1031,35 @@
   "cover": "https://case.ydtgo.top/covers/magicslides-app.png",
   "via": "cdp-9228",
   "ts": "2026-11-19 13:52:58"
+ },
+ "ext-ep-014-the-battle-for-wesnoth-2026-11-20-1": {
+  "case": "ext-ep-014-the-battle-for-wesnoth",
+  "title": "六边形战棋怎么算：读韦诺之战的地形规则",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "349501",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=349501"
+   }
+  },
+  "category": "人工智能",
+  "cover": "https://case.ydtgo.top/covers/ext-ep-014-the-battle-for-wesnoth.png",
+  "via": "cdp-9228",
+  "ts": "2026-11-20 07:48:51"
+ },
+ "ext-ep-007-openttd-2026-11-20-1": {
+  "case": "ext-ep-007-openttd",
+  "title": "OpenTTD，开源版运输大亨",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1723687",
+    "url": "https://developer.aliyun.com/article/new?edit=1723687#/"
+   }
+  },
+  "category": "人工智能",
+  "cover": "https://case.ydtgo.top/covers/ext-ep-007-openttd.png",
+  "via": "cdp-9228",
+  "ts": "2026-11-20 08:00:54"
  }
 }

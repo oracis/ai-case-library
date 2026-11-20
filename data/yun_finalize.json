@@ -215,7 +215,11 @@
     "tc_state": "published",
     "tc_state_at": "2026-11-08 16:26",
     "tc_article": "2779036",
-    "updated": "2026-11-08 16:26:09"
+    "updated": "2026-11-20 08:00:54",
+    "title": "OpenTTD，开源版运输大亨",
+    "al_draft": "1723687",
+    "al_state": "draft",
+    "al_state_at": "2026-11-20 08:00"
   },
   "autoreels-ai": {
     "tc_draft": "342800",
@@ -398,5 +402,20 @@
     "tc_state_at": "2026-11-19 13:52",
     "updated": "2026-11-19 13:57:38",
     "tc_article": "2788361"
+  },
+  "ext-ep-014-the-battle-for-wesnoth": {
+    "title": "六边形战棋怎么算：读韦诺之战的地形规则",
+    "tc_draft": "349501",
+    "tc_state": "draft",
+    "tc_state_at": "2026-11-20 07:48",
+    "updated": "2026-11-20 07:48:51"
+  },
+  "__community__1723687": {
+    "uploaded_img": "https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_a150a13f76b345dd979f93dc4780cc3d.png",
+    "updated": "2026-11-20 08:06:23",
+    "state": "auditing",
+    "article": "1786027",
+    "published": null,
+    "published_at": null
   }
 }

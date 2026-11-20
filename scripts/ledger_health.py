@@ -16,8 +16,13 @@
 | 本地 | `--offline`（默认） | 一条记录两个状态、无远端 ID、状态非法、产物缺失 | 毫秒，零风险 |
 | 远端 | `--online` | 本地 remote_id vs 线上列表 ID 的集合差 | 要开浏览器（每平台 20-40s） |
 
-远端档目前接好了**头条**（`toutiao_reconcile` 的拉取函数现成、已实测）；
-其余三平台见 `REMOTE_PROBES` 里的接入点说明。
+远端档分两套（判据不同，不能混）：
+  · 公众号 / 头条 / B站 / 小红书：`REMOTE_PROBES` 里直连平台接口拉草稿箱 + 已发列表；
+  · CSDN / 博客园 / 知乎 / 阿里云 / 腾讯云：台账只在 `platform_posts`，
+    转发给 `pub_reconcile.py` —— 前三家拉已发列表做全类对账，
+    两朵云没有列表接口，改逐篇匿名公开页核验（做不到孤儿认领）。
+    `python ledger_health.py --platform cnblogs` 即等价于
+    `python pub_reconcile.py --platform cnblogs`。
 
 ## 自愈边界（--apply）
 
@@ -30,6 +35,7 @@
 用法：
     python ledger_health.py                     # 四平台本地巡检
     python ledger_health.py --online --platform toutiao
+    python ledger_health.py --platform cnblogs           # 转 pub_reconcile
     python ledger_health.py --offline --apply
 退出码：0=干净；1=有需要人工处理的项。
 """
@@ -66,15 +72,21 @@ def issue(level, platform, cid, code, detail, fix=None):
 
 def check_offline(platform, recs):
     out = []
+    # 公众号还有审核中/屏蔽两种合法终态（ledger._WECHAT_STATES），
+    # 与 deleted 同理：体检只认四种通用状态会把它们误报成 BAD_STATE。
+    valid_states = (L._WECHAT_STATES if platform == "wechat"
+                    else (L.DRAFT, L.PUBLISHED, L.UNVERIFIED, L.DELETED))
     for cid in L.duplicates(platform):
         out.append(issue("WARN", platform, cid, "DUP",
-                         "同一条同时挂在草稿台账和已发台账",
+                         "同一个远端对象同时登记在两本账（同一 ID 记两次）",
                          fix="规整成一条（已发布优先）"))
     for cid, r in recs.items():
         if not cid:
             out.append(issue("ERROR", platform, "", "EMPTY_ID", "记录没有 id"))
             continue
-        if r["state"] not in (L.DRAFT, L.PUBLISHED, L.UNVERIFIED):
+        # `deleted` 是公众号回收站稿的合法终态（L._WECHAT_STATES 里已放行，
+        # db._STATE_RANK rank=5），体检不能把它当非法状态报（2026-11-20 假警）。
+        if r["state"] not in valid_states:
             out.append(issue("ERROR", platform, cid, "BAD_STATE",
                              "状态非法：%r" % r["state"]))
         if r["state"] == L.UNVERIFIED:
@@ -112,9 +124,15 @@ def _remote_toutiao():
 
 def _remote_xhs():
     """小红书：已发布侧能直读（带 note_id），草稿侧**没有服务端 API**
-    （离开编辑页自动暂存到浏览器 IndexedDB，实测 0 个 XHR）⇒ 诚实报未知。"""
+    （离开编辑页自动暂存到浏览器 IndexedDB，实测 0 个 XHR）⇒ 诚实报未知。
+
+    ⚠ `page_size` 参数**不生效**（接口固定 10 条/页，2026-11-20 实测：
+      pages=2→20 条、3→30 条、5→45 条）。原来写 pages=2 只拿到 20 条，
+      于是 45 条台账里有 25 条被误报成「线上没有」的假 STALE。取 6 页兜住
+      当前规模（60 条），台账涨到 60 篇以上要同步调大。
+    """
     import xhs_webapi as xw
-    notes, _ = xw.posted_notes(pages=2, page_size=50)
+    notes, _ = xw.posted_notes(pages=6, page_size=50)
     return {"draft": {}, "pub": {n["note_id"]: n["title"] for n in notes
                                  if n.get("note_id")},
             "draft_ok": False, "pub_ok": True,
@@ -270,15 +288,18 @@ def apply_fixes(platform, issues, remote=None):
         cid = i["id"]
         try:
             if i["code"] == "DUP":
+                # ⚠ 不走 L.mark()：mark 会把 verified_at 刷成现在、并用传入的
+                #   note 覆盖整条（红线：verified_at 是快照日，不许用 now 冲掉）
+                recs = L.load(platform)
+                rec = recs.get(cid)
                 d = _dup_sidecar(platform, cid)
-                rec = L.get(platform, cid)
                 if d and rec:
                     tip = "｜草稿箱另有一条同名旧稿（%s），台账不再重复记" % (
                         d.get("at") or "时间未知")
                     note = rec.get("note") or ""
                     if tip not in note:
-                        L.mark(platform, cid, rec["state"], note=note + tip)
-                L.save(platform, L.load(platform))     # 合并视图落盘 ⇒ 冗余消失
+                        rec["note"] = note + tip
+                L.save(platform, recs)             # 合并视图落盘 ⇒ 冗余消失
                 done.append(("DUP", cid))
             elif i["code"] == "PROMOTE":
                 r = L.get(platform, cid) or {}
@@ -299,12 +320,32 @@ def apply_fixes(platform, issues, remote=None):
 
 # ---------------------------------------------------------------- main
 
+# 五家「只有 db 台账」的平台：对账逻辑在 pub_reconcile.py（已发列表 /
+# 公开页核验两套路子完全不同，混进 REMOTE_PROBES 只会把判据搅乱）。
+OTHER_PLATFORMS = ("csdn", "cnblogs", "zhihu", "aliyun", "tencentcloud")
+
+
+def _delegate_other(plat, a):
+    """把体检请求转给 `pub_reconcile`，参数从本命令的开关映射过去。"""
+    import types
+    import pub_reconcile as P
+    ns = types.SimpleNamespace(apply=a.apply, apply_cloud=a.apply_cloud,
+                               pages=4, timeout=20.0, delay=1.5, json="")
+    report = {}
+    if plat in P.CLOUD_PLATFORMS:
+        return P.run_cloud_platform(plat, ns, report)
+    return P.run_list_platform(plat, ns, report)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--platform", action="append", default=[],
-                    help="只查这个平台，可重复；默认四平台全查")
+                    help="只查这个平台，可重复；默认四平台全查。也可传 csdn/cnblogs/zhihu/aliyun/tencentcloud（转 pub_reconcile）")
     ap.add_argument("--online", action="store_true", help="连远端做 ID 对照")
     ap.add_argument("--apply", action="store_true", help="自动修可确定的项")
+    ap.add_argument("--apply-cloud", action="store_true",
+                    help="两朵云：把公开页看不到的 published 落 auditing"
+                         "（默认只报告）")
     ap.add_argument("--quiet", action="store_true", help="只打有问题的")
     ap.add_argument("--verbose", action="store_true", help="连 INFO 一起打")
     a = ap.parse_args()
@@ -313,7 +354,13 @@ def main():
     bad = 0
     for plat in plats:
         if plat not in L.PLATFORMS:
-            print("跳过未知平台 %r" % plat)
+            # 这五家的台账只存在 `platform_posts`（没有 per-platform JSON、
+            # 不走 `ledger.load`），对账逻辑在 `pub_reconcile.py`。这里做转发，
+            # 让「体检」仍然只有一个入口。
+            if plat in OTHER_PLATFORMS:
+                bad |= _delegate_other(plat, a)
+            else:
+                print("跳过未知平台 %r" % plat)
             continue
         recs = L.load(plat)
         cnt = {}

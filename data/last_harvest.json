@@ -1,77 +1,77 @@
 {
-  "ran_at": "2026-11-19 08:16:09",
-  "added": 60,
+  "ran_at": "2026-11-20 07:58:22",
+  "added": 55,
   "by_source": {
-    "hn": 48,
-    "trustmrr": 12
+    "hn": 45,
+    "trustmrr": 10
   },
   "inbox_total": 400,
-  "archived_this_run": 60,
-  "archive_total": 2266,
+  "archived_this_run": 55,
+  "archive_total": 2321,
   "top": [
     {
-      "name": "CozyMac",
-      "headline": "近 30 天收入 $5,185",
+      "name": "Superjoin",
+      "headline": "MRR $96,757，TrustMRR 第 332 名",
       "heat": 0,
-      "category": "Utilities",
+      "category": "企业服务",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/cozymac"
+      "url": "https://trustmrr.com/startup/superjoin"
     },
     {
-      "name": "1explain.com",
-      "headline": "累计收入 $38（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
+      "name": "Redstring: Mobile Detective Game",
+      "headline": "近 30 天收入 $1,089",
       "heat": 0,
-      "category": "utilities",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/1explain-com"
-    },
-    {
-      "name": "The FODMAP mistake most health writers make",
-      "headline": "未获取",
-      "heat": 1,
       "category": "未分类",
-      "source": "hn",
-      "url": "https://news.ycombinator.com/item?id=50555919"
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/private-venture-113"
     },
     {
-      "name": "LINUXCERT.GURU",
-      "headline": "近 30 天收入 $2,146",
+      "name": "Receeto",
+      "headline": "近 30 天收入 $460",
       "heat": 0,
       "category": "垂直行业 SaaS",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/linuxcert-guru"
+      "url": "https://trustmrr.com/startup/receeto"
     },
     {
-      "name": "90Fix",
-      "headline": "近 30 天收入 $127",
+      "name": "StoryBirdie",
+      "headline": "近 30 天收入 $239",
       "heat": 0,
-      "category": "移动应用",
+      "category": "创作者经济",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/90fix"
+      "url": "https://trustmrr.com/startup/storybirdie"
     },
     {
-      "name": "Prototype of a product management tool for AI agent companies",
+      "name": "Foolscap",
       "headline": "未获取",
-      "heat": 2,
+      "heat": 106,
       "category": "未分类",
       "source": "hn",
-      "url": "https://featurestream-prototype.vercel.app/"
+      "url": "https://foolscap.works/"
     },
     {
-      "name": "ADE Index",
+      "name": "erXos",
       "headline": "未获取",
-      "heat": 16,
+      "heat": 7,
       "category": "未分类",
       "source": "hn",
-      "url": "https://adeindex.com"
+      "url": "https://stass.github.io/erXos/"
     },
     {
-      "name": "Try Vibe Robotics! (IRL or MuJoCo SIM)",
+      "name": "ToolJet 4.0",
       "headline": "未获取",
-      "heat": 11,
+      "heat": 6,
       "category": "未分类",
       "source": "hn",
-      "url": "https://github.com/google-deepmind/robotics-antigravity-plugin"
+      "url": "https://tooljet.com"
+    },
+    {
+      "name": "Making an OS from scratch",
+      "headline": "未获取",
+      "heat": 4,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://www.timdbg.com/posts/dbgos/"
     }
   ]
 }

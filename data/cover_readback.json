@@ -136,6 +136,13 @@
   }
  },
  "ext-ep-007-openttd": {
+  "aliyun": {
+   "at": "2026-11-20 08:06:23",
+   "evidence": "文章首图 firstImg=https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_a150a13f76b345dd979f93dc4780cc3d.png",
+   "remote_id": "1786027",
+   "source": "yun_finalize",
+   "state": "ok"
+  },
   "bilibili2": {
    "at": "2026-11-06 15:48:10",
    "evidence": "aid=376921 image_urls=http://article.biliimg.com/bfs/article/e9feb475bd62b80fb9e7546a036cca6f8d50d17f.jpg",
