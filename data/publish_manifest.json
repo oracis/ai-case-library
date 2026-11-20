@@ -85,6 +85,12 @@
    "title": "手机拍一段冲刺就能评分：单目视频姿态分析的能测与不能测",
    "url": "https://developer.aliyun.com/article/new?edit=1699450#/"
   },
+  "cnblogs": {
+   "at": "2026-10-30 14:13:00",
+   "remote_id": "23494771",
+   "state": "published",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23494771.html"
+  },
   "tencentcloud": {
    "at": "2026-11-09 21:32:54",
    "attempt": 0,
@@ -775,8 +781,10 @@
   "cnblogs": {
    "at": "2026-11-01 17:17",
    "attempt": 0,
+   "remote_id": "23511986",
    "state": "published",
-   "title": "cnblogs.com/thing-explainer/p/23511986"
+   "title": "cnblogs.com/thing-explainer/p/23511986",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23511986.html"
   },
   "csdn": {
    "at": "2026-11-05 13:49:37",
@@ -865,6 +873,13 @@
    "note": "｜更新草稿 aid=376928（draft/add 回读校验通过）",
    "state": "deleted",
    "title": "ClawLink：MRR $2,219，TrustMRR 实"
+  },
+  "cnblogs": {
+   "at": "2026-11-04 14:46:00",
+   "remote_id": "23547778",
+   "state": "published",
+   "title": "用免配置多应用连接架构撑住226个活跃订阅",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23547778.html"
   }
  },
  "cod-dex": {
@@ -892,8 +907,10 @@
   "cnblogs": {
    "at": "2026-11-01 17:17",
    "attempt": 0,
+   "remote_id": "23511987",
    "state": "published",
-   "title": "cnblogs.com/thing-explainer/p/23511987"
+   "title": "cnblogs.com/thing-explainer/p/23511987",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23511987.html"
   },
   "csdn": {
    "at": "2026-11-02 23:49",
@@ -1287,6 +1304,12 @@
    "title": "用 Backbone 游戏引擎复刻超级马力欧兄弟",
    "url": ""
   },
+  "cnblogs": {
+   "at": "2026-11-04 13:04:00",
+   "remote_id": "23546485",
+   "state": "published",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23546485.html"
+  },
   "tencentcloud": {
    "at": "2026-11-09 20:17:38",
    "attempt": 0,
@@ -1484,7 +1507,8 @@
    "at": "2026-11-07 10:48:55",
    "attempt": 0,
    "error": "｜[11-09 错账清理] 原 published_at='2026-11-07 10:48:55' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
-   "state": "draft_saved",
+   "remote_id": "170239393",
+   "state": "published",
    "title": "Quake，1999 年开源的雷神之锤",
    "url": "https://blog.csdn.net/sinat_32396037/article/details/170239393"
   },
@@ -1520,7 +1544,7 @@
   "aliyun": {
    "at": "2026-11-16 10:00:42",
    "attempt": 0,
-   "draft_id": "1699450",
+   "draft_id": "",
    "error": "[2026-11-16 阿里云发布] 草稿 1699450 → 文章 1783930；匿名 GET https://developer.aliyun.com/article/1783930：HTTP 404、0 bytes、标题命中=False、审核横幅=False ⇒ auditing（published 需 200 + 标题命中 + 无审核横幅；url 待过审后独立回读再补） ‖ [2026-11-16 过审复核] yun_state 1783930：匿名 GET 200 / 64421 bytes / 标题命中 / 审核横幅 False ⇒ published；published_at 沿用 10:00:41 提交时点",
    "remote_id": "1783930",
    "state": "published",
@@ -1775,7 +1799,7 @@
   "tencentcloud": {
    "at": "2026-11-11 10:57:20",
    "attempt": 0,
-   "draft_id": "338081",
+   "draft_id": "",
    "error": "[2026-11-11 腾讯云发布] 草稿 338081 → 文章 2781234；匿名 GET https://cloud.tencent.com/developer/article/2781234：HTTP 200、50658 bytes、标题命中=True、审核横幅=False ⇒ published",
    "remote_id": "2781234",
    "state": "published",
@@ -2004,7 +2028,7 @@
   "tencentcloud": {
    "at": "2026-11-16 09:58:19",
    "attempt": 0,
-   "draft_id": "338084",
+   "draft_id": "",
    "error": "[2026-11-16 腾讯云发布] 草稿 338084 → 文章 2785068；匿名 GET https://cloud.tencent.com/developer/article/2785068：HTTP 200、50064 bytes、标题命中=True、审核横幅=False ⇒ published",
    "remote_id": "2785068",
    "state": "published",
@@ -2038,6 +2062,7 @@
   "csdn": {
    "at": "2026-11-19 12:40:58",
    "attempt": 0,
+   "remote_id": "171036622",
    "state": "published",
    "title": "古代文明 RTS：读 0 A.D. 的资源与时代",
    "url": "https://blog.csdn.net/sinat_32396037/article/details/171036622"
@@ -2113,6 +2138,12 @@
    "title": "不限发送量的邮件平台：送达率工程的共享池与故障隔离成本",
    "url": "https://developer.aliyun.com/article/new?edit=1698291#/"
   },
+  "cnblogs": {
+   "at": "2026-10-29 12:15:00",
+   "remote_id": "23468183",
+   "state": "published",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23468183.html"
+  },
   "tencentcloud": {
    "at": "2026-11-13 08:27:17",
    "attempt": 0,
@@ -2184,6 +2215,12 @@
    "state": "draft_saved",
    "title": "批量给本地小店造站的流水线：名单判定、模板渲染与直邮归因",
    "url": "https://developer.aliyun.com/article/new?edit=1699817#/"
+  },
+  "cnblogs": {
+   "at": "2026-10-30 14:13:00",
+   "remote_id": "23494773",
+   "state": "published",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23494773.html"
   },
   "tencentcloud": {
    "at": "2026-11-09 20:55:56",
@@ -2400,6 +2437,12 @@
    "title": "两小时交付背后的 GPU 队列：一次订单要烧多少次采样",
    "url": "https://developer.aliyun.com/article/1782978"
   },
+  "cnblogs": {
+   "at": "2026-10-30 14:13:00",
+   "remote_id": "23494775",
+   "state": "published",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23494775.html"
+  },
   "tencentcloud": {
    "at": "2026-11-12 08:10:24",
    "attempt": 0,
@@ -2591,6 +2634,12 @@
    "state": "published",
    "title": "把课程材料变成题目的流水线：脏输入、答案校验与多形态渲染",
    "url": "https://developer.aliyun.com/article/1783731"
+  },
+  "cnblogs": {
+   "at": "2026-10-30 14:14:00",
+   "remote_id": "23494776",
+   "state": "published",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23494776.html"
   },
   "tencentcloud": {
    "at": "2026-11-11 08:49:48",
@@ -2843,7 +2892,7 @@
    "error": " | longtail_key=markdown-structure-2026-10-29-1｜[11-09 错账清理] 原 published_at='' 已迁出（state 保持 auditing；明细 tmp/ledger_cleanup_20261109_report.json） ｜ [11-09 #108 过审补账] 带登录态浏览器 + 匿名 GET 双证：公开页 HTTP 200、标题逐字命中、正文关键词全命中、无审核横幅，<meta name=\"date\">=2026-10-29 13:51:34 ⇒ 按三态 auditing→published；published_at 用平台 meta date（非 now）；url/title/draft_id/attempt/updated_at 未动。",
    "remote_id": "1776574",
    "state": "published",
-   "title": "",
+   "title": "同一份 Markdown 分发到 4 个技术社区，标题层级为什么只在一处丢失",
    "url": "https://developer.aliyun.com/article/1776574"
   }
  },
@@ -3084,6 +3133,12 @@
    "title": "把 PDF 变成可问答的知识库：切分、溯源与一次退款操作的风险",
    "url": "https://developer.aliyun.com/article/new?edit=1698882#/"
   },
+  "cnblogs": {
+   "at": "2026-10-30 14:14:00",
+   "remote_id": "23494779",
+   "state": "published",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23494779.html"
+  },
   "tencentcloud": {
    "at": "2026-11-09 21:31:47",
    "attempt": 0,
@@ -3189,6 +3244,12 @@
    "state": "published",
    "title": "",
    "url": "https://developer.aliyun.com/article/new?edit=1699448#/"
+  },
+  "cnblogs": {
+   "at": "2026-10-30 14:11:00",
+   "remote_id": "23494731",
+   "state": "published",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23494731.html"
   },
   "tencentcloud": {
    "at": "2026-11-03 21:33:42",
@@ -3502,6 +3563,12 @@
    "title": "卖给开发者的设计书：没有试用层的内容产品怎么定价与交付",
    "url": "https://developer.aliyun.com/article/new?edit=1699076#/"
   },
+  "cnblogs": {
+   "at": "2026-10-30 14:14:00",
+   "remote_id": "23494781",
+   "state": "published",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23494781.html"
+  },
   "tencentcloud": {
    "at": "2026-11-09 22:51:44",
    "attempt": 0,
@@ -3642,7 +3709,7 @@
    "error": " | longtail_key=shipfast-al-cdp-2026-10-30-1",
    "remote_id": "1777090",
    "state": "published",
-   "title": "",
+   "title": "从模板源码反推工程决策：一份 Next.js SaaS 模板里值得拆开看的四个模块",
    "url": "https://developer.aliyun.com/article/1777090"
   },
   "bilibili": {
@@ -3771,6 +3838,12 @@
    "state": "published",
    "title": "",
    "url": "https://developer.aliyun.com/article/new?edit=1699266#/"
+  },
+  "cnblogs": {
+   "at": "2026-10-30 14:14:00",
+   "remote_id": "23494782",
+   "state": "published",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23494782.html"
   },
   "tencentcloud": {
    "at": "2026-11-09 21:32:35",
@@ -4060,7 +4133,7 @@
    "published_at": "2026-11-01 00:44",
    "remote_id": "1777577",
    "state": "published",
-   "title": "",
+   "title": "TrustMRR：把「可核验」做成产品的海外小站",
    "url": "https://developer.aliyun.com/article/new?edit=1701410#/"
   },
   "bilibili": {
@@ -4081,15 +4154,15 @@
    "error": "发后原地改标题（edit_post publish=True）；2026-11-01 正文三处列表→真表格，走新增的 `edit --html-file`（本地只替换那三段 <ul>，其余字节不动）。",
    "remote_id": "23507950",
    "state": "published",
-   "title": "",
+   "title": "TrustMRR：把「可核验」做成产品的海外小站",
    "url": "https://www.cnblogs.com/thing-explainer/p/23507950"
   },
   "csdn": {
-   "at": "2026-11-03 21:04:52",
+   "at": "2026-11-20 12:25:35",
    "attempt": 0,
-   "error": "2026-11-01 00:09 修三处后重发：①补封面（本地上传 16:9，csdnimg CDN，cover_type=1）；②两组评分列表改 markdown 表格；③正文 `$` 金额 CSDN 当行内公式渲染（`$18,380 MRR…$85,000` 整段被吃成 18,380𝑀𝑅𝑅）⇒ 源稿改为「美元」表述，全篇 0 个 `$`。⚠ 旧 id 169653810 已删除：saveArticle 传 `articleId` 会被忽略并**新建**一篇，正确字段是 `id`（已修 csdn_publish.save_article）。",
+   "error": "2026-11-01 00:09 修三处后重发：①补封面（本地上传 16:9，csdnimg CDN，cover_type=1）；②两组评分列表改 markdown 表格；③正文 `$` 金额 CSDN 当行内公式渲染（`$18,380 MRR…$85,000` 整段被吃成 18,380𝑀𝑅𝑅）⇒ 源稿改为「美元」表述，全篇 0 个 `$`。⚠ 旧 id 169653810 已删除：saveArticle 传 `articleId` 会被忽略并**新建**一篇，正确字段是 `id`（已修 csdn_publish.save_article）。｜11-20 用户确认「CSDN trustmrr 169654106 这个被我删了」：CSDN 已发列表（6 页 24 条，最旧 2026-11-02 23:32，覆盖本篇 11-03 发表日）无此 id；同日首轮对账已实测「已发 / 回收站 / 草稿箱」三处皆空（公开页 521 是 WAF 挑战页，不构成 404 证据，故当时只报告）。现按用户裁定落 deleted：原 published_at=2026-11-03 21:04:52 迁入本 note，remote_id 保留溯源；⛔ deleted 占位 ⇒ FIFO 不会自动重发，要重发须人工放开。",
    "remote_id": "169654106",
-   "state": "published",
+   "state": "deleted",
    "title": "",
    "url": "https://blog.csdn.net/sinat_32396037/article/details/169654106"
   },
@@ -4226,6 +4299,12 @@
    "state": "published",
    "title": "Upvoty：收集用户反馈并投票排序的看板",
    "url": ""
+  },
+  "cnblogs": {
+   "at": "2026-10-30 14:14:00",
+   "remote_id": "23494783",
+   "state": "published",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23494783.html"
   },
   "juejin": {
    "at": "2026-10-28 14:54",
