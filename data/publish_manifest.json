@@ -4158,13 +4158,13 @@
    "url": "https://www.cnblogs.com/thing-explainer/p/23507950"
   },
   "csdn": {
-   "at": "2026-11-20 12:25:35",
+   "at": "2026-11-20 12:35:15",
    "attempt": 0,
-   "error": "2026-11-01 00:09 修三处后重发：①补封面（本地上传 16:9，csdnimg CDN，cover_type=1）；②两组评分列表改 markdown 表格；③正文 `$` 金额 CSDN 当行内公式渲染（`$18,380 MRR…$85,000` 整段被吃成 18,380𝑀𝑅𝑅）⇒ 源稿改为「美元」表述，全篇 0 个 `$`。⚠ 旧 id 169653810 已删除：saveArticle 传 `articleId` 会被忽略并**新建**一篇，正确字段是 `id`（已修 csdn_publish.save_article）。｜11-20 用户确认「CSDN trustmrr 169654106 这个被我删了」：CSDN 已发列表（6 页 24 条，最旧 2026-11-02 23:32，覆盖本篇 11-03 发表日）无此 id；同日首轮对账已实测「已发 / 回收站 / 草稿箱」三处皆空（公开页 521 是 WAF 挑战页，不构成 404 证据，故当时只报告）。现按用户裁定落 deleted：原 published_at=2026-11-03 21:04:52 迁入本 note，remote_id 保留溯源；⛔ deleted 占位 ⇒ FIFO 不会自动重发，要重发须人工放开。",
-   "remote_id": "169654106",
-   "state": "deleted",
-   "title": "",
-   "url": "https://blog.csdn.net/sinat_32396037/article/details/169654106"
+   "error": "｜11-20 12:35 重发（旧稿 169654106 已删、占位放开）：publish 回包 article_id=None ⇒ 补 id 走双回读：已发列表唯一命中 `171099300`（postTime 2026-11-20 12:35:15）+ 登录态公开页标题与 3 个正文关键词全中、页头「公开」。",
+   "remote_id": "171099300",
+   "state": "published",
+   "title": "只读支付密钥怎么核验流水：拆 TrustMRR 的验证链路与榜单口径",
+   "url": "https://blog.csdn.net/sinat_32396037/article/details/171099300"
   },
   "juejin": {
    "at": "2026-11-03 21:04:52",

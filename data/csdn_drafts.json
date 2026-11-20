@@ -16,7 +16,7 @@
     "state": "published"
   },
   "_deleted": {
-    "trustmrr_169654106": "2026-11-01 14:49 删除：00:09 的 TrustMRR 测试稿，非本批次占位稿，用于腾创作中心位（但 CSDN 日配额按发表事件计、删除不退款，故未能当日发 cod-dex）；2026-11-20 用户再次确认已删（已发列表 24 条 / 11-02~11-20 无此 id），台账落 deleted、FIFO 占位不自动重发"
+    "trustmrr_169654106": "2026-11-01 14:49 删除：00:09 的 TrustMRR 测试稿，非本批次占位稿，用于腾创作中心位（但 CSDN 日配额按发表事件计、删除不退款，故未能当日发 cod-dex）；2026-11-20 用户再次确认已删（已发列表 24 条 / 11-02~11-20 无此 id），台账落 deleted、FIFO 占位不自动重发；2026-11-20 12:3x 用户裁定「放开占位再走发布闸」：删 db 行 + manifest 条目（旧 article 169654106 仍为已删，不复活）"
   },
   "ext-ep-001-super-mario-bros": {
     "article_id": "169938945",
@@ -165,5 +165,11 @@
     "title": "服务端追踪修复 Shopify 广告数据",
     "url": "https://blog.csdn.net/sinat_32396037/article/details/171076452",
     "ts": "2026-11-20 07:46:25"
+  },
+  "trustmrr": {
+    "article_id": "171099300",
+    "title": "只读支付密钥怎么核验流水：拆 TrustMRR 的验证链路与榜单口径",
+    "url": "https://blog.csdn.net/sinat_32396037/article/details/171099300",
+    "ts": "2026-11-20 12:35:15"
   }
 }
