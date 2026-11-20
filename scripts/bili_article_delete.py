@@ -150,9 +150,15 @@ def main():
         return 3
 
     after_item, _, after_total = find_in_list(cdp, bia, aid)
-    print("回读：%d → %d 条；aid=%s %s"
-          % (total, after_total, aid, "仍在（失败）" if after_item else "已消失 ✓"))
-    if after_item:
+    # 两个条件都要成立：目标不在 + 条数恰好 -1（PRD #203 实测 44→43）。
+    # 只检查「目标消失」会把「列表读歪/翻页变化」当成删除成功 —— 删除不可逆，
+    # 宁可返回 4 让人再看一眼，也不虚报成功。
+    count_ok = (after_total == total - 1)
+    print("回读：%d → %d 条；aid=%s %s%s"
+          % (total, after_total, aid,
+             "仍在（失败）" if after_item else "已消失 ✓",
+             "" if count_ok else "（条数未按预期 -1）"))
+    if after_item or not count_ok:
         return 4
     return 0
 

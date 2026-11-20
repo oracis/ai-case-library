@@ -72,6 +72,10 @@ def issue(level, platform, cid, code, detail, fix=None):
 
 def check_offline(platform, recs):
     out = []
+    # 公众号还有审核中/屏蔽两种合法终态（ledger._WECHAT_STATES），
+    # 与 deleted 同理：体检只认四种通用状态会把它们误报成 BAD_STATE。
+    valid_states = (L._WECHAT_STATES if platform == "wechat"
+                    else (L.DRAFT, L.PUBLISHED, L.UNVERIFIED, L.DELETED))
     for cid in L.duplicates(platform):
         out.append(issue("WARN", platform, cid, "DUP",
                          "同一个远端对象同时登记在两本账（同一 ID 记两次）",
@@ -82,7 +86,7 @@ def check_offline(platform, recs):
             continue
         # `deleted` 是公众号回收站稿的合法终态（L._WECHAT_STATES 里已放行，
         # db._STATE_RANK rank=5），体检不能把它当非法状态报（2026-11-20 假警）。
-        if r["state"] not in (L.DRAFT, L.PUBLISHED, L.UNVERIFIED, L.DELETED):
+        if r["state"] not in valid_states:
             out.append(issue("ERROR", platform, cid, "BAD_STATE",
                              "状态非法：%r" % r["state"]))
         if r["state"] == L.UNVERIFIED:
