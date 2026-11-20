@@ -16,8 +16,13 @@
 | 本地 | `--offline`（默认） | 一条记录两个状态、无远端 ID、状态非法、产物缺失 | 毫秒，零风险 |
 | 远端 | `--online` | 本地 remote_id vs 线上列表 ID 的集合差 | 要开浏览器（每平台 20-40s） |
 
-远端档目前接好了**头条**（`toutiao_reconcile` 的拉取函数现成、已实测）；
-其余三平台见 `REMOTE_PROBES` 里的接入点说明。
+远端档分两套（判据不同，不能混）：
+  · 公众号 / 头条 / B站 / 小红书：`REMOTE_PROBES` 里直连平台接口拉草稿箱 + 已发列表；
+  · CSDN / 博客园 / 知乎 / 阿里云 / 腾讯云：台账只在 `platform_posts`，
+    转发给 `pub_reconcile.py` —— 前三家拉已发列表做全类对账，
+    两朵云没有列表接口，改逐篇匿名公开页核验（做不到孤儿认领）。
+    `python ledger_health.py --platform cnblogs` 即等价于
+    `python pub_reconcile.py --platform cnblogs`。
 
 ## 自愈边界（--apply）
 
@@ -30,6 +35,7 @@
 用法：
     python ledger_health.py                     # 四平台本地巡检
     python ledger_health.py --online --platform toutiao
+    python ledger_health.py --platform cnblogs           # 转 pub_reconcile
     python ledger_health.py --offline --apply
 退出码：0=干净；1=有需要人工处理的项。
 """
@@ -310,12 +316,32 @@ def apply_fixes(platform, issues, remote=None):
 
 # ---------------------------------------------------------------- main
 
+# 五家「只有 db 台账」的平台：对账逻辑在 pub_reconcile.py（已发列表 /
+# 公开页核验两套路子完全不同，混进 REMOTE_PROBES 只会把判据搅乱）。
+OTHER_PLATFORMS = ("csdn", "cnblogs", "zhihu", "aliyun", "tencentcloud")
+
+
+def _delegate_other(plat, a):
+    """把体检请求转给 `pub_reconcile`，参数从本命令的开关映射过去。"""
+    import types
+    import pub_reconcile as P
+    ns = types.SimpleNamespace(apply=a.apply, apply_cloud=a.apply_cloud,
+                               pages=4, timeout=20.0, delay=1.5, json="")
+    report = {}
+    if plat in P.CLOUD_PLATFORMS:
+        return P.run_cloud_platform(plat, ns, report)
+    return P.run_list_platform(plat, ns, report)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--platform", action="append", default=[],
-                    help="只查这个平台，可重复；默认四平台全查")
+                    help="只查这个平台，可重复；默认四平台全查。也可传 csdn/cnblogs/zhihu/aliyun/tencentcloud（转 pub_reconcile）")
     ap.add_argument("--online", action="store_true", help="连远端做 ID 对照")
     ap.add_argument("--apply", action="store_true", help="自动修可确定的项")
+    ap.add_argument("--apply-cloud", action="store_true",
+                    help="两朵云：把公开页看不到的 published 落 auditing"
+                         "（默认只报告）")
     ap.add_argument("--quiet", action="store_true", help="只打有问题的")
     ap.add_argument("--verbose", action="store_true", help="连 INFO 一起打")
     a = ap.parse_args()
@@ -324,7 +350,13 @@ def main():
     bad = 0
     for plat in plats:
         if plat not in L.PLATFORMS:
-            print("跳过未知平台 %r" % plat)
+            # 这五家的台账只存在 `platform_posts`（没有 per-platform JSON、
+            # 不走 `ledger.load`），对账逻辑在 `pub_reconcile.py`。这里做转发，
+            # 让「体检」仍然只有一个入口。
+            if plat in OTHER_PLATFORMS:
+                bad |= _delegate_other(plat, a)
+            else:
+                print("跳过未知平台 %r" % plat)
             continue
         recs = L.load(plat)
         cnt = {}
