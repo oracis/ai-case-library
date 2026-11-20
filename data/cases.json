@@ -84342,12 +84342,12 @@
     "traffic_sources": [],
     "corrections": [
       {
-        "claim": "候选资料 headline 称 '近 30 天收入 $2,688，TrustMRR 核对（非订阅制，MRR 恒 0）'",
+        "claim": "档案头条数字写的是 '近 30 天收入 $2,688，TrustMRR 核对（非订阅制，MRR 恒 0）'",
         "truth": "实际为滚动 30 天已验证收入 $2,688（据 TrustMRR 档案），非经常性收入，MRR 确实为 0",
         "source": "https://trustmrr.com/startup/pattes-moi.md"
       },
       {
-        "claim": "候选资料 metric_note 称 '近 30 天收入 $2,688、累计 $2,688'",
+        "claim": "档案备注称 '近 30 天收入 $2,688、累计 $2,688'",
         "truth": "累计收入应为 ~$3,650 CAD（首月），$2,688 仅为最近 30 天滚动收入",
         "source": "https://trustmrr.com/startup/pattes-moi.md"
       }
@@ -84820,7 +84820,7 @@
     "traffic_sources": [],
     "corrections": [
       {
-        "claim": "候选资料 headline 称 'MRR $416，TrustMRR 核对'",
+        "claim": "档案头条数字写的是 'MRR $416，TrustMRR 核对'",
         "truth": "TrustMRR 原文 'Current MRR: $416'，但最近完整月（2026-10）收入为 $750，MRR 与当月收入存在差异，可能因订阅周期或残月未对齐。",
         "source": "https://trustmrr.com/startup/deepsearch.md"
       }

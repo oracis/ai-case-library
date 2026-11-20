@@ -34,7 +34,7 @@ if "127.0.0.1" not in _np:
 
 import auth                                                  # noqa: E402
 import ai_verify as AV                                       # noqa: E402
-import verify_rules as VR                                    # noqa: E402
+from handoff_contract import precheck  # noqa: E402  II→III 准入契约（原在本文件）
 
 ADMIN_BASE = os.environ.get("CASE_LIB_ADMIN_BASE", "http://127.0.0.1:5053")
 
@@ -52,29 +52,6 @@ def load(name):
     with open(os.path.join(ROOT, "data", name), encoding="utf-8") as f:
         return json.load(f)
 
-
-def precheck(cid, cands, vers, case_ids):
-    """返回 (candidate, result, None) 或 (None, None, 原因)。"""
-    cand = next((x for x in cands if x.get("id") == cid), None)
-    if cand is None:
-        return None, None, "候选不存在（可能已晋升）"
-    if cid in case_ids:
-        return None, None, "已在 cases.json"
-    draft = vers.get(cid)
-    if draft is None:
-        return None, None, "没有核实草稿（先跑 verify_cookie.py）"
-    result = VR.evaluate(draft)
-    if not result["publishable"]:
-        if result["gates_failed"]:
-            why = "；".join(g["label"] for g in result["gates_failed"])
-        else:
-            why = "；".join(m["label"] for m in result["missing"])
-        return None, None, "规则引擎不过：" + why
-    cg = VR.content_gate(cand)
-    if not cg["ok"]:
-        why = "；".join(p["label"] for p in cg["blocked"])
-        return None, None, "正文闸门不过：" + why
-    return cand, result, None
 
 
 def main():

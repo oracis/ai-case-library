@@ -16,6 +16,7 @@ import json
 import os
 import shutil
 import signal
+import sqlite3
 import subprocess
 import sys
 import time
@@ -38,6 +39,9 @@ RUNNING = os.path.join(BACKUP, ".running")
 # 测试会通过后台接口把假 key 写进去，还原必须用**这一份**覆盖回去 ——
 # 备份目录可能已被上一轮的假 key 污染（见 restore_file 的注释）。
 ORIG_SECRETS = None
+# 本轮开始时真值库的 (总条数, selftest 固件数)，还原后硬自检用。
+# None = 还没备份（此时不该谈还原）。
+DB_BASELINE = None
 PY = sys.executable
 PORT = int(os.environ.get("CASE_LIB_TEST_PORT", "5087"))
 ADMIN_PORT = PORT + 1                       # server.py 默认后台 = 公开 +1
@@ -365,6 +369,72 @@ def restore_file(src, dst, attempts=6):
     return False
 
 
+def db_stats(db_path):
+    """读真值库的 (case_library 条数, selftest 固件数)。只读，不建表。
+
+    🚨 固件 id 有两代前缀：`selftest-`（10-21 老固件）和 `_selftest`（现行
+    候选固件 promote 后的 id，见 FIXTURE_A/B）。两种都要认，缺一种就会
+    「自检报绿但库里还留着固件」。
+    """
+    if not os.path.isfile(db_path):
+        return None
+    try:
+        c = sqlite3.connect(db_path)
+        try:
+            total = c.execute("SELECT count(*) FROM case_library").fetchone()[0]
+            fixtures = c.execute(
+                "SELECT count(*) FROM case_library "
+                "WHERE id LIKE 'selftest-%' OR id LIKE '\\_selftest%' ESCAPE '\\'"
+            ).fetchone()[0]
+            return (total, fixtures)
+        finally:
+            c.close()
+    except sqlite3.Error:
+        return None
+
+
+def restore_db(src, dst, attempts=8):
+    """用 SQLite backup API 一致性还原 ledger.db，根治 WAL 回放假还原。
+
+    🚨 为什么不能用 restore_file 的字节覆盖（2026-11-20 受控实验坐实）：
+    `db.py:85` 每个连接都 `PRAGMA journal_mode=WAL`，server 子进程把自测
+    固件写进 `ledger.db-wal`。字节覆盖主库文件后，残留的 WAL 在下一个连接
+    关闭时 checkpoint，把固件**重新回放**进「已还原」的库 —— 于是 selftest
+    退出码 0、自报「已还原」，真值库却从 577 变成 581。跟是否被强杀无关。
+
+    正解两步：① 先删 `-wal`/`-shm` 丢弃固件事务；② 用 `backup()` API 把
+    干净备份整体写回（API 保证目标库内部一致，不留悬空 WAL）。
+    """
+    if not os.path.isfile(src):
+        return False
+    last = None
+    for i in range(attempts):
+        try:
+            # ① 丢弃固件事务所在的 WAL/SHM（server 已 terminate，句柄会延迟）
+            for suffix in ("-wal", "-shm"):
+                side = dst + suffix
+                if os.path.exists(side):
+                    try:
+                        os.remove(side)
+                    except OSError:
+                        if i == attempts - 1:
+                            raise
+            # ② backup API 一致性写回：从 src 的整体事务覆盖 dst，无悬空 WAL
+            s = sqlite3.connect(src)
+            d = sqlite3.connect(dst)
+            try:
+                s.backup(d)
+            finally:
+                d.close()
+                s.close()
+            return True
+        except (OSError, sqlite3.Error) as e:               # noqa: BLE001
+            last = e
+            time.sleep(0.2 * (i + 1))
+    print("    [warn] restore_db 失败：%s" % last)
+    return False
+
+
 def rollback_stale_backup():
     """上一次自检没跑完 → 先用备份把 data/ 恢复到那次之前。
 
@@ -382,7 +452,12 @@ def rollback_stale_backup():
     n = 0
     for name in os.listdir(BACKUP):
         src = os.path.join(BACKUP, name)
-        if os.path.isfile(src) and restore_file(src, os.path.join(DATA, name)):
+        dst = os.path.join(DATA, name)
+        if not os.path.isfile(src):
+            continue
+        # ledger.db 必须走 API 还原：字节覆盖挡不住 WAL 回放（见 restore_db）
+        ok = restore_db(src, dst) if name == "ledger.db" else restore_file(src, dst)
+        if ok:
             n += 1
     return n
 
@@ -399,8 +474,31 @@ def make_backup():
     改成 `dirs_exist_ok=True` 覆盖：备份目录常驻（gitignore 已排除），
     清理只剩删一个 `.running` 标记文件 —— 单个文件，不触发任何门禁。
     """
+    global DB_BASELINE
     os.makedirs(BACKUP, exist_ok=True)
     shutil.copytree(DATA, BACKUP, dirs_exist_ok=True)
+    # 🚨 ledger.db 不能用 copytree 的裸字节（2026-11-20）：真值库开着 WAL，
+    # 裸拷主库文件可能漏掉未 checkpoint 的已提交事务 ⇒ 备份本身就不一致，
+    # 后面 restore_db 再怎么正确也是从一个残缺快照恢复。改用 backup API
+    # 生成一致性快照，并清掉备份目录里的悬空 WAL/SHM（copytree 带过来的）。
+    live = os.path.join(DATA, "ledger.db")
+    bk = os.path.join(BACKUP, "ledger.db")
+    if os.path.isfile(live):
+        for suffix in ("-wal", "-shm"):
+            side = bk + suffix
+            if os.path.exists(side):
+                try:
+                    os.remove(side)
+                except OSError:
+                    pass
+        s = sqlite3.connect(live)
+        d = sqlite3.connect(bk)
+        try:
+            s.backup(d)                 # 一致性快照写进备份库
+        finally:
+            d.close()
+            s.close()
+        DB_BASELINE = db_stats(bk)      # 记录本轮基线，供还原后硬自检
     # data/ 里已经没有的文件，备份里也不该留着：`had_secrets_in_backup` 这类
     # 「备份里有没有」的判断靠它，残留会让测试留下的假 secrets.json 删不掉。
     # 通常 0~1 个，逐个删不触发任何门禁。
@@ -922,7 +1020,11 @@ def main():
                 continue          # 进行中标记不是数据，别拷回 data/
             src = os.path.join(BACKUP, name)
             dst = os.path.join(DATA, name)
-            if os.path.isfile(src) and not restore_file(src, dst):
+            if not os.path.isfile(src):
+                continue
+            # ledger.db 走 API 还原（删 WAL + backup），字节覆盖挡不住 WAL 回放
+            ok = restore_db(src, dst) if name == "ledger.db" else restore_file(src, dst)
+            if not ok:
                 misses.append(name)
         if misses:
             # 🚨 必须吵出来（2026-10-21 实测踩到）：还原失败时 data/ 里留着
@@ -967,6 +1069,18 @@ def main():
             print("    [!!] data/secrets.json 里还留着自测假 key —— 真实 AI key "
                   "已被覆盖，需要重新填。")
             fails.append("secrets.json 残留自测假 key")
+        # 🚨 真值库硬自检（2026-11-20）：还原「自报成功」不等于干净。读回
+        # case_library 条数+固件数，与本轮备份时的基线逐字比对 —— 只要 WAL
+        # 回放把固件带回，这里立刻报红，不再靠人肉 git diff 才发现。
+        live_db = os.path.join(DATA, "ledger.db")
+        after = db_stats(live_db)
+        if DB_BASELINE is not None and after != DB_BASELINE:
+            print("    [!!] ledger.db 还原后与基线不符：备份=%s 现=%s —— "
+                  "可能有 selftest 固件经 WAL 回放残留" % (DB_BASELINE, after))
+            fails.append("ledger.db 还原后与基线不符（%s != %s）" % (DB_BASELINE, after))
+        elif after and after[1]:
+            print("    [!!] ledger.db 里仍有 %d 条 selftest 固件" % after[1])
+            fails.append("ledger.db 残留 %d 条固件" % after[1])
         print("    已还原")
 
     print("\n" + "=" * 62)
