@@ -146,5 +146,13 @@
   {
     "id": "verse",
     "at": "2026-10-25 00:39"
+  },
+  {
+    "id": "quran-unlock",
+    "at": "2026-10-28 14:00",
+    "gid": "7699902878202315302",
+    "title": "Quran Unlock：古兰经习惯打卡",
+    "evidence": "ledger_reconcile",
+    "note": "｜11-20 对账：线上草稿箱有（gid=7699902878202315302），已发表列表没有 ⇒ 台账虚记 published，改回 draft"
   }
 ]

@@ -4,12 +4,41 @@
    "at": "2026-10-17 22:06",
    "attempt": 0,
    "draft_id": "",
+   "error": "对账补登: 读公开页正文确认(cv53482719) → 1Lookup：一个 API 查电话、邮箱、IP 实时数据",
    "note": "对账补登: 读公开页正文确认(cv53482719) → 1Lookup：一个 API 查电话、邮箱、IP 实时数据",
    "published_at": "2026-10-17 22:06:34",
    "remote_id": "53482719",
    "state": "published",
    "title": "1Lookup：一个 API 查电话、邮箱、IP 实时数据",
    "url": ""
+  },
+  "cnblogs": {
+   "at": "2026-11-14 12:53:39",
+   "attempt": 0,
+   "draft_id": "23664155",
+   "error": "status=published",
+   "remote_id": "23664155",
+   "state": "published",
+   "title": "1Lookup：把实时校验做成按调用量计费的接口",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23664155"
+  },
+  "csdn": {
+   "at": "2026-11-14 13:16:22",
+   "attempt": 0,
+   "remote_id": "170774724",
+   "state": "published",
+   "title": "用 API 实现电话邮箱 IP 实时校验与风控",
+   "url": "https://blog.csdn.net/sinat_32396037/article/details/170774724"
+  },
+  "tencentcloud": {
+   "at": "2026-11-14 13:51:38",
+   "attempt": 0,
+   "draft_id": "346534",
+   "error": "[2026-11-14 腾讯云发布] 草稿 346534 → 文章 2784170；匿名 GET https://cloud.tencent.com/developer/article/2784170：HTTP 200、54698 bytes、标题命中=True、审核横幅=False ⇒ published",
+   "remote_id": "2784170",
+   "state": "published",
+   "title": "校验 API 的三级级联：延迟预算、结果缓存与计量幂等",
+   "url": "https://cloud.tencent.com/developer/article/2784170"
   },
   "toutiao": {
    "at": "2026-10-23 15:56",
@@ -22,39 +51,54 @@
   "wechat": {
    "at": "2026-10-02 01:09",
    "attempt": 0,
-   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247483959",
    "published_at": "2026-10-02 01:09",
+   "remote_id": "2247483959",
    "state": "published",
    "title": "1Lookup：一个 API 做电话、邮箱、IP 的实时数据校验"
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-05 20:23:48",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-09-29 21:17' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": ""
+  },
+  "zhihu": {
+   "at": "2026-11-18 13:02:27",
+   "attempt": 0,
+   "draft_id": "2106371694080402153",
+   "error": "终点=草稿(产品决定)；草稿 article_id=2106371694080402153 已存，发表待人工",
+   "remote_id": "2106371694080402153",
+   "state": "draft_saved",
+   "title": "1Lookup：API 做电话邮箱 IP 实时校验的冷启动案例",
+   "url": "https://zhuanlan.zhihu.com/p/2106371694080402153"
   }
  },
  "3ak-track-field": {
   "aliyun": {
-   "at": "2026-11-03 21:33:42",
+   "at": "2026-11-09 23:10:55",
    "attempt": 0,
    "draft_id": "1699450",
-   "error": " | longtail_key=3ak-track-field-2026-10-30-1",
-   "state": "published",
-   "title": "",
+   "error": " | longtail_key=3ak-track-field-2026-10-30-1 ‖ [11-09 #122 补] 阿里云假绿纠正：published⇒draft，title 回填平台真实标题（?edit=1699450 编辑页实读）；longtail 建稿未发布，正文 835 字 ‖ [11-09 #123 就地改稿] 旧故事稿 → 技术向稿，平台 aid 不变、未新建草稿、未发布；draftDetail 双回读：title 与本地 h1 一致、7 个 h2 全命中、首末句命中、旧首句消失、正文 3540 字；旧稿备份 tmp/aliyun_rewrite_3ak-track-field_1699450.json",
+   "state": "draft_saved",
+   "title": "手机拍一段冲刺就能评分：单目视频姿态分析的能测与不能测",
    "url": "https://developer.aliyun.com/article/new?edit=1699450#/"
   },
   "tencentcloud": {
-   "at": "2026-11-03 21:33:42",
+   "at": "2026-11-09 21:32:54",
    "attempt": 0,
    "draft_id": "338086",
-   "error": " | longtail_key=3ak-track-field-2026-10-30-1",
-   "state": "published",
-   "title": "",
+   "error": "| longtail_key=3ak-track-field-2026-10-30-1 ‖ [11-09 #118 腾讯云对账] published ⇒ draft。变更：state:'published'→'draft', title:''→'先有 15 万粉受众，后有产品：两个田径生如何用 AI 做训练 App？', url:'https://cloud.tencent.com/developer/article/write-new?draftId=338086'→''。（判据只看平台接口：已发布 hostStatus=2 / 草稿箱 getUserArticleDrafts；降级行清空 remote_id 是必须的 —— check_dupe 把非空 remote_id 当已发过）",
+   "state": "draft_saved",
+   "title": "手机拍一段冲刺就能评分：单目视频姿态分析的能测与不能测",
    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338086"
   },
   "zhihu": {
+   "at": "2026-11-05 13:40:37",
+   "attempt": 0,
    "draft_id": "2099504180557768154",
+   "error": "status=published",
    "note": "status=published",
    "published_at": "2026-11-02 23:28:58",
    "published_ts": "2026-11-02 23:28:58",
@@ -69,6 +113,7 @@
   "toutiao": {
    "at": "2026-10-19 22:46",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-19 22:46' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "AEO Checker：为营销人员提供网站SEO AEO检查"
   }
@@ -78,29 +123,33 @@
    "at": "2026-10-15 21:37",
    "attempt": 0,
    "draft_id": "342370",
+   "error": "｜草稿同步(2026-10-15 21:37): title 认领 aid=342370",
    "note": "｜草稿同步(2026-10-15 21:37): title 认领 aid=342370",
    "remote_id": "342370",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "AEO Engine：让品牌出现在 AI 答案里",
    "url": ""
   },
   "toutiao": {
    "at": "2026-09-29 21:17",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-09-29 21:17' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": ""
   },
   "wechat": {
    "at": "2026-09-21 22:57",
    "attempt": 0,
-   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484099",
    "published_at": "2026-09-21 22:57",
+   "remote_id": "2247484099",
    "state": "published",
    "title": "AEO Engine"
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-15 20:19",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-09-29 21:17' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": ""
   }
@@ -110,6 +159,7 @@
    "at": "2026-10-26 13:14",
    "attempt": 1,
    "draft_id": "344958",
+   "error": "｜更新草稿 aid=344958（draft/add 回读校验通过）｜11-20 对账：草稿 id 344958 已不在线上草稿箱（发布后消失），不再记",
    "note": "｜更新草稿 aid=344958（draft/add 回读校验通过）",
    "published_at": "2026-10-27 12:56:48",
    "remote_id": "53628187",
@@ -120,6 +170,7 @@
   "juejin": {
    "at": "2026-10-26 12:56",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-26 12:56' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "AgentsGuild：近 30 天收入 $398，TrustMRR 实时核对（非订阅制，MRR 恒 0）"
   },
@@ -134,16 +185,18 @@
   "wechat": {
    "at": "2026-10-27 13:24",
    "attempt": 0,
-   "error": "｜publish模式自动发表，新 appmsgid=2247484764",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484764",
    "published_at": "2026-10-27 13:24",
+   "remote_id": "2247484764",
    "state": "published",
    "title": "AgentsGuild：卖给游戏开发者的 AI 技能工具包，靠一次性付费赚钱"
   },
   "xhs": {
    "at": "2026-10-27 12:53",
    "attempt": 0,
+   "error": "｜草稿箱另有一条同名旧稿（2026-10-26 13:12），台账不再重复记",
    "remote_id": "6ae02e43000000001802efb4",
-   "state": "draft_saved",
+   "state": "published",
    "title": "卖 39 美元一次性的游戏开发工具包"
   }
  },
@@ -152,22 +205,25 @@
    "at": "2026-10-25 02:04",
    "attempt": 1,
    "draft_id": "344829",
+   "error": "｜更新草稿 aid=344829（draft/add 回读校验通过）",
    "note": "｜更新草稿 aid=344829（draft/add 回读校验通过）",
    "remote_id": "344829",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "AI Math Solver+：AI数学解题工具，为师生、家",
    "url": ""
   },
   "toutiao": {
    "at": "2026-10-25 00:33",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-25 00:33' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "AI Math Solver+：MRR $365，TrustMRR 实时核对"
   },
   "wechat": {
-   "at": "2026-10-25 01:13",
+   "at": "2026-11-20 10:07:46",
    "attempt": 0,
    "draft_id": "100001068",
+   "error": "file=",
    "remote_id": "100001068",
    "state": "draft_saved",
    "title": "AI Math Solver+：AI数学解题工具，为师生、家长和数学爱好者提供即时解决方案"
@@ -175,6 +231,7 @@
   "xhs": {
    "at": "2026-10-25 01:52",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-25 01:52' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "AI Math Solver+：AI数学解题工具，为师生、家"
   }
@@ -184,8 +241,9 @@
    "at": "2026-10-26 14:38",
    "attempt": 2,
    "draft_id": "344830",
+   "error": "｜更新草稿 aid=344830（draft/add 回读校验通过）｜11-20 对账：台账原记 draft（草稿 id 344830），线上已发表 53612516 ⇒ 改 published",
    "note": "｜更新草稿 aid=344830（draft/add 回读校验通过）",
-   "remote_id": "344830",
+   "remote_id": "53612516",
    "state": "published",
    "title": "AI Prank Call：AI 语音恶作剧服务，32 活跃",
    "url": ""
@@ -199,22 +257,27 @@
   "toutiao": {
    "at": "2026-10-26 14:23",
    "attempt": 0,
+   "error": "｜11-20 对账：按标题唯一命中补 gid=7700267933112517146",
+   "remote_id": "7700267933112517146",
    "state": "published",
    "title": "AI Prank Call：AI 语音恶作剧服务，32 活跃"
   },
   "wechat": {
    "at": "2026-10-25 00:43",
    "attempt": 0,
-   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484763",
    "published_at": "2026-10-25 00:43",
+   "remote_id": "2247484763",
    "state": "published",
    "title": "AI Prank Call：AI 语音恶作剧服务，32 活跃订阅数"
   },
   "xhs": {
    "at": "2026-10-26 15:28",
    "attempt": 2,
+   "error": "[11-09 镜像同步] 补登镜像缺失记录；平台全量列表唯一剩余条目，noteId 与 SQLite remote_id 逐字一致；at 用平台 time，SQLite published_at=2026-10-26 15:28 按 #104 裁定保持不动",
+   "remote_id": "6adefddb0000000015004eb5",
    "state": "published",
-   "title": "AI Prank Call"
+   "title": "用名人声音打恶作剧电话，毛利 95%"
   }
  },
  "ai-smart-decor": {
@@ -222,22 +285,25 @@
    "at": "2026-10-25 02:06",
    "attempt": 1,
    "draft_id": "344831",
+   "error": "｜更新草稿 aid=344831（draft/add 回读校验通过）",
    "note": "｜更新草稿 aid=344831（draft/add 回读校验通过）",
    "remote_id": "344831",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "AI Smart Decor：AI智能室内设计工具，让用户预",
    "url": ""
   },
   "toutiao": {
    "at": "2026-10-25 00:35",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-25 00:35' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "AI Smart Decor：MRR $376，TrustMRR 实时核对"
   },
   "wechat": {
-   "at": "2026-10-25 01:17",
+   "at": "2026-11-20 10:07:46",
    "attempt": 0,
    "draft_id": "100001079",
+   "error": "file=",
    "remote_id": "100001079",
    "state": "draft_saved",
    "title": "AI Smart Decor：AI智能室内设计工具，让用户预览装修效果"
@@ -245,6 +311,7 @@
   "xhs": {
    "at": "2026-10-25 01:55",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-25 01:55' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "AI Smart Decor：AI智能室内设计工具，让用户预"
   }
@@ -254,22 +321,33 @@
    "at": "2026-10-25 02:06",
    "attempt": 1,
    "draft_id": "344832",
+   "error": "｜更新草稿 aid=344832（draft/add 回读校验通过）",
    "note": "｜更新草稿 aid=344832（draft/add 回读校验通过）",
    "remote_id": "344832",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "AI voice calls：AI语音平台，支持50+语言",
    "url": ""
+  },
+  "bilibili2": {
+   "at": "2026-11-20 07:33:21",
+   "attempt": 0,
+   "remote_id": "53996504",
+   "state": "published",
+   "title": "",
+   "url": "https://www.bilibili.com/read/cv53996504"
   },
   "toutiao": {
    "at": "2026-10-25 00:18",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-25 00:18' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "AI voice calls：MRR $335，TrustMRR 实时核对"
   },
   "wechat": {
-   "at": "2026-10-25 00:51",
+   "at": "2026-11-20 10:07:46",
    "attempt": 0,
    "draft_id": "100001013",
+   "error": "file=",
    "remote_id": "100001013",
    "state": "draft_saved",
    "title": "AI voice calls：AI语音平台，支持50+语言"
@@ -277,6 +355,7 @@
   "xhs": {
    "at": "2026-10-25 01:33",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-25 01:33' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "AI voice calls：AI语音平台，支持50+语言"
   }
@@ -286,29 +365,51 @@
    "at": "2026-10-14 12:05",
    "attempt": 2,
    "draft_id": "343497",
+   "error": "｜草稿同步(2026-10-14 12:05): body 认领 aid=343497",
    "note": "｜草稿同步(2026-10-14 12:05): body 认领 aid=343497",
    "remote_id": "343497",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "Augora AI：Shopify 服务端广告追踪",
    "url": ""
+  },
+  "cnblogs": {
+   "at": "2026-11-19 13:16:45",
+   "attempt": 0,
+   "draft_id": "23717944",
+   "error": "status=published",
+   "remote_id": "23717944",
+   "state": "published",
+   "title": "Augora AI 用服务端追踪帮 Shopify 商家找回真实转化数据",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23717944"
+  },
+  "csdn": {
+   "at": "2026-11-20 07:46:25",
+   "attempt": 0,
+   "remote_id": "171076452",
+   "state": "published",
+   "title": "服务端追踪修复 Shopify 广告数据",
+   "url": "https://blog.csdn.net/sinat_32396037/article/details/171076452"
   },
   "toutiao": {
    "at": "2026-10-10 15:48",
    "attempt": 1,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-10 15:48' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "Shopify 商家的 Meta 追踪本来就是错的，于是有了这门生意"
   },
   "wechat": {
-   "at": "2026-10-10 16:17",
+   "at": "2026-11-20 10:07:46",
    "attempt": 1,
    "draft_id": "100000428",
+   "error": "file=",
    "remote_id": "100000428",
    "state": "draft_saved",
    "title": "Augora AI：Shopify 广告追踪自动化"
   },
   "xhs": {
-   "at": "2026-10-10 17:41",
+   "at": "2026-10-15 14:26",
    "attempt": 2,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-10 17:41' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "Shopify 商家的 Meta 追踪本来就是错的，于是有了"
   }
@@ -318,11 +419,40 @@
    "at": "2026-10-10 01:12",
    "attempt": 0,
    "draft_id": "342371",
+   "error": "2026-10-20 00:55 发现已在已通过列表（非本次自动发布，应为 10-19 深夜编辑器打开后的人工点击，具体时间未知）｜11-20 对账：id 由草稿 id 纠正为线上真 id 53511170｜11-20 对账：草稿 id 342371 已不在线上草稿箱（发布后消失），不再记",
    "note": "2026-10-20 00:55 发现已在已通过列表（非本次自动发布，应为 10-19 深夜编辑器打开后的人工点击，具体时间未知）",
-   "remote_id": "342371",
+   "remote_id": "53511170",
    "state": "published",
    "title": "AutoReels.AI：一键把素材剪成短视频",
    "url": ""
+  },
+  "cnblogs": {
+   "at": "2026-11-10 12:48:22",
+   "attempt": 0,
+   "draft_id": "23614180",
+   "error": "status=published",
+   "remote_id": "23614180",
+   "state": "published",
+   "title": "用流水线架构支撑批量短视频生产",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23614180"
+  },
+  "csdn": {
+   "at": "2026-11-11 08:39:50",
+   "attempt": 0,
+   "error": " ｜ [11-11 收尾] 独立双回读：列表 170484691 按标题命中 + 公开页 HTTP 200 / 8025 字 / 5 关键词全中 ⇒ draft→published",
+   "remote_id": "170484691",
+   "state": "published",
+   "title": "AutoReels.AI 用产量型交付做短视频批量生产工具",
+   "url": "https://blog.csdn.net/sinat_32396037/article/details/170484691"
+  },
+  "tencentcloud": {
+   "at": "2026-11-09 20:17:38",
+   "attempt": 0,
+   "draft_id": "342800",
+   "remote_id": "2779407",
+   "state": "published",
+   "title": "批量生成短视频的流水线：任务编排、素材幂等与配额回退",
+   "url": "https://cloud.tencent.com/developer/article/2779407"
   },
   "toutiao": {
    "at": "2026-10-21 12:38",
@@ -335,15 +465,29 @@
   "wechat": {
    "at": "2026-09-21 21:09",
    "attempt": 0,
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247483885",
    "published_at": "2026-09-21 21:09",
+   "remote_id": "2247483885",
    "state": "published",
    "title": "AutoReels.AI：AI 自动生成短视频"
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-11-09 10:52",
    "attempt": 0,
-   "state": "draft_saved",
+   "error": "[11-09 镜像同步] note_id 按平台 user/posted?tab=0 全量列表补齐；配对依据 json.at == 平台 time 唯一候选；SQLite remote_id 已按 #107 回写真值（同一 noteId）",
+   "remote_id": "6af1355a000000002c01a910",
+   "state": "published",
    "title": ""
+  },
+  "zhihu": {
+   "at": "2026-11-11 08:38:20",
+   "attempt": 0,
+   "draft_id": "2103768513915654967",
+   "error": "status=draft ｜ [11-11 收尾] 终点=草稿，published_at 清零",
+   "remote_id": "2103768513915654967",
+   "state": "draft_saved",
+   "title": "AutoReels.AI 用产量交付模型批量生产短视频",
+   "url": "https://zhuanlan.zhihu.com/p/2103768513915654967"
   }
  },
  "betting-tips": {
@@ -351,9 +495,10 @@
    "at": "2026-10-25 02:07",
    "attempt": 1,
    "draft_id": "344833",
+   "error": "｜更新草稿 aid=344833（draft/add 回读校验通过）",
    "note": "｜更新草稿 aid=344833（draft/add 回读校验通过）",
    "remote_id": "344833",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "Betting Tips：为足球、篮球、网球、美式足球和棒球",
    "url": ""
   },
@@ -361,6 +506,7 @@
    "at": "2026-11-18 11:57",
    "attempt": 0,
    "draft_id": "",
+   "error": "草稿箱→发布（send-draft）",
    "note": "草稿箱→发布（send-draft）",
    "published_at": "2026-11-18 11:57",
    "remote_id": "53968076",
@@ -377,22 +523,26 @@
   "toutiao": {
    "at": "2026-10-25 00:16",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-25 00:16' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "Betting Tips：MRR $337，TrustMRR 实时核对"
   },
   "wechat": {
-   "at": "2026-10-25 00:47",
+   "at": "2026-11-20 10:07:46",
    "attempt": 0,
    "draft_id": "100001002",
+   "error": "file=",
    "remote_id": "100001002",
    "state": "draft_saved",
    "title": "Betting Tips：为足球、篮球、网球、美式足球和棒球爱好者提供每日专家投注建议"
   },
   "xhs": {
-   "at": "2026-10-25 01:29",
+   "at": "2026-11-14 13:37",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": "Betting Tips：为足球、篮球、网球、美式足球和棒球"
+   "error": "2026-11-14 13:37 创作中心笔记管理「全部 39」首条标题命中；publish 报「30 秒未跳 success 页」属假红，未重发；note_id 待补",
+   "remote_id": "6af7f3890000000024032fb4",
+   "state": "published",
+   "title": "Betting Tips"
   }
  },
  "bettrbot": {
@@ -401,7 +551,7 @@
    "attempt": 0,
    "error": "2026-10-23 15:27 接口对账回填（线上已发布）",
    "remote_id": "6acb59ac000000001801bb7c",
-   "state": "draft_saved",
+   "state": "published",
    "title": "输入想法几分钟出成片，累计赚 162 万"
   }
  },
@@ -410,22 +560,25 @@
    "at": "2026-10-15 21:20",
    "attempt": 3,
    "draft_id": "343826",
+   "error": "｜草稿同步(2026-10-15 21:20): title 认领 aid=343826",
    "note": "｜草稿同步(2026-10-15 21:20): title 认领 aid=343826",
    "remote_id": "343826",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "Boothie：给自拍换相机和胶片风格",
    "url": ""
   },
   "toutiao": {
-   "at": "2026-10-13 22:35",
+   "at": "2026-10-15 22:30",
    "attempt": 2,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-13 22:35' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "Boothie: AI Photo Editor：MRR $"
   },
   "wechat": {
-   "at": "2026-10-15 22:34",
+   "at": "2026-11-20 10:07:46",
    "attempt": 2,
    "draft_id": "100000510",
+   "error": "file=",
    "remote_id": "100000510",
    "state": "draft_saved",
    "title": "Boothie：AI 照片编辑器"
@@ -435,7 +588,7 @@
    "attempt": 3,
    "error": "2026-10-23 15:27 接口对账回填（线上已发布）",
    "remote_id": "6ad380ad000000001a02352d",
-   "state": "draft_saved",
+   "state": "published",
    "title": "选个风格，自拍被重渲染成那种质感"
   }
  },
@@ -444,9 +597,10 @@
    "at": "2026-10-19 01:36",
    "attempt": 0,
    "draft_id": "342372",
+   "error": "｜草稿同步(2026-10-19 01:36): title 认领 aid=342372",
    "note": "｜草稿同步(2026-10-19 01:36): title 认领 aid=342372",
    "remote_id": "342372",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "Bustem：帮电商品牌全网打假，找仿品、窜货、下架链接",
    "url": ""
   },
@@ -461,8 +615,9 @@
   "wechat": {
    "at": "2026-10-16 08:35",
    "attempt": 0,
-   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484765",
    "published_at": "2026-10-16 08:35",
+   "remote_id": "2247484765",
    "state": "published",
    "title": "Bustem：帮电商品牌全网打假"
   },
@@ -471,7 +626,7 @@
    "attempt": 0,
    "error": "2026-10-23 15:27 接口对账回填；⚠ 与 6ac513e3 重复发布",
    "remote_id": "6ad199f9000000001c02d723",
-   "state": "draft_saved",
+   "state": "published",
    "title": "38 个平台帮品牌抓仿品，软件加人工"
   }
  },
@@ -480,6 +635,7 @@
    "at": "2026-10-18 14:59",
    "attempt": 0,
    "draft_id": "",
+   "error": "对账补登: 读公开页正文确认(cv53490089) → Chatbase：上传文档就得到一个客服机器人",
    "note": "对账补登: 读公开页正文确认(cv53490089) → Chatbase：上传文档就得到一个客服机器人",
    "published_at": "2026-10-18 15:00:26",
    "remote_id": "53490089",
@@ -488,16 +644,18 @@
    "url": ""
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-13 23:41",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-09-29 21:17' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": ""
   },
   "wechat": {
    "at": "2026-09-21 21:59",
    "attempt": 0,
-   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484043",
    "published_at": "2026-09-21 21:59",
+   "remote_id": "2247484043",
    "state": "published",
    "title": "「年入 $20M」和「累计 $20M」，差了一整个量级"
   },
@@ -506,7 +664,7 @@
    "attempt": 0,
    "error": "2026-10-23 15:27 接口对账回填（线上已发布）",
    "remote_id": "6ad9843b000000003102f89e",
-   "state": "draft_saved",
+   "state": "published",
    "title": "上传文档就有客服机器人，30 分钟成交"
   }
  },
@@ -515,22 +673,25 @@
    "at": "2026-10-25 02:08",
    "attempt": 1,
    "draft_id": "344834",
+   "error": "｜更新草稿 aid=344834（draft/add 回读校验通过）",
    "note": "｜更新草稿 aid=344834（draft/add 回读校验通过）",
    "remote_id": "344834",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "Chatsell.co：为WooCommerce店铺提供自然",
    "url": ""
   },
   "toutiao": {
    "at": "2026-10-25 00:22",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-25 00:22' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "Chatsell.co：MRR $349，TrustMRR 实时核对"
   },
   "wechat": {
-   "at": "2026-10-25 01:00",
+   "at": "2026-11-20 10:07:46",
    "attempt": 0,
    "draft_id": "100001035",
+   "error": "file=",
    "remote_id": "100001035",
    "state": "draft_saved",
    "title": "Chatsell.co：为WooCommerce店铺提供自然语言产品搜索和即时答案的AI聊天机器人。"
@@ -538,6 +699,7 @@
   "xhs": {
    "at": "2026-10-25 01:40",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-25 01:40' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "Chatsell.co：为WooCommerce店铺提供自然"
   }
@@ -547,49 +709,65 @@
    "at": "2026-10-10 01:15",
    "attempt": 0,
    "draft_id": "342374",
+   "error": "2026-10-20 00:52 编辑器点「发布」→「你的专栏已提交成功」→ 已通过列表回读命中（草稿箱最老，10-10 01:15）｜11-20 对账：id 由草稿 id 纠正为线上真 id 53512363｜11-20 对账：草稿 id 342374 已不在线上草稿箱（发布后消失），不再记",
    "note": "2026-10-20 00:52 编辑器点「发布」→「你的专栏已提交成功」→ 已通过列表回读命中（草稿箱最老，10-10 01:15）",
-   "remote_id": "342374",
+   "remote_id": "53512363",
    "state": "published",
    "title": "CheckVibe：扫描 vibe-coded 应用漏洞",
    "url": ""
   },
-  "toutiao": {
-   "at": "2026-09-29 21:17",
+  "tencentcloud": {
+   "at": "2026-11-15 12:05:16",
    "attempt": 0,
+   "draft_id": "346859",
+   "error": " ‖ [11-15 独立回读] 匿名 GET 200 / 55088 bytes / 标题命中 / 无审核横幅；公开页 5 词全中、页面显示发布于 12:01:25",
+   "remote_id": "2784619",
+   "state": "published",
+   "title": "CheckVibe：给 AI 生成的应用做安全扫描，工程上要拆解的六个问题",
+   "url": "https://cloud.tencent.com/developer/article/2784619"
+  },
+  "toutiao": {
+   "at": "2026-10-13 23:41",
+   "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-09-29 21:17' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": ""
   },
   "wechat": {
    "at": "2026-09-21 23:19",
    "attempt": 0,
-   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484554",
    "published_at": "2026-09-21 23:19",
+   "remote_id": "2247484554",
    "state": "published",
    "title": "CheckVibe：扫描 vibe-coded 应用的安全漏洞——转换率翻三倍靠的不是产品，是付费墙的写法"
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-05 21:02:23",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-09-29 21:17' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": ""
   }
  },
  "chessigma": {
   "aliyun": {
-   "at": "2026-11-05 11:05:00",
+   "at": "2026-11-11 08:54:53",
    "attempt": 0,
    "draft_id": "1711205",
-   "error": "补账：published_at 缺失导致 slot 今日计数漏（11-05 上午批次，时刻为日志近似）",
-   "state": "draft",
+   "error": "[11-09 #113 P0 台账指回真草稿] draft_id 1700270（#111 已删旧稿）→ 1711205，即 #110 现场新建、#112 dry 双回读通过的那条（HTTP 200、标题与 md h1 逐字一致、910 字）。url 原为建稿编辑页 ?edit=1700270（非公开页证据、对象已删）⇒ 清空；remote_id 本就空、不编。state 保持 draft、published_at 留空。⚠ title 仍是 aid=1700270 解析残留，P0 未动，待平台标题同步后双回读再改。 ‖ [11-09 #123 清垃圾值] title 由解析残留 aid=1700270 回填为平台真实标题；url 由空补齐为 ?edit=1711205#/ 编辑页。证据：draftDetail?aid=1711205 返回 code=200/标题逐字一致/正文 910 字，?edit=1711205 编辑页标题框再读一次一致；本地 drafts/newbatch/aliyun/chessigma.md 的 h1 亦一致。只修台账字段，平台侧零写操作，state 保持 draft / remote_id 空 / published_at 空。 ‖ [2026-11-11 阿里云发布] 草稿 1711205 → 文章 1781861；匿名 GET https://developer.aliyun.com/article/1781861：HTTP 404、0 bytes、标题命中=False、审核横幅=False ⇒ auditing（published 需 200 + 标题命中 + 无审核横幅；url 待过审后独立回读再补） ‖ [2026-11-16 17:28 过审复核] 匿名 GET https://developer.aliyun.com/article/1781861：HTTP 200 / 51713 bytes / 标题或正文关键词命中 / 无「内容审核中」横幅 ⇒ published；published_at 沿用 2026-11-11 08:54:53 提交时点；url 补公开页",
+   "remote_id": "1781861",
+   "state": "published",
    "title": "Chessigma：百万用户级实时对弈的负载形状与算力成本",
-   "url": "https://developer.aliyun.com/article/new?edit=1711205#/"
+   "url": "https://developer.aliyun.com/article/1781861"
   },
   "bilibili": {
    "at": "2026-11-01 17:03",
    "attempt": 0,
    "draft_id": "345679",
+   "error": "｜更新草稿 aid=345663（draft/add 回读校验通过）｜更新草稿 aid=345679（draft/add 回读校验通过）｜11-20 对账：台账原记 draft（草稿 id 345679），线上已发表 53707478 ⇒ 改 published",
    "note": "｜更新草稿 aid=345663（draft/add 回读校验通过）｜更新草稿 aid=345679（draft/add 回读校验通过）",
-   "remote_id": "345679",
+   "remote_id": "53707478",
    "state": "published",
    "title": "Chessigma：「免费版 Chess.com」拿下 10",
    "url": ""
@@ -616,13 +794,14 @@
    "title": "juejin.cn/post/7702737817416957967"
   },
   "tencentcloud": {
-   "at": "2026-11-03 21:33:42",
+   "at": "2026-11-09 20:17:38",
    "attempt": 0,
    "draft_id": "339489",
-   "error": " | longtail_key=chessigma-2026-11-03-1",
+   "error": "| longtail_key=chessigma-2026-11-03-1 ‖ [11-09 #118 腾讯云对账] published ⇒ published。变更：published_at:''→'2026-11-03 00:42:12', remote_id:''→'2774552', title:'draftId=338751'→'浏览器端棋类分析引擎的工程取舍：WASM 引擎、PGN 增量解析与对局状态同步', url:'https://cloud.tencent.com/developer/article/write-new?draftId=339483'→'https://cloud.tencent.com/developer/article/2774552'。（判据只看平台接口：已发布 hostStatus=2 / 草稿箱 getUserArticleDrafts；降级行清空 remote_id 是必须的 —— check_dupe 把非空 remote_id 当已发过）",
+   "remote_id": "2774552",
    "state": "published",
    "title": "浏览器端棋类分析引擎的工程取舍：WASM 引擎、PGN 增量解析与对局状态同步",
-   "url": "https://cloud.tencent.com/developer/article/write-new?draftId=339483"
+   "url": "https://cloud.tencent.com/developer/article/2774552"
   },
   "toutiao": {
    "at": "2026-11-01 17:17",
@@ -635,7 +814,9 @@
   "wechat": {
    "at": "2026-11-01 19:59",
    "attempt": 0,
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484985",
    "published_at": "2026-11-01 19:59",
+   "remote_id": "2247484985",
    "state": "published",
    "title": "Chessigma：「免费版 Chess.com」拿下 100 万+ 用户，576 个订阅"
   },
@@ -648,7 +829,10 @@
    "title": "免费下棋，100 万人用，576 人付费"
   },
   "zhihu": {
+   "at": "2026-11-05 13:40:37",
+   "attempt": 0,
    "draft_id": "2100211498438104962",
+   "error": "status=published",
    "note": "status=published",
    "published_at": "2026-11-01 19:11:46",
    "published_ts": "2026-11-01 19:11:46",
@@ -664,6 +848,7 @@
    "at": "2026-11-17 09:39",
    "attempt": 0,
    "draft_id": "",
+   "error": "草稿箱→发布（send-draft）",
    "note": "草稿箱→发布（send-draft）",
    "published_at": "2026-11-17 09:39",
    "remote_id": "53947599",
@@ -674,22 +859,21 @@
  },
  "clawlink": {
   "bilibili": {
-   "at": "2026-10-31 22:22",
+   "at": "2026-11-20 11:18",
    "attempt": 1,
-   "draft_id": "376928",
+   "error": "11-20 核查：376928 是二号账号（chrome-bili2-profile / mid 409825959）草稿 id 段，一号草稿箱与已投稿均无此稿；该稿 10-31 已发在二号（aid 53699085 / read/cv53699085）⇒ 一号此行作废、不重发",
    "note": "｜更新草稿 aid=376928（draft/add 回读校验通过）",
-   "remote_id": "376928",
-   "state": "published",
-   "title": "ClawLink：MRR $2,219，TrustMRR 实",
-   "url": "https://www.bilibili.com/read/cv53699085"
+   "state": "deleted",
+   "title": "ClawLink：MRR $2,219，TrustMRR 实"
   }
  },
  "cod-dex": {
   "aliyun": {
-   "at": "2026-11-05 11:05:00",
+   "at": "2026-11-09 23:16:57",
    "attempt": 0,
    "draft_id": "1701663",
-   "error": "补账：published_at 缺失导致 slot 今日计数漏（11-05 上午批次，时刻为日志近似）",
+   "error": "补账：published_at 缺失导致 slot 今日计数漏（11-05 上午批次，时刻为日志近似） ｜ [11-09 #109 真值回填] 平台 /article/1778138 匿名 GET 200、标题逐字、正文关键词 3/3、无审核横幅，<meta name=\"date\">=2026-11-03 00:28:52；longtail 的 cod-dex-2026-11-03-1 明确 articleId=1778138 / published=true ⇒ remote_id 空是漏填。published_at 保持既有值不动（#104 已 published 行不回改），title 为建稿镜像未动。列表另有被驳回旧稿 1777853 属同 case 另一篇，本轮未动。 ‖ [11-09 #123 清垃圾值] title 由解析残留 aid=1701241 回填为**线上公开页真标题**。证据：匿名 GET https://developer.aliyun.com/article/1778138 → HTTP 200 / 70684B，<title> 与 <h1> 均为「交互式编程课程的运行时设计：代码执行沙箱、事件溯源进度与内容权限门控」，无审核横幅；同 case 腾讯云 published 行 title 逐字相同，两处互证。只改台账 title，平台侧零写操作，state=published / remote_id / url / published_at 全不动。⛔ 本地 drafts/newbatch/aliyun/cod-dex.md 的 h1 是另一版标题，不用来覆盖线上标题。",
+   "remote_id": "1778138",
    "state": "published",
    "title": "交互式编程课程的运行时设计：代码执行沙箱、事件溯源进度与内容权限门控",
    "url": "https://developer.aliyun.com/article/1778138"
@@ -698,9 +882,10 @@
    "at": "2026-11-01 13:24",
    "attempt": 2,
    "draft_id": "345680",
+   "error": "｜更新草稿 aid=345664（draft/add 回读校验通过）｜更新草稿 aid=345680（draft/add 回读校验通过）",
    "note": "｜更新草稿 aid=345664（draft/add 回读校验通过）｜更新草稿 aid=345680（draft/add 回读校验通过）",
    "remote_id": "345680",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "Codédex：把学编程包装成「冒险旅程」的互动课程平台，免",
    "url": ""
   },
@@ -725,13 +910,14 @@
    "title": "juejin.cn/post/7702736770072821795"
   },
   "tencentcloud": {
-   "at": "2026-11-03 21:33:42",
+   "at": "2026-11-09 20:17:38",
    "attempt": 0,
    "draft_id": "339491",
-   "error": " | longtail_key=cod-dex-2026-11-03-2",
+   "error": "| longtail_key=cod-dex-2026-11-03-2 ‖ [11-09 #118 腾讯云对账] published ⇒ published。变更：published_at:''→'2026-11-03 00:49:04', remote_id:''→'2774554', title:'draftId=338752'→'交互式编程课程的运行时设计：代码执行沙箱、事件溯源进度与内容权限门控', url:'https://cloud.tencent.com/developer/article/write-new?draftId=338752'→'https://cloud.tencent.com/developer/article/2774554'。（判据只看平台接口：已发布 hostStatus=2 / 草稿箱 getUserArticleDrafts；降级行清空 remote_id 是必须的 —— check_dupe 把非空 remote_id 当已发过）",
+   "remote_id": "2774554",
    "state": "published",
    "title": "交互式编程课程的运行时设计：代码执行沙箱、事件溯源进度与内容权限门控",
-   "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338752"
+   "url": "https://cloud.tencent.com/developer/article/2774554"
   },
   "toutiao": {
    "at": "2026-11-01 17:17",
@@ -744,8 +930,9 @@
   "wechat": {
    "at": "2026-11-01 20:05",
    "attempt": 1,
-   "error": "｜publish模式自动发表，新 appmsgid=2247484986",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484986",
    "published_at": "2026-11-01 20:05",
+   "remote_id": "2247484986",
    "state": "published",
    "title": "Codédex：把学编程包装成「冒险旅程」的互动课程平台，免费 250+ 小时内容引流，Club 订阅 /月变现"
   },
@@ -758,7 +945,10 @@
    "title": "9.99 美元学编程，6686 人买单"
   },
   "zhihu": {
+   "at": "2026-11-05 13:40:37",
+   "attempt": 0,
    "draft_id": "2100211505627242739",
+   "error": "status=published",
    "note": "status=published",
    "published_at": "2026-11-02 11:12:03",
    "published_ts": "2026-11-02 11:12:03",
@@ -774,9 +964,10 @@
    "at": "2026-10-15 21:25",
    "attempt": 2,
    "draft_id": "343498",
+   "error": "｜草稿同步(2026-10-15 21:25): title 认领 aid=343498",
    "note": "｜草稿同步(2026-10-15 21:25): title 认领 aid=343498",
    "remote_id": "343498",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "Cometly：把广告和收入对上号",
    "url": ""
   },
@@ -789,9 +980,10 @@
    "title": "$20 万/月的营销归因生意，但不是一个人做的"
   },
   "wechat": {
-   "at": "2026-10-16 07:50",
+   "at": "2026-11-20 10:07:46",
    "attempt": 1,
    "draft_id": "100000518",
+   "error": "file=",
    "remote_id": "100000518",
    "state": "draft_saved",
    "title": "Cometly：广告数据归因分析"
@@ -801,7 +993,7 @@
    "attempt": 0,
    "error": "2026-10-23 15:27 接口对账回填（线上已发布）",
    "remote_id": "6ad772480000000028001e50",
-   "state": "draft_saved",
+   "state": "published",
    "title": "哪条广告带来哪笔收入，广告费不白花"
   }
  },
@@ -810,23 +1002,26 @@
    "at": "2026-10-15 21:35",
    "attempt": 0,
    "draft_id": "342397",
+   "error": "｜草稿同步(2026-10-15 21:35): title 认领 aid=342397",
    "note": "｜草稿同步(2026-10-15 21:35): title 认领 aid=342397",
    "remote_id": "342397",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "Comp AI：帮公司过 SOC 2 / ISO 审计",
    "url": ""
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-13 23:41",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-09-29 21:17' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": ""
   },
   "wechat": {
    "at": "2026-09-22 00:10",
    "attempt": 0,
-   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484068",
    "published_at": "2026-09-22 00:10",
+   "remote_id": "2247484068",
    "state": "published",
    "title": "Comp AI：帮公司过 SOC 2 / ISO 27001 合规审计，把六个月的流程压到几周"
   },
@@ -843,11 +1038,22 @@
    "at": "2026-10-15 21:47",
    "attempt": 0,
    "draft_id": "342398",
+   "error": "｜草稿同步(2026-10-15 21:47): title 认领 aid=342398",
    "note": "｜草稿同步(2026-10-15 21:47): title 认领 aid=342398",
    "remote_id": "342398",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "Coral：帮你部署托管开源 AI agent",
    "url": ""
+  },
+  "tencentcloud": {
+   "at": "2026-11-17 10:36:57",
+   "attempt": 0,
+   "draft_id": "347764",
+   "error": "[2026-11-17 腾讯云发布] 草稿 347764 → 文章 2786121；匿名 GET https://cloud.tencent.com/developer/article/2786121：HTTP 200、60187 bytes、标题命中=True、审核横幅=False ⇒ published",
+   "remote_id": "2786121",
+   "state": "published",
+   "title": "把开源 agent 跑进生产：沙箱、凭据代理与长任务状态机",
+   "url": "https://cloud.tencent.com/developer/article/2786121"
   },
   "toutiao": {
    "at": "2026-10-17 对账补登",
@@ -860,14 +1066,17 @@
   "wechat": {
    "at": "2026-10-20 22:32",
    "attempt": 0,
-   "error": "｜publish模式自动发表，新 appmsgid=2247484557",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484557",
    "published_at": "2026-10-20 22:32",
+   "remote_id": "2247484557",
    "state": "published",
    "title": "Coral：托管你的开源 AI 助手"
   },
   "xhs": {
    "at": "2026-11-05 10:47",
    "attempt": 0,
+   "error": "[11-09 镜像同步] note_id 按平台 user/posted?tab=0 全量列表补齐；配对依据 json.at == 平台 time 唯一候选；SQLite remote_id 已按 #107 回写真值（同一 noteId）",
+   "remote_id": "6aebee370000000015017dd1",
    "state": "published",
    "title": ""
   }
@@ -877,22 +1086,25 @@
    "at": "2026-10-25 02:09",
    "attempt": 1,
    "draft_id": "344835",
+   "error": "｜更新草稿 aid=344835（draft/add 回读校验通过）",
    "note": "｜更新草稿 aid=344835（draft/add 回读校验通过）",
    "remote_id": "344835",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "DemoPolish：Demopolish帮助软件和SaaS",
    "url": ""
   },
   "toutiao": {
    "at": "2026-10-25 00:20",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-25 00:20' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "DemoPolish：MRR $318，TrustMRR 实时核对"
   },
   "wechat": {
-   "at": "2026-10-25 00:56",
+   "at": "2026-11-20 10:07:46",
    "attempt": 0,
    "draft_id": "100001024",
+   "error": "file=",
    "remote_id": "100001024",
    "state": "draft_saved",
    "title": "DemoPolish：Demopolish帮助软件和SaaS创始人60秒内制作专业演示视频"
@@ -900,6 +1112,7 @@
   "xhs": {
    "at": "2026-10-25 01:37",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-25 01:37' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "DemoPolish：Demopolish帮助软件和SaaS"
   }
@@ -909,6 +1122,7 @@
    "at": "2026-10-10 01:17",
    "attempt": 0,
    "draft_id": "342399",
+   "error": "｜草稿同步(2026-10-10 01:17): title 认领 aid=342399｜更新草稿 aid=342399（draft/add 回读校验通过）｜更新草稿 aid=342399（draft/add 回读校验通过）｜11-20 对账：草稿 id 342399 已不在线上草稿箱（发布后消失），不再记",
    "note": "｜草稿同步(2026-10-10 01:17): title 认领 aid=342399｜更新草稿 aid=342399（draft/add 回读校验通过）｜更新草稿 aid=342399（draft/add 回读校验通过）",
    "published_at": "2026-10-28 14:12:04",
    "remote_id": "53645998",
@@ -925,9 +1139,10 @@
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-24 23:59",
+   "at": "2026-11-20 10:07:47",
    "attempt": 0,
    "draft_id": "100000255",
+   "error": "file=",
    "remote_id": "100000255",
    "state": "draft_saved",
    "title": "Divine Widgets：一个人做的圣经小组件，锁屏上每天一句"
@@ -937,7 +1152,7 @@
    "attempt": 0,
    "error": "2026-10-23 15:27 接口对账回填（线上已发布）",
    "remote_id": "6abcb8460000000012037cc0",
-   "state": "draft_saved",
+   "state": "published",
    "title": "每日经文放上锁屏，一个人做到月入 1254"
   }
  },
@@ -946,8 +1161,9 @@
    "at": "2026-10-14 13:25",
    "attempt": 1,
    "draft_id": "",
+   "error": "2026-10-24 21:2x 编辑器点「发布」→ toast「提交成功」→ 草稿箱 44→43（aid=343827 消失）→ 已发表列表按标题命中 cv53590385《DownConvert：SketchUp 文件转旧版》。⚠ 脚本按 aid 回读未命中是判据缺陷：B站发布后 read id 会变（343827→53590385），已发表列表回读必须按标题匹配。｜11-20 对账：id 由草稿 id 纠正为线上真 id 53590385",
    "note": "2026-10-24 21:2x 编辑器点「发布」→ toast「提交成功」→ 草稿箱 44→43（aid=343827 消失）→ 已发表列表按标题命中 cv53590385《DownConvert：SketchUp 文件转旧版》。⚠ 脚本按 aid 回读未命中是判据缺陷：B站发布后 read id 会变（343827→53590385），已发表列表回读必须按标题匹配。",
-   "remote_id": "343827",
+   "remote_id": "53590385",
    "state": "published",
    "title": "DownConvert：SketchUp 文件转旧版",
    "url": ""
@@ -963,16 +1179,18 @@
   "wechat": {
    "at": "2026-10-24 21:54",
    "attempt": 0,
-   "error": "｜publish模式自动发表，新 appmsgid=2247484627",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484627",
    "published_at": "2026-10-24 21:54",
+   "remote_id": "2247484627",
    "state": "published",
    "title": "DOWNCONVERT SKETCHUP FILES：SketchUp 文件版本转换工具"
   },
   "xhs": {
    "at": "2026-10-24 21:37",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-24 21:37' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）｜✅ [11-09 同类裁定] 平台侧独立回读：user/posted?tab=0 全量 36 条 + DOM「已发布」tab 36 卡片；配对依据＝noteId 精确命中 + 标题/时点一致；平台 noteId=6adcb493000000003303733b、time=2026-10-24 21:37。DOM「审核中」「未通过」tab 各 0 卡片。state draft→published、published_at 按平台 time 落账、remote_id 补齐；⏸ 公开页 explore 匿名返回「页面不见了」、登录态「安全限制 IP at risk」(300031/300012) ⇒ url 留空不编；title 为建稿时提交给平台的标题镜像，未改。",
    "remote_id": "6adcb493000000003303733b",
-   "state": "draft_saved",
+   "state": "published",
    "title": "SketchUp 文件转回旧版，月入 3748 美元"
   }
  },
@@ -981,12 +1199,31 @@
    "at": "2026-10-17 10:10",
    "attempt": 1,
    "draft_id": "",
+   "error": "P1对账: 语义匹配(混音订阅, cv53335667) → 法国录音棚收 250 欧一单，有人把混音做成了订阅",
    "note": "P1对账: 语义匹配(混音订阅, cv53335667) → 法国录音棚收 250 欧一单，有人把混音做成了订阅",
    "published_at": "2026-10-08 12:13:59",
    "remote_id": "53335667",
    "state": "published",
    "title": "法国录音棚收 250 欧一单，有人把混音做成了订阅",
    "url": ""
+  },
+  "cnblogs": {
+   "at": "2026-11-15 11:57:52",
+   "attempt": 0,
+   "draft_id": "23671160",
+   "error": "status=published",
+   "remote_id": "23671160",
+   "state": "published",
+   "title": "easyMix：上传分轨一键出成品的自动混音工具",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23671160"
+  },
+  "csdn": {
+   "at": "2026-11-15 23:48:32",
+   "attempt": 0,
+   "remote_id": "170822047",
+   "state": "published",
+   "title": "一键出歌：法语说唱自动混音与母带工程",
+   "url": "https://blog.csdn.net/sinat_32396037/article/details/170822047"
   },
   "toutiao": {
    "at": "2026-10-17 01:20",
@@ -997,9 +1234,10 @@
    "title": "法国录音棚收 250 欧一单，有人把混音做成了订阅"
   },
   "wechat": {
-   "at": "2026-10-05 14:06",
+   "at": "2026-11-20 10:07:46",
    "attempt": 0,
    "draft_id": "100000407",
+   "error": "file=",
    "remote_id": "100000407",
    "state": "draft_saved",
    "title": "法国录音棚的一单，有人把混音做成了订阅"
@@ -1007,6 +1245,7 @@
   "xhs": {
    "at": "2026-10-05 14:59",
    "attempt": 1,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-05 14:59' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "法国录音棚收 250 欧一单，有人把混音做成了订阅"
   }
@@ -1016,7 +1255,7 @@
    "at": "2026-10-30 17:37:59",
    "attempt": 0,
    "draft_id": "2099555668348949274",
-   "error": "status=draft",
+   "error": "status=draft｜[11-09 错账清理] 原 published_at='2026-10-30 17:37:59' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "remote_id": "2099555668348949274",
    "state": "draft_saved",
    "title": "游戏厅 #1：Super Mario Bros",
@@ -1029,6 +1268,7 @@
    "at": "2026-11-04 13:54",
    "attempt": 0,
    "draft_id": "1703041",
+   "error": " | longtail_key=ext-ep-001-super-mario-bros-2026-11-03-1",
    "published_at": "2026-11-04 13:51:34",
    "remote_id": "1778894",
    "state": "published",
@@ -1039,6 +1279,7 @@
    "at": "2026-11-06 13:41",
    "attempt": 0,
    "draft_id": "346183",
+   "error": "｜更新草稿 aid=346183（draft/add 回读校验通过）｜11-20 对账：草稿 id 346183 已不在线上草稿箱（发布后消失），不再记｜11-20 删重：10-30 发的《游戏厅 #1：Super Mario Bros》(aid 53683188) 与本篇同题材，已按「删早留新」删除；保留本篇 53786328",
    "note": "｜更新草稿 aid=346183（draft/add 回读校验通过）",
    "published_at": "2026-11-06 13:43:21",
    "remote_id": "53786328",
@@ -1047,14 +1288,14 @@
    "url": ""
   },
   "tencentcloud": {
-   "at": "2026-11-03 21:33:42",
+   "at": "2026-11-09 20:17:38",
    "attempt": 0,
    "draft_id": "339742",
-   "error": " | longtail_key=ext-ep-001-super-mario-bros-2026-11-03-1",
+   "error": "| longtail_key=ext-ep-001-super-mario-bros-2026-11-03-1 ‖ [11-09 #118 腾讯云对账] published ⇒ published。变更：title:''→'游戏厅：马力欧兄弟，被 JS 重写的 1985 经典', url:'https://cloud.tencent.com/developer/article/write-new?draftId=339742'→'https://cloud.tencent.com/developer/article/2774977'。（判据只看平台接口：已发布 hostStatus=2 / 草稿箱 getUserArticleDrafts；降级行清空 remote_id 是必须的 —— check_dupe 把非空 remote_id 当已发过）",
    "remote_id": "2774977",
    "state": "published",
-   "title": "",
-   "url": "https://cloud.tencent.com/developer/article/write-new?draftId=339742"
+   "title": "游戏厅：马力欧兄弟，被 JS 重写的 1985 经典",
+   "url": "https://cloud.tencent.com/developer/article/2774977"
   },
   "toutiao": {
    "at": "2026-10-31 22:10",
@@ -1064,11 +1305,19 @@
    "state": "published",
    "title": ""
   },
+  "xhs": {
+   "at": "2026-11-18 13:35",
+   "attempt": 0,
+   "error": "#169 已知假失败：点发布后 30s 未跳 success 页（退出码2）；笔记管理「全部43」首条标题+时间命中后补账，未重发",
+   "remote_id": "6afd3909000000002903d36f",
+   "state": "published",
+   "title": "马力欧兄弟：JS 重写的 1985 经典"
+  },
   "zhihu": {
-   "at": "2026-11-06 14:02",
+   "at": "2026-11-12 10:36:59",
    "attempt": 0,
    "draft_id": "2100938408583611480",
-   "error": "已发表列表首条命中；原为 11-03 建进草稿箱的积压稿，按「箱内有稿先发」优先于当轮 ep-003",
+   "error": "2026-11-12 补记：远端已发表列表 + 匿名 check state=published + 草稿箱无该 id 三路回读命中；11-06 2026-11-06 13:38:51 经 UI 发表但未回写，11-09 错账清理曾把 published_at 清零，现按远端真值补回。",
    "published_at": "2026-11-06 13:38:51",
    "remote_id": "2100938408583611480",
    "state": "published",
@@ -1077,13 +1326,25 @@
   }
  },
  "ext-ep-002-2048": {
+  "aliyun": {
+   "at": "2026-11-06 14:04:32",
+   "attempt": 0,
+   "draft_id": "1708201",
+   "error": "｜[11-09 定点补正] 11-06 流水：1779976 公开页 200（14:11）+ 摘要改写 verified ⇒ 真实已发布；state draft→published、remote_id 补齐，published_at 保留。",
+   "remote_id": "1779976",
+   "state": "published",
+   "title": "游戏厅：2048，一个网页就能玩的数字合并",
+   "url": "https://developer.aliyun.com/article/1779976"
+  },
   "bilibili": {
    "at": "2026-11-18 13:23",
    "attempt": 0,
    "draft_id": "347251",
-   "note": "｜更新草稿 aid=347251（draft/add 回读校验通过）｜更新草稿 aid=347251（draft/add 回读校验通过）",
-   "remote_id": "347251",
-   "state": "draft",
+   "error": "｜更新草稿 aid=347251（draft/add 回读校验通过）｜更新草稿 aid=347251（draft/add 回读校验通过）｜11-20 修正：53996900 系误重复发布后删除，真实已发 id=53985214｜11-20 对账：草稿 id 347251 已不在线上草稿箱（发布后消失），不再记",
+   "note": "11-18 首次发布；11-20 因台账 state 被 draft/add 降级误重复发布 53996900，已删并回读确认",
+   "published_at": "2026-11-18 13:23",
+   "remote_id": "53985214",
+   "state": "published",
    "title": "游戏厅：2048",
    "url": ""
   },
@@ -1098,12 +1359,13 @@
    "url": "https://www.cnblogs.com/thing-explainer/p/23558119"
   },
   "tencentcloud": {
-   "at": "2026-11-04 14:13",
+   "at": "2026-11-09 20:17:38",
    "attempt": 0,
    "draft_id": "340253",
    "remote_id": "2775867",
    "state": "published",
-   "title": "游戏厅：2048，一个网页就能玩的数字合并"
+   "title": "游戏厅：2048，一个网页就能玩的数字合并",
+   "url": "https://cloud.tencent.com/developer/article/2775867"
   },
   "toutiao": {
    "at": "2026-10-31 19:49",
@@ -1117,7 +1379,7 @@
    "at": "2026-11-04 11:59:27",
    "attempt": 0,
    "draft_id": "2101282414362472778",
-   "error": "status=draft",
+   "error": "status=draft｜[11-09 错账清理] 原 published_at='2026-11-04 11:59:27' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "remote_id": "2101282414362472778",
    "state": "draft_saved",
    "title": "2048，一个网页就能玩的数字合并",
@@ -1126,7 +1388,10 @@
  },
  "ext-ep-003-freedoom": {
   "aliyun": {
+   "at": "2026-11-12 10:20:07",
+   "attempt": 0,
    "draft_id": "1709459",
+   "error": "[2026-11-12 阿里云发布] 草稿 1709459 → 文章 1782459；匿名 GET https://developer.aliyun.com/article/1782459：HTTP 404、0 bytes、标题命中=False、审核横幅=False ⇒ auditing（published 需 200 + 标题命中 + 无审核横幅；url 待过审后独立回读再补） ‖ [2026-11-12 阿里云发布] 草稿 1709459 → 文章 1782459；匿名 GET https://developer.aliyun.com/article/1782459：HTTP 200、64183 bytes、标题命中=True、审核横幅=False ⇒ published",
    "note": "过审后匿名公开页 200 + 标题命中 + 无审核横幅 ⇒ yun_state.record_publish 补正",
    "published_at": "2026-11-12 10:20:07",
    "published_ts": "2026-11-12 10:20:07",
@@ -1136,13 +1401,13 @@
    "url": "https://developer.aliyun.com/article/1782459"
   },
   "cnblogs": {
-   "at": "2026-11-06 13:37:38",
+   "at": "2026-11-06 15:37:42",
    "attempt": 0,
    "draft_id": "23573051",
    "error": "status=published",
    "remote_id": "23573051",
    "state": "published",
-   "title": "游戏厅：Freedoom，免费合法的毁灭战士",
+   "title": "Freedoom：给《毁灭战士》重造一套免费素材",
    "url": "https://www.cnblogs.com/thing-explainer/p/23573051"
   },
   "csdn": {
@@ -1155,13 +1420,13 @@
    "url": "https://blog.csdn.net/sinat_32396037/article/details/170138487"
   },
   "tencentcloud": {
-   "at": "2026-11-04 19:26",
+   "at": "2026-11-09 20:17:38",
    "attempt": 0,
    "draft_id": "340532",
    "remote_id": "2776285",
    "state": "published",
    "title": "给 Doom 引擎造一套合法素材：Freedoom 要对的那些资源契约",
-   "url": "https://cloud.tencent.com/developer/article/write-new?draftId=340532"
+   "url": "https://cloud.tencent.com/developer/article/2776285"
   },
   "toutiao": {
    "at": "2026-10-31 19:53",
@@ -1175,7 +1440,7 @@
    "at": "2026-11-06 13:38:16",
    "attempt": 0,
    "draft_id": "2102032057182446679",
-   "error": "status=draft",
+   "error": "status=draft｜[11-09 错账清理] 原 published_at='2026-11-06 13:38:16' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "remote_id": "2102032057182446679",
    "state": "draft_saved",
    "title": "Freedoom，免费合法的毁灭战士",
@@ -1183,10 +1448,21 @@
   }
  },
  "ext-ep-004-quake": {
+  "aliyun": {
+   "at": "2026-11-15 10:45:55",
+   "attempt": 0,
+   "draft_id": "1717048",
+   "error": "[2026-11-14 阿里云发布] 草稿 1717048 → 文章 1783543；匿名 GET https://developer.aliyun.com/article/1783543：HTTP 404、0 bytes、标题命中=False、审核横幅=False ⇒ auditing（published 需 200 + 标题命中 + 无审核横幅；url 待过审后独立回读再补） ‖ [2026-11-15 独立回读确认过审] 匿名 GET https://developer.aliyun.com/article/1783543 → HTTP 200 / 64123 bytes / 标题命中=True / 审核横幅=False ⇒ auditing→published；published_at 沿用 11-14 提交时点，不计入今日档期",
+   "remote_id": "1783543",
+   "state": "published",
+   "title": "Quake，1999 年开源的雷神之锤",
+   "url": "https://developer.aliyun.com/article/1783543"
+  },
   "bilibili2": {
    "at": "2026-11-07 09:07",
    "attempt": 0,
    "draft_id": "",
+   "error": "草稿箱→发布（send-draft）",
    "note": "草稿箱→发布（send-draft）",
    "published_at": "2026-11-07 09:03:48",
    "remote_id": "53797678",
@@ -1194,13 +1470,32 @@
    "title": "Quake：读一份 1999 年开源的 3D 引擎源码",
    "url": ""
   },
+  "cnblogs": {
+   "at": "2026-11-08 14:07:05",
+   "attempt": 0,
+   "draft_id": "23592402",
+   "error": "status=published",
+   "remote_id": "23592402",
+   "state": "published",
+   "title": "Quake，1999 年开源的雷神之锤",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23592402"
+  },
+  "csdn": {
+   "at": "2026-11-07 10:48:55",
+   "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-11-07 10:48:55' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
+   "state": "draft_saved",
+   "title": "Quake，1999 年开源的雷神之锤",
+   "url": "https://blog.csdn.net/sinat_32396037/article/details/170239393"
+  },
   "tencentcloud": {
-   "at": "2026-11-05 11:59",
+   "at": "2026-11-09 20:17:38",
    "attempt": 0,
    "draft_id": "340965",
    "remote_id": "2776740",
    "state": "published",
-   "title": "游戏厅：Quake，1999 年开源的雷神之锤"
+   "title": "游戏厅：Quake，1999 年开源的雷神之锤",
+   "url": "https://cloud.tencent.com/developer/article/2776740"
   },
   "toutiao": {
    "at": "2026-10-31 19:57",
@@ -1209,19 +1504,67 @@
    "remote_id": "7702799110571475475",
    "state": "published",
    "title": ""
+  },
+  "zhihu": {
+   "at": "2026-11-08 14:11:12",
+   "attempt": 0,
+   "draft_id": "2102765121504293904",
+   "error": "终点草稿（zhihu publish 端点未开放）；published_at 曾误填，2026-11-08 按 PRD #92 清零",
+   "remote_id": "2102765121504293904",
+   "state": "draft_saved",
+   "title": "Quake，1999 年开源的雷神之锤",
+   "url": "https://zhuanlan.zhihu.com/p/2102765121504293904"
   }
  },
  "ext-ep-005-supertux": {
+  "aliyun": {
+   "at": "2026-11-16 10:00:42",
+   "attempt": 0,
+   "draft_id": "1699450",
+   "error": "[2026-11-16 阿里云发布] 草稿 1699450 → 文章 1783930；匿名 GET https://developer.aliyun.com/article/1783930：HTTP 404、0 bytes、标题命中=False、审核横幅=False ⇒ auditing（published 需 200 + 标题命中 + 无审核横幅；url 待过审后独立回读再补） ‖ [2026-11-16 过审复核] yun_state 1783930：匿名 GET 200 / 64421 bytes / 标题命中 / 审核横幅 False ⇒ published；published_at 沿用 10:00:41 提交时点",
+   "remote_id": "1783930",
+   "state": "published",
+   "title": "SuperTux，Linux 吉祥物当主角",
+   "url": "https://developer.aliyun.com/article/1783930"
+  },
   "bilibili2": {
    "at": "2026-11-08 14:27",
    "attempt": 0,
    "draft_id": "",
+   "error": "草稿箱→发布（send-draft）",
    "note": "草稿箱→发布（send-draft）",
    "published_at": "2026-11-08 14:27:29",
    "remote_id": "53813599",
    "state": "published",
    "title": "SuperTux：带内置关卡编辑器的平台跳跃游戏",
    "url": ""
+  },
+  "cnblogs": {
+   "at": "2026-11-09 10:37:49",
+   "attempt": 0,
+   "draft_id": "23599642",
+   "error": "status=published",
+   "remote_id": "23599642",
+   "state": "published",
+   "title": "SuperTux，Linux 吉祥物当主角",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23599642"
+  },
+  "csdn": {
+   "at": "2026-11-08 15:13:00",
+   "attempt": 0,
+   "remote_id": "170290517",
+   "state": "published",
+   "title": "SuperTux，Linux 吉祥物当主角",
+   "url": "https://blog.csdn.net/sinat_32396037/article/details/170290517"
+  },
+  "tencentcloud": {
+   "at": "2026-11-09 20:17:38",
+   "attempt": 0,
+   "draft_id": "341939",
+   "remote_id": "2777788",
+   "state": "published",
+   "title": "游戏厅：SuperTux，Linux 吉祥物当主角",
+   "url": "https://cloud.tencent.com/developer/article/2777788"
   },
   "toutiao": {
    "at": "2026-10-31 20:01",
@@ -1232,27 +1575,79 @@
    "title": ""
   },
   "wechat": {
+   "at": "2026-11-12 10:17:16",
+   "attempt": 0,
    "draft_id": "100001219",
+   "error": "file=",
    "note": "2026-11-12 显式指定游戏稿真发（管理员扫码）；远端已发表列表命中 + 草稿箱消失",
    "published_at": "2026-11-12 10:17:16",
    "published_ts": "2026-11-12 10:17:16",
-   "remote_id": "2247485054",
+   "remote_id": "100001219",
    "state": "published",
    "title": "游戏厅：SuperTux",
    "updated_at": "2026-11-12 10:17:16"
+  },
+  "zhihu": {
+   "at": "2026-11-10 13:03:00",
+   "attempt": 0,
+   "draft_id": "2103461580339931063",
+   "error": "status=draft ‖ 11-10 收尾：知乎终点是草稿，清掉误填的 published_at",
+   "remote_id": "2103461580339931063",
+   "state": "draft_saved",
+   "title": "SuperTux，Linux 吉祥物当主角",
+   "url": "https://zhuanlan.zhihu.com/p/2103461580339931063"
   }
  },
  "ext-ep-006-nethack": {
+  "aliyun": {
+   "at": "2026-11-18 12:12:36",
+   "attempt": 0,
+   "draft_id": "1721846",
+   "error": "2026-11-18 12:12 发表提交（滑块人工拖过，当时审核中匿名404）；14:25 复查匿名页200+NetHack/地牢/Yendor命中+无审核横幅 ⇒ 过审公开；published_at 记过审确认时点（平台侧精确过审时间不可知）",
+   "remote_id": "1784983",
+   "state": "published",
+   "title": "NetHack，能玩死你的地牢模拟器",
+   "url": "https://developer.aliyun.com/article/new?edit=1721846#/"
+  },
   "bilibili2": {
    "at": "2026-11-09 10:43",
    "attempt": 0,
    "draft_id": "",
+   "error": "草稿箱→发布（send-draft）",
    "note": "草稿箱→发布（send-draft）",
    "published_at": "2026-11-09 10:42:51",
    "remote_id": "53824259",
    "state": "published",
    "title": "NetHack：ASCII 画面下的数据表与显示层分离",
    "url": ""
+  },
+  "cnblogs": {
+   "at": "2026-11-11 08:19:03",
+   "attempt": 0,
+   "draft_id": "23623555",
+   "error": "status=published",
+   "remote_id": "23623555",
+   "state": "published",
+   "title": "NetHack，能玩死你的地牢模拟器",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23623555"
+  },
+  "csdn": {
+   "at": "2026-11-10 13:03:00",
+   "attempt": 0,
+   "error": " ‖ 11-10 独立双回读：列表 170429391 + 公开页 8324 字/5 词全中 ⇒ 补 published/remote_id",
+   "remote_id": "170429391",
+   "state": "published",
+   "title": "NetHack，能玩死你的地牢模拟器",
+   "url": "https://blog.csdn.net/sinat_32396037/article/details/170429391"
+  },
+  "tencentcloud": {
+   "at": "2026-11-07 17:15",
+   "attempt": 0,
+   "draft_id": "342483",
+   "remote_id": "2778680",
+   "state": "published",
+   "title": "NetHack，能玩死你的地牢模拟器",
+   "url": "https://cloud.tencent.com/developer/article/2778680"
   },
   "toutiao": {
    "at": "2026-10-31 20:05",
@@ -1263,6 +1658,10 @@
    "title": ""
   },
   "zhihu": {
+   "at": "2026-11-12 08:22:59",
+   "attempt": 0,
+   "draft_id": "2104117564607615798",
+   "error": "UI 通道真发（publish 端点未开放）：已发表列表命中 + 匿名 check state=published + 草稿箱消失，2026-11-12",
    "note": "2026-11-12 UI 通道真发；远端已发表列表 + 匿名 state=published 双回读命中",
    "published_at": "2026-11-12 08:21:21",
    "published_ts": "2026-11-12 08:21:21",
@@ -1274,16 +1673,53 @@
   }
  },
  "ext-ep-007-openttd": {
+  "aliyun": {
+   "at": "2026-11-20 08:06:24",
+   "attempt": 0,
+   "draft_id": "1723687",
+   "error": "[2026-11-20 阿里云发布] 草稿 1723687 → 文章 1786027；匿名 GET https://developer.aliyun.com/article/1786027：HTTP 404、0 bytes、标题命中=False、审核横幅=False ⇒ auditing（published 需 200 + 标题命中 + 无审核横幅；url 待过审后独立回读再补）",
+   "remote_id": "1786027",
+   "state": "draft_saved",
+   "title": "OpenTTD，开源版运输大亨"
+  },
   "bilibili2": {
    "at": "2026-11-10 12:21",
    "attempt": 0,
    "draft_id": "",
+   "error": "草稿箱→发布（send-draft）",
    "note": "草稿箱→发布（send-draft）",
    "published_at": "2026-11-10 12:20:41",
    "remote_id": "53842614",
    "state": "published",
    "title": "OpenTTD：用 C++ 重写运输大亨的模拟引擎",
    "url": ""
+  },
+  "cnblogs": {
+   "at": "2026-11-12 07:45:01",
+   "attempt": 0,
+   "draft_id": "23635834",
+   "error": "status=published",
+   "remote_id": "23635834",
+   "state": "published",
+   "title": "OpenTTD，开源版运输大亨",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23635834"
+  },
+  "csdn": {
+   "at": "2026-11-11 10:43:10",
+   "attempt": 0,
+   "remote_id": "170501859",
+   "state": "published",
+   "title": "OpenTTD，开源版运输大亨",
+   "url": "https://blog.csdn.net/sinat_32396037/article/details/170501859"
+  },
+  "tencentcloud": {
+   "at": "2026-11-08 16:26",
+   "attempt": 0,
+   "draft_id": "338078",
+   "remote_id": "2779036",
+   "state": "published",
+   "title": "OpenTTD，开源版运输大亨",
+   "url": "https://cloud.tencent.com/developer/article/2779036"
   },
   "toutiao": {
    "at": "2026-10-31 20:09",
@@ -1292,6 +1728,16 @@
    "remote_id": "7702802037850915391",
    "state": "published",
    "title": ""
+  },
+  "zhihu": {
+   "at": "2026-11-14 12:50:08",
+   "attempt": 0,
+   "draft_id": "2104919042733650036",
+   "error": "status=draft",
+   "remote_id": "2104919042733650036",
+   "state": "draft_saved",
+   "title": "OpenTTD，开源版运输大亨",
+   "url": "https://zhuanlan.zhihu.com/p/2104919042733650036"
   }
  },
  "ext-ep-008-mindustry": {
@@ -1299,12 +1745,42 @@
    "at": "2026-11-11 08:32",
    "attempt": 0,
    "draft_id": "",
+   "error": "草稿箱→发布（send-draft）",
    "note": "草稿箱→发布（send-draft）",
    "published_at": "2026-11-11 08:31:45",
    "remote_id": "53854700",
    "state": "published",
    "title": "Mindustry：注解自动生成实体类的 Java 沙盒塔防",
    "url": ""
+  },
+  "cnblogs": {
+   "at": "2026-11-13 08:19:11",
+   "attempt": 0,
+   "draft_id": "23649447",
+   "error": "status=published",
+   "remote_id": "23649447",
+   "state": "published",
+   "title": "Mindustry，物流即防御的塔防",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23649447"
+  },
+  "csdn": {
+   "at": "2026-11-13 07:17",
+   "attempt": 0,
+   "error": " | [11-13 发布] 已发表列表按标题命中 id=170687125；公开页 8824 字 5 关键词回读通过（脚本当时自报 article_id=None）",
+   "remote_id": "170687125",
+   "state": "published",
+   "title": "Mindustry，物流即防御的塔防",
+   "url": "https://blog.csdn.net/sinat_32396037/article/details/170687125"
+  },
+  "tencentcloud": {
+   "at": "2026-11-11 10:57:20",
+   "attempt": 0,
+   "draft_id": "338081",
+   "error": "[2026-11-11 腾讯云发布] 草稿 338081 → 文章 2781234；匿名 GET https://cloud.tencent.com/developer/article/2781234：HTTP 200、50658 bytes、标题命中=True、审核横幅=False ⇒ published",
+   "remote_id": "2781234",
+   "state": "published",
+   "title": "Mindustry，物流即防御的塔防",
+   "url": "https://cloud.tencent.com/developer/article/2781234"
   },
   "toutiao": {
    "at": "2026-10-31 20:12",
@@ -1313,6 +1789,15 @@
    "remote_id": "7702803059026231827",
    "state": "published",
    "title": ""
+  },
+  "zhihu": {
+   "at": "2026-11-16 09:40",
+   "attempt": 0,
+   "error": "[2026-11-16 补账] 2026-11-16 全平台一轮：远端独立回读命中后补账（中断丢写）",
+   "remote_id": "2105588389919580273",
+   "state": "published",
+   "title": "Mindustry，物流即防御的塔防",
+   "url": "https://zhuanlan.zhihu.com/p/2105588389919580273"
   }
  },
  "ext-ep-009-lichess": {
@@ -1320,12 +1805,41 @@
    "at": "2026-11-12 07:49",
    "attempt": 0,
    "draft_id": "",
+   "error": "草稿箱→发布（send-draft）",
    "note": "草稿箱→发布（send-draft）",
    "published_at": "2026-11-12 07:49:03",
    "remote_id": "53870969",
    "state": "published",
    "title": "Lichess：免费象棋平台的网页对局与 Scala 后端",
    "url": ""
+  },
+  "cnblogs": {
+   "at": "2026-11-14 13:13:23",
+   "attempt": 0,
+   "draft_id": "23664293",
+   "error": "status=published",
+   "remote_id": "23664293",
+   "state": "published",
+   "title": "Lichess，免费无广告的国际象棋",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23664293"
+  },
+  "csdn": {
+   "at": "2026-11-14 12:52:07",
+   "attempt": 0,
+   "remote_id": "170774185",
+   "state": "published",
+   "title": "Lichess，免费无广告的国际象棋",
+   "url": "https://blog.csdn.net/sinat_32396037/article/details/170774185"
+  },
+  "tencentcloud": {
+   "at": "2026-11-13 08:28",
+   "attempt": 0,
+   "draft_id": "345626",
+   "error": "[2026-11-13 腾讯云发布] 草稿 345626 → 文章 2782968；匿名 GET https://cloud.tencent.com/developer/article/2782968：HTTP 404、0 bytes、标题命中=False、审核横幅=False ⇒ auditing（published 需 200 + 标题命中 + 无审核横幅；url 待过审后独立回读再补） | [11-13 过审复核] 匿名 GET HTTP 200、52223 bytes、标题命中、无审核横幅 ⇒ published；published_at 取平台 publishTime=1794525759",
+   "remote_id": "2782968",
+   "state": "published",
+   "title": "Lichess，免费无广告的国际象棋",
+   "url": "https://cloud.tencent.com/developer/article/2782968"
   },
   "toutiao": {
    "at": "2026-10-31 20:19",
@@ -1334,6 +1848,16 @@
    "remote_id": "7702804780213518902",
    "state": "published",
    "title": ""
+  },
+  "zhihu": {
+   "at": "2026-11-17 10:15",
+   "attempt": 0,
+   "draft_id": "2105957291598136171",
+   "error": "status=draft",
+   "remote_id": "2105957291598136171",
+   "state": "draft_saved",
+   "title": "Lichess，免费无广告的国际象棋",
+   "url": "https://zhuanlan.zhihu.com/p/2105957291598136171"
   }
  },
  "ext-ep-010-cataclysm-dark-days-ahead": {
@@ -1341,12 +1865,41 @@
    "at": "2026-11-13 07:20",
    "attempt": 0,
    "draft_id": "",
+   "error": "草稿箱→发布（send-draft）",
    "note": "草稿箱→发布（send-draft）",
    "published_at": "2026-11-13 07:20",
    "remote_id": "53887916",
    "state": "published",
    "title": "Cataclysm-DDA：数据驱动的末日生存 Roguelike",
    "url": ""
+  },
+  "cnblogs": {
+   "at": "2026-11-15 23:08:00",
+   "attempt": 0,
+   "draft_id": "23674026",
+   "error": "status=published",
+   "remote_id": "23674026",
+   "state": "published",
+   "title": "CDDA，末日丧尸生存 Roguelike",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23674026"
+  },
+  "csdn": {
+   "at": "2026-11-15 11:30:16",
+   "attempt": 0,
+   "remote_id": "170813617",
+   "state": "published",
+   "title": "CDDA，末日丧尸生存 Roguelike",
+   "url": "https://blog.csdn.net/sinat_32396037/article/details/170813617"
+  },
+  "tencentcloud": {
+   "at": "2026-11-14 12:46:57",
+   "attempt": 0,
+   "draft_id": "346518",
+   "error": "[2026-11-14 腾讯云发布] 草稿 346518 → 文章 2784145；匿名 GET https://cloud.tencent.com/developer/article/2784145：HTTP 200、50521 bytes、标题命中=True、审核横幅=False ⇒ published",
+   "remote_id": "2784145",
+   "state": "published",
+   "title": "CDDA，末日丧尸生存 Roguelike",
+   "url": "https://cloud.tencent.com/developer/article/2784145"
   },
   "toutiao": {
    "at": "2026-10-31 20:23",
@@ -1358,10 +1911,21 @@
   }
  },
  "ext-ep-011-minetest": {
+  "aliyun": {
+   "at": "2026-11-08 14:34:24",
+   "attempt": 0,
+   "draft_id": "1701411",
+   "error": "11-09 独立匿名回读：公开页 HTTP 200 + 标题「Minetest，低配也能跑的开源我的世界」+ 正文 Minetest/体素/Lua 全命中 + 无内容审核中横幅 ⇒ 过审公开。published_at 与 publish_kind_log.json 提交日对齐，避免一篇算两天档期。",
+   "remote_id": "1780571",
+   "state": "published",
+   "title": "Minetest，低配也能跑的开源我的世界",
+   "url": "https://developer.aliyun.com/article/1780571"
+  },
   "bilibili2": {
    "at": "2026-11-14 12:49",
    "attempt": 0,
    "draft_id": "",
+   "error": "草稿箱→发布（send-draft）",
    "note": "草稿箱→发布（send-draft）",
    "published_at": "2026-11-14 12:49",
    "remote_id": "53908680",
@@ -1369,11 +1933,39 @@
    "title": "Minetest：轻量方块沙盒的引擎与模组体系",
    "url": ""
   },
+  "cnblogs": {
+   "at": "2026-11-17 10:15",
+   "attempt": 1,
+   "error": "11-17 09:08 平台侧已发表（上一轮中断丢写），本轮远端列表按标题命中 + 公开页 200 后补账；重复发布被平台「相同标题的博文已存在」拦回",
+   "remote_id": "23689671",
+   "state": "published",
+   "title": "Minetest，低配也能跑的开源我的世界",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23689671"
+  },
+  "csdn": {
+   "at": "2026-11-16 09:40",
+   "attempt": 0,
+   "error": "[2026-11-16 补账] 2026-11-16 全平台一轮：远端独立回读命中后补账（中断丢写）",
+   "remote_id": "170843268",
+   "state": "published",
+   "title": "Minetest，低配也能跑的开源我的世界",
+   "url": "https://blog.csdn.net/sinat_32396037/article/details/170843268"
+  },
+  "tencentcloud": {
+   "at": "2026-11-14 14:41:59",
+   "attempt": 0,
+   "draft_id": "346536",
+   "error": "[2026-11-14 腾讯云发布] 草稿 346536 → 文章 2784172；匿名 GET https://cloud.tencent.com/developer/article/2784172：HTTP 200、48753 bytes、标题命中=True、审核横幅=False ⇒ published｜[11-14 14:15] 正文更新：旧 619 字 → 新 1898 中文字（补 MapBlock/Mapchunk/mono-block/编译/开服五段）。首提漏 <!--markdown--> 前缀被当纯文本存（页面吐字面 ##），带前缀重提后前端渲染正常；平台显示重审中，过审后需复核｜[11-14 14:41 改摘要] 174 字旧稿首段 → 169 字技术向版（2024 年起改名 Luanti / MapNode 4 字节 / MapBlock 内存 / loaded-active / 编译开服）。提交时按 is-empty 判据重新注入封面（同一张图，COS key 换新）。独立回读公开页 mod-header2__summary-content 全文一致、旧摘要「现名 Luanti」消失、正文技术词 Mapchunk/mono-block/IrrlichtMt 均在、HTTP 200、无审核横幅；createTime 与 publishTime 仍 13:53:37、updateTime 14:41:59 ⇒ 未改发布时间",
+   "remote_id": "2784172",
+   "state": "published",
+   "title": "Minetest，低配也能跑的开源我的世界",
+   "url": "https://cloud.tencent.com/developer/article/2784172"
+  },
   "toutiao": {
    "at": "2026-10-31 18:51",
    "attempt": 0,
-   "error": "send_existing_draft",
-   "remote_id": "7702781884279063083",
+   "error": "｜11-20 对账：gid 纠正为线上真 id 7702807108663689764",
+   "remote_id": "7702807108663689764",
    "state": "published",
    "title": ""
   }
@@ -1383,24 +1975,93 @@
    "at": "2026-11-16 09:40",
    "attempt": 0,
    "draft_id": "",
+   "error": "[2026-11-16 补账] 2026-11-16 全平台一轮：远端独立回读命中后补账（中断丢写）",
    "note": "[2026-11-16 补账] 2026-11-16 全平台一轮：远端独立回读命中后补账（中断丢写）",
    "remote_id": "53930055",
    "state": "published",
    "title": "OpenRA：红警引擎复刻的 Mod 与单位配置",
    "url": "https://www.bilibili.com/read/cv53930055"
+  },
+  "cnblogs": {
+   "at": "2026-11-18 14:29:22",
+   "attempt": 0,
+   "draft_id": "23706286",
+   "error": "status=published",
+   "remote_id": "23706286",
+   "state": "published",
+   "title": "用 C# 重写红警：读 OpenRA 的 Mod 机制",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23706286"
+  },
+  "csdn": {
+   "at": "2026-11-17 10:20",
+   "attempt": 0,
+   "error": " ‖ [11-17 补账] 列表按标题命中 id=170905465；公开页此刻 HTTP 521（新稿过审窗口，勿重发）",
+   "remote_id": "170905465",
+   "state": "published",
+   "title": "用 C# 重写红警：读 OpenRA 的 Mod 机制",
+   "url": "https://blog.csdn.net/sinat_32396037/article/details/170905465"
+  },
+  "tencentcloud": {
+   "at": "2026-11-16 09:58:19",
+   "attempt": 0,
+   "draft_id": "338084",
+   "error": "[2026-11-16 腾讯云发布] 草稿 338084 → 文章 2785068；匿名 GET https://cloud.tencent.com/developer/article/2785068：HTTP 200、50064 bytes、标题命中=True、审核横幅=False ⇒ published",
+   "remote_id": "2785068",
+   "state": "published",
+   "title": "用 C# 重写红警：读 OpenRA 的 Mod 机制",
+   "url": "https://cloud.tencent.com/developer/article/2785068"
   }
  },
  "ext-ep-013-0-a-d": {
   "bilibili2": {
-   "at": "2026-11-19 12:56 草稿箱→发布（send-draft）",
+   "at": "2026-11-19 12:56",
    "attempt": 0,
    "draft_id": "",
+   "error": "草稿箱→发布（send-draft）",
    "note": "草稿箱→发布（send-draft）",
    "published_at": "2026-11-19 12:56",
    "remote_id": "53985568",
    "state": "published",
    "title": "0 A.D.：古文明 RTS 的资源与时代推进",
    "url": ""
+  },
+  "cnblogs": {
+   "at": "2026-11-20 07:13:52",
+   "attempt": 0,
+   "draft_id": "23726186",
+   "error": "status=published",
+   "remote_id": "23726186",
+   "state": "published",
+   "title": "古代文明 RTS：读 0 A.D. 的资源与时代",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23726186"
+  },
+  "csdn": {
+   "at": "2026-11-19 12:40:58",
+   "attempt": 0,
+   "state": "published",
+   "title": "古代文明 RTS：读 0 A.D. 的资源与时代",
+   "url": "https://blog.csdn.net/sinat_32396037/article/details/171036622"
+  },
+  "tencentcloud": {
+   "at": "2026-11-18 12:09:27",
+   "attempt": 0,
+   "draft_id": "348471",
+   "error": "2026-11-18 12:05 首发被驳「灌水/技术无关」；13:48 按驳回意见整稿重写为技术拆解并重提（PRD #201）；14:24 复查：概述区已刷新为新摘要、无驳回/审核横幅 ⇒ 重审通过、改稿生效",
+   "remote_id": "2787249",
+   "state": "published",
+   "title": "古代文明 RTS：读 0 A.D. 的资源与时代",
+   "url": "https://cloud.tencent.com/developer/article/write-new?draftId=348471"
+  }
+ },
+ "ext-ep-014-the-battle-for-wesnoth": {
+  "tencentcloud": {
+   "at": "2026-11-20 07:48",
+   "attempt": 0,
+   "draft_id": "349501",
+   "error": "yun_finalize addArticle 返回 articleId=2788942 status=0；脚本卡在回读步被停，网络钩子抓到提交响应；匿名页404=审核中",
+   "remote_id": "2788942",
+   "state": "draft_saved",
+   "title": "六边形战棋怎么算：读韦诺之战的地形规则"
   }
  },
  "fastwrite-io": {
@@ -1408,6 +2069,7 @@
    "at": "2026-10-14 13:25",
    "attempt": 1,
    "draft_id": "343828",
+   "error": "｜草稿同步(2026-10-14 13:25): title 认领 aid=343828｜11-20 对账：草稿 id 343828 已不在线上草稿箱（发布后消失），不再记",
    "note": "｜草稿同步(2026-10-14 13:25): title 认领 aid=343828",
    "published_at": "2026-11-14 13:29",
    "remote_id": "53909042",
@@ -1424,41 +2086,48 @@
    "title": "fastwrite.io：AI写作工具SaaS，辅助学生学术"
   },
   "wechat": {
-   "at": "2026-10-14 01:19",
+   "at": "2026-11-20 10:07:46",
    "attempt": 0,
    "draft_id": "100000470",
+   "error": "file=",
    "remote_id": "100000470",
    "state": "draft_saved",
    "title": "fastwrite.io：AI写作工具SaaS，辅助学生学术写作"
   },
   "xhs": {
-   "at": "2026-10-14 00:22",
+   "at": "2026-10-15 14:45",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-14 00:22' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "fastwrite.io：AI写作工具SaaS，辅助学生学术"
   }
  },
  "flodesk": {
   "aliyun": {
-   "at": "2026-11-03 21:33:42",
+   "at": "2026-11-19 13:15:42",
    "attempt": 0,
    "draft_id": "1698291",
-   "error": " | longtail_key=flodesk-2026-10-30-2",
-   "state": "published",
-   "title": "",
+   "error": "| longtail_key=flodesk-2026-10-30-2 ‖ [11-09 #122 补] 阿里云假绿纠正：published⇒draft，title 回填平台真实标题（?edit=1698291 编辑页实读）；longtail 建稿未发布，正文 857 字 ‖ [11-09 #123 就地改稿] 旧故事稿 → 技术向稿，平台 aid 不变、未新建草稿、未发布；draftDetail 双回读：title 与本地 h1 一致、6 个 h2 全命中、首末句命中、旧首句消失、正文 3128 字；旧稿备份 tmp/aliyun_rewrite_flodesk_1698291.json ‖ [2026-11-19 阿里云发布] 草稿 1698291 → 文章 1785586；匿名 GET https://developer.aliyun.com/article/1785586：HTTP 404、0 bytes、标题命中=False、审核横幅=False ⇒ auditing（published 需 200 + 标题命中 + 无审核横幅；url 待过审后独立回读再补）",
+   "remote_id": "1785586",
+   "state": "draft_saved",
+   "title": "不限发送量的邮件平台：送达率工程的共享池与故障隔离成本",
    "url": "https://developer.aliyun.com/article/new?edit=1698291#/"
   },
   "tencentcloud": {
-   "at": "2026-11-03 21:33:42",
+   "at": "2026-11-13 08:27:17",
    "attempt": 0,
-   "draft_id": "338078",
-   "error": " | longtail_key=flodesk-2026-10-30-1",
+   "draft_id": "345642",
+   "error": "| longtail_key=flodesk-2026-10-30-1 ‖ [11-09 #118 腾讯云对账] published ⇒ draft。变更：draft_id:'338078'→'', state:'published'→'draft', title:''→'一个被 YC 拒绝的邮件工具：靠「一口价 + 无限发」做成了大生意', url:'https://cloud.tencent.com/developer/article/write-new?draftId=338078'→''。（判据只看平台接口：已发布 hostStatus=2 / 草稿箱 getUserArticleDrafts；降级行清空 remote_id 是必须的 —— check_dupe 把非空 remote_id 当已发过）⚠ 曾在草稿箱有 338078，但该草稿已不在平台（已删），故 draft_id 一并清空、state 降为 draft ⇒ 下次发布须重新建稿。 ‖ [2026-11-13 腾讯云发布] 草稿 345642 → 文章 2783001；匿名 GET https://cloud.tencent.com/developer/article/2783001：HTTP 200、57936 bytes、标题命中=True、审核横幅=False ⇒ published",
+   "remote_id": "2783001",
    "state": "published",
-   "title": "",
-   "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338078"
+   "title": "「无限发送」的邮件平台，实际在做的是送达率工程",
+   "url": "https://cloud.tencent.com/developer/article/2783001"
   },
   "zhihu": {
+   "at": "2026-11-05 13:40:37",
+   "attempt": 0,
    "draft_id": "2098799999773570136",
+   "error": "status=published",
    "note": "status=published",
    "published_at": "2026-10-29 12:17:15",
    "published_ts": "2026-10-29 12:17:15",
@@ -1474,9 +2143,10 @@
    "at": "2026-10-10 01:18",
    "attempt": 0,
    "draft_id": "342400",
+   "error": "｜草稿同步(2026-10-10 01:18): title 认领 aid=342400",
    "note": "｜草稿同步(2026-10-10 01:18): title 认领 aid=342400",
    "remote_id": "342400",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "Genius AI：给美发店做预约、收银、发短信的一体化后台",
    "url": ""
   },
@@ -1491,39 +2161,45 @@
   "wechat": {
    "at": "2026-10-02 01:32",
    "attempt": 0,
-   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247483979",
    "published_at": "2026-10-02 01:32",
+   "remote_id": "2247483979",
    "state": "published",
    "title": "Genius AI（原 GlossGenius）：给美发店、美甲店、理疗诊所做的一体化后台：预约、收银、发短信"
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-05 20:31:01",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-09-29 21:17' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": ""
   }
  },
  "getdavid": {
   "aliyun": {
-   "at": "2026-11-03 21:33:42",
+   "at": "2026-11-09 23:11:32",
    "attempt": 0,
    "draft_id": "1699817",
-   "error": " | longtail_key=getdavid-2026-10-30-2",
-   "state": "published",
-   "title": "",
+   "error": " | longtail_key=getdavid-2026-10-30-2 ‖ [11-09 #122 补] 阿里云假绿纠正：published⇒draft，title 回填平台真实标题（?edit=1699817 编辑页实读）；longtail 建稿未发布，正文 718 字 ‖ [11-09 #123 就地改稿] 旧故事稿 → 技术向稿，平台 aid 不变、未新建草稿、未发布；draftDetail 双回读：title 与本地 h1 一致、7 个 h2 全命中、首末句命中、旧首句消失、正文 3905 字；旧稿备份 tmp/aliyun_rewrite_getdavid_1699817.json",
+   "state": "draft_saved",
+   "title": "批量给本地小店造站的流水线：名单判定、模板渲染与直邮归因",
    "url": "https://developer.aliyun.com/article/new?edit=1699817#/"
   },
   "tencentcloud": {
-   "at": "2026-11-03 21:33:42",
+   "at": "2026-11-09 20:55:56",
    "attempt": 0,
-   "draft_id": "338079",
-   "error": " | longtail_key=getdavid-2026-10-30-1",
+   "draft_id": "343479",
+   "error": "| longtail_key=getdavid-2026-10-30-1 ‖ [11-09 #118 腾讯云对账] published ⇒ draft。变更：state:'published'→'draft', title:''→'AI 造站 + 纸质明信片：一家给小店做网站的公司怎么用线下动作获客', url:'https://cloud.tencent.com/developer/article/write-new?draftId=338079'→''。（判据只看平台接口：已发布 hostStatus=2 / 草稿箱 getUserArticleDrafts；降级行清空 remote_id 是必须的 —— check_dupe 把非空 remote_id 当已发过）‖ [11-09 20:45 驳回] 2779989 于 20:41:31 提交、20:42:52 判「内容包含广告/引流信息」（接口 rejectInfo.reason 原文），hostStatus=3。⚠ 这篇提交的是**旧草稿 338079 的正文与旧标题**，新写的技术稿只因 --tc-draft 走 publish_tencent 时只填发布抽屉（来源/标签/摘要/封面）、不替换编辑器正文 ⇒ 被驳回的是旧稿。draft_id 338079 已被提交消耗，一并清空；待改稿重投后再按证据落 published。 ‖ [11-09 20:53 重开·B 方案] 2779989（旧标题故事稿，20:42 判「内容包含广告/引流信息」）已 delete-content forever:0 删进回收站，平台侧回读：全部 18→17、已驳回 1→0、已发布 17 不变、回收站 0→1 且该 id 在内。新建草稿 343479 = 重新建稿（导入技术稿，getUserArticleDrafts 回读 plain 首段与新标题、特征串「名单判定/待验域名」命中）；本行 state blocked→draft、remote_id 清空（check_dupe 把非空 remote_id 当已发）。 ‖ [2026-11-09 腾讯云发布] 草稿 343479 → 文章 2779993；匿名 GET https://cloud.tencent.com/developer/article/2779993：HTTP 200、58735 bytes、标题命中=True、审核横幅=False ⇒ published",
+   "remote_id": "2779993",
    "state": "published",
-   "title": "",
-   "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338079"
+   "title": "批量给本地小店造站的流水线：名单判定、模板渲染与直邮归因",
+   "url": "https://cloud.tencent.com/developer/article/2779993"
   },
   "zhihu": {
+   "at": "2026-11-05 13:40:37",
+   "attempt": 0,
    "draft_id": "2099504191156893329",
+   "error": "status=published",
    "note": "status=published",
    "published_at": "2026-11-05 12:51:47",
    "published_ts": "2026-11-05 12:51:47",
@@ -1535,36 +2211,68 @@
   }
  },
  "gojiberryai": {
+  "aliyun": {
+   "at": "2026-11-10 12:47:27",
+   "attempt": 0,
+   "draft_id": "1710840",
+   "error": "[11-09 #113 P0 台账指回真草稿] 1780408 已于 #111 平台删除（匿名 GET 404，列表不再出现），本条不再指向已删文章：remote_id/url 清空（清空≠编造）；draft_id 1708661（同批已删旧稿）→ 1710840，即 #110 现场新建、#112 dry 双回读通过的那条（HTTP 200、标题与 md h1 逐字一致、1650 字）。state 保持 draft、published_at 留空。⚠ title 仍是旧标题镜像（旧稿 #106 改写前），P0 未动，待平台标题同步后双回读再改。 ‖ 11-10 补正：draftDetail 实读标题/正文逐字一致，旧值为建稿时标题镜像 ‖ [2026-11-10 阿里云发布] 草稿 1710840 → 文章 1781420；匿名 GET https://developer.aliyun.com/article/1781420：HTTP 404、0 bytes、标题命中=False、审核横幅=False ⇒ auditing（published 需 200 + 标题命中 + 无审核横幅；url 待过审后独立回读再补） ‖ [2026-11-16 17:28 过审复核] 匿名 GET https://developer.aliyun.com/article/1781420：HTTP 200 / 64865 bytes / 标题或正文关键词命中 / 无「内容审核中」横幅 ⇒ published；published_at 沿用 2026-11-10 12:47:27 提交时点；url 补公开页",
+   "remote_id": "1781420",
+   "state": "published",
+   "title": "GojiberryAI 的信号管道：职业事件采集、实体归一与触达幂等",
+   "url": "https://developer.aliyun.com/article/1781420"
+  },
   "bilibili": {
    "at": "2026-10-15 21:28",
    "attempt": 0,
    "draft_id": "342401",
+   "error": "｜草稿同步(2026-10-15 21:28): title 认领 aid=342401",
    "note": "｜草稿同步(2026-10-15 21:28): title 认领 aid=342401",
    "remote_id": "342401",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "GojiberryAI：B2B 团队的 AI GTM 平台",
    "url": ""
   },
+  "cnblogs": {
+   "at": "2026-11-07 11:05:31",
+   "attempt": 0,
+   "draft_id": "23583113",
+   "error": "status=published",
+   "remote_id": "23583113",
+   "state": "published",
+   "title": "窄客群信号模型：用人工验证支撑千级用户增长",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23583113"
+  },
+  "csdn": {
+   "at": "2026-11-08 14:15:21",
+   "attempt": 0,
+   "remote_id": "170289800",
+   "state": "published",
+   "title": "从事件流到触达幂等：一条意向信号管道怎么搭",
+   "url": "https://blog.csdn.net/sinat_32396037/article/details/170289800"
+  },
   "tencentcloud": {
-   "at": "2026-11-05 14:22",
+   "at": "2026-11-09 20:17:38",
    "attempt": 0,
    "draft_id": "341947",
+   "error": "[11-09 #115 腾讯云标题镜像补正] 台账 title 原为发稿期旧镜像「盯住「谁在换工作」…」，与在线文章不一致；按 #83「平台侧同步 + 双回读」方向反过来补 db：证据①登录态 articleList 该 aid=2777761 title 逐字=新值；证据②匿名页 HTTP 200 / 52872 bytes，<title> 前缀与新值逐字一致。同时处置：已驳回稿 2776839（同 case 旧版，hostStatus=3）已于本轮删除进回收站（delete-content forever:0，回读 hostStatus=3 由 1→0、全部视图 18→17、已发布 17 不变）。⚠ 本地 drafts/newbatch/tencentcloud/gojiberryai.md 的 h1 仍是旧标题，本轮未动（不发布故不影响）。",
    "remote_id": "2777761",
    "state": "published",
-   "title": "盯住「谁在换工作」：信号驱动线索系统的三个工程问题",
-   "url": "https://cloud.tencent.com/developer/article/write-new?draftId=341947"
+   "title": "公开事件信号管道怎么搭：采集调度、实体归一与时间衰减",
+   "url": "https://cloud.tencent.com/developer/article/2777761"
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-13 23:41",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-09-29 21:17' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": ""
   },
   "wechat": {
    "at": "2026-10-02 01:14",
    "attempt": 0,
-   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247483960",
    "published_at": "2026-10-02 01:14",
+   "remote_id": "2247483960",
    "state": "published",
    "title": "GojiberryAI：面向 B2B 团队的 AI GTM 平台：找高意向线索，把购买信号变成对话"
   },
@@ -1573,8 +2281,18 @@
    "attempt": 0,
    "error": "2026-10-23 15:27 接口对账回填（线上已发布）",
    "remote_id": "6ad84279000000002b01dbc4",
-   "state": "draft_saved",
+   "state": "published",
    "title": "谁在换工作就推给销售，卖的是时机"
+  },
+  "zhihu": {
+   "at": "2026-11-07 11:05:33",
+   "attempt": 0,
+   "draft_id": "2102356014305748561",
+   "error": "status=draft｜[11-09 错账清理] 原 published_at='2026-11-07 11:05:33' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
+   "remote_id": "2102356014305748561",
+   "state": "draft_saved",
+   "title": "GojiberryAI：用决策时机驱动B2B线索增长",
+   "url": "https://zhuanlan.zhihu.com/p/2102356014305748561"
   }
  },
  "growingupvideo": {
@@ -1582,6 +2300,7 @@
    "at": "2026-10-14 13:26",
    "attempt": 1,
    "draft_id": "343829",
+   "error": "｜草稿同步(2026-10-14 13:26): title 认领 aid=343829 ‖ [11-15] send-draft 报 failed 属列表延迟，独立回读首条命中后补账，未重发｜11-20 对账：草稿 id 343829 已不在线上草稿箱（发布后消失），不再记",
    "note": "｜草稿同步(2026-10-14 13:26): title 认领 aid=343829 ‖ [11-15] send-draft 报 failed 属列表延迟，独立回读首条命中后补账，未重发",
    "remote_id": "53920085",
    "state": "published",
@@ -1597,16 +2316,19 @@
    "title": "GrowingUpVideo：近 30 天收入 $3,285"
   },
   "wechat": {
-   "at": "2026-10-14 01:36",
+   "at": "2026-11-16 09:38",
    "attempt": 0,
    "draft_id": "100000482",
-   "remote_id": "100000482",
-   "state": "draft_saved",
-   "title": "GrowingUpVideo：5分钟内将照片变成电影级AI变脸视频"
+   "error": "file=",
+   "remote_id": "2247485058",
+   "state": "published",
+   "title": "GrowingUpVideo：5分钟内将照片变成电影级AI变脸视频",
+   "url": "https://mp.weixin.qq.com/s/BBR-d6E6bAXhKuYdArrD5w"
   },
   "xhs": {
-   "at": "2026-10-14 00:33",
+   "at": "2026-10-15 14:49",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-14 00:33' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "GrowingUpVideo：5分钟内将照片变成电影级AI变"
   }
@@ -1616,6 +2338,7 @@
    "at": "2026-10-06 00:17",
    "attempt": 1,
    "draft_id": "",
+   "error": "对账补登: 读公开页正文确认(cv53304680) → 正文首句『Harper 把英国公开的公司抵押记录…』 ⇒ HarperAI",
    "note": "对账补登: 读公开页正文确认(cv53304680) → 正文首句『Harper 把英国公开的公司抵押记录…』 ⇒ HarperAI",
    "published_at": "2026-10-06 00:17:42",
    "remote_id": "53304680",
@@ -1623,16 +2346,37 @@
    "title": "把英国公开抵押记录连成一张网，然后卖给贷款经纪",
    "url": ""
   },
-  "toutiao": {
-   "at": "2026-10-05 14:54",
+  "cnblogs": {
+   "at": "2026-11-16 10:01:27",
    "attempt": 0,
+   "draft_id": "23677846",
+   "error": "status=published",
+   "remote_id": "23677846",
+   "state": "published",
+   "title": "用公开数据对齐与AI检索支撑百万级再融资线索",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23677846"
+  },
+  "csdn": {
+   "at": "2026-11-17 10:15",
+   "attempt": 0,
+   "error": " ‖ [11-17 补账] 列表按标题命中 id=170901782，公开页 200",
+   "remote_id": "170901782",
+   "state": "published",
+   "title": "把英国抵押登记与产权登记对齐：再融资线索系统的数据管线",
+   "url": "https://blog.csdn.net/sinat_32396037/article/details/170901782"
+  },
+  "toutiao": {
+   "at": "2026-10-13 23:41",
+   "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-05 14:54' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "把英国公开抵押记录连成一张网，然后卖给贷款经纪"
   },
   "wechat": {
-   "at": "2026-10-05 14:22",
+   "at": "2026-11-20 10:07:46",
    "attempt": 0,
    "draft_id": "100000415",
+   "error": "file=",
    "remote_id": "100000415",
    "state": "draft_saved",
    "title": "把英国公开抵押记录连成一张网，然后卖给贷款经纪"
@@ -1640,36 +2384,39 @@
   "xhs": {
    "at": "2026-10-05 15:08",
    "attempt": 1,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-05 15:08' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "把英国公开抵押记录连成一张网，然后卖给贷款经纪"
   }
  },
  "headshotpro": {
   "aliyun": {
-   "at": "2026-11-03 21:33:42",
+   "at": "2026-11-13 08:18:51",
    "attempt": 0,
    "draft_id": "1699451",
-   "error": " | longtail_key=headshotpro-2026-10-30-2",
+   "error": "| longtail_key=headshotpro-2026-10-30-2 ‖ [11-09 #122 补] 阿里云假绿纠正：published⇒draft，title 回填平台真实标题（?edit=1699451 编辑页实读）；longtail 建稿未发布，正文 1048 字 ‖ [11-09 #123 就地改稿] 旧故事稿 → 技术向稿，平台 aid 不变、未新建草稿、未发布；draftDetail 双回读：title 与本地 h1 一致、7 个 h2 全命中、首末句命中、旧首句消失、正文 3447 字；旧稿备份 tmp/aliyun_rewrite_headshotpro_1699451.json | [11-13 就地改稿] 旧标题镜像→新 h1，平台 draftDetail 回读一致（2518 字、旧稿专属探针已消失、新稿结尾在正文） ‖ [2026-11-13 阿里云发布] 草稿 1699451 → 文章 1782978；匿名 GET https://developer.aliyun.com/article/1782978：HTTP 404、0 bytes、标题命中=False、审核横幅=False ⇒ auditing（published 需 200 + 标题命中 + 无审核横幅；url 待过审后独立回读再补） ‖ [2026-11-16 17:28 过审复核] 匿名 GET https://developer.aliyun.com/article/1782978：HTTP 200 / 66020 bytes / 标题或正文关键词命中 / 无「内容审核中」横幅 ⇒ published；published_at 沿用 2026-11-13 08:18:51 提交时点；url 补公开页",
+   "remote_id": "1782978",
    "state": "published",
-   "title": "",
-   "url": "https://developer.aliyun.com/article/new?edit=1699451#/"
+   "title": "两小时交付背后的 GPU 队列：一次订单要烧多少次采样",
+   "url": "https://developer.aliyun.com/article/1782978"
   },
   "tencentcloud": {
-   "at": "2026-11-03 21:33:42",
+   "at": "2026-11-12 08:10:24",
    "attempt": 0,
    "draft_id": "338087",
-   "error": " | longtail_key=headshotpro-2026-10-30-2",
+   "error": "| longtail_key=headshotpro-2026-10-30-2 ‖ [11-09 #118 腾讯云对账] published ⇒ draft。变更：state:'published'→'draft', title:''→'一个人做的 AI 证件照：Fortune 500 团队也在买', url:'https://cloud.tencent.com/developer/article/write-new?draftId=338087'→''。（判据只看平台接口：已发布 hostStatus=2 / 草稿箱 getUserArticleDrafts；降级行清空 remote_id 是必须的 —— check_dupe 把非空 remote_id 当已发过）",
+   "remote_id": "2781983",
    "state": "published",
-   "title": "",
+   "title": "让 AI 生成的职业照看起来是同一个人：身份一致性与批处理队列",
    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338087"
   },
   "zhihu": {
-   "at": "2026-10-30 14:13:29",
+   "at": "2026-11-19 13:36:04",
    "attempt": 0,
    "draft_id": "2099504200480772284",
-   "error": "status=draft",
+   "error": "status=published",
    "remote_id": "2099504200480772284",
-   "state": "draft_saved",
+   "state": "published",
    "title": "一个人做的 AI 证件照：Fortune 500 团队也在买",
    "url": "https://zhuanlan.zhihu.com/p/2099504200480772284"
   }
@@ -1679,6 +2426,7 @@
    "at": "2026-11-16 09:29",
    "attempt": 1,
    "draft_id": "343830",
+   "error": "｜2026-11-16 全平台一轮：远端独立回读命中后补账（中断丢写）｜11-20 对账：草稿 id 343830 已不在线上草稿箱（发布后消失），不再记",
    "note": "｜2026-11-16 全平台一轮：远端独立回读命中后补账（中断丢写）",
    "remote_id": "53930235",
    "state": "published",
@@ -1686,15 +2434,17 @@
    "url": "https://www.bilibili.com/read/cv53930235"
   },
   "toutiao": {
-   "at": "2026-10-13 23:06",
+   "at": "2026-10-13 23:41",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-13 23:06' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "Homy：近 30 天收入 $1,345"
   },
   "wechat": {
-   "at": "2026-10-14 01:41",
+   "at": "2026-11-20 10:07:46",
    "attempt": 0,
    "draft_id": "100000486",
+   "error": "file=",
    "remote_id": "100000486",
    "state": "draft_saved",
    "title": "Homy：Mac 文件搜索优化工具，小众市场潜力待挖掘"
@@ -1702,20 +2452,60 @@
   "xhs": {
    "at": "2026-10-14 00:37",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-14 00:37' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "Homy：Mac 文件搜索优化工具，小众市场潜力待挖掘"
   }
  },
  "insect-bite-id": {
+  "aliyun": {
+   "at": "2026-11-09 11:17:20",
+   "attempt": 0,
+   "draft_id": "1699266",
+   "error": "11-09 11:18 提交发布（滑块人工通过），平台页头显示「内容审核中」；匿名公开页 HTTP 404、正文关键词零命中 ⇒ 审核中未公开。当日配额已占，禁止重发第二篇。过审后须重新独立回读才能补 published。 ｜ [11-09 #108 过审补账] 带登录态浏览器 + 匿名 GET 双证：公开页 HTTP 200、标题逐字命中、正文关键词全命中、无审核横幅，<meta name=\"date\">=2026-11-09 11:18:23 ⇒ 按三态 auditing→published；published_at 用平台 meta date（非 now）；url/title/draft_id/attempt/updated_at 未动。",
+   "remote_id": "1780780",
+   "state": "published",
+   "title": "识别虫咬类型应用：基于云资源与成本结构的工程实践",
+   "url": "https://developer.aliyun.com/article/1780780"
+  },
   "bilibili": {
    "at": "2026-10-21 12:35 草稿箱→发布（send-draft；回读滞后，人工核实空间公开列表 id=53536366 后补账）",
    "attempt": 0,
    "draft_id": "342403",
+   "error": "｜草稿同步(2026-10-10 01:20): title 认领 aid=342403｜11-20 对账：台账原记 draft（草稿 id 342403），线上已发表 53536366 ⇒ 改 published",
    "note": "｜草稿同步(2026-10-10 01:20): title 认领 aid=342403",
-   "remote_id": "342403",
+   "remote_id": "53536366",
    "state": "published",
    "title": "Insect Bite ID：拍张照认出被什么咬",
    "url": ""
+  },
+  "cnblogs": {
+   "at": "2026-11-08 16:18:36",
+   "attempt": 0,
+   "draft_id": "23593074",
+   "error": "status=published",
+   "remote_id": "23593074",
+   "state": "published",
+   "title": "用 AI 识别虫咬类型：一个 iOS 单点工具的收入结构",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23593074"
+  },
+  "csdn": {
+   "at": "2026-11-09 10:40:23",
+   "attempt": 0,
+   "error": "11-09 独立双回读：csdn_publish.py list 按标题命中 170341853 + 公开页 8236 字、原创/公开、5/5 稳定词命中。发布脚本自报 article_id=null 不作证据，据列表+公开页补正 state。",
+   "remote_id": "170341853",
+   "state": "published",
+   "title": "拍照识别虫咬类型的 iOS 应用：实现思路与边界",
+   "url": "https://blog.csdn.net/sinat_32396037/article/details/170341853"
+  },
+  "tencentcloud": {
+   "at": "2026-11-09 20:17:38",
+   "attempt": 0,
+   "draft_id": "342458",
+   "remote_id": "2778646",
+   "state": "published",
+   "title": "移动端图像分类的置信度表达：端侧推理、时序记录与免责边界",
+   "url": "https://cloud.tencent.com/developer/article/2778646"
   },
   "toutiao": {
    "at": "2026-10-20 15:31",
@@ -1728,15 +2518,29 @@
   "wechat": {
    "at": "2026-09-21 20:41",
    "attempt": 0,
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247483775",
    "published_at": "2026-09-21 20:41",
+   "remote_id": "2247483775",
    "state": "published",
    "title": "Insect Bite ID：用 AI 识别虫咬类型"
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-11-08 14:21",
    "attempt": 0,
-   "state": "draft_saved",
+   "error": "[11-09 镜像同步] note_id 按平台 user/posted?tab=0 全量列表补齐；配对依据 json.at == 平台 time 唯一候选；SQLite remote_id 已按 #107 回写真值（同一 noteId）",
+   "remote_id": "6af014ec00000000200082d9",
+   "state": "published",
    "title": ""
+  },
+  "zhihu": {
+   "at": "2026-11-09 10:38:32",
+   "attempt": 0,
+   "draft_id": "2103073990663263603",
+   "error": "知乎终点是草稿（publish 端点未开放）：清掉发布脚本误填的 published_at。草稿创建时点保留在 data/zhihu_drafts.json 的 ts 与 publish_kind_log.json；state 保持 draft，不写 published。",
+   "remote_id": "2103073990663263603",
+   "state": "draft_saved",
+   "title": "用 AI 识别虫咬类型，一个 App 的订阅生存之道",
+   "url": "https://zhuanlan.zhihu.com/p/2103073990663263603"
   }
  },
  "kibu": {
@@ -1744,8 +2548,9 @@
    "at": "2026-10-22 11:29 草稿箱→发布（send-draft；回读滞后，人工核实空间公开列表 id=53551964 后补账）",
    "attempt": 0,
    "draft_id": "342405",
+   "error": "｜草稿同步(2026-10-10 01:21): title 认领 aid=342405｜11-20 对账：台账原记 draft（草稿 id 342405），线上已发表 53551964 ⇒ 改 published",
    "note": "｜草稿同步(2026-10-10 01:21): title 认领 aid=342405",
-   "remote_id": "342405",
+   "remote_id": "53551964",
    "state": "published",
    "title": "Kibu：给智障与发育障碍机构做的内容与电子病历系统",
    "url": ""
@@ -1761,8 +2566,9 @@
   "wechat": {
    "at": "2026-10-29 12:10",
    "attempt": 0,
-   "error": "｜publish模式自动发表，新 appmsgid=2247484766",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484766",
    "published_at": "2026-10-29 12:10",
+   "remote_id": "2247484766",
    "state": "published",
    "title": "Kibu：专给智障与发育障碍（I/DD）服务机构做的内容、合规与电子病历系统"
   },
@@ -1771,36 +2577,38 @@
    "attempt": 0,
    "error": "2026-10-18 21:46 接口对账回填（线上已发布）",
    "remote_id": "6ac3ae3e000000001203fcd9",
-   "state": "draft_saved",
+   "state": "published",
    "title": "给残障服务机构做病历系统，48 个州"
   }
  },
  "klar": {
   "aliyun": {
-   "at": "2026-11-03 21:33:42",
+   "at": "2026-11-15 12:07:01",
    "attempt": 0,
    "draft_id": "1699633",
-   "error": " | longtail_key=klar-2026-10-30-2",
+   "error": "| longtail_key=klar-2026-10-30-2 ‖ [11-09 #122 补] 阿里云假绿纠正：published⇒draft，title 回填平台真实标题（?edit=1699633 编辑页实读）；longtail 建稿未发布，正文 699 字 ‖ [11-09 #123 就地改稿] 旧故事稿 → 技术向稿，平台 aid 不变、未新建草稿、未发布；draftDetail 双回读：title 与本地 h1 一致、7 个 h2 全命中、首末句命中、旧首句消失、正文 3394 字；旧稿备份 tmp/aliyun_rewrite_klar_1699633.json ‖ [2026-11-15 阿里云发布] 草稿 1699633 → 文章 1783731；匿名 GET https://developer.aliyun.com/article/1783731：HTTP 404、0 bytes、标题命中=False、审核横幅=False ⇒ auditing（published 需 200 + 标题命中 + 无审核横幅；url 待过审后独立回读再补） ‖ [2026-11-16 17:28 过审复核] 匿名 GET https://developer.aliyun.com/article/1783731：HTTP 200 / 67149 bytes / 标题或正文关键词命中 / 无「内容审核中」横幅 ⇒ published；published_at 沿用 2026-11-15 12:07:01 提交时点；url 补公开页 ‖ [标题镜像同步] 平台公开页现标题「把课程材料变成题目的流水线：脏输入、答案校验与多形态渲染」，本地 h1/旧台账为「一次上传触发几百次模型调用：备考工具的算力预算与限流设计」；按平台现标题同步台账 title（PRD #83：平台已改+双回读可证才同步 db）",
+   "remote_id": "1783731",
    "state": "published",
-   "title": "",
-   "url": "https://developer.aliyun.com/article/new?edit=1699633#/"
+   "title": "把课程材料变成题目的流水线：脏输入、答案校验与多形态渲染",
+   "url": "https://developer.aliyun.com/article/1783731"
   },
   "tencentcloud": {
-   "at": "2026-11-03 21:33:42",
+   "at": "2026-11-11 08:49:48",
    "attempt": 0,
    "draft_id": "338080",
-   "error": " | longtail_key=klar-2026-10-30-1",
+   "error": "| longtail_key=klar-2026-10-30-1 ‖ [11-09 #118 腾讯云对账] published ⇒ draft。变更：state:'published'→'draft', title:''→'三个不会写代码的大学生：靠 Lovable 做出来的 AI 备考工具', url:'https://cloud.tencent.com/developer/article/write-new?draftId=338080'→''。（判据只看平台接口：已发布 hostStatus=2 / 草稿箱 getUserArticleDrafts；降级行清空 remote_id 是必须的 —— check_dupe 把非空 remote_id 当已发过） ｜ [11-11 事故认账] 草稿 338080 被发布脚本直接提交，公开页 2781011 实为本行 klar 旧稿（标题逐字、正文 Klar/课程材料/闪卡命中，Mindustry 0 命中）⇒ 按真实内容认领为已发表；属非计划内发布，当天不再补发第二篇。",
+   "remote_id": "2781011",
    "state": "published",
-   "title": "",
-   "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338080"
+   "title": "把课程材料变成题目的流水线：脏输入、答案校验与多形态渲染",
+   "url": "https://cloud.tencent.com/developer/article/2781011"
   },
   "zhihu": {
-   "at": "2026-10-30 14:13:31",
+   "at": "2026-11-20 07:14:45",
    "attempt": 0,
    "draft_id": "2099504210362554039",
-   "error": "status=draft",
+   "error": "status=published",
    "remote_id": "2099504210362554039",
-   "state": "draft_saved",
+   "state": "published",
    "title": "三个不会写代码的大学生：靠 Lovable 做出来的 AI 备考工具",
    "url": "https://zhuanlan.zhihu.com/p/2099504210362554039"
   }
@@ -1810,23 +2618,26 @@
    "at": "2026-10-15 21:39",
    "attempt": 0,
    "draft_id": "342408",
+   "error": "｜草稿同步(2026-10-15 21:39): title 认领 aid=342408",
    "note": "｜草稿同步(2026-10-15 21:39): title 认领 aid=342408",
    "remote_id": "342408",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "Lancer.app：AI 替自由职业者干完接单最烦的那段",
    "url": ""
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-13 23:41",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-09-29 21:17' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": ""
   },
   "wechat": {
    "at": "2026-09-21 23:03",
    "attempt": 0,
-   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484100",
    "published_at": "2026-09-21 23:03",
+   "remote_id": "2247484100",
    "state": "published",
    "title": "Lancer.app：AI 替自由职业者干完接单最烦的那一段：找活、筛活、写提案、投出去"
   },
@@ -1843,8 +2654,9 @@
    "at": "2026-10-23 15:05",
    "attempt": 0,
    "draft_id": "342410",
+   "error": "｜草稿同步(2026-10-10 01:22): title 认领 aid=342410｜11-20 对账：台账原记 draft（草稿 id 342410），线上已发表 53572101 ⇒ 改 published",
    "note": "｜草稿同步(2026-10-10 01:22): title 认领 aid=342410",
-   "remote_id": "342410",
+   "remote_id": "53572101",
    "state": "published",
    "title": "le19emetrou：高尔夫造型的开瓶器",
    "url": ""
@@ -1852,20 +2664,23 @@
   "toutiao": {
    "at": "2026-09-29 21:17",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-09-29 21:17' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-25 00:27",
+   "at": "2026-11-20 10:07:47",
    "attempt": 0,
    "draft_id": "100000275",
+   "error": "file=",
    "remote_id": "100000275",
    "state": "draft_saved",
    "title": "一笔广告费，卖一支高尔夫开瓶器"
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-05 20:09:22",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-09-29 21:17' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": ""
   }
@@ -1875,6 +2690,7 @@
    "at": "2026-10-14 13:28",
    "attempt": 1,
    "draft_id": "343831",
+   "error": "｜草稿同步(2026-10-14 13:28): title 认领 aid=343831｜11-20 对账：草稿 id 343831 已不在线上草稿箱（发布后消失），不再记",
    "note": "｜草稿同步(2026-10-14 13:28): title 认领 aid=343831",
    "published_at": "2026-11-17 09:42",
    "remote_id": "53947661",
@@ -1885,13 +2701,15 @@
   "toutiao": {
    "at": "2026-10-14 15:26",
    "attempt": 1,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-14 15:26' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "MacWall：为 Mac 用户提供 4K 电影感动态壁纸的"
   },
   "wechat": {
-   "at": "2026-10-14 01:30",
+   "at": "2026-11-20 10:07:46",
    "attempt": 0,
    "draft_id": "100000478",
+   "error": "file=",
    "remote_id": "100000478",
    "state": "draft_saved",
    "title": "MacWall：为 Mac 用户提供 4K 电影感动态壁纸的订阅产品"
@@ -1899,6 +2717,7 @@
   "xhs": {
    "at": "2026-10-14 00:30",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-14 00:30' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "MacWall：为 Mac 用户提供 4K 电影感动态壁纸的"
   }
@@ -1908,6 +2727,7 @@
    "at": "2026-10-10 01:23",
    "attempt": 0,
    "draft_id": "342411",
+   "error": "2026-10-29 发布时 B站重分配 aid：342411 → 53660838；脚本按旧 aid 回读误报失败，已人工回读已发表列表命中补账｜11-20 对账：草稿 id 342411 已不在线上草稿箱（发布后消失），不再记",
    "note": "2026-10-29 发布时 B站重分配 aid：342411 → 53660838；脚本按旧 aid 回读误报失败，已人工回读已发表列表命中补账",
    "published_at": "2026-10-29 11:43:28",
    "remote_id": "53660838",
@@ -1915,10 +2735,38 @@
    "title": "MagicSlides.app：输入主题自动做 PPT",
    "url": ""
   },
+  "cnblogs": {
+   "at": "2026-11-11 10:47:34",
+   "attempt": 0,
+   "draft_id": "23625794",
+   "error": "status=published",
+   "remote_id": "23625794",
+   "state": "published",
+   "title": "AI 一键生成演示文稿：借编辑器杠杆省成本",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23625794"
+  },
+  "csdn": {
+   "at": "2026-11-12 08:10:40",
+   "attempt": 0,
+   "remote_id": "170584259",
+   "state": "published",
+   "title": "MagicSlides 借力 Google Slides 专注生成质量",
+   "url": "https://blog.csdn.net/sinat_32396037/article/details/170584259"
+  },
+  "tencentcloud": {
+   "at": "2026-11-19 13:57:39",
+   "attempt": 0,
+   "draft_id": "349134",
+   "error": "[2026-11-19 腾讯云发布] 草稿 349134 → 文章 2788361；匿名 GET https://cloud.tencent.com/developer/article/2788361：HTTP 200、54437 bytes、标题命中=True、审核横幅=False ⇒ published",
+   "remote_id": "2788361",
+   "state": "published",
+   "title": "借别人的编辑器交付：AI 生成演示文稿的插件架构、结构化输出与排版兜底",
+   "url": "https://cloud.tencent.com/developer/article/2788361"
+  },
   "toutiao": {
    "at": "2026-11-03 01:20",
    "attempt": 0,
-   "error": "send_existing_draft",
+   "error": "send_existing_draft｜[11-09 错账清理] 原 published_at='2026-11-03 01:20' 已迁出（state 保持 deleted；明细 tmp/ledger_cleanup_20261109_report.json）",
    "remote_id": "7693146329643500066",
    "state": "deleted",
    "title": ""
@@ -1926,16 +2774,28 @@
   "wechat": {
    "at": "2026-10-02 00:56",
    "attempt": 0,
-   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247483886",
    "published_at": "2026-10-02 00:56",
+   "remote_id": "2247483886",
    "state": "published",
    "title": "MagicSlides.app：AI 一键生成演示文稿"
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-05 20:19:00",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-09-29 21:17' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": ""
+  },
+  "zhihu": {
+   "at": "2026-11-13 07:27",
+   "attempt": 0,
+   "draft_id": "2104475526404560832",
+   "error": "status=draft | [11-13] 知乎终点=草稿，草稿箱独立回读命中（840 字、标题一致）；published_at 按红线清空，发表待人工",
+   "remote_id": "2104475526404560832",
+   "state": "draft_saved",
+   "title": "AI一键生成演示文稿的商业拆解",
+   "url": "https://zhuanlan.zhihu.com/p/2104475526404560832"
   }
  },
  "marc-lou-portfolio": {
@@ -1943,9 +2803,10 @@
    "at": "2026-10-10 01:23",
    "attempt": 0,
    "draft_id": "342412",
+   "error": "｜草稿同步(2026-10-10 01:23): title 认领 aid=342412｜11-20 对账：台账原记 draft（草稿 id 342412），线上已发表 53752604 ⇒ 改 published",
    "note": "｜草稿同步(2026-10-10 01:23): title 认领 aid=342412",
-   "remote_id": "342412",
-   "state": "draft",
+   "remote_id": "53752604",
+   "state": "published",
    "title": "Marc Lou 的产品矩阵：三年发 25 个产品",
    "url": ""
   },
@@ -1960,8 +2821,9 @@
   "wechat": {
    "at": "2026-10-23 15:54",
    "attempt": 0,
-   "error": "｜publish模式自动发表，新 appmsgid=2247484626",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484626",
    "published_at": "2026-10-23 15:54",
+   "remote_id": "2247484626",
    "state": "published",
    "title": "Marc Lou 的产品矩阵：三年发 25 个产品、12 个赚钱、1 个大成——靠「组合」而不是「单品」活着"
   },
@@ -1970,7 +2832,7 @@
    "attempt": 0,
    "error": "2026-10-23 14:57 接口对账回填（线上已发布）",
    "remote_id": "6ac718ad000000001802dd9e",
-   "state": "draft_saved",
+   "state": "published",
    "title": "三年发 25 个产品，12 个在赚钱"
   }
  },
@@ -1978,8 +2840,9 @@
   "aliyun": {
    "at": "2026-11-03 21:33:42",
    "attempt": 0,
-   "error": " | longtail_key=markdown-structure-2026-10-29-1",
-   "state": "draft_saved",
+   "error": " | longtail_key=markdown-structure-2026-10-29-1｜[11-09 错账清理] 原 published_at='' 已迁出（state 保持 auditing；明细 tmp/ledger_cleanup_20261109_report.json） ｜ [11-09 #108 过审补账] 带登录态浏览器 + 匿名 GET 双证：公开页 HTTP 200、标题逐字命中、正文关键词全命中、无审核横幅，<meta name=\"date\">=2026-10-29 13:51:34 ⇒ 按三态 auditing→published；published_at 用平台 meta date（非 now）；url/title/draft_id/attempt/updated_at 未动。",
+   "remote_id": "1776574",
+   "state": "published",
    "title": "",
    "url": "https://developer.aliyun.com/article/1776574"
   }
@@ -1989,22 +2852,26 @@
    "at": "2026-10-25 03:16",
    "attempt": 0,
    "draft_id": "344840",
+   "error": "｜更新草稿 aid=344840（draft/add 回读校验通过）｜11-20 对账：台账原记 draft（草稿 id 344840），线上已发表 53595684 ⇒ 改 published",
    "note": "｜更新草稿 aid=344840（draft/add 回读校验通过）",
-   "remote_id": "344840",
-   "state": "draft",
+   "remote_id": "53595684",
+   "state": "published",
    "title": "用麦当劳官方接口查了一下，我的积分正在悄悄过期",
    "url": ""
   },
   "toutiao": {
    "at": "2026-10-25 09:57",
    "attempt": 0,
+   "error": "｜11-20 对账：按标题唯一命中补 gid=7700418684862579238",
+   "remote_id": "7700418684862579238",
    "state": "published",
    "title": ""
   },
   "wechat": {
    "at": "2026-10-25 11:16",
    "attempt": 0,
-   "error": "｜publish模式自动发表，新 appmsgid=2247484750",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484750",
+   "remote_id": "2247484750",
    "state": "published",
    "title": "用麦当劳官方接口查了一下，我的积分正在悄悄过期"
   }
@@ -2014,23 +2881,26 @@
    "at": "2026-10-15 21:44",
    "attempt": 0,
    "draft_id": "342413",
+   "error": "｜草稿同步(2026-10-15 21:44): title 认领 aid=342413",
    "note": "｜草稿同步(2026-10-15 21:44): title 认领 aid=342413",
    "remote_id": "342413",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "Meerkats.ai：替营销机构自动跑获客流程",
    "url": ""
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-13 23:41",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-09-29 21:17' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": ""
   },
   "wechat": {
    "at": "2026-10-16 08:02",
    "attempt": 0,
-   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484556",
    "published_at": "2026-10-16 08:02",
+   "remote_id": "2247484556",
    "state": "published",
    "title": "Meerkats：替营销公司跑获客"
   },
@@ -2039,7 +2909,7 @@
    "attempt": 0,
    "error": "2026-10-23 15:27 接口对账回填（线上已发布）",
    "remote_id": "6ad46e1100000000270212d9",
-   "state": "draft_saved",
+   "state": "published",
    "title": "找线索到约上会议只要 15 分钟"
   }
  },
@@ -2048,6 +2918,7 @@
    "at": "2026-10-17 10:10",
    "attempt": 2,
    "draft_id": "342369",
+   "error": "P1对账: 标题直接命中(cv53280245) → MORT：AI 求职代理，自动投遍企业招聘页",
    "note": "P1对账: 标题直接命中(cv53280245) → MORT：AI 求职代理，自动投遍企业招聘页",
    "published_at": "2026-10-03 17:37:07",
    "remote_id": "53280245",
@@ -2056,24 +2927,26 @@
    "url": ""
   },
   "tencentcloud": {
-   "at": "2026-11-04 19:34",
+   "at": "2026-11-09 20:17:38",
    "attempt": 0,
    "draft_id": "340537",
    "remote_id": "2776290",
    "state": "published",
    "title": "盯住 5 万个招聘页：招聘聚合系统的采集调度、去重与投递副作用",
-   "url": "https://cloud.tencent.com/developer/article/write-new?draftId=340537"
+   "url": "https://cloud.tencent.com/developer/article/2776290"
   },
   "toutiao": {
-   "at": "2026-09-30 19:30",
+   "at": "2026-10-13 23:41",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-09-30 19:30' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "MORT：AI 产品"
   },
   "wechat": {
-   "at": "2026-09-30 19:50",
+   "at": "2026-11-20 10:07:47",
    "attempt": 0,
    "draft_id": "100000329",
+   "error": "file=",
    "remote_id": "100000329",
    "state": "draft_saved",
    "title": "MORT：AI 求职代理：盯 5 万个企业招聘页，按简历打分并自动投递"
@@ -2083,7 +2956,7 @@
    "attempt": 1,
    "error": "2026-10-03 23:40 人工从草稿箱发布",
    "remote_id": "6ac0cd4300000000180297ad",
-   "state": "draft_saved",
+   "state": "published",
    "title": "盯 5 万个招聘页，按简历打分自动投递"
   }
  },
@@ -2092,6 +2965,7 @@
    "at": "2026-10-10 01:26",
    "attempt": 0,
    "draft_id": "342414",
+   "error": "｜草稿同步(2026-10-10 01:26): title 认领 aid=342414｜11-20 对账：草稿 id 342414 已不在线上草稿箱（发布后消失），不再记",
    "note": "｜草稿同步(2026-10-10 01:26): title 认领 aid=342414",
    "published_at": "2026-11-05 10:01:14",
    "remote_id": "53766079",
@@ -2100,22 +2974,25 @@
    "url": ""
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-13 23:41",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-09-29 21:17' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": ""
   },
   "wechat": {
    "at": "2026-09-21 21:48",
    "attempt": 0,
-   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484041",
    "published_at": "2026-09-21 21:48",
+   "remote_id": "2247484041",
    "state": "published",
    "title": "中文媒体把这家美国医疗公司的客户数，写多了 10 倍"
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-05 20:33:27",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-09-29 21:17' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": ""
   }
@@ -2125,7 +3002,8 @@
    "at": "2026-11-18 13:30 草稿箱→发布（send-draft）",
    "attempt": 1,
    "draft_id": "343832",
-   "note": "草稿箱→发布（send-draft）",
+   "error": "｜草稿同步(2026-10-14 13:29): title 认领 aid=343832｜11-20 对账：草稿 id 343832 已不在线上草稿箱（发布后消失），不再记",
+   "note": "｜草稿同步(2026-10-14 13:29): title 认领 aid=343832",
    "published_at": "2026-11-18 13:30",
    "remote_id": "53969010",
    "state": "published",
@@ -2133,24 +3011,28 @@
    "url": ""
   },
   "toutiao": {
-   "at": "2026-10-13 23:37",
+   "at": "2026-10-13 23:41",
    "attempt": 2,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-13 23:37' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "Nutria (9e3eaa)：AI 卡路里追踪应用，MRR"
   },
   "wechat": {
-   "at": "2026-10-14 01:13",
+   "at": "2026-11-20 08:15",
    "attempt": 0,
    "draft_id": "100000466",
+   "error": "｜publish模式自动发表，新 appmsgid=2247485062",
    "remote_id": "100000466",
-   "state": "draft_saved",
+   "state": "published",
    "title": "Nutria：AI 卡路里追踪应用"
   },
   "xhs": {
-   "at": "2026-10-14 00:18",
+   "at": "2026-11-19 13:01",
    "attempt": 1,
-   "state": "draft_saved",
-   "title": "月收$46K：AI 卡路里追踪应用"
+   "error": "｜11-20 对账：按线上已发表列表标题唯一命中补 note_id（Nutria：AI 卡路里追踪应用）",
+   "remote_id": "6afe82a1000000002b03e707",
+   "state": "published",
+   "title": "Nutria：AI 卡路里追踪应用"
   }
  },
  "outrank": {
@@ -2158,6 +3040,7 @@
    "at": "2026-10-10 01:26",
    "attempt": 0,
    "draft_id": "342415",
+   "error": "｜草稿同步(2026-10-10 01:26): title 认领 aid=342415｜11-20 对账：草稿 id 342415 已不在线上草稿箱（发布后消失），不再记",
    "note": "｜草稿同步(2026-10-10 01:26): title 认领 aid=342415",
    "published_at": "2026-11-07 11:21:21",
    "remote_id": "53799597",
@@ -2176,8 +3059,9 @@
   "wechat": {
    "at": "2026-10-22 11:47",
    "attempt": 0,
-   "error": "｜publish模式自动发表，新 appmsgid=2247484559",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484559",
    "published_at": "2026-10-22 11:47",
+   "remote_id": "2247484559",
    "state": "published",
    "title": "Outrank：从 AI 博客生成器到自动化 SEO 引擎"
   },
@@ -2186,34 +3070,34 @@
    "attempt": 0,
    "error": "2026-10-23 14:57 接口对账回填（线上已发布）",
    "remote_id": "6ac87451000000001b02d1d7",
-   "state": "draft_saved",
+   "state": "published",
    "title": "从月入 300 到月入 30 万，只做 SEO"
   }
  },
  "pdfai": {
   "aliyun": {
-   "at": "2026-11-03 21:33:42",
+   "at": "2026-11-09 23:12:10",
    "attempt": 0,
    "draft_id": "1698882",
-   "error": " | longtail_key=pdfai-2026-10-30-2",
-   "state": "published",
-   "title": "",
+   "error": " | longtail_key=pdfai-2026-10-30-2 ‖ [11-09 #122 补] 阿里云假绿纠正：published⇒draft，title 回填平台真实标题（?edit=1698882 编辑页实读）；longtail 建稿未发布，正文 983 字 ‖ [11-09 #123 就地改稿] 旧故事稿 → 技术向稿，平台 aid 不变、未新建草稿、未发布；draftDetail 双回读：title 与本地 h1 一致、6 个 h2 全命中、首末句命中、旧首句消失、正文 2992 字；旧稿备份 tmp/aliyun_rewrite_pdfai_1698882.json",
+   "state": "draft_saved",
+   "title": "把 PDF 变成可问答的知识库：切分、溯源与一次退款操作的风险",
    "url": "https://developer.aliyun.com/article/new?edit=1698882#/"
   },
   "tencentcloud": {
-   "at": "2026-11-03 21:33:42",
+   "at": "2026-11-09 21:31:47",
    "attempt": 0,
    "draft_id": "338081",
-   "error": " | longtail_key=pdfai-2026-10-30-1",
-   "state": "published",
-   "title": "",
+   "error": "| longtail_key=pdfai-2026-10-30-1 ‖ [11-09 #118 腾讯云对账] published ⇒ draft。变更：state:'published'→'draft', title:''→'一个人、0 员工、0 融资：这个「跟 PDF 对话」的工具是怎么做起来的？', url:'https://cloud.tencent.com/developer/article/write-new?draftId=338081'→''。（判据只看平台接口：已发布 hostStatus=2 / 草稿箱 getUserArticleDrafts；降级行清空 remote_id 是必须的 —— check_dupe 把非空 remote_id 当已发过）",
+   "state": "draft_saved",
+   "title": "把 PDF 变成可问答的知识库：切分、溯源与一次退款操作的风险",
    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338081"
   },
   "zhihu": {
    "at": "2026-10-30 14:13:34",
    "attempt": 0,
    "draft_id": "2099504222593082711",
-   "error": "status=draft",
+   "error": "status=draft｜[11-09 错账清理] 原 published_at='2026-10-30 14:13:34' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "remote_id": "2099504222593082711",
    "state": "draft_saved",
    "title": "一个人、0 员工、0 融资：这个「跟 PDF 对话」的工具是怎么做起来的？",
@@ -2225,31 +3109,36 @@
    "at": "2026-10-14 13:30",
    "attempt": 1,
    "draft_id": "343833",
+   "error": "｜草稿同步(2026-10-14 13:30): title 认领 aid=343833",
    "note": "｜草稿同步(2026-10-14 13:30): title 认领 aid=343833",
    "remote_id": "343833",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "Pet Plus Us：AI 生成宠物与主人合影",
    "url": ""
   },
   "toutiao": {
    "at": "2026-10-13 23:41",
    "attempt": 1,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-13 23:41' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "Pet Plus Us：AI 生成宠物与主人个性化肖像，挂牌"
   },
   "wechat": {
-   "at": "2026-10-14 01:58",
+   "at": "2026-11-19 13:10",
    "attempt": 0,
    "draft_id": "100000498",
+   "error": "file=",
    "remote_id": "100000498",
-   "state": "draft_saved",
+   "state": "published",
    "title": "Pet Plus Us：AI 生成宠物与主人个性化肖像"
   },
   "xhs": {
-   "at": "2026-10-14 00:48",
+   "at": "2026-11-20 08:24",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": "Pet Plus Us：AI 生成宠物与主人个性化肖像，挂牌"
+   "error": "｜11-20 对账：按线上已发表列表标题唯一命中补 note_id（Pet Plus Us：AI合成宠物合影）",
+   "remote_id": "6aff932e000000002b0254c3",
+   "state": "published",
+   "title": "Pet Plus Us：AI合成宠物合影"
   }
  },
  "pieter-levels": {
@@ -2257,6 +3146,7 @@
    "at": "2026-10-10 01:27",
    "attempt": 0,
    "draft_id": "342416",
+   "error": "｜草稿同步(2026-10-10 01:27): title 认领 aid=342416｜11-20 对账：草稿 id 342416 已不在线上草稿箱（发布后消失），不再记",
    "note": "｜草稿同步(2026-10-10 01:27): title 认领 aid=342416",
    "published_at": "2026-11-08 14:25:14",
    "remote_id": "53813580",
@@ -2275,8 +3165,9 @@
   "wechat": {
    "at": "2026-10-30 13:29",
    "attempt": 0,
-   "error": "｜publish模式自动发表，新 appmsgid=2247484767",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484767",
    "published_at": "2026-10-30 13:29",
+   "remote_id": "2247484767",
    "state": "published",
    "title": "Pieter Levels 的产品矩阵"
   },
@@ -2285,7 +3176,7 @@
    "attempt": 0,
    "error": "2026-10-03 23:40 人工从草稿箱发布",
    "remote_id": "6ac11f8300000000120373ba",
-   "state": "draft_saved",
+   "state": "published",
    "title": "三款产品月入 25 万美元，不雇全职"
   }
  },
@@ -2309,7 +3200,10 @@
    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338076"
   },
   "zhihu": {
+   "at": "2026-11-05 13:40:37",
+   "attempt": 0,
    "draft_id": "2099503506575078355",
+   "error": "status=published",
    "note": "status=published",
    "published_at": "2026-11-01 17:49:49",
    "published_ts": "2026-11-01 17:49:49",
@@ -2320,11 +3214,23 @@
    "url": "https://zhuanlan.zhihu.com/p/2099503506575078355"
   }
  },
+ "plausible-analytics": {
+  "tencentcloud": {
+   "at": "2026-11-09 20:17:38",
+   "attempt": 0,
+   "draft_id": "338076",
+   "remote_id": "2779001",
+   "state": "published",
+   "title": "不用 Cookie 的网站分析怎么算访客：服务端聚合、去重与自托管边界",
+   "url": "https://cloud.tencent.com/developer/article/2779001"
+  }
+ },
  "podawaa": {
   "bilibili": {
    "at": "2026-10-14 12:09",
    "attempt": 2,
    "draft_id": "343499",
+   "error": "｜草稿同步(2026-10-14 12:09): body 认领 aid=343499｜11-20 对账：草稿 id 343499 已不在线上草稿箱（发布后消失），不再记",
    "note": "｜草稿同步(2026-10-14 12:09): body 认领 aid=343499",
    "published_at": "2026-11-11 08:26:05",
    "remote_id": "53854649",
@@ -2341,11 +3247,12 @@
    "title": "把 LinkedIn 内容发布做成订阅，然后靠平台自己的增长做到月收 $6.6 万"
   },
   "wechat": {
-   "at": "2026-10-10 16:40",
+   "at": "2026-11-18 12:54",
    "attempt": 1,
    "draft_id": "100000440",
+   "error": "file=",
    "remote_id": "100000440",
-   "state": "draft_saved",
+   "state": "published",
    "title": "Podawaa：把 LinkedIn 发布做成订阅"
   },
   "xhs": {
@@ -2353,7 +3260,7 @@
    "attempt": 2,
    "error": "2026-10-23 15:27 接口对账回填（线上已发布）",
    "remote_id": "6acc9aaa00000000180173ec",
-   "state": "draft_saved",
+   "state": "published",
    "title": "把领英内容当产品运营：排期加分析"
   }
  },
@@ -2362,6 +3269,7 @@
    "at": "2026-10-10 01:28",
    "attempt": 0,
    "draft_id": "342417",
+   "error": "｜草稿同步(2026-10-10 01:28): title 认领 aid=342417｜11-20 对账：草稿 id 342417 已不在线上草稿箱（发布后消失），不再记",
    "note": "｜草稿同步(2026-10-10 01:28): title 认领 aid=342417",
    "published_at": "2026-11-09 10:45:55",
    "remote_id": "53824331",
@@ -2370,16 +3278,18 @@
    "url": ""
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-13 23:41",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-09-29 21:17' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": ""
   },
   "wechat": {
    "at": "2026-09-21 22:10",
    "attempt": 0,
-   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484065",
    "published_at": "2026-09-21 22:10",
+   "remote_id": "2247484065",
    "state": "published",
    "title": "Postiz：社媒一键多平台排期发布，靠 agent 营销把 MRR 从 1.7 万推到 20 万"
   },
@@ -2388,7 +3298,7 @@
    "attempt": 0,
    "error": "2026-10-23 15:27 接口对账回填（线上已发布）",
    "remote_id": "6aca376a000000000a01d2d7",
-   "state": "draft_saved",
+   "state": "published",
    "title": "一条内容发十几个平台，6000 订阅撑起"
   }
  },
@@ -2397,6 +3307,7 @@
    "at": "2026-10-10 01:28",
    "attempt": 0,
    "draft_id": "342418",
+   "error": "｜草稿同步(2026-10-10 01:28): title 认领 aid=342418｜11-20 对账：草稿 id 342418 已不在线上草稿箱（发布后消失），不再记",
    "note": "｜草稿同步(2026-10-10 01:28): title 认领 aid=342418",
    "published_at": "2026-11-10 13:00:46",
    "remote_id": "53842967",
@@ -2413,9 +3324,10 @@
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-25 00:04",
+   "at": "2026-11-20 10:07:47",
    "attempt": 0,
    "draft_id": "100000259",
+   "error": "file=",
    "remote_id": "100000259",
    "state": "draft_saved",
    "title": "品牌开始问「AI 回答里提不提我」，于是有了这门生意"
@@ -2433,6 +3345,7 @@
    "at": "2026-10-16 14:10",
    "attempt": 0,
    "draft_id": "342364",
+   "error": "｜草稿同步(2026-10-16 14:10): title 认领 aid=342364｜11-20 对账：草稿 id 342364 已不在线上草稿箱（发布后消失），不再记",
    "note": "｜草稿同步(2026-10-16 14:10): title 认领 aid=342364",
    "published_at": "2026-11-03 13:54:47",
    "remote_id": "53736510",
@@ -2449,9 +3362,10 @@
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-24 23:53",
+   "at": "2026-11-20 10:07:47",
    "attempt": 0,
    "draft_id": "100000251",
+   "error": "file=",
    "remote_id": "100000251",
    "state": "draft_saved",
    "title": "PROSP：把 B2B 销售的一整天，压成一个按钮"
@@ -2461,7 +3375,7 @@
    "attempt": 0,
    "error": "2026-10-23 15:27 接口对账回填（线上已发布）",
    "remote_id": "6ad63f90000000002902f170",
-   "state": "draft_saved",
+   "state": "published",
    "title": "把领英外呼压成一个按钮，一个人做完"
   }
  },
@@ -2470,6 +3384,7 @@
    "at": "2026-10-14 12:12",
    "attempt": 2,
    "draft_id": "343500",
+   "error": "｜草稿同步(2026-10-14 12:12): body 认领 aid=343500｜11-20 对账：草稿 id 343500 已不在线上草稿箱（发布后消失），不再记",
    "note": "｜草稿同步(2026-10-14 12:12): body 认领 aid=343500",
    "published_at": "2026-11-12 11:45:27",
    "remote_id": "53875740",
@@ -2486,18 +3401,21 @@
    "title": "自助出版的作者愿意为工具付钱——只是撑不起大生意"
   },
   "wechat": {
-   "at": "2026-10-10 16:33",
+   "at": "2026-11-15 11:52",
    "attempt": 1,
    "draft_id": "100000436",
-   "remote_id": "100000436",
-   "state": "draft_saved",
+   "error": "file=",
+   "remote_id": "2247485057",
+   "state": "published",
    "title": "Publbee：KDP 作者的 AI 工具箱"
   },
   "xhs": {
-   "at": "2026-10-10 17:49",
+   "at": "2026-11-16 09:25",
    "attempt": 2,
-   "state": "draft_saved",
-   "title": "自助出版的作者愿意为工具付钱——只是撑不起大生意"
+   "error": "2026-11-16 全平台一轮：远端独立回读命中后补账（中断丢写）",
+   "remote_id": "6afa5b8f000000002203a199",
+   "state": "published",
+   "title": "Publbee：AI 工具箱写书配图"
   }
  },
  "quotedeck": {
@@ -2505,29 +3423,33 @@
    "at": "2026-10-14 13:31",
    "attempt": 1,
    "draft_id": "343834",
+   "error": "｜草稿同步(2026-10-14 13:31): title 认领 aid=343834",
    "note": "｜草稿同步(2026-10-14 13:31): title 认领 aid=343834",
    "remote_id": "343834",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "QuoteDeck：保险代理的专业报价工具",
    "url": ""
   },
   "toutiao": {
-   "at": "2026-10-13 23:15",
+   "at": "2026-10-13 23:41",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-13 23:15' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "QuoteDeck：MRR $1,750，TrustMRR"
   },
   "wechat": {
-   "at": "2026-10-14 02:09",
+   "at": "2026-11-14 12:38",
    "attempt": 0,
    "draft_id": "100000506",
-   "remote_id": "100000506",
-   "state": "draft_saved",
+   "error": "file=",
+   "remote_id": "2247485056",
+   "state": "published",
    "title": "QuoteDeck：为保险代理提供专业报价工具"
   },
   "xhs": {
    "at": "2026-10-14 00:56",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-14 00:56' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "QuoteDeck：为保险代理提供专业报价工具"
   }
@@ -2537,22 +3459,27 @@
    "at": "2026-10-10 01:30",
    "attempt": 2,
    "draft_id": "342559",
+   "error": "｜草稿同步(2026-10-10 01:30): title 认领 aid=342559",
    "note": "｜草稿同步(2026-10-10 01:30): title 认领 aid=342559",
    "remote_id": "342559",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "Quran Unlock：读古兰经解锁习惯打卡的 App",
    "url": ""
   },
   "toutiao": {
    "at": "2026-10-28 14:54",
    "attempt": 0,
+   "draft_id": "7699902878202315302",
+   "error": "｜11-20 对账：线上草稿箱有（gid=7699902878202315302），已发表列表没有 ⇒ 台账虚记 published，改回 draft",
+   "remote_id": "7699902878202315302",
    "state": "published",
    "title": "Quran Unlock：古兰经习惯打卡"
   },
   "wechat": {
-   "at": "2026-09-30 17:00",
+   "at": "2026-11-20 10:07:46",
    "attempt": 0,
    "draft_id": "100000318",
+   "error": "file=",
    "remote_id": "100000318",
    "state": "draft_saved",
    "title": "Quran Unlock：读古兰经解锁其他 App"
@@ -2560,34 +3487,35 @@
   "xhs": {
    "at": "2026-10-01 23:00",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-01 23:00' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "月收$659：信仰类习惯打卡 App"
   }
  },
  "refactoringui": {
   "aliyun": {
-   "at": "2026-11-03 21:33:42",
+   "at": "2026-11-09 23:12:28",
    "attempt": 0,
    "draft_id": "1699076",
-   "error": " | longtail_key=refactoringui-2026-10-30-2",
-   "state": "published",
-   "title": "",
+   "error": " | longtail_key=refactoringui-2026-10-30-2 ‖ [11-09 #122 补] 阿里云假绿纠正：published⇒draft，title 回填平台真实标题（?edit=1699076 编辑页实读）；longtail 建稿未发布，正文 1149 字 ‖ [11-09 #123 就地改稿] 旧故事稿 → 技术向稿，平台 aid 不变、未新建草稿、未发布；draftDetail 双回读：title 与本地 h1 一致、6 个 h2 全命中、首末句命中、旧首句消失、正文 2741 字；旧稿备份 tmp/aliyun_rewrite_refactoringui_1699076.json",
+   "state": "draft_saved",
+   "title": "卖给开发者的设计书：没有试用层的内容产品怎么定价与交付",
    "url": "https://developer.aliyun.com/article/new?edit=1699076#/"
   },
   "tencentcloud": {
-   "at": "2026-11-03 21:33:42",
+   "at": "2026-11-09 22:51:44",
    "attempt": 0,
-   "draft_id": "338082",
-   "error": " | longtail_key=refactoringui-2026-10-30-1",
-   "state": "published",
-   "title": "",
-   "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338082"
+   "draft_id": "343506",
+   "error": "| longtail_key=refactoringui-2026-10-30-1 ‖ [11-09 #118 腾讯云对账] published ⇒ draft。变更：state:'published'→'draft', title:''→'先有受众，后做书：一个写给程序员的设计书是怎么卖起来的', url:'https://cloud.tencent.com/developer/article/write-new?draftId=338082'→''。（判据只看平台接口：已发布 hostStatus=2 / 草稿箱 getUserArticleDrafts；降级行清空 remote_id 是必须的 —— check_dupe 把非空 remote_id 当已发过） ‖ [11-09 #122] 338082 被误删后重建：新 draft_id=343506，平台 plain 2420 字、本地 42 行正文 100%% 命中、title 与本地 h1 一致（旧稿不可恢复，本地 drafts/newbatch/tencentcloud/refactoringui.md 为源）",
+   "state": "draft_saved",
+   "title": "卖给开发者的设计书：没有试用层的内容产品怎么定价与交付",
+   "url": "https://cloud.tencent.com/developer/article/write-new?draftId=343506"
   },
   "zhihu": {
    "at": "2026-10-30 14:13:36",
    "attempt": 0,
    "draft_id": "2099504230704989752",
-   "error": "status=draft",
+   "error": "status=draft｜[11-09 错账清理] 原 published_at='2026-10-30 14:13:36' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "remote_id": "2099504230704989752",
    "state": "draft_saved",
    "title": "先有受众，后做书：一个写给程序员的设计书是怎么卖起来的",
@@ -2599,6 +3527,7 @@
    "at": "2026-10-17 10:10",
    "attempt": 0,
    "draft_id": "",
+   "error": "P1对账: 标题直接命中(cv53385991) → Rezi：AI 简历生成器，最不酷却验证收入最高",
    "note": "P1对账: 标题直接命中(cv53385991) → Rezi：AI 简历生成器，最不酷却验证收入最高",
    "published_at": "2026-10-11 19:46:05",
    "remote_id": "53385991",
@@ -2607,24 +3536,28 @@
    "url": ""
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-13 23:41",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-09-29 21:17' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": ""
   },
   "wechat": {
    "at": "2026-09-21 22:04",
    "attempt": 0,
-   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484064",
    "published_at": "2026-09-21 22:04",
+   "remote_id": "2247484064",
    "state": "published",
    "title": "Rezi：AI 简历生成器——最不酷的需求，却是验证收入最高的 AI 产品"
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-11-11 08:22",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "error": "｜11-20 对账：按线上已发表列表标题唯一命中补 note_id（Rezi：AI 写简历，验证收入最高）",
+   "remote_id": "6af3b539000000002501e202",
+   "state": "published",
+   "title": "Rezi：AI 写简历，验证收入最高"
   }
  },
  "roster-for-slack": {
@@ -2632,22 +3565,25 @@
    "at": "2026-10-25 02:09",
    "attempt": 1,
    "draft_id": "344836",
+   "error": "｜更新草稿 aid=344836（draft/add 回读校验通过）",
    "note": "｜更新草稿 aid=344836（draft/add 回读校验通过）",
    "remote_id": "344836",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "Roster for Slack：为 Slack 团队提供持",
    "url": ""
   },
   "toutiao": {
    "at": "2026-10-25 00:27",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-25 00:27' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "Roster for Slack：MRR $351，TrustMRR 实时核对"
   },
   "wechat": {
-   "at": "2026-10-25 01:04",
+   "at": "2026-11-20 10:07:46",
    "attempt": 0,
    "draft_id": "100001046",
+   "error": "file=",
    "remote_id": "100001046",
    "state": "draft_saved",
    "title": "Roster for Slack：为 Slack 团队提供持续排班，提升生产力。"
@@ -2655,6 +3591,7 @@
   "xhs": {
    "at": "2026-10-25 01:44",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-25 01:44' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "Roster for Slack：为 Slack 团队提供持"
   }
@@ -2664,9 +3601,10 @@
    "at": "2026-10-10 01:31",
    "attempt": 0,
    "draft_id": "342420",
+   "error": "｜草稿同步(2026-10-10 01:31): title 认领 aid=342420",
    "note": "｜草稿同步(2026-10-10 01:31): title 认领 aid=342420",
    "remote_id": "342420",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "Search1API：给 AI 用的搜索接口",
    "url": ""
   },
@@ -2679,26 +3617,30 @@
    "title": ""
   },
   "wechat": {
-   "at": "2026-09-25 00:33",
+   "at": "2026-11-20 10:07:46",
    "attempt": 0,
    "draft_id": "100000279",
+   "error": "file=",
    "remote_id": "100000279",
    "state": "draft_saved",
    "title": "Search1API：不赌哪个 AI 会赢，只卖它们都需要的那次联网"
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-11-07 17:00",
    "attempt": 0,
-   "state": "draft_saved",
+   "error": "[11-09 镜像同步] note_id 按平台 user/posted?tab=0 全量列表补齐；配对依据 json.at == 平台 time 唯一候选；SQLite remote_id 已按 #107 回写真值（同一 noteId）",
+   "remote_id": "6aeee8b5000000000e035886",
+   "state": "published",
    "title": ""
   }
  },
  "shipfast": {
   "aliyun": {
-   "at": "2026-11-03 21:33:42",
+   "at": "2026-11-07 11:55",
    "attempt": 0,
    "draft_id": "1698462",
    "error": " | longtail_key=shipfast-al-cdp-2026-10-30-1",
+   "remote_id": "1777090",
    "state": "published",
    "title": "",
    "url": "https://developer.aliyun.com/article/1777090"
@@ -2707,9 +3649,10 @@
    "at": "2026-10-10 01:32",
    "attempt": 0,
    "draft_id": "342421",
+   "error": "｜草稿同步(2026-10-10 01:32): title 认领 aid=342421",
    "note": "｜草稿同步(2026-10-10 01:32): title 认领 aid=342421",
    "remote_id": "342421",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "ShipFast：Next.js SaaS 脚手架",
    "url": ""
   },
@@ -2733,37 +3676,45 @@
    "url": "https://blog.csdn.net/sinat_32396037/article/details/170193150"
   },
   "tencentcloud": {
-   "at": "2026-10-30 12:50:00",
+   "at": "2026-11-09 20:17:38",
    "attempt": 0,
    "draft_id": "338031",
-   "error": "tag search 平台侧 404 → 用户授权自拟标签 → React setter+Enter 建 chip 后 UI 发布成功，弹窗「发布成功！文章正在审核中」 | longtail_key=shipfast-2026-10-30-1",
+   "error": "tag search 平台侧 404 → 用户授权自拟标签 → React setter+Enter 建 chip 后 UI 发布成功，弹窗「发布成功！文章正在审核中」 | longtail_key=shipfast-2026-10-30-1 ‖ [11-09 #118 腾讯云对账] published ⇒ published。变更：published_at:'2026-10-30 12:50:00'→'2026-10-30 12:39:26', remote_id:''→'2772402', title:''→'Next.js SaaS 脚手架的工程化边界：认证、支付回调与事务邮件的模块化取舍', url:'https://cloud.tencent.com/developer/article/2772404'→'https://cloud.tencent.com/developer/article/2772402'。（判据只看平台接口：已发布 hostStatus=2 / 草稿箱 getUserArticleDrafts；降级行清空 remote_id 是必须的 —— check_dupe 把非空 remote_id 当已发过）",
    "published_at": "2026-10-30 12:50:00",
+   "remote_id": "2772402",
    "state": "published",
-   "title": "",
-   "url": "https://cloud.tencent.com/developer/article/2772404"
+   "title": "Next.js SaaS 脚手架的工程化边界：认证、支付回调与事务邮件的模块化取舍",
+   "url": "https://cloud.tencent.com/developer/article/2772402"
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-13 23:41",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-09-29 21:17' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": ""
   },
   "wechat": {
    "at": "2026-09-21 22:39",
    "attempt": 0,
-   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484066",
    "published_at": "2026-09-21 22:39",
+   "remote_id": "2247484066",
    "state": "published",
    "title": "被吹爆的 ShipFast，近 30 天收入只剩约 $3,000"
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-11-10 12:58",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "error": "｜11-20 对账：按线上已发表列表标题唯一命中补 note_id（ShipFast：卖程序员的开站模板）",
+   "remote_id": "6af2a47f000000002a018e90",
+   "state": "published",
+   "title": "ShipFast：卖程序员的开站模板"
   },
   "zhihu": {
+   "at": "2026-11-05 13:40:37",
+   "attempt": 0,
    "draft_id": "2099470396764451624",
+   "error": "status=published",
    "note": "status=published",
    "published_at": "2026-10-30 12:13:52",
    "published_ts": "2026-10-30 12:13:52",
@@ -2779,9 +3730,10 @@
    "at": "2026-10-10 01:32",
    "attempt": 0,
    "draft_id": "342422",
+   "error": "｜草稿同步(2026-10-10 01:32): title 认领 aid=342422",
    "note": "｜草稿同步(2026-10-10 01:32): title 认领 aid=342422",
    "remote_id": "342422",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "Sierra：企业级 AI 客服，只在问题解决时才收钱",
    "url": ""
   },
@@ -2796,14 +3748,16 @@
   "wechat": {
    "at": "2026-10-02 01:23",
    "attempt": 0,
-   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247483961",
    "published_at": "2026-10-02 01:23",
+   "remote_id": "2247483961",
    "state": "published",
    "title": "Sierra：企业级 AI 客服代理，只在问题被真正解决时才收钱"
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-05 20:28:37",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-09-29 21:17' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": ""
   }
@@ -2819,19 +3773,19 @@
    "url": "https://developer.aliyun.com/article/new?edit=1699266#/"
   },
   "tencentcloud": {
-   "at": "2026-11-03 21:33:42",
+   "at": "2026-11-09 21:32:35",
    "attempt": 0,
    "draft_id": "338084",
-   "error": " | longtail_key=sleek-design-2026-10-30-1",
-   "state": "published",
-   "title": "",
+   "error": "| longtail_key=sleek-design-2026-10-30-1 ‖ [11-09 #118 腾讯云对账] published ⇒ draft。变更：state:'published'→'draft', title:''→'三周搭出来的 AI 设计工具：零付费营销是怎么起量的', url:'https://cloud.tencent.com/developer/article/write-new?draftId=338084'→''。（判据只看平台接口：已发布 hostStatus=2 / 草稿箱 getUserArticleDrafts；降级行清空 remote_id 是必须的 —— check_dupe 把非空 remote_id 当已发过）",
+   "state": "draft_saved",
+   "title": "生成一整套风格一致的界面：设计 token、中间表示与多目标导出",
    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338084"
   },
   "zhihu": {
    "at": "2026-10-30 14:13:38",
    "attempt": 0,
    "draft_id": "2099504242616752000",
-   "error": "status=draft",
+   "error": "status=draft｜[11-09 错账清理] 原 published_at='2026-10-30 14:13:38' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "remote_id": "2099504242616752000",
    "state": "draft_saved",
    "title": "三周搭出来的 AI 设计工具：零付费营销是怎么起量的",
@@ -2843,30 +3797,35 @@
    "at": "2026-10-15 21:42",
    "attempt": 0,
    "draft_id": "342423",
+   "error": "｜草稿同步(2026-10-15 21:42): title 认领 aid=342423",
    "note": "｜草稿同步(2026-10-15 21:42): title 认领 aid=342423",
    "remote_id": "342423",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "Speel.co：上传商品图，3 分钟出投放广告片",
    "url": ""
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-13 23:41",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-09-29 21:17' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": ""
   },
   "wechat": {
    "at": "2026-10-02 14:35",
    "attempt": 0,
-   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484103",
    "published_at": "2026-10-02 14:35",
+   "remote_id": "2247484103",
    "state": "published",
    "title": "$65K MRR 是真的，但它已经停止增长了"
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-11-04 13:09",
    "attempt": 0,
-   "state": "draft_saved",
+   "error": "[11-09 镜像同步] note_id 按平台 user/posted?tab=0 全量列表补齐；配对依据 json.at == 平台 time 唯一候选；SQLite remote_id 逐字一致（#104 已补正）",
+   "remote_id": "6aeabdf4000000001e0166b6",
+   "state": "published",
    "title": ""
   }
  },
@@ -2875,11 +3834,31 @@
    "at": "2026-10-10 01:34",
    "attempt": 0,
    "draft_id": "342424",
+   "error": "｜草稿同步(2026-10-10 01:34): title 认领 aid=342424",
    "note": "｜草稿同步(2026-10-10 01:34): title 认领 aid=342424",
    "remote_id": "342424",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "Stan：帮创作者靠粉丝养活自己的平台",
    "url": ""
+  },
+  "cnblogs": {
+   "at": "2026-11-13 07:27:08",
+   "attempt": 0,
+   "draft_id": "23649326",
+   "error": "status=published",
+   "remote_id": "23649326",
+   "state": "published",
+   "title": "把卖货页、会员和付费社群收进一个链接的创作者收银台",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23649326"
+  },
+  "csdn": {
+   "at": "2026-11-13 08:22",
+   "attempt": 0,
+   "error": " | [11-13 发布] 已发表列表按标题命中 id=170688455；公开页 7902 字 5 关键词回读通过（脚本自报 article_id=None）",
+   "remote_id": "170688455",
+   "state": "published",
+   "title": "一个链接承载卖货页、会员与社群：单页交付面的架构取舍",
+   "url": "https://blog.csdn.net/sinat_32396037/article/details/170688455"
   },
   "toutiao": {
    "at": "2026-09-28 20:40",
@@ -2892,16 +3871,28 @@
   "wechat": {
    "at": "2026-10-02 01:02",
    "attempt": 0,
-   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247483931",
    "published_at": "2026-10-02 01:02",
+   "remote_id": "2247483931",
    "state": "published",
    "title": "Stan：帮创作者「靠自己活着和工作」的平台"
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-05 20:21:24",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-09-29 21:17' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": ""
+  },
+  "zhihu": {
+   "at": "2026-11-15 11:58:12",
+   "attempt": 0,
+   "draft_id": "2105268358618801699",
+   "error": "status=draft",
+   "remote_id": "2105268358618801699",
+   "state": "draft_saved",
+   "title": "Stan：把卖货页、会员与订阅收进一个链接",
+   "url": "https://zhuanlan.zhihu.com/p/2105268358618801699"
   }
  },
  "startclaw": {
@@ -2909,23 +3900,26 @@
    "at": "2026-10-15 21:49",
    "attempt": 0,
    "draft_id": "342426",
+   "error": "｜草稿同步(2026-10-15 21:49): title 认领 aid=342426",
    "note": "｜草稿同步(2026-10-15 21:49): title 认领 aid=342426",
    "remote_id": "342426",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "StartClaw：零配置跑起自己的 AI 助手",
    "url": ""
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-13 23:41",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-09-29 21:17' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": ""
   },
   "wechat": {
    "at": "2026-10-21 12:47",
    "attempt": 0,
-   "error": "｜publish模式自动发表，新 appmsgid=2247484558",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484558",
    "published_at": "2026-10-21 12:47",
+   "remote_id": "2247484558",
    "state": "published",
    "title": "StartClaw：零配置跑 AI 助手"
   },
@@ -2934,7 +3928,7 @@
    "attempt": 0,
    "error": "2026-10-23 14:57 接口对账回填（线上已发布）",
    "remote_id": "6ac90f90000000000a023d03",
-   "state": "draft_saved",
+   "state": "published",
    "title": "不买服务器不配 key，也能跑起 agent"
   }
  },
@@ -2943,22 +3937,25 @@
    "at": "2026-10-25 02:10",
    "attempt": 1,
    "draft_id": "344837",
+   "error": "｜更新草稿 aid=344837（draft/add 回读校验通过）",
    "note": "｜更新草稿 aid=344837（draft/add 回读校验通过）",
    "remote_id": "344837",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "Static.run：静态网站托管服务，免费易用",
    "url": ""
   },
   "toutiao": {
    "at": "2026-10-25 00:29",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-25 00:29' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "Static.run：MRR $358，TrustMRR 实时核对"
   },
   "wechat": {
-   "at": "2026-10-25 01:09",
+   "at": "2026-11-20 10:07:46",
    "attempt": 0,
    "draft_id": "100001057",
+   "error": "file=",
    "remote_id": "100001057",
    "state": "draft_saved",
    "title": "Static.run：静态网站托管服务，免费易用"
@@ -2966,6 +3963,7 @@
   "xhs": {
    "at": "2026-10-25 01:48",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-25 01:48' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "Static.run：静态网站托管服务，免费易用"
   }
@@ -2975,29 +3973,34 @@
    "at": "2026-10-14 13:32",
    "attempt": 1,
    "draft_id": "343835",
+   "error": "｜草稿同步(2026-10-14 13:32): title 认领 aid=343835",
    "note": "｜草稿同步(2026-10-14 13:32): title 认领 aid=343835",
    "remote_id": "343835",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "Stealth RDP：跨美欧的 VPS 托管",
    "url": ""
   },
   "toutiao": {
-   "at": "2026-10-13 23:39",
+   "at": "2026-10-13 23:41",
    "attempt": 1,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-13 23:39' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "Stealth RDP：提供跨美欧的Windows/Linu"
   },
   "wechat": {
-   "at": "2026-10-14 01:47",
+   "at": "2026-11-13 07:35",
    "attempt": 0,
    "draft_id": "100000490",
-   "remote_id": "100000490",
-   "state": "draft_saved",
-   "title": "Stealth RDP：跨美欧的 Windows/Linux VPS 托管服务"
+   "error": "file=",
+   "remote_id": "2247485055",
+   "state": "published",
+   "title": "Stealth RDP：跨美欧的 Windows/Linux VPS 托管服务",
+   "url": "https://mp.weixin.qq.com/s/wc3SVZFVH-29tZmPhtKV9w"
   },
   "xhs": {
-   "at": "2026-10-14 00:41",
+   "at": "2026-10-15 15:19",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-14 00:41' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "Stealth RDP：提供跨美欧的Windows/Linu"
   }
@@ -3006,6 +4009,7 @@
   "toutiao": {
    "at": "2026-10-19 22:46",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-19 22:46' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "StoryShort：输入文字自动生成「无脸视频」并定时发布"
   }
@@ -3015,23 +4019,26 @@
    "at": "2026-10-10 01:35",
    "attempt": 0,
    "draft_id": "342427",
+   "error": "｜草稿同步(2026-10-10 01:35): title 认领 aid=342427",
    "note": "｜草稿同步(2026-10-10 01:35): title 认领 aid=342427",
    "remote_id": "342427",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "StoryShort.ai：自动生成无需真人出镜的短视频",
    "url": ""
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-13 23:41",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-09-29 21:17' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": ""
   },
   "wechat": {
    "at": "2026-09-21 23:25",
    "attempt": 0,
-   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484555",
    "published_at": "2026-09-21 23:25",
+   "remote_id": "2247484555",
    "state": "published",
    "title": "StoryShort.ai：自动生成无露脸短视频，靠 TikTok 图文轮播拿到 100+ 付费用户"
   },
@@ -3040,7 +4047,7 @@
    "attempt": 0,
    "error": "2026-10-18 21:46 接口对账回填（线上已发布）",
    "remote_id": "6ac1277b000000000a020659",
-   "state": "draft_saved",
+   "state": "published",
    "title": "输入主题就出无露脸短视频，100 人付费"
   }
  },
@@ -3060,6 +4067,7 @@
    "at": "2026-10-17 10:10",
    "attempt": 0,
    "draft_id": "345579",
+   "error": "P1对账: 标题直接命中(cv53460777) → TrustMRR：验证过的创业公司收入数据库｜同案例另有一条旧稿『TrustMRR：验证过的创业公司收入数据库』(cv53352783, 2026-10-09 12:58，正文与新篇相同)｜更新草稿 aid=345579（draft/add 回读校验通过）｜11-20 对账：草稿 id 345579 已不在线上草稿箱（发布后消失），不再记",
    "note": "P1对账: 标题直接命中(cv53460777) → TrustMRR：验证过的创业公司收入数据库｜同案例另有一条旧稿『TrustMRR：验证过的创业公司收入数据库』(cv53352783, 2026-10-09 12:58，正文与新篇相同)｜更新草稿 aid=345579（draft/add 回读校验通过）",
    "published_at": "2026-10-31 18:26:17",
    "remote_id": "53696865",
@@ -3095,18 +4103,18 @@
    "url": "https://juejin.cn/post/7702463374432796699"
   },
   "tencentcloud": {
-   "at": "2026-11-01 00:34:21",
+   "at": "2026-11-09 20:17:38",
    "attempt": 0,
    "draft_id": "338565",
-   "error": " | longtail_key=trustmrr-2026-10-31-1",
+   "error": "| longtail_key=trustmrr-2026-10-31-1",
    "published_at": "2026-11-01 00:34:21",
    "remote_id": "2773308",
    "state": "published",
    "title": "TrustMRR：把「可核验」做成产品的海外小站",
-   "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338565"
+   "url": "https://cloud.tencent.com/developer/article/2773308"
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-31 18:22",
    "attempt": 0,
    "error": "send_existing_draft",
    "remote_id": "7702774630259376676",
@@ -3116,7 +4124,7 @@
   "wechat": {
    "at": "2026-09-29 21:17",
    "attempt": 0,
-   "error": "发布模式",
+   "error": "file=",
    "published_at": "2026-09-29 21:17",
    "remote_id": "2247484801",
    "state": "published",
@@ -3126,12 +4134,16 @@
   "xhs": {
    "at": "2026-10-31 18:38",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-31 18:38' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）｜✅ [11-09 同类裁定] 平台侧独立回读：user/posted?tab=0 全量 36 条 + DOM「已发布」tab 36 卡片；配对依据＝noteId 精确命中 + 标题/时点一致；平台 noteId=6ae5c52b0000000025009c95、time=2026-10-31 18:38。DOM「审核中」「未通过」tab 各 0 卡片。state draft→published、published_at 按平台 time 落账、remote_id 补齐；⏸ 公开页 explore 匿名返回「页面不见了」、登录态「安全限制 IP at risk」(300031/300012) ⇒ url 留空不编；title 为建稿时提交给平台的标题镜像，未改。",
    "remote_id": "6ae5c52b0000000025009c95",
-   "state": "draft_saved",
+   "state": "published",
    "title": "连上 Stripe 才准上榜的收入榜单"
   },
   "zhihu": {
+   "at": "2026-11-05 13:40:37",
+   "attempt": 0,
    "draft_id": "2099933712293028149",
+   "error": "status=published",
    "note": "status=published",
    "published_at": "2026-10-31 23:24:44",
    "published_ts": "2026-10-31 23:24:44",
@@ -3147,6 +4159,7 @@
    "at": "2026-10-07 00:05",
    "attempt": 0,
    "draft_id": "",
+   "error": "对账补登: 读公开页正文确认(cv53315883) → UpLinked B.V.：在领英上自动加客户｜同案例另有一条旧标题稿『月收$2.4K：在领英上自动加客户』(cv53245351, 2026-09-30 15:19)",
    "note": "对账补登: 读公开页正文确认(cv53315883) → UpLinked B.V.：在领英上自动加客户｜同案例另有一条旧标题稿『月收$2.4K：在领英上自动加客户』(cv53245351, 2026-09-30 15:19)",
    "published_at": "2026-10-07 00:05:13",
    "remote_id": "53315883",
@@ -3163,9 +4176,10 @@
    "title": "月收$2.4K：在领英上自动加客户"
   },
   "wechat": {
-   "at": "2026-10-16 07:56",
+   "at": "2026-11-20 10:07:46",
    "attempt": 0,
    "draft_id": "100000522",
+   "error": "file=",
    "remote_id": "100000522",
    "state": "draft_saved",
    "title": "UpLinked：领英上自动加客户"
@@ -3175,27 +4189,29 @@
    "attempt": 0,
    "error": "2026-10-18 21:46 接口对账回填（线上已发布）",
    "remote_id": "6abdf2a60000000013018c63",
-   "state": "draft_saved",
+   "state": "published",
    "title": "分析你的领英档案，生成 12 周内容策略"
   }
  },
  "upvoty": {
   "aliyun": {
-   "at": "2026-11-03 21:33:42",
+   "at": "2026-11-17 09:58:48",
    "attempt": 0,
    "draft_id": "1699818",
-   "error": " | longtail_key=upvoty-2026-10-30-2",
-   "state": "published",
-   "title": "",
+   "error": "| longtail_key=upvoty-2026-10-30-2 ‖ [11-09 #122 补] 阿里云假绿纠正：published⇒draft，title 回填平台真实标题（?edit=1699818 编辑页实读）；longtail 建稿未发布，正文 1293 字 ‖ [11-09 #123 就地改稿] 旧故事稿 → 技术向稿，平台 aid 不变、未新建草稿、未发布；draftDetail 双回读：title 与本地 h1 一致、7 个 h2 全命中、首末句命中、旧首句消失、正文 3171 字；旧稿备份 tmp/aliyun_rewrite_upvoty_1699818.json ‖ [2026-11-17 阿里云发布] 草稿 1699818 → 文章 1784384；匿名 GET https://developer.aliyun.com/article/1784384：HTTP 404、0 bytes、标题命中=False、审核横幅=False ⇒ auditing（published 需 200 + 标题命中 + 无审核横幅；url 待过审后独立回读再补）",
+   "remote_id": "1784384",
+   "state": "draft_saved",
+   "title": "公开看板的多租户边界：缓存键、检索索引与投票洪峰",
    "url": "https://developer.aliyun.com/article/new?edit=1699818#/"
   },
   "bilibili": {
    "at": "2026-11-03 13:42",
    "attempt": 0,
    "draft_id": "345869",
+   "error": "｜更新草稿 aid=345869（draft/add 回读校验通过）",
    "note": "｜更新草稿 aid=345869（draft/add 回读校验通过）",
    "remote_id": "345869",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "Upvoty",
    "url": ""
   },
@@ -3203,6 +4219,7 @@
    "at": "2026-11-15 12:45",
    "attempt": 0,
    "draft_id": "",
+   "error": "草稿箱→发布（send-draft）",
    "note": "草稿箱→发布（send-draft）",
    "published_at": "2026-11-15 12:45",
    "remote_id": "53920577",
@@ -3217,26 +4234,36 @@
    "title": "Upvoty拆解：先收200个注册再写代码，六年做到$40K MRR"
   },
   "tencentcloud": {
-   "at": "2026-11-03 21:33:42",
+   "at": "2026-11-09 20:17:38",
    "attempt": 0,
    "draft_id": "338085",
-   "error": " | longtail_key=upvoty-2026-10-30-1",
+   "error": "| longtail_key=upvoty-2026-10-30-1 ‖ [11-09 #118 腾讯云对账] published ⇒ published。变更：published_at:''→'2026-10-29 12:40:12', remote_id:''→'2771439', title:''→'bootstrapped 六年：这个用户反馈工具靠什么活到今天', url:'https://cloud.tencent.com/developer/article/write-new?draftId=338085'→'https://cloud.tencent.com/developer/article/2771439'。（判据只看平台接口：已发布 hostStatus=2 / 草稿箱 getUserArticleDrafts；降级行清空 remote_id 是必须的 —— check_dupe 把非空 remote_id 当已发过）",
    "published_at": "2026-10-29 14:06:20",
+   "remote_id": "2771439",
    "state": "published",
-   "title": "",
-   "url": "https://cloud.tencent.com/developer/article/write-new?draftId=338085"
+   "title": "bootstrapped 六年：这个用户反馈工具靠什么活到今天",
+   "url": "https://cloud.tencent.com/developer/article/2771439"
+  },
+  "toutiao": {
+   "at": "2026-11-10 13:03:00",
+   "attempt": 0,
+   "error": "ui_publish_unverified:已发表列表/草稿箱双读均未命中 ‖ 11-10 收尾：点发布后两侧列表均无同标题（静默扣稿/审核队列），按三态不写 published_at，不重发",
+   "state": "draft_saved",
+   "title": ""
   },
   "xhs": {
    "at": "2026-11-03 13:40",
    "attempt": 0,
-   "state": "draft_saved",
+   "error": "[11-09 镜像同步] note_id 按平台 user/posted?tab=0 全量列表补齐；配对依据 json.at == 平台 time 唯一候选；SQLite remote_id 逐字一致（#104 已补正）",
+   "remote_id": "6ae973da0000000016006f3d",
+   "state": "published",
    "title": ""
   },
   "zhihu": {
    "at": "2026-10-30 14:13:41",
    "attempt": 0,
    "draft_id": "2099504252569777796",
-   "error": "status=draft",
+   "error": "status=draft｜[11-09 错账清理] 原 published_at='2026-10-30 14:13:41' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "remote_id": "2099504252569777796",
    "state": "draft_saved",
    "title": "bootstrapped 六年：这个用户反馈工具靠什么活到今天",
@@ -3248,29 +4275,33 @@
    "at": "2026-10-14 12:14",
    "attempt": 2,
    "draft_id": "343501",
+   "error": "｜草稿同步(2026-10-14 12:14): body 认领 aid=343501",
    "note": "｜草稿同步(2026-10-14 12:14): body 认领 aid=343501",
    "remote_id": "343501",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "VectoSolve：位图转可编辑 SVG",
    "url": ""
   },
   "toutiao": {
-   "at": "2026-10-10 15:51",
+   "at": "2026-10-13 23:41",
    "attempt": 1,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-10 15:51' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "月收 $1,808 但唯一在增长：把 PNG 转成可编辑的 SVG"
   },
   "wechat": {
-   "at": "2026-10-10 16:24",
+   "at": "2026-11-20 10:07:46",
    "attempt": 1,
    "draft_id": "100000432",
+   "error": "file=",
    "remote_id": "100000432",
    "state": "draft_saved",
    "title": "VectoSolve：位图一键转可编辑 SVG"
   },
   "xhs": {
-   "at": "2026-10-10 17:45",
+   "at": "2026-10-15 00:26:59",
    "attempt": 2,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-10 17:45' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "月收 $1,808 但唯一在增长：把 PNG 转成可编辑的"
   }
@@ -3280,22 +4311,25 @@
    "at": "2026-10-25 02:11",
    "attempt": 1,
    "draft_id": "344838",
+   "error": "｜更新草稿 aid=344838（draft/add 回读校验通过）",
    "note": "｜更新草稿 aid=344838（draft/add 回读校验通过）",
    "remote_id": "344838",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "Verse：Verse 以单次提示构建自主 AI 员工",
    "url": ""
   },
   "toutiao": {
    "at": "2026-10-25 00:39",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-25 00:39' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "Verse：MRR $396，TrustMRR 实时核对"
   },
   "wechat": {
-   "at": "2026-10-25 01:21",
+   "at": "2026-11-20 10:07:46",
    "attempt": 0,
    "draft_id": "100001090",
+   "error": "file=",
    "remote_id": "100001090",
    "state": "draft_saved",
    "title": "Verse：Verse 以单次提示构建自主 AI 员工。"
@@ -3303,6 +4337,7 @@
   "xhs": {
    "at": "2026-10-25 01:59",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-25 01:59' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "Verse：Verse 以单次提示构建自主 AI 员工"
   }
@@ -3312,9 +4347,10 @@
    "at": "2026-10-14 12:16",
    "attempt": 2,
    "draft_id": "343502",
+   "error": "｜草稿同步(2026-10-14 12:16): body 认领 aid=343502",
    "note": "｜草稿同步(2026-10-14 12:16): body 认领 aid=343502",
    "remote_id": "343502",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "Vid.AI：一段脚本直接变成短视频",
    "url": ""
   },
@@ -3327,16 +4363,18 @@
    "title": "两年做到累计 $162 万，然后峰值留存掉到 46%"
   },
   "wechat": {
-   "at": "2026-10-10 16:55",
+   "at": "2026-11-20 10:07:46",
    "attempt": 1,
    "draft_id": "100000446",
+   "error": "file=",
    "remote_id": "100000446",
    "state": "draft_saved",
    "title": "Vid.AI：脚本一键变短视频"
   },
   "xhs": {
-   "at": "2026-10-10 17:57",
+   "at": "2026-10-15 14:39:43",
    "attempt": 2,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-10 17:57' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "两年做到累计 $162 万，然后峰值留存掉到 46%"
   }
@@ -3346,6 +4384,7 @@
    "at": "2026-10-05 12:11",
    "attempt": 0,
    "draft_id": "",
+   "error": "对账补登: 读公开页正文确认(cv53298456) → Viktor：住进 Slack 的 AI 同事",
    "note": "对账补登: 读公开页正文确认(cv53298456) → Viktor：住进 Slack 的 AI 同事",
    "published_at": "2026-10-05 12:11:15",
    "remote_id": "53298456",
@@ -3354,22 +4393,25 @@
    "url": ""
   },
   "toutiao": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-13 23:41",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-09-29 21:17' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": ""
   },
   "wechat": {
    "at": "2026-09-21 21:53",
    "attempt": 0,
-   "error": "远端已发表列表里存在，本地由 sync 回写",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484042",
    "published_at": "2026-09-21 21:53",
+   "remote_id": "2247484042",
    "state": "published",
    "title": "Viktor：住进 Slack / Teams 的 AI 同事，你 @ 它，它把活干完再贴回来"
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-10-15 20:05",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-09-29 21:17' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": ""
   }
@@ -3379,6 +4421,7 @@
    "at": "2026-10-17 10:10",
    "attempt": 0,
    "draft_id": "",
+   "error": "P1对账: 标题直接命中(cv53283349) → Visualizee.ai：给建筑师做效果图云渲染",
    "note": "P1对账: 标题直接命中(cv53283349) → Visualizee.ai：给建筑师做效果图云渲染",
    "published_at": "2026-10-04 00:03:46",
    "remote_id": "53283349",
@@ -3397,16 +4440,19 @@
   "wechat": {
    "at": "2026-10-16 20:18",
    "attempt": 0,
-   "error": "｜后台已发表（编辑器页面确认），本地由 send 修正",
+   "error": "｜11-20 对账：后台改过标题（线上《Visualizee.ai：给建筑师和室内设计师做效果图渲染，两年卡在 $150/月，一次转型跳到 $8.6K》），按产品名唯一命中补 appmsgid=2247484219",
    "published_at": "2026-10-16 20:18",
+   "remote_id": "2247484219",
    "state": "published",
    "title": "Visualizee.ai：建筑与室内设计的效果图渲染工具"
   },
   "xhs": {
-   "at": "2026-09-29 21:17",
+   "at": "2026-11-15 11:34",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": ""
+   "error": "｜11-20 对账：按线上已发表列表标题唯一命中补 note_id（Visualizee：给建筑师渲效果图）",
+   "remote_id": "6af92837000000002b02b5cb",
+   "state": "published",
+   "title": "Visualizee：给建筑师渲效果图"
   }
  },
  "voklit": {
@@ -3414,6 +4460,7 @@
    "at": "2026-10-17 10:10",
    "attempt": 0,
    "draft_id": "342350",
+   "error": "P1对账: 标题直接命中(cv53375028) → Voklit：给跨境团队搭的云通信",
    "note": "P1对账: 标题直接命中(cv53375028) → Voklit：给跨境团队搭的云通信",
    "published_at": "2026-10-10 21:05:05",
    "remote_id": "53375028",
@@ -3433,7 +4480,7 @@
    "at": "2026-11-04 14:07",
    "attempt": 0,
    "draft_id": "100000242",
-   "error": "｜publish模式自动发表，新 appmsgid=2247484999",
+   "error": "file=",
    "published_at": "2026-11-04 14:07",
    "remote_id": "100000242",
    "state": "published",
@@ -3444,7 +4491,7 @@
    "attempt": 0,
    "error": "2026-10-18 21:46 接口对账回填（线上已发布）",
    "remote_id": "6ac322bc000000001a02b5c3",
-   "state": "draft_saved",
+   "state": "published",
    "title": "卖海外号码给跨境团队，整站 6 万挂牌"
   }
  },
@@ -3453,29 +4500,33 @@
    "at": "2026-10-14 13:32",
    "attempt": 1,
    "draft_id": "343836",
+   "error": "｜草稿同步(2026-10-14 13:32): title 认领 aid=343836",
    "note": "｜草稿同步(2026-10-14 13:32): title 认领 aid=343836",
    "remote_id": "343836",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "Wagiff：中东北非男性的戒断社区",
    "url": ""
   },
   "toutiao": {
-   "at": "2026-10-13 23:12",
+   "at": "2026-10-13 23:41",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-13 23:12' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "Wagiff App：MRR $18,508，TrustMR"
   },
   "wechat": {
-   "at": "2026-10-14 02:03",
+   "at": "2026-11-20 10:07:46",
    "attempt": 0,
    "draft_id": "100000502",
+   "error": "file=",
    "remote_id": "100000502",
    "state": "draft_saved",
    "title": "Wagiff App：中东北非地区男性用户戒除不良习惯的社交应用"
   },
   "xhs": {
-   "at": "2026-10-14 00:52",
+   "at": "2026-10-15 15:59",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-14 00:52' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "Wagiff App：中东北非地区男性用户戒除不良习惯的社交"
   }
@@ -3485,31 +4536,36 @@
    "at": "2026-10-14 13:33",
    "attempt": 1,
    "draft_id": "343875",
+   "error": "｜草稿同步(2026-10-14 13:33): title 认领 aid=343875",
    "note": "｜草稿同步(2026-10-14 13:33): title 认领 aid=343875",
    "remote_id": "343875",
-   "state": "draft",
+   "state": "draft_saved",
    "title": "White Glove：社媒内容外包代运营",
    "url": ""
   },
   "toutiao": {
-   "at": "2026-10-13 23:09",
+   "at": "2026-10-13 23:41",
    "attempt": 0,
+   "error": "｜[11-09 错账清理] 原 published_at='2026-10-13 23:09' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "White Glove Content：MRR $70,49"
   },
   "wechat": {
-   "at": "2026-10-14 01:52",
+   "at": "2026-11-17 10:02",
    "attempt": 0,
    "draft_id": "100000494",
+   "error": "file=",
    "remote_id": "100000494",
-   "state": "draft_saved",
+   "state": "published",
    "title": "White Glove Content：为创作者和品牌提供社交媒体无脸视频内容订阅服务"
   },
   "xhs": {
-   "at": "2026-10-14 00:45",
+   "at": "2026-11-17 09:45",
    "attempt": 0,
-   "state": "draft_saved",
-   "title": "White Glove Content：为创作者和品牌提供社"
+   "error": "｜11-20 对账：按线上已发表列表标题唯一命中补 note_id（White Glove：无脸视频代运营）",
+   "remote_id": "6afbb1bd000000002b013547",
+   "state": "published",
+   "title": "White Glove：无脸视频代运营"
   }
  },
  "wpconvert-ai-convert-ai-sites-to-wordpress": {
@@ -3517,12 +4573,32 @@
    "at": "2026-10-15 21:22",
    "attempt": 2,
    "draft_id": "343876",
+   "error": "｜草稿同步(2026-10-15 21:22): title 认领 aid=343876｜11-20 对账：草稿 id 343876 已不在线上草稿箱（发布后消失），不再记",
    "note": "｜草稿同步(2026-10-15 21:22): title 认领 aid=343876",
    "published_at": "2026-11-02 20:18:32",
    "remote_id": "53725626",
    "state": "published",
    "title": "WPConvert：AI 建的站转成 WordPress",
    "url": ""
+  },
+  "cnblogs": {
+   "at": "2026-11-18 13:01:48",
+   "attempt": 0,
+   "draft_id": "23705352",
+   "error": "status=published",
+   "remote_id": "23705352",
+   "state": "published",
+   "title": "WPConvert：把 AI 建站项目迁回可自持的 WordPress",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23705352"
+  },
+  "csdn": {
+   "at": "2026-11-18 13:04:06",
+   "attempt": 0,
+   "error": "公开页200+5词命中+发布时间2026-11-18 13:04:05；列表接口查询返回[]属已知延迟；article_id 从URL details/ 提取",
+   "remote_id": "170976709",
+   "state": "published",
+   "title": "WPConvert：把 AI 建站项目转成可上线 WordPress",
+   "url": "https://blog.csdn.net/sinat_32396037/article/details/170976709"
   },
   "toutiao": {
    "at": "2026-11-02 20:16",
@@ -3535,23 +4611,87 @@
   "wechat": {
    "at": "2026-11-02 20:33",
    "attempt": 1,
-   "error": "｜publish模式自动发表，新 appmsgid=2247484987",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484987",
    "published_at": "2026-11-02 20:33",
+   "remote_id": "2247484987",
    "state": "published",
    "title": "WPConvert：AI 建站转 WP"
   },
   "xhs": {
    "at": "2026-11-02 20:22",
    "attempt": 2,
-   "state": "draft_saved",
+   "error": "[11-09 镜像同步] note_id 按平台 user/posted?tab=0 全量列表补齐；配对依据 json.at == 平台 time 唯一候选；SQLite remote_id 逐字一致（#104 已补正）",
+   "remote_id": "6ae880900000000035008e3f",
+   "state": "published",
    "title": "月收$3.6K：WPConvert."
+  }
+ },
+ "wx-100000204": {
+  "wechat": {
+   "at": "2026-11-09 11:29",
+   "attempt": 0,
+   "error": "file=",
+   "remote_id": "100000204",
+   "state": "published",
+   "title": "Meerkats.ai：替营销机构自动跑「找线索 → 补数据 → 个性化触达 → 跟进」的 AI agent"
+  }
+ },
+ "wx-100000212": {
+  "wechat": {
+   "at": "2026-11-08 16:09",
+   "attempt": 0,
+   "error": "file=",
+   "remote_id": "100000212",
+   "state": "published",
+   "title": "StartClaw：不用买服务器、不用配 API key，就能跑起一个托管 agent"
+  }
+ },
+ "wx-100000267": {
+  "wechat": {
+   "at": "2026-11-07 10:45",
+   "attempt": 0,
+   "error": "file=",
+   "remote_id": "100000267",
+   "state": "published",
+   "title": "把「我知道要发内容，但没时间写」做成订阅：AI LinkedIn 代写 + 自动发布：给 B2B 顾问做 12 周内容策略"
+  }
+ },
+ "wx-100000514": {
+  "wechat": {
+   "at": "2026-11-20 10:07:46",
+   "attempt": 0,
+   "error": "file=",
+   "remote_id": "100000514",
+   "state": "deleted",
+   "title": "把 AI 建站工具生成的网站，转成 WordPress——一个工程师的生意"
+  }
+ },
+ "wx-100000530": {
+  "wechat": {
+   "at": "2026-11-11 09:03",
+   "attempt": 0,
+   "error": "file=",
+   "remote_id": "100000530",
+   "state": "published",
+   "title": "Coral：帮你把开源 AI agent 部署、托管、接上各种业务系统，卖的是「配置」，不是模型"
+  }
+ },
+ "wx-wpconvert-clean": {
+  "wechat": {
+   "at": "2026-11-10 15:32",
+   "attempt": 0,
+   "error": "file=",
+   "remote_id": "100001402",
+   "state": "published",
+   "title": "把 AI 建站工具生成的网站转成 WordPress，是一个工程师就能接住的生意"
   }
  },
  "公众号-31个可复制的AI产品-推文": {
   "wechat": {
    "at": "2026-10-25 22:44",
    "attempt": 0,
-   "error": "｜masssend模式自动发表，新 appmsgid=2247484751",
+   "error": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484751",
+   "remote_id": "2247484751",
    "state": "published",
    "title": "我核了 255 个海外 AI 产品的收入，只有 31 个值得抄"
   }

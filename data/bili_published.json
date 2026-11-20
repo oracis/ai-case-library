@@ -22,7 +22,7 @@
     "title": "TrustMRR：验证过的创业公司收入数据库",
     "verified_at": "2026-10-31 18:26",
     "evidence": "editor-ui-publish+aid-reassigned",
-    "note": "P1对账: 标题直接命中(cv53460777) → TrustMRR：验证过的创业公司收入数据库｜同案例另有一条旧稿『TrustMRR：验证过的创业公司收入数据库』(cv53352783, 2026-10-09 12:58，正文与新篇相同)｜更新草稿 aid=345579（draft/add 回读校验通过）"
+    "note": "P1对账: 标题直接命中(cv53460777) → TrustMRR：验证过的创业公司收入数据库｜同案例另有一条旧稿『TrustMRR：验证过的创业公司收入数据库』(cv53352783, 2026-10-09 12:58，正文与新篇相同)｜更新草稿 aid=345579（draft/add 回读校验通过）｜11-20 对账：草稿 id 345579 已不在线上草稿箱（发布后消失），不再记"
   },
   {
     "id": "mort",
@@ -96,29 +96,29 @@
   {
     "id": "checkvibe",
     "at": "2026-10-10 01:15",
-    "article_id": "342374",
+    "article_id": "53512363",
     "title": "CheckVibe：扫描 vibe-coded 应用漏洞",
     "verified_at": "2026-10-20 01:01",
     "evidence": "remote_readback",
-    "note": "2026-10-20 00:52 编辑器点「发布」→「你的专栏已提交成功」→ 已通过列表回读命中（草稿箱最老，10-10 01:15）"
+    "note": "2026-10-20 00:52 编辑器点「发布」→「你的专栏已提交成功」→ 已通过列表回读命中（草稿箱最老，10-10 01:15）｜11-20 对账：id 由草稿 id 纠正为线上真 id 53512363｜11-20 对账：草稿 id 342374 已不在线上草稿箱（发布后消失），不再记"
   },
   {
     "id": "autoreels-ai",
     "at": "2026-10-10 01:12",
-    "article_id": "342371",
+    "article_id": "53511170",
     "title": "AutoReels.AI：一键把素材剪成短视频",
     "verified_at": "2026-10-20 01:01",
     "evidence": "remote_readback",
-    "note": "2026-10-20 00:55 发现已在已通过列表（非本次自动发布，应为 10-19 深夜编辑器打开后的人工点击，具体时间未知）"
+    "note": "2026-10-20 00:55 发现已在已通过列表（非本次自动发布，应为 10-19 深夜编辑器打开后的人工点击，具体时间未知）｜11-20 对账：id 由草稿 id 纠正为线上真 id 53511170｜11-20 对账：草稿 id 342371 已不在线上草稿箱（发布后消失），不再记"
   },
   {
     "id": "downconvert-sketchup-files",
     "at": "2026-10-14 13:25",
-    "article_id": "343827",
+    "article_id": "53590385",
     "title": "DownConvert：SketchUp 文件转旧版",
     "verified_at": "2026-10-24 21:30",
     "evidence": "remote_readback",
-    "note": "2026-10-24 21:2x 编辑器点「发布」→ toast「提交成功」→ 草稿箱 44→43（aid=343827 消失）→ 已发表列表按标题命中 cv53590385《DownConvert：SketchUp 文件转旧版》。⚠ 脚本按 aid 回读未命中是判据缺陷：B站发布后 read id 会变（343827→53590385），已发表列表回读必须按标题匹配。"
+    "note": "2026-10-24 21:2x 编辑器点「发布」→ toast「提交成功」→ 草稿箱 44→43（aid=343827 消失）→ 已发表列表按标题命中 cv53590385《DownConvert：SketchUp 文件转旧版》。⚠ 脚本按 aid 回读未命中是判据缺陷：B站发布后 read id 会变（343827→53590385），已发表列表回读必须按标题匹配。｜11-20 对账：id 由草稿 id 纠正为线上真 id 53590385"
   },
   {
     "id": "agentsguild",
@@ -127,7 +127,7 @@
     "title": "AgentsGuild：近 30 天已验证收入 ，为游戏开发",
     "verified_at": "2026-10-27 13:01",
     "evidence": "editor-ui-publish",
-    "note": "｜更新草稿 aid=344958（draft/add 回读校验通过）"
+    "note": "｜更新草稿 aid=344958（draft/add 回读校验通过）｜11-20 对账：草稿 id 344958 已不在线上草稿箱（发布后消失），不再记"
   },
   {
     "id": "divine-widgets",
@@ -136,7 +136,7 @@
     "title": "Divine Widgets：圣经小组件，每日经文祷告上锁屏",
     "verified_at": "2026-10-28 14:37",
     "evidence": "editor-ui-publish + manual recheck (new aid assigned on publish)",
-    "note": "｜草稿同步(2026-10-10 01:17): title 认领 aid=342399｜更新草稿 aid=342399（draft/add 回读校验通过）｜更新草稿 aid=342399（draft/add 回读校验通过）"
+    "note": "｜草稿同步(2026-10-10 01:17): title 认领 aid=342399｜更新草稿 aid=342399（draft/add 回读校验通过）｜更新草稿 aid=342399（draft/add 回读校验通过）｜11-20 对账：草稿 id 342399 已不在线上草稿箱（发布后消失），不再记"
   },
   {
     "id": "magicslides-app",
@@ -145,7 +145,7 @@
     "title": "MagicSlides.app：输入主题自动做 PPT",
     "verified_at": "2026-10-29 11:46",
     "evidence": "editor-ui-publish + 重分配 aid 回读",
-    "note": "2026-10-29 发布时 B站重分配 aid：342411 → 53660838；脚本按旧 aid 回读误报失败，已人工回读已发表列表命中补账"
+    "note": "2026-10-29 发布时 B站重分配 aid：342411 → 53660838；脚本按旧 aid 回读误报失败，已人工回读已发表列表命中补账｜11-20 对账：草稿 id 342411 已不在线上草稿箱（发布后消失），不再记"
   },
   {
     "id": "wpconvert-ai-convert-ai-sites-to-wordpress",
@@ -154,7 +154,7 @@
     "title": "WPConvert：AI 建的站转成 WordPress",
     "verified_at": "2026-11-02 20:20",
     "evidence": "editor-ui-publish(2026-11-02 回读已发表列表命中)",
-    "note": "｜草稿同步(2026-10-15 21:22): title 认领 aid=343876"
+    "note": "｜草稿同步(2026-10-15 21:22): title 认领 aid=343876｜11-20 对账：草稿 id 343876 已不在线上草稿箱（发布后消失），不再记"
   },
   {
     "id": "prosp",
@@ -163,7 +163,7 @@
     "title": "PROSP：把找人、写话术、发出去压成一个按钮",
     "verified_at": "2026-11-03 13:56",
     "evidence": "editor-ui-publish + toast 提交成功 + 按标题补账(aid 342364→53736510)",
-    "note": "｜草稿同步(2026-10-16 14:10): title 认领 aid=342364"
+    "note": "｜草稿同步(2026-10-16 14:10): title 认领 aid=342364｜11-20 对账：草稿 id 342364 已不在线上草稿箱（发布后消失），不再记"
   },
   {
     "id": "nitra",
@@ -172,7 +172,7 @@
     "title": "Nitra：给独立小诊所做管钱、管合规、管库存的后台",
     "verified_at": "2026-11-05 10:14",
     "evidence": "editor-ui-publish",
-    "note": "｜草稿同步(2026-10-10 01:26): title 认领 aid=342414"
+    "note": "｜草稿同步(2026-10-10 01:26): title 认领 aid=342414｜11-20 对账：草稿 id 342414 已不在线上草稿箱（发布后消失），不再记"
   },
   {
     "id": "ext-ep-001-super-mario-bros",
@@ -181,7 +181,7 @@
     "title": "用 Backbone 游戏引擎复刻超级马力欧兄弟",
     "verified_at": "2026-11-06 13:45",
     "evidence": "editor-ui-publish(按标题补账 346183→53786328)",
-    "note": "｜更新草稿 aid=346183（draft/add 回读校验通过）"
+    "note": "｜更新草稿 aid=346183（draft/add 回读校验通过）｜11-20 对账：草稿 id 346183 已不在线上草稿箱（发布后消失），不再记｜11-20 删重：10-30 发的《游戏厅 #1：Super Mario Bros》(aid 53683188) 与本篇同题材，已按「删早留新」删除；保留本篇 53786328"
   },
   {
     "id": "outrank",
@@ -190,7 +190,7 @@
     "title": "Outrank：自动化 SEO 引擎",
     "verified_at": "2026-11-07 11:21",
     "evidence": "editor-ui-publish",
-    "note": "｜草稿同步(2026-10-10 01:26): title 认领 aid=342415"
+    "note": "｜草稿同步(2026-10-10 01:26): title 认领 aid=342415｜11-20 对账：草稿 id 342415 已不在线上草稿箱（发布后消失），不再记"
   },
   {
     "id": "pieter-levels",
@@ -199,7 +199,7 @@
     "title": "Pieter Levels：一个人做成的产品组合",
     "verified_at": "2026-11-08 14:25",
     "evidence": "editor-ui-publish",
-    "note": "｜草稿同步(2026-10-10 01:27): title 认领 aid=342416"
+    "note": "｜草稿同步(2026-10-10 01:27): title 认领 aid=342416｜11-20 对账：草稿 id 342416 已不在线上草稿箱（发布后消失），不再记"
   },
   {
     "id": "postiz",
@@ -208,7 +208,7 @@
     "title": "Postiz：社媒一键多平台排期发布",
     "verified_at": "2026-11-09 10:46",
     "evidence": "editor-ui-publish",
-    "note": "｜草稿同步(2026-10-10 01:28): title 认领 aid=342417"
+    "note": "｜草稿同步(2026-10-10 01:28): title 认领 aid=342417｜11-20 对账：草稿 id 342417 已不在线上草稿箱（发布后消失），不再记"
   },
   {
     "id": "promptmonitor-io",
@@ -217,7 +217,7 @@
     "title": "Promptmonitor.io：监测 AI 里的品牌曝光",
     "verified_at": "2026-11-10 13:01",
     "evidence": "editor-ui-publish",
-    "note": "｜草稿同步(2026-10-10 01:28): title 认领 aid=342418"
+    "note": "｜草稿同步(2026-10-10 01:28): title 认领 aid=342418｜11-20 对账：草稿 id 342418 已不在线上草稿箱（发布后消失），不再记"
   },
   {
     "id": "podawaa",
@@ -226,7 +226,7 @@
     "title": "Podawaa：LinkedIn 排期与受众增长",
     "verified_at": "2026-11-11 08:26",
     "evidence": "editor-ui-publish",
-    "note": "｜草稿同步(2026-10-14 12:09): body 认领 aid=343499"
+    "note": "｜草稿同步(2026-10-14 12:09): body 认领 aid=343499｜11-20 对账：草稿 id 343499 已不在线上草稿箱（发布后消失），不再记"
   },
   {
     "id": "publbee",
@@ -235,7 +235,7 @@
     "title": "Publbee：给 KDP 自助出版作者的 AI 工具",
     "verified_at": "2026-11-12 11:46",
     "evidence": "editor-ui-publish",
-    "note": "｜草稿同步(2026-10-14 12:12): body 认领 aid=343500"
+    "note": "｜草稿同步(2026-10-14 12:12): body 认领 aid=343500｜11-20 对账：草稿 id 343500 已不在线上草稿箱（发布后消失），不再记"
   },
   {
     "id": "fastwrite-io",
@@ -244,7 +244,7 @@
     "title": "fastwrite.io：AI 帮学生写学术文本",
     "verified_at": "2026-11-14 13:29",
     "evidence": "editor-ui-publish",
-    "note": "｜草稿同步(2026-10-14 13:25): title 认领 aid=343828"
+    "note": "｜草稿同步(2026-10-14 13:25): title 认领 aid=343828｜11-20 对账：草稿 id 343828 已不在线上草稿箱（发布后消失），不再记"
   },
   {
     "id": "growingupvideo",
@@ -253,7 +253,7 @@
     "title": "GrowingUpVideo：旧照片做成变脸视频",
     "verified_at": "2026-11-15 11:49:33",
     "evidence": "space-article-list",
-    "note": "｜草稿同步(2026-10-14 13:26): title 认领 aid=343829 ‖ [11-15] send-draft 报 failed 属列表延迟，独立回读首条命中后补账，未重发"
+    "note": "｜草稿同步(2026-10-14 13:26): title 认领 aid=343829 ‖ [11-15] send-draft 报 failed 属列表延迟，独立回读首条命中后补账，未重发｜11-20 对账：草稿 id 343829 已不在线上草稿箱（发布后消失），不再记"
   },
   {
     "id": "homy",
@@ -262,7 +262,7 @@
     "title": "Homy：Mac 上更快的文件搜索",
     "verified_at": "2026-11-16 09:40",
     "evidence": "space-article-list",
-    "note": "｜2026-11-16 全平台一轮：远端独立回读命中后补账（中断丢写）"
+    "note": "｜2026-11-16 全平台一轮：远端独立回读命中后补账（中断丢写）｜11-20 对账：草稿 id 343830 已不在线上草稿箱（发布后消失），不再记"
   },
   {
     "id": "macwall",
@@ -271,7 +271,7 @@
     "title": "MacWall：给 Mac 的 4K 动态壁纸",
     "verified_at": "2026-11-17 09:42",
     "evidence": "editor-ui-publish",
-    "note": "｜草稿同步(2026-10-14 13:28): title 认领 aid=343831"
+    "note": "｜草稿同步(2026-10-14 13:28): title 认领 aid=343831｜11-20 对账：草稿 id 343831 已不在线上草稿箱（发布后消失），不再记"
   },
   {
     "id": "nutria-9e3eaa",
@@ -280,6 +280,64 @@
     "title": "Nutria：AI 记饮食和运动的卡路里",
     "verified_at": "2026-11-18 13:30",
     "evidence": "editor-ui-publish",
-    "note": "｜草稿同步(2026-10-14 13:29): title 认领 aid=343832"
+    "note": "｜草稿同步(2026-10-14 13:29): title 认领 aid=343832｜11-20 对账：草稿 id 343832 已不在线上草稿箱（发布后消失），不再记"
+  },
+  {
+    "id": "ext-ep-002-2048",
+    "at": "2026-11-18 13:23",
+    "article_id": "53985214",
+    "title": "游戏厅：2048",
+    "verified_at": "2026-11-20 08:37",
+    "evidence": "editor-ui-publish",
+    "note": "｜更新草稿 aid=347251（draft/add 回读校验通过）｜更新草稿 aid=347251（draft/add 回读校验通过）｜11-20 修正：53996900 系误重复发布后删除，真实已发 id=53985214｜11-20 对账：草稿 id 347251 已不在线上草稿箱（发布后消失），不再记"
+  },
+  {
+    "id": "marc-lou-portfolio",
+    "at": "2026-10-10 01:23",
+    "article_id": "53752604",
+    "title": "Marc Lou 的产品矩阵：三年发 25 个产品",
+    "note": "｜草稿同步(2026-10-10 01:23): title 认领 aid=342412｜11-20 对账：台账原记 draft（草稿 id 342412），线上已发表 53752604 ⇒ 改 published"
+  },
+  {
+    "id": "le19emetrou",
+    "at": "2026-10-10 01:22",
+    "article_id": "53572101",
+    "title": "le19emetrou：高尔夫造型的开瓶器",
+    "note": "｜草稿同步(2026-10-10 01:22): title 认领 aid=342410｜11-20 对账：台账原记 draft（草稿 id 342410），线上已发表 53572101 ⇒ 改 published"
+  },
+  {
+    "id": "kibu",
+    "at": "2026-10-10 01:21",
+    "article_id": "53551964",
+    "title": "Kibu：给智障与发育障碍机构做的内容与电子病历系统",
+    "note": "｜草稿同步(2026-10-10 01:21): title 认领 aid=342405｜11-20 对账：台账原记 draft（草稿 id 342405），线上已发表 53551964 ⇒ 改 published"
+  },
+  {
+    "id": "insect-bite-id",
+    "at": "2026-10-10 01:20",
+    "article_id": "53536366",
+    "title": "Insect Bite ID：拍张照认出被什么咬",
+    "note": "｜草稿同步(2026-10-10 01:20): title 认领 aid=342403｜11-20 对账：台账原记 draft（草稿 id 342403），线上已发表 53536366 ⇒ 改 published"
+  },
+  {
+    "id": "ai-prank-call",
+    "at": "2026-10-25 02:05",
+    "article_id": "53612516",
+    "title": "AI Prank Call：AI 语音恶作剧服务，32 活跃",
+    "note": "｜更新草稿 aid=344830（draft/add 回读校验通过）｜11-20 对账：台账原记 draft（草稿 id 344830），线上已发表 53612516 ⇒ 改 published"
+  },
+  {
+    "id": "mcdpoints",
+    "at": "2026-10-25 03:16",
+    "article_id": "53595684",
+    "title": "用麦当劳官方接口查了一下，我的积分正在悄悄过期",
+    "note": "｜更新草稿 aid=344840（draft/add 回读校验通过）｜11-20 对账：台账原记 draft（草稿 id 344840），线上已发表 53595684 ⇒ 改 published"
+  },
+  {
+    "id": "chessigma",
+    "at": "2026-11-01 13:21",
+    "article_id": "53707478",
+    "title": "Chessigma：「免费版 Chess.com」拿下 10",
+    "note": "｜更新草稿 aid=345663（draft/add 回读校验通过）｜更新草稿 aid=345679（draft/add 回读校验通过）｜11-20 对账：台账原记 draft（草稿 id 345679），线上已发表 53707478 ⇒ 改 published"
   }
 ]
