@@ -336,7 +336,6 @@
   "rank_ready.py",
   "review_3state_1938.py",
   "review_3state_2252.py",
-  "run_chunk.py",
   "scan_xhs_endpoints.py",
   "scan_xhs_host.py",
   "scan_xhs_index_upload.py",

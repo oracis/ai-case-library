@@ -1,77 +1,77 @@
 {
-  "ran_at": "2026-11-20 07:58:22",
-  "added": 55,
+  "ran_at": "2026-11-21 07:56:22",
+  "added": 56,
   "by_source": {
-    "hn": 45,
-    "trustmrr": 10
+    "hn": 43,
+    "trustmrr": 13
   },
   "inbox_total": 400,
-  "archived_this_run": 55,
-  "archive_total": 2321,
+  "archived_this_run": 56,
+  "archive_total": 2377,
   "top": [
     {
-      "name": "Superjoin",
-      "headline": "MRR $96,757，TrustMRR 第 332 名",
-      "heat": 0,
-      "category": "企业服务",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/superjoin"
-    },
-    {
-      "name": "Redstring: Mobile Detective Game",
-      "headline": "近 30 天收入 $1,089",
-      "heat": 0,
-      "category": "未分类",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/private-venture-113"
-    },
-    {
-      "name": "Receeto",
-      "headline": "近 30 天收入 $460",
+      "name": "Maxforms, Inc.",
+      "headline": "MRR $198，TrustMRR 第 4150 名",
       "heat": 0,
       "category": "垂直行业 SaaS",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/receeto"
+      "url": "https://trustmrr.com/startup/maxforms-inc"
     },
     {
-      "name": "StoryBirdie",
-      "headline": "近 30 天收入 $239",
+      "name": "LumoSIM : eSIM Data for Travel",
+      "headline": "近 30 天收入 $488",
       "heat": 0,
-      "category": "创作者经济",
+      "category": "Travel",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/storybirdie"
+      "url": "https://trustmrr.com/startup/lumosim"
     },
     {
-      "name": "Foolscap",
+      "name": "AppZoku",
+      "headline": "近 30 天收入 $4,278",
+      "heat": 0,
+      "category": "AI 工具",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/appzoku"
+    },
+    {
+      "name": "Chalkie",
+      "headline": "近 30 天收入 $148",
+      "heat": 0,
+      "category": "Utilities",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/chalkie"
+    },
+    {
+      "name": "StampyWallet",
+      "headline": "MRR $132",
+      "heat": 0,
+      "category": "垂直行业 SaaS",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/stampywallet"
+    },
+    {
+      "name": "Federal Revenue When AI Replaces Labor",
       "headline": "未获取",
-      "heat": 106,
+      "heat": 3,
       "category": "未分类",
       "source": "hn",
-      "url": "https://foolscap.works/"
+      "url": "https://www.rand.org/pubs/research_reports/RRA4980-1.html"
     },
     {
-      "name": "erXos",
+      "name": "How deep is the Riemann hypothesis? An interactive explainer",
       "headline": "未获取",
-      "heat": 7,
+      "heat": 9,
       "category": "未分类",
       "source": "hn",
-      "url": "https://stass.github.io/erXos/"
+      "url": "https://shayon.work/riemann"
     },
     {
-      "name": "ToolJet 4.0",
-      "headline": "未获取",
-      "heat": 6,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://tooljet.com"
-    },
-    {
-      "name": "Making an OS from scratch",
+      "name": "Park",
       "headline": "未获取",
       "heat": 4,
       "category": "未分类",
       "source": "hn",
-      "url": "https://www.timdbg.com/posts/dbgos/"
+      "url": "https://svandragt.github.io/park/"
     }
   ]
 }

@@ -296,6 +296,11 @@
     "case_id": "nutria-9e3eaa",
     "kind": "ai",
     "note": "send-draft FIFO 最久草稿"
+   },
+   {
+    "case_id": "ext-ep-003-freedoom",
+    "kind": "game",
+    "at": "2026-11-21 08:58"
    }
   ],
   "cnblogs": [
@@ -378,6 +383,12 @@
    {
     "at": "2026-11-19 13:01",
     "case_id": "nutria-9e3eaa",
+    "kind": "ai",
+    "note": "send-draft FIFO 最久草稿"
+   },
+   {
+    "at": "2026-11-21 09:31",
+    "case_id": "checkvibe",
     "kind": "ai",
     "note": "send-draft FIFO 最久草稿"
    }

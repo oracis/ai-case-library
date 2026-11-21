@@ -8,7 +8,23 @@
    "state": "ok"
   }
  },
+ "aera-browser": {
+  "tencentcloud": {
+   "at": "2026-11-21 09:36:01",
+   "evidence": "线上文章 2789816 卡片缩略图 background-image=https://developer.qcloudimg.com/http-save/yehe-12743977/9f40f9204418d2d0904bcc8dd7447160.jpg",
+   "remote_id": "2789816",
+   "source": "yun_finalize",
+   "state": "ok"
+  }
+ },
  "autoreels-ai": {
+  "aliyun": {
+   "at": "2026-11-21 09:41:18",
+   "evidence": "文章首图 firstImg=https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_8c02d90fe9b0453285512778bbeb1d9f.png",
+   "remote_id": "1786549",
+   "source": "yun_finalize",
+   "state": "ok"
+  },
   "tencentcloud": {
    "at": "2026-11-09 11:14:02",
    "evidence": "线上文章 2779407 卡片缩略图 background-image=https://developer.qcloudimg.com/http-save/yehe-12743977/9caa4f1b80d95d6f078ef1b7af32ed09.jpg",
@@ -254,6 +270,15 @@
    "remote_id": "2787249",
    "source": "yun_finalize",
    "state": "ok"
+  }
+ },
+ "ext-ep-014-the-battle-for-wesnoth": {
+  "bilibili2": {
+   "at": "2026-11-21 09:08:07",
+   "evidence": "aid=379376 草稿在，但 origin_image_urls / image_urls 全空",
+   "remote_id": "",
+   "source": "publish-time",
+   "state": "empty"
   }
  },
  "flodesk": {
