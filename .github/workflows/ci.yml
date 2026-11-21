@@ -217,6 +217,20 @@ jobs:
         continue-on-error: true
         run: python scripts/check_tmp_leaks.py && python -m unittest scripts.test_check_tmp_leaks
 
+      - name: 扩展离线测试套件（19 模块 / 398 用例，临时库隔离）
+        # 把平时只在本地跑、此前没进 CI 的核心测试纳入门禁：真值层
+        # (case_store/ledger/fifo)、规则闸 (verify_rules/score_table)、
+        # CDP 协议、双回读判据，以及本轮新增的核心闸 + 公网 E2E。
+        # ci_offline_suite 自己从 JSON 播种临时 ledger.db（CI 无真库），
+        # 钉住 LEDGER_DB 并在跑后校验 data/*.json 指纹零污染。
+        # ⚠ 已知红灯 test_fit_ready / test_make_article / test_score_value_parity
+        #   是 564→589 数据债，暂不纳入（其中前两个已在上面单独跑）；
+        #   test_jargon 依赖真库可见字段、seed 前后不稳，也不纳入。
+        # ⚠ 公网 E2E 在 CI 无外网时会 skipTest（诚实跳过，不假绿）。
+        id: offline_suite
+        continue-on-error: true
+        run: python scripts/ci_offline_suite.py
+
       - name: 汇总（任一步失败即判红，但每一步都跑到了）
         # 上面每步都 continue-on-error，所以它们谁也挡不住谁；判红统一由这里做。
         # 「跳过」也一起打出来 —— 静默 pass 是假绿的另一种。
@@ -242,6 +256,7 @@ jobs:
             "prerender:${{ steps.prerender.outcome }}" \
             "agnes:${{ steps.agnes.outcome }}" \
             "tmp_leaks:${{ steps.tmp_leaks.outcome }}" \
+            "offline_suite:${{ steps.offline_suite.outcome }}" \
           ; do
             printf '  %-16s %s\n' "${pair%%:*}" "${pair#*:}"
             [ "${pair#*:}" = "failure" ] && bad=1

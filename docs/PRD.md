@@ -320,6 +320,9 @@ tencentcloud 记了 4 个批次）。JSON 台账与 SQLite 双写口径见 §6.1
 ### 4.11 CI 与分支拓扑
 
 - `ci.yml`（`contents: read`）：PR + push main，多版本 Python/Node 矩阵，`selftest`（**当前 122 项全绿**）→ 单测（**1333 项**）→ `release --selfcheck` → 构建静态站 → `prerender --check` → 断言 `data/` 干净。不部署。
+- **扩展离线套件（2026-11-21 / #214）**：`ci.yml` backend job 末尾新增一步 `python scripts/ci_offline_suite.py`，把 19 个模块 / 398 用例从「只在本地跑」纳入门禁（此前 99 个 `test_*.py` 只有 16 个进 CI）。驱动脚本从 JSON 播种临时 `ledger.db`（CI 无真库文件）、钉住 `LEDGER_DB`、跑后校验 `data/*.json` 指纹零污染。白名单只收纯逻辑/临时库隔离/<5s/无平台依赖的测试；新增 `test_core_guards`（`upsert_post` 状态只前进、`link_hygiene` 自家域名、`compliance_check`）、`test_e2e_platform_readback`（双回读判据）、`test_public_site_e2e`（真 HTTP 公网 E2E，无外网时 skipTest 而非假绿）。
+  - ⚠️ **已知红灯（数据债，非测试代码坏）**：真值库案例 564→589 后新增 25 条缺评分/适配表，`test_fit_ready`、`test_make_article`（均已在 CI）、`test_score_value_parity` 因此失败。`test_jargon` 依赖真库可见字段、seed 前后不稳。四者刻意不进扩展套件；修复需补这 25 条的人工表/评分字段，属数据变更，**先确认再动**。全量基线：`python scripts/run_all_tests.py` 当前 95 绿 / 4 红。
+  - 手动端到端工具 `scripts/e2e_platform_readback.py`：复用 `verify_page.py`（公开页 CDP 回读）+ `title_match.py`（已发表列表唯一命中），把散在发布脚本尾部的「独立双回读」收口成可事后复核的入口；不进 CI（需登录态/浏览器），零新增依赖、不引入 Playwright。
 - `harvest.yml`（`contents: write`）：每天 UTC 01:00（北京 09:00）+ 手动，「采集 → 内联校验 → 推 `refs/heads/data` → `git reset origin/main`」。不部署。
 - **为什么独立的 data 分支**：机器提交直接进 main 会让本地每次 push 都要 rebase；分分支后 main 只承载人工改动。
 
