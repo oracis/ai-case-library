@@ -1,9 +1,37 @@
 {
-  "wx-100000514": {
-    "title": "把 AI 建站工具生成的网站，转成 WordPress——一个工程师的生意",
+  "mort": {
+    "title": "MORT：AI 求职代理：盯 5 万个企业招聘页，按简历打分并自动投递",
     "published_at": "",
-    "status": "deleted",
-    "appmsgid": "100000514",
+    "status": "draft",
+    "appmsgid": "100000329",
+    "file": ""
+  },
+  "le19emetrou": {
+    "title": "一笔广告费，卖一支高尔夫开瓶器",
+    "published_at": "",
+    "status": "draft",
+    "appmsgid": "100000275",
+    "file": ""
+  },
+  "promptmonitor-io": {
+    "title": "品牌开始问「AI 回答里提不提我」，于是有了这门生意",
+    "published_at": "",
+    "status": "draft",
+    "appmsgid": "100000259",
+    "file": ""
+  },
+  "divine-widgets": {
+    "title": "Divine Widgets：一个人做的圣经小组件，锁屏上每天一句",
+    "published_at": "",
+    "status": "draft",
+    "appmsgid": "100000255",
+    "file": ""
+  },
+  "prosp": {
+    "title": "PROSP：把 B2B 销售的一整天，压成一个按钮",
+    "published_at": "",
+    "status": "draft",
+    "appmsgid": "100000251",
     "file": ""
   },
   "verse": {
@@ -106,10 +134,16 @@
   },
   "macwall": {
     "title": "MacWall：为 Mac 用户提供 4K 电影感动态壁纸的订阅产品",
-    "published_at": "",
-    "status": "draft",
+    "published_at": "2026-11-21 09:24",
+    "status": "published",
     "appmsgid": "100000478",
-    "file": ""
+    "file": "",
+    "publish_type": "publish",
+    "published_appmsgid": "2247485063",
+    "sent_via": "send",
+    "send_reason": "已发表列表出现新记录，标题一致",
+    "note": "｜publish模式自动发表，新 appmsgid=2247485063",
+    "verified_at": "2026-11-21 09:24"
   },
   "fastwrite-io": {
     "title": "fastwrite.io：AI写作工具SaaS，辅助学生学术写作",
@@ -117,19 +151,6 @@
     "status": "draft",
     "appmsgid": "100000470",
     "file": ""
-  },
-  "nutria-9e3eaa": {
-    "title": "Nutria：AI 卡路里追踪应用",
-    "published_at": "2026-11-20 08:15",
-    "status": "published",
-    "appmsgid": "100000466",
-    "file": "",
-    "publish_type": "publish",
-    "published_appmsgid": "2247485062",
-    "sent_via": "send",
-    "send_reason": "已发表列表出现新记录，标题一致",
-    "note": "｜publish模式自动发表，新 appmsgid=2247485062",
-    "verified_at": "2026-11-20 08:15"
   },
   "vid-ai": {
     "title": "Vid.AI：脚本一键变短视频",
@@ -180,39 +201,18 @@
     "appmsgid": "100000279",
     "file": ""
   },
-  "le19emetrou": {
-    "title": "一笔广告费，卖一支高尔夫开瓶器",
+  "wx-100000514": {
+    "title": "把 AI 建站工具生成的网站，转成 WordPress——一个工程师的生意",
     "published_at": "",
-    "status": "draft",
-    "appmsgid": "100000275",
+    "status": "deleted",
+    "appmsgid": "100000514",
     "file": ""
   },
-  "promptmonitor-io": {
-    "title": "品牌开始问「AI 回答里提不提我」，于是有了这门生意",
-    "published_at": "",
-    "status": "draft",
-    "appmsgid": "100000259",
-    "file": ""
-  },
-  "divine-widgets": {
-    "title": "Divine Widgets：一个人做的圣经小组件，锁屏上每天一句",
-    "published_at": "",
-    "status": "draft",
-    "appmsgid": "100000255",
-    "file": ""
-  },
-  "prosp": {
-    "title": "PROSP：把 B2B 销售的一整天，压成一个按钮",
-    "published_at": "",
-    "status": "draft",
-    "appmsgid": "100000251",
-    "file": ""
-  },
-  "mort": {
-    "title": "MORT：AI 求职代理：盯 5 万个企业招聘页，按简历打分并自动投递",
-    "published_at": "",
-    "status": "draft",
-    "appmsgid": "100000329",
+  "nutria-9e3eaa": {
+    "title": "Nutria：AI 卡路里追踪应用",
+    "published_at": "2026-11-20 08:15",
+    "status": "published",
+    "appmsgid": "100000466",
     "file": ""
   },
   "pet-plus-us": {
@@ -318,192 +318,168 @@
     "published_at": "2026-11-02 20:33",
     "status": "published",
     "appmsgid": "2247484987",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484987"
+    "file": ""
   },
   "cod-dex": {
     "title": "Codédex：把学编程包装成「冒险旅程」的互动课程平台，免费 250+ 小时内容引流，Club 订阅 /月变现",
     "published_at": "2026-11-01 20:05",
     "status": "published",
     "appmsgid": "2247484986",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484986"
+    "file": ""
   },
   "chessigma": {
     "title": "Chessigma：「免费版 Chess.com」拿下 100 万+ 用户，576 个订阅",
     "published_at": "2026-11-01 19:59",
     "status": "published",
     "appmsgid": "2247484985",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484985"
+    "file": ""
   },
   "pieter-levels": {
     "title": "Pieter Levels 的产品矩阵",
     "published_at": "2026-10-30 13:29",
     "status": "published",
     "appmsgid": "2247484767",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484767"
+    "file": ""
   },
   "kibu": {
     "title": "Kibu：专给智障与发育障碍（I/DD）服务机构做的内容、合规与电子病历系统",
     "published_at": "2026-10-29 12:10",
     "status": "published",
     "appmsgid": "2247484766",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484766"
+    "file": ""
   },
   "agentsguild": {
     "title": "AgentsGuild：卖给游戏开发者的 AI 技能工具包，靠一次性付费赚钱",
     "published_at": "2026-10-27 13:24",
     "status": "published",
     "appmsgid": "2247484764",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484764"
+    "file": ""
   },
   "公众号-31个可复制的AI产品-推文": {
     "title": "我核了 255 个海外 AI 产品的收入，只有 31 个值得抄",
     "published_at": "2026-10-25 22:44",
     "status": "published",
     "appmsgid": "2247484751",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484751"
+    "file": ""
   },
   "mcdpoints": {
     "title": "用麦当劳官方接口查了一下，我的积分正在悄悄过期",
     "published_at": "2026-10-25 11:16",
     "status": "published",
     "appmsgid": "2247484750",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484750"
+    "file": ""
   },
   "ai-prank-call": {
     "title": "AI Prank Call：AI 语音恶作剧服务，32 活跃订阅数",
     "published_at": "2026-10-25 00:43",
     "status": "published",
     "appmsgid": "2247484763",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484763"
+    "file": ""
   },
   "downconvert-sketchup-files": {
     "title": "DOWNCONVERT SKETCHUP FILES：SketchUp 文件版本转换工具",
     "published_at": "2026-10-24 21:54",
     "status": "published",
     "appmsgid": "2247484627",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484627"
+    "file": ""
   },
   "marc-lou-portfolio": {
     "title": "Marc Lou 的产品矩阵：三年发 25 个产品、12 个赚钱、1 个大成——靠「组合」而不是「单品」活着",
     "published_at": "2026-10-23 15:54",
     "status": "published",
     "appmsgid": "2247484626",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484626"
+    "file": ""
   },
   "outrank": {
     "title": "Outrank：从 AI 博客生成器到自动化 SEO 引擎",
     "published_at": "2026-10-22 11:47",
     "status": "published",
     "appmsgid": "2247484559",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484559"
+    "file": ""
   },
   "startclaw": {
     "title": "StartClaw：零配置跑 AI 助手",
     "published_at": "2026-10-21 12:47",
     "status": "published",
     "appmsgid": "2247484558",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484558"
+    "file": ""
   },
   "coral": {
     "title": "Coral：托管你的开源 AI 助手",
     "published_at": "2026-10-20 22:32",
     "status": "published",
     "appmsgid": "2247484557",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484557"
+    "file": ""
   },
   "visualizee-ai": {
     "title": "Visualizee.ai：建筑与室内设计的效果图渲染工具",
     "published_at": "2026-10-16 20:18",
     "status": "published",
     "appmsgid": "2247484219",
-    "file": "",
-    "note": "｜11-20 对账：后台改过标题（线上《Visualizee.ai：给建筑师和室内设计师做效果图渲染，两年卡在 $150/月，一次转型跳到 $8.6K》），按产品名唯一命中补 appmsgid=2247484219"
+    "file": ""
   },
   "bustem": {
     "title": "Bustem：帮电商品牌全网打假",
     "published_at": "2026-10-16 08:35",
     "status": "published",
     "appmsgid": "2247484765",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484765"
+    "file": ""
   },
   "meerkats-ai": {
     "title": "Meerkats：替营销公司跑获客",
     "published_at": "2026-10-16 08:02",
     "status": "published",
     "appmsgid": "2247484556",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484556"
+    "file": ""
   },
   "speel-co": {
     "title": "$65K MRR 是真的，但它已经停止增长了",
     "published_at": "2026-10-02 14:35",
     "status": "published",
     "appmsgid": "2247484103",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484103"
+    "file": ""
   },
   "genius-ai": {
     "title": "Genius AI（原 GlossGenius）：给美发店、美甲店、理疗诊所做的一体化后台：预约、收银、发短信",
     "published_at": "2026-10-02 01:32",
     "status": "published",
     "appmsgid": "2247483979",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247483979"
+    "file": ""
   },
   "sierra": {
     "title": "Sierra：企业级 AI 客服代理，只在问题被真正解决时才收钱",
     "published_at": "2026-10-02 01:23",
     "status": "published",
     "appmsgid": "2247483961",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247483961"
+    "file": ""
   },
   "gojiberryai": {
     "title": "GojiberryAI：面向 B2B 团队的 AI GTM 平台：找高意向线索，把购买信号变成对话",
     "published_at": "2026-10-02 01:14",
     "status": "published",
     "appmsgid": "2247483960",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247483960"
+    "file": ""
   },
   "1lookup": {
     "title": "1Lookup：一个 API 做电话、邮箱、IP 的实时数据校验",
     "published_at": "2026-10-02 01:09",
     "status": "published",
     "appmsgid": "2247483959",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247483959"
+    "file": ""
   },
   "stan": {
     "title": "Stan：帮创作者「靠自己活着和工作」的平台",
     "published_at": "2026-10-02 01:02",
     "status": "published",
     "appmsgid": "2247483931",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247483931"
+    "file": ""
   },
   "magicslides-app": {
     "title": "MagicSlides.app：AI 一键生成演示文稿",
     "published_at": "2026-10-02 00:56",
     "status": "published",
     "appmsgid": "2247483886",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247483886"
+    "file": ""
   },
   "trustmrr": {
     "title": "TrustMRR：把「验证收入」本身做成了产品：连 Stripe 才能上榜的创业公司收入数据库 + 交易市场",
@@ -517,103 +493,90 @@
     "published_at": "2026-09-22 00:10",
     "status": "published",
     "appmsgid": "2247484068",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484068"
+    "file": ""
   },
   "storyshort-ai": {
     "title": "StoryShort.ai：自动生成无露脸短视频，靠 TikTok 图文轮播拿到 100+ 付费用户",
     "published_at": "2026-09-21 23:25",
     "status": "published",
     "appmsgid": "2247484555",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484555"
+    "file": ""
   },
   "checkvibe": {
     "title": "CheckVibe：扫描 vibe-coded 应用的安全漏洞——转换率翻三倍靠的不是产品，是付费墙的写法",
     "published_at": "2026-09-21 23:19",
     "status": "published",
     "appmsgid": "2247484554",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484554"
+    "file": ""
   },
   "lancer-app": {
     "title": "Lancer.app：AI 替自由职业者干完接单最烦的那一段：找活、筛活、写提案、投出去",
     "published_at": "2026-09-21 23:03",
     "status": "published",
     "appmsgid": "2247484100",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484100"
+    "file": ""
   },
   "aeo-engine": {
     "title": "AEO Engine",
     "published_at": "2026-09-21 22:57",
     "status": "published",
     "appmsgid": "2247484099",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484099"
+    "file": ""
   },
   "shipfast": {
     "title": "被吹爆的 ShipFast，近 30 天收入只剩约 $3,000",
     "published_at": "2026-09-21 22:39",
     "status": "published",
     "appmsgid": "2247484066",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484066"
+    "file": ""
   },
   "postiz": {
     "title": "Postiz：社媒一键多平台排期发布，靠 agent 营销把 MRR 从 1.7 万推到 20 万",
     "published_at": "2026-09-21 22:10",
     "status": "published",
     "appmsgid": "2247484065",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484065"
+    "file": ""
   },
   "rezi": {
     "title": "Rezi：AI 简历生成器——最不酷的需求，却是验证收入最高的 AI 产品",
     "published_at": "2026-09-21 22:04",
     "status": "published",
     "appmsgid": "2247484064",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484064"
+    "file": ""
   },
   "chatbase": {
     "title": "「年入 $20M」和「累计 $20M」，差了一整个量级",
     "published_at": "2026-09-21 21:59",
     "status": "published",
     "appmsgid": "2247484043",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484043"
+    "file": ""
   },
   "viktor": {
     "title": "Viktor：住进 Slack / Teams 的 AI 同事，你 @ 它，它把活干完再贴回来",
     "published_at": "2026-09-21 21:53",
     "status": "published",
     "appmsgid": "2247484042",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484042"
+    "file": ""
   },
   "nitra": {
     "title": "中文媒体把这家美国医疗公司的客户数，写多了 10 倍",
     "published_at": "2026-09-21 21:48",
     "status": "published",
     "appmsgid": "2247484041",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247484041"
+    "file": ""
   },
   "autoreels-ai": {
     "title": "AutoReels.AI：AI 自动生成短视频",
     "published_at": "2026-09-21 21:09",
     "status": "published",
     "appmsgid": "2247483885",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247483885"
+    "file": ""
   },
   "insect-bite-id": {
     "title": "Insect Bite ID：用 AI 识别虫咬类型",
     "published_at": "2026-09-21 20:41",
     "status": "published",
     "appmsgid": "2247483775",
-    "file": "",
-    "note": "｜11-20 对账：按已发表列表标题唯一命中补 appmsgid=2247483775"
+    "file": ""
   }
 }

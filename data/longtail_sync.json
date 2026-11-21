@@ -1061,5 +1061,31 @@
   "cover": "https://case.ydtgo.top/covers/ext-ep-007-openttd.png",
   "via": "cdp-9228",
   "ts": "2026-11-20 08:00:54"
+ },
+ "aera-browser-2026-11-21-1": {
+  "case": "aera-browser",
+  "title": "在浏览器里托管长任务：Aera 的调度、连接器复用与推理成本账",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "350120",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=350120"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-21 09:33:32"
+ },
+ "autoreels-ai-2026-11-21-1": {
+  "case": "autoreels-ai",
+  "title": "AutoReels.AI 以产量交付重构短视频工具成本结构",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1724495",
+    "url": "https://developer.aliyun.com/article/new?edit=1724495#/"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-21 09:36:58"
  }
 }
