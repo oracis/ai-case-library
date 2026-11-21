@@ -10,7 +10,8 @@ SCORES / DELIVERY 是人工判断的源头，库里的 china_fit / solo_fit 是�
 「库被手改了」，只能靠人肉对账 —— 这就是 #184 收尾时留下的隐患。
 
 这里钉住四件事：
-  1. 真库逐键一致（465 条表判断 + 99 条中位数兜底，0 漂移、0 幽灵）
+  1. 真库逐键一致（465 条表判断 + 124 条中位数兜底，0 漂移、0 幽灵；
+     2026-11-21 库 564→589 后按真值更新计数，判据结构不变）
   2. 判据真能抓到漂移（幽灵条目 / 数值被改 / provisional 矛盾 / 兜底值漂移）
   3. 11-06 口径不许绕过：缺表案例必须走中位数兜底并标 provisional
   4. 兜底文案的样本数必须诚实，库外 id 不得混进中位数统计
@@ -43,7 +44,14 @@ def kinds(result, kind):
 
 
 class TestRealLibrary(unittest.TestCase):
-    """真库回归：判据必须对当前 564 条全绿。"""
+    """真库回归：判据必须对当前 589 条全绿。
+
+    2026-11-21：库从 564 → 589（新增 25 条案例，先跑 score_china_fit 再跑
+    score_solo_fit 补齐评分）。这里只更新**事实性计数** 564→589 / 99→124，
+    判据结构一条不放宽：表↔库逐键一致、兜底等于当前中位数、两轴 provisional
+    集合一致全都照旧。新增的 25 条都是缺表中位数兜底（provisional），
+    不是人工判断 —— `table_scored` 仍是 465。
+    """
 
     def test_real_library_is_clean(self):
         r = SVP.audit(load_cases())
@@ -51,14 +59,14 @@ class TestRealLibrary(unittest.TestCase):
         self.assertEqual(r["errors"], [])
 
     def test_counts_match_11_06_policy(self):
-        """465 条人工表判断 + 99 条中位数兜底，两轴 provisional 集合一致。"""
+        """465 条人工表判断 + 124 条中位数兜底，两轴 provisional 集合一致。"""
         r = SVP.audit(load_cases())
         s = r["stats"]
-        self.assertEqual(s["cases"], 564)
+        self.assertEqual(s["cases"], 589)
         self.assertEqual(s["table_scored"], 465)
-        self.assertEqual(s["fallback_provisional"], 99)
-        self.assertEqual(s["provisional_china"], 99)
-        self.assertEqual(s["provisional_solo"], 99)
+        self.assertEqual(s["fallback_provisional"], 124)
+        self.assertEqual(s["provisional_china"], 124)
+        self.assertEqual(s["provisional_solo"], 124)
         self.assertEqual(s["preserved"], 0)
 
     def test_tables_have_no_ghost_and_same_ids(self):
@@ -81,7 +89,7 @@ class TestRealLibrary(unittest.TestCase):
                       SF.fallback_delivery()[1])
 
     def test_ghost_does_not_change_median(self):
-        """删幽灵只改样本数、不改中位数分值 ⇒ 99 条兜底分值零影响。"""
+        """删幽灵只改样本数、不改中位数分值 ⇒ 兜底分值零影响。"""
         self.assertEqual(SF.fallback_delivery()[0], 4)
         self.assertEqual(CF.to_score(CF.weighted_total(CF.fallback_dims())), 60.6)
 
@@ -180,7 +188,8 @@ class TestPolicy11_06(unittest.TestCase):
     def test_fallback_cases_are_provisional_and_not_in_tables(self):
         cases = load_cases()
         prov = [c for c in cases if (c.get("china_fit") or {}).get("provisional")]
-        self.assertEqual(len(prov), 99)
+        # 2026-11-21：库 564→589，新增 25 条同为缺表兜底 ⇒ 99→124。
+        self.assertEqual(len(prov), 124)
         for c in prov:
             cid = c["id"]
             self.assertNotIn(cid, CF.SCORES, "%s 不该有人工 china 判断" % cid)
