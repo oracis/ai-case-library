@@ -147,6 +147,15 @@ https://platform-outputs.agnes-ai.space/images/t2i/<task>/<name>.png
 
 ---
 
+## 原图不入仓（2026-11-22 用户拍板）
+
+`generated-images/` 下的 AI 生图原图是**临时产物**：成品复制到对应 case 的
+`content/<ep>/xhs-*.png` 等目录后，原图即失去价值。用户决定**不入库**——
+`.gitignore` 已忽略该目录，需要时重新生成即可（成本很低，风格由 prompt 决定）。
+已发布笔记用的是 `content/` 下的成品图，删掉 `generated-images/` 原图不影响线上。
+
+---
+
 ## 待办
 
 - [ ] 批量生成前先确认 `CATEGORY_STYLE` 的风格方向符合「万物解释者」的调性
