@@ -155,5 +155,39 @@ class SubmitIsNotPublished(unittest.TestCase):
         self.assertIn("不算真发", seg, "审核中提示文案没写清「不算真发」")
 
 
+class TencentNoDuplicateSubmit(unittest.TestCase):
+    """2026-11-22：腾讯云同一 draftId 被重复提交 5 篇（连号 id）。
+
+    根因：submit 后封面复核超时 → 返回 False → 上层/人工重跑 → 同一草稿
+    再次点「确认发布」，平台无幂等每次生成新文章。修复 = 提交前查创作中心
+    同标题文章命中即拒；提交后失败信息标明「已提交、禁止重跑」。
+    """
+
+    def test_idempotency_helper_exists(self):
+        src = _src()
+        i = src.find("def _tc_existing_article")
+        self.assertGreater(i, 0, "缺 _tc_existing_article 幂等检查函数")
+        seg = src[i:i + 1800]
+        self.assertIn("fetch_list", seg, "幂等检查没读创作中心列表")
+        self.assertIn("title", seg, "幂等检查没按标题比对")
+        self.assertIn("state", seg, "幂等检查没读文章状态")
+
+    def test_publish_tencent_calls_idempotency_before_submit(self):
+        src = _src()
+        fn = src[src.find("def publish_tencent"):]
+        i_gate = fn.find("_tc_existing_article(")
+        i_drawer = fn.find("_open_publish_drawer(")
+        self.assertGreater(i_gate, 0, "publish_tencent 没调幂等检查")
+        self.assertLess(i_gate, i_drawer,
+                        "幂等检查必须在开发布抽屉/提交之前")
+
+    def test_failure_messages_forbid_retry(self):
+        src = _src()
+        fn = src[src.find("def publish_tencent"):]
+        self.assertIn("禁止重跑", fn, "封面复核失败没标「禁止重跑」")
+        self.assertIn("会产生第二篇", fn, "静默失败没警示会重复提交")
+        self.assertIn("幂等闸", fn, "幂等命中日志缺标记")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

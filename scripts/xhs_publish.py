@@ -1137,7 +1137,7 @@ def _js_original_confirm():
 def _js_trim_tail_jing():
     """删掉正文末尾多余的裸 #（自动加话题失败时会在正文留下尾巴）。"""
     return """(function(){
-  var ed = document.querySelector('.tiptap.ProseMirror[contenteditable='true']');
+  var ed = document.querySelector('.tiptap.ProseMirror[contenteditable="true"]');
   if (!ed) return JSON.stringify({ok:false, why:'no_editor'});
   var t = ed.innerText || '';
   if (!/[#＃]\\s*$/.test(t)) return JSON.stringify({ok:true, trimmed:0});

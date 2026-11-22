@@ -174,6 +174,13 @@
   }
  },
  "ext-ep-008-mindustry": {
+  "aliyun": {
+   "at": "2026-11-22 13:49:25",
+   "evidence": "文章首图 firstImg=https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_98e5bc3f297e4a3e9ae55557cff9ff21.png",
+   "remote_id": "1787263",
+   "source": "yun_finalize",
+   "state": "ok"
+  },
   "bilibili2": {
    "at": "2026-11-06 15:48:28",
    "evidence": "aid=376923 image_urls=http://article.biliimg.com/bfs/article/a4eae224dc77f7aea8164f7860fd73a1a86450d2.jpg",
@@ -279,6 +286,13 @@
    "remote_id": "",
    "source": "publish-time",
    "state": "empty"
+  },
+  "tencentcloud": {
+   "at": "2026-11-22 13:23:48",
+   "evidence": "线上文章 2790481 卡片缩略图 background-image=https://developer.qcloudimg.com/http-save/yehe-12743977/9f241b21f1d975efad229c7def74bb65.jpg",
+   "remote_id": "2790481",
+   "source": "yun_finalize",
+   "state": "ok"
   }
  },
  "flodesk": {

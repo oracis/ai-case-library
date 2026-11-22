@@ -763,6 +763,40 @@ def _open_publish_drawer(cdp):
     return bool(cdp.eval("!!document.querySelector('.editor-publish-drawer')"))
 
 
+def _tc_existing_article(cdp, title, pages=4):
+    """提交前幂等检查：创作中心是否已存在同标题文章（任何状态）。
+
+    🚨 为什么必须有（2026-11-22 重复发布事故，5 篇连号 2788935/37/39/41/42）：
+      腾讯云允许同一 draftId 反复点「确认发布」，每次都生成**新文章**，平台
+      无幂等。旧流程里 submit 后封面复核超时返回 False ⇒ 上层/人工以为失败
+      重跑 ⇒ 同一草稿第 2、3、4、5 次提交。提交前先查线上同标题文章，命中
+      就拒绝再提交（无论审核中/已驳回/已发布），逼迫走补账或清理路径。
+
+    返回 (already, article_id, state, why)：
+      already  = 是否命中同标题文章
+      article_id = 命中的文章 id（取已有 id 最大的，最新的）
+    """
+    try:
+        import tc_manage as TM
+        cdp.open(TM.LIST_URL)
+        time.sleep(8)
+        rows = TM.fetch_list(cdp, pages=pages)
+    except Exception as e:                             # noqa: BLE001
+        # 幂等检查失败不能反过来阻塞发表：宁可记 warn 继续，也不能把正常
+        # 首次发表卡死。检查失败时用空结果，交回调用方。
+        print("  ⚠ 幂等检查读创作中心失败（继续发表，但留意重复风险）：%s"
+              % str(e)[:100])
+        return False, "", "", ""
+    norm = lambda s: re.sub(r"\s+", "", str(s or ""))
+    hits = [r for r in rows if norm(r.get("title")) == norm(title)]
+    if not hits:
+        return False, "", "", ""
+    # 同标题多篇本身就是重复事故 ⇒ 取 id 最大的那篇展示
+    hit = max(hits, key=lambda r: int(r.get("id") or 0))
+    return True, str(hit.get("id") or ""), str(hit.get("state") or ""), \
+        str(hit.get("why") or "")[:120]
+
+
 def publish_tencent(cdp, draft_id, abstract="", cover_file="", tags=("架构设计",),
                     require_cover=True):
     """腾讯云发表：一次会话内填完 4 个必填项再提交。返回 (ok, 说明)。
@@ -796,6 +830,23 @@ def publish_tencent(cdp, draft_id, abstract="", cover_file="", tags=("架构设�
     cdp.open("https://cloud.tencent.com/developer/article/write-new"
              "?draftId=%s" % draft_id)
     time.sleep(10)
+
+    # 🚨 幂等闸（2026-11-22 重复发布 5 篇事故）：读草稿标题 → 查创作中心是否
+    # 已有同标题文章。命中就拒绝提交，避免同一 draftId 第 N 次点确认发布。
+    title = ""
+    try:
+        title = str(cdp.eval("(document.querySelector('#title')||{}).value||''") or "")
+    except Exception:                                  # noqa: BLE001
+        pass
+    if title:
+        already, aid, state, why = _tc_existing_article(cdp, title)
+        if already:
+            return False, ("⛔ 幂等闸：创作中心已有同标题文章 articleId=%s "
+                           "（state=%s%s）⇒ 拒绝再次提交（本草稿已发过，"
+                           "重跑会产生第 N 篇）。请走补账 `yun_state.py %s "
+                           "'<标题>' --platform tencentcloud`，或先删旧稿再发。"
+                           % (aid, state or "?", (" / " + why) if why else "",
+                              aid))
     if not _open_publish_drawer(cdp):
         return False, "没找到「去发布」或发布抽屉没打开"
 
@@ -884,7 +935,9 @@ def publish_tencent(cdp, draft_id, abstract="", cover_file="", tags=("架构设�
     time.sleep(16)
     url = str(cdp.eval("location.href") or "")
     if "draftId=" in url:
-        return False, "点了确认发布但 URL 仍带 draftId（静默失败）：%s" % url[:90]
+        return False, ("点了确认发布但 URL 仍带 draftId：%s —— ⛔ 可能已提交成功"
+                       "（本次不复发命令）。重跑前先 `tc_manage.py status` "
+                       "按标题确认线上有没有新文章，有则补账、勿重发。" % url[:90])
 
     # 6) 封面复核：只有线上 og:image 有地址才算真的落库
     # ⚠ articleId 必须**回传给调用方**（2026-11-04 修）：URL 变成 write-new 只证明
@@ -904,8 +957,10 @@ def publish_tencent(cdp, draft_id, abstract="", cover_file="", tags=("架构设�
             _set_cover("ok", "线上文章 %s 卡片缩略图 background-image=%s" % (aid, info))
             return True, "%s%s\n    封面已落库：%s" % (url[:70], idline, str(info)[:80])
         _set_cover("empty", "已发布 articleId=%s，线上卡片缩略图为空：%s" % (aid, info))
-        return False, ("已发布，但封面没落库（%s）。文章 id=%s，"
-                       "跑 `--fix-cover %s --cover <图>` 可补上" % (info, aid, aid))
+        return False, ("已提交(articleId=%s)、但封面没落库（%s）。"
+                       "⛔ 文章已生成，禁止重跑本命令（会产生第二篇）；"
+                       "跑 `--fix-cover %s --cover <图>` 补封面即可。"
+                       % (aid, info, aid))
     return True, url + idline
 
 

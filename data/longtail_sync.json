@@ -1087,5 +1087,30 @@
   },
   "via": "cdp-9228",
   "ts": "2026-11-21 09:36:58"
+ },
+ "ext-ep-008-mindustry-2026-11-22-1": {
+  "case": "ext-ep-008-mindustry",
+  "title": "Mindustry，物流即防御的塔防",
+  "platforms": {
+   "aliyun": {
+    "ok": false,
+    "err": "等不到阿里云编辑器（#title 不出现）"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-22 10:51:48"
+ },
+ "ext-ep-008-mindustry-2026-11-22-2": {
+  "case": "ext-ep-008-mindustry",
+  "title": "Mindustry，物流即防御的塔防",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1728858",
+    "url": "https://developer.aliyun.com/article/new?edit=1728858#/"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-22 10:54:03"
  }
 }
