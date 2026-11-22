@@ -405,10 +405,11 @@
   },
   "ext-ep-014-the-battle-for-wesnoth": {
     "title": "六边形战棋怎么算：读韦诺之战的地形规则",
-    "tc_draft": "349501",
+    "tc_draft": "350586",
     "tc_state": "draft",
     "tc_state_at": "2026-11-20 07:48",
-    "updated": "2026-11-20 07:48:51"
+    "updated": "2026-11-22 13:23:47",
+    "tc_article": "2790481"
   },
   "__community__1723687": {
     "uploaded_img": "https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_a150a13f76b345dd979f93dc4780cc3d.png",
@@ -428,6 +429,14 @@
     "updated": "2026-11-21 09:41:18",
     "state": "auditing",
     "article": "1786549",
+    "published": null,
+    "published_at": null
+  },
+  "__community__1728858": {
+    "uploaded_img": "https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_98e5bc3f297e4a3e9ae55557cff9ff21.png",
+    "updated": "2026-11-22 13:49:25",
+    "state": "auditing",
+    "article": "1787263",
     "published": null,
     "published_at": null
   }

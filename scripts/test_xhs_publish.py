@@ -781,5 +781,26 @@ class TestWebApiBodyCompact(unittest.TestCase):
         self.assertEqual(W._compact(None), "")
 
 
+class TestTrimTailJingJS(unittest.TestCase):
+    """_js_trim_tail_jing 的 JS 字符串不能被选择器内单引号截断（2026-11-22 实测 bug）。"""
+
+    def test_selector_does_not_break_js_string(self):
+        import xhs_publish as X
+        js = X._js_trim_tail_jing()
+        # querySelector 用单引号包 CSS 选择器 ⇒ 选择器内不能再出现单引号，
+        # 否则 JS 变成 querySelector('.tiptap...[contenteditable=' + true + ']') 语法错。
+        self.assertIn('querySelector(\'.tiptap.ProseMirror[contenteditable="true"]\')', js,
+                      "选择器内应用双引号，不能破坏外层单引号字符串")
+        self.assertNotIn("contenteditable='true'", js,
+                         "CSS 选择器内残留单引号会截断 JS 字符串")
+
+    def test_js_is_syntactically_balanced(self):
+        import xhs_publish as X
+        js = X._js_trim_tail_jing()
+        # 粗粒度括号/引号平衡检查：单引号必须成对（不能奇数）
+        self.assertEqual(js.count("'") % 2, 0,
+                         "JS 里单引号数量为奇数 ⇒ 字符串被截断")
+
+
 if __name__ == "__main__":
     unittest.main()

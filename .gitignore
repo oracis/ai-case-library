@@ -232,3 +232,7 @@ data/zhihu_cookie.json.*
 
 # 数据台账改动前的本地备份目录（2026-11-01 起；只留本地，不进仓库）
 .bak-ledger/
+
+# AI 生图原图（如 generated-images/*.png）：临时产物，成品复制到各 content 目录后
+# 原图即可丢弃，需要时重新生成。2026-11-22 用户拍板不入库，防误 git add -A 带进去。
+generated-images/

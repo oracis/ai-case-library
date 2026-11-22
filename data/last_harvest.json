@@ -1,77 +1,77 @@
 {
-  "ran_at": "2026-11-21 07:56:22",
-  "added": 56,
+  "ran_at": "2026-11-22 07:42:24",
+  "added": 45,
   "by_source": {
-    "hn": 43,
-    "trustmrr": 13
+    "hn": 38,
+    "trustmrr": 7
   },
   "inbox_total": 400,
-  "archived_this_run": 56,
-  "archive_total": 2377,
+  "archived_this_run": 45,
+  "archive_total": 2422,
   "top": [
     {
-      "name": "Maxforms, Inc.",
-      "headline": "MRR $198，TrustMRR 第 4150 名",
+      "name": "bidbetter",
+      "headline": "累计收入 $2（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
+      "heat": 0,
+      "category": "交易市场",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/bidbetter"
+    },
+    {
+      "name": "bettter.app",
+      "headline": "累计收入 $53（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
       "heat": 0,
       "category": "垂直行业 SaaS",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/maxforms-inc"
+      "url": "https://trustmrr.com/startup/bettter-app"
     },
     {
-      "name": "LumoSIM : eSIM Data for Travel",
-      "headline": "近 30 天收入 $488",
-      "heat": 0,
-      "category": "Travel",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/lumosim"
+      "name": "Startup credits you can get with $0 raised",
+      "headline": "未获取",
+      "heat": 1,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://github.com/aidenixai/bootstrapped-credits"
     },
     {
-      "name": "AppZoku",
-      "headline": "近 30 天收入 $4,278",
+      "name": "SigmaShake",
+      "headline": "近 30 天收入 $305",
       "heat": 0,
       "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/appzoku"
+      "url": "https://trustmrr.com/startup/sigmashake"
     },
     {
-      "name": "Chalkie",
-      "headline": "近 30 天收入 $148",
-      "heat": 0,
-      "category": "Utilities",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/chalkie"
+      "name": "The Riemann Proof Handbook",
+      "headline": "未获取",
+      "heat": 18,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://github.com/tamnd/riemann-handbook"
     },
     {
-      "name": "StampyWallet",
-      "headline": "MRR $132",
-      "heat": 0,
-      "category": "垂直行业 SaaS",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/stampywallet"
+      "name": "Open-Source Vulnerability Scanner",
+      "headline": "未获取",
+      "heat": 6,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://waffuru.ai/products/pantry"
     },
     {
-      "name": "Federal Revenue When AI Replaces Labor",
+      "name": "It's now easy to install Linux on an Android Phone – Android2linux",
+      "headline": "未获取",
+      "heat": 5,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://github.com/android2linux/android2linux"
+    },
+    {
+      "name": "GitHub Plays Linux",
       "headline": "未获取",
       "heat": 3,
       "category": "未分类",
       "source": "hn",
-      "url": "https://www.rand.org/pubs/research_reports/RRA4980-1.html"
-    },
-    {
-      "name": "How deep is the Riemann hypothesis? An interactive explainer",
-      "headline": "未获取",
-      "heat": 9,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://shayon.work/riemann"
-    },
-    {
-      "name": "Park",
-      "headline": "未获取",
-      "heat": 4,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://svandragt.github.io/park/"
+      "url": "https://github.com/seg6"
     }
   ]
 }
