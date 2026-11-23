@@ -33,6 +33,15 @@
    "state": "ok"
   }
  },
+ "blazedocs-io": {
+  "tencentcloud": {
+   "at": "2026-11-23 15:02:42",
+   "evidence": "线上文章 2791357 卡片缩略图 background-image=https://developer.qcloudimg.com/http-save/yehe-12743977/e1a16d57a56f3f90e25f9527dcb62cda.jpg",
+   "remote_id": "2791357",
+   "source": "yun_finalize",
+   "state": "ok"
+  }
+ },
  "checkvibe": {
   "tencentcloud": {
    "at": "2026-11-15 12:05:17",
@@ -377,6 +386,13 @@
   }
  },
  "magicslides-app": {
+  "aliyun": {
+   "at": "2026-11-23 14:57:51",
+   "evidence": "文章首图 firstImg=https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_344fc013a2cd42eaaad9bcfe9fd67ee5.png",
+   "remote_id": "1787703",
+   "source": "yun_finalize",
+   "state": "ok"
+  },
   "tencentcloud": {
    "at": "2026-11-19 13:57:39",
    "evidence": "线上文章 2788361 卡片缩略图 background-image=抽屉封面：https://developer.qcloudimg.com/http-save/yehe-12743977/fb31dfa51ef645418886cfdd08ef2b5c.jpg",

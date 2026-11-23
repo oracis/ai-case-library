@@ -85,10 +85,16 @@
   },
   "wagiff-app": {
     "title": "Wagiff App：中东北非地区男性用户戒除不良习惯的社交应用",
-    "published_at": "",
-    "status": "draft",
+    "published_at": "2026-11-23 14:29",
+    "status": "published",
     "appmsgid": "100000502",
-    "file": ""
+    "file": "",
+    "publish_type": "publish",
+    "published_appmsgid": "2247485065",
+    "sent_via": "send",
+    "send_reason": "已发表列表出现新记录，标题一致",
+    "note": "｜publish模式自动发表，新 appmsgid=2247485065",
+    "verified_at": "2026-11-23 14:29"
   },
   "homy": {
     "title": "Homy：Mac 文件搜索优化工具，小众市场潜力待挖掘",

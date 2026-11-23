@@ -179,9 +179,17 @@
     "ts": "2026-11-21 08:52:52"
   },
   "publbee": {
-    "article_id": null,
+    "article_id": "171183916",
     "title": "Publbee用AI工具链帮KDP作者突破搜索困境",
     "url": "https://blog.csdn.net/sinat_32396037/article/details/171183916",
-    "ts": "2026-11-22 10:57:37"
+    "ts": "2026-11-22 10:57:37",
+    "note": "｜11-23 对账：已发列表唯一命中补 article_id=171183916"
+  },
+  "podawaa": {
+    "article_id": "171238734",
+    "title": "LinkedIn 内容增长工具排期发布与数据复盘",
+    "url": "https://blog.csdn.net/sinat_32396037/article/details/171238734",
+    "ts": "2026-11-23 14:54:42",
+    "note": "审核通过，已发列表命中 2026-11-23 14:54:41"
   }
 }
