@@ -251,24 +251,10 @@
     "note": "｜11-20 对账：gid 纠正为线上真 id 7702807108663689764"
   },
   {
-    "id": "ext-ep-002-2048",
-    "at": "2026-10-31 19:49",
-    "gid": "7702797168431612479",
-    "verified_at": "2026-10-31 19:49",
-    "evidence": "send_existing_draft"
-  },
-  {
     "id": "ext-ep-003-freedoom",
     "at": "2026-10-31 19:53",
     "gid": "7702798120068858404",
     "verified_at": "2026-10-31 19:53",
-    "evidence": "send_existing_draft"
-  },
-  {
-    "id": "ext-ep-004-quake",
-    "at": "2026-10-31 19:57",
-    "gid": "7702799110571475475",
-    "verified_at": "2026-10-31 19:57",
     "evidence": "send_existing_draft"
   },
   {
@@ -311,13 +297,6 @@
     "at": "2026-10-31 20:23",
     "gid": "7702805768530100755",
     "verified_at": "2026-10-31 20:23",
-    "evidence": "send_existing_draft"
-  },
-  {
-    "id": "ext-ep-001-super-mario-bros",
-    "at": "2026-10-31 22:10",
-    "gid": "7702394082697527848",
-    "verified_at": "2026-10-31 22:10",
     "evidence": "send_existing_draft"
   },
   {

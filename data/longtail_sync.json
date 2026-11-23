@@ -1112,5 +1112,31 @@
   },
   "via": "cdp-9228",
   "ts": "2026-11-22 10:54:03"
+ },
+ "magicslides-app-2026-11-23-1": {
+  "case": "magicslides-app",
+  "title": "MagicSlides 借势 Google Slides 降低工程成本",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1731208",
+    "url": "https://developer.aliyun.com/article/new?edit=1731208#/"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-23 14:57:05"
+ },
+ "blazedocs-io-2026-11-23-1": {
+  "case": "blazedocs-io",
+  "title": "PDF 转 Markdown 的工程难点：表格保真、上下文边界与按次计费",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "351046",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=351046"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-23 14:59:30"
  }
 }

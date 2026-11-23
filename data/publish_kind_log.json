@@ -301,6 +301,11 @@
     "case_id": "ext-ep-003-freedoom",
     "kind": "game",
     "at": "2026-11-21 08:58"
+   },
+   {
+    "case_id": "ext-ep-004-quake",
+    "kind": "game",
+    "at": "2026-11-23 14:43"
    }
   ],
   "cnblogs": [
