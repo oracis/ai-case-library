@@ -88143,5 +88143,234 @@
     "needs_review": false,
     "human_read": false,
     "human_read_at": ""
+  },
+  {
+    "id": "louna-s-models-leading-onlyfans-agency-established-models-and-10k-leads",
+    "name": "Louna's Models - Leading Onlyfans Agency (Established models and 10k+ leads)",
+    "name_en": "Louna's Models - Leading Onlyfans Agency (Established models and 10k+ leads)",
+    "origin": "美国",
+    "one_liner": "MRR $3,887，2024年8月上线的成人内容创作者代运营机构，按创作者收入35%起抽成",
+    "category": "营销工具",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "last_30d",
+    "metrics": {
+      "mrr": 3887.0,
+      "last_30d_revenue": 23806.0,
+      "all_time": 24450.0,
+      "subscriptions": 309,
+      "growth_30d": 1751.6,
+      "mrr_growth_30d": 1751.6,
+      "revenue_growth_30d": 3596.6,
+      "headline": "近 30 天收入 $23,806，TrustMRR 核对",
+      "metric_note": "实测口径：近 30 天收入 $23,806（TrustMRR 从支付网关 API 直读，2026-11-23 同步，Stripe (API key)）。近 30 天收入 $23,806、累计 $24,450、付费订阅 309 户。月度时间线不足两个月，不给环比结论。近 30 天 MRR 增速 +1751.6%。⚠ 同期收入增速为 +3596.6%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 作者破例（2026-11-23）：实测 MRR $3,887 较缓存 $1,554 +150%，系旧快照过期、支付侧快照更新；破例仅放行进池待 S3 核验口径，不等于口径成立。挂牌 $375,000、倍数 3.50x（要价不等于收入）。⚠ 队列缓存值是 2026-11-05 采集时的快照（当时 $1,554），本次核对为 $3,887，两者不同；本条以本次核对为准。 ⚠ 口径裁定 2026-11-23：AI 核验判该条不适用 MRR 门面口径，改以支付侧近 30 天已验证收入为准；MRR 仅作缓存快照保留。",
+      "caliber": "last_30d"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 2,
+      "timing": 3
+    },
+    "verdict": "它卖的不是内容创作，而是把创作者从运营中解放出来——客户买的是时间，不是流量",
+    "what_it_does": "Louna's Models 是一家 OnlyFans 创作者代运营机构，2024年8月12日上线。为独立成人内容创作者提供账号管理、粉丝互动、营销和教练服务，并为其开设专属 TikTok 和 Instagram 账号。档案自述团队规模未公开，融资方式为自筹。当前有309个活跃订阅创作者，MRR为$3,887。",
+    "how_it_makes_money": "按创作者收入抽取管理费，起步比例为35%，不收取前期费用或设置费。档案自述具体定价档位未公开，但网站称行业代理通常收取30–50%。客单价为$12.58（MRR ÷ 活跃订阅数）。",
+    "why_it_works": [
+      "素材显示近30天收入$23,806，MRR增速1751.6%——机制：代运营机构通过抽成模式将收入与创作者收益绑定，创作者收入增长直接带动机构收入，形成正向循环。",
+      "素材显示有10,000+创作者线索和每日新增模特申请——机制：自动化入职流程处理大量线索，降低获客成本，使机构能规模化服务创作者。",
+      "素材显示毛利率65%——机制：代运营主要成本为人力和营销，而非内容制作或库存，边际成本随创作者数量增加而降低。"
+    ],
+    "playbook": [
+      "将服务定价与客户需求方收入挂钩（抽成模式），使双方利益一致，降低客户决策门槛",
+      "建立自动化入职流程处理大量初始线索，减少人工干预，提高转化效率",
+      "为每个客户分配专属社交媒体账号进行内容分发，扩大客户曝光而非仅依赖平台流量"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "MRR $3,887 是主要收入指标",
+        "truth": "实测近 30 天收入 $23,806（Stripe API 直读），MRR $3,887 为快照值且该生意非标准订阅制",
+        "source": "https://trustmrr.com/startup/lounasmodels.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 档案",
+        "url": "https://trustmrr.com/startup/lounasmodels.md",
+        "kind": "stripe"
+      }
+    ],
+    "published_from": "louna-s-models-leading-onlyfans-agency-established-models-and-10k-leads",
+    "verified_at": "2026-11-23",
+    "updated_at": "2026-11-23",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（stripe），按默认政策进精品池",
+    "quality_score": 15,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "pishi-llc-fz",
+    "name": "Pishi LLC FZ",
+    "name_en": "Pishi LLC FZ",
+    "origin": "阿联酋",
+    "one_liner": "Pishi LLC FZ 月入 $1,166，15 个活跃订阅，靠 AI 代理每日自动修复网站 SEO。",
+    "category": "营销工具",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "last_30d",
+    "metrics": {
+      "mrr": 2042.0,
+      "last_30d_revenue": 1835.0,
+      "all_time": 2787.0,
+      "subscriptions": 21,
+      "growth_30d": 171.5,
+      "mrr_growth_30d": 171.5,
+      "revenue_growth_30d": 168.7,
+      "headline": "近 30 天收入 $1,835，TrustMRR 核对",
+      "metric_note": "实测口径：近 30 天收入 $1,835（TrustMRR 从支付网关 API 直读，2026-11-23 同步，Stripe (API key)）。近 30 天收入 $1,835、累计 $2,787、付费订阅 21 户。最近完整月环比 +256.5%（已剔除当月残月）。近 30 天 MRR 增速 +171.5%。⚠ 历史峰值 $959 → 最近完整月 $959，留存 100%。⚠ 作者破例（2026-11-23）：实测 MRR $2,042 较缓存 $1,166 +75%，系旧快照过期、支付侧快照更新；破例仅放行进池待 S3 核验口径，不等于口径成立。⚠ 队列缓存值是 2026-11-05 采集时的快照（当时 $1,166），本次核对为 $2,042，两者不同；本条以本次核对为准。 ⚠ 口径裁定 2026-11-23：AI 核验判该条不适用 MRR 门面口径，改以支付侧近 30 天已验证收入为准；MRR 仅作缓存快照保留。",
+      "caliber": "last_30d"
+    },
+    "models": [
+      "订阅制"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 3
+    },
+    "verdict": "它卖的不是 SEO 服务，而是「每日交付」的承诺——客户买的是持续更新的节奏，而非单次内容。",
+    "what_it_does": "Pishi LLC FZ 由 Kourosh Ghaffari 于 2026 年 9 月 6 日创立，运营 romeoseo.com。产品以 AI 代理「Romeo」为核心，每日向用户交付一篇新内容和一次技术 SEO 修复。截至收入同步时间，活跃订阅数为 15。档案自述团队规模为 1 人，融资方式为自筹资金。",
+    "how_it_makes_money": "产品提供月度订阅，分为 $69/月的普通版和 $300/月的托管版。按 MRR 除以活跃订阅数计算，客单价为 $77.73。",
+    "why_it_works": [
+      "每日交付 1 篇新内容 + 1 次技术修复，将 SEO 从低频项目变为高频服务，提升用户粘性",
+      "AI 代理自动化执行，单人团队即可维持 15 个活跃订阅的运营",
+      "定价分两档，$69 与 $300 覆盖不同预算，客单价 $77.73 接近入门价，降低决策门槛"
+    ],
+    "playbook": [
+      "将一次性服务拆分为每日/每周交付单元，形成持续收费的订阅模式",
+      "用 AI 代理替代人工重复劳动，使单人团队能承载多客户交付",
+      "设置低门槛入门价与高价值托管价，引导用户从低价位逐步升级"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "MRR $2,042 是主要收入指标",
+        "truth": "近 30 天收入 $1,835（据 TrustMRR 档案 Stripe API 直读）",
+        "source": "https://trustmrr.com/startup/pishi-llc-fz.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 档案",
+        "url": "https://trustmrr.com/startup/pishi-llc-fz.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "官网",
+        "url": "https://romeoseo.com/",
+        "kind": "official"
+      }
+    ],
+    "published_from": "pishi-llc-fz",
+    "verified_at": "2026-11-23",
+    "updated_at": "2026-11-23",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 80,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "viralspy",
+    "name": "ViralSpy",
+    "name_en": "ViralSpy",
+    "origin": "",
+    "one_liner": "ViralSpy 是 Instagram/TikTok 拆解工具，MRR $3,372，90 个活跃订阅，14 天免费试用。",
+    "category": "AI 工具",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "last_30d",
+    "metrics": {
+      "mrr": 934.0,
+      "last_30d_revenue": 813.0,
+      "all_time": 813.0,
+      "subscriptions": 24,
+      "growth_30d": -86.2,
+      "mrr_growth_30d": -86.2,
+      "revenue_growth_30d": 0.0,
+      "headline": "近 30 天收入 $813，TrustMRR 核对",
+      "metric_note": "实测口径：近 30 天收入 $813（TrustMRR 从支付网关 API 直读，2026-11-23 同步，Dodo Payments (API key)）。近 30 天收入 $813、累计 $813、付费订阅 24 户。月度时间线不足两个月，不给环比结论。近 30 天 MRR 增速 -86.2%。⚠ 同期收入增速为 +0.0%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 作者破例（2026-11-23）：实测 MRR $934 较缓存 $3,372 −72%，缓存期高估已回落；该条历史上被判口径自相矛盾（disputed），破例仅放行进池待 S3 复核，不等于认可其 MRR 口径。⚠ 队列缓存值是 2026-11-05 采集时的快照（当时 $3,372），本次核对为 $934，两者不同；本条以本次核对为准。 ⚠ 口径裁定 2026-11-23：AI 核验判该条不适用 MRR 门面口径，改以支付侧近 30 天已验证收入为准；MRR 仅作缓存快照保留。",
+      "caliber": "last_30d"
+    },
+    "models": [
+      "订阅制"
+    ],
+    "replicability": {
+      "tech": 3,
+      "distribution": 4,
+      "capital": 2,
+      "timing": 3
+    },
+    "verdict": "它卖的不是视频分析，而是「逐秒拆解」——客户买的是可复制的爆款结构，不是内容创作。",
+    "what_it_does": "ViralSpy 是一个面向 Instagram 和 TikTok 的 AI 工具，由创始人 ViralSpy 于 2026 年 10 月 18 日创建。产品功能包括逐秒拆解爆款视频、生成可拍摄脚本、发布前检查视频、修复失败内容，以及通过 Telegram 或 Discord 发送竞品爆款警报。当前活跃订阅数为 90，由 Dodo Payments 支付网关处理收款。",
+    "how_it_makes_money": "采用月度订阅制，定价为 $29/月（Starter）和 $49/月（Pro），提供 14 天免费试用。根据 MRR 与活跃订阅数计算，客单价为 $37.47。",
+    "why_it_works": [
+      "素材显示产品能「逐秒拆解爆款视频」，机制是：将非结构化的视频内容转化为可复制的结构化脚本，降低创作者对爆款逻辑的猜测成本。",
+      "素材显示提供 14 天免费试用，机制是：降低用户尝试门槛，使工具在免费期内完成价值验证，提高付费转化率。",
+      "素材显示活跃订阅数为 90，机制是：在上线首月（2026 年 10 月 18 日）即获得 90 个付费用户，说明目标用户（创作者、教练、小型企业）对爆款内容需求明确。"
+    ],
+    "playbook": [
+      "提供 14 天免费试用，让用户在零风险前提下验证工具价值，提高付费转化。",
+      "将非结构化的视频内容拆解为可复制的结构化脚本，降低用户创作门槛。",
+      "通过 Telegram 或 Discord 发送竞品爆款警报，建立用户日常使用习惯。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "MRR $934 为当前经常性收入",
+        "truth": "近 30 天已验证收入 $813；MRR $934 与缓存快照 $3,372 存在矛盾，且与收入增速 0.0% 不一致，不可靠",
+        "source": "https://trustmrr.com/startup/viral-spy.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 档案",
+        "url": "https://trustmrr.com/startup/viral-spy.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "ViralSpy 官网",
+        "url": "https://viralspy.app/",
+        "kind": "official"
+      }
+    ],
+    "published_from": "viralspy",
+    "verified_at": "2026-11-23",
+    "updated_at": "2026-11-23",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 60,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
   }
 ]
