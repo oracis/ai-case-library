@@ -1440,8 +1440,28 @@ def save_published(pub):
         db.close_conn()
 
     # 双写 JSON 快照（保持原格式 indent=2，供旧脚本只读兼容）
+    # ⚠⚠ **必须合并旧快照，不能整本替换**：`load_published()` 从 db 重建记录时只有
+    #    5 个键（title/published_at/status/appmsgid/file），直接写回会把**其它**记录的
+    #    审计字段（publish_type / published_appmsgid / sent_via / send_reason / note /
+    #    verified_at）洗掉 —— 2026-11-24 实测丢了 wagiff-app、homy 两条，
+    #    同源事故见 PRD #203（`Manifest.save()` 整本重刷）。db 里没有这几列，
+    #    JSON 是它们唯一的家，所以只能「旧记录打底 + 新值覆盖非空字段」。
+    snapshot = {}
+    if os.path.exists(PUBLISHED_PATH):
+        try:
+            with open(PUBLISHED_PATH, encoding="utf-8") as f:
+                snapshot = json.load(f) or {}
+        except (OSError, ValueError):
+            snapshot = {}
+    merged = {}
+    for cid, rec in (pub or {}).items():
+        base = dict(snapshot.get(cid) or {})
+        base.update({k: v for k, v in (rec or {}).items() if v not in (None, "")})
+        merged[cid] = base
+    for cid, rec in snapshot.items():       # 调用方只传子集时别丢别的条目
+        merged.setdefault(cid, rec)
     with open(PUBLISHED_PATH, "w", encoding="utf-8") as f:
-        json.dump(pub, f, ensure_ascii=False, indent=2)
+        json.dump(merged, f, ensure_ascii=False, indent=2)
 
 
 # ======================================================================

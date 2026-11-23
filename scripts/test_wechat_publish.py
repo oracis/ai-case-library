@@ -1121,5 +1121,88 @@ class TestFixMarkdown(unittest.TestCase):
             self.assertNotIn("`", out, "%s 转换后仍残留反引号" % os.path.basename(p))
 
 
+class SavePublishedMergeTest(unittest.TestCase):
+    """`save_published()` 写 JSON 快照必须**合并**旧记录，不许整本替换。
+
+    背景（2026-11-24 实测，PRD #224）：`load_published()` 优先从 SQLite 重建记录，
+    只有 5 个键（title/published_at/status/appmsgid/file）；`save_published()` 若把这
+    5 个键整本写回 JSON，**其它**记录的审计字段（publish_type / published_appmsgid /
+    sent_via / send_reason / note / verified_at）就被洗掉 —— 当天真的丢了
+    wagiff-app、homy 两条，靠 `git show HEAD:` 才补回来。同源事故：PRD #203。
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp(prefix="wxpub_merge_")
+        self.path = os.path.join(self.tmp, "wechat_published.json")
+        self._orig = (W.PUBLISHED_PATH, W.db.get_conn, W.db.upsert_post,
+                      W.db.close_conn)
+
+        class _Conn(object):
+            def close(self):
+                pass
+
+        W.PUBLISHED_PATH = self.path
+        W.db.get_conn = lambda: _Conn()
+        W.db.upsert_post = lambda *a, **k: None
+        W.db.close_conn = lambda *a, **k: None
+
+    def tearDown(self):
+        W.PUBLISHED_PATH, W.db.get_conn, W.db.upsert_post, W.db.close_conn = self._orig
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def _seed(self, data):
+        with open(self.path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+
+    def _read(self):
+        with open(self.path, encoding="utf-8") as f:
+            return json.load(f)
+
+    def test_其它记录的审计字段不被洗掉(self):
+        self._seed({
+            "old-pub": {
+                "title": "已发表的老稿", "published_at": "2026-11-22 13:43",
+                "status": "published", "appmsgid": "100000486", "file": "",
+                "publish_type": "publish", "published_appmsgid": "2247485064",
+                "sent_via": "send", "send_reason": "已发表列表出现新记录，标题一致",
+                "note": "｜publish模式自动发表", "verified_at": "2026-11-22 13:43",
+            },
+            "new-draft": {"title": "草稿", "published_at": "", "status": "draft",
+                          "appmsgid": "100000470", "file": ""},
+        })
+        # 模拟 load_published()：从 db 重建，只有 5 个键
+        W.save_published({
+            "old-pub": {"title": "已发表的老稿", "published_at": "2026-11-22 13:43",
+                        "status": "published", "appmsgid": "100000486", "file": ""},
+            "new-draft": {"title": "草稿", "published_at": "", "status": "draft",
+                          "appmsgid": "100000470", "file": ""},
+        })
+        old = self._read()["old-pub"]
+        for k in ("publish_type", "published_appmsgid", "sent_via", "send_reason",
+                  "note", "verified_at"):
+            self.assertIn(k, old, "审计字段 %s 被整本重刷洗掉了" % k)
+        self.assertEqual(old["published_appmsgid"], "2247485064")
+
+    def test_新值仍能覆盖旧值(self):
+        self._seed({"c1": {"title": "旧标题", "published_at": "", "status": "draft",
+                           "appmsgid": "1", "file": "", "note": "旧注记"}})
+        W.save_published({"c1": {"title": "新标题", "published_at": "2026-11-24 01:00",
+                                 "status": "published", "appmsgid": "1", "file": "",
+                                 "published_appmsgid": "9999"}})
+        rec = self._read()["c1"]
+        self.assertEqual(rec["title"], "新标题")
+        self.assertEqual(rec["status"], "published")
+        self.assertEqual(rec["published_appmsgid"], "9999")
+        self.assertEqual(rec["note"], "旧注记")          # 旧字段保留
+
+    def test_只传子集时不丢别的条目(self):
+        self._seed({"a": {"title": "A", "status": "published", "appmsgid": "1"},
+                    "b": {"title": "B", "status": "draft", "appmsgid": "2"}})
+        W.save_published({"a": {"title": "A", "status": "published", "appmsgid": "1"}})
+        data = self._read()
+        self.assertEqual(set(data), {"a", "b"})
+        self.assertEqual(data["b"]["title"], "B")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
