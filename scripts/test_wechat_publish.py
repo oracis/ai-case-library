@@ -1121,6 +1121,104 @@ class TestFixMarkdown(unittest.TestCase):
             self.assertNotIn("`", out, "%s 转换后仍残留反引号" % os.path.basename(p))
 
 
+class LoadPublishedMergeTest(unittest.TestCase):
+    """`load_published()` 必须返回 db ∪ JSON 的**合并视图**，不是 5 键子集。
+
+    背景（2026-11-24，PRD #224）：原来从 SQLite 重建记录时只取 5 个键，调用方把
+    这份窄视图写回 JSON 就洗掉了别人的审计字段。`save_published()` 已改成合并式
+    写入兜住，读取侧同样不该再造窄视图 —— 否则任何新调用方拿它原样写回都会再犯。
+    口径边界：**条目集仍由 db 决定**（不改变「已发几篇」的统计），只有字段被补齐。
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp(prefix="wxpub_load_")
+        self.path = os.path.join(self.tmp, "wechat_published.json")
+        self._orig = (W.PUBLISHED_PATH, W.db.get_conn, W.db.close_conn,
+                      W.db.get_posts_by_platform, W.db.upsert_post)
+
+        class _Conn(object):
+            def close(self):
+                pass
+
+        W.PUBLISHED_PATH = self.path
+        W.db.get_conn = lambda: _Conn()
+        W.db.close_conn = lambda *a, **k: None
+        W.db.upsert_post = lambda *a, **k: None
+
+    def tearDown(self):
+        (W.PUBLISHED_PATH, W.db.get_conn, W.db.close_conn,
+         W.db.get_posts_by_platform, W.db.upsert_post) = self._orig
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def _seed(self, data):
+        with open(self.path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+
+    def _db(self, rows):
+        W.db.get_posts_by_platform = lambda conn, platform: rows
+
+    def test_db只有5键时审计字段从JSON补齐(self):
+        self._seed({"old-pub": {
+            "title": "已发表的老稿", "published_at": "2026-11-22 13:43",
+            "status": "published", "appmsgid": "100000486", "file": "20261122_wagiff.html",
+            "publish_type": "publish", "published_appmsgid": "2247485064",
+            "sent_via": "send", "send_reason": "已发表列表出现新记录，标题一致",
+            "note": "｜publish模式自动发表", "verified_at": "2026-11-22 13:43",
+        }})
+        self._db([{"case_id": "old-pub", "title": "已发表的老稿",
+                   "published_at": "2026-11-23 09:00", "state": "published",
+                   "remote_id": "100000486"}])
+        rec = W.load_published()["old-pub"]
+        for k in ("publish_type", "published_appmsgid", "sent_via", "send_reason",
+                  "note", "verified_at"):
+            self.assertIn(k, rec, "load_published() 仍返回窄视图，缺 %s" % k)
+        self.assertEqual(rec["appmsgid"], "100000486")
+        self.assertEqual(rec["file"], "20261122_wagiff.html", "JSON 里的 file 不该被清空")
+        self.assertEqual(rec["published_at"], "2026-11-23 09:00", "db 非空值应覆盖 JSON")
+
+    def test_db空值不覆盖JSON真值(self):
+        self._seed({"c1": {"title": "真标题", "published_at": "2026-11-20 10:00",
+                           "status": "published", "appmsgid": "2247485000", "file": ""}})
+        self._db([{"case_id": "c1", "title": "", "published_at": "",
+                   "state": "", "remote_id": ""}])
+        rec = W.load_published()["c1"]
+        self.assertEqual(rec["title"], "真标题")
+        self.assertEqual(rec["published_at"], "2026-11-20 10:00")
+        self.assertEqual(rec["appmsgid"], "2247485000")
+
+    def test条目集仍由db决定(self):
+        self._seed({"db-only": {"title": "A"}, "json-only": {"title": "B"}})
+        self._db([{"case_id": "db-only", "title": "A", "published_at": "2026-11-01 00:00",
+                   "state": "published", "remote_id": "1"}])
+        got = W.load_published()
+        self.assertEqual(set(got), {"db-only"}, "合并只补字段，不许扩大条目集")
+
+    def test_db无记录时回退到完整JSON(self):
+        data = {"x": {"title": "X", "note": "审计注记", "verified_at": "2026-11-19 08:00"}}
+        self._seed(data)
+        self._db([])
+        self.assertEqual(W.load_published(), data)
+
+    def test_load再save往返不丢审计字段(self):
+        """端到端：任何调用方拿 load 结果原样写回，审计字段都该活下来。
+
+        这条链路真实存在：`reconcile_verdict._probe_wechat()` → `wechat_sync.
+        run_sync(local=...)` → `apply_fixes()` → `save_local()`，改完状态就写盘。
+        读侧窄了，这条路也会洗字段。"""
+        self._seed({"c1": {"title": "T", "published_at": "2026-11-20 10:00",
+                           "status": "published", "appmsgid": "100", "file": "",
+                           "publish_type": "publish", "send_reason": "命中",
+                           "verified_at": "2026-11-20 10:00"}})
+        self._db([{"case_id": "c1", "title": "T", "published_at": "2026-11-20 10:00",
+                   "state": "published", "remote_id": "100"}])
+        W.save_published(W.load_published())        # 原样往返
+        rec = W.load_published()["c1"]
+        self.assertEqual(rec["publish_type"], "publish")
+        self.assertEqual(rec["send_reason"], "命中")
+        self.assertEqual(rec["verified_at"], "2026-11-20 10:00")
+        self.assertEqual(rec["appmsgid"], "100")
+
+
 class SavePublishedMergeTest(unittest.TestCase):
     """`save_published()` 写 JSON 快照必须**合并**旧记录，不许整本替换。
 
