@@ -87613,5 +87613,535 @@
       "threshold": 70.0,
       "scored_at": "2026-11-21"
     }
+  },
+  {
+    "id": "landy-ai",
+    "name": "Landy AI",
+    "name_en": "Landy AI",
+    "origin": "以色列",
+    "one_liner": "Landy AI 是 AI 落地页生成器，MRR $8,328，264 个活跃订阅，2025 年 5 月上线。",
+    "category": "AI 工具",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 8328.0,
+      "last_30d_revenue": 7961.0,
+      "all_time": 144801.0,
+      "subscriptions": 264,
+      "growth_30d": -12.9,
+      "mrr_growth_30d": -12.9,
+      "revenue_growth_30d": -14.7,
+      "headline": "MRR $8,328，TrustMRR 核对",
+      "metric_note": "实测口径：MRR $8,328（TrustMRR 从支付网关 API 直读，2026-11-23 同步，Polar (API key)）。近 30 天收入 $7,961、累计 $144,801、付费订阅 264 户。最近完整月环比 -8.4%（已剔除当月残月）。近 30 天 MRR 增速 -12.9%。⚠ 历史峰值 $13,779 → 最近完整月 $8,991，留存 65%。挂牌 $190,000、倍数 1.99x（要价不等于收入）。队列缓存值与本次核对一致（均 $8,328）；数据是截至 2026-11-23 的支付侧缓存快照，不是实时值。",
+      "caliber": "mrr"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 4
+    },
+    "verdict": "它卖的不是页面生成，而是将落地页从数天压缩至数分钟的发布速度，客户买的是营销测试的周转效率。",
+    "what_it_does": "Landy AI 是一个 AI 驱动的落地页构建工具，用户只需描述业务，AI 代理即可研究受众、撰写文案、生成页面并发布到自有域名，同时内置线索收集、分析、A/B 测试和 AI 广告素材功能。该产品为自助式 SaaS，于 2025 年 5 月 27 日成立，目前拥有 264 个活跃订阅用户。创始人信息未公开，团队规模档案自述为 2–5 人，采用 Polar 作为支付网关。",
+    "how_it_makes_money": "产品采用月度订阅制，定价档位包括：免费测试版、Starter $27/月、Builder $47/月、Pro $97/月，另有单次积分包从 $8 起。当前 MRR 为 $8,328，活跃订阅数 264，客单价为 $31.55。",
+    "why_it_works": [
+      "将落地页构建时间从数天压缩至数分钟（档案自述价值主张），机制是 AI 代理自动完成调研、文案和发布，降低小企业主的营销启动成本。",
+      "MRR $8,328 对应 264 个活跃订阅（TrustMRR 档案记录），机制是自助式 SaaS 模式配合 $27 低门槛定价，使客户可自行完成购买和部署。",
+      "近 30 天收入 $7,961，但增速为 -14.7%（TrustMRR 档案记录），机制是产品上线时间不足一年，早期高增长不可持续，需关注留存而非增速。"
+    ],
+    "playbook": [
+      "用 AI 代理自动化重复性内容工作（如调研、文案），将服务交付时间从数天压缩至数分钟，降低客户启动门槛。",
+      "设置 $27 等低门槛月度定价档位，配合免费测试版，让客户可自行完成购买和部署，减少销售介入。",
+      "在自助式 SaaS 中内置线索收集、A/B 测试等增值功能，提高用户粘性和续费率，而非仅依赖单一页面生成功能。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "近 30 天收入 $7,961 是 MRR",
+        "truth": "近 30 天收入 $7,961 是滚动 30 天流水，不等于 MRR；当前 MRR 为 $8,328",
+        "source": "https://trustmrr.com/startup/landy.md"
+      },
+      {
+        "claim": "累计收入 $144,801 是年度收入",
+        "truth": "累计收入 $144,801 是 All-time 总收入，不是年度收入（Last 12 months 为 $131,155）",
+        "source": "https://trustmrr.com/startup/landy.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 档案",
+        "url": "https://trustmrr.com/startup/landy.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "官网",
+        "url": "https://landy-ai.com",
+        "kind": "official"
+      }
+    ],
+    "published_from": "landy-ai",
+    "verified_at": "2026-11-23",
+    "updated_at": "2026-11-23",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 60,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "appzoku",
+    "name": "AppZoku",
+    "name_en": "AppZoku",
+    "origin": "",
+    "one_liner": "AppZoku 为独立 iOS 开发者提供 AI 营销工具，当前 MRR $1,577，活跃订阅 70。",
+    "category": "AI 工具",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "mrr",
+    "metrics": {
+      "mrr": 1577.0,
+      "last_30d_revenue": 4803.0,
+      "all_time": 4907.0,
+      "subscriptions": 70,
+      "growth_30d": 897.9,
+      "mrr_growth_30d": 897.9,
+      "revenue_growth_30d": 4518.2,
+      "headline": "MRR $1,577，TrustMRR 核对",
+      "metric_note": "实测口径：MRR $1,577（TrustMRR 从支付网关 API 直读，2026-11-23 同步，Dodo Payments (API key)）。近 30 天收入 $4,803、累计 $4,907、付费订阅 70 户。月度时间线不足两个月，不给环比结论。近 30 天 MRR 增速 +897.9%。⚠ 同期收入增速为 +4518.2%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。挂牌 $150,000、倍数 2.60x（要价不等于收入）。⚠ 队列缓存值是 2026-11-23 采集时的快照（当时 $1,577），本次核对为 $1,577，两者不同；本条以本次核对为准。",
+      "caliber": "mrr"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 3
+    },
+    "verdict": "它卖的不是剪辑工具，而是「发布节奏」——开发者买的是无需手动剪辑即可自动发布短视频的确定性。",
+    "what_it_does": "AppZoku 是一个面向独立 iOS 开发者和小型团队的营销工具，创始人 Ghuru，成立于 2026-10-01。产品允许用户免费滚动、生成、编辑和重新生成创意，仅导出时付费；连接 Instagram 后可自动发布审核通过的短视频，减少手动剪辑。档案自述其价值主张为 AI 驱动营销平台，将 App Store 列表转化为可发布的营销内容，包括 UGC 视频、AI 网红视频和短视频。档案自述用户数为 3000，团队规模 1 人，融资方式为自资。",
+    "how_it_makes_money": "采用 Freemium SaaS 模式，提供月付和年付订阅。档案自述定价档位为：Hobbyist $10/月、Pro $49/月、Studio $99/月。当前 MRR $1,577，活跃订阅数 70，客单价 $22.53。",
+    "why_it_works": [
+      "免费无限生成创意、仅导出付费的定价结构，使获客成本趋近于零，同时 70 个活跃订阅将免费用户转化为付费用户。",
+      "自动连接 Instagram 并定时发布，将原本需要手动剪辑和排期的工作压缩为一个自动化流程，降低独立开发者的时间成本。",
+      "毛利率 90% 表明边际成本极低，收入主要依赖软件订阅而非硬件或人工服务，适合单人团队运营。"
+    ],
+    "playbook": [
+      "将核心功能拆分为免费无限使用与付费导出，降低试用门槛，用使用量驱动转化。",
+      "打通内容生成与发布平台（如 Instagram）的 API，实现从创意到发布的闭环，减少用户切换工具的成本。",
+      "针对特定垂直群体（如独立开发者）提供自动化工作流，而非通用营销工具，以解决其时间稀缺问题。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "近 30 天收入 $4,803 代表月度经常性收入",
+        "truth": "近 30 天收入 $4,803 是滚动流水，包含一次性入账；经常性收入（MRR）为 $1,577",
+        "source": "https://trustmrr.com/startup/appzoku.md"
+      },
+      {
+        "claim": "累计收入 $4,907 可推算年度收入",
+        "truth": "累计收入 $4,907 是 2026-10 至 2026-11 的总和，项目刚启动不到两个月，直接年化无意义",
+        "source": "https://trustmrr.com/startup/appzoku.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 档案",
+        "url": "https://trustmrr.com/startup/appzoku.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "AppZoku 官网",
+        "url": "https://appzoku.com/",
+        "kind": "official"
+      }
+    ],
+    "published_from": "appzoku",
+    "verified_at": "2026-11-23",
+    "updated_at": "2026-11-23",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 80,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "videobgremover",
+    "name": "VideoBGRemover",
+    "name_en": "VideoBGRemover",
+    "origin": "美国",
+    "one_liner": "VideoBGRemover 是 AI 视频去背工具，非订阅制，近 30 天收入 $1,486。",
+    "category": "AI 工具",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "last_30d",
+    "metrics": {
+      "mrr": 0.0,
+      "last_30d_revenue": 1486.0,
+      "all_time": 16934.0,
+      "subscriptions": 0,
+      "growth_30d": 0.0,
+      "mrr_growth_30d": 0.0,
+      "revenue_growth_30d": -43.4,
+      "headline": "近 30 天收入 $1,486，TrustMRR 核对（非订阅制，MRR 恒 0）",
+      "metric_note": "实测口径：近 30 天已验证收入 $1,486（非订阅制/买断制业务，MRR 恒 0，本条门面口径为近 30 天流水，含一次性与用量收入，别当经常性收入引用；TrustMRR 从支付网关 API 直读，2026-11-23 同步，Stripe (API key)）。近 30 天收入 $1,486、累计 $16,934、付费订阅 0 户。最近完整月环比 +68.9%（已剔除当月残月）。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 -43.4%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $3,599 → 最近完整月 $2,391，留存 66%。挂牌 $60,000、倍数 3.37x（要价不等于收入）。⚠ 队列缓存值是 2026-11-23 采集时的快照（当时 $1,486），本次核对为 $1,486，两者不同；本条以本次核对为准。",
+      "caliber": "last_30d"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 3
+    },
+    "verdict": "它卖的不是去背技术，而是无需绿幕的替代方案——客户买的是省下的拍摄与后期成本，不是画质。",
+    "what_it_does": "VideoBGRemover 提供浏览器端与 API 两种视频背景移除方案，于 2024 年 9 月上线。档案自述团队规模 1 人，融资方式为自资。官网显示约 940k 人使用过该产品，76k 人注册邮箱，月访问量约 43k，主要来源为 Google 自然搜索。当前 MRR 为 0，非订阅制。",
+    "how_it_makes_money": "按使用量计费，用户一次性购买 Credits，有效期一年。素材给出的定价为：消费低于 $50 时每分钟 $4.80；$50–$199.99 区间每分钟 $4.20；$200–$999.99 区间每分钟 $3.60；$1000 以上每分钟 $2.50。档案自述客群为内容创作者、视频制作公司、营销团队及开发者。",
+    "why_it_works": [
+      "素材明确定价为按分钟计费，每分钟 $2.50 至 $4.80，机制是用户只为实际处理的视频时长付费，降低尝试门槛。",
+      "档案自述团队规模 1 人且融资方式为自资，机制是单人运营使固定成本极低，即使月收入仅 $1,486 也能维持。",
+      "近 30 天收入 $1,486，其中 11 月 4 日单日收入 $470，机制是 API 或批量订单带来收入脉冲，而非稳定订阅。"
+    ],
+    "playbook": [
+      "采用按用量阶梯定价：用量越小单价越高，用量越大单价越低，用价格杠杆鼓励用户增加单次消费额。",
+      "将产品同时部署在浏览器端与 API 端：浏览器端降低个人创作者门槛，API 端触达开发者和企业客户，覆盖两类客群。",
+      "利用自然搜索流量：素材显示约 43k 月访问量主要来自 Google 自然搜索，机制是 SEO 内容覆盖长尾关键词，降低获客成本。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "候选资料 headline 称“近 30 天收入 $1,486，TrustMRR 核对（非订阅制，MRR 恒 0）”",
+        "truth": "实际为近 30 天已验证收入 $1,486（据 TrustMRR 档案，Stripe API 直读，2026-11-23 同步），非经常性收入，不可当作 MRR 引用。",
+        "source": "https://trustmrr.com/startup/hidden-business-108.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 官方档案",
+        "url": "https://trustmrr.com/startup/hidden-business-108.md",
+        "kind": "stripe"
+      }
+    ],
+    "published_from": "videobgremover",
+    "verified_at": "2026-11-23",
+    "updated_at": "2026-11-23",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（stripe），按默认政策进精品池",
+    "quality_score": 40,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "luxechain-ai-unlimited-ai-api-tokens",
+    "name": "Luxechain AI - Unlimited AI API Tokens",
+    "name_en": "Luxechain AI - Unlimited AI API Tokens",
+    "origin": "",
+    "one_liner": "上线14天近30天收入$715的AI API聚合钱包，非订阅制，按用量计费",
+    "category": "AI 工具",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "last_30d",
+    "metrics": {
+      "mrr": 0.0,
+      "last_30d_revenue": 715.0,
+      "all_time": 715.0,
+      "subscriptions": 0,
+      "growth_30d": 0.0,
+      "mrr_growth_30d": 0.0,
+      "revenue_growth_30d": 6674495.7,
+      "headline": "近 30 天收入 $715，TrustMRR 核对（非订阅制，MRR 恒 0）",
+      "metric_note": "实测口径：近 30 天已验证收入 $715（非订阅制/买断制业务，MRR 恒 0，本条门面口径为近 30 天流水，含一次性与用量收入，别当经常性收入引用；TrustMRR 从支付网关 API 直读，2026-11-23 同步，razorpay (API key)）。近 30 天收入 $715、累计 $715、付费订阅 0 户。月度时间线不足两个月，不给环比结论。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 +6674495.7%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 队列缓存值是 2026-11-23 采集时的快照（当时 $715），本次核对为 $715，两者不同；本条以本次核对为准。",
+      "caliber": "last_30d"
+    },
+    "models": [],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 4
+    },
+    "verdict": "它卖的不是 API 密钥，而是「统一积分」——客户买的是多模型调用的结算便利，不是单一模型访问权。",
+    "what_it_does": "LuxeChain 是一个 AI API 聚合钱包，官网描述为「一处获取 ChatGPT API、Claude API tokens 和 AI API keys」。产品形态为按用量付费的钱包模式，用户通过统一积分（unified credits）调用多个 AI 模型。档案自述由 1 人团队运营，于 2026-11-09 上线，目标用户为开发者、初创公司创始人和自动化机构。当前 MRR 为 0，非订阅制。",
+    "how_it_makes_money": "采用 Pay as you go 钱包模式，用户充值后按调用量扣费，不设固定订阅档位。毛利率为 92%。由于非订阅制且活跃订阅数未公开，客单价无法推算。具体定价档位未公开。",
+    "why_it_works": [
+      "素材显示近 30 天收入 $715，其中 11-07 单日 $460，说明用户愿意为多模型统一结算的便利性付费，机制是降低跨平台充值的管理成本。",
+      "档案自述目标用户包括「AI automation agencies」，这类客户通常同时使用多个模型，统一钱包减少其财务对账复杂度，机制是聚合需求方的结算效率。",
+      "毛利率 92% 表明中间商模式成本低，机制是赚取模型供应商与终端用户之间的结算差价，而非硬件或人力成本。"
+    ],
+    "playbook": [
+      "将多个独立 API 供应商的计费合并为统一积分钱包，降低客户管理多账户的成本。",
+      "针对同时使用多个模型的客户群体（如自动化机构），提供跨平台结算便利而非单一模型访问。",
+      "采用按用量付费模式，避免订阅制锁定，吸引短期或波动性需求客户。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "近 30 天收入增速 +6674495.7%",
+        "truth": "该增速为一次性入账或退款导致的口径背离，实际近 30 天已验证收入为 $715，非经常性收入，不可按此增速外推。",
+        "source": "https://trustmrr.com/startup/luxechain.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 档案",
+        "url": "https://trustmrr.com/startup/luxechain.md",
+        "kind": "stripe"
+      },
+      {
+        "label": "官网",
+        "url": "https://luxechain.si/",
+        "kind": "official"
+      }
+    ],
+    "published_from": "luxechain-ai-unlimited-ai-api-tokens",
+    "verified_at": "2026-11-23",
+    "updated_at": "2026-11-23",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（official/stripe），按默认政策进精品池",
+    "quality_score": 60,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "reviewlabs",
+    "name": "ReviewLabs",
+    "name_en": "ReviewLabs",
+    "origin": "",
+    "one_liner": "ReviewLabs 上线 23 天，近 30 天收入 $637，为印度创作者提供数字文件自动交付与收款工具。",
+    "category": "创作者经济",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "last_30d",
+    "metrics": {
+      "mrr": 0.0,
+      "last_30d_revenue": 637.0,
+      "all_time": 637.0,
+      "subscriptions": 0,
+      "growth_30d": 0.0,
+      "mrr_growth_30d": 0.0,
+      "revenue_growth_30d": 75396.3,
+      "headline": "近 30 天收入 $637，TrustMRR 核对（非订阅制，MRR 恒 0）",
+      "metric_note": "实测口径：近 30 天已验证收入 $637（非订阅制/买断制业务，MRR 恒 0，本条门面口径为近 30 天流水，含一次性与用量收入，别当经常性收入引用；TrustMRR 从支付网关 API 直读，2026-11-23 同步，razorpay (API key)）。近 30 天收入 $637、累计 $637、付费订阅 0 户。月度时间线不足两个月，不给环比结论。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 +75396.3%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 队列缓存值是 2026-11-23 采集时的快照（当时 $637），本次核对为 $637，两者不同；本条以本次核对为准。",
+      "caliber": "last_30d"
+    },
+    "models": [],
+    "replicability": {
+      "tech": 2,
+      "distribution": 4,
+      "capital": 1,
+      "timing": 3
+    },
+    "verdict": "它卖的不是工具，是「去中介化」——创作者买的是把原本给平台的佣金省下来，而不是多一个收款入口。",
+    "what_it_does": "ReviewLabs 由 Satyabrata 于 2026 年 10 月 1 日创建，是一个面向印度创作者的 B2B 平台。它通过单一支付链接，让创作者销售数字文件，并自动完成付款、文件交付、店铺展示和线索收集。支付网关为 Razorpay，不收取平台费用，仅按成本价转嫁支付手续费。档案自述团队规模为 1 人，融资方式为自资。",
+    "how_it_makes_money": "当前 MRR 为 0，非订阅制，近 30 天收入 $637。档案自述定价为 Creator 版 ₹799/月或 ₹7990/年，Pro 版 ₹1999/月或 ₹19990/年，均含 GST，年付赠 2 个月。客单价无法推算。",
+    "why_it_works": [
+      "具体数字：近 30 天收入 $637，其中 2026-11-21 单日 $637，此前 22 天均为 $0。机制：收入集中在上线后第 21 天爆发，说明产品验证了真实需求，但月度时间线不足，高增速不可持续。",
+      "具体事实：0% 平台费，仅转嫁 Razorpay 支付成本。机制：对价格敏感的印度创作者而言，省下的佣金直接转化为利润，这是其核心定价优势。",
+      "具体事实：创始人 X 粉丝仅 2。机制：在几乎没有自有流量的情况下实现 $637 收入，说明其增长依赖创作者自发传播或平台内搜索，而非营销投入。"
+    ],
+    "playbook": [
+      "将「平台抽成」转化为「成本转嫁」作为核心卖点，直接对比竞品佣金比例，吸引对价格敏感的小微创作者。",
+      "在上线初期提供自动化交付功能，减少手动操作，通过解决「手动发文件」的具体痛点来获取首批种子用户。",
+      "利用单一支付链接降低使用门槛，让创作者无需搭建独立店铺即可开始销售，缩短从注册到收款的路径。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "近 30 天收入增速 +75396.3% 可代表业务增长",
+        "truth": "该增速由一次性入账导致，与 MRR 增速（0%）背离；非订阅制业务应使用近 30 天已验证收入口径，而非经常性收入增速。",
+        "source": "https://trustmrr.com/startup/reviewlabs-space.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 档案",
+        "url": "https://trustmrr.com/startup/reviewlabs-space.md",
+        "kind": "stripe"
+      }
+    ],
+    "published_from": "reviewlabs",
+    "verified_at": "2026-11-23",
+    "updated_at": "2026-11-23",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（stripe），按默认政策进精品池",
+    "quality_score": 40,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "lumosim-esim-data-for-travel",
+    "name": "LumoSIM : eSIM Data for Travel",
+    "name_en": "LumoSIM : eSIM Data for Travel",
+    "origin": "美国",
+    "one_liner": "LumoSIM 是面向出境游客的预付 eSIM 数据服务，近 30 天收入 $475，非订阅制。",
+    "category": "Travel",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "last_30d",
+    "metrics": {
+      "mrr": 0.0,
+      "last_30d_revenue": 475.0,
+      "all_time": 711.0,
+      "subscriptions": 0,
+      "growth_30d": 0.0,
+      "mrr_growth_30d": 0.0,
+      "revenue_growth_30d": 124.2,
+      "headline": "近 30 天收入 $475，TrustMRR 核对（非订阅制，MRR 恒 0）",
+      "metric_note": "实测口径：近 30 天已验证收入 $475（非订阅制/买断制业务，MRR 恒 0，本条门面口径为近 30 天流水，含一次性与用量收入，别当经常性收入引用；TrustMRR 从支付网关 API 直读，2026-11-23 同步，Stripe (API key)）。近 30 天收入 $475、累计 $711、付费订阅 0 户。最近完整月环比 +52.3%（已剔除当月残月）。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 +124.2%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 历史峰值 $140 → 最近完整月 $140，留存 100%。挂牌 $35,000、倍数 6.14x（要价不等于收入）。⚠ 队列缓存值是 2026-11-23 采集时的快照（当时 $475），本次核对为 $475，两者不同；本条以本次核对为准。",
+      "caliber": "last_30d"
+    },
+    "models": [
+      "交易市场"
+    ],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 2,
+      "timing": 3
+    },
+    "verdict": "它卖的不是流量，是「消除不确定性」——游客买的是到达即用的确定性和免漫游费的安心感。",
+    "what_it_does": "LumoSIM 为出境游客提供预付 eSIM 移动数据服务，覆盖 190 多个国家与地区。用户无需购买实体 SIM 卡或支付本国运营商漫游费，可在 App 内选择单国、区域或多国套餐并安装使用。产品于 2026 年 6 月 10 日上线，采用 Stripe 支付网关。活跃订阅数未公开，档案自述用户数为 500,000，团队规模 2–5 人。",
+    "how_it_makes_money": "按次收费的预付模式，非订阅制。用户为单次行程购买数据套餐，价格从 $0.99 起。毛利率 80%。客单价因订阅数未公开无法推算。",
+    "why_it_works": [
+      "覆盖 190+ 国家与地区，机制：降低游客在陌生市场寻找本地 SIM 卡的搜索成本。",
+      "提供 $0.99 起的价格档位，机制：低价门槛吸引价格敏感型游客尝试。",
+      "毛利率 80%，机制：eSIM 数字交付模式降低实体卡供应链成本。"
+    ],
+    "playbook": [
+      "将服务打包为「单国/区域/多国」套餐，降低用户选择复杂度。",
+      "利用 AI 助手根据行程数据推荐套餐，减少用户决策时间。",
+      "在 App 内完成安装与激活，实现到达即用的体验闭环。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "近 30 天收入 $475 是 MRR",
+        "truth": "近 30 天收入 $475 是已验证流水（买断制/用量制），非经常性收入；MRR 为 $0",
+        "source": "https://trustmrr.com/startup/lumosim.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 档案",
+        "url": "https://trustmrr.com/startup/lumosim.md",
+        "kind": "stripe"
+      }
+    ],
+    "published_from": "lumosim-esim-data-for-travel",
+    "verified_at": "2026-11-23",
+    "updated_at": "2026-11-23",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（stripe），按默认政策进精品池",
+    "quality_score": 30,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
+  },
+  {
+    "id": "peakpad",
+    "name": "PeakPad",
+    "name_en": "PeakPad",
+    "origin": "",
+    "one_liner": "PeakPad 是 macOS 菜单栏工具，近 30 天收入 $334，累计 $340，非订阅制。",
+    "category": "企业服务",
+    "industry": "",
+    "status": "curated",
+    "verification": "stripe",
+    "caliber": "last_30d",
+    "metrics": {
+      "mrr": 0.0,
+      "last_30d_revenue": 334.0,
+      "all_time": 340.0,
+      "subscriptions": 0,
+      "growth_30d": 0.0,
+      "mrr_growth_30d": 0.0,
+      "revenue_growth_30d": 5762.0,
+      "headline": "近 30 天收入 $334，TrustMRR 核对（非订阅制，MRR 恒 0）",
+      "metric_note": "实测口径：近 30 天已验证收入 $334（非订阅制/买断制业务，MRR 恒 0，本条门面口径为近 30 天流水，含一次性与用量收入，别当经常性收入引用；TrustMRR 从支付网关 API 直读，2026-11-23 同步，Dodo Payments (API key)）。近 30 天收入 $334、累计 $340、付费订阅 0 户。月度时间线不足两个月，不给环比结论。近 30 天 MRR 增速 +0.0%。⚠ 同期收入增速为 +5762.0%，与 MRR 增速不一致（一次性入账/退款等会造成背离）—— 讲增长必须用 MRR 口径。⚠ 队列缓存值是 2026-11-23 采集时的快照（当时 $334），本次核对为 $334，两者不同；本条以本次核对为准。",
+      "caliber": "last_30d"
+    },
+    "models": [],
+    "replicability": {
+      "tech": 2,
+      "distribution": 3,
+      "capital": 1,
+      "timing": 3
+    },
+    "verdict": "它卖的不是工具集合，而是『空间复用』——把被浪费的刘海屏变成生产力入口。",
+    "what_it_does": "PeakPad 将 MacBook 的刘海屏区域改造成一个包含 29 个工具的生产力中心，包括剪贴板历史、笔记、计时器、文件架、媒体控制和数据分析。该产品为原生 macOS 应用，由创始人 Karuna 单人开发，于 2026 年 10 月 5 日上线。根据档案自述，团队规模为 1 人，融资方式为自筹资金。活跃订阅数未公开，因产品非订阅制。",
+    "how_it_makes_money": "采用一次性买断制，定价为 $4 终身许可证，包含免费更新。前 100 个下载适用首发价格，之后价格上调至 $14.99。因非订阅制，客单价无法推算。",
+    "why_it_works": [
+      "素材显示近 30 天收入 $334，机制：一次性低价（$4）降低决策门槛，适合工具类应用快速转化。",
+      "档案自述团队规模 1 人，机制：单人开发控制成本，无需订阅制维护，毛利结构更简单。",
+      "素材显示上线首月增长 5762%，机制：发布初期自然流量高，但月度时间线不足，需观察后续稳定性。"
+    ],
+    "playbook": [
+      "利用硬件闲置区域（如刘海屏）作为产品切入点，降低用户认知成本。",
+      "设置前 N 名用户优惠（如前 100 名），制造稀缺感并加速早期转化。",
+      "通过 X、Reddit 等社交平台进行公开构建（building in public），积累初始用户。"
+    ],
+    "signals": [],
+    "founder": "",
+    "traffic_sources": [],
+    "corrections": [
+      {
+        "claim": "近 30 天收入增速 +5762.0%",
+        "truth": "该增速为一次性买断收入导致的滚动 30 天流水波动，与经常性收入（MRR）无关；MRR 增速为 0.0%，引用增长数据时应以 MRR 口径为准。",
+        "source": "https://trustmrr.com/startup/peakpad.md"
+      }
+    ],
+    "sources": [
+      {
+        "label": "TrustMRR 档案",
+        "url": "https://trustmrr.com/startup/peakpad.md",
+        "kind": "stripe"
+      }
+    ],
+    "published_from": "peakpad",
+    "verified_at": "2026-11-23",
+    "updated_at": "2026-11-23",
+    "tags": [],
+    "tier": "premium",
+    "tier_reason": "有一手来源（stripe），按默认政策进精品池",
+    "quality_score": 60,
+    "needs_review": false,
+    "human_read": false,
+    "human_read_at": ""
   }
 ]
