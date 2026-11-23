@@ -306,6 +306,12 @@
     "case_id": "ext-ep-004-quake",
     "kind": "game",
     "at": "2026-11-23 14:43"
+   },
+   {
+    "at": "2026-11-24 01:05",
+    "case_id": "pet-plus-us",
+    "kind": "ai",
+    "note": "send-draft FIFO 最久草稿"
    }
   ],
   "cnblogs": [
@@ -394,6 +400,12 @@
    {
     "at": "2026-11-21 09:31",
     "case_id": "checkvibe",
+    "kind": "ai",
+    "note": "send-draft FIFO 最久草稿"
+   },
+   {
+    "at": "2026-11-24 01:10",
+    "case_id": "aeo-engine",
     "kind": "ai",
     "note": "send-draft FIFO 最久草稿"
    }

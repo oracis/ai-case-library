@@ -1138,5 +1138,31 @@
   },
   "via": "cdp-9228",
   "ts": "2026-11-23 14:59:30"
+ },
+ "ext-ep-009-lichess-2026-11-24-1": {
+  "case": "ext-ep-009-lichess",
+  "title": "Lichess，免费无广告的国际象棋",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1731423",
+    "url": "https://developer.aliyun.com/article/new?edit=1731423#/"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-24 01:06:26"
+ },
+ "ext-ep-015-openrct2-2026-11-24-1": {
+  "case": "ext-ep-015-openrct2",
+  "title": "老游戏怎么被重写：读 OpenRCT2",
+  "platforms": {
+   "tencentcloud": {
+    "ok": true,
+    "draftId": "351351",
+    "url": "https://cloud.tencent.com/developer/article/write-new?draftId=351351"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-24 07:22:37"
  }
 }

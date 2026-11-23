@@ -111,10 +111,16 @@
   },
   "fastwrite-io": {
     "title": "fastwrite.io：AI写作工具SaaS，辅助学生学术写作",
-    "published_at": "",
-    "status": "draft",
+    "published_at": "2026-11-24 01:00",
+    "status": "published",
     "appmsgid": "100000470",
-    "file": ""
+    "file": "",
+    "publish_type": "publish",
+    "published_appmsgid": "2247485066",
+    "sent_via": "send",
+    "send_reason": "已发表列表出现新记录，标题一致",
+    "note": "｜publish模式自动发表，新 appmsgid=2247485066",
+    "verified_at": "2026-11-24 01:01"
   },
   "vid-ai": {
     "title": "Vid.AI：脚本一键变短视频",
