@@ -183,6 +183,28 @@ OVERRIDE_RETAIN = {
     "vid-ai": "作者破例：高位横盘 8 个月后缓降，非爆款崩塌；仍在挂牌出售",
 }
 
+# 🚨 **人工口径漂移破例名单**（2026-11-23，作者逐条裁定）。
+# drift 闸拦的是「实测 vs 缓存偏差 >35%」—— 缓存是采集时的旧快照，
+# 实测是 TrustMRR 支付侧最新值，偏差多数来自快照更新而非口径混乱。
+# 作者逐条确认后放行**进候选池接受 AI 预核**：破例不等于认可其收入口径，
+# 也不等于入库；口径最终由 S3 核验 + 人工裁定。破例理由必须写进
+# metric_note/blocking，读者能看到，不靠藏（与 OVERRIDE_RETAIN 同规格）。
+OVERRIDE_DRIFT = {
+    "pishi-llc-fz": (
+        "作者破例（2026-11-23）：实测 MRR $2,042 较缓存 $1,166 +75%，"
+        "系旧快照过期、支付侧快照更新；破例仅放行进池待 S3 核验口径，不等于口径成立"
+    ),
+    "viralspy": (
+        "作者破例（2026-11-23）：实测 MRR $934 较缓存 $3,372 −72%，"
+        "缓存期高估已回落；该条历史上被判口径自相矛盾（disputed），"
+        "破例仅放行进池待 S3 复核，不等于认可其 MRR 口径"
+    ),
+    "louna-s-models-leading-onlyfans-agency-established-models-and-10k-leads": (
+        "作者破例（2026-11-23）：实测 MRR $3,887 较缓存 $1,554 +150%，"
+        "系旧快照过期、支付侧快照更新；破例仅放行进池待 S3 核验口径，不等于口径成立"
+    ),
+}
+
 
 def fmt_money(v):
     if not isinstance(v, (int, float)) or isinstance(v, bool):
@@ -354,10 +376,16 @@ def check_one(rec, live):
     if isinstance(cached, (int, float)) and not isinstance(cached, bool) and cached > 0:
         drift = (mrr - cached) / cached
         if abs(drift) > MAX_DRIFT:
-            return False, ("实测 %s 与缓存 %s 偏差 %+.0f%%（> %d%%），"
-                           "期间有实质变化，需人工确认口径"
-                           % (fmt_money(mrr), fmt_money(cached), drift * 100,
-                              MAX_DRIFT * 100)), m, extra
+            if rid in OVERRIDE_DRIFT:
+                # 人工确认口径漂移破例：放行但必须留痕（理由 + 偏差幅度），
+                # 下游 build_metric_note 会把它写进读者可见的口径说明。
+                extra["override"] = OVERRIDE_DRIFT[rid]
+                extra["drift"] = drift
+            else:
+                return False, ("实测 %s 与缓存 %s 偏差 %+.0f%%（> %d%%），"
+                               "期间有实质变化，需人工确认口径"
+                               % (fmt_money(mrr), fmt_money(cached), drift * 100,
+                                  MAX_DRIFT * 100)), m, extra
     extra["growth"] = growth
     return True, "通过", m, extra
 

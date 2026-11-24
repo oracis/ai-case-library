@@ -313,5 +313,19 @@
     "url": "https://www.cnblogs.com/thing-explainer/p/23754964",
     "status": "published",
     "ts": "2026-11-23 14:53:07"
+  },
+  "tool-site-teardown": {
+    "post_id": "23759758",
+    "title": "拆了 80 个 AI 工具之后：目录站的流量数据，能信到什么程度",
+    "url": "https://www.cnblogs.com/thing-explainer/p/23759758",
+    "status": "published",
+    "ts": "2026-11-24 01:29:16"
+  },
+  "ext-ep-015-openrct2": {
+    "post_id": "23761451",
+    "title": "老游戏怎么被重写：读 OpenRCT2",
+    "url": "https://www.cnblogs.com/thing-explainer/p/23761451",
+    "status": "published",
+    "ts": "2026-11-24 07:20:57"
   }
 }

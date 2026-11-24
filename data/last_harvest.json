@@ -1,77 +1,77 @@
 {
-  "ran_at": "2026-11-23 08:29:13",
-  "added": 52,
+  "ran_at": "2026-11-24 10:38:23",
+  "added": 59,
   "by_source": {
-    "hn": 44,
-    "trustmrr": 8
+    "hn": 43,
+    "trustmrr": 16
   },
   "inbox_total": 400,
-  "archived_this_run": 52,
-  "archive_total": 2474,
+  "archived_this_run": 59,
+  "archive_total": 2533,
   "top": [
     {
-      "name": "Landy AI",
-      "headline": "MRR $8,328，TrustMRR 第 526 名",
-      "heat": 0,
-      "category": "AI 工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/landy"
-    },
-    {
-      "name": "Blind Buzzer",
-      "headline": "近 30 天收入 $200",
-      "heat": 0,
-      "category": "移动应用",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/blind-buzzer"
-    },
-    {
-      "name": "VideoBGRemover",
-      "headline": "近 30 天收入 $1,486",
-      "heat": 0,
-      "category": "AI 工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/hidden-business-108"
-    },
-    {
-      "name": "Zapstart.in",
-      "headline": "累计收入 $8（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
+      "name": "BankConv",
+      "headline": "近 30 天收入 $1,033",
       "heat": 0,
       "category": "垂直行业 SaaS",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/zapstart"
+      "url": "https://trustmrr.com/startup/bankconv"
     },
     {
-      "name": "Interactive Rubik's Cube in the browser – one-shot DeepSeek flash",
-      "headline": "未获取",
-      "heat": 4,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://asamarts.github.io/deeprubik/"
+      "name": "StoreRadar",
+      "headline": "近 30 天收入 $3,552",
+      "heat": 0,
+      "category": "营销工具",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/storeradar"
     },
     {
-      "name": "I wrote FlightTrack twice",
-      "headline": "疑似金额 $59.99",
-      "heat": 1,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://apps.apple.com/us/app/flighttrack-flight-tracker/id6788552553"
+      "name": "PosteAhora",
+      "headline": "近 30 天收入 $117",
+      "heat": 0,
+      "category": "营销工具",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/posteahora"
     },
     {
-      "name": "Hearth 64",
-      "headline": "未获取",
-      "heat": 7,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://github.com/njgreb/n64fireplace"
+      "name": "TransClipper",
+      "headline": "近 30 天收入 $308",
+      "heat": 0,
+      "category": "创作者经济",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/transclipper"
     },
     {
-      "name": "Taskless, turn AGENTS.md and PR comments into runnable checks",
-      "headline": "未获取",
-      "heat": 7,
+      "name": "VIDGENS",
+      "headline": "近 30 天收入 $120",
+      "heat": 0,
+      "category": "AI 工具",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/vidgens"
+    },
+    {
+      "name": "tucktabs",
+      "headline": "累计收入 $1（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
+      "heat": 0,
+      "category": "开发者工具",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/razorpay-business-18"
+    },
+    {
+      "name": "Rubix Bulk Price Editor",
+      "headline": "MRR $3,928",
+      "heat": 0,
       "category": "未分类",
-      "source": "hn",
-      "url": "https://www.taskless.io/"
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/rubix-bulk-price-editor"
+    },
+    {
+      "name": "NextDue: Bill Tracker",
+      "headline": "近 30 天收入 $1,336",
+      "heat": 0,
+      "category": "垂直行业 SaaS",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/nextdue-bill-tracker"
     }
   ]
 }

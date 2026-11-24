@@ -11,6 +11,7 @@
     python scripts/harvest.py --source hn --limit 60 --dry-run
     python scripts/harvest.py --source indiehackers --limit 20
     python scripts/harvest.py --source arrclub --limit 20   # 只做校对，不进候选池
+    python scripts/harvest.py --source toolify --limit 20   # 发现面：目录站流量/关键词，只进 inbox
     python scripts/harvest.py --source ph --token <ProductHunt token>
     python scripts/harvest.py --max-inbox 400  # inbox 上限，超额自动归档（不删）
     python scripts/harvest.py --source hn --hn-comments 5   # 给新条目补评论正文
@@ -20,6 +21,7 @@
     self_reported  Indie Hackers / Hacker News —— 创始人自述
     secondary      ARR Club —— 二手转述（只当校对参照，不进候选池）
     discovery      Product Hunt —— 榜单热度 ≠ 有人在付钱
+                   Toolify —— 目录站的流量/关键词是第三方估算，不是收入
 
 依赖：仅 Python 标准库。
 """
@@ -396,6 +398,203 @@ def harvest_producthunt(limit, token):
             "_blob": "%s %s %s" % (n.get("name") or "", n.get("tagline") or "", topics),
             "_origin": "ph",
         })
+    return items
+
+
+# ---------------------------------------------------------------- Toolify（发现面）
+#
+# 为什么单列一节（2026-11-23）：文章《一个人做的免费小工具，凭什么每月 1000 万访问》
+# 拆站法的第一步是「从大站的整页关键词里筛小需求」。Toolify 的 /tool/<slug> 详情页
+# 恰好公开了 Monthly Visitors + Traffic Sources + Top Keywords（含 CPC）——
+# 这就是那条方法论要的原料。但它是**第三方估算的流量**，不是收入，因此：
+#   1. source_kind 钉死 discovery，绝不碰 mrr / arr / last_30d_revenue 字段；
+#   2. 流量与关键词写进专属 `toolify` 块，inbox 条目 headline 永远「未获取」；
+#   3. promote_to_candidates 不认 toolify 来源（只认 trustmrr / hn_evidence），
+#      所以它天然只能当人工选题雷达 / --tm-seeds 线索源，不会自动进深核。
+#
+# 站点约定：robots.txt 明示 Crawl-delay: 5；默认 UA 被 403，必须带完整浏览器头。
+#
+# 🚨 2026-11-23 实测：**这条「发现面 → 一手收入」的链路是死的**，别再按
+# 「筛出官网喂 --tm-seeds」的思路往下建（数据见 sources.json 的 caveat）：
+#   · 正向最严口径（只认官网域名完全相等，排除 App Store 等聚合域名）：
+#     /most-used 前 60 条命中 0、/new 前 22 条命中 0；
+#   · 反向（TrustMRR 有收入的站 → 找它的 Toolify 页）：4 个普通生意 + 4 个
+#     AI 类，域名派生 slug 全部 404 —— Toolify 只收 3.1 万个 AI 工具，
+#     而 TrustMRR 的收入大头是普通生意，两边人群不重叠；
+#   · 站点搜索页是 JS 渲染（换 q 返回同一批卡片），没有服务端检索可做反查。
+# ⚠️ 松口径（按名字猜 slug / 按 host 求交）会造出**看起来像命中**的脏数据：
+#   同一轮里 apps.apple.com、chromewebstore.google.com 这类聚合域名把 4 个
+#   不同产品全映射到同一个 TrustMRR slug，6/6 全假。以后要做 join，
+#   必须排除聚合域名 + 只认官网域名相等，绝不按名字猜。
+# 结论：本采集器只保留「人工选题雷达」用途，产出不进任何自动链路。
+# ⚠️ 另一个实测约束：403 是**频次触发**的，不只是头缺失。同一天连续抓约 90 个
+#    详情页后，整域（含 /most-used）开始持续 403，隔 30 秒复查仍是 403，
+#    换 URL 无效。所以它天生不适合定时任务；人工按需跑一轮（≤20 个详情）。
+
+TOOLIFY_LIST_URL = "https://www.toolify.ai/most-used"
+TOOLIFY_DELAY = 5.0          # 遵守 robots.txt 的 Crawl-delay: 5
+TOOLIFY_MAX_DETAIL = 20      # 单轮详情页上限，和有界的 IH / ARR 通道同口径
+
+# 可切换的发现面。**默认 most-used 是为了兼容，但它实测是最差的一面**：
+# 2026-11-23 抓前 60 个详情，20 个是大厂，其余几乎全在千万级月访问，
+# 只有一个（ThumbnailCreator 94.5K）够得上「个人能做」的量级。
+#   most-used  巨头榜，有流量数据，但没有个人可做的目标
+#   new        全是 indie 新品（120 个），**但 16/22 详情页还没有流量数据**
+#   category   分类页（74 个），量级中段、有详情数据——要按需指定
+#              `--toolify-list category:ai-music-generator`
+# 这三种面共同的结论见 sources.json 的 caveat：Toolify 与本库的证据链无交集。
+TOOLIFY_SURFACES = {
+    "most-used": "https://www.toolify.ai/most-used",
+    "new": "https://www.toolify.ai/new",
+}
+TOOLIFY_CATEGORY_PREFIX = "https://www.toolify.ai/category/"
+TOOLIFY_BROWSER_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                  "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Accept-Encoding": "gzip, deflate",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+    "Upgrade-Insecure-Requests": "1",
+}
+
+
+def _fetch_toolify(url, timeout=30):
+    """抓 Toolify 页面。默认 UA 会被 403；与 harvest 其它通道一样绕环境代理。"""
+    req = urllib.request.Request(url, headers=TOOLIFY_BROWSER_HEADERS)
+    proxies = {k: os.environ.get(k) for k in PROXY_ENV_KEYS if os.environ.get(k)}
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({})) if proxies \
+        else urllib.request.build_opener()
+    with opener.open(req, timeout=timeout) as r:
+        body = r.read()
+    if body[:2] == b"\x1f\x8b":                     # gzip
+        body = gzip.decompress(body)
+    return body.decode("utf-8", "replace")
+
+
+def parse_toolify_listing(page):
+    """榜单页 → [(slug, /tool/slug)]。去重保序，跳过广告位（无 data-handle）。"""
+    seen, out = set(), []
+    for m in re.finditer(r'data-handle="([^"]+)"[^>]*class="[^"]*tool-item', page):
+        slug = m.group(1).strip()
+        if slug and slug not in seen:
+            seen.add(slug)
+            out.append((slug, "/tool/" + slug))
+    if not out:                                     # 结构变了时的兜底：只认 /tool/ 路径
+        for href in dict.fromkeys(re.findall(r'href="(/tool/[^"?#]+)"', page)):
+            slug = href.rsplit("/", 1)[-1]
+            if slug and slug not in seen:
+                seen.add(slug)
+                out.append((slug, href))
+    return out
+
+
+def _toolify_meta(page, name):
+    m = re.search(r'<meta[^>]*name="' + re.escape(name) + r'"[^>]*content="([^"]*)"', page)
+    if not m:
+        m = re.search(r'<meta[^>]*content="([^"]*)"[^>]*name="' + re.escape(name) + r'"', page)
+    return html.unescape(m.group(1)) if m else ""
+
+
+def parse_toolify_tool(page, url=""):
+    """详情页 → 结构化发现线索（没有收入数字；关键词是文章方法论的原料）。"""
+    og = _toolify_meta(page, "og:title")
+    m = re.search(r'<h1[^>]*class="[^"]*tool-name[^"]*"[^>]*>(.*?)</h1>', page, re.S)
+    name = clean(m.group(1)) if m else og.split(":")[0].strip()
+    tagline = _toolify_meta(page, "description")
+    if name and tagline.startswith(name + ":"):
+        tagline = tagline[len(name) + 1:].strip()
+
+    site = ""
+    m = re.search(r'href="(https?://[^"]*utm_source=toolify[^"]*)"', page)
+    if m:
+        site = m.group(1).split("?")[0]
+
+    visitors = ""
+    m = re.search(r'Monthly Visitors:\s*</div>\s*<div[^>]*>\s*(?:<!---->\s*)?'
+                  r'<span[^>]*>([^<]+)</span>', page)
+    if m:
+        visitors = clean(m.group(1))
+
+    traffic = {}
+    for label, val in re.findall(
+            r'<div class="traffic-tleft"[^>]*><span[^>]*>([^<]+)</span></div>\s*'
+            r'<div class="traffic-tright"[^>]*><span[^>]*>([^<]+)</span></div>', page):
+        if label and label not in traffic:
+            traffic[clean(label)] = clean(val)
+
+    keywords = []
+    block = page[page.find("Top Keywords"):]
+    block = block[:block.find("</div></div></div>", 200)] if block else ""
+    for mm in re.finditer(r'<div class="traffic-td"[^>]*>\s*'
+                          r'<div class="traffic-tleft[^"]*"[^>]*><span[^>]*>([^<]*)</span></div>\s*'
+                          r'<div class="traffic-tleft[^"]*"[^>]*><span[^>]*>([^<]*)</span></div>\s*'
+                          r'<div class="traffic-tleft[^"]*"[^>]*><span[^>]*>([^<]*)</span></div>',
+                          block):
+        kw = clean(mm.group(1))
+        if kw and kw != "Keyword":
+            keywords.append({"keyword": kw, "traffic": clean(mm.group(2)),
+                             "cpc": clean(mm.group(3))})
+        if len(keywords) >= 10:
+            break
+
+    return {"name": name[:90], "one_liner": tagline[:240], "website": site,
+            "detail_url": url,
+            "monthly_visitors": visitors, "traffic": traffic, "keywords": keywords}
+
+
+def toolify_list_url(spec=""):
+    """把 `most-used` / `new` / `category:<slug>` 解析成榜单 URL。
+
+    未知取值直接 ValueError —— 打错一个 slug 就静默抓成 404 页面、
+    产出 0 条，比报错更难查（和「空分片」同一类坑）。
+    """
+    spec = (spec or "most-used").strip()
+    if spec in TOOLIFY_SURFACES:
+        return TOOLIFY_SURFACES[spec]
+    if spec.startswith("category:"):
+        slug = spec.split(":", 1)[1].strip()
+        if slug and re.fullmatch(r"[a-z0-9][a-z0-9-]*", slug):
+            return TOOLIFY_CATEGORY_PREFIX + slug
+    raise ValueError("未知的 toolify 榜单面：%r（可用：%s / category:<slug>）"
+                     % (spec, " / ".join(sorted(TOOLIFY_SURFACES))))
+
+
+def harvest_toolify(limit=20, delay=TOOLIFY_DELAY, list_url=None):
+    """抓 Toolify 榜单，逐条打开详情页。有界、带 robots 礼貌间隔。
+
+    list_url 必须来自 toolify_list_url()，别直接塞手写 URL：
+    切换发现面的正确姿势是 `--toolify-list category:<slug>`。
+    """
+    url = list_url or TOOLIFY_LIST_URL
+    try:
+        page = _fetch_toolify(url)
+    except Exception as exc:
+        print("    [!] Toolify 榜单抓取失败（%s）：%s" % (url, str(exc)[:120]))
+        return []
+    slugs = parse_toolify_listing(page)[:max(0, limit)]
+    print("    → 榜单 %s 拿到 %d 个工具，本次抓 %d 个详情（间隔 %.0fs）"
+          % (url.rsplit("/", 1)[-1], len(parse_toolify_listing(page)), len(slugs), delay))
+    items = []
+    for i, (slug, path) in enumerate(slugs):
+        if i and delay > 0:
+            time.sleep(delay)
+        url = "https://www.toolify.ai" + path
+        try:
+            detail = parse_toolify_tool(_fetch_toolify(url), url)
+        except Exception as exc:
+            print("    [!] 跳过 %s：%s" % (slug, str(exc)[:80]))
+            continue
+        if not detail["name"]:
+            continue
+        blob = " ".join([detail["name"], detail["one_liner"],
+                         " ".join(k["keyword"] for k in detail["keywords"])])
+        detail["_blob"] = blob
+        detail["_origin"] = "toolify"
+        detail["_toolify_detail"] = detail    # 自引用：组装时一次取全，不另存全局变量
+        items.append(detail)
     return items
 
 
@@ -1447,6 +1646,7 @@ SOURCE_KIND = {
     "arrclub":      "secondary",      # 二手转述，还自贴「Certificate」徽章
     "ph":           "discovery",      # 榜单热度 ≠ 有人在付钱
     "producthunt":  "discovery",
+    "toolify":      "discovery",      # 目录站的流量/关键词是第三方估算，不是收入
 }
 
 KIND_LABEL = {
@@ -1474,6 +1674,7 @@ HOST_SOURCE = (
     ("hn.algolia.com", "hn"),
     ("producthunt.com", "producthunt"),
     ("arr.club", "arrclub"),
+    ("toolify.ai", "toolify"),
 )
 
 
@@ -2386,6 +2587,45 @@ def _entry_from_rank(it, taken):
     )
 
 
+def _entry_from_toolify(it, taken):
+    """Toolify 发现线索：流量/关键词是第三方估算，只当选题雷达，不冒充收入。
+
+    核心约束（2026-11-23）： headlines 永远「未获取」，mrr / arr / last_30d
+    一个都不写 —— triage.has_numbers() 会把「有数字」的条目放宽送进花钱的深核，
+    而 Toolify 的 6.0B 月访问既不是收入也不可验证。流量和关键词另存 `toolify`
+    块，供人工按文章的拆站法筛小需求 / 喂 --tm-seeds。
+    """
+    t = it.get("_toolify_detail") or {}
+    kw = t.get("keywords") or []
+    metrics = {
+        "headline": "未获取",
+        "visitors": t.get("monthly_visitors") or "",  # NON_REVENUE_KEY，triage 会跳过
+        "metric_note": ("Toolify 页面显示的是第三方估算的流量与 SEO 关键词，"
+                        "不是收入、未经支付网关或官方披露核实。"
+                        "可用它选题，但不得把流量当收入写进案例。"),
+    }
+    cand = _entry_skeleton(
+        it, taken,
+        verification="unverified",
+        metrics=metrics,
+        note=("Toolify 目录发现面（/most-used）的流量与关键词快照。"
+              "用途：从关键词里筛出可单独做的小需求（见拆站法），"
+              "或把官网喂给 TrustMRR sitemap --tm-seeds 取一手收入。"
+              "source_kind=discovery：目录收录 ≠ 有人在付钱。"),
+        blocking="流量与关键词均为第三方估算；需人工回源，不能自动晋升或深核",
+        source_url=t.get("detail_url") or it.get("url") or "",
+        website=t.get("website") or "",
+        harvest_source="toolify",
+    )
+    cand["toolify"] = {
+        "monthly_visitors": t.get("monthly_visitors") or "",
+        "traffic": t.get("traffic") or {},
+        "keywords": kw,
+        "captured_at": datetime.now().strftime("%Y-%m-%d"),
+    }
+    return cand
+
+
 def _entry_from_listing(it, taken, frag, listing, default_source):
     """一般列表（HN / PH / 交易市场）：只有一个可能骗人的「疑似金额」。"""
     return _entry_skeleton(
@@ -2415,6 +2655,8 @@ def build_entry(it, taken, frag, default_source):
         cand = _entry_from_api(it, api, taken)
     elif ih:
         cand = _entry_from_ih(it, ih, taken)
+    elif it.get("_toolify_detail"):
+        cand = _entry_from_toolify(it, taken)
     elif it.get("_verified_rank"):
         cand = _entry_from_rank(it, taken)
     else:
@@ -2458,8 +2700,8 @@ def main():
     ap = argparse.ArgumentParser(description="采集候选项目到采集队列")
     ap.add_argument("--source", default="hn",
                     choices=["hn", "ph", "trustmrr", "indiehackers", "arrclub",
-                             "trustmrr_sitemap", "all"],
-                    help="要跑的采集源（默认 hn）")
+                             "trustmrr_sitemap", "toolify", "all"],
+                    help="要跑的采集源（默认 hn；toolify 是发现面，刻意不在 all 里）")
     ap.add_argument("--limit", type=int, default=50, help="每个源最多取多少条")
     ap.add_argument("--token", default=os.environ.get("PH_TOKEN", ""),
                     help="Product Hunt token")
@@ -2486,6 +2728,10 @@ def main():
                     help="外部线索源的 slug 清单文件（每行一个，# 注释）。"
                          "命中 TrustMRR 的 slug 优先抓一手 .md 档案——"
                          "用来把别的站点的索引当发现面（如 howtomakemi）")
+    ap.add_argument("--toolify-list", default="most-used",
+                    help="Toolify 发现面：most-used（默认，巨头榜）/ new（indie 新品）"
+                         "/ category:<slug>（分类页，量级中段，如 "
+                         "category:ai-music-generator）")
     ap.add_argument("--empty-ok", action="store_true",
                     help="无素材时退出码 0 而非 1。种子复查模式下「无新增」是"
                          "正常结果（如 htm_increment.py 的重跑），不是故障")
@@ -2571,6 +2817,17 @@ def main():
         print("    → 拉到 %d 条" % len(got))
         raw += got
 
+    if "toolify" in want:
+        try:
+            tlist = toolify_list_url(args.toolify_list)
+        except ValueError as exc:
+            print("[!] %s" % exc)
+            return 2
+        print("[*] Toolify 目录发现面（流量/关键词为第三方估算，只进 inbox）")
+        got = harvest_toolify(min(args.limit, TOOLIFY_MAX_DETAIL), list_url=tlist)
+        print("    → 拉到 %d 条" % len(got))
+        raw += got
+
     if "trustmrr" in want:
         print("[*] TrustMRR 榜单 / 市场")
         got = harvest_trustmrr(args.limit)
@@ -2604,7 +2861,14 @@ def main():
     kept, dropped = [], 0
     reasons = {}
     for it in raw:
-        ok, why = flt.verdict(it.get("_blob", ""))
+        if it.get("_toolify_detail"):
+            # Toolify 是目录发现面，条目是第三方目录描述，不会说「i built / mrr」
+            # 这类创始人自述信号 —— 套用 show-hn 过滤器会把整个源误杀（实测 3/3
+            # 全丢）。它的广告过滤在 Toolify 目录侧已经做过一轮，这里直接放行；
+            # 收入字段的闸在 _entry_from_toolify 里另守（headline=未获取、无 mrr）。
+            ok, why = True, ""
+        else:
+            ok, why = flt.verdict(it.get("_blob", ""))
         if ok:
             kept.append(it)
         else:

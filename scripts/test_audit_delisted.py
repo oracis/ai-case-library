@@ -188,6 +188,45 @@ class TestDelistedGate(unittest.TestCase):
             else:
                 PC.OVERRIDE_RETAIN[rid] = old
 
+    def test_口径漂移破例必须留痕(self):
+        """口径漂移（实测 vs 缓存 >35%）人工破例后，理由要能写进口径说明。
+
+        破例只放行**进候选池待核验**，不等于认可口径；理由必须读者可见，
+        且偏差事实（实测/缓存两个数）不许被破例掩盖。
+        """
+        rid = "_test_drift_override_case"
+        old = PC.OVERRIDE_DRIFT.get(rid)
+        PC.OVERRIDE_DRIFT[rid] = "测试用漂移破例：旧快照过期"
+        try:
+            rec = {"id": rid, "metrics": {"mrr": 1000.0}}
+            lv = live(mrr=2000.0, monthly=[
+                {"month": "2026-08", "revenue": 2000.0},
+                {"month": "2026-09", "revenue": 2000.0},
+                {"month": "2026-10", "revenue": 500.0},   # 残月，剔除
+            ])
+            # 先确认不破例时确实被 drift 闸拦住（fixture 形状对）
+            save = PC.OVERRIDE_DRIFT.pop(rid)
+            blocked, why, _, _ = PC.check_one(rec, lv)
+            self.assertFalse(blocked, "无破例时应被漂移闸拦下")
+            self.assertIn("偏差", why)
+            PC.OVERRIDE_DRIFT[rid] = save
+
+            ok, why2, m, extra = PC.check_one(rec, lv)
+            self.assertTrue(ok, "破例条目应当放行：%s" % why2)
+            self.assertIn("override", extra)
+            self.assertAlmostEqual(extra.get("drift"), 1.0)
+            note = PC.build_metric_note(rec, lv, m, extra.get("growth"),
+                                        extra.get("ret"), extra.get("peak"),
+                                        extra.get("last"), extra.get("override"))
+            self.assertIn("破例", note)
+            self.assertIn("旧快照过期", note)
+            self.assertIn("$2,000", note)   # 实测值不许被破例掩盖
+        finally:
+            if old is None:
+                PC.OVERRIDE_DRIFT.pop(rid, None)
+            else:
+                PC.OVERRIDE_DRIFT[rid] = old
+
     def test_未破例的腰斩条目被挡(self):
         """linkpost 实测：峰值 $35,909 → $5,702，留存 16%。
 

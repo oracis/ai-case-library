@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-13",
+  "updated_at": "2026-11-23",
   "principle": "一手证据 > 二手转述。凡是能在支付网关或公司官方口径里核到的数字，才允许进精写库；只有创始人自述的，降级标注。",
   "sources": [
     {
@@ -266,6 +266,54 @@
         {
           "label": "案例详情页（15KB 静态页，仅线索核验时按需读）",
           "url": "https://howtomakemi.com/cases/<slug>/"
+        }
+      ],
+      "source_kind": "discovery"
+    },
+    {
+      "id": "toolify",
+      "name": "Toolify（AI 工具目录发现面）",
+      "url": "https://www.toolify.ai/",
+      "kind": "clue_index",
+      "tier": "C",
+      "enabled": true,
+      "auth": "公开页面，无鉴权；默认 UA 会 403，需带完整浏览器头（见 harvest.TOOLIFY_BROWSER_HEADERS）",
+      "how": "只当发现面（线索源），不作收入数据源。榜单卡片带 data-handle，一次请求拿全；逐个打开 /tool/<slug> 详情页，提取 Monthly Visitors + Traffic Sources + Top Keywords（含 CPC）。2026-11-23 实测：/most-used 148 个工具、/new 120 个、分类页 20 个（共 74 个分类）；详情页含 6.0B 月访问（ChatGPT）与整页关键词。采集器 harvest_toolify() 有界（默认 20 个详情）+ 遵守 robots.txt 的 Crawl-delay: 5。发现面可用 `--toolify-list` 切换：most-used（默认）/ new / category:<slug>。刻意不进 --source all：它只能当人工选题雷达。",
+      "fields": [
+        "name",
+        "one_liner",
+        "website",
+        "detail_url",
+        "monthly_visitors",
+        "traffic",
+        "keywords"
+      ],
+      "why": "文章《一个人做的免费小工具，凭什么每月 1000 万访问》拆站法的第一步是「从大站整页关键词里筛小需求」。Toolify 详情页公开了流量 + 关键词 + CPC，正好是这条方法论要的原料；从 Loudly 这类有壁垒大站的关键词里能翻出 Vocal Remover 那种可单独做的免费小工具。",
+      "caveat": "⚠️ 流量与关键词是第三方估算，不是收入、未经支付网关或官方披露核实，绝不可写进 cases.json 的收入字段。采集器把 headline 固定写「未获取」，流量/关键词另存 inbox 条目的 toolify 块，mrr/arr/last_30d 一律不写；source_kind=discovery。promote_to_candidates 不认 toolify 来源（只认 trustmrr / hn_evidence），必须人工回源。榜单含 Sponsor 推广位，排序不代表质量。robots.txt 明示 Crawl-delay: 5，别调小。\n\n🚨 2026-11-23 产出实测（重要）：**「Toolify 发现面 → TrustMRR 一手收入」这条链路是死的，不要再建。**① 正向最严口径（只认官网域名完全相等、排除 App Store/Chrome 商店等聚合域名）：/most-used 前 60 条命中 0、/new 前 22 条命中 0；② 反向（TrustMRR 有收入的站反查 Toolify 页）：4 个普通生意 + 4 个 AI 类，域名派生 slug 全 404；③ 站点搜索页是 JS 渲染，换 q 返回同一批卡片，无服务端检索可反查。结构性原因：Toolify 只收 3.1 万个 AI 工具，TrustMRR 的收入大头是普通生意，两边人群不重叠。\n\n发现面本身的量级问题：/most-used 前 60 里 20 个大厂、其余几乎全在千万级月访问（仅 ThumbnailCreator 94.5K 够得上个人量级）；/new 全是 indie 新品但 16/22 详情页还没有流量数据；分类页量级中段、有数据，是目前唯一可用的面。\n\n⚠️ 松口径会造假命中：按 host 求交时 apps.apple.com / chromewebstore.google.com 把 4 个不同产品映射到同一个 TrustMRR slug，6 条「命中」全假。以后任何 join 都必须排除聚合域名 + 只认官网域名相等，绝不按名字猜 slug。\n\n⚠️ 403 是频次触发的，不只是头缺失：2026-11-23 同日连续抓约 90 个详情页后整域持续 403（/most-used 与分类页同时失效，隔 30 秒复查仍 403）。因此不适合定时任务，只按需人工跑 ≤20 个详情。",
+      "endpoints": [
+        {
+          "label": "Most Used 榜单（巨头榜，data-handle 卡片，一次拿全）",
+          "url": "https://www.toolify.ai/most-used"
+        },
+        {
+          "label": "New 榜单（indie 新品，但多数还没有流量数据）",
+          "url": "https://www.toolify.ai/new"
+        },
+        {
+          "label": "分类页（74 个，量级中段，唯一可用的发现面）",
+          "url": "https://www.toolify.ai/category/<slug>"
+        },
+        {
+          "label": "工具详情页（Monthly Visitors + Traffic Sources + Top Keywords）",
+          "url": "https://www.toolify.ai/tool/<slug>"
+        },
+        {
+          "label": "robots.txt（Crawl-delay: 5）",
+          "url": "https://www.toolify.ai/robots.txt"
+        },
+        {
+          "label": "sitemap 索引（31 个分片，无官网域名，不能直接做 join）",
+          "url": "https://www.toolify.ai/sitemap.xml"
         }
       ],
       "source_kind": "discovery"

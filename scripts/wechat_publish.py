@@ -1385,35 +1385,53 @@ def load_anti_cases():
     return d.get("cases", []) if isinstance(d, dict) else d
 
 
+def read_published_snapshot():
+    """读 `wechat_published.json` 快照；文件不存在或损坏时返回 {}。"""
+    if not os.path.exists(PUBLISHED_PATH):
+        return {}
+    try:
+        with open(PUBLISHED_PATH, encoding="utf-8") as f:
+            return json.load(f) or {}
+    except (OSError, ValueError):
+        return {}
+
+
 def load_published():
     """优先从 SQLite ledger 读 wechat 平台发布记录；db 无数据时回退到 JSON。
 
-    返回格式与原 `wechat_published.json` 兼容：{cid: {title, published_at, status, appmsgid, file}}
+    ⚠ 返回的是 **db ∪ JSON 的合并视图**，不是「只有 5 个键」的子集视图：
+    db 决定**条目集**与 title/published_at/status/appmsgid 四个主字段（非空才覆盖），
+    JSON 快照补齐 db 里根本没有的那几列（publish_type / published_appmsgid /
+    sent_via / send_reason / note / verified_at）。2026-11-24 的洗字段事故
+    （PRD #224）就是这份子集视图被整本写回 JSON 造成的，`save_published()` 虽然
+    已经改成合并式写入兜住，但读取侧也不该再造一个会丢字段的窄视图 —— 两边都合，
+    任何调用方拿 `load_published()` 结果原样写回都不会洗掉别人的审计字段。
     """
+    snapshot = read_published_snapshot()
     conn = db.get_conn()
     try:
         posts = db.get_posts_by_platform(conn, "wechat")
         if posts:
             result = {}
             for p in posts:
-                result[p["case_id"]] = {
-                    "title": p.get("title") or "",
-                    "published_at": p.get("published_at") or "",
-                    "status": p.get("state") or "",
-                    "appmsgid": p.get("remote_id") or "",
-                    "file": "",
-                }
+                cid = p["case_id"]
+                rec = dict(snapshot.get(cid) or {})     # JSON 打底：审计字段唯一的家
+                for key, val in (("title", p.get("title")),
+                                 ("published_at", p.get("published_at")),
+                                 ("status", p.get("state")),
+                                 ("appmsgid", p.get("remote_id"))):
+                    if val:                             # 空值不许盖掉 JSON 里的真值
+                        rec[key] = val
+                rec.setdefault("file", "")
+                result[cid] = rec
             return result
     except Exception:
         pass
     finally:
         db.close_conn()
 
-    # fallback：从 JSON 读（迁移期兼容旧数据）
-    if not os.path.exists(PUBLISHED_PATH):
-        return {}
-    with open(PUBLISHED_PATH, encoding="utf-8") as f:
-        return json.load(f)
+    # fallback：db 没有记录时直接返回 JSON（迁移期兼容旧数据）
+    return snapshot
 
 
 def save_published(pub):
@@ -1440,8 +1458,22 @@ def save_published(pub):
         db.close_conn()
 
     # 双写 JSON 快照（保持原格式 indent=2，供旧脚本只读兼容）
+    # ⚠⚠ **必须合并旧快照，不能整本替换**：`load_published()` 从 db 重建记录时只有
+    #    5 个键（title/published_at/status/appmsgid/file），直接写回会把**其它**记录的
+    #    审计字段（publish_type / published_appmsgid / sent_via / send_reason / note /
+    #    verified_at）洗掉 —— 2026-11-24 实测丢了 wagiff-app、homy 两条，
+    #    同源事故见 PRD #203（`Manifest.save()` 整本重刷）。db 里没有这几列，
+    #    JSON 是它们唯一的家，所以只能「旧记录打底 + 新值覆盖非空字段」。
+    snapshot = read_published_snapshot()
+    merged = {}
+    for cid, rec in (pub or {}).items():
+        base = dict(snapshot.get(cid) or {})
+        base.update({k: v for k, v in (rec or {}).items() if v not in (None, "")})
+        merged[cid] = base
+    for cid, rec in snapshot.items():       # 调用方只传子集时别丢别的条目
+        merged.setdefault(cid, rec)
     with open(PUBLISHED_PATH, "w", encoding="utf-8") as f:
-        json.dump(pub, f, ensure_ascii=False, indent=2)
+        json.dump(merged, f, ensure_ascii=False, indent=2)
 
 
 # ======================================================================

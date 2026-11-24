@@ -366,5 +366,14 @@
     "verified_at": "2026-11-23 14:50",
     "evidence": "editor-ui-publish",
     "note": "｜更新草稿 aid=347713（draft/add 回读校验通过）｜更新草稿 aid=347713（draft/add 回读校验通过）"
+  },
+  {
+    "id": "pet-plus-us",
+    "at": "2026-10-14 13:30",
+    "article_id": "54053402",
+    "title": "Pet Plus Us：AI 生成宠物与主人合影",
+    "verified_at": "2026-11-24 01:05",
+    "evidence": "editor-ui-publish",
+    "note": "｜草稿同步(2026-10-14 13:30): title 认领 aid=343833"
   }
 ]

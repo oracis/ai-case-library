@@ -1,1 +1,91 @@
-[]
+[
+  {
+    "id": "vocal-cut",
+    "name": "Vocal Cut",
+    "name_en": "Vocal Cut",
+    "one_liner": "浏览器端音频工具站，人声分离等 30+ 工具全在用户设备跑、不上传不注册；文章称 6 月上线、5 个月进美国赛道第三。",
+    "origin": "未核实",
+    "category": "AI 工具",
+    "models": [],
+    "source_url": "https://vocalcut.com/",
+    "website": "https://vocalcut.com/",
+    "harvest_source": "",
+    "source_kind": "secondary",
+    "added_at": "2026-11-23",
+    "metrics": {
+      "headline": "收入未核实（全站免费，未见付费入口）",
+      "visitors": 40000,
+      "metric_note": "文章口径（均待核实）：2026 年 6 月上线、5 个月排到美国赛道第三、进 Google AI Overview、月访问约 4 万、3 个月约 1000 条外链、一个 8000 搜索量的词吃到约 200 流量。注意第三方目录 SimilarLabs 标其上线日为 2026-11-18，与文章「6 月上线」冲突，需核实后再写。"
+    },
+    "verification": "unverified",
+    "sources": [
+      {
+        "kind": "secondary",
+        "url": "https://mp.weixin.qq.com/s/8Ml0F4k2RxQFhjVQNlB9Yw",
+        "label": "孟健AI编程《一个人做的免费小工具，凭什么每月 1000 万访问》2026-11-23"
+      }
+    ],
+    "note": "增长样本而非收入样本：文章用它证明「做内页 + 发外链 + 熬三个月」的 SEO 打法。全站免费、未见付费入口，收入线空白；价值在 `traffic_sources` / `playbook` 的叙事素材，需核实上线时间与流量曲线。"
+  },
+  {
+    "id": "loudly",
+    "name": "Loudly",
+    "name_en": "Loudly",
+    "one_liner": "AI 音乐生成站，主打训练数据有授权、生成音乐可商用；柏林团队约 30 人，有自研模型。",
+    "origin": "德国 · 柏林（文章口径，待核）",
+    "category": "AI 工具",
+    "models": [
+      "订阅制"
+    ],
+    "source_url": "https://loudly.com/",
+    "website": "https://loudly.com/",
+    "harvest_source": "",
+    "source_kind": "secondary",
+    "added_at": "2026-11-23",
+    "metrics": {
+      "headline": "收入未核实（文章引第三方估年收入数百万美元，待核实）",
+      "visitors": 200000,
+      "metric_note": "文章口径（均待核实）：月访问 20 多万、定价 24 美元/月并有 8 美元锚定档、第三方估年收入 360–400 万美元、付费转化 1–2%、约 6000 付费用户（文章自己标注「待核实」）；有自研模型与授权数据集。不得据估算写收入事实。"
+    },
+    "verification": "unverified",
+    "sources": [
+      {
+        "kind": "secondary",
+        "url": "https://mp.weixin.qq.com/s/8Ml0F4k2RxQFhjVQNlB9Yw",
+        "label": "孟健AI编程《一个人做的免费小工具，凭什么每月 1000 万访问》2026-11-23"
+      }
+    ],
+    "note": "按库的四道筛子第③条「护城河在产品之外」，自研模型 + 授权数据 + 约 30 人团队命中结构性壁垒，是 T3 反面样本候选，不是可抄的正面案例。文章也把它当「有壁垒先放一放」的例子。"
+  },
+  {
+    "id": "vocal-remover",
+    "name": "Vocal Remover",
+    "name_en": "Vocal Remover",
+    "one_liner": "免费在线人声分离站：上传歌曲约 10 秒出伴奏与人声两轨，不注册、无付费墙；靠订阅「更好的版本」变现。",
+    "origin": "未核实",
+    "category": "AI 工具",
+    "models": [
+      "Freemium",
+      "订阅制"
+    ],
+    "source_url": "https://vocalremover.org/",
+    "website": "https://vocalremover.org/",
+    "harvest_source": "",
+    "source_kind": "secondary",
+    "added_at": "2026-11-23",
+    "metrics": {
+      "headline": "收入未核实（文章作者估百万美元级，无支付侧证据）",
+      "visitors": 10710000,
+      "metric_note": "文章口径（均待核实）：月访问约 1071 万（AITDK）、域名 2016 年注册、个人开发者、完全免费、首页称约 10 秒出结果；开发者公开服务器成本约 1500 美元/月；付费入口在 vocalremover.org/next/，作者据此估算百万美元级收入 —— 该估算无支付网关或官方披露支撑，不得当事实引用。"
+    },
+    "verification": "unverified",
+    "sources": [
+      {
+        "kind": "secondary",
+        "url": "https://mp.weixin.qq.com/s/8Ml0F4k2RxQFhjVQNlB9Yw",
+        "label": "孟健AI编程《一个人做的免费小工具，凭什么每月 1000 万访问》2026-11-23"
+      }
+    ],
+    "note": "从公众号文章拆站方法论中人工摘出的选题线索。文章把它当「刚需+免费+快」的样本；库的证据闸要求收入必须有支付侧/官方一手来源，故本条停在候选池，不进 cases。"
+  }
+]

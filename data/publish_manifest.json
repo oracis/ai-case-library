@@ -2099,6 +2099,19 @@
    "title": "六边形战棋怎么算：读韦诺之战的地形规则"
   }
  },
+ "ext-ep-015-openrct2": {
+  "bilibili2": {
+   "at": "2026-11-24 01:55 草稿箱→发布（send-draft）",
+   "attempt": 0,
+   "draft_id": "",
+   "note": "草稿箱→发布（send-draft）",
+   "published_at": "2026-11-24 01:55",
+   "remote_id": "54053777",
+   "state": "published",
+   "title": "OpenRCT2：过山车大亨 2 的开源重写",
+   "url": ""
+  }
+ },
  "fastwrite-io": {
   "bilibili": {
    "at": "2026-10-14 13:25",
@@ -3152,12 +3165,13 @@
  },
  "pet-plus-us": {
   "bilibili": {
-   "at": "2026-10-14 13:30",
+   "at": "2026-11-24 01:05 草稿箱→发布（send-draft）",
    "attempt": 1,
    "draft_id": "343833",
-   "note": "｜草稿同步(2026-10-14 13:30): title 认领 aid=343833",
-   "remote_id": "343833",
-   "state": "draft",
+   "note": "草稿箱→发布（send-draft）",
+   "published_at": "2026-11-24 01:05",
+   "remote_id": "54053402",
+   "state": "published",
    "title": "Pet Plus Us：AI 生成宠物与主人合影",
    "url": ""
   },

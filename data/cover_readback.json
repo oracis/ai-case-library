@@ -205,6 +205,13 @@
   }
  },
  "ext-ep-009-lichess": {
+  "aliyun": {
+   "at": "2026-11-24 01:07:16",
+   "evidence": "文章首图 firstImg=https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_56ff05cc5e3847c2824e81e5c69e65c2.png",
+   "remote_id": "1788007",
+   "source": "yun_finalize",
+   "state": "ok"
+  },
   "bilibili2": {
    "at": "2026-11-06 15:48:46",
    "evidence": "aid=376924 image_urls=http://article.biliimg.com/bfs/article/cd7d619b67aaa5fe24b235d344235b465bad266d.jpg",
@@ -304,6 +311,22 @@
    "state": "ok"
   }
  },
+ "ext-ep-015-openrct2": {
+  "bilibili2": {
+   "at": "2026-11-24 01:51:33",
+   "evidence": "aid=379673 草稿在，但 origin_image_urls / image_urls 全空",
+   "remote_id": "",
+   "source": "publish-time",
+   "state": "empty"
+  },
+  "tencentcloud": {
+   "at": "2026-11-24 07:27:52",
+   "evidence": "线上文章 2791861 卡片缩略图 background-image=抽屉封面：https://developer-private-1258344699.cos.ap-guangzhou.myqcloud.com/editor/image/12743977/20261124-4cba5bd6.jpeg?x-cos-security-token=IKWasq75nxICailnQXLXVdSNzMcX4d4a8aadbd9ee6968175418fa856dfa0ff68NcLX9kDcH7GlvbyV6JJ_29VB9oWM9FcTaBTMBHu40XDH1dfdSRVod0dGYW_hWd",
+   "remote_id": "2791861",
+   "source": "yun_finalize",
+   "state": "ok"
+  }
+ },
  "flodesk": {
   "aliyun": {
    "at": "2026-11-19 13:15:41",
@@ -397,6 +420,15 @@
    "at": "2026-11-19 13:57:39",
    "evidence": "线上文章 2788361 卡片缩略图 background-image=抽屉封面：https://developer.qcloudimg.com/http-save/yehe-12743977/fb31dfa51ef645418886cfdd08ef2b5c.jpg",
    "remote_id": "2788361",
+   "source": "yun_finalize",
+   "state": "ok"
+  }
+ },
+ "pdfai": {
+  "tencentcloud": {
+   "at": "2026-11-24 01:28:47",
+   "evidence": "线上文章 2791816 卡片缩略图 background-image=抽屉封面：https://developer-private-1258344699.cos.ap-guangzhou.myqcloud.com/editor/image/12743977/20261124-672c61e9.jpeg?x-cos-security-token=IKWasq75nxICailnQXLXVdSNzMcX4d4a801969618a4740f9a2c88fca8fa88b1cNcLX9kDcH7GlvbyV6JJ_29AWT_mx17wiyfXZXY-IxnpLGNoSCQrRGv8qWIsd6v",
+   "remote_id": "2791816",
    "source": "yun_finalize",
    "state": "ok"
   }

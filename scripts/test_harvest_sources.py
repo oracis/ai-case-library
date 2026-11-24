@@ -70,6 +70,8 @@ def test_source_kind():
     chk("ARR Club -> secondary", H.source_kind_of("arrclub") == "secondary")
     chk("Product Hunt -> discovery", H.source_kind_of("ph") == "discovery")
     chk("PH 别名 producthunt 同档", H.source_kind_of("producthunt") == "discovery")
+    chk("Toolify -> discovery（目录流量不是收入）",
+        H.source_kind_of("toolify") == "discovery")
     chk("未知来源 -> 兜底 discovery（保守）",
         H.source_kind_of("whatever-new-source") == "discovery")
     chk("空值不炸", H.source_kind_of("") == "discovery" and H.source_kind_of(None) == "discovery")
@@ -417,6 +419,138 @@ def test_integration():
     print()
 
 
+def test_toolify_discovery():
+    """Toolify 是发现面：流量/关键词进 toolify 块，收入字段必须全空。
+
+    回归钉：triage.has_numbers() 会把带数字的条目放宽送进花钱的深核队列。
+    Toolify 的「6.0B Monthly Visitors」是第三方估算流量，绝不能写成 mrr/arr，
+    也不能让 headline 带金额 —— 否则一条目录线索会冒充有收入的项目。
+    """
+    print("[11b] Toolify 发现面：解析 + 收入字段隔离")
+    listing = fixture("toolify_most_used.html")
+    slugs = H.parse_toolify_listing(listing)
+    chk("榜单页解析出 /tool/ 链接",
+        any(s == "chatgpt-4" and u == "/tool/chatgpt-4" for s, u in slugs),
+        slugs[:4])
+    chk("榜单页去重（slug 不重复）",
+        len(slugs) == len({s for s, _ in slugs}))
+
+    detail_url = "https://www.toolify.ai/tool/chatgpt-4"
+    d = H.parse_toolify_tool(fixture("toolify_tool.html"), detail_url)
+    chk("详情页 name", d["name"] == "ChatGPT", d["name"])
+    chk("详情页官网（去掉 utm_source）", d["website"] == "https://chatgpt.com",
+        d["website"])
+    chk("详情页月访问", d["monthly_visitors"] == "6.0B", d["monthly_visitors"])
+    chk("详情页关键词带流量与 CPC",
+        any(k["keyword"] == "chatgpt" and k["traffic"] == "182.1M"
+            for k in d["keywords"]), d["keywords"][:3])
+
+    raw = dict(d)
+    raw["_blob"] = "ChatGPT mrr revenue"
+    raw["_origin"] = "toolify"
+    raw["_toolify_detail"] = d
+    raw["url"] = detail_url
+    cand = H.build_entry(raw, set(), "未获取", "toolify")
+    m = cand.get("metrics") or {}
+    chk("headline 固定未获取（流量不冒充收入）", m.get("headline") == "未获取",
+        m.get("headline"))
+    chk("收入字段一个都不写",
+        not any(k in m for k in ("mrr", "arr", "last_30d_revenue", "all_time")),
+        sorted(m))
+    chk("traffic 落在 toolify 专属块",
+        (cand.get("toolify") or {}).get("monthly_visitors") == "6.0B",
+        cand.get("toolify"))
+    chk("关键词进 toolify 块",
+        any(k["keyword"] == "chatgpt" for k in
+            ((cand.get("toolify") or {}).get("keywords") or [])))
+    chk("source_kind 钉死 discovery", cand.get("source_kind") == "discovery",
+        cand.get("source_kind"))
+    chk("harvest_source=toolify", cand.get("harvest_source") == "toolify")
+    chk("blocking 明确不可自动晋升",
+        "不能自动晋升" in (cand.get("blocking") or ""), cand.get("blocking"))
+
+    # 发现面可切换：/most-used 实测全是巨头，分类页才是量级中段的那一面
+    chk("默认面 most-used", H.toolify_list_url("") == "https://www.toolify.ai/most-used")
+    chk("new 面", H.toolify_list_url("new") == "https://www.toolify.ai/new")
+    chk("分类页面", H.toolify_list_url("category:ai-music-generator")
+        == "https://www.toolify.ai/category/ai-music-generator")
+    for bad in ("newest", "category:", "category:../etc", "category:A B"):
+        try:
+            H.toolify_list_url(bad)
+            chk("非法发现面 %r 必须报错" % bad, False)
+        except ValueError:
+            chk("非法发现面 %r 被拒" % bad, True)
+
+    # 采集器要把解析后的 URL 真的用上（不是解析完丢掉）
+    asked, orig_fetch_t = [], H._fetch_toolify
+    try:
+        def fake_fetch(url, timeout=30):
+            asked.append(url)
+            return ""            # 空页 → 0 个 slug，不产生详情请求
+        H._fetch_toolify = fake_fetch
+        got = H.harvest_toolify(limit=1, delay=0,
+                                list_url=H.toolify_list_url("category:ai-music-generator"))
+        chk("harvest_toolify 用传入的榜单面",
+            asked == ["https://www.toolify.ai/category/ai-music-generator"], asked)
+        chk("空榜单返回空列表不崩", got == [], got)
+    finally:
+        H._fetch_toolify = orig_fetch_t
+
+    # 端到端：--source toolify 只写 inbox，绝不碰 candidates / cases
+    tmp = tempfile.mkdtemp(prefix="toolify_harvest_")
+    orig_dir = H.DATA_DIR
+    orig_harvest = H.harvest_toolify
+    try:
+        H.DATA_DIR = tmp
+
+        def fake_toolify(limit=20, delay=0, list_url=None):
+            r = dict(raw)
+            r["name"] = "Toolify Thing"
+            r["_blob"] = "Toolify Thing AI tool"
+            return [r]
+        H.harvest_toolify = fake_toolify
+        argv = sys.argv
+        sys.argv = ["harvest.py", "--source", "toolify", "--limit", "1",
+                    "--hn-comments", "0", "--trustmrr-md", "0"]
+        buf = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(buf):
+                rc = H.main()
+        finally:
+            sys.argv = argv
+        chk("toolify 单独跑 main() 正常退出", rc == 0, "rc=%s" % rc)
+        inbox = json.load(open(os.path.join(tmp, "inbox.json"), encoding="utf-8"))
+        chk("toolify 条目写进 inbox",
+            any(c.get("harvest_source") == "toolify" for c in inbox), len(inbox))
+        chk("toolify 不写 candidates.json",
+            not os.path.exists(os.path.join(tmp, "candidates.json")))
+        chk("toolify 不写 cases.json",
+            not os.path.exists(os.path.join(tmp, "cases.json")))
+
+        # 榜单面打错：必须当场退出 2，而不是静默抓成 404 页面产出 0 条
+        sys.argv = ["harvest.py", "--source", "toolify", "--limit", "1",
+                    "--toolify-list", "newest", "--hn-comments", "0",
+                    "--trustmrr-md", "0"]
+        try:
+            with contextlib.redirect_stdout(io.StringIO()):
+                rc_bad = H.main()
+        finally:
+            sys.argv = argv
+        chk("非法 --toolify-list 退出码 2", rc_bad == 2, "rc=%s" % rc_bad)
+    finally:
+        H.DATA_DIR = orig_dir
+        H.harvest_toolify = orig_harvest
+        import shutil
+        shutil.rmtree(tmp, ignore_errors=True)
+
+    # triage 必须判 later：第三方估算流量不算「有数字」，不给深核预算
+    import triage as TR
+    grade = TR.score_record(cand, "inbox")
+    chk("triage 不因流量误判为 deep", grade["grade"] in ("later", "drop"),
+        (grade["grade"], grade["score"]))
+    print()
+
+
 def test_ai_verify_denylist():
     print("[12] ai_verify：无关来源域名黑名单")
     chk("剑桥词典（eloquent 那次污染）",
@@ -703,8 +837,8 @@ def test_sources_config():
     by_id = {s["id"]: s for s in cfg.get("sources", [])}
     # 2026-10-22 加 howtomakemi（线索源：只当发现面喂 --tm-seeds，无 harvest_* 通道，
     # source_kind_of 认不出它 → 落最低档 discovery，与 sources.json 条目一致）。
-    chk("六个源都在", set(by_id) == {"trustmrr", "indiehackers", "producthunt",
-                                     "hackernews", "arrclub", "howtomakemi"},
+    chk("七个源都在", set(by_id) == {"trustmrr", "indiehackers", "producthunt",
+                                     "hackernews", "arrclub", "howtomakemi", "toolify"},
         sorted(by_id))
 
     # 这一步是关键：sources.json 是给人看的说明，harvest.py 是真正跑的逻辑。
@@ -712,7 +846,8 @@ def test_sources_config():
     # 静默不一致一直存在。
     for sid, expect in (("trustmrr", "verified"), ("indiehackers", "self_reported"),
                         ("producthunt", "discovery"), ("hackernews", "self_reported"),
-                        ("arrclub", "secondary"), ("howtomakemi", "discovery")):
+                        ("arrclub", "secondary"), ("howtomakemi", "discovery"),
+                        ("toolify", "discovery")):
         chk("%s 在 sources.json 里是 %s" % (sid, expect),
             by_id.get(sid, {}).get("source_kind") == expect,
             by_id.get(sid, {}).get("source_kind"))
@@ -1032,6 +1167,7 @@ def main():
     section("ARR Club", test_arrclub)
     section("详情页补充", test_enrich)
     section("集成：main() 全流程", test_integration)
+    section("Toolify 发现面", test_toolify_discovery)
     section("ai_verify 来源黑名单", test_ai_verify_denylist)
     section("sources.json 配置一致性", test_sources_config)
     section("来源推断与存量回填", test_infer_source)
