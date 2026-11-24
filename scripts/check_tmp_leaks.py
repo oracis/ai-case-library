@@ -311,6 +311,9 @@ def archive_fresh(apply=False, include_notes=False):
     for rel in fresh_tmp_files(include_notes):
         src = TMP / rel
         if not src.exists():
+            # 预检说在、实际不在：记录成失败而不是 continue。
+            # 静默跳过正是 11-24 清理漏掉文件却报成功的那条机制。
+            fails.append((rel, "源文件不存在（预检与实际不一致）"))
             continue
         flat = rel.replace("/", "__")  # 子目录文件拍平，避免归档里再长目录
         dest = ARCHIVE / flat

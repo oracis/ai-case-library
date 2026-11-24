@@ -52,6 +52,8 @@ import os
 import sys
 import time
 
+import pathguard   # 路径护栏：拦住 `/d/x` 这类被 Windows Python 解析到别处的写法
+
 
 # ---------------------------------------------------------------------------
 # 文件级进程锁（跨平台：Windows 用 msvcrt，其它用 fcntl）
@@ -64,6 +66,7 @@ def file_lock(lock_path, timeout=30.0):
     Windows 下用 `msvcrt.locking` 锁定 1 字节；Linux/macOS 下用 `fcntl.flock`。
     超时未抢到锁抛 `TimeoutError`。退出 `with` 块自动释放并删除锁文件。
     """
+    pathguard.check(lock_path, "加锁")
     parent = os.path.dirname(lock_path)
     if parent:
         os.makedirs(parent, exist_ok=True)
@@ -138,6 +141,7 @@ def detect_newline(path, default="\n"):
 
 def read_text(path, default=None, encoding="utf-8"):
     """安全读文本。文件不存在时返回 default（不传则抛 FileNotFoundError）。"""
+    pathguard.check(path, "读取")
     try:
         with open(path, "r", encoding=encoding) as f:
             return f.read()
@@ -177,6 +181,7 @@ def write_text(path, text, newline=""):
     `newline` 语义同 `open()`：默认 `""` = 不做换行翻译（JSON 里的 `\n`
     原样落盘，Windows 上也不会被翻成 `\r\n`）。
     """
+    pathguard.check(path, "写入")
     d = os.path.dirname(path)
     if d:
         os.makedirs(d, exist_ok=True)
@@ -195,6 +200,7 @@ def write_text(path, text, newline=""):
 
 def write_bytes(path, data):
     """原子写字节（不做任何编码/换行处理）。"""
+    pathguard.check(path, "写入")
     d = os.path.dirname(path)
     if d:
         os.makedirs(d, exist_ok=True)

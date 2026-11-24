@@ -80,15 +80,48 @@ class TestFalsePositiveGuards(unittest.TestCase):
 
 class TestBaseline(unittest.TestCase):
     def test_shipped_baseline_exists(self):
-        """基线入库，否则每次 CI 都跳过「tmp 新增」这一项（静默假绿）。"""
+        """基线必须入库 —— 文件缺失时 check_tmp_new 只 warn 跳过，那才是静默假绿。
+
+        判据是「可解析」而不是「非空」：空基线不等于放行。实测（2026-11-24）——
+        基线为 `[]` 时 `fresh_tmp_files` 把 tmp 里所有文件都算作新增，检查照 fail；
+        只有 `load_baseline()` 返回 None（文件缺失/损坏）才会降级成 warn。
+        11-24 清空 tmp 后基线被合法地重置为 0 条，本用例随之校正判据。
+        """
         base = C.load_baseline()
-        self.assertIsNotNone(base, "缺 scripts/tmp_leaks_baseline.json")
-        self.assertGreater(len(base), 0)
+        self.assertIsNotNone(
+            base,
+            "缺 scripts/tmp_leaks_baseline.json 或无法解析：这会让「tmp 新增」检查只 warn 不 fail")
+
+    def test_empty_baseline_still_blocks(self):
+        """空基线必须仍然拦，不许退化成「默认放行」。"""
+        import json
+        import shutil
+        import tempfile
+        from pathlib import Path
+
+        tmpdir = Path(os.path.abspath("tmp/_pgbase_test"))
+        tmpdir.mkdir(parents=True, exist_ok=True)
+        orig_base, orig_cand = C.BASELINE, C.tmp_candidates
+        try:
+            C.BASELINE = tmpdir / "base.json"
+            C.BASELINE.write_text(json.dumps({"legacy_tmp_files": []}), encoding="utf-8")
+            C.tmp_candidates = lambda include_notes=False: ["leak.py"]
+            fails, warns = [], []
+            C.check_tmp_new(fails, warns)
+            self.assertEqual(C.load_baseline(), set())
+            self.assertEqual(len(warns), 0, "空基线不该走 warn 分支")
+            self.assertEqual(len(fails), 1, "空基线时 tmp 里任何文件都算泄漏")
+        finally:
+            C.BASELINE, C.tmp_candidates = orig_base, orig_cand
+            shutil.rmtree(str(tmpdir), ignore_errors=True)
 
     def test_baseline_is_sorted_unique(self):
         import json
         data = json.loads(C.BASELINE.read_text(encoding="utf-8"))
-        names = data.get("legacy_tmp_files") or data.get("legacy_tmp_scripts")
+        # 不能用 `a or b` 取值：空列表是 falsy，会把「合法地空」误判成「键不存在」
+        names = data.get("legacy_tmp_files")
+        if names is None:
+            names = data.get("legacy_tmp_scripts")
         self.assertIsNotNone(names)
         self.assertEqual(names, sorted(set(names)))
 
