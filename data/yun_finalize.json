@@ -269,9 +269,9 @@
     "published_at": "2026-11-10 16:23:00"
   },
   "ext-ep-008-mindustry": {
-    "tc_draft": "338081",
-    "tc_article": "2781234",
-    "updated": "2026-11-11 10:57:20"
+    "tc_draft": "352187",
+    "tc_article": "2793283",
+    "updated": "2026-11-25 12:23:50"
   },
   "__community__1711205": {
     "community": "云原生",
@@ -467,9 +467,9 @@
     "updated": "2026-11-24 01:28:46"
   },
   "ext-ep-015-openrct2": {
-    "tc_draft": "351351",
-    "tc_article": "2791861",
-    "updated": "2026-11-24 07:27:51"
+    "tc_draft": "352182",
+    "tc_article": "2793279",
+    "updated": "2026-11-25 12:21:04"
   },
   "__community__1733430": {
     "state": "auditing",
@@ -478,5 +478,10 @@
     "published_at": null,
     "updated": "2026-11-25 10:59:55",
     "uploaded_img": "https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_530794fbff9741d7ab3df83b8649137a.png"
+  },
+  "easymix": {
+    "tc_draft": "352180",
+    "tc_article": "2793275",
+    "updated": "2026-11-25 12:15:04"
   }
 }

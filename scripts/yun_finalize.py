@@ -101,7 +101,27 @@ def _db_sync(case, rec):
             draft = rec.get(prefix + "_draft") or ""
             if not (state or article or draft):
                 continue
-            new_state = state or ("published" if article else "draft")
+            # 🚨 2026-11-25：状态**不许猜**。旧写法
+            #   `new_state = state or ("published" if article else "draft")`
+            #   在没有显式 state 时把「有 articleId」当成已发布，于是：
+            #   ① 先乐观写成 published（`published_at` 为空，本身就是脏状态）；
+            #   ② 紧接着 `yun_state.record_publish()` 按匿名页判出 auditing/rejected
+            #      时撞上「已 published 不许降级」的硬闸，整行落库失败，
+            #      台账停在 published、公开页却 404（11-25 easymix 实测）。
+            #   正解：没显式 state 就以**行内既有 state** 为准，缺行才按 draft；
+            #   真实状态一律交给 `record_publish` 的匿名页裁定。
+            if state:
+                new_state = state
+            else:
+                new_state = "draft"
+                try:
+                    _r = conn.execute(
+                        "select state from platform_posts "
+                        "where case_id=? and platform=?", (case, plat)).fetchone()
+                    if _r and _r[0]:
+                        new_state = _r[0]
+                except sqlite3.Error:
+                    pass
             # 🚨 2026-11-09 #115：`published_at` 只认**显式证据时间**
             #   `*_published_at`（由 yun_state 按匿名公开页写入）。
             #   旧写法 `... or rec[prefix_state_at] or now` 有三个坑：
