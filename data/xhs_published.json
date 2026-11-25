@@ -296,13 +296,6 @@
     "title_fixed_at": "2026-11-02"
   },
   {
-    "id": "ai-prank-call",
-    "at": "2026-10-26 15:14",
-    "note_id": "6adefddb0000000015004eb5",
-    "title": "用名人声音打恶作剧电话，毛利 95%",
-    "note": "[11-09 镜像同步] 补登镜像缺失记录；平台全量列表唯一剩余条目，noteId 与 SQLite remote_id 逐字一致；at 用平台 time，SQLite published_at=2026-10-26 15:28 按 #104 裁定保持不动"
-  },
-  {
     "id": "agentsguild",
     "at": "2026-10-27 12:53",
     "note_id": "6ae02e43000000001802efb4",
@@ -499,5 +492,17 @@
     "title": "AEO：让品牌出现在 AI 答案里",
     "evidence": "published_reconcile",
     "note": "｜11-24 发布后对账：按线上已发表列表标题唯一命中补 note_id｜草稿箱另有一条同名旧稿（2026-10-15 20:19），台账不再重复记"
+  },
+  {
+    "id": "verse",
+    "at": "2026-11-25 09:14",
+    "note_id": "6b06365e000000002b02aac2",
+    "title": "Verse：一句话招AI员工",
+    "note": "2026-11-25 09:16 接口对账回填（线上已发布）",
+    "metrics": {
+      "synced_at": "2026-11-25 09:16",
+      "likes": 0,
+      "views": 35
+    }
   }
 ]

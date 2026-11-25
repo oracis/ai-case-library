@@ -120,5 +120,127 @@
       "note_id": "6ad9843b000000003102f89e",
       "title": "Chatbase：文档一键变客服"
     }
+  },
+  "2026-11-25": {
+    "speel-co": {
+      "likes": 0,
+      "views": 11,
+      "note_id": "6aeabdf4000000001e0166b6",
+      "title": "商品图转短视频：一个 AI 素材工具怎么做"
+    },
+    "coral": {
+      "likes": 0,
+      "views": 10,
+      "note_id": "6aebee370000000015017dd1",
+      "title": "Coral：托管你的开源 AI 助手"
+    },
+    "search1api": {
+      "likes": 0,
+      "views": 14,
+      "note_id": "6aeee8b5000000000e035886",
+      "title": "Search1API：AI 用的搜索接口"
+    },
+    "insect-bite-id": {
+      "likes": 0,
+      "views": 10,
+      "note_id": "6af014ec00000000200082d9",
+      "title": "拍张照认出被什么咬"
+    },
+    "autoreels-ai": {
+      "likes": 0,
+      "views": 19,
+      "note_id": "6af1355a000000002c01a910",
+      "title": "AutoReels：素材一键剪成短视频"
+    },
+    "shipfast": {
+      "likes": 1,
+      "views": 35,
+      "note_id": "6af2a47f000000002a018e90",
+      "title": "ShipFast：卖程序员的开站模板"
+    },
+    "rezi": {
+      "likes": 3,
+      "views": 33,
+      "note_id": "6af3b539000000002501e202",
+      "title": "Rezi：AI 写简历，验证收入最高"
+    },
+    "betting-tips": {
+      "likes": 0,
+      "views": 5,
+      "note_id": "6af7f3890000000024032fb4",
+      "title": "Betting Tips"
+    },
+    "visualizee-ai": {
+      "likes": 1,
+      "views": 25,
+      "note_id": "6af92837000000002b02b5cb",
+      "title": "Visualizee：给建筑师渲效果图"
+    },
+    "publbee": {
+      "likes": 0,
+      "views": 13,
+      "note_id": "6afa5b8f000000002203a199",
+      "title": "Publbee：AI 工具箱写书配图"
+    },
+    "white-glove-content": {
+      "likes": 0,
+      "views": 18,
+      "note_id": "6afbb1bd000000002b013547",
+      "title": "White Glove：无脸视频代运营"
+    },
+    "ext-ep-001-super-mario-bros": {
+      "likes": 1,
+      "views": 24,
+      "note_id": "6afd3909000000002903d36f",
+      "title": "马力欧兄弟：JS 重写的 1985 经典"
+    },
+    "nutria-9e3eaa": {
+      "likes": 0,
+      "views": 24,
+      "note_id": "6afe82a1000000002b03e707",
+      "title": "Nutria：AI 卡路里追踪应用"
+    },
+    "pet-plus-us": {
+      "likes": 0,
+      "views": 42,
+      "note_id": "6aff932e000000002b0254c3",
+      "title": "Pet Plus Us：AI合成宠物合影"
+    },
+    "checkvibe": {
+      "likes": 0,
+      "views": 15,
+      "note_id": "6b00f44a000000002b000d69",
+      "title": "CheckVibe：给 AI 应用查漏洞"
+    },
+    "ext-ep-002-2048": {
+      "likes": 0,
+      "views": 15,
+      "note_id": "6b0286e0000000001803ad39",
+      "title": "2048：一个网页就能玩的数字合并"
+    },
+    "ai-voice-calls": {
+      "likes": 0,
+      "views": 18,
+      "note_id": "6b03e02a000000002500a70c",
+      "title": "多语言真人语音接打电话"
+    },
+    "aeo-engine": {
+      "likes": 0,
+      "views": 18,
+      "note_id": "6b047372000000001603083e",
+      "title": "AEO：让品牌出现在 AI 答案里"
+    },
+    "ai-prank-call": {
+      "likes": 0,
+      "views": 13,
+      "note_id": "6b06296f000000002b01bfe3",
+      "title": "用名人声音打恶作剧电话"
+    },
+    "verse": {
+      "likes": 0,
+      "views": 35,
+      "note_id": "6b06365e000000002b02aac2",
+      "title": "Verse：一句话招AI员工"
+    }
   }
 }

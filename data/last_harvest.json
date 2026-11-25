@@ -1,77 +1,77 @@
 {
-  "ran_at": "2026-11-24 10:38:23",
+  "ran_at": "2026-11-25 09:27:14",
   "added": 59,
   "by_source": {
-    "hn": 43,
-    "trustmrr": 16
+    "hn": 47,
+    "trustmrr": 12
   },
   "inbox_total": 400,
   "archived_this_run": 59,
-  "archive_total": 2533,
+  "archive_total": 2592,
   "top": [
     {
-      "name": "BankConv",
-      "headline": "近 30 天收入 $1,033",
+      "name": "Lens Scan, Photo Identifier",
+      "headline": "MRR $1,911，TrustMRR 第 1314 名",
       "heat": 0,
-      "category": "垂直行业 SaaS",
+      "category": "移动应用",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/bankconv"
+      "url": "https://trustmrr.com/startup/lens-scan-photo-identifier"
     },
     {
-      "name": "StoreRadar",
-      "headline": "近 30 天收入 $3,552",
-      "heat": 0,
-      "category": "营销工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/storeradar"
-    },
-    {
-      "name": "PosteAhora",
-      "headline": "近 30 天收入 $117",
-      "heat": 0,
-      "category": "营销工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/posteahora"
-    },
-    {
-      "name": "TransClipper",
-      "headline": "近 30 天收入 $308",
+      "name": "Sceneai",
+      "headline": "近 30 天收入 $2,655",
       "heat": 0,
       "category": "创作者经济",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/transclipper"
+      "url": "https://trustmrr.com/startup/orixadesign-llc"
     },
     {
-      "name": "VIDGENS",
-      "headline": "近 30 天收入 $120",
+      "name": "Magic Marketer",
+      "headline": "近 30 天收入 $919",
+      "heat": 0,
+      "category": "营销工具",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/magic-marketer-app"
+    },
+    {
+      "name": "Facet",
+      "headline": "近 30 天收入 $1,115",
+      "heat": 0,
+      "category": "Utilities",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/facet"
+    },
+    {
+      "name": "SonyVibe",
+      "headline": "近 30 天收入 $539",
+      "heat": 0,
+      "category": "Entertainment",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/sonyvibe"
+    },
+    {
+      "name": "AI Garden Design - Scapora",
+      "headline": "MRR $514",
       "heat": 0,
       "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/vidgens"
+      "url": "https://trustmrr.com/startup/ai-garden-design-scapora"
     },
     {
-      "name": "tucktabs",
-      "headline": "累计收入 $1（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
+      "name": "AI Interior Design - HomeAura",
+      "headline": "MRR $356",
       "heat": 0,
-      "category": "开发者工具",
+      "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/razorpay-business-18"
+      "url": "https://trustmrr.com/startup/ai-interior-design-homeaura"
     },
     {
-      "name": "Rubix Bulk Price Editor",
-      "headline": "MRR $3,928",
-      "heat": 0,
+      "name": "Termius was asking me for $120 a year, so I built my own SSH client",
+      "headline": "疑似金额 $120 ",
+      "heat": 2,
       "category": "未分类",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/rubix-bulk-price-editor"
-    },
-    {
-      "name": "NextDue: Bill Tracker",
-      "headline": "近 30 天收入 $1,336",
-      "heat": 0,
-      "category": "垂直行业 SaaS",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/nextdue-bill-tracker"
+      "source": "hn",
+      "url": "https://branchbay.dev/branchshell"
     }
   ]
 }

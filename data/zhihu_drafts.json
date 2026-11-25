@@ -166,10 +166,10 @@
   },
   "ext-ep-003-freedoom": {
     "article_id": "2102032057182446679",
-    "title": "Freedoom，免费合法的毁灭战士",
-    "url": "https://zhuanlan.zhihu.com/p/2102032057182446679",
-    "status": "draft",
-    "ts": "2026-11-06 13:38:16"
+    "title": "Freedoom：没有原版素材，怎么重造一个《毁灭战士》？",
+    "url": "",
+    "status": "published",
+    "ts": "2026-11-25 09:36:29"
   },
   "gojiberryai": {
     "article_id": "2102356014305748561",
@@ -257,5 +257,12 @@
     "url": "https://zhuanlan.zhihu.com/p/2106371694080402153",
     "status": "draft",
     "ts": "2026-11-18 13:02:27"
+  },
+  "harperai": {
+    "article_id": "2108855642198898436",
+    "title": "把英国公开抵押记录连成一张网，这笔订阅生意难在哪？",
+    "url": "https://zhuanlan.zhihu.com/p/2108855642198898436",
+    "status": "draft",
+    "ts": "2026-11-25 09:32:45"
   }
 }
