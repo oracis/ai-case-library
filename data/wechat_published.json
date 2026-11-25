@@ -57,10 +57,16 @@
   },
   "betting-tips": {
     "title": "Betting Tips：为足球、篮球、网球、美式足球和棒球爱好者提供每日专家投注建议",
-    "published_at": "",
-    "status": "draft",
+    "published_at": "2026-11-25 08:15",
+    "status": "published",
     "appmsgid": "100001002",
-    "file": ""
+    "file": "",
+    "published_appmsgid": "2247485067",
+    "publish_type": "masssend",
+    "sent_via": "send",
+    "send_reason": "已发表列表出现新记录，标题一致",
+    "verified_at": "2026-11-25 09:10",
+    "note": "｜11-25 补账：群发后 appmsgid=2247485067；同日修正 JSON 侧仍为 draft 的漂移"
   },
   "uplinked-b-v": {
     "title": "UpLinked：领英上自动加客户",

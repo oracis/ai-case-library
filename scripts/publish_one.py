@@ -993,6 +993,16 @@ def run(platform, case=None, yes=False, timeout=900, day=None, upload=False,
             print("✗ %s 今日无稿可发：%s" % (cn, row.get("blocked") or row.get("reason")))
             return 1
 
+    # 平台级题材黑名单（publish_slot.TOPIC_BLOCK）兜底：ai_pool 已经把这类
+    # case 剔出候选池，这里挡的是**显式 `--case`** 绕过池子的路径。
+    # 这是监管/平台红线，不给 `--force` 开关。
+    _blk = SLOT.topic_block(platform, case)
+    if _blk:
+        print("⛔ %s 拒发 %s：%s" % (cn, case, _blk))
+        print("  （平台级题材黑名单，见 publish_slot.TOPIC_BLOCK；"
+              "同一 case 换平台不受影响）")
+        return 1
+
     pack = pack_path(platform, case)
     print("▶ %s ｜ %s ｜ %s" % (cn, case, SLOT.KIND_LABEL.get(
         SLOT.kind_of(case), "?")))
