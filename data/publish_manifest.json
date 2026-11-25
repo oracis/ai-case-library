@@ -277,8 +277,10 @@
    "attempt": 2,
    "error": "[11-09 镜像同步] 补登镜像缺失记录；平台全量列表唯一剩余条目，noteId 与 SQLite remote_id 逐字一致；at 用平台 time，SQLite published_at=2026-10-26 15:28 按 #104 裁定保持不动",
    "remote_id": "6adefddb0000000015004eb5",
-   "state": "published",
-   "title": "用名人声音打恶作剧电话，毛利 95%"
+   "state": "deleted",
+   "title": "用名人声音打恶作剧电话，毛利 95%",
+   "published_at": null,
+   "note": "[11-25 清重复稿] 用户裁定「删存入久的、不补发」：两条小红书笔记均已删除并回读线上为零，state 置 deleted，明天档期可重发（dedupe 不拦 deleted）"
   },
   "cnblogs": {
    "state": "published",
