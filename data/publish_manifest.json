@@ -529,9 +529,12 @@
    "attempt": 0,
    "draft_id": "100001002",
    "error": "file=",
-   "remote_id": "100001002",
-   "state": "draft_saved",
-   "title": "Betting Tips：为足球、篮球、网球、美式足球和棒球爱好者提供每日专家投注建议"
+   "remote_id": "2247485067",
+   "state": "published",
+   "title": "Betting Tips：为足球、篮球、网球、美式足球和棒球爱好者提供每日专家投注建议",
+   "url": "",
+   "note": "11-25 补账：群发后 appmsgid=2247485067（已发表列表出现新记录、标题一致）",
+   "published_at": "2026-11-25 08:15"
   },
   "xhs": {
    "at": "2026-11-14 13:37",
@@ -695,6 +698,16 @@
    "error": "｜[11-09 错账清理] 原 published_at='2026-10-25 01:40' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "Chatsell.co：为WooCommerce店铺提供自然"
+  },
+  "bilibili2": {
+   "state": "published",
+   "remote_id": "54071853",
+   "title": "Chatsell.co：为WooCommerce店铺提供自然语言产品搜索和即时答案的AI聊天机器人",
+   "url": "https://www.bilibili.com/read/cv54071853",
+   "at": "2026-11-25 09:10:00",
+   "note": "11-25 补账：按空间 API publish_time 真值重登（标题 49 字，接口只回前 30 字）",
+   "published_at": "2026-11-25 07:55",
+   "attempt": 0
   }
  },
  "checkvibe": {
@@ -1254,6 +1267,17 @@
    "error": "｜[11-09 错账清理] 原 published_at='2026-10-05 14:59' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "法国录音棚收 250 欧一单，有人把混音做成了订阅"
+  },
+  "tencentcloud": {
+   "state": "auditing",
+   "remote_id": "2792910",
+   "draft_id": "351973",
+   "title": "把混音和母带压成一次上传：easyMix 的音频流水线与本地化定价工程",
+   "url": "https://cloud.tencent.com/developer/article/2792910",
+   "published_at": "",
+   "note": "11-25 提交成功 articleId=2792910（草稿 351973）；匿名公开页 404 ⇒ 按三态落 auditing，待审核通过回读转 published",
+   "attempt": 0,
+   "at": "2026-11-25 09:05"
   }
  },
  "ep-001-super-mario-bros": {
@@ -1391,9 +1415,11 @@
    "draft_id": "2101282414362472778",
    "error": "status=draft｜[11-09 错账清理] 原 published_at='2026-11-04 11:59:27' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "remote_id": "2101282414362472778",
-   "state": "draft_saved",
+   "state": "published",
    "title": "2048，一个网页就能玩的数字合并",
-   "url": "https://zhuanlan.zhihu.com/p/2101282414362472778"
+   "url": "https://zhuanlan.zhihu.com/p/2101282414362472778",
+   "published_at": "2026-11-25 07:27",
+   "note": "11-25 补账：本人 07:27 发表（线上 created=1795562856），工作区重置洗掉台账后按线上真值重登"
   }
  },
  "ext-ep-003-freedoom": {
@@ -2110,6 +2136,15 @@
    "state": "published",
    "title": "OpenRCT2：过山车大亨 2 的开源重写",
    "url": ""
+  },
+  "csdn": {
+   "remote_id": "171350039",
+   "url": "https://blog.csdn.net/sinat_32396037/article/details/171350039",
+   "title": "老游戏怎么被重写：读 OpenRCT2",
+   "state": "published",
+   "published_at": "2026-11-25 09:09:56",
+   "at": "2026-11-25 09:09:56",
+   "note": "11-25 发布后补账：脚本自报 article_id=None（假红），真 id 取自列表+公开页回读 171350039"
   }
  },
  "fastwrite-io": {
@@ -3482,11 +3517,12 @@
    "at": "2026-10-14 13:31",
    "attempt": 1,
    "draft_id": "343834",
-   "note": "｜草稿同步(2026-10-14 13:31): title 认领 aid=343834",
-   "remote_id": "343834",
-   "state": "draft",
+   "note": "｜草稿同步(2026-10-14 13:31): title 认领 aid=343834；11-25 补账：按空间 API publish_time 真值重登",
+   "remote_id": "54071707",
+   "state": "published",
    "title": "QuoteDeck：保险代理的专业报价工具",
-   "url": ""
+   "url": "https://www.bilibili.com/read/cv54071707",
+   "published_at": "2026-11-25 07:22"
   },
   "toutiao": {
    "at": "2026-10-13 23:41",
@@ -3955,6 +3991,17 @@
    "state": "draft_saved",
    "title": "Stan：把卖货页、会员与订阅收进一个链接",
    "url": "https://zhuanlan.zhihu.com/p/2105268358618801699"
+  },
+  "aliyun": {
+   "state": "auditing",
+   "remote_id": "1788898",
+   "title": "解析创作者平台收入数据：支付网关直读证据链",
+   "url": "https://developer.aliyun.com/article/1788898",
+   "at": "2026-11-25 09:10:00",
+   "note": "11-25 提交成功 aid=1788898，平台显示「内容审核中」⇒ auditing，待公开页回读再转 published",
+   "draft_id": "1733430",
+   "published_at": "",
+   "attempt": 0
   }
  },
  "startclaw": {
@@ -4397,8 +4444,12 @@
    "at": "2026-10-25 01:59",
    "attempt": 0,
    "error": "｜[11-09 错账清理] 原 published_at='2026-10-25 01:59' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
-   "state": "draft_saved",
-   "title": "Verse：Verse 以单次提示构建自主 AI 员工"
+   "state": "published",
+   "title": "Verse：一句话招AI员工",
+   "remote_id": "6b06365e000000002b02aac2",
+   "url": "https://www.xiaohongshu.com/explore/6b06365e000000002b02aac2",
+   "published_at": "2026-11-25 09:14",
+   "note": "11-25 FIFO 发草稿箱最久一条；note-manager 全部51条首条 09:14 已发布（接口对账回填）"
   }
  },
  "vid-ai": {
@@ -4435,6 +4486,27 @@
    "error": "｜[11-09 错账清理] 原 published_at='2026-10-10 17:57' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "两年做到累计 $162 万，然后峰值留存掉到 46%"
+  },
+  "cnblogs": {
+   "state": "published",
+   "remote_id": "23773906",
+   "title": "用AI视频工作流撑住百万创作者批量出片",
+   "url": "https://www.cnblogs.com/thing-explainer/p/23773906",
+   "at": "2026-11-25 09:10:00",
+   "note": "11-25 补账：工作区重置洗掉台账后按公开页+列表真值重登（dateCreated 20261125T07:40）",
+   "draft_id": "23773906",
+   "published_at": "2026-11-25 07:40",
+   "attempt": 0
+  },
+  "csdn": {
+   "state": "published",
+   "remote_id": "171343780",
+   "title": "用AI工作流批量生产短视频",
+   "url": "https://blog.csdn.net/sinat_32396037/article/details/171343780",
+   "at": "2026-11-25 09:10:00",
+   "note": "11-25 补账：按 csdn 列表 postTime 真值重登",
+   "published_at": "2026-11-25 07:42:27",
+   "attempt": 0
   }
  },
  "viktor": {

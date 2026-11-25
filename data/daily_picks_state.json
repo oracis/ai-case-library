@@ -1,11 +1,4 @@
 {
-  "2026-11-09": [
-    "cliputils",
-    "flipscan-ai-reselling-scanner",
-    "get-funneled",
-    "meltkit",
-    "obscreen"
-  ],
   "2026-11-10": [
     "elyx-ai",
     "framenet",
@@ -69,5 +62,12 @@
     "native-templates",
     "sportii-app",
     "submitsaas"
+  ],
+  "2026-11-24": [
+    "obscreen",
+    "seyyah-mobile",
+    "stud-finder-wall-detector-tool",
+    "super",
+    "usehite"
   ]
 }
