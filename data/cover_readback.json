@@ -19,9 +19,9 @@
  },
  "autoreels-ai": {
   "aliyun": {
-   "at": "2026-11-21 09:41:18",
-   "evidence": "文章首图 firstImg=https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_8c02d90fe9b0453285512778bbeb1d9f.png",
-   "remote_id": "1786549",
+   "at": "2026-11-25 11:02:00",
+   "evidence": "文章首图 firstImg=https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_802d68eccd3a4daf9ced1446a85b2654.png",
+   "remote_id": "1789000",
    "source": "yun_finalize",
    "state": "ok"
   },
@@ -329,9 +329,9 @@
  },
  "flodesk": {
   "aliyun": {
-   "at": "2026-11-19 13:15:41",
-   "evidence": "文章首图 firstImg=https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_edc3fa55cb6e4f7c96d1ee1ebec62bcf.png",
-   "remote_id": "1785586",
+   "at": "2026-11-25 11:03:24",
+   "evidence": "文章首图 firstImg=https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_1514a23ea61a4a6a8a35631dc935b8ea.png",
+   "remote_id": "1789001",
    "source": "yun_finalize",
    "state": "ok"
   },
@@ -438,6 +438,15 @@
    "at": "2026-11-08 15:07:49",
    "evidence": "线上文章 2779001 卡片缩略图 background-image=https://developer.qcloudimg.com/http-save/yehe-12743977/c5fb8eb1c215a1f9e0fd92bbbb932669.jpg",
    "remote_id": "2779001",
+   "source": "yun_finalize",
+   "state": "ok"
+  }
+ },
+ "stan": {
+  "aliyun": {
+   "at": "2026-11-25 10:59:55",
+   "evidence": "文章首图 firstImg=https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_530794fbff9741d7ab3df83b8649137a.png",
+   "remote_id": "1788998",
    "source": "yun_finalize",
    "state": "ok"
   }

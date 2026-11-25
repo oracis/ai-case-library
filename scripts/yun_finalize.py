@@ -1212,7 +1212,8 @@ def _wait_captcha(cdp, captcha_wait=300, where=""):
 
 
 def publish_aliyun(cdp, draft_id, community=None, cover_file="",
-                   captcha_wait=300, body_md="", title="", abstract=""):
+                   captcha_wait=300, body_md="", title="", abstract="",
+                   force_body=False):
     """发表阿里云草稿。**只准由 --publish --i-said-publish 双门禁调用。**
 
     UI 路线（全新页面态，三项页面态字段一次配齐）：
@@ -1252,7 +1253,26 @@ def publish_aliyun(cdp, draft_id, community=None, cover_file="",
         filled = nxt
     print("  草稿回填：标题 %d 字 / 正文 %d 字"
           % (filled["title"], filled["body"]))
-    if filled["title"] == 0 and body_md:
+    # 🚨 2026-11-25：`force_body` = 「改稿重发」专用（原稿被平台驳回后需要换正文）。
+    #   默认路径只在**草稿没回填**时注入，这样草稿箱里已有正文的文章会被原样重发
+    #   —— 对被驳回的文章等于把旧稿再投一次。加这个开关时不改变默认行为。
+    #   顺序仍是「先等回填稳定、再注入、再等稳定」，避免 11-04 那次
+    #   「注入后被异步回填整体覆盖」的老坑。
+    if force_body and body_md:
+        print("  ⟳ 强制改用本地稿正文（改稿重发，原稿 %d 字 → 新稿 %d 字）"
+              % (filled["body"], len(body_md)))
+        for attempt in range(1, 4):
+            _aliyun_fill_content(cdp, body_md, title=title)
+            time.sleep(3)
+            first = _aliyun_content_state(cdp)
+            time.sleep(1.5)
+            filled = _aliyun_content_state(cdp)
+            print("  注入后（第 %d 次）：标题 %d 字 / 正文 %d 字%s"
+                  % (attempt, filled["title"], filled["body"],
+                     "（读数稳定）" if first == filled else "（仍在变化，重试）"))
+            if first == filled and filled["title"] > 0 and filled["body"] > 0:
+                break
+    elif filled["title"] == 0 and body_md:
         print("  ⚠ 草稿没回填 ⇒ 用本地稿重新注入")
         for attempt in range(1, 4):
             _aliyun_fill_content(cdp, body_md, title=title)
@@ -1506,6 +1526,9 @@ if __name__ == "__main__":
                     help="发表确认口令，值必须 = 用户原话 i-said-publish")
     ap.add_argument("--captcha-wait", type=int, default=300,
                     help="弹滑块时原地等用户人工拖的秒数（默认 300）")
+    ap.add_argument("--force-body", action="store_true",
+                    help="改稿重发：无视草稿回填，强制用 --file 正文覆盖编辑器内容"
+                         "（阿里云被驳回文章的改稿重发专用，腾讯云不支持）")
     a = ap.parse_args()
     if a.fix_cover:
         # 输出示例：python scripts/yun_finalize.py --fix-cover 2774554 \
@@ -1600,6 +1623,7 @@ if __name__ == "__main__":
             aid = publish_aliyun(cdp, int(a.al_draft), a.community or None,
                                  a.cover or "", captcha_wait=a.captcha_wait,
                                  body_md=body_md, title=title,
+                                 force_body=bool(getattr(a, "force_body", False)),
                                  abstract=(a.abstract or first_paragraph(body_md)
                                            or ledger_get(a.case or "").get("abstract", "")))
         finally:
