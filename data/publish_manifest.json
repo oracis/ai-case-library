@@ -1484,14 +1484,16 @@
    "title": ""
   },
   "zhihu": {
-   "at": "2026-11-06 13:38:16",
+   "at": "2026-11-25 09:36:29",
    "attempt": 0,
    "draft_id": "2102032057182446679",
-   "error": "status=draft｜[11-09 错账清理] 原 published_at='2026-11-06 13:38:16' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "remote_id": "2102032057182446679",
-   "state": "draft_saved",
-   "title": "Freedoom，免费合法的毁灭战士",
-   "url": "https://zhuanlan.zhihu.com/p/2102032057182446679"
+   "state": "published",
+   "title": "Freedoom：没有原版素材，怎么重造一个《毁灭战士》？",
+   "url": "https://zhuanlan.zhihu.com/p/2102032057182446679",
+   "published_at": "2026-11-25 09:36:29",
+   "note": "11-25 原草稿改稿后发表（792→2003 中文字）；用户授权覆盖自设 1 篇/天配额。｜旧记：status=draft｜[11-09 错账清理] 原 published_at='2026-11-06 13:38:16' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
+   "error": "（11-25 已失效，该稿已发表）status=draft｜[11-09 错账清理] 原 published_at='2026-11-06 13:38:16' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）"
   }
  },
  "ext-ep-004-quake": {
@@ -2477,6 +2479,16 @@
    "error": "｜[11-09 错账清理] 原 published_at='2026-10-05 15:08' 已迁出（state 保持 draft；明细 tmp/ledger_cleanup_20261109_report.json）",
    "state": "draft_saved",
    "title": "把英国公开抵押记录连成一张网，然后卖给贷款经纪"
+  },
+  "zhihu": {
+   "state": "draft_saved",
+   "remote_id": "2108855642198898436",
+   "draft_id": "2108855642198898436",
+   "title": "把英国公开抵押记录连成一张网，这笔订阅生意难在哪？",
+   "url": "https://zhuanlan.zhihu.com/p/2108855642198898436",
+   "at": "2026-11-25 09:32:45",
+   "attempt": 0,
+   "note": "11-25 09:32 新建草稿 3014 字（先厚后薄重写），排在积压队尾，等 FIFO 轮到"
   }
  },
  "headshotpro": {
