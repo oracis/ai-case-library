@@ -500,6 +500,16 @@
    "state": "draft_saved",
    "title": "AutoReels.AI 用产量交付模型批量生产短视频",
    "url": "https://zhuanlan.zhihu.com/p/2103768513915654967"
+  },
+  "aliyun": {
+   "state": "published",
+   "remote_id": "1789000",
+   "title": "AutoReels.AI 以产量交付重构短视频工具成本结构",
+   "url": "https://developer.aliyun.com/article/1789000",
+   "at": "2026-11-25 11:02:00",
+   "draft_id": "1724495",
+   "published_at": "2026-11-25 11:02:00",
+   "attempt": 0
   }
  },
  "betting-tips": {
@@ -1282,13 +1292,13 @@
    "title": "法国录音棚收 250 欧一单，有人把混音做成了订阅"
   },
   "tencentcloud": {
-   "state": "auditing",
-   "remote_id": "2792910",
+   "state": "draft",
+   "remote_id": "",
    "draft_id": "351973",
-   "title": "把混音和母带压成一次上传：easyMix 的音频流水线与本地化定价工程",
-   "url": "https://cloud.tencent.com/developer/article/2792910",
+   "title": "从分轨到母带：一次上传出成品的混音链路怎么搭",
+   "url": "",
    "published_at": "",
-   "note": "11-25 提交成功 articleId=2792910（草稿 351973）；匿名公开页 404 ⇒ 按三态落 auditing，待审核通过回读转 published",
+   "note": "11-25 提交成功 articleId=2792910（草稿 351973）；匿名公开页 404 ⇒ 按三态落 auditing，待审核通过回读转 published ‖ [2026-11-25 13:00 对账] 改稿重发的 2793275 也被驳回（内容包含广告/引流信息，驳回摘要引用正文第一段产品自我介绍）⇒ state=draft、清 remote_id 以便重发；旧稿 2792910 同因驳回，两条 articleId 都留档",
    "attempt": 0,
    "at": "2026-11-25 09:05"
   }
@@ -1745,13 +1755,15 @@
  },
  "ext-ep-007-openttd": {
   "aliyun": {
-   "at": "2026-11-20 08:06:24",
+   "at": "2026-11-20 00:00:00",
    "attempt": 0,
    "draft_id": "1723687",
    "error": "[2026-11-20 阿里云发布] 草稿 1723687 → 文章 1786027；匿名 GET https://developer.aliyun.com/article/1786027：HTTP 404、0 bytes、标题命中=False、审核横幅=False ⇒ auditing（published 需 200 + 标题命中 + 无审核横幅；url 待过审后独立回读再补）",
    "remote_id": "1786027",
-   "state": "draft_saved",
-   "title": "OpenTTD，开源版运输大亨"
+   "state": "published",
+   "title": "OpenTTD，开源版运输大亨",
+   "url": "https://developer.aliyun.com/article/1786027",
+   "published_at": "2026-11-20 00:00:00"
   },
   "bilibili2": {
    "at": "2026-11-10 12:21",
@@ -1926,6 +1938,16 @@
    "state": "draft_saved",
    "title": "Lichess，免费无广告的国际象棋",
    "url": "https://zhuanlan.zhihu.com/p/2105957291598136171"
+  },
+  "aliyun": {
+   "state": "published",
+   "remote_id": "1788007",
+   "title": "Lichess，免费无广告的国际象棋",
+   "url": "https://developer.aliyun.com/article/1788007",
+   "at": "2026-11-24 00:00:00",
+   "draft_id": "1731423",
+   "published_at": "2026-11-24 00:00:00",
+   "attempt": 0
   }
  },
  "ext-ep-010-cataclysm-dark-days-ahead": {
@@ -2201,14 +2223,15 @@
  },
  "flodesk": {
   "aliyun": {
-   "at": "2026-11-19 13:15:42",
+   "at": "2026-11-25 11:03:00",
    "attempt": 0,
    "draft_id": "1698291",
    "error": "| longtail_key=flodesk-2026-10-30-2 ‖ [11-09 #122 补] 阿里云假绿纠正：published⇒draft，title 回填平台真实标题（?edit=1698291 编辑页实读）；longtail 建稿未发布，正文 857 字 ‖ [11-09 #123 就地改稿] 旧故事稿 → 技术向稿，平台 aid 不变、未新建草稿、未发布；draftDetail 双回读：title 与本地 h1 一致、6 个 h2 全命中、首末句命中、旧首句消失、正文 3128 字；旧稿备份 tmp/aliyun_rewrite_flodesk_1698291.json ‖ [2026-11-19 阿里云发布] 草稿 1698291 → 文章 1785586；匿名 GET https://developer.aliyun.com/article/1785586：HTTP 404、0 bytes、标题命中=False、审核横幅=False ⇒ auditing（published 需 200 + 标题命中 + 无审核横幅；url 待过审后独立回读再补）",
-   "remote_id": "1785586",
-   "state": "draft_saved",
+   "remote_id": "1789001",
+   "state": "published",
    "title": "不限发送量的邮件平台：送达率工程的共享池与故障隔离成本",
-   "url": "https://developer.aliyun.com/article/new?edit=1698291#/"
+   "url": "https://developer.aliyun.com/article/1789001",
+   "published_at": "2026-11-25 11:03:00"
   },
   "cnblogs": {
    "at": "2026-10-29 12:15:00",
@@ -4018,14 +4041,14 @@
    "url": "https://zhuanlan.zhihu.com/p/2105268358618801699"
   },
   "aliyun": {
-   "state": "auditing",
-   "remote_id": "1788898",
+   "state": "published",
+   "remote_id": "1788998",
    "title": "解析创作者平台收入数据：支付网关直读证据链",
-   "url": "https://developer.aliyun.com/article/1788898",
-   "at": "2026-11-25 09:10:00",
+   "url": "https://developer.aliyun.com/article/1788998",
+   "at": "2026-11-25 10:59:00",
    "note": "11-25 提交成功 aid=1788898，平台显示「内容审核中」⇒ auditing，待公开页回读再转 published",
    "draft_id": "1733430",
-   "published_at": "",
+   "published_at": "2026-11-25 10:59:00",
    "attempt": 0
   }
  },
@@ -4323,14 +4346,15 @@
  },
  "upvoty": {
   "aliyun": {
-   "at": "2026-11-17 09:58:48",
+   "at": "2026-11-17 00:00:00",
    "attempt": 0,
    "draft_id": "1699818",
    "error": "| longtail_key=upvoty-2026-10-30-2 ‖ [11-09 #122 补] 阿里云假绿纠正：published⇒draft，title 回填平台真实标题（?edit=1699818 编辑页实读）；longtail 建稿未发布，正文 1293 字 ‖ [11-09 #123 就地改稿] 旧故事稿 → 技术向稿，平台 aid 不变、未新建草稿、未发布；draftDetail 双回读：title 与本地 h1 一致、7 个 h2 全命中、首末句命中、旧首句消失、正文 3171 字；旧稿备份 tmp/aliyun_rewrite_upvoty_1699818.json ‖ [2026-11-17 阿里云发布] 草稿 1699818 → 文章 1784384；匿名 GET https://developer.aliyun.com/article/1784384：HTTP 404、0 bytes、标题命中=False、审核横幅=False ⇒ auditing（published 需 200 + 标题命中 + 无审核横幅；url 待过审后独立回读再补）",
    "remote_id": "1784384",
-   "state": "draft_saved",
+   "state": "published",
    "title": "公开看板的多租户边界：缓存键、检索索引与投票洪峰",
-   "url": "https://developer.aliyun.com/article/new?edit=1699818#/"
+   "url": "https://developer.aliyun.com/article/1784384",
+   "published_at": "2026-11-17 00:00:00"
   },
   "bilibili": {
    "at": "2026-11-22 11:25 草稿箱→发布（send-draft）",
