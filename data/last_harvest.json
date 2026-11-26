@@ -1,77 +1,77 @@
 {
-  "ran_at": "2026-11-25 09:27:14",
-  "added": 59,
+  "ran_at": "2026-11-26 09:04:54",
+  "added": 58,
   "by_source": {
     "hn": 47,
-    "trustmrr": 12
+    "trustmrr": 11
   },
   "inbox_total": 400,
-  "archived_this_run": 59,
-  "archive_total": 2592,
+  "archived_this_run": 58,
+  "archive_total": 2650,
   "top": [
     {
-      "name": "Lens Scan, Photo Identifier",
-      "headline": "MRR $1,911，TrustMRR 第 1314 名",
+      "name": "vsub",
+      "headline": "近 30 天收入 $30,727",
       "heat": 0,
-      "category": "移动应用",
+      "category": "未分类",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/lens-scan-photo-identifier"
+      "url": "https://trustmrr.com/startup/vsub"
     },
     {
-      "name": "Sceneai",
-      "headline": "近 30 天收入 $2,655",
+      "name": "Boring eSIM",
+      "headline": "近 30 天收入 $208",
+      "heat": 0,
+      "category": "Travel",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/boring-esim"
+    },
+    {
+      "name": "AI Video Generator - Zynvixo",
+      "headline": "近 30 天收入 $934",
       "heat": 0,
       "category": "创作者经济",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/orixadesign-llc"
+      "url": "https://trustmrr.com/startup/ai-video-generator-zynvixo"
     },
     {
-      "name": "Magic Marketer",
-      "headline": "近 30 天收入 $919",
-      "heat": 0,
-      "category": "营销工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/magic-marketer-app"
-    },
-    {
-      "name": "Facet",
-      "headline": "近 30 天收入 $1,115",
+      "name": "Screen Movie - screen recorder & video editor",
+      "headline": "近 30 天收入 $641",
       "heat": 0,
       "category": "Utilities",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/facet"
+      "url": "https://trustmrr.com/startup/screen-movie"
     },
     {
-      "name": "SonyVibe",
-      "headline": "近 30 天收入 $539",
-      "heat": 0,
-      "category": "Entertainment",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/sonyvibe"
-    },
-    {
-      "name": "AI Garden Design - Scapora",
-      "headline": "MRR $514",
-      "heat": 0,
-      "category": "AI 工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/ai-garden-design-scapora"
-    },
-    {
-      "name": "AI Interior Design - HomeAura",
-      "headline": "MRR $356",
-      "heat": 0,
-      "category": "AI 工具",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/ai-interior-design-homeaura"
-    },
-    {
-      "name": "Termius was asking me for $120 a year, so I built my own SSH client",
-      "headline": "疑似金额 $120 ",
-      "heat": 2,
+      "name": "Anvil has won pricing among AI web builders plan starting at $5",
+      "headline": "未获取",
+      "heat": 3,
       "category": "未分类",
       "source": "hn",
-      "url": "https://branchbay.dev/branchshell"
+      "url": "https://www.tryanvil.dev/"
+    },
+    {
+      "name": "SiteHaul",
+      "headline": "累计收入 $49（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
+      "heat": 0,
+      "category": "创作者经济",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/sitehaul"
+    },
+    {
+      "name": "TapMac",
+      "headline": "累计收入 $82（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
+      "heat": 0,
+      "category": "企业服务",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/tapmac"
+    },
+    {
+      "name": "Gaatru",
+      "headline": "疑似金额 $150 ",
+      "heat": 1,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://github.com/Michaelmary3/gaatru"
     }
   ]
 }
