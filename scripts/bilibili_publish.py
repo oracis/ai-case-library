@@ -732,7 +732,7 @@ def _dry_api(cid):
 
 
 def publish_one(cid, dry=False, replace=False, keep_tabs=False, use_api=True,
-                cdp=None, cover=True):
+                cdp=None, cover=True, reuse_if_exists=False):
     """存一条草稿到 B站。
 
     `use_api=True`（**默认**）走 draft/add 接口，不开编辑器、秒级。
@@ -749,7 +749,8 @@ def publish_one(cid, dry=False, replace=False, keep_tabs=False, use_api=True,
         if dry:
             return _dry_api(cid)
         return save_via_api(cid, replace=replace, cdp=cdp,
-                            refresh_cover=cover)
+                            refresh_cover=cover,
+                            reuse_if_exists=reuse_if_exists)
 
     _need_sel()
     html = load_article_html(cid, gate=not dry)
@@ -1303,14 +1304,20 @@ def _api_tab(cdp):
 
 
 def save_via_api(cid, replace=False, cdp=None, title=None, body=None,
-                 refresh_cover=False, force=False, submit=0):
+                 refresh_cover=False, force=False, submit=0,
+                 reuse_if_exists=False):
     """用 draft/add 存一条草稿（新建或按标题覆盖）。返回 True/False。
 
     这是 `publish_one` 的默认路径。流程全程不开编辑器：
         1. clean_body → build_arg
-        2. replace 时先按标题找 article_id + 抄旧草稿的 image_urls
+        2. replace / reuse_if_exists 时先按标题找 article_id + 抄旧草稿的 image_urls
         3. draft/add（带 article_id 即更新）
         4. draft/view 回读校验 mtime 变了、正文非空
+
+    ⚠ `reuse_if_exists=True`（2026-11-26）：同标题草稿存在就**就地更新**、
+      没有才新建；与 `replace=True` 的区别是后者「找不到就报错」，前者
+      「找不到就新建」。二号 `publish-ai` 每跑一次新建一条重复稿就是因为它
+      默认 `replace=False` 完全跳过认亲 ⇒ 档期重跑/超时重试都在烧草稿箱和额度。
 
     `refresh_cover=True`（2026-10-16）：把 out/toutiao/<id>/cover.png 经
         upcover 图床上传，拿到的 CDN URL 写进 image_urls —— 草稿封面
@@ -1339,7 +1346,7 @@ def save_via_api(cid, replace=False, cdp=None, title=None, body=None,
     try:
         tid = _api_tab(cdp)
         aid, old = None, {}
-        if replace:
+        if replace or reuse_if_exists:
             drafts = bili_api.list_drafts(cdp)
             norm = lambda s: re.sub(r"\s+", "", (s or "").lower())
             want = norm(title)
@@ -1353,10 +1360,16 @@ def save_via_api(cid, replace=False, cdp=None, title=None, body=None,
                     if t and (t.startswith(want[:10]) or want.startswith(t[:10])):
                         aid = d.get("article_id")
                         break
-            if not aid:
+            if not aid and replace:
                 print("  ✗ 草稿箱接口里没找到《%s》（现有 %d 条，"
                       "不确定是否已改标题）" % (title, len(drafts)))
                 return False
+            # reuse_if_exists 找不到 => 放行新建（首次建稿就是这条路），
+            # 但打日志让「为什么这次是新建」可追溯。
+            if not aid and reuse_if_exists and not replace:
+                print("  ⓘ 草稿箱无同标题《%s》⇒ 新建（reuse_if_exists）" % title)
+            if aid:
+                print("  → 复用同标题草稿 aid=%s（不新建重复稿）" % aid)
             # 抄旧草稿里不想丢的字段（封面/可见性），build_arg 会原样带回
             try:
                 old = bili_api.view_draft(cdp, aid)
@@ -3006,6 +3019,9 @@ def main():
              "（2026-11-15 新增；两步都复用既有 publish_one/send_draft）")
     pa.add_argument("--case", required=True, help="AI case id")
     pa.add_argument("--dry", action="store_true", help="只探建草稿入口，不写不发布")
+    pa.add_argument("--new", action="store_true",
+                    help="强制新建一条草稿（默认同标题既有草稿就地更新，"
+                         "避免档期重跑/超时重试堆重复稿、白烧额度）")
     args = ap.parse_args()
 
     # 127.0.0.1 必须绕开系统代理，否则 websocket 连 Chrome 调试端口会被掐
@@ -3093,7 +3109,8 @@ def main():
         #   ② send_draft(cid=...)：编辑器 UI 点发布 + 已发表列表回读 + 记账。
         # 账号由 CDP_BILI_PORT / CDP_PLAT_PROFILE 决定（9224 + bili2 profile），
         # publish_one.py 的 BILI2_ENV 会传进来；不在这里写死端口。
-        if not publish_one(args.case, dry=args.dry):
+        if not publish_one(args.case, dry=args.dry,
+                           reuse_if_exists=not args.new):
             sys.exit(1)
         if args.dry:
             print("  [dry] 只探了建草稿入口，未建草稿、未发布")

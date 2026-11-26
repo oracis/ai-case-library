@@ -51,9 +51,12 @@
   "ai-voice-calls": {
     "title": "AI voice calls：AI语音平台，支持50+语言",
     "published_at": "",
-    "status": "draft",
+    "status": "published",
     "appmsgid": "100001013",
-    "file": ""
+    "file": "",
+    "group_sent": true,
+    "synced_at": "2026-11-26 19:26",
+    "sync_note": "远端已发表列表里存在，本地由 sync 回写"
   },
   "betting-tips": {
     "title": "Betting Tips：为足球、篮球、网球、美式足球和棒球爱好者提供每日专家投注建议",

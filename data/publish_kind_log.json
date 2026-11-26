@@ -312,6 +312,12 @@
     "case_id": "pet-plus-us",
     "kind": "ai",
     "note": "send-draft FIFO 最久草稿"
+   },
+   {
+    "at": "2026-11-26 17:11",
+    "case_id": "stealth-rdp",
+    "kind": "ai",
+    "note": "send-draft FIFO 最久草稿"
    }
   ],
   "cnblogs": [
