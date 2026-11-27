@@ -1041,6 +1041,62 @@ class TestFindDraftByTitle(unittest.TestCase):
         self.assertIn('getattr(args, "new"', src)
 
 
+class TestPublishAiReusesDraft(unittest.TestCase):
+    """二号 `publish-ai` 建草稿必须复用同标题草稿 —— 否则档期重跑/超时
+    重试每次都新建一条，草稿箱堆重复稿、白烧发布额度（2026-11-26 实测：
+    Chatsell.co ×3 + AI voice calls ×4，都是同日 2 分钟间隔连建的）。
+
+    ⚠ 上一版测试只锁了 `cmd_draft`（外部稿入口），没锁 `publish-ai`
+    主路径 ⇒ `publish_one` 默认 replace=False 完全跳过认亲，测试全绿却
+    照样堆重复稿。这里补的就是那个盲区。
+    """
+
+    def test_publish_ai传复用开关且留_new逃生口(self):
+        import inspect
+        src = inspect.getsource(bp.main)
+        # 主路径必须显式传 reuse_if_exists，且默认开启（not args.new）
+        self.assertIn("reuse_if_exists=not args.new", src,
+                      "publish-ai 必须默认复用同标题草稿，不许无条件新建")
+        # argparse 里 publish-ai 必须有 --new
+        pa_src = src.split('"publish-ai"')[1].split("args = ap.parse_args()")[0] \
+            if '"publish-ai"' in src and "args = ap.parse_args()" in src else ""
+        self.assertIn("--new", pa_src, "publish-ai 要有强制新建的逃生口")
+
+    def test_publish_one默认不复用但可显式开启(self):
+        import inspect
+        sig = inspect.signature(bp.publish_one)
+        self.assertEqual(sig.parameters["reuse_if_exists"].default, False,
+                         "默认保持老行为，避免影响一号 publish")
+        src = inspect.getsource(bp.publish_one)
+        self.assertIn("reuse_if_exists=reuse_if_exists", src,
+                      "publish_one 必须把开关透传给 save_via_api")
+
+    def test_save_via_api复用优先且缺失放行(self):
+        """三种语义：replace 找不到→失败；reuse 找不到→新建；有→复用。"""
+        import inspect
+        src = inspect.getsource(bp.save_via_api)
+        self.assertIn("if replace or reuse_if_exists:", src)
+        self.assertIn("if not aid and replace:", src,
+                      "replace 模式找不到仍要报错，不许静默新建")
+        self.assertIn("if not aid and reuse_if_exists and not replace:", src,
+                      "reuse 模式找不到必须放行新建并打日志")
+
+    def test_同标题多条按aid最大复用(self):
+        """复用取 aid 最大（最新写入），与 cmd_draft/_pick_draft 同口径。"""
+        pool = [
+            {"article_id": 379802, "title": "AI voice calls：真人语音接打"},
+            {"article_id": 379229, "title": "AI voice calls：真人语音接打"},
+        ]
+        old = bp.bili_api.list_drafts
+        try:
+            bp.bili_api.list_drafts = lambda cdp: pool
+            # 直接验证底层按标题取最大 aid 的既有函数口径
+            d = bp._find_draft_by_title(None, "AI voice calls：真人语音接打")
+            self.assertEqual(d["article_id"], 379802)
+        finally:
+            bp.bili_api.list_drafts = old
+
+
 class TestCaseTitle(unittest.TestCase):
     """「按 case 认亲」用哪个标题 —— 二号不许走 `make_title` 的 30 字截断。
 

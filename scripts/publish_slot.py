@@ -542,6 +542,34 @@ def game_missing_pack(platform):
             if _norm_id(k) not in sent and not pack_exists(platform, k)]
 
 
+# 平台级「题材黑名单」：某些题材在某个平台是**监管/平台硬红线**，不是文案写法
+# 能绕的，选稿层就要挡住，根本不进候选池。
+#   2026-11-25 立。触发这一幕的是当天 08:15 群发 `betting-tips`（标题「…每日专家
+#   投注建议」）后账号收到「公众平台安全助手」通知「账号存在安全风险已被限制使用，
+#   需登录 MP 后台用管理员微信验证人脸」。
+#   ⚠ 事后核查：违规记录空表、通知中心无处罚、风险操作记录为空、文章公开页正常
+#     ⇒ 这是**账号安全类**限制（登录环境/自动化行为），**不是内容处罚**；别把这条
+#     黑名单当成「已经证明博彩内容导致封号」的证据。
+#   黑名单照旧保留，理由是**平台政策本身**：微信禁止赌博/博彩/预测市场类内容，
+#   就算没触发处罚也不值得拿一个只有 9 个粉丝的号去试。
+#   同一 case 在技术向平台（CSDN/掘金/博客园）按「海外产品变现模式拆解」口径
+#   通常无碍 —— 所以这是**分平台**名单，不是全平台封杀。
+# 键＝平台，值＝{case_id: 拒发理由}。
+TOPIC_BLOCK = {
+    "wechat": {
+        "betting-tips": "博彩投注（每日专家投注建议）——微信禁止赌博类内容",
+        "jarvis-bet": "AI 体育博彩分析——微信禁止赌博类内容",
+        "bettrbot": "自动化黑杰克（赌场游戏）策略——微信禁止赌博类内容",
+        "alphascope": "预测市场研究平台——境内预测市场涉赌，微信不予放行",
+    },
+}
+
+
+def topic_block(platform, case_id):
+    """该平台是否禁止这个 case（返回理由，空串＝可以发）。"""
+    return (TOPIC_BLOCK.get(platform) or {}).get(str(case_id or ""), "")
+
+
 def ai_pool(platform, ready_only=True):
     """该平台还没发过的 AI case，按 cases.json 顺序。"""
     sent = {cid for _, cid in records(platform)}
@@ -551,8 +579,11 @@ def ai_pool(platform, ready_only=True):
         # 游戏稿不受影响：ext-ep-* 与 AI case id 不撞，且 game_pool 另算。
         sent |= {cid for _, cid in records("bilibili")}
     cases = _load("cases.json") or []
+    # 题材黑名单在**入池处**就剔除（而不是发的时候再拦）：档期、池量、
+    # 「无稿补写」挑 oldest 都跟着池走，晚一步拦会出现「以为有稿、发时打空」。
     ids = [c.get("id") for c in cases
-           if c.get("id") and c.get("id") not in sent]
+           if c.get("id") and c.get("id") not in sent
+           and not topic_block(platform, c.get("id"))]
     if ready_only:
         ids = [k for k in ids if pack_exists(platform, k)]
     return ids

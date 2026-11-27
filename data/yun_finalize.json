@@ -269,9 +269,9 @@
     "published_at": "2026-11-10 16:23:00"
   },
   "ext-ep-008-mindustry": {
-    "tc_draft": "338081",
-    "tc_article": "2781234",
-    "updated": "2026-11-11 10:57:20"
+    "tc_draft": "352187",
+    "tc_article": "2793283",
+    "updated": "2026-11-25 12:23:50"
   },
   "__community__1711205": {
     "community": "云原生",
@@ -388,10 +388,10 @@
     "published_at": null
   },
   "__community__1698291": {
-    "uploaded_img": "https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_edc3fa55cb6e4f7c96d1ee1ebec62bcf.png",
-    "updated": "2026-11-19 13:15:41",
+    "uploaded_img": "https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_1514a23ea61a4a6a8a35631dc935b8ea.png",
+    "updated": "2026-11-25 11:03:24",
     "state": "auditing",
-    "article": "1785586",
+    "article": "1789001",
     "published": null,
     "published_at": null
   },
@@ -425,10 +425,10 @@
     "updated": "2026-11-21 09:36:00"
   },
   "__community__1724495": {
-    "uploaded_img": "https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_8c02d90fe9b0453285512778bbeb1d9f.png",
-    "updated": "2026-11-21 09:41:18",
+    "uploaded_img": "https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_802d68eccd3a4daf9ced1446a85b2654.png",
+    "updated": "2026-11-25 11:02:00",
     "state": "auditing",
-    "article": "1786549",
+    "article": "1789000",
     "published": null,
     "published_at": null
   },
@@ -463,19 +463,41 @@
   },
   "pdfai": {
     "tc_draft": "338081",
-    "tc_article": "2791816",
-    "updated": "2026-11-24 01:28:46"
+    "tc_article": "2795333",
+    "updated": "2026-11-27 11:28:19"
   },
   "ext-ep-015-openrct2": {
-    "tc_draft": "351351",
-    "tc_article": "2791861",
-    "updated": "2026-11-24 07:27:51"
+    "tc_draft": "352182",
+    "tc_article": "2793279",
+    "updated": "2026-11-25 12:21:04"
   },
   "__community__1733430": {
     "state": "auditing",
-    "article": "1788898",
+    "article": "1788998",
     "published": null,
     "published_at": null,
-    "updated": "2026-11-25 09:05:51"
+    "updated": "2026-11-25 10:59:55",
+    "uploaded_img": "https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_530794fbff9741d7ab3df83b8649137a.png"
+  },
+  "easymix": {
+    "tc_draft": "352180",
+    "tc_article": "2794842",
+    "updated": "2026-11-26 19:41:18"
+  },
+  "__community__1736803": {
+    "uploaded_img": "https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_ff9a661357e1470f89fe08fd9176bff1.png",
+    "updated": "2026-11-26 19:44:37",
+    "state": "auditing",
+    "article": "1790328",
+    "published": null,
+    "published_at": null
+  },
+  "__community__1737606": {
+    "uploaded_img": "https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_cadf2963a6ec4d4f964894106a69abe6.png",
+    "updated": "2026-11-27 11:34:21",
+    "state": "auditing",
+    "article": "1790629",
+    "published": null,
+    "published_at": null
   }
 }

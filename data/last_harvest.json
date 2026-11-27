@@ -1,77 +1,77 @@
 {
-  "ran_at": "2026-11-26 09:04:54",
-  "added": 58,
+  "ran_at": "2026-11-27 09:21:29",
+  "added": 51,
   "by_source": {
-    "hn": 47,
-    "trustmrr": 11
+    "hn": 43,
+    "trustmrr": 8
   },
   "inbox_total": 400,
-  "archived_this_run": 58,
-  "archive_total": 2650,
+  "archived_this_run": 51,
+  "archive_total": 2701,
   "top": [
     {
-      "name": "vsub",
-      "headline": "近 30 天收入 $30,727",
-      "heat": 0,
-      "category": "未分类",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/vsub"
-    },
-    {
-      "name": "Boring eSIM",
-      "headline": "近 30 天收入 $208",
-      "heat": 0,
-      "category": "Travel",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/boring-esim"
-    },
-    {
-      "name": "AI Video Generator - Zynvixo",
-      "headline": "近 30 天收入 $934",
-      "heat": 0,
-      "category": "创作者经济",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/ai-video-generator-zynvixo"
-    },
-    {
-      "name": "Screen Movie - screen recorder & video editor",
-      "headline": "近 30 天收入 $641",
-      "heat": 0,
-      "category": "Utilities",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/screen-movie"
-    },
-    {
-      "name": "Anvil has won pricing among AI web builders plan starting at $5",
-      "headline": "未获取",
-      "heat": 3,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://www.tryanvil.dev/"
-    },
-    {
-      "name": "SiteHaul",
-      "headline": "累计收入 $49（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
-      "heat": 0,
-      "category": "创作者经济",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/sitehaul"
-    },
-    {
-      "name": "TapMac",
-      "headline": "累计收入 $82（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
+      "name": "Vruum",
+      "headline": "近 30 天收入 $1,200",
       "heat": 0,
       "category": "企业服务",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/tapmac"
+      "url": "https://trustmrr.com/startup/vruum"
     },
     {
-      "name": "Gaatru",
-      "headline": "疑似金额 $150 ",
+      "name": "Kabo AI",
+      "headline": "近 30 天收入 $208",
+      "heat": 0,
+      "category": "Health & Fitness",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/kabo-ai"
+    },
+    {
+      "name": "SimSwift",
+      "headline": "近 30 天收入 $1,310",
+      "heat": 0,
+      "category": "电商",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/simswift"
+    },
+    {
+      "name": "4K fsync tail latency and SQLite WAL lock failures on a $4/mo VPS",
+      "headline": "未获取",
       "heat": 1,
       "category": "未分类",
       "source": "hn",
-      "url": "https://github.com/Michaelmary3/gaatru"
+      "url": "https://nodebudget.dev/guides/why-cheap-vps-benchmarks-lie/"
+    },
+    {
+      "name": "Leadfoxt.com",
+      "headline": "近 30 天收入 $1,136",
+      "heat": 0,
+      "category": "未分类",
+      "source": "trustmrr",
+      "url": "https://trustmrr.com/startup/leadfoxt"
+    },
+    {
+      "name": "Sqrin",
+      "headline": "未获取",
+      "heat": 10,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://sqrin.app"
+    },
+    {
+      "name": "Shirudo.today",
+      "headline": "未获取",
+      "heat": 6,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://shirudo.today/blog/launch.html"
+    },
+    {
+      "name": "I Built 90s Style Low Cost Ads Concept with Rotate Ad Exchange",
+      "headline": "未获取",
+      "heat": 5,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://rotate.ad/"
     }
   ]
 }

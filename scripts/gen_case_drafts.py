@@ -444,7 +444,9 @@ def pick_by_quality(platform):
     cases.sort(key=lambda c: ((c.get("composite") or {}).get("score") or 0),
                reverse=True)
     sent = {S._norm_id(cid) for _, cid in S.records(platform)}
-    return next((c["id"] for c in cases if S._norm_id(c["id"]) not in sent), None)
+    return next((c["id"] for c in cases
+                 if S._norm_id(c["id"]) not in sent
+                 and not S.topic_block(platform, c["id"])), None)
 
 
 def pick_by_oldest(platform):
@@ -459,7 +461,11 @@ def pick_by_oldest(platform):
     cases = [c for c in (S._load("cases.json") or []) if c.get("id") and eligible(c)]
     cases.sort(key=lambda c: (c.get("verified_at") or "9999-12-31"))
     sent = {S._norm_id(cid) for _, cid in S.records(platform)}
-    return next((c["id"] for c in cases if S._norm_id(c["id"]) not in sent), None)
+    # 平台题材黑名单（S.TOPIC_BLOCK）：与 ai_pool 同一条判据 —— 否则公众号
+    # 轮到「无稿补写」时仍可能把博彩类 case 拍上来（2026-11-25 风控后加）。
+    return next((c["id"] for c in cases
+                 if S._norm_id(c["id"]) not in sent
+                 and not S.topic_block(platform, c["id"])), None)
 
 
 def auto_case():

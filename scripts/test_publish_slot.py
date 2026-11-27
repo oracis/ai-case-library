@@ -162,5 +162,43 @@ class DraftMustNotCountAsPublished(unittest.TestCase):
             self.assertEqual(S._rows_yun('aliyun'), [])
 
 
+class PlatformTopicBlock(unittest.TestCase):
+    """平台级题材黑名单（2026-11-25 公众号群发博彩稿被风控后立）。
+
+    要点：① 名单是**分平台**的，同一 case 在技术向平台照常可发；
+          ② 在 `ai_pool` 入池处就剔除（档期/池量跟着池走）；
+          ③ 名单里的 id 必须真的存在于 cases.json（防拼写错导致静默失效）。
+    """
+
+    GAMBLING = ("betting-tips", "jarvis-bet", "bettrbot", "alphascope")
+
+    def test_wechat_blocks_gambling(self):
+        for cid in self.GAMBLING:
+            self.assertTrue(S.topic_block("wechat", cid),
+                            "公众号应拒发 %s" % cid)
+
+    def test_block_is_per_platform(self):
+        # 同一个 case 换技术向平台不受影响（黑名单不是全平台封杀）
+        for plat in ("csdn", "zhihu", "tencentcloud", "aliyun", "cnblogs"):
+            self.assertEqual(S.topic_block(plat, "betting-tips"), "",
+                             "%s 不该被公众号的黑名单连坐" % plat)
+
+    def test_unknown_case_not_blocked(self):
+        self.assertEqual(S.topic_block("wechat", "verse"), "")
+        self.assertEqual(S.topic_block("wechat", ""), "")
+        self.assertEqual(S.topic_block("wechat", None), "")
+
+    def test_ai_pool_drops_blocked(self):
+        pool = S.ai_pool("wechat", ready_only=False)
+        for cid in S.TOPIC_BLOCK["wechat"]:
+            self.assertNotIn(cid, pool, "%s 仍在公众号候选池里" % cid)
+
+    def test_blocked_ids_exist_in_cases(self):
+        ids = {c.get("id") for c in (S._load("cases.json") or [])}
+        for cid in S.TOPIC_BLOCK["wechat"]:
+            self.assertIn(cid, ids,
+                          "黑名单里的 %s 在 cases.json 里不存在（拼写错？）" % cid)
+
+
 if __name__ == "__main__":
     unittest.main()
