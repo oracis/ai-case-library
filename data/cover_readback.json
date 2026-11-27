@@ -1,5 +1,12 @@
 {
  "1lookup": {
+  "aliyun": {
+   "at": "2026-11-27 11:34:21",
+   "evidence": "文章首图 firstImg=https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_cadf2963a6ec4d4f964894106a69abe6.png",
+   "remote_id": "1790629",
+   "source": "yun_finalize",
+   "state": "ok"
+  },
   "tencentcloud": {
    "at": "2026-11-14 13:51:38",
    "evidence": "线上文章 2784170 卡片缩略图 background-image=https://developer.qcloudimg.com/http-save/yehe-12743977/f3f1536df63fb1b9bb8457b8b0aa7613.jpg",
@@ -440,9 +447,9 @@
  },
  "pdfai": {
   "tencentcloud": {
-   "at": "2026-11-24 01:28:47",
-   "evidence": "线上文章 2791816 卡片缩略图 background-image=抽屉封面：https://developer-private-1258344699.cos.ap-guangzhou.myqcloud.com/editor/image/12743977/20261124-672c61e9.jpeg?x-cos-security-token=IKWasq75nxICailnQXLXVdSNzMcX4d4a801969618a4740f9a2c88fca8fa88b1cNcLX9kDcH7GlvbyV6JJ_29AWT_mx17wiyfXZXY-IxnpLGNoSCQrRGv8qWIsd6v",
-   "remote_id": "2791816",
+   "at": "2026-11-27 11:28:19",
+   "evidence": "线上文章 2795333 卡片缩略图 background-image=抽屉封面：https://developer-private-1258344699.cos.ap-guangzhou.myqcloud.com/editor/image/12743977/20261127-df9d0940.jpeg?x-cos-security-token=bJFh0ELapnMowQJkcXTSkaIeRtz5aZjaa70cd3c4c99cc31233965102547a65c2Fi4EFETAiReKuZzXqp47nQLexpxOkLgd_MXi0SdJeUKzYvI-AdRzWToBGnPnrL",
+   "remote_id": "2795333",
    "source": "yun_finalize",
    "state": "ok"
   }

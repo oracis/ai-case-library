@@ -1,10 +1,16 @@
 {
-  "verse": {
-    "title": "Verse：Verse 以单次提示构建自主 AI 员工。",
-    "published_at": "",
-    "status": "draft",
-    "appmsgid": "100001090",
-    "file": ""
+  "betting-tips": {
+    "title": "Betting Tips：为足球、篮球、网球、美式足球和棒球爱好者提供每日专家投注建议",
+    "published_at": "2026-11-25 08:15",
+    "status": "published",
+    "appmsgid": "2247485067",
+    "file": "",
+    "published_appmsgid": "2247485067",
+    "publish_type": "masssend",
+    "sent_via": "send",
+    "send_reason": "已发表列表出现新记录，标题一致",
+    "verified_at": "2026-11-25 09:10",
+    "note": "｜11-25 补账：群发后 appmsgid=2247485067；同日修正 JSON 侧仍为 draft 的漂移"
   },
   "ai-smart-decor": {
     "title": "AI Smart Decor：AI智能室内设计工具，让用户预览装修效果",
@@ -43,10 +49,16 @@
   },
   "demopolish": {
     "title": "DemoPolish：Demopolish帮助软件和SaaS创始人60秒内制作专业演示视频",
-    "published_at": "",
-    "status": "draft",
+    "published_at": "2026-11-27 11:18",
+    "status": "published",
     "appmsgid": "100001024",
-    "file": ""
+    "file": "",
+    "publish_type": "publish",
+    "published_appmsgid": "2247485069",
+    "sent_via": "send",
+    "send_reason": "已发表列表出现新记录，标题一致",
+    "note": "｜publish模式自动发表，新 appmsgid=2247485069",
+    "verified_at": "2026-11-27 11:18"
   },
   "ai-voice-calls": {
     "title": "AI voice calls：AI语音平台，支持50+语言",
@@ -56,94 +68,10 @@
     "file": "",
     "group_sent": true,
     "synced_at": "2026-11-26 19:26",
-    "sync_note": "远端已发表列表里存在，本地由 sync 回写"
-  },
-  "betting-tips": {
-    "title": "Betting Tips：为足球、篮球、网球、美式足球和棒球爱好者提供每日专家投注建议",
-    "published_at": "2026-11-25 08:15",
-    "status": "published",
-    "appmsgid": "100001002",
-    "file": "",
-    "published_appmsgid": "2247485067",
-    "publish_type": "masssend",
-    "sent_via": "send",
-    "send_reason": "已发表列表出现新记录，标题一致",
-    "verified_at": "2026-11-25 09:10",
-    "note": "｜11-25 补账：群发后 appmsgid=2247485067；同日修正 JSON 侧仍为 draft 的漂移"
-  },
-  "uplinked-b-v": {
-    "title": "UpLinked：领英上自动加客户",
-    "published_at": "",
-    "status": "draft",
-    "appmsgid": "100000522",
-    "file": ""
-  },
-  "cometly": {
-    "title": "Cometly：广告数据归因分析",
-    "published_at": "",
-    "status": "draft",
-    "appmsgid": "100000518",
-    "file": ""
-  },
-  "boothie-ai-photo-editor": {
-    "title": "Boothie：AI 照片编辑器",
-    "published_at": "",
-    "status": "draft",
-    "appmsgid": "100000510",
-    "file": ""
-  },
-  "wagiff-app": {
-    "title": "Wagiff App：中东北非地区男性用户戒除不良习惯的社交应用",
-    "published_at": "2026-11-23 14:29",
-    "status": "published",
-    "appmsgid": "100000502",
-    "file": "",
-    "publish_type": "publish",
-    "published_appmsgid": "2247485065",
-    "sent_via": "send",
-    "send_reason": "已发表列表出现新记录，标题一致",
-    "note": "｜publish模式自动发表，新 appmsgid=2247485065",
-    "verified_at": "2026-11-23 14:29"
-  },
-  "homy": {
-    "title": "Homy：Mac 文件搜索优化工具，小众市场潜力待挖掘",
-    "published_at": "2026-11-22 13:43",
-    "status": "published",
-    "appmsgid": "100000486",
-    "file": "",
-    "publish_type": "publish",
-    "published_appmsgid": "2247485064",
-    "sent_via": "send",
-    "send_reason": "已发表列表出现新记录，标题一致",
-    "note": "｜publish模式自动发表，新 appmsgid=2247485064",
-    "verified_at": "2026-11-22 13:43"
-  },
-  "fastwrite-io": {
-    "title": "fastwrite.io：AI写作工具SaaS，辅助学生学术写作",
-    "published_at": "2026-11-24 01:00",
-    "status": "published",
-    "appmsgid": "100000470",
-    "file": "",
-    "publish_type": "publish",
-    "published_appmsgid": "2247485066",
-    "sent_via": "send",
-    "send_reason": "已发表列表出现新记录，标题一致",
-    "note": "｜publish模式自动发表，新 appmsgid=2247485066",
-    "verified_at": "2026-11-24 01:01"
-  },
-  "vid-ai": {
-    "title": "Vid.AI：脚本一键变短视频",
-    "published_at": "",
-    "status": "draft",
-    "appmsgid": "100000446",
-    "file": ""
-  },
-  "vectosolve": {
-    "title": "VectoSolve：位图一键转可编辑 SVG",
-    "published_at": "",
-    "status": "draft",
-    "appmsgid": "100000432",
-    "file": ""
+    "sync_note": "远端已发表列表里存在，本地由 sync 回写",
+    "published_appmsgid": "2247485068",
+    "verified_at": "2026-11-27 11:35",
+    "note": "｜2026-11-27 修复：整本重刷把 published 洗回 draft，按远端已发表列表(appmsg_id=2247485068)回填"
   },
   "augora-ai": {
     "title": "Augora AI：Shopify 广告追踪自动化",
@@ -166,6 +94,13 @@
     "appmsgid": "100000407",
     "file": ""
   },
+  "mort": {
+    "title": "MORT：AI 求职代理：盯 5 万个企业招聘页，按简历打分并自动投递",
+    "published_at": "",
+    "status": "draft",
+    "appmsgid": "100000329",
+    "file": ""
+  },
   "quran-unlock": {
     "title": "Quran Unlock：读古兰经解锁其他 App",
     "published_at": "",
@@ -178,20 +113,6 @@
     "published_at": "",
     "status": "draft",
     "appmsgid": "100000279",
-    "file": ""
-  },
-  "wx-100000514": {
-    "title": "把 AI 建站工具生成的网站，转成 WordPress——一个工程师的生意",
-    "published_at": "",
-    "status": "deleted",
-    "appmsgid": "100000514",
-    "file": ""
-  },
-  "mort": {
-    "title": "MORT：AI 求职代理：盯 5 万个企业招聘页，按简历打分并自动投递",
-    "published_at": "",
-    "status": "draft",
-    "appmsgid": "100000329",
     "file": ""
   },
   "le19emetrou": {
@@ -221,6 +142,94 @@
     "status": "draft",
     "appmsgid": "100000251",
     "file": ""
+  },
+  "wx-100000514": {
+    "title": "把 AI 建站工具生成的网站，转成 WordPress——一个工程师的生意",
+    "published_at": "",
+    "status": "deleted",
+    "appmsgid": "100000514",
+    "file": ""
+  },
+  "verse": {
+    "title": "Verse：Verse 以单次提示构建自主 AI 员工。",
+    "published_at": "",
+    "status": "draft",
+    "appmsgid": "100001090",
+    "file": ""
+  },
+  "uplinked-b-v": {
+    "title": "UpLinked：领英上自动加客户",
+    "published_at": "",
+    "status": "draft",
+    "appmsgid": "100000522",
+    "file": ""
+  },
+  "cometly": {
+    "title": "Cometly：广告数据归因分析",
+    "published_at": "",
+    "status": "draft",
+    "appmsgid": "100000518",
+    "file": ""
+  },
+  "boothie-ai-photo-editor": {
+    "title": "Boothie：AI 照片编辑器",
+    "published_at": "",
+    "status": "draft",
+    "appmsgid": "100000510",
+    "file": ""
+  },
+  "vid-ai": {
+    "title": "Vid.AI：脚本一键变短视频",
+    "published_at": "",
+    "status": "draft",
+    "appmsgid": "100000446",
+    "file": ""
+  },
+  "vectosolve": {
+    "title": "VectoSolve：位图一键转可编辑 SVG",
+    "published_at": "",
+    "status": "draft",
+    "appmsgid": "100000432",
+    "file": ""
+  },
+  "fastwrite-io": {
+    "title": "fastwrite.io：AI写作工具SaaS，辅助学生学术写作",
+    "published_at": "2026-11-24 01:00",
+    "status": "published",
+    "appmsgid": "100000470",
+    "file": "",
+    "publish_type": "publish",
+    "published_appmsgid": "2247485066",
+    "sent_via": "send",
+    "send_reason": "已发表列表出现新记录，标题一致",
+    "note": "｜publish模式自动发表，新 appmsgid=2247485066",
+    "verified_at": "2026-11-24 01:01"
+  },
+  "wagiff-app": {
+    "title": "Wagiff App：中东北非地区男性用户戒除不良习惯的社交应用",
+    "published_at": "2026-11-23 14:29",
+    "status": "published",
+    "appmsgid": "100000502",
+    "file": "",
+    "publish_type": "publish",
+    "published_appmsgid": "2247485065",
+    "sent_via": "send",
+    "send_reason": "已发表列表出现新记录，标题一致",
+    "note": "｜publish模式自动发表，新 appmsgid=2247485065",
+    "verified_at": "2026-11-23 14:29"
+  },
+  "homy": {
+    "title": "Homy：Mac 文件搜索优化工具，小众市场潜力待挖掘",
+    "published_at": "2026-11-22 13:43",
+    "status": "published",
+    "appmsgid": "100000486",
+    "file": "",
+    "publish_type": "publish",
+    "published_appmsgid": "2247485064",
+    "sent_via": "send",
+    "send_reason": "已发表列表出现新记录，标题一致",
+    "note": "｜publish模式自动发表，新 appmsgid=2247485064",
+    "verified_at": "2026-11-22 13:43"
   },
   "macwall": {
     "title": "MacWall：为 Mac 用户提供 4K 电影感动态壁纸的订阅产品",

@@ -1177,5 +1177,30 @@
   },
   "via": "cdp-9228",
   "ts": "2026-11-25 09:03:32"
+ },
+ "1lookup-2026-11-27-1": {
+  "case": "1lookup",
+  "title": "1Lookup：用API把脏活做成按量付费的刚需壁垒",
+  "platforms": {
+   "aliyun": {
+    "ok": false,
+    "err": "等不到阿里云编辑器（#title 不出现）"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-27 11:31:38"
+ },
+ "1lookup-2026-11-27-2": {
+  "case": "1lookup",
+  "title": "1Lookup：用API把脏活做成按量付费的刚需壁垒",
+  "platforms": {
+   "aliyun": {
+    "ok": true,
+    "draftId": "1737606",
+    "url": "https://developer.aliyun.com/article/new?edit=1737606#/"
+   }
+  },
+  "via": "cdp-9228",
+  "ts": "2026-11-27 11:33:20"
  }
 }

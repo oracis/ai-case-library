@@ -463,8 +463,8 @@
   },
   "pdfai": {
     "tc_draft": "338081",
-    "tc_article": "2791816",
-    "updated": "2026-11-24 01:28:46"
+    "tc_article": "2795333",
+    "updated": "2026-11-27 11:28:19"
   },
   "ext-ep-015-openrct2": {
     "tc_draft": "352182",
@@ -489,6 +489,14 @@
     "updated": "2026-11-26 19:44:37",
     "state": "auditing",
     "article": "1790328",
+    "published": null,
+    "published_at": null
+  },
+  "__community__1737606": {
+    "uploaded_img": "https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_cadf2963a6ec4d4f964894106a69abe6.png",
+    "updated": "2026-11-27 11:34:21",
+    "state": "auditing",
+    "article": "1790629",
     "published": null,
     "published_at": null
   }
