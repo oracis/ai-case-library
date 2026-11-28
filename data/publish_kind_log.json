@@ -118,6 +118,12 @@
     "case_id": "1lookup",
     "kind": "ai",
     "at": "2026-11-18 13:02"
+   },
+   {
+    "case_id": "insect-bite-id",
+    "kind": "ai",
+    "at": "2026-11-28 10:59:06",
+    "note": "publish_one FIFO 消化最久草稿；平台已发但 kind_log 漏写，按平台真值补记"
    }
   ],
   "csdn": [
@@ -223,6 +229,12 @@
     "case_id": "wx-100000267",
     "kind": "ai",
     "note": "send-draft FIFO 最久草稿"
+   },
+   {
+    "case_id": "chatsell-co",
+    "kind": "ai",
+    "at": "2026-11-28 10:49",
+    "note": "send --appmsgid 100001035 重发昨日挂起稿；平台已发但 kind_log 漏写，按平台真值补记"
    }
   ],
   "bilibili": [
