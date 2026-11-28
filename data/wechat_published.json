@@ -1,16 +1,23 @@
 {
-  "betting-tips": {
-    "title": "Betting Tips：为足球、篮球、网球、美式足球和棒球爱好者提供每日专家投注建议",
-    "published_at": "2026-11-25 08:15",
+  "ai-voice-calls": {
+    "title": "AI voice calls：AI语音平台，支持50+语言",
+    "published_at": "2026-11-26 19:26",
     "status": "published",
-    "appmsgid": "2247485067",
+    "appmsgid": "2247485068",
     "file": "",
-    "published_appmsgid": "2247485067",
-    "publish_type": "masssend",
-    "sent_via": "send",
-    "send_reason": "已发表列表出现新记录，标题一致",
-    "verified_at": "2026-11-25 09:10",
-    "note": "｜11-25 补账：群发后 appmsgid=2247485067；同日修正 JSON 侧仍为 draft 的漂移"
+    "group_sent": true,
+    "synced_at": "2026-11-26 19:26",
+    "sync_note": "远端已发表列表里存在，本地由 sync 回写",
+    "published_appmsgid": "2247485068",
+    "verified_at": "2026-11-27 11:35",
+    "note": "｜2026-11-27 修复：整本重刷把 published 洗回 draft，按远端已发表列表(appmsg_id=2247485068)回填"
+  },
+  "verse": {
+    "title": "Verse：Verse 以单次提示构建自主 AI 员工。",
+    "published_at": "",
+    "status": "draft",
+    "appmsgid": "100001090",
+    "file": ""
   },
   "ai-smart-decor": {
     "title": "AI Smart Decor：AI智能室内设计工具，让用户预览装修效果",
@@ -41,37 +48,52 @@
     "file": ""
   },
   "chatsell-co": {
-    "title": "Chatsell.co：为WooCommerce店铺提供自然语言产品搜索和即时答案的AI聊天机器人。",
-    "published_at": "",
-    "status": "draft",
-    "appmsgid": "100001035",
-    "file": ""
-  },
-  "demopolish": {
-    "title": "DemoPolish：Demopolish帮助软件和SaaS创始人60秒内制作专业演示视频",
-    "published_at": "2026-11-27 11:18",
+    "title": "Chatsell.co：为WooCommerce店铺提供自然语言产品搜索和即时答案的AI聊天机器人",
+    "published_at": "2026-11-28 10:49",
     "status": "published",
-    "appmsgid": "100001024",
+    "appmsgid": "100001035",
     "file": "",
     "publish_type": "publish",
-    "published_appmsgid": "2247485069",
+    "published_appmsgid": "2247485070",
     "sent_via": "send",
-    "send_reason": "已发表列表出现新记录，标题一致",
-    "note": "｜publish模式自动发表，新 appmsgid=2247485069",
-    "verified_at": "2026-11-27 11:18"
+    "send_reason": "草稿已消失且出现新记录（标题未比上，以新记录为准）",
+    "note": "｜publish模式自动发表，新 appmsgid=2247485070",
+    "verified_at": "2026-11-28 10:49"
   },
-  "ai-voice-calls": {
-    "title": "AI voice calls：AI语音平台，支持50+语言",
+  "uplinked-b-v": {
+    "title": "UpLinked：领英上自动加客户",
     "published_at": "",
-    "status": "published",
-    "appmsgid": "100001013",
-    "file": "",
-    "group_sent": true,
-    "synced_at": "2026-11-26 19:26",
-    "sync_note": "远端已发表列表里存在，本地由 sync 回写",
-    "published_appmsgid": "2247485068",
-    "verified_at": "2026-11-27 11:35",
-    "note": "｜2026-11-27 修复：整本重刷把 published 洗回 draft，按远端已发表列表(appmsg_id=2247485068)回填"
+    "status": "draft",
+    "appmsgid": "100000522",
+    "file": ""
+  },
+  "cometly": {
+    "title": "Cometly：广告数据归因分析",
+    "published_at": "",
+    "status": "draft",
+    "appmsgid": "100000518",
+    "file": ""
+  },
+  "boothie-ai-photo-editor": {
+    "title": "Boothie：AI 照片编辑器",
+    "published_at": "",
+    "status": "draft",
+    "appmsgid": "100000510",
+    "file": ""
+  },
+  "vid-ai": {
+    "title": "Vid.AI：脚本一键变短视频",
+    "published_at": "",
+    "status": "draft",
+    "appmsgid": "100000446",
+    "file": ""
+  },
+  "vectosolve": {
+    "title": "VectoSolve：位图一键转可编辑 SVG",
+    "published_at": "",
+    "status": "draft",
+    "appmsgid": "100000432",
+    "file": ""
   },
   "augora-ai": {
     "title": "Augora AI：Shopify 广告追踪自动化",
@@ -150,47 +172,31 @@
     "appmsgid": "100000514",
     "file": ""
   },
-  "verse": {
-    "title": "Verse：Verse 以单次提示构建自主 AI 员工。",
-    "published_at": "",
-    "status": "draft",
-    "appmsgid": "100001090",
-    "file": ""
+  "demopolish": {
+    "title": "DemoPolish：Demopolish帮助软件和SaaS创始人60秒内制作专业演示视频",
+    "published_at": "2026-11-27 11:18",
+    "status": "published",
+    "appmsgid": "100001024",
+    "file": "",
+    "publish_type": "publish",
+    "published_appmsgid": "2247485069",
+    "sent_via": "send",
+    "send_reason": "已发表列表出现新记录，标题一致",
+    "note": "｜publish模式自动发表，新 appmsgid=2247485069",
+    "verified_at": "2026-11-27 11:18"
   },
-  "uplinked-b-v": {
-    "title": "UpLinked：领英上自动加客户",
-    "published_at": "",
-    "status": "draft",
-    "appmsgid": "100000522",
-    "file": ""
-  },
-  "cometly": {
-    "title": "Cometly：广告数据归因分析",
-    "published_at": "",
-    "status": "draft",
-    "appmsgid": "100000518",
-    "file": ""
-  },
-  "boothie-ai-photo-editor": {
-    "title": "Boothie：AI 照片编辑器",
-    "published_at": "",
-    "status": "draft",
-    "appmsgid": "100000510",
-    "file": ""
-  },
-  "vid-ai": {
-    "title": "Vid.AI：脚本一键变短视频",
-    "published_at": "",
-    "status": "draft",
-    "appmsgid": "100000446",
-    "file": ""
-  },
-  "vectosolve": {
-    "title": "VectoSolve：位图一键转可编辑 SVG",
-    "published_at": "",
-    "status": "draft",
-    "appmsgid": "100000432",
-    "file": ""
+  "betting-tips": {
+    "title": "Betting Tips：为足球、篮球、网球、美式足球和棒球爱好者提供每日专家投注建议",
+    "published_at": "2026-11-25 08:15",
+    "status": "published",
+    "appmsgid": "2247485067",
+    "file": "",
+    "published_appmsgid": "2247485067",
+    "publish_type": "masssend",
+    "sent_via": "send",
+    "send_reason": "已发表列表出现新记录，标题一致",
+    "verified_at": "2026-11-25 09:10",
+    "note": "｜11-25 补账：群发后 appmsgid=2247485067；同日修正 JSON 侧仍为 draft 的漂移"
   },
   "fastwrite-io": {
     "title": "fastwrite.io：AI写作工具SaaS，辅助学生学术写作",
@@ -608,5 +614,18 @@
     "status": "published",
     "appmsgid": "2247483775",
     "file": ""
+  },
+  "ext-ep-003-freedoom": {
+    "title": "游戏厅：Freedoom",
+    "published_at": "2026-10-31 23:03",
+    "status": "published",
+    "appmsgid": "2247484936",
+    "published_appmsgid": "2247484936",
+    "file": "",
+    "publish_type": "publish",
+    "sent_via": "reconcile",
+    "send_reason": "线上已发表但本地漏登，按标题唯一命中补账",
+    "note": "｜11-28 对账：创作中心已发表列表唯一命中 + 公开页标题/正文命中（页面时间 2026-10-31 23:03），本地漏登补账，不再重发",
+    "verified_at": "2026-11-28 11:00"
   }
 }

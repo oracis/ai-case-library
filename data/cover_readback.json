@@ -285,6 +285,13 @@
   }
  },
  "ext-ep-012-openra": {
+  "aliyun": {
+   "at": "2026-11-28 11:32:38",
+   "evidence": "文章首图 firstImg=https://ucc.alicdn.com/pic/developer-ecology/32o2bc7dqh5k6_f2d40ae03753489681a1b76df7ccfed5.png",
+   "remote_id": "1791181",
+   "source": "yun_finalize",
+   "state": "ok"
+  },
   "bilibili2": {
    "at": "2026-11-16 10:06:06",
    "evidence": "匿名空间 API mid=409825959 首条 aid=53930055 image_urls=[https://i0.hdslb.com/bfs/article/bb3b441d7c07016529d53b11874c6847900ec7fb.png]",
