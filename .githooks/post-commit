@@ -1,0 +1,27 @@
+#!/bin/sh
+# post-commit：提交后自动把当前分支推到远端（2026-11-28）。
+# 逃生开关：AI_SKIP_AUTOPUSH=1 git commit ... 只提交、不推。
+# push 失败不会撤销 commit，只打印 WARN；离线提交请显式设逃生开关。
+set -u
+
+if [ "${AI_SKIP_AUTOPUSH:-}" = "1" ]; then
+    echo "[post-commit] 跳过自动推送（AI_SKIP_AUTOPUSH=1）"
+    exit 0
+fi
+
+branch=$(git symbolic-ref --quiet --short HEAD 2>/dev/null) || exit 0
+remote=$(git config --get "branch.$branch.remote" 2>/dev/null || true)
+if [ -z "$remote" ]; then
+    remote=origin
+fi
+if ! git remote get-url "$remote" >/dev/null 2>&1; then
+    echo "[post-commit] WARN 远端 $remote 不存在，跳过推送"
+    exit 0
+fi
+
+if git push --quiet "$remote" "HEAD:refs/heads/$branch"; then
+    echo "[post-commit] 已自动推送 $branch → $remote"
+else
+    echo "[post-commit] WARN 自动推送失败（commit 已保留）：$branch → $remote" >&2
+fi
+exit 0
