@@ -1,77 +1,77 @@
 {
-  "ran_at": "2026-11-27 09:21:29",
-  "added": 51,
+  "ran_at": "2026-11-28 08:39:30",
+  "added": 48,
   "by_source": {
-    "hn": 43,
+    "hn": 40,
     "trustmrr": 8
   },
   "inbox_total": 400,
-  "archived_this_run": 51,
-  "archive_total": 2701,
+  "archived_this_run": 48,
+  "archive_total": 2749,
   "top": [
     {
-      "name": "Vruum",
-      "headline": "近 30 天收入 $1,200",
+      "name": "Shredr",
+      "headline": "近 30 天收入 $563",
       "heat": 0,
-      "category": "企业服务",
+      "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/vruum"
+      "url": "https://trustmrr.com/startup/shredr"
     },
     {
-      "name": "Kabo AI",
-      "headline": "近 30 天收入 $208",
+      "name": "1UI",
+      "headline": "累计收入 $1,041（当前 MRR 与近 30 天均为 0，口径见 metric_note）",
       "heat": 0,
-      "category": "Health & Fitness",
+      "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/kabo-ai"
+      "url": "https://trustmrr.com/startup/1uidev"
     },
     {
-      "name": "SimSwift",
-      "headline": "近 30 天收入 $1,310",
+      "name": "Oakgen.ai",
+      "headline": "近 30 天收入 $10,310",
       "heat": 0,
-      "category": "电商",
+      "category": "AI 工具",
       "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/simswift"
+      "url": "https://trustmrr.com/startup/oakgen-llc"
     },
     {
-      "name": "4K fsync tail latency and SQLite WAL lock failures on a $4/mo VPS",
+      "name": "A 52 KB WebAssembly engine that runs Qwen3.5-2B in a browser tab",
       "headline": "未获取",
-      "heat": 1,
+      "heat": 16,
       "category": "未分类",
       "source": "hn",
-      "url": "https://nodebudget.dev/guides/why-cheap-vps-benchmarks-lie/"
+      "url": "https://tesseracted.com/experiments-llm-os/"
     },
     {
-      "name": "Leadfoxt.com",
-      "headline": "近 30 天收入 $1,136",
-      "heat": 0,
-      "category": "未分类",
-      "source": "trustmrr",
-      "url": "https://trustmrr.com/startup/leadfoxt"
-    },
-    {
-      "name": "Sqrin",
+      "name": "Glossbeam",
       "headline": "未获取",
-      "heat": 10,
+      "heat": 7,
       "category": "未分类",
       "source": "hn",
-      "url": "https://sqrin.app"
+      "url": "https://github.com/YasserShkeir/glossbeam-open"
     },
     {
-      "name": "Shirudo.today",
-      "headline": "未获取",
-      "heat": 6,
-      "category": "未分类",
-      "source": "hn",
-      "url": "https://shirudo.today/blog/launch.html"
-    },
-    {
-      "name": "I Built 90s Style Low Cost Ads Concept with Rotate Ad Exchange",
+      "name": "WikiVectors",
       "headline": "未获取",
       "heat": 5,
       "category": "未分类",
       "source": "hn",
-      "url": "https://rotate.ad/"
+      "url": "https://wikivectors.com/"
+    },
+    {
+      "name": "unLAB.run",
+      "headline": "未获取",
+      "heat": 4,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://unlab.run"
+    },
+    {
+      "name": "Plain-Auth an open-source authentication library for Go",
+      "headline": "未获取",
+      "heat": 4,
+      "category": "未分类",
+      "source": "hn",
+      "url": "https://github.com/Plain-Org/plain-auth"
     }
   ]
 }

@@ -517,5 +517,12 @@
     "note_id": "6b08edb1000000002a0245c4",
     "title": "拍照上传秒解数学题",
     "note": "2026-11-27 10:47 publish_one FIFO 发出；回读命中已发布列表首条，note_id 来自 user/posted 接口回读（脚本未对上 case id，手工补账）"
+  },
+  {
+    "id": "static-run",
+    "at": "2026-11-28 10:57",
+    "note_id": "6b0a4319000000002b0182bc",
+    "title": "Static.run：静态网站免费托管",
+    "note": "2026-11-28 10:57 publish_one FIFO 发出；回读命中已发布列表首条，note_id 来自 user/posted 接口"
   }
 ]
