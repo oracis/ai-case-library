@@ -35,6 +35,10 @@ start.bat
 
 浏览器会自动打开 <http://127.0.0.1:5052/>。
 
+clone 后先跑一次 `python scripts/install_hooks.py` 启用 Git hooks（`core.hooksPath=.githooks`），
+用 `python scripts/install_hooks.py --check` 验收。`post-commit` 会在每次提交后自动推当前分支；
+临时只提交不推用 `AI_SKIP_AUTOPUSH=1 git commit ...`（push 失败只告警，不撤销 commit）。
+
 **一次启动会开两个站**，它们是两个端口、两套界面：
 
 | 端口 | 目录 | 是什么 |
