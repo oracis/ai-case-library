@@ -1,7 +1,5 @@
 # 三周搭出来的 AI 设计工具：零付费营销是怎么起量的
 
-> 平台：wechat ｜ 案例：Sleek.design（sleek-design）｜ 状态：待推送（本地草稿，未真实发布）
-
 在数字化时代，移动应用设计工具正变得越来越重要。而Sleek.design（简称Sleek）这个AI移动应用设计工具，凭借其独特的功能和高效的盈利模式，在短短一个月内就实现了月收入10K美元的壮举。今天，我们就来揭秘Sleek的成功之道。
 
 Sleek是一个AI移动应用设计工具，它允许用户通过自然语言描述App创意，然后生成整套风格一致的iOS/Android界面。用户可以轻松编辑、导出Figma/HTML/React文件，并通过API/skill接入Claude Code、Cursor等coding agent。

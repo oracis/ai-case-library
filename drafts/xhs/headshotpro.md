@@ -1,7 +1,5 @@
 # 🚀 HeadshotPro：AI 职业证件照神器，一个人做出 Fortune 500 团队都在买的产品
 
-> 平台：xhs ｜ 案例：HeadshotPro（headshotpro）｜ 状态：待推送（本地草稿，未真实发布）
-
 Hey，亲爱的小伙伴们！今天我要给大家安利一个超棒的 AI 工具——HeadshotPro！🎉
 
 你有没有想过，一张专业的证件照能给你带来多少机会？HeadshotPro 就能帮你实现这一点！👩‍💻

@@ -1,7 +1,5 @@
 # Plausible Analytics：用 AGPL 开源 + 云托管订阅做起来的隐私分析工具
 
-> 平台：juejin ｜ 案例：Plausible Analytics（plausible）｜ 状态：待推送（本地草稿，未真实发布）
-
 ## 1. 案例背景
 
 Plausible Analytics 是一家专注于提供隐私友好的开源网站分析工具的公司。他们的工具具有轻量级、无 cookie、无需同意横幅等特点，服务端聚合数据，支持自托管或云托管。这种独特的定位使其在众多分析工具中脱颖而出。

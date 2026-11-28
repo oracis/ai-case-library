@@ -14,7 +14,7 @@ Windows Python 把 `/d/x` 理解成「**当前盘符根下的 d 目录**」，�
 于是 `isfile` 如实返回 False —— 包在 `if os.path.isfile(p): os.remove(p)` 里的删除
 就被静默跳过（`os.path.exists` 同理），循环照跑完，脚本最后还打印「已删除 N 个」，
 文件一个没动却没人看得出。
-（注意区分：直接 `os.remove("/d/x")` 反而会抛 FileNotFoundError，因为 `D:\d\`
+（注意区分：直接 `os.remove("/d/x")` 反而会抛 FileNotFoundError，因为 `D:\\d\\`
 这个父目录根本不存在。**静默只发生在「先判断再操作」的写法里**，而批量清理
 几乎全是这种写法 —— 所以光靠「没抛异常」根本发现不了。）
 

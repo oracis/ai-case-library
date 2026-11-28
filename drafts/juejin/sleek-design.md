@@ -1,7 +1,5 @@
 # Sleek.design：AI 移动应用设计工具的硬核增长之路
 
-> 平台：juejin ｜ 案例：Sleek.design（sleek-design）｜ 状态：待推送（本地草稿，未真实发布）
-
 ## 一、Sleek的设计与功能解析
 
 Sleek 是一款 AI 移动应用设计工具，它通过自然语言描述 App 创意，生成整套风格一致的 iOS/Android 界面。以下是 Sleek 的核心功能：

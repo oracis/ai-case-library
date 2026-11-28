@@ -1,7 +1,5 @@
 # AI 设计工具 Sleek：三周搭建，零付费营销起量
 
-> 平台：toutiao ｜ 案例：Sleek.design（sleek-design）｜ 状态：待推送（本地草稿，未真实发布）
-
 Sleek，一款AI移动应用设计工具，凭借其独特的功能和创新的设计理念，在短短3周内成功搭建完成，并在上线一个月后实现了月收入10K美元的业绩，且零付费营销。这款工具通过自然语言描述App创意，生成整套风格一致的iOS/Android界面，并支持编辑、导出Figma/HTML/React，同时可通过API/skill接入Claude Code、Cursor等coding agent。
 
 Sleek的盈利模式采用订阅制，提供Starter、Pro和Team三个订阅档，价格分别为29美元/月、69美元/月和99美元/用户/月，按AI credits分档。免费层只允许一次生成，有效控制了免费用户成本，同时筛选出真正有付费意愿的用户。

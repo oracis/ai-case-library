@@ -1,7 +1,5 @@
 # HeadshotPro：AI 职业证件照工具的成功之道：SEO+联盟营销的硬核拆解
 
-> 平台：juejin ｜ 案例：HeadshotPro（headshotpro）｜ 状态：待推送（本地草稿，未真实发布）
-
 # HeadshotPro：AI 职业证件照工具的成功之道
 
 ## 1. 产品介绍

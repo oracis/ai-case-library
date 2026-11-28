@@ -1,7 +1,5 @@
 # PDF.ai 的 AI 工具增长黑客之路：精准域名 + 定价迁移
 
-> 平台：juejin ｜ 案例：PDF.ai（pdfai）｜ 状态：待推送（本地草稿，未真实发布）
-
 ## 1. 产品核心：PDF 问答与 AI 客服平台
 
 PDF.ai 是一个创新的 AI 工具，它允许用户上传 PDF 文档并与文档进行对话，类似于 RAG（Retrieval-Augmented Generation）问答系统。随着业务的发展，PDF.ai 进一步扩展为面向企业的 AI 客服平台，能够执行操作如更新订阅、处理退款、安排会议等，并接入 Stripe、Slack、Calendly 等服务。

@@ -1,7 +1,5 @@
 # 🚀 Plausible Analytics：不追踪用户的分析工具，10 人团队做起来了！
 
-> 平台：xhs ｜ 案例：Plausible Analytics（plausible）｜ 状态：待推送（本地草稿，未真实发布）
-
 Hey，亲们！今天要给大家安利一个低调却实力爆棚的网站分析工具——Plausible Analytics！🎉
 
 想象一下，一个只有2.5KB的脚本，无cookie，无需同意横幅，就能帮你分析网站数据，是不是很神奇？😮

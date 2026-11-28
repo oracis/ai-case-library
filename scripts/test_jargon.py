@@ -93,6 +93,58 @@ class TestNumbers(unittest.TestCase):
         self.assertIn("$957", after)
 
 
+class TestVerifyJudgement(unittest.TestCase):
+    """`--verify` 判据：验规则不动数字，不验「现在的数等于 11-05 的数」。"""
+
+    def setUp(self):
+        self.dirty = "候选资料 headline 称 'MRR $100'，增长 +5%"
+        self.old = [{"id": "a", "founder": self.dirty}]
+        self.clean = [{"id": "a", "founder": S.scrub_text(self.dirty)}]
+
+    def test_natural_number_refresh_is_not_a_failure(self):
+        refreshed = [{"id": "a", "founder":
+                      S.scrub_text(self.dirty).replace("$100", "$120")}]
+        ok, info = S.verify_snapshot(self.old, refreshed)
+        self.assertTrue(ok, info)
+        self.assertGreater(info["replay"], 0)
+        self.assertEqual(info["bad"], [])
+        self.assertEqual(info["refresh_drift"], [("a", "founder")])
+
+    def test_jargon_backflow_still_fails(self):
+        ok, info = S.verify_snapshot(self.old, self.old)
+        self.assertFalse(ok)
+        self.assertTrue(info["left"])
+
+    def test_clean_snapshot_cannot_be_used_as_baseline(self):
+        """拿洗过的数据当旧快照会让重放变成自证，必须判失败。"""
+        ok, info = S.verify_snapshot(self.clean, self.clean)
+        self.assertFalse(ok)
+        self.assertEqual(info["replay"], 0)
+
+    def test_rule_that_changes_a_number_fails(self):
+        original = S.scan
+        try:
+            S.scan = lambda cases: [("a", "founder", "$100", "$120")]
+            ok, info = S.verify_snapshot(self.clean, self.clean)
+        finally:
+            S.scan = original
+        self.assertFalse(ok)
+        self.assertEqual(info["bad"], [("a", "founder")])
+
+    def test_real_11_05_baseline_replays_clean(self):
+        path = os.path.join(S.BACKUP_DIR, "cases.json")
+        if not os.path.isfile(path):
+            self.skipTest("本机没有 11-05 旧快照（新克隆）")
+        with open(path, encoding="utf-8") as f:
+            old = json.load(f)
+        ok, info = S.verify_snapshot(old, S.load())
+        self.assertTrue(ok, {k: v for k, v in info.items()
+                             if k not in ("left", "bad", "left_old")})
+        self.assertGreater(info["replay"], 0)
+        self.assertEqual(info["bad"], [])
+        self.assertEqual(info["left_old"], [])
+
+
 class TestRepoData(unittest.TestCase):
     """存量锁：全库可见字段不许再有黑话。"""
 

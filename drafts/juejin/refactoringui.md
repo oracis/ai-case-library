@@ -1,7 +1,5 @@
 # Refactoring UI：开发者界面设计书的成功之道
 
-> 平台：juejin ｜ 案例：Refactoring UI（refactoringui）｜ 状态：待推送（本地草稿，未真实发布）
-
 # 一、案例概述
 
 Refactoring UI 是一本面向开发者的界面设计书，由 Adam Wathan 创作并出版。该产品以一次性买断的方式销售，四年累计营收超过 $2.5M。它不仅提供详细的界面设计战术，还附带了 screencasts 和组件库，帮助开发者提升 UI 设计能力。

@@ -1,7 +1,5 @@
 # Upvoty：用户反馈投票板的增长之路，六年自举没融过资
 
-> 平台：juejin ｜ 案例：Upvoty（upvoty）｜ 状态：待推送（本地草稿，未真实发布）
-
 # Upvoty：用户反馈投票板 + 公开路线图，bootstrapped 六年，靠落地页验证 + 「Alternatives to」SEO 做到 $40K+ MRR
 
 ## 案例概述

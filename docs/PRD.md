@@ -412,7 +412,7 @@ PRD 只维护**现行设计**：新增设计决策就地更新对应章节，并
 | 幂等键 | 发布记录的唯一键 `(case_id, platform)`；跨平台分发合法，同键第二条即重复稿 |
 | `dedupe` 闸 | `publish_guard.check_dupe()`：SQLite 真值（published / draft / draft_id）+ `longtail_sync.json` 批次兜底；`--force` 只绕这一道 |
 | `cover` 闸 | 只保证「本地有封面资源 + 发布命令带 `--cover`」；**平台侧落库仍须回读**，本地有 PNG ≠ 封面已设置 |
-| 管线水印 | 草稿正文里的 `> 平台：X ｜ 状态：本地稿，未推送`，等于向审核自曝批量（CSDN 一.3） |
+| 管线水印 | 草稿正文里的 `> 平台：X ｜ 状态：本地稿` 这类草稿状态标记行，等于向审核自曝批量（CSDN 一.3） |
 | 口径旁注 | `metrics.headline` 里给编辑看的「，TrustMRR 实时核对（非订阅制…）」，**不是标题文案**；生成器 `_clean_title_hook()` 已清，存量产物的定点清理见 #52 |
 | AI 标题覆盖表 | `data/wechat_title_overrides.json`：`wechat_ai_titles.py` 用 LLM 生成的 192 条标题，`make_article.ai_title_overrides()` 只读加载 ⇒ 重建产物不回退到模板；优先级低于人工 `TITLE_OVERRIDES`。**改写动作归模型、事实裁定归代码**，见 #53 / #54 |
 | 标题禁金额 | **标题是产品说明，不是业绩快照**：金额是抓取时点值、会过期且常被换算错，读者在标题里读到的是一个不可复核的数字 ⇒ 九平台标题一律不许出现金额（`publish_guard.TITLE_MONEY`，**唯一判据**）。「规模」不算金额（用户数/条数/篇数/粉丝数照留），已发布标题降 `warn` 只为保住台账认亲。见 #54 |

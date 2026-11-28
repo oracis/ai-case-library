@@ -6,7 +6,7 @@
 
     python -X utf8 scripts/scrub_jargon.py --check    # 只报会改什么，不写盘
     python -X utf8 scripts/scrub_jargon.py --apply    # 备份后落盘
-    python -X utf8 scripts/scrub_jargon.py --verify   # 只读验收（残留 0 + 数字未变）
+    python -X utf8 scripts/scrub_jargon.py --verify   # 只读验收（旧快照重放数字未变 + 当前残留 0）
 
 为什么要有这个脚本
 ------------------
@@ -31,6 +31,13 @@
 4. **不做全局空格整理**：第一版带 `是\\s+→是`、` {2,}→" "` 这类规则，把
    「不是 ARR」改成「不是ARR」、把正文里本来正常的英文间距压掉 —— 改了 584 处、
    348 条案例。现在只在「中文与中文之间」收空格，英文与数字两侧原样不动。
+
+⚠ `--verify` 的验收对象是**规则**，不是「现在的数等于 2026-11-05 的数」。
+库从 461 条涨到 599 条，期间的收入快照本就会刷新；拿当前数据逐字段比旧快照
+会把正常刷新误判成「清洗改了数字」。因此不可变的 11-05 快照只用来**重放清洗**：
+改写处数有值、数字序列逐字段不变、洗后残留为 0；再单独验当前库残留为 0。
+当前与旧快照的差异只打印提示，不参与通过判定。旧快照绝不可覆盖成当前数据，
+否则重放变成「当前 vs 当前」的自证。
 
 幂等：`--apply` 后再跑 `--check` 应是 0 处。
 """
@@ -388,36 +395,79 @@ def cmd_apply():
     return 0
 
 
+def verify_snapshot(old, cases):
+    """只读验收：① 旧快照重放规则不动数字；② 当前库残留为 0。
+
+    ⚠ 不拿当前数据逐字段比 11-05 的旧快照：库从 461 涨到 599，期间收入快照
+    本就会刷新，那种比法会把正常刷新误判成「清洗改了数字」。两者的差异只
+    作为提示返回，不参与通过判定。
+
+    -> (ok, info)
+    """
+    left = residual(cases)
+    replay = scan(old)                       # 在旧快照上重放全部规则
+    bad = [(cid, loc) for cid, loc, before, after in replay
+           if _digits(before) != _digits(after)]
+    left_old = residual_after_scrub(old)
+
+    # 自然刷新 / 库增长：只提示
+    oldmap, newmap = ({c.get("id"): c for c in old},
+                      {c.get("id"): c for c in cases})
+    drift = []
+    for cid, oc in oldmap.items():
+        nc = newmap.get(cid)
+        if not nc:
+            continue
+        a, b = list(iter_visible(oc)), list(iter_visible(nc))
+        if [x[0] for x in a] != [x[0] for x in b]:
+            continue
+        for (loc, oh, ok_), (_, nh, nk) in zip(a, b):
+            if _digits(oh[ok_]) != _digits(nh[nk]):
+                drift.append((cid, loc))
+    added = [k for k in newmap if k not in oldmap]
+    removed = [k for k in oldmap if k not in newmap]
+
+    # replay 必须非空：否则说明旧快照已被当前数据覆盖，取证失去意义
+    ok = not left and not bad and not left_old and bool(replay)
+    return ok, {
+        "left": left, "replay": len(replay), "bad": bad, "left_old": left_old,
+        "refresh_drift": drift, "added": added, "removed": removed,
+        "old_count": len(old), "new_count": len(cases),
+    }
+
+
 def cmd_verify():
     cases = load()
-    left = residual(cases)
-    print("残留黑话：%d 处" % len(left))
-    for cid, loc, word, txt in left[:20]:
-        print("   ✗ %s %s → %r" % (cid, loc, word))
-    ok = not left
     dst = os.path.join(BACKUP_DIR, "cases.json")
-    if os.path.isfile(dst):
-        with io.open(dst, encoding="utf-8") as f:
-            old = json.load(f)
-        drift, mismatch = [], []
-        if len(old) != len(cases):
-            mismatch.append("案例数 %d → %d" % (len(old), len(cases)))
-        for oc, nc in zip(old, cases):
-            a, b = list(iter_visible(oc)), list(iter_visible(nc))
-            if [x[0] for x in a] != [x[0] for x in b]:
-                mismatch.append("%s 字段集合变了" % oc.get("id"))
-                continue
-            for (loc, oh, ok_), (_, nh, nk) in zip(a, b):
-                if _digits(oh[ok_]) != _digits(nh[nk]):
-                    drift.append((oc.get("id"), loc))
-        print("数字漂移：%d 处 ｜ 结构差异：%d 处" % (len(drift), len(mismatch)))
-        for x in drift[:10]:
-            print("   ✗ %s %s" % x)
-        for x in mismatch[:10]:
-            print("   ✗ %s" % x)
-        ok = ok and not drift and not mismatch
-    else:
-        print("没有备份（%s），跳过数字比对" % os.path.relpath(dst, ROOT))
+    if not os.path.isfile(dst):
+        left = residual(cases)
+        print("残留黑话：%d 处" % len(left))
+        for cid, loc, word, txt in left[:20]:
+            print("   ✗ %s %s → %r" % (cid, loc, word))
+        print("没有备份（%s），跳过规则重放取证（仅验当前残留）"
+              % os.path.relpath(dst, ROOT))
+        print("✅ 通过" if not left else "✗ 未通过")
+        return 0 if not left else 1
+
+    with io.open(dst, encoding="utf-8") as f:
+        old = json.load(f)
+    ok, info = verify_snapshot(old, cases)
+    print("残留黑话：%d 处" % len(info["left"]))
+    for cid, loc, word, txt in info["left"][:20]:
+        print("   ✗ %s %s → %r" % (cid, loc, word))
+    print("旧快照重放：改写 %d 处 ｜ 数字漂移 %d 处 ｜ 洗后残留 %d 处" %
+          (info["replay"], len(info["bad"]), len(info["left_old"])))
+    for x in info["bad"][:10]:
+        print("   ✗ 数字被改 %s %s" % x)
+    for cid, loc, word, txt in info["left_old"][:10]:
+        print("   ✗ 洗后仍残留 %s %s → %r" % (cid, loc, word))
+    if not info["replay"]:
+        print("   ✗ 旧快照已无可清洗内容（可能已被当前数据覆盖，取证失效）")
+    print("历史差异（仅提示，不参与验收）：数字刷新 %d 处 ｜ 新增 %d 条 / 删除 %d 条 ｜ 案例数 %d → %d" %
+          (len(info["refresh_drift"]), len(info["added"]), len(info["removed"]),
+           info["old_count"], info["new_count"]))
+    for x in info["refresh_drift"][:5]:
+        print("   · 刷新 %s %s" % x)
     print("✅ 通过" if ok else "✗ 未通过")
     return 0 if ok else 1
 
