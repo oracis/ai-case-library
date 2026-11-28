@@ -70,29 +70,30 @@
 - 钩子：新脚本未跟踪时 `[FAIL]` ④（脚本必须进仓库），已 `git add` 该脚本后 `[OK]`；`git diff --check` 退出码 0。
 - CHANGELOG 新增 #241，记录 PRD 术语行与批量清理，并声明状态以本条为准。
 
-## 三、当前仓库状态（记录生成时）
+## 三、当前仓库状态（19:56 更新后）
 
 | 项 | 状态 |
 |---|---|
-| 远端 `main` | `2c82215a90c64befc8074cacacf2487c4c52141b` |
+| 远端 `main` | `8244cd933aaa8d19e9bf7214d1f1f55ca6d9876d` |
 | 本地 HEAD | 同上，无 ahead/behind |
-| 已提交并推送 | `2c82215`（`data/cases.json`） |
-| 已暂存未提交 | `scripts/_oneoff/clean_drafts_watermark_20261128.py`（+112） |
-| 未暂存 | `docs/CHANGELOG.md`、`docs/PRD.md`、`scripts/pathguard.py`、`scripts/scrub_jargon.py`、`scripts/test_jargon.py`、`scripts/test_score_value_parity.py`，以及 52 个 `drafts/*.md`；本记录文件 `docs/RECORD-2026-11-28-cleanup.md` 为新建未跟踪 |
-| 未暂存统计 | 58 files changed, 153 insertions(+), 149 deletions(-)（其中 drafts 52 files / 0 added / 104 deleted） |
+| 已提交并推送 | `8244cd9` — 本次收尾 60 文件（含本文与清理脚本）；`2c82215` — `data/cases.json` 补分/清洗 |
+| 已暂存未提交 | 无 |
+| 未暂存 | `docs/CHANGELOG.md`（#241 补记实际 SHA）、本记录文件 `docs/RECORD-2026-11-28-cleanup.md`（本表更新本身） |
+| 未暂存统计 | 提交前为 60 files changed, 363 insertions(+), 149 deletions(-)（其中 drafts 52 files / 0 added / 104 deleted）；当前仅上述 2 个文档改动 |
 | 钩子 / diff | `[OK]` / `git diff --check` 0 |
+
+补记：`git add -A` → 暂存 60 文件 → `git commit` 生成 `8244cd9` → `git push origin main` 为 `2c82215..8244cd9`；本地 HEAD / `origin/main` / `git ls-remote origin main` 三者同为 `8244cd933aaa8d19e9bf7214d1f1f55ca6d9876d`。
 
 ## 四、备份与产物路径
 
 - `tmp/backup_cases_190713.json`、`tmp/backup_ledger_190713.db` — 补分/清洗前真值。
 - `_backups/jargon-2026-11-05/cases.json` — 11-05 清洗前基线，461 条，**未动、不可覆盖**。
 - `tmp/drafts_watermark_backup_20261128/20261128_194756/` — 52 个草稿原文件备份。
-- `scripts/_oneoff/clean_drafts_watermark_20261128.py` — 本次批量清理脚本，已暂存。
+- `scripts/_oneoff/clean_drafts_watermark_20261128.py` — 本次批量清理脚本，已随 `8244cd9` 提交并推送。
 - `docs/CHANGELOG.md` #238–#241 — 各轮实测记录与状态口径。
 - `.workbuddy/memory/2026-11-28.md` — 当日流水（按时间追加）。
 
 ## 五、待办
 
-1. 提交并推送剩余改动：6 个原文件 + 52 个 drafts 文件 + 1 个已暂存脚本（需用户授权）。
-2. 提交前复跑钩子与 `git diff --check`；提交后回读 `git ls-remote origin main`。
-3. 历史遗留未动：游戏仓本地领先 1 笔 `ea06a79`；`drafts/` 之外可能还有旧水印产物，未在本次授权范围。
+1. 提交并推送本表与 CHANGELOG #241 的 SHA 补记（当前仅这 2 个文档改动，未提交、未推送）。
+2. 历史遗留未动：游戏仓本地领先 1 笔 `ea06a79`；`drafts/` 之外可能还有旧水印产物，未在本次授权范围。
